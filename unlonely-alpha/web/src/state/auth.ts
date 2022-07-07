@@ -48,7 +48,7 @@ export const useAuthData = (): {
 
       const userResponse = await getUser();
       const signature = userResponse.data?.currentUser?.signature;
-
+ 
       if (signature) {
         return { signedMessage: signature };
       }

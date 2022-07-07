@@ -44,7 +44,7 @@ const NextHead: React.FC<{ title: string }> = ({ title }) => {
         content="Never watch alone again."
       />
       <meta name="twitter:creator" content="@bdguan" />
-      <meta name="twitter:image" content="https://i.imgur.com/sHxRC3y.png" />
+      <meta name="twitter:image" content="https://i.imgur.com/tldMxSw.png" />
     </Head>
   );
 };
