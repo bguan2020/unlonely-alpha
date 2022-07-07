@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "vercel:install": "cd .. && yarn install; cd ./shared && yarn install; cd ../web && yarn install; cd ../blockchain && yarn install;",
-    "vercel:build": "cd ../blockchain && yarn compile; cd ../web; yarn graphtypes; next build",
+    "vercel:install": "cd .. && yarn install; cd ./web && yarn install;",
+    "vercel:build": "yarn graphtypes; next build",
     "start": "next start",
     "lint": "next lint",
     "test:watch": "jest --watchAll",
@@ -14,6 +14,9 @@
     "graphtypes": "graphql-codegen --config codegen.yml",
     "graphtypes:watch": "graphql-codegen --watch --config codegen.yml",
     "cypress": "TS_NODE_PROJECT=0 cypress open-ct"
+  },
+  "engines": {
+    "node": "14.17.4"
   },
   "dependencies": {
     "@apollo/client": "^3.6.9",
