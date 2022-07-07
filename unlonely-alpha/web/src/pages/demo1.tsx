@@ -14,6 +14,7 @@ import Header from "../components/navigation/Header";
 import usePostComment from "../hooks/usePostComment";
 import { VideoDetailQuery } from "../generated/graphql";
 import { Presence, CursorMode, CursorState, Reaction } from "../types/cursor";
+import NextHead from "../components/layout/NextHead";
 
 const videoId = 1;
 
@@ -237,6 +238,7 @@ export default function Page() {
         message: "",
       })}
     >
+      <NextHead title="Unlonely" />
       <Header />
       <Flex>
         <div className="fixed inset-0 flex justify-center items-center select-none"></div>
