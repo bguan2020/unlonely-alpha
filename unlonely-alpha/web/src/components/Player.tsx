@@ -1,8 +1,8 @@
 import React, { createRef } from "react";
-import { useEffect } from "react";
 import YouTube from "react-youtube";
+
 import useInterval from "../hooks/useInterval";
-import { CursorMode } from "../pages";
+import { CursorMode } from "../types/cursor";
 
 type Props = {
   videoId: string;
@@ -17,7 +17,7 @@ const Player = ({
   updateMyPresence,
   setCurrentTimestamp,
 }: Props) => {
-  let player = createRef<any>();
+  const player = createRef<any>();
   const options = {
     width: "750px",
     height: "475px",

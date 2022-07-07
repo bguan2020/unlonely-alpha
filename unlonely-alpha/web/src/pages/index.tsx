@@ -1,81 +1,57 @@
 import { RoomProvider, useMyPresence, useOthers } from "@liveblocks/react";
-import React, { useState, useCallback, useMemo } from "react";
-import { useRouter } from "next/router";
-import { Text, Flex, Spacer } from "@chakra-ui/react";
+import { gql, useQuery } from "@apollo/client";
+import React, { useState, useCallback } from "react";
+import { Text, Flex } from "@chakra-ui/react";
 
 import Cursor from "../components/Cursor";
 import FlyingReaction from "../components/FlyingReaction";
 import ReactionSelector from "../components/ReactionSelector";
 import Comment from "../components/Comment";
 import Player from "../components/Player";
-import { COLORS, fasterComments } from "../components/dummyData";
+import { COLORS } from "../components/dummyData";
+import styles from "../components/FlyingReaction.module.css";
+import Header from "../components/navigation/Header";
+import usePostComment from "../hooks/usePostComment";
+import { VideoDetailQuery } from "../generated/graphql";
+import { Presence, CursorMode, CursorState, Reaction } from "../types/cursor";
 
-type Presence = {
-  cursor: {
-    x: number;
-    y: number;
-  } | null;
-  message: string;
-};
+const videoId = 1;
 
-export enum CursorMode {
-  Hidden,
-  Chat,
-  ReactionSelector,
-  Reaction,
-}
-
-type CursorState =
-  | {
-      mode: CursorMode.Hidden;
+const VIDEO_DETAIL_QUERY = gql`
+  query VideoDetail($id: ID!) {
+    getVideo(id: $id) {
+      id
+      youtubeId
+      comments {
+        id
+        ...Comment_comment
+      }
     }
-  | {
-      mode: CursorMode.Chat;
-      message: string;
-      previousMessage: string | null;
-    }
-  | {
-      mode: CursorMode.ReactionSelector;
-    }
-  | {
-      mode: CursorMode.Reaction;
-      reaction: string;
-      isPressed: boolean;
-    };
-
-type Comment = {
-  id: number;
-  value: string;
-  commentTimestamp: number;
-  point: { x: number; y: number };
-  color: string;
-  username: string;
-  likes: string;
-};
-
-type Reaction = {
-  value: string;
-  timestamp: number;
-  point: { x: number; y: number };
-};
-
-type ReactionEvent = {
-  x: number;
-  y: number;
-  value: string;
-};
-
-const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-const videoId = "Zl_dTUsrU9s";
+  }
+  ${Comment.fragments.comment}
+`;
 
 function Example() {
-  const others = useOthers<Presence>(); // has to do with liveblocks connection
-  const [{ cursor }, updateMyPresence] = useMyPresence<Presence>(); // has to do with liveblocks connection
-  // const broadcast = useBroadcastEvent();
+  const others = useOthers<Presence>();
+  const [{ cursor }, updateMyPresence] = useMyPresence<Presence>();
+  const { postComment } = usePostComment({
+    videoId: videoId,
+  });
   const [state, setState] = useState<CursorState>({ mode: CursorMode.Hidden });
   const [reactions, setReactions] = useState<Reaction[]>([]);
-  const [comments, setComments] = useState<Comment[]>(fasterComments);
   const [currentTimestamp, setCurrentTimestamp] = useState<number>(0);
+
+  const { data, loading, error } = useQuery<VideoDetailQuery>(
+    VIDEO_DETAIL_QUERY,
+    {
+      variables: {
+        id: videoId,
+      },
+    }
+  );
+
+  const youtubeId = data?.getVideo?.youtubeId;
+  const comments = data?.getVideo?.comments;
 
   const setReaction = useCallback((reaction: string) => {
     setState({ mode: CursorMode.Reaction, reaction, isPressed: false });
@@ -91,26 +67,21 @@ function Example() {
   };
 
   const comment = (message: any, cursor: any) => {
-    // useSetComment hook
-    setComments((comments) =>
-      comments.concat([
-        {
-          id: 10,
-          point: { x: cursor.x, y: cursor.y },
-          value: message,
-          commentTimestamp: currentTimestamp,
-          color: color,
-          username: "brian",
-          likes: "+1",
-        },
-      ])
-    );
+    const result = postComment({
+      text: message,
+      videoId,
+      videoTimestamp: currentTimestamp,
+      location_x: cursor.x,
+      location_y: cursor.y,
+    });
   };
 
   return (
     <>
       <div
-        className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-black"
+        className={
+          `relative h-screen w-full flex items-center justify-center overflow-hidden ${styles["bgimg"]}`
+        }
         style={{
           cursor:
             state.mode === CursorMode.Chat
@@ -138,12 +109,14 @@ function Example() {
         onClick={() => openComment()}
       >
         <Flex flexDirection="column">
-          <Player
-            videoId={videoId}
-            setState={setState}
-            updateMyPresence={updateMyPresence}
-            setCurrentTimestamp={setCurrentTimestamp}
-          />
+          {youtubeId && (
+            <Player
+              videoId={youtubeId}
+              setState={setState}
+              updateMyPresence={updateMyPresence}
+              setCurrentTimestamp={setCurrentTimestamp}
+            />
+          )}
         </Flex>
         {reactions.map((reaction) => {
           return (
@@ -156,21 +129,22 @@ function Example() {
             />
           );
         })}
-        {comments.map((comment) => {
-          return (
-            <Comment
-              key={comment.id}
-              x={comment.point.x}
-              y={comment.point.y}
-              commentTimestamp={comment.commentTimestamp}
-              currentTimestamp={currentTimestamp}
-              value={comment.value}
-              username={comment.username}
-              likes={comment.likes}
-              color={comment.color ? comment.color : color}
-            />
-          );
-        })}
+        {comments &&
+          comments.map((comment: any) => {
+            return (
+              <Comment
+                key={comment.id}
+                x={comment.location_x}
+                y={comment.location_y}
+                commentTimestamp={comment.videoTimestamp}
+                currentTimestamp={currentTimestamp}
+                text={comment.text}
+                username={comment.owner.username}
+                score={comment.score}
+                color={comment.color}
+              />
+            );
+          })}
         {cursor && (
           <div
             className="absolute top-0 left-0"
@@ -180,7 +154,7 @@ function Example() {
           >
             {state.mode === CursorMode.Hidden && (
               <Flex maxW="120px">
-                <Text noOfLines={3} fontSize="sm" color="white">
+                <Text noOfLines={3} fontSize="sm" color="black">
                   click anywhere around the video to comment!
                 </Text>
               </Flex>
@@ -188,7 +162,6 @@ function Example() {
             {state.mode === CursorMode.Chat && (
               <>
                 <img src="cursor.svg" />
-
                 <div
                   className="absolute top-5 left-2 px-4 py-2 bg-blue-500 text-white leading-relaxed text-sm"
                   onKeyUp={(e) => e.stopPropagation()}
@@ -234,12 +207,10 @@ function Example() {
             )}
           </div>
         )}
-
         {others.map(({ connectionId, presence }) => {
           if (presence == null || !presence.cursor) {
             return null;
           }
-
           return (
             <Cursor
               key={connectionId}
@@ -256,7 +227,7 @@ function Example() {
 }
 
 export default function Page() {
-  const roomId = useOverrideRoomId("nextjs-live-cursors-chat");
+  const roomId = "unlonely-demo-index";
 
   return (
     <RoomProvider
@@ -266,16 +237,7 @@ export default function Page() {
         message: "",
       })}
     >
-      <Flex height="50px" width="100%" bg="black"></Flex>
-      {/* <Flex height="30px" width="100%" bg="black" paddingLeft="20px" paddingRight="20px">
-          <Text color="white" fontWeight="semibold">
-            Top Comments
-          </Text>
-          <Spacer />
-          <Text color="white" fontWeight="semibold">
-            Recent Comments
-          </Text>
-        </Flex> */}
+      <Header />
       <Flex>
         <div className="fixed inset-0 flex justify-center items-center select-none"></div>
         <Example />
@@ -286,28 +248,6 @@ export default function Page() {
 
 export async function getStaticProps() {
   const API_KEY = process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY;
-  const API_KEY_WARNING = process.env.CODESANDBOX_SSE
-    ? `Add your public key from https://liveblocks.io/dashboard/apikeys as the \`NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY\` secret in CodeSandbox.\n` +
-      `Learn more: https://github.com/liveblocks/liveblocks/tree/main/examples/nextjs-live-cursors-chat#codesandbox.`
-    : `Create an \`.env.local\` file and add your public key from https://liveblocks.io/dashboard/apikeys as the \`NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY\` environment variable.\n` +
-      `Learn more: https://github.com/liveblocks/liveblocks/tree/main/examples/nextjs-live-cursors-chat#getting-started.`;
-
-  if (!API_KEY) {
-    console.warn(API_KEY_WARNING);
-  }
 
   return { props: {} };
-}
-
-/**
- * This function is used when deploying an example on liveblocks.io.
- * You can ignore it completely if you run the example locally.
- */
-function useOverrideRoomId(roomId: string) {
-  const { query } = useRouter();
-  const overrideRoomId = useMemo(() => {
-    return query?.roomId ? `${roomId}-${query.roomId}` : roomId;
-  }, [query, roomId]);
-
-  return overrideRoomId;
 }

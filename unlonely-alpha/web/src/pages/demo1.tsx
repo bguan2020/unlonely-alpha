@@ -80,8 +80,7 @@ function Example() {
     <>
       <div
         className={
-          `relative h-screen w-full flex items-center justify-center overflow-hidden ` +
-          styles["bgimg"]
+          `relative h-screen w-full flex items-center justify-center overflow-hidden ${styles["bgimg"]}`
         }
         style={{
           cursor:

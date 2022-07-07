@@ -45,7 +45,7 @@ export default function Comment({
 
   return (
     <div
-      className={`absolute select-none pointer-events-none`}
+      className={"absolute select-none pointer-events-none"}
       style={{ left: x, top: y }}
       id="1"
     >

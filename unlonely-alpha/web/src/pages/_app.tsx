@@ -1,3 +1,6 @@
+import "../styles/globals.css";
+import theme from "../styles/theme";
+
 import { LiveblocksProvider } from "@liveblocks/react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { ApolloProvider } from "@apollo/client";
@@ -10,8 +13,6 @@ import cookies from "next-cookies";
 
 import { connectors } from "../connectors";
 import { Cookies, useApollo } from "../apiClient/client";
-import "../styles/globals.css";
-import theme from "../styles/theme";
 
 interface InitialProps {
   cookies: Cookies;

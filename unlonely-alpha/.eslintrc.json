@@ -1,6 +1,6 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "unused-imports"],
+  "plugins": ["@typescript-eslint", "unused-imports", "import"],
   "extends": [
     "plugin:@typescript-eslint/recommended",
 
@@ -35,7 +35,7 @@
     ],
 
     "import/order": [
-      "error",
+      "warn",
       {
         "groups": [
           "builtin",
