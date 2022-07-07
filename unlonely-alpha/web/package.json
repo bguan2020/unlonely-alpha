@@ -15,9 +15,6 @@
     "graphtypes:watch": "graphql-codegen --watch --config codegen.yml",
     "cypress": "TS_NODE_PROJECT=0 cypress open-ct"
   },
-  "engines": {
-    "node": "14.17.4"
-  },
   "dependencies": {
     "@apollo/client": "^3.6.9",
     "@chakra-ui/icons": "1.1.1",
