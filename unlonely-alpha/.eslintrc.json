@@ -1,0 +1,57 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "unused-imports"],
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+
+    // Leave prettier last to disable rules that conflict with Prettier formatting.
+    "prettier"
+  ],
+  "rules": {
+    "no-console": ["error", { "allow": ["error"] }],
+    "prefer-template": "error",
+    "quotes": [
+      "error",
+      "double",
+      { "avoidEscape": true, "allowTemplateLiterals": false }
+    ],
+    "eqeqeq": ["error", "smart"],
+    "no-warning-comments": ["error", { "terms": ["todo", "fixme"] }],
+
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+
+    "@typescript-eslint/no-unused-vars": "off", // use unused-imports plugin instead
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        // Ignore variables starting with an underscore
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^_"
+      }
+    ],
+
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          ["parent", "sibling", "index"]
+        ],
+        "pathGroups": [
+          { "pattern": "~web/**", "group": "internal" },
+          { "pattern": "~common/**", "group": "internal" },
+          { "pattern": "~server/**", "group": "internal" },
+          { "pattern": "~mobile/**", "group": "internal" },
+          { "pattern": "~blockchain/**", "group": "internal" }
+        ],
+        "newlines-between": "always"
+      }
+    ]
+  }
+}

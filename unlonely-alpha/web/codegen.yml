@@ -1,0 +1,18 @@
+overwrite: true
+schema: ../server/schema.json
+documents: "./src/**/!(*.d).{ts,tsx}"
+generates:
+  src/generated/graphql.tsx:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+  ./graphql.schema.json:
+    plugins:
+      - "introspection"
+hooks:
+  afterAllFileWrite:
+    - prettier --write
+config:
+  scalars:
+    Date: string

@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://unlonelyadmin:devpassword@localhost:5432/unlonely-dev"
+}
+
+model User {
+  address      String  @id
+  username     String? @unique
+  signature    String?
+  sigTimestamp BigInt?
+
+  reputation Int @default(0)
+
+  bio String @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comments Comment[]
+  likes Like[]
+}
+
+model Video {
+  id           Int     @id @default(autoincrement())
+  youtubeId String     @unique
+
+  comments Comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Comment {
+  id           Int     @id @default(autoincrement())
+  text String
+  videoTimestamp Decimal
+  score Int @default(0)
+  location_x Int
+  location_y Int
+  color String
+
+  likes Like[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+  videoId Int
+  video Video @relation(fields: [videoId], references: [id])
+}
+
+model Like {
+  id       Int     @id @default(autoincrement())
+  likerAddr String
+  liker     User   @relation(fields: [likerAddr], references: [address])
+
+  commentId Int
+  comment   Comment @relation(fields: [commentId], references: [id])
+}

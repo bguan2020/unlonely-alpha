@@ -1,0 +1,10 @@
+/node_modules
+
+schema.json
+
+# Ignore artifacts:
+build
+coverage
+.next/*
+/.next
+.next/
