@@ -2,6 +2,8 @@ import { gql } from "@apollo/client";
 import { Flex, Text, ScaleFade } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 
+import centerEllipses from "../utils/centerEllipses";
+
 type Props = {
   x: number;
   y: number;
@@ -9,7 +11,8 @@ type Props = {
   currentTimestamp: number;
   text: string;
   score: number;
-  username: string;
+  username: string | null;
+  address: string;
   color: string;
 };
 
@@ -21,6 +24,7 @@ export default function Comment({
   text,
   color,
   username,
+  address,
   score,
 }: Props) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -51,7 +55,7 @@ export default function Comment({
     >
       <ScaleFade initialScale={0.4} in={isOpen}>
         <Text color="#8E8D94" fontSize="12px" paddingLeft="10px">
-          {username}
+          {username === null ? centerEllipses(address, 7) : username}
         </Text>
         <Flex
           bg={color}

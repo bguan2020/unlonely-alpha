@@ -141,6 +141,7 @@ function Example() {
                 currentTimestamp={currentTimestamp}
                 text={comment.text}
                 username={comment.owner.username}
+                address={comment.owner.address}
                 score={comment.score}
                 color={comment.color}
               />
