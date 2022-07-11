@@ -71,7 +71,7 @@ function Example() {
     const result = postComment({
       text: message,
       videoId,
-      videoTimestamp: currentTimestamp,
+      videoTimestamp: currentTimestamp - 0.1,
       location_x: cursor.x,
       location_y: cursor.y,
     });
