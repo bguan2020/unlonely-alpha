@@ -39,10 +39,7 @@ const NextHead: React.FC<{ title: string }> = ({ title }) => {
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@bdguan" />
       <meta name="twitter:title" content={__title} />
-      <meta
-        name="twitter:description"
-        content="Never watch alone again."
-      />
+      <meta name="twitter:description" content="Never watch alone again." />
       <meta name="twitter:creator" content="@bdguan" />
       <meta name="twitter:image" content="https://i.imgur.com/tldMxSw.png" />
     </Head>

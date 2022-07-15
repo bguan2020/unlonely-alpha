@@ -57,14 +57,14 @@ export default extendTheme({
   },
 
   fonts: {
-    body: "Roboto, sans-serif",
-    heading: "Roboto, sans-serif",
+    body: "Anonymous Pro, monospace",
+    heading: "Anonymous Pro, monospace",
   },
 
   styles: {
     global: {
       body: {
-        fontFamily: "Roboto, sans-serif",
+        fontFamily: "Anonymous Pro, monospace",
       },
     },
   },

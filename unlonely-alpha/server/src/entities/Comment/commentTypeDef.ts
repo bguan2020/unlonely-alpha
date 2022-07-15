@@ -1,7 +1,7 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
-  type Comment implements Likable {
+  type Comment {
     id: ID!
     text: String!
     score: Int!

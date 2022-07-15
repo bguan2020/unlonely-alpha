@@ -1,3 +1,5 @@
+import { User } from "@prisma/client";
+
 import { Context } from "../../context";
 
 export interface IGetVideoInput {
@@ -7,6 +9,27 @@ export interface IGetVideoInput {
 export const getVideo = ({ id }: { id: number }, ctx: Context) => {
   return ctx.prisma.video.findUnique({
     where: { id: Number(id) },
+  });
+};
+
+export interface IPostVideoInput {
+  youtubeId: string;
+  title: string;
+  thumbnail: string;
+  description: string;
+}
+
+export const postVideo = (data: IPostVideoInput, user: User, ctx: Context) => {
+  return ctx.prisma.video.create({
+    data: {
+      youtubeId: data.youtubeId,
+      title: data.title,
+      thumbnail: data.thumbnail,
+      description: data.description,
+      owner: {
+        connect: { address: user.address },
+      },
+    },
   });
 };
 

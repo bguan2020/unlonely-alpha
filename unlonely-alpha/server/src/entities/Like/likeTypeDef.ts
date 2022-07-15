@@ -5,17 +5,20 @@ export const typeDef = gql`
     id: ID!
     score: Int!
     liked: Boolean
+    skipped: Boolean
   }
 
   type Like {
     id: ID!
     liked: Boolean!
+    skipped: Boolean!
     liker: User!
-    comment: Comment!
+    video: Video
   }
 
   input HandleLikeInput {
-    commentId: ID!
+    videoId: ID!
+    value: Int!
   }
 
   extend type Mutation {
