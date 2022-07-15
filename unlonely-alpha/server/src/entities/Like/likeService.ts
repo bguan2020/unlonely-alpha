@@ -1,9 +1,10 @@
 import { User } from "@prisma/client";
-import { noop } from "lodash";
+import { noop, update } from "lodash";
 
 import { Context } from "../../context";
 export interface IHandleLikeInput {
-  commentId: number;
+  videoId: number;
+  value: number;
 }
 
 export const handleLike = async (
@@ -11,7 +12,7 @@ export const handleLike = async (
   user: User,
   ctx: Context
 ) => {
-  const existingLike = await getLike(data.commentId, user.address, ctx);
+  const existingLike = await getLike(data.videoId, user.address, ctx);
 
   const updateItemScore = async (value: number) => {
     await ctx.prisma.user.update({
@@ -23,8 +24,8 @@ export const handleLike = async (
       },
     });
 
-    return ctx.prisma.comment.update({
-      where: { id: Number(data.commentId) },
+    return ctx.prisma.video.update({
+      where: { id: Number(data.videoId) },
       data: {
         score: {
           increment: value,
@@ -36,11 +37,12 @@ export const handleLike = async (
   const createNewLike = () =>
     ctx.prisma.like.create({
       data: {
+        value: data.value,
         liker: {
           connect: { address: user.address },
         },
-        comment: {
-          connect: { id: Number(data.commentId) },
+        video: {
+          connect: { id: Number(data.videoId) },
         },
       },
     });
@@ -55,23 +57,43 @@ export const handleLike = async (
       }
     : noop;
 
+  const updateExistingLike = existingLike
+    ? async () => {
+        await ctx.prisma.like.update({
+          where: {
+            id: existingLike.id,
+          },
+          data: {
+            value: data.value,
+          },
+        });
+      }
+    : noop;
+
   if (existingLike) {
-    await deleteExistingLike();
-    return updateItemScore(-1);
-  } else {
-    await createNewLike();
-    return updateItemScore(1);
+    const changedLikeDirection = existingLike.value !== data.value;
+
+    if (!changedLikeDirection) {
+      await deleteExistingLike();
+      return updateItemScore(data.value == 1 ? -1 : 1);
+    }
+
+    await updateExistingLike();
+    return updateItemScore(data.value == 1 ? 2 : -2);
   }
+
+  await createNewLike();
+  return updateItemScore(data.value == 1 ? 1 : -1);
 };
 
 export async function getLike(
-  commentId: number,
+  videoId: number,
   likerAddress: string,
   ctx: Context
 ) {
   const existingLike = await ctx.prisma.like.findFirst({
     where: {
-      commentId: Number(commentId),
+      videoId: Number(videoId),
       liker: { address: likerAddress },
     },
   });
@@ -84,13 +106,13 @@ export async function getLike(
 }
 
 export async function isLiked(
-  commentId: number,
+  videoId: number,
   likerAddress: string,
   ctx: Context
 ) {
   const existingLike = await ctx.prisma.like.findFirst({
     where: {
-      commentId: Number(commentId),
+      videoId: Number(videoId),
       liker: { address: likerAddress },
     },
   });
@@ -98,6 +120,31 @@ export async function isLiked(
   if (!existingLike) {
     return false;
   } else {
-    return true;
+    if (existingLike.value === 1) {
+      return true;
+    }
+    return false;
+  }
+}
+
+export async function isSkipped(
+  videoId: number,
+  likerAddress: string,
+  ctx: Context
+) {
+  const existingLike = await ctx.prisma.like.findFirst({
+    where: {
+      videoId: Number(videoId),
+      liker: { address: likerAddress },
+    },
+  });
+
+  if (!existingLike) {
+    return false;
+  } else {
+    if (existingLike.value === -1) {
+      return true;
+    }
+    return false;
   }
 }

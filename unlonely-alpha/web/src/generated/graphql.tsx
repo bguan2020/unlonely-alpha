@@ -74,7 +74,7 @@ export type Scalars = {
   Void: any;
 };
 
-export type Comment = Likable & {
+export type Comment = {
   __typename?: "Comment";
   color: Scalars["String"];
   createdAt: Scalars["DateTime"];
@@ -96,21 +96,24 @@ export type GetUserInput = {
 };
 
 export type HandleLikeInput = {
-  commentId: Scalars["ID"];
+  value: Scalars["Int"];
+  videoId: Scalars["ID"];
 };
 
 export type Likable = {
   id: Scalars["ID"];
   liked?: Maybe<Scalars["Boolean"]>;
   score: Scalars["Int"];
+  skipped?: Maybe<Scalars["Boolean"]>;
 };
 
 export type Like = {
   __typename?: "Like";
-  comment: Comment;
   id: Scalars["ID"];
   liked: Scalars["Boolean"];
   liker: User;
+  skipped: Scalars["Boolean"];
+  video?: Maybe<Video>;
 };
 
 export type Mutation = {
@@ -118,6 +121,7 @@ export type Mutation = {
   _empty?: Maybe<Scalars["String"]>;
   handleLike?: Maybe<Likable>;
   postComment?: Maybe<Comment>;
+  postVideo?: Maybe<Video>;
 };
 
 export type MutationHandleLikeArgs = {
@@ -128,12 +132,23 @@ export type MutationPostCommentArgs = {
   data: PostCommentInput;
 };
 
+export type MutationPostVideoArgs = {
+  data: PostVideoInput;
+};
+
 export type PostCommentInput = {
   location_x: Scalars["Int"];
   location_y: Scalars["Int"];
   text: Scalars["String"];
   videoId: Scalars["Int"];
   videoTimestamp: Scalars["Float"];
+};
+
+export type PostVideoInput = {
+  description?: InputMaybe<Scalars["String"]>;
+  thumbnail?: InputMaybe<Scalars["String"]>;
+  title?: InputMaybe<Scalars["String"]>;
+  youtubeId?: InputMaybe<Scalars["String"]>;
 };
 
 export type Query = {
@@ -178,11 +193,20 @@ export type User = {
   username?: Maybe<Scalars["String"]>;
 };
 
-export type Video = {
+export type Video = Likable & {
   __typename?: "Video";
   comments: Array<Comment>;
   createdAt: Scalars["DateTime"];
+  description: Scalars["String"];
   id: Scalars["ID"];
+  liked?: Maybe<Scalars["Boolean"]>;
+  owner: User;
+  pause?: Maybe<Scalars["Int"]>;
+  score: Scalars["Int"];
+  skip?: Maybe<Scalars["Int"]>;
+  skipped?: Maybe<Scalars["Boolean"]>;
+  thumbnail: Scalars["String"];
+  title: Scalars["String"];
   updatedAt: Scalars["DateTime"];
   youtubeId: Scalars["String"];
 };
@@ -206,6 +230,36 @@ export type Comment_CommentFragment = {
   createdAt: any;
   owner: { __typename?: "User"; username?: string | null; address: string };
 };
+
+export type VideoCard_VideoFragment = {
+  __typename: "Video";
+  id: string;
+  title: string;
+  thumbnail: string;
+  description: string;
+  score: number;
+  createdAt: any;
+  liked?: boolean | null;
+  skipped?: boolean | null;
+  owner: { __typename?: "User"; username?: string | null; address: string };
+};
+
+export type LikeMutationVariables = Exact<{
+  data: HandleLikeInput;
+}>;
+
+export type LikeMutation = {
+  __typename?: "Mutation";
+  handleLike?: {
+    __typename?: "Video";
+    id: string;
+    score: number;
+    liked?: boolean | null;
+    skipped?: boolean | null;
+  } | null;
+};
+
+export type UseLike_VideoFragment = { __typename: "Video"; id: string };
 
 export type PostCommentMutationVariables = Exact<{
   data: PostCommentInput;
@@ -240,6 +294,15 @@ export type PostCommentMutation = {
   } | null;
 };
 
+export type PostVideoMutationVariables = Exact<{
+  data: PostVideoInput;
+}>;
+
+export type PostVideoMutation = {
+  __typename?: "Mutation";
+  postVideo?: { __typename?: "Video"; id: string } | null;
+};
+
 export type VideoDetailQueryVariables = Exact<{
   id: Scalars["ID"];
 }>;
@@ -264,6 +327,26 @@ export type VideoDetailQuery = {
       owner: { __typename?: "User"; username?: string | null; address: string };
     }>;
   } | null;
+};
+
+export type VideoFeedQueryVariables = Exact<{
+  data: VideoFeedInput;
+}>;
+
+export type VideoFeedQuery = {
+  __typename?: "Query";
+  getVideoFeed?: Array<{
+    __typename?: "Video";
+    id: string;
+    title: string;
+    thumbnail: string;
+    description: string;
+    score: number;
+    createdAt: any;
+    liked?: boolean | null;
+    skipped?: boolean | null;
+    owner: { __typename?: "User"; username?: string | null; address: string };
+  } | null> | null;
 };
 
 export type FetchAuthMessageQueryVariables = Exact<{ [key: string]: never }>;
@@ -300,6 +383,77 @@ export const Comment_CommentFragmentDoc = gql`
     createdAt
   }
 `;
+export const UseLike_VideoFragmentDoc = gql`
+  fragment useLike_video on Video {
+    id
+    __typename
+  }
+`;
+export const VideoCard_VideoFragmentDoc = gql`
+  fragment VideoCard_video on Video {
+    id
+    title
+    thumbnail
+    description
+    score
+    createdAt
+    owner {
+      username
+      address
+    }
+    liked
+    skipped
+    ...useLike_video
+  }
+  ${UseLike_VideoFragmentDoc}
+`;
+export const LikeDocument = gql`
+  mutation Like($data: HandleLikeInput!) {
+    handleLike(data: $data) {
+      id
+      score
+      liked
+      skipped
+    }
+  }
+`;
+export type LikeMutationFn = Apollo.MutationFunction<
+  LikeMutation,
+  LikeMutationVariables
+>;
+
+/**
+ * __useLikeMutation__
+ *
+ * To run a mutation, you first call `useLikeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLikeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [likeMutation, { data, loading, error }] = useLikeMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useLikeMutation(
+  baseOptions?: Apollo.MutationHookOptions<LikeMutation, LikeMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<LikeMutation, LikeMutationVariables>(
+    LikeDocument,
+    options
+  );
+}
+export type LikeMutationHookResult = ReturnType<typeof useLikeMutation>;
+export type LikeMutationResult = Apollo.MutationResult<LikeMutation>;
+export type LikeMutationOptions = Apollo.BaseMutationOptions<
+  LikeMutation,
+  LikeMutationVariables
+>;
 export const PostCommentDocument = gql`
   mutation PostComment($data: PostCommentInput!) {
     postComment(data: $data) {
@@ -357,6 +511,55 @@ export type PostCommentMutationResult =
 export type PostCommentMutationOptions = Apollo.BaseMutationOptions<
   PostCommentMutation,
   PostCommentMutationVariables
+>;
+export const PostVideoDocument = gql`
+  mutation PostVideo($data: PostVideoInput!) {
+    postVideo(data: $data) {
+      id
+    }
+  }
+`;
+export type PostVideoMutationFn = Apollo.MutationFunction<
+  PostVideoMutation,
+  PostVideoMutationVariables
+>;
+
+/**
+ * __usePostVideoMutation__
+ *
+ * To run a mutation, you first call `usePostVideoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostVideoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postVideoMutation, { data, loading, error }] = usePostVideoMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostVideoMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostVideoMutation,
+    PostVideoMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<PostVideoMutation, PostVideoMutationVariables>(
+    PostVideoDocument,
+    options
+  );
+}
+export type PostVideoMutationHookResult = ReturnType<
+  typeof usePostVideoMutation
+>;
+export type PostVideoMutationResult = Apollo.MutationResult<PostVideoMutation>;
+export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
+  PostVideoMutation,
+  PostVideoMutationVariables
 >;
 export const VideoDetailDocument = gql`
   query VideoDetail($id: ID!) {
@@ -419,6 +622,70 @@ export type VideoDetailLazyQueryHookResult = ReturnType<
 export type VideoDetailQueryResult = Apollo.QueryResult<
   VideoDetailQuery,
   VideoDetailQueryVariables
+>;
+export const VideoFeedDocument = gql`
+  query VideoFeed($data: VideoFeedInput!) {
+    getVideoFeed(data: $data) {
+      id
+      title
+      thumbnail
+      description
+      score
+      createdAt
+      owner {
+        username
+        address
+      }
+      liked
+      skipped
+    }
+  }
+`;
+
+/**
+ * __useVideoFeedQuery__
+ *
+ * To run a query within a React component, call `useVideoFeedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVideoFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVideoFeedQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useVideoFeedQuery(
+  baseOptions: Apollo.QueryHookOptions<VideoFeedQuery, VideoFeedQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<VideoFeedQuery, VideoFeedQueryVariables>(
+    VideoFeedDocument,
+    options
+  );
+}
+export function useVideoFeedLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    VideoFeedQuery,
+    VideoFeedQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<VideoFeedQuery, VideoFeedQueryVariables>(
+    VideoFeedDocument,
+    options
+  );
+}
+export type VideoFeedQueryHookResult = ReturnType<typeof useVideoFeedQuery>;
+export type VideoFeedLazyQueryHookResult = ReturnType<
+  typeof useVideoFeedLazyQuery
+>;
+export type VideoFeedQueryResult = Apollo.QueryResult<
+  VideoFeedQuery,
+  VideoFeedQueryVariables
 >;
 export const FetchAuthMessageDocument = gql`
   query FetchAuthMessage {

@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely-staging"
+  url      = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely_v1_staging"
 }
 
 model User {
@@ -20,6 +20,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  videos Video[]
   comments Comment[]
   likes Like[]
 }
@@ -27,8 +28,18 @@ model User {
 model Video {
   id           Int     @id @default(autoincrement())
   youtubeId String     @unique
+  title String         
+  thumbnail String
+  description String
+  score Int @default(0)
+  skip Int @default(0)
+  pause Int @default(0)
 
   comments Comment[]
+  likes Like[]
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -56,9 +67,12 @@ model Comment {
 
 model Like {
   id       Int     @id @default(autoincrement())
+  value    Int @default(1)
   likerAddr String
   liker     User   @relation(fields: [likerAddr], references: [address])
 
-  commentId Int
-  comment   Comment @relation(fields: [commentId], references: [id])
+  commentId Int?
+  comment   Comment? @relation(fields: [commentId], references: [id])
+  videoId Int?
+  video  Video? @relation(fields: [videoId], references: [id])
 }
