@@ -1,8 +1,8 @@
 import React, { createRef } from "react";
 import YouTube from "react-youtube";
 
-import useInterval from "../hooks/useInterval";
-import { CursorMode } from "../types/cursor";
+import useInterval from "../../hooks/useInterval";
+import { CursorMode } from "../../types/cursor";
 
 type Props = {
   videoId: string;

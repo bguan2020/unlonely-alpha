@@ -30,7 +30,7 @@ const WinnerWrapper = ({ order, children }: Props) => {
               </Box>
             </Flex>
             <Text color="#FFC700" fontWeight={"bold"} fontSize="25px">
-              🥇🥇🥇
+              🥇
             </Text>
           </Flex>
         </>
@@ -54,7 +54,7 @@ const WinnerWrapper = ({ order, children }: Props) => {
               </Box>
             </Flex>
             <Text color="#FFC700" fontWeight={"bold"} fontSize="25px">
-              🥈🥈🥈
+              🥈
             </Text>
           </Flex>
         </>

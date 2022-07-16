@@ -4,6 +4,7 @@ export type Presence = {
     y: number;
   } | null;
   message: string;
+  username: string | null;
 };
 
 export enum CursorMode {

@@ -1,17 +1,18 @@
 import { RoomProvider, useMyPresence, useOthers } from "@liveblocks/react";
 import { gql, useQuery } from "@apollo/client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Text, Flex, Grid, GridItem } from "@chakra-ui/react";
+import { useAccount } from "wagmi";
 
-import Cursor from "../components/Cursor";
-import FlyingReaction from "../components/FlyingReaction";
-import ReactionSelector from "../components/ReactionSelector";
+import Cursor from "../components/chat/Cursor";
+import FlyingReaction from "../components/chat/FlyingReaction";
+import ReactionSelector from "../components/chat/ReactionSelector";
 import { COLORS } from "../styles/Colors";
 import { Presence, CursorMode, CursorState, Reaction } from "../types/cursor";
 import AppLayout from "../components/layout/AppLayout";
 import VideoSort, { VideoAttribute } from "../components/video/VideoSort";
-
-const videoId = 1;
+import { getEnsName } from "../utils/ens";
+import centerEllipses from "../utils/centerEllipses";
 
 const VIDEO_LIST_QUERY = gql`
   query VideoFeed($data: VideoFeedInput!) {
@@ -34,10 +35,12 @@ const VIDEO_LIST_QUERY = gql`
 
 function Example() {
   const others = useOthers<Presence>();
-  const [{ cursor }, updateMyPresence] = useMyPresence<Presence>();
+  const [{ cursor, message }, updateMyPresence] = useMyPresence<Presence>();
   const [state, setState] = useState<CursorState>({ mode: CursorMode.Hidden });
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
+  const [username, setUsername] = useState<string | null>();
+  const [{ data: accountData }] = useAccount();
 
   const { data, loading, error } = useQuery(VIDEO_LIST_QUERY, {
     variables: {
@@ -65,6 +68,19 @@ function Example() {
       setState({ mode: CursorMode.Chat, previousMessage: null, message: "" });
     }
   };
+
+  useEffect(() => {
+    const fetchEns = async () => {
+      if (accountData?.address) {
+        const ens = await getEnsName(accountData.address);
+        const username = ens ? ens : centerEllipses(accountData.address, 7);
+        setUsername(username);
+        updateMyPresence({ username: username });
+      }
+    };
+
+    fetchEns();
+  }, [accountData?.address]);
 
   return (
     <>
@@ -135,7 +151,10 @@ function Example() {
                 )}
                 {state.mode === CursorMode.Chat && (
                   <>
-                    <img src="cursor.svg" />
+                    <Flex direction="row">
+                      <img src="cursor.svg" />
+                      <Text>{username}</Text>
+                    </Flex>
                     <div
                       className="absolute top-5 left-2 px-4 py-2 bg-blue-500 text-white leading-relaxed text-sm"
                       onKeyUp={(e) => e.stopPropagation()}
@@ -146,7 +165,7 @@ function Example() {
                       {state.previousMessage && (
                         <div>{state.previousMessage}</div>
                       )}
-                      <input
+                      <textarea
                         className="bg-transparent border-none	outline-none text-white placeholder-blue-300 w-60"
                         autoFocus={true}
                         onChange={(e) => {
@@ -184,6 +203,7 @@ function Example() {
               if (presence == null || !presence.cursor) {
                 return null;
               }
+
               return (
                 <Cursor
                   key={connectionId}
@@ -191,6 +211,8 @@ function Example() {
                   x={presence.cursor.x}
                   y={presence.cursor.y}
                   message={presence.message}
+                  username={presence.username}
+                  address={accountData?.address}
                 />
               );
             })}
