@@ -6,7 +6,7 @@ import {
   PostCommentMutation,
   PostCommentMutationVariables,
 } from "../generated/graphql";
-import Comment from "../components/Comment";
+import Comment from "../components/chat/Comment";
 
 type Props = {
   videoId: number;

@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 import { Flex, Text, ScaleFade } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 
-import centerEllipses from "../utils/centerEllipses";
+import centerEllipses from "../../utils/centerEllipses";
 
 type Props = {
   x: number;
