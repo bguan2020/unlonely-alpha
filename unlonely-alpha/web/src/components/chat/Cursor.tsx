@@ -12,7 +12,14 @@ type Props = {
   address: string | undefined;
 };
 
-export default function Cursor({ color, x, y, message, username }: Props) {
+export default function Cursor({
+  color,
+  x,
+  y,
+  message,
+  username,
+  address,
+}: Props) {
   const [{ data: accountData }] = useAccount();
   return (
     <div
@@ -37,12 +44,13 @@ export default function Cursor({ color, x, y, message, username }: Props) {
             fill={color}
           />
         </svg>
-
-        <Text>{username}</Text>
-        {accountData?.address && (
-          <Link href={`https://app.zerion.io/${accountData.address}/overview`}>
-            <ExternalLinkIcon mx="2px" />
-          </Link>
+        {(username || address) && (
+          <>
+            <Text>{username}</Text>
+            <Link href={`https://app.zerion.io/${address}/overview`}>
+              <ExternalLinkIcon mx="2px" />
+            </Link>
+          </>
         )}
       </Flex>
       {message && (
