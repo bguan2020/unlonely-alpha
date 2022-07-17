@@ -52,7 +52,7 @@ function Example() {
         orderBy: null,
       },
     },
-    pollInterval: 1000,
+    pollInterval: 60000,
   });
 
   const videos = data?.getVideoFeed;
