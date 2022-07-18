@@ -109,47 +109,65 @@ export default function Page() {
     <AppLayout>
       <Flex justifyContent="center">
         <Flex
-          marginTop="100px"
+          marginTop={{ base: "40px", md: "60px", lg: "100px" }}
           maxW="80%"
-          marginLeft="50px"
           flexDirection="column"
         >
-          {isMobile ? (
-            <Text
-              color="black"
-              fontSize={40}
-              lineHeight={"40px"}
-              fontWeight="bold"
-              textAlign="center"
-            >
-              Never watch alone again. Come be{" "}
-              <Text as="span" color="white">
-                unlonely
-              </Text>{" "}
-              with us.
-            </Text>
+          <Text
+                color="black"
+                fontSize={{ base: "40px", md: "60px", lg: "80px" }}
+                lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
+                fontWeight="bold"
+                textAlign="center"
+              >
+                Never watch alone again. Come be{" "}
+                <Text as="span" color="white">
+                  unlonely
+                </Text>{" "}
+                with us.
+              </Text>
+          {/* {isMobile ? (
+            <>
+              {console.log("is true")}
+              <Text
+                color="black"
+                fontSize="30px"
+                lineHeight="30px"
+                fontWeight="bold"
+                textAlign="center"
+              >
+                Never watch alone again. Come be{" "}
+                <Text as="span" color="white">
+                  unlonely
+                </Text>{" "}
+                with us.
+              </Text>
+            </>
           ) : (
-            <Text
-              color="black"
-              fontSize={80}
-              lineHeight={"80px"}
-              fontWeight="bold"
-              textAlign="center"
-            >
-              Never watch alone again. Come be{" "}
-              <Text as="span" color="white">
-                unlonely
-              </Text>{" "}
-              with us.
-            </Text>
-          )}
+            <>
+              {console.log("is false")}
+              <Text
+                color="black"
+                fontSize="80px"
+                lineHeight={"80px"}
+                fontWeight="bold"
+                textAlign="center"
+              >
+                Never watch alone again. Come be{" "}
+                <Text as="span" color="white">
+                  unlonely
+                </Text>{" "}
+                with us.
+              </Text>
+            </>
+          )} */}
           <Flex w="100%" justifyContent="center" mt="20px">
             <Text color="black" fontSize={26} lineHeight="26px">
               9pm-11pm PST Daily
             </Text>
           </Flex>
-          <Flex w="100%" justifyContent="center" mt="100px">
-            <Box w={isMobile ? "300px" : "400px"} bg="#FF6D6A" borderRadius="20px">
+          <Flex w="100%" justifyContent="center" mt="40px">
+            <Box w={{ base: "300px", md: "400px", lg: "400px" }} bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)" borderRadius="20px" mb="50px">
               <Text
                 fontSize="20px"
                 margin="20px"
@@ -207,7 +225,7 @@ export default function Page() {
                           minHeight="60px"
                           color="#2C3A50"
                           fontWeight="medium"
-                          width="350px"
+                          w={{ base: "250px", md: "350px", lg: "350px" }}
                           padding="auto"
                           {...register("description")}
                         />
@@ -227,7 +245,7 @@ export default function Page() {
                               isLoading={ytLoading}
                               margin="25px"
                             >
-                              Click again to join!
+                              Finalize Submit
                             </Button>
                           ) : (
                             <Button
@@ -289,7 +307,7 @@ export default function Page() {
                         minHeight="60px"
                         color="#2C3A50"
                         fontWeight="medium"
-                        w={isMobile ? "250px" : "350px"}
+                        w={{ base: "250px", md: "350px", lg: "350px" }}
                         padding="auto"
                         {...register1("videoLink")}
                       />
