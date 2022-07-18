@@ -422,7 +422,7 @@ export default function Page() {
         message: "",
       })}
     >
-      <AppLayout>
+      <AppLayout error={error}>
         <Example videos={videos} loading={loading} />
       </AppLayout>
     </RoomProvider>
