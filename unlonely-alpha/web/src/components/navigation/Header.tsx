@@ -1,15 +1,13 @@
 import {
-  IconButton,
   Flex,
   Divider,
   Box,
   Heading,
   Spacer,
-  Button,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+// import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 
 import SignIn from "../SignIn";
@@ -41,7 +39,7 @@ const Header: React.FC = () => {
       right="0px"
       zIndex="1000"
     >
-      <IconButton
+      {/* <IconButton
         display={["inline-flex", "inline-flex", "none"]}
         aria-label="Open Menu"
         size="xs"
@@ -55,7 +53,7 @@ const Header: React.FC = () => {
         _active={{ opacity: 0.6 }}
         icon={<HamburgerIcon />}
         onClick={() => setDisplayMobileMenu(true)}
-      />
+      /> */}
 
       {/* Mobile Nav */}
       <Flex
@@ -73,35 +71,10 @@ const Header: React.FC = () => {
         padding="16px"
       >
         <Flex width="100%" justifyContent="space-between" mb="5px">
-          <IconButton
-            aria-label="Close Menu"
-            size="xs"
-            width="32px"
-            height="32px"
-            marginLeft="0px"
-            fontSize="20px"
-            borderRadius="4px"
-            background="transparent"
-            _hover={{ opacity: 0.8 }}
-            _active={{ opacity: 0.6 }}
-            icon={<CloseIcon color="gray.900" />}
-            onClick={() => setDisplayMobileMenu(false)}
-          />
+
         </Flex>
 
         <Flex width="100%" justifyContent="center">
-          <Button
-            mr="18px"
-            bg="white"
-            color="#2C3A50"
-            borderRadius="15px"
-            _hover={{ bg: "#C1CBD9" }}
-            // onClick={(e) => handleMobileClick(e, "/post")}
-          >
-            <Flex fontSize="15px" fontWeight="bold">
-              Mint HNTR
-            </Flex>
-          </Button>
         </Flex>
 
         <Flex width="100%" justifyContent="center"></Flex>
