@@ -238,7 +238,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
               {others.map(({ connectionId, presence }) => {
                 if (presence == null || !presence.cursor) {
                   return null;
-                }
+                };
 
                 return (
                   <Cursor
