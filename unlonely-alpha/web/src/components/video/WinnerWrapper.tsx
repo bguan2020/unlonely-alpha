@@ -38,12 +38,12 @@ const WinnerWrapper = ({ order, children }: Props) => {
       {isSecond && (
         <>
           <Flex direction="column">
-            <Text color="#717BA7" fontWeight={"bold"} fontSize="25px">
+            <Text color="#56608A" fontWeight={"bold"} fontSize="25px">
               Playing Next
             </Text>
             <Flex
               border="3px solid"
-              borderColor="#717BA7"
+              borderColor="#56608A"
               flexDirection="column"
               alignItems="flex-end"
               borderRadius="8px"

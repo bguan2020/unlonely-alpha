@@ -23,7 +23,7 @@ export default function Cursor({
   const [{ data: accountData }] = useAccount();
   return (
     <div
-      className="absolute pointer-events-none top-0 left-0"
+      className="relative pointer-events-none top-0 left-0"
       style={{
         transition: "transform 0.5s cubic-bezier(.17,.93,.38,1)",
         transform: `translateX(${x}px) translateY(${y}px)`,

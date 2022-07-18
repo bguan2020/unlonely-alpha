@@ -50,7 +50,7 @@ const VideoCardInner = ({ video, order }: Props) => {
   return (
     <>
       <Flex direction="column">
-        <Text color="#8E8D94" fontSize="12px">
+        <Text color="#787878" fontSize="14px" fontWeight={"bold"}>
           {video.owner.username === null
             ? centerEllipses(video.owner.address, 7)
             : video.owner.username}
@@ -61,7 +61,6 @@ const VideoCardInner = ({ video, order }: Props) => {
             height="100px"
             templateRows="repeat(4, 1fr)"
             templateColumns="repeat(3, 1fr)"
-            gap={1}
           >
             <GridItem
               rowSpan={3}

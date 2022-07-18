@@ -1,7 +1,16 @@
 import { RoomProvider, useMyPresence, useOthers } from "@liveblocks/react";
 import { gql, useQuery } from "@apollo/client";
 import React, { useState, useCallback, useEffect } from "react";
-import { Text, Flex, Grid, GridItem, Switch } from "@chakra-ui/react";
+import {
+  Text,
+  Flex,
+  Grid,
+  GridItem,
+  Switch,
+  Box,
+  useToast,
+  Spinner,
+} from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 
 import Cursor from "../components/chat/Cursor";
@@ -13,6 +22,7 @@ import AppLayout from "../components/layout/AppLayout";
 import VideoSort, { VideoAttribute } from "../components/video/VideoSort";
 import { getEnsName } from "../utils/ens";
 import centerEllipses from "../utils/centerEllipses";
+import { VideoCard_VideoFragment } from "../generated/graphql";
 
 const VIDEO_LIST_QUERY = gql`
   query VideoFeed($data: VideoFeedInput!) {
@@ -33,7 +43,12 @@ const VIDEO_LIST_QUERY = gql`
   }
 `;
 
-function Example() {
+type Props = {
+  videos: VideoCard_VideoFragment[];
+  loading: boolean;
+};
+
+const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
   const others = useOthers<Presence>();
   const [{ cursor, message }, updateMyPresence] = useMyPresence<Presence>();
   const [state, setState] = useState<CursorState>({ mode: CursorMode.Hidden });
@@ -42,20 +57,7 @@ function Example() {
   const [showCursor, setShowCursor] = useState<boolean>(true);
   const [username, setUsername] = useState<string | null>();
   const [{ data: accountData }] = useAccount();
-
-  const { data, loading, error } = useQuery(VIDEO_LIST_QUERY, {
-    variables: {
-      data: {
-        searchString: null,
-        skip: null,
-        limit: null,
-        orderBy: null,
-      },
-    },
-    pollInterval: 60000,
-  });
-
-  const videos = data?.getVideoFeed;
+  const toast = useToast();
 
   const setReaction = useCallback((reaction: string) => {
     setState({ mode: CursorMode.Reaction, reaction, isPressed: false });
@@ -66,7 +68,18 @@ function Example() {
       updateMyPresence({ message: "" });
       setState({ mode: CursorMode.Hidden });
     } else {
-      setState({ mode: CursorMode.Chat, previousMessage: null, message: "" });
+      if (!accountData?.address) {
+        toast({
+          title: "Sign in first.",
+          description: "Please sign into your wallet first.",
+          status: "warning",
+          duration: 9000,
+          isClosable: true,
+          position: "top",
+        });
+      } else {
+        setState({ mode: CursorMode.Chat, previousMessage: null, message: "" });
+      }
     }
   };
 
@@ -90,21 +103,30 @@ function Example() {
 
   return (
     <>
-      <Grid
-        gridTemplateRows={"100px 1fr 1fr"}
-        gridTemplateColumns={"10% 60% 20% 10%"}
-        minH="calc(100vh - 48px)"
-      >
+      <Grid gridTemplateColumns={"10% 60% 20% 10%"} minH="calc(100vh - 48px)">
         <GridItem rowSpan={1} colSpan={2}></GridItem>
-        <GridItem rowSpan={3} colSpan={1} border="2px">
-          <Flex justifyContent="center" direction="column">
-            <Text fontWeight={"bold"} fontSize="20px">
-              The Chat Room!
-            </Text>
-            <Switch onChange={() => toggleHideCursor()}>
-              Hide Chat Cursor
-            </Switch>
+        <GridItem rowSpan={3} colSpan={1} border="2px" mt="10px">
+          <Flex
+            justifyContent="center"
+            direction="column"
+            bg="black"
+            pb="10px"
+            pt="10px"
+          >
+            <Box bg="black" margin="auto">
+              <Text fontWeight={"bold"} fontSize="20px" color="white">
+                The Chat Room!
+              </Text>
+            </Box>
           </Flex>
+          <Switch
+            colorScheme="purple"
+            onChange={() => toggleHideCursor()}
+            mt="10px"
+            ml="10px"
+          >
+            Hide Chat Cursor
+          </Switch>
           {showCursor ? (
             <div
               style={{
@@ -339,16 +361,17 @@ function Example() {
         </GridItem>
         <GridItem rowSpan={3} colSpan={1}></GridItem>
         <GridItem rowSpan={2} colSpan={1}></GridItem>
-        <GridItem rowSpan={1} colSpan={1} mb="20px">
+        <GridItem rowSpan={1} colSpan={1} mb="20px" mr="20px">
           <Flex
             flexDirection="row"
             justifyContent="center"
             width="100%"
-            height="100%"
+            height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
+            mt="10px"
           >
             <iframe
               src="https://player.castr.com/live_4a9cb290032511edba7dd7a3002e508b"
-              style={{ aspectRatio: "16/9", minHeight: "500px" }}
+              style={{ aspectRatio: "16/9" }}
               frameBorder="0"
               scrolling="no"
               allow="autoplay"
@@ -356,18 +379,40 @@ function Example() {
             />
           </Flex>
         </GridItem>
-        <GridItem rowSpan={1} colSpan={1}>
-          <Flex width="100%" justifyContent="center">
-            <VideoSort videos={videos} sort={sortVideoAs} />
-          </Flex>
+        <GridItem rowSpan={1} colSpan={1} mr="20px">
+          {loading ? (
+            <Spinner />
+          ) : (
+            <Flex
+              margin="auto"
+              maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
+              justifyContent="center"
+              backgroundColor="rgba(0,0,0,0.2)"
+            >
+              <VideoSort videos={videos} sort={sortVideoAs} />
+            </Flex>
+          )}
         </GridItem>
       </Grid>
     </>
   );
-}
+};
 
 export default function Page() {
   const roomId = "unlonely-demo";
+  const { data, loading, error } = useQuery(VIDEO_LIST_QUERY, {
+    variables: {
+      data: {
+        searchString: null,
+        skip: null,
+        limit: null,
+        orderBy: null,
+      },
+    },
+    pollInterval: 60000,
+  });
+
+  const videos = data?.getVideoFeed;
 
   return (
     <RoomProvider
@@ -377,8 +422,8 @@ export default function Page() {
         message: "",
       })}
     >
-      <AppLayout>
-        <Example />
+      <AppLayout error={error}>
+        <Example videos={videos} loading={loading} />
       </AppLayout>
     </RoomProvider>
   );
