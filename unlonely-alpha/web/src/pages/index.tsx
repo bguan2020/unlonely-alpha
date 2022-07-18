@@ -31,7 +31,6 @@ const YT_PUBLIC_KEY = "AIzaSyAobxgmgOkLIOnwDsKMF_e_4fFSUrcUIxk";
 
 export default function Page() {
   const [isMobile] = useMediaQuery("(max-width: 768px)");
-  console.log(isMobile)
   const ytForm = useForm<PostYTLinkInput>({
     defaultValues: {},
     resolver: yupResolver(postYTLinkSchema),
