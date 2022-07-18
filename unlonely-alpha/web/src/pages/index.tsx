@@ -9,6 +9,7 @@ import {
   FormErrorMessage,
   Button,
   Image,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { FormControl, useToast } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -29,6 +30,7 @@ import AppLayout from "../components/layout/AppLayout";
 const YT_PUBLIC_KEY = "AIzaSyAobxgmgOkLIOnwDsKMF_e_4fFSUrcUIxk";
 
 export default function Page() {
+  const [isMobile] = useMediaQuery("(max-width: 768px)");
   const ytForm = useForm<PostYTLinkInput>({
     defaultValues: {},
     resolver: yupResolver(postYTLinkSchema),
@@ -112,26 +114,42 @@ export default function Page() {
           marginLeft="50px"
           flexDirection="column"
         >
-          <Text
-            color="black"
-            fontSize={80}
-            lineHeight="80px"
-            fontWeight="bold"
-            textAlign="center"
-          >
-            Never watch alone again. Come be{" "}
-            <Text as="span" color="white">
-              unlonely
-            </Text>{" "}
-            with us.
-          </Text>
+          {isMobile ? (
+            <Text
+              color="black"
+              fontSize={40}
+              lineHeight={"40px"}
+              fontWeight="bold"
+              textAlign="center"
+            >
+              Never watch alone again. Come be{" "}
+              <Text as="span" color="white">
+                unlonely
+              </Text>{" "}
+              with us.
+            </Text>
+          ) : (
+            <Text
+              color="black"
+              fontSize={80}
+              lineHeight={"80px"}
+              fontWeight="bold"
+              textAlign="center"
+            >
+              Never watch alone again. Come be{" "}
+              <Text as="span" color="white">
+                unlonely
+              </Text>{" "}
+              with us.
+            </Text>
+          )}
           <Flex w="100%" justifyContent="center" mt="20px">
             <Text color="black" fontSize={26} lineHeight="26px">
               9pm-11pm PST Daily
             </Text>
           </Flex>
           <Flex w="100%" justifyContent="center" mt="100px">
-            <Box width="400px" bg="#FF6D6A" borderRadius="20px">
+            <Box w={isMobile ? "300px" : "400px"} bg="#FF6D6A" borderRadius="20px">
               <Text
                 fontSize="20px"
                 margin="20px"
@@ -271,7 +289,7 @@ export default function Page() {
                         minHeight="60px"
                         color="#2C3A50"
                         fontWeight="medium"
-                        width="350px"
+                        w={isMobile ? "250px" : "350px"}
                         padding="auto"
                         {...register1("videoLink")}
                       />

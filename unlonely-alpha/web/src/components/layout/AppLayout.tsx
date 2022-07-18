@@ -30,7 +30,7 @@ const AppLayout: React.FC<Props> = ({ children, loading = false, error }) => {
       <Header />
       <Box
         mt="60px"
-        w="100%"
+        minW="100%"
         as="main"
         minH="calc(100vh - 48px)"
         gridColumnStart={2}
