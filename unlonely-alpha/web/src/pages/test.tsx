@@ -1,6 +1,5 @@
-import { RoomProvider, useMyPresence, useOthers } from "@liveblocks/react";
 import { gql, useQuery } from "@apollo/client";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   Flex,
@@ -12,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 
-import { Presence, CursorMode, CursorState, Reaction } from "../types/cursor";
+import { CursorMode, CursorState } from "../types/cursor";
 import AppLayout from "../components/layout/AppLayout";
 import VideoSort, { VideoAttribute } from "../components/video/VideoSort";
 import { getEnsName } from "../utils/ens";
@@ -142,17 +141,9 @@ export default function Page() {
   const videos = data?.getVideoFeed;
 
   return (
-    <RoomProvider
-      id={roomId}
-      initialPresence={() => ({
-        cursor: null,
-        message: "",
-      })}
-    >
       <AppLayout error={error}>
         <Example videos={videos} loading={loading} />
       </AppLayout>
-    </RoomProvider>
   );
 }
 
