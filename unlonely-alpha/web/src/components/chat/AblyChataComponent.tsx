@@ -1,4 +1,5 @@
-import { Box, Text, Flex, Button, Textarea } from "@chakra-ui/react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { Box, Text, Flex, Button, Textarea, Link } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 
 import useChannel from "../../hooks/useChannel";
@@ -38,15 +39,22 @@ const AblyChatComponent = ({ username }: Props) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       channel.publish({ name: "chat-message", data: { messageText, username, chatColor } });
-      console.log(username);
       setMessageText("");
       if (inputBox) inputBox.focus();
-    }
+    };
   
     const handleFormSubmission = (event: { preventDefault: () => void; }) => {
       event.preventDefault();
       sendChatMessage(messageText);
-    }
+    };
+
+    const handleKeyPress = (event: any) => {
+        if (event.charCode !== 13 || messageTextIsEmpty) {
+            return;
+        }
+        sendChatMessage(messageText);
+        event.preventDefault();
+        }
   
     const messages = receivedMessages.map((message, index) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -78,8 +86,11 @@ const AblyChatComponent = ({ username }: Props) => {
         <>
             <Flex p="10px" h="100%" minW="100%">
                 <Flex direction="column">
-                    <Text>
-                        Interested in learning more? Join our community to get notified!
+                    <Text lineHeight={5} mb="10px" fontWeight="bold">
+                        Interested in learning more?
+                        <Link href="https://tally.so/r/3ja0ba" isExternal>
+                        {" "}Join our community to get notified!<ExternalLinkIcon mx="2px" />
+                        </Link>
                     </Text>
                     <Flex direction="column" overflowX="auto" height="100%" maxH="500px">
                         {messages}
@@ -92,6 +103,7 @@ const AblyChatComponent = ({ username }: Props) => {
                                 value={messageText}
                                 placeholder="Type a message..."
                                 onChange={e => setMessageText(e.target.value)}
+                                onKeyPress={handleKeyPress}
                                 background="white"
                                 minW="100%"
                             >
