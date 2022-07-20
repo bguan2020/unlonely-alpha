@@ -45,44 +45,12 @@ type Props = {
 };
 
 const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
-  const others = useOthers<Presence>();
-  const [{ cursor, message }, updateMyPresence] = useMyPresence<Presence>();
   const [state, setState] = useState<CursorState>({ mode: CursorMode.Hidden });
-  const [reactions, setReactions] = useState<Reaction[]>([]);
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
   const [showCursor, setShowCursor] = useState<boolean>(true);
   const [username, setUsername] = useState<string | null>();
   const [{ data: accountData }] = useAccount();
   const toast = useToast();
-
-  const setReaction = useCallback((reaction: string) => {
-    setState({ mode: CursorMode.Reaction, reaction, isPressed: false });
-  }, []);
-
-  const openComment = () => {
-    if (state.mode === CursorMode.Chat) {
-      updateMyPresence({ message: "" });
-      setState({ mode: CursorMode.Hidden });
-    } else {
-      if (!accountData?.address) {
-        toast({
-          title: "Sign in first.",
-          description: "Please sign into your wallet first.",
-          status: "warning",
-          duration: 9000,
-          isClosable: true,
-          position: "top",
-        });
-      } else {
-        setState({ mode: CursorMode.Chat, previousMessage: null, message: "" });
-      }
-    }
-  };
-
-  const toggleHideCursor = () => {
-    if (showCursor) setShowCursor(false);
-    else setShowCursor(true);
-  };
 
   useEffect(() => {
     const fetchEns = async () => {
@@ -90,7 +58,6 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
         const ens = await getEnsName(accountData.address);
         const username = ens ? ens : centerEllipses(accountData.address, 7);
         setUsername(username);
-        updateMyPresence({ username: username });
       }
     };
 
@@ -99,7 +66,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
 
   return (
     <>
-      <Grid gridTemplateColumns={"10% 60% 20% 10%"} minH="calc(100vh - 48px)">
+      <Grid gridTemplateColumns={"10% 60% 20% 10%"} minH="calc(100vh - 48px)" mb="20px">
         <GridItem rowSpan={1} colSpan={2}></GridItem>
         <GridItem rowSpan={3} colSpan={1} border="2px" mt="10px" mb="190px">
           <Flex
@@ -129,7 +96,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
           >
             <iframe
               src="https://player.castr.com/live_4a9cb290032511edba7dd7a3002e508b"
-              style={{ aspectRatio: "16/9" }}
+              style={{ aspectRatio: "16/9", width: "100%" }}
               frameBorder="0"
               scrolling="no"
               allow="autoplay"
