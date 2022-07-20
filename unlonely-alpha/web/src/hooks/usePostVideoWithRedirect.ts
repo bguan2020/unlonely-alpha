@@ -32,7 +32,7 @@ const usePostVideoWithRedirect = ({
   const postVideo = useCallback(
     async (data) => {
       setLoading(true);
-      console.log(data);
+
       const mutationResult = await mutate({ variables: { data } });
 
       if (

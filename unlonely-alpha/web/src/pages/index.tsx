@@ -163,7 +163,7 @@ export default function Page() {
           )} */}
           <Flex w="100%" justifyContent="center" mt="20px">
             <Text color="black" fontSize={26} lineHeight="26px">
-              9pm-11pm PST Daily
+              7-8pm PST / 10-11pm EST Daily
             </Text>
           </Flex>
           <Flex w="100%" justifyContent="center" mt="40px">
