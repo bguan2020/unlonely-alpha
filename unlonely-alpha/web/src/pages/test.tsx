@@ -46,7 +46,6 @@ type Props = {
 const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
   const [state, setState] = useState<CursorState>({ mode: CursorMode.Hidden });
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
-  const [showCursor, setShowCursor] = useState<boolean>(true);
   const [username, setUsername] = useState<string | null>();
   const [{ data: accountData }] = useAccount();
   const toast = useToast();
@@ -95,7 +94,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
           >
             <iframe
               src="https://player.castr.com/live_4a9cb290032511edba7dd7a3002e508b"
-              style={{ aspectRatio: "16/9", width: "100%" }}
+              style={{ aspectRatio: "16/9", width: "100%", maxWidth: "889px" }}
               frameBorder="0"
               scrolling="no"
               allow="autoplay"
