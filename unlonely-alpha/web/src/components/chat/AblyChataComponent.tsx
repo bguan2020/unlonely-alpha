@@ -9,6 +9,7 @@ type Message = {
     connectionId: string;
     data: { messageText: string;
             username: string;
+            chatColor: string;
           };
     id: string;
     timestamp: number;
@@ -36,7 +37,8 @@ const AblyChatComponent = ({ username }: Props) => {
     const sendChatMessage = (messageText: string) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      channel.publish({ name: "chat-message", data: { messageText, username } });
+      channel.publish({ name: "chat-message", data: { messageText, username, chatColor } });
+      console.log(username);
       setMessageText("");
       if (inputBox) inputBox.focus();
     }
@@ -49,14 +51,14 @@ const AblyChatComponent = ({ username }: Props) => {
     const messages = receivedMessages.map((message, index) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const author = message.connectionId === ably.connection.id ? "me" : username;
+      const author = message.connectionId === ably.connection.id ? "me" : message.data.username;
       return (
         <>
             <Flex direction="row" mb="5px">
                 <Text>
                     {author}:{" "}
                 </Text>
-                <Box key={index} borderRadius="10px" bg={chatColor} pr="10px" pl="10px" >
+                <Box key={index} borderRadius="10px" bg={message.data.chatColor} pr="10px" pl="10px" >
                     <Text color="white" fontSize={14} wordBreak="break-word">
                         {message.data.messageText}
                     </Text>
@@ -84,7 +86,7 @@ const AblyChatComponent = ({ username }: Props) => {
                         <div ref={(element) => { messageEnd = element; }}></div>
                     </Flex>  
                     <Flex mt="20px" w="100%">
-                        <form onSubmit={handleFormSubmission}>
+                        <form onSubmit={handleFormSubmission} style={{ width: "100%"}}>
                             <Textarea
                                 ref={(element) => { inputBox = element; }}
                                 value={messageText}
