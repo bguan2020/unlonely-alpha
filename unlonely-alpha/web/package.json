@@ -16,6 +16,7 @@
     "cypress": "TS_NODE_PROJECT=0 cypress open-ct"
   },
   "dependencies": {
+    "@ably-labs/react-hooks": "^2.0.6",
     "@apollo/client": "^3.6.9",
     "@chakra-ui/icons": "1.1.1",
     "@chakra-ui/react": "1.7.2",
@@ -25,6 +26,7 @@
     "@hookform/resolvers": "^2.9.5",
     "@liveblocks/client": "^0.16.17",
     "@liveblocks/react": "^0.16.17",
+    "ably": "^1.2.27",
     "axios": "^0.27.2",
     "cookie-cutter": "^0.2.0",
     "date-fns": "^2.28.0",
