@@ -1,10 +1,4 @@
-import {
-  Flex,
-  Divider,
-  Box,
-  Heading,
-  Spacer,
-} from "@chakra-ui/react";
+import { Flex, Divider, Box, Heading, Spacer } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 // import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
@@ -70,12 +64,9 @@ const Header: React.FC = () => {
         display={displayMobileMenu ? ["flex", "flex", "none"] : "none"}
         padding="16px"
       >
-        <Flex width="100%" justifyContent="space-between" mb="5px">
+        <Flex width="100%" justifyContent="space-between" mb="5px"></Flex>
 
-        </Flex>
-
-        <Flex width="100%" justifyContent="center">
-        </Flex>
+        <Flex width="100%" justifyContent="center"></Flex>
 
         <Flex width="100%" justifyContent="center"></Flex>
 

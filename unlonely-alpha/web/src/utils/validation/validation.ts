@@ -14,5 +14,5 @@ export const postVideoSchema = object({
   description: string()
     .trim()
     .required("your reason is required")
-    .max(140, "description must be less than 140 characters"),
+    .max(100, "reason must be less than 100 characters"),
 });

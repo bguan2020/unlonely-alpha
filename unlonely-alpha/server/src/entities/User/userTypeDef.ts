@@ -8,6 +8,7 @@ export const typeDef = gql`
     username: String
     bio: String
     reputation: Int
+    isFCUser: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
     signature: String

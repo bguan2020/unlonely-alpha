@@ -26,7 +26,10 @@ const NextHead: React.FC<{ title: string }> = ({ title }) => {
       <link rel="icon" href="/images/favicon.ico" />
 
       <title>{__title}</title>
-      <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+      <meta
+        name="viewport"
+        content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"
+      />
       <meta name="description" content={__description} />
 
       <meta property="og:title" content={__title} />
