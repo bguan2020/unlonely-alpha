@@ -109,6 +109,7 @@ const AblyChatComponent = ({ username }: Props) => {
             <Image
               src="https://searchcaster.xyz/img/logo.png"
               width="24px"
+              height="24px"
               mr="5px"
             />
           )}
