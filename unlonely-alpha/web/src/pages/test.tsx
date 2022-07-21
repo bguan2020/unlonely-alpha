@@ -60,7 +60,14 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
         mb="20px"
       >
         <GridItem rowSpan={1} colSpan={2}></GridItem>
-        <GridItem rowSpan={3} colSpan={1} border="2px" mt="10px" mb="190px">
+        <GridItem
+          rowSpan={3}
+          colSpan={1}
+          border="2px"
+          mt="10px"
+          mb="190px"
+          maxH="700px"
+        >
           <Flex
             justifyContent="center"
             direction="column"

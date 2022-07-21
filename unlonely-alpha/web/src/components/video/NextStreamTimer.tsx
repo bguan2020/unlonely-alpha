@@ -63,38 +63,40 @@ const NextStreamTimer: React.FunctionComponent = () => {
           width="100%"
           height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
           mt="10px"
-          style={{ aspectRatio: "16/9", width: "100%", maxWidth: "889px" }}
-          bg="black"
         >
           <Flex
             direction="column"
-            mt="100px"
+            width="100%"
+            maxW="889px"
+            pt="100px"
+            pl="10px"
             color="white"
             fontWeight={"bold"}
-            fontSize="20px"
+            fontSize="40px"
+            bg="black"
           >
             <Text>Next stream in:</Text>
             <Flex direction="row">
               <Flex direction="row" mr="5px">
-                <Text mr="5px" fontSize="32px" color="#76D201">
+                <Text mr="5px" fontSize="62px" color="#76D201">
                   {days}
                 </Text>
                 <Text>days</Text>
               </Flex>
               <Flex direction="row" mr="5px">
-                <Text mr="5px" fontSize="32px" color="#FF3EA5">
+                <Text mr="5px" fontSize="62px" color="#FF3EA5">
                   {hours}
                 </Text>
                 <Text>hours</Text>
               </Flex>
               <Flex direction="row" mr="5px">
-                <Text mr="5px" fontSize="32px" color="#BB29BB">
+                <Text mr="5px" fontSize="62px" color="#BB29BB">
                   {minutes}
                 </Text>
                 <Text>minutes</Text>
               </Flex>
               <Flex direction="row" mr="5px">
-                <Text mr="5px" fontSize="32px" color="#FF6D6A">
+                <Text mr="5px" fontSize="62px" color="#FF6D6A">
                   {seconds}
                 </Text>
                 <Text>seconds</Text>
