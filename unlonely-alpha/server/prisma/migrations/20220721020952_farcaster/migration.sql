@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "isFCUser" BOOLEAN NOT NULL DEFAULT false;

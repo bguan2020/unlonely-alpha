@@ -14,6 +14,7 @@ model User {
   sigTimestamp BigInt?
 
   reputation Int @default(0)
+  isFCUser Boolean @default(false)
 
   bio String @default("")
 
@@ -43,6 +44,7 @@ model Video {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isDeleted Boolean @default(false)
 }
 
 model Comment {

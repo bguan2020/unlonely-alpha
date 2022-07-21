@@ -1,17 +1,8 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useState, useEffect } from "react";
-import {
-  Text,
-  Flex,
-  Grid,
-  GridItem,
-  Box,
-  useToast,
-  Spinner,
-} from "@chakra-ui/react";
+import { Text, Flex, Grid, GridItem, Box, Spinner } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 
-import { CursorMode, CursorState } from "../types/cursor";
 import AppLayout from "../components/layout/AppLayout";
 import VideoSort, { VideoAttribute } from "../components/video/VideoSort";
 import { getEnsName } from "../utils/ens";
@@ -44,17 +35,15 @@ type Props = {
 };
 
 const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
-  const [state, setState] = useState<CursorState>({ mode: CursorMode.Hidden });
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
   const [username, setUsername] = useState<string | null>();
   const [{ data: accountData }] = useAccount();
-  const toast = useToast();
 
   useEffect(() => {
     const fetchEns = async () => {
       if (accountData?.address) {
         const ens = await getEnsName(accountData.address);
-        const username = ens ? ens : centerEllipses(accountData.address, 7);
+        const username = ens ? ens : centerEllipses(accountData.address, 9);
         setUsername(username);
       }
     };
@@ -64,7 +53,11 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
 
   return (
     <>
-      <Grid gridTemplateColumns={"10% 60% 20% 10%"} minH="calc(100vh - 48px)" mb="20px">
+      <Grid
+        gridTemplateColumns={"10% 60% 20% 10%"}
+        minH="calc(100vh - 48px)"
+        mb="20px"
+      >
         <GridItem rowSpan={1} colSpan={2}></GridItem>
         <GridItem rowSpan={3} colSpan={1} border="2px" mt="10px" mb="190px">
           <Flex
@@ -80,7 +73,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
               </Text>
             </Box>
           </Flex>
-          <AblyChatComponent username={username}/>
+          <AblyChatComponent username={username} />
         </GridItem>
         <GridItem rowSpan={3} colSpan={1}></GridItem>
         <GridItem rowSpan={2} colSpan={1}></GridItem>
@@ -140,9 +133,9 @@ export default function Page() {
   const videos = data?.getVideoFeed;
 
   return (
-      <AppLayout error={error}>
-        <Example videos={videos} loading={loading} />
-      </AppLayout>
+    <AppLayout error={error}>
+      <Example videos={videos} loading={loading} />
+    </AppLayout>
   );
 }
 

@@ -100,10 +100,11 @@ const LoggedInAccount: React.FunctionComponent = () => {
         <PopoverBody display="flex" flexDirection="column" padding="0px 8px">
           <Button
             sx={styles.PopoverButton}
-            onClick={profileClick}
+            // onClick={profileClick}
+            disabled
             color="white"
           >
-            Profile
+            Profile (coming soon)
           </Button>
           <Button sx={styles.PopoverButton} onClick={disconnect} color="white">
             Sign Out

@@ -114,18 +114,18 @@ export default function Page() {
           flexDirection="column"
         >
           <Text
-                color="black"
-                fontSize={{ base: "40px", md: "60px", lg: "80px" }}
-                lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
-                fontWeight="bold"
-                textAlign="center"
-              >
-                Never watch alone again. Come be{" "}
-                <Text as="span" color="white">
-                  unlonely
-                </Text>{" "}
-                with us.
-              </Text>
+            color="black"
+            fontSize={{ base: "40px", md: "60px", lg: "80px" }}
+            lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
+            fontWeight="bold"
+            textAlign="center"
+          >
+            Never watch alone again. Come be{" "}
+            <Text as="span" color="white">
+              unlonely
+            </Text>{" "}
+            with us.
+          </Text>
           {/* {isMobile ? (
             <>
               {console.log("is true")}
@@ -167,7 +167,12 @@ export default function Page() {
             </Text>
           </Flex>
           <Flex w="100%" justifyContent="center" mt="40px">
-            <Box w={{ base: "300px", md: "400px", lg: "400px" }} bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)" borderRadius="20px" mb="50px">
+            <Box
+              w={{ base: "300px", md: "400px", lg: "400px" }}
+              bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
+              borderRadius="20px"
+              mb="50px"
+            >
               <Text
                 fontSize="20px"
                 margin="20px"

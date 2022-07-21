@@ -44,6 +44,7 @@ export const getVideoFeed = (data: IGetVideoFeedInput, ctx: Context) => {
   return ctx.prisma.video.findMany({
     take: data.limit || undefined,
     skip: data.skip || undefined,
+    where: { isDeleted: false },
     orderBy: {
       createdAt: data.orderBy || undefined,
     },
