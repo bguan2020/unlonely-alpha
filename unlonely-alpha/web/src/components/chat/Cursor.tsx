@@ -1,7 +1,6 @@
 import React from "react";
 import { Text, Flex, Link } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { useAccount } from "wagmi";
 
 type Props = {
   color: string;
@@ -20,7 +19,6 @@ export default function Cursor({
   username,
   address,
 }: Props) {
-  const [{ data: accountData }] = useAccount();
   return (
     <div
       className="absolute pointer-events-none top-0 left-0"

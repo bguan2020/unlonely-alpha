@@ -15,6 +15,7 @@ import { useAccount } from "wagmi";
 import useChannel from "../../hooks/useChannel";
 import { COLORS } from "../../styles/Colors";
 import { isFCUser } from "../../utils/farcasterBadge";
+import NFTList from "../profile/NFTList";
 
 type Message = {
   clientId: string;
@@ -23,6 +24,7 @@ type Message = {
     messageText: string;
     username: string;
     chatColor: string;
+    address: string;
     isFC: boolean;
   };
   id: string;
@@ -55,7 +57,13 @@ const AblyChatComponent = ({ username }: Props) => {
     // @ts-ignore
     channel.publish({
       name: "chat-message",
-      data: { messageText, username, chatColor, isFC },
+      data: {
+        messageText,
+        username,
+        chatColor,
+        isFC,
+        address: accountData?.address,
+      },
     });
     setMessageText("");
     if (inputBox) inputBox.focus();
@@ -113,7 +121,7 @@ const AblyChatComponent = ({ username }: Props) => {
               mr="5px"
             />
           )}
-          <Text>{author}: </Text>
+          <NFTList address={message.data.address} author={author} />
           <Box
             key={index}
             borderRadius="10px"
