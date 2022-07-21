@@ -98,7 +98,7 @@ const VideoCardInner = ({ video, order }: Props) => {
             <GridItem colSpan={1} rowSpan={1}></GridItem>
             <GridItem colSpan={2} rowSpan={1}></GridItem>
             <GridItem colSpan={1} pl="10px">
-              <Tooltip label="skip video">
+              <Tooltip label="vote to skip video">
                 {accountData?.address ? (
                   <span>
                     <NebulousButton
@@ -141,7 +141,7 @@ const VideoCardInner = ({ video, order }: Props) => {
                 )}
               </Tooltip>
               {video.score}
-              <Tooltip label="watch video">
+              <Tooltip label="vote to watch video">
                 {accountData?.address ? (
                   <span>
                     <NebulousButton

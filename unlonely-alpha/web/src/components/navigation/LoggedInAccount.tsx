@@ -46,9 +46,9 @@ const LoggedInAccount: React.FunctionComponent = () => {
   const [network] = useNetwork();
   const router = useRouter();
 
-  const profileClick = () => {
-    router.push(`/profile/${accountData?.address}`);
-  };
+  // const profileClick = () => {
+  //   router.push(`/profile/${accountData?.address}`);
+  // };
 
   return (
     <Popover placement="bottom">

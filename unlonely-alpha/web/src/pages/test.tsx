@@ -9,6 +9,7 @@ import { getEnsName } from "../utils/ens";
 import centerEllipses from "../utils/centerEllipses";
 import { VideoCard_VideoFragment } from "../generated/graphql";
 import AblyChatComponent from "../components/chat/AblyChataComponent";
+import NextStreamTimer from "../components/video/NextStreamTimer";
 
 const VIDEO_LIST_QUERY = gql`
   query VideoFeed($data: VideoFeedInput!) {
@@ -78,22 +79,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
         <GridItem rowSpan={3} colSpan={1}></GridItem>
         <GridItem rowSpan={2} colSpan={1}></GridItem>
         <GridItem rowSpan={1} colSpan={1} mb="20px" mr="20px">
-          <Flex
-            flexDirection="row"
-            justifyContent="center"
-            width="100%"
-            height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
-            mt="10px"
-          >
-            <iframe
-              src="https://player.castr.com/live_4a9cb290032511edba7dd7a3002e508b"
-              style={{ aspectRatio: "16/9", width: "100%", maxWidth: "889px" }}
-              frameBorder="0"
-              scrolling="no"
-              allow="autoplay"
-              allowFullScreen
-            />
-          </Flex>
+          <NextStreamTimer />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1} mr="20px">
           {loading ? (
