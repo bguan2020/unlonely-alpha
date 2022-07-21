@@ -99,8 +99,7 @@ const AblyChatComponent = ({ username }: Props) => {
   const messages = receivedMessages.map((message, index) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const author =
-      message.connectionId === ably.connection.id
+    const author = message.connectionId === ably.connection.id
         ? "me"
         : message.data.username;
     return (
