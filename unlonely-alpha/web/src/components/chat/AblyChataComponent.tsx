@@ -39,7 +39,8 @@ const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
 const AblyChatComponent = ({ username }: Props) => {
   let inputBox: HTMLTextAreaElement | null = null;
-  const messageEndRef = useRef<null | HTMLDivElement>(null);
+  // automatically scroll to the bottom of the chat
+  const autoScroll = useRef(true);
   const [messageText, setMessageText] = useState<string>("");
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [isFC, setIsFC] = useState<boolean>(false);
@@ -47,10 +48,21 @@ const AblyChatComponent = ({ username }: Props) => {
   const toast = useToast();
   const messageTextIsEmpty = messageText.trim().length === 0;
 
-  const [channel, ably] = useChannel("chat-demo", (message: Message) => {
+  const [channel, ably] = useChannel("persistMessages:chat-demo", (message: Message) => {
     const history = receivedMessages.slice(-199);
     setMessages([...history, message]);
   });
+
+  useEffect(() => {
+    async function getMessages() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const { items } = await channel.history({ limit: 200 });
+      const reversed = items.reverse();
+      setMessages(reversed);
+    }
+    getMessages();
+  }, []);
 
   const sendChatMessage = (messageText: string) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -112,16 +124,18 @@ const AblyChatComponent = ({ username }: Props) => {
         : message.data.username;
     return (
       <>
-        <Flex direction="row" mb="5px">
-          {((isFC && author === "me") || message.data.isFC) && (
-            <Image
-              src="https://searchcaster.xyz/img/logo.png"
-              width="24px"
-              height="24px"
-              mr="5px"
-            />
-          )}
-          <NFTList address={message.data.address} author={author} />
+        <Flex direction="column">
+          <Flex direction="row" mb="5px">
+            {((isFC && author === "me") || message.data.isFC) && (
+              <Image
+                src="https://searchcaster.xyz/img/logo.png"
+                width="24px"
+                height="24px"
+                mr="5px"
+              />
+            )}
+            <NFTList address={message.data.address} author={author} />
+          </Flex>
           <Box
             key={index}
             borderRadius="10px"
@@ -139,12 +153,6 @@ const AblyChatComponent = ({ username }: Props) => {
   });
 
   useEffect(() => {
-    if (messageEndRef) {
-      messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-
-  useEffect(() => {
     const fetchData = async (address: string) => {
       const fcBadge = await isFCUser(address);
       setIsFC(fcBadge);
@@ -153,6 +161,16 @@ const AblyChatComponent = ({ username }: Props) => {
       fetchData(accountData.address);
     }
   }, [accountData?.address]);
+
+  // useeffect to scroll to the bottom of the chat
+  useEffect(() => {
+    if (autoScroll.current) {
+      const chat = document.getElementById("chat");
+      if (chat) {
+        chat.scrollTop = chat.scrollHeight;
+      }
+    }
+  }, [receivedMessages]);
 
   return (
     <>
@@ -166,9 +184,21 @@ const AblyChatComponent = ({ username }: Props) => {
               <ExternalLinkIcon mx="2px" />
             </Link>
           </Text>
-          <Flex direction="column" overflowX="auto" height="100%" maxH="500px">
+          <Flex
+            direction="column"
+            overflowX="auto"
+            height="100%"
+            maxH="400px"
+            id="chat"
+          >
             {messages}
-            <div ref={messageEndRef}></div>
+            {autoScroll.current && (
+              <Box
+                ref={(el) => {
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                }}
+              />
+            )}
           </Flex>
           <Flex mt="20px" w="100%">
             <form onSubmit={handleFormSubmission} style={{ width: "100%" }}>

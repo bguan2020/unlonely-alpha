@@ -38,13 +38,10 @@ const NFTList: React.FunctionComponent<Props> = ({
 
   return (
     <>
-      <NFTModalRoot TriggerButton={<Text>{author}:</Text>}>
+      <NFTModalRoot TriggerButton={<Text _hover={{ cursor: "pointer" }}>{author}:</Text>}>
         <NFTModalHeader styles={{ marginTop: "33px" }}>
           {error && <Text>{error}</Text>}
-          <Text>
-            {author}
-            {"'s NFTs"}
-          </Text>
+          <Text>{author === "me" ? "Your" : `${author}'s`} NFTs</Text>
         </NFTModalHeader>
         <NFTModalBody>
           <SimpleGrid columns={3} width="100%">
