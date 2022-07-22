@@ -48,10 +48,21 @@ const AblyChatComponent = ({ username }: Props) => {
   const toast = useToast();
   const messageTextIsEmpty = messageText.trim().length === 0;
 
-  const [channel, ably] = useChannel("chat-demo", (message: Message) => {
+  const [channel, ably] = useChannel("persistMessages:chat-demo", (message: Message) => {
     const history = receivedMessages.slice(-199);
     setMessages([...history, message]);
   });
+
+  useEffect(() => {
+    async function getMessages() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const { items } = await channel.history({ limit: 200 });
+      const reversed = items.reverse();
+      setMessages(reversed);
+    }
+    getMessages();
+  }, []);
 
   const sendChatMessage = (messageText: string) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
