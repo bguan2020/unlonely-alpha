@@ -1,4 +1,4 @@
-import { Text, Grid, GridItem, Flex } from "@chakra-ui/layout";
+import { Text, Grid, GridItem, Flex, Box } from "@chakra-ui/layout";
 import { Image, Tooltip, useToast } from "@chakra-ui/react";
 import { gql } from "@apollo/client";
 import { useState } from "react";
@@ -50,7 +50,7 @@ const VideoCardInner = ({ video, order }: Props) => {
   return (
     <>
       <Flex direction="column">
-        <Text color="#787878" fontSize="14px" fontWeight={"bold"}>
+        <Text color="#787878" fontSize="14px" fontWeight={"bold"} ml="5px">
           {video.owner.username === null
             ? centerEllipses(video.owner.address, 7)
             : video.owner.username}
@@ -196,15 +196,15 @@ const VideoCard = ({ video, order }: Props) => {
     <>
       {order === 1 && (
         <WinnerWrapper order={order}>
-          <VideoCardInner video={video} order={order} />
+          <VideoCardInner video={video} order={order}/>
         </WinnerWrapper>
       )}
       {order === 2 && (
         <WinnerWrapper order={order}>
-          <VideoCardInner video={video} order={order} />
+          <VideoCardInner video={video} order={order}/>
         </WinnerWrapper>
       )}
-      {order > 2 && <VideoCardInner video={video} order={order} />}
+      {order > 2 && <VideoCardInner video={video} order={order}/>}
     </>
   );
 };

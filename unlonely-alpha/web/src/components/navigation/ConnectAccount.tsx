@@ -37,7 +37,7 @@ const ConnectAccount: React.FunctionComponent = () => {
     >
       <WalletModalHeader styles={{ marginTop: "33px" }}>
         {connectError && displayErrorModal ? (
-          <>Error Connecting</>
+          <>Error Connecting: {connectError.message}</>
         ) : (
           "Connect Your Wallet!"
         )}

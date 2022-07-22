@@ -33,9 +33,10 @@ const VIDEO_LIST_QUERY = gql`
 type Props = {
   videos: VideoCard_VideoFragment[];
   loading: boolean;
+  polling: boolean;
 };
 
-const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
+const Example: React.FunctionComponent<Props> = ({ videos, loading, polling }) => {
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
   const [username, setUsername] = useState<string | null>();
   const [{ data: accountData }] = useAccount();
@@ -89,9 +90,14 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
           <NextStreamTimer />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1} mr="20px">
-          {loading ? (
-            <Spinner />
-          ) : (
+            <Flex
+            margin="auto"
+            maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
+            justifyContent="center"
+            overflowX="auto"
+            maxH="400px"
+          >
+          </Flex>
             <Flex
               margin="auto"
               maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
@@ -99,10 +105,16 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
               backgroundColor="rgba(0,0,0,0.2)"
               overflowX="auto"
               maxH="400px"
+              height="400px"
             >
-              <VideoSort videos={videos} sort={sortVideoAs} />
+              {loading ? (
+                <>
+                  <Spinner size="xl" mt="10px"/>
+                </>
+              ) : (
+                <VideoSort videos={videos} sort={sortVideoAs} polling={polling}/>
+                )}
             </Flex>
-          )}
         </GridItem>
       </Grid>
     </>
@@ -110,8 +122,8 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
 };
 
 export default function Page() {
-  const roomId = "unlonely-demo";
-  const { data, loading, error } = useQuery(VIDEO_LIST_QUERY, {
+  const [polling, setPolling] = useState<boolean>(false);
+  const { data, loading, error, networkStatus } = useQuery(VIDEO_LIST_QUERY, {
     variables: {
       data: {
         searchString: null,
@@ -120,14 +132,26 @@ export default function Page() {
         orderBy: null,
       },
     },
+    notifyOnNetworkStatusChange: true,
     pollInterval: 60000,
+    onCompleted: (data) => {
+      setPolling(true);
+      // wait 1 second
+      console.log(polling)
+      setTimeout(() => {
+        setPolling(false);
+        console.log(polling);
+      }
+      , 1000);
+
+    },
   });
 
   const videos = data?.getVideoFeed;
 
   return (
     <AppLayout error={error}>
-      <Example videos={videos} loading={loading} />
+      <Example videos={videos} loading={loading} polling={polling}/>
     </AppLayout>
   );
 }
