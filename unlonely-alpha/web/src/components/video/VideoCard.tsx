@@ -1,4 +1,4 @@
-import { Text, Grid, GridItem, Flex, Box } from "@chakra-ui/layout";
+import { Text, Grid, GridItem, Flex } from "@chakra-ui/layout";
 import { Image, Tooltip, useToast } from "@chakra-ui/react";
 import { gql } from "@apollo/client";
 import { useState } from "react";
@@ -196,15 +196,15 @@ const VideoCard = ({ video, order }: Props) => {
     <>
       {order === 1 && (
         <WinnerWrapper order={order}>
-          <VideoCardInner video={video} order={order}/>
+          <VideoCardInner video={video} order={order} />
         </WinnerWrapper>
       )}
       {order === 2 && (
         <WinnerWrapper order={order}>
-          <VideoCardInner video={video} order={order}/>
+          <VideoCardInner video={video} order={order} />
         </WinnerWrapper>
       )}
-      {order > 2 && <VideoCardInner video={video} order={order}/>}
+      {order > 2 && <VideoCardInner video={video} order={order} />}
     </>
   );
 };

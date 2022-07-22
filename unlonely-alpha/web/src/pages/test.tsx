@@ -36,7 +36,11 @@ type Props = {
   polling: boolean;
 };
 
-const Example: React.FunctionComponent<Props> = ({ videos, loading, polling }) => {
+const Example: React.FunctionComponent<Props> = ({
+  videos,
+  loading,
+  polling,
+}) => {
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
   const [username, setUsername] = useState<string | null>();
   const [{ data: accountData }] = useAccount();
@@ -90,31 +94,30 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading, polling }) =
           <NextStreamTimer />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1} mr="20px">
-            <Flex
+          <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
             justifyContent="center"
             overflowX="auto"
             maxH="400px"
+          ></Flex>
+          <Flex
+            margin="auto"
+            maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
+            justifyContent="center"
+            backgroundColor="rgba(0,0,0,0.2)"
+            overflowX="auto"
+            maxH="400px"
+            height="400px"
           >
+            {loading ? (
+              <>
+                <Spinner size="xl" mt="10px" />
+              </>
+            ) : (
+              <VideoSort videos={videos} sort={sortVideoAs} polling={polling} />
+            )}
           </Flex>
-            <Flex
-              margin="auto"
-              maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
-              justifyContent="center"
-              backgroundColor="rgba(0,0,0,0.2)"
-              overflowX="auto"
-              maxH="400px"
-              height="400px"
-            >
-              {loading ? (
-                <>
-                  <Spinner size="xl" mt="10px"/>
-                </>
-              ) : (
-                <VideoSort videos={videos} sort={sortVideoAs} polling={polling}/>
-                )}
-            </Flex>
         </GridItem>
       </Grid>
     </>
@@ -137,13 +140,9 @@ export default function Page() {
     onCompleted: (data) => {
       setPolling(true);
       // wait 1 second
-      console.log(polling)
       setTimeout(() => {
         setPolling(false);
-        console.log(polling);
-      }
-      , 1000);
-
+      }, 1000);
     },
   });
 
@@ -151,7 +150,7 @@ export default function Page() {
 
   return (
     <AppLayout error={error}>
-      <Example videos={videos} loading={loading} polling={polling}/>
+      <Example videos={videos} loading={loading} polling={polling} />
     </AppLayout>
   );
 }

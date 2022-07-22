@@ -48,10 +48,13 @@ const AblyChatComponent = ({ username }: Props) => {
   const toast = useToast();
   const messageTextIsEmpty = messageText.trim().length === 0;
 
-  const [channel, ably] = useChannel("persistMessages:chat-demo", (message: Message) => {
-    const history = receivedMessages.slice(-199);
-    setMessages([...history, message]);
-  });
+  const [channel, ably] = useChannel(
+    "persistMessages:chat-demo",
+    (message: Message) => {
+      const history = receivedMessages.slice(-199);
+      setMessages([...history, message]);
+    }
+  );
 
   useEffect(() => {
     async function getMessages() {

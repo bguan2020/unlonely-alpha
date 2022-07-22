@@ -12,32 +12,30 @@ type Props = {
   polling: boolean;
 };
 
-const PostSort: React.FunctionComponent<Props> = ({ videos, sort, polling }) => {
-  return <>
-    {renderPostList(sortVideoByAttribute(videos, sort), polling)}
-  </>
+const PostSort: React.FunctionComponent<Props> = ({
+  videos,
+  sort,
+  polling,
+}) => {
+  return <>{renderPostList(sortVideoByAttribute(videos, sort), polling)}</>;
 };
 
-const renderPostList = (data: VideoCard_VideoFragment[], polling: boolean): JSX.Element => {
+const renderPostList = (
+  data: VideoCard_VideoFragment[],
+  polling: boolean
+): JSX.Element => {
   let cardId = 0;
   return (
     <>
-    <Flex direction="column">
-      <Box h="20px">
-        {polling && (
-          <>
-            {"updating videos..."}
-          </>
-        )}
-      </Box>
-      <SimpleGrid columns={2} minChildWidth="50%">
-        {data?.map((a) => {
-          cardId++;
-          return !!a && <VideoCard key={a.id} video={a} order={cardId}/>;
-        })}
-      </SimpleGrid>
-
-    </Flex>
+      <Flex direction="column">
+        <Box h="20px">{polling && <>{"updating videos..."}</>}</Box>
+        <SimpleGrid columns={2} minChildWidth="50%">
+          {data?.map((a) => {
+            cardId++;
+            return !!a && <VideoCard key={a.id} video={a} order={cardId} />;
+          })}
+        </SimpleGrid>
+      </Flex>
     </>
   );
 };
