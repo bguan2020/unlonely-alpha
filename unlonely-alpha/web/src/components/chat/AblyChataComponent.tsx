@@ -48,10 +48,13 @@ const AblyChatComponent = ({ username }: Props) => {
   const toast = useToast();
   const messageTextIsEmpty = messageText.trim().length === 0;
 
-  const [channel, ably] = useChannel("persistMessages:chat-demo", (message: Message) => {
-    const history = receivedMessages.slice(-199);
-    setMessages([...history, message]);
-  });
+  const [channel, ably] = useChannel(
+    "persistMessages:chat-demo",
+    (message: Message) => {
+      const history = receivedMessages.slice(-199);
+      setMessages([...history, message]);
+    }
+  );
 
   useEffect(() => {
     async function getMessages() {
@@ -125,12 +128,12 @@ const AblyChatComponent = ({ username }: Props) => {
     return (
       <>
         <Flex direction="column">
-          <Flex direction="row" mb="5px">
+          <Flex direction="row">
             {((isFC && author === "me") || message.data.isFC) && (
               <Image
                 src="https://searchcaster.xyz/img/logo.png"
-                width="24px"
-                height="24px"
+                width="20px"
+                height="20px"
                 mr="5px"
               />
             )}
@@ -142,6 +145,7 @@ const AblyChatComponent = ({ username }: Props) => {
             bg={message.data.chatColor}
             pr="10px"
             pl="10px"
+            mb="10px"
           >
             <Text color="white" fontSize={14} wordBreak="break-word">
               {message.data.messageText}

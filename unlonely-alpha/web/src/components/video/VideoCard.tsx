@@ -50,7 +50,7 @@ const VideoCardInner = ({ video, order }: Props) => {
   return (
     <>
       <Flex direction="column">
-        <Text color="#787878" fontSize="14px" fontWeight={"bold"}>
+        <Text color="#787878" fontSize="14px" fontWeight={"bold"} ml="5px">
           {video.owner.username === null
             ? centerEllipses(video.owner.address, 7)
             : video.owner.username}

@@ -18,6 +18,9 @@ const ConnectAccount: React.FunctionComponent = () => {
   const [displayErrorModal, setDisplayErrorModal] = useState(false);
   useEffect(() => {
     setDisplayErrorModal(true);
+    /* eslint-disable no-console */
+  console.log(connectError);
+  /* eslint-enable no-console */
   }, [connectError]);
 
   return (
@@ -37,7 +40,7 @@ const ConnectAccount: React.FunctionComponent = () => {
     >
       <WalletModalHeader styles={{ marginTop: "33px" }}>
         {connectError && displayErrorModal ? (
-          <>Error Connecting</>
+          <>Error Connecting: {connectError.message}</>
         ) : (
           "Connect Your Wallet!"
         )}
