@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Text, Flex } from "@chakra-ui/react";
+import { Text, Flex, Link } from "@chakra-ui/react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 // component that is a timer counting down to the next stream
 
 const NextStreamTimer: React.FunctionComponent = () => {
@@ -102,6 +103,14 @@ const NextStreamTimer: React.FunctionComponent = () => {
                 <Text>seconds</Text>
               </Flex>
             </Flex>
+            <Text lineHeight={5} mb="10px" fontWeight="bold" fontSize={14}>
+            Wanna get notified before the stream goes live? 
+            <Link href="https://tally.so/r/3ja0ba" isExternal>
+              {" "}
+              Join our community here!
+              <ExternalLinkIcon mx="2px" />
+            </Link>
+          </Text>
           </Flex>
         </Flex>
       )}

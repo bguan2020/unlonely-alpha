@@ -10,6 +10,7 @@ import centerEllipses from "../utils/centerEllipses";
 import { VideoCard_VideoFragment } from "../generated/graphql";
 import AblyChatComponent from "../components/chat/AblyChataComponent";
 import NextStreamTimer from "../components/video/NextStreamTimer";
+import AddVideoModal from "../components/video/AddVideoModal";
 
 const VIDEO_LIST_QUERY = gql`
   query VideoFeed($data: VideoFeedInput!) {
@@ -97,10 +98,13 @@ const Example: React.FunctionComponent<Props> = ({
           <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
-            justifyContent="center"
+            justifyContent="left"
             overflowX="auto"
             maxH="400px"
-          ></Flex>
+            mb="10px"
+          >
+            <AddVideoModal />
+          </Flex>
           <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
@@ -155,8 +159,8 @@ export default function Page() {
   );
 }
 
-export async function getStaticProps() {
-  const API_KEY = process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY;
+// export async function getStaticProps() {
+//   const API_KEY = process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY;
 
-  return { props: {} };
-}
+//   return { props: {} };
+// }

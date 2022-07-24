@@ -181,10 +181,10 @@ const AblyChatComponent = ({ username }: Props) => {
       <Flex p="10px" h="100%" minW="100%">
         <Flex direction="column">
           <Text lineHeight={5} mb="10px" fontWeight="bold" fontSize={14}>
-            Interested in learning more?
-            <Link href="https://tally.so/r/3ja0ba" isExternal>
+            Give product feedback and bug reports
+            <Link href="https://tally.so/r/mODB9K" isExternal>
               {" "}
-              Join our community to get notified!
+              here.
               <ExternalLinkIcon mx="2px" />
             </Link>
           </Text>

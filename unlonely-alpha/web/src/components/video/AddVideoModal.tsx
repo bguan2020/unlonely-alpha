@@ -1,33 +1,24 @@
-import React, { useState } from "react";
-import {
-  Text,
-  Flex,
-  Box,
-  Alert,
-  AlertIcon,
-  Textarea,
-  FormErrorMessage,
-  Button,
-  Image,
-} from "@chakra-ui/react";
-import { FormControl, useToast } from "@chakra-ui/react";
+import { Flex, Text, Image, Box, Alert, AlertIcon, Textarea, FormErrorMessage, FormControl, useToast, Button } from "@chakra-ui/react";
+import { useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import moment from "moment";
 import { useAccount } from "wagmi";
 
-import { PostVideoInput } from "../generated/graphql";
+import { PostVideoInput } from "../../generated/graphql";
 import {
   postYTLinkSchema,
   postVideoSchema,
-} from "../utils/validation/validation";
-import { PostYTLinkInput } from "../types";
-import usePostVideoWithRedirect from "../hooks/usePostVideoWithRedirect";
-import AppLayout from "../components/layout/AppLayout";
-import { YT_PUBLIC_KEY } from "../constants";
+} from "../../utils/validation/validation";
+import { PostYTLinkInput } from "../../types";
+import usePostVideoWithRedirect from "../../hooks/usePostVideoWithRedirect";
+import { YT_PUBLIC_KEY } from "../../constants";
+import NFTModalHeader from "../profile/NFTModal/NFTModalHeader";
+import NFTModalRoot from "../profile/NFTModal/NFTModalRoot";
+import NFTModalFooter from "../profile/NFTModal/NFTModalFooter";
 
-export default function Page() {
+const AddVideoModal: React.FunctionComponent = () => {
   const ytForm = useForm<PostYTLinkInput>({
     defaultValues: {},
     resolver: yupResolver(postYTLinkSchema),
@@ -103,32 +94,14 @@ export default function Page() {
   };
 
   return (
-    <AppLayout>
-      <Flex justifyContent="center">
-        <Flex
-          marginTop={{ base: "40px", md: "60px", lg: "100px" }}
-          maxW="80%"
-          flexDirection="column"
-        >
-          <Text
-            color="black"
-            fontSize={{ base: "40px", md: "60px", lg: "80px" }}
-            lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
-            fontWeight="bold"
-            textAlign="center"
-          >
-            Never watch alone again. Come be{" "}
-            <Text as="span" color="white">
-              unlonely
-            </Text>{" "}
-            with us.
-          </Text>
-          <Flex w="100%" justifyContent="center" mt="20px">
-            <Text color="black" fontSize={26} lineHeight="26px">
-              7-8pm PST / 10-11pm EST Daily
-            </Text>
-          </Flex>
-          <Flex w="100%" justifyContent="center" mt="40px">
+    <>
+      <NFTModalRoot
+        TriggerButton={<Button>Add a Video</Button>}
+      >
+        <NFTModalHeader styles={{ marginTop: "33px" }}>
+          {formError && <Text>{formError}</Text>}
+        </NFTModalHeader>
+        <Flex w="100%" justifyContent="center" mt="40px">
             <Box
               w={{ base: "300px", md: "400px", lg: "400px" }}
               bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
@@ -299,14 +272,11 @@ export default function Page() {
               )}
             </Box>
           </Flex>
-        </Flex>
-      </Flex>
-    </AppLayout>
+
+        <NFTModalFooter />
+      </NFTModalRoot>
+    </>
   );
-}
+};
 
-export async function getStaticProps() {
-  const API_KEY = process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY;
-
-  return { props: {} };
-}
+export default AddVideoModal;
