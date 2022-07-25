@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Text, Flex, Link } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import moment from "moment-timezone";
 // component that is a timer counting down to the next stream
 
 const NextStreamTimer: React.FunctionComponent = () => {
@@ -12,15 +13,16 @@ const NextStreamTimer: React.FunctionComponent = () => {
 
   const updateTime = () => {
     const now = new Date();
-    // next stream time set to july 25, 2022 at 7pm PST
-    const nextStream = new Date(2022, 6, 25, 19, 0, 0);
-    const timeDiff = nextStream.getTime() - now.getTime();
-    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    // next stream time set to july 25, 2022 at 7pm PST, timezone specificed in moment-timezone
+    const nextStreamTime = moment.tz(
+      "2022-07-25T19:00:00",
+      "America/Los_Angeles"
     );
-    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+    const diff = nextStreamTime.diff(now, "seconds");
+    const days = Math.floor(diff / (60 * 60 * 24));
+    const hours = Math.floor((diff % (60 * 60 * 24)) / (60 * 60));
+    const minutes = Math.floor((diff % (60 * 60)) / 60);
+    const seconds = Math.floor(diff % 60);
     setDays(days);
     setHours(hours);
     setMinutes(minutes);
@@ -72,11 +74,11 @@ const NextStreamTimer: React.FunctionComponent = () => {
             pt="100px"
             pl="10px"
             color="white"
-            fontWeight={"bold"}
+            fontWeight="bold"
             fontSize="40px"
             bg="black"
           >
-            <Text>Next stream in:</Text>
+            <Text fontFamily="Anonymous Pro, monospace">Next stream in:</Text>
             <Flex direction="row">
               <Flex direction="row" mr="5px">
                 <Text mr="5px" fontSize="62px" color="#76D201">
@@ -103,7 +105,7 @@ const NextStreamTimer: React.FunctionComponent = () => {
                 <Text>seconds</Text>
               </Flex>
             </Flex>
-            <Text lineHeight={5} mb="10px" fontSize={14}>
+            <Text lineHeight={5} mb="10px" fontSize="14px">
             Wanna get notified before the stream goes live? 
             <Link href="https://tally.so/r/3ja0ba" isExternal>
               {" "}
