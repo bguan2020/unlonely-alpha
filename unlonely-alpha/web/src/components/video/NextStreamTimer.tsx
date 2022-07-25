@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Text, Flex, Link } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import moment from "moment-timezone";
-// component that is a timer counting down to the next stream
 
 const NextStreamTimer: React.FunctionComponent = () => {
   const [streamingTime, setStreamingTime] = useState<boolean>(false);
