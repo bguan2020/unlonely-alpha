@@ -13,7 +13,7 @@ import chakraTheme from "../styles/theme";
 
 // This Next.js document exists only for Chakra color mode:
 // https://chakra-ui.com/docs/features/color-mode#for-nextjs
-export default class AugiartDocument extends Document {
+export default class UnlonelyDocument extends Document {
   static async getInitialProps(
     ctx: DocumentContext
   ): Promise<DocumentInitialProps> {
