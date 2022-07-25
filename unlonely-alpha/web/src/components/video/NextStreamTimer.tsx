@@ -103,7 +103,7 @@ const NextStreamTimer: React.FunctionComponent = () => {
                 <Text>seconds</Text>
               </Flex>
             </Flex>
-            <Text lineHeight={5} mb="10px" fontWeight="bold" fontSize={14}>
+            <Text lineHeight={5} mb="10px" fontSize={14}>
             Wanna get notified before the stream goes live? 
             <Link href="https://tally.so/r/3ja0ba" isExternal>
               {" "}
