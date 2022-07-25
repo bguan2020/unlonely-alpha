@@ -76,7 +76,7 @@ const NextStreamTimer: React.FunctionComponent = () => {
             fontSize="40px"
             bg="black"
           >
-            <Text>Next stream in:</Text>
+            <Text fontFamily="Anonymous Pro, monospace">Next stream in:</Text>
             <Flex direction="row">
               <Flex direction="row" mr="5px">
                 <Text mr="5px" fontSize="62px" color="#76D201">
