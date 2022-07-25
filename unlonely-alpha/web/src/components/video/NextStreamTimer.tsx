@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Text, Flex, Link } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import moment from "moment";
+import moment from "moment-timezone";
 // component that is a timer counting down to the next stream
 
 const NextStreamTimer: React.FunctionComponent = () => {
@@ -13,24 +13,16 @@ const NextStreamTimer: React.FunctionComponent = () => {
 
   const updateTime = () => {
     const now = new Date();
-    // next stream time set to july 25, 2022 at 7pm PST
-    const nextStream = new Date(2022, 6, 25, 19, 0, 0).toLocaleString("en-US", {  timeZone: "America/Los_Angeles" });
-    /* eslint-disable no-console */
-    console.log(nextStream);
-    /* eslint-enable no-console */
-    const timeDiff = moment(nextStream).diff(now);
-    const duration = moment.duration(timeDiff);
-    const days = duration.days();
-    const hours = duration.hours();
-    const minutes = duration.minutes();
-    const seconds = duration.seconds();
-    // const timeDiff = nextStream.getTime() - now.getTime();
-    // const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    // const hours = Math.floor(
-    //   (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    // );
-    // const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-    // const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+    // next stream time set to july 25, 2022 at 7pm PST, timezone specificed in moment-timezone
+    const nextStreamTime = moment.tz(
+      "2022-07-25T19:00:00",
+      "America/Los_Angeles"
+    );
+    const diff = nextStreamTime.diff(now, "seconds");
+    const days = Math.floor(diff / (60 * 60 * 24));
+    const hours = Math.floor((diff % (60 * 60 * 24)) / (60 * 60));
+    const minutes = Math.floor((diff % (60 * 60)) / 60);
+    const seconds = Math.floor(diff % 60);
     setDays(days);
     setHours(hours);
     setMinutes(minutes);
