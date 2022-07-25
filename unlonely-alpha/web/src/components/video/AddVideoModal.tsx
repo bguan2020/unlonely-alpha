@@ -52,6 +52,15 @@ const AddVideoModal: React.FunctionComponent = () => {
   const submitVideo = async () => {
     const { description } = watch();
     const data = await postVideo({ youtubeId, title, thumbnail, description });
+    toast({
+      title: "Video Suggestion Submitted",
+      description:
+        "Your video has been added. Refresh the page to see it in the video feed.",
+      status: "success",
+      duration: 9000,
+      isClosable: true,
+      position: "top",
+    });
   };
 
   const handleChangeVideo = () => {
@@ -113,8 +122,9 @@ const AddVideoModal: React.FunctionComponent = () => {
                 margin="20px"
                 lineHeight="25px"
                 fontWeight="bold"
+                textAlign={"center"}
               >
-                Watch with us! Enter a Youtube video you want to share with a
+                Watch with us! Enter a YouTube video you want to share with a
                 community.
               </Text>
               {title && thumbnail ? (

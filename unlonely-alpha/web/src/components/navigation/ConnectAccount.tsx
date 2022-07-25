@@ -18,9 +18,6 @@ const ConnectAccount: React.FunctionComponent = () => {
   const [displayErrorModal, setDisplayErrorModal] = useState(false);
   useEffect(() => {
     setDisplayErrorModal(true);
-    /* eslint-disable no-console */
-  console.log(connectError);
-  /* eslint-enable no-console */
   }, [connectError]);
 
   return (

@@ -140,8 +140,10 @@ export default function Page() {
                 margin="20px"
                 lineHeight="25px"
                 fontWeight="bold"
+                textAlign={"center"}
+                color="white"
               >
-                Watch with us! Enter a Youtube video you want to share with a
+                Watch with us! Enter a YouTube video you want to share with a
                 community.
               </Text>
               {title && thumbnail ? (
