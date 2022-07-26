@@ -60,7 +60,7 @@ const AblyChatComponent = ({ username }: Props) => {
     async function getMessages() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const { items } = await channel.history({ limit: 2000 });
+      const { items } = await channel.history({ limit: 200 });
       const reversed = items.reverse();
       setMessages(reversed);
     }

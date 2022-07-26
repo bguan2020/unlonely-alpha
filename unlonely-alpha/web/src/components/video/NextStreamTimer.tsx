@@ -4,7 +4,7 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import moment from "moment-timezone";
 
 const NextStreamTimer: React.FunctionComponent = () => {
-  const [streamingTime, setStreamingTime] = useState<boolean>(true);
+  const [streamingTime, setStreamingTime] = useState<boolean>(false);
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);
   const [minutes, setMinutes] = useState<number>(0);
@@ -14,7 +14,7 @@ const NextStreamTimer: React.FunctionComponent = () => {
     const now = new Date();
     // next stream time set to july 25, 2022 at 7pm PST, timezone specificed in moment-timezone
     const nextStreamTime = moment.tz(
-      "2022-07-25T19:00:00",
+      "2022-07-26T15:48:00",
       "America/Los_Angeles"
     );
     const diff = nextStreamTime.diff(now, "seconds");
@@ -27,7 +27,7 @@ const NextStreamTimer: React.FunctionComponent = () => {
     setMinutes(minutes);
     setSeconds(seconds);
 
-    if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
+    if (days <= 0 && hours <= 0 && minutes <= 0 && seconds <= 0) {
       setStreamingTime(true);
     }
   };
