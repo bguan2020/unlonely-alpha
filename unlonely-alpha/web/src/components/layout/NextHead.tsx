@@ -33,7 +33,7 @@ const NextHead: React.FC<{ title: string }> = ({ title }) => {
       <meta name="description" content={__description} />
 
       <meta property="og:title" content={__title} />
-      <meta property="og:url" content="https://unlonely.xyz" />
+      <meta property="og:url" content="https://unlonely.app" />
       <meta property="og:locale" content="en_US" />
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content={__title} />
@@ -44,7 +44,7 @@ const NextHead: React.FC<{ title: string }> = ({ title }) => {
       <meta name="twitter:title" content={__title} />
       <meta name="twitter:description" content="Never watch alone again." />
       <meta name="twitter:creator" content="@bdguan" />
-      <meta name="twitter:image" content="https://i.imgur.com/tldMxSw.png" />
+      <meta name="twitter:image" content="https://i.imgur.com/7Uqq9IB.png" />
     </Head>
   );
 };
