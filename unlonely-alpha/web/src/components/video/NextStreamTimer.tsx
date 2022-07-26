@@ -4,7 +4,7 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import moment from "moment-timezone";
 
 const NextStreamTimer: React.FunctionComponent = () => {
-  const [streamingTime, setStreamingTime] = useState<boolean>(false);
+  const [streamingTime, setStreamingTime] = useState<boolean>(true);
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);
   const [minutes, setMinutes] = useState<number>(0);
