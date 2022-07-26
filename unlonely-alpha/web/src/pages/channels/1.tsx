@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useState, useEffect } from "react";
-import { Text, Flex, Grid, GridItem, Box, Spinner } from "@chakra-ui/react";
+import { Text, Flex, Grid, GridItem, Box } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 
 import AppLayout from "../../components/layout/AppLayout";
@@ -34,13 +34,11 @@ const VIDEO_LIST_QUERY = gql`
 type Props = {
   videos: VideoCard_VideoFragment[];
   loading: boolean;
-  polling: boolean;
 };
 
 const Example: React.FunctionComponent<Props> = ({
   videos,
   loading,
-  polling,
 }) => {
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
   const [username, setUsername] = useState<string | null>();
@@ -105,6 +103,9 @@ const Example: React.FunctionComponent<Props> = ({
           >
             <AddVideoModal />
           </Flex>
+          {loading && (
+            <Box h="20px">{"updating videos..."}</Box>
+          )}
           <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
@@ -114,13 +115,7 @@ const Example: React.FunctionComponent<Props> = ({
             maxH="400px"
             height="400px"
           >
-            {loading ? (
-              <>
-                <Spinner size="xl" mt="10px" />
-              </>
-            ) : (
-              <VideoSort videos={videos} sort={sortVideoAs} polling={polling} />
-            )}
+            <VideoSort videos={videos} sort={sortVideoAs} />
           </Flex>
         </GridItem>
       </Grid>
@@ -129,7 +124,6 @@ const Example: React.FunctionComponent<Props> = ({
 };
 
 export default function Page() {
-  const [polling, setPolling] = useState<boolean>(false);
   const { data, loading, error, networkStatus } = useQuery(VIDEO_LIST_QUERY, {
     variables: {
       data: {
@@ -141,20 +135,13 @@ export default function Page() {
     },
     notifyOnNetworkStatusChange: true,
     pollInterval: 60000,
-    onCompleted: (data) => {
-      setPolling(true);
-      // wait 1 second
-      setTimeout(() => {
-        setPolling(false);
-      }, 1000);
-    },
   });
 
   const videos = data?.getVideoFeed;
 
   return (
     <AppLayout error={error}>
-      <Example videos={videos} loading={loading} polling={polling} />
+      <Example videos={videos} loading={loading} />
     </AppLayout>
   );
 }

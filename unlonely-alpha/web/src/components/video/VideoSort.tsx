@@ -1,4 +1,4 @@
-import { SimpleGrid, Flex, Box } from "@chakra-ui/react";
+import { SimpleGrid, Flex } from "@chakra-ui/react";
 import React from "react";
 
 import { VideoCard_VideoFragment } from "../../generated/graphql";
@@ -9,26 +9,22 @@ export type VideoAttribute = "score" | "createdAt";
 type Props = {
   videos: VideoCard_VideoFragment[];
   sort: VideoAttribute;
-  polling: boolean;
 };
 
 const PostSort: React.FunctionComponent<Props> = ({
   videos,
   sort,
-  polling,
 }) => {
-  return <>{renderPostList(sortVideoByAttribute(videos, sort), polling)}</>;
+  return <>{renderPostList(sortVideoByAttribute(videos, sort))}</>;
 };
 
 const renderPostList = (
   data: VideoCard_VideoFragment[],
-  polling: boolean
 ): JSX.Element => {
   let cardId = 0;
   return (
     <>
       <Flex direction="column">
-        <Box h="20px">{polling && <>{"updating videos..."}</>}</Box>
         <SimpleGrid columns={2} minChildWidth="50%">
           {data?.map((a) => {
             cardId++;
