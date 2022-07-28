@@ -8,12 +8,8 @@ import Card from "../../components/general/Card";
 import { VideoCard_VideoFragment } from "../../generated/graphql";
 import useLike from "../../hooks/useLike";
 
-import {
-  WatchIcon,
-  WatchedIcon,
-  SkipIcon,
-  SkippedIcon,
-} from "../icons/LikeIcon";
+import { UpVoteIcon, UpVoteIconSalmon } from "../icons/UpVoteIcon";
+import { DownVoteIcon, DownVoteIconSalmon } from "../icons/DownVoteIcon";
 import NebulousButton from "../general/button/NebulousButton";
 import centerEllipses from "../../utils/centerEllipses";
 import WinnerWrapper from "./WinnerWrapper";
@@ -108,9 +104,9 @@ const VideoCardInner = ({ video, order }: Props) => {
                       disabled={buttonDisabled}
                     >
                       {video.skipped === true ? (
-                        <SkippedIcon boxSize={5} />
+                        <DownVoteIconSalmon boxSize={5} />
                       ) : (
-                        <SkipIcon boxSize={5} />
+                        <DownVoteIcon boxSize={5} />
                       )}
                     </NebulousButton>
                   </span>
@@ -132,9 +128,9 @@ const VideoCardInner = ({ video, order }: Props) => {
                       disabled={buttonDisabled}
                     >
                       {video.skipped === true ? (
-                        <SkippedIcon boxSize={5} />
+                        <DownVoteIconSalmon boxSize={5} />
                       ) : (
-                        <SkipIcon boxSize={5} />
+                        <DownVoteIcon boxSize={5} />
                       )}
                     </NebulousButton>
                   </span>
@@ -151,9 +147,9 @@ const VideoCardInner = ({ video, order }: Props) => {
                       disabled={buttonDisabled}
                     >
                       {video.liked === true ? (
-                        <WatchedIcon boxSize={5} />
+                        <UpVoteIconSalmon boxSize={5} />
                       ) : (
-                        <WatchIcon boxSize={5} />
+                        <UpVoteIcon boxSize={5} />
                       )}
                     </NebulousButton>
                   </span>
@@ -175,9 +171,9 @@ const VideoCardInner = ({ video, order }: Props) => {
                       disabled={buttonDisabled}
                     >
                       {video.liked === true ? (
-                        <WatchedIcon boxSize={5} />
+                        <UpVoteIconSalmon boxSize={5} />
                       ) : (
-                        <WatchIcon boxSize={5} />
+                        <UpVoteIcon boxSize={5} />
                       )}
                     </NebulousButton>
                   </span>
