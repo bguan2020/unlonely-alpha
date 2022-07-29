@@ -8,9 +8,6 @@
     "schema:download": "apollo schema:download --endpoint=http://localhost:4000/graphql schema.json",
     "lint": "eslint ."
   },
-  "engines": {
-    "node": "14.17.4"
-  },
   "dependencies": {
     "@prisma/client": "^3.10.0",
     "@tiptap/core": "^2.0.0-beta.174",

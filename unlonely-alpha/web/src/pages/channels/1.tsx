@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useState, useEffect } from "react";
-import { Text, Flex, Grid, GridItem, Box } from "@chakra-ui/react";
+import { Text, Flex, Grid, GridItem, Box, Button } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 
 import AppLayout from "../../components/layout/AppLayout";
@@ -71,6 +71,7 @@ const Example: React.FunctionComponent<Props> = ({
           mt="10px"
           mb="190px"
           maxH="700px"
+          id="xeedev-chat-div"
         >
           <Flex
             justifyContent="center"
@@ -79,20 +80,21 @@ const Example: React.FunctionComponent<Props> = ({
             pb="10px"
             pt="10px"
           >
-            <Box bg="black" margin="auto">
+            <Box bg="black" margin="auto" >
               <Text fontWeight={"bold"} fontSize="20px" color="white">
                 The Chat Room!
               </Text>
             </Box>
           </Flex>
-          <AblyChatComponent username={username} />
+          <AblyChatComponent username={username}/>
         </GridItem>
         <GridItem rowSpan={3} colSpan={1}></GridItem>
         <GridItem rowSpan={2} colSpan={1}></GridItem>
         <GridItem rowSpan={1} colSpan={1} mb="20px" mr="20px">
           <NextStreamTimer />
         </GridItem>
-        <GridItem rowSpan={1} colSpan={1} mr="20px">
+        <Button onClick={toggleChatVideos} id="xeedev-poaav">Pick or Add a video</Button>
+        <GridItem rowSpan={1} colSpan={1} mr="20px" id="xeedev-video-modal" className="xeedev-class-hide">
           <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
@@ -123,6 +125,19 @@ const Example: React.FunctionComponent<Props> = ({
   );
 };
 
+const toggleChatVideos = function(){
+  document.getElementById('xeedev-video-modal')?.classList.toggle('xeedev-class-block');
+  document.getElementById('xeedev-chat-div')?.classList.toggle('xeedev-class-hide'); 
+
+  var poaav = document.getElementById('xeedev-poaav');
+  if(poaav?.innerHTML === 'Pick or Add a video'){
+    poaav.innerHTML = 'Go back to chat';
+  }else if(poaav?.innerHTML === 'Go back to chat'){
+    poaav.innerHTML = 'Pick or Add a video';
+  }
+
+}
+
 export default function Page() {
   const { data, loading, error, networkStatus } = useQuery(VIDEO_LIST_QUERY, {
     variables: {
@@ -136,7 +151,6 @@ export default function Page() {
     notifyOnNetworkStatusChange: true,
     pollInterval: 60000,
   });
-
   const videos = data?.getVideoFeed;
 
   return (

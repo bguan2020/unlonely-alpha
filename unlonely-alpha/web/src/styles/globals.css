@@ -14,3 +14,69 @@ h1 {
   font-weight: 700;
   margin-bottom: 1rem;
 }
+body{
+  background-image: linear-gradient(to right, #e2f979, #b0e5cf, #ba98d7, #d16fce) !important;
+}
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+  .xeedev-class-block{
+    display: block !important;
+  }
+  .xeedev-class-hide{
+    display: none ;
+  }
+  #xeedev-poaav{
+    display: grid;
+    justify-content: center;
+    width: 90%;
+    margin: 10px auto;
+  }
+  .css-1mh3zb0{
+    height: fit-content !important;
+  }
+  .css-fyeupi:active, .css-fyeupi:hover, .css-fyeupi[data-active]{
+    opacity: 1 !important;
+  }
+  .css-10lhutf{
+    position: absolute;
+    top:360px;
+    left:10px;
+    width: 95%;
+  }
+  .css-1dv6w0c{
+    justify-content: center !important;
+  }
+  .css-1b4frw9{
+    display:block !important;
+  }
+  .css-1gc7cme{
+    background-color: rgba(225,225,225,0.3) !important;
+    backdrop-filter: blur(5px) !important;
+  }
+  .css-1857cn2, .css-nfkepv{
+    margin-right: 0px !important;
+  }
+   .css-1tm8eda{
+    width: 95% !important;
+  }
+  .css-199td1z{
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .css-1s292vp, .css-1rt54ov, .css-cgbeia, .css-ufazq{
+    font-size: 30px !important;
+  }
+  .css-1n54i6{
+    font-size: 15px !important;
+    width: 95% !important;
+    padding: 50px 10px !important;
+  }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+  #xeedev-poaav{
+  display: none;
+}
+}
