@@ -210,7 +210,7 @@ const AblyChatComponent = ({ username }: Props) => {
             )}
           </Flex>
           <Flex mt="20px" w="100%">
-            <form onSubmit={handleFormSubmission} style={{ width: "100%" }}>
+            <form onSubmit={handleFormSubmission} className="xeedev-form-i" style={{ width: "100%" }}>
               <Textarea
                 ref={(element) => {
                   inputBox = element;

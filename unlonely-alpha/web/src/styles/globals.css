@@ -45,7 +45,7 @@ body{
     position: absolute;
     top:385px;
     left:10px;
-    height:50vh;
+    height:70vh;
     width: 95%;
   }
   .css-1dv6w0c{
@@ -58,6 +58,7 @@ body{
   .css-1gc7cme{
     background-color: rgba(225,225,225,0.3) !important;
     backdrop-filter: blur(5px) !important;
+    position: absolute !important;
   }
   .css-1857cn2, .css-nfkepv{
     margin-right: 0px !important;
@@ -79,6 +80,14 @@ body{
   }
   .css-j7qwjs{
     width: 100% !important;
+  }
+  .css-1kn81z4{
+    width: 70% !important;
+    min-width: 70% !important;
+    min-height: 50px !important;
+  }
+  .xeedev-form-i{
+    display: flex !important;
   }
 }
 
