@@ -229,6 +229,7 @@ const AblyChatComponent = ({ username }: Props) => {
                   mt="5px"
                   bg="#27415E"
                   color="white"
+                  className="xeedev-button-desktop"
                 >
                   Send
                 </Button>

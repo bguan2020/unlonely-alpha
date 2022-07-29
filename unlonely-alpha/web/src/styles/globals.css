@@ -18,6 +18,32 @@ body{
   background-image: linear-gradient(to right, #e2f979, #b0e5cf, #ba98d7, #d16fce) !important;
 }
 
+.css-o4poyf:hover , .css-o4poyf:active{
+  background-color:#717BA7 !important;
+  opacity: 1 !important;
+}
+
+.css-ckv54k:hover, .css-ckv54k:active{
+  background-color: #3e4565 !important;
+  opacity: 1 !important;
+}
+.css-fyeupi:hover, .css-fyeupi:active{
+  background-color: #717BA7 !important;
+  color: #fff;
+  opacity: 1 !important;
+}
+.css-1gc7cme{
+  position: absolute !important;
+}
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 1200px) {
+  .css-199td1z{
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
+
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
   .xeedev-class-block{
@@ -54,11 +80,6 @@ body{
   .css-1b4frw9{
     display:block !important;
     margin-bottom: 0px !important;
-  }
-  .css-1gc7cme{
-    background-color: rgba(225,225,225,0.3) !important;
-    backdrop-filter: blur(5px) !important;
-    position: absolute !important;
   }
   .css-1857cn2, .css-nfkepv{
     margin-right: 0px !important;
@@ -101,6 +122,9 @@ body{
 }
 .css-1n54i6{
   font-size: 20px !important;
+}
+.xeedev-button-desktop{
+  width: 100% !important;
 }
 }
 
