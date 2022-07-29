@@ -12,6 +12,20 @@ export const getVideo = ({ id }: { id: number }, ctx: Context) => {
   });
 };
 
+export const softDeleteVideo = ({ id }: { id: number }, ctx: Context) => {
+  return ctx.prisma.video.update({
+    where: { id: Number(id) },
+    data: { isDeleted: true },
+  });
+};
+
+export const updateCurrentVideo = ({ id }: { id: number }, ctx: Context) => {
+  return ctx.prisma.video.update({
+    where: { id: Number(id) },
+    data: { currentVideo: true },
+  });
+};
+
 export interface IPostVideoInput {
   youtubeId: string;
   title: string;

@@ -1,7 +1,5 @@
 import { PrismaClient, User } from "@prisma/client";
 import { ethers } from "ethers";
-import { Time } from "graphql-scalars/mocks";
-import { nanoid } from "nanoid";
 
 const prisma = new PrismaClient();
 
