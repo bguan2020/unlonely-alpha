@@ -46,8 +46,12 @@ const AblyChatComponent = ({ username }: Props) => {
   const [isFC, setIsFC] = useState<boolean>(false);
   const [{ data: accountData }] = useAccount();
   const toast = useToast();
+  const [buttonStatus, toggleButton] = useState(false);
   const messageTextIsEmpty = messageText.trim().length === 0;
 
+  const switchButton = () => {
+    toggleButton(current => !current);
+  };
   const [channel, ably] = useChannel(
     "persistMessages:chat-demo",
     (message: Message) => {
@@ -195,17 +199,18 @@ const AblyChatComponent = ({ username }: Props) => {
             maxH="400px"
             id="chat"
           >
+          
             {messages}
             {autoScroll.current && (
               <Box
-                ref={(el) => {
-                  if (el) el.scrollIntoView({ behavior: "smooth" });
-                }}
+                // ref={(el) => {
+                //   if (el) el.scrollIntoView({ behavior: "smooth" });
+                // }}
               />
             )}
           </Flex>
           <Flex mt="20px" w="100%">
-            <form onSubmit={handleFormSubmission} style={{ width: "100%" }}>
+            <form onSubmit={handleFormSubmission} className="xeedev-form-i" style={{ width: "100%" }}>
               <Textarea
                 ref={(element) => {
                   inputBox = element;
