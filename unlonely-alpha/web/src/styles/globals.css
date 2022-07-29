@@ -32,6 +32,9 @@ body{
     width: 90%;
     margin: 10px auto;
   }
+  .css-5rvtk7{
+    margin-top: 40px !important;
+  }
   .css-1mh3zb0{
     height: fit-content !important;
   }
@@ -40,8 +43,9 @@ body{
   }
   .css-10lhutf{
     position: absolute;
-    top:360px;
+    top:385px;
     left:10px;
+    height:50vh;
     width: 95%;
   }
   .css-1dv6w0c{
@@ -49,6 +53,7 @@ body{
   }
   .css-1b4frw9{
     display:block !important;
+    margin-bottom: 0px !important;
   }
   .css-1gc7cme{
     background-color: rgba(225,225,225,0.3) !important;
@@ -69,8 +74,11 @@ body{
   }
   .css-1n54i6{
     font-size: 15px !important;
-    width: 95% !important;
+    width: 100% !important;
     padding: 50px 10px !important;
+  }
+  .css-j7qwjs{
+    width: 100% !important;
   }
 }
 
@@ -79,4 +87,49 @@ body{
   #xeedev-poaav{
   display: none;
 }
+.css-1s292vp, .css-1rt54ov, .css-cgbeia, .css-ufazq{
+  font-size: 35px !important;
+}
+.css-1n54i6{
+  font-size: 20px !important;
+}
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+  #xeedev-poaav{
+    display: none;
+  }
+  .css-1s292vp, .css-1rt54ov, .css-cgbeia, .css-ufazq{
+    font-size: 35px !important;
+  }
+  .css-1n54i6{
+    font-size: 20px !important;
+  }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+  #xeedev-poaav{
+    display: none;
+  }
+  .css-1s292vp, .css-1rt54ov, .css-cgbeia, .css-ufazq{
+    font-size: 40px !important;
+  }
+  .css-1n54i6{
+    font-size: 20px !important; 
+  }
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+  #xeedev-poaav{
+    display: none;
+  }
+  .css-1s292vp, .css-1rt54ov, .css-cgbeia, .css-ufazq{
+    font-size: 62px !important;
+  }
+  .css-1n54i6{
+    font-size: 40px !important;
+  }
 }
