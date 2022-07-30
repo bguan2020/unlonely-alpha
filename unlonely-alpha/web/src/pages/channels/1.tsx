@@ -135,7 +135,6 @@ const toggleChatVideos = function(){
   }else if(poaav?.innerHTML === "Go back to chat"){
     poaav.innerHTML = "Pick or Add a video";
   }
-
 }
 
 export default function Page() {
