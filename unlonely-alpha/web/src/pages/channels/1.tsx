@@ -126,16 +126,15 @@ const Example: React.FunctionComponent<Props> = ({
 };
 
 const toggleChatVideos = function(){
-  document.getElementById('xeedev-video-modal')?.classList.toggle('xeedev-class-block');
-  document.getElementById('xeedev-chat-div')?.classList.toggle('xeedev-class-hide'); 
+  document.getElementById("xeedev-video-modal")?.classList.toggle("xeedev-class-block");
+  document.getElementById("xeedev-chat-div")?.classList.toggle("xeedev-class-hide"); 
 
-  var poaav = document.getElementById('xeedev-poaav');
-  if(poaav?.innerHTML === 'Pick or Add a video'){
-    poaav.innerHTML = 'Go back to chat';
-  }else if(poaav?.innerHTML === 'Go back to chat'){
-    poaav.innerHTML = 'Pick or Add a video';
+  const poaav = document.getElementById("xeedev-poaav");
+  if(poaav?.innerHTML === "Pick or Add a video"){
+    poaav.innerHTML = "Go back to chat";
+  }else if(poaav?.innerHTML === "Go back to chat"){
+    poaav.innerHTML = "Pick or Add a video";
   }
-
 }
 
 export default function Page() {
