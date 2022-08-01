@@ -59,9 +59,12 @@ export const getVideoFeed = (data: IGetVideoFeedInput, ctx: Context) => {
     take: data.limit || undefined,
     skip: data.skip || undefined,
     where: { isDeleted: false },
-    orderBy: {
-      createdAt: data.orderBy || undefined,
+    orderBy: [{
+      score: "desc",
     },
+    {
+      createdAt: "asc",
+    }],
   });
 };
 

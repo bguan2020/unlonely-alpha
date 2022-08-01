@@ -33,13 +33,6 @@ export const resolvers = {
 
       return videoService.softDeleteVideo({ id: Number(id) }, ctx);
     },
-    updateCurrentVideo: (_: any, { id }: { id: number }, ctx: Context) => {
-      if (!ctx.user || !ctx.userIsAuthed) {
-        throw new AuthenticationError("User is not authenticated");
-      }
-
-      return videoService.updateCurrentVideo({ id: Number(id) }, ctx);
-    },
   },
   Video: {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
