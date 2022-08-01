@@ -129,10 +129,11 @@ const AblyChatComponent = ({ username }: Props) => {
     const author = message.connectionId === ably.connection.id
         ? "me"
         : message.data.username;
+        // add key to flexbox to prevent React error
     return (
       <>
         <Flex direction="column">
-          <Flex direction="row">
+          <Flex key={index} direction="row" align="center">
             {((isFC && author === "me") || message.data.isFC) && (
               <Image
                 src="https://searchcaster.xyz/img/logo.png"
