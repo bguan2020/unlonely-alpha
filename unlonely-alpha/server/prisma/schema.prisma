@@ -45,6 +45,7 @@ model Video {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isDeleted Boolean @default(false)
+  currentVideo Boolean @default(false)
 }
 
 model Comment {

@@ -16,6 +16,8 @@ export const typeDef = gql`
     owner: User!
     createdAt: DateTime!
     updatedAt: DateTime!
+    isDeleted: Boolean!
+    currentVideo: Boolean!
   }
 
   input VideoFeedInput {
@@ -39,5 +41,6 @@ export const typeDef = gql`
 
   extend type Mutation {
     postVideo(data: PostVideoInput!): Video
+    softDeleteVideo(id: ID!): Boolean
   }
 `;
