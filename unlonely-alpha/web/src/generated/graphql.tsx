@@ -234,6 +234,7 @@ export type Comment_CommentFragment = {
 export type VideoCard_VideoFragment = {
   __typename: "Video";
   id: string;
+  youtubeId: string;
   title: string;
   thumbnail: string;
   description: string;
@@ -303,37 +304,32 @@ export type PostVideoMutation = {
   postVideo?: { __typename?: "Video"; id: string } | null;
 };
 
-export type VideoDetailQueryVariables = Exact<{
-  id: Scalars["ID"];
-}>;
-
-export type VideoDetailQuery = {
-  __typename?: "Query";
-  getVideo?: {
-    __typename?: "Video";
-    id: string;
-    youtubeId: string;
-    comments: Array<{
-      __typename?: "Comment";
-      id: string;
-      text: string;
-      score: number;
-      color: string;
-      location_x: number;
-      location_y: number;
-      videoId: number;
-      videoTimestamp: number;
-      createdAt: any;
-      owner: { __typename?: "User"; username?: string | null; address: string };
-    }>;
-  } | null;
-};
-
 export type VideoFeedQueryVariables = Exact<{
   data: VideoFeedInput;
 }>;
 
 export type VideoFeedQuery = {
+  __typename?: "Query";
+  getVideoFeed?: Array<{
+    __typename?: "Video";
+    id: string;
+    youtubeId: string;
+    title: string;
+    thumbnail: string;
+    description: string;
+    score: number;
+    createdAt: any;
+    liked?: boolean | null;
+    skipped?: boolean | null;
+    owner: { __typename?: "User"; username?: string | null; address: string };
+  } | null> | null;
+};
+
+export type VideoFeed1808QueryVariables = Exact<{
+  data: VideoFeedInput;
+}>;
+
+export type VideoFeed1808Query = {
   __typename?: "Query";
   getVideoFeed?: Array<{
     __typename?: "Video";
@@ -392,6 +388,7 @@ export const UseLike_VideoFragmentDoc = gql`
 export const VideoCard_VideoFragmentDoc = gql`
   fragment VideoCard_video on Video {
     id
+    youtubeId
     title
     thumbnail
     description
@@ -561,72 +558,11 @@ export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
   PostVideoMutation,
   PostVideoMutationVariables
 >;
-export const VideoDetailDocument = gql`
-  query VideoDetail($id: ID!) {
-    getVideo(id: $id) {
-      id
-      youtubeId
-      comments {
-        id
-        ...Comment_comment
-      }
-    }
-  }
-  ${Comment_CommentFragmentDoc}
-`;
-
-/**
- * __useVideoDetailQuery__
- *
- * To run a query within a React component, call `useVideoDetailQuery` and pass it any options that fit your needs.
- * When your component renders, `useVideoDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useVideoDetailQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useVideoDetailQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    VideoDetailQuery,
-    VideoDetailQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<VideoDetailQuery, VideoDetailQueryVariables>(
-    VideoDetailDocument,
-    options
-  );
-}
-export function useVideoDetailLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    VideoDetailQuery,
-    VideoDetailQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<VideoDetailQuery, VideoDetailQueryVariables>(
-    VideoDetailDocument,
-    options
-  );
-}
-export type VideoDetailQueryHookResult = ReturnType<typeof useVideoDetailQuery>;
-export type VideoDetailLazyQueryHookResult = ReturnType<
-  typeof useVideoDetailLazyQuery
->;
-export type VideoDetailQueryResult = Apollo.QueryResult<
-  VideoDetailQuery,
-  VideoDetailQueryVariables
->;
 export const VideoFeedDocument = gql`
   query VideoFeed($data: VideoFeedInput!) {
     getVideoFeed(data: $data) {
       id
+      youtubeId
       title
       thumbnail
       description
@@ -686,6 +622,75 @@ export type VideoFeedLazyQueryHookResult = ReturnType<
 export type VideoFeedQueryResult = Apollo.QueryResult<
   VideoFeedQuery,
   VideoFeedQueryVariables
+>;
+export const VideoFeed1808Document = gql`
+  query VideoFeed1808($data: VideoFeedInput!) {
+    getVideoFeed(data: $data) {
+      id
+      title
+      thumbnail
+      description
+      score
+      createdAt
+      owner {
+        username
+        address
+      }
+      liked
+      skipped
+    }
+  }
+`;
+
+/**
+ * __useVideoFeed1808Query__
+ *
+ * To run a query within a React component, call `useVideoFeed1808Query` and pass it any options that fit your needs.
+ * When your component renders, `useVideoFeed1808Query` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVideoFeed1808Query({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useVideoFeed1808Query(
+  baseOptions: Apollo.QueryHookOptions<
+    VideoFeed1808Query,
+    VideoFeed1808QueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<VideoFeed1808Query, VideoFeed1808QueryVariables>(
+    VideoFeed1808Document,
+    options
+  );
+}
+export function useVideoFeed1808LazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    VideoFeed1808Query,
+    VideoFeed1808QueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<VideoFeed1808Query, VideoFeed1808QueryVariables>(
+    VideoFeed1808Document,
+    options
+  );
+}
+export type VideoFeed1808QueryHookResult = ReturnType<
+  typeof useVideoFeed1808Query
+>;
+export type VideoFeed1808LazyQueryHookResult = ReturnType<
+  typeof useVideoFeed1808LazyQuery
+>;
+export type VideoFeed1808QueryResult = Apollo.QueryResult<
+  VideoFeed1808Query,
+  VideoFeed1808QueryVariables
 >;
 export const FetchAuthMessageDocument = gql`
   query FetchAuthMessage {

@@ -67,6 +67,7 @@ const ConnectAccount: React.FunctionComponent = () => {
           <>
             <Button
               //display={["none", "inline-flex"]}
+              className="div-mobile"
               variant="full"
               borderRadius="sm"
               leftIcon={<MetaMaskIcon w="24px" h="24px" />}

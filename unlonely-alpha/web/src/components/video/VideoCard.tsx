@@ -68,16 +68,30 @@ const VideoCardInner = ({ video, order }: Props) => {
               <Image src={video.thumbnail} height="90px" width="120px" />
             </GridItem>
             <GridItem colSpan={2} rowSpan={2} maxW="100%">
-              <Text
-                textColor="#2C3A50"
-                fontWeight="bold"
-                fontSize="m"
-                lineHeight="18px"
-                noOfLines={2}
-                fontFamily="Roboto, sans-serif"
-              >
-                {video.title}
-              </Text>
+              <Tooltip
+                label="copy video link">
+                <Text
+                  textColor="#2C3A50"
+                  fontWeight="bold"
+                  fontSize="m"
+                  lineHeight="18px"
+                  noOfLines={2}
+                  fontFamily="Roboto, sans-serif"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`https://www.youtube.com/watch?v=${video.youtubeId}`);
+                    toast({
+                      title: "Copied!",
+                      description: "Video link copied to clipboard",
+                      status: "success",
+                      duration: 4000,
+                      isClosable: true,
+                    });
+                  }
+                  }
+                >
+                  {video.title}
+                </Text>
+              </Tooltip>
             </GridItem>
             <GridItem colSpan={2} rowSpan={2} mt="5px">
               <Text
@@ -209,6 +223,7 @@ VideoCard.fragments = {
   video: gql`
     fragment VideoCard_video on Video {
       id
+      youtubeId
       title
       thumbnail
       description

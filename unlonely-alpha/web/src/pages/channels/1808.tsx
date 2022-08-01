@@ -12,7 +12,7 @@ import AblyChatComponent from "../../components/chat/AblyChataComponent";
 import AddVideoModal from "../../components/video/AddVideoModal";
 
 const VIDEO_LIST_QUERY = gql`
-  query VideoFeed($data: VideoFeedInput!) {
+  query VideoFeed1808($data: VideoFeedInput!) {
     getVideoFeed(data: $data) {
       id
       title

@@ -46,6 +46,9 @@ body{
 
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
+  .div-mobile{
+    display: none !important;
+  }
   .xeedev-class-block{
     display: block !important;
   }

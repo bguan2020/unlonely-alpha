@@ -16,6 +16,7 @@ const VIDEO_LIST_QUERY = gql`
   query VideoFeed($data: VideoFeedInput!) {
     getVideoFeed(data: $data) {
       id
+      youtubeId
       title
       thumbnail
       description
@@ -93,7 +94,7 @@ const Example: React.FunctionComponent<Props> = ({
         <GridItem rowSpan={1} colSpan={1} mb="20px" mr="20px">
           <NextStreamTimer />
         </GridItem>
-        <Button onClick={toggleChatVideos} id="xeedev-poaav">Pick or Add a video</Button>
+        <Button onClick={toggleChatVideos} id="xeedev-poaav">Vote on Upcoming Videos</Button>
         <GridItem rowSpan={1} colSpan={1} mr="20px" id="xeedev-video-modal" className="xeedev-class-hide">
           <Flex
             margin="auto"
