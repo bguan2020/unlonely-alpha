@@ -94,7 +94,7 @@ const Example: React.FunctionComponent<Props> = ({
         <GridItem rowSpan={1} colSpan={1} mb="20px" mr="20px">
           <NextStreamTimer />
         </GridItem>
-        <Button onClick={toggleChatVideos} id="xeedev-poaav">Vote/Add Upcoming Videos</Button>
+        <Button onClick={toggleChatVideos} id="xeedev-poaav">Toggle Chat/Videos</Button>
         <GridItem rowSpan={1} colSpan={1} mr="20px" id="xeedev-video-modal" className="xeedev-class-hide">
           <Flex
             margin="auto"
