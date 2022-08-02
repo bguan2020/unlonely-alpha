@@ -94,7 +94,7 @@ const Example: React.FunctionComponent<Props> = ({
         <GridItem rowSpan={1} colSpan={1} mb="20px" mr="20px">
           <NextStreamTimer />
         </GridItem>
-        <Button onClick={toggleChatVideos} id="xeedev-poaav">Vote on Upcoming Videos</Button>
+        <Button onClick={toggleChatVideos} id="xeedev-poaav">Toggle Chat/Videos</Button>
         <GridItem rowSpan={1} colSpan={1} mr="20px" id="xeedev-video-modal" className="xeedev-class-hide">
           <Flex
             margin="auto"
@@ -131,10 +131,10 @@ const toggleChatVideos = function(){
   document.getElementById("xeedev-chat-div")?.classList.toggle("xeedev-class-hide"); 
 
   const poaav = document.getElementById("xeedev-poaav");
-  if(poaav?.innerHTML === "Pick or Add a video"){
-    poaav.innerHTML = "Go back to chat";
-  }else if(poaav?.innerHTML === "Go back to chat"){
-    poaav.innerHTML = "Pick or Add a video";
+  if(poaav?.innerHTML === "Vote/Add Upcoming Videos"){
+    poaav.innerHTML = "Return to Chat";
+  }else if(poaav?.innerHTML === "Return to Chat"){
+    poaav.innerHTML = "Vote/Add Upcoming Videos";
   }
 }
 
