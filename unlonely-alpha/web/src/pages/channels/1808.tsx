@@ -10,6 +10,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { VideoCard_VideoFragment } from "../../generated/graphql";
 import AblyChatComponent from "../../components/chat/AblyChataComponent";
 import AddVideoModal from "../../components/video/AddVideoModal";
+import { ChatBot } from "./1";
 
 const VIDEO_LIST_QUERY = gql`
   query VideoFeed1808($data: VideoFeedInput!) {
@@ -40,6 +41,7 @@ const Example: React.FunctionComponent<Props> = ({
   loading,
 }) => {
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
+  const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
   const [{ data: accountData }] = useAccount();
 
@@ -84,7 +86,7 @@ const Example: React.FunctionComponent<Props> = ({
               </Text>
             </Box>
           </Flex>
-          <AblyChatComponent username={username} />
+          <AblyChatComponent username={username} chatBot={chatBot}/>
         </GridItem>
         <GridItem rowSpan={3} colSpan={1}></GridItem>
         <GridItem rowSpan={2} colSpan={1}></GridItem>
@@ -108,7 +110,7 @@ const Example: React.FunctionComponent<Props> = ({
             maxH="400px"
             mb="10px"
           >
-            <AddVideoModal />
+            <AddVideoModal chatBot={chatBot} setChatBot={setChatBot}/>
           </Flex>
           <Flex
             margin="auto"

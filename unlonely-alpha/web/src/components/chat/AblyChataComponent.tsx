@@ -13,6 +13,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 
 import useChannel from "../../hooks/useChannel";
+import { ChatBot } from "../../pages/channels/1";
 import { COLORS } from "../../styles/Colors";
 import { isFCUser } from "../../utils/farcasterBadge";
 import NFTList from "../profile/NFTList";
@@ -33,11 +34,12 @@ type Message = {
 
 type Props = {
   username: string | null | undefined;
+  chatBot: ChatBot[];
 };
 
 const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
-const AblyChatComponent = ({ username }: Props) => {
+const AblyChatComponent = ({ username, chatBot }: Props) => {
   let inputBox: HTMLTextAreaElement | null = null;
   // automatically scroll to the bottom of the chat
   const autoScroll = useRef(true);
@@ -70,6 +72,26 @@ const AblyChatComponent = ({ username }: Props) => {
     }
     getMessages();
   }, []);
+
+  // publish new chat when chatBot changes
+  useEffect(() => {
+    if (chatBot.length > 0) {
+      // get last message in chatbot
+      const lastMessage = chatBot[chatBot.length - 1];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      channel.publish({
+        name: "chat-message",
+        data: {
+          messageText: `${username} added the video: "${lastMessage.videoTitle}"`,
+          username: "chatbot🤖",
+          chatColor: "black",
+          address: "0x0000000000000000000000000000000000000000",
+          isFC: false,
+        },
+      });
+    }
+  }, [chatBot]);
 
   const sendChatMessage = (messageText: string) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -124,12 +146,17 @@ const AblyChatComponent = ({ username }: Props) => {
   };
 
   const messages = receivedMessages.map((message, index) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const author = message.connectionId === ably.connection.id
-        ? "me"
-        : message.data.username;
-        // add key to flexbox to prevent React error
+    let author: string;
+    // add key to flexbox to prevent React error
+    if (message.data.username === "chatbot🤖") {
+      author = "chatbot🤖";
+    } else {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      author = message.connectionId === ably.connection.id
+          ? "me"
+          : message.data.username;
+    }
     return (
       <>
         <Flex direction="column">
