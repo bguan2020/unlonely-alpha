@@ -37,11 +37,18 @@ type Props = {
   loading: boolean;
 };
 
+export type ChatBot = {
+  username: string;
+  address: string;
+  videoTitle: string | null;
+}
+
 const Example: React.FunctionComponent<Props> = ({
   videos,
   loading,
 }) => {
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
+  const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
   const [{ data: accountData }] = useAccount();
 
@@ -87,7 +94,7 @@ const Example: React.FunctionComponent<Props> = ({
               </Text>
             </Box>
           </Flex>
-          <AblyChatComponent username={username}/>
+          <AblyChatComponent username={username} chatBot={chatBot}/>
         </GridItem>
         <GridItem rowSpan={3} colSpan={1}></GridItem>
         <GridItem rowSpan={2} colSpan={1}></GridItem>
@@ -104,7 +111,7 @@ const Example: React.FunctionComponent<Props> = ({
             maxH="400px"
             mb="10px"
           >
-            <AddVideoModal />
+            <AddVideoModal chatBot={chatBot} setChatBot={setChatBot}/>
           </Flex>
           {loading && (
             <Box h="20px">{"updating videos..."}</Box>

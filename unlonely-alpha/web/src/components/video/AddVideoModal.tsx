@@ -17,8 +17,14 @@ import { YT_PUBLIC_KEY } from "../../constants";
 import NFTModalHeader from "../profile/NFTModal/NFTModalHeader";
 import NFTModalRoot from "../profile/NFTModal/NFTModalRoot";
 import NFTModalFooter from "../profile/NFTModal/NFTModalFooter";
+import { ChatBot } from "../../pages/channels/1";
 
-const AddVideoModal: React.FunctionComponent = () => {
+type Props = {
+  setChatBot: (chatBot: ChatBot[]) => void;
+  chatBot: ChatBot[];
+}
+
+const AddVideoModal: React.FunctionComponent<Props> = ({ setChatBot, chatBot}) => {
   const ytForm = useForm<PostYTLinkInput>({
     defaultValues: {},
     resolver: yupResolver(postYTLinkSchema),
@@ -61,6 +67,7 @@ const AddVideoModal: React.FunctionComponent = () => {
       isClosable: true,
       position: "top",
     });
+    setChatBot([...chatBot, { username: "", address: "", videoTitle: title }]);
   };
 
   const handleChangeVideo = () => {

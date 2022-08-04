@@ -15,7 +15,7 @@ const PostSort: React.FunctionComponent<Props> = ({
   videos,
   sort,
 }) => {
-  return <>{renderPostList(videos)}</>;
+  return <>{renderPostList(sortVideoByAttribute(videos, "score"))}</>;
 };
 
 const renderPostList = (
