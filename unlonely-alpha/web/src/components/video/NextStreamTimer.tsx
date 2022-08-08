@@ -49,7 +49,15 @@ const NextStreamTimer: React.FunctionComponent = () => {
           height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
           mt="10px"
         >
-          <iframe src="https://player.castr.com/live_a998cbe00c7a11eda40d672859e3570c" width="100%" style={{ aspectRatio: "16/9", width: "100%", maxWidth: "889px" }} frameBorder="0" scrolling="no" allow="autoplay" allowFullScreen  />
+          <iframe
+            src="https://player.castr.com/live_a998cbe00c7a11eda40d672859e3570c"
+            width="100%"
+            style={{ aspectRatio: "16/9", width: "100%", maxWidth: "889px" }}
+            frameBorder="0"
+            scrolling="no"
+            allow="autoplay"
+            allowFullScreen
+          />
         </Flex>
       ) : (
         <Flex
@@ -98,13 +106,13 @@ const NextStreamTimer: React.FunctionComponent = () => {
               </Flex>
             </Flex>
             <Text lineHeight={5} mb="10px" fontSize="14px">
-            Wanna get notified before the stream goes live? 
-            <Link href="https://tally.so/r/3ja0ba" isExternal>
-              {" "}
-              Join our community here!
-              <ExternalLinkIcon mx="2px" />
-            </Link>
-          </Text>
+              Wanna get notified before the stream goes live?
+              <Link href="https://tally.so/r/3ja0ba" isExternal>
+                {" "}
+                Join our community here!
+                <ExternalLinkIcon mx="2px" />
+              </Link>
+            </Text>
           </Flex>
         </Flex>
       )}

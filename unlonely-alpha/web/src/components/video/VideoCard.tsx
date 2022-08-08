@@ -68,8 +68,7 @@ const VideoCardInner = ({ video, order }: Props) => {
               <Image src={video.thumbnail} height="90px" width="120px" />
             </GridItem>
             <GridItem colSpan={2} rowSpan={2} maxW="100%">
-              <Tooltip
-                label="copy video link">
+              <Tooltip label="copy video link">
                 <Text
                   textColor="#2C3A50"
                   fontWeight="bold"
@@ -78,7 +77,9 @@ const VideoCardInner = ({ video, order }: Props) => {
                   noOfLines={2}
                   fontFamily="Roboto, sans-serif"
                   onClick={() => {
-                    navigator.clipboard.writeText(`https://www.youtube.com/watch?v=${video.youtubeId}`);
+                    navigator.clipboard.writeText(
+                      `https://www.youtube.com/watch?v=${video.youtubeId}`
+                    );
                     toast({
                       title: "Copied!",
                       description: "Video link copied to clipboard",
@@ -86,8 +87,7 @@ const VideoCardInner = ({ video, order }: Props) => {
                       duration: 4000,
                       isClosable: true,
                     });
-                  }
-                  }
+                  }}
                 >
                   {video.title}
                 </Text>

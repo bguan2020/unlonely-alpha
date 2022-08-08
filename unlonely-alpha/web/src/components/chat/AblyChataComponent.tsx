@@ -13,7 +13,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 
 import useChannel from "../../hooks/useChannel";
-import { ChatBot } from "../../pages/channels/1";
+import { ChatBot } from "../../pages/channels/youtube";
 import { COLORS } from "../../styles/Colors";
 import { isFCUser } from "../../utils/farcasterBadge";
 import NFTList from "../profile/NFTList";
@@ -52,7 +52,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   const messageTextIsEmpty = messageText.trim().length === 0;
 
   const switchButton = () => {
-    toggleButton(current => !current);
+    toggleButton((current) => !current);
   };
   const [channel, ably] = useChannel(
     "persistMessages:chat-demo",
@@ -66,7 +66,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     async function getMessages() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const { items } = await channel.history({ limit: 200 });
+      const { items } = await channel.history({ limit: 2500 });
       const reversed = items.reverse();
       setMessages(reversed);
     }
@@ -227,18 +227,21 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
             maxH="400px"
             id="chat"
           >
-          
             {messages}
             {autoScroll.current && (
               <Box
-                // ref={(el) => {
-                //   if (el) el.scrollIntoView({ behavior: "smooth" });
-                // }}
+              // ref={(el) => {
+              //   if (el) el.scrollIntoView({ behavior: "smooth" });
+              // }}
               />
             )}
           </Flex>
           <Flex mt="20px" w="100%">
-            <form onSubmit={handleFormSubmission} className="xeedev-form-i" style={{ width: "100%" }}>
+            <form
+              onSubmit={handleFormSubmission}
+              className="xeedev-form-i"
+              style={{ width: "100%" }}
+            >
               <Textarea
                 ref={(element) => {
                   inputBox = element;

@@ -11,16 +11,11 @@ type Props = {
   sort: VideoAttribute;
 };
 
-const PostSort: React.FunctionComponent<Props> = ({
-  videos,
-  sort,
-}) => {
+const PostSort: React.FunctionComponent<Props> = ({ videos, sort }) => {
   return <>{renderPostList(sortVideoByAttribute(videos, "score"))}</>;
 };
 
-const renderPostList = (
-  data: VideoCard_VideoFragment[],
-): JSX.Element => {
+const renderPostList = (data: VideoCard_VideoFragment[]): JSX.Element => {
   let cardId = 0;
   return (
     <>

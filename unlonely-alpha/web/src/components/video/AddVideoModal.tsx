@@ -1,4 +1,16 @@
-import { Flex, Text, Image, Box, Alert, AlertIcon, Textarea, FormErrorMessage, FormControl, useToast, Button } from "@chakra-ui/react";
+import {
+  Flex,
+  Text,
+  Image,
+  Box,
+  Alert,
+  AlertIcon,
+  Textarea,
+  FormErrorMessage,
+  FormControl,
+  useToast,
+  Button,
+} from "@chakra-ui/react";
 import { useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
@@ -17,14 +29,17 @@ import { YT_PUBLIC_KEY } from "../../constants";
 import NFTModalHeader from "../profile/NFTModal/NFTModalHeader";
 import NFTModalRoot from "../profile/NFTModal/NFTModalRoot";
 import NFTModalFooter from "../profile/NFTModal/NFTModalFooter";
-import { ChatBot } from "../../pages/channels/1";
+import { ChatBot } from "../../pages/channels/youtube";
 
 type Props = {
   setChatBot: (chatBot: ChatBot[]) => void;
   chatBot: ChatBot[];
-}
+};
 
-const AddVideoModal: React.FunctionComponent<Props> = ({ setChatBot, chatBot}) => {
+const AddVideoModal: React.FunctionComponent<Props> = ({
+  setChatBot,
+  chatBot,
+}) => {
   const ytForm = useForm<PostYTLinkInput>({
     defaultValues: {},
     resolver: yupResolver(postYTLinkSchema),
@@ -111,151 +126,67 @@ const AddVideoModal: React.FunctionComponent<Props> = ({ setChatBot, chatBot}) =
 
   return (
     <>
-      <NFTModalRoot
-        TriggerButton={<Button>Add a Video</Button>}
-      >
+      <NFTModalRoot TriggerButton={<Button>Add a Video</Button>}>
         <NFTModalHeader styles={{ marginTop: "33px" }}>
           {formError && <Text>{formError}</Text>}
         </NFTModalHeader>
         <Flex w="100%" justifyContent="center" mt="40px">
-            <Box
-              w={{ base: "300px", md: "400px", lg: "400px" }}
-              bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
-              borderRadius="20px"
-              mb="50px"
+          <Box
+            w={{ base: "300px", md: "400px", lg: "400px" }}
+            bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
+            borderRadius="20px"
+            mb="50px"
+          >
+            <Text
+              fontSize="20px"
+              margin="20px"
+              lineHeight="25px"
+              fontWeight="bold"
+              textAlign={"center"}
             >
-              <Text
-                fontSize="20px"
-                margin="20px"
-                lineHeight="25px"
-                fontWeight="bold"
-                textAlign={"center"}
-              >
-                Watch with us! Enter a YouTube video you want to share with a
-                community.
-              </Text>
-              {title && thumbnail ? (
-                <form onSubmit={handleSubmit(submitVideo)}>
-                  {formError &&
-                    formError.length > 0 &&
-                    formError.map((err, i) => (
-                      <Alert status="error" key={i} mb="8px">
-                        <AlertIcon />
-                        {err}
-                      </Alert>
-                    ))}
-                  <>
-                    <Flex flexDirection="column">
-                      <Flex margin="25px" width="100%">
-                        <Image width="120" height="90" src={thumbnail} />
-                        <Text fontWeight="bold" margin="10px">
-                          {title}
-                        </Text>
-                      </Flex>
-                      <Flex width="100%" justifyContent="center">
-                        {isValidVideo ? (
-                          <Text color="#07FF20">Video Approved.</Text>
-                        ) : (
-                          <Text color="#CC0000">
-                            Video needs to be at least 2 minutes long.
-                          </Text>
-                        )}
-                      </Flex>
+              Watch with us! Enter a YouTube video you want to share with a
+              community.
+            </Text>
+            {title && thumbnail ? (
+              <form onSubmit={handleSubmit(submitVideo)}>
+                {formError &&
+                  formError.length > 0 &&
+                  formError.map((err, i) => (
+                    <Alert status="error" key={i} mb="8px">
+                      <AlertIcon />
+                      {err}
+                    </Alert>
+                  ))}
+                <>
+                  <Flex flexDirection="column">
+                    <Flex margin="25px" width="100%">
+                      <Image width="120" height="90" src={thumbnail} />
+                      <Text fontWeight="bold" margin="10px">
+                        {title}
+                      </Text>
                     </Flex>
-                    {isValidVideo && (
-                      <FormControl
-                        isInvalid={!!formState.errors.description}
-                        marginBottom={["20px", "20px"]}
-                        marginLeft="25px"
-                      >
-                        <Text fontWeight="bold" fontSize="20px" mt="20px">
-                          Why this video?
+                    <Flex width="100%" justifyContent="center">
+                      {isValidVideo ? (
+                        <Text color="#07FF20">Video Approved.</Text>
+                      ) : (
+                        <Text color="#CC0000">
+                          Video needs to be at least 2 minutes long.
                         </Text>
-                        <Textarea
-                          id="description"
-                          placeholder="reason: b/c who doesn't love a good rick roll"
-                          _placeholder={{ color: "#2C3A50" }}
-                          lineHeight="1.2"
-                          background="#F1F4F8"
-                          borderRadius="10px"
-                          boxShadow="#F1F4F8"
-                          minHeight="60px"
-                          color="#2C3A50"
-                          fontWeight="medium"
-                          w={{ base: "250px", md: "350px", lg: "350px" }}
-                          padding="auto"
-                          {...register("description")}
-                        />
-                        <FormErrorMessage>
-                          {formState.errors.description?.message}
-                        </FormErrorMessage>
-                      </FormControl>
-                    )}
-                    <Flex width="100%" flexDirection="row-reverse">
-                      {isValidVideo && (
-                        <>
-                          {accountData?.address ? (
-                            <Button
-                              bg="#FFCC15"
-                              _hover={loading ? {} : { bg: "black" }}
-                              type="submit"
-                              isLoading={loading}
-                              margin="25px"
-                            >
-                              Finalize Submit
-                            </Button>
-                          ) : (
-                            <Button
-                              bg="#FFCC15"
-                              _hover={loading ? {} : { bg: "black" }}
-                              isLoading={loading}
-                              margin="25px"
-                              onClick={() =>
-                                toast({
-                                  title: "Sign in first.",
-                                  description:
-                                    "Please sign into your wallet first.",
-                                  status: "warning",
-                                  duration: 9000,
-                                  isClosable: true,
-                                  position: "top",
-                                })
-                              }
-                            >
-                              Click again to join!
-                            </Button>
-                          )}
-                        </>
                       )}
-                      <Button
-                        bg="#517EF5"
-                        onClick={() => handleChangeVideo()}
-                        margin="25px"
-                      >
-                        Change Video
-                      </Button>
                     </Flex>
-                  </>
-                </form>
-              ) : (
-                <form onSubmit={handleSubmit1(submitLink)}>
-                  {formError &&
-                    formError.length > 0 &&
-                    formError.map((err, i) => (
-                      <Alert status="error" key={i} mb="8px">
-                        <AlertIcon />
-                        {err}
-                      </Alert>
-                    ))}
-                  <>
+                  </Flex>
+                  {isValidVideo && (
                     <FormControl
-                      isInvalid={!!formState1.errors.videoLink}
+                      isInvalid={!!formState.errors.description}
                       marginBottom={["20px", "20px"]}
                       marginLeft="25px"
                     >
+                      <Text fontWeight="bold" fontSize="20px" mt="20px">
+                        Why this video?
+                      </Text>
                       <Textarea
-                        id="videoLink"
-                        placeholder="ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley"
+                        id="description"
+                        placeholder="reason: b/c who doesn't love a good rick roll"
                         _placeholder={{ color: "#2C3A50" }}
                         lineHeight="1.2"
                         background="#F1F4F8"
@@ -266,29 +197,111 @@ const AddVideoModal: React.FunctionComponent<Props> = ({ setChatBot, chatBot}) =
                         fontWeight="medium"
                         w={{ base: "250px", md: "350px", lg: "350px" }}
                         padding="auto"
-                        {...register1("videoLink")}
+                        {...register("description")}
                       />
                       <FormErrorMessage>
-                        {formState1.errors.videoLink?.message}
+                        {formState.errors.description?.message}
                       </FormErrorMessage>
                     </FormControl>
+                  )}
+                  <Flex width="100%" flexDirection="row-reverse">
+                    {isValidVideo && (
+                      <>
+                        {accountData?.address ? (
+                          <Button
+                            bg="#FFCC15"
+                            _hover={loading ? {} : { bg: "black" }}
+                            type="submit"
+                            isLoading={loading}
+                            margin="25px"
+                          >
+                            Finalize Submit
+                          </Button>
+                        ) : (
+                          <Button
+                            bg="#FFCC15"
+                            _hover={loading ? {} : { bg: "black" }}
+                            isLoading={loading}
+                            margin="25px"
+                            onClick={() =>
+                              toast({
+                                title: "Sign in first.",
+                                description:
+                                  "Please sign into your wallet first.",
+                                status: "warning",
+                                duration: 9000,
+                                isClosable: true,
+                                position: "top",
+                              })
+                            }
+                          >
+                            Click again to join!
+                          </Button>
+                        )}
+                      </>
+                    )}
+                    <Button
+                      bg="#517EF5"
+                      onClick={() => handleChangeVideo()}
+                      margin="25px"
+                    >
+                      Change Video
+                    </Button>
+                  </Flex>
+                </>
+              </form>
+            ) : (
+              <form onSubmit={handleSubmit1(submitLink)}>
+                {formError &&
+                  formError.length > 0 &&
+                  formError.map((err, i) => (
+                    <Alert status="error" key={i} mb="8px">
+                      <AlertIcon />
+                      {err}
+                    </Alert>
+                  ))}
+                <>
+                  <FormControl
+                    isInvalid={!!formState1.errors.videoLink}
+                    marginBottom={["20px", "20px"]}
+                    marginLeft="25px"
+                  >
+                    <Textarea
+                      id="videoLink"
+                      placeholder="ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley"
+                      _placeholder={{ color: "#2C3A50" }}
+                      lineHeight="1.2"
+                      background="#F1F4F8"
+                      borderRadius="10px"
+                      boxShadow="#F1F4F8"
+                      minHeight="60px"
+                      color="#2C3A50"
+                      fontWeight="medium"
+                      w={{ base: "250px", md: "350px", lg: "350px" }}
+                      padding="auto"
+                      {...register1("videoLink")}
+                    />
+                    <FormErrorMessage>
+                      {formState1.errors.videoLink?.message}
+                    </FormErrorMessage>
+                  </FormControl>
 
-                    <Flex width="100%" flexDirection="row-reverse">
-                      <Button
-                        bg="#FFCC15"
-                        _hover={ytLoading ? {} : { bg: "black" }}
-                        type="submit"
-                        isLoading={ytLoading}
-                        margin="25px"
-                      >
-                        Submit
-                      </Button>
-                    </Flex>
-                  </>
-                </form>
-              )}
-            </Box>
-          </Flex>
+                  <Flex width="100%" flexDirection="row-reverse">
+                    <Button
+                      bg="#FFCC15"
+                      _hover={ytLoading ? {} : { bg: "black" }}
+                      type="submit"
+                      isLoading={ytLoading}
+                      margin="25px"
+                    >
+                      Submit
+                    </Button>
+                  </Flex>
+                </>
+              </form>
+            )}
+          </Box>
+        </Flex>
 
         <NFTModalFooter />
       </NFTModalRoot>

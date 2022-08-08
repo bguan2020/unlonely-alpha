@@ -7,12 +7,10 @@ export default function Page() {
   // immediately route to "/"
   const router = useRouter();
   useEffect(() => {
-      router.push("/");
+    router.push("/");
   }, []);
 
-  return (
-    <AppLayout/>
-  );
+  return <AppLayout />;
 }
 
 // export async function getStaticProps() {
