@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=DM+Sans&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=DM+Sans&display=swap");
 
 body {
-  font-family: 'Anonymous Pro', sans-serif;
+  font-family: "Anonymous Pro", sans-serif;
   font-size: 16px;
   line-height: 1.5;
   color: #333;
@@ -9,36 +9,45 @@ body {
 }
 
 h1 {
-  font-family: 'Anonymous Pro', sans-serif;
+  font-family: "Anonymous Pro", sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
 }
-body{
-  background-image: linear-gradient(to right, #e2f979, #b0e5cf, #ba98d7, #d16fce) !important;
+body {
+  background-image: linear-gradient(
+    to right,
+    #e2f979,
+    #b0e5cf,
+    #ba98d7,
+    #d16fce
+  ) !important;
 }
 
-.css-o4poyf:hover , .css-o4poyf:active{
-  background-color:#717BA7 !important;
+.css-o4poyf:hover,
+.css-o4poyf:active {
+  background-color: #717ba7 !important;
   opacity: 1 !important;
 }
 
-.css-ckv54k:hover, .css-ckv54k:active{
+.css-ckv54k:hover,
+.css-ckv54k:active {
   background-color: #3e4565 !important;
   opacity: 1 !important;
 }
-.css-fyeupi:hover, .css-fyeupi:active{
-  background-color: #717BA7 !important;
+.css-fyeupi:hover,
+.css-fyeupi:active {
+  background-color: #717ba7 !important;
   color: #fff;
   opacity: 1 !important;
 }
-.css-1gc7cme{
+.css-1gc7cme {
   position: absolute !important;
 }
 
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 1200px) {
-  .css-199td1z{
+  .css-199td1z {
     display: flex !important;
     flex-direction: column !important;
   }
@@ -46,126 +55,144 @@ body{
 
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
-  .div-mobile{
+  .div-mobile {
     display: none !important;
   }
-  .xeedev-class-block{
+  .xeedev-class-block {
     display: block !important;
   }
-  .xeedev-class-hide{
-    display: none ;
+  .xeedev-class-hide {
+    display: none;
   }
-  #xeedev-poaav{
+  #xeedev-poaav {
     display: grid;
     justify-content: center;
     width: 90%;
     margin: 10px auto;
   }
-  .css-5rvtk7{
+  .css-5rvtk7 {
     margin-top: 40px !important;
   }
-  .css-1mh3zb0{
+  .css-1mh3zb0 {
     height: fit-content !important;
   }
-  .css-fyeupi:active, .css-fyeupi:hover, .css-fyeupi[data-active]{
+  .css-fyeupi:active,
+  .css-fyeupi:hover,
+  .css-fyeupi[data-active] {
     opacity: 1 !important;
   }
-  .css-10lhutf{
+  .css-10lhutf {
     position: absolute;
-    top:385px;
-    left:10px;
-    height:70vh;
+    top: 385px;
+    left: 10px;
+    height: 70vh;
     width: 95%;
   }
-  .css-1dv6w0c{
+  .css-1dv6w0c {
     justify-content: center !important;
   }
-  .css-1b4frw9{
-    display:block !important;
+  .css-1b4frw9 {
+    display: block !important;
     margin-bottom: 0px !important;
   }
-  .css-1857cn2, .css-nfkepv{
+  .css-1857cn2,
+  .css-nfkepv {
     margin-right: 0px !important;
   }
-   .css-1tm8eda{
+  .css-1tm8eda {
     width: 95% !important;
   }
-  .css-199td1z{
+  .css-199td1z {
     display: flex !important;
     flex-direction: column !important;
   }
-  .css-1s292vp, .css-1rt54ov, .css-cgbeia, .css-ufazq{
+  .css-1s292vp,
+  .css-1rt54ov,
+  .css-cgbeia,
+  .css-ufazq {
     font-size: 30px !important;
   }
-  .css-1n54i6{
+  .css-1n54i6 {
     font-size: 15px !important;
     width: 100% !important;
     padding: 50px 10px !important;
   }
-  .css-j7qwjs{
+  .css-j7qwjs {
     width: 100% !important;
   }
-  .css-1kn81z4{
+  .css-1kn81z4 {
     width: 70% !important;
     min-width: 70% !important;
     min-height: 50px !important;
   }
-  .xeedev-form-i{
+  .xeedev-form-i {
     display: flex !important;
   }
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
-  #xeedev-poaav{
-  display: none;
-}
-.css-1s292vp, .css-1rt54ov, .css-cgbeia, .css-ufazq{
-  font-size: 35px !important;
-}
-.css-1n54i6{
-  font-size: 20px !important;
-}
-.xeedev-button-desktop{
-  width: 100% !important;
-}
+  #xeedev-poaav {
+    display: none;
+  }
+  .css-1s292vp,
+  .css-1rt54ov,
+  .css-cgbeia,
+  .css-ufazq {
+    font-size: 35px !important;
+  }
+  .css-1n54i6 {
+    font-size: 20px !important;
+  }
+  .xeedev-button-desktop {
+    width: 100% !important;
+  }
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
-  #xeedev-poaav{
+  #xeedev-poaav {
     display: none;
   }
-  .css-1s292vp, .css-1rt54ov, .css-cgbeia, .css-ufazq{
+  .css-1s292vp,
+  .css-1rt54ov,
+  .css-cgbeia,
+  .css-ufazq {
     font-size: 35px !important;
   }
-  .css-1n54i6{
+  .css-1n54i6 {
     font-size: 20px !important;
   }
 }
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
-  #xeedev-poaav{
+  #xeedev-poaav {
     display: none;
   }
-  .css-1s292vp, .css-1rt54ov, .css-cgbeia, .css-ufazq{
+  .css-1s292vp,
+  .css-1rt54ov,
+  .css-cgbeia,
+  .css-ufazq {
     font-size: 40px !important;
   }
-  .css-1n54i6{
-    font-size: 20px !important; 
+  .css-1n54i6 {
+    font-size: 20px !important;
   }
 }
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
-  #xeedev-poaav{
+  #xeedev-poaav {
     display: none;
   }
-  .css-1s292vp, .css-1rt54ov, .css-cgbeia, .css-ufazq{
+  .css-1s292vp,
+  .css-1rt54ov,
+  .css-cgbeia,
+  .css-ufazq {
     font-size: 62px !important;
   }
-  .css-1n54i6{
+  .css-1n54i6 {
     font-size: 40px !important;
   }
 }

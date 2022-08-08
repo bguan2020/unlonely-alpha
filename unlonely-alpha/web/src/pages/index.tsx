@@ -1,9 +1,4 @@
-import {
-  Text,
-  Flex,
-  Box,
-  Button,
-} from "@chakra-ui/react";
+import { Text, Flex, Box, Button, SimpleGrid, Image } from "@chakra-ui/react";
 import AppLayout from "../components/layout/AppLayout";
 
 export default function Page() {
@@ -34,43 +29,88 @@ export default function Page() {
             </Text>
           </Flex>
           <Flex w="100%" justifyContent="center" mt="40px">
-            <Box
-              w={{ base: "300px", md: "400px", lg: "400px" }}
-              bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
-              borderRadius="20px"
-              mb="50px"
-            >
-              <Text
-                fontSize="20px"
-                margin="20px"
-                lineHeight="25px"
-                fontWeight="bold"
-                textAlign={"center"}
-                color="white"
+            <SimpleGrid columns={[1, null, 2]} spacing="40px">
+              <Box
+                w={{ base: "300px", md: "350px", lg: "400px" }}
+                bgGradient="linear(to-r, #C02300, #964242, #501C1C, black)"
+                borderRadius="20px"
+                mb="10px"
               >
-                Watch with us! Come be unlonely.
-              </Text>
-              {/* center button that says join community*/}
-              <Flex
-              w="100%"
-              justifyContent="center">
-                <Button
-                  variantColor="white"
-                  variant="outline"
-                  size="lg"
-                  w="50%"
-                  h="50px"
-                  borderRadius="20px"
-                  mt="20px"
-                  mb="40px"
+                <Flex width="100%" justifyContent="center" mt="20px">
+                  <Image src="/images/YT_logo.png" width="175px" />
+                </Flex>
+                <Text
+                  fontSize="20px"
+                  margin="20px"
+                  lineHeight="25px"
+                  fontWeight="bold"
+                  textAlign={"center"}
                   color="white"
-                  _hover={{ bg: "white", color: "black" }}
-                  onClick={() => {  window.location.href = "/channels/1"; }}
                 >
-                  Join Community!
-                </Button>
-              </Flex>
-            </Box>
+                  Watch YouTube with us!
+                </Text>
+                <Flex w="100%" justifyContent="center">
+                  <Button
+                    variantColor="white"
+                    variant="outline"
+                    size="lg"
+                    w="50%"
+                    h="50px"
+                    borderRadius="20px"
+                    mt="20px"
+                    mb="40px"
+                    pr="10px"
+                    pl="10px"
+                    color="white"
+                    _hover={{ bg: "white", color: "black" }}
+                    onClick={() => {
+                      window.location.href = "/channels/youtube";
+                    }}
+                  >
+                    Join
+                  </Button>
+                </Flex>
+              </Box>
+              <Box
+                w={{ base: "300px", md: "350px", lg: "400px" }}
+                bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
+                borderRadius="20px"
+                mb="10px"
+              >
+                <Flex width="100%" justifyContent="center" mt="20px">
+                  <Image src="/images/TikTok_logo.png" width="250px" />
+                </Flex>
+                <Text
+                  fontSize="20px"
+                  margin="20px"
+                  lineHeight="25px"
+                  fontWeight="bold"
+                  textAlign={"center"}
+                  color="white"
+                >
+                  Watch TikToks with us!
+                </Text>
+                <Flex w="100%" justifyContent="center">
+                  <Button
+                    variantColor="white"
+                    variant="outline"
+                    size="lg"
+                    w="50%"
+                    h="50px"
+                    borderRadius="20px"
+                    mt="20px"
+                    mb="40px"
+                    pr="10px"
+                    pl="10px"
+                    color="white"
+                    _hover={{ bg: "white", color: "black" }}
+                    disabled={true}
+                  >
+                    Coming Soon👀
+                  </Button>
+                </Flex>
+              </Box>
+            </SimpleGrid>
           </Flex>
         </Flex>
       </Flex>

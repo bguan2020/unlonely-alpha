@@ -41,12 +41,9 @@ export type ChatBot = {
   username: string;
   address: string;
   videoTitle: string | null;
-}
+};
 
-const Example: React.FunctionComponent<Props> = ({
-  videos,
-  loading,
-}) => {
+const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
@@ -88,21 +85,29 @@ const Example: React.FunctionComponent<Props> = ({
             pb="10px"
             pt="10px"
           >
-            <Box bg="black" margin="auto" >
+            <Box bg="black" margin="auto">
               <Text fontWeight={"bold"} fontSize="20px" color="white">
                 The Chat Room!
               </Text>
             </Box>
           </Flex>
-          <AblyChatComponent username={username} chatBot={chatBot}/>
+          <AblyChatComponent username={username} chatBot={chatBot} />
         </GridItem>
         <GridItem rowSpan={3} colSpan={1}></GridItem>
         <GridItem rowSpan={2} colSpan={1}></GridItem>
         <GridItem rowSpan={1} colSpan={1} mb="20px" mr="20px">
           <NextStreamTimer />
         </GridItem>
-        <Button onClick={toggleChatVideos} id="xeedev-poaav">Toggle Chat/Videos</Button>
-        <GridItem rowSpan={1} colSpan={1} mr="20px" id="xeedev-video-modal" className="xeedev-class-hide">
+        <Button onClick={toggleChatVideos} id="xeedev-poaav">
+          Toggle Chat/Videos
+        </Button>
+        <GridItem
+          rowSpan={1}
+          colSpan={1}
+          mr="20px"
+          id="xeedev-video-modal"
+          className="xeedev-class-hide"
+        >
           <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
@@ -111,11 +116,9 @@ const Example: React.FunctionComponent<Props> = ({
             maxH="400px"
             mb="10px"
           >
-            <AddVideoModal chatBot={chatBot} setChatBot={setChatBot}/>
+            <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} />
           </Flex>
-          {loading && (
-            <Box h="20px">{"updating videos..."}</Box>
-          )}
+          {loading && <Box h="20px">{"updating videos..."}</Box>}
           <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
@@ -133,17 +136,21 @@ const Example: React.FunctionComponent<Props> = ({
   );
 };
 
-const toggleChatVideos = function(){
-  document.getElementById("xeedev-video-modal")?.classList.toggle("xeedev-class-block");
-  document.getElementById("xeedev-chat-div")?.classList.toggle("xeedev-class-hide"); 
+const toggleChatVideos = function () {
+  document
+    .getElementById("xeedev-video-modal")
+    ?.classList.toggle("xeedev-class-block");
+  document
+    .getElementById("xeedev-chat-div")
+    ?.classList.toggle("xeedev-class-hide");
 
   const poaav = document.getElementById("xeedev-poaav");
-  if(poaav?.innerHTML === "Vote/Add Upcoming Videos"){
+  if (poaav?.innerHTML === "Vote/Add Upcoming Videos") {
     poaav.innerHTML = "Return to Chat";
-  }else if(poaav?.innerHTML === "Return to Chat"){
+  } else if (poaav?.innerHTML === "Return to Chat") {
     poaav.innerHTML = "Vote/Add Upcoming Videos";
   }
-}
+};
 
 export default function Page() {
   const { data, loading, error, networkStatus } = useQuery(VIDEO_LIST_QUERY, {

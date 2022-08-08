@@ -10,7 +10,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { VideoCard_VideoFragment } from "../../generated/graphql";
 import AblyChatComponent from "../../components/chat/AblyChataComponent";
 import AddVideoModal from "../../components/video/AddVideoModal";
-import { ChatBot } from "./1";
+import { ChatBot } from "./youtube";
 
 const VIDEO_LIST_QUERY = gql`
   query VideoFeed1808($data: VideoFeedInput!) {
@@ -36,10 +36,7 @@ type Props = {
   loading: boolean;
 };
 
-const Example: React.FunctionComponent<Props> = ({
-  videos,
-  loading,
-}) => {
+const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
@@ -86,20 +83,28 @@ const Example: React.FunctionComponent<Props> = ({
               </Text>
             </Box>
           </Flex>
-          <AblyChatComponent username={username} chatBot={chatBot}/>
+          <AblyChatComponent username={username} chatBot={chatBot} />
         </GridItem>
         <GridItem rowSpan={3} colSpan={1}></GridItem>
         <GridItem rowSpan={2} colSpan={1}></GridItem>
         <GridItem rowSpan={1} colSpan={1} mb="20px" mr="20px">
-        <Flex
-          flexDirection="row"
-          justifyContent="center"
-          width="100%"
-          height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
-          mt="10px"
-        >
-          <iframe src="https://player.castr.com/live_a998cbe00c7a11eda40d672859e3570c" width="100%" style={{ aspectRatio: "16/9", width: "100%", maxWidth: "889px" }} frameBorder="0" scrolling="no" allow="autoplay" allowFullScreen  />
-        </Flex>
+          <Flex
+            flexDirection="row"
+            justifyContent="center"
+            width="100%"
+            height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
+            mt="10px"
+          >
+            <iframe
+              src="https://player.castr.com/live_a998cbe00c7a11eda40d672859e3570c"
+              width="100%"
+              style={{ aspectRatio: "16/9", width: "100%", maxWidth: "889px" }}
+              frameBorder="0"
+              scrolling="no"
+              allow="autoplay"
+              allowFullScreen
+            />
+          </Flex>
         </GridItem>
         <GridItem rowSpan={1} colSpan={1} mr="20px">
           <Flex
@@ -110,7 +115,7 @@ const Example: React.FunctionComponent<Props> = ({
             maxH="400px"
             mb="10px"
           >
-            <AddVideoModal chatBot={chatBot} setChatBot={setChatBot}/>
+            <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} />
           </Flex>
           <Flex
             margin="auto"
@@ -126,7 +131,7 @@ const Example: React.FunctionComponent<Props> = ({
                 <Spinner size="xl" mt="10px" />
               </>
             ) : (
-              <VideoSort videos={videos} sort={sortVideoAs}/>
+              <VideoSort videos={videos} sort={sortVideoAs} />
             )}
           </Flex>
         </GridItem>
@@ -153,7 +158,7 @@ export default function Page() {
 
   return (
     <AppLayout error={error}>
-      <Example videos={videos} loading={loading}/>
+      <Example videos={videos} loading={loading} />
     </AppLayout>
   );
 }
