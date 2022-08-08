@@ -1,6 +1,6 @@
-import { Text, Flex, Box, Button, SimpleGrid, Image } from "@chakra-ui/react";
+import { Text, Flex, Box, Button, Image } from "@chakra-ui/react";
+
 import AppLayout from "../components/layout/AppLayout";
-import TikTokModal from "../components/video/TikTokModal";
 
 export default function Page() {
   return (
@@ -25,22 +25,23 @@ export default function Page() {
             with us.
           </Text>
           <Flex w="100%" justifyContent="center" mt="20px">
-            <Text color="black" fontSize={26} lineHeight="26px">
-              Daily Livestreams at Changing Times! Join for the rewards, stay for the community.
-            </Text>
+            {/* <Text color="black" fontSize={26} lineHeight="26px">
+              Join our daily streams!
+            </Text> */}
           </Flex>
           <Flex w="100%" justifyContent="center" mt="40px">
             {/* <SimpleGrid columns={[1, null, 2]} spacing="40px"> */}
               <Box
                 w={{ base: "300px", md: "350px", lg: "400px" }}
-                bgGradient="linear(to-r, #C02300, #964242, #501C1C, black)"
+                // bgGradient="linear(to-r, #C02300, #964242, #501C1C, black)"
+                bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
                 borderRadius="20px"
                 mb="10px"
               >
-                <Flex width="100%" justifyContent="center" mt="20px">
+                {/* <Flex width="100%" justifyContent="center" mt="20px">
                   <Image src="/images/YT_logo.png" width="175px" />
-                </Flex>
-                <Text
+                </Flex> */}
+                {/* <Text
                   fontSize="20px"
                   margin="20px"
                   lineHeight="25px"
@@ -49,16 +50,16 @@ export default function Page() {
                   color="white"
                 >
                   Watch YouTube with us!
-                </Text>
+                </Text> */}
                 <Flex w="100%" justifyContent="center">
                   <Button
                     variantColor="white"
                     variant="outline"
                     size="lg"
-                    w="50%"
+                    minW="50%"
                     h="50px"
                     borderRadius="20px"
-                    mt="20px"
+                    mt="40px"
                     mb="40px"
                     pr="10px"
                     pl="10px"
@@ -68,7 +69,7 @@ export default function Page() {
                       window.location.href = "/channels/youtube";
                     }}
                   >
-                    Join
+                    Join Our Daily Streams
                   </Button>
                 </Flex>
               </Box>
