@@ -62,7 +62,7 @@ const TikTokModal: React.FunctionComponent = () => {
                   window.open("https://www.tiktok.com/@unlonely.app?lang=en");
                 }}
               >
-                Follow on Tik Tok
+                Follow
               </Button>
             </Flex>
           </Box>

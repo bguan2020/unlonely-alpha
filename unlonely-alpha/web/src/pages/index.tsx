@@ -26,11 +26,11 @@ export default function Page() {
           </Text>
           <Flex w="100%" justifyContent="center" mt="20px">
             <Text color="black" fontSize={26} lineHeight="26px">
-              7-8pm PST / 10-11pm EST Daily
+              Daily Livestreams at Changing Times! Join for the rewards, stay for the community.
             </Text>
           </Flex>
           <Flex w="100%" justifyContent="center" mt="40px">
-            <SimpleGrid columns={[1, null, 2]} spacing="40px">
+            {/* <SimpleGrid columns={[1, null, 2]} spacing="40px"> */}
               <Box
                 w={{ base: "300px", md: "350px", lg: "400px" }}
                 bgGradient="linear(to-r, #C02300, #964242, #501C1C, black)"
@@ -72,7 +72,7 @@ export default function Page() {
                   </Button>
                 </Flex>
               </Box>
-              <Box
+              {/* <Box
                 w={{ base: "300px", md: "350px", lg: "400px" }}
                 bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
                 borderRadius="20px"
@@ -95,7 +95,7 @@ export default function Page() {
                   <TikTokModal />
                 </Flex>
               </Box>
-            </SimpleGrid>
+            </SimpleGrid> */}
           </Flex>
         </Flex>
       </Flex>
