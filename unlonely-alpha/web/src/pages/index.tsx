@@ -1,5 +1,6 @@
 import { Text, Flex, Box, Button, SimpleGrid, Image } from "@chakra-ui/react";
 import AppLayout from "../components/layout/AppLayout";
+import TikTokModal from "../components/video/TikTokModal";
 
 export default function Page() {
   return (
@@ -91,23 +92,7 @@ export default function Page() {
                   Watch TikToks with us!
                 </Text>
                 <Flex w="100%" justifyContent="center">
-                  <Button
-                    variantColor="white"
-                    variant="outline"
-                    size="lg"
-                    w="50%"
-                    h="50px"
-                    borderRadius="20px"
-                    mt="20px"
-                    mb="40px"
-                    pr="10px"
-                    pl="10px"
-                    color="white"
-                    _hover={{ bg: "white", color: "black" }}
-                    disabled={true}
-                  >
-                    Coming Soon👀
-                  </Button>
+                  <TikTokModal />
                 </Flex>
               </Box>
             </SimpleGrid>
