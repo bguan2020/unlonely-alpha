@@ -16,17 +16,17 @@ const password = "brianguanwordpass1234";
   });
   const prisma = new PrismaClient();
   const page = await browser.newPage();
-  await page.setViewport({ width: 1400, height: 900 });
-  // await page.goto('https://accounts.google.com/signin/v2/identifier?service=youtube&uilel=3&passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Faction_handle_signin%3Dtrue%26app%3Ddesktop%26hl%3Den%26next%3Dhttps%253A%252F%252Fwww.youtube.com%252F&hl=en&ec=65620&ifkv=AQN2RmVHAScFBpJy13LMNfxicEe8jYAPphuBv924B5wYynh_PjwXcMz_bC0lYbYdAaOfFmQ_I8Aoxw&flowName=GlifWebSignIn&flowEntry=ServiceLogin');
-  // await page.type('[type="email"]', email);
-  // await page.click('#identifierNext');
-  // await page.waitForTimeout(1500);
+  await page.setViewport({ width: 1400, height: 900});
+  await page.goto('https://accounts.google.com/signin/v2/identifier?service=youtube&uilel=3&passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Faction_handle_signin%3Dtrue%26app%3Ddesktop%26hl%3Den%26next%3Dhttps%253A%252F%252Fwww.youtube.com%252F&hl=en&ec=65620&ifkv=AQN2RmVHAScFBpJy13LMNfxicEe8jYAPphuBv924B5wYynh_PjwXcMz_bC0lYbYdAaOfFmQ_I8Aoxw&flowName=GlifWebSignIn&flowEntry=ServiceLogin');
+  await page.type('[type="email"]', email);
+  await page.click('#identifierNext');
+  await page.waitForTimeout(1500);
 
-  // await page.type('[type="password"', password);
-  // await page.click('#passwordNext');
+  await page.type('[type="password"', password);
+  await page.click('#passwordNext');
 
-  // await page.waitForTimeout(10000);
-
+  await page.waitForTimeout(10000);
+  
   // run below code on for loop 1000 times
   for (let i = 0; i < 1000; i++) {
     const videos = await prisma.video.findMany({
