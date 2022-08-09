@@ -1,6 +1,7 @@
 const PrismaClient = require("@prisma/client").PrismaClient;
 const puppeteerExtra = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+const {performance} = require('perf_hooks');
 
 const email = "brianguan98@gmail.com";
 const password = "brianguanwordpass1234";
@@ -71,31 +72,23 @@ const password = "brianguanwordpass1234";
       return videoLengthMilliseconds;
     };
     let videoLengthMilliseconds = convertVideoLengthToMilliseconds(videoLength);
+    let startTime = performance.now();
+    let endTime = startTime + videoLengthMilliseconds;
     // while waiting for video to finish playing, check video score every 5 seconds
-    while (videoLengthMilliseconds > 0) {
+    while (endTime - startTime > 1000) {
       await page.waitForTimeout(5000);
-      videoLengthMilliseconds -= 5000;
       // query video score from database
       const videoScore = await prisma.video.findUnique({
         where: { youtubeId: topVideoId },
       });
-      console.log(videoScore);
-      console.log(videoLengthMilliseconds);
+
       // if video score is less than or equal to 0, iterate to next video
       if (videoScore.score <= 0) {
         console.log("skipping video");
-        videoLengthMilliseconds = 0;
-        // send message to ably channel
-
-        // const key ="3VOgOg.UFzg4A:JS73B64vy2bHzqTkDK-SKhIeC-095PKu5kMtFJ4oq1A";
-        // const url =`https://realtime.ably.io/event-stream?channels=persistMessages:chat-demo&v=1.2&key=${key}`;
-        // const eventSource = new EventSource(url);
-        // console.log(eventSource);
-
-        // eventSource.onmessage = function(event) {
-        //   var message = JSON.parse(event.data);
-        //   console.log('Message: ' + message.name + ' - ' + message.data);
-        // };
+        startTime = endTime;
+      } else {
+        startTime = performance.now();
+        console.log("time left", endTime - startTime);
       }
     }
 
