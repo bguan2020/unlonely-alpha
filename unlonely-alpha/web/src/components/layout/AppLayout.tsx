@@ -7,11 +7,11 @@ import {
   AlertDescription,
   Grid,
 } from "@chakra-ui/react";
-import { ApolloError } from "@apollo/client";
+import { ApolloError } from "@apollo/client";
 
-import NextHead from "./NextHead";
+import NextHead from "./NextHead";
 
-import Header from "../navigation/Header";
+import Header from "../navigation/Header";
 
 type Props = {
   loading?: boolean;
