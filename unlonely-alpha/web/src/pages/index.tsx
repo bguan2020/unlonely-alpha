@@ -117,9 +117,6 @@ export default function Page() {
                   </Button>
                 </Flex>
               </Box>
-              <Text width="100%" m="auto" ml="40px">
-                real messages sent on unlonely!
-              </Text>
               <Box m="auto" borderRadius="20px" w="75%" maxH="300px" mb="40px" overflow="hidden" id="chat">
                 {messages}
                 {autoScroll.current && (
