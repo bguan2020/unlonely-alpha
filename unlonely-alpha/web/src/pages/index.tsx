@@ -1,9 +1,22 @@
+import { useRef } from "react";
 import { Text, Flex, Box, Button, Image, SimpleGrid } from "@chakra-ui/react";
 
 import AppLayout from "../components/layout/AppLayout";
 import { comments } from "../components/chat/HomePageChat";
+import useInterval from "../hooks/useInterval";
 
 export default function Page() {
+  const autoScroll = useRef(true);
+
+  useInterval(async () => {
+    if (autoScroll.current) {
+      const chat = document.getElementById("chat");
+      if (chat) {
+        chat.scrollTop = chat.scrollHeight;
+      }
+    }
+  }, 1000);
+
   const messages = comments.map((comment, index) => {
     return (
       <div key={index} className={`chat__message chat__message_${comment.a ? "B" : "A"}`} style={{animationDelay: `${comment.delay}`}}>
@@ -104,8 +117,14 @@ export default function Page() {
                   </Button>
                 </Flex>
               </Box>
-              <Box m="auto" borderRadius="20px" w="75%">
+              <Text width="100%" m="auto" ml="40px">
+                real messages sent on unlonely!
+              </Text>
+              <Box m="auto" borderRadius="20px" w="75%" maxH="300px" mb="40px" overflow="auto" id="chat">
                 {messages}
+                {autoScroll.current && (
+              <Box/>
+            )}
               </Box>
             </SimpleGrid>
               {/* <Box
