@@ -49,9 +49,9 @@ const VideoCardInner = ({ video, order }: Props) => {
     const m = Math.floor((seconds % 3600) / 60);
     const s = Math.floor((seconds % 3600) % 60);
 
-    const hDisplay = h > 0 ? `${h} hr` : "";
-    const mDisplay = m > 0 ? `${m} m` : "";
-    const sDisplay = s > 0 ? `${s} s` : "";
+    const hDisplay = h > 0 ? `${h}hr` : "";
+    const mDisplay = m > 0 ? `${m}m` : "";
+    const sDisplay = s > 0 ? `${s}s` : "";
     return hDisplay + mDisplay + sDisplay;
   };
 
@@ -129,49 +129,7 @@ const VideoCardInner = ({ video, order }: Props) => {
               )}
             </GridItem>
             <GridItem colSpan={1} pl="10px">
-              <Tooltip label="vote to skip video">
-                {accountData?.address ? (
-                  <span>
-                    <NebulousButton
-                      aria-label="like"
-                      color="#547aa8"
-                      onClick={submitSkip}
-                      disabled={buttonDisabled}
-                    >
-                      {video.skipped === true ? (
-                        <DownVoteIconSalmon boxSize={5} />
-                      ) : (
-                        <DownVoteIcon boxSize={5} />
-                      )}
-                    </NebulousButton>
-                  </span>
-                ) : (
-                  <span>
-                    <NebulousButton
-                      aria-label="like"
-                      color="#547aa8"
-                      onClick={() =>
-                        toast({
-                          title: "Sign in first.",
-                          description: "Please sign into your wallet first.",
-                          status: "warning",
-                          duration: 9000,
-                          isClosable: true,
-                          position: "top",
-                        })
-                      }
-                      disabled={buttonDisabled}
-                    >
-                      {video.skipped === true ? (
-                        <DownVoteIconSalmon boxSize={5} />
-                      ) : (
-                        <DownVoteIcon boxSize={5} />
-                      )}
-                    </NebulousButton>
-                  </span>
-                )}
-              </Tooltip>
-              {video.score}
+
               <Tooltip label="vote to watch video">
                 {accountData?.address ? (
                   <span>
@@ -209,6 +167,49 @@ const VideoCardInner = ({ video, order }: Props) => {
                         <UpVoteIconSalmon boxSize={5} />
                       ) : (
                         <UpVoteIcon boxSize={5} />
+                      )}
+                    </NebulousButton>
+                  </span>
+                )}
+              </Tooltip>
+              {video.score}
+              <Tooltip label="vote to skip video">
+                {accountData?.address ? (
+                  <span>
+                    <NebulousButton
+                      aria-label="like"
+                      color="#547aa8"
+                      onClick={submitSkip}
+                      disabled={buttonDisabled}
+                    >
+                      {video.skipped === true ? (
+                        <DownVoteIconSalmon boxSize={5} />
+                      ) : (
+                        <DownVoteIcon boxSize={5} />
+                      )}
+                    </NebulousButton>
+                  </span>
+                ) : (
+                  <span>
+                    <NebulousButton
+                      aria-label="like"
+                      color="#547aa8"
+                      onClick={() =>
+                        toast({
+                          title: "Sign in first.",
+                          description: "Please sign into your wallet first.",
+                          status: "warning",
+                          duration: 9000,
+                          isClosable: true,
+                          position: "top",
+                        })
+                      }
+                      disabled={buttonDisabled}
+                    >
+                      {video.skipped === true ? (
+                        <DownVoteIconSalmon boxSize={5} />
+                      ) : (
+                        <DownVoteIcon boxSize={5} />
                       )}
                     </NebulousButton>
                   </span>
