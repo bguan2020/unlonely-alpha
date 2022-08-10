@@ -108,7 +108,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
         .duration(data.items[0].contentDetails.duration)
         .asSeconds();
       let validVideo: boolean;
-      if (videoLength < 120) {
+      if (videoLength < 30) {
         validVideo = false;
       } else {
         validVideo = true;
@@ -171,7 +171,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
                         <Text color="#07FF20">Video Approved. Duration: {duration}s</Text>
                       ) : (
                         <Text color="#CC0000">
-                          Video needs to be at least 2 minutes long.
+                          Video needs to be at least 30 seconds long.
                         </Text>
                       )}
                     </Flex>
