@@ -66,7 +66,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     async function getMessages() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const { items } = await channel.history({ limit: 2500 });
+      const { items } = await channel.history({ limit: 200 });
       const reversed = items.reverse();
       setMessages(reversed);
     }
@@ -93,7 +93,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     }
   }, [chatBot]);
 
-  const sendChatMessage = (messageText: string) => {
+  const sendChatMessage = async (messageText: string) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     channel.publish({
@@ -108,6 +108,32 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     });
     setMessageText("");
     if (inputBox) inputBox.focus();
+    if (messageText.startsWith("@chatbot:")) {
+      // const that removes the @chatbot: from the beginning of the message
+      const prompt = messageText.substring(9);
+      const res = await fetch("/api/openai", {
+        body: JSON.stringify({
+          prompt: prompt,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+      });
+      const data = await res.json();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      channel.publish({
+        name: "chat-message",
+        data: {
+          messageText: `${data}`,
+          username: "chatbot🤖",
+          chatColor: "black",
+          address: "0x0000000000000000000000000000000000000000",
+          isFC: false,
+        },
+      });
+    }
   };
 
   const handleFormSubmission = (event: { preventDefault: () => void }) => {

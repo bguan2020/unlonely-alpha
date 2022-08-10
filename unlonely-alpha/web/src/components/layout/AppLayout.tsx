@@ -10,7 +10,6 @@ import {
 import { ApolloError } from "@apollo/client";
 
 import NextHead from "./NextHead";
-
 import Header from "../navigation/Header";
 
 type Props = {

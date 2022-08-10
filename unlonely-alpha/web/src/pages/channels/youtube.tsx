@@ -109,9 +109,8 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
           id="xeedev-video-modal"
           className="xeedev-class-hide"
         >
-          <Flex direction="row" width="100%" justifyContent="left">
+          <Flex direction="row" width={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }} justifyContent="left">
             <Flex
-              margin="auto"
               maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
               justifyContent="left"
               overflowX="auto"
