@@ -60,6 +60,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
   const [title, setTitle] = useState<null | string>(null);
   const [thumbnail, setThumbnail] = useState<null | string>(null);
   const [youtubeId, setYoutubeId] = useState<null | string>(null);
+  const [duration, setDuration] = useState<null | number>(null);
   const [isValidVideo, setIsValidVideo] = useState<boolean>(false);
   const [{ data: accountData }] = useAccount();
   const toast = useToast();
@@ -72,7 +73,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
 
   const submitVideo = async () => {
     const { description } = watch();
-    const data = await postVideo({ youtubeId, title, thumbnail, description });
+    const data = await postVideo({ youtubeId, title, thumbnail, description, duration });
     toast({
       title: "Video Suggestion Submitted",
       description:
@@ -106,7 +107,6 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
       const videoLength = moment
         .duration(data.items[0].contentDetails.duration)
         .asSeconds();
-
       let validVideo: boolean;
       if (videoLength < 120) {
         validVideo = false;
@@ -117,6 +117,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
       setThumbnail(thumbnailUrl);
       setYoutubeId(videoId);
       setIsValidVideo(validVideo);
+      setDuration(videoLength);
       setYtLoading(false);
     } else {
       setFormError(["error with Youtube link."]);
@@ -167,7 +168,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
                     </Flex>
                     <Flex width="100%" justifyContent="center">
                       {isValidVideo ? (
-                        <Text color="#07FF20">Video Approved.</Text>
+                        <Text color="#07FF20">Video Approved. Duration: {duration}s</Text>
                       ) : (
                         <Text color="#CC0000">
                           Video needs to be at least 2 minutes long.

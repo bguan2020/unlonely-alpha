@@ -35,6 +35,7 @@ model Video {
   score Int @default(0)
   skip Int @default(0)
   pause Int @default(0)
+  duration Int @default(0)
 
   comments Comment[]
   likes Like[]

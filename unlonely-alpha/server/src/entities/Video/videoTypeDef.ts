@@ -12,6 +12,7 @@ export const typeDef = gql`
     pause: Int
     liked: Boolean
     skipped: Boolean
+    duration: Int!
     comments: [Comment!]!
     owner: User!
     createdAt: DateTime!
@@ -32,6 +33,7 @@ export const typeDef = gql`
     title: String
     thumbnail: String
     description: String
+    duration: Int
   }
 
   extend type Query {
