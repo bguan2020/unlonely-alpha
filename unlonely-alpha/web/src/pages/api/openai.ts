@@ -27,7 +27,7 @@ export default async function handler(
     });
     result = gptResponse.data.choices[0].text
   } catch {
-    result = "Sorry, I seem to be malfunctioning."
+    result = "Sorry, I seem to be malfunctioning. Please try again later."
   }
 
   res.status(200).json(result);
