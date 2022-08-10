@@ -111,7 +111,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     if (messageText.startsWith("@chatbot:")) {
       // const that removes the @chatbot: from the beginning of the message
       const prompt = messageText.substring(9);
-      const res = await fetch(`/api/openai`, {
+      const res = await fetch("/api/openai", {
         body: JSON.stringify({
           prompt: prompt,
         }),
