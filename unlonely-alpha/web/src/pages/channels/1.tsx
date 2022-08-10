@@ -11,7 +11,7 @@ import NextStreamTimer from "../../components/video/NextStreamTimer";
 import AddVideoModal from "../../components/video/AddVideoModal";
 
 const VIDEO_LIST_QUERY = gql`
-  query VideoFeed($data: VideoFeedInput!) {
+  query VideoFeed1($data: VideoFeedInput!) {
     getVideoFeed(data: $data) {
       id
       youtubeId

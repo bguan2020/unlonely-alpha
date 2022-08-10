@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useState, useEffect } from "react";
-import { Text, Flex, Grid, GridItem, Box, Button } from "@chakra-ui/react";
+import { Text, Flex, Grid, GridItem, Box, Button, Spacer } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 
 import AppLayout from "../../components/layout/AppLayout";
@@ -21,6 +21,7 @@ const VIDEO_LIST_QUERY = gql`
       thumbnail
       description
       score
+      duration
       createdAt
       owner {
         username
@@ -108,17 +109,20 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
           id="xeedev-video-modal"
           className="xeedev-class-hide"
         >
-          <Flex
-            margin="auto"
-            maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
-            justifyContent="left"
-            overflowX="auto"
-            maxH="400px"
-            mb="10px"
-          >
-            <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} />
+          <Flex direction="row" width="100%" justifyContent="left">
+            <Flex
+              margin="auto"
+              maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
+              justifyContent="left"
+              overflowX="auto"
+              maxH="400px"
+              mb="10px"
+            >
+              <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} />
+            </Flex>
+            <Spacer />
+            {loading && <Box h="20px">{"updating videos..."}</Box>}
           </Flex>
-          {loading && <Box h="20px">{"updating videos..."}</Box>}
           <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
@@ -163,7 +167,7 @@ export default function Page() {
       },
     },
     notifyOnNetworkStatusChange: true,
-    pollInterval: 60000,
+    pollInterval: 30000,
   });
   const videos = data?.getVideoFeed;
 

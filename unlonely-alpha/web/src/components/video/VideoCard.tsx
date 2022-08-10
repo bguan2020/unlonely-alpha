@@ -43,6 +43,18 @@ const VideoCardInner = ({ video, order }: Props) => {
     }, 1000);
   };
 
+  // function to convert number of seconds to hours:minutes:seconds
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor((seconds % 3600) % 60);
+
+    const hDisplay = h > 0 ? `${h} hr` : "";
+    const mDisplay = m > 0 ? `${m} m` : "";
+    const sDisplay = s > 0 ? `${s} s` : "";
+    return hDisplay + mDisplay + sDisplay;
+  };
+
   return (
     <>
       <Flex direction="column">
@@ -106,7 +118,16 @@ const VideoCardInner = ({ video, order }: Props) => {
               </Text>
             </GridItem>
             <GridItem colSpan={1} rowSpan={1}></GridItem>
-            <GridItem colSpan={2} rowSpan={1}></GridItem>
+            <GridItem colSpan={1} rowSpan={1}></GridItem>
+            <GridItem colSpan={1} rowSpan={1}>
+              {video.duration !== 0 && (
+                <Flex width="100%" justifyContent="left">
+                  <Text fontFamily="Roboto, sans-serif" fontSize="14px" color="grey">
+                    duration: {formatTime(video.duration)}
+                  </Text>
+                </Flex>
+              )}
+            </GridItem>
             <GridItem colSpan={1} pl="10px">
               <Tooltip label="vote to skip video">
                 {accountData?.address ? (
@@ -228,6 +249,7 @@ VideoCard.fragments = {
       thumbnail
       description
       score
+      duration
       createdAt
       owner {
         username

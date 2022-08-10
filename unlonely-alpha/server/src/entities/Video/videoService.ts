@@ -31,6 +31,7 @@ export interface IPostVideoInput {
   title: string;
   thumbnail: string;
   description: string;
+  duration: number;
 }
 
 export const postVideo = (data: IPostVideoInput, user: User, ctx: Context) => {
@@ -40,6 +41,7 @@ export const postVideo = (data: IPostVideoInput, user: User, ctx: Context) => {
       title: data.title,
       thumbnail: data.thumbnail,
       description: data.description,
+      duration: data.duration,
       owner: {
         connect: { address: user.address },
       },
