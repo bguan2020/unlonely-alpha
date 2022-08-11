@@ -22,7 +22,6 @@ const YT_PUBLIC_KEY = "AIzaSyAobxgmgOkLIOnwDsKMF_e_4fFSUrcUIxk";
   }
 })();
 
-
 const getVideoDurations = async (youtubeId) => {
   const { data } = await axios.get(
     `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&part=snippet&id=${youtubeId}&key=${YT_PUBLIC_KEY}`
@@ -31,16 +30,11 @@ const getVideoDurations = async (youtubeId) => {
   let videoLength;
   try {
     videoLength = moment
-          .duration(data.items[0].contentDetails.duration)
-          .asSeconds();
+      .duration(data.items[0].contentDetails.duration)
+      .asSeconds();
   } catch {
     videoLength = 0;
   }
 
   return videoLength;
 };
-
-
-
-
-

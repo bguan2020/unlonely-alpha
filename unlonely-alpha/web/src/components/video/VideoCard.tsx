@@ -22,7 +22,7 @@ type Props = {
 const VideoCardInner = ({ video, order }: Props) => {
   const { like, skip } = useLike(video);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
-  const [{ data: accountData }] = useAccount();
+  const accountData = useAccount();
   const toast = useToast();
 
   const submitLike = async () => {
@@ -65,7 +65,6 @@ const VideoCardInner = ({ video, order }: Props) => {
               : video.owner.username}
           </Text>
           <GridItem colSpan={1} pl="10px" fontSize="16px" fontWeight="600">
-
               <Tooltip label="vote to watch video">
                 {accountData?.address ? (
                   <span>

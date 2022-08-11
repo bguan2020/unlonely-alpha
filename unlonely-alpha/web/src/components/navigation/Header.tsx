@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 // import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 
-import SignIn from "../SignIn";
+import ConnectWallet from "./ConnectKit";
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -71,7 +71,7 @@ const Header: React.FC = () => {
         <Flex width="100%" justifyContent="center"></Flex>
 
         <Flex width="100%" justifyContent="center">
-          <SignIn />
+          <ConnectWallet />
         </Flex>
 
         <Divider
@@ -122,7 +122,7 @@ const Header: React.FC = () => {
             margin="auto"
             width="100%"
           >
-            <SignIn />
+            <ConnectWallet />
           </Flex>
         </Spacer>
       </Flex>

@@ -1,9 +1,4 @@
-import {
-  Flex,
-  Text,
-  Box,
-  Button,
-} from "@chakra-ui/react";
+import { Flex, Text, Box, Button } from "@chakra-ui/react";
 
 import NFTModalRoot from "../profile/NFTModal/NFTModalRoot";
 import NFTModalFooter from "../profile/NFTModal/NFTModalFooter";
@@ -11,23 +6,26 @@ import NFTModalFooter from "../profile/NFTModal/NFTModalFooter";
 const TikTokModal: React.FunctionComponent = () => {
   return (
     <>
-      <NFTModalRoot TriggerButton={
-        <Button
-          variantcolor="white"
-          variant="outline"
-          size="lg"
-          w="50%"
-          h="50px"
-          borderRadius="20px"
-          mt="20px"
-          mb="40px"
-          pr="10px"
-          pl="10px"
-          color="white"
-          _hover={{ bg: "white", color: "black" }}
-        >
-          Join
-        </Button>}>
+      <NFTModalRoot
+        TriggerButton={
+          <Button
+            variantcolor="white"
+            variant="outline"
+            size="lg"
+            w="50%"
+            h="50px"
+            borderRadius="20px"
+            mt="20px"
+            mb="40px"
+            pr="10px"
+            pl="10px"
+            color="white"
+            _hover={{ bg: "white", color: "black" }}
+          >
+            Join
+          </Button>
+        }
+      >
         <Flex w="100%" justifyContent="center" mt="40px">
           <Box
             w={{ base: "300px", md: "400px", lg: "400px" }}
@@ -42,7 +40,8 @@ const TikTokModal: React.FunctionComponent = () => {
               fontWeight="bold"
               textAlign={"center"}
             >
-              Follow @unlonely.app on TikTok and send tiktoks to that account to watch and rate together on unlonely!
+              Follow @unlonely.app on TikTok and send tiktoks to that account to
+              watch and rate together on unlonely!
             </Text>
             <Flex w="100%" justifyContent="center">
               <Button

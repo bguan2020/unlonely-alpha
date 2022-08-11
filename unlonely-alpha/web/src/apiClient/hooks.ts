@@ -53,6 +53,7 @@ export const useAuthedMutation = <
     setError(undefined);
 
     const authData = await getAuthData();
+
     if (!authData || authData.error) {
       setLoading(false);
       const message = authData.error

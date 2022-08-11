@@ -62,7 +62,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
   const [youtubeId, setYoutubeId] = useState<null | string>(null);
   const [duration, setDuration] = useState<null | number>(null);
   const [isValidVideo, setIsValidVideo] = useState<boolean>(false);
-  const [{ data: accountData }] = useAccount();
+  const accountData = useAccount();
   const toast = useToast();
 
   const { postVideo, loading } = usePostVideoWithRedirect({
@@ -73,7 +73,13 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
 
   const submitVideo = async () => {
     const { description } = watch();
-    const data = await postVideo({ youtubeId, title, thumbnail, description, duration });
+    const data = await postVideo({
+      youtubeId,
+      title,
+      thumbnail,
+      description,
+      duration,
+    });
     toast({
       title: "Video Suggestion Submitted",
       description:
@@ -168,7 +174,9 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
                     </Flex>
                     <Flex width="100%" justifyContent="center">
                       {isValidVideo ? (
-                        <Text color="#07FF20">Video Approved. Duration: {duration}s</Text>
+                        <Text color="#07FF20">
+                          Video Approved. Duration: {duration}s
+                        </Text>
                       ) : (
                         <Text color="#CC0000">
                           Video needs to be at least 30 seconds long.
