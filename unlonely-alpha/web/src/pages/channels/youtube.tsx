@@ -8,6 +8,7 @@ import {
   Box,
   Button,
   Spacer,
+  Image,
 } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 
@@ -130,7 +131,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
               <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} />
             </Flex>
             <Spacer />
-            {loading && <Box h="20px">{"updating videos..."}</Box>}
+            {loading && <Flex flexDirection="row"><Image src="https://im2.ezgif.com/tmp/ezgif-2-b001468257.gif" width="2rem" height="2rem" mr="0.5rem"/>{"syncing videos"}</Flex>}
           </Flex>
           <Flex
             margin="auto"
