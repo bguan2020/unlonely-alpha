@@ -119,14 +119,13 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
         >
           <Flex
             direction="row"
-            width={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
             justifyContent="left"
           >
             <Flex
-              maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
-              overflowX="auto"
               maxH="400px"
               margin="auto"
+              mb="16px"
+              ml="32px"
             >
               <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} />
             </Flex>
