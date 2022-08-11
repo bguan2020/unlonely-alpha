@@ -96,20 +96,31 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   }, [chatBot]);
 
   const sendChatMessage = async (messageText: string) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    channel.publish({
-      name: "chat-message",
-      data: {
-        messageText,
-        username,
-        chatColor,
-        isFC,
-        address: user?.address,
-        powerUserLvl: user?.powerUserLvl,
-        videoSavantLvl: user?.videoSavantLvl,
-      },
-    });
+    if (user) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      channel.publish({
+        name: "chat-message",
+        data: {
+          messageText,
+          username: user.username,
+          chatColor,
+          isFC,
+          address: user.address,
+          powerUserLvl: user?.powerUserLvl,
+          videoSavantLvl: user?.videoSavantLvl,
+        },
+      });
+    } else {
+      toast({
+        title: "Sign in first.",
+        description: "Please sign into your wallet first.",
+        status: "warning",
+        duration: 9000,
+        isClosable: true,
+        position: "top",
+      });
+    }
     setMessageText("");
     if (inputBox) inputBox.focus();
     if (messageText.startsWith("@chatbot")) {
@@ -176,17 +187,6 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   };
 
   const messages = receivedMessages.map((message, index) => {
-    let author: string;
-    // add key to flexbox to prevent React error
-    if (message.data.username === "chatbot🤖") {
-      author = "chatbot🤖";
-    } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      author = message.connectionId === ably.connection.id
-          ? "me"
-          : message.data.username;
-    }
     return (
       <>
         <Flex direction="column">
@@ -211,7 +211,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
                   />
               </Tooltip>
             ) : null}
-            {((isFC && author === "me") || message.data.isFC) && (
+            {((isFC && (user?.username === message.data.username)) || message.data.isFC) && (
               <Tooltip label="Farcaster Badge">
                   <Image
                     src="https://searchcaster.xyz/img/logo.png"
