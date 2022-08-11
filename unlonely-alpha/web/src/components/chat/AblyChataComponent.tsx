@@ -211,7 +211,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
                   />
               </Tooltip>
             ) : null}
-            {((isFC && (user?.username === message.data.username)) || message.data.isFC) && (
+            {(message.data.isFC) && (
               <Tooltip label="Farcaster Badge">
                   <Image
                     src="https://searchcaster.xyz/img/logo.png"
