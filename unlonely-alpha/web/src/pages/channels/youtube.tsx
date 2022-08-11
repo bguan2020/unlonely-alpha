@@ -138,6 +138,8 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
           <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
+            borderRadius="0.3125rem"
+            padding="0.5rem 1rem"
             justifyContent="center"
             backgroundColor="rgba(0,0,0,0.2)"
             overflowX="auto"
