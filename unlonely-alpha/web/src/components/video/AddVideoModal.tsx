@@ -33,9 +33,6 @@ import {
 import { PostYTLinkInput } from "../../types";
 import usePostVideoWithRedirect from "../../hooks/usePostVideoWithRedirect";
 import { YT_PUBLIC_KEY } from "../../constants";
-import NFTModalHeader from "../profile/NFTModal/NFTModalHeader";
-import NFTModalRoot from "../profile/NFTModal/NFTModalRoot";
-import NFTModalFooter from "../profile/NFTModal/NFTModalFooter";
 import { ChatBot } from "../../pages/channels/youtube";
 
 type Props = {

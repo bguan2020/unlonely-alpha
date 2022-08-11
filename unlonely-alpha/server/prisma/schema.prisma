@@ -17,6 +17,8 @@ model User {
   isFCUser Boolean @default(false)
 
   bio String @default("")
+  powerUserLvl Int @default(0)
+  videoSavantLvl Int @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
