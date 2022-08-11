@@ -192,7 +192,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
         <Flex direction="column">
           <Flex key={index} direction="row" align="center">
             {((user && (user?.powerUserLvl > 0) && (user?.username === message.data.username)) || (message.data.powerUserLvl && message.data.powerUserLvl> 0)) ? (
-              <Tooltip label={`Power User lvl:${user?.powerUserLvl}`}>
+              <Tooltip label={`Power User lvl:${user?.powerUserLvl ? user?.powerUserLvl : message.data.powerUserLvl}`}>
                   <Image
                     src={`/images/badges/lvl${user?.powerUserLvl}_poweruser.png`}
                     width="20px"
@@ -202,7 +202,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
               </Tooltip>
             ) : null}
             {((user && (user?.videoSavantLvl > 0) && (user?.username === message.data.username)) || (message.data.videoSavantLvl && message.data.videoSavantLvl> 0)) ? (
-              <Tooltip label={`Video Savant lvl:${user?.videoSavantLvl}`}>
+              <Tooltip label={`Video Savant lvl:${user?.videoSavantLvl ? user?.videoSavantLvl : message.data.videoSavantLvl}`}>
                   <Image
                     src={`/images/badges/lvl${user?.powerUserLvl}_videosavant.png`}
                     width="20px"
