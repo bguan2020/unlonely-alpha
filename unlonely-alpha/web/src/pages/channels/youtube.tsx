@@ -1,6 +1,14 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useState, useEffect } from "react";
-import { Text, Flex, Grid, GridItem, Box, Button, Spacer } from "@chakra-ui/react";
+import {
+  Text,
+  Flex,
+  Grid,
+  GridItem,
+  Box,
+  Button,
+  Spacer,
+} from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 
 import AppLayout from "../../components/layout/AppLayout";
@@ -48,7 +56,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
-  const [{ data: accountData }] = useAccount();
+  const accountData = useAccount();
 
   useEffect(() => {
     const fetchEns = async () => {
@@ -109,13 +117,15 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
           id="xeedev-video-modal"
           className="xeedev-class-hide"
         >
-          <Flex direction="row" width={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }} justifyContent="left">
+          <Flex
+            direction="row"
+            justifyContent="left"
+          >
             <Flex
-              maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
-              justifyContent="left"
-              overflowX="auto"
               maxH="400px"
-              mb="10px"
+              margin="auto"
+              mb="16px"
+              ml="32px"
             >
               <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} />
             </Flex>
@@ -125,6 +135,8 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
           <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
+            borderRadius="0.3125rem"
+            padding="0.5rem 1rem"
             justifyContent="center"
             backgroundColor="rgba(0,0,0,0.2)"
             overflowX="auto"
@@ -156,7 +168,7 @@ const toggleChatVideos = function () {
 };
 
 export default function Page() {
-  const { data, loading, error, networkStatus } = useQuery(VIDEO_LIST_QUERY, {
+  const { data, loading, error } = useQuery(VIDEO_LIST_QUERY, {
     variables: {
       data: {
         searchString: null,

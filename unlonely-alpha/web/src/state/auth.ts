@@ -28,7 +28,7 @@ export const useAuthData = (): {
     | { signedMessage: undefined; error: any }
   >;
 } => {
-  const [{ data }] = useAccount();
+  const data = useAccount();
   const address = data?.address;
   const [getUser] = useLazyQuery<FetchCurrentUserQuery>(
     FETCH_CURRENT_USER_QUERY
@@ -36,7 +36,7 @@ export const useAuthData = (): {
   const [getAuthMessage] = useLazyQuery<FetchAuthMessageQuery>(
     FETCH_AUTH_MESSAGE_QUERY
   );
-  const [_, signMessage] = useSignMessage();
+  const { signMessageAsync, error } = useSignMessage();
 
   const getAuthData = useCallback(() => {
     const fetchAndSignMessage = async () => {
@@ -66,13 +66,13 @@ export const useAuthData = (): {
       const message = gqlResponse.data.currentUserAuthMessage;
 
       // // 2. Sign the message
-      const signerResponse = await signMessage({ message });
+      const signerResponse = await signMessageAsync({ message });
 
-      if (signerResponse.error) {
+      if (error) {
         return { error: { message: "Failed to sign message" } };
       }
 
-      const signedMessage = signerResponse.data;
+      const signedMessage = signerResponse;
 
       // 3. Return the data needed
       return {
@@ -81,7 +81,7 @@ export const useAuthData = (): {
     };
 
     return fetchAndSignMessage();
-  }, [address, getAuthMessage, signMessage]);
+  }, [address, getAuthMessage, signMessageAsync]);
 
   return { getAuthData };
 };

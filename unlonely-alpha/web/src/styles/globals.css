@@ -202,7 +202,7 @@ body {
   height: 12rem;
   overflow: hidden;
   border: 1px rgb(0, 0, 0) dashed;
-  font: .85rem/1.5 Arial;
+  font: 0.85rem/1.5 Arial;
   color: #313131;
   position: relative;
 }

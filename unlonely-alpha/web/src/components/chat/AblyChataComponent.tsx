@@ -46,7 +46,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   const [messageText, setMessageText] = useState<string>("");
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [isFC, setIsFC] = useState<boolean>(false);
-  const [{ data: accountData }] = useAccount();
+  const accountData = useAccount();
   const toast = useToast();
   const [buttonStatus, toggleButton] = useState(false);
   const messageTextIsEmpty = messageText.trim().length === 0;

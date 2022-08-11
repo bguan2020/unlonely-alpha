@@ -10,6 +10,13 @@ import {
   FormControl,
   useToast,
   Button,
+  Modal,
+  ModalOverlay,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -62,8 +69,9 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
   const [youtubeId, setYoutubeId] = useState<null | string>(null);
   const [duration, setDuration] = useState<null | number>(null);
   const [isValidVideo, setIsValidVideo] = useState<boolean>(false);
-  const [{ data: accountData }] = useAccount();
+  const accountData = useAccount();
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { postVideo, loading } = usePostVideoWithRedirect({
     onError: (m) => {
@@ -73,7 +81,14 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
 
   const submitVideo = async () => {
     const { description } = watch();
-    const data = await postVideo({ youtubeId, title, thumbnail, description, duration });
+    const data = await postVideo({
+      youtubeId,
+      title,
+      thumbnail,
+      description,
+      duration,
+    });
+    onClose();
     toast({
       title: "Video Suggestion Submitted",
       description:
@@ -127,22 +142,31 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
 
   return (
     <>
-      <NFTModalRoot TriggerButton={<Button>Add a Video</Button>}>
-        <NFTModalHeader styles={{ marginTop: "33px" }}>
-          {formError && <Text>{formError}</Text>}
-        </NFTModalHeader>
-        <Flex w="100%" justifyContent="center" mt="40px">
-          <Box
+    <Button onClick={onOpen}>Submit Video</Button>
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent
+        maxW="500px"
+        boxShadow="0px 8px 28px #0a061c40"
+        padding="12px"
+        borderRadius="10px"
+        bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)">
+        <ModalHeader>
+          <Text fontSize="24px" fontWeight="bold" color="black">
+            Submit a Video
+          </Text>{formError && <Text>{formError}</Text>}
+        </ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+        <Box
             w={{ base: "300px", md: "400px", lg: "400px" }}
-            bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
             borderRadius="20px"
-            mb="50px"
           >
             <Text
               fontSize="20px"
               margin="20px"
               lineHeight="25px"
-              fontWeight="bold"
+              color="black"
               textAlign={"center"}
             >
               Watch with us! Enter a YouTube video you want to share with a
@@ -161,14 +185,16 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
                 <>
                   <Flex flexDirection="column">
                     <Flex margin="25px" width="100%">
-                      <Image width="120" height="90" src={thumbnail} />
+                      <Image width="120" height="68" src={thumbnail} objectFit="cover"/>
                       <Text fontWeight="bold" margin="10px">
                         {title}
                       </Text>
                     </Flex>
                     <Flex width="100%" justifyContent="center">
                       {isValidVideo ? (
-                        <Text color="#07FF20">Video Approved. Duration: {duration}s</Text>
+                        <Text color="#07FF20">
+                          Video Approved. Duration: {duration}s
+                        </Text>
                       ) : (
                         <Text color="#CC0000">
                           Video needs to be at least 30 seconds long.
@@ -205,7 +231,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
                       </FormErrorMessage>
                     </FormControl>
                   )}
-                  <Flex width="100%" flexDirection="row-reverse">
+                  <Flex width="100%" justifyContent="space-between" direction="row-reverse">
                     {isValidVideo && (
                       <>
                         {accountData?.address ? (
@@ -216,7 +242,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
                             isLoading={loading}
                             margin="25px"
                           >
-                            Finalize Submit
+                            Submit
                           </Button>
                         ) : (
                           <Button
@@ -236,7 +262,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
                               })
                             }
                           >
-                            Click again to join!
+                            Submit
                           </Button>
                         )}
                       </>
@@ -302,10 +328,9 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
               </form>
             )}
           </Box>
-        </Flex>
-
-        <NFTModalFooter />
-      </NFTModalRoot>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
     </>
   );
 };

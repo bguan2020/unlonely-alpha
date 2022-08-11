@@ -1,17 +1,15 @@
 import "../styles/globals.css";
 import theme from "../styles/theme";
 
-import { LiveblocksProvider } from "@liveblocks/react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { ApolloProvider } from "@apollo/client";
-import { Provider as WagmiProvider } from "wagmi";
-import { createClient } from "@liveblocks/client";
+import { createClient, WagmiConfig } from "wagmi";
+import { ConnectKitProvider, getDefaultClient } from "connectkit";
 import { AppProps } from "next/app";
 import Head from "next/head";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 
-import { connectors } from "../connectors";
 import { Cookies, useApollo } from "../apiClient/client";
 
 interface InitialProps {
@@ -21,26 +19,32 @@ interface InitialProps {
 type Props = AppProps & InitialProps;
 
 function App({ Component, pageProps, cookies }: Props) {
-  const liveblocksClient = createClient({
-    publicApiKey: process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY!,
-  });
   const apolloClient = useApollo(
     pageProps ? pageProps.initialApolloState : null,
     cookies
   );
 
+  const wagmiClient = createClient(
+    getDefaultClient({
+      appName: "Unlonely",
+      autoConnect: true,
+      alchemyId: process.env.ALCHEMY_API_KEY,
+    })
+  );
+
   return (
-    /**
-     * Add a LiveblocksProvider at the root of your app
-     * to be able to use Liveblocks react hooks in your components
-     **/
-    <LiveblocksProvider client={liveblocksClient}>
-      <ChakraProvider theme={theme}>
-        <WagmiProvider autoConnect connectors={connectors({ chainId: 1 })}>
+    <ChakraProvider theme={theme}>
+      <WagmiConfig client={wagmiClient}>
+        <ConnectKitProvider
+          mode={"dark"}
+          customTheme={{
+            "--ck-font-family": "Anonymous Pro, sans-serif",
+            "--ck-border-radius": 32,
+          }}
+        >
           <ApolloProvider client={apolloClient}>
             <Head>
               <title>Unlonely</title>
-              <meta name="robots" content="noindex" />
               <meta
                 name="viewport"
                 content="width=device-width, initial-scale=1"
@@ -48,9 +52,9 @@ function App({ Component, pageProps, cookies }: Props) {
             </Head>
             <Component {...pageProps} />
           </ApolloProvider>
-        </WagmiProvider>
-      </ChakraProvider>
-    </LiveblocksProvider>
+        </ConnectKitProvider>
+      </WagmiConfig>
+    </ChakraProvider>
   );
 }
 

@@ -10,10 +10,7 @@ const NebulousButton: React.FC<IconButtonProps> = ({ children, ...rest }) => {
         width: "22px",
         height: "22px",
       }}
-      variant="ghost"
-      colorScheme="blue"
       size="sm"
-      height="30px"
       {...rest}
     >
       {children}
