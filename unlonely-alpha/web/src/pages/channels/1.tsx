@@ -1,7 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useState, useEffect } from "react";
 import { Text, Flex, Grid, GridItem, Box, Button } from "@chakra-ui/react";
-import { useAccount } from "wagmi";
 
 import AppLayout from "../../components/layout/AppLayout";
 import VideoSort, { VideoAttribute } from "../../components/video/VideoSort";
@@ -45,12 +44,11 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
-  const [{ data: accountData }] = useAccount();
 
   // redirect to channels/youtube immediately
   useEffect(() => {
     window.location.href = "/channels/youtube";
-  } , []);
+  }, []);
 
   return (
     <>

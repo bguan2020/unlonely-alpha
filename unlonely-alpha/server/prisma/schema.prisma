@@ -28,7 +28,7 @@ model User {
 
 model Video {
   id           Int     @id @default(autoincrement())
-  youtubeId String     @unique
+  youtubeId String     
   title String         
   thumbnail String
   description String

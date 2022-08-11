@@ -19,20 +19,27 @@ export default function Page() {
 
   const messages = comments.map((comment, index) => {
     return (
-      <div key={index} className={`chat__message chat__message_${comment.a ? "B" : "A"}`} style={{animationDelay: `${comment.delay}`}}>
+      <div
+        key={index}
+        className={`chat__message chat__message_${comment.a ? "B" : "A"}`}
+        style={{ animationDelay: `${comment.delay}` }}
+      >
         <Flex direction="column">
           <Flex direction="row" ml="10px">
             {comment.isFCUser && (
-                <Image
-                  src="https://searchcaster.xyz/img/logo.png"
-                  width="20px"
-                  height="20px"
-                  mr="5px"
-                />
+              <Image
+                src="https://searchcaster.xyz/img/logo.png"
+                width="20px"
+                height="20px"
+                mr="5px"
+              />
             )}
             <Text>{comment.username}</Text>
           </Flex>
-            <div className="chat__content" style={{backgroundColor: `${comment.color}`}}>
+          <div
+            className="chat__content"
+            style={{ backgroundColor: `${comment.color}` }}
+          >
             <Box
               borderRadius="10px"
               bg={comment.color}
@@ -43,13 +50,12 @@ export default function Page() {
               <Text color="white" fontSize={18} wordBreak="break-word">
                 {comment.text}
               </Text>
-            </Box> 
-            </div>
+            </Box>
+          </div>
         </Flex>
       </div>
     );
   });
-
 
   return (
     <AppLayout>
@@ -117,14 +123,20 @@ export default function Page() {
                   </Button>
                 </Flex>
               </Box>
-              <Box m="auto" borderRadius="20px" w="75%" maxH="300px" mb="40px" overflow="hidden" id="chat">
+              <Box
+                m="auto"
+                borderRadius="20px"
+                w="75%"
+                maxH="300px"
+                mb="40px"
+                overflow="hidden"
+                id="chat"
+              >
                 {messages}
-                {autoScroll.current && (
-              <Box/>
-            )}
+                {autoScroll.current && <Box />}
               </Box>
             </SimpleGrid>
-              {/* <Box
+            {/* <Box
                 w={{ base: "300px", md: "350px", lg: "400px" }}
                 bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
                 borderRadius="20px"

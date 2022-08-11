@@ -40,7 +40,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
-  const [{ data: accountData }] = useAccount();
+  const accountData = useAccount();
 
   useEffect(() => {
     const fetchEns = async () => {

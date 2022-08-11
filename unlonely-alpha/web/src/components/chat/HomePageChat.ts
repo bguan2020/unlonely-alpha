@@ -144,4 +144,4 @@ export const comments = [
     a: false,
     delay: "28s",
   },
-]
+];

@@ -1,20 +1,21 @@
 export const COLORS = [
-  "#76D201",
-  "#FC8F32",
-  "#FF3EA5",
-  "#59CBE8",
-  "#BB29BB",
-  "#0A6202",
-  "#FFCC15",
-  "#FF6D6A",
-  "#517EF5",
-  "#717BA7",
-  "#27415E",
-  "#8A4DA7",
-  "#C57836",
-  "#DC1BB1",
-  "#4ABBDF",
-  "#279715",
-  "#35C8BF",
-  "#B21C1C",
+  "#76D201", // neon green
+  "#FC8F32", // orange
+  "#FF3EA5", // pink
+  "#59CBE8", // blue
+  "#BB29BB", // purple
+  "#0A6202", // green
+  "#C5A01D", // yellow
+  "#FF6D6A", // red
+  "#517EF5", // light blue
+  "#717BA7", // dark blue
+  "#27415E", // dark green
+  "#8A4DA7", // purple
+  "#C57836", // orange
+  "#DC1BB1", // pink
+  "#4ABBDF", // light blue
+  "#279715", // green
+  "#35C8BF", // light green
+  "#B21C1C", // red
+  "#540779", // dark purple
 ];
