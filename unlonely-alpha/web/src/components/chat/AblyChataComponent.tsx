@@ -194,7 +194,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
             {((user && (user?.powerUserLvl > 0) && (user?.username === message.data.username)) || (message.data.powerUserLvl && message.data.powerUserLvl> 0)) ? (
               <Tooltip label={`Power User lvl:${user?.powerUserLvl ? user?.powerUserLvl : message.data.powerUserLvl}`}>
                   <Image
-                    src={`/images/badges/lvl${user?.powerUserLvl}_poweruser.png`}
+                    src={`/images/badges/lvl${user?.powerUserLvl ? user?.powerUserLvl : message.data.powerUserLvl}_poweruser.png`}
                     width="20px"
                     height="20px"
                     mr="5px"
@@ -204,7 +204,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
             {((user && (user?.videoSavantLvl > 0) && (user?.username === message.data.username)) || (message.data.videoSavantLvl && message.data.videoSavantLvl> 0)) ? (
               <Tooltip label={`Video Savant lvl:${user?.videoSavantLvl ? user?.videoSavantLvl : message.data.videoSavantLvl}`}>
                   <Image
-                    src={`/images/badges/lvl${user?.powerUserLvl}_videosavant.png`}
+                    src={`/images/badges/lvl${user?.videoSavantLvl ? user?.videoSavantLvl : message.data.videoSavantLvl}_videosavant.png`}
                     width="20px"
                     height="20px"
                     mr="5px"
