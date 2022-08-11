@@ -23,15 +23,18 @@ const WinnerWrapper = ({ order, children }: Props) => {
               flexDirection="column"
               alignItems="flex-end"
               borderRadius="8px"
+              overflow="hidden"
+              position="relative"
               mr="5px"
+              alignSelf="stretch"
             >
               <Box width="100%" px={["12px", "0px"]}>
                 {children}
               </Box>
+              <Text color="#FFC700" fontWeight={"bold"} fontSize="22px" position="absolute" bottom="0" right="4px">
+                🥇
+              </Text>
             </Flex>
-            <Text color="#FFC700" fontWeight={"bold"} fontSize="25px">
-              🥇
-            </Text>
           </Flex>
         </>
       )}
@@ -47,15 +50,18 @@ const WinnerWrapper = ({ order, children }: Props) => {
               flexDirection="column"
               alignItems="flex-end"
               borderRadius="8px"
+              overflow="hidden"
+              position="relative"
               mr="5px"
+              alignSelf="stretch"
             >
               <Box width="100%" px={["12px", "0px"]}>
                 {children}
               </Box>
+              <Text color="#FFC700" fontWeight={"bold"} fontSize="22px" position="absolute" bottom="0" right="4px">
+                🥈
+              </Text>
             </Flex>
-            <Text color="#FFC700" fontWeight={"bold"} fontSize="25px">
-              🥈
-            </Text>
           </Flex>
         </>
       )}
