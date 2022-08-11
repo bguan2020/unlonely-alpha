@@ -131,7 +131,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
               <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} />
             </Flex>
             <Spacer />
-            {loading && <Flex flexDirection="row"><Image src="https://im2.ezgif.com/tmp/ezgif-2-b001468257.gif" width="2rem" height="2rem" mr="0.5rem"/>{"syncing videos"}</Flex>}
+            {loading && <Flex flexDirection="row"><Image src="https://i.imgur.com/tS6RUJt.gif" width="2rem" height="2rem" mr="0.5rem"/>{"syncing videos"}</Flex>}
           </Flex>
           <Flex
             margin="auto"

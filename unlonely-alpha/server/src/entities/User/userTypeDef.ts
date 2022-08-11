@@ -7,6 +7,8 @@ export const typeDef = gql`
     authedAsMe: Boolean!
     username: String
     bio: String
+    powerUserLvl: Int!
+    videoSavantLvl: Int!
     reputation: Int
     isFCUser: Boolean!
     createdAt: DateTime!

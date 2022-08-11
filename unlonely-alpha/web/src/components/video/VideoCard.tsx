@@ -52,7 +52,7 @@ const VideoCardInner = ({ video, order }: Props) => {
     const hDisplay = h > 0 ? `${h}hr` : "";
     const mDisplay = m > 0 ? `${m}m` : "";
     const sDisplay = s > 0 ? `${s}s` : "";
-    return hDisplay + ' ' + mDisplay + ' ' + sDisplay;
+    return `${hDisplay} ${mDisplay} ${sDisplay}`;
   };
 
   return (

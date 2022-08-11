@@ -8,11 +8,12 @@ import {
   Link,
   useToast,
   Image,
+  Tooltip,
 } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
-import { useAccount } from "wagmi";
 
 import useChannel from "../../hooks/useChannel";
+import { useUser } from "../../hooks/useUser";
 import { ChatBot } from "../../pages/channels/youtube";
 import { COLORS } from "../../styles/Colors";
 import { isFCUser } from "../../utils/farcasterBadge";
@@ -27,6 +28,8 @@ type Message = {
     chatColor: string;
     address: string;
     isFC: boolean;
+    powerUserLvl: number | null;
+    videoSavantLvl: number | null;
   };
   id: string;
   timestamp: number;
@@ -40,15 +43,16 @@ type Props = {
 const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
 const AblyChatComponent = ({ username, chatBot }: Props) => {
-  let inputBox: HTMLTextAreaElement | null = null;
-  // automatically scroll to the bottom of the chat
+  const { user } = useUser();
   const autoScroll = useRef(true);
+  let inputBox: HTMLTextAreaElement | null = null;
+
   const [messageText, setMessageText] = useState<string>("");
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [isFC, setIsFC] = useState<boolean>(false);
-  const accountData = useAccount();
   const toast = useToast();
   const [buttonStatus, toggleButton] = useState(false);
+
   const messageTextIsEmpty = messageText.trim().length === 0;
 
   const switchButton = () => {
@@ -73,10 +77,8 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     getMessages();
   }, []);
 
-  // publish new chat when chatBot changes
   useEffect(() => {
     if (chatBot.length > 0) {
-      // get last message in chatbot
       const lastMessage = chatBot[chatBot.length - 1];
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -103,7 +105,9 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
         username,
         chatColor,
         isFC,
-        address: accountData?.address,
+        address: user?.address,
+        powerUserLvl: user?.powerUserLvl,
+        videoSavantLvl: user?.videoSavantLvl,
       },
     });
     setMessageText("");
@@ -179,21 +183,45 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     } else {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      author = message.data.username;
+      author = message.connectionId === ably.connection.id
+          ? "me"
+          : message.data.username;
     }
     return (
       <>
         <Flex direction="column">
           <Flex key={index} direction="row" align="center">
-            {(message.data.isFC) && (
-              <Image
-                src="https://searchcaster.xyz/img/logo.png"
-                width="20px"
-                height="20px"
-                mr="5px"
-              />
+            {((user && (user?.powerUserLvl > 0) && (user?.username === message.data.username)) || (message.data.powerUserLvl && message.data.powerUserLvl> 0)) ? (
+              <Tooltip label={`Power User lvl:${user?.powerUserLvl}`}>
+                  <Image
+                    src={`/images/badges/lvl${user?.powerUserLvl}_poweruser.png`}
+                    width="20px"
+                    height="20px"
+                    mr="5px"
+                  />
+              </Tooltip>
+            ) : null}
+            {((user && (user?.videoSavantLvl > 0) && (user?.username === message.data.username)) || (message.data.videoSavantLvl && message.data.videoSavantLvl> 0)) ? (
+              <Tooltip label={`Video Savant lvl:${user?.videoSavantLvl}`}>
+                  <Image
+                    src={`/images/badges/lvl${user?.powerUserLvl}_videosavant.png`}
+                    width="20px"
+                    height="20px"
+                    mr="5px"
+                  />
+              </Tooltip>
+            ) : null}
+            {((isFC && author === "me") || message.data.isFC) && (
+              <Tooltip label="Farcaster Badge">
+                  <Image
+                    src="https://searchcaster.xyz/img/logo.png"
+                    width="20px"
+                    height="20px"
+                    mr="5px"
+                  />
+              </Tooltip>
             )}
-            <NFTList address={message.data.address} author={author} />
+            <NFTList address={message.data.address} author={message.data.username} />
           </Flex>
           <Box
             key={index}
@@ -212,15 +240,16 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     );
   });
 
+
   useEffect(() => {
     const fetchData = async (address: string) => {
       const fcBadge = await isFCUser(address);
       setIsFC(fcBadge);
     };
-    if (accountData?.address) {
-      fetchData(accountData.address);
+    if (user?.address) {
+      fetchData(user.address);
     }
-  }, [accountData?.address]);
+  }, [user?.address]);
 
   // useeffect to scroll to the bottom of the chat
   useEffect(() => {
