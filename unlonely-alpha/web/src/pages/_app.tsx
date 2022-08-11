@@ -39,7 +39,7 @@ function App({ Component, pageProps, cookies }: Props) {
           mode={"dark"}
           customTheme={{
             "--ck-font-family": "Anonymous Pro, sans-serif",
-            "--ck-border-radius": 16,
+            "--ck-border-radius": 32,
           }}
         >
           <ApolloProvider client={apolloClient}>
