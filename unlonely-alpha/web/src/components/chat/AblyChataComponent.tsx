@@ -179,15 +179,13 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     } else {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      author = message.connectionId === ably.connection.id
-          ? "me"
-          : message.data.username;
+      author = message.data.username;
     }
     return (
       <>
         <Flex direction="column">
           <Flex key={index} direction="row" align="center">
-            {((isFC && author === "me") || message.data.isFC) && (
+            {(message.data.isFC) && (
               <Image
                 src="https://searchcaster.xyz/img/logo.png"
                 width="20px"

@@ -57,7 +57,7 @@ const VideoCardInner = ({ video, order }: Props) => {
 
   return (
     <>
-      <Flex direction="column" bg="#F1F4F8" overflow="hidden" padding={{base: "0", sm: "0.5rem"}} borderRadius="0.25rem">
+      <Flex direction="column" bg="#F1F4F8" overflow="hidden" padding={{base: "0", sm: "0.5rem"}} borderRadius="0.5rem">
         <Flex justifyContent="space-between" alignItems="center" padding="0.25 0.3125rem">
           <Text color="#787878" fontSize="14px" fontWeight={"bold"} ml="5px">
             {video.owner.username === null
