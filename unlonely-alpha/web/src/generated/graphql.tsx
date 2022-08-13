@@ -193,11 +193,13 @@ export type User = {
   createdAt: Scalars["DateTime"];
   id: Scalars["ID"];
   isFCUser: Scalars["Boolean"];
+  powerUserLvl: Scalars["Int"];
   reputation?: Maybe<Scalars["Int"]>;
   sigTimestamp?: Maybe<Scalars["BigInt"]>;
   signature?: Maybe<Scalars["String"]>;
   updatedAt: Scalars["DateTime"];
   username?: Maybe<Scalars["String"]>;
+  videoSavantLvl: Scalars["Int"];
 };
 
 export type Video = Likable & {
@@ -313,6 +315,22 @@ export type PostVideoMutationVariables = Exact<{
 export type PostVideoMutation = {
   __typename?: "Mutation";
   postVideo?: { __typename?: "Video"; id: string } | null;
+};
+
+export type GetUserQueryVariables = Exact<{
+  data: GetUserInput;
+}>;
+
+export type GetUserQuery = {
+  __typename?: "Query";
+  getUser?: {
+    __typename?: "User";
+    address: string;
+    username?: string | null;
+    bio?: string | null;
+    powerUserLvl: number;
+    videoSavantLvl: number;
+  } | null;
 };
 
 export type VideoFeed1QueryVariables = Exact<{
@@ -591,6 +609,58 @@ export type PostVideoMutationResult = Apollo.MutationResult<PostVideoMutation>;
 export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
   PostVideoMutation,
   PostVideoMutationVariables
+>;
+export const GetUserDocument = gql`
+  query getUser($data: GetUserInput!) {
+    getUser(data: $data) {
+      address
+      username
+      bio
+      powerUserLvl
+      videoSavantLvl
+    }
+  }
+`;
+
+/**
+ * __useGetUserQuery__
+ *
+ * To run a query within a React component, call `useGetUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetUserQuery(
+  baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    options
+  );
+}
+export function useGetUserLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    options
+  );
+}
+export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
+export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
+export type GetUserQueryResult = Apollo.QueryResult<
+  GetUserQuery,
+  GetUserQueryVariables
 >;
 export const VideoFeed1Document = gql`
   query VideoFeed1($data: VideoFeedInput!) {

@@ -6,11 +6,11 @@ import { ApolloProvider } from "@apollo/client";
 import { createClient, WagmiConfig } from "wagmi";
 import { ConnectKitProvider, getDefaultClient } from "connectkit";
 import { AppProps } from "next/app";
-import Head from "next/head";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 
 import { Cookies, useApollo } from "../apiClient/client";
+import { UserProvider } from "../hooks/useUser";
 
 interface InitialProps {
   cookies: Cookies;
@@ -39,18 +39,13 @@ function App({ Component, pageProps, cookies }: Props) {
           mode={"dark"}
           customTheme={{
             "--ck-font-family": "Anonymous Pro, sans-serif",
-            "--ck-border-radius": 16,
+            "--ck-border-radius": 32,
           }}
         >
           <ApolloProvider client={apolloClient}>
-            <Head>
-              <title>Unlonely</title>
-              <meta
-                name="viewport"
-                content="width=device-width, initial-scale=1"
-              />
-            </Head>
-            <Component {...pageProps} />
+            <UserProvider>
+              <Component {...pageProps} />
+            </UserProvider>
           </ApolloProvider>
         </ConnectKitProvider>
       </WagmiConfig>
