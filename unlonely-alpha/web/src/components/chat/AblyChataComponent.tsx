@@ -96,20 +96,31 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   }, [chatBot]);
 
   const sendChatMessage = async (messageText: string) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    channel.publish({
-      name: "chat-message",
-      data: {
-        messageText,
-        username,
-        chatColor,
-        isFC,
-        address: user?.address,
-        powerUserLvl: user?.powerUserLvl,
-        videoSavantLvl: user?.videoSavantLvl,
-      },
-    });
+    if (user) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      channel.publish({
+        name: "chat-message",
+        data: {
+          messageText,
+          username: user.username,
+          chatColor,
+          isFC,
+          address: user.address,
+          powerUserLvl: user?.powerUserLvl,
+          videoSavantLvl: user?.videoSavantLvl,
+        },
+      });
+    } else {
+      toast({
+        title: "Sign in first.",
+        description: "Please sign into your wallet first.",
+        status: "warning",
+        duration: 9000,
+        isClosable: true,
+        position: "top",
+      });
+    }
     setMessageText("");
     if (inputBox) inputBox.focus();
     if (messageText.startsWith("@chatbot")) {
@@ -176,25 +187,14 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   };
 
   const messages = receivedMessages.map((message, index) => {
-    let author: string;
-    // add key to flexbox to prevent React error
-    if (message.data.username === "chatbot🤖") {
-      author = "chatbot🤖";
-    } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      author = message.connectionId === ably.connection.id
-          ? "me"
-          : message.data.username;
-    }
     return (
       <>
         <Flex direction="column">
           <Flex key={index} direction="row" align="center">
             {((user && (user?.powerUserLvl > 0) && (user?.username === message.data.username)) || (message.data.powerUserLvl && message.data.powerUserLvl> 0)) ? (
-              <Tooltip label={`Power User lvl:${user?.powerUserLvl}`}>
+              <Tooltip label={`Power User lvl:${message.data.powerUserLvl} \nThis badge means you've come to multiple streams and have engaged in chat! Continue the streak to gain levels!`}>
                   <Image
-                    src={`/images/badges/lvl${user?.powerUserLvl}_poweruser.png`}
+                    src={`/images/badges/lvl${message.data.powerUserLvl}_poweruser.png`}
                     width="20px"
                     height="20px"
                     mr="5px"
@@ -202,16 +202,16 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
               </Tooltip>
             ) : null}
             {((user && (user?.videoSavantLvl > 0) && (user?.username === message.data.username)) || (message.data.videoSavantLvl && message.data.videoSavantLvl> 0)) ? (
-              <Tooltip label={`Video Savant lvl:${user?.videoSavantLvl}`}>
+              <Tooltip label={`Video Savant lvl:${message.data.videoSavantLvl}\nThis badge means you pick good videos that get upvoted and watched. Continue picking good videos to gain levels!`}>
                   <Image
-                    src={`/images/badges/lvl${user?.powerUserLvl}_videosavant.png`}
+                    src={`/images/badges/lvl${message.data.videoSavantLvl}_videosavant.png`}
                     width="20px"
                     height="20px"
                     mr="5px"
                   />
               </Tooltip>
             ) : null}
-            {((isFC && author === "me") || message.data.isFC) && (
+            {(message.data.isFC) && (
               <Tooltip label="Farcaster Badge">
                   <Image
                     src="https://searchcaster.xyz/img/logo.png"
