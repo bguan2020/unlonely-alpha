@@ -192,7 +192,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
         <Flex direction="column">
           <Flex key={index} direction="row" align="center">
             {((user && (user?.powerUserLvl > 0) && (user?.username === message.data.username)) || (message.data.powerUserLvl && message.data.powerUserLvl> 0)) ? (
-              <Tooltip label={`Power User lvl:${message.data.powerUserLvl}`}>
+              <Tooltip label={`Power User lvl:${message.data.powerUserLvl} \nThis badge means you've come to multiple streams and have engaged in chat! Continue the streak to gain levels!`}>
                   <Image
                     src={`/images/badges/lvl${message.data.powerUserLvl}_poweruser.png`}
                     width="20px"
@@ -202,7 +202,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
               </Tooltip>
             ) : null}
             {((user && (user?.videoSavantLvl > 0) && (user?.username === message.data.username)) || (message.data.videoSavantLvl && message.data.videoSavantLvl> 0)) ? (
-              <Tooltip label={`Video Savant lvl:${message.data.videoSavantLvl}`}>
+              <Tooltip label={`Video Savant lvl:${message.data.videoSavantLvl}\nThis badge means you pick good videos that get upvoted and watched. Continue picking good videos to gain levels!`}>
                   <Image
                     src={`/images/badges/lvl${message.data.videoSavantLvl}_videosavant.png`}
                     width="20px"
