@@ -19,8 +19,12 @@ const renderPostList = (data: VideoCard_VideoFragment[]): JSX.Element => {
   let cardId = 0;
   return (
     <>
-      <Flex direction="column">
-        <SimpleGrid columns={2} minChildWidth={{base: "100%", md: "40%"}} gap="1rem">
+      <Flex direction="column" width="100%">
+        <SimpleGrid
+          columns={2}
+          minChildWidth={{ base: "100%", md: "40%" }}
+          gap="1rem"
+        >
           {data?.map((a) => {
             cardId++;
             return !!a && <VideoCard key={a.id} video={a} order={cardId} />;
