@@ -14,6 +14,7 @@ import {
   // MenuItem,
 } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
+import { EmojiHappyIcon } from "@heroicons/react/solid";
 
 import useChannel from "../../hooks/useChannel";
 import { useUser } from "../../hooks/useUser";
@@ -23,31 +24,8 @@ import { isFCUser } from "../../utils/farcasterBadge";
 import { timestampConverter } from "../../utils/timestampConverter";
 import NFTList from "../profile/NFTList";
 import Badges from "./Badges";
-
-export type Message = {
-  clientId: string;
-  connectionId: string;
-  data: {
-    messageText: string;
-    username: string;
-    chatColor: string;
-    address: string;
-    isFC: boolean;
-    powerUserLvl: number | null;
-    videoSavantLvl: number | null;
-    emojis: {
-      gas: number | null;
-      moon: number | null;
-      graph: number | null;
-      laugh: number | null;
-    }
-  };
-  id: string;
-  timestamp: number;
-  extras: {
-    timeserial: number | null;
-  }
-};
+import { EmojiDisplay } from "./EmojiDisplay";
+import { Message, EmojiUsage } from "./types/index";
 
 type Props = {
   username: string | null | undefined;
@@ -65,16 +43,19 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [isFC, setIsFC] = useState<boolean>(false);
   const toast = useToast();
-  const [buttonStatus, toggleButton] = useState(false);
+  const [showEmojiList, setShowEmojiList] = useState(false);
 
   const messageTextIsEmpty = messageText.trim().length === 0;
 
-  const switchButton = () => {
-    toggleButton((current) => !current);
-  };
+  const emojis = ["⛽️", "😂", "🌝", "📉", "😡", "👏"];
+  // salute emoji
+  let usedEmojiCollection: EmojiUsage[] = [];
+
+  const ADD_REACTION_EVENT = "add-reaction";
+
   const [channel, ably] = useChannel(
     "persistMessages:chat-demo",
-    (message: Message) => {
+    (message) => {
       const history = receivedMessages.slice(-199);
       setMessages([...history, message]);
     }
@@ -123,12 +104,6 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
           address: user.address,
           powerUserLvl: user?.powerUserLvl,
           videoSavantLvl: user?.videoSavantLvl,
-          emojis: {
-            gas: 0,
-            moon: 0,
-            graph: 0,
-            laugh: 0,
-          },
         },
       });
     } else {
@@ -206,26 +181,47 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     }
   };
 
-  //add emoji to message
-  const addEmoji = (emoji: string, message: Message) => {
-    if (emoji === "gas") {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      channel.publish("emoji",{
-        data: {
-          emojis: {
-            gas: message.data.emojis.gas ? message.data.emojis.gas + 1 : 1,
-          },
-          extras: {
-            ref: {
-              type: "emoji",
-              timeserial: message.extras.timeserial,
-            }
-          }
-        }
-      })
-    }
-  }
+  // emojis to chat
+  // const sendMessageReaction = (
+  //   emoji: string,
+  //   timeserial: any,
+  //   reactionEvent: string
+  // ) => {
+  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //   // @ts-ignore
+  //   channel.publish(reactionEvent, {
+  //     body: emoji,
+  //     extras: {
+  //       reference: { type: "com.ably.reaction", timeserial },
+  //     },
+  //   });
+  //   setShowEmojiList(false);
+  // }
+
+  // const handleEmojiCount = (emoji: string, timeserial: any) => {
+  //   sendMessageReaction(emoji, timeserial, ADD_REACTION_EVENT);
+  // }
+
+  // const getMessageReactions = () => {
+  //   channel.subscribe(
+  //     {
+  //       name: ADD_REACTION_EVENT,
+  //       refTimeserial: chatMessage.timeserial,
+  //     },
+  //     (reaction) => {
+  //       // Update current chat with its reactions
+  //       const msgReactions = updateEmojiCollection(
+  //         reaction.data.body,
+  //         reaction.clientId,
+  //         reaction.name
+  //       )
+  //       setChatMessage((chatMessage) => ({
+  //         ...chatMessage,
+  //         reactions: msgReactions,
+  //       }))
+  //     }
+  //   )
+  // }
 
   const messages = receivedMessages.map((message, index) => {
     return (
@@ -238,8 +234,6 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
             <Badges user={user} message={message}/>
             <NFTList address={message.data.address} author={message.data.username} />
           </Flex>
-          {/* <Menu>
-            <MenuButton> */}
               <Box
                 key={index}
                 borderRadius="10px"
@@ -248,23 +242,54 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
                 pl="10px"
                 mb="10px"
               >
-                <Text color="white" fontSize={14} wordBreak="break-word" textAlign="left">
-                  {message.data.messageText}
-                  {/* {message.data.emojis && message.data.emojis.gas && (
+                <Flex justifyContent="space-between" direction="row">
+                  <Flex>
                     <Text color="white" fontSize={14} wordBreak="break-word" textAlign="left">
-                      {`${message.data.emojis.gas}`}
+                      {message.data.messageText}
                     </Text>
-                  )} */}
-                </Text>
+                      <Flex>
+                        {message.data.reactions?.length ? (
+                          <Flex>
+                            {message.data.reactions?.map((reaction) => 
+                              reaction.usedBy.length ? (
+                                <Flex key={reaction.emoji} direction="row" align="center"
+                                  borderRadius="20px"
+                                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                  // @ts-ignore
+                                  bg={reaction.usedBy.includes(ably.connection.id) ? "blue-200" : "gray-200"}
+                                  onClick={() =>
+                                    handleEmojiCount(
+                                      reaction.emoji,
+                                      message.timeserial,
+                                    )}
+                                  >
+                                    <EmojiDisplay emoji={reaction.emoji} />
+                                    <Flex>{reaction.usedBy.length}</Flex>
+                                </Flex>
+                              ) : null
+                            )}
+                          </Flex>
+                      ) : null }
+                      </Flex>
+                  </Flex>
+                    <Flex direction="row-reverse" mb="5px">
+                      <EmojiHappyIcon 
+                        style={{cursor: "pointer"}}
+                        onClick={() => setShowEmojiList(!showEmojiList)}
+                        width="1rem"
+                      />
+                    </Flex>
+                </Flex>
+                  {showEmojiList ? (
+                    <Flex borderRadius="10px" height="2rem">
+                      {emojis.map((emoji) => (
+                        <Flex key={emoji} direction="row" align="center">
+                          <EmojiDisplay emoji={emoji} />
+                        </Flex>
+                      ))}
+                    </Flex>
+                  ) : null }
               </Box>
-            {/* </MenuButton>
-            <MenuList>
-              <MenuItem onClick={() => addEmoji("gas", message)}>⛽️</MenuItem>
-              <MenuItem>🌝</MenuItem>
-              <MenuItem>📉</MenuItem>
-              <MenuItem>😂</MenuItem>
-            </MenuList>
-          </Menu> */}
         </Flex>
       </>
     );
