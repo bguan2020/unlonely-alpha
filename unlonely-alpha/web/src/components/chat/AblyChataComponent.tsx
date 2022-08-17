@@ -3,45 +3,40 @@ import {
   Box,
   Text,
   Flex,
-  Button,
-  Textarea,
   Link,
   useToast,
   Image,
 } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
-import { EmojiHappyIcon } from "@heroicons/react/solid";
 
 import useChannel from "../../hooks/useChannel";
-import { useUser } from "../../hooks/useUser";
 import { ChatBot } from "../../pages/channels/youtube";
 import { COLORS } from "../../styles/Colors";
 import { isFCUser } from "../../utils/farcasterBadge";
 import { timestampConverter } from "../../utils/timestampConverter";
 import NFTList from "../profile/NFTList";
 import Badges from "./Badges";
-import { EmojiDisplay } from "./EmojiDisplay";
-import { Message, EmojiUsage } from "./types/index";
+import { Message } from "./types/index";
+import { User } from "../../generated/graphql";
+import ChatForm from "./ChatForm";
 
 type Props = {
   username: string | null | undefined;
   chatBot: ChatBot[];
+  user: User | undefined;
 };
 
 const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
-const AblyChatComponent = ({ username, chatBot }: Props) => {
-  const { user } = useUser();
+const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const autoScroll = useRef(true);
+  /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
+  /*eslint-enable prefer-const*/
 
-  const [messageText, setMessageText] = useState<string>("");
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [isFC, setIsFC] = useState<boolean>(false);
   const toast = useToast();
-
-  const messageTextIsEmpty = messageText.trim().length === 0;
-
 
   const [channel, ably] = useChannel(
     "persistMessages:chat-demo",
@@ -106,7 +101,6 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
         position: "top",
       });
     }
-    setMessageText("");
     if (inputBox) inputBox.focus();
     if (messageText.startsWith("@chatbot")) {
       // const that removes the @chatbot: from the beginning of the message
@@ -132,41 +126,6 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
           address: "0x0000000000000000000000000000000000000000",
           isFC: false,
         },
-      });
-    }
-  };
-
-  const handleFormSubmission = (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    if (username) {
-      sendChatMessage(messageText);
-    } else {
-      toast({
-        title: "Sign in first.",
-        description: "Please sign into your wallet first.",
-        status: "warning",
-        duration: 9000,
-        isClosable: true,
-        position: "top",
-      });
-    }
-  };
-
-  const handleKeyPress = (event: any) => {
-    if (event.charCode !== 13 || messageTextIsEmpty) {
-      return;
-    }
-    event.preventDefault();
-    if (username) {
-      sendChatMessage(messageText);
-    } else {
-      toast({
-        title: "Sign in first.",
-        description: "Please sign into your wallet first.",
-        status: "warning",
-        duration: 9000,
-        isClosable: true,
-        position: "top",
       });
     }
   };
@@ -250,35 +209,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
             )}
           </Flex>
           <Flex mt="20px" w="100%">
-            <form
-              onSubmit={handleFormSubmission}
-              className="xeedev-form-i"
-              style={{ width: "100%" }}
-            >
-              <Textarea
-                ref={(element) => {
-                  inputBox = element;
-                }}
-                value={messageText}
-                placeholder="Type a message..."
-                onChange={(e) => setMessageText(e.target.value)}
-                onKeyPress={handleKeyPress}
-                background="white"
-                minW="100%"
-              ></Textarea>
-              <Flex width="100%" justifyContent="right" mb="50px">
-                <Button
-                  type="submit"
-                  disabled={messageTextIsEmpty}
-                  mt="5px"
-                  bg="#27415E"
-                  color="white"
-                  className="xeedev-button-desktop"
-                >
-                  Send
-                </Button>
-              </Flex>
-            </form>
+            <ChatForm username={username} sendChatMessage={sendChatMessage} inputBox={inputBox}/>
           </Flex>
         </Flex>
       </Flex>
