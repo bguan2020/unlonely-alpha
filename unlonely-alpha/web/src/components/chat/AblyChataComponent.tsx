@@ -8,7 +8,10 @@ import {
   Link,
   useToast,
   Image,
-  Tooltip,
+  // Menu,
+  // MenuButton,
+  // MenuList,
+  // MenuItem,
 } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -17,9 +20,11 @@ import { useUser } from "../../hooks/useUser";
 import { ChatBot } from "../../pages/channels/youtube";
 import { COLORS } from "../../styles/Colors";
 import { isFCUser } from "../../utils/farcasterBadge";
+import { timestampConverter } from "../../utils/timestampConverter";
 import NFTList from "../profile/NFTList";
+import Badges from "./Badges";
 
-type Message = {
+export type Message = {
   clientId: string;
   connectionId: string;
   data: {
@@ -30,9 +35,18 @@ type Message = {
     isFC: boolean;
     powerUserLvl: number | null;
     videoSavantLvl: number | null;
+    emojis: {
+      gas: number | null;
+      moon: number | null;
+      graph: number | null;
+      laugh: number | null;
+    }
   };
   id: string;
   timestamp: number;
+  extras: {
+    timeserial: number | null;
+  }
 };
 
 type Props = {
@@ -109,6 +123,12 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
           address: user.address,
           powerUserLvl: user?.powerUserLvl,
           videoSavantLvl: user?.videoSavantLvl,
+          emojis: {
+            gas: 0,
+            moon: 0,
+            graph: 0,
+            laugh: 0,
+          },
         },
       });
     } else {
@@ -186,55 +206,65 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     }
   };
 
+  //add emoji to message
+  const addEmoji = (emoji: string, message: Message) => {
+    if (emoji === "gas") {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      channel.publish("emoji",{
+        data: {
+          emojis: {
+            gas: message.data.emojis.gas ? message.data.emojis.gas + 1 : 1,
+          },
+          extras: {
+            ref: {
+              type: "emoji",
+              timeserial: message.extras.timeserial,
+            }
+          }
+        }
+      })
+    }
+  }
+
   const messages = receivedMessages.map((message, index) => {
     return (
       <>
         <Flex direction="column">
           <Flex key={index} direction="row" align="center">
-            {((user && (user?.powerUserLvl > 0) && (user?.username === message.data.username)) || (message.data.powerUserLvl && message.data.powerUserLvl> 0)) ? (
-              <Tooltip label={`Power User lvl:${message.data.powerUserLvl} \nThis badge means you've come to multiple streams and have engaged in chat! Continue the streak to gain levels!`}>
-                  <Image
-                    src={`/images/badges/lvl${message.data.powerUserLvl}_poweruser.png`}
-                    width="20px"
-                    height="20px"
-                    mr="5px"
-                  />
-              </Tooltip>
-            ) : null}
-            {((user && (user?.videoSavantLvl > 0) && (user?.username === message.data.username)) || (message.data.videoSavantLvl && message.data.videoSavantLvl> 0)) ? (
-              <Tooltip label={`Video Savant lvl:${message.data.videoSavantLvl}\nThis badge means you pick good videos that get upvoted and watched. Continue picking good videos to gain levels!`}>
-                  <Image
-                    src={`/images/badges/lvl${message.data.videoSavantLvl}_videosavant.png`}
-                    width="20px"
-                    height="20px"
-                    mr="5px"
-                  />
-              </Tooltip>
-            ) : null}
-            {(message.data.isFC) && (
-              <Tooltip label="Farcaster Badge">
-                  <Image
-                    src="https://searchcaster.xyz/img/logo.png"
-                    width="20px"
-                    height="20px"
-                    mr="5px"
-                  />
-              </Tooltip>
-            )}
+            <Text color="#5A5A5A" fontSize="12px" mr="5px">
+              {`${timestampConverter(message.timestamp)}`}
+            </Text>
+            <Badges user={user} message={message}/>
             <NFTList address={message.data.address} author={message.data.username} />
           </Flex>
-          <Box
-            key={index}
-            borderRadius="10px"
-            bg={message.data.chatColor}
-            pr="10px"
-            pl="10px"
-            mb="10px"
-          >
-            <Text color="white" fontSize={14} wordBreak="break-word">
-              {message.data.messageText}
-            </Text>
-          </Box>
+          {/* <Menu>
+            <MenuButton> */}
+              <Box
+                key={index}
+                borderRadius="10px"
+                bg={message.data.chatColor}
+                pr="10px"
+                pl="10px"
+                mb="10px"
+              >
+                <Text color="white" fontSize={14} wordBreak="break-word" textAlign="left">
+                  {message.data.messageText}
+                  {/* {message.data.emojis && message.data.emojis.gas && (
+                    <Text color="white" fontSize={14} wordBreak="break-word" textAlign="left">
+                      {`${message.data.emojis.gas}`}
+                    </Text>
+                  )} */}
+                </Text>
+              </Box>
+            {/* </MenuButton>
+            <MenuList>
+              <MenuItem onClick={() => addEmoji("gas", message)}>⛽️</MenuItem>
+              <MenuItem>🌝</MenuItem>
+              <MenuItem>📉</MenuItem>
+              <MenuItem>😂</MenuItem>
+            </MenuList>
+          </Menu> */}
         </Flex>
       </>
     );
@@ -280,6 +310,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
             maxH="400px"
             id="chat"
           >
+            {messages.length > 0 ? messages : <Flex flexDirection="row"><Image src="https://i.imgur.com/tS6RUJt.gif" width="2rem" height="2rem" mr="0.5rem"/>{"loading messages"}</Flex>}  
             {messages}
             {autoScroll.current && (
               <Box
