@@ -8,10 +8,6 @@ import {
   Link,
   useToast,
   Image,
-  // Menu,
-  // MenuButton,
-  // MenuList,
-  // MenuItem,
 } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { EmojiHappyIcon } from "@heroicons/react/solid";
@@ -43,15 +39,9 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [isFC, setIsFC] = useState<boolean>(false);
   const toast = useToast();
-  const [showEmojiList, setShowEmojiList] = useState(false);
 
   const messageTextIsEmpty = messageText.trim().length === 0;
 
-  const emojis = ["⛽️", "😂", "🌝", "📉", "😡", "👏"];
-  // salute emoji
-  let usedEmojiCollection: EmojiUsage[] = [];
-
-  const ADD_REACTION_EVENT = "add-reaction";
 
   const [channel, ably] = useChannel(
     "persistMessages:chat-demo",
@@ -181,48 +171,6 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     }
   };
 
-  // emojis to chat
-  // const sendMessageReaction = (
-  //   emoji: string,
-  //   timeserial: any,
-  //   reactionEvent: string
-  // ) => {
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   // @ts-ignore
-  //   channel.publish(reactionEvent, {
-  //     body: emoji,
-  //     extras: {
-  //       reference: { type: "com.ably.reaction", timeserial },
-  //     },
-  //   });
-  //   setShowEmojiList(false);
-  // }
-
-  // const handleEmojiCount = (emoji: string, timeserial: any) => {
-  //   sendMessageReaction(emoji, timeserial, ADD_REACTION_EVENT);
-  // }
-
-  // const getMessageReactions = () => {
-  //   channel.subscribe(
-  //     {
-  //       name: ADD_REACTION_EVENT,
-  //       refTimeserial: chatMessage.timeserial,
-  //     },
-  //     (reaction) => {
-  //       // Update current chat with its reactions
-  //       const msgReactions = updateEmojiCollection(
-  //         reaction.data.body,
-  //         reaction.clientId,
-  //         reaction.name
-  //       )
-  //       setChatMessage((chatMessage) => ({
-  //         ...chatMessage,
-  //         reactions: msgReactions,
-  //       }))
-  //     }
-  //   )
-  // }
-
   const messages = receivedMessages.map((message, index) => {
     return (
       <>
@@ -242,53 +190,9 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
                 pl="10px"
                 mb="10px"
               >
-                <Flex justifyContent="space-between" direction="row">
-                  <Flex>
                     <Text color="white" fontSize={14} wordBreak="break-word" textAlign="left">
                       {message.data.messageText}
                     </Text>
-                      <Flex>
-                        {message.data.reactions?.length ? (
-                          <Flex>
-                            {message.data.reactions?.map((reaction) => 
-                              reaction.usedBy.length ? (
-                                <Flex key={reaction.emoji} direction="row" align="center"
-                                  borderRadius="20px"
-                                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                  // @ts-ignore
-                                  bg={reaction.usedBy.includes(ably.connection.id) ? "blue-200" : "gray-200"}
-                                  onClick={() =>
-                                    handleEmojiCount(
-                                      reaction.emoji,
-                                      message.timeserial,
-                                    )}
-                                  >
-                                    <EmojiDisplay emoji={reaction.emoji} />
-                                    <Flex>{reaction.usedBy.length}</Flex>
-                                </Flex>
-                              ) : null
-                            )}
-                          </Flex>
-                      ) : null }
-                      </Flex>
-                  </Flex>
-                    <Flex direction="row-reverse" mb="5px">
-                      <EmojiHappyIcon 
-                        style={{cursor: "pointer"}}
-                        onClick={() => setShowEmojiList(!showEmojiList)}
-                        width="1rem"
-                      />
-                    </Flex>
-                </Flex>
-                  {showEmojiList ? (
-                    <Flex borderRadius="10px" height="2rem">
-                      {emojis.map((emoji) => (
-                        <Flex key={emoji} direction="row" align="center">
-                          <EmojiDisplay emoji={emoji} />
-                        </Flex>
-                      ))}
-                    </Flex>
-                  ) : null }
               </Box>
         </Flex>
       </>
