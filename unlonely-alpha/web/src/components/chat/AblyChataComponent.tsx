@@ -8,10 +8,6 @@ import {
   Link,
   useToast,
   Image,
-  // Menu,
-  // MenuButton,
-  // MenuList,
-  // MenuItem,
 } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -35,12 +31,6 @@ export type Message = {
     isFC: boolean;
     powerUserLvl: number | null;
     videoSavantLvl: number | null;
-    emojis: {
-      gas: number | null;
-      moon: number | null;
-      graph: number | null;
-      laugh: number | null;
-    }
   };
   id: string;
   timestamp: number;
@@ -206,26 +196,6 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     }
   };
 
-  //add emoji to message
-  const addEmoji = (emoji: string, message: Message) => {
-    if (emoji === "gas") {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      channel.publish("emoji",{
-        data: {
-          emojis: {
-            gas: message.data.emojis.gas ? message.data.emojis.gas + 1 : 1,
-          },
-          extras: {
-            ref: {
-              type: "emoji",
-              timeserial: message.extras.timeserial,
-            }
-          }
-        }
-      })
-    }
-  }
 
   const messages = receivedMessages.map((message, index) => {
     return (
@@ -238,8 +208,6 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
             <Badges user={user} message={message}/>
             <NFTList address={message.data.address} author={message.data.username} />
           </Flex>
-          {/* <Menu>
-            <MenuButton> */}
               <Box
                 key={index}
                 borderRadius="10px"
@@ -250,21 +218,8 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
               >
                 <Text color="white" fontSize={14} wordBreak="break-word" textAlign="left">
                   {message.data.messageText}
-                  {/* {message.data.emojis && message.data.emojis.gas && (
-                    <Text color="white" fontSize={14} wordBreak="break-word" textAlign="left">
-                      {`${message.data.emojis.gas}`}
-                    </Text>
-                  )} */}
                 </Text>
               </Box>
-            {/* </MenuButton>
-            <MenuList>
-              <MenuItem onClick={() => addEmoji("gas", message)}>⛽️</MenuItem>
-              <MenuItem>🌝</MenuItem>
-              <MenuItem>📉</MenuItem>
-              <MenuItem>😂</MenuItem>
-            </MenuList>
-          </Menu> */}
         </Flex>
       </>
     );
