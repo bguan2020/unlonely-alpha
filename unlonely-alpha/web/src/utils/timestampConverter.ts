@@ -1,8 +1,8 @@
-// take timestamp, convert to hours:minutes
+// take timestamp, convert to hh:mm
 export const timestampConverter = (timestamp: number) => {
-  const date = new Date(timestamp);
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const formattedTime = `${hours}:${minutes}`;
-  return formattedTime;
+  const current_date = new Date(timestamp);
+  const hh = ('0'+current_date.getHours()).slice(-2);
+  const mm = ('0'+current_date.getMinutes()).slice(-2);
+  const time = `${hh}:${mm}`;
+  return time;
 }

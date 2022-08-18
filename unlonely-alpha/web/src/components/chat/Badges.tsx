@@ -1,7 +1,7 @@
 import { Tooltip, Image } from "@chakra-ui/react";
 import { User } from "../../generated/graphql";
 
-import { Message } from "./AblyChataComponent";
+import { Message } from "./types/index";
 
 type Props = {
   message: Message;
