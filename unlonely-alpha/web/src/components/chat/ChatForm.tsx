@@ -6,12 +6,11 @@ import {
 import React, { useState } from "react";
 
 type Props = {
-  username: string | null | undefined;
   sendChatMessage: (message: string) => void;
   inputBox: HTMLTextAreaElement | null;
 };
 
-const ChatForm = ({ username, sendChatMessage, inputBox }: Props) => {
+const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
   const [messageText, setMessageText] = useState<string>("");
 
   const messageTextIsEmpty = messageText.trim().length === 0;
@@ -21,18 +20,14 @@ const ChatForm = ({ username, sendChatMessage, inputBox }: Props) => {
       return;
     }
     event.preventDefault();
-    if (username) {
-      sendChatMessage(messageText);
-      setMessageText("");
-    }
+    sendChatMessage(messageText);
+    setMessageText("");
   };
 
   const handleFormSubmission = (event: { preventDefault: () => void }) => {
     event.preventDefault();
-    if (username) {
-      sendChatMessage(messageText);
-      setMessageText("");
-    }
+    sendChatMessage(messageText);
+    setMessageText("");
   };
 
   return (
