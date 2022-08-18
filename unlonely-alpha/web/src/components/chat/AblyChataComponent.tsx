@@ -209,7 +209,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             )}
           </Flex>
           <Flex mt="20px" w="100%">
-            <ChatForm username={username} sendChatMessage={sendChatMessage} inputBox={inputBox}/>
+            <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox}/>
           </Flex>
         </Flex>
       </Flex>
