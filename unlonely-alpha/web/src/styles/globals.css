@@ -126,7 +126,6 @@ body {
     min-height: 50px !important;
   }
   .xeedev-form-i {
-    display: flex !important;
     flex-direction: column;
   }
 }
