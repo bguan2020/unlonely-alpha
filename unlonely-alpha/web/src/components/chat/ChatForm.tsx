@@ -54,7 +54,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             onKeyPress={handleKeyPress}
             background="white"
             minW="100%"
-            z-index={1}
+            style={{ zIndex: 0 }}
             position="relative"
           >
           </Textarea>
