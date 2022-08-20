@@ -7,6 +7,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import centerEllipses from "../../../utils/centerEllipses";
 
 import NFTModalHeader from "./NFTModalHeader";
 
@@ -59,12 +60,12 @@ const NFTModalBody: React.FunctionComponent<NFTModalBodyProps> = ({
     <>
       <NFTModalHeader styles={{ marginTop: "33px" }}>
         {error && <Text>{error}</Text>}
-        <Text>{author === "me" ? "Your" : `${author}'s`} NFTs</Text>
+        <Text>{author ? `${author}'s` : `${centerEllipses(address, 10)}`} NFTs</Text>
       </NFTModalHeader>
       <ModalBody sx={{ ...styles, ...NFTModalBodyStyles }}>
         <SimpleGrid columns={3} width="100%">
           {loading && <Text>Loading...</Text>}
-          {nftList.map((nft: any) => (
+          {nftList.length > 0 ? nftList.map((nft: any) => (
             <Flex key={nft.id} m="10px">
               <Link href={nft.permalink} isExternal>
                 <Image
@@ -76,7 +77,8 @@ const NFTModalBody: React.FunctionComponent<NFTModalBodyProps> = ({
                 />
               </Link>
             </Flex>
-          ))}
+          )) : null }
+          {nftList.length === 0 && !loading && <Text>No NFTs found</Text>}
         </SimpleGrid>
       </ModalBody>
     </>
