@@ -19,7 +19,7 @@ const EmojiButton = ({ onSelectEmoji }: Props) => {
   return (
     <Popover>
       <PopoverTrigger>
-        <Button type="button" size="sm">😃</Button>
+        <Button type="button" size="sm" z-index={2} position="absolute" bottom="8px" right="8px" bg="white">😃</Button>
       </PopoverTrigger>
       <PopoverContent zIndex={4} maxHeight="400px" overflowY="scroll">
         <PopoverArrow />

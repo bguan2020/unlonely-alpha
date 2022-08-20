@@ -43,7 +43,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
         className="xeedev-form-i"
         style={{ width: "100%" }}
       >
-        <Flex width="100%">
+        <Flex width="100%" position="relative">
           <Textarea
             ref={(element) => {
               inputBox = element;
@@ -53,7 +53,9 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
             background="white"
-            minW="95%"
+            minW="100%"
+            z-index={1}
+            position="relative"
           >
           </Textarea>
           <EmojiButton onSelectEmoji={(emoji) => addEmoji(emoji)}/>

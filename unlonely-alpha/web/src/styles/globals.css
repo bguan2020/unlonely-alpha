@@ -127,6 +127,7 @@ body {
   }
   .xeedev-form-i {
     display: flex !important;
+    flex-direction: column;
   }
 }
 
