@@ -4,11 +4,13 @@ import unicodeMap from "emoji-unicode-map";
 
 const _unicodeEmojis = {
   crypto: [
+    "😂",
     "💰",
     "⛽️",
     "🌝",
     "📉",
     "🚀",
+    "🔥",
   ],
   powerUsers: [
     "coming soon"
