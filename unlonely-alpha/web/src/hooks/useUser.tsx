@@ -3,9 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { useQuery } from "@apollo/client";
 
-import {
-  User,
-} from "../generated/graphql";
+import { User } from "../generated/graphql";
 
 const GET_USER_QUERY = gql`
   query getUser($data: GetUserInput!) {
@@ -21,7 +19,7 @@ const GET_USER_QUERY = gql`
 
 export const useUser = () => {
   return useContext(UserContext);
-}
+};
 
 const UserContext = createContext<{
   user: User | undefined;
@@ -31,7 +29,7 @@ const UserContext = createContext<{
   setUser: () => {},
 });
 
-export const UserProvider = ({ children }: { children: JSX.Element}) => {
+export const UserProvider = ({ children }: { children: JSX.Element }) => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const { address } = useAccount();
   const { data, loading, error } = useQuery(GET_USER_QUERY, {
@@ -43,6 +41,8 @@ export const UserProvider = ({ children }: { children: JSX.Element}) => {
   }, [data]);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>{children}</UserContext.Provider>
+    <UserContext.Provider value={{ user, setUser }}>
+      {children}
+    </UserContext.Provider>
   );
-}
+};

@@ -121,7 +121,9 @@ export type Mutation = {
   _empty?: Maybe<Scalars["String"]>;
   handleLike?: Maybe<Likable>;
   postComment?: Maybe<Comment>;
+  postTask?: Maybe<Task>;
   postVideo?: Maybe<Video>;
+  softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
 };
 
@@ -133,8 +135,16 @@ export type MutationPostCommentArgs = {
   data: PostCommentInput;
 };
 
+export type MutationPostTaskArgs = {
+  data: PostTaskInput;
+};
+
 export type MutationPostVideoArgs = {
   data: PostVideoInput;
+};
+
+export type MutationSoftDeleteTaskArgs = {
+  id: Scalars["ID"];
 };
 
 export type MutationSoftDeleteVideoArgs = {
@@ -147,6 +157,15 @@ export type PostCommentInput = {
   text: Scalars["String"];
   videoId: Scalars["Int"];
   videoTimestamp: Scalars["Float"];
+};
+
+export type PostTaskInput = {
+  description?: InputMaybe<Scalars["String"]>;
+  link?: InputMaybe<Scalars["String"]>;
+  taskType: Scalars["String"];
+  thumbnail?: InputMaybe<Scalars["String"]>;
+  title?: InputMaybe<Scalars["String"]>;
+  youtubeId?: InputMaybe<Scalars["String"]>;
 };
 
 export type PostVideoInput = {
@@ -163,9 +182,14 @@ export type Query = {
   currentUser?: Maybe<User>;
   currentUserAuthMessage?: Maybe<Scalars["String"]>;
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
+  getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getUser?: Maybe<User>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
+};
+
+export type QueryGetTaskFeedArgs = {
+  data?: InputMaybe<TaskFeedInput>;
 };
 
 export type QueryGetUserArgs = {
@@ -184,6 +208,29 @@ export enum SortOrder {
   Asc = "asc",
   Desc = "desc",
 }
+
+export type Task = {
+  __typename?: "Task";
+  completed: Scalars["Boolean"];
+  createdAt: Scalars["DateTime"];
+  description?: Maybe<Scalars["String"]>;
+  id: Scalars["ID"];
+  isDeleted?: Maybe<Scalars["Boolean"]>;
+  link?: Maybe<Scalars["String"]>;
+  owner: User;
+  taskType: Scalars["String"];
+  thumbnail?: Maybe<Scalars["String"]>;
+  title?: Maybe<Scalars["String"]>;
+  updatedAt: Scalars["DateTime"];
+  youtubeId?: Maybe<Scalars["String"]>;
+};
+
+export type TaskFeedInput = {
+  limit?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<SortOrder>;
+  searchString?: InputMaybe<Scalars["String"]>;
+  skip?: InputMaybe<Scalars["Int"]>;
+};
 
 export type User = {
   __typename?: "User";
@@ -239,6 +286,19 @@ export type Comment_CommentFragment = {
   location_y: number;
   videoId: number;
   videoTimestamp: number;
+  createdAt: any;
+  owner: { __typename?: "User"; username?: string | null; address: string };
+};
+
+export type TaskCard_TaskFragment = {
+  __typename?: "Task";
+  id: string;
+  taskType: string;
+  youtubeId?: string | null;
+  title?: string | null;
+  thumbnail?: string | null;
+  description?: string | null;
+  completed: boolean;
   createdAt: any;
   owner: { __typename?: "User"; username?: string | null; address: string };
 };
@@ -308,6 +368,15 @@ export type PostCommentMutation = {
   } | null;
 };
 
+export type PostTaskMutationVariables = Exact<{
+  data: PostTaskInput;
+}>;
+
+export type PostTaskMutation = {
+  __typename?: "Mutation";
+  postTask?: { __typename?: "Task"; id: string } | null;
+};
+
 export type PostVideoMutationVariables = Exact<{
   data: PostVideoInput;
 }>;
@@ -333,27 +402,6 @@ export type GetUserQuery = {
   } | null;
 };
 
-export type VideoFeed1QueryVariables = Exact<{
-  data: VideoFeedInput;
-}>;
-
-export type VideoFeed1Query = {
-  __typename?: "Query";
-  getVideoFeed?: Array<{
-    __typename?: "Video";
-    id: string;
-    youtubeId: string;
-    title: string;
-    thumbnail: string;
-    description: string;
-    score: number;
-    createdAt: any;
-    liked?: boolean | null;
-    skipped?: boolean | null;
-    owner: { __typename?: "User"; username?: string | null; address: string };
-  } | null> | null;
-};
-
 export type VideoFeed1808QueryVariables = Exact<{
   data: VideoFeedInput;
 }>;
@@ -374,24 +422,22 @@ export type VideoFeed1808Query = {
   } | null> | null;
 };
 
-export type VideoFeedQueryVariables = Exact<{
-  data: VideoFeedInput;
+export type TaskFeedQueryVariables = Exact<{
+  data: TaskFeedInput;
 }>;
 
-export type VideoFeedQuery = {
+export type TaskFeedQuery = {
   __typename?: "Query";
-  getVideoFeed?: Array<{
-    __typename?: "Video";
+  getTaskFeed?: Array<{
+    __typename?: "Task";
     id: string;
-    youtubeId: string;
-    title: string;
-    thumbnail: string;
-    description: string;
-    score: number;
-    duration: number;
-    createdAt: any;
-    liked?: boolean | null;
-    skipped?: boolean | null;
+    taskType: string;
+    youtubeId?: string | null;
+    title?: string | null;
+    thumbnail?: string | null;
+    description?: string | null;
+    link?: string | null;
+    completed: boolean;
     owner: { __typename?: "User"; username?: string | null; address: string };
   } | null> | null;
 };
@@ -428,6 +474,22 @@ export const Comment_CommentFragmentDoc = gql`
     videoId
     videoTimestamp
     createdAt
+  }
+`;
+export const TaskCard_TaskFragmentDoc = gql`
+  fragment TaskCard_task on Task {
+    id
+    taskType
+    youtubeId
+    title
+    thumbnail
+    description
+    completed
+    createdAt
+    owner {
+      username
+      address
+    }
   }
 `;
 export const UseLike_VideoFragmentDoc = gql`
@@ -561,6 +623,53 @@ export type PostCommentMutationOptions = Apollo.BaseMutationOptions<
   PostCommentMutation,
   PostCommentMutationVariables
 >;
+export const PostTaskDocument = gql`
+  mutation PostTask($data: PostTaskInput!) {
+    postTask(data: $data) {
+      id
+    }
+  }
+`;
+export type PostTaskMutationFn = Apollo.MutationFunction<
+  PostTaskMutation,
+  PostTaskMutationVariables
+>;
+
+/**
+ * __usePostTaskMutation__
+ *
+ * To run a mutation, you first call `usePostTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postTaskMutation, { data, loading, error }] = usePostTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostTaskMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostTaskMutation,
+    PostTaskMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<PostTaskMutation, PostTaskMutationVariables>(
+    PostTaskDocument,
+    options
+  );
+}
+export type PostTaskMutationHookResult = ReturnType<typeof usePostTaskMutation>;
+export type PostTaskMutationResult = Apollo.MutationResult<PostTaskMutation>;
+export type PostTaskMutationOptions = Apollo.BaseMutationOptions<
+  PostTaskMutation,
+  PostTaskMutationVariables
+>;
 export const PostVideoDocument = gql`
   mutation PostVideo($data: PostVideoInput!) {
     postVideo(data: $data) {
@@ -662,74 +771,6 @@ export type GetUserQueryResult = Apollo.QueryResult<
   GetUserQuery,
   GetUserQueryVariables
 >;
-export const VideoFeed1Document = gql`
-  query VideoFeed1($data: VideoFeedInput!) {
-    getVideoFeed(data: $data) {
-      id
-      youtubeId
-      title
-      thumbnail
-      description
-      score
-      createdAt
-      owner {
-        username
-        address
-      }
-      liked
-      skipped
-    }
-  }
-`;
-
-/**
- * __useVideoFeed1Query__
- *
- * To run a query within a React component, call `useVideoFeed1Query` and pass it any options that fit your needs.
- * When your component renders, `useVideoFeed1Query` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useVideoFeed1Query({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useVideoFeed1Query(
-  baseOptions: Apollo.QueryHookOptions<
-    VideoFeed1Query,
-    VideoFeed1QueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<VideoFeed1Query, VideoFeed1QueryVariables>(
-    VideoFeed1Document,
-    options
-  );
-}
-export function useVideoFeed1LazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    VideoFeed1Query,
-    VideoFeed1QueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<VideoFeed1Query, VideoFeed1QueryVariables>(
-    VideoFeed1Document,
-    options
-  );
-}
-export type VideoFeed1QueryHookResult = ReturnType<typeof useVideoFeed1Query>;
-export type VideoFeed1LazyQueryHookResult = ReturnType<
-  typeof useVideoFeed1LazyQuery
->;
-export type VideoFeed1QueryResult = Apollo.QueryResult<
-  VideoFeed1Query,
-  VideoFeed1QueryVariables
->;
 export const VideoFeed1808Document = gql`
   query VideoFeed1808($data: VideoFeedInput!) {
     getVideoFeed(data: $data) {
@@ -799,71 +840,69 @@ export type VideoFeed1808QueryResult = Apollo.QueryResult<
   VideoFeed1808Query,
   VideoFeed1808QueryVariables
 >;
-export const VideoFeedDocument = gql`
-  query VideoFeed($data: VideoFeedInput!) {
-    getVideoFeed(data: $data) {
+export const TaskFeedDocument = gql`
+  query TaskFeed($data: TaskFeedInput!) {
+    getTaskFeed(data: $data) {
       id
+      taskType
       youtubeId
       title
       thumbnail
       description
-      score
-      duration
-      createdAt
+      link
+      completed
       owner {
         username
         address
       }
-      liked
-      skipped
     }
   }
 `;
 
 /**
- * __useVideoFeedQuery__
+ * __useTaskFeedQuery__
  *
- * To run a query within a React component, call `useVideoFeedQuery` and pass it any options that fit your needs.
- * When your component renders, `useVideoFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useTaskFeedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTaskFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useVideoFeedQuery({
+ * const { data, loading, error } = useTaskFeedQuery({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useVideoFeedQuery(
-  baseOptions: Apollo.QueryHookOptions<VideoFeedQuery, VideoFeedQueryVariables>
+export function useTaskFeedQuery(
+  baseOptions: Apollo.QueryHookOptions<TaskFeedQuery, TaskFeedQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<VideoFeedQuery, VideoFeedQueryVariables>(
-    VideoFeedDocument,
+  return Apollo.useQuery<TaskFeedQuery, TaskFeedQueryVariables>(
+    TaskFeedDocument,
     options
   );
 }
-export function useVideoFeedLazyQuery(
+export function useTaskFeedLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    VideoFeedQuery,
-    VideoFeedQueryVariables
+    TaskFeedQuery,
+    TaskFeedQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<VideoFeedQuery, VideoFeedQueryVariables>(
-    VideoFeedDocument,
+  return Apollo.useLazyQuery<TaskFeedQuery, TaskFeedQueryVariables>(
+    TaskFeedDocument,
     options
   );
 }
-export type VideoFeedQueryHookResult = ReturnType<typeof useVideoFeedQuery>;
-export type VideoFeedLazyQueryHookResult = ReturnType<
-  typeof useVideoFeedLazyQuery
+export type TaskFeedQueryHookResult = ReturnType<typeof useTaskFeedQuery>;
+export type TaskFeedLazyQueryHookResult = ReturnType<
+  typeof useTaskFeedLazyQuery
 >;
-export type VideoFeedQueryResult = Apollo.QueryResult<
-  VideoFeedQuery,
-  VideoFeedQueryVariables
+export type TaskFeedQueryResult = Apollo.QueryResult<
+  TaskFeedQuery,
+  TaskFeedQueryVariables
 >;
 export const FetchAuthMessageDocument = gql`
   query FetchAuthMessage {

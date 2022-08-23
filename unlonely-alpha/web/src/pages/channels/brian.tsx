@@ -13,50 +13,48 @@ import {
 import { useAccount } from "wagmi";
 
 import AppLayout from "../../components/layout/AppLayout";
-import VideoSort, { VideoAttribute } from "../../components/video/VideoSort";
 import { getEnsName } from "../../utils/ens";
 import centerEllipses from "../../utils/centerEllipses";
-import { VideoCard_VideoFragment } from "../../generated/graphql";
+import { TaskCard_TaskFragment } from "../../generated/graphql";
 import AblyChatComponent from "../../components/chat/AblyChataComponent";
 import NextStreamTimer from "../../components/video/NextStreamTimer";
-import AddVideoModal from "../../components/video/AddVideoModal";
 import { useUser } from "../../hooks/useUser";
+import TaskList from "../../components/task/TaskList";
 
-const VIDEO_LIST_QUERY = gql`
-  query VideoFeed($data: VideoFeedInput!) {
-    getVideoFeed(data: $data) {
+const TASK_LIST_QUERY = gql`
+  query TaskFeed($data: TaskFeedInput!) {
+    getTaskFeed(data: $data) {
       id
+      taskType
       youtubeId
       title
       thumbnail
       description
-      score
-      duration
-      createdAt
+      link
+      completed
       owner {
         username
         address
       }
-      liked
-      skipped
     }
   }
 `;
 
 type Props = {
-  videos: VideoCard_VideoFragment[];
+  tasks: TaskCard_TaskFragment[];
   loading: boolean;
 };
 
 export type ChatBot = {
   username: string;
   address: string;
-  videoTitle: string | null;
+  taskType: string;
+  title: string | null | undefined;
+  description: string | null | undefined;
 };
 
-const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
+const Example: React.FunctionComponent<Props> = ({ tasks, loading }) => {
   const { user } = useUser();
-  const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
   const accountData = useAccount();
@@ -103,7 +101,11 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
               </Text>
             </Box>
           </Flex>
-          <AblyChatComponent username={username} chatBot={chatBot} user={user}/>
+          <AblyChatComponent
+            username={username}
+            chatBot={chatBot}
+            user={user}
+          />
         </GridItem>
         <GridItem rowSpan={3} colSpan={1}></GridItem>
         <GridItem rowSpan={2} colSpan={1}></GridItem>
@@ -111,7 +113,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
           <NextStreamTimer />
         </GridItem>
         <Button onClick={toggleChatVideos} id="xeedev-poaav">
-          Toggle Chat/Videos
+          Toggle Chat/Tasks
         </Button>
         <GridItem
           rowSpan={1}
@@ -120,20 +122,24 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
           id="xeedev-video-modal"
           className="xeedev-class-hide"
         >
-          <Flex
-            direction="row"
-            justifyContent="left"
-          >
-            <Flex
-              maxH="400px"
-              margin="auto"
-              mb="16px"
-              ml="32px"
-            >
-              <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} />
+          <Flex direction="row" justifyContent="left">
+            <Flex maxH="400px" margin="auto" mb="16px" ml="32px">
+              <Text fontSize="2rem" fontWeight="bold">
+                Collect POAPs. Demand a Task.
+              </Text>
             </Flex>
             <Spacer />
-            {loading && <Flex flexDirection="row"><Image src="https://i.imgur.com/tS6RUJt.gif" width="2rem" height="2rem" mr="0.5rem"/>{"syncing videos"}</Flex>}
+            {loading && (
+              <Flex flexDirection="row">
+                <Image
+                  src="https://i.imgur.com/tS6RUJt.gif"
+                  width="2rem"
+                  height="2rem"
+                  mr="0.5rem"
+                />
+                {"syncing tasks"}
+              </Flex>
+            )}
           </Flex>
           <Flex
             margin="auto"
@@ -146,7 +152,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             maxH="400px"
             height="400px"
           >
-            <VideoSort videos={videos} sort={sortVideoAs} />
+            <TaskList chatBot={chatBot} setChatBot={setChatBot} tasks={tasks} />
           </Flex>
         </GridItem>
       </Grid>
@@ -171,7 +177,7 @@ const toggleChatVideos = function () {
 };
 
 export default function Page() {
-  const { data, loading, error } = useQuery(VIDEO_LIST_QUERY, {
+  const { data, loading, error } = useQuery(TASK_LIST_QUERY, {
     variables: {
       data: {
         searchString: null,
@@ -183,11 +189,11 @@ export default function Page() {
     notifyOnNetworkStatusChange: true,
     pollInterval: 30000,
   });
-  const videos = data?.getVideoFeed;
+  const tasks = data?.getTaskFeed;
 
   return (
     <AppLayout error={error}>
-      <Example videos={videos} loading={loading} />
+      <Example tasks={tasks} loading={loading} />
     </AppLayout>
   );
 }

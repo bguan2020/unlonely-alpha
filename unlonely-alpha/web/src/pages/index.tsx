@@ -116,7 +116,7 @@ export default function Page() {
                     color="white"
                     _hover={{ bg: "white", color: "black" }}
                     onClick={() => {
-                      window.location.href = "/channels/youtube";
+                      window.location.href = "/channels/brian";
                     }}
                   >
                     Join Our Daily Streams

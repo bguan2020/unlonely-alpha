@@ -1,8 +1,4 @@
-import {
-  Flex,
-  Button,
-  Textarea,
-} from "@chakra-ui/react";
+import { Flex, Button, Textarea } from "@chakra-ui/react";
 import React, { useState } from "react";
 
 type Props = {

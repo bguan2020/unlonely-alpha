@@ -31,9 +31,11 @@ import {
   postVideoSchema,
 } from "../../utils/validation/validation";
 import { PostYTLinkInput } from "../../types";
-import usePostVideoWithRedirect from "../../hooks/usePostVideoWithRedirect";
+import usePostTask from "../../hooks/usePostTask";
 import { YT_PUBLIC_KEY } from "../../constants";
 import { ChatBot } from "../../pages/channels/brian";
+import { useUser } from "../../hooks/useUser";
+import { checkPOAP } from "../../utils/checkPoapCount";
 
 type Props = {
   setChatBot: (chatBot: ChatBot[]) => void;
@@ -67,29 +69,52 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
   const [duration, setDuration] = useState<null | number>(null);
   const [isValidVideo, setIsValidVideo] = useState<boolean>(false);
   const accountData = useAccount();
+  const { user } = useUser();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { postVideo, loading } = usePostVideoWithRedirect({
+  const { postTask, loading } = usePostTask({
     onError: (m) => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
   });
 
   const submitVideo = async () => {
+    if (!user) {
+      toast({
+        title: "Sign in first.",
+        description: "Please sign into your wallet first.",
+        status: "warning",
+        duration: 9000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+    const poapCount = await checkPOAP(user);
+    if (poapCount < 1) {
+      toast({
+        title: "POAP Required",
+        description: "You must have at least 1 POAP to post a video.",
+        status: "warning",
+        duration: 9000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
     const { description } = watch();
-    const data = await postVideo({
+    const data = await postTask({
+      taskType: "video",
       youtubeId,
       title,
       thumbnail,
       description,
-      duration,
     });
     onClose();
     toast({
-      title: "Video Suggestion Submitted",
-      description:
-        "Your video has been added. Refresh the page to see it in the video feed.",
+      title: "Video Submitted",
+      description: "Your video has been added.",
       status: "success",
       duration: 9000,
       isClosable: true,
@@ -148,7 +173,18 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
 
   return (
     <>
-      <Button onClick={onOpen}>Submit Video</Button>
+      <Button
+        onClick={onOpen}
+        bgGradient={"linear-gradient(to bottom, #9FA4C4 0%, #B3CDD1 100%);"}
+        height={["60px"]}
+        style={{
+          whiteSpace: "normal",
+          wordWrap: "break-word",
+        }}
+        mb="1rem"
+      >
+        Watch a Video
+      </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent
@@ -160,7 +196,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
         >
           <ModalHeader>
             <Text fontSize="24px" fontWeight="bold" color="black">
-              Submit a Video
+              Watch a Video
             </Text>
             {formError && <Text>{formError}</Text>}
           </ModalHeader>
@@ -177,8 +213,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
                 color="black"
                 textAlign={"center"}
               >
-                Watch with us! Enter a YouTube video you want to share with a
-                community.
+                Demand a video to be watched.
               </Text>
               {title && thumbnail ? (
                 <form onSubmit={handleSubmit(submitVideo)}>

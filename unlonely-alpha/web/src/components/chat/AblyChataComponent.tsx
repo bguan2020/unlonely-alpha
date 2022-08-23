@@ -1,16 +1,9 @@
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Text,
-  Flex,
-  Link,
-  useToast,
-  Image,
-} from "@chakra-ui/react";
+import { Box, Text, Flex, Link, useToast, Image } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 
 import useChannel from "../../hooks/useChannel";
-import { ChatBot } from "../../pages/channels/youtube";
+import { ChatBot } from "../../pages/channels/brian";
 import { COLORS } from "../../styles/Colors";
 import { isFCUser } from "../../utils/farcasterBadge";
 import { timestampConverter } from "../../utils/timestampConverter";
@@ -38,13 +31,10 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const [isFC, setIsFC] = useState<boolean>(false);
   const toast = useToast();
 
-  const [channel, ably] = useChannel(
-    "persistMessages:chat-demo",
-    (message) => {
-      const history = receivedMessages.slice(-199);
-      setMessages([...history, message]);
-    }
-  );
+  const [channel, ably] = useChannel("persistMessages:chat-demo", (message) => {
+    const history = receivedMessages.slice(-199);
+    setMessages([...history, message]);
+  });
 
   useEffect(() => {
     async function getMessages() {
@@ -65,7 +55,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
       channel.publish({
         name: "chat-message",
         data: {
-          messageText: `${username} added the video: "${lastMessage.videoTitle}"`,
+          messageText: `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`,
           username: "chatbot🤖",
           chatColor: "black",
           address: "0x0000000000000000000000000000000000000000",
@@ -138,26 +128,33 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             <Text color="#5A5A5A" fontSize="12px" mr="5px">
               {`${timestampConverter(message.timestamp)}`}
             </Text>
-            <Badges user={user} message={message}/>
-            <NFTList address={message.data.address} author={message.data.username} />
+            <Badges user={user} message={message} />
+            <NFTList
+              address={message.data.address}
+              author={message.data.username}
+            />
           </Flex>
-              <Box
-                key={index}
-                borderRadius="10px"
-                bg={message.data.chatColor}
-                pr="10px"
-                pl="10px"
-                mb="10px"
-              >
-                    <Text color="white" fontSize={14} wordBreak="break-word" textAlign="left">
-                      {message.data.messageText}
-                    </Text>
-              </Box>
+          <Box
+            key={index}
+            borderRadius="10px"
+            bg={message.data.chatColor}
+            pr="10px"
+            pl="10px"
+            mb="10px"
+          >
+            <Text
+              color="white"
+              fontSize={14}
+              wordBreak="break-word"
+              textAlign="left"
+            >
+              {message.data.messageText}
+            </Text>
+          </Box>
         </Flex>
       </>
     );
   });
-
 
   useEffect(() => {
     const fetchData = async (address: string) => {
@@ -198,7 +195,19 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             maxH="400px"
             id="chat"
           >
-            {messages.length > 0 ? messages : <Flex flexDirection="row"><Image src="https://i.imgur.com/tS6RUJt.gif" width="2rem" height="2rem" mr="0.5rem"/>{"loading messages"}</Flex>}  
+            {messages.length > 0 ? (
+              messages
+            ) : (
+              <Flex flexDirection="row">
+                <Image
+                  src="https://i.imgur.com/tS6RUJt.gif"
+                  width="2rem"
+                  height="2rem"
+                  mr="0.5rem"
+                />
+                {"loading messages"}
+              </Flex>
+            )}
             {messages}
             {autoScroll.current && (
               <Box
@@ -209,7 +218,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             )}
           </Flex>
           <Flex mt="20px" w="100%">
-            <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox}/>
+            <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox} />
           </Flex>
         </Flex>
       </Flex>

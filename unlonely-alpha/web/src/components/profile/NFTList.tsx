@@ -17,7 +17,11 @@ const NFTList: React.FunctionComponent<Props> = ({
   return (
     <>
       <NFTModalRoot
-        TriggerButton={<Text _hover={{ cursor: "pointer" }}>{author ? author : centerEllipses(address, 10)}:</Text>}
+        TriggerButton={
+          <Text _hover={{ cursor: "pointer" }}>
+            {author ? author : centerEllipses(address, 10)}:
+          </Text>
+        }
       >
         <NFTModalBody address={address} author={author} />
         <NFTModalFooter />

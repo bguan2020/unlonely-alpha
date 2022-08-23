@@ -24,6 +24,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   videos Video[]
+  tasks Task[]
   comments Comment[]
   likes Like[]
 }
@@ -49,6 +50,24 @@ model Video {
   updatedAt DateTime @updatedAt
   isDeleted Boolean @default(false)
   currentVideo Boolean @default(false)
+}
+
+model Task {
+  id           Int     @id @default(autoincrement())
+  taskType String
+  youtubeId String?     
+  title String?         
+  thumbnail String?
+  link String?
+  description String
+  completed Boolean @default(false)
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean @default(false)
 }
 
 model Comment {
