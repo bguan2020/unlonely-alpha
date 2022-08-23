@@ -1,7 +1,7 @@
 export type EmojiUsage = {
   emoji: string;
   usedBy: string[];
-}
+};
 
 export type Message = {
   clientId: string;
@@ -18,5 +18,5 @@ export type Message = {
   };
   id: string;
   timestamp: number;
-  timeserial?: string
+  timeserial?: string;
 };

@@ -57,112 +57,120 @@ const VideoCardInner = ({ video, order }: Props) => {
 
   return (
     <>
-      <Flex direction="column" bg="#F1F4F8" overflow="hidden" padding={{base: "0", sm: "0.5rem"}} borderRadius="0.5rem">
-        <Flex justifyContent="space-between" alignItems="center" padding="0.25 0.3125rem">
+      <Flex
+        direction="column"
+        bg="#F1F4F8"
+        overflow="hidden"
+        padding={{ base: "0", sm: "0.5rem" }}
+        borderRadius="0.5rem"
+      >
+        <Flex
+          justifyContent="space-between"
+          alignItems="center"
+          padding="0.25 0.3125rem"
+        >
           <Text color="#787878" fontSize="14px" fontWeight={"bold"} ml="5px">
             {video.owner.username === null
               ? centerEllipses(video.owner.address, 7)
               : video.owner.username}
           </Text>
           <GridItem colSpan={1} pl="10px" fontSize="16px" fontWeight="600">
-              <Tooltip label="vote to watch video">
-                {accountData?.address ? (
-                  <span>
-                    <NebulousButton
-                      opacity={video.liked ? "1" : "0.5"}
-                      aria-label="like"
-                      onClick={submitLike}
-                      disabled={buttonDisabled}
-                    >
-                      {video.liked === true ? (
-                        <UpVoteIconSalmon boxSize={4} />
-                      ) : (
-                        <UpVoteIcon boxSize={4}/>
-                      )}
-                    </NebulousButton>
-                  </span>
-                ) : (
-                  <span>
-                    <NebulousButton
-                      opacity="0.5"
-                      aria-label="like"
-                      onClick={() =>
-                        toast({
-                          title: "Sign in first.",
-                          description: "Please sign into your wallet first.",
-                          status: "warning",
-                          duration: 9000,
-                          isClosable: true,
-                          position: "top",
-                        })
-                      }
-                      disabled={buttonDisabled}
-                    >
-                      {video.liked === true ? (
-                        <UpVoteIconSalmon boxSize={4} />
-                      ) : (
-                        <UpVoteIcon boxSize={4} />
-                      )}
-                    </NebulousButton>
-                  </span>
-                )}
-              </Tooltip>
-              {video.score}
-              <Tooltip label="vote to skip video">
-                {accountData?.address ? (
-                  <span>
-                    <NebulousButton
-                      opacity={video.skipped ? "1" : "0.5"}
-                      aria-label="like"
-                      onClick={submitSkip}
-                      disabled={buttonDisabled}
-                    >
-                      {video.skipped === true ? (
-                        <DownVoteIconSalmon boxSize={4} />
-                      ) : (
-                        <DownVoteIcon boxSize={4} />
-                      )}
-                    </NebulousButton>
-                  </span>
-                ) : (
-                  <span>
-                    <NebulousButton
-                      opacity="0.5"
-                      aria-label="like"
-                      onClick={() =>
-                        toast({
-                          title: "Sign in first.",
-                          description: "Please sign into your wallet first.",
-                          status: "warning",
-                          duration: 9000,
-                          isClosable: true,
-                          position: "top",
-                        })
-                      }
-                      disabled={buttonDisabled}
-                    >
-                      {video.skipped === true ? (
-                        <DownVoteIconSalmon boxSize={4} />
-                      ) : (
-                        <DownVoteIcon boxSize={4} />
-                      )}
-                    </NebulousButton>
-                  </span>
-                )}
-              </Tooltip>
-            </GridItem>
+            <Tooltip label="vote to watch video">
+              {accountData?.address ? (
+                <span>
+                  <NebulousButton
+                    opacity={video.liked ? "1" : "0.5"}
+                    aria-label="like"
+                    onClick={submitLike}
+                    disabled={buttonDisabled}
+                  >
+                    {video.liked === true ? (
+                      <UpVoteIconSalmon boxSize={4} />
+                    ) : (
+                      <UpVoteIcon boxSize={4} />
+                    )}
+                  </NebulousButton>
+                </span>
+              ) : (
+                <span>
+                  <NebulousButton
+                    opacity="0.5"
+                    aria-label="like"
+                    onClick={() =>
+                      toast({
+                        title: "Sign in first.",
+                        description: "Please sign into your wallet first.",
+                        status: "warning",
+                        duration: 9000,
+                        isClosable: true,
+                        position: "top",
+                      })
+                    }
+                    disabled={buttonDisabled}
+                  >
+                    {video.liked === true ? (
+                      <UpVoteIconSalmon boxSize={4} />
+                    ) : (
+                      <UpVoteIcon boxSize={4} />
+                    )}
+                  </NebulousButton>
+                </span>
+              )}
+            </Tooltip>
+            {video.score}
+            <Tooltip label="vote to skip video">
+              {accountData?.address ? (
+                <span>
+                  <NebulousButton
+                    opacity={video.skipped ? "1" : "0.5"}
+                    aria-label="like"
+                    onClick={submitSkip}
+                    disabled={buttonDisabled}
+                  >
+                    {video.skipped === true ? (
+                      <DownVoteIconSalmon boxSize={4} />
+                    ) : (
+                      <DownVoteIcon boxSize={4} />
+                    )}
+                  </NebulousButton>
+                </span>
+              ) : (
+                <span>
+                  <NebulousButton
+                    opacity="0.5"
+                    aria-label="like"
+                    onClick={() =>
+                      toast({
+                        title: "Sign in first.",
+                        description: "Please sign into your wallet first.",
+                        status: "warning",
+                        duration: 9000,
+                        isClosable: true,
+                        position: "top",
+                      })
+                    }
+                    disabled={buttonDisabled}
+                  >
+                    {video.skipped === true ? (
+                      <DownVoteIconSalmon boxSize={4} />
+                    ) : (
+                      <DownVoteIcon boxSize={4} />
+                    )}
+                  </NebulousButton>
+                </span>
+              )}
+            </Tooltip>
+          </GridItem>
         </Flex>
         <Card>
-          <Grid
-            templateColumns="1fr 3fr"
-            gap="0.3125rem"
-          >
-            <GridItem
-              colSpan={1}
-              mr="10px"
-              width="120px"
-            >
-              <Image src={video.thumbnail} height="68px" width="120px" objectFit="cover"/>
+          <Grid templateColumns="1fr 3fr" gap="0.3125rem">
+            <GridItem colSpan={1} mr="10px" width="120px">
+              <Image
+                src={video.thumbnail}
+                height="68px"
+                width="120px"
+                objectFit="cover"
+              />
             </GridItem>
             <Flex maxW="100%" flexDir="column">
               <Tooltip label="copy video link">
@@ -204,7 +212,12 @@ const VideoCardInner = ({ video, order }: Props) => {
 
               {video.duration !== 0 && (
                 <Flex width="100%" justifyContent="left">
-                  <Text fontFamily="Roboto, sans-serif" fontSize="14px" color="grey" mt="5px">
+                  <Text
+                    fontFamily="Roboto, sans-serif"
+                    fontSize="14px"
+                    color="grey"
+                    mt="5px"
+                  >
                     {formatTime(video.duration)}
                   </Text>
                 </Flex>

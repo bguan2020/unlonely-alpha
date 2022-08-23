@@ -10,7 +10,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { VideoCard_VideoFragment } from "../../generated/graphql";
 import AblyChatComponent from "../../components/chat/AblyChataComponent";
 import AddVideoModal from "../../components/video/AddVideoModal";
-import { ChatBot } from "./youtube";
+import { ChatBot } from "./brian";
 import { useUser } from "../../hooks/useUser";
 
 const VIDEO_LIST_QUERY = gql`
@@ -85,7 +85,11 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
               </Text>
             </Box>
           </Flex>
-          <AblyChatComponent username={username} chatBot={chatBot} user={user}/>
+          <AblyChatComponent
+            username={username}
+            chatBot={chatBot}
+            user={user}
+          />
         </GridItem>
         <GridItem rowSpan={3} colSpan={1}></GridItem>
         <GridItem rowSpan={2} colSpan={1}></GridItem>

@@ -1,8 +1,4 @@
-import {
-  Flex,
-  Button,
-  Textarea,
-} from "@chakra-ui/react";
+import { Flex, Button, Textarea } from "@chakra-ui/react";
 import React, { useState } from "react";
 import EmojiButton from "./emoji/EmojiButton";
 import { EmojiType } from "./emoji/types";
