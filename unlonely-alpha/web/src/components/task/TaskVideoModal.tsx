@@ -154,7 +154,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
         .duration(data.items[0].contentDetails.duration)
         .asSeconds();
       let validVideo: boolean;
-      if (videoLength < 30) {
+      if (videoLength > 300) {
         validVideo = false;
       } else {
         validVideo = true;

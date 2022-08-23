@@ -51,7 +51,7 @@ const TaskCard = ({ task }: Props) => {
               </Tag>
             ) : (
               <Tag borderRadius="full" colorScheme="red" m="5px">
-                uncomplete
+                incomplete
               </Tag>
             )}
           </GridItem>
