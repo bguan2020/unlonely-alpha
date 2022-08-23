@@ -1,5 +1,7 @@
 import { Flex, Button, Textarea } from "@chakra-ui/react";
 import React, { useState } from "react";
+import EmojiButton from "./emoji/EmojiButton";
+import { EmojiType } from "./emoji/types";
 
 type Props = {
   sendChatMessage: (message: string) => void;
@@ -10,6 +12,10 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
   const [messageText, setMessageText] = useState<string>("");
 
   const messageTextIsEmpty = messageText.trim().length === 0;
+
+  const addEmoji = (emoji: EmojiType) => {
+    setMessageText(`${messageText}${emoji.unicodeString}`);
+  }
 
   const handleKeyPress = (event: any) => {
     if (event.charCode !== 13 || messageTextIsEmpty) {
@@ -33,17 +39,23 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
         className="xeedev-form-i"
         style={{ width: "100%" }}
       >
-        <Textarea
-          ref={(element) => {
-            inputBox = element;
-          }}
-          value={messageText}
-          placeholder="Type a message..."
-          onChange={(e) => setMessageText(e.target.value)}
-          onKeyPress={handleKeyPress}
-          background="white"
-          minW="100%"
-        ></Textarea>
+        <Flex width="100%" position="relative">
+          <Textarea
+            ref={(element) => {
+              inputBox = element;
+            }}
+            value={messageText}
+            placeholder="Type a message..."
+            onChange={(e) => setMessageText(e.target.value)}
+            onKeyPress={handleKeyPress}
+            background="white"
+            minW="100%"
+            style={{ zIndex: 0 }}
+            position="relative"
+          >
+          </Textarea>
+          <EmojiButton onSelectEmoji={(emoji) => addEmoji(emoji)}/>
+        </Flex>
         <Flex width="100%" justifyContent="right" mb="50px">
           <Button
             type="submit"

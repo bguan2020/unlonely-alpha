@@ -120,6 +120,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     }
   };
 
+
   const messages = receivedMessages.map((message, index) => {
     return (
       <>
