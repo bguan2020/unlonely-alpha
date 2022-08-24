@@ -125,7 +125,7 @@ const Example: React.FunctionComponent<Props> = ({ tasks, loading }) => {
           <Flex direction="row" justifyContent="left">
             <Flex maxH="400px" margin="auto" mb="16px" ml="32px">
               <Text fontSize="2rem" fontWeight="bold">
-                Collect POAPs. Demand a Task.
+                Attend Streams. Collect POAPs. Demand Tasks.
               </Text>
             </Flex>
             <Spacer />
