@@ -15,7 +15,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
 
   const addEmoji = (emoji: EmojiType) => {
     setMessageText(`${messageText}${emoji.unicodeString}`);
-  }
+  };
 
   const handleKeyPress = (event: any) => {
     if (event.charCode !== 13 || messageTextIsEmpty) {
@@ -52,9 +52,8 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             minW="100%"
             style={{ zIndex: 0 }}
             position="relative"
-          >
-          </Textarea>
-          <EmojiButton onSelectEmoji={(emoji) => addEmoji(emoji)}/>
+          ></Textarea>
+          <EmojiButton onSelectEmoji={(emoji) => addEmoji(emoji)} />
         </Flex>
         <Flex width="100%" justifyContent="right" mb="50px">
           <Button

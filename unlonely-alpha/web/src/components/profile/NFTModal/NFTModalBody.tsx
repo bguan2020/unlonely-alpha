@@ -60,24 +60,28 @@ const NFTModalBody: React.FunctionComponent<NFTModalBodyProps> = ({
     <>
       <NFTModalHeader styles={{ marginTop: "33px" }}>
         {error && <Text>{error}</Text>}
-        <Text>{author ? `${author}'s` : `${centerEllipses(address, 10)}`} NFTs</Text>
+        <Text>
+          {author ? `${author}'s` : `${centerEllipses(address, 10)}`} NFTs
+        </Text>
       </NFTModalHeader>
       <ModalBody sx={{ ...styles, ...NFTModalBodyStyles }}>
         <SimpleGrid columns={3} width="100%">
           {loading && <Text>Loading...</Text>}
-          {nftList.length > 0 ? nftList.map((nft: any) => (
-            <Flex key={nft.id} m="10px">
-              <Link href={nft.permalink} isExternal>
-                <Image
-                  src={nft.image_url}
-                  alt={nft.name}
-                  width="100px"
-                  height="100px"
-                  maxHeight="100px"
-                />
-              </Link>
-            </Flex>
-          )) : null }
+          {nftList.length > 0
+            ? nftList.map((nft: any) => (
+                <Flex key={nft.id} m="10px">
+                  <Link href={nft.permalink} isExternal>
+                    <Image
+                      src={nft.image_url}
+                      alt={nft.name}
+                      width="100px"
+                      height="100px"
+                      maxHeight="100px"
+                    />
+                  </Link>
+                </Flex>
+              ))
+            : null}
           {nftList.length === 0 && !loading && <Text>No NFTs found</Text>}
         </SimpleGrid>
       </ModalBody>

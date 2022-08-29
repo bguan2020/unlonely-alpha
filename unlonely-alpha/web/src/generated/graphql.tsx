@@ -91,6 +91,10 @@ export type Comment = {
   videoTimestamp: Scalars["Float"];
 };
 
+export type GetPoapInput = {
+  date: Scalars["String"];
+};
+
 export type GetUserInput = {
   address?: InputMaybe<Scalars["String"]>;
 };
@@ -151,6 +155,17 @@ export type MutationSoftDeleteVideoArgs = {
   id: Scalars["ID"];
 };
 
+export type Poap = {
+  __typename?: "Poap";
+  createdAt: Scalars["DateTime"];
+  date: Scalars["String"];
+  id: Scalars["ID"];
+  isUsed: Scalars["Boolean"];
+  link?: Maybe<Scalars["String"]>;
+  owner: User;
+  updatedAt: Scalars["DateTime"];
+};
+
 export type PostCommentInput = {
   location_x: Scalars["Int"];
   location_y: Scalars["Int"];
@@ -182,10 +197,15 @@ export type Query = {
   currentUser?: Maybe<User>;
   currentUserAuthMessage?: Maybe<Scalars["String"]>;
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
+  getPoap?: Maybe<Poap>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getUser?: Maybe<User>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
+};
+
+export type QueryGetPoapArgs = {
+  data?: InputMaybe<GetPoapInput>;
 };
 
 export type QueryGetTaskFeedArgs = {
@@ -275,6 +295,15 @@ export type VideoFeedInput = {
   orderBy?: InputMaybe<SortOrder>;
   searchString?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;
+};
+
+export type GetPoapQueryVariables = Exact<{
+  data: GetPoapInput;
+}>;
+
+export type GetPoapQuery = {
+  __typename?: "Query";
+  getPoap?: { __typename?: "Poap"; id: string; link?: string | null } | null;
 };
 
 export type Comment_CommentFragment = {
@@ -518,6 +547,55 @@ export const VideoCard_VideoFragmentDoc = gql`
   }
   ${UseLike_VideoFragmentDoc}
 `;
+export const GetPoapDocument = gql`
+  query GetPoap($data: GetPoapInput!) {
+    getPoap(data: $data) {
+      id
+      link
+    }
+  }
+`;
+
+/**
+ * __useGetPoapQuery__
+ *
+ * To run a query within a React component, call `useGetPoapQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPoapQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPoapQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetPoapQuery(
+  baseOptions: Apollo.QueryHookOptions<GetPoapQuery, GetPoapQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetPoapQuery, GetPoapQueryVariables>(
+    GetPoapDocument,
+    options
+  );
+}
+export function useGetPoapLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetPoapQuery, GetPoapQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetPoapQuery, GetPoapQueryVariables>(
+    GetPoapDocument,
+    options
+  );
+}
+export type GetPoapQueryHookResult = ReturnType<typeof useGetPoapQuery>;
+export type GetPoapLazyQueryHookResult = ReturnType<typeof useGetPoapLazyQuery>;
+export type GetPoapQueryResult = Apollo.QueryResult<
+  GetPoapQuery,
+  GetPoapQueryVariables
+>;
 export const LikeDocument = gql`
   mutation Like($data: HandleLikeInput!) {
     handleLike(data: $data) {
