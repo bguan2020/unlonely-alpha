@@ -153,12 +153,7 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
       const videoLength = moment
         .duration(data.items[0].contentDetails.duration)
         .asSeconds();
-      let validVideo: boolean;
-      if (videoLength > 300) {
-        validVideo = false;
-      } else {
-        validVideo = true;
-      }
+      const validVideo = true;
       setTitle(title);
       setThumbnail(thumbnailUrl);
       setYoutubeId(videoId);
