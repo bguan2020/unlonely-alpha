@@ -1,9 +1,4 @@
-import {
-  Flex,
-  Button,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Flex, Button, Text, useDisclosure } from "@chakra-ui/react";
 import React from "react";
 
 import { TaskCard_TaskFragment } from "../../generated/graphql";

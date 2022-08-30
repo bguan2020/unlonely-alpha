@@ -27,6 +27,7 @@ model User {
   tasks Task[]
   comments Comment[]
   likes Like[]
+  poaps Poap[]
 }
 
 model Video {
@@ -100,4 +101,16 @@ model Like {
   comment   Comment? @relation(fields: [commentId], references: [id])
   videoId Int?
   video  Video? @relation(fields: [videoId], references: [id])
+}
+
+model Poap {
+  id           Int     @id @default(autoincrement())
+  date String
+  link String
+  isUsed Boolean @default(false)
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

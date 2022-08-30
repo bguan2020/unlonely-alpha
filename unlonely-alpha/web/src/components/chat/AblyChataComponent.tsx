@@ -1,6 +1,7 @@
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { Box, Text, Flex, Link, useToast, Image } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
+import { gql, useLazyQuery } from "@apollo/client";
 
 import useChannel from "../../hooks/useChannel";
 import { ChatBot } from "../../pages/channels/brian";
@@ -19,9 +20,21 @@ type Props = {
   user: User | undefined;
 };
 
+const GET_POAP_QUERY = gql`
+  query GetPoap($data: GetPoapInput!) {
+    getPoap(data: $data) {
+      id
+      link
+    }
+  }
+`;
+
 const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
 const AblyChatComponent = ({ username, chatBot, user }: Props) => {
+  const [getPoap, { loading, data }] = useLazyQuery(GET_POAP_QUERY, {
+    fetchPolicy: "no-cache",
+  });
   const autoScroll = useRef(true);
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
@@ -81,6 +94,52 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           videoSavantLvl: user?.videoSavantLvl,
         },
       });
+      if (messageText.startsWith("@chatbot")) {
+        // const that removes the @chatbot: from the beginning of the message
+        const prompt = messageText.substring(9);
+        const res = await fetch("/api/openai", {
+          body: JSON.stringify({
+            prompt: `Answer the following prompt: ${prompt}`,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+        });
+        const data = await res.json();
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        channel.publish({
+          name: "chat-message",
+          data: {
+            messageText: `${data}`,
+            username: "chatbot🤖",
+            chatColor: "black",
+            address: "0x0000000000000000000000000000000000000000",
+            isFC: false,
+          },
+        });
+      } else if (messageText.startsWith("@poap")) {
+        const currentDate = new Date();
+        const currentDatePst = currentDate.toLocaleString("en-US", {
+          timeZone: "America/Los_Angeles",
+        });
+        const date = currentDatePst.split(",")[0].trim();
+        const { data } = await getPoap({ variables: { data: { date } } });
+        const poapLink = data.getPoap.link;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        channel.publish({
+          name: "chat-message",
+          data: {
+            messageText: `${poapLink}`,
+            username: "chatbot🤖",
+            chatColor: "black",
+            address: "0x0000000000000000000000000000000000000000",
+            isFC: false,
+          },
+        });
+      }
     } else {
       toast({
         title: "Sign in first.",
@@ -92,34 +151,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
       });
     }
     if (inputBox) inputBox.focus();
-    if (messageText.startsWith("@chatbot")) {
-      // const that removes the @chatbot: from the beginning of the message
-      const prompt = messageText.substring(9);
-      const res = await fetch("/api/openai", {
-        body: JSON.stringify({
-          prompt: prompt,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-      });
-      const data = await res.json();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      channel.publish({
-        name: "chat-message",
-        data: {
-          messageText: `${data}`,
-          username: "chatbot🤖",
-          chatColor: "black",
-          address: "0x0000000000000000000000000000000000000000",
-          isFC: false,
-        },
-      });
-    }
   };
-
 
   const messages = receivedMessages.map((message, index) => {
     return (
