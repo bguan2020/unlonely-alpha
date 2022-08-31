@@ -59,7 +59,7 @@ const NextStreamTimer: React.FunctionComponent = () => {
   if (error || pluginError) {
     return (
       <>
-        <Spinner />
+        error
       </>
     );
   }
