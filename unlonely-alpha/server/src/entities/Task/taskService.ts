@@ -41,7 +41,7 @@ export const getTaskFeed = (data: IGetTaskFeedInput, ctx: Context) => {
     where: { isDeleted: false },
     orderBy: [
       {
-        createdAt: "asc",
+        createdAt: "desc",
       },
     ],
   });

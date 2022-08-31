@@ -48,26 +48,6 @@ const TaskList: React.FunctionComponent<Props> = ({
             <Text minW="4rem" m="auto">
               1 POAP
             </Text>
-            <Button
-              key={cardId}
-              height={["60px"]}
-              style={{
-                whiteSpace: "normal",
-                wordWrap: "break-word",
-              }}
-              mb="1rem"
-              bgGradient={
-                "linear-gradient(to bottom, #CD7F32 0%, #BE7023 100%);"
-              }
-              onClick={() => handleModalOpen("song")}
-            >
-              Play a Song
-            </Button>
-          </Flex>
-          <Flex direction="row" justifyContent="left">
-            <Text minW="4rem" m="auto">
-              1 POAP
-            </Text>
             <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} />
           </Flex>
           {exampleTasks.map((t) => {
