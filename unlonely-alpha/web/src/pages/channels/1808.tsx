@@ -9,9 +9,10 @@ import { getEnsName } from "../../utils/ens";
 import centerEllipses from "../../utils/centerEllipses";
 import { VideoCard_VideoFragment } from "../../generated/graphql";
 import AblyChatComponent from "../../components/chat/AblyChataComponent";
-import AddVideoModal from "../../components/video/AddVideoModal";
 import { ChatBot } from "./brian";
 import { useUser } from "../../hooks/useUser";
+import useScript from "../../hooks/useScript";
+import IVSPlayer from "../../components/stream/IVSPlayer";
 
 const VIDEO_LIST_QUERY = gql`
   query VideoFeed1808($data: VideoFeedInput!) {
@@ -43,6 +44,14 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
   const accountData = useAccount();
+  const { loading: scriptLoading, error } = useScript({
+    src: "https://player.live-video.net/1.2.0/amazon-ivs-videojs-tech.min.js",
+  });
+  // Load IVS quality plugin
+  const { loading: loadingPlugin, error: pluginError } = useScript({
+    src: "https://player.live-video.net/1.2.0/amazon-ivs-quality-plugin.min.js",
+  });
+
 
   useEffect(() => {
     const fetchEns = async () => {
@@ -55,6 +64,14 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
 
     fetchEns();
   }, [accountData?.address]);
+
+  if (scriptLoading || loadingPlugin) {
+    return (
+      <>
+        <Spinner />
+      </>
+    );
+  }
 
   return (
     <>
@@ -101,15 +118,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
             mt="10px"
           >
-            <iframe
-              src="https://player.castr.com/live_a998cbe00c7a11eda40d672859e3570c"
-              width="100%"
-              style={{ aspectRatio: "16/9", width: "100%", maxWidth: "889px" }}
-              frameBorder="0"
-              scrolling="no"
-              allow="autoplay"
-              allowFullScreen
-            />
+              <IVSPlayer />
           </Flex>
         </GridItem>
         <GridItem rowSpan={1} colSpan={1} mr="20px">
@@ -121,7 +130,6 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             maxH="400px"
             mb="10px"
           >
-            <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} />
           </Flex>
           <Flex
             margin="auto"

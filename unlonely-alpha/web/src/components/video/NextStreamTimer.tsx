@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { Text, Flex, Link } from "@chakra-ui/react";
+import { Text, Flex, Link, Spinner } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import moment from "moment-timezone";
+import IVSPlayer from "../stream/IVSPlayer";
+import useScript from "../../hooks/useScript";
 
 const NextStreamTimer: React.FunctionComponent = () => {
   const [streamingTime, setStreamingTime] = useState<boolean>(false);
@@ -9,6 +11,13 @@ const NextStreamTimer: React.FunctionComponent = () => {
   const [hours, setHours] = useState<number>(0);
   const [minutes, setMinutes] = useState<number>(0);
   const [seconds, setSeconds] = useState<number>(0);
+  const { loading: scriptLoading, error } = useScript({
+    src: "https://player.live-video.net/1.2.0/amazon-ivs-videojs-tech.min.js",
+  });
+  // Load IVS quality plugin
+  const { loading: loadingPlugin, error: pluginError } = useScript({
+    src: "https://player.live-video.net/1.2.0/amazon-ivs-quality-plugin.min.js",
+  });
 
   const updateTime = () => {
     const now = new Date();
@@ -39,6 +48,22 @@ const NextStreamTimer: React.FunctionComponent = () => {
     return () => clearInterval(interval);
   }, []);
 
+  if (scriptLoading || loadingPlugin) {
+    return (
+      <>
+        <Spinner />
+      </>
+    );
+  }
+
+  if (error || pluginError) {
+    return (
+      <>
+        error
+      </>
+    );
+  }
+
   return (
     <>
       {streamingTime ? (
@@ -49,7 +74,7 @@ const NextStreamTimer: React.FunctionComponent = () => {
           height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
           mt="10px"
         >
-          <iframe
+          {/* <iframe
             src="https://player.castr.com/live_a998cbe00c7a11eda40d672859e3570c"
             width="100%"
             style={{ aspectRatio: "16/9", width: "100%", maxWidth: "889px" }}
@@ -57,7 +82,8 @@ const NextStreamTimer: React.FunctionComponent = () => {
             scrolling="no"
             allow="autoplay"
             allowFullScreen
-          />
+          /> */}
+          <IVSPlayer />
         </Flex>
       ) : (
         <Flex
