@@ -65,6 +65,14 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
     fetchEns();
   }, [accountData?.address]);
 
+  if (scriptLoading || loadingPlugin) {
+    return (
+      <>
+        <Spinner />
+      </>
+    );
+  }
+
   return (
     <>
       <Grid
@@ -110,12 +118,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
             mt="10px"
           >
-            {loading ? (
-              <Spinner />
-            ) : (
               <IVSPlayer />
-            )}
-            
           </Flex>
         </GridItem>
         <GridItem rowSpan={1} colSpan={1} mr="20px">
