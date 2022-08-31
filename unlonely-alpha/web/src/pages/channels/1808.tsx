@@ -2,7 +2,6 @@ import { gql, useQuery } from "@apollo/client";
 import React, { useState, useEffect } from "react";
 import { Text, Flex, Grid, GridItem, Box, Spinner } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
-import Script from "next/script";
 
 import AppLayout from "../../components/layout/AppLayout";
 import VideoSort, { VideoAttribute } from "../../components/video/VideoSort";
@@ -10,7 +9,6 @@ import { getEnsName } from "../../utils/ens";
 import centerEllipses from "../../utils/centerEllipses";
 import { VideoCard_VideoFragment } from "../../generated/graphql";
 import AblyChatComponent from "../../components/chat/AblyChataComponent";
-import AddVideoModal from "../../components/video/AddVideoModal";
 import { ChatBot } from "./brian";
 import { useUser } from "../../hooks/useUser";
 import useScript from "../../hooks/useScript";
@@ -129,7 +127,6 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             maxH="400px"
             mb="10px"
           >
-            {/* <AddVideoModal chatBot={chatBot} setChatBot={setChatBot} /> */}
           </Flex>
           <Flex
             margin="auto"
