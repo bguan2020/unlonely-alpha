@@ -58,6 +58,7 @@ function IVSPlayer() {
           controls
           autoPlay
           playsInline
+          style={{ aspectRatio: "16/9", width: "100%", maxWidth: "889px", height: "500px" }}
         ></video>
     </>
   );
