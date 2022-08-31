@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Text, Flex, Link } from "@chakra-ui/react";
+import { Text, Flex, Link, Spinner } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import Script from "next/script";
 import moment from "moment-timezone";
+import IVSPlayer from "../stream/IVSPlayer";
+import useScript from "../../hooks/useScript";
 
 const NextStreamTimer: React.FunctionComponent = () => {
   const [streamingTime, setStreamingTime] = useState<boolean>(false);
@@ -10,6 +11,13 @@ const NextStreamTimer: React.FunctionComponent = () => {
   const [hours, setHours] = useState<number>(0);
   const [minutes, setMinutes] = useState<number>(0);
   const [seconds, setSeconds] = useState<number>(0);
+  const { loading: scriptLoading, error } = useScript({
+    src: "https://player.live-video.net/1.2.0/amazon-ivs-videojs-tech.min.js",
+  });
+  // Load IVS quality plugin
+  const { loading: loadingPlugin, error: pluginError } = useScript({
+    src: "https://player.live-video.net/1.2.0/amazon-ivs-quality-plugin.min.js",
+  });
 
   const updateTime = () => {
     const now = new Date();
@@ -40,6 +48,14 @@ const NextStreamTimer: React.FunctionComponent = () => {
     return () => clearInterval(interval);
   }, []);
 
+  if (scriptLoading || loadingPlugin) {
+    return (
+      <>
+        <Spinner />
+      </>
+    );
+  }
+
   return (
     <>
       {streamingTime ? (
@@ -59,18 +75,7 @@ const NextStreamTimer: React.FunctionComponent = () => {
             allow="autoplay"
             allowFullScreen
           /> */}
-          <Script src="https://player.live-video.net/1.12.0/amazon-ivs-player.min.js"></Script>
-          <video id="video-player" playsInline></video>
-          <Script id="show-stream">
-            {
-              `if (IVSPlayer.isPlayerSupported) {
-                const player = IVSPlayer.create();
-                player.attachHTMLVideoElement(document.getElementById('video-player'));
-                player.load(PLAYBACK_URL);
-                player.play();
-              }`
-            }
-          </Script>
+          <IVSPlayer />
         </Flex>
       ) : (
         <Flex
