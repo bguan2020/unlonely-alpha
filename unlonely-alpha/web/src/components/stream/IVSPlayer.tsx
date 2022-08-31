@@ -4,7 +4,6 @@ import {
   VideoJSQualityPlugin,
   VideoJSIVSTech,
   VideoJSEvents,
-  TextMetadataCue,
 } from "amazon-ivs-player";
 import Head from "next/head";
 
