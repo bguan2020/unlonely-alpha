@@ -32,6 +32,7 @@
     "@liveblocks/react": "^0.16.17",
     "@reduxjs/toolkit": "^1.8.5",
     "ably": "^1.2.27",
+    "amazon-ivs-player": "^1.12.0",
     "axios": "^0.27.2",
     "connectkit": "^0.0.1",
     "cookie-cutter": "^0.2.0",
@@ -50,6 +51,7 @@
     "react-dom": "^18.1.0",
     "react-hook-form": "^7.33.1",
     "react-youtube": "^9.0.2",
+    "video.js": "^7.20.2",
     "wagmi": "0.6.2",
     "yup": "^0.32.11"
   },
@@ -61,6 +63,7 @@
     "@graphql-codegen/typescript-react-apollo": "^3.2.17",
     "@types/node": "^16.10.1",
     "@types/react": "^17.0.2",
+    "@types/video.js": "^7.3.46",
     "autoprefixer": "^10.2.5",
     "eslint": "^8.19.0",
     "eslint-config-next": "^12.2.0",

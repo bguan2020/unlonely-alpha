@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Text, Flex, Link } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import Script from "next/script";
 import moment from "moment-timezone";
 
 const NextStreamTimer: React.FunctionComponent = () => {
@@ -49,7 +50,7 @@ const NextStreamTimer: React.FunctionComponent = () => {
           height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
           mt="10px"
         >
-          <iframe
+          {/* <iframe
             src="https://player.castr.com/live_a998cbe00c7a11eda40d672859e3570c"
             width="100%"
             style={{ aspectRatio: "16/9", width: "100%", maxWidth: "889px" }}
@@ -57,7 +58,19 @@ const NextStreamTimer: React.FunctionComponent = () => {
             scrolling="no"
             allow="autoplay"
             allowFullScreen
-          />
+          /> */}
+          <Script src="https://player.live-video.net/1.12.0/amazon-ivs-player.min.js"></Script>
+          <video id="video-player" playsInline></video>
+          <Script id="show-stream">
+            {
+              `if (IVSPlayer.isPlayerSupported) {
+                const player = IVSPlayer.create();
+                player.attachHTMLVideoElement(document.getElementById('video-player'));
+                player.load(PLAYBACK_URL);
+                player.play();
+              }`
+            }
+          </Script>
         </Flex>
       ) : (
         <Flex
