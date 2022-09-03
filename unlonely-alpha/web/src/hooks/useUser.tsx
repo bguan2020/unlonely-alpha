@@ -10,6 +10,7 @@ const GET_USER_QUERY = gql`
     getUser(data: $data) {
       address
       username
+      signature
       bio
       powerUserLvl
       videoSavantLvl
