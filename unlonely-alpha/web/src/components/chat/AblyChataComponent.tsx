@@ -13,6 +13,7 @@ import Badges from "./Badges";
 import { Message } from "./types/index";
 import { User } from "../../generated/graphql";
 import ChatForm from "./ChatForm";
+import usePostFirstChat from "../../hooks/usePostFirstChat";
 
 type Props = {
   username: string | null | undefined;
@@ -42,6 +43,13 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
 
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [isFC, setIsFC] = useState<boolean>(false);
+  const [userSig, setUserSig] = useState<boolean>(false);
+  const [formError, setFormError] = useState<null | string[]>(null);
+  const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
+    onError: (m) => {
+      setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
+    },
+  });
   const toast = useToast();
 
   const [channel, ably] = useChannel("persistMessages:chat-demo", (message) => {
@@ -80,65 +88,40 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
 
   const sendChatMessage = async (messageText: string) => {
     if (user) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      channel.publish({
-        name: "chat-message",
-        data: {
-          messageText,
-          username: user.username,
-          chatColor,
-          isFC,
-          address: user.address,
-          powerUserLvl: user?.powerUserLvl,
-          videoSavantLvl: user?.videoSavantLvl,
-        },
-      });
-      if (messageText.startsWith("@chatbot")) {
-        // const that removes the @chatbot: from the beginning of the message
-        const prompt = messageText.substring(9);
-        const res = await fetch("/api/openai", {
-          body: JSON.stringify({
-            prompt: `Answer the following prompt: ${prompt}`,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-        });
-        const data = await res.json();
+      if (!user.signature) {
+        await postFirstChat({ text: messageText });
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         channel.publish({
           name: "chat-message",
           data: {
-            messageText: `${data}`,
-            username: "chatbot🤖",
-            chatColor: "black",
-            address: "0x0000000000000000000000000000000000000000",
-            isFC: false,
+            messageText,
+            username: user.username,
+            chatColor,
+            isFC,
+            address: user.address,
+            powerUserLvl: user?.powerUserLvl,
+            videoSavantLvl: user?.videoSavantLvl,
           },
         });
-      } else if (messageText.startsWith("@poap")) {
-        const currentDate = new Date();
-        const currentDatePst = currentDate.toLocaleString("en-US", {
-          timeZone: "America/Los_Angeles",
-        });
-        const date = currentDatePst.split(",")[0].trim();
-        const { data } = await getPoap({ variables: { data: { date } } });
-        const poapLink = data.getPoap.link;
+        setUserSig(true);
+        handleChatCommand(messageText);
+      } else {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         channel.publish({
           name: "chat-message",
           data: {
-            messageText: `${poapLink}`,
-            username: "chatbot🤖",
-            chatColor: "black",
-            address: "0x0000000000000000000000000000000000000000",
-            isFC: false,
+            messageText,
+            username: user.username,
+            chatColor,
+            isFC,
+            address: user.address,
+            powerUserLvl: user?.powerUserLvl,
+            videoSavantLvl: user?.videoSavantLvl,
           },
         });
+        handleChatCommand(messageText);
       }
     } else {
       toast({
@@ -152,6 +135,55 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     }
     if (inputBox) inputBox.focus();
   };
+
+  const handleChatCommand = async (messageText: string) => {
+    if (messageText.startsWith("@chatbot")) {
+      // const that removes the @chatbot: from the beginning of the message
+      const prompt = messageText.substring(9);
+      const res = await fetch("/api/openai", {
+        body: JSON.stringify({
+          prompt: `Answer the following prompt: ${prompt}`,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+      });
+      const data = await res.json();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      channel.publish({
+        name: "chat-message",
+        data: {
+          messageText: `${data}`,
+          username: "chatbot🤖",
+          chatColor: "black",
+          address: "0x0000000000000000000000000000000000000000",
+          isFC: false,
+        },
+      });
+    } else if (messageText.startsWith("@poap")) {
+      const currentDate = new Date();
+      const currentDatePst = currentDate.toLocaleString("en-US", {
+        timeZone: "America/Los_Angeles",
+      });
+      const date = currentDatePst.split(",")[0].trim();
+      const { data } = await getPoap({ variables: { data: { date } } });
+      const poapLink = data.getPoap.link;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      channel.publish({
+        name: "chat-message",
+        data: {
+          messageText: `${poapLink}`,
+          username: "chatbot🤖",
+          chatColor: "black",
+          address: "0x0000000000000000000000000000000000000000",
+          isFC: false,
+        },
+      });
+    }
+  }
 
   const messages = receivedMessages.map((message, index) => {
     return (

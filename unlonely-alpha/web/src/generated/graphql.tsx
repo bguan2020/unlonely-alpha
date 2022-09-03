@@ -74,6 +74,15 @@ export type Scalars = {
   Void: any;
 };
 
+export type Chat = {
+  __typename?: "Chat";
+  createdAt: Scalars["DateTime"];
+  id: Scalars["ID"];
+  owner: User;
+  text: Scalars["String"];
+  updatedAt: Scalars["DateTime"];
+};
+
 export type Comment = {
   __typename?: "Comment";
   color: Scalars["String"];
@@ -89,6 +98,10 @@ export type Comment = {
   video: Video;
   videoId: Scalars["Int"];
   videoTimestamp: Scalars["Float"];
+};
+
+export type GetChatInput = {
+  address?: InputMaybe<Scalars["String"]>;
 };
 
 export type GetPoapInput = {
@@ -125,6 +138,7 @@ export type Mutation = {
   _empty?: Maybe<Scalars["String"]>;
   handleLike?: Maybe<Likable>;
   postComment?: Maybe<Comment>;
+  postFirstChat?: Maybe<Chat>;
   postTask?: Maybe<Task>;
   postVideo?: Maybe<Video>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
@@ -137,6 +151,10 @@ export type MutationHandleLikeArgs = {
 
 export type MutationPostCommentArgs = {
   data: PostCommentInput;
+};
+
+export type MutationPostFirstChatArgs = {
+  data: PostChatInput;
 };
 
 export type MutationPostTaskArgs = {
@@ -164,6 +182,10 @@ export type Poap = {
   link?: Maybe<Scalars["String"]>;
   owner: User;
   updatedAt: Scalars["DateTime"];
+};
+
+export type PostChatInput = {
+  text: Scalars["String"];
 };
 
 export type PostCommentInput = {
@@ -196,6 +218,7 @@ export type Query = {
   _empty?: Maybe<Scalars["String"]>;
   currentUser?: Maybe<User>;
   currentUserAuthMessage?: Maybe<Scalars["String"]>;
+  firstChatExists?: Maybe<Scalars["Boolean"]>;
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
   getPoap?: Maybe<Poap>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
@@ -397,6 +420,15 @@ export type PostCommentMutation = {
   } | null;
 };
 
+export type PostFirstChatMutationVariables = Exact<{
+  data: PostChatInput;
+}>;
+
+export type PostFirstChatMutation = {
+  __typename?: "Mutation";
+  postFirstChat?: { __typename?: "Chat"; id: string } | null;
+};
+
 export type PostTaskMutationVariables = Exact<{
   data: PostTaskInput;
 }>;
@@ -425,6 +457,7 @@ export type GetUserQuery = {
     __typename?: "User";
     address: string;
     username?: string | null;
+    signature?: string | null;
     bio?: string | null;
     powerUserLvl: number;
     videoSavantLvl: number;
@@ -701,6 +734,56 @@ export type PostCommentMutationOptions = Apollo.BaseMutationOptions<
   PostCommentMutation,
   PostCommentMutationVariables
 >;
+export const PostFirstChatDocument = gql`
+  mutation PostFirstChat($data: PostChatInput!) {
+    postFirstChat(data: $data) {
+      id
+    }
+  }
+`;
+export type PostFirstChatMutationFn = Apollo.MutationFunction<
+  PostFirstChatMutation,
+  PostFirstChatMutationVariables
+>;
+
+/**
+ * __usePostFirstChatMutation__
+ *
+ * To run a mutation, you first call `usePostFirstChatMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostFirstChatMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postFirstChatMutation, { data, loading, error }] = usePostFirstChatMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostFirstChatMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostFirstChatMutation,
+    PostFirstChatMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostFirstChatMutation,
+    PostFirstChatMutationVariables
+  >(PostFirstChatDocument, options);
+}
+export type PostFirstChatMutationHookResult = ReturnType<
+  typeof usePostFirstChatMutation
+>;
+export type PostFirstChatMutationResult =
+  Apollo.MutationResult<PostFirstChatMutation>;
+export type PostFirstChatMutationOptions = Apollo.BaseMutationOptions<
+  PostFirstChatMutation,
+  PostFirstChatMutationVariables
+>;
 export const PostTaskDocument = gql`
   mutation PostTask($data: PostTaskInput!) {
     postTask(data: $data) {
@@ -802,6 +885,7 @@ export const GetUserDocument = gql`
     getUser(data: $data) {
       address
       username
+      signature
       bio
       powerUserLvl
       videoSavantLvl
