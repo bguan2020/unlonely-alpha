@@ -88,7 +88,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const sendChatMessage = async (messageText: string) => {
     if (user) {
       if (!user.signature) {
-        await postFirstChat({ text: messageText });
+        await postFirstChat({ text: messageText }, { isFirst: true });
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         channel.publish({
@@ -120,7 +120,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           },
         });
         handleChatCommand(messageText);
-        await postFirstChat({ text: messageText });
+        await postFirstChat({ text: messageText }, { isFirst: false });
       }
     } else {
       toast({
