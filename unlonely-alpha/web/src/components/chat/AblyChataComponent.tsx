@@ -43,7 +43,6 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
 
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [isFC, setIsFC] = useState<boolean>(false);
-  const [userSig, setUserSig] = useState<boolean>(false);
   const [formError, setFormError] = useState<null | string[]>(null);
   const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
     onError: (m) => {
@@ -89,7 +88,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const sendChatMessage = async (messageText: string) => {
     if (user) {
       if (!user.signature) {
-        await postFirstChat({ text: messageText });
+        await postFirstChat({ text: messageText }, { isFirst: true });
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         channel.publish({
@@ -104,7 +103,6 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             videoSavantLvl: user?.videoSavantLvl,
           },
         });
-        setUserSig(true);
         handleChatCommand(messageText);
       } else {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -122,6 +120,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           },
         });
         handleChatCommand(messageText);
+        await postFirstChat({ text: messageText }, { isFirst: false });
       }
     } else {
       toast({
