@@ -130,6 +130,8 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
         description: description,
       },
     ]);
+    setTitle(null);
+    setThumbnail(null);
   };
 
   const handleChangeVideo = () => {
