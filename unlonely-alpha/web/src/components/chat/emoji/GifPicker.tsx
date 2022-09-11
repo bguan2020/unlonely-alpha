@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { SimpleGrid, Flex, Text } from "@chakra-ui/react";
 import Gif from "./Gif";
 
@@ -14,6 +14,7 @@ const GifCategory = ({
   gifs: Array<string>;
   onSelectGif: (gif: string) => void;
 }) => {
+  const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   return (
     <Flex direction="column">
       <Text fontWeight={"bold"}>Power User Badge Hodlers</Text>
@@ -23,6 +24,8 @@ const GifCategory = ({
             key={gif}
             onClick={onSelectGif}
             gif={gif}
+            buttonDisabled={buttonDisabled}
+            setButtonDisabled={setButtonDisabled}
           />
         ))}
       </SimpleGrid>
