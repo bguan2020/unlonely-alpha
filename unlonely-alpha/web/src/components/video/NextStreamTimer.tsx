@@ -57,11 +57,7 @@ const NextStreamTimer: React.FunctionComponent = () => {
   }
 
   if (error || pluginError) {
-    return (
-      <>
-        error
-      </>
-    );
+    return <>error</>;
   }
 
   return (

@@ -1,11 +1,13 @@
 import React from "react";
 import { SimpleGrid, Flex, Text } from "@chakra-ui/react";
-import { unicodeEmojis, categoriesList } from "./constants";
+import { unicodeEmojis, categoriesList, gifsList } from "./constants";
 import { EmojiType } from "./types";
 import Emoji from "./Emoji";
+import GifPicker from "./GifPicker";
 
 type Props = {
   onSelectEmoji: (emoji: EmojiType) => void;
+  onSelectGif: (gif: string) => void;
 };
 
 const EmojiCategory = ({
@@ -33,7 +35,7 @@ const EmojiCategory = ({
   );
 };
 
-const EmojiPicker = ({ onSelectEmoji }: Props) => {
+const EmojiPicker = ({ onSelectEmoji, onSelectGif }: Props) => {
   return (
     <Flex direction="column">
       {categoriesList.map((category) => (
@@ -43,6 +45,7 @@ const EmojiPicker = ({ onSelectEmoji }: Props) => {
           emojis={unicodeEmojis[category]}
         />
       ))}
+      <GifPicker onSelectGif={onSelectGif} gifs={gifsList} />
     </Flex>
   );
 };

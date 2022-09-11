@@ -1,10 +1,11 @@
 import { Flex, Button, Textarea } from "@chakra-ui/react";
 import React, { useState } from "react";
+
 import EmojiButton from "./emoji/EmojiButton";
 import { EmojiType } from "./emoji/types";
 
 type Props = {
-  sendChatMessage: (message: string) => void;
+  sendChatMessage: (message: string, isGif: boolean) => void;
   inputBox: HTMLTextAreaElement | null;
 };
 
@@ -17,18 +18,25 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
     setMessageText(`${messageText}${emoji.unicodeString}`);
   };
 
+  const sendGif = (gif: string) => {
+    sendChatMessage(gif, true);
+    setMessageText("");
+  };
+
   const handleKeyPress = (event: any) => {
+    const isGif = false;
     if (event.charCode !== 13 || messageTextIsEmpty) {
       return;
     }
     event.preventDefault();
-    sendChatMessage(messageText);
+    sendChatMessage(messageText, isGif);
     setMessageText("");
   };
 
   const handleFormSubmission = (event: { preventDefault: () => void }) => {
+    const isGif = false;
     event.preventDefault();
-    sendChatMessage(messageText);
+    sendChatMessage(messageText, isGif);
     setMessageText("");
   };
 
@@ -53,7 +61,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             style={{ zIndex: 0 }}
             position="relative"
           ></Textarea>
-          <EmojiButton onSelectEmoji={(emoji) => addEmoji(emoji)} />
+          <EmojiButton onSelectEmoji={(emoji) => addEmoji(emoji)} onSelectGif={(gif) => sendGif(gif)}/>
         </Flex>
         <Flex width="100%" justifyContent="right" mb="50px">
           <Button

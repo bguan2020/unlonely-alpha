@@ -13,9 +13,10 @@ import { EmojiType } from "./types";
 
 type Props = {
   onSelectEmoji: (emoji: EmojiType) => void;
+  onSelectGif: (gif: string) => void;
 };
 
-const EmojiButton = ({ onSelectEmoji }: Props) => {
+const EmojiButton = ({ onSelectEmoji, onSelectGif }: Props) => {
   return (
     <Popover>
       <PopoverTrigger>
@@ -35,7 +36,10 @@ const EmojiButton = ({ onSelectEmoji }: Props) => {
         <PopoverArrow />
         <PopoverCloseButton />
         <PopoverBody>
-          <EmojiPicker onSelectEmoji={onSelectEmoji} />
+          <EmojiPicker
+            onSelectEmoji={onSelectEmoji}
+            onSelectGif={onSelectGif}
+          />
         </PopoverBody>
       </PopoverContent>
     </Popover>

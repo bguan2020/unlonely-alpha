@@ -60,6 +60,6 @@ export default makeExecutableSchema({
     videoResolvers,
     taskResolvers,
     poapResolvers,
-    chatResolvers,
+    chatResolvers
   ),
 });

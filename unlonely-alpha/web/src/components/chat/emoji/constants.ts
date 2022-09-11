@@ -4,13 +4,19 @@ import unicodeMap from "emoji-unicode-map";
 
 const _unicodeEmojis = {
   crypto: ["😂", "💰", "⛽️", "🌝", "📉", "🚀", "🔥"],
-  powerUsers: ["coming soon"],
 };
 
 export const categories = {
   crypto: "🪙",
-  powerUsers: "🥇",
 };
+
+export const gifsList = [
+  "https://i.imgur.com/wbUNcyS.gif",
+  "https://i.imgur.com/ynQN8Ct.gif",
+  "https://i.imgur.com/NurjwAK.gif",
+  "https://i.imgur.com/zTfFgtZ.gif",
+  "https://i.imgur.com/IW1whk4.gif",
+];
 
 export const categoriesList = Object.keys(categories);
 

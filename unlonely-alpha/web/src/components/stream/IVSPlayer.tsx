@@ -30,12 +30,11 @@ function IVSPlayer() {
         player.src(PLAYBACK_URL);
       }
     ) as videojs.Player & VideoJSIVSTech & VideoJSQualityPlugin;
-    
+
     player.enableIVSQualityPlugin();
 
     const events: VideoJSEvents = player.getIVSEvents();
     const ivsPlayer = player.getIVSPlayer();
-
 
     ivsPlayer.addEventListener(events.PlayerEventType.ERROR, (payload) => {
       const { type, code, source, message } = payload;
@@ -45,14 +44,18 @@ function IVSPlayer() {
 
   return (
     <>
-        <video
-          id="amazon-ivs-videojs"
-          className="video-js vjs-4-3 vjs-big-play-centered"
-          controls
-          autoPlay
-          playsInline
-          style={{ padding: "0px !important", height: "100% !important", width: "100% !important" }}
-        ></video>
+      <video
+        id="amazon-ivs-videojs"
+        className="video-js vjs-4-3 vjs-big-play-centered"
+        controls
+        autoPlay
+        playsInline
+        style={{
+          padding: "0px !important",
+          height: "100% !important",
+          width: "100% !important",
+        }}
+      ></video>
     </>
   );
 }

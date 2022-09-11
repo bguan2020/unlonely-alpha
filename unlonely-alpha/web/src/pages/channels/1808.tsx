@@ -52,7 +52,6 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
     src: "https://player.live-video.net/1.2.0/amazon-ivs-quality-plugin.min.js",
   });
 
-
   useEffect(() => {
     const fetchEns = async () => {
       if (accountData?.address) {
@@ -118,7 +117,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
             mt="10px"
           >
-              <IVSPlayer />
+            <IVSPlayer />
           </Flex>
         </GridItem>
         <GridItem rowSpan={1} colSpan={1} mr="20px">
@@ -129,8 +128,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             overflowX="auto"
             maxH="400px"
             mb="10px"
-          >
-          </Flex>
+          ></Flex>
           <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}

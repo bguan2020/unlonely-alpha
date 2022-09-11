@@ -15,6 +15,7 @@ export type Message = {
     powerUserLvl: number | null;
     videoSavantLvl: number | null;
     reactions?: EmojiUsage[];
+    isGif: boolean;
   };
   id: string;
   timestamp: number;

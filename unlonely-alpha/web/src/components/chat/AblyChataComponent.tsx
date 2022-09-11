@@ -85,9 +85,11 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     }
   }, [chatBot]);
 
-  const sendChatMessage = async (messageText: string) => {
+  const sendChatMessage = async (messageText: string, isGif: boolean) => {
     if (user) {
       if (!user.signature) {
+        // postFirstChat comes before channel.publish b/c it will set the signature
+        // subsequent chats do not need to call postFirstChat first
         await postFirstChat({ text: messageText }, { isFirst: true });
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -101,6 +103,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             address: user.address,
             powerUserLvl: user?.powerUserLvl,
             videoSavantLvl: user?.videoSavantLvl,
+            isGif,
           },
         });
         handleChatCommand(messageText);
@@ -117,9 +120,11 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             address: user.address,
             powerUserLvl: user?.powerUserLvl,
             videoSavantLvl: user?.videoSavantLvl,
+            isGif,
           },
         });
         handleChatCommand(messageText);
+        // postFirstChat comes after to speed up chat
         await postFirstChat({ text: messageText }, { isFirst: false });
       }
     } else {
@@ -159,6 +164,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           chatColor: "black",
           address: "0x0000000000000000000000000000000000000000",
           isFC: false,
+          isGif: false,
         },
       });
     } else if (messageText.startsWith("@poap")) {
@@ -179,12 +185,21 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           chatColor: "black",
           address: "0x0000000000000000000000000000000000000000",
           isFC: false,
+          isGif: false,
         },
       });
     }
-  }
+  };
 
   const messages = receivedMessages.map((message, index) => {
+    const messageText = message.data.messageText;
+    // regex to check if message is a link
+    const isLink = messageText.match(
+      /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
+    )
+      ? true
+      : false;
+      
     return (
       <>
         <Flex direction="column">
@@ -206,14 +221,40 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             pl="10px"
             mb="10px"
           >
-            <Text
-              color="white"
-              fontSize={14}
-              wordBreak="break-word"
-              textAlign="left"
-            >
-              {message.data.messageText}
-            </Text>
+            {message.data.isGif ? (
+              <>
+                <Flex flexDirection="row">
+                  <Image src={messageText} h="40px" p="5px" />
+                  <Image src={messageText} h="40px" p="5px" />
+                  <Image src={messageText} h="40px" p="5px" />
+                </Flex>
+              </>
+            ) : (
+              <>
+                {isLink ? (
+                  <Link
+                    href={messageText}
+                    isExternal
+                    color="white"
+                    fontSize={14}
+                    wordBreak="break-word"
+                    textAlign="left"
+                  >
+                    {messageText}
+                    <ExternalLinkIcon mx="2px" />
+                  </Link>
+                ) : (
+                  <Text
+                    color="white"
+                    fontSize={14}
+                    wordBreak="break-word"
+                    textAlign="left"
+                  >
+                    {messageText}
+                  </Text>
+                )}
+              </>
+            )}
           </Box>
         </Flex>
       </>

@@ -6,7 +6,11 @@ export interface IPostChatInput {
   text: string;
 }
 
-export const postFirstChat = (data: IPostChatInput, user: User, ctx: Context) => {
+export const postFirstChat = (
+  data: IPostChatInput,
+  user: User,
+  ctx: Context
+) => {
   return ctx.prisma.chat.create({
     data: {
       text: data.text,
