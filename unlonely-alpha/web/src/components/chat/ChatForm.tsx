@@ -53,7 +53,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
               inputBox = element;
             }}
             value={messageText}
-            placeholder="Type a message..."
+            placeholder="try asking @chatbot a question"
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
             background="white"
