@@ -59,20 +59,18 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
 
   const [channel, ably] = useChannel("persistMessages:chat-demo", (message) => {
     const history = receivedMessages.slice(-199);
-    // console.log(history);
     // remove messages where name = add-reaction
     const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
-    // console.log(history);
     if (message.name === ADD_REACTION_EVENT) {
       const reaction = message;
       const timeserial = reaction.data.extras.reference.timeserial;
       const emojiType = reaction.data.body;
-      // console.log("new reaction", reaction);
+
       // get index of message in filteredHistory array where timeserial matches
       const index = messageHistory.findIndex(
         (m) => m.extras.timeserial === timeserial
       );
-      //console.log("found the message", index);
+
       // if index is found, update the message object with the reaction count
       const messageToUpdate = messageHistory[index];
       const emojisToUpdate = messageToUpdate.data.reactions;
@@ -81,7 +79,6 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
       );
       if (emojiIndex !== -1) {
         emojisToUpdate[emojiIndex].count += 1;
-        //console.log("updated emoji count", emojisToUpdate[emojiIndex].count);
       };
       const updatedMessage = {
         ...messageToUpdate,
@@ -91,46 +88,10 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
         },
       };
       messageHistory[index] = updatedMessage;
-      //console.log("updated message", updatedMessage);
 
       setMessages([...messageHistory]);
     }
     setMessages([...messageHistory, message]);
-    
-    // create array from history where name = add-reaction
-    // const reactionHistory = history.filter((m) => m.name === ADD_REACTION_EVENT);
-    // // update filteredHistory array objects with reaction counts
-    // reactionHistory.forEach((reaction) => {
-    //   console.log("new reaction", reaction);
-    //   const timeserial = reaction.extras.timeserial;
-    //   const emojiType = reaction.data.body;
-    //   // get index of message in filteredHistory array where timeserial matches
-    //   const index = messageHistory.findIndex(
-    //     (m) => m.extras.timeserial === timeserial
-    //   );
-    //   // if index is found, update the message object with the reaction count
-    //   const messageToUpdate = messageHistory[index];
-    //   const emojisToUpdate = messageToUpdate.data.reactions;
-    //   const emojiIndex = emojisToUpdate.findIndex(
-    //     (e) => e.emojiType === emojiType
-    //   );
-    //   if (emojiIndex !== -1) {
-    //     emojisToUpdate[emojiIndex].count += 1;
-    //     console.log("updated emoji count");
-    //   };
-    //   const updatedMessage = {
-    //     ...messageToUpdate,
-    //     data: {
-    //       ...messageToUpdate.data,
-    //       reactions: emojisToUpdate,
-    //     },
-    //   };
-    //   messageHistory[index] = updatedMessage;
-    // });
-
-    // if (message.name !== ADD_REACTION_EVENT) {
-    //   setMessages([...messageHistory, message]);
-    // }
   });
 
   useEffect(() => {
@@ -280,27 +241,15 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     // @ts-ignore
     channel.publish(reactionEvent, {
       body: emoji,
+      name: reactionEvent,
       extras: {
         reference: { type: "com.ably.reaction", timeserial },
       },
     });
-    //console.log(timeserial, reactionEvent);
-    // setShowEmojiList(false)
-  };
-
-  // Subscribe to emoji reactions for a message using the message timeserial
-  const getMessageReactions = () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // channel.subscribe("add-reaction", (message: any) => {
-    //   //console.log(message, "asdf")}
-    // ); 
+    setShowEmojiList(null);
   };
 
   useEffect(() => {
-    // subscribe to message reactions
-    getMessageReactions();
-
     async function getMessages() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -315,6 +264,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   }, []);
 
   const messages = receivedMessages.map((message, index) => {
+    if (message.name !== "chat-message") return null;
     const messageText = message.data.messageText;
     // regex to check if message is a link
     const isLink = messageText.match(
@@ -380,22 +330,54 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                 </>
               )}
               <Flex width="100%" flexDirection="row-reverse" pb="5px">
-                <div className="showme">
+              <div className="showme">
                   <NebulousButton 
                       opacity={"0.3"}
-                      aria-label="Chat-Reaction">
-                    <AddIcon
-                      className="h-7 w-7 text-slate-500"
+                      aria-label="Chat-Reaction"
                       onClick={() => setShowEmojiList(showEmojiList ? null :  message.id)}
+                  >
+                    <AddIcon
                     />
                   </NebulousButton>
                 </div>
+                {message.data.reactions?.map((reaction) =>
+                        <div
+                          key={reaction.emojiType}
+                          className={"text-xs rounded-full p-2 m-1 space-x-2  cursor-pointer bg-slate-100 hover:bg-slate-50"}
+                          onClick={() =>
+                            sendMessageReaction(
+                              reaction.emojiType,
+                              message.extras.timeserial,
+                              ADD_REACTION_EVENT
+                            )
+                          }
+                        >
+                          {reaction.count > 0 ? (
+                            <>
+                              <Flex flexDirection="row">
+                                <EmojiDisplay emoji={reaction.emojiType} />
+                                <span>
+                                  <Flex pl="2px" textColor="white">
+                                  {reaction.count}
+                                  </Flex>
+                                </span>
+                              </Flex>
+                            </>
+                          ): (null)}
+                        </div>
+                    )}
               </Flex>
               {showEmojiList === message.id ? (
                     <Flex>
                       {emojis.map((emoji) => (
                         <Box
                           minH="40px"
+                          background="grey"
+                          p="5px"
+                          mb="9px"
+                          ml="2px"
+                          borderRadius="10px"
+                          w="100%"
                           key={emoji}
                           onClick={() =>
                             sendMessageReaction(
