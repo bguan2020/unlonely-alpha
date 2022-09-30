@@ -26,7 +26,6 @@
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
     "@fontsource/inter": "^4.5.11",
-    "@heroicons/react": "^1.0.6",
     "@hookform/resolvers": "^2.9.5",
     "@liveblocks/client": "^0.16.17",
     "@liveblocks/react": "^0.16.17",
