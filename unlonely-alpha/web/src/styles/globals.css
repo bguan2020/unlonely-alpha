@@ -259,6 +259,14 @@ body {
   }
 }
 
+.showme {
+  display: none;
+}
+
+.showhim:hover .showme {
+  display: block;
+}
+
 .vjs-modal-dialog .vjs-modal-dialog-content,
 .video-js .vjs-modal-dialog,
 .vjs-button > .vjs-icon-placeholder:before,
