@@ -15,6 +15,7 @@ import { Message, initializeEmojis } from "./types/index";
 import { User } from "../../generated/graphql";
 import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/usePostFirstChat";
+import NebulousButton from "../general/button/NebulousButton";
 
 type Props = {
   username: string | null | undefined;
@@ -33,7 +34,7 @@ const GET_POAP_QUERY = gql`
 
 const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
-const emojis = ["👋", "❤️", "👋", "😹", "😡", "👏"];
+const emojis = ["👋", "👏", "👎", "📉", "⛽️"];
 
 const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const ADD_REACTION_EVENT = "add-reaction";
@@ -48,7 +49,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [isFC, setIsFC] = useState<boolean>(false);
   const [formError, setFormError] = useState<null | string[]>(null);
-  const [showEmojiList, setShowEmojiList] = useState<boolean>(false);
+  const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
     onError: (m) => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
@@ -94,6 +95,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
 
       setMessages([...messageHistory]);
     }
+    setMessages([...messageHistory, message]);
     
     // create array from history where name = add-reaction
     // const reactionHistory = history.filter((m) => m.name === ADD_REACTION_EVENT);
@@ -334,83 +336,82 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
               author={message.data.username}
             />
           </Flex>
-          <Box
-            key={index}
-            borderRadius="10px"
-            bg={message.data.chatColor}
-            pr="10px"
-            pl="10px"
-            mb="10px"
-          >
-            {message.data.isGif ? (
-              <>
-                <Flex flexDirection="row">
-                  <Image src={messageText} h="40px" p="5px" />
-                  <Image src={messageText} h="40px" p="5px" />
-                  <Image src={messageText} h="40px" p="5px" />
-                </Flex>
-              </>
-            ) : (
-              <>
-                {isLink ? (
-                  <Link
-                    href={messageText}
-                    isExternal
-                    color="white"
-                    fontSize={14}
-                    wordBreak="break-word"
-                    textAlign="left"
-                  >
-                    {messageText}
-                    <ExternalLinkIcon mx="2px" />
-                  </Link>
-                ) : (
-                  <Text
-                    color="white"
-                    fontSize={14}
-                    wordBreak="break-word"
-                    textAlign="left"
-                  >
-                    {messageText}
-                  </Text>
-                )}
-              </>
-            )}
-            <AddIcon
-              className="h-7 w-7 text-slate-500"
-              onClick={() => setShowEmojiList(!showEmojiList)}
-            />
-            {showEmojiList ? (
-                  <ul className="bg-black rounded-full w-fit flex flex-row p-2 space-x-2 mt-2 absolute">
-                    {emojis.map((emoji) => (
-                      <li
-                        key={emoji}
-                        className="text-lg px-1 cursor-pointer transition delay-5 ease-in-out hover:-translate-y-1 motion-reduce:transition-none"
-                        onClick={() =>
-                          sendMessageReaction(
-                            emoji,
-                            message.extras.timeserial,
-                            ADD_REACTION_EVENT
-                          )
-                        }
-                      >
-                        {/* <EmojiDisplay emoji={emoji} /> */}
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-            <Button 
-              onClick={() => {
-                sendMessageReaction(
-                  "👋",
-                  message.extras.timeserial,
-                  ADD_REACTION_EVENT
-                )
-              } 
-              }
-            >👋</Button>
-
-          </Box>
+          <div className="showhim">
+            <Box
+              key={index}
+              borderRadius="10px"
+              bg={message.data.chatColor}
+              pr="10px"
+              pl="10px"
+              mb="10px"
+            >
+              {message.data.isGif ? (
+                <>
+                  <Flex flexDirection="row">
+                    <Image src={messageText} h="40px" p="5px" />
+                    <Image src={messageText} h="40px" p="5px" />
+                    <Image src={messageText} h="40px" p="5px" />
+                  </Flex>
+                </>
+              ) : (
+                <>
+                  {isLink ? (
+                    <Link
+                      href={messageText}
+                      isExternal
+                      color="white"
+                      fontSize={14}
+                      wordBreak="break-word"
+                      textAlign="left"
+                    >
+                      {messageText}
+                      <ExternalLinkIcon mx="2px" />
+                    </Link>
+                  ) : (
+                    <Text
+                      color="white"
+                      fontSize={14}
+                      wordBreak="break-word"
+                      textAlign="left"
+                    >
+                      {messageText}
+                    </Text>
+                  )}
+                </>
+              )}
+              <Flex width="100%" flexDirection="row-reverse" pb="5px">
+                <div className="showme">
+                  <NebulousButton 
+                      opacity={"0.3"}
+                      aria-label="Chat-Reaction">
+                    <AddIcon
+                      className="h-7 w-7 text-slate-500"
+                      onClick={() => setShowEmojiList(showEmojiList ? null :  message.id)}
+                    />
+                  </NebulousButton>
+                </div>
+              </Flex>
+              {showEmojiList === message.id ? (
+                    <Flex>
+                      {emojis.map((emoji) => (
+                        <Box
+                          minH="40px"
+                          key={emoji}
+                          onClick={() =>
+                            sendMessageReaction(
+                              emoji,
+                              message.extras.timeserial,
+                              ADD_REACTION_EVENT
+                            )
+                          }
+                        >
+                          <EmojiDisplay emoji={emoji} />
+                        </Box>
+                      ))}
+                    </Flex>
+                  ) : null}
+            </Box>
+          </div>
         </Flex>
       </>
     );
@@ -485,5 +486,19 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     </>
   );
 };
+
+// Use twemoji for consistency in emoji display across platforms
+const EmojiDisplay = ({ emoji }: { emoji: string }) => {
+  const codePoint = emoji.codePointAt(0)?.toString(16)
+  return (
+    <Image
+      alt={emoji}
+      height="24px"
+      max-width="24px"
+      className="h-5 w-5 pointer-events-none inline-block"
+      src={`https://twemoji.maxcdn.com/v/latest/svg/${codePoint}.svg`}
+    />
+  )
+}
 
 export default AblyChatComponent;
