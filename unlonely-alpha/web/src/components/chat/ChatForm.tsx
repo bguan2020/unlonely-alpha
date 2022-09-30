@@ -61,7 +61,10 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             style={{ zIndex: 0 }}
             position="relative"
           ></Textarea>
-          <EmojiButton onSelectEmoji={(emoji) => addEmoji(emoji)} onSelectGif={(gif) => sendGif(gif)}/>
+          <EmojiButton
+            onSelectEmoji={(emoji) => addEmoji(emoji)}
+            onSelectGif={(gif) => sendGif(gif)}
+          />
         </Flex>
         <Flex width="100%" justifyContent="right" mb="50px">
           <Button

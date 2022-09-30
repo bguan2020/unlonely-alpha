@@ -3,11 +3,11 @@ import { Button } from "@chakra-ui/react";
 
 import { useUser } from "../../../hooks/useUser";
 
-type Props = { 
-  gif: string; 
+type Props = {
+  gif: string;
   onClick?: (gif: string) => void;
   buttonDisabled: boolean;
-  setButtonDisabled: (disabled: boolean) => void; 
+  setButtonDisabled: (disabled: boolean) => void;
 };
 
 const Gif = ({ gif, onClick, buttonDisabled, setButtonDisabled }: Props) => {
@@ -15,10 +15,10 @@ const Gif = ({ gif, onClick, buttonDisabled, setButtonDisabled }: Props) => {
 
   const handleClick = () => {
     setButtonDisabled(true);
-                if (onClick) onClick(gif);
-                setTimeout(() => {
-                  setButtonDisabled(false);
-                }, 5000);
+    if (onClick) onClick(gif);
+    setTimeout(() => {
+      setButtonDisabled(false);
+    }, 5000);
   };
 
   return (

@@ -36,10 +36,7 @@ const GifCategory = ({
 const GifPicker = ({ onSelectGif, gifs }: Props) => {
   return (
     <Flex direction="column">
-      <GifCategory
-        onSelectGif={onSelectGif}
-        gifs={gifs}
-      />
+      <GifCategory onSelectGif={onSelectGif} gifs={gifs} />
     </Flex>
   );
 };

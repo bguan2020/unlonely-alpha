@@ -34,7 +34,7 @@ const GET_POAP_QUERY = gql`
 
 const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
-const emojis = ["👋", "👏", "👎", "📉", "⛽️"];
+const emojis = ["⛽️", "❤️", "👑", "👀", "👎", "🚀"];
 
 const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const ADD_REACTION_EVENT = "add-reaction";
@@ -48,6 +48,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
 
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [isFC, setIsFC] = useState<boolean>(false);
+  const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [formError, setFormError] = useState<null | string[]>(null);
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
@@ -77,9 +78,10 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
       const emojiIndex = emojisToUpdate.findIndex(
         (e) => e.emojiType === emojiType
       );
+
       if (emojiIndex !== -1) {
         emojisToUpdate[emojiIndex].count += 1;
-      };
+      }
       const updatedMessage = {
         ...messageToUpdate,
         data: {
@@ -207,7 +209,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
       const { data } = await getPoap({ variables: { data: { date } } });
       const poapLink = data.getPoap.link;
       let messageText: string;
-      if(!poapLink) {
+      if (!poapLink) {
         messageText = "No POAPs today. Try again next time.";
       } else {
         messageText = `${poapLink}`;
@@ -255,7 +257,9 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
       // @ts-ignore
       await channel.history({ limit: 50 }, (err, result) => {
         // Get index of last sent message from history
-        const lastPublishedMessageIndex: any = result.items.filter((message: any) => message.name === "chat-message");
+        const lastPublishedMessageIndex: any = result.items.filter(
+          (message: any) => message.name === "chat-message"
+        );
         const reversed = lastPublishedMessageIndex.reverse();
         setMessages(reversed);
       });
@@ -272,7 +276,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     )
       ? true
       : false;
-      
+
     return (
       <>
         <Flex direction="column">
@@ -294,104 +298,134 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
               pr="10px"
               pl="10px"
               mb="10px"
+              position="relative"
             >
-              {message.data.isGif ? (
-                <>
-                  <Flex flexDirection="row">
-                    <Image src={messageText} h="40px" p="5px" />
-                    <Image src={messageText} h="40px" p="5px" />
-                    <Image src={messageText} h="40px" p="5px" />
-                  </Flex>
-                </>
-              ) : (
-                <>
-                  {isLink ? (
-                    <Link
-                      href={messageText}
-                      isExternal
-                      color="white"
-                      fontSize={14}
-                      wordBreak="break-word"
-                      textAlign="left"
-                    >
-                      {messageText}
-                      <ExternalLinkIcon mx="2px" />
-                    </Link>
-                  ) : (
-                    <Text
-                      color="white"
-                      fontSize={14}
-                      wordBreak="break-word"
-                      textAlign="left"
-                    >
-                      {messageText}
-                    </Text>
-                  )}
-                </>
-              )}
-              <Flex width="100%" flexDirection="row-reverse" pb="5px">
-              <div className="showme">
-                  <NebulousButton 
-                      opacity={"0.3"}
-                      aria-label="Chat-Reaction"
-                      onClick={() => setShowEmojiList(showEmojiList ? null :  message.id)}
+              <Flex justifyContent="space-between" flexDirection="column">
+                {message.data.isGif ? (
+                  <>
+                    <Flex flexDirection="row">
+                      <Image src={messageText} h="40px" p="5px" />
+                      <Image src={messageText} h="40px" p="5px" />
+                      <Image src={messageText} h="40px" p="5px" />
+                    </Flex>
+                  </>
+                ) : (
+                  <>
+                    {isLink ? (
+                      <Link
+                        href={messageText}
+                        isExternal
+                        color="white"
+                        fontSize={14}
+                        wordBreak="break-word"
+                        textAlign="left"
+                      >
+                        {messageText}
+                        <ExternalLinkIcon mx="2px" />
+                      </Link>
+                    ) : (
+                      <Text
+                        color="white"
+                        fontSize={14}
+                        wordBreak="break-word"
+                        textAlign="left"
+                      >
+                        {messageText}
+                      </Text>
+                    )}
+                  </>
+                )}
+                <div
+                  className="showme"
+                  style={{ position: "absolute", right: "5px", bottom: "0px" }}
+                >
+                  <NebulousButton
+                    opacity={"0.3"}
+                    aria-label="Chat-Reaction"
+                    onClick={() =>
+                      setShowEmojiList(showEmojiList ? null : message.id)
+                    }
+                    height="12px"
+                    width="12px"
                   >
-                    <AddIcon
-                    />
+                    <AddIcon height="12px" width="12px" />
                   </NebulousButton>
                 </div>
-                {message.data.reactions?.map((reaction) =>
-                        <div
-                          key={reaction.emojiType}
-                          className={"text-xs rounded-full p-2 m-1 space-x-2  cursor-pointer bg-slate-100 hover:bg-slate-50"}
-                          onClick={() =>
-                            sendMessageReaction(
-                              reaction.emojiType,
-                              message.extras.timeserial,
-                              ADD_REACTION_EVENT
-                            )
-                          }
-                        >
-                          {reaction.count > 0 ? (
-                            <>
-                              <Flex flexDirection="row">
-                                <EmojiDisplay emoji={reaction.emojiType} />
-                                <span>
-                                  <Flex pl="2px" textColor="white">
-                                  {reaction.count}
-                                  </Flex>
-                                </span>
+                <Flex flexDirection="row">
+                  {message.data.reactions?.map((reaction) => (
+                    <div
+                      key={reaction.emojiType}
+                      className={
+                        "text-xs rounded-full p-2 m-1 space-x-2  bg-slate-100 hover:bg-slate-50"
+                      }
+                      style={{
+                        cursor: buttonDisabled ? "not-allowed" : "pointer",
+                      }}
+                      onClick={() => {
+                        setButtonDisabled(true);
+                        sendMessageReaction(
+                          reaction.emojiType,
+                          message.extras.timeserial,
+                          ADD_REACTION_EVENT
+                        );
+                        setTimeout(() => {
+                          setButtonDisabled(false);
+                        }, 2000);
+                      }}
+                    >
+                      {reaction.count > 0 ? (
+                        <>
+                          <Flex flexDirection="row">
+                            <EmojiDisplay
+                              emoji={reaction.emojiType}
+                              fontSize={"12px"}
+                            />
+                            <span>
+                              <Flex
+                                pl="2px"
+                                textColor="white"
+                                fontSize="12px"
+                                mr="4px"
+                              >
+                                {reaction.count}
                               </Flex>
-                            </>
-                          ): (null)}
-                        </div>
-                    )}
+                            </span>
+                          </Flex>
+                        </>
+                      ) : null}
+                    </div>
+                  ))}
+                </Flex>
               </Flex>
               {showEmojiList === message.id ? (
-                    <Flex>
-                      {emojis.map((emoji) => (
-                        <Box
-                          minH="40px"
-                          background="grey"
-                          p="5px"
-                          mb="9px"
-                          ml="2px"
-                          borderRadius="10px"
-                          w="100%"
-                          key={emoji}
-                          onClick={() =>
-                            sendMessageReaction(
-                              emoji,
-                              message.extras.timeserial,
-                              ADD_REACTION_EVENT
-                            )
-                          }
-                        >
-                          <EmojiDisplay emoji={emoji} />
-                        </Box>
-                      ))}
-                    </Flex>
-                  ) : null}
+                <Flex>
+                  {emojis.map((emoji) => (
+                    <Box
+                      minH="40px"
+                      background="transparent"
+                      p="5px"
+                      w="100%"
+                      key={emoji}
+                      style={{
+                        cursor: buttonDisabled ? "not-allowed" : "pointer",
+                      }}
+                      onClick={() => {
+                        setButtonDisabled(true);
+                        sendMessageReaction(
+                          emoji,
+                          message.extras.timeserial,
+                          ADD_REACTION_EVENT
+                        );
+                        setTimeout(() => {
+                          setButtonDisabled(false);
+                        }, 2000);
+                      }}
+                    >
+                      <EmojiDisplay emoji={emoji} fontSize={"18px"} />
+                    </Box>
+                  ))}
+                </Flex>
+              ) : null}
             </Box>
           </div>
         </Flex>
@@ -470,17 +504,19 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
 };
 
 // Use twemoji for consistency in emoji display across platforms
-const EmojiDisplay = ({ emoji }: { emoji: string }) => {
-  const codePoint = emoji.codePointAt(0)?.toString(16)
+const EmojiDisplay = ({
+  emoji,
+  fontSize,
+}: {
+  emoji: string;
+  fontSize: string;
+}) => {
+  const codePoint = emoji.codePointAt(0)?.toString(16);
   return (
-    <Image
-      alt={emoji}
-      height="24px"
-      max-width="24px"
-      className="h-5 w-5 pointer-events-none inline-block"
-      src={`https://twemoji.maxcdn.com/v/latest/svg/${codePoint}.svg`}
-    />
-  )
-}
+    <>
+      <Flex fontSize={fontSize}>{emoji}</Flex>
+    </>
+  );
+};
 
 export default AblyChatComponent;

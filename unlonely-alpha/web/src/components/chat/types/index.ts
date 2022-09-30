@@ -1,25 +1,29 @@
 export type EmojiTypes = [
   {
-    emojiType: "👋",
-    count: number,
+    emojiType: "👑";
+    count: number;
   },
   {
-    emojiType: "👏",
-    count: number,
+    emojiType: "❤️";
+    count: number;
   },
   {
-    emojiType: "👎",
-    count: number,
+    emojiType: "👎";
+    count: number;
   },
   {
-    emojiType: "📉",
-    count: number,
+    emojiType: "👀";
+    count: number;
   },
   {
-    emojiType: "⛽️",
-    count: number,
+    emojiType: "⛽️";
+    count: number;
   },
-]
+  {
+    emojiType: "🚀";
+    count: number;
+  }
+];
 
 export type Message = {
   clientId: string;
@@ -41,16 +45,16 @@ export type Message = {
   timestamp: number;
   extras: {
     timeserial: string;
-  }
+  };
 };
 
 export const initializeEmojis = [
   {
-    emojiType: "👋",
+    emojiType: "👑",
     count: 0,
   },
   {
-    emojiType: "👏",
+    emojiType: "❤️",
     count: 0,
   },
   {
@@ -58,11 +62,15 @@ export const initializeEmojis = [
     count: 0,
   },
   {
-    emojiType: "📉",
+    emojiType: "👀",
     count: 0,
   },
   {
     emojiType: "⛽️",
     count: 0,
   },
-]
+  {
+    emojiType: "🚀",
+    count: 0,
+  },
+];
