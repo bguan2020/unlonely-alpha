@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { Box, Text, Flex, Link, useToast, Image, Button } from "@chakra-ui/react";
+import { Box, Text, Flex, Link, useToast, Image } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 import { AddIcon } from "@chakra-ui/icons";
