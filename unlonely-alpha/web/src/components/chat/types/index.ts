@@ -1,11 +1,30 @@
-export type EmojiUsage = {
-  emoji: string;
-  usedBy: string[];
-};
+export type EmojiTypes = [
+  {
+    emojiType: "👋",
+    count: number,
+  },
+  {
+    emojiType: "👏",
+    count: number,
+  },
+  {
+    emojiType: "👎",
+    count: number,
+  },
+  {
+    emojiType: "📉",
+    count: number,
+  },
+  {
+    emojiType: "⛽️",
+    count: number,
+  },
+]
 
 export type Message = {
   clientId: string;
   connectionId: string;
+  name: string;
   data: {
     messageText: string;
     username: string;
@@ -14,10 +33,36 @@ export type Message = {
     isFC: boolean;
     powerUserLvl: number | null;
     videoSavantLvl: number | null;
-    reactions?: EmojiUsage[];
+    reactions: EmojiTypes;
     isGif: boolean;
+    body?: string;
   };
   id: string;
   timestamp: number;
-  timeserial?: string;
+  extras: {
+    timeserial: string;
+  }
 };
+
+export const initializeEmojis = [
+  {
+    emojiType: "👋",
+    count: 0,
+  },
+  {
+    emojiType: "👏",
+    count: 0,
+  },
+  {
+    emojiType: "👎",
+    count: 0,
+  },
+  {
+    emojiType: "📉",
+    count: 0,
+  },
+  {
+    emojiType: "⛽️",
+    count: 0,
+  },
+]
