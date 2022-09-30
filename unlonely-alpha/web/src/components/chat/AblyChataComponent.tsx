@@ -207,12 +207,11 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
       });
       const date = currentDatePst.split(",")[0].trim();
       const { data } = await getPoap({ variables: { data: { date } } });
-      const poapLink = data.getPoap.link;
       let messageText: string;
-      if (!poapLink) {
+      if (!data.getPoap) {
         messageText = "No POAPs today. Try again next time.";
       } else {
-        messageText = `${poapLink}`;
+        messageText = `${data.getPoap.link}`;
       }
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
