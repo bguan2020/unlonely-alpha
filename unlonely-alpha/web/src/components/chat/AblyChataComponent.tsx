@@ -33,7 +33,7 @@ const GET_POAP_QUERY = gql`
 
 const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
-const emojis = ["👋", '❤️', '👋', '😹', '😡', '👏'];
+const emojis = ["👋", "❤️", "👋", "😹", "😡", "👏"];
 
 const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const ADD_REACTION_EVENT = "add-reaction";
@@ -58,20 +58,20 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
 
   const [channel, ably] = useChannel("persistMessages:chat-demo", (message) => {
     const history = receivedMessages.slice(-199);
-    console.log(history);
+    // console.log(history);
     // remove messages where name = add-reaction
     const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
-    console.log(history);
+    // console.log(history);
     if (message.name === ADD_REACTION_EVENT) {
       const reaction = message;
       const timeserial = reaction.data.extras.reference.timeserial;
       const emojiType = reaction.data.body;
-      console.log("new reaction", reaction);
+      // console.log("new reaction", reaction);
       // get index of message in filteredHistory array where timeserial matches
       const index = messageHistory.findIndex(
         (m) => m.extras.timeserial === timeserial
       );
-      console.log("found the message", index);
+      //console.log("found the message", index);
       // if index is found, update the message object with the reaction count
       const messageToUpdate = messageHistory[index];
       const emojisToUpdate = messageToUpdate.data.reactions;
@@ -80,7 +80,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
       );
       if (emojiIndex !== -1) {
         emojisToUpdate[emojiIndex].count += 1;
-        console.log("updated emoji count", emojisToUpdate[emojiIndex].count);
+        //console.log("updated emoji count", emojisToUpdate[emojiIndex].count);
       };
       const updatedMessage = {
         ...messageToUpdate,
@@ -90,7 +90,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
         },
       };
       messageHistory[index] = updatedMessage;
-      console.log("updated message", updatedMessage);
+      //console.log("updated message", updatedMessage);
 
       setMessages([...messageHistory]);
     }
@@ -243,7 +243,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
       const date = currentDatePst.split(",")[0].trim();
       const { data } = await getPoap({ variables: { data: { date } } });
       const poapLink = data.getPoap.link;
-      let messageText: String;
+      let messageText: string;
       if(!poapLink) {
         messageText = "No POAPs today. Try again next time.";
       } else {
@@ -282,7 +282,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
         reference: { type: "com.ably.reaction", timeserial },
       },
     });
-    console.log(timeserial, reactionEvent);
+    //console.log(timeserial, reactionEvent);
     // setShowEmojiList(false)
   };
 
@@ -290,9 +290,9 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const getMessageReactions = () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    channel.subscribe("add-reaction", (message: any) => {
-      console.log(message, "asdf")}
-    ); 
+    // channel.subscribe("add-reaction", (message: any) => {
+    //   //console.log(message, "asdf")}
+    // ); 
   };
 
   useEffect(() => {
