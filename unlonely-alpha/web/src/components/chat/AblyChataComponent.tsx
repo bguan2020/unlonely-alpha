@@ -377,7 +377,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                           <Flex flexDirection="row">
                             <EmojiDisplay
                               emoji={reaction.emojiType}
-                              fontSize={"12px"}
+                              fontSize={"16px"}
                             />
                             <span>
                               <Flex
