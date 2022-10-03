@@ -76,8 +76,9 @@ const Gif = ({
                   isDisabled={true}
                   as={onClick !== null ? "button" : "div"}
                   textAlign="center"
+                  maxHeight={size}
                   w={size}
-                  maxWidth={size}
+                  minW={size}
                 >
                   <Image src={gif} />
                 </Button>
@@ -98,8 +99,9 @@ const Gif = ({
               isDisabled={true}
               as={onClick !== null ? "button" : "div"}
               textAlign="center"
+              maxHeight={size}
               w={size}
-              maxWidth={size}
+              minW={size}
             >
               <Image src={gif} />
             </Button>
