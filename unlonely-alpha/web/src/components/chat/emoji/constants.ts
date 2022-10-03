@@ -11,11 +11,11 @@ export const categories = {
 };
 
 export const gifsList = [
-  "https://i.imgur.com/wbUNcyS.gif",
-  "https://i.imgur.com/ynQN8Ct.gif",
-  "https://i.imgur.com/NurjwAK.gif",
-  "https://i.imgur.com/zTfFgtZ.gif",
-  "https://i.imgur.com/IW1whk4.gif",
+  "https://i.imgur.com/wbUNcyS.gif", // salute
+  "https://i.imgur.com/ynQN8Ct.gif", // jeff bezos
+  "https://i.imgur.com/NurjwAK.gif", // bong hit
+  "https://i.imgur.com/zTfFgtZ.gif", // dancing
+  "https://i.imgur.com/IW1whk4.gif", // tofu
 ];
 
 export const categoriesList = Object.keys(categories);

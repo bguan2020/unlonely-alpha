@@ -22,6 +22,18 @@ export type EmojiTypes = [
   {
     emojiType: "🚀";
     count: number;
+  },
+  {
+    emojiType: "https://i.imgur.com/wbUNcyS.gif";
+    count: number;
+  },
+  {
+    emojiType: "https://i.imgur.com/zTfFgtZ.gif";
+    count: number;
+  },
+  {
+    emojiType: "https://i.imgur.com/NurjwAK.gif";
+    count: number;
   }
 ];
 
@@ -71,6 +83,18 @@ export const initializeEmojis = [
   },
   {
     emojiType: "🚀",
+    count: 0,
+  },
+  {
+    emojiType: "https://i.imgur.com/wbUNcyS.gif",
+    count: 0,
+  },
+  {
+    emojiType: "https://i.imgur.com/zTfFgtZ.gif",
+    count: 0,
+  },
+  {
+    emojiType: "https://i.imgur.com/NurjwAK.gif",
     count: 0,
   },
 ];

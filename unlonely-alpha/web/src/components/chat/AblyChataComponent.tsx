@@ -16,6 +16,7 @@ import { User } from "../../generated/graphql";
 import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/usePostFirstChat";
 import NebulousButton from "../general/button/NebulousButton";
+import EmojiDisplay from "./emoji/EmojiDisplay";
 
 type Props = {
   username: string | null | undefined;
@@ -34,7 +35,17 @@ const GET_POAP_QUERY = gql`
 
 const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
-const emojis = ["⛽️", "❤️", "👑", "👀", "👎", "🚀"];
+const emojis = [
+  "https://i.imgur.com/wbUNcyS.gif",
+  "https://i.imgur.com/zTfFgtZ.gif",
+  "https://i.imgur.com/NurjwAK.gif",
+  "⛽️",
+  "❤️",
+  "👑",
+  "👀",
+  "👎",
+  "🚀",
+];
 
 const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const ADD_REACTION_EVENT = "add-reaction";
@@ -50,6 +61,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const [isFC, setIsFC] = useState<boolean>(false);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [formError, setFormError] = useState<null | string[]>(null);
+  const [emojiList, setEmojiList] = useState<string[]>(emojis);
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
     onError: (m) => {
@@ -297,6 +309,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
               pr="10px"
               pl="10px"
               mb="10px"
+              pb={showEmojiList === message.id ? "10px" : "0px"}
               position="relative"
             >
               <Flex justifyContent="space-between" flexDirection="column">
@@ -378,12 +391,14 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                             <EmojiDisplay
                               emoji={reaction.emojiType}
                               fontSize={"16px"}
+                              buttonDisabled={buttonDisabled}
+                              setButtonDisabled={setButtonDisabled}
                             />
                             <span>
                               <Flex
                                 pl="2px"
                                 textColor="white"
-                                fontSize="12px"
+                                fontSize="14px"
                                 mr="4px"
                               >
                                 {reaction.count}
@@ -397,13 +412,16 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                 </Flex>
               </Flex>
               {showEmojiList === message.id ? (
-                <Flex>
-                  {emojis.map((emoji) => (
+                <Flex
+                  flexWrap="wrap"
+                  background={"rgba(255, 255, 255, 0.5)"}
+                  borderRadius={"10px"}
+                >
+                  {emojiList.map((emoji) => (
                     <Box
                       minH="40px"
                       background="transparent"
                       p="5px"
-                      w="100%"
                       key={emoji}
                       style={{
                         cursor: buttonDisabled ? "not-allowed" : "pointer",
@@ -420,7 +438,14 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                         }, 2000);
                       }}
                     >
-                      <EmojiDisplay emoji={emoji} fontSize={"18px"} />
+                      <EmojiDisplay
+                        emoji={emoji}
+                        fontSize={"18px"}
+                        buttonDisabled={buttonDisabled}
+                        setButtonDisabled={setButtonDisabled}
+                        channel={channel}
+                        timeserial={message.extras.timeserial}
+                      />
                     </Box>
                   ))}
                 </Flex>
@@ -498,22 +523,6 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           </Flex>
         </Flex>
       </Flex>
-    </>
-  );
-};
-
-// Use twemoji for consistency in emoji display across platforms
-const EmojiDisplay = ({
-  emoji,
-  fontSize,
-}: {
-  emoji: string;
-  fontSize: string;
-}) => {
-  const codePoint = emoji.codePointAt(0)?.toString(16);
-  return (
-    <>
-      <Flex fontSize={fontSize}>{emoji}</Flex>
     </>
   );
 };

@@ -26,6 +26,8 @@ const GifCategory = ({
             gif={gif}
             buttonDisabled={buttonDisabled}
             setButtonDisabled={setButtonDisabled}
+            size={"48px"}
+            padding={"5px"}
           />
         ))}
       </SimpleGrid>
