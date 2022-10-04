@@ -266,7 +266,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     async function getMessages() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      await channel.history({ limit: 50 }, (err, result) => {
+      await channel.history({ limit: 150 }, (err, result) => {
         // Get index of last sent message from history
         const lastPublishedMessageIndex: any = result.items.filter(
           (message: any) => message.name === "chat-message"
