@@ -40,6 +40,7 @@ const emojis = [
   "https://i.imgur.com/zTfFgtZ.gif",
   "https://i.imgur.com/NurjwAK.gif",
   "⛽️",
+  "😂",
   "❤️",
   "👑",
   "👀",

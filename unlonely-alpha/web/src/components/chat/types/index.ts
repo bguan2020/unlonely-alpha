@@ -24,6 +24,10 @@ export type EmojiTypes = [
     count: number;
   },
   {
+    emojiType: "😂";
+    count: number;
+  },
+  {
     emojiType: "https://i.imgur.com/wbUNcyS.gif";
     count: number;
   },
@@ -83,6 +87,10 @@ export const initializeEmojis = [
   },
   {
     emojiType: "🚀",
+    count: 0,
+  },
+  {
+    emojiType: "😂",
     count: 0,
   },
   {
