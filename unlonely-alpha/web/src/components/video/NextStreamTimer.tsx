@@ -51,7 +51,17 @@ const NextStreamTimer: React.FunctionComponent = () => {
   if (scriptLoading || loadingPlugin) {
     return (
       <>
-        <Spinner />
+      <Flex
+          flexDirection="row"
+          justifyContent="center"
+          alignItems="center"
+          width="100%"
+          height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
+          mt="10px"
+          bg="black"
+        >
+          <Spinner />
+        </Flex>
       </>
     );
   }
