@@ -51,7 +51,7 @@ const NextStreamTimer: React.FunctionComponent = () => {
   if (scriptLoading || loadingPlugin) {
     return (
       <>
-      <Flex
+        <Flex
           flexDirection="row"
           justifyContent="center"
           alignItems="center"

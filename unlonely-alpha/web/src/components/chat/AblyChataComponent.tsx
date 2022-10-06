@@ -267,29 +267,32 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     async function getMessages() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      await channel.history({ limit: 500 }, (err, result) => {
+      await channel.history({ limit: 200 }, (err, result) => {
         const messageHistory: any = result.items.filter(
           (message: any) => message.name === "chat-message"
         );
+        const reverse = [...messageHistory].reverse();
+        setMessages(reverse);
+
         // iterate through result
         result.items.forEach((message: any) => {
           if (message.name === ADD_REACTION_EVENT) {
             const reaction = message;
             const timeserial = reaction.data.extras.reference.timeserial;
             const emojiType = reaction.data.body;
-  
+
             // get index of message in filteredHistory array where timeserial matches
             const index = messageHistory.findIndex(
               (m: any) => m.extras.timeserial === timeserial
             );
-  
+
             // if index is found, update the message object with the reaction count
             const messageToUpdate = messageHistory[index];
             const emojisToUpdate = messageToUpdate.data.reactions;
             const emojiIndex = emojisToUpdate.findIndex(
               (e: any) => e.emojiType === emojiType
             );
-  
+
             if (emojiIndex !== -1) {
               emojisToUpdate[emojiIndex].count += 1;
             }

@@ -9,6 +9,22 @@ type Props = {
 };
 
 export default function Badges({ message, user }: Props) {
+  let numStreams: string;
+  // switch statement if user.videoSavant === 1, then numstreams = "1+", else if user.videoSavant === 2, then numstreams = "5+"
+  switch (user?.videoSavantLvl) {
+    case 1:
+      numStreams = "1+";
+      break;
+    case 2:
+      numStreams = "5+";
+      break;
+    case 3:
+      numStreams = "15+";
+      break;
+    default:
+      numStreams = "0";
+  }
+
   return (
     <>
       {(user &&
@@ -31,10 +47,10 @@ export default function Badges({ message, user }: Props) {
         user?.username === message.data.username) ||
       (message.data.videoSavantLvl && message.data.videoSavantLvl > 0) ? (
         <Tooltip
-          label={`Video Savant lvl:${message.data.videoSavantLvl}\nThis badge means you pick good videos that get upvoted and watched. Continue picking good videos to gain levels!`}
+          label={`Host lvl:${message.data.videoSavantLvl}\nHas hosted ${numStreams} streams!`}
         >
           <Image
-            src={`/images/badges/lvl${message.data.videoSavantLvl}_videosavant.png`}
+            src={`/images/badges/lvl${message.data.videoSavantLvl}_host.png`}
             width="20px"
             height="20px"
             mr="5px"
