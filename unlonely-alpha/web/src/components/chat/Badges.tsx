@@ -11,7 +11,7 @@ type Props = {
 export default function Badges({ message, user }: Props) {
   let numStreams: string;
   // switch statement if user.videoSavant === 1, then numstreams = "1+", else if user.videoSavant === 2, then numstreams = "5+"
-  switch (user?.videoSavantLvl) {
+  switch (message.data.videoSavantLvl) {
     case 1:
       numStreams = "1+";
       break;
