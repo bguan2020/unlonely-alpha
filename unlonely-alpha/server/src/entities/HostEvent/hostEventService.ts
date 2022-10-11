@@ -1,0 +1,69 @@
+import { User } from "@prisma/client";
+
+import { Context } from "../../context";
+
+export interface IPostChallengeInput {
+  originalHostEventId: number;
+  hostDate: Date;
+  title: string;
+  description: string;
+}
+
+export const postChallenge = (data: IPostChallengeInput, ctx: Context) => {
+  // update the original host event to have a challenger
+  return ctx.prisma.hostEvent.update({
+    where: {
+      id: data.originalHostEventId,
+    },
+    data: {
+      challenger: {
+        create: {
+          hostDate: data.hostDate,
+          title: data.title,
+          description: data.description,
+          score: 0,
+          owner: {
+            connect: {
+              address: "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa",
+            },
+          },
+          isChallenger: true,
+        },
+      },
+    },
+  });
+};
+
+export interface IGetHostEventFeedInput {
+  limit: number;
+  orderBy: "asc" | "desc";
+}
+
+export const getHostEventFeed = (data: IGetHostEventFeedInput, ctx: Context) => {
+  // TODO: add current date to query
+  return ctx.prisma.hostEvent.findMany({
+    where: {
+      isChallenger: false,
+    },
+    take: data.limit || undefined,
+    orderBy: [
+      {
+        hostDate: "asc",
+      },
+    ],
+  });
+};
+
+export const getOwner = (
+  { ownerAddr }: { ownerAddr: string },
+  ctx: Context
+) => {
+  return ctx.prisma.user.findUnique({ where: { address: ownerAddr } });
+};
+
+export const getChallenger = (
+  { challengerId }: { challengerId: number },
+  ctx: Context
+) => {
+  return ctx.prisma.hostEvent.findUnique({ where: { id: challengerId } });
+}

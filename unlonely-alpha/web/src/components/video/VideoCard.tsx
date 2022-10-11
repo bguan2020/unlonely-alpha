@@ -20,28 +20,28 @@ type Props = {
 };
 
 const VideoCardInner = ({ video, order }: Props) => {
-  const { like, skip } = useLike(video);
+  // const { like, skip } = useLike(video);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const accountData = useAccount();
   const toast = useToast();
 
-  const submitLike = async () => {
-    setButtonDisabled(true);
-    await like();
+  // const submitLike = async () => {
+  //   setButtonDisabled(true);
+  //   await like();
 
-    setTimeout(() => {
-      setButtonDisabled(false);
-    }, 1000);
-  };
+  //   setTimeout(() => {
+  //     setButtonDisabled(false);
+  //   }, 1000);
+  // };
 
-  const submitSkip = async () => {
-    setButtonDisabled(true);
-    await skip();
+  // const submitSkip = async () => {
+  //   setButtonDisabled(true);
+  //   await skip();
 
-    setTimeout(() => {
-      setButtonDisabled(false);
-    }, 1000);
-  };
+  //   setTimeout(() => {
+  //     setButtonDisabled(false);
+  //   }, 1000);
+  // };
 
   // function to convert number of seconds to hours:minutes:seconds
   const formatTime = (seconds: number) => {
@@ -81,7 +81,7 @@ const VideoCardInner = ({ video, order }: Props) => {
                   <NebulousButton
                     opacity={video.liked ? "1" : "0.5"}
                     aria-label="like"
-                    onClick={submitLike}
+                    // onClick={submitLike}
                     disabled={buttonDisabled}
                   >
                     {video.liked === true ? (
@@ -122,16 +122,17 @@ const VideoCardInner = ({ video, order }: Props) => {
               {accountData?.address ? (
                 <span>
                   <NebulousButton
-                    opacity={video.skipped ? "1" : "0.5"}
+                    // opacity={video.skipped ? "1" : "0.5"}
                     aria-label="like"
-                    onClick={submitSkip}
+                    // onClick={submitSkip}
                     disabled={buttonDisabled}
                   >
-                    {video.skipped === true ? (
+                    <DownVoteIcon boxSize={4} />
+                    {/* {video.skipped === true ? (
                       <DownVoteIconSalmon boxSize={4} />
                     ) : (
                       <DownVoteIcon boxSize={4} />
-                    )}
+                    )} */}
                   </NebulousButton>
                 </span>
               ) : (
@@ -151,11 +152,12 @@ const VideoCardInner = ({ video, order }: Props) => {
                     }
                     disabled={buttonDisabled}
                   >
-                    {video.skipped === true ? (
+                    <DownVoteIcon boxSize={4} />
+                    {/* {video.skipped === true ? (
                       <DownVoteIconSalmon boxSize={4} />
                     ) : (
                       <DownVoteIcon boxSize={4} />
-                    )}
+                    )} */}
                   </NebulousButton>
                 </span>
               )}
@@ -264,10 +266,7 @@ VideoCard.fragments = {
         address
       }
       liked
-      skipped
-      ...useLike_video
     }
-    ${useLike.fragments.video}
   `,
 };
 

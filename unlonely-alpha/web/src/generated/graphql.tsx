@@ -113,30 +113,52 @@ export type GetUserInput = {
 };
 
 export type HandleLikeInput = {
+  hostEventId: Scalars["ID"];
   value: Scalars["Int"];
-  videoId: Scalars["ID"];
+};
+
+export type HostEvent = Likable & {
+  __typename?: "HostEvent";
+  challenge?: Maybe<HostEvent>;
+  createdAt: Scalars["DateTime"];
+  description?: Maybe<Scalars["String"]>;
+  disliked?: Maybe<Scalars["Boolean"]>;
+  hostDate: Scalars["DateTime"];
+  id: Scalars["ID"];
+  isChallenger: Scalars["Boolean"];
+  liked?: Maybe<Scalars["Boolean"]>;
+  owner: User;
+  score: Scalars["Int"];
+  title: Scalars["String"];
+  updatedAt: Scalars["DateTime"];
+};
+
+export type HostEventFeedInput = {
+  limit?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<SortOrder>;
 };
 
 export type Likable = {
+  disliked?: Maybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
   liked?: Maybe<Scalars["Boolean"]>;
   score: Scalars["Int"];
-  skipped?: Maybe<Scalars["Boolean"]>;
 };
 
 export type Like = {
   __typename?: "Like";
+  disliked: Scalars["Boolean"];
+  hostEvent?: Maybe<HostEvent>;
   id: Scalars["ID"];
   liked: Scalars["Boolean"];
   liker: User;
-  skipped: Scalars["Boolean"];
-  video?: Maybe<Video>;
 };
 
 export type Mutation = {
   __typename?: "Mutation";
   _empty?: Maybe<Scalars["String"]>;
   handleLike?: Maybe<Likable>;
+  postChallenge?: Maybe<HostEvent>;
   postComment?: Maybe<Comment>;
   postFirstChat?: Maybe<Chat>;
   postTask?: Maybe<Task>;
@@ -147,6 +169,10 @@ export type Mutation = {
 
 export type MutationHandleLikeArgs = {
   data: HandleLikeInput;
+};
+
+export type MutationPostChallengeArgs = {
+  data: PostChallengeInput;
 };
 
 export type MutationPostCommentArgs = {
@@ -184,6 +210,13 @@ export type Poap = {
   updatedAt: Scalars["DateTime"];
 };
 
+export type PostChallengeInput = {
+  description?: InputMaybe<Scalars["String"]>;
+  hostDate: Scalars["DateTime"];
+  originalHostEventId: Scalars["Int"];
+  title: Scalars["String"];
+};
+
 export type PostChatInput = {
   text: Scalars["String"];
 };
@@ -219,12 +252,17 @@ export type Query = {
   currentUser?: Maybe<User>;
   currentUserAuthMessage?: Maybe<Scalars["String"]>;
   firstChatExists?: Maybe<Scalars["Boolean"]>;
+  getHostEventFeed?: Maybe<Array<Maybe<HostEvent>>>;
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
   getPoap?: Maybe<Poap>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getUser?: Maybe<User>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
+};
+
+export type QueryGetHostEventFeedArgs = {
+  data?: InputMaybe<HostEventFeedInput>;
 };
 
 export type QueryGetPoapArgs = {
@@ -277,6 +315,7 @@ export type TaskFeedInput = {
 
 export type User = {
   __typename?: "User";
+  FCImageUrl?: Maybe<Scalars["String"]>;
   address: Scalars["String"];
   authedAsMe: Scalars["Boolean"];
   bio?: Maybe<Scalars["String"]>;
@@ -292,7 +331,7 @@ export type User = {
   videoSavantLvl: Scalars["Int"];
 };
 
-export type Video = Likable & {
+export type Video = {
   __typename?: "Video";
   comments: Array<Comment>;
   createdAt: Scalars["DateTime"];
@@ -342,6 +381,37 @@ export type Comment_CommentFragment = {
   owner: { __typename?: "User"; username?: string | null; address: string };
 };
 
+export type HostEventCard_HostEventFragment = {
+  __typename: "HostEvent";
+  id: string;
+  hostDate: any;
+  title: string;
+  description?: string | null;
+  score: number;
+  liked?: boolean | null;
+  disliked?: boolean | null;
+  owner: {
+    __typename?: "User";
+    username?: string | null;
+    FCImageUrl?: string | null;
+  };
+  challenge?: {
+    __typename?: "HostEvent";
+    id: string;
+    hostDate: any;
+    title: string;
+    description?: string | null;
+    score: number;
+    liked?: boolean | null;
+    disliked?: boolean | null;
+    owner: {
+      __typename?: "User";
+      username?: string | null;
+      FCImageUrl?: string | null;
+    };
+  } | null;
+};
+
 export type TaskCard_TaskFragment = {
   __typename?: "Task";
   id: string;
@@ -356,7 +426,7 @@ export type TaskCard_TaskFragment = {
 };
 
 export type VideoCard_VideoFragment = {
-  __typename: "Video";
+  __typename?: "Video";
   id: string;
   youtubeId: string;
   title: string;
@@ -366,7 +436,6 @@ export type VideoCard_VideoFragment = {
   duration: number;
   createdAt: any;
   liked?: boolean | null;
-  skipped?: boolean | null;
   owner: { __typename?: "User"; username?: string | null; address: string };
 };
 
@@ -377,15 +446,15 @@ export type LikeMutationVariables = Exact<{
 export type LikeMutation = {
   __typename?: "Mutation";
   handleLike?: {
-    __typename?: "Video";
+    __typename?: "HostEvent";
     id: string;
     score: number;
     liked?: boolean | null;
-    skipped?: boolean | null;
+    disliked?: boolean | null;
   } | null;
 };
 
-export type UseLike_VideoFragment = { __typename: "Video"; id: string };
+export type UseLike_HostEventFragment = { __typename: "HostEvent"; id: string };
 
 export type PostCommentMutationVariables = Exact<{
   data: PostCommentInput;
@@ -504,6 +573,44 @@ export type TaskFeedQuery = {
   } | null> | null;
 };
 
+export type HostEventFeedQueryVariables = Exact<{
+  data: HostEventFeedInput;
+}>;
+
+export type HostEventFeedQuery = {
+  __typename?: "Query";
+  getHostEventFeed?: Array<{
+    __typename?: "HostEvent";
+    id: string;
+    hostDate: any;
+    title: string;
+    description?: string | null;
+    score: number;
+    liked?: boolean | null;
+    disliked?: boolean | null;
+    owner: {
+      __typename?: "User";
+      username?: string | null;
+      FCImageUrl?: string | null;
+    };
+    challenge?: {
+      __typename?: "HostEvent";
+      id: string;
+      hostDate: any;
+      title: string;
+      description?: string | null;
+      score: number;
+      liked?: boolean | null;
+      disliked?: boolean | null;
+      owner: {
+        __typename?: "User";
+        username?: string | null;
+        FCImageUrl?: string | null;
+      };
+    } | null;
+  } | null> | null;
+};
+
 export type FetchAuthMessageQueryVariables = Exact<{ [key: string]: never }>;
 
 export type FetchAuthMessageQuery = {
@@ -538,6 +645,42 @@ export const Comment_CommentFragmentDoc = gql`
     createdAt
   }
 `;
+export const UseLike_HostEventFragmentDoc = gql`
+  fragment useLike_hostEvent on HostEvent {
+    id
+    __typename
+  }
+`;
+export const HostEventCard_HostEventFragmentDoc = gql`
+  fragment HostEventCard_hostEvent on HostEvent {
+    id
+    hostDate
+    title
+    description
+    score
+    owner {
+      username
+      FCImageUrl
+    }
+    challenge {
+      id
+      hostDate
+      title
+      description
+      score
+      owner {
+        username
+        FCImageUrl
+      }
+      liked
+      disliked
+    }
+    liked
+    disliked
+    ...useLike_hostEvent
+  }
+  ${UseLike_HostEventFragmentDoc}
+`;
 export const TaskCard_TaskFragmentDoc = gql`
   fragment TaskCard_task on Task {
     id
@@ -552,12 +695,6 @@ export const TaskCard_TaskFragmentDoc = gql`
       username
       address
     }
-  }
-`;
-export const UseLike_VideoFragmentDoc = gql`
-  fragment useLike_video on Video {
-    id
-    __typename
   }
 `;
 export const VideoCard_VideoFragmentDoc = gql`
@@ -575,10 +712,7 @@ export const VideoCard_VideoFragmentDoc = gql`
       address
     }
     liked
-    skipped
-    ...useLike_video
   }
-  ${UseLike_VideoFragmentDoc}
 `;
 export const GetPoapDocument = gql`
   query GetPoap($data: GetPoapInput!) {
@@ -635,7 +769,7 @@ export const LikeDocument = gql`
       id
       score
       liked
-      skipped
+      disliked
     }
   }
 `;
@@ -1065,6 +1199,87 @@ export type TaskFeedLazyQueryHookResult = ReturnType<
 export type TaskFeedQueryResult = Apollo.QueryResult<
   TaskFeedQuery,
   TaskFeedQueryVariables
+>;
+export const HostEventFeedDocument = gql`
+  query HostEventFeed($data: HostEventFeedInput!) {
+    getHostEventFeed(data: $data) {
+      id
+      hostDate
+      title
+      description
+      score
+      owner {
+        username
+        FCImageUrl
+      }
+      liked
+      disliked
+      challenge {
+        id
+        hostDate
+        title
+        description
+        score
+        owner {
+          username
+          FCImageUrl
+        }
+        liked
+        disliked
+      }
+    }
+  }
+`;
+
+/**
+ * __useHostEventFeedQuery__
+ *
+ * To run a query within a React component, call `useHostEventFeedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useHostEventFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useHostEventFeedQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useHostEventFeedQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    HostEventFeedQuery,
+    HostEventFeedQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<HostEventFeedQuery, HostEventFeedQueryVariables>(
+    HostEventFeedDocument,
+    options
+  );
+}
+export function useHostEventFeedLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    HostEventFeedQuery,
+    HostEventFeedQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<HostEventFeedQuery, HostEventFeedQueryVariables>(
+    HostEventFeedDocument,
+    options
+  );
+}
+export type HostEventFeedQueryHookResult = ReturnType<
+  typeof useHostEventFeedQuery
+>;
+export type HostEventFeedLazyQueryHookResult = ReturnType<
+  typeof useHostEventFeedLazyQuery
+>;
+export type HostEventFeedQueryResult = Apollo.QueryResult<
+  HostEventFeedQuery,
+  HostEventFeedQueryVariables
 >;
 export const FetchAuthMessageDocument = gql`
   query FetchAuthMessage {

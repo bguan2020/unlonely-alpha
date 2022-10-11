@@ -15,6 +15,7 @@ export const typeDef = gql`
     updatedAt: DateTime!
     signature: String
     sigTimestamp: BigInt
+    FCImageUrl: String
   }
 
   input GetUserInput {

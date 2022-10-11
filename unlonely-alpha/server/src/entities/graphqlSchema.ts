@@ -13,6 +13,7 @@ import { typeDef as videoTypeDef } from "./Video/videoTypeDef";
 import { typeDef as taskTypeDef } from "./Task/taskTypeDef";
 import { typeDef as poapTypeDef } from "./POAP/poapTypeDef";
 import { typeDef as chatTypeDef } from "./Chat/chatTypeDef";
+import { typeDef as hostEventTypeDef } from "./HostEvent/hostEventTypeDef";
 import { resolvers as likeResolvers } from "./Like/likeResolvers";
 import { resolvers as userResolvers } from "./User/userResolvers";
 import { resolvers as postResolvers } from "./Comment/commentResolvers";
@@ -20,6 +21,7 @@ import { resolvers as videoResolvers } from "./Video/videoResolvers";
 import { resolvers as taskResolvers } from "./Task/taskResolvers";
 import { resolvers as poapResolvers } from "./POAP/poapResolvers";
 import { resolvers as chatResolvers } from "./Chat/chatResolvers";
+import { resolvers as hostEventResolvers } from "./HostEvent/hostEventResolvers";
 
 const Query = gql`
   enum SortOrder {
@@ -51,6 +53,7 @@ export default makeExecutableSchema({
     taskTypeDef,
     poapTypeDef,
     chatTypeDef,
+    hostEventTypeDef,
   ],
   resolvers: merge(
     resolvers,
@@ -60,6 +63,7 @@ export default makeExecutableSchema({
     videoResolvers,
     taskResolvers,
     poapResolvers,
-    chatResolvers
+    chatResolvers,
+    hostEventResolvers
   ),
 });
