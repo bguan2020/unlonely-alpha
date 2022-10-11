@@ -90,14 +90,14 @@ const HostEventCard = ({ hostEvent }: Props) => {
       <Flex
         direction="column"
         alignItems="left"
-        w={{ base: "30rem", md: "35rem", lg: "40rem" }}
+        w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
       >
         {dateConverter(hostEvent.hostDate)}
       </Flex>
       <Flex
         direction="column"
         bg="#F1F4F8"
-        w={{ base: "30rem", md: "35rem", lg: "40rem" }}
+        w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
         h="9rem"
         padding="0.3rem"
         borderRadius="1rem"
@@ -106,7 +106,7 @@ const HostEventCard = ({ hostEvent }: Props) => {
         mt="8px"
       >
         <Grid templateColumns="1fr 1fr" gap="0.3125rem" width="100%" height="100%">
-          <GridItem colSpan={1} >
+          <GridItem colSpan={1} position="relative">
             <Flex
               justifyContent="space-between"
               alignItems="center"
@@ -225,8 +225,28 @@ const HostEventCard = ({ hostEvent }: Props) => {
                 </Text>
               </GridItem>
             </Grid>
+            <Flex position="absolute" right="4px" bottom="0px">
+              {!hostEvent.challenge ? (
+                <Text color="rgba(0, 159, 35, 0.4)" fontSize="36px" fontWeight="bold">
+                  WINNING
+                </Text>
+              ) : (
+                <>
+                  {hostEvent.score > hostEvent.challenge.score ? (
+                    <Text color="rgba(0, 159, 35, 0.4)" fontSize="36px" fontWeight="bold">
+                      WINNING
+                    </Text>
+                  ) : (
+                    <Text color="rgba(159, 0, 0, 0.4)" fontSize="36px" fontWeight="bold">
+                      LOSING
+                    </Text>
+                  )
+                  }
+                </>
+              )}
+            </Flex>
           </GridItem>
-          <GridItem colSpan={1} borderLeft="1px">
+          <GridItem colSpan={1} borderLeft="1px" position="relative">
             {hostEvent.challenge ? (
               <>
                 <Flex
@@ -346,6 +366,18 @@ const HostEventCard = ({ hostEvent }: Props) => {
                     </Text>
                   </GridItem>
                 </Grid>
+                <Flex position="absolute" right="4px" bottom="0px">
+                  {hostEvent.challenge.score > hostEvent.score ? (
+                    <Text color="rgba(0, 159, 35, 0.4)" fontSize="36px" fontWeight="bold">
+                      WINNING
+                    </Text>
+                  ) : (
+                    <Text color="rgba(159, 0, 0, 0.4)" fontSize="36px" fontWeight="bold">
+                     LOSING
+                    </Text>
+                  )
+                  }
+            </Flex>
               </>
             ) : (
               <>
@@ -361,7 +393,7 @@ const HostEventCard = ({ hostEvent }: Props) => {
                   <Text fontFamily="Inter" fontSize="12px" noOfLines={2} color="#707070" fontWeight="100" textAlign="center">
                     no one has challenged this host for their timeslot.
                   </Text>
-                  <Button fontFamily="Inter" bg="#FFA9A9" fontSize="12px" borderRadius="16px">Challenge For this Timeslot</Button>
+                  <Button fontFamily="Inter" bg="#FFA9A9" fontSize="12px" borderRadius="16px">Challenge</Button>
                 </Flex>
               </>
             )}

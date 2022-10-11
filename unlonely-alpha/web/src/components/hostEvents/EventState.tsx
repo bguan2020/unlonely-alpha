@@ -1,12 +1,10 @@
 import { Flex, Circle, Text } from "@chakra-ui/react";
-import { User } from "../../generated/graphql";
 
 type Props = {
   eventDateState: string | undefined;
 };
 
 export default function EventState({ eventDateState }: Props) {
-  console.log(eventDateState);
   return (
     <>
       {eventDateState === "past" ? (
