@@ -15,33 +15,45 @@ import { useAccount } from "wagmi";
 import AppLayout from "../../components/layout/AppLayout";
 import { getEnsName } from "../../utils/ens";
 import centerEllipses from "../../utils/centerEllipses";
-import { TaskCard_TaskFragment } from "../../generated/graphql";
+import { HostEventCard_HostEventFragment } from "../../generated/graphql";
 import AblyChatComponent from "../../components/chat/AblyChataComponent";
 import NextStreamTimer from "../../components/video/NextStreamTimer";
 import { useUser } from "../../hooks/useUser";
-import TaskList from "../../components/task/TaskList";
+import HostEventCard from "../../components/hostEvents/HostEventCard";
 
-const TASK_LIST_QUERY = gql`
-  query TaskFeed($data: TaskFeedInput!) {
-    getTaskFeed(data: $data) {
+const HOSTEVENT_FEED_QUERY = gql`
+  query HostEventList($data: HostEventFeedInput!) {
+    getHostEventFeed(data: $data) {
       id
-      taskType
-      youtubeId
+      hostDate
       title
-      thumbnail
       description
-      link
-      completed
+      score
       owner {
         username
-        address
+        FCImageUrl
+      }
+      liked
+      disliked
+      challenge {
+        id
+        hostDate
+        title
+        description
+        score
+        owner {
+          username
+          FCImageUrl
+        }
+        liked
+        disliked
       }
     }
   }
 `;
 
 type Props = {
-  tasks: TaskCard_TaskFragment[];
+  hostEvents: HostEventCard_HostEventFragment[];
   loading: boolean;
 };
 
@@ -53,7 +65,7 @@ export type ChatBot = {
   description: string | null | undefined;
 };
 
-const Example: React.FunctionComponent<Props> = ({ tasks, loading }) => {
+const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
   const { user } = useUser();
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
@@ -113,7 +125,7 @@ const Example: React.FunctionComponent<Props> = ({ tasks, loading }) => {
           <NextStreamTimer />
         </GridItem>
         <Button onClick={toggleChatVideos} id="xeedev-poaav">
-          Toggle Chat/Tasks
+          Toggle Chat/Host Schedule
         </Button>
         <GridItem
           rowSpan={1}
@@ -125,7 +137,7 @@ const Example: React.FunctionComponent<Props> = ({ tasks, loading }) => {
           <Flex direction="row" justifyContent="left">
             <Flex maxH="400px" margin="auto" mb="16px" ml="32px">
               <Text fontSize="2rem" fontWeight="bold">
-                Collect POAPs. Demand a Task.
+                Vote for who you want to host!
               </Text>
             </Flex>
             <Spacer />
@@ -137,7 +149,7 @@ const Example: React.FunctionComponent<Props> = ({ tasks, loading }) => {
                   height="2rem"
                   mr="0.5rem"
                 />
-                {"syncing tasks"}
+                {"syncing hosts..."}
               </Flex>
             )}
           </Flex>
@@ -145,14 +157,13 @@ const Example: React.FunctionComponent<Props> = ({ tasks, loading }) => {
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
             borderRadius="0.3125rem"
-            padding="0.5rem 1rem"
+            pt="1rem"
             justifyContent="center"
             backgroundColor="rgba(0,0,0,0.2)"
-            overflowX="auto"
-            maxH="400px"
-            height="400px"
           >
-            <TaskList chatBot={chatBot} setChatBot={setChatBot} tasks={tasks} />
+            <Flex width="100%" justifyContent="center" alignItems="center" direction="column">
+              {hostEvents?.map((h: HostEventCard_HostEventFragment) => !!h && <HostEventCard key={h.id} hostEvent={h} />)}
+            </Flex>
           </Flex>
         </GridItem>
       </Grid>
@@ -177,29 +188,19 @@ const toggleChatVideos = function () {
 };
 
 export default function Page() {
-  const { data, loading, error } = useQuery(TASK_LIST_QUERY, {
+  const { data, loading, error } = useQuery(HOSTEVENT_FEED_QUERY, {
     variables: {
       data: {
-        searchString: null,
-        skip: null,
-        limit: null,
+        limit: 5,
         orderBy: null,
       },
     },
-    notifyOnNetworkStatusChange: true,
-    pollInterval: 30000,
   });
-  const tasks = data?.getTaskFeed;
+  const hostEvents = data?.getHostEventFeed;
 
   return (
     <AppLayout error={error}>
-      <Example tasks={tasks} loading={loading} />
+      <Example hostEvents={hostEvents} loading={loading} />
     </AppLayout>
   );
 }
-
-// export async function getStaticProps() {
-//   const API_KEY = process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY;
-
-//   return { props: {} };
-// }

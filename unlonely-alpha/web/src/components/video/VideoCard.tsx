@@ -6,10 +6,9 @@ import { useAccount } from "wagmi";
 
 import Card from "../../components/general/Card";
 import { VideoCard_VideoFragment } from "../../generated/graphql";
-import useLike from "../../hooks/useLike";
 
 import { UpVoteIcon, UpVoteIconSalmon } from "../icons/UpVoteIcon";
-import { DownVoteIcon, DownVoteIconSalmon } from "../icons/DownVoteIcon";
+import { DownVoteIcon } from "../icons/DownVoteIcon";
 import NebulousButton from "../general/button/NebulousButton";
 import centerEllipses from "../../utils/centerEllipses";
 import WinnerWrapper from "./WinnerWrapper";

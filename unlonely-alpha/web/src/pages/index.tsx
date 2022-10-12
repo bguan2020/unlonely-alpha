@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { Text, Flex, Box, Button, SimpleGrid, Spinner } from "@chakra-ui/react";
+import { Text, Flex, Button, SimpleGrid, Spinner } from "@chakra-ui/react";
 
 import HostEventCard from "../components/hostEvents/HostEventCard";
 import AppLayout from "../components/layout/AppLayout";
@@ -47,7 +47,6 @@ export default function Page() {
   });
 
   const hostEvents = data?.getHostEventFeed;
-  console.log(hostEvents);
 
   return (
     <AppLayout>
