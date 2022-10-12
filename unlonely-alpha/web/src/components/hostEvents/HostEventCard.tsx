@@ -1,5 +1,5 @@
 import { Text, Grid, GridItem, Flex } from "@chakra-ui/layout";
-import { Avatar, Button, Circle, Image, Tooltip, useToast } from "@chakra-ui/react";
+import { Button, Image, Tooltip, useToast } from "@chakra-ui/react";
 import { gql } from "@apollo/client";
 import { useState } from "react";
 import { useAccount } from "wagmi";
@@ -13,6 +13,7 @@ import NebulousButton from "../general/button/NebulousButton";
 import { dateConverter } from "../../utils/timestampConverter";
 import { useUser } from "../../hooks/useUser";
 import EventState from "./EventState";
+import ChallengeModal from "./ChallengeModal";
 
 type Props = {
   hostEvent: HostEventCard_HostEventFragment;
@@ -92,7 +93,9 @@ const HostEventCard = ({ hostEvent }: Props) => {
         alignItems="left"
         w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
       >
-        {dateConverter(hostEvent.hostDate)}
+        <Text fontWeight="bold">
+          {dateConverter(hostEvent.hostDate)}
+        </Text>
       </Flex>
       <Flex
         direction="column"
@@ -104,6 +107,7 @@ const HostEventCard = ({ hostEvent }: Props) => {
         minH="5rem"
         mb="1.5rem"
         mt="8px"
+        boxShadow="0px 0px 16px rgba(0, 0, 0, 0.25)"
       >
         <Grid templateColumns="1fr 1fr" gap="0.3125rem" width="100%" height="100%">
           <GridItem colSpan={1} position="relative">
@@ -393,7 +397,15 @@ const HostEventCard = ({ hostEvent }: Props) => {
                   <Text fontFamily="Inter" fontSize="12px" noOfLines={2} color="#707070" fontWeight="100" textAlign="center">
                     no one has challenged this host for their timeslot.
                   </Text>
-                  <Button fontFamily="Inter" bg="#FFA9A9" fontSize="12px" borderRadius="16px">Challenge</Button>
+                  {eventDateState(hostEvent.hostDate) === "past" || eventDateState(hostEvent.hostDate) === "live" ? (
+                    <Tooltip label="you can't challenge a past or live event">
+                      <span>
+                        <Button fontFamily="Inter" bg="#FFA9A9" fontSize="12px" borderRadius="16px" isDisabled>Challenge</Button>
+                      </span>
+                    </Tooltip>
+                  ) : (
+                    <ChallengeModal hostEvent={hostEvent}/>
+                  )}
                 </Flex>
               </>
             )}

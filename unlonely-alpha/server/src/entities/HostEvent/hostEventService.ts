@@ -40,10 +40,14 @@ export interface IGetHostEventFeedInput {
 }
 
 export const getHostEventFeed = (data: IGetHostEventFeedInput, ctx: Context) => {
-  // TODO: add current date to query
+  // only return host events where hostevent.hostdate less than 24 hours ago
+
   return ctx.prisma.hostEvent.findMany({
     where: {
       isChallenger: false,
+      hostDate: {
+        gte: new Date(Date.now() - 12 * 60 * 60 * 1000),
+      },
     },
     take: data.limit || undefined,
     orderBy: [
