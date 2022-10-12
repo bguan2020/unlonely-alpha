@@ -23,8 +23,14 @@ const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
 const HostEventCard = ({ hostEvent }: Props) => {
   const { user } = useUser();
-  const { like, dislike } = useLike({ id: hostEvent.id, powerLvl: user?.powerUserLvl});
-  const { like: likeChallenge, dislike: dislikeChallenge } = useLike({ id: hostEvent.challenge?.id, powerLvl: user?.powerUserLvl});
+  const { like, dislike } = useLike({
+    id: hostEvent.id,
+    powerLvl: user?.powerUserLvl,
+  });
+  const { like: likeChallenge, dislike: dislikeChallenge } = useLike({
+    id: hostEvent.challenge?.id,
+    powerLvl: user?.powerUserLvl,
+  });
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const accountData = useAccount();
   const toast = useToast();
@@ -84,7 +90,6 @@ const HostEventCard = ({ hostEvent }: Props) => {
       return "up next";
     }
   };
-  
 
   return (
     <>
@@ -93,9 +98,7 @@ const HostEventCard = ({ hostEvent }: Props) => {
         alignItems="left"
         w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
       >
-        <Text fontWeight="bold">
-          {dateConverter(hostEvent.hostDate)}
-        </Text>
+        <Text fontWeight="bold">{dateConverter(hostEvent.hostDate)}</Text>
       </Flex>
       <Flex
         direction="column"
@@ -109,56 +112,61 @@ const HostEventCard = ({ hostEvent }: Props) => {
         mt="8px"
         boxShadow="0px 0px 16px rgba(0, 0, 0, 0.25)"
       >
-        <Grid templateColumns="1fr 1fr" gap="0.3125rem" width="100%" height="100%">
+        <Grid
+          templateColumns="1fr 1fr"
+          gap="0.3125rem"
+          width="100%"
+          height="100%"
+        >
           <GridItem colSpan={1} position="relative">
             <Flex
               justifyContent="space-between"
               alignItems="center"
               width="100%"
             >
-              <EventState eventDateState={eventDateState(hostEvent.hostDate)}/>
+              <EventState eventDateState={eventDateState(hostEvent.hostDate)} />
               <Flex>
                 <Tooltip label="vote on who you want to host">
-                {user?.address ? (
-                  <span>
-                    <NebulousButton
-                      opacity={hostEvent.liked ? "1" : "0.5"}
-                      aria-label="like"
-                      onClick={submitLike}
-                      disabled={buttonDisabled}
-                    >
-                      {hostEvent.liked === true ? (
-                        <UpVoteIconSalmon boxSize={5} />
-                      ) : (
-                        <UpVoteIcon boxSize={5} />
-                      )}
-                    </NebulousButton>
-                  </span>
-                ) : (
-                  <span>
-                    <NebulousButton
-                      opacity="0.5"
-                      aria-label="like"
-                      onClick={() =>
-                        toast({
-                          title: "Sign in first.",
-                          description: "Please sign into your wallet first.",
-                          status: "warning",
-                          duration: 9000,
-                          isClosable: true,
-                          position: "top",
-                        })
-                      }
-                      disabled={buttonDisabled}
-                    >
-                      {hostEvent.liked === true ? (
-                        <UpVoteIconSalmon boxSize={5} />
-                      ) : (
-                        <UpVoteIcon boxSize={5} />
-                      )}
-                    </NebulousButton>
-                  </span>
-                )}
+                  {user?.address ? (
+                    <span>
+                      <NebulousButton
+                        opacity={hostEvent.liked ? "1" : "0.5"}
+                        aria-label="like"
+                        onClick={submitLike}
+                        disabled={buttonDisabled}
+                      >
+                        {hostEvent.liked === true ? (
+                          <UpVoteIconSalmon boxSize={5} />
+                        ) : (
+                          <UpVoteIcon boxSize={5} />
+                        )}
+                      </NebulousButton>
+                    </span>
+                  ) : (
+                    <span>
+                      <NebulousButton
+                        opacity="0.5"
+                        aria-label="like"
+                        onClick={() =>
+                          toast({
+                            title: "Sign in first.",
+                            description: "Please sign into your wallet first.",
+                            status: "warning",
+                            duration: 9000,
+                            isClosable: true,
+                            position: "top",
+                          })
+                        }
+                        disabled={buttonDisabled}
+                      >
+                        {hostEvent.liked === true ? (
+                          <UpVoteIconSalmon boxSize={5} />
+                        ) : (
+                          <UpVoteIcon boxSize={5} />
+                        )}
+                      </NebulousButton>
+                    </span>
+                  )}
                 </Tooltip>
                 <Text fontSize="18px" m="2px">
                   {hostEvent.score}
@@ -205,47 +213,101 @@ const HostEventCard = ({ hostEvent }: Props) => {
                     </span>
                   )}
                 </Tooltip>
-
               </Flex>
             </Flex>
-            <Grid templateColumns="1fr 2fr" gap="0.1rem" width="100%" height="100%" mt="0.6rem" ml="0.6rem">
-              <GridItem colSpan={1} ml="0.1rem" overflow="hidden" justifyItems="center">
-                <Image height="66px"
-                  width="66px" 
+            <Grid
+              templateColumns="1fr 2fr"
+              gap="0.1rem"
+              width="100%"
+              height="100%"
+              mt="0.6rem"
+              ml="0.6rem"
+            >
+              <GridItem
+                colSpan={1}
+                ml="0.1rem"
+                overflow="hidden"
+                justifyItems="center"
+              >
+                <Image
+                  height="66px"
+                  width="66px"
                   objectFit="cover"
-                  src={hostEvent.owner.FCImageUrl ? hostEvent.owner.FCImageUrl : unlonelyAvatar} borderRadius="full"
+                  src={
+                    hostEvent.owner.FCImageUrl
+                      ? hostEvent.owner.FCImageUrl
+                      : unlonelyAvatar
+                  }
+                  borderRadius="full"
                   m="auto"
                 />
-                <Text fontSize="12px" noOfLines={1} color="#737373" fontWeight="light" textAlign="center">
+                <Text
+                  fontSize="12px"
+                  noOfLines={1}
+                  color="#737373"
+                  fontWeight="light"
+                  textAlign="center"
+                >
                   {hostEvent.owner.username}
                 </Text>
               </GridItem>
-              <GridItem colSpan={1} ml="0.1rem" overflow="hidden" justifyItems="center">
-                <Text fontFamily="Inter" fontSize="18px" noOfLines={2} color="#000000" fontWeight="100" textAlign="left">
+              <GridItem
+                colSpan={1}
+                ml="0.1rem"
+                overflow="hidden"
+                justifyItems="center"
+              >
+                <Text
+                  fontFamily="Inter"
+                  fontSize="18px"
+                  noOfLines={2}
+                  color="#000000"
+                  fontWeight="100"
+                  textAlign="left"
+                >
                   {hostEvent.title}
                 </Text>
-                <Text fontFamily="Inter" fontSize="12px" noOfLines={1} color="#737373" fontWeight="light" textAlign="left" fontStyle="">
+                <Text
+                  fontFamily="Inter"
+                  fontSize="12px"
+                  noOfLines={1}
+                  color="#737373"
+                  fontWeight="light"
+                  textAlign="left"
+                  fontStyle=""
+                >
                   {hostEvent.description}
                 </Text>
               </GridItem>
             </Grid>
             <Flex position="absolute" right="4px" bottom="0px">
               {!hostEvent.challenge ? (
-                <Text color="rgba(0, 159, 35, 0.4)" fontSize="36px" fontWeight="bold">
+                <Text
+                  color="rgba(0, 159, 35, 0.4)"
+                  fontSize="36px"
+                  fontWeight="bold"
+                >
                   WINNING
                 </Text>
               ) : (
                 <>
                   {hostEvent.score > hostEvent.challenge.score ? (
-                    <Text color="rgba(0, 159, 35, 0.4)" fontSize="36px" fontWeight="bold">
+                    <Text
+                      color="rgba(0, 159, 35, 0.4)"
+                      fontSize="36px"
+                      fontWeight="bold"
+                    >
                       WINNING
                     </Text>
                   ) : (
-                    <Text color="rgba(159, 0, 0, 0.4)" fontSize="36px" fontWeight="bold">
+                    <Text
+                      color="rgba(159, 0, 0, 0.4)"
+                      fontSize="36px"
+                      fontWeight="bold"
+                    >
                       LOSING
                     </Text>
-                  )
-                  }
+                  )}
                 </>
               )}
             </Flex>
@@ -258,49 +320,50 @@ const HostEventCard = ({ hostEvent }: Props) => {
                   alignItems="center"
                   width="100%"
                 >
-                  <Flex/>
+                  <Flex />
                   <Flex>
                     <Tooltip label="vote on who you want to host">
-                    {user?.address ? (
-                      <span>
-                        <NebulousButton
-                          opacity={hostEvent.challenge.liked ? "1" : "0.5"}
-                          aria-label="like"
-                          onClick={submitLikeChallenge}
-                          disabled={buttonDisabled}
-                        >
-                          {hostEvent.challenge.liked === true ? (
-                            <UpVoteIconSalmon boxSize={5} />
-                          ) : (
-                            <UpVoteIcon boxSize={5} />
-                          )}
-                        </NebulousButton>
-                      </span>
-                    ) : (
-                      <span>
-                        <NebulousButton
-                          opacity="0.5"
-                          aria-label="like"
-                          onClick={() =>
-                            toast({
-                              title: "Sign in first.",
-                              description: "Please sign into your wallet first.",
-                              status: "warning",
-                              duration: 9000,
-                              isClosable: true,
-                              position: "top",
-                            })
-                          }
-                          disabled={buttonDisabled}
-                        >
-                          {hostEvent.challenge.liked === true ? (
-                            <UpVoteIconSalmon boxSize={5} />
-                          ) : (
-                            <UpVoteIcon boxSize={5} />
-                          )}
-                        </NebulousButton>
-                      </span>
-                    )}
+                      {user?.address ? (
+                        <span>
+                          <NebulousButton
+                            opacity={hostEvent.challenge.liked ? "1" : "0.5"}
+                            aria-label="like"
+                            onClick={submitLikeChallenge}
+                            disabled={buttonDisabled}
+                          >
+                            {hostEvent.challenge.liked === true ? (
+                              <UpVoteIconSalmon boxSize={5} />
+                            ) : (
+                              <UpVoteIcon boxSize={5} />
+                            )}
+                          </NebulousButton>
+                        </span>
+                      ) : (
+                        <span>
+                          <NebulousButton
+                            opacity="0.5"
+                            aria-label="like"
+                            onClick={() =>
+                              toast({
+                                title: "Sign in first.",
+                                description:
+                                  "Please sign into your wallet first.",
+                                status: "warning",
+                                duration: 9000,
+                                isClosable: true,
+                                position: "top",
+                              })
+                            }
+                            disabled={buttonDisabled}
+                          >
+                            {hostEvent.challenge.liked === true ? (
+                              <UpVoteIconSalmon boxSize={5} />
+                            ) : (
+                              <UpVoteIcon boxSize={5} />
+                            )}
+                          </NebulousButton>
+                        </span>
+                      )}
                     </Tooltip>
                     <Text fontSize="18px" m="2px">
                       {hostEvent.challenge.score}
@@ -329,7 +392,8 @@ const HostEventCard = ({ hostEvent }: Props) => {
                             onClick={() =>
                               toast({
                                 title: "Sign in first.",
-                                description: "Please sign into your wallet first.",
+                                description:
+                                  "Please sign into your wallet first.",
                                 status: "warning",
                                 duration: 9000,
                                 isClosable: true,
@@ -349,39 +413,90 @@ const HostEventCard = ({ hostEvent }: Props) => {
                     </Tooltip>
                   </Flex>
                 </Flex>
-                <Grid templateColumns="1fr 2fr" gap="0.1rem" width="100%" height="100%" mt="0.6rem" ml="0.6rem">
-                  <GridItem colSpan={1} ml="0.1rem" overflow="hidden" justifyItems="center">
-                    <Image height="66px"
-                      width="66px" 
+                <Grid
+                  templateColumns="1fr 2fr"
+                  gap="0.1rem"
+                  width="100%"
+                  height="100%"
+                  mt="0.6rem"
+                  ml="0.6rem"
+                >
+                  <GridItem
+                    colSpan={1}
+                    ml="0.1rem"
+                    overflow="hidden"
+                    justifyItems="center"
+                  >
+                    <Image
+                      height="66px"
+                      width="66px"
                       objectFit="cover"
-                      src={hostEvent.challenge.owner.FCImageUrl ? hostEvent.challenge.owner.FCImageUrl : unlonelyAvatar} borderRadius="full"
+                      src={
+                        hostEvent.challenge.owner.FCImageUrl
+                          ? hostEvent.challenge.owner.FCImageUrl
+                          : unlonelyAvatar
+                      }
+                      borderRadius="full"
                       m="auto"
                     />
-                    <Text fontSize="12px" noOfLines={1} color="#737373" fontWeight="light" textAlign="center">
+                    <Text
+                      fontSize="12px"
+                      noOfLines={1}
+                      color="#737373"
+                      fontWeight="light"
+                      textAlign="center"
+                    >
                       {hostEvent.challenge.owner.username}
                     </Text>
                   </GridItem>
-                  <GridItem colSpan={1} ml="0.1rem" overflow="hidden" justifyItems="center">
-                    <Text fontFamily="Inter" fontSize="18px" noOfLines={2} color="#000000" fontWeight="100" textAlign="left">
+                  <GridItem
+                    colSpan={1}
+                    ml="0.1rem"
+                    overflow="hidden"
+                    justifyItems="center"
+                  >
+                    <Text
+                      fontFamily="Inter"
+                      fontSize="18px"
+                      noOfLines={2}
+                      color="#000000"
+                      fontWeight="100"
+                      textAlign="left"
+                    >
                       {hostEvent.challenge.title}
                     </Text>
-                    <Text fontFamily="Inter" fontSize="12px" noOfLines={1} color="#737373" fontWeight="light" textAlign="left" fontStyle="">
+                    <Text
+                      fontFamily="Inter"
+                      fontSize="12px"
+                      noOfLines={1}
+                      color="#737373"
+                      fontWeight="light"
+                      textAlign="left"
+                      fontStyle=""
+                    >
                       {hostEvent.challenge.description}
                     </Text>
                   </GridItem>
                 </Grid>
                 <Flex position="absolute" right="4px" bottom="0px">
                   {hostEvent.challenge.score > hostEvent.score ? (
-                    <Text color="rgba(0, 159, 35, 0.4)" fontSize="36px" fontWeight="bold">
+                    <Text
+                      color="rgba(0, 159, 35, 0.4)"
+                      fontSize="36px"
+                      fontWeight="bold"
+                    >
                       WINNING
                     </Text>
                   ) : (
-                    <Text color="rgba(159, 0, 0, 0.4)" fontSize="36px" fontWeight="bold">
-                     LOSING
+                    <Text
+                      color="rgba(159, 0, 0, 0.4)"
+                      fontSize="36px"
+                      fontWeight="bold"
+                    >
+                      LOSING
                     </Text>
-                  )
-                  }
-            </Flex>
+                  )}
+                </Flex>
               </>
             ) : (
               <>
@@ -394,17 +509,33 @@ const HostEventCard = ({ hostEvent }: Props) => {
                   pl="0.1rem"
                   pr="0.1rem"
                 >
-                  <Text fontFamily="Inter" fontSize="12px" noOfLines={2} color="#707070" fontWeight="100" textAlign="center">
+                  <Text
+                    fontFamily="Inter"
+                    fontSize="12px"
+                    noOfLines={2}
+                    color="#707070"
+                    fontWeight="100"
+                    textAlign="center"
+                  >
                     no one has challenged this host for their timeslot.
                   </Text>
-                  {eventDateState(hostEvent.hostDate) === "past" || eventDateState(hostEvent.hostDate) === "live" ? (
+                  {eventDateState(hostEvent.hostDate) === "past" ||
+                  eventDateState(hostEvent.hostDate) === "live" ? (
                     <Tooltip label="you can't challenge a past or live event">
                       <span>
-                        <Button fontFamily="Inter" bg="#FFA9A9" fontSize="12px" borderRadius="16px" isDisabled>Challenge</Button>
+                        <Button
+                          fontFamily="Inter"
+                          bg="#FFA9A9"
+                          fontSize="12px"
+                          borderRadius="16px"
+                          isDisabled
+                        >
+                          Challenge
+                        </Button>
                       </span>
                     </Tooltip>
                   ) : (
-                    <ChallengeModal hostEvent={hostEvent}/>
+                    <ChallengeModal hostEvent={hostEvent} />
                   )}
                 </Flex>
               </>

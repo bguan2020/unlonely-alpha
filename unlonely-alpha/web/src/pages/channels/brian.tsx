@@ -161,8 +161,16 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
             justifyContent="center"
             backgroundColor="rgba(0,0,0,0.2)"
           >
-            <Flex width="100%" justifyContent="center" alignItems="center" direction="column">
-              {hostEvents?.map((h: HostEventCard_HostEventFragment) => !!h && <HostEventCard key={h.id} hostEvent={h} />)}
+            <Flex
+              width="100%"
+              justifyContent="center"
+              alignItems="center"
+              direction="column"
+            >
+              {hostEvents?.map(
+                (h: HostEventCard_HostEventFragment) =>
+                  !!h && <HostEventCard key={h.id} hostEvent={h} />
+              )}
             </Flex>
           </Flex>
         </GridItem>

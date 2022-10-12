@@ -71,41 +71,49 @@ export default function Page() {
           </Text>
           <Flex w="100%" justifyContent="center" mt="10px" mb="20px">
             <SimpleGrid columns={[1]} spacing="40px">
-                <Flex w="100%" justifyContent="center">
-                  <Button
-                    variantColor="white"
-                    bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
-                    variant="outline"
-                    size="lg"
-                    minW="50%"
-                    h="50px"
-                    borderRadius="20px"
-                    mt="10px"
-                    mb="10px"
-                    pr="10px"
-                    pl="10px"
-                    color="white"
-                    _hover={{ bg: "white", color: "black" }}
-                    onClick={() => {
-                      window.location.href = "/channels/brian";
-                    }}
-                  >
-                    Join Now!
-                  </Button>
-                </Flex>
+              <Flex w="100%" justifyContent="center">
+                <Button
+                  variantColor="white"
+                  bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
+                  variant="outline"
+                  size="lg"
+                  minW="50%"
+                  h="50px"
+                  borderRadius="20px"
+                  mt="10px"
+                  mb="10px"
+                  pr="10px"
+                  pl="10px"
+                  color="white"
+                  _hover={{ bg: "white", color: "black" }}
+                  onClick={() => {
+                    window.location.href = "/channels/brian";
+                  }}
+                >
+                  Join Now!
+                </Button>
+              </Flex>
             </SimpleGrid>
           </Flex>
           {!hostEvents || loading ? (
-          <Flex width="100%" justifyContent="center">
-            <Spinner />
-          </Flex>
-        ) : (
-          <>
-            <Flex width="100%" justifyContent="center" alignItems="center" direction="column">
-              {hostEvents?.map((h: HostEventCard_HostEventFragment) => !!h && <HostEventCard key={h.id} hostEvent={h} />)}
+            <Flex width="100%" justifyContent="center">
+              <Spinner />
             </Flex>
-          </>
-        )}
+          ) : (
+            <>
+              <Flex
+                width="100%"
+                justifyContent="center"
+                alignItems="center"
+                direction="column"
+              >
+                {hostEvents?.map(
+                  (h: HostEventCard_HostEventFragment) =>
+                    !!h && <HostEventCard key={h.id} hostEvent={h} />
+                )}
+              </Flex>
+            </>
+          )}
         </Flex>
       </Flex>
     </AppLayout>

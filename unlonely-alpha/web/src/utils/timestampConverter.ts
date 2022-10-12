@@ -21,4 +21,4 @@ export const dateConverter = (date: string) => {
   });
   const dateStr = `${day}, ${month} ${dayNum} ${time} PST`;
   return dateStr;
-}
+};

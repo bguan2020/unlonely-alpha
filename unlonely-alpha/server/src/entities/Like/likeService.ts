@@ -70,7 +70,7 @@ export const handleLike = async (
     }
 
     await updateExistingLike();
-    return updateItemScore(2*data.value);
+    return updateItemScore(2 * data.value);
   }
 
   await createNewLike();

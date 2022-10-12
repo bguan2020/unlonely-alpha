@@ -6,7 +6,11 @@ import * as likeService from "../Like/likeService";
 
 export const resolvers = {
   Query: {
-    getHostEventFeed(_: any, data: hostEventService.IGetHostEventFeedInput, ctx: Context) {
+    getHostEventFeed(
+      _: any,
+      data: hostEventService.IGetHostEventFeedInput,
+      ctx: Context
+    ) {
       return hostEventService.getHostEventFeed(data, ctx);
     },
   },
@@ -27,7 +31,11 @@ export const resolvers = {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
       return hostEventService.getOwner({ ownerAddr }, ctx);
     },
-    challenge: ({ challengerId }: { challengerId: number }, _: any, ctx: Context) => {
+    challenge: (
+      { challengerId }: { challengerId: number },
+      _: any,
+      ctx: Context
+    ) => {
       if (!challengerId) {
         return null;
       }

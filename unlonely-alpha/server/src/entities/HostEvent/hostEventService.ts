@@ -39,7 +39,10 @@ export interface IGetHostEventFeedInput {
   orderBy: "asc" | "desc";
 }
 
-export const getHostEventFeed = (data: IGetHostEventFeedInput, ctx: Context) => {
+export const getHostEventFeed = (
+  data: IGetHostEventFeedInput,
+  ctx: Context
+) => {
   // only return host events where hostevent.hostdate less than 24 hours ago
 
   return ctx.prisma.hostEvent.findMany({
@@ -70,4 +73,4 @@ export const getChallenger = (
   ctx: Context
 ) => {
   return ctx.prisma.hostEvent.findUnique({ where: { id: challengerId } });
-}
+};

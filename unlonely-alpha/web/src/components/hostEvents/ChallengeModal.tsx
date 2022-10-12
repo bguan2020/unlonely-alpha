@@ -25,9 +25,7 @@ type Props = {
   hostEvent: HostEventCard_HostEventFragment;
 };
 
-const ChallengeModal: React.FunctionComponent<Props> = ({
-  hostEvent,
-}) => {
+const ChallengeModal: React.FunctionComponent<Props> = ({ hostEvent }) => {
   // const form = useForm<PostChallengeInput>({
   //   defaultValues: {},
   //   resolver: yupResolver(postVideoSchema),
@@ -123,7 +121,15 @@ const ChallengeModal: React.FunctionComponent<Props> = ({
 
   return (
     <>
-      <Button fontFamily="Inter" bg="#FFA9A9" fontSize="12px" borderRadius="16px" onClick={onOpen}>Challenge</Button>
+      <Button
+        fontFamily="Inter"
+        bg="#FFA9A9"
+        fontSize="12px"
+        borderRadius="16px"
+        onClick={onOpen}
+      >
+        Challenge
+      </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent
@@ -152,7 +158,8 @@ const ChallengeModal: React.FunctionComponent<Props> = ({
                 color="black"
                 textAlign={"center"}
               >
-                tag @unlonely on Farcaster if you want to challenge, then DM @brianguan on telegram!
+                tag @unlonely on Farcaster if you want to challenge, then DM
+                @brianguan on telegram!
               </Text>
               {/* {title && thumbnail ? (
                 <form onSubmit={handleSubmit(submitVideo)}>
