@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25061/unloney_staging_pool_2?pgbouncer=true"
+  // url = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely_v1_staging?sslmode=require"
 }
 
 model User {
@@ -15,6 +16,7 @@ model User {
 
   reputation Int @default(0)
   isFCUser Boolean @default(false)
+  FCImageUrl String? @default("")
 
   bio String @default("")
   powerUserLvl Int @default(0)
@@ -29,6 +31,7 @@ model User {
   likes Like[]
   poaps Poap[]
   chats Chat[]
+  host HostEvent[]
 }
 
 model Video {
@@ -102,6 +105,8 @@ model Like {
   comment   Comment? @relation(fields: [commentId], references: [id])
   videoId Int?
   video  Video? @relation(fields: [videoId], references: [id])
+  hostEventId Int?
+  hostEvent HostEvent? @relation(fields: [hostEventId], references: [id]) 
 }
 
 model Chat {
@@ -122,6 +127,27 @@ model Poap {
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HostEvent {
+  id           Int     @id @default(autoincrement())
+  hostDate DateTime
+  title String
+  description String?
+  score Int @default(0)
+  likes Like[]
+
+  isChallenger Boolean @default(false)
+
+  challengerId Int? @unique
+  challenger HostEvent? @relation("challenger", fields: [challengerId], references: [id])
+  challenge HostEvent? @relation("challenger")
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

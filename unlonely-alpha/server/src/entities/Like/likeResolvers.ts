@@ -21,7 +21,7 @@ export const resolvers = {
   Likable: {
     __resolveType: (obj: Comment, _ctx: Context) => {
       if (obj) {
-        return "Video";
+        return "HostEvent";
       }
 
       throw new Error("Unknown votable type returned");

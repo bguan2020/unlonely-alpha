@@ -5,19 +5,19 @@ export const typeDef = gql`
     id: ID!
     score: Int!
     liked: Boolean
-    skipped: Boolean
+    disliked: Boolean
   }
 
   type Like {
     id: ID!
     liked: Boolean!
-    skipped: Boolean!
+    disliked: Boolean!
     liker: User!
-    video: Video
+    hostEvent: HostEvent
   }
 
   input HandleLikeInput {
-    videoId: ID!
+    hostEventId: ID!
     value: Int!
   }
 

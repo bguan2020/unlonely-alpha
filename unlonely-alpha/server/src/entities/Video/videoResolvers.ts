@@ -38,20 +38,6 @@ export const resolvers = {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
       return videoService.getOwner({ ownerAddr }, ctx);
     },
-    liked: async ({ id }: { id: number }, _: any, ctx: Context) => {
-      if (!ctx.user) {
-        return null;
-      }
-
-      return likeService.isLiked(id, ctx.user.address, ctx);
-    },
-    skipped: async ({ id }: { id: number }, _: any, ctx: Context) => {
-      if (!ctx.user) {
-        return null;
-      }
-
-      return likeService.isSkipped(id, ctx.user.address, ctx);
-    },
     comments: (_: any, { id }: { id: number }, ctx: Context) => {
       return commentService.getCommentsByVideoId({ id }, ctx);
     },

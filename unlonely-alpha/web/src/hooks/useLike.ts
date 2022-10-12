@@ -2,7 +2,6 @@ import { gql } from "@apollo/client";
 
 import { useAuthedMutation } from "../apiClient/hooks";
 import {
-  UseLike_VideoFragment,
   LikeMutation,
   LikeMutationVariables,
 } from "../generated/graphql";
@@ -13,32 +12,61 @@ const LIKE_MUTATION = gql`
       id
       score
       liked
-      skipped
+      disliked
     }
   }
 `;
 
-const useLike = ({ id }: UseLike_VideoFragment) => {
+// props
+interface UseLikeProps {
+  powerLvl: number | undefined;
+  id: string | undefined;
+}
+
+const useLike = ({ id, powerLvl }: UseLikeProps) => {
   const [mutate] = useAuthedMutation<LikeMutation, LikeMutationVariables>(
     LIKE_MUTATION
   );
 
-  const like = () =>
-    mutate({
-      variables: { data: { videoId: id, value: 1 } },
-    });
+  let value: number;
+  // switch 
+  switch (powerLvl) {
+    case 0:
+      value = 1;
+      break;
+    case 1:
+      value = 2;
+      break;
+    case 2:
+      value = 4;
+      break;
+    case 3:
+      value = 6;
+      break;
+    default:
+      value = 1;
+      break;
+  }
 
-  const skip = () =>
-    mutate({
-      variables: { data: { videoId: id, value: -1 } },
-    });
-
-  return { like, skip };
+  if (id) {
+    const like = () =>
+      mutate({
+        variables: { data: { hostEventId: id, value: value } },
+      });
+  
+    const dislike = () =>
+      mutate({
+        variables: { data: { hostEventId: id, value: -value } },
+      });
+  
+    return { like, dislike };
+  }
+  return { like: () => {}, dislike: () => {} };
 };
 
 useLike.fragments = {
-  video: gql`
-    fragment useLike_video on Video {
+  hostEvent: gql`
+    fragment useLike_hostEvent on HostEvent {
       id
       __typename
     }

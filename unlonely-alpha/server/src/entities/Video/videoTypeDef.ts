@@ -1,7 +1,7 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
-  type Video implements Likable {
+  type Video {
     id: ID!
     youtubeId: String!
     title: String!
