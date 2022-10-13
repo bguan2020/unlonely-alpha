@@ -108,7 +108,7 @@ const Gif = ({
           </span>
         </Tooltip>
       )}
-    </>
+    </>   
   );
 };
 
