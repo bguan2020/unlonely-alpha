@@ -410,7 +410,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                         cursor: buttonDisabled ? "not-allowed" : "pointer",
                       }}
                       onClick={() => {
-                        setButtonDisabled(true);
+                        if (buttonDisabled) return;
                         sendMessageReaction(
                           reaction.emojiType,
                           message.extras.timeserial,
@@ -418,7 +418,8 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                         );
                         setTimeout(() => {
                           setButtonDisabled(false);
-                        }, 2000);
+                        }, 3000);
+                        setButtonDisabled(true);
                       }}
                     >
                       {reaction.count > 0 ? (
