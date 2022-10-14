@@ -97,11 +97,15 @@ export default function Page() {
             </SimpleGrid>
           </Flex>
           {!hostEvents || loading ? (
-            <Flex width="100%" justifyContent="center" alignItems="center"
-            direction="column">
-              {[1,2,3,4,5].map((i) => 
-                <HostEventCardSkeleton/>
-              )}
+            <Flex
+              width="100%"
+              justifyContent="center"
+              alignItems="center"
+              direction="column"
+            >
+              {[1, 2, 3, 4, 5].map((i) => (
+                <HostEventCardSkeleton />
+              ))}
             </Flex>
           ) : (
             <>

@@ -8,7 +8,6 @@ import {
   Box,
   Button,
   Spacer,
-  Image,
 } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 
@@ -142,17 +141,6 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
               </Text>
             </Flex>
             <Spacer />
-            {loading && (
-              <Flex flexDirection="row">
-                <Image
-                  src="https://i.imgur.com/tS6RUJt.gif"
-                  width="2rem"
-                  height="2rem"
-                  mr="0.5rem"
-                />
-                {"syncing hosts..."}
-              </Flex>
-            )}
           </Flex>
           <Flex
             margin="auto"
@@ -163,11 +151,15 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
             backgroundColor="rgba(0,0,0,0.2)"
           >
             {!hostEvents || loading ? (
-              <Flex width="100%" justifyContent="center" alignItems="center"
-              direction="column">
-                {[1,2,3,4].map((i) => 
-                  <HostEventCardSkeleton/>
-                )}
+              <Flex
+                width="100%"
+                justifyContent="center"
+                alignItems="center"
+                direction="column"
+              >
+                {[1, 2, 3, 4].map((i) => (
+                  <HostEventCardSkeleton />
+                ))}
               </Flex>
             ) : (
               <Flex
