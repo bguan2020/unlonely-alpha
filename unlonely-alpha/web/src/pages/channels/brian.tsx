@@ -7,7 +7,11 @@ import {
   GridItem,
   Box,
   Button,
-  Spacer,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
 } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 
@@ -20,6 +24,7 @@ import NextStreamTimer from "../../components/video/NextStreamTimer";
 import { useUser } from "../../hooks/useUser";
 import HostEventCard from "../../components/hostEvents/HostEventCard";
 import HostEventCardSkeleton from "../../components/hostEvents/HostEventCardSkeleton";
+import TaskList from "../../components/task/TaskList";
 
 const HOSTEVENT_FEED_QUERY = gql`
   query HostEventList($data: HostEventFeedInput!) {
@@ -134,15 +139,86 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
           id="xeedev-video-modal"
           className="xeedev-class-hide"
         >
-          <Flex direction="row" justifyContent="left">
-            <Flex maxH="400px" margin="auto" mb="16px" ml="32px">
+          <Flex direction="column">
+            <Flex maxH="400px" margin="auto" mb="16px" ml="32px" w="100%">
               <Text fontSize="2rem" fontWeight="bold">
-                Vote for who you want to host!
+                Vote for the next host!
               </Text>
             </Flex>
-            <Spacer />
+            <Flex direction="row" width="100%" margin="auto">
+              <Tabs variant="unstyled" width="100%">
+                <TabList width="100%" ml="10%" mr="10%">
+                  <Tab _selected={{ color: "white", bg: "blue.500" }}>
+                    Hosts
+                  </Tab>
+                  <Tab _selected={{ color: "white", bg: "green.400" }}>
+                    Tasks
+                  </Tab>
+                </TabList>
+                <TabPanels>
+                  <TabPanel>
+                    <Flex
+                      margin="auto"
+                      maxW={{
+                        base: "100%",
+                        sm: "533px",
+                        md: "711px",
+                        lg: "889px",
+                      }}
+                      w="100%"
+                      borderRadius="0.3125rem"
+                      pt="1rem"
+                      justifyContent="center"
+                      backgroundColor="rgba(0,0,0,0.2)"
+                    >
+                      {!hostEvents || loading ? (
+                        <Flex
+                          width="100%"
+                          justifyContent="center"
+                          alignItems="center"
+                          direction="column"
+                        >
+                          {[1, 2, 3, 4].map((i) => (
+                            <HostEventCardSkeleton />
+                          ))}
+                        </Flex>
+                      ) : (
+                        <Flex
+                          width="100%"
+                          justifyContent="center"
+                          alignItems="center"
+                          direction="column"
+                        >
+                          {hostEvents?.map(
+                            (h: HostEventCard_HostEventFragment) =>
+                              !!h && <HostEventCard key={h.id} hostEvent={h} />
+                          )}
+                        </Flex>
+                      )}
+                    </Flex>
+                  </TabPanel>
+                  <TabPanel>
+                    <Flex
+                      margin="auto"
+                      maxW={{
+                        base: "100%",
+                        sm: "533px",
+                        md: "711px",
+                        lg: "889px",
+                      }}
+                      borderRadius="0.3125rem"
+                      pt="1rem"
+                      justifyContent="center"
+                      backgroundColor="rgba(0,0,0,0.2)"
+                    >
+                      <TaskList chatBot={chatBot} setChatBot={setChatBot} />
+                    </Flex>
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
+            </Flex>
           </Flex>
-          <Flex
+          {/* <Flex
             margin="auto"
             maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
             borderRadius="0.3125rem"
@@ -174,7 +250,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                 )}
               </Flex>
             )}
-          </Flex>
+          </Flex> */}
         </GridItem>
       </Grid>
     </>
@@ -214,3 +290,22 @@ export default function Page() {
     </AppLayout>
   );
 }
+
+const TASKLIST_QUERY = gql`
+  query GetTaskFeed($data: HostEventFeedInput!) {
+    getTaskFeed(data: $data) {
+      id
+      taskType
+      youtubeId
+      title
+      thumbnail
+      description
+      completed
+      createdAt
+      owner {
+        username
+        address
+      }
+    }
+  }
+`;
