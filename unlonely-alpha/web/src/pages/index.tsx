@@ -1,7 +1,8 @@
 import { gql, useQuery } from "@apollo/client";
-import { Text, Flex, Button, SimpleGrid, Spinner } from "@chakra-ui/react";
+import { Text, Flex, Button, SimpleGrid } from "@chakra-ui/react";
 
 import HostEventCard from "../components/hostEvents/HostEventCard";
+import HostEventCardSkeleton from "../components/hostEvents/HostEventCardSkeleton";
 import AppLayout from "../components/layout/AppLayout";
 import { HostEventCard_HostEventFragment } from "../generated/graphql";
 
@@ -96,8 +97,11 @@ export default function Page() {
             </SimpleGrid>
           </Flex>
           {!hostEvents || loading ? (
-            <Flex width="100%" justifyContent="center">
-              <Spinner />
+            <Flex width="100%" justifyContent="center" alignItems="center"
+            direction="column">
+              {[1,2,3,4,5].map((i) => 
+                <HostEventCardSkeleton/>
+              )}
             </Flex>
           ) : (
             <>

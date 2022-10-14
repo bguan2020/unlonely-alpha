@@ -20,6 +20,7 @@ import AblyChatComponent from "../../components/chat/AblyChataComponent";
 import NextStreamTimer from "../../components/video/NextStreamTimer";
 import { useUser } from "../../hooks/useUser";
 import HostEventCard from "../../components/hostEvents/HostEventCard";
+import HostEventCardSkeleton from "../../components/hostEvents/HostEventCardSkeleton";
 
 const HOSTEVENT_FEED_QUERY = gql`
   query HostEventList($data: HostEventFeedInput!) {
@@ -161,17 +162,26 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
             justifyContent="center"
             backgroundColor="rgba(0,0,0,0.2)"
           >
-            <Flex
-              width="100%"
-              justifyContent="center"
-              alignItems="center"
-              direction="column"
-            >
-              {hostEvents?.map(
-                (h: HostEventCard_HostEventFragment) =>
-                  !!h && <HostEventCard key={h.id} hostEvent={h} />
-              )}
-            </Flex>
+            {!hostEvents || loading ? (
+              <Flex width="100%" justifyContent="center" alignItems="center"
+              direction="column">
+                {[1,2,3,4].map((i) => 
+                  <HostEventCardSkeleton/>
+                )}
+              </Flex>
+            ) : (
+              <Flex
+                width="100%"
+                justifyContent="center"
+                alignItems="center"
+                direction="column"
+              >
+                {hostEvents?.map(
+                  (h: HostEventCard_HostEventFragment) =>
+                    !!h && <HostEventCard key={h.id} hostEvent={h} />
+                )}
+              </Flex>
+            )}
           </Flex>
         </GridItem>
       </Grid>
