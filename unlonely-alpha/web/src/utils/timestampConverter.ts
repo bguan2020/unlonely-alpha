@@ -23,17 +23,4 @@ export const dateConverter = (date: string) => {
   const timezone_acronym = timezone.split(" ")[2];
   const date_time = `${day}, ${month} ${day_number}, ${hh12}:${mm} ${timezone_acronym}`;
   return date_time;
-
-  // const current_date = new Date(date);
-  // const day = current_date.toLocaleString("en-US", { weekday: "long" });
-  // const month = current_date.toLocaleString("en-US", { month: "long" });
-  // const dayNum = current_date.toLocaleString("en-US", { day: "numeric" });
-  // const time = current_date.toLocaleString("en-US", {
-  //   timeZone: "America/Los_Angeles",
-  //   hour: "numeric",
-  //   minute: "numeric",
-  //   hour12: true,
-  // });
-  // const dateStr = `${day}, ${month} ${dayNum} ${time} PST`;
-  // return dateStr;
 };
