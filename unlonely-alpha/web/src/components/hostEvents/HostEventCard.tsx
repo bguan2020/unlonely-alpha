@@ -291,7 +291,7 @@ const HostEventCard = ({ hostEvent }: Props) => {
                 </Text>
               ) : (
                 <>
-                  {hostEvent.score > hostEvent.challenge.score ? (
+                  {hostEvent.score >= hostEvent.challenge.score ? (
                     <Text
                       color="rgba(0, 159, 35, 0.4)"
                       fontSize="36px"
