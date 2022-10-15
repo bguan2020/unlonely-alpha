@@ -1,10 +1,9 @@
 import { gql, useQuery } from "@apollo/client";
 import { Text, Flex, Button, SimpleGrid } from "@chakra-ui/react";
 
-import HostEventCard from "../components/hostEvents/HostEventCard";
 import HostEventCardSkeleton from "../components/hostEvents/HostEventCardSkeleton";
+import HostEventList from "../components/hostEvents/HostEventList";
 import AppLayout from "../components/layout/AppLayout";
-import { HostEventCard_HostEventFragment } from "../generated/graphql";
 
 const HOSTEVENT_FEED_QUERY = gql`
   query HostEventFeed($data: HostEventFeedInput!) {
@@ -41,7 +40,7 @@ export default function Page() {
   const { data, loading, error } = useQuery(HOSTEVENT_FEED_QUERY, {
     variables: {
       data: {
-        limit: 5,
+        limit: 9,
         orderBy: null,
       },
     },
@@ -115,10 +114,7 @@ export default function Page() {
                 alignItems="center"
                 direction="column"
               >
-                {hostEvents?.map(
-                  (h: HostEventCard_HostEventFragment) =>
-                    !!h && <HostEventCard key={h.id} hostEvent={h} />
-                )}
+                <HostEventList hostEvents={hostEvents}/>
               </Flex>
             </>
           )}

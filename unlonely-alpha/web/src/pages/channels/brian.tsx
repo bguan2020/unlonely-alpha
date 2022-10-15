@@ -22,9 +22,9 @@ import { HostEventCard_HostEventFragment } from "../../generated/graphql";
 import AblyChatComponent from "../../components/chat/AblyChataComponent";
 import NextStreamTimer from "../../components/video/NextStreamTimer";
 import { useUser } from "../../hooks/useUser";
-import HostEventCard from "../../components/hostEvents/HostEventCard";
 import HostEventCardSkeleton from "../../components/hostEvents/HostEventCardSkeleton";
 import TaskList from "../../components/task/TaskList";
+import HostEventList from "../../components/hostEvents/HostEventList";
 
 const HOSTEVENT_FEED_QUERY = gql`
   query HostEventList($data: HostEventFeedInput!) {
@@ -189,10 +189,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                           alignItems="center"
                           direction="column"
                         >
-                          {hostEvents?.map(
-                            (h: HostEventCard_HostEventFragment) =>
-                              !!h && <HostEventCard key={h.id} hostEvent={h} />
-                          )}
+                          <HostEventList hostEvents={hostEvents}/>
                         </Flex>
                       )}
                     </Flex>

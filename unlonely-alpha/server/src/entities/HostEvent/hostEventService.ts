@@ -49,7 +49,7 @@ export const getHostEventFeed = (
     where: {
       isChallenger: false,
       hostDate: {
-        gte: new Date(Date.now() - 12 * 60 * 60 * 1000),
+        gte: new Date(Date.now() - 72 * 60 * 60 * 1000),
       },
     },
     take: data.limit || undefined,
