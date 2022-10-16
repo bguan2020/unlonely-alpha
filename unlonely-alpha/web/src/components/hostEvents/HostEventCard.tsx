@@ -1,7 +1,7 @@
 import { Text, Grid, GridItem, Flex } from "@chakra-ui/layout";
 import { Button, Image, Tooltip, useToast } from "@chakra-ui/react";
 import { gql } from "@apollo/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 
 import { HostEventCard_HostEventFragment } from "../../generated/graphql";
@@ -34,6 +34,11 @@ const HostEventCard = ({ hostEvent }: Props) => {
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const accountData = useAccount();
   const toast = useToast();
+  const [days, setDays] = useState<number>(0);
+  const [hours, setHours] = useState<number>(0);
+  const [minutes, setMinutes] = useState<number>(0);
+  const [seconds, setSeconds] = useState<number>(0);
+  const [votingClosed, setVotingClosed] = useState<boolean>(false);
 
   const submitLike = async () => {
     setButtonDisabled(true);
@@ -73,8 +78,7 @@ const HostEventCard = ({ hostEvent }: Props) => {
 
   // function to determine if hostEvent.hostDate is in the past by more than an hour, or if hostEvent.hostDate is less than 1 hour in the past, or if hostEvent.hostDate is in the future
   const eventDateState = (hostDate: string) => {
-    // function to determine if hostEvent.hostDate is in the past by more than an hour, or if hostEvent.hostDate is less than 1 hour in the past, or if hostEvent.hostDate is in the future
-    const hostEventDate = new Date(hostEvent.hostDate);
+    const hostEventDate = new Date(hostDate);
     const now = new Date();
     const dayFuture = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     if (hostEventDate < now) {
@@ -91,6 +95,50 @@ const HostEventCard = ({ hostEvent }: Props) => {
     }
   };
 
+  // countdown timer for 4 hours before hostEvent.hostDate
+  const countdownTimer = (hostDate: string) => {
+    const hostEventDate = new Date(hostDate);
+    const now = new Date();
+    const fourHours = new Date(hostEventDate.getTime() + 4 * 60 * 60 * 1000);
+    if (hostEventDate < fourHours) {
+      const timeLeft = hostEventDate.getTime() - now.getTime();
+      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+      return `${hours}h ${minutes}m ${seconds}s`;
+    } else {
+      return "voting closed!";
+    }
+  };
+
+  const updateTime = () => {
+    const hostEventDate = new Date(hostEvent.hostDate);
+    const now = new Date();
+    const fourHoursFromEvent = new Date(hostEventDate.getTime() - 4 * 60 * 60 * 1000);
+    if (now < fourHoursFromEvent) {
+      const timeLeft = hostEventDate.getTime() - now.getTime();
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+      setDays(days);
+      setHours(hours);
+      setMinutes(minutes);
+      setSeconds(seconds);
+    } else {
+      setVotingClosed(true);
+    }
+  };
+
+  useEffect(() => {
+    if (countdownTimer(hostEvent.hostDate) !== "voting closed!") {
+      const interval = setInterval(() => {
+        updateTime();
+      }, 1000);
+      return () => clearInterval(interval);
+    } 
+  }, []);
+
   return (
     <>
       <Flex
@@ -98,7 +146,16 @@ const HostEventCard = ({ hostEvent }: Props) => {
         alignItems="left"
         w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
       >
-        <Text fontWeight="bold">{dateConverter(hostEvent.hostDate)}</Text>
+        <Flex width="100%" justifyContent="space-between">
+          <Text fontWeight="bold">{dateConverter(hostEvent.hostDate)}</Text>
+          {!votingClosed ? (
+            <Text fontWeight="light" color="black" fontSize="14px">
+              {days}d {hours}h {minutes}m {seconds}s left to vote
+            </Text>
+          ) : (
+            <Text fontWeight="bold">Voting closed!</Text>
+          )}
+        </Flex>
       </Flex>
       <Flex
         direction="column"
@@ -128,20 +185,48 @@ const HostEventCard = ({ hostEvent }: Props) => {
               <Flex>
                 <Tooltip label="vote on who you want to host">
                   {user?.address ? (
-                    <span>
-                      <NebulousButton
-                        opacity={hostEvent.liked ? "1" : "0.5"}
-                        aria-label="like"
-                        onClick={submitLike}
-                        disabled={buttonDisabled}
-                      >
-                        {hostEvent.liked === true ? (
-                          <UpVoteIconSalmon boxSize={5} />
-                        ) : (
-                          <UpVoteIcon boxSize={5} />
-                        )}
-                      </NebulousButton>
-                    </span>
+                    <>
+                      {votingClosed ? (
+                        <span>
+                        <NebulousButton
+                          opacity="0.5"
+                          aria-label="like"
+                          onClick={() =>
+                            toast({
+                              title: "Voting Closed.",
+                              description: "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
+                              status: "info",
+                              duration: 9000,
+                              isClosable: true,
+                              position: "top",
+                            })
+                          }
+                          disabled={buttonDisabled}
+                        >
+                          {hostEvent.liked === true ? (
+                            <UpVoteIconSalmon boxSize={5} />
+                          ) : (
+                            <UpVoteIcon boxSize={5} />
+                          )}
+                        </NebulousButton>
+                      </span>
+                      ) : (
+                        <span>
+                          <NebulousButton
+                            opacity={hostEvent.liked ? "1" : "0.5"}
+                            aria-label="like"
+                            onClick={submitLike}
+                            disabled={buttonDisabled}
+                          >
+                            {hostEvent.liked === true ? (
+                              <UpVoteIconSalmon boxSize={5} />
+                            ) : (
+                              <UpVoteIcon boxSize={5} />
+                            )}
+                          </NebulousButton>
+                        </span>
+                      )}
+                    </>
                   ) : (
                     <span>
                       <NebulousButton
@@ -172,21 +257,49 @@ const HostEventCard = ({ hostEvent }: Props) => {
                   {hostEvent.score}
                 </Text>
                 <Tooltip label="vote on who you want to host">
-                  {accountData?.address ? (
-                    <span>
-                      <NebulousButton
-                        opacity={hostEvent.disliked ? "1" : "0.5"}
-                        aria-label="like"
-                        onClick={submitDislike}
-                        disabled={buttonDisabled}
-                      >
-                        {hostEvent.disliked === true ? (
-                          <DownVoteIconSalmon boxSize={5} />
-                        ) : (
-                          <DownVoteIcon boxSize={5} />
-                        )}
-                      </NebulousButton>
-                    </span>
+                  {user?.address ? (
+                    <>
+                      {votingClosed ? (
+                        <span>
+                        <NebulousButton
+                          opacity="0.5"
+                          aria-label="like"
+                          onClick={() =>
+                            toast({
+                              title: "Voting Closed.",
+                              description: "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
+                              status: "info",
+                              duration: 9000,
+                              isClosable: true,
+                              position: "top",
+                            })
+                          }
+                          disabled={buttonDisabled}
+                        >
+                          {hostEvent.disliked === true ? (
+                            <DownVoteIconSalmon boxSize={5} />
+                          ) : (
+                            <DownVoteIcon boxSize={5} />
+                          )}
+                        </NebulousButton>
+                      </span>
+                      ) : (
+                        <span>
+                          <NebulousButton
+                            opacity={hostEvent.disliked ? "1" : "0.5"}
+                            aria-label="like"
+                            onClick={submitDislike}
+                            disabled={buttonDisabled}
+                          >
+                            {hostEvent.disliked === true ? (
+                              <DownVoteIconSalmon boxSize={5} />
+                            ) : (
+                              <DownVoteIcon boxSize={5} />
+                            )}
+                          </NebulousButton>
+                        </span>
+                      )}
+                    </>
                   ) : (
                     <span>
                       <NebulousButton
@@ -324,20 +437,48 @@ const HostEventCard = ({ hostEvent }: Props) => {
                   <Flex>
                     <Tooltip label="vote on who you want to host">
                       {user?.address ? (
-                        <span>
-                          <NebulousButton
-                            opacity={hostEvent.challenge.liked ? "1" : "0.5"}
-                            aria-label="like"
-                            onClick={submitLikeChallenge}
-                            disabled={buttonDisabled}
-                          >
-                            {hostEvent.challenge.liked === true ? (
-                              <UpVoteIconSalmon boxSize={5} />
-                            ) : (
-                              <UpVoteIcon boxSize={5} />
-                            )}
-                          </NebulousButton>
-                        </span>
+                        <>
+                          {votingClosed ? (
+                            <span>
+                            <NebulousButton
+                              opacity="0.5"
+                              aria-label="like"
+                              onClick={() =>
+                                toast({
+                                  title: "Voting Closed.",
+                                  description: "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
+                                  status: "info",
+                                  duration: 9000,
+                                  isClosable: true,
+                                  position: "top",
+                                })
+                              }
+                              disabled={buttonDisabled}
+                            >
+                              {hostEvent.challenge.liked === true ? (
+                                <UpVoteIconSalmon boxSize={5} />
+                              ) : (
+                                <UpVoteIcon boxSize={5} />
+                              )}
+                            </NebulousButton>
+                          </span>
+                          ) : (
+                            <span>
+                              <NebulousButton
+                                opacity={hostEvent.challenge.liked ? "1" : "0.5"}
+                                aria-label="like"
+                                onClick={submitLikeChallenge}
+                                disabled={buttonDisabled}
+                              >
+                                {hostEvent.challenge.liked === true ? (
+                                  <UpVoteIconSalmon boxSize={5} />
+                                ) : (
+                                  <UpVoteIcon boxSize={5} />
+                                )}
+                              </NebulousButton>
+                            </span>
+                          )}
+                        </>
                       ) : (
                         <span>
                           <NebulousButton
@@ -370,20 +511,48 @@ const HostEventCard = ({ hostEvent }: Props) => {
                     </Text>
                     <Tooltip label="vote on who you want to host">
                       {user?.address ? (
-                        <span>
-                          <NebulousButton
-                            opacity={hostEvent.challenge.disliked ? "1" : "0.5"}
-                            aria-label="like"
-                            onClick={submitDislikeChallenge}
-                            disabled={buttonDisabled}
-                          >
-                            {hostEvent.challenge.disliked === true ? (
-                              <DownVoteIconSalmon boxSize={5} />
-                            ) : (
-                              <DownVoteIcon boxSize={5} />
-                            )}
-                          </NebulousButton>
-                        </span>
+                        <>
+                          {votingClosed ? (
+                            <span>
+                            <NebulousButton
+                              opacity="0.5"
+                              aria-label="like"
+                              onClick={() =>
+                                toast({
+                                  title: "Voting Closed.",
+                                  description: "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
+                                  status: "info",
+                                  duration: 9000,
+                                  isClosable: true,
+                                  position: "top",
+                                })
+                              }
+                              disabled={buttonDisabled}
+                            >
+                              {hostEvent.challenge.disliked === true ? (
+                                <DownVoteIconSalmon boxSize={5} />
+                              ) : (
+                                <DownVoteIcon boxSize={5} />
+                              )}
+                            </NebulousButton>
+                          </span>
+                          ) : (
+                            <span>
+                              <NebulousButton
+                                opacity={hostEvent.challenge.disliked ? "1" : "0.5"}
+                                aria-label="like"
+                                onClick={submitDislikeChallenge}
+                                disabled={buttonDisabled}
+                              >
+                                {hostEvent.challenge.disliked === true ? (
+                                  <DownVoteIconSalmon boxSize={5} />
+                                ) : (
+                                  <DownVoteIcon boxSize={5} />
+                                )}
+                              </NebulousButton>
+                            </span>
+                          )}
+                        </>
                       ) : (
                         <span>
                           <NebulousButton
@@ -542,154 +711,6 @@ const HostEventCard = ({ hostEvent }: Props) => {
             )}
           </GridItem>
         </Grid>
-        {/* <Flex
-          justifyContent="space-between"
-          alignItems="center"
-          padding="0.25 0.3125rem"
-        >
-          <Text color="#787878" fontSize="14px" fontWeight={"bold"} ml="5px">
-            {video.owner.username === null
-              ? centerEllipses(video.owner.address, 7)
-              : video.owner.username}
-          </Text>
-          <GridItem colSpan={1} pl="10px" fontSize="16px" fontWeight="600">
-            <Tooltip label="vote to watch video">
-              {accountData?.address ? (
-                <span>
-                  <NebulousButton
-                    opacity={video.liked ? "1" : "0.5"}
-                    aria-label="like"
-                    onClick={submitLike}
-                    disabled={buttonDisabled}
-                  >
-                    {video.liked === true ? (
-                      <UpVoteIconSalmon boxSize={4} />
-                    ) : (
-                      <UpVoteIcon boxSize={4} />
-                    )}
-                  </NebulousButton>
-                </span>
-              ) : (
-                <span>
-                  <NebulousButton
-                    opacity="0.5"
-                    aria-label="like"
-                    onClick={() =>
-                      toast({
-                        title: "Sign in first.",
-                        description: "Please sign into your wallet first.",
-                        status: "warning",
-                        duration: 9000,
-                        isClosable: true,
-                        position: "top",
-                      })
-                    }
-                    disabled={buttonDisabled}
-                  >
-                    {video.liked === true ? (
-                      <UpVoteIconSalmon boxSize={4} />
-                    ) : (
-                      <UpVoteIcon boxSize={4} />
-                    )}
-                  </NebulousButton>
-                </span>
-              )}
-            </Tooltip>
-            {video.score}
-            <Tooltip label="vote to skip video">
-              {accountData?.address ? (
-                <span>
-                  <NebulousButton
-                    opacity={video.skipped ? "1" : "0.5"}
-                    aria-label="like"
-                    onClick={submitSkip}
-                    disabled={buttonDisabled}
-                  >
-                    {video.skipped === true ? (
-                      <DownVoteIconSalmon boxSize={4} />
-                    ) : (
-                      <DownVoteIcon boxSize={4} />
-                    )}
-                  </NebulousButton>
-                </span>
-              ) : (
-                <span>
-                  <NebulousButton
-                    opacity="0.5"
-                    aria-label="like"
-                    onClick={() =>
-                      toast({
-                        title: "Sign in first.",
-                        description: "Please sign into your wallet first.",
-                        status: "warning",
-                        duration: 9000,
-                        isClosable: true,
-                        position: "top",
-                      })
-                    }
-                    disabled={buttonDisabled}
-                  >
-                    {video.skipped === true ? (
-                      <DownVoteIconSalmon boxSize={4} />
-                    ) : (
-                      <DownVoteIcon boxSize={4} />
-                    )}
-                  </NebulousButton>
-                </span>
-              )}
-            </Tooltip>
-          </GridItem>
-        </Flex> */}
-        {/* <Card>
-          <Grid templateColumns="1fr 3fr" gap="0.3125rem">
-            <GridItem colSpan={1} mr="10px" width="120px">
-              <Image
-                src={video.thumbnail}
-                height="68px"
-                width="120px"
-                objectFit="cover"
-              />
-            </GridItem>
-            <Flex maxW="100%" flexDir="column">
-              <Tooltip label="copy video link">
-                <Text
-                  textColor="#2C3A50"
-                  fontWeight="bold"
-                  fontSize="m"
-                  lineHeight="18px"
-                  noOfLines={2}
-                  fontFamily="Roboto, sans-serif"
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      `https://www.youtube.com/watch?v=${video.youtubeId}`
-                    );
-                    toast({
-                      title: "Copied!",
-                      description: "Video link copied to clipboard",
-                      status: "success",
-                      duration: 4000,
-                      isClosable: true,
-                    });
-                  }}
-                >
-                  {video.title}
-                </Text>
-              </Tooltip>
-
-              <Text
-                mt="5px"
-                noOfLines={4}
-                textColor="#2C3A50"
-                fontWeight="normal"
-                fontSize="14px"
-                lineHeight="1.2"
-                fontFamily="Roboto, sans-serif"
-              >
-                reason: "{video.description}"
-              </Text>
-            </Flex>
-          </Grid>
-        </Card> */}
       </Flex>
     </>
   );
