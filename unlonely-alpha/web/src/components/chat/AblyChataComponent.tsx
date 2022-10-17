@@ -64,6 +64,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const [formError, setFormError] = useState<null | string[]>(null);
   const [emojiList, setEmojiList] = useState<string[]>(emojis);
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
     onError: (m) => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
@@ -505,14 +506,29 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   }, [user?.address]);
 
   // useeffect to scroll to the bottom of the chat
+  // explain what the useEffect below is doing
   useEffect(() => {
+    const chat = document.getElementById("chat");
+    if (!chat) return;
+
     if (autoScroll.current) {
-      const chat = document.getElementById("chat");
-      if (chat) {
+      if (chat.scrollHeight - chat.scrollTop > 450 && chat.scrollHeight - chat.scrollTop < 10_000) {
+        setIsScrolled(true);
+      } else {
         chat.scrollTop = chat.scrollHeight;
+        setIsScrolled(false);
       }
     }
   }, [receivedMessages]);
+  
+  useEffect(() => {
+    const chat = document.getElementById("chat");
+    if (!chat) return;
+    if (!isScrolled) {
+      chat.scrollTop = chat.scrollHeight;
+      return;
+    }
+  }, [isScrolled]);
 
   return (
     <>
@@ -532,6 +548,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             height="100%"
             maxH="400px"
             id="chat"
+            position="relative"
           >
             {messages.length > 0 ? (
               messages
@@ -554,6 +571,15 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
               // }}
               />
             )}
+          </Flex>
+          <Flex justifyContent="center">
+            {isScrolled ? (
+              <Box bg="rgba(98, 98, 98, 0.6)" p="4px" borderRadius="4px" _hover={{ background: "rgba(98, 98, 98, 0.3)", cursor: "pointer"}} onClick={() => setIsScrolled(false)}>
+                <Text fontFamily="Inter" fontSize="9px" color="black">
+                  scrolling paused. click to scroll to bottom.
+                </Text>
+              </Box>
+              ) : null} 
           </Flex>
           <Flex mt="20px" w="100%">
             <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox} />

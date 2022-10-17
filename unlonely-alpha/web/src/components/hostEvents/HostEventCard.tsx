@@ -2,7 +2,6 @@ import { Text, Grid, GridItem, Flex } from "@chakra-ui/layout";
 import { Button, Image, Tooltip, useToast } from "@chakra-ui/react";
 import { gql } from "@apollo/client";
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
 
 import { HostEventCard_HostEventFragment } from "../../generated/graphql";
 import useLike from "../../hooks/useLike";
@@ -32,7 +31,6 @@ const HostEventCard = ({ hostEvent }: Props) => {
     powerLvl: user?.powerUserLvl,
   });
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
-  const accountData = useAccount();
   const toast = useToast();
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);
@@ -150,7 +148,7 @@ const HostEventCard = ({ hostEvent }: Props) => {
           <Text fontWeight="bold">{dateConverter(hostEvent.hostDate)}</Text>
           {!votingClosed ? (
             <Text fontWeight="light" color="black" fontSize="14px" fontFamily="Inter">
-              {days}d{hours}h{minutes}m{seconds}s before voting closes
+              {days !== 0 ? days : null}{days !== 0 ? "d" : null}{hours !== 0 ? hours : null}{hours !== 0 ? "h" : null}{minutes !== 0 ? minutes : null}{minutes !== 0 ? "m" : null}{seconds}s before voting closes
             </Text>
           ) : (
             <Text fontWeight="bold" fontFamily="Inter">Voting closed!</Text>
