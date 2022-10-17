@@ -153,7 +153,7 @@ const HostEventCard = ({ hostEvent }: Props) => {
               {days}d{hours}h{minutes}m{seconds}s before voting closes
             </Text>
           ) : (
-            <Text fontWeight="bold">Voting closed!</Text>
+            <Text fontWeight="bold" fontFamily="Inter">Voting closed!</Text>
           )}
         </Flex>
       </Flex>
