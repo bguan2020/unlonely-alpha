@@ -114,7 +114,7 @@ const HostEventCard = ({ hostEvent }: Props) => {
     const now = new Date();
     const fourHoursFromEvent = new Date(hostEventDate.getTime() - 4 * 60 * 60 * 1000);
     if (now < fourHoursFromEvent) {
-      const timeLeft = hostEventDate.getTime() - now.getTime();
+      const timeLeft = fourHoursFromEvent.getTime() - now.getTime();
       const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
       const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
