@@ -512,7 +512,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     if (!chat) return;
 
     if (autoScroll.current) {
-      if (chat.scrollHeight - chat.scrollTop > 450 && chat.scrollHeight - chat.scrollTop < 10_000) {
+      if (chat.scrollHeight - chat.scrollTop > 1000 && chat.scrollHeight - chat.scrollTop < 10_000) {
         setIsScrolled(true);
       } else {
         chat.scrollTop = chat.scrollHeight;
