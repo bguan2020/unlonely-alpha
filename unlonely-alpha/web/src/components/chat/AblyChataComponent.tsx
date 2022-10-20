@@ -324,6 +324,15 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     )
       ? true
       : false;
+     // if isLink true, remove link from message
+    let splitURL: string[] | undefined = undefined;
+    if (isLink) {
+      // detect link at end of message, split into array [message, link].
+      splitURL = messageText.split(/(?:http:\/\/|https:\/\/|www\.)/g);
+      // add https:// to link
+      splitURL[splitURL.length - 1] =
+        `https://${splitURL[splitURL.length - 1]}`;
+    }
 
     return (
       <>
@@ -360,18 +369,44 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                   </>
                 ) : (
                   <>
-                    {isLink ? (
+                    {isLink && splitURL ? (
+                      <>
+                        {splitURL.length > 2 ? (
+                          <>
+                            <Text
+                        color="white"
+                        fontSize={14}
+                        wordBreak="break-word"
+                        textAlign="left"
+                      >
+                        {splitURL[0]}
+                      </Text>
                       <Link
-                        href={messageText}
+                        href={splitURL[splitURL.length - 1]}
                         isExternal
                         color="white"
                         fontSize={14}
                         wordBreak="break-word"
                         textAlign="left"
                       >
-                        {messageText}
+                        {splitURL[splitURL.length - 1]}
                         <ExternalLinkIcon mx="2px" />
                       </Link>
+                          </>
+                        ) : (
+                          <Link
+                            href={messageText}
+                            isExternal
+                            color="white"
+                            fontSize={14}
+                            wordBreak="break-word"
+                            textAlign="left"
+                          >
+                            {messageText}
+                            <ExternalLinkIcon mx="2px" />
+                          </Link>
+                        )}
+                      </>
                     ) : (
                       <Text
                         color="white"
