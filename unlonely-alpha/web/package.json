@@ -25,6 +25,7 @@
     "@emotion/core": "10.1.1",
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
+    "@expo/config": "^7.0.1",
     "@fontsource/inter": "^4.5.11",
     "@hookform/resolvers": "^2.9.5",
     "@liveblocks/client": "^0.16.17",
@@ -49,12 +50,14 @@
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-hook-form": "^7.33.1",
+    "react-native-web": "^0.18.9",
     "react-youtube": "^9.0.2",
     "video.js": "^7.20.2",
     "wagmi": "0.6.2",
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@expo/next-adapter": "^4.0.12",
     "@graphql-codegen/cli": "^2.7.0",
     "@graphql-codegen/introspection": "^2.1.1",
     "@graphql-codegen/typescript": "^2.6.0",
