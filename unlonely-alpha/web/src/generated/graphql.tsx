@@ -162,7 +162,7 @@ export type Mutation = {
   __typename?: "Mutation";
   _empty?: Maybe<Scalars["String"]>;
   handleLike?: Maybe<Likable>;
-  handleNFC?: Maybe<Nfc>;
+  handleNFC?: Maybe<Scalars["Int"]>;
   postChallenge?: Maybe<HostEvent>;
   postComment?: Maybe<Comment>;
   postFirstChat?: Maybe<Chat>;
@@ -570,7 +570,7 @@ export type HandleNfcMutationVariables = Exact<{
 
 export type HandleNfcMutation = {
   __typename?: "Mutation";
-  handleNFC?: { __typename?: "NFC"; id: string } | null;
+  handleNFC?: number | null;
 };
 
 export type PostTaskMutationVariables = Exact<{
@@ -1077,9 +1077,7 @@ export type PostFirstChatMutationOptions = Apollo.BaseMutationOptions<
 >;
 export const HandleNfcDocument = gql`
   mutation HandleNFC($data: HandleNFCInput!) {
-    handleNFC(data: $data) {
-      id
-    }
+    handleNFC(data: $data)
   }
 `;
 export type HandleNfcMutationFn = Apollo.MutationFunction<

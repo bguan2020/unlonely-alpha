@@ -27,6 +27,6 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    handleNFC(data: HandleNFCInput!): NFC
+    handleNFC(data: HandleNFCInput!): Int
   }
 `;

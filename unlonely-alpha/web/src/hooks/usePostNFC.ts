@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback } from "react";
 
 import { useAuthedMutation } from "../apiClient/hooks";
@@ -8,20 +9,17 @@ import {
 } from "../generated/graphql";
 
 type Props = {
-  title: string;
-  onError?: () => void;
+  onError?: (errors?: GraphQLErrors) => void;
 };
 
 const HANDLE_NFC_MUTATION = gql`
   mutation HandleNFC($data: HandleNFCInput!) {
-    handleNFC(data: $data) {
-      id
-    }
+    handleNFC(data: $data)
   }
 
 `;
 
-const usePostNFC = ({ title, onError }: Props) => {
+const usePostNFC = ({ onError }: Props) => {
   const [mutate] = useAuthedMutation<
     HandleNfcMutation,
     HandleNfcMutationVariables
@@ -30,20 +28,19 @@ const usePostNFC = ({ title, onError }: Props) => {
   const postNFC = useCallback(
     async (data) => {
       const mutationResult = await mutate({
-        variables: { data: { title, ...data } },
+        variables: { data: { title: data.title } },
       });
+ 
+      const res = mutationResult?.data?.handleNFC;
 
-      const success = !!mutationResult?.data?.handleNFC;
-      console.log(success);
-
-      if (success) {
+      if (res) {
         console.log("success");
       } else {
         onError && onError();
       }
 
       return {
-        success,
+        res,
       };
     },
     [mutate, onError]

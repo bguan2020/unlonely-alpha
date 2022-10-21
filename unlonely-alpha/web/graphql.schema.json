@@ -1238,8 +1238,8 @@
               }
             ],
             "type": {
-              "kind": "OBJECT",
-              "name": "NFC",
+              "kind": "SCALAR",
+              "name": "Int",
               "ofType": null
             },
             "isDeprecated": false,

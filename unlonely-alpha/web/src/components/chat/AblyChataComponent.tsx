@@ -17,6 +17,7 @@ import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/usePostFirstChat";
 import NebulousButton from "../general/button/NebulousButton";
 import EmojiDisplay from "./emoji/EmojiDisplay";
+import usePostNFC from "../../hooks/usePostNFC";
 
 type Props = {
   username: string | null | undefined;
@@ -66,6 +67,11 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
+    onError: (m) => {
+      setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
+    },
+  });
+  const { postNFC } = usePostNFC({
     onError: (m) => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
@@ -241,6 +247,60 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           reactions: initializeEmojis,
         },
       });
+    } else if (messageText.startsWith("@nfc-it")) {
+      // first check if they're a poweruser
+      if (user && user?.powerUserLvl > 0) {
+        // const that removes the @nfc-it: from the beginning of the message
+        const title = messageText.substring(8);
+        if (title) {
+          const { res } = await postNFC({ title });
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          channel.publish({
+            name: "chat-message",
+            data: {
+              messageText: res && res < 0 ? "Failed to clip. No clips remaining this week." : `"${title}" clipped successfully! You have ${res} clips left this week.`,
+              username: "chatbot🤖",
+              chatColor: "black",
+              address: "0x0000000000000000000000000000000000000000",
+              isFC: false,
+              isGif: false,
+              reactions: initializeEmojis,
+            },
+          });
+        } else {
+          // no title
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          channel.publish({
+            name: "chat-message",
+            data: {
+              messageText: "Failed to clip. Include clip title: '@nfc-it [title]'",
+              username: "chatbot🤖",
+              chatColor: "black",
+              address: "0x0000000000000000000000000000000000000000",
+              isFC: false,
+              isGif: false,
+              reactions: initializeEmojis,
+            },
+          });
+        }
+      } else if (user && user?.powerUserLvl === 0) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        channel.publish({
+          name: "chat-message",
+          data: {
+            messageText: "You must be a power user to use this command.",
+            username: "chatbot🤖",
+            chatColor: "black",
+            address: "0x0000000000000000000000000000000000000000",
+            isFC: false,
+            isGif: false,
+            reactions: initializeEmojis,
+          },
+        });
+      }
     }
   };
 
@@ -371,7 +431,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                   <>
                     {isLink && splitURL ? (
                       <>
-                        {splitURL.length > 2 ? (
+                        {splitURL.length > 1 ? (
                           <>
                             <Text
                         color="white"
