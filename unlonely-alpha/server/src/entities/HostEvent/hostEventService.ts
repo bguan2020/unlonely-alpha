@@ -24,7 +24,7 @@ export const postChallenge = (data: IPostChallengeInput, ctx: Context) => {
           score: 0,
           owner: {
             connect: {
-              address: "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa",
+              address: ctx.user?.address,
             },
           },
           isChallenger: true,

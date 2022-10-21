@@ -13,6 +13,7 @@ import { typeDef as videoTypeDef } from "./Video/videoTypeDef";
 import { typeDef as taskTypeDef } from "./Task/taskTypeDef";
 import { typeDef as poapTypeDef } from "./POAP/poapTypeDef";
 import { typeDef as chatTypeDef } from "./Chat/chatTypeDef";
+import { typeDef as nfcTypeDef } from "./NFC/NFCTypeDef";
 import { typeDef as hostEventTypeDef } from "./HostEvent/hostEventTypeDef";
 import { resolvers as likeResolvers } from "./Like/likeResolvers";
 import { resolvers as userResolvers } from "./User/userResolvers";
@@ -22,11 +23,17 @@ import { resolvers as taskResolvers } from "./Task/taskResolvers";
 import { resolvers as poapResolvers } from "./POAP/poapResolvers";
 import { resolvers as chatResolvers } from "./Chat/chatResolvers";
 import { resolvers as hostEventResolvers } from "./HostEvent/hostEventResolvers";
+import { resolvers as nfcResolvers } from "./NFC/NFCResolvers";
 
 const Query = gql`
   enum SortOrder {
     asc
     desc
+  }
+
+  enum SortBy {
+    score
+    createdAt
   }
 
   type Query {
@@ -54,6 +61,7 @@ export default makeExecutableSchema({
     poapTypeDef,
     chatTypeDef,
     hostEventTypeDef,
+    nfcTypeDef,
   ],
   resolvers: merge(
     resolvers,
@@ -64,6 +72,7 @@ export default makeExecutableSchema({
     taskResolvers,
     poapResolvers,
     chatResolvers,
-    hostEventResolvers
+    hostEventResolvers,
+    nfcResolvers,
   ),
 });

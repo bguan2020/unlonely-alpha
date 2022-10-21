@@ -27,7 +27,7 @@ import TaskList from "../../components/task/TaskList";
 import HostEventList from "../../components/hostEvents/HostEventList";
 
 const HOSTEVENT_FEED_QUERY = gql`
-  query HostEventList($data: HostEventFeedInput!) {
+  query HostEventChannelFeed($data: HostEventFeedInput!) {
     getHostEventFeed(data: $data) {
       id
       hostDate
@@ -287,22 +287,3 @@ export default function Page() {
     </AppLayout>
   );
 }
-
-const TASKLIST_QUERY = gql`
-  query GetTaskFeed($data: HostEventFeedInput!) {
-    getTaskFeed(data: $data) {
-      id
-      taskType
-      youtubeId
-      title
-      thumbnail
-      description
-      completed
-      createdAt
-      owner {
-        username
-        address
-      }
-    }
-  }
-`;
