@@ -22,6 +22,7 @@ const Participants = () => {
   const [participantOrder, setParticipantOrder] = useState<Presence[]>([]);
 
   useEffect(() => {
+    console.log("presence data changed");
     if (presenceData) {
       // split presenceData into two arrays, one where data.user exists, and one where it doesn't
       const presenceDataWithUser = presenceData.filter(
@@ -64,6 +65,8 @@ const Participants = () => {
         ...uniquePresenceDataWithUser,
         ...presenceDataWithoutUser1,
       ];
+
+      if (combinedPresenceData === participantOrder) return;
 
       setParticipantOrder(combinedPresenceData);
     }

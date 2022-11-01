@@ -57,15 +57,15 @@ const Participant = ({ user }: Props) => {
         <>
           <Tooltip label={toolTipMessage(user)} hasArrow arrowSize={14}>
             {user.FCImageUrl ? (
-              <Avatar src={user.FCImageUrl} />
+              <Avatar src={user.FCImageUrl} size="md"/>
             ) : (
-              <Avatar name={user.username ? user.username : user.address} />
+              <Avatar name={user.username ? user.username : user.address} size="md"/>
             )}
           </Tooltip>
         </>
       ) : (
         <Tooltip label="mysterious anon👀" hasArrow arrowSize={14}>
-          <Avatar name="anon" src={anonUrl} bg="grey" />
+          <Avatar name="anon" src={anonUrl} bg="grey" size="md"/>
         </Tooltip>
       )}
     </>
