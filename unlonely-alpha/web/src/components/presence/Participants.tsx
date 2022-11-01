@@ -30,6 +30,12 @@ const Participants = () => {
       const presenceDataWithoutUser = presenceData.filter(
         (presence) => !presence.data?.user
       );
+      // split presenceDataWithoutUser array into two arrays, rounding up
+      const presenceDataWithoutUser1 = presenceDataWithoutUser.slice(
+        0,
+        Math.ceil(presenceDataWithoutUser.length / 2)
+      );
+
       // sort the presenceDataWithUser array by user.powerUserLvl descending
       const sortedPresenceDataWithUser = presenceDataWithUser.sort((a, b) => {
         if (a.data.user.powerUserLvl > b.data.user.powerUserLvl) {
@@ -56,7 +62,7 @@ const Participants = () => {
       // combine the two arrays
       const combinedPresenceData = [
         ...uniquePresenceDataWithUser,
-        ...presenceDataWithoutUser,
+        ...presenceDataWithoutUser1,
       ];
 
       setParticipantOrder(combinedPresenceData);
