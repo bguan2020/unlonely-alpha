@@ -37,5 +37,8 @@ export const resolvers = {
     ) => {
       return userService.getUser(data, ctx);
     },
+    getAllUsers: (_: any, _args: any, ctx: Context) => {
+      return userService.getAllUsers(ctx);
+    },
   },
 };

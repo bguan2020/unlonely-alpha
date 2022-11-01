@@ -189,7 +189,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                           alignItems="center"
                           direction="column"
                         >
-                          <HostEventList hostEvents={hostEvents}/>
+                          <HostEventList hostEvents={hostEvents} />
                         </Flex>
                       )}
                     </Flex>
@@ -215,39 +215,6 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
               </Tabs>
             </Flex>
           </Flex>
-          {/* <Flex
-            margin="auto"
-            maxW={{ base: "100%", sm: "533px", md: "711px", lg: "889px" }}
-            borderRadius="0.3125rem"
-            pt="1rem"
-            justifyContent="center"
-            backgroundColor="rgba(0,0,0,0.2)"
-          >
-            {!hostEvents || loading ? (
-              <Flex
-                width="100%"
-                justifyContent="center"
-                alignItems="center"
-                direction="column"
-              >
-                {[1, 2, 3, 4].map((i) => (
-                  <HostEventCardSkeleton />
-                ))}
-              </Flex>
-            ) : (
-              <Flex
-                width="100%"
-                justifyContent="center"
-                alignItems="center"
-                direction="column"
-              >
-                {hostEvents?.map(
-                  (h: HostEventCard_HostEventFragment) =>
-                    !!h && <HostEventCard key={h.id} hostEvent={h} />
-                )}
-              </Flex>
-            )}
-          </Flex> */}
         </GridItem>
       </Grid>
     </>

@@ -9,7 +9,7 @@ export default async function handler(
   // @ts-ignore
   const client = new Ably.Realtime(process.env.ABLY_API_KEY);
   const tokenRequestData = await client.auth.createTokenRequest({
-    clientId: req.query.clientId as string,
+    clientId: req.query.rnd as string,
   });
 
   res.status(200).json(tokenRequestData);

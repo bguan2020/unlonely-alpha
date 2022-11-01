@@ -27,5 +27,6 @@ export const typeDef = gql`
     currentUserAuthMessage: String
     getUser(data: GetUserInput!): User
     getLeaderboard: [User]
+    getAllUsers: [User]
   }
 `;

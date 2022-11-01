@@ -7,7 +7,6 @@ import { AddIcon } from "@chakra-ui/icons";
 import useChannel from "../../hooks/useChannel";
 import { ChatBot } from "../../pages/channels/brian";
 import { COLORS } from "../../styles/Colors";
-import { isFCUser } from "../../utils/farcasterBadge";
 import { timestampConverter } from "../../utils/timestampConverter";
 import NFTList from "../profile/NFTList";
 import Badges from "./Badges";
@@ -18,6 +17,7 @@ import usePostFirstChat from "../../hooks/usePostFirstChat";
 import NebulousButton from "../general/button/NebulousButton";
 import EmojiDisplay from "./emoji/EmojiDisplay";
 import usePostNFC from "../../hooks/usePostNFC";
+import Participants from "../presence/Participants";
 
 type Props = {
   username: string | null | undefined;
@@ -60,7 +60,6 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   /*eslint-enable prefer-const*/
 
   const [receivedMessages, setMessages] = useState<Message[]>([]);
-  const [isFC, setIsFC] = useState<boolean>(false);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [formError, setFormError] = useState<null | string[]>(null);
   const [emojiList, setEmojiList] = useState<string[]>(emojis);
@@ -149,7 +148,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             messageText,
             username: user.username,
             chatColor,
-            isFC,
+            isFC: user.isFCUser,
             address: user.address,
             powerUserLvl: user?.powerUserLvl,
             videoSavantLvl: user?.videoSavantLvl,
@@ -167,7 +166,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             messageText,
             username: user.username,
             chatColor,
-            isFC,
+            isFC: user.isFCUser,
             address: user.address,
             powerUserLvl: user?.powerUserLvl,
             videoSavantLvl: user?.videoSavantLvl,
@@ -259,7 +258,10 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           channel.publish({
             name: "chat-message",
             data: {
-              messageText: res && res < 0 ? "Failed to clip. No clips remaining this week." : `"${title}" clipped successfully! You have ${res} clips left this week.`,
+              messageText:
+                res && res < 0
+                  ? "Failed to clip. No clips remaining this week."
+                  : `"${title}" clipped successfully! You have ${res} clips left this week.`,
               username: "chatbot🤖",
               chatColor: "black",
               address: "0x0000000000000000000000000000000000000000",
@@ -275,7 +277,8 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           channel.publish({
             name: "chat-message",
             data: {
-              messageText: "Failed to clip. Include clip title: '@nfc-it [title]'",
+              messageText:
+                "Failed to clip. Include clip title: '@nfc-it [title]'",
               username: "chatbot🤖",
               chatColor: "black",
               address: "0x0000000000000000000000000000000000000000",
@@ -384,14 +387,15 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     )
       ? true
       : false;
-     // if isLink true, remove link from message
+    // if isLink true, remove link from message
     let splitURL: string[] | undefined = undefined;
     if (isLink) {
       // detect link at end of message, split into array [message, link].
       splitURL = messageText.split(/(?:http:\/\/|https:\/\/|www\.)/g);
       // add https:// to link
-      splitURL[splitURL.length - 1] =
-        `https://${splitURL[splitURL.length - 1]}`;
+      splitURL[splitURL.length - 1] = `https://${
+        splitURL[splitURL.length - 1]
+      }`;
     }
 
     return (
@@ -434,24 +438,24 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                         {splitURL.length > 1 ? (
                           <>
                             <Text
-                        color="white"
-                        fontSize={14}
-                        wordBreak="break-word"
-                        textAlign="left"
-                      >
-                        {splitURL[0]}
-                      </Text>
-                      <Link
-                        href={splitURL[splitURL.length - 1]}
-                        isExternal
-                        color="white"
-                        fontSize={14}
-                        wordBreak="break-word"
-                        textAlign="left"
-                      >
-                        {splitURL[splitURL.length - 1]}
-                        <ExternalLinkIcon mx="2px" />
-                      </Link>
+                              color="white"
+                              fontSize={14}
+                              wordBreak="break-word"
+                              textAlign="left"
+                            >
+                              {splitURL[0]}
+                            </Text>
+                            <Link
+                              href={splitURL[splitURL.length - 1]}
+                              isExternal
+                              color="white"
+                              fontSize={14}
+                              wordBreak="break-word"
+                              textAlign="left"
+                            >
+                              {splitURL[splitURL.length - 1]}
+                              <ExternalLinkIcon mx="2px" />
+                            </Link>
                           </>
                         ) : (
                           <Link
@@ -590,16 +594,6 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     );
   });
 
-  useEffect(() => {
-    const fetchData = async (address: string) => {
-      const fcBadge = await isFCUser(address);
-      setIsFC(fcBadge);
-    };
-    if (user?.address) {
-      fetchData(user.address);
-    }
-  }, [user?.address]);
-
   // useeffect to scroll to the bottom of the chat
   // explain what the useEffect below is doing
   useEffect(() => {
@@ -607,7 +601,10 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     if (!chat) return;
 
     if (autoScroll.current) {
-      if (chat.scrollHeight - chat.scrollTop > 1000 && chat.scrollHeight - chat.scrollTop < 10_000) {
+      if (
+        chat.scrollHeight - chat.scrollTop > 1000 &&
+        chat.scrollHeight - chat.scrollTop < 10_000
+      ) {
         setIsScrolled(true);
       } else {
         chat.scrollTop = chat.scrollHeight;
@@ -615,7 +612,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
       }
     }
   }, [receivedMessages]);
-  
+
   useEffect(() => {
     const chat = document.getElementById("chat");
     if (!chat) return;
@@ -627,15 +624,17 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
 
   return (
     <>
-      <Flex p="10px" h="100%" minW="100%">
+      <Flex p="10px" h="100%" minW="100%" width="100%">
         <Flex direction="column">
-          <Text lineHeight={5} mb="10px" fontWeight="bold" fontSize={14}>
-            Give product feedback and bug reports
-            <Link href="https://tally.so/r/mODB9K" isExternal>
-              {" "}
-              here.
-              <ExternalLinkIcon mx="2px" />
-            </Link>
+          <Participants />
+          <Text
+            lineHeight={5}
+            mt="4px"
+            mb="4px"
+            fontWeight="bold"
+            fontSize={14}
+          >
+            Currently Listening
           </Text>
           <Flex
             direction="column"
@@ -669,12 +668,21 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           </Flex>
           <Flex justifyContent="center">
             {isScrolled ? (
-              <Box bg="rgba(98, 98, 98, 0.6)" p="4px" borderRadius="4px" _hover={{ background: "rgba(98, 98, 98, 0.3)", cursor: "pointer"}} onClick={() => setIsScrolled(false)}>
+              <Box
+                bg="rgba(98, 98, 98, 0.6)"
+                p="4px"
+                borderRadius="4px"
+                _hover={{
+                  background: "rgba(98, 98, 98, 0.3)",
+                  cursor: "pointer",
+                }}
+                onClick={() => setIsScrolled(false)}
+              >
                 <Text fontFamily="Inter" fontSize="9px" color="black">
                   scrolling paused. click to scroll to bottom.
                 </Text>
               </Box>
-              ) : null} 
+            ) : null}
           </Flex>
           <Flex mt="20px" w="100%">
             <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox} />

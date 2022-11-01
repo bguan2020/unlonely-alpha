@@ -73,6 +73,6 @@ export default makeExecutableSchema({
     poapResolvers,
     chatResolvers,
     hostEventResolvers,
-    nfcResolvers,
+    nfcResolvers
   ),
 });
