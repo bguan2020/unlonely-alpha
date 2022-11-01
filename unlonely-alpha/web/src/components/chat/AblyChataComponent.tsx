@@ -626,16 +626,17 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     <>
       <Flex p="10px" h="100%" minW="100%" width="100%">
         <Flex direction="column">
-          <Participants />
           <Text
             lineHeight={5}
             mt="4px"
             mb="4px"
             fontWeight="bold"
-            fontSize={14}
+            fontSize={18}
+            textAlign="center"
           >
-            Currently Listening
+            Current Listeners
           </Text>
+          <Participants />
           <Flex
             direction="column"
             overflowX="auto"
@@ -643,6 +644,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             maxH="400px"
             id="chat"
             position="relative"
+            mt="8px"
           >
             {messages.length > 0 ? (
               messages
