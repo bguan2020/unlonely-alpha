@@ -1,0 +1,81 @@
+import React, { useEffect, useState } from "react";
+import { usePresence, configureAbly } from "@ably-labs/react-hooks";
+import { AvatarGroup, Flex } from "@chakra-ui/react";
+import Participant from "./Participant";
+import { User } from "../../generated/graphql";
+
+configureAbly({
+  authUrl: "/api/createTokenRequest",
+});
+
+type Presence = {
+  id: string;
+  data: { user: User };
+  action: string;
+  clientId: string;
+  encoding: string;
+  timestamp: number;
+};
+
+const Participants = () => {
+  const [presenceData] = usePresence("persistMessages:chat-demo");
+  const [participantOrder, setParticipantOrder] = useState<Presence[]>([]);
+
+  useEffect(() => {
+    if (presenceData) {
+      // split presenceData into two arrays, one where data.user exists, and one where it doesn't
+      const presenceDataWithUser = presenceData.filter(
+        (presence) => presence.data?.user
+      );
+      const presenceDataWithoutUser = presenceData.filter(
+        (presence) => !presence.data?.user
+      );
+      // sort the presenceDataWithUser array by user.powerUserLvl descending
+      const sortedPresenceDataWithUser = presenceDataWithUser.sort((a, b) => {
+        if (a.data.user.powerUserLvl > b.data.user.powerUserLvl) {
+          return -1;
+        } else if (a.data.user.powerUserLvl < b.data.user.powerUserLvl) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+      // remove duplicates so only 1 of each user.address is shown
+      const uniquePresenceDataWithUser = sortedPresenceDataWithUser.filter(
+        (presence, index, self) => {
+          return (
+            index ===
+            self.findIndex(
+              (t) => t.data.user.address === presence.data.user.address
+            )
+          );
+        }
+      );
+
+      // combine the two arrays
+      const combinedPresenceData = [
+        ...uniquePresenceDataWithUser,
+        ...presenceDataWithoutUser,
+      ];
+
+      setParticipantOrder(combinedPresenceData);
+    }
+  }, [presenceData]);
+
+  const presenceList = participantOrder.map((member, index) => {
+    return (
+      <Flex key={index} overflow="scroll">
+        <Participant user={member.data?.user} />
+      </Flex>
+    );
+  });
+
+  return (
+    <Flex direction="row" maxW="100%">
+      <AvatarGroup max={6}>{presenceList}</AvatarGroup>
+    </Flex>
+  );
+};
+
+export default Participants;

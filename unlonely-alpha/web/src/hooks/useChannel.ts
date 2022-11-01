@@ -1,29 +1,27 @@
 import Ably from "ably/promises";
 import { useEffect } from "react";
-import { usePresence, assertConfiguration } from "@ably-labs/react-hooks";
+import { useUser } from "./useUser";
 
-
-const ably = new Ably.Realtime.Promise({ authUrl: "/api/createTokenRequest" });
+const ably = new Ably.Realtime.Promise({ authUrl: `/api/createTokenRequest` });
 
 export default function useChannel(
   channelName: string,
   callbackOnMessage: (message: any) => void
 ) {
   const channel = ably.channels.get(channelName);
-  
-  // explain this code below  
+  const { user } = useUser();
+
+  // explain this code below
   const onMount = () => {
     channel.subscribe((msg) => {
       callbackOnMessage(msg);
     });
-    channel.presence.subscribe("enter", function(member) {
-      alert("Member " + member + " entered");
-    });
-    channel.presence.enter();
+    channel.presence.enter({ user });
   };
 
   const onUnmount = () => {
     channel.unsubscribe();
+    channel.presence.leave();
   };
 
   const useEffectHook = () => {

@@ -7,7 +7,6 @@ type Props = {
 };
 
 const HostEventList: React.FunctionComponent<Props> = ({ hostEvents }) => {
-  
   const eventDateState = (hostDate: string) => {
     // function to determine if hostEvent.hostDate is in the past by more than an hour, or if hostEvent.hostDate is less than 1 hour in the past, or if hostEvent.hostDate is in the future
     const hostEventDate = new Date(hostDate);
@@ -40,16 +39,14 @@ const HostEventList: React.FunctionComponent<Props> = ({ hostEvents }) => {
   return (
     <>
       {upcomingEvents?.map(
-                  (h: HostEventCard_HostEventFragment) =>
-                    !!h && <HostEventCard key={h.id} hostEvent={h} />
-                )}
+        (h: HostEventCard_HostEventFragment) =>
+          !!h && <HostEventCard key={h.id} hostEvent={h} />
+      )}
       <Flex direction="column" align="center" justify="center" w="100%">
-        <Text fontSize="2rem">
-          Previous Streams
-        </Text>
+        <Text fontSize="2rem">Previous Streams</Text>
       </Flex>
-        {pastEvents?.map(
-          (h: HostEventCard_HostEventFragment) =>
+      {pastEvents?.map(
+        (h: HostEventCard_HostEventFragment) =>
           !!h && <HostEventCard key={h.id} hostEvent={h} />
       )}
     </>

@@ -112,11 +112,15 @@ const HostEventCard = ({ hostEvent }: Props) => {
   const updateTime = () => {
     const hostEventDate = new Date(hostEvent.hostDate);
     const now = new Date();
-    const fourHoursFromEvent = new Date(hostEventDate.getTime() - 4 * 60 * 60 * 1000);
+    const fourHoursFromEvent = new Date(
+      hostEventDate.getTime() - 4 * 60 * 60 * 1000
+    );
     if (now < fourHoursFromEvent) {
       const timeLeft = fourHoursFromEvent.getTime() - now.getTime();
       const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const hours = Math.floor(
+        (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
       setDays(days);
@@ -134,7 +138,7 @@ const HostEventCard = ({ hostEvent }: Props) => {
         updateTime();
       }, 1000);
       return () => clearInterval(interval);
-    } 
+    }
   }, []);
 
   return (
@@ -147,11 +151,24 @@ const HostEventCard = ({ hostEvent }: Props) => {
         <Flex width="100%" justifyContent="space-between">
           <Text fontWeight="bold">{dateConverter(hostEvent.hostDate)}</Text>
           {!votingClosed ? (
-            <Text fontWeight="light" color="black" fontSize="14px" fontFamily="Inter">
-              {days !== 0 ? days : null}{days !== 0 ? "d" : null}{hours !== 0 ? hours : null}{hours !== 0 ? "h" : null}{minutes !== 0 ? minutes : null}{minutes !== 0 ? "m" : null}{seconds}s before voting closes
+            <Text
+              fontWeight="light"
+              color="black"
+              fontSize="14px"
+              fontFamily="Inter"
+            >
+              {days !== 0 ? days : null}
+              {days !== 0 ? "d" : null}
+              {hours !== 0 ? hours : null}
+              {hours !== 0 ? "h" : null}
+              {minutes !== 0 ? minutes : null}
+              {minutes !== 0 ? "m" : null}
+              {seconds}s before voting closes
             </Text>
           ) : (
-            <Text fontWeight="bold" fontFamily="Inter">Voting closed!</Text>
+            <Text fontWeight="bold" fontFamily="Inter">
+              Voting closed!
+            </Text>
           )}
         </Flex>
       </Flex>
@@ -186,28 +203,29 @@ const HostEventCard = ({ hostEvent }: Props) => {
                     <>
                       {votingClosed ? (
                         <span>
-                        <NebulousButton
-                          opacity="0.5"
-                          aria-label="like"
-                          onClick={() =>
-                            toast({
-                              title: "Voting Closed.",
-                              description: "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
-                              status: "info",
-                              duration: 9000,
-                              isClosable: true,
-                              position: "top",
-                            })
-                          }
-                          disabled={buttonDisabled}
-                        >
-                          {hostEvent.liked === true ? (
-                            <UpVoteIconSalmon boxSize={5} />
-                          ) : (
-                            <UpVoteIcon boxSize={5} />
-                          )}
-                        </NebulousButton>
-                      </span>
+                          <NebulousButton
+                            opacity="0.5"
+                            aria-label="like"
+                            onClick={() =>
+                              toast({
+                                title: "Voting Closed.",
+                                description:
+                                  "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
+                                status: "info",
+                                duration: 9000,
+                                isClosable: true,
+                                position: "top",
+                              })
+                            }
+                            disabled={buttonDisabled}
+                          >
+                            {hostEvent.liked === true ? (
+                              <UpVoteIconSalmon boxSize={5} />
+                            ) : (
+                              <UpVoteIcon boxSize={5} />
+                            )}
+                          </NebulousButton>
+                        </span>
                       ) : (
                         <span>
                           <NebulousButton
@@ -259,28 +277,29 @@ const HostEventCard = ({ hostEvent }: Props) => {
                     <>
                       {votingClosed ? (
                         <span>
-                        <NebulousButton
-                          opacity="0.5"
-                          aria-label="like"
-                          onClick={() =>
-                            toast({
-                              title: "Voting Closed.",
-                              description: "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
-                              status: "info",
-                              duration: 9000,
-                              isClosable: true,
-                              position: "top",
-                            })
-                          }
-                          disabled={buttonDisabled}
-                        >
-                          {hostEvent.disliked === true ? (
-                            <DownVoteIconSalmon boxSize={5} />
-                          ) : (
-                            <DownVoteIcon boxSize={5} />
-                          )}
-                        </NebulousButton>
-                      </span>
+                          <NebulousButton
+                            opacity="0.5"
+                            aria-label="like"
+                            onClick={() =>
+                              toast({
+                                title: "Voting Closed.",
+                                description:
+                                  "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
+                                status: "info",
+                                duration: 9000,
+                                isClosable: true,
+                                position: "top",
+                              })
+                            }
+                            disabled={buttonDisabled}
+                          >
+                            {hostEvent.disliked === true ? (
+                              <DownVoteIconSalmon boxSize={5} />
+                            ) : (
+                              <DownVoteIcon boxSize={5} />
+                            )}
+                          </NebulousButton>
+                        </span>
                       ) : (
                         <span>
                           <NebulousButton
@@ -438,32 +457,35 @@ const HostEventCard = ({ hostEvent }: Props) => {
                         <>
                           {votingClosed ? (
                             <span>
-                            <NebulousButton
-                              opacity="0.5"
-                              aria-label="like"
-                              onClick={() =>
-                                toast({
-                                  title: "Voting Closed.",
-                                  description: "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
-                                  status: "info",
-                                  duration: 9000,
-                                  isClosable: true,
-                                  position: "top",
-                                })
-                              }
-                              disabled={buttonDisabled}
-                            >
-                              {hostEvent.challenge.liked === true ? (
-                                <UpVoteIconSalmon boxSize={5} />
-                              ) : (
-                                <UpVoteIcon boxSize={5} />
-                              )}
-                            </NebulousButton>
-                          </span>
+                              <NebulousButton
+                                opacity="0.5"
+                                aria-label="like"
+                                onClick={() =>
+                                  toast({
+                                    title: "Voting Closed.",
+                                    description:
+                                      "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
+                                    status: "info",
+                                    duration: 9000,
+                                    isClosable: true,
+                                    position: "top",
+                                  })
+                                }
+                                disabled={buttonDisabled}
+                              >
+                                {hostEvent.challenge.liked === true ? (
+                                  <UpVoteIconSalmon boxSize={5} />
+                                ) : (
+                                  <UpVoteIcon boxSize={5} />
+                                )}
+                              </NebulousButton>
+                            </span>
                           ) : (
                             <span>
                               <NebulousButton
-                                opacity={hostEvent.challenge.liked ? "1" : "0.5"}
+                                opacity={
+                                  hostEvent.challenge.liked ? "1" : "0.5"
+                                }
                                 aria-label="like"
                                 onClick={submitLikeChallenge}
                                 disabled={buttonDisabled}
@@ -512,32 +534,35 @@ const HostEventCard = ({ hostEvent }: Props) => {
                         <>
                           {votingClosed ? (
                             <span>
-                            <NebulousButton
-                              opacity="0.5"
-                              aria-label="like"
-                              onClick={() =>
-                                toast({
-                                  title: "Voting Closed.",
-                                  description: "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
-                                  status: "info",
-                                  duration: 9000,
-                                  isClosable: true,
-                                  position: "top",
-                                })
-                              }
-                              disabled={buttonDisabled}
-                            >
-                              {hostEvent.challenge.disliked === true ? (
-                                <DownVoteIconSalmon boxSize={5} />
-                              ) : (
-                                <DownVoteIcon boxSize={5} />
-                              )}
-                            </NebulousButton>
-                          </span>
+                              <NebulousButton
+                                opacity="0.5"
+                                aria-label="like"
+                                onClick={() =>
+                                  toast({
+                                    title: "Voting Closed.",
+                                    description:
+                                      "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
+                                    status: "info",
+                                    duration: 9000,
+                                    isClosable: true,
+                                    position: "top",
+                                  })
+                                }
+                                disabled={buttonDisabled}
+                              >
+                                {hostEvent.challenge.disliked === true ? (
+                                  <DownVoteIconSalmon boxSize={5} />
+                                ) : (
+                                  <DownVoteIcon boxSize={5} />
+                                )}
+                              </NebulousButton>
+                            </span>
                           ) : (
                             <span>
                               <NebulousButton
-                                opacity={hostEvent.challenge.disliked ? "1" : "0.5"}
+                                opacity={
+                                  hostEvent.challenge.disliked ? "1" : "0.5"
+                                }
                                 aria-label="like"
                                 onClick={submitDislikeChallenge}
                                 disabled={buttonDisabled}

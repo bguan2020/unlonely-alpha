@@ -6,7 +6,11 @@ export interface IHandleNFCInput {
   title: string;
 }
 
-export const handleNFC = async (data: IHandleNFCInput, ctx: Context, user: User) => {
+export const handleNFC = async (
+  data: IHandleNFCInput,
+  ctx: Context,
+  user: User
+) => {
   const numNFCsAllowed = user.powerUserLvl;
   if (numNFCsAllowed === 0) {
     throw new Error("User is not allowed to post NFCs");
@@ -26,7 +30,7 @@ export const handleNFC = async (data: IHandleNFCInput, ctx: Context, user: User)
       createdAt: {
         gte: monday,
       },
-    }
+    },
   });
 
   if (numNFCsPostedThisWeek >= numNFCsAllowed) return -1;
@@ -46,24 +50,20 @@ export const handleNFC = async (data: IHandleNFCInput, ctx: Context, user: User)
   return remainingNFCs;
 };
 
-
 export interface IGetNFCFeedInput {
   limit: number;
   orderBy: "createdAt" | "score";
 }
 
-export const getNFCFeed = (
-  data: IGetNFCFeedInput,
-  ctx: Context
-) => {
-  if (data.orderBy = "createdAt") {
+export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
+  if ((data.orderBy = "createdAt")) {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
       orderBy: {
         createdAt: "desc",
       },
     });
-  } else if (data.orderBy = "score") {
+  } else if ((data.orderBy = "score")) {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
       orderBy: {

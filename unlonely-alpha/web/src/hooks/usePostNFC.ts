@@ -16,7 +16,6 @@ const HANDLE_NFC_MUTATION = gql`
   mutation HandleNFC($data: HandleNFCInput!) {
     handleNFC(data: $data)
   }
-
 `;
 
 const usePostNFC = ({ onError }: Props) => {
@@ -30,7 +29,7 @@ const usePostNFC = ({ onError }: Props) => {
       const mutationResult = await mutate({
         variables: { data: { title: data.title } },
       });
- 
+
       const res = mutationResult?.data?.handleNFC;
 
       if (res) {
@@ -46,7 +45,7 @@ const usePostNFC = ({ onError }: Props) => {
     [mutate, onError]
   );
 
-  return { postNFC};
+  return { postNFC };
 };
 
 export default usePostNFC;
