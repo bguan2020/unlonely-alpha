@@ -634,7 +634,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             fontSize={18}
             textAlign="center"
           >
-            Current Listeners
+            Currently Hanging Out
           </Text>
           <Participants />
           <Flex
