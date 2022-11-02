@@ -9,19 +9,16 @@ export default function useChannel(
   callbackOnMessage: (message: any) => void
 ) {
   const channel = ably.channels.get(channelName);
-  const { user } = useUser();
 
   // explain this code below
   const onMount = () => {
     channel.subscribe((msg) => {
       callbackOnMessage(msg);
     });
-    channel.presence.enter({ user });
   };
 
   const onUnmount = () => {
     channel.unsubscribe();
-    channel.presence.leave();
   };
 
   const useEffectHook = () => {

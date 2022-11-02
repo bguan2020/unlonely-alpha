@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { usePresence, configureAbly } from "@ably-labs/react-hooks";
+import { configureAbly } from "@ably-labs/react-hooks";
 import { AvatarGroup, Flex } from "@chakra-ui/react";
+
+import { usePresence } from "../../hooks/usePresence";
 import Participant from "./Participant";
 import { User } from "../../generated/graphql";
+import { useUser } from "../../hooks/useUser";
 
 configureAbly({
-  authUrl: "/api/createTokenRequest",
+  authUrl: "/api/createPresenceRequest",
 });
 
 type Presence = {
@@ -18,7 +21,8 @@ type Presence = {
 };
 
 const Participants = () => {
-  const [presenceData] = usePresence("persistMessages:chat-demo");
+  const { user } = useUser();
+  const [presenceData] = usePresence("persistMessages:chat-demo", user);
   const [participantOrder, setParticipantOrder] = useState<Presence[]>([]);
 
   useEffect(() => {
@@ -29,11 +33,6 @@ const Participants = () => {
       );
       const presenceDataWithoutUser = presenceData.filter(
         (presence) => !presence.data?.user
-      );
-      // split presenceDataWithoutUser array into two arrays, rounding up
-      const presenceDataWithoutUser1 = presenceDataWithoutUser.slice(
-        0,
-        Math.ceil(presenceDataWithoutUser.length / 2)
       );
 
       // randomly sort presenceDataWithUser
@@ -57,7 +56,7 @@ const Participants = () => {
       // combine the two arrays
       const combinedPresenceData = [
         ...uniquePresenceDataWithUser,
-        ...presenceDataWithoutUser1,
+        ...presenceDataWithoutUser,
       ];
 
       if (combinedPresenceData === participantOrder) return;
