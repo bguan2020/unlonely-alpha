@@ -37,19 +37,14 @@ const Participants = () => {
         Math.ceil(presenceDataWithoutUser.length / 2)
       );
 
-      // sort the presenceDataWithUser array by user.powerUserLvl descending
-      const sortedPresenceDataWithUser = presenceDataWithUser.sort((a, b) => {
-        if (a.data.user.powerUserLvl > b.data.user.powerUserLvl) {
-          return -1;
-        } else if (a.data.user.powerUserLvl < b.data.user.powerUserLvl) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
+      // randomly sort presenceDataWithUser
+      const presenceDataWithUserRandom = presenceDataWithUser.sort(
+        () => Math.random() - 0.5
+      );
+
 
       // remove duplicates so only 1 of each user.address is shown
-      const uniquePresenceDataWithUser = sortedPresenceDataWithUser.filter(
+      const uniquePresenceDataWithUser = presenceDataWithUserRandom.filter(
         (presence, index, self) => {
           return (
             index ===
