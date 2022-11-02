@@ -626,6 +626,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
     <>
       <Flex p="10px" h="100%" minW="100%" width="100%">
         <Flex direction="column">
+          <Participants />
           <Text
             lineHeight={5}
             mt="4px"
@@ -636,7 +637,6 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           >
             Currently Hanging Out
           </Text>
-          <Participants />
           <Flex
             direction="column"
             overflowX="auto"
