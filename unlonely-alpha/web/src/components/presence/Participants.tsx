@@ -22,7 +22,7 @@ type Presence = {
 
 const Participants = () => {
   const { user } = useUser();
-  const [presenceData] = usePresence("persistMessages:chat-demo", user);
+  const [presenceData] = usePresence("presence", user);
   const [participantOrder, setParticipantOrder] = useState<Presence[]>([]);
 
   useEffect(() => {
