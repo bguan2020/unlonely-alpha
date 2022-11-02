@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { AvatarGroup, Flex } from "@chakra-ui/react";
 
-import { usePresence } from "../../hooks/usePresence";
+// import { usePresence } from "../../hooks/usePresence";
+import { usePresence } from "@ably-labs/react-hooks";
 import Participant from "./Participant";
 import { User } from "../../generated/graphql";
 import { useUser } from "../../hooks/useUser";
 
 configureAbly({
-  authUrl: "/api/createPresenceRequest",
+  authUrl: "/api/createTokenRequest",
 });
 
 type Presence = {
@@ -22,8 +23,17 @@ type Presence = {
 
 const Participants = () => {
   const { user } = useUser();
-  const [presenceData] = usePresence("presence", user);
+  const [presenceData, updateStatus] = usePresence("presence");
   const [participantOrder, setParticipantOrder] = useState<Presence[]>([]);
+
+  useEffect(() => {
+    if (presenceData) {
+      // update my presence data to include my user data
+      updateStatus({
+        user,
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (presenceData) {
