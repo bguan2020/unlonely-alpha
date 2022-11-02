@@ -25,7 +25,15 @@ export function usePresence<T = any>(channelNameOrNameAndOptions: any, user: Use
 
     const [presenceData, updatePresenceData] = useState([]) as [any, any];
 
+    const updatePresence = async (message?: Types.PresenceMessage) => {
+      const snapshot = await channel.presence.get();
+      updatePresenceData(snapshot);
+  }
+
     const onMount = async () => {
+        channel.presence.subscribe("enter", updatePresence);
+        channel.presence.subscribe("leave", updatePresence);
+        channel.presence.subscribe("update", updatePresence);
         await channel.presence.enter({ user });
 
         const snapshot = await channel.presence.get();
@@ -34,9 +42,9 @@ export function usePresence<T = any>(channelNameOrNameAndOptions: any, user: Use
 
     const onUnmount = () => {
         channel.presence.leave();
-        channel.presence.unsubscribe('enter');
-        channel.presence.unsubscribe('leave');
-        channel.presence.unsubscribe('update');
+        channel.presence.unsubscribe("enter");
+        channel.presence.unsubscribe("leave");
+        channel.presence.unsubscribe("update");
     }
 
     const useEffectHook = () => {
