@@ -19,6 +19,7 @@ export const typeDef = gql`
 
   extend type Query {
     firstChatExists: Boolean
+    chatBot: [Chat]
   }
 
   extend type Mutation {
