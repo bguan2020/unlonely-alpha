@@ -44,6 +44,17 @@ const Participants = () => {
       const presenceDataWithoutUser = presenceData.filter(
         (presence) => !presence.data?.user
       );
+      // for every 4 users in presenceDataWithUser, add a user from presenceDataWithoutUser
+      const participantOrder = presenceDataWithUser.reduce(
+        (acc, presence, index) => {
+          if (index % 4 === 0 && presenceDataWithoutUser.length > 0) {
+            acc.push(presenceDataWithoutUser.shift()!);
+          }
+          acc.push(presence);
+          return acc;
+        },
+        [] as Presence[]
+      );
 
       // randomly sort presenceDataWithUser
       const presenceDataWithUserRandom = presenceDataWithUser.sort(
