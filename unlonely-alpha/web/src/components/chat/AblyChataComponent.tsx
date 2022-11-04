@@ -49,6 +49,8 @@ const emojis = [
   "🚀",
 ];
 
+const chatbotAddress = "0x0000000000000000000000000000000000000000";
+
 const AblyChatComponent = ({ username, chatBot, user }: Props) => {
   const ADD_REACTION_EVENT = "add-reaction";
   const [getPoap, { loading, data }] = useLazyQuery(GET_POAP_QUERY, {
@@ -126,7 +128,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           messageText: `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`,
           username: "chatbot🤖",
           chatColor: "black",
-          address: "0x0000000000000000000000000000000000000000",
+          address: "chatbotAddress",
           isFC: false,
           reactions: initializeEmojis,
         },
@@ -213,7 +215,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           messageText: `${data}`,
           username: "chatbot🤖",
           chatColor: "black",
-          address: "0x0000000000000000000000000000000000000000",
+          address: chatbotAddress,
           isFC: false,
           isGif: false,
           reactions: initializeEmojis,
@@ -240,7 +242,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
           messageText: messageText,
           username: "chatbot🤖",
           chatColor: "black",
-          address: "0x0000000000000000000000000000000000000000",
+          address: chatbotAddress,
           isFC: false,
           isGif: false,
           reactions: initializeEmojis,
@@ -264,7 +266,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                   : `"${title}" clipped successfully! You have ${res} clips left this week.`,
               username: "chatbot🤖",
               chatColor: "black",
-              address: "0x0000000000000000000000000000000000000000",
+              address: chatbotAddress,
               isFC: false,
               isGif: false,
               reactions: initializeEmojis,
@@ -281,7 +283,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                 "Failed to clip. Include clip title: '@nfc-it [title]'",
               username: "chatbot🤖",
               chatColor: "black",
-              address: "0x0000000000000000000000000000000000000000",
+              address: chatbotAddress,
               isFC: false,
               isGif: false,
               reactions: initializeEmojis,
@@ -297,13 +299,33 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
             messageText: "You must be a power user to use this command.",
             username: "chatbot🤖",
             chatColor: "black",
-            address: "0x0000000000000000000000000000000000000000",
+            address: chatbotAddress,
             isFC: false,
             isGif: false,
             reactions: initializeEmojis,
           },
         });
       }
+    } else if (messageText.startsWith("@rules")) {
+      const rules = '"@chatbot [question]" to ask chatbot a question\n"@nfc-it [title]" to clip a moment\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';
+      // wait 1 second before sending rules
+      setTimeout(() => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        channel.publish({
+          name: "chat-message",
+          data: {
+            messageText: rules,
+            username: "chatbot🤖",
+            chatColor: "black",
+            address: chatbotAddress,
+            isFC: false,
+            isGif: false,
+            reactions: initializeEmojis,
+          },
+        });
+      }
+      , 1000);
     }
   };
 
@@ -380,6 +402,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
 
   const messages = receivedMessages.map((message, index) => {
     if (message.name !== "chat-message") return null;
+    console.log(message.data.address);
     const messageText = message.data.messageText;
     // regex to check if message is a link
     const isLink = messageText.match(
@@ -439,7 +462,8 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                           <>
                             <Text
                               color="white"
-                              fontSize={14}
+                              fontFamily="Inter"
+                              fontSize={12}
                               wordBreak="break-word"
                               textAlign="left"
                             >
@@ -449,7 +473,8 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                               href={splitURL[splitURL.length - 1]}
                               isExternal
                               color="white"
-                              fontSize={14}
+                              fontSize={12}
+                              fontFamily="Inter"
                               wordBreak="break-word"
                               textAlign="left"
                             >
@@ -460,9 +485,11 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                         ) : (
                           <Link
                             href={messageText}
+                            fontFamily="Inter"
+                            fontWeight="light"
                             isExternal
                             color="white"
-                            fontSize={14}
+                            fontSize={12}
                             wordBreak="break-word"
                             textAlign="left"
                           >
@@ -474,7 +501,9 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
                     ) : (
                       <Text
                         color="white"
-                        fontSize={14}
+                        fontFamily="Inter"
+                        fontWeight="light"
+                        fontSize={message.data.address === chatbotAddress ? 10 : 12}
                         wordBreak="break-word"
                         textAlign="left"
                       >
