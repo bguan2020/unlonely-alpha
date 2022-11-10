@@ -178,7 +178,10 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
         });
         handleChatCommand(messageText);
         // postFirstChat comes after to speed up chat
-        await postFirstChat({ text: messageText }, { isFirst: false });
+        // wait a few seconds before postFirstChat
+        setTimeout(async function() {
+            await postFirstChat({ text: messageText }, { isFirst: false });
+        }, 5000);
       }
     } else {
       toast({
