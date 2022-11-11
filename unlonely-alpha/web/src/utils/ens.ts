@@ -1,9 +1,10 @@
 import { providers } from "ethers";
 
 export const getEnsName = async (address: string) => {
-  const provider = new providers.AlchemyProvider(
+  // get ens using infuraProvier
+  const provider = new providers.InfuraProvider(
     "homestead",
-    process.env.ALCHEMY_ETHEREUM_MAINNET_API_KEY
+    "3b2a738fb8834266ba5a7538efe46d7e"
   );
   const ensName = await provider.lookupAddress(address);
 

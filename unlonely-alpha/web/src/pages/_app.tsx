@@ -28,7 +28,7 @@ function App({ Component, pageProps, cookies }: Props) {
     getDefaultClient({
       appName: "Unlonely",
       autoConnect: true,
-      alchemyId: process.env.ALCHEMY_API_KEY,
+      infuraId: "3b2a738fb8834266ba5a7538efe46d7e",
     })
   );
 
