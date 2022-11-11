@@ -18,6 +18,7 @@ import NebulousButton from "../general/button/NebulousButton";
 import EmojiDisplay from "./emoji/EmojiDisplay";
 import usePostNFC from "../../hooks/usePostNFC";
 import Participants from "../presence/Participants";
+import { useUser } from "../../hooks/useUser";
 
 type Props = {
   username: string | null | undefined;
@@ -45,13 +46,15 @@ const emojis = [
   "❤️",
   "👑",
   "👀",
+  "👍",
   "👎",
   "🚀",
 ];
 
 const chatbotAddress = "0x0000000000000000000000000000000000000000";
 
-const AblyChatComponent = ({ username, chatBot, user }: Props) => {
+const AblyChatComponent = ({ username, chatBot }: Props) => {
+  const { user } = useUser();
   const ADD_REACTION_EVENT = "add-reaction";
   const [getPoap, { loading, data }] = useLazyQuery(GET_POAP_QUERY, {
     fetchPolicy: "no-cache",
@@ -180,6 +183,7 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
         // postFirstChat comes after to speed up chat
         // wait a few seconds before postFirstChat
         setTimeout(async function() {
+  
             await postFirstChat({ text: messageText }, { isFirst: false });
         }, 5000);
       }
@@ -405,7 +409,6 @@ const AblyChatComponent = ({ username, chatBot, user }: Props) => {
 
   const messages = receivedMessages.map((message, index) => {
     if (message.name !== "chat-message") return null;
-    console.log(message.data.address);
     const messageText = message.data.messageText;
     // regex to check if message is a link
     const isLink = messageText.match(
