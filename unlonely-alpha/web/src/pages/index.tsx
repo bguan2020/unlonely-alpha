@@ -36,6 +36,24 @@ const HOSTEVENT_FEED_QUERY = gql`
   }
 `;
 
+const NFC_FEED_QUERY = gql`
+  query NFCFeed($data: NFCFeedInput!) {
+    getNFCFeed(data: $data) {
+      createdAt
+      id
+      videoLink
+      owner {
+        address
+        FCImageUrl
+        powerUserLvl
+        videoSavantLvl
+      }
+      title
+      score
+    }
+  }
+`;
+
 export default function Page() {
   const { data, loading, error } = useQuery(HOSTEVENT_FEED_QUERY, {
     variables: {
@@ -45,8 +63,18 @@ export default function Page() {
       },
     },
   });
+  const { data: dataNFCs, loading: loadingNFCs, error: errorNFCs } = useQuery(NFC_FEED_QUERY, {
+    variables: {
+      data: {
+        limit: 9,
+        orderBy: null,
+      },
+    },
+  });
 
   const hostEvents = data?.getHostEventFeed;
+  const nfcs = dataNFCs?.getNFCFeed;
+  console.log(nfcs);
 
   return (
     <AppLayout>
