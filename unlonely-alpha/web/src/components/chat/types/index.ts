@@ -12,6 +12,10 @@ export type EmojiTypes = [
     count: number;
   },
   {
+    emojiType: "👍";
+    count: number;
+  },
+  {
     emojiType: "👀";
     count: number;
   },
@@ -71,6 +75,10 @@ export const initializeEmojis = [
   },
   {
     emojiType: "❤️",
+    count: 0,
+  },
+  {
+    emojiType: "👍",
     count: 0,
   },
   {
