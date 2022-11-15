@@ -59,6 +59,12 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
   if ((data.orderBy = "createdAt")) {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
+      // where videoLink is not empty
+      where: {
+        videoLink: {
+          not: "",
+        },
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -66,6 +72,11 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
   } else if ((data.orderBy = "score")) {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
+      where: {
+        videoLink: {
+          not: "",
+        },
+      },
       orderBy: {
         score: "desc",
       },
