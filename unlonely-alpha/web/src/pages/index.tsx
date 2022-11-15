@@ -73,7 +73,7 @@ export default function Page() {
     variables: {
       data: {
         limit: 9,
-        orderBy: null,
+        orderBy: "score",
       },
     },
   });
