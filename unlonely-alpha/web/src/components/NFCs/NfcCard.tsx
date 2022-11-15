@@ -29,36 +29,32 @@ const NfcCard = ({ nfc }: any) => {
             height="22px"
             width="22px"
             objectFit="cover"
-            src={
-              nfc.owner.FCImageUrl
-                ? nfc.owner.FCImageUrl
-                : unlonelyAvatar
-            }
+            src={nfc.owner.FCImageUrl ? nfc.owner.FCImageUrl : unlonelyAvatar}
             borderRadius="full"
             mr="0.5rem"
           />
-            <Text
-              fontSize="12px"
-              noOfLines={1}
-              color="black"
-              fontWeight="light"
-              textAlign="center"
-              fontFamily="Inter"
-            >
-              owner: {nfc.owner.username}
-            </Text>
-            <Spacer />
-            <Text
-              fontSize="12px"
-              noOfLines={1}
-              color="black"
-              fontWeight="light"
-              textAlign="center"
-              fontFamily="Inter"
-            >
-              <a href="https://opensea.io/collection/unlonelynfcs">Opensea</a>
-            </Text>
-          </Flex>
+          <Text
+            fontSize="12px"
+            noOfLines={1}
+            color="black"
+            fontWeight="light"
+            textAlign="center"
+            fontFamily="Inter"
+          >
+            owner: {nfc.owner.username}
+          </Text>
+          <Spacer />
+          <Text
+            fontSize="12px"
+            noOfLines={1}
+            color="black"
+            fontWeight="light"
+            textAlign="center"
+            fontFamily="Inter"
+          >
+            <a href="https://opensea.io/collection/unlonelynfcs">Opensea</a>
+          </Text>
+        </Flex>
       </Flex>
     </>
   );
