@@ -44,13 +44,11 @@ const Participants = () => {
       const presenceDataWithoutUser = presenceData.filter(
         (presence) => !presence.data?.user
       );
-      
 
       // randomly sort presenceDataWithUser
       const presenceDataWithUserRandom = presenceDataWithUser.sort(
         () => Math.random() - 0.5
       );
-
 
       // remove duplicates so only 1 of each user.address is shown
       const uniquePresenceDataWithUser = presenceDataWithUserRandom.filter(

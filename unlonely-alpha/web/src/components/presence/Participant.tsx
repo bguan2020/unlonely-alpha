@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Avatar,
-  Flex,
-  Tooltip,
-  Text,
-  Image,
-} from "@chakra-ui/react";
+import { Avatar, Flex, Tooltip, Text, Image } from "@chakra-ui/react";
 import { User } from "../../generated/graphql";
 import { anonUrl } from "./AnonUrl";
 import centerEllipses from "../../utils/centerEllipses";
@@ -57,15 +51,18 @@ const Participant = ({ user }: Props) => {
         <>
           <Tooltip label={toolTipMessage(user)} hasArrow arrowSize={14}>
             {user.FCImageUrl ? (
-              <Avatar src={user.FCImageUrl} size="md"/>
+              <Avatar src={user.FCImageUrl} size="md" />
             ) : (
-              <Avatar name={user.username ? user.username : user.address} size="md"/>
+              <Avatar
+                name={user.username ? user.username : user.address}
+                size="md"
+              />
             )}
           </Tooltip>
         </>
       ) : (
         <Tooltip label="mysterious anon👀" hasArrow arrowSize={14}>
-          <Avatar name="anon" src={anonUrl} bg="grey" size="md"/>
+          <Avatar name="anon" src={anonUrl} bg="grey" size="md" />
         </Tooltip>
       )}
     </>

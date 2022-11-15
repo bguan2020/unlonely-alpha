@@ -4,6 +4,8 @@ import { Text, Flex, Button, SimpleGrid } from "@chakra-ui/react";
 import HostEventCardSkeleton from "../components/hostEvents/HostEventCardSkeleton";
 import HostEventList from "../components/hostEvents/HostEventList";
 import AppLayout from "../components/layout/AppLayout";
+import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
+import NfcList from "../components/NFCs/NfcList";
 
 const HOSTEVENT_FEED_QUERY = gql`
   query HostEventFeed($data: HostEventFeedInput!) {
@@ -36,6 +38,24 @@ const HOSTEVENT_FEED_QUERY = gql`
   }
 `;
 
+const NFC_FEED_QUERY = gql`
+  query NFCFeed($data: NFCFeedInput!) {
+    getNFCFeed(data: $data) {
+      createdAt
+      id
+      videoLink
+      owner {
+        username
+        address
+        FCImageUrl
+        powerUserLvl
+        videoSavantLvl
+      }
+      title
+    }
+  }
+`;
+
 export default function Page() {
   const { data, loading, error } = useQuery(HOSTEVENT_FEED_QUERY, {
     variables: {
@@ -45,8 +65,21 @@ export default function Page() {
       },
     },
   });
+  const {
+    data: dataNFCs,
+    loading: loadingNFCs,
+    error: errorNFCs,
+  } = useQuery(NFC_FEED_QUERY, {
+    variables: {
+      data: {
+        limit: 9,
+        orderBy: null,
+      },
+    },
+  });
 
   const hostEvents = data?.getHostEventFeed;
+  const nfcs = dataNFCs?.getNFCFeed;
 
   return (
     <AppLayout>
@@ -56,19 +89,42 @@ export default function Page() {
           maxW="80%"
           flexDirection="column"
         >
-          <Text
-            color="black"
-            fontSize={{ base: "40px", md: "60px", lg: "80px" }}
-            lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
-            fontWeight="bold"
-            textAlign="center"
-          >
-            Never watch alone again. Come be{" "}
-            <Text as="span" color="white">
-              unlonely
-            </Text>{" "}
-            with us.
-          </Text>
+          <Flex w="100%" justifyContent="center">
+            <Text
+              color="black"
+              fontSize={{ base: "20px", md: "30px", lg: "40px" }}
+              lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
+              fontWeight="bold"
+              textAlign="center"
+            >
+              Non-Fungible Clips from Unlonely Streams
+            </Text>
+          </Flex>
+          {!nfcs || loadingNFCs ? (
+            <Flex
+              direction="row"
+              overflowX="scroll"
+              overflowY="clip"
+              width="100%"
+              height="18rem"
+            >
+              {[1, 2, 3, 4, 5].map((i) => (
+                <NfcCardSkeleton />
+              ))}
+            </Flex>
+          ) : (
+            <>
+              <Flex
+                direction="row"
+                overflowX="scroll"
+                overflowY="clip"
+                width="100%"
+                height="18rem"
+              >
+                <NfcList nfcs={nfcs} />
+              </Flex>
+            </>
+          )}
           <Flex w="100%" justifyContent="center" mt="10px" mb="20px">
             <SimpleGrid columns={[1]} spacing="40px">
               <Flex w="100%" justifyContent="center">
