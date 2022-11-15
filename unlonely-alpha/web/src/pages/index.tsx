@@ -4,6 +4,7 @@ import { Text, Flex, Button, SimpleGrid } from "@chakra-ui/react";
 import HostEventCardSkeleton from "../components/hostEvents/HostEventCardSkeleton";
 import HostEventList from "../components/hostEvents/HostEventList";
 import AppLayout from "../components/layout/AppLayout";
+import NfcList from "../components/NFCs/NfcList";
 
 const HOSTEVENT_FEED_QUERY = gql`
   query HostEventFeed($data: HostEventFeedInput!) {
@@ -43,13 +44,13 @@ const NFC_FEED_QUERY = gql`
       id
       videoLink
       owner {
+        username
         address
         FCImageUrl
         powerUserLvl
         videoSavantLvl
       }
       title
-      score
     }
   }
 `;
@@ -74,7 +75,6 @@ export default function Page() {
 
   const hostEvents = data?.getHostEventFeed;
   const nfcs = dataNFCs?.getNFCFeed;
-  console.log(nfcs);
 
   return (
     <AppLayout>
@@ -84,19 +84,20 @@ export default function Page() {
           maxW="80%"
           flexDirection="column"
         >
+          <Flex w="100%" justifyContent="center">
           <Text
             color="black"
-            fontSize={{ base: "40px", md: "60px", lg: "80px" }}
+            fontSize={{ base: "20px", md: "30px", lg: "40px" }}
             lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
             fontWeight="bold"
             textAlign="center"
           >
-            Never watch alone again. Come be{" "}
-            <Text as="span" color="white">
-              unlonely
-            </Text>{" "}
-            with us.
-          </Text>
+              Non-Fungible Clips from Unlonely Streams
+            </Text>
+          </Flex>
+          <Flex direction="row" overflowX="scroll" overflowY="clip" width="100%" height="18rem">
+            <NfcList nfcs={nfcs}/>
+          </Flex>
           <Flex w="100%" justifyContent="center" mt="10px" mb="20px">
             <SimpleGrid columns={[1]} spacing="40px">
               <Flex w="100%" justifyContent="center">
