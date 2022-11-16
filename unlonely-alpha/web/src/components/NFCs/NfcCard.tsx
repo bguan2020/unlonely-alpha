@@ -18,7 +18,7 @@ const NfcCard = ({ nfc }: any) => {
         mt="8px"
         mr="1rem"
       >
-        <video controls loop>
+        <video controls loop poster={`/images/${nfc.title}.png`}>
           <source src={nfc.videoLink} type="video/mp4"></source>
         </video>
         <Text fontSize={16} fontWeight="bold">
