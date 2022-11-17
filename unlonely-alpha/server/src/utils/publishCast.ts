@@ -12,7 +12,7 @@ import wallet from "./wallet";
  * The cast will be attributed to the username currently registered
  * to the given private key's address.
  */
-const replyTo = "0x207390321982a4553374be340841bb6d7663056604a6dab64228903dd10fa452"; // INSERT HERE
+const replyTo = "0x03f9f7bf1c045e74c0cc538834d461d01083f6be0d5418892f9b5c22e5465c40"; // INSERT HERE
 const _defaultFarcaster = new Farcaster()
 export default async function publishCast(text: string) { 
   const contentHost = new FarcasterGuardianContentHost(wallet.privateKey);
