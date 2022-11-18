@@ -11,6 +11,9 @@ export const resolvers = {
       }
       return chatService.firstChatExists(ctx.user, ctx);
     },
+    chatBot(_: any, _args: any, ctx: Context) {
+      return chatService.chatbot(ctx);
+    },
   },
   Mutation: {
     postFirstChat: (
