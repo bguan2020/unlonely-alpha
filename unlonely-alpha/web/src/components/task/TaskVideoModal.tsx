@@ -91,18 +91,6 @@ const AddVideoModal: React.FunctionComponent<Props> = ({
       });
       return;
     }
-    const poapCount = await checkPOAP(user);
-    if (poapCount < 1) {
-      toast({
-        title: "POAP Required",
-        description: "You must have at least 1 POAP to post a video.",
-        status: "warning",
-        duration: 9000,
-        isClosable: true,
-        position: "top",
-      });
-      return;
-    }
     const { description } = watch();
     const data = await postTask({
       taskType: "video",
