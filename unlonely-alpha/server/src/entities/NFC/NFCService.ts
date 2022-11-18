@@ -11,7 +11,7 @@ export const handleNFC = async (
   ctx: Context,
   user: User
 ) => {
-  const numNFCsAllowed = user.powerUserLvl*2 + 1;
+  const numNFCsAllowed = user.powerUserLvl * 2 + 1;
   if (numNFCsAllowed === 0) {
     throw new Error("User is not allowed to post NFCs");
   }

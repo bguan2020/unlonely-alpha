@@ -26,7 +26,7 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif }: Props) => {
           z-index={2}
           position="absolute"
           bottom="8px"
-          right="8px"
+          right="36px"
           bg="white"
         >
           😃

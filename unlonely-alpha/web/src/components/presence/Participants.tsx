@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
-import { AvatarGroup, Flex } from "@chakra-ui/react";
+import { Avatar, Flex, SimpleGrid, Tooltip } from "@chakra-ui/react";
 
 // import { usePresence } from "../../hooks/usePresence";
 import { usePresence } from "@ably-labs/react-hooks";
 import Participant from "./Participant";
 import { User } from "../../generated/graphql";
 import { useUser } from "../../hooks/useUser";
+import ExcessTooltip from "./ExcessTooltip";
+import AnonExcessTooltip from "./AnonExcessTooltip";
 
 configureAbly({
   authUrl: "/api/createTokenRequest",
@@ -74,17 +76,55 @@ const Participants = () => {
     }
   }, [presenceData]);
 
-  const presenceList = participantOrder.map((member, index) => {
+  const participantTooltip = () => {
+    // display mapping in grid, 3 columns
     return (
-      <Flex key={index}>
-        <Participant user={member.data?.user} />
-      </Flex>
+      <>
+        <SimpleGrid columns={3}>
+          {participantOrder.map((member, index) => {
+            if (member.data?.user) {
+              return (
+                <Flex key={index} m="auto" p="0.5rem">
+                  <ExcessTooltip user={member.data.user} />
+                </Flex>
+              );
+            } else {
+              return (
+                <Flex key={index} m="auto" p="0.5rem">
+                  <AnonExcessTooltip />
+                </Flex>
+              );
+            }
+          })}
+        </SimpleGrid>
+      </>
     );
-  });
+  };
 
+  // make Participant overlap each other a bit and show a max of 6, with the last one being a count of the rest
   return (
-    <Flex direction="row" maxW="100%">
-      <AvatarGroup max={6}>{presenceList}</AvatarGroup>
+    <Flex direction="row" maxW="100%" justifyContent="center" pl="1rem">
+      <Flex flexDirection="row-reverse">
+        {!!participantOrder.slice(6).length && (
+          <Flex ml={-2}>
+            <Tooltip label={participantTooltip()} hasArrow arrowSize={14}>
+              <Avatar
+                size="md"
+                name={`+ ${participantOrder.slice(6).length}`}
+                bg="white"
+              />
+            </Tooltip>
+          </Flex>
+        )}
+        {participantOrder
+          .slice(0, 6)
+          .reverse()
+          .map((member, index) => (
+            <Flex key={index} ml={-4}>
+              <Participant user={member.data?.user} />
+            </Flex>
+          ))}
+      </Flex>
     </Flex>
   );
 };

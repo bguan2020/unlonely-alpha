@@ -1,4 +1,4 @@
-import { Flex, Button, Textarea } from "@chakra-ui/react";
+import { Flex, Button, Textarea, Switch, Tooltip } from "@chakra-ui/react";
 import React, { useState } from "react";
 
 import EmojiButton from "./emoji/EmojiButton";
@@ -11,6 +11,7 @@ type Props = {
 
 const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
   const [messageText, setMessageText] = useState<string>("");
+  const [privateChat, setPrivateChat] = useState<boolean>(true);
 
   const messageTextIsEmpty = messageText.trim().length === 0;
 
@@ -40,6 +41,17 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
     setMessageText("");
   };
 
+  const handlePrivateChat = () => {
+    setPrivateChat(!privateChat);
+    if (privateChat) {
+      // add "@noFCplz" to beginning of messageText
+      setMessageText(`@noFCplz ${messageText}`);
+    } else {
+      // remove "@noFCplz" from beginning of messageText
+      setMessageText(messageText.replace("@noFCplz ", ""));
+    }
+  };
+
   return (
     <>
       <form
@@ -61,6 +73,11 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             style={{ zIndex: 0 }}
             position="relative"
           ></Textarea>
+          <Tooltip label="Toggle to send private message. Private messages won't get displayed to Farcaster.">
+            <Flex position="absolute" zIndex={2} bottom="12px" right="8px">
+              <Switch size="sm" onChange={() => handlePrivateChat()} />
+            </Flex>
+          </Tooltip>
           <EmojiButton
             onSelectEmoji={(emoji) => addEmoji(emoji)}
             onSelectGif={(gif) => sendGif(gif)}
