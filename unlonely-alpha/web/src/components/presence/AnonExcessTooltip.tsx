@@ -7,7 +7,7 @@ const AnonExcessTooltip = () => {
     <>
       <Flex direction="column">
         <Avatar name="anon" src={anonUrl} bg="grey" size="sm" />
-        <Text>mysterious anon👀</Text>
+        <Text fontSize="12px">mysterious anon👀</Text>
         <Flex direction="row"></Flex>
       </Flex>
     </>

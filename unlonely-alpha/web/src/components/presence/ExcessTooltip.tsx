@@ -16,7 +16,7 @@ const ExcessTooltip = ({ user }: Props) => {
           name={user.username ? user.username : user.address}
           size="sm"
         />
-        <Text>
+        <Text fontSize="12px">
           {user.username ? user.username : centerEllipses(user.address, 8)}
         </Text>
         <Flex direction="row">
