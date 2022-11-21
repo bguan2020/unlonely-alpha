@@ -59,7 +59,7 @@ export default function Badges({ message, user }: Props) {
       {message.data.isFC && (
         <Tooltip label="Farcaster Badge">
           <Image
-            src="https://searchcaster.xyz/img/logo.png"
+            src="/images/farcaster_logo.png"
             width="20px"
             height="20px"
             mr="5px"
