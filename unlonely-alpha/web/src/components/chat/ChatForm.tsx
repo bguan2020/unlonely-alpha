@@ -75,8 +75,8 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             position="relative"
           ></Textarea>
           <Tooltip label="Toggle to send private message. Private messages won't get displayed to Farcaster.">
-            <Flex position="absolute" zIndex={2} bottom="12px" right="8px">
-              <Switch size="sm" onChange={() => handlePrivateChat()} />
+            <Flex position="absolute" zIndex={2} bottom="12px" right="8px" pt="2px" pb="1px" pl="2px" pr="2px" bg="grey" borderRadius="2rem">
+              <Switch size="sm" colorScheme={"red"} onChange={() => handlePrivateChat()} />
             </Flex>
           </Tooltip>
           <EmojiButton
