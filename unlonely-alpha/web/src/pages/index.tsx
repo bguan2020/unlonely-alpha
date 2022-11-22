@@ -119,7 +119,7 @@ export default function Page() {
                 overflowX="scroll"
                 overflowY="clip"
                 width="100%"
-                height="18rem"
+                height={{base: "14rem", sm: "18rem", md: "18rem", lg: "18rem"}}
               >
                 <NfcList nfcs={nfcs} />
               </Flex>
