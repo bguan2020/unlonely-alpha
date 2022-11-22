@@ -9,11 +9,11 @@ const NfcCard = ({ nfc }: any) => {
       <Flex
         direction="column"
         w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
-        h="9rem"
+        h={{base: "9rem", sm: "3rem", md: "6rem", lg: "9rem"}}
         padding="0.3rem"
         borderRadius="1rem"
         minH="8rem"
-        minW="25rem"
+        minW={{base: "16rem", sm: "25rem", md: "25rem", lg: "25rem"}}
         mb="1.5rem"
         mt="8px"
         mr="1rem"

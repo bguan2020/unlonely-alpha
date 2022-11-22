@@ -35,7 +35,6 @@ import usePostTask from "../../hooks/usePostTask";
 import { YT_PUBLIC_KEY } from "../../constants";
 import { ChatBot } from "../../pages/channels/brian";
 import { useUser } from "../../hooks/useUser";
-import { checkPOAP } from "../../utils/checkPoapCount";
 
 type Props = {
   setChatBot: (chatBot: ChatBot[]) => void;
