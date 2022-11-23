@@ -81,17 +81,25 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
           flexDirection="row"
           justifyContent="center"
           width="100%"
-          height={isTheatreMode ? { base: "100%", sm: "700px", md: "700px", lg: "700px" } : { base: "80%", sm: "300px", md: "400px", lg: "500px" }}
+          height={
+            isTheatreMode
+              ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
+              : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
+          }
           mt="10px"
         >
-          <IVSPlayer isTheatreMode={isTheatreMode}/>
+          <IVSPlayer isTheatreMode={isTheatreMode} />
         </Flex>
       ) : (
         <Flex
           flexDirection="row"
           justifyContent="center"
           width="100%"
-          height={isTheatreMode ? { base: "100%", sm: "700px", md: "700px", lg: "700px" } : { base: "80%", sm: "300px", md: "400px", lg: "500px" }}
+          height={
+            isTheatreMode
+              ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
+              : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
+          }
           mt="10px"
         >
           <Flex

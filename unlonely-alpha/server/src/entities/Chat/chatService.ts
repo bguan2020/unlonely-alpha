@@ -67,4 +67,4 @@ export const chatbot = async (ctx: Context) => {
     // wait 30 seconds
     await new Promise((resolve) => setTimeout(resolve, 30 * 1000));
   }
-}
+};

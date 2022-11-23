@@ -11,7 +11,7 @@ const defaultPlaybackUrl =
 
 type Props = {
   isTheatreMode: boolean;
-}
+};
 
 const IVSPlayer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
   useEffect(() => {
@@ -63,6 +63,6 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
       ></video>
     </>
   );
-}
+};
 
 export default IVSPlayer;

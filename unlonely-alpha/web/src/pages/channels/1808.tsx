@@ -117,7 +117,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
             mt="10px"
           >
-            <IVSPlayer />
+            <IVSPlayer isTheatreMode={false} />
           </Flex>
         </GridItem>
         <GridItem rowSpan={1} colSpan={1} mr="20px">
