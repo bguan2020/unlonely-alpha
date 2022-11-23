@@ -9,7 +9,11 @@ import {
 const defaultPlaybackUrl =
   "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8";
 
-function IVSPlayer() {
+type Props = {
+  isTheatreMode: boolean;
+}
+
+const IVSPlayer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
   useEffect(() => {
     const PLAYBACK_URL = defaultPlaybackUrl;
 
@@ -52,6 +56,7 @@ function IVSPlayer() {
         playsInline
         style={{
           padding: "0px !important",
+          maxWidth: isTheatreMode ? "100%" : "889px",
           height: "100% !important",
           width: "100% !important",
         }}

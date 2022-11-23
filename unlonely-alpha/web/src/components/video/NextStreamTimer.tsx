@@ -5,7 +5,11 @@ import moment from "moment-timezone";
 import IVSPlayer from "../stream/IVSPlayer";
 import useScript from "../../hooks/useScript";
 
-const NextStreamTimer: React.FunctionComponent = () => {
+type Props = {
+  isTheatreMode: boolean;
+};
+
+const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
   const [streamingTime, setStreamingTime] = useState<boolean>(false);
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);
@@ -77,23 +81,23 @@ const NextStreamTimer: React.FunctionComponent = () => {
           flexDirection="row"
           justifyContent="center"
           width="100%"
-          height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
+          height={isTheatreMode ? { base: "100%", sm: "700px", md: "700px", lg: "700px" } : { base: "80%", sm: "300px", md: "400px", lg: "500px" }}
           mt="10px"
         >
-          <IVSPlayer />
+          <IVSPlayer isTheatreMode={isTheatreMode}/>
         </Flex>
       ) : (
         <Flex
           flexDirection="row"
           justifyContent="center"
           width="100%"
-          height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
+          height={isTheatreMode ? { base: "100%", sm: "700px", md: "700px", lg: "700px" } : { base: "80%", sm: "300px", md: "400px", lg: "500px" }}
           mt="10px"
         >
           <Flex
             direction="column"
             width="100%"
-            maxW="889px"
+            maxW="100%"
             pt="100px"
             pl="10px"
             color="white"
