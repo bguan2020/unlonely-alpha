@@ -13,7 +13,7 @@ import wallet from "./wallet";
  * to the given private key's address.
  */
 const replyTo =
-  "0x2427a4a9a4937d85fa99355ffc6298efe2fa81377406524136956ce89f94eadf"; // INSERT HERE
+  "0x77fa8596c0b11762df3a50282cdac9c0f2040b2b41fe2d9ae7b9702ad2d5e1f3"; // INSERT HERE
 const _defaultFarcaster = new Farcaster();
 export default async function publishCast(text: string) {
   const contentHost = new FarcasterGuardianContentHost(wallet.privateKey);

@@ -66,6 +66,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             }}
             value={messageText}
             fontFamily="Inter"
+            fontWeight="medium"
             placeholder="try asking @chatbot a question"
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
