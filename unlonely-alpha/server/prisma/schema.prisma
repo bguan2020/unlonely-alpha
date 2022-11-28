@@ -21,6 +21,7 @@ model User {
   bio String @default("")
   powerUserLvl Int @default(0)
   videoSavantLvl Int @default(0)
+  nfcRank Int @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
