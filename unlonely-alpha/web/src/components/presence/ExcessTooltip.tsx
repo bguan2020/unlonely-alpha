@@ -20,6 +20,14 @@ const ExcessTooltip = ({ user }: Props) => {
           {user.username ? user.username : centerEllipses(user.address, 8)}
         </Text>
         <Flex direction="row">
+          {user.nfcRank > 0 ? (
+              <Image
+                src={"/images/badges/nfc_rank_1.png"}
+                width="20px"
+                height="20px"
+                mr="5px"
+              />
+            ) : null}
           {user.powerUserLvl > 0 ? (
             <Image
               src={`/images/badges/lvl${user.powerUserLvl}_poweruser.png`}
@@ -38,7 +46,7 @@ const ExcessTooltip = ({ user }: Props) => {
           ) : null}
           {user.isFCUser ? (
             <Image
-              src="https://searchcaster.xyz/img/logo.png"
+              src="/images/farcaster_logo.png"
               width="20px"
               height="20px"
               mr="5px"
