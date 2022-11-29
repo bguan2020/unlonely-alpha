@@ -14,6 +14,7 @@ const GET_USER_QUERY = gql`
       bio
       powerUserLvl
       videoSavantLvl
+      nfcRank
       FCImageUrl
       isFCUser
     }

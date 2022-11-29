@@ -57,6 +57,7 @@ export type Message = {
     isFC: boolean;
     powerUserLvl: number | null;
     videoSavantLvl: number | null;
+    nfcRank: number | null;
     reactions: EmojiTypes;
     isGif: boolean;
     body?: string;

@@ -9,6 +9,7 @@ export const typeDef = gql`
     bio: String
     powerUserLvl: Int!
     videoSavantLvl: Int!
+    nfcRank: Int!
     reputation: Int
     isFCUser: Boolean!
     createdAt: DateTime!

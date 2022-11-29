@@ -276,6 +276,7 @@ export type PostVideoInput = {
 export type Query = {
   __typename?: "Query";
   _empty?: Maybe<Scalars["String"]>;
+  chatBot?: Maybe<Array<Maybe<Chat>>>;
   currentUser?: Maybe<User>;
   currentUserAuthMessage?: Maybe<Scalars["String"]>;
   firstChatExists?: Maybe<Scalars["Boolean"]>;
@@ -360,6 +361,7 @@ export type User = {
   createdAt: Scalars["DateTime"];
   id: Scalars["ID"];
   isFCUser: Scalars["Boolean"];
+  nfcRank: Scalars["Int"];
   powerUserLvl: Scalars["Int"];
   reputation?: Maybe<Scalars["Int"]>;
   sigTimestamp?: Maybe<Scalars["BigInt"]>;
@@ -606,6 +608,7 @@ export type GetUserQuery = {
     bio?: string | null;
     powerUserLvl: number;
     videoSavantLvl: number;
+    nfcRank: number;
     FCImageUrl?: string | null;
     isFCUser: boolean;
   } | null;
@@ -719,9 +722,9 @@ export type NfcFeedQuery = {
     id: string;
     videoLink?: string | null;
     title?: string | null;
-    score: number;
     owner: {
       __typename?: "User";
+      username?: string | null;
       address: string;
       FCImageUrl?: string | null;
       powerUserLvl: number;
@@ -1253,6 +1256,7 @@ export const GetUserDocument = gql`
       bio
       powerUserLvl
       videoSavantLvl
+      nfcRank
       FCImageUrl
       isFCUser
     }
@@ -1537,13 +1541,13 @@ export const NfcFeedDocument = gql`
       id
       videoLink
       owner {
+        username
         address
         FCImageUrl
         powerUserLvl
         videoSavantLvl
       }
       title
-      score
     }
   }
 `;

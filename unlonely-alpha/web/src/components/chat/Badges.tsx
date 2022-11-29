@@ -24,8 +24,31 @@ export default function Badges({ message, user }: Props) {
       numStreams = "0";
   }
 
+  // const that opens a new tab to this link: https://opensea.io/assets/ethereum/0x55d78c09a0a8f0136392eb493a9aecc9c0ded225/1
+  const openNFT = () => {
+    window.open(
+      "https://opensea.io/assets/ethereum/0x55d78c09a0a8f0136392eb493a9aecc9c0ded225/1",
+      "_blank"
+    );
+  };
+
   return (
     <>
+      {(user &&
+        user?.nfcRank > 0 &&
+        user?.username === message.data.username) ||
+      (message.data.nfcRank && message.data.nfcRank > 0) ? (
+        <Tooltip label={"Voted Best NFC Holder of the Week. Click to view."}>
+          <Image
+            src={"/images/badges/nfc_rank_1.png"}
+            width="40px"
+            height="40px"
+            mr="5px"
+            mb="4px"
+            onClick={openNFT}
+          />
+        </Tooltip>
+      ) : null}
       {(user &&
         user?.powerUserLvl > 0 &&
         user?.username === message.data.username) ||
