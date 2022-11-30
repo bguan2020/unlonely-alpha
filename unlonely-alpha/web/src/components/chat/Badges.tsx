@@ -27,7 +27,7 @@ export default function Badges({ message, user }: Props) {
   // const that opens a new tab to this link: https://opensea.io/assets/ethereum/0x55d78c09a0a8f0136392eb493a9aecc9c0ded225/1
   const openNFT = () => {
     window.open(
-      "https://opensea.io/assets/ethereum/0x55d78c09a0a8f0136392eb493a9aecc9c0ded225/1",
+      "https://opensea.io/assets/ethereum/0x55d78c09a0a8f0136392eb493a9aecc9c0ded225/43",
       "_blank"
     );
   };
