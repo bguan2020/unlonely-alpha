@@ -1,13 +1,11 @@
 import { GetServerSidePropsContext } from "next";
 import { gql, useQuery } from "@apollo/client";
 
-import { Text, Flex } from "@chakra-ui/layout";
-import { Image, Spacer, Spinner } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/layout";
+import { Spinner } from "@chakra-ui/react";
 import { NfcDetailQuery } from "../../generated/graphql";
 import AppLayout from "../../components/layout/AppLayout";
 import NfcDetailCard from "../../components/NFCs/NfcDetail";
-
-const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
 type UrlParams = {
   nfcId: string;
