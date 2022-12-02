@@ -1,0 +1,49 @@
+{
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "~1.17.3",
+    "@react-navigation/drawer": "^6.5.3",
+    "@shopify/restyle": "^2.1.0",
+    "@types/react": "^18.0.25",
+    "@types/react-native": "^0.70.7",
+    "expo": "~47.0.3",
+    "expo-auth-session": "~3.7.3",
+    "expo-constants": "~14.0.2",
+    "expo-linking": "~3.2.3",
+    "expo-router": "~0.0.35",
+    "expo-secure-store": "~12.0.0",
+    "expo-splash-screen": "~0.17.4",
+    "expo-status-bar": "~1.4.2",
+    "react": "18.1.0",
+    "react-dom": "18.1.0",
+    "react-native": "0.70.5",
+    "react-native-gesture-handler": "~2.8.0",
+    "react-native-reanimated": "~2.12.0",
+    "react-native-safe-area-context": "4.4.1",
+    "react-native-screens": "~3.18.0",
+    "react-native-web": "~0.18.7",
+    "typescript": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
+    "babel-plugin-transform-imports": "^2.0.0",
+    "prettier": "^2.8.0"
+  },
+  "name": "unlonely-alpha-mobile",
+  "overrides": {
+    "metro": "^0.73.1",
+    "metro-resolver": "^0.73.1"
+  },
+  "private": true,
+  "resolutions": {
+    "metro": "^0.73.1",
+    "metro-resolver": "^0.73.1"
+  },
+  "scripts": {
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "start": "expo start",
+    "web": "expo start --web"
+  },
+  "version": "1.0.0"
+}
