@@ -9,6 +9,9 @@ export const resolvers = {
     getNFCFeed(_: any, data: NFCService.IGetNFCFeedInput, ctx: Context) {
       return NFCService.getNFCFeed(data, ctx);
     },
+    getNFC(_: any, { id }: { id: number }, ctx: Context) {
+      return NFCService.getNFC({ id }, ctx);
+    },
   },
   Mutation: {
     handleNFC: (

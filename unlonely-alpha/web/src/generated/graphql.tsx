@@ -283,6 +283,7 @@ export type Query = {
   getAllUsers?: Maybe<Array<Maybe<User>>>;
   getHostEventFeed?: Maybe<Array<Maybe<HostEvent>>>;
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
+  getNFC?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
   getPoap?: Maybe<Poap>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
@@ -293,6 +294,10 @@ export type Query = {
 
 export type QueryGetHostEventFeedArgs = {
   data?: InputMaybe<HostEventFeedInput>;
+};
+
+export type QueryGetNfcArgs = {
+  id: Scalars["ID"];
 };
 
 export type QueryGetNfcFeedArgs = {
@@ -731,6 +736,27 @@ export type NfcFeedQuery = {
       videoSavantLvl: number;
     };
   } | null> | null;
+};
+
+export type NfcDetailQueryVariables = Exact<{
+  id: Scalars["ID"];
+}>;
+
+export type NfcDetailQuery = {
+  __typename?: "Query";
+  getNFC?: {
+    __typename?: "NFC";
+    id: string;
+    title?: string | null;
+    videoLink?: string | null;
+    updatedAt: any;
+    owner: {
+      __typename?: "User";
+      address: string;
+      FCImageUrl?: string | null;
+      username?: string | null;
+    };
+  } | null;
 };
 
 export type FetchAuthMessageQueryVariables = Exact<{ [key: string]: never }>;
@@ -1591,6 +1617,67 @@ export type NfcFeedLazyQueryHookResult = ReturnType<typeof useNfcFeedLazyQuery>;
 export type NfcFeedQueryResult = Apollo.QueryResult<
   NfcFeedQuery,
   NfcFeedQueryVariables
+>;
+export const NfcDetailDocument = gql`
+  query NFCDetail($id: ID!) {
+    getNFC(id: $id) {
+      id
+      title
+      videoLink
+      updatedAt
+      owner {
+        address
+        FCImageUrl
+        username
+      }
+    }
+  }
+`;
+
+/**
+ * __useNfcDetailQuery__
+ *
+ * To run a query within a React component, call `useNfcDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useNfcDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNfcDetailQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useNfcDetailQuery(
+  baseOptions: Apollo.QueryHookOptions<NfcDetailQuery, NfcDetailQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<NfcDetailQuery, NfcDetailQueryVariables>(
+    NfcDetailDocument,
+    options
+  );
+}
+export function useNfcDetailLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    NfcDetailQuery,
+    NfcDetailQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<NfcDetailQuery, NfcDetailQueryVariables>(
+    NfcDetailDocument,
+    options
+  );
+}
+export type NfcDetailQueryHookResult = ReturnType<typeof useNfcDetailQuery>;
+export type NfcDetailLazyQueryHookResult = ReturnType<
+  typeof useNfcDetailLazyQuery
+>;
+export type NfcDetailQueryResult = Apollo.QueryResult<
+  NfcDetailQuery,
+  NfcDetailQueryVariables
 >;
 export const FetchAuthMessageDocument = gql`
   query FetchAuthMessage {
