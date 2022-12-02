@@ -24,6 +24,7 @@ export const typeDef = gql`
 
   extend type Query {
     getNFCFeed(data: NFCFeedInput): [NFC]
+    getNFC(id: ID!): NFC
   }
 
   extend type Mutation {

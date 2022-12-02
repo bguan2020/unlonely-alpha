@@ -84,6 +84,12 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
   }
 };
 
+export const getNFC = ({ id }: { id: number }, ctx: Context) => {
+  return ctx.prisma.nFC.findUnique({
+    where: { id: Number(id) },
+  });
+};
+
 export const getOwner = (
   { ownerAddr }: { ownerAddr: string },
   ctx: Context
