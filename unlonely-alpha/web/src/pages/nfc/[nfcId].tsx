@@ -39,7 +39,7 @@ const NfcDetail = ({ nfcId }: UrlParams) => {
 
   return (
     <>
-      <AppLayout>
+      <AppLayout title={nfc?.title} image={"https://i.seadn.io/gae/9DIkXe_y3Q0AlKO3urMAPmpccABUoKCTo-60JtWlLOAcZV5OLZuLBqiqEFVxmNhdyf8jfvIFHi9kWzR5KcUoea7IU1FwmXf46eMQ7A?w=500&auto=format"}>
         <Flex justifyContent="center" mt="5rem">
           {!nfc || loading ? (
             <Flex width="100%" justifyContent="center">
