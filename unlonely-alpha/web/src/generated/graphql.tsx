@@ -163,6 +163,7 @@ export type Mutation = {
   _empty?: Maybe<Scalars["String"]>;
   handleLike?: Maybe<Likable>;
   handleNFC?: Maybe<Scalars["Int"]>;
+  openseaNFCScript?: Maybe<Scalars["String"]>;
   postChallenge?: Maybe<HostEvent>;
   postComment?: Maybe<Comment>;
   postFirstChat?: Maybe<Chat>;
@@ -214,11 +215,13 @@ export type Nfc = Likable & {
   disliked?: Maybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
   liked?: Maybe<Scalars["Boolean"]>;
+  openseaLink?: Maybe<Scalars["String"]>;
   owner: User;
   score: Scalars["Int"];
   title?: Maybe<Scalars["String"]>;
   updatedAt: Scalars["DateTime"];
   videoLink?: Maybe<Scalars["String"]>;
+  videoThumbnail?: Maybe<Scalars["String"]>;
 };
 
 export type NfcFeedInput = {
@@ -749,6 +752,8 @@ export type NfcDetailQuery = {
     id: string;
     title?: string | null;
     videoLink?: string | null;
+    openseaLink?: string | null;
+    videoThumbnail?: string | null;
     updatedAt: any;
     owner: {
       __typename?: "User";
@@ -1624,6 +1629,8 @@ export const NfcDetailDocument = gql`
       id
       title
       videoLink
+      openseaLink
+      videoThumbnail
       updatedAt
       owner {
         address

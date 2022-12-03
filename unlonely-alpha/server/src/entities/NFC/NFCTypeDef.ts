@@ -5,6 +5,8 @@ export const typeDef = gql`
     id: ID!
     title: String
     videoLink: String
+    videoThumbnail: String
+    openseaLink: String
     score: Int!
     liked: Boolean
     disliked: Boolean
@@ -29,5 +31,6 @@ export const typeDef = gql`
 
   extend type Mutation {
     handleNFC(data: HandleNFCInput!): Int
+    openseaNFCScript: String
   }
 `;
