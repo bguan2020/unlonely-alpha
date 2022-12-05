@@ -36,7 +36,7 @@ const NfcCard = ({ nfc }: any) => {
             {nfc.title}
           </Text>
           <Flex mt="0.25rem" direction="row">
-            {nfc.score > 1 ? <Text fontSize={12}>{nfc.score}</Text> : null}
+            {nfc.score >= 1 ? <Text fontSize={12}>{nfc.score}</Text> : null}
             {nfc.liked === true ? (
               <LikedIcon boxSize={4} />
             ) : (
