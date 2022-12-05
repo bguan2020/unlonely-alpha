@@ -1,5 +1,6 @@
 import { GetServerSidePropsContext } from "next";
 import { gql, useQuery } from "@apollo/client";
+import Head from "next/head";
 
 import { Flex } from "@chakra-ui/layout";
 import { Spinner } from "@chakra-ui/react";
@@ -8,6 +9,7 @@ import AppLayout from "../../components/layout/AppLayout";
 import NfcDetailCard from "../../components/NFCs/NfcDetail";
 import NfcList from "../../components/NFCs/NfcList";
 import NfcCardSkeleton from "../../components/NFCs/NfcCardSkeleton";
+import centerEllipses from "../../utils/centerEllipses";
 
 type UrlParams = {
   nfcId: string;
@@ -75,7 +77,16 @@ const NfcDetail = ({ nfcId }: UrlParams) => {
 
   return (
     <>
-      <AppLayout title={nfc?.title} image={nfc?.videoThumbnail}>
+      {nfc ? (
+        <Head>
+          <title>{nfc.title} | NFC</title>
+          <meta property="og:title" content={nfc.title ? `${nfc.title} | NFC` : "NFC"} />
+          <meta name="description" content={`${nfc.owner.username ? nfc.owner.username : centerEllipses(nfc.owner.address, 7)}'s NFC | ${nfc.title}`} />
+          <meta property="og:image" content={nfc.videoThumbnail ? nfc.videoThumbnail : "/images/social_banner.png"} />
+          <meta property="og:url" content={`https://www.unlonely.app/nfc/${nfcId}`} />
+        </Head>
+      ) : null}
+      <AppLayout title={nfc?.title} image={nfc?.videoThumbnail} isCustomHeader={true}>
         <Flex justifyContent="center" mt="5rem" direction="column">
             {!nfc || loading ? (
               <Flex width="100%" justifyContent="center">

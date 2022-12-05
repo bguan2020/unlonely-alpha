@@ -18,16 +18,19 @@ type Props = {
   title?: string | null;
   description?: string | null;
   image?: string | null;
+  isCustomHeader: boolean;
 };
 
-const AppLayout: React.FC<Props> = ({ children, loading = false, error, title, image, description, }) => {
+const AppLayout: React.FC<Props> = ({ children, loading = false, error, title, image, description, isCustomHeader }) => {
   return (
     <Grid
       display={["grid"]}
       gridTemplateColumns={["1px auto"]}
       bgGradient="linear(to-r, #e2f979, #b0e5cf, #ba98d7, #d16fce)"
     >
-      <NextHead title="Unlonely" image={image ? image : ""} description={description ? description : ""} />
+      {isCustomHeader === false ? (
+        <NextHead title="Unlonely" image={image ? image : ""} description={description ? description : ""} />
+      ) : null}
       <Header />
       <Box
         mt="60px"

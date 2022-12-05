@@ -82,7 +82,7 @@ export default function Page() {
   const nfcs = dataNFCs?.getNFCFeed;
 
   return (
-    <AppLayout>
+    <AppLayout isCustomHeader={false}>
       <Flex justifyContent="center">
         <Flex
           marginTop={{ base: "40px", md: "60px", lg: "100px" }}

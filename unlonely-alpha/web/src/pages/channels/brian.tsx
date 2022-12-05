@@ -422,7 +422,7 @@ export default function Page() {
   const hostEvents = data?.getHostEventFeed;
 
   return (
-    <AppLayout error={error}>
+    <AppLayout error={error} isCustomHeader={false}>
       <Example hostEvents={hostEvents} loading={loading} />
     </AppLayout>
   );
