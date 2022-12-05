@@ -1,9 +1,14 @@
 import Head from "next/head";
 
-const NextHead: React.FC<{ title: string, image: string, description: string }> = ({ title, image, description }) => {
+const NextHead: React.FC<{
+  title: string;
+  image: string;
+  description: string;
+}> = ({ title, image, description }) => {
   const __title: string = title || "Unlonely";
   const __image = image === "" ? "/images/social_banner.png" : image;
-  const __description = description === "" ? "Never watch alone again" : description;
+  const __description =
+    description === "" ? "Never watch alone again" : description;
   return (
     <Head>
       <link
@@ -38,7 +43,7 @@ const NextHead: React.FC<{ title: string, image: string, description: string }> 
       <meta property="og:locale" content="en_US" />
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content={__title} />
-      <meta property="og:image" content={__image}/>
+      <meta property="og:image" content={__image} />
 
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@bdguan" />

@@ -729,6 +729,8 @@ export type NfcFeedQuery = {
     createdAt: any;
     id: string;
     videoLink?: string | null;
+    videoThumbnail?: string | null;
+    openseaLink?: string | null;
     title?: string | null;
     owner: {
       __typename?: "User";
@@ -762,6 +764,29 @@ export type NfcDetailQuery = {
       username?: string | null;
     };
   } | null;
+};
+
+export type NfcRecommendationsQueryVariables = Exact<{
+  data: NfcFeedInput;
+}>;
+
+export type NfcRecommendationsQuery = {
+  __typename?: "Query";
+  getNFCFeed?: Array<{
+    __typename?: "NFC";
+    createdAt: any;
+    id: string;
+    videoLink?: string | null;
+    title?: string | null;
+    owner: {
+      __typename?: "User";
+      username?: string | null;
+      address: string;
+      FCImageUrl?: string | null;
+      powerUserLvl: number;
+      videoSavantLvl: number;
+    };
+  } | null> | null;
 };
 
 export type FetchAuthMessageQueryVariables = Exact<{ [key: string]: never }>;
@@ -1571,6 +1596,8 @@ export const NfcFeedDocument = gql`
       createdAt
       id
       videoLink
+      videoThumbnail
+      openseaLink
       owner {
         username
         address
@@ -1685,6 +1712,74 @@ export type NfcDetailLazyQueryHookResult = ReturnType<
 export type NfcDetailQueryResult = Apollo.QueryResult<
   NfcDetailQuery,
   NfcDetailQueryVariables
+>;
+export const NfcRecommendationsDocument = gql`
+  query NFCRecommendations($data: NFCFeedInput!) {
+    getNFCFeed(data: $data) {
+      createdAt
+      id
+      videoLink
+      owner {
+        username
+        address
+        FCImageUrl
+        powerUserLvl
+        videoSavantLvl
+      }
+      title
+    }
+  }
+`;
+
+/**
+ * __useNfcRecommendationsQuery__
+ *
+ * To run a query within a React component, call `useNfcRecommendationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useNfcRecommendationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNfcRecommendationsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useNfcRecommendationsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    NfcRecommendationsQuery,
+    NfcRecommendationsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    NfcRecommendationsQuery,
+    NfcRecommendationsQueryVariables
+  >(NfcRecommendationsDocument, options);
+}
+export function useNfcRecommendationsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    NfcRecommendationsQuery,
+    NfcRecommendationsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    NfcRecommendationsQuery,
+    NfcRecommendationsQueryVariables
+  >(NfcRecommendationsDocument, options);
+}
+export type NfcRecommendationsQueryHookResult = ReturnType<
+  typeof useNfcRecommendationsQuery
+>;
+export type NfcRecommendationsLazyQueryHookResult = ReturnType<
+  typeof useNfcRecommendationsLazyQuery
+>;
+export type NfcRecommendationsQueryResult = Apollo.QueryResult<
+  NfcRecommendationsQuery,
+  NfcRecommendationsQueryVariables
 >;
 export const FetchAuthMessageDocument = gql`
   query FetchAuthMessage {

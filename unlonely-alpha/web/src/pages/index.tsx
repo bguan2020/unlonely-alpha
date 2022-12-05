@@ -44,6 +44,8 @@ const NFC_FEED_QUERY = gql`
       createdAt
       id
       videoLink
+      videoThumbnail
+      openseaLink
       owner {
         username
         address

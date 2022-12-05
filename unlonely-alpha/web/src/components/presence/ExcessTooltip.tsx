@@ -21,13 +21,13 @@ const ExcessTooltip = ({ user }: Props) => {
         </Text>
         <Flex direction="row">
           {user.nfcRank > 0 ? (
-              <Image
-                src={"/images/badges/nfc_rank_1.png"}
-                width="20px"
-                height="20px"
-                mr="5px"
-              />
-            ) : null}
+            <Image
+              src={"/images/badges/nfc_rank_1.png"}
+              width="20px"
+              height="20px"
+              mr="5px"
+            />
+          ) : null}
           {user.powerUserLvl > 0 ? (
             <Image
               src={`/images/badges/lvl${user.powerUserLvl}_poweruser.png`}

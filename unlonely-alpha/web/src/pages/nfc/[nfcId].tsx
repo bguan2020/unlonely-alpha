@@ -1,14 +1,12 @@
 import { GetServerSidePropsContext } from "next";
 import { gql, useQuery } from "@apollo/client";
 import Head from "next/head";
+import { Spinner, Flex, Text } from "@chakra-ui/react";
 
-import { Flex } from "@chakra-ui/layout";
-import { Spinner } from "@chakra-ui/react";
 import { NfcDetailQuery } from "../../generated/graphql";
 import AppLayout from "../../components/layout/AppLayout";
 import NfcDetailCard from "../../components/NFCs/NfcDetail";
 import NfcList from "../../components/NFCs/NfcList";
-import NfcCardSkeleton from "../../components/NFCs/NfcCardSkeleton";
 import centerEllipses from "../../utils/centerEllipses";
 
 type UrlParams = {
@@ -39,6 +37,8 @@ const NFC_RECOMMENDATIONS_QUERY = gql`
       createdAt
       id
       videoLink
+      videoThumbnail
+      openseaLink
       owner {
         username
         address
@@ -52,12 +52,9 @@ const NFC_RECOMMENDATIONS_QUERY = gql`
 `;
 
 const NfcDetail = ({ nfcId }: UrlParams) => {
-  const { data, loading, error } = useQuery<NfcDetailQuery>(
-    NFC_DETAIL_QUERY,
-    {
-      variables: { id: nfcId },
-    }
-  );
+  const { data, loading, error } = useQuery<NfcDetailQuery>(NFC_DETAIL_QUERY, {
+    variables: { id: nfcId },
+  });
 
   const {
     data: dataNFCs,
@@ -80,46 +77,79 @@ const NfcDetail = ({ nfcId }: UrlParams) => {
       {nfc ? (
         <Head>
           <title>{nfc.title} | NFC</title>
-          <meta property="og:title" content={nfc.title ? `${nfc.title} | NFC` : "NFC"} />
-          <meta name="description" content={`${nfc.owner.username ? nfc.owner.username : centerEllipses(nfc.owner.address, 7)}'s NFC | ${nfc.title}`} />
-          <meta property="og:image" content={nfc.videoThumbnail ? nfc.videoThumbnail : "/images/social_banner.png"} />
-          <meta property="og:url" content={`https://www.unlonely.app/nfc/${nfcId}`} />
+          <meta
+            property="og:title"
+            content={nfc.title ? `${nfc.title} | NFC` : "NFC"}
+          />
+          <meta
+            name="description"
+            content={`${
+              nfc.owner.username
+                ? nfc.owner.username
+                : centerEllipses(nfc.owner.address, 7)
+            }'s NFC | ${nfc.title}`}
+          />
+          <meta
+            property="og:image"
+            content={
+              nfc.videoThumbnail
+                ? nfc.videoThumbnail
+                : "/images/social_banner.png"
+            }
+          />
+          <meta
+            property="og:url"
+            content={`https://www.unlonely.app/nfc/${nfcId}`}
+          />
         </Head>
       ) : null}
-      <AppLayout title={nfc?.title} image={nfc?.videoThumbnail} isCustomHeader={true}>
+      <AppLayout
+        title={nfc?.title}
+        image={nfc?.videoThumbnail}
+        isCustomHeader={true}
+      >
         <Flex justifyContent="center" mt="5rem" direction="column">
-            {!nfc || loading ? (
-              <Flex width="100%" justifyContent="center">
-                <Spinner />
-              </Flex>
-            ) : (
-              <Flex width="100%" justifyContent="center">
-                <NfcDetailCard nfc={nfc} />
-              </Flex>
-            )}
-          {!nfcs || loadingNFCs ? (
+          {!nfc || loading ? (
             <Flex width="100%" justifyContent="center">
-            <Spinner />
-          </Flex>
+              <Spinner />
+            </Flex>
           ) : (
-              <Flex
-                      direction="row"
-                      overflowX="scroll"
-                      overflowY="hidden"
-                      justifyContent="center"
-                      m="auto"
-                      width="90%"
-                      height={{
-                        base: "14rem",
-                        sm: "18rem",
-                        md: "18rem",
-                        lg: "18rem",
-                      }}
-                    >
-                      <NfcList nfcs={nfcs} />
-                    </Flex>
+            <Flex width="100%" justifyContent="center">
+              <NfcDetailCard nfc={nfc} />
+            </Flex>
           )}
+          <Flex width="100%" justifyContent="center" mt="2rem">
+            <Flex width="100%" justifyContent="center" direction="column">
+              <Flex width="100%" justifyContent="center" mb="1rem">
+                <Text fontSize="16px">Watch More NFCs!</Text>
+              </Flex>
+              <Flex width="100%" justifyContent="center">
+                {loadingNFCs ? (
+                  <Flex width="100%" justifyContent="center">
+                    <Spinner />
+                  </Flex>
+                ) : (
+                  <Flex
+                    direction="row"
+                    overflowX="scroll"
+                    overflowY="hidden"
+                    justifyContent="center"
+                    m="auto"
+                    width="90%"
+                    height={{
+                      base: "14rem",
+                      sm: "18rem",
+                      md: "18rem",
+                      lg: "18rem",
+                    }}
+                  >
+                    <NfcList nfcs={nfcs} />
+                  </Flex>
+                )}
+              </Flex>
+            </Flex>
           </Flex>
+        </Flex>
       </AppLayout>
     </>
   );
