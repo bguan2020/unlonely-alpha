@@ -1,7 +1,11 @@
 import { gql } from "@apollo/client";
 
 import { useAuthedMutation } from "../apiClient/hooks";
-import { LikeMutation, LikeMutationVariables } from "../generated/graphql";
+import {
+  LikeMutation,
+  LikeMutationVariables,
+  LikeObj,
+} from "../generated/graphql";
 
 const LIKE_MUTATION = gql`
   mutation Like($data: HandleLikeInput!) {
@@ -16,11 +20,12 @@ const LIKE_MUTATION = gql`
 
 // props
 interface UseLikeProps {
+  likedObj: LikeObj;
   powerLvl: number | undefined;
-  id: string | undefined;
+  likableId: string | undefined;
 }
 
-const useLike = ({ id, powerLvl }: UseLikeProps) => {
+const useLike = ({ likedObj, likableId, powerLvl }: UseLikeProps) => {
   const [mutate] = useAuthedMutation<LikeMutation, LikeMutationVariables>(
     LIKE_MUTATION
   );
@@ -45,15 +50,19 @@ const useLike = ({ id, powerLvl }: UseLikeProps) => {
       break;
   }
 
-  if (id) {
+  if (likableId) {
     const like = () =>
       mutate({
-        variables: { data: { hostEventId: id, value: value } },
+        variables: {
+          data: { likedObj: likedObj, likableId: likableId, value: value },
+        },
       });
 
     const dislike = () =>
       mutate({
-        variables: { data: { hostEventId: id, value: -value } },
+        variables: {
+          data: { likedObj: likedObj, likableId: likableId, value: -value },
+        },
       });
 
     return { like, dislike };

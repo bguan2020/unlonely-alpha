@@ -1,4 +1,4 @@
-import { Comment } from "@prisma/client";
+import { Comment, HostEvent, NFC } from "@prisma/client";
 import { AuthenticationError } from "apollo-server";
 
 import { Context } from "../../context";
@@ -19,9 +19,13 @@ export const resolvers = {
     },
   },
   Likable: {
-    __resolveType: (obj: Comment, _ctx: Context) => {
-      if (obj) {
+    __resolveType: (obj: Comment | HostEvent | NFC, _ctx: Context) => {
+      if ("hostDate" in obj) {
         return "HostEvent";
+      }
+
+      if ("videoLink" in obj) {
+        return "NFC";
       }
 
       throw new Error("Unknown votable type returned");

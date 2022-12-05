@@ -21,6 +21,8 @@ const NFC_DETAIL_QUERY = gql`
       videoLink
       openseaLink
       videoThumbnail
+      score
+      liked
       updatedAt
       owner {
         address
@@ -39,6 +41,8 @@ const NFC_RECOMMENDATIONS_QUERY = gql`
       videoLink
       videoThumbnail
       openseaLink
+      score
+      liked
       owner {
         username
         address

@@ -1,6 +1,10 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
+  enum LikeObj {
+    HOSTEVENT
+    NFC
+  }
   interface Likable {
     id: ID!
     score: Int!
@@ -14,10 +18,12 @@ export const typeDef = gql`
     disliked: Boolean!
     liker: User!
     hostEvent: HostEvent
+    nFC: NFC
   }
 
   input HandleLikeInput {
-    hostEventId: ID!
+    likedObj: LikeObj!
+    likableId: ID!
     value: Int!
   }
 
