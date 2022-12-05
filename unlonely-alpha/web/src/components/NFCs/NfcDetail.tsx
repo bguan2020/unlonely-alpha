@@ -1,9 +1,32 @@
 import { Text, Flex } from "@chakra-ui/layout";
 import { Image, Spacer } from "@chakra-ui/react";
+import { useState } from "react";
+
+import { LikeObj } from "../../generated/graphql";
+import useLike from "../../hooks/useLike";
+import { useUser } from "../../hooks/useUser";
+import { LikeIcon, LikedIcon } from "../icons/LikeIcon";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
 const NfcDetailCard = ({ nfc }: any) => {
+  const { user } = useUser();
+  const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
+  const { like } = useLike({
+    likedObj: LikeObj.Nfc,
+    likableId: nfc.id,
+    powerLvl: user?.powerUserLvl,
+  });
+
+  const submit = async () => {
+    setButtonDisabled(true);
+    await like();
+
+    setTimeout(() => {
+      setButtonDisabled(false);
+    }, 3000);
+  };
+
   const handleOpenSeaLink = () => {
     window.open(nfc.openseaLink, "_blank");
   };
@@ -23,9 +46,23 @@ const NfcDetailCard = ({ nfc }: any) => {
         <video controls loop preload="metadata" poster={nfc.videoThumbnail}>
           <source src={nfc.videoLink} type="video/mp4"></source>
         </video>
-        <Text fontSize={32} fontWeight="bold">
-          {nfc.title}
-        </Text>
+        <Flex justifyContent="space-between">
+          <Text fontSize={32} fontWeight="bold">
+            {nfc.title}
+          </Text>
+          <button
+            margin-top="0.5rem"
+            onClick={submit}
+            disabled={buttonDisabled}
+          >
+            {nfc.score > 1 ? nfc.score : null}
+            {nfc.liked === true ? (
+              <LikedIcon boxSize={6} />
+            ) : (
+              <LikeIcon boxSize={6} />
+            )}
+          </button>
+        </Flex>
         <Flex direction="row" justifyContent="flex-end">
           <Image
             height="36px"

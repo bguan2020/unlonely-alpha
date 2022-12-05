@@ -46,6 +46,8 @@ const NFC_FEED_QUERY = gql`
       videoLink
       videoThumbnail
       openseaLink
+      score
+      liked
       owner {
         username
         address
@@ -185,8 +187,4 @@ export default function Page() {
       </Flex>
     </AppLayout>
   );
-}
-
-export async function getStaticProps() {
-  return { props: {} };
 }

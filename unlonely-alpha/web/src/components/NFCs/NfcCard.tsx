@@ -1,5 +1,6 @@
 import { Text, Flex } from "@chakra-ui/layout";
 import { Image, Spacer } from "@chakra-ui/react";
+import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
@@ -27,12 +28,22 @@ const NfcCard = ({ nfc }: any) => {
         mr="1rem"
         onClick={handleRedirect}
       >
-        <video controls loop preload="metadata" poster={nfc.videoThumbnail}>
+        <video loop preload="metadata" poster={nfc.videoThumbnail}>
           <source src={nfc.videoLink} type="video/mp4"></source>
         </video>
-        <Text fontSize={16} fontWeight="bold">
-          {nfc.title}
-        </Text>
+        <Flex justifyContent="space-between">
+          <Text fontSize={16} fontWeight="bold">
+            {nfc.title}
+          </Text>
+          <Flex mt="0.25rem" direction="row">
+            {nfc.score >= 1 ? <Text fontSize={12}>{nfc.score}</Text> : null}
+            {nfc.liked === true ? (
+              <LikedIcon boxSize={4} />
+            ) : (
+              <LikeIcon boxSize={4} />
+            )}
+          </Flex>
+        </Flex>
         <Flex direction="row" justifyContent="flex-end">
           <Image
             height="22px"

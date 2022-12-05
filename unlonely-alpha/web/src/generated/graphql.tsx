@@ -113,7 +113,8 @@ export type GetUserInput = {
 };
 
 export type HandleLikeInput = {
-  hostEventId: Scalars["ID"];
+  likableId: Scalars["ID"];
+  likedObj: LikeObj;
   value: Scalars["Int"];
 };
 
@@ -156,7 +157,13 @@ export type Like = {
   id: Scalars["ID"];
   liked: Scalars["Boolean"];
   liker: User;
+  nFC?: Maybe<Nfc>;
 };
+
+export enum LikeObj {
+  Hostevent = "HOSTEVENT",
+  Nfc = "NFC",
+}
 
 export type Mutation = {
   __typename?: "Mutation";
@@ -756,6 +763,8 @@ export type NfcDetailQuery = {
     videoLink?: string | null;
     openseaLink?: string | null;
     videoThumbnail?: string | null;
+    score: number;
+    liked?: boolean | null;
     updatedAt: any;
     owner: {
       __typename?: "User";
@@ -777,6 +786,10 @@ export type NfcRecommendationsQuery = {
     createdAt: any;
     id: string;
     videoLink?: string | null;
+    videoThumbnail?: string | null;
+    openseaLink?: string | null;
+    score: number;
+    liked?: boolean | null;
     title?: string | null;
     owner: {
       __typename?: "User";
@@ -1658,6 +1671,8 @@ export const NfcDetailDocument = gql`
       videoLink
       openseaLink
       videoThumbnail
+      score
+      liked
       updatedAt
       owner {
         address
@@ -1719,6 +1734,10 @@ export const NfcRecommendationsDocument = gql`
       createdAt
       id
       videoLink
+      videoThumbnail
+      openseaLink
+      score
+      liked
       owner {
         username
         address

@@ -3,7 +3,10 @@ import { Button, Image, Tooltip, useToast } from "@chakra-ui/react";
 import { gql } from "@apollo/client";
 import { useEffect, useState } from "react";
 
-import { HostEventCard_HostEventFragment } from "../../generated/graphql";
+import {
+  HostEventCard_HostEventFragment,
+  LikeObj,
+} from "../../generated/graphql";
 import useLike from "../../hooks/useLike";
 
 import { UpVoteIcon, UpVoteIconSalmon } from "../icons/UpVoteIcon";
@@ -23,11 +26,13 @@ const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 const HostEventCard = ({ hostEvent }: Props) => {
   const { user } = useUser();
   const { like, dislike } = useLike({
-    id: hostEvent.id,
+    likedObj: LikeObj.Hostevent,
+    likableId: hostEvent.id,
     powerLvl: user?.powerUserLvl,
   });
   const { like: likeChallenge, dislike: dislikeChallenge } = useLike({
-    id: hostEvent.challenge?.id,
+    likedObj: LikeObj.Hostevent,
+    likableId: hostEvent.challenge?.id,
     powerLvl: user?.powerUserLvl,
   });
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
