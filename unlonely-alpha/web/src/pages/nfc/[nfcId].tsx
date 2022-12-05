@@ -98,32 +98,26 @@ const NfcDetail = ({ nfcId }: UrlParams) => {
               </Flex>
             )}
           {!nfcs || loadingNFCs ? (
-            <Flex
-            direction="row"
-            overflowX="scroll"
-            width="100%"
-            height="18rem"
-            p="5rem"
-          >
-            {[1, 2, 3, 4, 5].map((i) => (
-              <NfcCardSkeleton />
-            ))}
+            <Flex width="100%" justifyContent="center">
+            <Spinner />
           </Flex>
           ) : (
-            <Flex
-                    direction="row"
-                    overflowX="scroll"
-                    overflowY="clip"
-                    width="100%"
-                    height={{
-                      base: "14rem",
-                      sm: "18rem",
-                      md: "18rem",
-                      lg: "18rem",
-                    }}
-                  >
-                    <NfcList nfcs={nfcs} />
-                  </Flex>
+              <Flex
+                      direction="row"
+                      overflowX="scroll"
+                      overflowY="hidden"
+                      justifyContent="center"
+                      m="auto"
+                      width="90%"
+                      height={{
+                        base: "14rem",
+                        sm: "18rem",
+                        md: "18rem",
+                        lg: "18rem",
+                      }}
+                    >
+                      <NfcList nfcs={nfcs} />
+                    </Flex>
           )}
           </Flex>
       </AppLayout>
