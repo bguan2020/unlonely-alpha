@@ -116,7 +116,7 @@ const NfcDetail = ({ nfcId }: UrlParams) => {
                     direction="row"
                     overflowX="scroll"
                     overflowY="hidden"
-                    justifyContent="center"
+                    justifyContent="left"
                     m="auto"
                     width="90%"
                     height={{

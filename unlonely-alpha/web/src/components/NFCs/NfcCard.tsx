@@ -28,7 +28,7 @@ const NfcCard = ({ nfc }: any) => {
         mr="1rem"
         onClick={handleRedirect}
       >
-        <video controls loop preload="metadata" poster={nfc.videoThumbnail}>
+        <video loop preload="metadata" poster={nfc.videoThumbnail}>
           <source src={nfc.videoLink} type="video/mp4"></source>
         </video>
         <Flex justifyContent="space-between">
