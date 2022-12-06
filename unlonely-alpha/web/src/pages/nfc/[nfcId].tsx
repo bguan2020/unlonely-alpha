@@ -1,13 +1,14 @@
 import { GetServerSidePropsContext } from "next";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useQuery, useLazyQuery } from "@apollo/client";
 import Head from "next/head";
 import { Spinner, Flex, Text } from "@chakra-ui/react";
+import { useEffect, useMemo } from "react";
 
 import { NfcDetailQuery } from "../../generated/graphql";
 import AppLayout from "../../components/layout/AppLayout";
 import NfcDetailCard from "../../components/NFCs/NfcDetail";
 import NfcList from "../../components/NFCs/NfcList";
-import centerEllipses from "../../utils/centerEllipses";
+import NFCNextHead from "../../components/layout/NFCNextHead";
 
 type UrlParams = {
   nfcId: string;
@@ -56,8 +57,8 @@ const NFC_RECOMMENDATIONS_QUERY = gql`
 `;
 
 const NfcDetail = ({ nfcId }: UrlParams) => {
-  const { data, loading, error } = useQuery<NfcDetailQuery>(NFC_DETAIL_QUERY, {
-    variables: { id: nfcId },
+  const [loadNFCData, { data, loading, error }] = useLazyQuery<NfcDetailQuery>(NFC_DETAIL_QUERY, {
+    variables: { id: nfcId }
   });
 
   const {
@@ -73,40 +74,19 @@ const NfcDetail = ({ nfcId }: UrlParams) => {
     },
   });
 
-  const nfc = data?.getNFC;
+  useEffect(() => {
+    // Trigger the query to load the nfc data when the page is loaded
+    loadNFCData();
+  }, []);
+
+  const nfc = useMemo(() => data?.getNFC, [data]);
   const nfcs = dataNFCs?.getNFCFeed;
 
   return (
     <>
-      {nfc ? (
-        <Head>
-          <title>{nfc.title} | NFC</title>
-          <meta
-            property="og:title"
-            content={nfc.title ? `${nfc.title} | NFC` : "NFC"}
-          />
-          <meta
-            name="description"
-            content={`${
-              nfc.owner.username
-                ? nfc.owner.username
-                : centerEllipses(nfc.owner.address, 7)
-            }'s NFC | ${nfc.title}`}
-          />
-          <meta
-            property="og:image"
-            content={
-              nfc.videoThumbnail
-                ? nfc.videoThumbnail
-                : "/images/social_banner.png"
-            }
-          />
-          <meta
-            property="og:url"
-            content={`https://www.unlonely.app/nfc/${nfcId}`}
-          />
-        </Head>
-      ) : null}
+      {!loading && nfc && (
+        <NFCNextHead nfc={nfc} />
+      )}
       <AppLayout
         title={nfc?.title}
         image={nfc?.videoThumbnail}
