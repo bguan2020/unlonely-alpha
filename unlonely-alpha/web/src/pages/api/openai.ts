@@ -26,7 +26,7 @@ export default async function handler(
       frequencyPenalty: 0.5,
     });
     result = gptResponse.data.choices[0].text;
-  } catch(e){
+  } catch (e) {
     result = "Sorry, I seem to be malfunctioning. Please try again later.";
   }
 

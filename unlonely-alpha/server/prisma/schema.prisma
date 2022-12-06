@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25061/unloney_staging_pool_2?pgbouncer=true"
+  // switch to this db url when pushing db changes
   // url = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely_v1_staging?sslmode=require"
 }
 
@@ -161,6 +162,8 @@ model NFC {
 
   title String? @default("")
   videoLink String? @default("")
+  videoThumbnail String? @default("")
+  openseaLink String? @default("")
   score Int @default(0)
 
   likes Like[]

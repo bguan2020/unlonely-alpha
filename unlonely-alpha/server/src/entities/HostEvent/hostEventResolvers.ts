@@ -46,7 +46,12 @@ export const resolvers = {
         return null;
       }
 
-      return likeService.isLiked(id, ctx.user.address, ctx);
+      return likeService.isLiked(
+        likeService.LikeObj.HOSTEVENT,
+        id,
+        ctx.user.address,
+        ctx
+      );
     },
     disliked: async ({ id }: { id: number }, _: any, ctx: Context) => {
       if (!ctx.user) {

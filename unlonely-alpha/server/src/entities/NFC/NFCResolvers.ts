@@ -25,6 +25,9 @@ export const resolvers = {
 
       return NFCService.handleNFC(data, ctx, ctx.user);
     },
+    // openseaNFCScript: async (_: any, __: any, ctx: Context) => {
+    //   return NFCService.openseaNFCScript(ctx);
+    // },
   },
   NFC: {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
@@ -35,14 +38,12 @@ export const resolvers = {
         return null;
       }
 
-      return likeService.isLiked(id, ctx.user.address, ctx);
-    },
-    disliked: async ({ id }: { id: number }, _: any, ctx: Context) => {
-      if (!ctx.user) {
-        return null;
-      }
-
-      return likeService.isDisliked(id, ctx.user.address, ctx);
+      return likeService.isLiked(
+        likeService.LikeObj.NFC,
+        id,
+        ctx.user.address,
+        ctx
+      );
     },
   },
 };

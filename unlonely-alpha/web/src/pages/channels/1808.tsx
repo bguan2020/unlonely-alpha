@@ -169,7 +169,7 @@ export default function Page() {
   const videos = data?.getVideoFeed;
 
   return (
-    <AppLayout error={error}>
+    <AppLayout error={error} isCustomHeader={false}>
       <Example videos={videos} loading={loading} />
     </AppLayout>
   );

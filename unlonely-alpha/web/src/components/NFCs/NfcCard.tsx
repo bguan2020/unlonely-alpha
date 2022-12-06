@@ -1,9 +1,18 @@
 import { Text, Flex } from "@chakra-ui/layout";
 import { Image, Spacer } from "@chakra-ui/react";
+import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
 const NfcCard = ({ nfc }: any) => {
+  const handleOpenSeaLink = () => {
+    window.open(nfc.openseaLink, "_blank");
+  };
+
+  const handleRedirect = () => {
+    window.location.href = `/nfc/${nfc.id}`;
+  };
+
   return (
     <>
       <Flex
@@ -17,13 +26,24 @@ const NfcCard = ({ nfc }: any) => {
         mb="1.5rem"
         mt="8px"
         mr="1rem"
+        onClick={handleRedirect}
       >
-        <video controls loop preload="metadata">
-          <source src={`${nfc.videoLink}#t=0.9`} type="video/mp4"></source>
+        <video loop preload="metadata" poster={nfc.videoThumbnail}>
+          <source src={nfc.videoLink} type="video/mp4"></source>
         </video>
-        <Text fontSize={16} fontWeight="bold">
-          {nfc.title}
-        </Text>
+        <Flex justifyContent="space-between">
+          <Text fontSize={16} fontWeight="bold">
+            {nfc.title}
+          </Text>
+          <Flex mt="0.25rem" direction="row">
+            {nfc.score >= 1 ? <Text fontSize={12}>{nfc.score}</Text> : null}
+            {nfc.liked === true ? (
+              <LikedIcon boxSize={4} />
+            ) : (
+              <LikeIcon boxSize={4} />
+            )}
+          </Flex>
+        </Flex>
         <Flex direction="row" justifyContent="flex-end">
           <Image
             height="22px"
@@ -44,16 +64,14 @@ const NfcCard = ({ nfc }: any) => {
             owner: {nfc.owner.username}
           </Text>
           <Spacer />
-          <Text
-            fontSize="12px"
-            noOfLines={1}
-            color="black"
-            fontWeight="light"
-            textAlign="center"
-            fontFamily="Inter"
-          >
-            <a href="https://opensea.io/collection/unlonelynfcs">Opensea</a>
-          </Text>
+          <Image
+            src="/images/opensea-blue_logo.png"
+            width="1.5rem"
+            height="1.5rem"
+            opacity={"0.4"}
+            onClick={handleOpenSeaLink}
+            _hover={{ cursor: "pointer" }}
+          />
         </Flex>
       </Flex>
     </>

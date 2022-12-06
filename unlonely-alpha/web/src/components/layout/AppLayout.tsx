@@ -15,17 +15,34 @@ import Header from "../navigation/Header";
 type Props = {
   loading?: boolean;
   error?: ApolloError | string;
+  title?: string | null;
+  description?: string | null;
+  image?: string | null;
+  isCustomHeader: boolean;
 };
 
-const AppLayout: React.FC<Props> = ({ children, loading = false, error }) => {
+const AppLayout: React.FC<Props> = ({
+  children,
+  loading = false,
+  error,
+  title,
+  image,
+  description,
+  isCustomHeader,
+}) => {
   return (
     <Grid
       display={["grid"]}
       gridTemplateColumns={["1px auto"]}
-      // gridTemplateRows={["none", "none", "max-content"]}
       bgGradient="linear(to-r, #e2f979, #b0e5cf, #ba98d7, #d16fce)"
     >
-      <NextHead title="Unlonely" />
+      {isCustomHeader === false ? (
+        <NextHead
+          title="Unlonely"
+          image={image ? image : ""}
+          description={description ? description : ""}
+        />
+      ) : null}
       <Header />
       <Box
         mt="60px"

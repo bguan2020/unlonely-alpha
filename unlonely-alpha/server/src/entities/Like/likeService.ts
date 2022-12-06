@@ -1,10 +1,16 @@
-import { User } from "@prisma/client";
+import { Like, User } from "@prisma/client";
 import { noop } from "lodash";
 
 import { Context } from "../../context";
 export interface IHandleLikeInput {
-  hostEventId: number;
+  likedObj: LikeObj;
+  likableId: number;
   value: number;
+}
+
+export enum LikeObj {
+  HOSTEVENT = "HOSTEVENT",
+  NFC = "NFC",
 }
 
 export const handleLike = async (
@@ -12,11 +18,27 @@ export const handleLike = async (
   user: User,
   ctx: Context
 ) => {
-  const existingLike = await getLike(data.hostEventId, user.address, ctx);
+  const existingLike = await getLike(
+    data.likedObj,
+    data.likableId,
+    user.address,
+    ctx
+  );
 
-  const updateItemScore = async (value: number) => {
-    return ctx.prisma.hostEvent.update({
-      where: { id: Number(data.hostEventId) },
+  const updateItemScore = async (likedObj: LikeObj, value: number) => {
+    if (likedObj === LikeObj.HOSTEVENT) {
+      return ctx.prisma.hostEvent.update({
+        where: { id: Number(data.likableId) },
+        data: {
+          score: {
+            increment: value,
+          },
+        },
+      });
+    }
+    // if not hostEvent, it's an NFC
+    return ctx.prisma.nFC.update({
+      where: { id: Number(data.likableId) },
       data: {
         score: {
           increment: value,
@@ -25,18 +47,33 @@ export const handleLike = async (
     });
   };
 
-  const createNewLike = () =>
-    ctx.prisma.like.create({
+  const createNewLike = (likedObj: LikeObj) => {
+    if (likedObj === LikeObj.HOSTEVENT) {
+      return ctx.prisma.like.create({
+        data: {
+          value: data.value,
+          liker: {
+            connect: { address: user.address },
+          },
+          hostEvent: {
+            connect: { id: Number(data.likableId) },
+          },
+        },
+      });
+    }
+    // if not hostEvent, it's an NFC
+    return ctx.prisma.like.create({
       data: {
         value: data.value,
         liker: {
           connect: { address: user.address },
         },
-        hostEvent: {
-          connect: { id: Number(data.hostEventId) },
+        NFC: {
+          connect: { id: Number(data.likableId) },
         },
       },
     });
+  };
 
   const deleteExistingLike = existingLike
     ? async () => {
@@ -66,25 +103,41 @@ export const handleLike = async (
 
     if (!changedLikeDirection) {
       await deleteExistingLike();
-      return updateItemScore(-data.value);
+      return updateItemScore(data.likedObj, -data.value);
     }
 
     await updateExistingLike();
-    return updateItemScore(2 * data.value);
+    return updateItemScore(data.likedObj, 2 * data.value);
   }
 
-  await createNewLike();
-  return updateItemScore(data.value);
+  await createNewLike(data.likedObj);
+  return updateItemScore(data.likedObj, data.value);
 };
 
 export async function getLike(
-  hostEventId: number,
+  likedObj: LikeObj,
+  likableId: number,
   likerAddress: string,
   ctx: Context
 ) {
+  if (likedObj === LikeObj.HOSTEVENT) {
+    const existingLike = await ctx.prisma.like.findFirst({
+      where: {
+        hostEventId: Number(likableId),
+        liker: { address: likerAddress },
+      },
+    });
+
+    if (!existingLike) {
+      return null;
+    } else {
+      return existingLike;
+    }
+  }
+  // if not hostEvent, then it's NFC
   const existingLike = await ctx.prisma.like.findFirst({
     where: {
-      hostEventId: Number(hostEventId),
+      NFCId: Number(likableId),
       liker: { address: likerAddress },
     },
   });
@@ -97,13 +150,32 @@ export async function getLike(
 }
 
 export async function isLiked(
-  hostEventId: number,
+  likedObj: LikeObj,
+  likableId: number,
   likerAddress: string,
   ctx: Context
 ) {
+  if (likedObj === LikeObj.HOSTEVENT) {
+    const existingLike = await ctx.prisma.like.findFirst({
+      where: {
+        hostEventId: Number(likableId),
+        liker: { address: likerAddress },
+      },
+    });
+
+    if (!existingLike) {
+      return false;
+    } else {
+      if (existingLike.value > 0) {
+        return true;
+      }
+      return false;
+    }
+  }
+  // if not hostEvent, then it's NFC
   const existingLike = await ctx.prisma.like.findFirst({
     where: {
-      hostEventId: Number(hostEventId),
+      NFCId: Number(likableId),
       liker: { address: likerAddress },
     },
   });
