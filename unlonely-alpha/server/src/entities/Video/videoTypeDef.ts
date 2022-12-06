@@ -13,7 +13,6 @@ export const typeDef = gql`
     liked: Boolean
     skipped: Boolean
     duration: Int!
-    comments: [Comment!]!
     owner: User!
     createdAt: DateTime!
     updatedAt: DateTime!

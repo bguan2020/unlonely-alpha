@@ -2,8 +2,6 @@ import { AuthenticationError } from "apollo-server";
 
 import { Context } from "../../context";
 import * as videoService from "./videoService";
-import * as commentService from "../Comment/commentService";
-import * as likeService from "../Like/likeService";
 
 export const resolvers = {
   Query: {
@@ -37,9 +35,6 @@ export const resolvers = {
   Video: {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
       return videoService.getOwner({ ownerAddr }, ctx);
-    },
-    comments: (_: any, { id }: { id: number }, ctx: Context) => {
-      return commentService.getCommentsByVideoId({ id }, ctx);
     },
   },
 };
