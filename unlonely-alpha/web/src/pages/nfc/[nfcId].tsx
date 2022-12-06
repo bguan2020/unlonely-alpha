@@ -1,6 +1,5 @@
 import { GetServerSidePropsContext } from "next";
 import { gql, useQuery, useLazyQuery } from "@apollo/client";
-import Head from "next/head";
 import { Spinner, Flex, Text } from "@chakra-ui/react";
 import { useEffect, useMemo } from "react";
 
