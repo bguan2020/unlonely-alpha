@@ -4,7 +4,6 @@ import centerEllipses from "../../utils/centerEllipses";
 const NFCNextHead: React.FC<{
   nfc: any;
 }> = ({ nfc }) => {
-  console.log(nfc.videoThumbnail, nfc.title)
   return (
     <Head>
       <link
