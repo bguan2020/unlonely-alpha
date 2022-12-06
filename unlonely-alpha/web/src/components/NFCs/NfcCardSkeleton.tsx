@@ -17,7 +17,7 @@ const NfcCardSkeleton = () => {
         mr="1rem"
         bg="grey"
       >
-        <Skeleton width="24.4rem" height="10rem" borderRadius="1rem"/>
+        <Skeleton width="24.4rem" height="10rem" borderRadius="1rem" />
         <Flex direction="row" justifyContent="flex-start" mt="1rem">
           <SkeletonCircle size="10" />
         </Flex>

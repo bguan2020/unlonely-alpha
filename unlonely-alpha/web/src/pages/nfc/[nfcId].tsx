@@ -1,13 +1,14 @@
 import { GetServerSidePropsContext } from "next";
-import { gql, useQuery, useLazyQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { Spinner, Flex, Text } from "@chakra-ui/react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 import { NfcDetailQuery } from "../../generated/graphql";
 import AppLayout from "../../components/layout/AppLayout";
 import NfcDetailCard from "../../components/NFCs/NfcDetail";
 import NfcList from "../../components/NFCs/NfcList";
 import NFCNextHead from "../../components/layout/NFCNextHead";
+import { initializeApollo } from "../../apiClient/client";
 
 type UrlParams = {
   nfcId: string;
@@ -55,11 +56,15 @@ const NFC_RECOMMENDATIONS_QUERY = gql`
   }
 `;
 
-const NfcDetail = ({ nfcId }: UrlParams) => {
-  const [loadNFCData, { data, loading, error }] = useLazyQuery<NfcDetailQuery>(NFC_DETAIL_QUERY, {
-    variables: { id: nfcId }
+const NfcDetail = ({
+  nfcId,
+  nfcData,
+}: UrlParams & { nfcData: NfcDetailQuery }) => {
+  const { data, loading, error } = useQuery(NFC_DETAIL_QUERY, {
+    variables: {
+      id: nfcId,
+    },
   });
-
   const {
     data: dataNFCs,
     loading: loadingNFCs,
@@ -72,27 +77,20 @@ const NfcDetail = ({ nfcId }: UrlParams) => {
       },
     },
   });
-
-  useEffect(() => {
-    // Trigger the query to load the nfc data when the page is loaded
-    loadNFCData();
-  }, []);
-
+  const nfcSSR = useMemo(() => nfcData?.getNFC, [nfcData]);
   const nfc = useMemo(() => data?.getNFC, [data]);
   const nfcs = dataNFCs?.getNFCFeed;
 
   return (
     <>
-      {!loading && nfc && (
-        <NFCNextHead nfc={nfc} />
-      )}
+      {nfcSSR && <NFCNextHead nfc={nfcSSR} />}
       <AppLayout
         title={nfc?.title}
         image={nfc?.videoThumbnail}
         isCustomHeader={true}
       >
         <Flex justifyContent="center" mt="5rem" direction="column">
-          {!nfc || loading ? (
+          {!nfc ? (
             <Flex width="100%" justifyContent="center">
               <Spinner />
             </Flex>
@@ -144,6 +142,11 @@ export async function getServerSideProps(
   context: GetServerSidePropsContext<UrlParams>
 ) {
   const { nfcId } = context.params!;
+  const apolloClient = initializeApollo(null, context.req.cookies);
+  const { data } = await apolloClient.query({
+    query: NFC_DETAIL_QUERY,
+    variables: { id: nfcId },
+  });
 
-  return { props: { nfcId } };
+  return { props: { nfcId, nfcData: data } };
 }

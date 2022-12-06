@@ -54,6 +54,12 @@ const NfcDetailCard = ({ nfc }: any) => {
             margin-top="0.5rem"
             onClick={submit}
             disabled={buttonDisabled}
+            style={{
+              background: "none",
+              border: "none",
+              outline: "none",
+              cursor: buttonDisabled ? "not-allowed" : "pointer",
+            }}
           >
             {nfc.score > 1 ? nfc.score : null}
             {nfc.liked === true ? (
