@@ -1,11 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function Live() {
+export default function LiveScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.main}>
         <Text style={styles.title}>Live Stream</Text>
-        {/* <Subtitle>This is the video stream and chat page.</Subtitle> */}
       </View>
     </View>
   );
@@ -26,9 +25,5 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 64,
     fontWeight: 'bold',
-  },
-  subtitle: {
-    fontSize: 36,
-    color: '#38434D',
   },
 });

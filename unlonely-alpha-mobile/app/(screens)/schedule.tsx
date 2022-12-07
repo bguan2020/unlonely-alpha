@@ -1,11 +1,12 @@
+import { Link } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function Schedule() {
+export default function ScheduleScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.main}>
         <Text style={styles.title}>Schedule</Text>
-        {/* <Subtitle>This is the video stream and chat page.</Subtitle> */}
+        <Link href="/sitemap">Link to all routes overview</Link>
       </View>
     </View>
   );

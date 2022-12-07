@@ -3,6 +3,7 @@
     "name": "Unlonely",
     "scheme": "unlonely",
     "slug": "unlonely",
+    "backgroundColor": "#000000",
     "splash": {
       "backgroundColor": "#000000",
       "image": "./splash.png"
