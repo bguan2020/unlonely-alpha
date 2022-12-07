@@ -256,11 +256,11 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
           reactions: initializeEmojis,
         },
       });
-    } else if (messageText.startsWith("@nfc-it")) {
+    } else if (messageText.startsWith("@nfc-it") || messageText.startsWith("@nfc")) {
       // first check if they're a poweruser
       if (user && user?.powerUserLvl > 0) {
         // const that removes the @nfc-it: from the beginning of the message
-        const title = messageText.substring(8);
+        const title = messageText.startsWith("@nfc-it") ? messageText.substring(8) : messageText.substring(5);
         if (title) {
           const { res } = await postNFC({ title });
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
