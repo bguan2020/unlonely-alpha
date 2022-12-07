@@ -316,7 +316,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
       }
     } else if (messageText.startsWith("@rules")) {
       const rules =
-        '"@chatbot [question]" to ask chatbot a question\n"@nfc-it [title]" to clip a moment\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';
+        '"@chatbot [question]" to ask chatbot a question\n"@nfc [title]" to clip a moment\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';
       // wait 1 second before sending rules
       setTimeout(() => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
