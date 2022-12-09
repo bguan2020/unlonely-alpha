@@ -55,6 +55,7 @@ const chatbotAddress = "0x0000000000000000000000000000000000000000";
 
 const AblyChatComponent = ({ username, chatBot }: Props) => {
   const { user } = useUser();
+  // eslint-disable-next-line no-console
   console.log("user from useUser", user);
   const ADD_REACTION_EVENT = "add-reaction";
   const [getPoap, { loading, data }] = useLazyQuery(GET_POAP_QUERY, {
