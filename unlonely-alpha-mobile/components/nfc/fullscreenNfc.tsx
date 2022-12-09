@@ -11,15 +11,15 @@ import { BlurView } from 'expo-blur';
 type FullscreenNfcProps = {
   height: number;
   ref: any;
-  uri: string;
   width: number;
+  item: any;
 };
 
 type NfcVideoProps = {
   blurred?: boolean;
   height: number;
   play: boolean;
-  uri: string;
+  item: any;
   videoRef: any;
 };
 
@@ -27,12 +27,14 @@ const NfcVideo = (props: NfcVideoProps) => (
   <Video
     isLooping={true}
     isMuted={props.blurred ? true : false}
-    posterSource={{ uri: `${props.uri}#t=0.01` }}
+    // this first video second poster might still be better for the ux
+    // posterSource={{ uri: `${props.uri}#t=0.01` }}
+    posterSource={{ uri: props.item.videoThumbnail }}
     posterStyle={{ width: '100%', height: props.height, resizeMode: 'contain' }}
     ref={props.videoRef}
     resizeMode={props.blurred ? ResizeMode.COVER : ResizeMode.CONTAIN}
     shouldPlay={props.play}
-    source={{ uri: props.uri }}
+    source={{ uri: props.item.videoLink }}
     style={styles.video}
     usePoster
     videoStyle={{ width: '100%', height: props.height }}
@@ -105,7 +107,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
           position: 'absolute',
         }}
       >
-        <NfcVideo uri={props.uri} videoRef={ref} height={props.height} blurred play={shouldPlay} />
+        <NfcVideo item={props.item} videoRef={ref} height={props.height} blurred play={shouldPlay} />
       </View>
       <BlurView
         intensity={80}
@@ -124,9 +126,9 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
           height: props.height,
         }}
       >
-        <NfcVideo uri={props.uri} videoRef={ref} height={props.height} play={shouldPlay} />
-        <Text style={styles.subtitle}>brian explains the blockchain in iceland geography</Text>
-        <Text style={styles.subtitle}>nfc by cassie.eth</Text>
+        <NfcVideo item={props.item} videoRef={ref} height={props.height} play={shouldPlay} />
+        <Text style={styles.subtitle}>{props.item.title}</Text>
+        <Text style={styles.subtitle}>nfc by {props.item.owner.username}</Text>
       </View>
     </View>
   );

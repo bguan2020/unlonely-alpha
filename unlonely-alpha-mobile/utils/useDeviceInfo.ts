@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import * as Device from 'expo-device';
 
-export const isDevice = () => {
+export const useDeviceInfo = () => {
   const [iOS, setiOS] = useState(false);
   const [Android, setAndroid] = useState(false);
 
