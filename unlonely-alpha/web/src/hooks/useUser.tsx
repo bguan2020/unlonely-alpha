@@ -36,9 +36,11 @@ const UserContext = createContext<{
 export const UserProvider = ({ children }: { children: JSX.Element }) => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const { address } = useAccount();
+  console.log("address from wagmi", address);
   const { data, loading, error } = useQuery(GET_USER_QUERY, {
     variables: { data: { address } },
   });
+  console.log("data from query", data);
 
   useEffect(() => {
     setUser(data?.getUser);
