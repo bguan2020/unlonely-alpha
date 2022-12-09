@@ -38,7 +38,7 @@ const authLink = (cookies: Cookies) =>
      * Hence we have this method of getting the relevant cookie in two ways.
      */
     const nextAddressCookie = cookies["unlonelyAddress"];
-    const browserAddressCookie = cookies["unlonelyAddress"];
+    const browserAddressCookie = cookieCutter.get("unlonelyAddress");
     const address = browserAddressCookie || nextAddressCookie;
 
     const { signedMessage } = operation.getContext() as Context;
