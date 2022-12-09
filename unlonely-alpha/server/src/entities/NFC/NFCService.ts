@@ -53,6 +53,7 @@ export const handleNFC = async (
 };
 
 export interface IGetNFCFeedInput {
+  offset: number;
   limit: number;
   orderBy: "createdAt" | "score";
 }
@@ -61,6 +62,7 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
   if ((data.orderBy = "createdAt")) {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
+      skip: data.offset,
       // where videoLink is not empty
       where: {
         videoLink: {
@@ -74,6 +76,7 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
   } else if ((data.orderBy = "score")) {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
+      skip: data.offset,
       where: {
         videoLink: {
           not: "",

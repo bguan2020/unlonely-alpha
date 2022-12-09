@@ -17,6 +17,7 @@ export const typeDef = gql`
 
   input NFCFeedInput {
     limit: Int
+    offset: Int
     orderBy: SortBy
   }
 

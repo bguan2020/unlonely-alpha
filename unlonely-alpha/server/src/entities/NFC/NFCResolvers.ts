@@ -6,7 +6,7 @@ import * as likeService from "../Like/likeService";
 
 export const resolvers = {
   Query: {
-    getNFCFeed(_: any, data: NFCService.IGetNFCFeedInput, ctx: Context) {
+    getNFCFeed(_: any, { data }: { data: NFCService.IGetNFCFeedInput }, ctx: Context) {
       return NFCService.getNFCFeed(data, ctx);
     },
     getNFC(_: any, { id }: { id: number }, ctx: Context) {
