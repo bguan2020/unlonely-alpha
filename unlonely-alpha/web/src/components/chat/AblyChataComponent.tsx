@@ -3,6 +3,7 @@ import { Box, Text, Flex, Link, useToast, Image } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 import { AddIcon } from "@chakra-ui/icons";
+import { useAccount } from "wagmi";
 
 import useChannel from "../../hooks/useChannel";
 import { ChatBot } from "../../pages/channels/brian";
@@ -55,8 +56,7 @@ const chatbotAddress = "0x0000000000000000000000000000000000000000";
 
 const AblyChatComponent = ({ username, chatBot }: Props) => {
   const { user } = useUser();
-  // eslint-disable-next-line no-console
-  console.log("user from useUser", user);
+  const { address } = useAccount();
   const ADD_REACTION_EVENT = "add-reaction";
   const [getPoap, { loading, data }] = useLazyQuery(GET_POAP_QUERY, {
     fetchPolicy: "no-cache",
@@ -191,14 +191,34 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
         }, 5000);
       }
     } else {
-      toast({
-        title: "Sign in first.",
-        description: "Please sign into your wallet first.",
-        status: "warning",
-        duration: 9000,
-        isClosable: true,
-        position: "top",
-      });
+      if (address) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        channel.publish({
+          name: "chat-message",
+          data: {
+            messageText,
+            username: null,
+            chatColor,
+            isFC: false,
+            address: address,
+            powerUserLvl: 0,
+            videoSavantLvl: 0,
+            nfcRank: 0,
+            isGif,
+            reactions: initializeEmojis,
+          },
+        });
+      } else {
+        toast({
+          title: "Sign in first.",
+          description: "Please sign into your wallet first.",
+          status: "warning",
+          duration: 9000,
+          isClosable: true,
+          position: "top",
+        });
+      }
     }
     if (inputBox) inputBox.focus();
   };

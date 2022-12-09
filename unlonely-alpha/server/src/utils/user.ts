@@ -9,6 +9,7 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
       address: address,
     },
   });
+  console.log(user, "find or create user")
 
   if (!user) {
     const username = await getEnsName(address);
@@ -18,7 +19,9 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
         username: username,
       },
     });
+    console.log(user, "created user");
   }
+  console.log(user);
 
   return user;
 };

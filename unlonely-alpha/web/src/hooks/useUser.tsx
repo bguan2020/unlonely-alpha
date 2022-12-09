@@ -42,7 +42,6 @@ export const UserProvider = ({ children }: { children: JSX.Element }) => {
   const { data, loading, error } = useQuery(GET_USER_QUERY, {
     variables: { data: { address } },
   });
-  console.log("data from query", data);
 
   useEffect(() => {
     setUser(data?.getUser);
