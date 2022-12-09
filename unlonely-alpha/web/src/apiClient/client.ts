@@ -5,7 +5,7 @@ import {
   InMemoryCache,
   NormalizedCacheObject,
 } from "@apollo/client";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import cookieCutter from "cookie-cutter";
 import pickBy from "lodash/pickBy";
 
@@ -17,7 +17,18 @@ export interface Context {
   signedMessage?: string;
 }
 
-const authLink = (cookies: Cookies) =>
+// const useCookies = (key: string) => {
+//   const [cookie, setCookie] = useState<string>("");
+
+//   useEffect(() => {
+//     const value = cookieCutter && cookieCutter.get ? cookieCutter.get(key) : "";
+//     setCookie(value ? value : "");
+//   }, [key]);
+
+//   return cookie;
+// };
+
+const authLink = (cookies: Cookies, isSSR?: boolean) => 
   new ApolloLink((operation, forward) => {
     /**
      * Next.js doesn't make cookies available in the same way that they're available in
@@ -37,9 +48,19 @@ const authLink = (cookies: Cookies) =>
      *
      * Hence we have this method of getting the relevant cookie in two ways.
      */
+    // const browserAddressCookie = useCookies("unlonelyAddress");
+    let address: string | undefined;
     const nextAddressCookie = cookies["unlonelyAddress"];
-    const browserAddressCookie = cookieCutter.get("unlonelyAddress");
-    const address = browserAddressCookie || nextAddressCookie;
+    console.log(nextAddressCookie, isSSR);
+    if (nextAddressCookie) {
+      address = nextAddressCookie;
+    } else if (isSSR && isSSR === true && !nextAddressCookie) {
+      console.log("hitting this");
+      address = undefined;
+    } else {
+      const browserAddressCookie = cookieCutter.get("unlonelyAddress");
+      address = browserAddressCookie || nextAddressCookie;
+    }
 
     const { signedMessage } = operation.getContext() as Context;
 
@@ -56,7 +77,7 @@ const authLink = (cookies: Cookies) =>
     return forward(operation);
   });
 
-function createApolloClient(cookies: Cookies) {
+function createApolloClient(cookies: Cookies, isSSR?: boolean) {
   return new ApolloClient({
     cache: new InMemoryCache(),
     defaultOptions: {
@@ -65,7 +86,7 @@ function createApolloClient(cookies: Cookies) {
       },
     },
     link: ApolloLink.from([
-      authLink(cookies),
+      authLink(cookies, isSSR),
       new HttpLink({
         uri:
           process.env.NODE_ENV === "production"
@@ -80,9 +101,10 @@ type InitialState = NormalizedCacheObject | null;
 
 export function initializeApollo(
   initialState: InitialState = null,
-  cookies: Cookies
+  cookies: Cookies,
+  isSSR?: boolean,
 ) {
-  const _apolloClient = apolloClient ?? createApolloClient(cookies);
+  const _apolloClient = apolloClient ?? createApolloClient(cookies, isSSR);
 
   // If your page has Next.js data fetching methods that use Apollo Client, the initial state
   // gets hydrated here
