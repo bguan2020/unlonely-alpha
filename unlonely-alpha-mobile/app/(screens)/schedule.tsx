@@ -1,9 +1,9 @@
 import { Link } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
-import { useStreamingSchedule } from '../../api/queries/useStreamingSchedule';
+import { useUpcomingSchedule } from '../../api/queries/useUpcomingSchedule';
 
 export default function ScheduleScreen() {
-  const { status, data, error, isFetching } = useStreamingSchedule({
+  const { status, data, error, isFetching } = useUpcomingSchedule({
     limit: 9,
   });
   const schedule = data?.getHostEventFeed;

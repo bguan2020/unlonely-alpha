@@ -4,6 +4,7 @@ import { FlashList } from '@shopify/flash-list';
 import { useRef } from 'react';
 import { FullscreenNfc } from '../../components/nfc/fullscreenNfc';
 import { useNfcFeed } from '../../api/queries/useNfcFeed';
+import { useHaptics } from '../../utils/haptics';
 
 export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
@@ -24,6 +25,7 @@ export default function NfcFeedScreen() {
       if (cell) {
         if (element.isViewable) {
           cell.play();
+          useHaptics('light');
         } else {
           cell.pause();
         }
