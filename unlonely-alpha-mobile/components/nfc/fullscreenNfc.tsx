@@ -1,11 +1,6 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Dimensions, StyleSheet, Text, View, FlatList, useWindowDimensions } from 'react-native';
-import { ResizeMode, Video, Audio } from 'expo-av';
-import { StatusBar } from 'expo-status-bar';
-import { FlashList } from '@shopify/flash-list';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { useHeaderHeight } from '@react-navigation/elements';
-import { Canvas, Blur, Image, ColorMatrix, useImage, Group, BackdropBlur, Fill } from '@shopify/react-native-skia';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { ResizeMode, Video } from 'expo-av';
 import { BlurView } from 'expo-blur';
 
 type FullscreenNfcProps = {
@@ -23,22 +18,24 @@ type NfcVideoProps = {
   videoRef?: any;
 };
 
+const VIDEO_START_POSITION = 1500; // milliseconds
+
 const NfcVideo = (props: NfcVideoProps) => (
   <Video
     isLooping={true}
     isMuted={props.blurred ? true : false}
-    positionMillis={1500}
-    // this first video second poster might still be better for the ux
-    posterSource={{ uri: `${props.item.videoLink}#t=1.5` }}
-    // posterSource={{ uri: props.item.videoThumbnail }}
+    positionMillis={VIDEO_START_POSITION}
+    usePoster
+    posterSource={{ uri: `${props.item.videoLink}#t=${VIDEO_START_POSITION / 1000}` }}
+    // loading a still from the video start position rather than the poster image
+    // so it doesn’t create an awkward repeating transition when a new video starts playing
     posterStyle={{ width: '100%', height: props.height, resizeMode: 'contain' }}
     ref={props.videoRef}
     resizeMode={props.blurred ? ResizeMode.COVER : ResizeMode.CONTAIN}
     shouldPlay={props.play}
     source={{ uri: props.item.videoLink }}
-    style={styles.video}
-    usePoster
     videoStyle={{ width: '100%', height: props.height }}
+    style={styles.video}
   />
 );
 
@@ -109,6 +106,8 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
           position: 'absolute',
         }}
       >
+        {/* make it a user selectable setting to disable these blurs for better performance */}
+        {/* also disable on android */}
         <NfcVideo item={props.item} height={props.height} blurred play={shouldPlay} />
       </View>
       <BlurView

@@ -70,7 +70,10 @@ export default function Layout() {
             //   backgroundColor: 'red',
             //   color: 'white',
             // },
-            tabBarActiveTintColor: '#e2f979',
+            tabBarActiveTintColor:
+              (route.name === 'index' && '#e2f979') ||
+              (route.name === 'live' && '#95f9cf') ||
+              (route.name === 'schedule' && '#db78e0'),
             tabBarInactiveTintColor: 'white',
             tabBarLabelStyle: {
               fontFamily: 'NeuePixelSans',

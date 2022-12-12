@@ -15,14 +15,14 @@ export default function NfcFeedScreen() {
   const nfcs = data?.getNFCFeed;
   const onViewableItemsChanged = useRef(({ changed }) => {
     changed.forEach(element => {
-      const cell = videoRefs.current[element.item.id];
+      const nfcItem = videoRefs.current[element.item.id];
 
-      if (cell) {
+      if (nfcItem) {
         if (element.isViewable) {
-          cell.play();
+          nfcItem.play();
           useHaptics('light');
         } else {
-          cell.pause();
+          nfcItem.pause();
         }
       }
     });
@@ -41,7 +41,7 @@ export default function NfcFeedScreen() {
         renderItem={nfcVideoRenderItem}
         estimatedItemSize={height}
         pagingEnabled
-        keyExtractor={item => item.id}
+        keyExtractor={nfc => nfc.id}
         decelerationRate={'fast'}
         viewabilityConfig={{
           itemVisiblePercentThreshold: 80,

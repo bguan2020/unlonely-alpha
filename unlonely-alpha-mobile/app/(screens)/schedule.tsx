@@ -8,13 +8,12 @@ export default function ScheduleScreen() {
   });
   const schedule = data?.getHostEventFeed;
 
-  console.log({ status, error, isFetching });
+  console.log(schedule);
 
   return (
     <View style={styles.container}>
       <View style={styles.main}>
         <Text style={styles.title}>Schedule</Text>
-        <Link href="/sitemap">Link to all routes overview</Link>
       </View>
     </View>
   );
@@ -25,16 +24,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     padding: 24,
+    backgroundColor: '#000',
   },
   main: {
     flex: 1,
     justifyContent: 'center',
-    maxWidth: 960,
-    marginHorizontal: 'auto',
   },
   title: {
     fontSize: 64,
     fontWeight: 'bold',
+    color: '#fff',
   },
   subtitle: {
     fontSize: 36,
