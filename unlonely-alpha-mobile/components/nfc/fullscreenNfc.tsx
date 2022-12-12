@@ -20,16 +20,17 @@ type NfcVideoProps = {
   height: number;
   play: boolean;
   item: any;
-  videoRef: any;
+  videoRef?: any;
 };
 
 const NfcVideo = (props: NfcVideoProps) => (
   <Video
     isLooping={true}
     isMuted={props.blurred ? true : false}
+    positionMillis={1500}
     // this first video second poster might still be better for the ux
-    // posterSource={{ uri: `${props.uri}#t=0.01` }}
-    posterSource={{ uri: props.item.videoThumbnail }}
+    posterSource={{ uri: `${props.item.videoLink}#t=1.5` }}
+    // posterSource={{ uri: props.item.videoThumbnail }}
     posterStyle={{ width: '100%', height: props.height, resizeMode: 'contain' }}
     ref={props.videoRef}
     resizeMode={props.blurred ? ResizeMode.COVER : ResizeMode.CONTAIN}
@@ -44,6 +45,7 @@ const NfcVideo = (props: NfcVideoProps) => (
 export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) => {
   const ref = useRef(null);
   const [shouldPlay, setShouldPlay] = useState(false);
+
   useImperativeHandle(parentRef, () => ({
     play,
     // unload,
@@ -107,7 +109,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
           position: 'absolute',
         }}
       >
-        <NfcVideo item={props.item} videoRef={ref} height={props.height} blurred play={shouldPlay} />
+        <NfcVideo item={props.item} height={props.height} blurred play={shouldPlay} />
       </View>
       <BlurView
         intensity={80}

@@ -10,17 +10,12 @@ export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
   const videoRefs = useRef([]);
   const { status, data, error, isFetching } = useNfcFeed({
-    limit: 3,
+    limit: 9,
   });
   const nfcs = data?.getNFCFeed;
-
   const onViewableItemsChanged = useRef(({ changed }) => {
     changed.forEach(element => {
-      const cell = videoRefs.current[element];
-
-      console.warn('================');
-      console.log(cell);
-      console.log(element);
+      const cell = videoRefs.current[element.item.id];
 
       if (cell) {
         if (element.isViewable) {
@@ -34,14 +29,8 @@ export default function NfcFeedScreen() {
   });
 
   const nfcVideoRenderItem = ({ item }) => {
-    return <FullscreenNfc item={item} ref={ref => (videoRefs.current[item] = ref)} height={height} width={width} />;
+    return <FullscreenNfc item={item} ref={ref => (videoRefs.current[item.id] = ref)} height={height} width={width} />;
   };
-
-  console.log({ status, error, isFetching });
-
-  // if (data) {
-  //   console.log(nfcs[0].videoLink);
-  // }
 
   return (
     <View style={styles.container}>
