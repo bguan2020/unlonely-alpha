@@ -1,6 +1,5 @@
 import {
-  Farcaster,
-  FarcasterGuardianContentHost,
+  publishCast,
 } from "@standard-crypto/farcaster-js";
 import { Wallet } from "ethers";
 import wallet from "./wallet";
@@ -12,20 +11,18 @@ import wallet from "./wallet";
  * The cast will be attributed to the username currently registered
  * to the given private key's address.
  */
-const replyTo = "0xc7ea18f3802760de7279b45197150d34fafdac145c45e1b70869f5c95139d33b"; // INSERT HERE
-const _defaultFarcaster = new Farcaster()
-export default async function publishCast(text: string) { 
-  const contentHost = new FarcasterGuardianContentHost(wallet.privateKey);
+const replyTo = "0xe090bb94ad71cf5aef52c6d956afe7de2e14f7eec0c7725fcd067746c9ec8572"; // INSERT HERE
+
+export default async function _publishCast(text: string) { 
   const signer = new Wallet(wallet.privateKey);
-  const unsignedCast = await _defaultFarcaster.prepareCast({
-    fromUsername: "briang",
-    text,
-    replyTo,
-  });
+  const replyObj = {
+    fid: 548,
+    hash: replyTo
+  }
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  const signedCast = await Farcaster.signCast(unsignedCast, signer);
-  await contentHost.publishCast(signedCast);
+  // const signedCast = await Farcaster.signCast(unsignedCast, signer);
+  const cast = await publishCast(signer, text, replyObj);
   console.log("3: published cast");
-  return signedCast;
+  return cast;
 }
