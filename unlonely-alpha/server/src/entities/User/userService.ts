@@ -24,11 +24,7 @@ export const getUser = async (data: IGetUserInput, ctx: Context) => {
 export const getAllUsers = async (ctx: Context) => {
   // where FCimageurl is null
 
-  const users = await ctx.prisma.user.findMany({
-    where: {
-      FCImageUrl: "",
-    },
-  });
+  const users = await ctx.prisma.user.findMany();
   // for loop through userse
   for (let i = 0; i < users.length; i++) {
     // call the api https://searchcaster.xyz/api/profiles?connected_address=${users[i].address}
