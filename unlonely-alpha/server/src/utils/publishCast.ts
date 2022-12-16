@@ -11,7 +11,7 @@ import wallet from "./wallet";
  * The cast will be attributed to the username currently registered
  * to the given private key's address.
  */
-const replyTo = "0xcb549531f9ba604fd6b348b4da9364d29aafb8c20a46b5031514a623af747e0f"; // INSERT HERE
+const replyTo = "0x61eec2a0b907b75f8a0fd3ec092adc3e8ec62ede603d743613196a6f6abf451e"; // INSERT HERE
 
 export default async function _publishCast(text: string) { 
   const signer = new Wallet(wallet.privateKey);
