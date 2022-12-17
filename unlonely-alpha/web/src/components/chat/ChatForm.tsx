@@ -16,8 +16,6 @@ type Props = {
 const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
   const [messageText, setMessageText] = useState<string>("");
   const [privateChat, setPrivateChat] = useState<boolean>(true);
-  const { user } = useUser();
-  const [presenceData, updateStatus] = usePresence("presence");
   const [commandsOpen,setCommandsOpen] = useState(false)
   
   const messageTextIsEmpty = messageText.trim().length === 0 || messageText.trim() === ''
@@ -31,23 +29,9 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
     setMessageText("");
   };
 
-  function timeoutFunction(){
-    updateStatus({
-      user,
-      typing: false,
-    });
-  }
-
   const handleKeyPress = (event: any) => {
     const isGif = false;
     if (event.charCode !== 13 || messageTextIsEmpty) {
-      /*
-      updateStatus({
-        user,
-        typing: true,
-      });
-      setTimeout(timeoutFunction, 3000);
-      */
       if(event.charCode === 64) {
         setCommandsOpen(true)
       }
