@@ -39,7 +39,7 @@ if(!hydrated) {
         return <></>
     }
   return (
-    <Flex zIndex={1}  mb="80" w="75%">
+    <Flex zIndex={1}  mb="20" w="75%">
   <Stack style={{background: "white"}}>
         {commandList.map((command) => {
             return( <Button onClick={() => {

@@ -41,13 +41,11 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
   const handleKeyPress = (event: any) => {
     const isGif = false;
     if (event.charCode !== 13 || messageTextIsEmpty) {
-      /* TODO typing
       updateStatus({
         user,
         typing: true,
       });
       setTimeout(timeoutFunction, 3000);
-      */
       if(event.charCode === 64) {
         setCommandsOpen(true)
       }
@@ -111,14 +109,14 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
           ></Textarea>
            <Flex
               position="absolute"
-              zIndex={2}
-              bottom="75px"
+              zIndex={1}
+              bottom="1px"
               right="8px"
               pt="2px"
               pb="1px"
               pl="2px"
               pr="2px"
-              bg="grey"
+            
               borderRadius="2rem"
             >
               <Commands open={commandsOpen} onClose={() => console.log("HI")} onCommandClick={(text: string) => {setMessageText(text)
