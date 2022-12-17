@@ -121,7 +121,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             
               borderRadius="2rem"
             >
-              <Commands open={commandsOpen} onClose={() => console.log("HI")} onCommandClick={(text: string) => {setMessageText(text)
+              <Commands open={commandsOpen} onClose={() => setCommandsOpen(false)} onCommandClick={(text: string) => {setMessageText(text)
       setCommandsOpen(false)}
     }/>
     </Flex>
