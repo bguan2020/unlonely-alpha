@@ -41,11 +41,13 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
   const handleKeyPress = (event: any) => {
     const isGif = false;
     if (event.charCode !== 13 || messageTextIsEmpty) {
+      /*
       updateStatus({
         user,
         typing: true,
       });
       setTimeout(timeoutFunction, 3000);
+      */
       if(event.charCode === 64) {
         setCommandsOpen(true)
       }
@@ -110,7 +112,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
            <Flex
               position="absolute"
               zIndex={1}
-              bottom="1px"
+              bottom="5px"
               right="8px"
               pt="2px"
               pb="1px"
