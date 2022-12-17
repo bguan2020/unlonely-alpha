@@ -7,12 +7,14 @@ interface Command {
     name: string;
     description: string;
     value: string;
+    
 }
 
 type Props = {
 open: boolean;
 onClose: () => void;
 onCommandClick: (text: string) => void;
+chat: string
 };
 
 const commandList: Command[] = [
@@ -39,6 +41,7 @@ export default function Commands({
   open,
   onClose,
   onCommandClick,
+  chat
 }: Props) {
     const [hydrated, setHydrated] = useState(false);
     const [currentOpen, setOpen] = useState(open);
@@ -58,7 +61,9 @@ if(!hydrated) {
   return (
     <Flex ref={wrapperRef} zIndex={1}  mb="20" w="75%">
   <Stack style={{background: "white"}}>
-        {commandList.map((command) => {
+        {commandList.filter((command)=> {
+            return command.value.includes(chat)
+        }).map((command) => {
             return( <Button onClick={() => {
              onCommandClick(command.value)
             }}><Stack><Text fontSize='xs'>{command.name}</Text> <Text fontSize='xs'>{command.description}</Text></Stack></Button>)
