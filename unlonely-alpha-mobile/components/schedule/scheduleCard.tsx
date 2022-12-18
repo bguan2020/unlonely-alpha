@@ -1,6 +1,10 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { VoteControls } from './voteControls';
+import { useTimer } from 'react-timer-hook';
+import { addMinutes, getUnixTime } from 'date-fns';
+import { useMemo } from 'react';
+import { TimeInfo } from './timeInfo';
 
 type ScheduleCardProps = {
   id: string;
@@ -32,14 +36,7 @@ type ScheduleCardProps = {
 export const ScheduleCard = () => {
   return (
     <View style={styles.container}>
-      <View style={styles.timeInfo}>
-        <View style={styles.timeRelative}>
-          <Text style={styles.timeRelativeText}>in 12h 15m</Text>
-        </View>
-        <View style={styles.timeAbsolute}>
-          <Text style={styles.timeAbsoluteText}>Wednesday, Dec 14 7:00 PM</Text>
-        </View>
-      </View>
+      <TimeInfo hostDate={'2023-01-06T03:00:00.000Z'} />
       <View style={styles.card}>
         <View style={styles.streamInfo}>
           <Image
@@ -61,6 +58,7 @@ export const ScheduleCard = () => {
           />
           <Text style={styles.streamOwner}>borodutch.eth</Text>
           <Text style={styles.streamTitle}>telegram sucks</Text>
+          {/* make this title gray if it didn't win */}
           <Text style={styles.streamDescription}>...</Text>
         </View>
         <View style={styles.versus}>
