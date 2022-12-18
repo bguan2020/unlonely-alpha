@@ -1,6 +1,7 @@
 import { Link } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useUpcomingSchedule } from '../../api/queries/useUpcomingSchedule';
+import { ScheduleCard } from '../../components/schedule/scheduleCard';
 
 export default function ScheduleScreen() {
   const { status, data, error, isFetching } = useUpcomingSchedule({
@@ -11,32 +12,41 @@ export default function ScheduleScreen() {
   console.log(schedule);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.main}>
-        <Text style={styles.title}>Schedule</Text>
+        <Text style={styles.title}>Upcoming Streams</Text>
+        <ScheduleCard />
+        <ScheduleCard />
+        <Text style={[styles.title, styles.subtitle]}>Previous Streams</Text>
+        <ScheduleCard />
+        <ScheduleCard />
+        <ScheduleCard />
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    padding: 24,
     backgroundColor: '#000',
   },
   main: {
-    flex: 1,
-    justifyContent: 'center',
+    width: '100%',
+    paddingHorizontal: 8,
+    paddingTop: 76,
+    paddingBottom: 100,
   },
   title: {
-    fontSize: 64,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'NeuePixelSans',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+    color: '#e2f979',
+    textAlign: 'left',
+    paddingHorizontal: 16,
   },
   subtitle: {
-    fontSize: 36,
-    color: '#38434D',
+    color: '#666',
   },
 });

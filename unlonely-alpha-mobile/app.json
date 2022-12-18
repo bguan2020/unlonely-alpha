@@ -4,6 +4,7 @@
     "scheme": "unlonely",
     "slug": "unlonely",
     "backgroundColor": "#000000",
+    "orientation": "portrait", // manual orientation lock, stream landscape mode is custom
     "splash": {
       "backgroundColor": "#000000",
       "image": "./splash.png"

@@ -129,7 +129,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
       >
         <NfcVideo item={props.item} videoRef={ref} height={props.height} play={shouldPlay} />
         <Text style={styles.subtitle}>{props.item.title}</Text>
-        <Text style={styles.subtitle}>nfc by {props.item.owner.username}</Text>
+        <Text style={styles.subtitle}>owned by {props.item.owner.username}</Text>
       </View>
     </View>
   );
