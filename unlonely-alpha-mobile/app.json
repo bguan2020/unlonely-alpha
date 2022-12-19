@@ -4,7 +4,7 @@
     "scheme": "unlonely",
     "slug": "unlonely",
     "backgroundColor": "#000000",
-    "orientation": "portrait", // manual orientation lock, stream landscape mode is custom
+    "orientation": "portrait",
     "splash": {
       "backgroundColor": "#000000",
       "image": "./splash.png"
@@ -12,6 +12,14 @@
     "version": "1.0.0",
     "web": {
       "bundler": "metro"
+    },
+    "ios": {
+      "bundleIdentifier": "app.unlonely.mobile"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d3a8a2ee-d6c1-4d55-9e6b-b732b0802275"
+      }
     }
   }
 }

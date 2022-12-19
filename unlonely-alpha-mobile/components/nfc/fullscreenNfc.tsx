@@ -56,7 +56,8 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
 
     try {
       // await ref.current.playAsync();
-      setShouldPlay(true);
+      // setShouldPlay(true);
+      // TODO: uncomment play stuff before release
     } catch {
       alert('error playing video');
     }
