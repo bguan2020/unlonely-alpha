@@ -738,6 +738,8 @@ export type NfcFeedQuery = {
     videoLink?: string | null;
     videoThumbnail?: string | null;
     openseaLink?: string | null;
+    score: number;
+    liked?: boolean | null;
     title?: string | null;
     owner: {
       __typename?: "User";
@@ -1611,6 +1613,8 @@ export const NfcFeedDocument = gql`
       videoLink
       videoThumbnail
       openseaLink
+      score
+      liked
       owner {
         username
         address
