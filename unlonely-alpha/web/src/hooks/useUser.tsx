@@ -37,7 +37,7 @@ export const UserProvider = ({ children }: { children: JSX.Element }) => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const { address } = useAccount();
   // ignore console log build error for now
-  // 
+  //
   console.log("address from wagmi", address);
   const { data, loading, error } = useQuery(GET_USER_QUERY, {
     variables: { data: { address } },

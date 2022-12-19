@@ -28,7 +28,7 @@ export interface Context {
 //   return cookie;
 // };
 
-const authLink = (cookies: Cookies, isSSR?: boolean) => 
+const authLink = (cookies: Cookies, isSSR?: boolean) =>
   new ApolloLink((operation, forward) => {
     /**
      * Next.js doesn't make cookies available in the same way that they're available in
@@ -102,7 +102,7 @@ type InitialState = NormalizedCacheObject | null;
 export function initializeApollo(
   initialState: InitialState = null,
   cookies: Cookies,
-  isSSR?: boolean,
+  isSSR?: boolean
 ) {
   const _apolloClient = apolloClient ?? createApolloClient(cookies, isSSR);
 

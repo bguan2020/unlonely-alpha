@@ -150,7 +150,5 @@ export async function getServerSideProps(
     variables: { id: nfcId },
   });
 
-
-
   return { props: { nfcId, nfcData: data } };
 }

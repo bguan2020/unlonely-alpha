@@ -33,21 +33,24 @@ const NfcCard = ({ nfc }: any) => {
           _hover={{
             filter: "brightness(80%)", // darken the image on hover
             position: "relative", // needed to position the "Play" text
-        }}>
+          }}
+        >
           <video poster={nfc.videoThumbnail}>
             <source src={nfc.videoLink} type="video/mp4"></source>
           </video>
           <Image
             src="/images/playIcon.png"
             opacity={0.5}
-            style={{
-              position: "relative",
-              zIndex: 1,
-              visibility: "visible",
-              margin: "auto",
-              top: "0%",
-              left: "-65%",
-            } as React.CSSProperties}
+            style={
+              {
+                position: "relative",
+                zIndex: 1,
+                visibility: "visible",
+                margin: "auto",
+                top: "0%",
+                left: "-65%",
+              } as React.CSSProperties
+            }
           />
         </Flex>
         <Flex justifyContent="space-between">
