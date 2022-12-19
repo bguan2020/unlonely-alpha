@@ -35,12 +35,11 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
       if(event.charCode === 64) {
         setCommandsOpen(true)
       }
+      return
     }
-    else {
       event.preventDefault();
       sendChatMessage(messageText, isGif);
       setMessageText("");
-    }
   };
 
   const handleFormSubmission = (event: { preventDefault: () => void }) => {
