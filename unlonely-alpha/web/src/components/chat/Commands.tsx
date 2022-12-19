@@ -1,8 +1,5 @@
-import { gql } from "@apollo/client";
-import { Flex, Text, ScaleFade, Fade, Button,Box, Card, CardBody, CardHeader, Heading, Stack, StackDivider } from "@chakra-ui/react";
+import { Flex, Text, Button, Stack } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
-
-import centerEllipses from "../../utils/centerEllipses";
 interface Command {
     name: string;
     description: string;

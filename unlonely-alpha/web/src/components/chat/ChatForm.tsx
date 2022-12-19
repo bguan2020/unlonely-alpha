@@ -1,9 +1,6 @@
-import { usePresence } from "@ably-labs/react-hooks";
 import { Flex, Button, Textarea, Switch, Tooltip } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { useUser } from "../../hooks/useUser";
-import { formatTypingIndicator } from "../../utils/formatTypingIndicator";
-import Commands from "./commands";
+import Commands from "./Commands";
 
 import EmojiButton from "./emoji/EmojiButton";
 import { EmojiType } from "./emoji/types";
@@ -18,7 +15,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
   const [privateChat, setPrivateChat] = useState<boolean>(true);
   const [commandsOpen,setCommandsOpen] = useState(false)
   
-  const messageTextIsEmpty = messageText.trim().length === 0 || messageText.trim() === ''
+  const messageTextIsEmpty = messageText.trim().length === 0 || messageText.trim() === "";
 
   const addEmoji = (emoji: EmojiType) => {
     setMessageText(`${messageText}${emoji.unicodeString}`);
@@ -82,7 +79,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             fontWeight="medium"
             placeholder="try asking @chatbot a question"
             onChange={(e) => {
-              if(e.target.value === '') {
+              if(e.target.value === "") {
                 setCommandsOpen(false)
               }
               setMessageText(e.target.value)}}
