@@ -27,7 +27,6 @@ const NfcCard = ({ nfc }: any) => {
         mt="8px"
         mr="1rem"
         onClick={handleRedirect}
-        on
       >
         <Flex
           _hover={{
