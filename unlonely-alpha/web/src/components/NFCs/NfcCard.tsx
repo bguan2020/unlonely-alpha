@@ -30,8 +30,8 @@ const NfcCard = ({ nfc }: any) => {
       >
         <Flex
           _hover={{
-            filter: "brightness(80%)", // darken the image on hover
-            position: "relative", // needed to position the "Play" text
+            filter: "brightness(80%)",
+            position: "relative",
           }}
         >
           <video poster={nfc.videoThumbnail}>
