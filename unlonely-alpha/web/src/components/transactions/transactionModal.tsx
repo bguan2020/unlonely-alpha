@@ -31,8 +31,6 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import {
-  APPROVE_TOKEN_AMOUNT,
-  MATIC_NEWSCONTRACT_ADDRESS,
   MATIC_NEWSTOKEN_ADDRESS,
 } from "../../constants";
 import NewsToken from "../../utils/newsToken.json";
