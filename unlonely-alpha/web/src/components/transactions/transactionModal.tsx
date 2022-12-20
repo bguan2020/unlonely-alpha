@@ -30,9 +30,7 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import {
-  MATIC_NEWSTOKEN_ADDRESS,
-} from "../../constants";
+import { MATIC_NEWSTOKEN_ADDRESS } from "../../constants";
 import NewsToken from "../../utils/newsToken.json";
 import NewsContract from "../../utils/newsContractABI.json";
 import { UseContractWriteArgs } from "wagmi/dist/declarations/src/hooks/contracts/useContractWrite";
@@ -146,7 +144,9 @@ export default function TransactionModal({ onSuccess }: Props) {
   };
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Open Modal</Button>
+    <Center>
+      <Button justifyContent="" onClick={() => setOpen(true)}>Buy Content</Button>
+      </Center>
       <Modal
         isCentered={true}
         isOpen={open}
