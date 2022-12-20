@@ -144,8 +144,10 @@ export default function TransactionModal({ onSuccess }: Props) {
   };
   return (
     <>
-    <Center>
-      <Button justifyContent="" onClick={() => setOpen(true)}>Buy Content</Button>
+      <Center>
+        <Button justifyContent="" onClick={() => setOpen(true)}>
+          Buy Content
+        </Button>
       </Center>
       <Modal
         isCentered={true}
