@@ -13,9 +13,14 @@ import {
   Tab,
   TabPanels,
   TabPanel,
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Link,
 } from "@chakra-ui/react";
-import { useAccount } from "wagmi";
-
+import { useAccount, useContractRead } from "wagmi";
+import NewsToken from "../../utils/newsToken.json";
 import AppLayout from "../../components/layout/AppLayout";
 import { getEnsName } from "../../utils/ens";
 import centerEllipses from "../../utils/centerEllipses";
@@ -28,7 +33,10 @@ import TaskList from "../../components/task/TaskList";
 import HostEventList from "../../components/hostEvents/HostEventList";
 import { TheatreModeIcon } from "../../components/icons/TheatreModeIcon";
 import NebulousButton from "../../components/general/button/NebulousButton";
-
+import { MATIC_NEWSTOKEN_ADDRESS } from "../../constants";
+import TransactionModal from "../../components/transactions/transactionModal";
+import error from "next/error";
+import { ToastContainer, toast } from 'react-toastify';
 const HOSTEVENT_FEED_QUERY = gql`
   query HostEventChannelFeed($data: HostEventFeedInput!) {
     getHostEventFeed(data: $data) {
@@ -72,17 +80,27 @@ export type ChatBot = {
   title: string | null | undefined;
   description: string | null | undefined;
 };
-
 const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
+
   const { user } = useUser();
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
+  const [balance,setBalance] = useState(0 as any)
   const router = useRouter();
   const [isTheatreMode, setIsTheatreMode] = useState<boolean>(
     router.query.theatreMode === "true"
   );
   const accountData = useAccount();
-
+  const { data: data3, error: error3, isLoading: loading3 } =
+    useContractRead(
+      {
+        addressOrName: MATIC_NEWSTOKEN_ADDRESS,
+        contractInterface: NewsToken,
+        functionName: 'balanceOf',
+        args: [accountData?.address],
+        chainId: 137,
+      },
+    );
   useEffect(() => {
     const fetchEns = async () => {
       if (accountData?.address) {
@@ -92,8 +110,15 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
       }
     };
 
+
     fetchEns();
   }, [accountData?.address]);
+
+  useEffect(() => {
+    if(data3) {
+   setBalance(data3)
+    }
+  }, [data3,accountData?.address]);
 
   const toggleTheatreMode = () => {
     if (isTheatreMode) {
@@ -154,6 +179,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
             className="xeedev-class-hide"
           >
             <Flex direction="column">
+     
               <Flex
                 maxH="400px"
                 margin="auto"
@@ -163,6 +189,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                 justifyContent="space-between"
                 pr="32px"
               >
+          
                 <Text fontSize="2rem" fontWeight="bold">
                   Vote for the next host!
                 </Text>
@@ -296,7 +323,20 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
             id="xeedev-video-modal"
             className="xeedev-class-hide"
           >
+                 <TransactionModal onSuccess={(hash) => {
+                  toast(<Link target="_blank" href={`https://etherscan.io/tx/${hash}`} passHref>
+                  <a target='_blank' >Transfer approved, click to view.</a>
+               </Link>, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    theme: "light",
+                    type: "success",
+                    });
+                 }} />
             <Flex direction="column">
+       
               <Flex
                 maxH="400px"
                 margin="auto"
@@ -306,6 +346,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                 justifyContent="space-between"
                 pr="32px"
               >
+            
                 <Text fontSize="2rem" fontWeight="bold">
                   Vote for the next host!
                 </Text>

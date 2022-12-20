@@ -11,6 +11,8 @@ import cookies from "next-cookies";
 
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/useUser";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface InitialProps {
   cookies: Cookies;
@@ -28,7 +30,7 @@ function App({ Component, pageProps, cookies }: Props) {
     getDefaultClient({
       appName: "Unlonely",
       autoConnect: true,
-      infuraId: "3b2a738fb8834266ba5a7538efe46d7e",
+      alchemyId: "mo03KrWexuyEE6YFd4SzslmP4oWXNRVB",
     })
   );
 
@@ -44,6 +46,7 @@ function App({ Component, pageProps, cookies }: Props) {
         >
           <ApolloProvider client={apolloClient}>
             <UserProvider>
+            <ToastContainer />
               <Component {...pageProps} />
             </UserProvider>
           </ApolloProvider>

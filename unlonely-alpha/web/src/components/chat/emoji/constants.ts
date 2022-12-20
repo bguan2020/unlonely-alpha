@@ -21,6 +21,9 @@ export const gifsList = [
   // "https://i.imgur.com/IW1whk4.gif", // tofu
 ];
 
+export const MATIC_NEWSTOKEN_ADDRESS =
+  "0x24f143c3e00c04955f1E0B65823cF840c8aF2B36";
+  
 export const categoriesList = Object.keys(categories);
 
 export const unicodeEmojis = categoriesList.reduce(
