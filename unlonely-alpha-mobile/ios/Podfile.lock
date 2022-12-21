@@ -132,6 +132,7 @@ PODS:
     - ReactCommon/turbomodule/core (= 0.70.5)
   - fmt (6.2.1)
   - glog (0.3.5)
+  - Mute (0.6.0)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -380,6 +381,9 @@ PODS:
     - React
     - React-callinvoker
     - React-Core
+  - react-native-volume-manager (1.2.1):
+    - Mute
+    - React-Core
   - react-native-webview (11.23.1):
     - React-Core
   - React-perflogger (0.70.5)
@@ -540,6 +544,7 @@ DEPENDENCIES:
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
+  - react-native-volume-manager (from `../node_modules/react-native-volume-manager`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -565,6 +570,7 @@ SPEC REPOS:
   trunk:
     - AmazonIVSPlayer
     - fmt
+    - Mute
 
 EXTERNAL SOURCES:
   amazon-ivs-react-native-player:
@@ -667,6 +673,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-skia:
     :path: "../node_modules/@shopify/react-native-skia"
+  react-native-volume-manager:
+    :path: "../node_modules/react-native-volume-manager"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-perflogger:
@@ -743,6 +751,7 @@ SPEC CHECKSUMS:
   FBReactNativeSpec: fe8b5f1429cfe83a8d72dc8ed61dc7704cac8745
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
+  Mute: 66213d0aced6a074c7ab88b45ec20a9d54b1b7fb
   RCT-Folly: 0080d0a6ebf2577475bda044aa59e2ca1f909cda
   RCTRequired: 21229f84411088e5d8538f21212de49e46cc83e2
   RCTTypeSafety: 62eed57a32924b09edaaf170a548d1fc96223086
@@ -761,6 +770,7 @@ SPEC CHECKSUMS:
   react-native-netinfo: 85b2a435c4d3705c08b0c42ff2d6ef6b9622ea0a
   react-native-safe-area-context: 99b24a0c5acd0d5dcac2b1a7f18c49ea317be99a
   react-native-skia: 7f9a3bd36c4247005e87005d912dcf6db76a6289
+  react-native-volume-manager: 3c58b64125fd42438fb8b95776566910dce54a46
   react-native-webview: d33e2db8925d090871ffeb232dfa50cb3a727581
   React-perflogger: e68d3795cf5d247a0379735cbac7309adf2fb931
   React-RCTActionSheet: 05452c3b281edb27850253db13ecd4c5a65bc247

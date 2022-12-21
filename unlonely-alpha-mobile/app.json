@@ -14,7 +14,10 @@
       "bundler": "metro"
     },
     "ios": {
-      "bundleIdentifier": "app.unlonely.mobile"
+      "bundleIdentifier": "app.unlonely.mobile",
+      "infoPlist": {
+        "UIBackgroundModes": ["audio"]
+      }
     },
     "extra": {
       "eas": {

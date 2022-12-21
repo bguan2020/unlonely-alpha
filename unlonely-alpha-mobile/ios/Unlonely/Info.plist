@@ -29,6 +29,12 @@
 				<string>app.unlonely.mobile</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>exp+unlonely</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
@@ -51,6 +57,10 @@
 	<string>Allow $(PRODUCT_NAME) to access your microphone</string>
 	<key>RCTRootViewBackgroundColor</key>
 	<integer>4278190080</integer>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
