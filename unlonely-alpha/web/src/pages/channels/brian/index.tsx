@@ -16,18 +16,18 @@ import {
 } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 
-import AppLayout from "../../components/layout/AppLayout";
-import { getEnsName } from "../../utils/ens";
-import centerEllipses from "../../utils/centerEllipses";
-import { HostEventCard_HostEventFragment } from "../../generated/graphql";
-import AblyChatComponent from "../../components/chat/AblyChataComponent";
-import NextStreamTimer from "../../components/video/NextStreamTimer";
-import { useUser } from "../../hooks/useUser";
-import HostEventCardSkeleton from "../../components/hostEvents/HostEventCardSkeleton";
-import TaskList from "../../components/task/TaskList";
-import HostEventList from "../../components/hostEvents/HostEventList";
-import { TheatreModeIcon } from "../../components/icons/TheatreModeIcon";
-import NebulousButton from "../../components/general/button/NebulousButton";
+import AppLayout from "../../../components/layout/AppLayout";
+import { getEnsName } from "../../../utils/ens";
+import centerEllipses from "../../../utils/centerEllipses";
+import { HostEventCard_HostEventFragment } from "../../../generated/graphql";
+import AblyChatComponent from "../../../components/chat/AblyChataComponent";
+import NextStreamTimer from "../../../components/video/NextStreamTimer";
+import { useUser } from "../../../hooks/useUser";
+import HostEventCardSkeleton from "../../../components/hostEvents/HostEventCardSkeleton";
+import TaskList from "../../../components/task/TaskList";
+import HostEventList from "../../../components/hostEvents/HostEventList";
+import { TheatreModeIcon } from "../../../components/icons/TheatreModeIcon";
+import NebulousButton from "../../../components/general/button/NebulousButton";
 
 const HOSTEVENT_FEED_QUERY = gql`
   query HostEventChannelFeed($data: HostEventFeedInput!) {
