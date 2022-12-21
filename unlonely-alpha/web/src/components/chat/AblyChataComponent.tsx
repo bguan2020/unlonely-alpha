@@ -862,7 +862,8 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     if (!chat) return;
 
     if (autoScroll.current) {
-      chat.scrollTop = chat.scrollHeight;
+        chat.scrollTop = chat.scrollHeight;
+        setIsScrolled(false);
     }
   }, [receivedMessages]);
 
