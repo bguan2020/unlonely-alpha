@@ -70,6 +70,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [formError, setFormError] = useState<null | string[]>(null);
   const [emojiList, setEmojiList] = useState<string[]>(emojis);
+  const [hasMessagesLoaded,setHasMessagesLoaded] = useState(false)
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
@@ -860,10 +861,21 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   useEffect(() => {
     const chat = document.getElementById("chat");
     if (!chat) return;
-
-    if (autoScroll.current) {
+    console.log("scroll top",chat.scrollHeight - chat.scrollTop)
+    if (autoScroll.current ) {
+      //inital message load
+      if (!hasMessagesLoaded && receivedMessages.length) {
         chat.scrollTop = chat.scrollHeight;
         setIsScrolled(false);
+        setHasMessagesLoaded(true)
+       return
+      }//every message after (might have to determine a better number than 500)
+       else if (chat.scrollHeight - chat.scrollTop > 500) {
+        setIsScrolled(true);
+        return
+      }
+      //anything else
+      chat.scrollTop = chat.scrollHeight;
     }
   }, [receivedMessages]);
 
