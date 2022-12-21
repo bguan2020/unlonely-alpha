@@ -46,7 +46,7 @@ function App({ Component, pageProps, cookies }: Props) {
         >
           <ApolloProvider client={apolloClient}>
             <UserProvider>
-              <ToastContainer />
+              <ToastContainer pauseOnHover={false} />
               <Component {...pageProps} />
             </UserProvider>
           </ApolloProvider>
