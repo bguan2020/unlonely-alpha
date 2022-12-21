@@ -34,7 +34,7 @@ export default function Chat() {
       width="100%"
       height="100%"
     >
-      <AblyChatComponent username={username} chatBot={chatBot} user={user}/>
+      <AblyChatComponent username={username} chatBot={chatBot} user={user} />
     </Flex>
   );
 }
