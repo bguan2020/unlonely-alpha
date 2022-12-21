@@ -325,7 +325,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                 toast(
                   <Link
                     target="_blank"
-                    href={`https://etherscan.io/tx/${hash}`}
+                    href={`https://polygonscan.com/tx/${hash}`}
                     passHref
                   >
                     <a target="_blank">Transfer approved, click to view.</a>

@@ -174,7 +174,6 @@ export default function TransactionModal({ onSuccess }: Props) {
               >
                 {step === 0 ? (
                   <Stack>
-                    <Text>{allowance && allowance._hex}</Text>
                     <Menu>
                       <Center>
                         {" "}
