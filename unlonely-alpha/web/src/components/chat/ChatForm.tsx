@@ -35,8 +35,8 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
       }
       return;
     }
-    if(event.charCode === 13) {
-      setCommandsOpen(false)
+    if (event.charCode === 13) {
+      setCommandsOpen(false);
     }
     event.preventDefault();
     sendChatMessage(messageText, isGif);
