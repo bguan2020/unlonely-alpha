@@ -4,9 +4,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25061/unloney_staging_pool_2?pgbouncer=true"
+  // url      = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25061/unloney_staging_pool_2?pgbouncer=true"
   // switch to this db url when pushing db changes
-  // url = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely_v1_staging?sslmode=require"
+  url = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely_v1_staging?sslmode=require"
 }
 
 model User {
@@ -35,6 +35,7 @@ model User {
   chats Chat[]
   host HostEvent[]
   NFCs NFC[]
+  streamInteractions StreamInteraction[]
 }
 
 model Video {
@@ -167,6 +168,18 @@ model NFC {
   score Int @default(0)
 
   likes Like[]
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StreamInteraction {
+  id           Int     @id @default(autoincrement())
+
+  interactionType String
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])

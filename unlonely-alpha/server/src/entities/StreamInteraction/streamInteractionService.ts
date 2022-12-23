@@ -1,9 +1,15 @@
-const {default: OBSWebSocket} = require('obs-websocket-js');
+import { Context } from "../../context";
+import OBSWebSocket from "obs-websocket-js";
 
-// connect to obs-websocket running on localhost with same port
+export interface IPostStreamInteractionInput {
+  interactionType: string;
+}
+
 const obs_IP = "192.168.0.232:4455";
 const obs_password = "VllUxAIAhTwVUMBE";
-(async () => {
+
+export const postStreamInteraction = (data: IPostStreamInteractionInput, ctx: Context) => {
+  // obs-websocket-js
   const obs = new OBSWebSocket();
   obs.connect(`ws://${obs_IP}`, obs_password).then(async () => {
     console.log('Successfully connected to OBS!');
@@ -22,10 +28,31 @@ const obs_password = "VllUxAIAhTwVUMBE";
     // pick a random one from the filteredScenes array and set it as the currentProgramSceneName
     const randomScene = filteredScenes[Math.floor(Math.random() * filteredScenes.length)];
     console.log(randomScene);
-    await obs.call('SetCurrentProgramScene', {sceneName: randomScene.sceneName});
+    if (!randomScene || !randomScene.sceneName) {
+      return;
+    }
+    await obs.call('SetCurrentProgramScene', {sceneName: randomScene.sceneName?.toString()});
     console.log('done');
     
   }).catch(err => {
     console.error(`issue sending ${err}`);
   });
-})();
+  // update the original host event to have a challenger
+  return ctx.prisma.streamInteraction.create({
+    data: {
+      interactionType: data.interactionType,
+      owner: {
+        connect: {
+          address: "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa",
+        }
+      },
+    },
+  });
+};
+
+export const getOwner = (
+  { ownerAddr }: { ownerAddr: string },
+  ctx: Context
+) => {
+  return ctx.prisma.user.findUnique({ where: { address: ownerAddr } });
+};

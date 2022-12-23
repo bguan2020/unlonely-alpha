@@ -14,6 +14,7 @@ import { typeDef as poapTypeDef } from "./POAP/poapTypeDef";
 import { typeDef as chatTypeDef } from "./Chat/chatTypeDef";
 import { typeDef as nfcTypeDef } from "./NFC/NFCTypeDef";
 import { typeDef as hostEventTypeDef } from "./HostEvent/hostEventTypeDef";
+import { typeDef as streamInteractionTypeDef } from "./StreamInteraction/streamInteractionTypeDef";
 import { resolvers as likeResolvers } from "./Like/likeResolvers";
 import { resolvers as userResolvers } from "./User/userResolvers";
 import { resolvers as videoResolvers } from "./Video/videoResolvers";
@@ -22,6 +23,7 @@ import { resolvers as poapResolvers } from "./POAP/poapResolvers";
 import { resolvers as chatResolvers } from "./Chat/chatResolvers";
 import { resolvers as hostEventResolvers } from "./HostEvent/hostEventResolvers";
 import { resolvers as nfcResolvers } from "./NFC/NFCResolvers";
+import { resolvers as streamInteractionResolvers } from "./StreamInteraction/streamInteractionResolvers";
 
 const Query = gql`
   enum SortOrder {
@@ -59,6 +61,7 @@ export default makeExecutableSchema({
     chatTypeDef,
     hostEventTypeDef,
     nfcTypeDef,
+    streamInteractionTypeDef,
   ],
   resolvers: merge(
     resolvers,
@@ -69,6 +72,7 @@ export default makeExecutableSchema({
     poapResolvers,
     chatResolvers,
     hostEventResolvers,
-    nfcResolvers
+    nfcResolvers,
+    streamInteractionResolvers,
   ),
 });
