@@ -83,23 +83,6 @@ export type Chat = {
   updatedAt: Scalars["DateTime"];
 };
 
-export type Comment = {
-  __typename?: "Comment";
-  color: Scalars["String"];
-  createdAt: Scalars["DateTime"];
-  id: Scalars["ID"];
-  liked?: Maybe<Scalars["Boolean"]>;
-  location_x: Scalars["Int"];
-  location_y: Scalars["Int"];
-  owner: User;
-  score: Scalars["Int"];
-  text: Scalars["String"];
-  updatedAt: Scalars["DateTime"];
-  video: Video;
-  videoId: Scalars["Int"];
-  videoTimestamp: Scalars["Float"];
-};
-
 export type GetChatInput = {
   address?: InputMaybe<Scalars["String"]>;
 };
@@ -172,8 +155,8 @@ export type Mutation = {
   handleNFC?: Maybe<Scalars["Int"]>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
   postChallenge?: Maybe<HostEvent>;
-  postComment?: Maybe<Comment>;
   postFirstChat?: Maybe<Chat>;
+  postStreamInteraction?: Maybe<StreamInteraction>;
   postTask?: Maybe<Task>;
   postVideo?: Maybe<Video>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
@@ -192,12 +175,12 @@ export type MutationPostChallengeArgs = {
   data: PostChallengeInput;
 };
 
-export type MutationPostCommentArgs = {
-  data: PostCommentInput;
-};
-
 export type MutationPostFirstChatArgs = {
   data: PostChatInput;
+};
+
+export type MutationPostStreamInteractionArgs = {
+  data: PostStreamInteractionInput;
 };
 
 export type MutationPostTaskArgs = {
@@ -233,6 +216,7 @@ export type Nfc = Likable & {
 
 export type NfcFeedInput = {
   limit?: InputMaybe<Scalars["Int"]>;
+  offset?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<SortBy>;
 };
 
@@ -258,12 +242,8 @@ export type PostChatInput = {
   text: Scalars["String"];
 };
 
-export type PostCommentInput = {
-  location_x: Scalars["Int"];
-  location_y: Scalars["Int"];
-  text: Scalars["String"];
-  videoId: Scalars["Int"];
-  videoTimestamp: Scalars["Float"];
+export type PostStreamInteractionInput = {
+  interactionType: Scalars["String"];
 };
 
 export type PostTaskInput = {
@@ -344,6 +324,15 @@ export enum SortOrder {
   Desc = "desc",
 }
 
+export type StreamInteraction = {
+  __typename?: "StreamInteraction";
+  createdAt: Scalars["DateTime"];
+  id: Scalars["ID"];
+  interactionType: Scalars["String"];
+  owner: User;
+  updatedAt: Scalars["DateTime"];
+};
+
 export type Task = {
   __typename?: "Task";
   completed: Scalars["Boolean"];
@@ -388,7 +377,6 @@ export type User = {
 
 export type Video = {
   __typename?: "Video";
-  comments: Array<Comment>;
   createdAt: Scalars["DateTime"];
   currentVideo: Scalars["Boolean"];
   description: Scalars["String"];
@@ -421,19 +409,6 @@ export type GetPoapQueryVariables = Exact<{
 export type GetPoapQuery = {
   __typename?: "Query";
   getPoap?: { __typename?: "Poap"; id: string; link?: string | null } | null;
-};
-
-export type Comment_CommentFragment = {
-  __typename?: "Comment";
-  text: string;
-  score: number;
-  color: string;
-  location_x: number;
-  location_y: number;
-  videoId: number;
-  videoTimestamp: number;
-  createdAt: any;
-  owner: { __typename?: "User"; username?: string | null; address: string };
 };
 
 export type HostEventCard_HostEventFragment = {
@@ -540,39 +515,6 @@ export type LikeMutation = {
 
 export type UseLike_HostEventFragment = { __typename: "HostEvent"; id: string };
 
-export type PostCommentMutationVariables = Exact<{
-  data: PostCommentInput;
-}>;
-
-export type PostCommentMutation = {
-  __typename?: "Mutation";
-  postComment?: {
-    __typename?: "Comment";
-    video: {
-      __typename?: "Video";
-      id: string;
-      youtubeId: string;
-      comments: Array<{
-        __typename?: "Comment";
-        id: string;
-        text: string;
-        score: number;
-        color: string;
-        location_x: number;
-        location_y: number;
-        videoId: number;
-        videoTimestamp: number;
-        createdAt: any;
-        owner: {
-          __typename?: "User";
-          username?: string | null;
-          address: string;
-        };
-      }>;
-    };
-  } | null;
-};
-
 export type PostFirstChatMutationVariables = Exact<{
   data: PostChatInput;
 }>;
@@ -589,6 +531,18 @@ export type HandleNfcMutationVariables = Exact<{
 export type HandleNfcMutation = {
   __typename?: "Mutation";
   handleNFC?: number | null;
+};
+
+export type PostStreamInteractionMutationVariables = Exact<{
+  data: PostStreamInteractionInput;
+}>;
+
+export type PostStreamInteractionMutation = {
+  __typename?: "Mutation";
+  postStreamInteraction?: {
+    __typename?: "StreamInteraction";
+    id: string;
+  } | null;
 };
 
 export type PostTaskMutationVariables = Exact<{
@@ -822,22 +776,6 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
-export const Comment_CommentFragmentDoc = gql`
-  fragment Comment_comment on Comment {
-    owner {
-      username
-      address
-    }
-    text
-    score
-    color
-    location_x
-    location_y
-    videoId
-    videoTimestamp
-    createdAt
-  }
-`;
 export const UseLike_HostEventFragmentDoc = gql`
   fragment useLike_hostEvent on HostEvent {
     id
@@ -1067,64 +1005,6 @@ export type LikeMutationOptions = Apollo.BaseMutationOptions<
   LikeMutation,
   LikeMutationVariables
 >;
-export const PostCommentDocument = gql`
-  mutation PostComment($data: PostCommentInput!) {
-    postComment(data: $data) {
-      video {
-        id
-        youtubeId
-        comments {
-          id
-          ...Comment_comment
-        }
-      }
-    }
-  }
-  ${Comment_CommentFragmentDoc}
-`;
-export type PostCommentMutationFn = Apollo.MutationFunction<
-  PostCommentMutation,
-  PostCommentMutationVariables
->;
-
-/**
- * __usePostCommentMutation__
- *
- * To run a mutation, you first call `usePostCommentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostCommentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postCommentMutation, { data, loading, error }] = usePostCommentMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostCommentMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostCommentMutation,
-    PostCommentMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<PostCommentMutation, PostCommentMutationVariables>(
-    PostCommentDocument,
-    options
-  );
-}
-export type PostCommentMutationHookResult = ReturnType<
-  typeof usePostCommentMutation
->;
-export type PostCommentMutationResult =
-  Apollo.MutationResult<PostCommentMutation>;
-export type PostCommentMutationOptions = Apollo.BaseMutationOptions<
-  PostCommentMutation,
-  PostCommentMutationVariables
->;
 export const PostFirstChatDocument = gql`
   mutation PostFirstChat($data: PostChatInput!) {
     postFirstChat(data: $data) {
@@ -1221,6 +1101,56 @@ export type HandleNfcMutationResult = Apollo.MutationResult<HandleNfcMutation>;
 export type HandleNfcMutationOptions = Apollo.BaseMutationOptions<
   HandleNfcMutation,
   HandleNfcMutationVariables
+>;
+export const PostStreamInteractionDocument = gql`
+  mutation PostStreamInteraction($data: PostStreamInteractionInput!) {
+    postStreamInteraction(data: $data) {
+      id
+    }
+  }
+`;
+export type PostStreamInteractionMutationFn = Apollo.MutationFunction<
+  PostStreamInteractionMutation,
+  PostStreamInteractionMutationVariables
+>;
+
+/**
+ * __usePostStreamInteractionMutation__
+ *
+ * To run a mutation, you first call `usePostStreamInteractionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostStreamInteractionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postStreamInteractionMutation, { data, loading, error }] = usePostStreamInteractionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostStreamInteractionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostStreamInteractionMutation,
+    PostStreamInteractionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostStreamInteractionMutation,
+    PostStreamInteractionMutationVariables
+  >(PostStreamInteractionDocument, options);
+}
+export type PostStreamInteractionMutationHookResult = ReturnType<
+  typeof usePostStreamInteractionMutation
+>;
+export type PostStreamInteractionMutationResult =
+  Apollo.MutationResult<PostStreamInteractionMutation>;
+export type PostStreamInteractionMutationOptions = Apollo.BaseMutationOptions<
+  PostStreamInteractionMutation,
+  PostStreamInteractionMutationVariables
 >;
 export const PostTaskDocument = gql`
   mutation PostTask($data: PostTaskInput!) {
