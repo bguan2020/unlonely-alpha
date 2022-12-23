@@ -14,7 +14,7 @@ export const postStreamInteraction = (data: IPostStreamInteractionInput, ctx: Co
   obs.connect(`ws://${obs_IP}`, obs_password).then(async () => {
     console.log('Successfully connected to OBS!');
     const {currentProgramSceneName} = await obs.call('GetCurrentProgramScene');
-    console.log(currentProgramSceneName);
+    console.log("current scene ", currentProgramSceneName);
 
     // get scene list
     const {scenes} = await obs.call('GetSceneList');
@@ -23,11 +23,9 @@ export const postStreamInteraction = (data: IPostStreamInteractionInput, ctx: Co
       // remove if scene name === currentProgramSceneName or if scene name === "desktop+cam"
       return scene.sceneName !== currentProgramSceneName && scene.sceneName !== 'desktop+cam' && scene.sceneName !== 'face-cam';
     });
-    console.log(filteredScenes);
-
     // pick a random one from the filteredScenes array and set it as the currentProgramSceneName
     const randomScene = filteredScenes[Math.floor(Math.random() * filteredScenes.length)];
-    console.log(randomScene);
+    console.log("randomScene", randomScene.sceneName?.toString());
     if (!randomScene || !randomScene.sceneName) {
       return;
     }
@@ -36,6 +34,7 @@ export const postStreamInteraction = (data: IPostStreamInteractionInput, ctx: Co
     
   }).catch(err => {
     console.error(`issue sending ${err}`);
+    return err;
   });
   // update the original host event to have a challenger
   return ctx.prisma.streamInteraction.create({
