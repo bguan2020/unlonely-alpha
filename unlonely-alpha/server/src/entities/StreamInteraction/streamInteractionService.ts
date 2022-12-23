@@ -1,17 +1,19 @@
 import { Context } from "../../context";
 import OBSWebSocket from "obs-websocket-js";
+import * as dotenv from 'dotenv';
+
 
 export interface IPostStreamInteractionInput {
   interactionType: string;
 }
 
-const obs_IP = "192.168.0.232:4455";
-const obs_password = "VllUxAIAhTwVUMBE";
-
 export const postStreamInteraction = (data: IPostStreamInteractionInput, ctx: Context) => {
+  dotenv.config();
+  const obs_IP_address = process.env.OBS_WEBSOCKET_IP_ADDRESS;
+  const obs_password = process.env.OBS_WEBSOCKET_PASSWORD;
   // obs-websocket-js
   const obs = new OBSWebSocket();
-  obs.connect(`ws://${obs_IP}`, obs_password).then(async () => {
+  obs.connect(`ws://${obs_IP_address}`, obs_password).then(async () => {
     console.log('Successfully connected to OBS!');
     const {currentProgramSceneName} = await obs.call('GetCurrentProgramScene');
     console.log("current scene ", currentProgramSceneName);
@@ -36,13 +38,13 @@ export const postStreamInteraction = (data: IPostStreamInteractionInput, ctx: Co
     console.error(`issue sending ${err}`);
     return err;
   });
-  // update the original host event to have a challenger
+
   return ctx.prisma.streamInteraction.create({
     data: {
       interactionType: data.interactionType,
       owner: {
         connect: {
-          address: "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa",
+          address: ctx.user?.address,
         }
       },
     },

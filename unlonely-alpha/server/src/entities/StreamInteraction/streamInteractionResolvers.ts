@@ -10,9 +10,9 @@ export const resolvers = {
       { data }: { data: streamInteractionService.IPostStreamInteractionInput },
       ctx: Context
     ) => {
-      // if (!ctx.user || !ctx.userIsAuthed) {
-      //   throw new AuthenticationError("User is not authenticated");
-      // }
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
 
       return streamInteractionService.postStreamInteraction(data, ctx);
     },
