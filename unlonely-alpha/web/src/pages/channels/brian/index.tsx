@@ -25,12 +25,9 @@ import NewsToken from "../../../utils/newsToken.json";
 import AppLayout from "../../../components/layout/AppLayout";
 import { MATIC_NEWSTOKEN_ADDRESS } from "../../../constants";
 import { getEnsName } from "../../../utils/ens";
-import usePostStreamInteraction from "../../../hooks/usePostStreamInteraction";
+import usePostStreamInteraction from '../../../hooks/usePostStreamInteraction'
 import centerEllipses from "../../../utils/centerEllipses";
-import {
-  HostEventCard_HostEventFragment,
-  usePostStreamInteractionMutation,
-} from "../../../generated/graphql";
+import { HostEventCard_HostEventFragment, usePostStreamInteractionMutation } from "../../../generated/graphql";
 import AblyChatComponent from "../../../components/chat/AblyChataComponent";
 import NextStreamTimer from "../../../components/video/NextStreamTimer";
 import { useUser } from "../../../hooks/useUser";
@@ -90,12 +87,11 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
   const [username, setUsername] = useState<string | null>();
   const [balance, setBalance] = useState(0 as any);
   const router = useRouter();
-  const { postStreamInteraction, loading: postChatLoading } =
-    usePostStreamInteraction({
-      onError: (e) => {
-        console.log("oh no", e);
-      },
-    });
+  const {postStreamInteraction, loading: postChatLoading } = usePostStreamInteraction({
+    onError: (e) => {
+     console.log('oh no',e)
+    },
+  });
   const [isTheatreMode, setIsTheatreMode] = useState<boolean>(
     router.query.theatreMode === "true"
   );
@@ -332,7 +328,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                     type: "success",
                   }
                 );
-                postStreamInteraction();
+                  postStreamInteraction(user)
               }}
             />
             <Flex direction="column">

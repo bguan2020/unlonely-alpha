@@ -121,7 +121,6 @@ export default function TransactionModal({ onSuccess }: Props) {
     if (isTransferSuccess) {
       setOpen(false);
       setStep(0);
-      setOption(options[0]);
       onSuccess && onSuccess(transferData?.hash as string);
     }
     if (transferError) {
@@ -129,7 +128,7 @@ export default function TransactionModal({ onSuccess }: Props) {
     }
   }, [isTransferSuccess, transferError]);
   const handleTransaction = async () => {
-    if (allowance && parseInt(allowance.toString()) >= option.price) {
+    if (allowance && parseInt(allowance.toString()) >= price) {
       setStep(1);
       transferWrite && transferWrite();
     } else {
@@ -148,7 +147,6 @@ export default function TransactionModal({ onSuccess }: Props) {
         isOpen={open}
         onClose={() => {
           setOpen(false);
-          setOption(null as any);
         }}
       >
         <ModalOverlay />
