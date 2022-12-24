@@ -40,13 +40,11 @@ type Props = {
   onSuccess: (hash: string) => void;
 };
 
-const options = [{ price: 5000, seconds: 30 }];
+const price = 500
 
 export default function TransactionModal({ onSuccess }: Props) {
   const [open, setOpen] = useState(false);
-  const [option, setOption] = useState(options[0]);
   const [step, setStep] = useState(0);
-  const debouncedOption = useDebounce<any>(option, 500);
   const accountData = useAccount();
   const {
     data: data3,
@@ -76,8 +74,8 @@ export default function TransactionModal({ onSuccess }: Props) {
     addressOrName: MATIC_NEWSTOKEN_ADDRESS,
     contractInterface: NewsToken,
     functionName: "transfer",
-    args: [MATIC_NEWSTOKEN_ADDRESS, 5000],
-    enabled: Boolean(5000),
+    args: [MATIC_NEWSTOKEN_ADDRESS,price],
+    enabled: Boolean(price),
     onError: (err) => {
       console.log("transfer err", err);
       setStep(0);
@@ -89,8 +87,8 @@ export default function TransactionModal({ onSuccess }: Props) {
     addressOrName: MATIC_NEWSTOKEN_ADDRESS,
     contractInterface: NewsToken,
     functionName: "approve",
-    args: [accountData?.address, 5000],
-    enabled: Boolean(5000),
+    args: [accountData?.address, price],
+    enabled: Boolean(price),
     onError: (err) => {
       console.log("approve err", err);
       setStep(0);
@@ -175,7 +173,7 @@ export default function TransactionModal({ onSuccess }: Props) {
                   onClick={async () => {
                     handleTransaction();
                   }}
-                  disabled={!option || step === 1}
+                  disabled={step === 1}
                   colorScheme="green"
                 >
                   Make purchase
