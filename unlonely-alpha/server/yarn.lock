@@ -4315,7 +4315,7 @@ object.getownpropertydescriptors@^2.1.1:
 
 obs-websocket-js@^5.0.2:
   version "5.0.2"
-  resolved "https://registry.yarnpkg.com/obs-websocket-js/-/obs-websocket-js-5.0.2.tgz#07660d050dfb851b16623b58cfe2645822112d08"
+  resolved "https://registry.npmjs.org/obs-websocket-js/-/obs-websocket-js-5.0.2.tgz#07660d050dfb851b16623b58cfe2645822112d08"
   integrity sha512-4XxWd5abIFOk0HjIHk+X/NwSXuOTPGsNnn7845g0UQZV0T3AtNk+dfp21zSjJVzuN/5oZR3UKjzEqg8pxMndCA==
   dependencies:
     "@msgpack/msgpack" "^2.7.1"

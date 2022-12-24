@@ -73,6 +73,6 @@ export default makeExecutableSchema({
     chatResolvers,
     hostEventResolvers,
     nfcResolvers,
-    streamInteractionResolvers,
+    streamInteractionResolvers
   ),
 });

@@ -19,13 +19,18 @@ import {
   AlertTitle,
   Link,
 } from "@chakra-ui/react";
+
 import { useAccount, useContractRead } from "wagmi";
 import NewsToken from "../../../utils/newsToken.json";
 import AppLayout from "../../../components/layout/AppLayout";
 import { MATIC_NEWSTOKEN_ADDRESS } from "../../../constants";
 import { getEnsName } from "../../../utils/ens";
+import usePostStreamInteraction from "../../../hooks/usePostStreamInteraction";
 import centerEllipses from "../../../utils/centerEllipses";
-import { HostEventCard_HostEventFragment } from "../../../generated/graphql";
+import {
+  HostEventCard_HostEventFragment,
+  usePostStreamInteractionMutation,
+} from "../../../generated/graphql";
 import AblyChatComponent from "../../../components/chat/AblyChataComponent";
 import NextStreamTimer from "../../../components/video/NextStreamTimer";
 import { useUser } from "../../../hooks/useUser";
@@ -85,21 +90,16 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
   const [username, setUsername] = useState<string | null>();
   const [balance, setBalance] = useState(0 as any);
   const router = useRouter();
+  const { postStreamInteraction, loading: postChatLoading } =
+    usePostStreamInteraction({
+      onError: (e) => {
+        console.log("oh no", e);
+      },
+    });
   const [isTheatreMode, setIsTheatreMode] = useState<boolean>(
     router.query.theatreMode === "true"
   );
   const accountData = useAccount();
-  const {
-    data: data3,
-    error: error3,
-    isLoading: loading3,
-  } = useContractRead({
-    addressOrName: MATIC_NEWSTOKEN_ADDRESS,
-    contractInterface: NewsToken,
-    functionName: "balanceOf",
-    args: [accountData?.address],
-    chainId: 137,
-  });
   useEffect(() => {
     const fetchEns = async () => {
       if (accountData?.address) {
@@ -111,12 +111,6 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
 
     fetchEns();
   }, [accountData?.address]);
-
-  useEffect(() => {
-    if (data3) {
-      setBalance(data3);
-    }
-  }, [data3, accountData?.address]);
 
   const toggleTheatreMode = () => {
     if (isTheatreMode) {
@@ -338,6 +332,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                     type: "success",
                   }
                 );
+                postStreamInteraction();
               }}
             />
             <Flex direction="column">
