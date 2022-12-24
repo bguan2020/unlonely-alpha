@@ -20,23 +20,22 @@ import {
   Link,
 } from "@chakra-ui/react";
 import { useAccount, useContractRead } from "wagmi";
-import NewsToken from "../../utils/newsToken.json";
-import AppLayout from "../../components/layout/AppLayout";
-import { getEnsName } from "../../utils/ens";
-import centerEllipses from "../../utils/centerEllipses";
-import { HostEventCard_HostEventFragment } from "../../generated/graphql";
-import AblyChatComponent from "../../components/chat/AblyChataComponent";
-import NextStreamTimer from "../../components/video/NextStreamTimer";
-import { useUser } from "../../hooks/useUser";
-import HostEventCardSkeleton from "../../components/hostEvents/HostEventCardSkeleton";
-import TaskList from "../../components/task/TaskList";
-import HostEventList from "../../components/hostEvents/HostEventList";
-import { TheatreModeIcon } from "../../components/icons/TheatreModeIcon";
-import NebulousButton from "../../components/general/button/NebulousButton";
-import { MATIC_NEWSTOKEN_ADDRESS } from "../../constants";
-import TransactionModal from "../../components/transactions/transactionModal";
-import error from "next/error";
+import NewsToken from "../../../utils/newsToken.json";
+import AppLayout from "../../../components/layout/AppLayout";
+import { MATIC_NEWSTOKEN_ADDRESS } from "../../../constants";
+import { getEnsName } from "../../../utils/ens";
+import centerEllipses from "../../../utils/centerEllipses";
+import { HostEventCard_HostEventFragment } from "../../../generated/graphql";
+import AblyChatComponent from "../../../components/chat/AblyChataComponent";
+import NextStreamTimer from "../../../components/video/NextStreamTimer";
+import { useUser } from "../../../hooks/useUser";
+import HostEventCardSkeleton from "../../../components/hostEvents/HostEventCardSkeleton";
+import TaskList from "../../../components/task/TaskList";
+import HostEventList from "../../../components/hostEvents/HostEventList";
+import { TheatreModeIcon } from "../../../components/icons/TheatreModeIcon";
+import NebulousButton from "../../../components/general/button/NebulousButton";
 import { ToastContainer, toast } from "react-toastify";
+import TransactionModal from "../../../components/transactions/transactionModal";
 const HOSTEVENT_FEED_QUERY = gql`
   query HostEventChannelFeed($data: HostEventFeedInput!) {
     getHostEventFeed(data: $data) {

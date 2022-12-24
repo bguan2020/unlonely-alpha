@@ -41,9 +41,7 @@ type Props = {
 };
 
 const options = [
-  { price: 1000, seconds: 30 },
-  { price: 2000, seconds: 60 },
-  { price: 500000, seconds: 300 },
+  { price: 5000, seconds: 30 },
 ];
 
 export default function TransactionModal({ onSuccess }: Props) {
@@ -71,7 +69,7 @@ export default function TransactionModal({ onSuccess }: Props) {
   } = useContractRead({
     addressOrName: MATIC_NEWSTOKEN_ADDRESS,
     contractInterface: NewsToken,
-    functionName: "balanceOf",
+    functionName: "allowance",
     args: [accountData?.address],
     chainId: 137,
   });
@@ -167,51 +165,6 @@ export default function TransactionModal({ onSuccess }: Props) {
                   : "Add media to stream"}
               </ModalHeader>
               <ModalCloseButton />
-              <ModalBody
-                justifyContent="center"
-                justifyItems="center"
-                alignItems="center"
-              >
-                {step === 0 ? (
-                  <Stack>
-                    <Menu>
-                      <Center>
-                        {" "}
-                        <MenuButton
-                          justifyItems="center"
-                          justifyContent="center"
-                          as={Button}
-                        >
-                          {!option
-                            ? "Choose a length"
-                            : option.seconds + " seconds"}
-                        </MenuButton>
-                      </Center>
-                      <MenuList>
-                        {options.map((option) => {
-                          return (
-                            <MenuItem
-                              disabled={
-                                !data3 ||
-                                parseInt(data3.toString()) < option.price
-                              }
-                              minH="48px"
-                              onClick={() => {
-                                setOption(option);
-                              }}
-                            >
-                              {" "}
-                              {option.seconds} Seconds{" "}
-                            </MenuItem>
-                          );
-                        })}
-                      </MenuList>
-                    </Menu>{" "}
-                  </Stack>
-                ) : (
-                  <Text>Waiting for transfer transaction...</Text>
-                )}
-              </ModalBody>
               <ModalFooter justifyContent="space-between">
                 <Button
                   colorScheme="blue"
