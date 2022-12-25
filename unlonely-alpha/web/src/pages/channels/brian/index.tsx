@@ -81,6 +81,8 @@ export type ChatBot = {
   title: string | null | undefined;
   description: string | null | undefined;
 };
+
+const data = {interactionType: "scene-change"}
 const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
   const { user } = useUser();
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
@@ -309,8 +311,9 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
             id="xeedev-video-modal"
             className="xeedev-class-hide"
           >
+            { user &&
             <TransactionModal
-              onSuccess={(hash) => {
+              onSuccess={async (hash) => {
                 toast(
                   <Link
                     target="_blank"
@@ -328,9 +331,11 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                     type: "success",
                   }
                 );
-                  postStreamInteraction(user)
+               
+                  await postStreamInteraction(data)
               }}
             />
+}
             <Flex direction="column">
               <Flex
                 maxH="400px"
