@@ -2,11 +2,11 @@ import { Flex } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 
-import { ChatBot } from ".";
-import AblyChatComponent from "../../../components/chat/AblyChataComponent";
-import { useUser } from "../../../hooks/useUser";
-import centerEllipses from "../../../utils/centerEllipses";
-import { getEnsName } from "../../../utils/ens";
+import { ChatBot } from "../channels/brian";
+import AblyChatComponent from "../../components/chat/AblyChataComponent";
+import { useUser } from "../../hooks/useUser";
+import centerEllipses from "../../utils/centerEllipses";
+import { getEnsName } from "../../utils/ens";
 
 export default function Chat() {
   const { user } = useUser();
@@ -34,7 +34,12 @@ export default function Chat() {
       width="100%"
       height="100%"
     >
-      <AblyChatComponent username={username} chatBot={chatBot} user={user} />
+      <AblyChatComponent
+        username={username}
+        chatBot={chatBot}
+        user={user}
+        mobileChat={true}
+      />
     </Flex>
   );
 }
