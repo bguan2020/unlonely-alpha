@@ -5,8 +5,11 @@ import React, { ReactNode } from "react";
 export const CustomToast = () => {
   const toast = useToast();
 
+  /*
+usage: use render if wanting to create a custom link, use title + status + description if you just want to update the user
+  */
   type Props = {
-    render: any;
+    render?: any;
     title?: string;
     status?: "info" | "warning" | "success" | "error" | "loading";
     description?: string;
