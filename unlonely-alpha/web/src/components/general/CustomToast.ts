@@ -16,7 +16,7 @@ usage: use render if wanting to create a custom link, use title + status + descr
   };
   const addToast = ({ render, title, status, description }: Props) => {
     toast({
-      render: () => render,
+      render: render ? () => render : undefined,
       status: status ? status : undefined,
       title: title ? title : undefined,
       description: description ? description : undefined,
