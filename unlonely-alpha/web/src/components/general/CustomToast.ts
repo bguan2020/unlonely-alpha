@@ -11,7 +11,7 @@ usage: use render if wanting to create a custom link, use title + status + descr
   type Props = {
     render?: any;
     title?: string;
-    status?: "info" | "warning" | "success" | "error" | "loading";
+    status?: "error" | "info" | "warning" | "success" | undefined;
     description?: string;
   };
   const addToast = ({ render, title, status, description }: Props) => {
