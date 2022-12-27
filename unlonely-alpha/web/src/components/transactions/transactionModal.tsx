@@ -158,7 +158,7 @@ export default function TransactionModal({ onSuccess }: Props) {
               <ModalHeader>
                 {step === 1
                   ? "Please accept transfer transaction"
-                  : "Add media to stream"}
+                  : "Change the stream overlay"}
               </ModalHeader>
               <ModalCloseButton />
               <ModalFooter justifyContent="space-between">
@@ -171,9 +171,10 @@ export default function TransactionModal({ onSuccess }: Props) {
                 </Button>
                 <Button
                   onClick={async () => {
+
                     handleTransaction();
                   }}
-                  disabled={step === 1}
+                  disabled={step === 1 || (data3 && parseInt(data3.toString()) < price)}
                   colorScheme="green"
                 >
                   Make purchase

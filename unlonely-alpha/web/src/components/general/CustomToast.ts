@@ -22,7 +22,7 @@ usage: use render if wanting to create a custom link, use title + status + descr
       description: description ? description : undefined,
       position: "top",
       isClosable: true,
-      duration: 5000,
+      duration: 10000,
       variant: "left-accent",
     });
   };
