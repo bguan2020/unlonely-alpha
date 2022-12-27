@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import theme from "../styles/theme";
 
 import { ChakraProvider } from "@chakra-ui/react";
+
 import { ApolloProvider } from "@apollo/client";
 import { createClient, WagmiConfig } from "wagmi";
 import { ConnectKitProvider, getDefaultClient } from "connectkit";
@@ -11,8 +12,6 @@ import cookies from "next-cookies";
 
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/useUser";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 interface InitialProps {
   cookies: Cookies;
@@ -25,7 +24,6 @@ function App({ Component, pageProps, cookies }: Props) {
     pageProps ? pageProps.initialApolloState : null,
     cookies
   );
-
   const wagmiClient = createClient(
     getDefaultClient({
       appName: "Unlonely",
@@ -46,7 +44,6 @@ function App({ Component, pageProps, cookies }: Props) {
         >
           <ApolloProvider client={apolloClient}>
             <UserProvider>
-              <ToastContainer pauseOnHover={false} />
               <Component {...pageProps} />
             </UserProvider>
           </ApolloProvider>

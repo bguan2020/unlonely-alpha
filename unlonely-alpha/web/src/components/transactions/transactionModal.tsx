@@ -40,7 +40,7 @@ type Props = {
   onSuccess: (hash: string) => void;
 };
 
-const price = 500
+const price = 500;
 
 export default function TransactionModal({ onSuccess }: Props) {
   const [open, setOpen] = useState(false);
@@ -74,7 +74,7 @@ export default function TransactionModal({ onSuccess }: Props) {
     addressOrName: MATIC_NEWSTOKEN_ADDRESS,
     contractInterface: NewsToken,
     functionName: "transfer",
-    args: [MATIC_NEWSTOKEN_ADDRESS,price],
+    args: [MATIC_NEWSTOKEN_ADDRESS, price],
     enabled: Boolean(price),
     onError: (err) => {
       console.log("transfer err", err);
@@ -114,6 +114,7 @@ export default function TransactionModal({ onSuccess }: Props) {
     }
     if (error) {
       console.log("isApproveError", error.message);
+      setStep(0);
     }
   }, [isSuccess]);
 
@@ -125,6 +126,7 @@ export default function TransactionModal({ onSuccess }: Props) {
     }
     if (transferError) {
       console.log("isTransferError", transferError.message);
+      transferWrite && transferWrite();
     }
   }, [isTransferSuccess, transferError]);
   const handleTransaction = async () => {
