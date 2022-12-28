@@ -32,6 +32,10 @@ export default function MobileConnectWallet() {
       // @ts-ignore
       window.ReactNativeWebView.postMessage(address);
     },
+    onDisconnect() {
+      // @ts-ignore
+      window.ReactNativeWebView.postMessage("wallet_disconnected");
+    },
   });
 
   useEffect(() => {
