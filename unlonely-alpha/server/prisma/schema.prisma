@@ -35,6 +35,7 @@ model User {
   chats Chat[]
   host HostEvent[]
   NFCs NFC[]
+  streamInteractions StreamInteraction[]
 }
 
 model Video {
@@ -167,6 +168,18 @@ model NFC {
   score Int @default(0)
 
   likes Like[]
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StreamInteraction {
+  id           Int     @id @default(autoincrement())
+
+  interactionType String
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
