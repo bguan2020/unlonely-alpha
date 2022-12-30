@@ -1,7 +1,8 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ResizeMode, Video } from 'expo-av';
 import { BlurView } from 'expo-blur';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 type FullscreenNfcProps = {
   height: number;
@@ -129,8 +130,20 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
         }}
       >
         <NfcVideo item={props.item} videoRef={ref} height={props.height} play={shouldPlay} />
-        <Text style={styles.subtitle}>{props.item.title}</Text>
+        <Ionicons name="md-heart-outline" size={44} color="white" />
+        <Text style={styles.title}>{props.item.title}</Text>
         <Text style={styles.subtitle}>owned by {props.item.owner.username}</Text>
+        <View
+          style={{
+            position: 'absolute',
+            zIndex: 3,
+            right: 24,
+            bottom: 200,
+            backgroundColor: 'red',
+          }}
+        >
+          <MaterialCommunityIcons name="dots-horizontal" size={24} color="white" />
+        </View>
       </View>
     </View>
   );
@@ -147,8 +160,19 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  title: {
+    fontSize: 24,
+    color: 'white',
+    fontFamily: 'NeuePixelSans',
+    paddingVertical: 24,
+    paddingHorizontal: 24,
+    bottom: 80,
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 1,
+  },
   subtitle: {
-    fontSize: 20,
+    fontSize: 18,
     color: 'white',
     fontFamily: 'NeuePixelSans',
     paddingVertical: 24,
@@ -159,3 +183,9 @@ const styles = StyleSheet.create({
     textShadowRadius: 1,
   },
 });
+function showActionSheetWithOptions(
+  arg0: { options: string[]; cancelButtonIndex: number; destructiveButtonIndex: number },
+  arg1: (selectedIndex: number) => void
+) {
+  throw new Error('Function not implemented.');
+}

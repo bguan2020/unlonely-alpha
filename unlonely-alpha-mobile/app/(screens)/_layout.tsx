@@ -9,6 +9,7 @@ import { QueryClientProvider, onlineManager } from '@tanstack/react-query';
 import { queryClient } from '../../api/api';
 import NetInfo from '@react-native-community/netinfo';
 import { useAppState } from '../../utils/useAppState';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function Layout() {
   // Load up the fonts as early as possible
@@ -40,64 +41,66 @@ export default function Layout() {
 
   return (
     <View style={styles.rootContainer} onLayout={onLayoutRootView}>
-      {/* maybe add a custom splash screen animation here */}
-      <QueryClientProvider client={queryClient}>
-        <Tabs
-          screenOptions={({ route }) => ({
-            headerShown: true,
-            headerStyle: {
-              opacity: 0,
-            },
-            headerStatusBarHeight: 15,
-            headerShadowVisible: false,
-            headerTransparent: true,
-            headerBackground: () => <UnlonelyTopGradient />,
-            tabBarIcon: ({ focused, color, size }) => {
-              let iconName;
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        {/* maybe add a custom splash screen animation here */}
+        <QueryClientProvider client={queryClient}>
+          <Tabs
+            screenOptions={({ route }) => ({
+              headerShown: true,
+              headerStyle: {
+                opacity: 0,
+              },
+              headerStatusBarHeight: 15,
+              headerShadowVisible: false,
+              headerTransparent: true,
+              headerBackground: () => <UnlonelyTopGradient />,
+              tabBarIcon: ({ focused, color, size }) => {
+                let iconName;
 
-              if (route.name === 'index') {
-                iconName = 'local-movies';
-              } else if (route.name === 'live') {
-                iconName = 'ondemand-video';
-              } else if (route.name === 'schedule') {
-                iconName = 'calendar-today';
-              }
+                if (route.name === 'index') {
+                  iconName = 'local-movies';
+                } else if (route.name === 'live') {
+                  iconName = 'ondemand-video';
+                } else if (route.name === 'schedule') {
+                  iconName = 'calendar-today';
+                }
 
-              return <MaterialIcons name={iconName} size={size} color={color} />;
-            },
-            // tabBarBadge: route.name === 'live' ? '1' : null,
-            // tabBarBadgeStyle: {
-            //   backgroundColor: 'red',
-            //   color: 'white',
-            // },
-            tabBarActiveTintColor:
-              (route.name === 'index' && '#e2f979') ||
-              (route.name === 'live' && '#95f9cf') ||
-              (route.name === 'schedule' && '#db78e0'),
-            tabBarInactiveTintColor: 'white',
-            tabBarLabelStyle: {
-              fontFamily: 'NeuePixelSans',
-              fontSize: 13,
-              textShadowColor: 'rgba(0,0,0,0.5)',
-              textShadowOffset: { width: 2, height: 2 },
-              textShadowRadius: 1,
-            },
-            tabBarStyle: {
-              borderTopWidth: 0,
-              position: 'absolute',
-              height: 120,
-              paddingTop: 40,
-              elevation: 0,
-            },
-            tabBarBackground: () => <FadedTabBar />,
-          })}
-        >
-          {/* Icons for the main bottom tab bar */}
-          <Tabs.Screen name="index" options={{ title: 'NFCs' }} />
-          <Tabs.Screen name="live" options={{ title: 'stream' }} />
-          <Tabs.Screen name="schedule" options={{ title: 'upcoming' }} />
-        </Tabs>
-      </QueryClientProvider>
+                return <MaterialIcons name={iconName} size={size} color={color} />;
+              },
+              // tabBarBadge: route.name === 'live' ? '1' : null,
+              // tabBarBadgeStyle: {
+              //   backgroundColor: 'red',
+              //   color: 'white',
+              // },
+              tabBarActiveTintColor:
+                (route.name === 'index' && '#e2f979') ||
+                (route.name === 'live' && '#95f9cf') ||
+                (route.name === 'schedule' && '#db78e0'),
+              tabBarInactiveTintColor: 'white',
+              tabBarLabelStyle: {
+                fontFamily: 'NeuePixelSans',
+                fontSize: 13,
+                textShadowColor: 'rgba(0,0,0,0.5)',
+                textShadowOffset: { width: 2, height: 2 },
+                textShadowRadius: 1,
+              },
+              tabBarStyle: {
+                borderTopWidth: 0,
+                position: 'absolute',
+                height: 120,
+                paddingTop: 40,
+                elevation: 0,
+              },
+              tabBarBackground: () => <FadedTabBar />,
+            })}
+          >
+            {/* Icons for the main bottom tab bar */}
+            <Tabs.Screen name="index" options={{ title: 'NFCs' }} />
+            <Tabs.Screen name="live" options={{ title: 'stream' }} />
+            <Tabs.Screen name="schedule" options={{ title: 'upcoming' }} />
+          </Tabs>
+        </QueryClientProvider>
+      </GestureHandlerRootView>
     </View>
   );
 }

@@ -32,6 +32,8 @@ export default function NfcFeedScreen() {
     return <FullscreenNfc item={item} ref={ref => (videoRefs.current[item.id] = ref)} height={height} width={width} />;
   };
 
+  console.log(nfcs);
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />

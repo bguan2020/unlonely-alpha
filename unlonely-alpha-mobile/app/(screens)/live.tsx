@@ -7,6 +7,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { easeGradient } from 'react-native-easing-gradient';
 import { WebView } from 'react-native-webview';
 
+const CHAT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/chat';
+
 const { colors, locations } = easeGradient({
   // Eased gradient function so it doesn’t look like garbage
   colorStops: {
@@ -40,7 +42,7 @@ export default function LiveScreen() {
   const catchWebViewNavigationStateChange = (newNavState: any) => {
     const { url } = newNavState;
 
-    if (url !== 'https://www.unlonely.app/channels/brian') {
+    if (url !== CHAT_WEBVIEW_URL) {
       webViewRef.current.stopLoading();
       webViewRef.current.reload();
     }
@@ -101,7 +103,7 @@ export default function LiveScreen() {
       </View>
       <WebView
         ref={webViewRef}
-        source={{ uri: 'https://www.unlonely.app/channels/brian' }}
+        source={{ uri: CHAT_WEBVIEW_URL }}
         onNavigationStateChange={catchWebViewNavigationStateChange}
         style={{
           paddingBottom: 100,
