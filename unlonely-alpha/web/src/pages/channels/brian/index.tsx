@@ -320,29 +320,33 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
             {user && (
               <TransactionModal
                 onSuccess={async (hash) => {
-                  addToast({
-                    render: (
-                      <Box
-                        as="button"
-                        borderRadius="md"
-                        bg="green"
-                        px={4}
-                        h={8}
-                        color="white"
-                      >
-                        <Link
-                          target="_blank"
-                          href={`https://polygonscan.com/tx/${hash}`}
-                          passHref
+                  try {
+                    addToast({
+                      render: (
+                        <Box
+                          as="button"
+                          borderRadius="md"
+                          bg="green"
+                          px={4}
+                          h={8}
+                          color="white"
                         >
-                          <a target="_blank">
-                            Transaction approved, click to view
-                          </a>
-                        </Link>
-                      </Box>
-                    ),
-                  });
-                  await postStreamInteraction(data);
+                          <Link
+                            target="_blank"
+                            href={`https://polygonscan.com/tx/${hash}`}
+                            passHref
+                          >
+                            <a target="_blank">
+                              Transaction approved, click to view
+                            </a>
+                          </Link>
+                        </Box>
+                      ),
+                    });
+                    await postStreamInteraction(data);
+                  } catch (e) {
+                    console.log("error in on success", e);
+                  }
                 }}
               />
             )}

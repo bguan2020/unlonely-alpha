@@ -108,33 +108,47 @@ export default function TransactionModal({ onSuccess }: Props) {
   });
 
   useEffect(() => {
-    if (isSuccess) {
-      setStep(1);
-      transferWrite && transferWrite();
-    }
-    if (error) {
-      console.log("isApproveError", error.message);
+    try {
+      if (isSuccess) {
+        setStep(1);
+        transferWrite && transferWrite();
+      }
+      if (error) {
+        console.log("isApproveError", error.message);
+        setStep(0);
+      }
+    } catch (e) {
+      console.log("error in is approve update", e);
       setStep(0);
     }
   }, [isSuccess]);
 
   useEffect(() => {
-    if (isTransferSuccess) {
-      setOpen(false);
+    try {
+      if (isTransferSuccess) {
+        setOpen(false);
+        setStep(0);
+        onSuccess && onSuccess(transferData?.hash as string);
+      }
+      if (transferError) {
+        console.log("isTransferError", transferError.message);
+        transferWrite && transferWrite();
+      }
+    } catch (e) {
+      console.log("error in is transfer update", e);
       setStep(0);
-      onSuccess && onSuccess(transferData?.hash as string);
-    }
-    if (transferError) {
-      console.log("isTransferError", transferError.message);
-      transferWrite && transferWrite();
     }
   }, [isTransferSuccess, transferError]);
   const handleTransaction = async () => {
-    if (allowance && parseInt(allowance.toString()) >= price) {
-      setStep(1);
-      transferWrite && transferWrite();
-    } else {
-      writeAsync && (await writeAsync());
+    try {
+      if (allowance && parseInt(allowance.toString()) >= price) {
+        setStep(1);
+        transferWrite && transferWrite();
+      } else {
+        writeAsync && (await writeAsync());
+      }
+    } catch (e) {
+      console.log("error in handle transaction", e);
     }
   };
   return (
@@ -171,10 +185,11 @@ export default function TransactionModal({ onSuccess }: Props) {
                 </Button>
                 <Button
                   onClick={async () => {
-
                     handleTransaction();
                   }}
-                  disabled={step === 1 || (data3 && parseInt(data3.toString()) < price)}
+                  disabled={
+                    step === 1 || (data3 && parseInt(data3.toString()) < price)
+                  }
                   colorScheme="green"
                 >
                   Make purchase
