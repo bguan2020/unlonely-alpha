@@ -1,9 +1,11 @@
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useCallback, useRef } from 'react';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import WebView from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUserCredentials } from '../../utils/useUserCredentials';
+import { MenuView } from '@react-native-menu/menu';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function SettingsScreen() {
   const { height, width } = useWindowDimensions();
@@ -33,6 +35,42 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
+      <MenuView
+        onPressAction={({ nativeEvent }) => {
+          console.warn(JSON.stringify(nativeEvent));
+        }}
+        actions={[
+          {
+            id: 'add',
+            title: 'Add',
+            titleColor: '#2367A2',
+            image: Platform.select({
+              ios: 'plus',
+              android: 'ic_menu_add',
+            }),
+            imageColor: '#2367A2',
+          },
+        ]}
+        // shouldOpenOnLongPress={true}
+        style={{
+          backgroundColor: 'blue',
+          width: 50,
+        }}
+      >
+        <View
+          style={{
+            // position: 'absolute',
+            marginTop: 100,
+            zIndex: 1,
+            width: 50,
+            // right: 24,
+            // bottom: 200,
+            backgroundColor: 'red',
+          }}
+        >
+          <MaterialCommunityIcons name="dots-horizontal" size={24} color="white" />
+        </View>
+      </MenuView>
       <View style={styles.main}>
         <Text style={styles.title}>Settings</Text>
         <Pressable

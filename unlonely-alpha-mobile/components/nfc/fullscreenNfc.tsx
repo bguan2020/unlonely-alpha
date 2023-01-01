@@ -1,8 +1,9 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { ResizeMode, Video } from 'expo-av';
 import { BlurView } from 'expo-blur';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MenuView } from '@react-native-menu/menu';
 
 type FullscreenNfcProps = {
   height: number;
@@ -133,17 +134,38 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
         <Ionicons name="md-heart-outline" size={44} color="white" />
         <Text style={styles.title}>{props.item.title}</Text>
         <Text style={styles.subtitle}>owned by {props.item.owner.username}</Text>
-        <View
-          style={{
-            position: 'absolute',
-            zIndex: 3,
-            right: 24,
-            bottom: 200,
-            backgroundColor: 'red',
+
+        <MenuView
+          title="Menu Title"
+          onPressAction={({ nativeEvent }) => {
+            console.warn(JSON.stringify(nativeEvent));
           }}
+          actions={[
+            {
+              id: 'add',
+              title: 'Add',
+              titleColor: '#2367A2',
+              image: Platform.select({
+                ios: 'plus',
+                android: 'ic_menu_add',
+              }),
+              imageColor: '#2367A2',
+            },
+          ]}
+          shouldOpenOnLongPress={false}
         >
-          <MaterialCommunityIcons name="dots-horizontal" size={24} color="white" />
-        </View>
+          <View
+            style={{
+              position: 'absolute',
+              zIndex: 50,
+              right: 24,
+              bottom: 200,
+              backgroundColor: 'red',
+            }}
+          >
+            <MaterialCommunityIcons name="dots-horizontal" size={24} color="white" />
+          </View>
+        </MenuView>
       </View>
     </View>
   );
@@ -183,9 +205,3 @@ const styles = StyleSheet.create({
     textShadowRadius: 1,
   },
 });
-function showActionSheetWithOptions(
-  arg0: { options: string[]; cancelButtonIndex: number; destructiveButtonIndex: number },
-  arg1: (selectedIndex: number) => void
-) {
-  throw new Error('Function not implemented.');
-}
