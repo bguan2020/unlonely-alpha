@@ -41,6 +41,11 @@ function App({ Component, pageProps, cookies }: Props) {
             "--ck-font-family": "Anonymous Pro, sans-serif",
             "--ck-border-radius": 32,
           }}
+          options={{
+            hideTooltips: true,
+            hideQuestionMarkCTA: true,
+            hideNoWalletCTA: true,
+          }}
         >
           <ApolloProvider client={apolloClient}>
             <UserProvider>

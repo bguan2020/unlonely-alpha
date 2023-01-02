@@ -40,7 +40,7 @@ type Props = {
   onSuccess: (hash: string) => void;
 };
 
-const price = 500;
+const price = 500000000000000000000000000000000000000000;
 
 export default function TransactionModal({ onSuccess }: Props) {
   const [open, setOpen] = useState(false);
@@ -132,7 +132,7 @@ export default function TransactionModal({ onSuccess }: Props) {
       }
       if (transferError) {
         console.log("isTransferError", transferError.message);
-        transferWrite && transferWrite();
+        setStep(0)
       }
     } catch (e) {
       console.log("error in is transfer update", e);

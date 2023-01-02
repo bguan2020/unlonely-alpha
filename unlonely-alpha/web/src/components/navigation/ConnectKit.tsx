@@ -6,9 +6,9 @@ import addWeeks from "date-fns/addWeeks";
 
 type Visibility = "always" | "connected" | "not_connected";
 
-const ConnectWallet: React.FunctionComponent<{ show?: Visibility }> = ({
-  show = "always",
-}) => {
+const ConnectWallet: React.FunctionComponent<{
+  show?: Visibility;
+}> = ({ show = "always" }) => {
   const { isConnected, address } = useAccount();
 
   useEffect(() => {
