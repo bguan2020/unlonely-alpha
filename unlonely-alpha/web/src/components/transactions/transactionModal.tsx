@@ -19,7 +19,9 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { BRIAN_TOKEN_ADDRESS } from "../../constants";
+import { ethers } from "ethers";
+
+import { BRIAN_TOKEN_ADDRESS, ETHEREUM_MAINNET_CHAIN_ID } from "../../constants";
 import BrianToken from "../../utils/newsToken.json";
 import { CustomToast } from "../general/CustomToast";
 import { useUser } from "../../hooks/useUser";
@@ -44,7 +46,7 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     contractInterface: BrianToken,
     functionName: "balanceOf",
     args: [accountData?.address],
-    chainId: 137,
+    chainId: ETHEREUM_MAINNET_CHAIN_ID,
   });
 
   const {
@@ -56,7 +58,7 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     contractInterface: BrianToken,
     functionName: "allowance",
     args: [accountData?.address],
-    chainId: 137,
+    chainId: ETHEREUM_MAINNET_CHAIN_ID,
   });
 
   const { config: transferConfig } = usePrepareContractWrite({
@@ -115,6 +117,12 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
   }, [isSuccess]);
 
   useEffect(() => {
+    if (data3) {
+      console.log(Math.round(Number(ethers.utils.formatEther(data3))), "balanceOf");
+    }
+  }, [data3]);
+
+  useEffect(() => {
     if (isTransferSuccess) {
       setOpen(false);
       setStep(0);
@@ -164,6 +172,9 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
                 {step === 1 ? "Please accept transfer transaction" : title}
               </ModalHeader>
               <ModalCloseButton />
+              <ModalBody>
+                Current $BRIAN balance:{" "} {data3 ? Math.round(Number(ethers.utils.formatEther(data3))) : "0"}
+              </ModalBody>
               <ModalFooter justifyContent="space-between">
                 <Button
                   colorScheme="blue"

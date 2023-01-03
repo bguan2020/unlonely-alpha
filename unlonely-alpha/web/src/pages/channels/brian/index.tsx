@@ -19,50 +19,13 @@ import { useAccount } from "wagmi";
 import AppLayout from "../../../components/layout/AppLayout";
 import { getEnsName } from "../../../utils/ens";
 import centerEllipses from "../../../utils/centerEllipses";
-import { HostEventCard_HostEventFragment } from "../../../generated/graphql";
 import AblyChatComponent from "../../../components/chat/AblyChataComponent";
 import NextStreamTimer from "../../../components/video/NextStreamTimer";
 import { useUser } from "../../../hooks/useUser";
-import HostEventCardSkeleton from "../../../components/hostEvents/HostEventCardSkeleton";
 import TaskList from "../../../components/task/TaskList";
 import { TheatreModeIcon } from "../../../components/icons/TheatreModeIcon";
 import NebulousButton from "../../../components/general/button/NebulousButton";
 import BrianTokenTab from "../../../components/hostEvents/BrianTokenTab";
-const HOSTEVENT_FEED_QUERY = gql`
-  query HostEventChannelFeed($data: HostEventFeedInput!) {
-    getHostEventFeed(data: $data) {
-      id
-      hostDate
-      title
-      description
-      score
-      owner {
-        username
-        FCImageUrl
-      }
-      liked
-      disliked
-      challenge {
-        id
-        hostDate
-        title
-        description
-        score
-        owner {
-          username
-          FCImageUrl
-        }
-        liked
-        disliked
-      }
-    }
-  }
-`;
-
-type Props = {
-  hostEvents: HostEventCard_HostEventFragment[];
-  loading: boolean;
-};
 
 export type ChatBot = {
   username: string;
@@ -72,7 +35,7 @@ export type ChatBot = {
   description: string | null | undefined;
 };
 
-const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
+const Example: React.FunctionComponent = () => {
   const { user } = useUser();
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
@@ -198,18 +161,6 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                         justifyContent="center"
                         backgroundColor="rgba(0,0,0,0.2)"
                       >
-                        {!hostEvents || loading ? (
-                          <Flex
-                            width="100%"
-                            justifyContent="center"
-                            alignItems="center"
-                            direction="column"
-                          >
-                            {[1, 2, 3, 4].map((i) => (
-                              <HostEventCardSkeleton />
-                            ))}
-                          </Flex>
-                        ) : (
                           <Flex
                             width="100%"
                             justifyContent="center"
@@ -218,7 +169,6 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                           >
                             <BrianTokenTab />
                           </Flex>
-                        )}
                       </Flex>
                     </TabPanel>
                     <TabPanel>
@@ -305,7 +255,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                 pr="32px"
               >
                 <Text fontSize="2rem" fontWeight="bold">
-                  Vote for the next host!
+                  Control My Stream Via $BRIAN!
                 </Text>
                 <NebulousButton
                   opacity="0.5"
@@ -319,7 +269,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                 <Tabs variant="unstyled" width="100%">
                   <TabList width="100%" ml="10%" mr="10%">
                     <Tab _selected={{ color: "white", bg: "blue.500" }}>
-                      Hosts
+                      Scene Select
                     </Tab>
                     <Tab _selected={{ color: "white", bg: "green.400" }}>
                       Tasks
@@ -341,20 +291,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                         justifyContent="center"
                         backgroundColor="rgba(0,0,0,0.2)"
                       >
-                        {!hostEvents || loading ? (
-                          <Flex
-                            width="100%"
-                            justifyContent="center"
-                            alignItems="center"
-                            direction="column"
-                          >
-                            {[1, 2, 3, 4].map((i) => (
-                              <HostEventCardSkeleton />
-                            ))}
-                          </Flex>
-                        ) : (
                           <BrianTokenTab />
-                        )}
                       </Flex>
                     </TabPanel>
                     <TabPanel>
@@ -402,19 +339,9 @@ const toggleChatVideos = function () {
 };
 
 export default function Page() {
-  const { data, loading, error } = useQuery(HOSTEVENT_FEED_QUERY, {
-    variables: {
-      data: {
-        limit: 5,
-        orderBy: null,
-      },
-    },
-  });
-  const hostEvents = data?.getHostEventFeed;
-
   return (
-    <AppLayout error={error} isCustomHeader={false}>
-      <Example hostEvents={hostEvents} loading={loading} />
+    <AppLayout isCustomHeader={false}>
+      <Example/>
     </AppLayout>
   );
 }
