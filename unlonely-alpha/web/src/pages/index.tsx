@@ -2,7 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import { Text, Flex, Button, SimpleGrid } from "@chakra-ui/react";
 
 import HostEventCardSkeleton from "../components/hostEvents/HostEventCardSkeleton";
-import HostEventList from "../components/hostEvents/HostEventList";
+import HostEventList from "../components/hostEvents/BrianTokenTab";
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
@@ -179,7 +179,7 @@ export default function Page() {
                 alignItems="center"
                 direction="column"
               >
-                <HostEventList hostEvents={hostEvents} />
+                <HostEventList />
               </Flex>
             </>
           )}

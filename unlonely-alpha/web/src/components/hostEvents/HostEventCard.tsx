@@ -1,5 +1,5 @@
 import { Text, Grid, GridItem, Flex } from "@chakra-ui/layout";
-import { Button, Image, Tooltip, useToast } from "@chakra-ui/react";
+import { Button, Image, Tooltip} from "@chakra-ui/react";
 import { gql } from "@apollo/client";
 import { useEffect, useState } from "react";
 
@@ -16,6 +16,7 @@ import { dateConverter } from "../../utils/timestampConverter";
 import { useUser } from "../../hooks/useUser";
 import EventState from "./EventState";
 import ChallengeModal from "./ChallengeModal";
+import { CustomToast } from "../general/CustomToast";
 
 type Props = {
   hostEvent: HostEventCard_HostEventFragment;
@@ -24,6 +25,7 @@ type Props = {
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
 const HostEventCard = ({ hostEvent }: Props) => {
+  const { addToast } = CustomToast();
   const { user } = useUser();
   const { like, dislike } = useLike({
     likedObj: LikeObj.Hostevent,
@@ -36,7 +38,6 @@ const HostEventCard = ({ hostEvent }: Props) => {
     powerLvl: user?.powerUserLvl,
   });
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
-  const toast = useToast();
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);
   const [minutes, setMinutes] = useState<number>(0);
@@ -212,14 +213,11 @@ const HostEventCard = ({ hostEvent }: Props) => {
                             opacity="0.5"
                             aria-label="like"
                             onClick={() =>
-                              toast({
+                              addToast({
                                 title: "Voting Closed.",
                                 description:
                                   "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
                                 status: "info",
-                                duration: 9000,
-                                isClosable: true,
-                                position: "top",
                               })
                             }
                             disabled={buttonDisabled}
@@ -254,13 +252,10 @@ const HostEventCard = ({ hostEvent }: Props) => {
                         opacity="0.5"
                         aria-label="like"
                         onClick={() =>
-                          toast({
+                          addToast({
                             title: "Sign in first.",
                             description: "Please sign into your wallet first.",
                             status: "warning",
-                            duration: 9000,
-                            isClosable: true,
-                            position: "top",
                           })
                         }
                         disabled={buttonDisabled}
@@ -286,14 +281,11 @@ const HostEventCard = ({ hostEvent }: Props) => {
                             opacity="0.5"
                             aria-label="like"
                             onClick={() =>
-                              toast({
+                              addToast({
                                 title: "Voting Closed.",
                                 description:
                                   "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
                                 status: "info",
-                                duration: 9000,
-                                isClosable: true,
-                                position: "top",
                               })
                             }
                             disabled={buttonDisabled}
@@ -328,13 +320,10 @@ const HostEventCard = ({ hostEvent }: Props) => {
                         opacity="0.5"
                         aria-label="like"
                         onClick={() =>
-                          toast({
+                          addToast({
                             title: "Sign in first.",
                             description: "Please sign into your wallet first.",
                             status: "warning",
-                            duration: 9000,
-                            isClosable: true,
-                            position: "top",
                           })
                         }
                         disabled={buttonDisabled}
@@ -466,14 +455,11 @@ const HostEventCard = ({ hostEvent }: Props) => {
                                 opacity="0.5"
                                 aria-label="like"
                                 onClick={() =>
-                                  toast({
+                                  addToast({
                                     title: "Voting Closed.",
                                     description:
                                       "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
                                     status: "info",
-                                    duration: 9000,
-                                    isClosable: true,
-                                    position: "top",
                                   })
                                 }
                                 disabled={buttonDisabled}
@@ -510,14 +496,11 @@ const HostEventCard = ({ hostEvent }: Props) => {
                             opacity="0.5"
                             aria-label="like"
                             onClick={() =>
-                              toast({
+                              addToast({
                                 title: "Sign in first.",
                                 description:
                                   "Please sign into your wallet first.",
                                 status: "warning",
-                                duration: 9000,
-                                isClosable: true,
-                                position: "top",
                               })
                             }
                             disabled={buttonDisabled}
@@ -543,14 +526,11 @@ const HostEventCard = ({ hostEvent }: Props) => {
                                 opacity="0.5"
                                 aria-label="like"
                                 onClick={() =>
-                                  toast({
+                                  addToast({
                                     title: "Voting Closed.",
                                     description:
                                       "You can no longer vote on this stream. Voting closes 4 hours before stream. ",
                                     status: "info",
-                                    duration: 9000,
-                                    isClosable: true,
-                                    position: "top",
                                   })
                                 }
                                 disabled={buttonDisabled}
@@ -587,14 +567,11 @@ const HostEventCard = ({ hostEvent }: Props) => {
                             opacity="0.5"
                             aria-label="like"
                             onClick={() =>
-                              toast({
+                              addToast({
                                 title: "Sign in first.",
                                 description:
                                   "Please sign into your wallet first.",
                                 status: "warning",
-                                duration: 9000,
-                                isClosable: true,
-                                position: "top",
                               })
                             }
                             disabled={buttonDisabled}

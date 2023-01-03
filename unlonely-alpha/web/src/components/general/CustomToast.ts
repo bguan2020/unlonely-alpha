@@ -1,6 +1,5 @@
-import { useToastOptions } from "@chakra-ui/core";
-import { useToast, UseToastOptions } from "@chakra-ui/react";
-import React, { ReactNode } from "react";
+import { useToast } from "@chakra-ui/react";
+
 
 export const CustomToast = () => {
   const toast = useToast();
@@ -22,8 +21,7 @@ usage: use render if wanting to create a custom link, use title + status + descr
       description: description ? description : undefined,
       position: "top",
       isClosable: true,
-      duration: 10000,
-      variant: "left-accent",
+      duration: 9000,
     });
   };
 

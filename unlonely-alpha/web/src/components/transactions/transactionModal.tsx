@@ -9,18 +9,7 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuGroup,
-  MenuItem,
-  MenuList,
   Spinner,
-  AlertIcon,
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Stack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
@@ -32,17 +21,17 @@ import {
 } from "wagmi";
 import { MATIC_NEWSTOKEN_ADDRESS } from "../../constants";
 import NewsToken from "../../utils/newsToken.json";
-import NewsContract from "../../utils/newsContractABI.json";
-import { UseContractWriteArgs } from "wagmi/dist/declarations/src/hooks/contracts/useContractWrite";
-import { BigNumber } from "ethers";
-import { useDebounce } from "usehooks-ts";
+import { CustomToast } from "../general/CustomToast";
+import { useUser } from "../../hooks/useUser";
 type Props = {
   onSuccess: (hash: string) => void;
+  price: number;
+  title: string;
 };
 
-const price = 500000000000000000000000000000000000000000;
-
-export default function TransactionModal({ onSuccess }: Props) {
+export default function TransactionModal({ onSuccess, price, title }: Props) {
+  const { user } = useUser();
+  const { addToast } = CustomToast();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const accountData = useAccount();
@@ -77,11 +66,10 @@ export default function TransactionModal({ onSuccess }: Props) {
     args: [MATIC_NEWSTOKEN_ADDRESS, price],
     enabled: Boolean(price),
     onError: (err) => {
-      console.log("transfer err", err);
       setStep(0);
     },
   });
-  const { data: transferData, write: transferWrite } =
+  const { data: transferData, writeAsync: transferWrite } =
     useContractWrite(transferConfig);
   const { config } = usePrepareContractWrite({
     addressOrName: MATIC_NEWSTOKEN_ADDRESS,
@@ -89,15 +77,24 @@ export default function TransactionModal({ onSuccess }: Props) {
     functionName: "approve",
     args: [accountData?.address, price],
     enabled: Boolean(price),
+    onSuccess: async (data) => {
+      try {
+        transferWrite && (await transferWrite());
+      } catch (e) {
+        setStep(0);
+      }
+    },
     onError: (err) => {
-      console.log("approve err", err);
       setStep(0);
     },
   });
 
-  const { data, error, isError, writeAsync } = useContractWrite(config);
+  const { data, error, writeAsync } = useContractWrite(config);
   const { isLoading, isSuccess } = useWaitForTransaction({
     hash: data?.hash,
+    onError: (err) => {
+      setStep(0);
+    },
   });
   const {
     isLoading: transferLoading,
@@ -105,58 +102,51 @@ export default function TransactionModal({ onSuccess }: Props) {
     error: transferError,
   } = useWaitForTransaction({
     hash: transferData?.hash,
+    onError: (err) => {
+      setStep(0);
+    },
   });
 
   useEffect(() => {
-    try {
-      if (isSuccess) {
-        setStep(1);
-        transferWrite && transferWrite();
-      }
-      if (error) {
-        console.log("isApproveError", error.message);
-        setStep(0);
-      }
-    } catch (e) {
-      console.log("error in is approve update", e);
-      setStep(0);
+    if (isSuccess) {
+      setStep(1);
+      transferWrite && transferWrite();
     }
   }, [isSuccess]);
 
   useEffect(() => {
-    try {
-      if (isTransferSuccess) {
-        setOpen(false);
-        setStep(0);
-        onSuccess && onSuccess(transferData?.hash as string);
-      }
-      if (transferError) {
-        console.log("isTransferError", transferError.message);
-        setStep(0)
-      }
-    } catch (e) {
-      console.log("error in is transfer update", e);
+    if (isTransferSuccess) {
+      setOpen(false);
       setStep(0);
+      onSuccess && onSuccess(transferData?.hash as string);
     }
-  }, [isTransferSuccess, transferError]);
-  const handleTransaction = async () => {
+  }, [isTransferSuccess]);
+  const handleTransaction = async (price: number, allowance: number) => {
     try {
-      if (allowance && parseInt(allowance.toString()) >= price) {
+      if (allowance >= price) {
         setStep(1);
-        transferWrite && transferWrite();
+        transferWrite && (await transferWrite());
       } else {
         writeAsync && (await writeAsync());
       }
     } catch (e) {
-      console.log("error in handle transaction", e);
+      setStep(0);
     }
+  };
+
+  const handleOpen = () => {
+    !user?.address
+      ? addToast({
+          title: "Sign in first.",
+          description: "Please sign into your wallet first.",
+          status: "warning",
+        })
+      : setOpen(true);
   };
   return (
     <>
-      <Center>
-        <Button justifyContent="" onClick={() => setOpen(true)}>
-          Buy Content
-        </Button>
+      <Center mb={3}>
+        <Button onClick={() => handleOpen()}>{title}</Button>
       </Center>
       <Modal
         isCentered={true}
@@ -170,9 +160,7 @@ export default function TransactionModal({ onSuccess }: Props) {
           {!isLoading && !transferLoading ? (
             <>
               <ModalHeader>
-                {step === 1
-                  ? "Please accept transfer transaction"
-                  : "Change the stream overlay"}
+                {step === 1 ? "Please accept transfer transaction" : title}
               </ModalHeader>
               <ModalCloseButton />
               <ModalFooter justifyContent="space-between">
@@ -185,7 +173,14 @@ export default function TransactionModal({ onSuccess }: Props) {
                 </Button>
                 <Button
                   onClick={async () => {
-                    handleTransaction();
+                    try {
+                      await handleTransaction(
+                        price,
+                        allowance ? parseInt(allowance.toString()) : 0
+                      );
+                    } catch (e) {
+                      setStep(0);
+                    }
                   }}
                   disabled={
                     step === 1 || (data3 && parseInt(data3.toString()) < price)

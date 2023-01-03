@@ -13,34 +13,23 @@ import {
   Tab,
   TabPanels,
   TabPanel,
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
 } from "@chakra-ui/react";
 
-import { useAccount, useContractRead } from "wagmi";
-import NewsToken from "../../../utils/newsToken.json";
+import { useAccount} from "wagmi";
 import AppLayout from "../../../components/layout/AppLayout";
-import { MATIC_NEWSTOKEN_ADDRESS } from "../../../constants";
 import { getEnsName } from "../../../utils/ens";
-import usePostStreamInteraction from "../../../hooks/usePostStreamInteraction";
 import centerEllipses from "../../../utils/centerEllipses";
 import {
   HostEventCard_HostEventFragment,
-  usePostStreamInteractionMutation,
 } from "../../../generated/graphql";
 import AblyChatComponent from "../../../components/chat/AblyChataComponent";
 import NextStreamTimer from "../../../components/video/NextStreamTimer";
 import { useUser } from "../../../hooks/useUser";
 import HostEventCardSkeleton from "../../../components/hostEvents/HostEventCardSkeleton";
 import TaskList from "../../../components/task/TaskList";
-import HostEventList from "../../../components/hostEvents/HostEventList";
 import { TheatreModeIcon } from "../../../components/icons/TheatreModeIcon";
 import NebulousButton from "../../../components/general/button/NebulousButton";
-import TransactionModal from "../../../components/transactions/transactionModal";
-import Link from "next/link";
-import { CustomToast } from "../../../components/general/CustomToast";
+import BrianTokenTab from "../../../components/hostEvents/BrianTokenTab";
 const HOSTEVENT_FEED_QUERY = gql`
   query HostEventChannelFeed($data: HostEventFeedInput!) {
     getHostEventFeed(data: $data) {
@@ -85,24 +74,14 @@ export type ChatBot = {
   description: string | null | undefined;
 };
 
-const data = { interactionType: "scene-change" };
 const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
   const { user } = useUser();
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
-  const [balance, setBalance] = useState(0 as any);
   const router = useRouter();
-  const { postStreamInteraction, loading: postChatLoading } =
-    usePostStreamInteraction({
-      onError: (e) => {
-        //not sure what to do here.
-        console.log("oh no", e);
-      },
-    });
   const [isTheatreMode, setIsTheatreMode] = useState<boolean>(
     router.query.theatreMode === "true"
   );
-  const { addToast } = CustomToast();
   const accountData = useAccount();
   useEffect(() => {
     const fetchEns = async () => {
@@ -239,7 +218,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                             alignItems="center"
                             direction="column"
                           >
-                            <HostEventList hostEvents={hostEvents} />
+                            <BrianTokenTab />
                           </Flex>
                         )}
                       </Flex>
@@ -317,39 +296,6 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
             id="xeedev-video-modal"
             className="xeedev-class-hide"
           >
-            {user && (
-              <TransactionModal
-                onSuccess={async (hash) => {
-                  try {
-                    addToast({
-                      render: (
-                        <Box
-                          as="button"
-                          borderRadius="md"
-                          bg="green"
-                          px={4}
-                          h={8}
-                          color="white"
-                        >
-                          <Link
-                            target="_blank"
-                            href={`https://polygonscan.com/tx/${hash}`}
-                            passHref
-                          >
-                            <a target="_blank">
-                              Transaction approved, click to view
-                            </a>
-                          </Link>
-                        </Box>
-                      ),
-                    });
-                    await postStreamInteraction(data);
-                  } catch (e) {
-                    console.log("error in on success", e);
-                  }
-                }}
-              />
-            )}
             <Flex direction="column">
               <Flex
                 maxH="400px"
@@ -409,14 +355,7 @@ const Example: React.FunctionComponent<Props> = ({ hostEvents, loading }) => {
                             ))}
                           </Flex>
                         ) : (
-                          <Flex
-                            width="100%"
-                            justifyContent="center"
-                            alignItems="center"
-                            direction="column"
-                          >
-                            <HostEventList hostEvents={hostEvents} />
-                          </Flex>
+                          <BrianTokenTab />
                         )}
                       </Flex>
                     </TabPanel>
