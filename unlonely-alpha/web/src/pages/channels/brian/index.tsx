@@ -161,14 +161,14 @@ const Example: React.FunctionComponent = () => {
                         justifyContent="center"
                         backgroundColor="rgba(0,0,0,0.2)"
                       >
-                          <Flex
-                            width="100%"
-                            justifyContent="center"
-                            alignItems="center"
-                            direction="column"
-                          >
-                            <BrianTokenTab />
-                          </Flex>
+                        <Flex
+                          width="100%"
+                          justifyContent="center"
+                          alignItems="center"
+                          direction="column"
+                        >
+                          <BrianTokenTab />
+                        </Flex>
                       </Flex>
                     </TabPanel>
                     <TabPanel>
@@ -291,7 +291,7 @@ const Example: React.FunctionComponent = () => {
                         justifyContent="center"
                         backgroundColor="rgba(0,0,0,0.2)"
                       >
-                          <BrianTokenTab />
+                        <BrianTokenTab />
                       </Flex>
                     </TabPanel>
                     <TabPanel>
@@ -341,7 +341,7 @@ const toggleChatVideos = function () {
 export default function Page() {
   return (
     <AppLayout isCustomHeader={false}>
-      <Example/>
+      <Example />
     </AppLayout>
   );
 }

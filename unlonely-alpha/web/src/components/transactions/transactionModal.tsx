@@ -21,7 +21,10 @@ import {
 } from "wagmi";
 import { ethers } from "ethers";
 
-import { BRIAN_TOKEN_ADDRESS, ETHEREUM_MAINNET_CHAIN_ID } from "../../constants";
+import {
+  BRIAN_TOKEN_ADDRESS,
+  ETHEREUM_MAINNET_CHAIN_ID,
+} from "../../constants";
 import BrianToken from "../../utils/newsToken.json";
 import { CustomToast } from "../general/CustomToast";
 import { useUser } from "../../hooks/useUser";
@@ -34,16 +37,16 @@ type Props = {
 
 export default function TransactionModal({ onSuccess, price, title }: Props) {
   const { user } = useUser();
+  const [error, setError] = useState(null as any);
   const { addToast } = CustomToast();
   const [open, setOpen] = useState<boolean>(false);
   const [step, setStep] = useState<number>(0);
-  const [allowanceState, setAllowanceState] = useState<Number>(0);
   const accountData = useAccount();
 
   const {
-    data: data3,
-    error: error3,
-    isLoading: loading3,
+    data: balanceOfData,
+    error: balanceOfError,
+    isLoading: balanceOfLoading,
   } = useContractRead({
     addressOrName: BRIAN_TOKEN_ADDRESS,
     contractInterface: BrianToken,
@@ -56,16 +59,13 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     data: allowance,
     error: allowanceError,
     isLoading: allowanceLoading,
+    refetch: refetchAllowance,
   } = useContractRead({
     addressOrName: BRIAN_TOKEN_ADDRESS,
     contractInterface: BrianToken,
     functionName: "allowance",
     args: [accountData?.address, BRIAN_TOKEN_ADDRESS],
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
-    onSuccess: (data) => {
-      setAllowanceState(Number(ethers.utils.formatEther(data)));
-      console.log("allowanceState on Success", allowanceState);
-    },
   });
 
   // step 1: approval
@@ -73,24 +73,27 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     addressOrName: BRIAN_TOKEN_ADDRESS,
     contractInterface: BrianToken,
     functionName: "approve",
-    args: [BRIAN_TOKEN_ADDRESS, price*20000],
+    args: [BRIAN_TOKEN_ADDRESS, price * 20000],
     enabled: Boolean(price),
+    chainId: ETHEREUM_MAINNET_CHAIN_ID,
     onError: (err) => {
       setStep(0);
     },
   });
 
-  const { data: approvalData, error: approvalError, writeAsync: writeApproval } = useContractWrite(approvalConfig);
+  const {
+    data: approvalData,
+    error: approvalError,
+    writeAsync: writeApproval,
+  } = useContractWrite(approvalConfig);
 
-  const { isLoading, isSuccess } = useWaitForTransaction({
+  const { isLoading, isSuccess, error: approvalRejectError } = useWaitForTransaction({
     hash: approvalData?.hash,
     onError: (err) => {
       setStep(0);
     },
     onSuccess: () => {
-      const newAllowance = (allowanceState as number)+(price*20);
-      setAllowanceState(newAllowance);
-      console.log("new allowance", newAllowance);
+      refetchAllowance();
     },
   });
 
@@ -106,9 +109,12 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     },
   });
 
-  const { data: transferData, writeAsync: transferWrite, error: transferRejectedError } =
-    useContractWrite(transferConfig);
-  
+  const {
+    data: transferData,
+    writeAsync: transferWrite,
+    error: transferRejectedError,
+  } = useContractWrite(transferConfig);
+
   const {
     isLoading: transferLoading,
     isSuccess: isTransferSuccess,
@@ -125,27 +131,39 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
       setStep(1);
       transferWrite && transferWrite();
     }
-  }, [isSuccess, transferRejectedError]);
-
+    if (approvalError || approvalRejectError) {
+      if (approvalRejectError && approvalRejectError.message.includes("user rejected transaction")) {
+        setError("Approval transaction rejected, please try again.");
+        return;
+      }
+      setError(
+        "There was an error completing the approval transaction, please try again."
+      );
+      setStep(0);
+    }
+  }, [isSuccess, approvalError,approvalRejectError]);
 
   useEffect(() => {
-    console.log("isTransferSuccess", isTransferSuccess);
     if (isTransferSuccess) {
       setOpen(false);
       setStep(0);
       onSuccess && onSuccess(transferData?.hash as string);
     }
-  }, [isTransferSuccess]);
-
-  useEffect(() => {
-    console.log("allowance", allowance);
-    console.log("allowanceLoading", allowanceLoading);
-    console.log("allowanceError", allowanceError);
-  }, [allowanceLoading, allowance, allowanceError]);
+    if (transferRejectedError || transferError) {
+      if (transferRejectedError && transferRejectedError.message.includes("user rejected transaction")) {
+        setError("Transfer transaction rejected, please try again.");
+        return;
+      }
+      setError(
+        "There was an error completing the transfer transaction, please try again."
+      );
+      setStep(0);
+    }
+  }, [isTransferSuccess, transferRejectedError,transferError]);
 
   const handleTransaction = async (price: number) => {
     try {
-      if (allowanceState >= price) {
+      if (allowance && allowance._hex >= parseInt(price.toString(16))) {
         setStep(1);
         transferWrite && (await transferWrite());
       } else {
@@ -165,6 +183,7 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
         })
       : setOpen(true);
   };
+
   return (
     <>
       <Center mb={3}>
@@ -184,10 +203,22 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
             <>
               <ModalHeader>
                 {step === 1 ? "Please accept transfer transaction" : title}
+                {error && (
+                  <Text fontSize="sm" color="red">
+                    {error}
+                  </Text>
+                )}
               </ModalHeader>
               <ModalCloseButton />
               <ModalBody>
-                Current $BRIAN balance:{" "} {data3 ? Math.round(Number(ethers.utils.formatEther(data3))) : "0"}
+                <Text>
+                  Current $BRIAN balance:{" "}
+                  {balanceOfData
+                    ? Math.round(
+                        Number(ethers.utils.formatEther(balanceOfData))
+                      )
+                    : "0"}
+                </Text>
               </ModalBody>
               <ModalFooter justifyContent="space-between">
                 <Button
@@ -203,15 +234,15 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
                 <Button
                   onClick={async () => {
                     try {
-                      await handleTransaction(
-                        price,
-                      );
+                      await handleTransaction(price);
                     } catch (e) {
                       setStep(0);
                     }
                   }}
                   disabled={
-                    step === 1 || (data3 && parseInt(data3.toString()) < price)
+                    step === 1 ||
+                    (balanceOfData &&
+                      balanceOfData._hex < parseInt(price.toString(16)))
                   }
                   colorScheme="green"
                 >

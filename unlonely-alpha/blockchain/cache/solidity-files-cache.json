@@ -22,9 +22,7 @@
                 "metadata",
                 "storageLayout"
               ],
-              "": [
-                "ast"
-              ]
+              "": ["ast"]
             }
           }
         }
@@ -34,14 +32,8 @@
         "@openzeppelin/contracts/token/ERC20/ERC20.sol",
         "@openzeppelin/contracts/access/Ownable.sol"
       ],
-      "versionPragmas": [
-        "^0.8.2"
-      ],
-      "artifacts": [
-        "NewsContract",
-        "NewsToken",
-        "Voting"
-      ]
+      "versionPragmas": ["^0.8.2"],
+      "artifacts": ["NewsContract", "NewsToken", "Voting"]
     },
     "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/contracts/BrianTokenContract.sol": {
       "lastModificationDate": 1672696487002,
@@ -64,9 +56,7 @@
                 "metadata",
                 "storageLayout"
               ],
-              "": [
-                "ast"
-              ]
+              "": ["ast"]
             }
           }
         }
@@ -76,12 +66,8 @@
         "@openzeppelin/contracts/token/ERC20/ERC20.sol",
         "@openzeppelin/contracts/access/Ownable.sol"
       ],
-      "versionPragmas": [
-        "^0.8.2"
-      ],
-      "artifacts": [
-        "BrianToken"
-      ]
+      "versionPragmas": ["^0.8.2"],
+      "artifacts": ["BrianToken"]
     },
     "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/hardhat/console.sol": {
       "lastModificationDate": 1672696478641,
@@ -104,20 +90,14 @@
                 "metadata",
                 "storageLayout"
               ],
-              "": [
-                "ast"
-              ]
+              "": ["ast"]
             }
           }
         }
       },
       "imports": [],
-      "versionPragmas": [
-        ">=0.4.22 <0.9.0"
-      ],
-      "artifacts": [
-        "console"
-      ]
+      "versionPragmas": [">=0.4.22 <0.9.0"],
+      "artifacts": ["console"]
     },
     "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
       "lastModificationDate": 1672696482170,
@@ -140,9 +120,7 @@
                 "metadata",
                 "storageLayout"
               ],
-              "": [
-                "ast"
-              ]
+              "": ["ast"]
             }
           }
         }
@@ -152,12 +130,8 @@
         "./extensions/IERC20Metadata.sol",
         "../../utils/Context.sol"
       ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "ERC20"
-      ]
+      "versionPragmas": ["^0.8.0"],
+      "artifacts": ["ERC20"]
     },
     "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
       "lastModificationDate": 1672696479975,
@@ -180,22 +154,14 @@
                 "metadata",
                 "storageLayout"
               ],
-              "": [
-                "ast"
-              ]
+              "": ["ast"]
             }
           }
         }
       },
-      "imports": [
-        "../utils/Context.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "Ownable"
-      ]
+      "imports": ["../utils/Context.sol"],
+      "versionPragmas": ["^0.8.0"],
+      "artifacts": ["Ownable"]
     },
     "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
       "lastModificationDate": 1672696482169,
@@ -218,20 +184,14 @@
                 "metadata",
                 "storageLayout"
               ],
-              "": [
-                "ast"
-              ]
+              "": ["ast"]
             }
           }
         }
       },
       "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "IERC20"
-      ]
+      "versionPragmas": ["^0.8.0"],
+      "artifacts": ["IERC20"]
     },
     "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol": {
       "lastModificationDate": 1672696483176,
@@ -254,22 +214,14 @@
                 "metadata",
                 "storageLayout"
               ],
-              "": [
-                "ast"
-              ]
+              "": ["ast"]
             }
           }
         }
       },
-      "imports": [
-        "../IERC20.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "IERC20Metadata"
-      ]
+      "imports": ["../IERC20.sol"],
+      "versionPragmas": ["^0.8.0"],
+      "artifacts": ["IERC20Metadata"]
     },
     "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/utils/Context.sol": {
       "lastModificationDate": 1672696479987,
@@ -292,20 +244,14 @@
                 "metadata",
                 "storageLayout"
               ],
-              "": [
-                "ast"
-              ]
+              "": ["ast"]
             }
           }
         }
       },
       "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "Context"
-      ]
+      "versionPragmas": ["^0.8.0"],
+      "artifacts": ["Context"]
     }
   }
 }
