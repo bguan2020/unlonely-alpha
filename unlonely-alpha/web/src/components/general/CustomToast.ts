@@ -1,6 +1,5 @@
 import { useToast } from "@chakra-ui/react";
 
-
 export const CustomToast = () => {
   const toast = useToast();
 

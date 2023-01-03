@@ -1,5 +1,5 @@
 import { Text, Grid, GridItem, Flex } from "@chakra-ui/layout";
-import { Button, Image, Tooltip} from "@chakra-ui/react";
+import { Button, Image, Tooltip } from "@chakra-ui/react";
 import { gql } from "@apollo/client";
 import { useEffect, useState } from "react";
 

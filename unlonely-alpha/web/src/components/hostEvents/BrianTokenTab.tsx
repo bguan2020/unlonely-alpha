@@ -1,10 +1,4 @@
-import {
-  Box,
-  Flex,
-  Text,
-  Stack,
-  Image,
-} from "@chakra-ui/react";
+import { Box, Flex, Text, Stack, Image } from "@chakra-ui/react";
 import Link from "next/link";
 
 import usePostStreamInteraction from "../../hooks/usePostStreamInteraction";
@@ -13,8 +7,7 @@ import TransactionModal from "../transactions/transactionModal";
 
 const BrianTokenTab: React.FunctionComponent<any> = () => {
   const { postStreamInteraction, loading: postChatLoading } =
-    usePostStreamInteraction({
-    });
+    usePostStreamInteraction({});
   const { addToast } = CustomToast();
   return (
     <Flex direction="column">
@@ -49,8 +42,7 @@ const BrianTokenTab: React.FunctionComponent<any> = () => {
                 ),
               });
               await postStreamInteraction({ interactionType: "scene-change" });
-            } catch (e) {
-            }
+            } catch (e) {}
           }}
         />
       </Flex>

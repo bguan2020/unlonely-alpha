@@ -153,7 +153,7 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
         isOpen={open}
         onClose={() => {
           setOpen(false);
-          setStep(0)
+          setStep(0);
         }}
       >
         <ModalOverlay />
@@ -169,8 +169,9 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
                   colorScheme="blue"
                   mr={3}
                   onClick={() => {
-                    setOpen(false)
-                    setStep(0)}}
+                    setOpen(false);
+                    setStep(0);
+                  }}
                 >
                   Close
                 </Button>

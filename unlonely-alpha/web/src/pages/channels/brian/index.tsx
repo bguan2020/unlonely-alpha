@@ -15,13 +15,11 @@ import {
   TabPanel,
 } from "@chakra-ui/react";
 
-import { useAccount} from "wagmi";
+import { useAccount } from "wagmi";
 import AppLayout from "../../../components/layout/AppLayout";
 import { getEnsName } from "../../../utils/ens";
 import centerEllipses from "../../../utils/centerEllipses";
-import {
-  HostEventCard_HostEventFragment,
-} from "../../../generated/graphql";
+import { HostEventCard_HostEventFragment } from "../../../generated/graphql";
 import AblyChatComponent from "../../../components/chat/AblyChataComponent";
 import NextStreamTimer from "../../../components/video/NextStreamTimer";
 import { useUser } from "../../../hooks/useUser";
