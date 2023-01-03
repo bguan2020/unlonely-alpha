@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import theme from "../styles/theme";
 
 import { ChakraProvider } from "@chakra-ui/react";
+
 import { ApolloProvider } from "@apollo/client";
 import { createClient, WagmiConfig } from "wagmi";
 import { ConnectKitProvider, getDefaultClient } from "connectkit";
@@ -11,8 +12,6 @@ import cookies from "next-cookies";
 
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/useUser";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 interface InitialProps {
   cookies: Cookies;
@@ -25,12 +24,11 @@ function App({ Component, pageProps, cookies }: Props) {
     pageProps ? pageProps.initialApolloState : null,
     cookies
   );
-
   const wagmiClient = createClient(
     getDefaultClient({
       appName: "Unlonely",
       autoConnect: true,
-      alchemyId: "mo03KrWexuyEE6YFd4SzslmP4oWXNRVB",
+      infuraId: "3b2a738fb8834266ba5a7538efe46d7e",
     })
   );
 
@@ -43,10 +41,14 @@ function App({ Component, pageProps, cookies }: Props) {
             "--ck-font-family": "Anonymous Pro, sans-serif",
             "--ck-border-radius": 32,
           }}
+          options={{
+            hideTooltips: true,
+            hideQuestionMarkCTA: true,
+            hideNoWalletCTA: true,
+          }}
         >
           <ApolloProvider client={apolloClient}>
             <UserProvider>
-              <ToastContainer pauseOnHover={false} />
               <Component {...pageProps} />
             </UserProvider>
           </ApolloProvider>

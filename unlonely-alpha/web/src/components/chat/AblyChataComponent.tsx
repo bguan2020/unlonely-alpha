@@ -25,6 +25,7 @@ type Props = {
   username: string | null | undefined;
   chatBot: ChatBot[];
   user: User | undefined;
+  mobileChat?: boolean;
 };
 
 const GET_POAP_QUERY = gql`

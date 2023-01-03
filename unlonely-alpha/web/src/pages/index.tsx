@@ -179,7 +179,7 @@ export default function Page() {
                 alignItems="center"
                 direction="column"
               >
-                <HostEventList hostEvents={hostEvents} />
+               <HostEventList hostEvents={hostEvents} />
               </Flex>
             </>
           )}
