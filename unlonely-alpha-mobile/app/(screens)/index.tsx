@@ -60,6 +60,7 @@ export default function NfcFeedScreen() {
         }}
       >
         <Text style={styles.hiddenMessage}>that’s it. you’re done.</Text>
+        {/* animate this in with reanimated with a 10 second delay after the app loads */}
       </View>
     </View>
   );

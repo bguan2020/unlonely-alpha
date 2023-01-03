@@ -83,7 +83,7 @@ export default function SettingsScreen() {
         </Pressable>
         <Text style={styles.title}>{JSON.stringify(userCredentials)}</Text>
       </View>
-      <BottomSheet
+      {/* <BottomSheet
         ref={bottomSheetRef}
         index={0}
         snapPoints={['90%']}
@@ -141,7 +141,7 @@ export default function SettingsScreen() {
             }}
           />
         </View>
-      </BottomSheet>
+      </BottomSheet> */}
     </View>
   );
 }

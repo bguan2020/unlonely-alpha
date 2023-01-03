@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { easeGradient } from 'react-native-easing-gradient';
 import { useFonts } from 'expo-font';
 import { QueryClientProvider, onlineManager } from '@tanstack/react-query';
-import { queryClient } from '../../api/api';
+import { queryClient } from '../../api/client';
 import NetInfo from '@react-native-community/netinfo';
 import { useAppState } from '../../utils/useAppState';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -20,6 +20,7 @@ export default function Layout() {
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
       // do some splash screen animation here
+      console.log('======== FONTS LOADED ==================================');
     }
   }, [fontsLoaded]);
 
