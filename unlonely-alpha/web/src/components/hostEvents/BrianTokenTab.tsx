@@ -1,5 +1,6 @@
 import { Box, Flex, Text, Stack, Image } from "@chakra-ui/react";
 import Link from "next/link";
+import { BRIAN_TOKEN_STREAM_INTERACTION_PRICE } from "../../constants";
 
 import usePostStreamInteraction from "../../hooks/usePostStreamInteraction";
 import { CustomToast } from "../general/CustomToast";
@@ -17,7 +18,7 @@ const BrianTokenTab: React.FunctionComponent<any> = () => {
         </Text>
 
         <TransactionModal
-          price={100}
+          price={BRIAN_TOKEN_STREAM_INTERACTION_PRICE}
           title="Randomize Scene"
           onSuccess={async (hash) => {
             try {
