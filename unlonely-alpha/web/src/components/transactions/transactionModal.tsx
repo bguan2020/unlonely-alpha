@@ -19,8 +19,8 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { MATIC_NEWSTOKEN_ADDRESS } from "../../constants";
-import NewsToken from "../../utils/newsToken.json";
+import { BRIAN_TOKEN_ADDRESS } from "../../constants";
+import BrianToken from "../../utils/newsToken.json";
 import { CustomToast } from "../general/CustomToast";
 import { useUser } from "../../hooks/useUser";
 type Props = {
@@ -40,8 +40,8 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     error: error3,
     isLoading: loading3,
   } = useContractRead({
-    addressOrName: MATIC_NEWSTOKEN_ADDRESS,
-    contractInterface: NewsToken,
+    addressOrName: BRIAN_TOKEN_ADDRESS,
+    contractInterface: BrianToken,
     functionName: "balanceOf",
     args: [accountData?.address],
     chainId: 137,
@@ -52,18 +52,18 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     error: allowanceError,
     isLoading: allowanceLoading,
   } = useContractRead({
-    addressOrName: MATIC_NEWSTOKEN_ADDRESS,
-    contractInterface: NewsToken,
+    addressOrName: BRIAN_TOKEN_ADDRESS,
+    contractInterface: BrianToken,
     functionName: "allowance",
     args: [accountData?.address],
     chainId: 137,
   });
 
   const { config: transferConfig } = usePrepareContractWrite({
-    addressOrName: MATIC_NEWSTOKEN_ADDRESS,
-    contractInterface: NewsToken,
+    addressOrName: BRIAN_TOKEN_ADDRESS,
+    contractInterface: BrianToken,
     functionName: "transfer",
-    args: [MATIC_NEWSTOKEN_ADDRESS, price],
+    args: [BRIAN_TOKEN_ADDRESS, price],
     enabled: Boolean(price),
     onError: (err) => {
       setStep(0);
@@ -72,8 +72,8 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
   const { data: transferData, writeAsync: transferWrite } =
     useContractWrite(transferConfig);
   const { config } = usePrepareContractWrite({
-    addressOrName: MATIC_NEWSTOKEN_ADDRESS,
-    contractInterface: NewsToken,
+    addressOrName: BRIAN_TOKEN_ADDRESS,
+    contractInterface: BrianToken,
     functionName: "approve",
     args: [accountData?.address, price],
     enabled: Boolean(price),
