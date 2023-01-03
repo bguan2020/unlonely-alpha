@@ -73,7 +73,7 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     addressOrName: BRIAN_TOKEN_ADDRESS,
     contractInterface: BrianToken,
     functionName: "approve",
-    args: [accountData?.address, price*20000],
+    args: [BRIAN_TOKEN_ADDRESS, price*20000],
     enabled: Boolean(price),
     onError: (err) => {
       setStep(0);
