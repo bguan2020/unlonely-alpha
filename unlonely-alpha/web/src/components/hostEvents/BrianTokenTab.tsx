@@ -33,7 +33,7 @@ const BrianTokenTab: React.FunctionComponent<any> = () => {
                   >
                     <Link
                       target="_blank"
-                      href={`https://polygonscan.com/tx/${hash}`}
+                      href={`https://etherscan.io/tx/${hash}`}
                       passHref
                     >
                       <a target="_blank">Transaction approved, click to view</a>
