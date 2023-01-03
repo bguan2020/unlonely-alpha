@@ -87,7 +87,11 @@ export default function TransactionModal({ onSuccess, title }: Props) {
     writeAsync: writeApproval,
   } = useContractWrite(approvalConfig);
 
-  const { isLoading, isSuccess, error: approvalRejectError } = useWaitForTransaction({
+  const {
+    isLoading,
+    isSuccess,
+    error: approvalRejectError,
+  } = useWaitForTransaction({
     hash: approvalData?.hash,
     onError: (err) => {
       setStep(0);
@@ -131,7 +135,10 @@ export default function TransactionModal({ onSuccess, title }: Props) {
       transferWrite && transferWrite();
     }
     if (approvalError || approvalRejectError) {
-      if (approvalRejectError && approvalRejectError.message.includes("user rejected transaction")) {
+      if (
+        approvalRejectError &&
+        approvalRejectError.message.includes("user rejected transaction")
+      ) {
         setError("Approval transaction rejected, please try again.");
         return;
       }
@@ -140,7 +147,7 @@ export default function TransactionModal({ onSuccess, title }: Props) {
       );
       setStep(0);
     }
-  }, [isSuccess, approvalError,approvalRejectError]);
+  }, [isSuccess, approvalError, approvalRejectError]);
 
   useEffect(() => {
     if (isTransferSuccess) {
@@ -149,7 +156,10 @@ export default function TransactionModal({ onSuccess, title }: Props) {
       onSuccess && onSuccess(transferData?.hash as string);
     }
     if (transferRejectedError || transferError) {
-      if (transferRejectedError && transferRejectedError.message.includes("user rejected transaction")) {
+      if (
+        transferRejectedError &&
+        transferRejectedError.message.includes("user rejected transaction")
+      ) {
         setError("Transfer transaction rejected, please try again.");
         return;
       }
@@ -158,7 +168,7 @@ export default function TransactionModal({ onSuccess, title }: Props) {
       );
       setStep(0);
     }
-  }, [isTransferSuccess, transferRejectedError,transferError]);
+  }, [isTransferSuccess, transferRejectedError, transferError]);
 
   const handleTransaction = async (price: string) => {
     try {
@@ -233,7 +243,9 @@ export default function TransactionModal({ onSuccess, title }: Props) {
                 <Button
                   onClick={async () => {
                     try {
-                      await handleTransaction(BRIAN_TOKEN_STREAM_INTERACTION_PRICE);
+                      await handleTransaction(
+                        BRIAN_TOKEN_STREAM_INTERACTION_PRICE
+                      );
                     } catch (e) {
                       setStep(0);
                     }
@@ -241,7 +253,8 @@ export default function TransactionModal({ onSuccess, title }: Props) {
                   disabled={
                     step === 1 ||
                     (balanceOfData &&
-                      balanceOfData._hex < parseInt(BRIAN_TOKEN_STREAM_INTERACTION_PRICE))
+                      balanceOfData._hex <
+                        parseInt(BRIAN_TOKEN_STREAM_INTERACTION_PRICE))
                   }
                   colorScheme="green"
                 >
