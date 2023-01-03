@@ -24,6 +24,8 @@ import { ethers } from "ethers";
 import {
   BRIAN_TOKEN_ADDRESS,
   ETHEREUM_MAINNET_CHAIN_ID,
+  BRIAN_TOKEN_APPROVAL_PRICE,
+  BRIAN_TOKEN_STREAM_INTERACTION_PRICE,
 } from "../../constants";
 import BrianToken from "../../utils/newsToken.json";
 import { CustomToast } from "../general/CustomToast";
@@ -31,11 +33,10 @@ import { useUser } from "../../hooks/useUser";
 
 type Props = {
   onSuccess: (hash: string) => void;
-  price: number;
   title: string;
 };
 
-export default function TransactionModal({ onSuccess, price, title }: Props) {
+export default function TransactionModal({ onSuccess, title }: Props) {
   const { user } = useUser();
   const [error, setError] = useState(null as any);
   const { addToast } = CustomToast();
@@ -73,8 +74,7 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     addressOrName: BRIAN_TOKEN_ADDRESS,
     contractInterface: BrianToken,
     functionName: "approve",
-    args: [BRIAN_TOKEN_ADDRESS, price * 20000],
-    enabled: Boolean(price),
+    args: [BRIAN_TOKEN_ADDRESS, BRIAN_TOKEN_APPROVAL_PRICE],
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
     onError: (err) => {
       setStep(0);
@@ -92,8 +92,8 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     onError: (err) => {
       setStep(0);
     },
-    onSuccess: () => {
-      refetchAllowance();
+    onSuccess: async () => {
+      const data = await refetchAllowance();
     },
   });
 
@@ -102,8 +102,7 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     addressOrName: BRIAN_TOKEN_ADDRESS,
     contractInterface: BrianToken,
     functionName: "transfer",
-    args: [BRIAN_TOKEN_ADDRESS, price],
-    enabled: Boolean(price),
+    args: [BRIAN_TOKEN_ADDRESS, BRIAN_TOKEN_STREAM_INTERACTION_PRICE],
     onError: (err) => {
       setStep(0);
     },
@@ -161,9 +160,9 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
     }
   }, [isTransferSuccess, transferRejectedError,transferError]);
 
-  const handleTransaction = async (price: number) => {
+  const handleTransaction = async (price: string) => {
     try {
-      if (allowance && allowance._hex >= parseInt(price.toString(16))) {
+      if (allowance && allowance._hex >= parseInt(price)) {
         setStep(1);
         transferWrite && (await transferWrite());
       } else {
@@ -234,7 +233,7 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
                 <Button
                   onClick={async () => {
                     try {
-                      await handleTransaction(price);
+                      await handleTransaction(BRIAN_TOKEN_STREAM_INTERACTION_PRICE);
                     } catch (e) {
                       setStep(0);
                     }
@@ -242,7 +241,7 @@ export default function TransactionModal({ onSuccess, price, title }: Props) {
                   disabled={
                     step === 1 ||
                     (balanceOfData &&
-                      balanceOfData._hex < parseInt(price.toString(16)))
+                      balanceOfData._hex < parseInt(BRIAN_TOKEN_STREAM_INTERACTION_PRICE))
                   }
                   colorScheme="green"
                 >

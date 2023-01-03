@@ -29,10 +29,12 @@ export default function MobileConnectWallet() {
   const { setOpen } = useModal();
   const account = useAccount({
     onConnect({ address }) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       window.ReactNativeWebView.postMessage(address);
     },
     onDisconnect() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       window.ReactNativeWebView.postMessage("wallet_disconnected");
     },
