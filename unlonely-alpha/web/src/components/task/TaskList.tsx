@@ -44,7 +44,6 @@ const TaskList: React.FunctionComponent<Props> = ({ setChatBot, chatBot }) => {
       },
     },
     notifyOnNetworkStatusChange: true,
-    pollInterval: 60000,
   });
 
   const tasks = data?.getTaskFeed;
