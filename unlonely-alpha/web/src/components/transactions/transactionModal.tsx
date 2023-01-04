@@ -30,6 +30,8 @@ import {
 import BrianToken from "../../utils/newsToken.json";
 import { CustomToast } from "../general/CustomToast";
 import { useUser } from "../../hooks/useUser";
+import usePostStreamInteraction from "../../hooks/usePostStreamInteraction";
+
 
 type Props = {
   onSuccess: (hash: string) => void;
@@ -37,6 +39,8 @@ type Props = {
 };
 
 export default function TransactionModal({ onSuccess, title }: Props) {
+  const { postStreamInteraction, loading: postChatLoading } =
+    usePostStreamInteraction({});
   const { user } = useUser();
   const [error, setError] = useState(null as any);
   const { addToast } = CustomToast();
@@ -173,17 +177,18 @@ export default function TransactionModal({ onSuccess, title }: Props) {
   }, [isTransferSuccess, transferRejectedError, transferError]);
 
   const handleTransaction = async (price: string) => {
-    setError(null as any);
-    try {
-      if (allowance && allowance._hex >= parseInt(price)) {
-        setStep(1);
-        transferWrite && (await transferWrite());
-      } else {
-        writeApproval && (await writeApproval());
-      }
-    } catch (e) {
-      setStep(0);
-    }
+    await postStreamInteraction({ interactionType: "scene-change" });
+    // setError(null as any);
+    // try {
+    //   if (allowance && allowance._hex >= parseInt(price)) {
+    //     setStep(1);
+    //     transferWrite && (await transferWrite());
+    //   } else {
+    //     writeApproval && (await writeApproval());
+    //   }
+    // } catch (e) {
+    //   setStep(0);
+    // }
   };
 
   const handleOpen = () => {

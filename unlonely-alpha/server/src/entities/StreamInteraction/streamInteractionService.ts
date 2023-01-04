@@ -57,7 +57,7 @@ export const postStreamInteraction = (
       interactionType: data.interactionType,
       owner: {
         connect: {
-          address: ctx.user?.address,
+          address: "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa",
         },
       },
     },
