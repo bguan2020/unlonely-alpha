@@ -173,6 +173,7 @@ export default function TransactionModal({ onSuccess, title }: Props) {
   }, [isTransferSuccess, transferRejectedError, transferError]);
 
   const handleTransaction = async (price: string) => {
+    setError(null as any);
     try {
       if (allowance && allowance._hex >= parseInt(price)) {
         setStep(1);
@@ -206,6 +207,7 @@ export default function TransactionModal({ onSuccess, title }: Props) {
         onClose={() => {
           setOpen(false);
           setStep(0);
+          setError(null as any);
         }}
       >
         <ModalOverlay />
