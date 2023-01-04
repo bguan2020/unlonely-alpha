@@ -16,4 +16,5 @@ export const resolvers = {
 
       return streamInteractionService.postStreamInteraction(data, ctx); // add ctx.user
     },
-  },*s
+  },
+};
