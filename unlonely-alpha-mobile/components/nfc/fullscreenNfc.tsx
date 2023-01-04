@@ -5,6 +5,8 @@ import { BlurView } from 'expo-blur';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { MenuView } from '@react-native-menu/menu';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { toast } from '../toast/toast';
+import { useHaptics } from '../../utils/haptics';
 
 type FullscreenNfcProps = {
   height: number;
@@ -22,6 +24,33 @@ type NfcVideoProps = {
 };
 
 const VIDEO_START_POSITION = 1500; // milliseconds
+
+const shareMenuActions = [
+  {
+    id: 'opensea',
+    title: 'view on OpenSea',
+    image: Platform.select({
+      ios: 'globe',
+      android: 'language',
+    }),
+  },
+  {
+    id: 'copy-link',
+    title: 'copy NFC link',
+    image: Platform.select({
+      ios: 'link',
+      android: 'link',
+    }),
+  },
+  {
+    id: 'share',
+    title: 'share',
+    image: Platform.select({
+      ios: 'square.and.arrow.up',
+      android: 'share',
+    }),
+  },
+];
 
 const NfcVideo = (props: NfcVideoProps) => (
   <Video
@@ -100,6 +129,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
         flex: 1,
         width: '100%',
         height: props.height,
+        backgroundColor: 'black',
       }}
     >
       <View
@@ -130,14 +160,11 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
           width: '100%',
           height: props.height,
         }}
-        // whole view for video and other elements that's on top of the blur
       >
         <NfcVideo item={props.item} videoRef={ref} height={props.height} play={shouldPlay} />
 
         <View
-          // shit under the video
           style={{
-            // backgroundColor: 'rgba(255,255,0,0.25)',
             flex: 1,
             position: 'absolute',
             left: 0,
@@ -148,11 +175,11 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
         >
           <View
             style={{
-              // backgroundColor: 'rgba(255,0,0,0.25)',
               height: 64,
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'space-between',
+              paddingHorizontal: 4,
             }}
           >
             <MenuView
@@ -162,41 +189,18 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
                 }
                 if (nativeEvent.event === 'copy-link') {
                   Clipboard.setString(`https://www.unlonely.app/nfc/${props.item.id}`);
+                  useHaptics('medium');
+                  toast('copied to clipboard');
                 }
                 if (nativeEvent.event === 'share') {
+                  useHaptics('medium');
                   Share.share({
                     message: `https://www.unlonely.app/nfc/${props.item.id}`,
                   });
                 }
               }}
-              actions={[
-                {
-                  id: 'opensea',
-                  title: 'view on OpenSea',
-                  image: Platform.select({
-                    ios: 'globe',
-                    android: 'language',
-                  }),
-                },
-                {
-                  id: 'copy-link',
-                  title: 'copy NFC link',
-                  image: Platform.select({
-                    ios: 'link',
-                    android: 'link',
-                  }),
-                },
-                {
-                  id: 'share',
-                  title: 'share',
-                  image: Platform.select({
-                    ios: 'square.and.arrow.up',
-                    android: 'share',
-                  }),
-                },
-              ]}
+              actions={shareMenuActions}
               style={{
-                // backgroundColor: 'blue',
                 width: 48,
                 height: 48,
                 alignItems: 'center',
@@ -213,7 +217,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
                 alignItems: 'center',
               }}
             >
-              <Text style={styles.likedCount}>1,234</Text>
+              <Text style={styles.likedCount}>{props.item.score}</Text>
               <Pressable
                 style={{
                   // backgroundColor: 'rgba(255,255,0,0.25)',
@@ -229,23 +233,18 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
           </View>
           <View
             style={{
-              // backgroundColor: 'rgba(0,255,0,0.25)',
               flex: 1,
               justifyContent: 'flex-end',
-              paddingBottom: 100, // get tab bar height here
+              paddingBottom: 100,
             }}
           >
-            {/* nfc title and shit wrapper */}
             <View
               style={{
-                // backgroundColor: 'rgba(0,255,255,0.25)',
                 flex: 1,
                 justifyContent: 'flex-end',
                 paddingHorizontal: 16,
               }}
             >
-              {/* nfc title */}
-              {/* owned by ENS */}
               <Text style={styles.title}>{props.item.title}</Text>
               <Text style={styles.subtitle}>owned by {props.item.owner.username}</Text>
             </View>
@@ -293,6 +292,5 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 1,
-    marginRight: 8,
   },
 });

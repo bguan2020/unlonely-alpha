@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@backpackapp-io/react-native-toast": "^0.8.0",
     "@expo/react-native-action-sheet": "^4.0.1",
     "@expo/vector-icons": "^13.0.0",
     "@gorhom/bottom-sheet": "^4",

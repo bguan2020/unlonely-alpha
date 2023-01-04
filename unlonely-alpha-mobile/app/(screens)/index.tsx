@@ -5,6 +5,8 @@ import { useRef } from 'react';
 import { FullscreenNfc } from '../../components/nfc/fullscreenNfc';
 import { useNfcFeed } from '../../api/queries/useNfcFeed';
 import { useHaptics } from '../../utils/haptics';
+import { LinearGradient } from 'expo-linear-gradient';
+import { UnlonelyTopGradientWithLogo } from './_layout';
 
 export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
@@ -36,6 +38,7 @@ export default function NfcFeedScreen() {
 
   return (
     <View style={styles.container}>
+      <UnlonelyTopGradientWithLogo />
       <StatusBar style="dark" />
       <FlashList
         data={nfcs}

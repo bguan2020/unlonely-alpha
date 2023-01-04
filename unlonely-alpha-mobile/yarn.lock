@@ -1061,6 +1061,11 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
+"@backpackapp-io/react-native-toast@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@backpackapp-io/react-native-toast/-/react-native-toast-0.8.0.tgz#fafb3adf55aaca3510e584e9f51c944084086dd1"
+  integrity sha512-t1MaJ21hbg/5vUl5s9zeSVgyUqWRUpPQlYj7aVolExJ/AtvEzoPYNCk+sum+O+4PJC3nWO+wSDF6Gww1O8FIiw==
+
 "@bacons/expo-metro-runtime@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@bacons/expo-metro-runtime/-/expo-metro-runtime-2.0.1.tgz#96e85e4649638f182eff0b44310102e90444582f"
