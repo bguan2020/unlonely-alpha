@@ -901,7 +901,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
             fontSize={18}
             textAlign="center"
           >
-            hmm
+            Currently Watching
           </Text>
           <Flex
             direction="column"
