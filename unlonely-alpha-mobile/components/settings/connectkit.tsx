@@ -1,23 +1,14 @@
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useCallback, useRef } from 'react';
-import { Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 import WebView from 'react-native-webview';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUserCredentials } from '../../utils/useUserCredentials';
-import { MenuView } from '@react-native-menu/menu';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-export default function SettingsScreen() {
+export function ConnectKitSheet() {
+  const bottomSheetRef = useRef<BottomSheet>(null);
   const { height, width } = useWindowDimensions();
   const { userCredentials, storeCredentials } = useUserCredentials();
 
-  // ref
-  const bottomSheetRef = useRef<BottomSheet>(null);
-
-  // variables
-  // const snapPoints = useMemo(() => [500], []);
-
-  // callbacks
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
 
@@ -34,44 +25,8 @@ export default function SettingsScreen() {
   // };
 
   return (
-    <View style={styles.container}>
-      <MenuView
-        onPressAction={({ nativeEvent }) => {
-          console.warn(JSON.stringify(nativeEvent));
-        }}
-        actions={[
-          {
-            id: 'add',
-            title: 'Add',
-            titleColor: '#2367A2',
-            image: Platform.select({
-              ios: 'plus',
-              android: 'ic_menu_add',
-            }),
-            imageColor: '#2367A2',
-          },
-        ]}
-        // shouldOpenOnLongPress={true}
-        style={{
-          backgroundColor: 'blue',
-          width: 50,
-        }}
-      >
-        <View
-          style={{
-            // position: 'absolute',
-            marginTop: 100,
-            zIndex: 1,
-            width: 50,
-            // right: 24,
-            // bottom: 200,
-            backgroundColor: 'red',
-          }}
-        >
-          <MaterialCommunityIcons name="dots-horizontal" size={24} color="white" />
-        </View>
-      </MenuView>
-      <View style={styles.main}>
+    <>
+      {/* <View style={styles.main}>
         <Text style={styles.title}>Settings</Text>
         <Pressable
           onPress={() => {
@@ -82,8 +37,8 @@ export default function SettingsScreen() {
           <Text style={styles.subtitle}>Clear AsyncStorage</Text>
         </Pressable>
         <Text style={styles.title}>{JSON.stringify(userCredentials)}</Text>
-      </View>
-      {/* <BottomSheet
+      </View> */}
+      <BottomSheet
         ref={bottomSheetRef}
         index={0}
         snapPoints={['90%']}
@@ -141,39 +96,7 @@ export default function SettingsScreen() {
             }}
           />
         </View>
-      </BottomSheet> */}
-    </View>
+      </BottomSheet>
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  main: {
-    width: '100%',
-    paddingHorizontal: 8,
-    paddingTop: 76,
-    paddingBottom: 100,
-  },
-  title: {
-    fontSize: 16,
-    fontFamily: 'NeuePixelSans',
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-    color: '#e2f979',
-    textAlign: 'left',
-    paddingHorizontal: 16,
-  },
-  subtitle: {
-    fontSize: 16,
-    fontFamily: 'NeuePixelSans',
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-    color: 'white',
-    textAlign: 'left',
-    marginVertical: 16,
-    paddingHorizontal: 16,
-  },
-});

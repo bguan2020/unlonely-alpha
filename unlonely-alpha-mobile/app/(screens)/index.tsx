@@ -5,8 +5,8 @@ import { useRef } from 'react';
 import { FullscreenNfc } from '../../components/nfc/fullscreenNfc';
 import { useNfcFeed } from '../../api/queries/useNfcFeed';
 import { useHaptics } from '../../utils/haptics';
-import { LinearGradient } from 'expo-linear-gradient';
-import { UnlonelyTopGradientWithLogo } from './_layout';
+import { FeedNav } from '../../components/nav/feed-nav';
+import { UnlonelyTopGradientWithLogo } from '../../components/nav/top-gradient';
 
 export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
@@ -34,12 +34,11 @@ export default function NfcFeedScreen() {
     return <FullscreenNfc item={item} ref={ref => (videoRefs.current[item.id] = ref)} height={height} width={width} />;
   };
 
-  // console.log(nfcs);
-
   return (
     <View style={styles.container}>
-      <UnlonelyTopGradientWithLogo />
       <StatusBar style="dark" />
+      {/* animate ↓ this in with reanimated with a 10 second delay after the app loads */}
+      <UnlonelyTopGradientWithLogo />
       <FlashList
         data={nfcs}
         removeClippedSubviews
@@ -63,8 +62,9 @@ export default function NfcFeedScreen() {
         }}
       >
         <Text style={styles.hiddenMessage}>that’s it. you’re done.</Text>
-        {/* animate this in with reanimated with a 10 second delay after the app loads */}
+        {/* animate ↑ this in with reanimated with a 10 second delay after the app loads */}
       </View>
+      <FeedNav />
     </View>
   );
 }

@@ -348,6 +348,8 @@ PODS:
     - React
   - react-native-netinfo (9.3.5):
     - React-Core
+  - react-native-override-color-scheme (1.0.3):
+    - React-Core
   - react-native-safe-area-context (4.4.1):
     - RCT-Folly
     - RCTRequired
@@ -462,7 +464,7 @@ PODS:
     - React-Core
   - RNGestureHandler (2.8.0):
     - React-Core
-  - RNReanimated (2.12.0):
+  - RNReanimated (2.13.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -547,6 +549,7 @@ DEPENDENCIES:
   - react-native-check-mute (from `../node_modules/react-native-check-mute`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
+  - react-native-override-color-scheme (from `../node_modules/react-native-override-color-scheme`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
   - react-native-volume-manager (from `../node_modules/react-native-volume-manager`)
@@ -677,6 +680,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-menu/menu"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
+  react-native-override-color-scheme:
+    :path: "../node_modules/react-native-override-color-scheme"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-skia:
@@ -779,6 +784,7 @@ SPEC CHECKSUMS:
   react-native-check-mute: 95a6f779b9f04fa6680c8ebda48bcaab324fbb93
   react-native-menu: 9d7d6f819cc7fa14a15cf86888c53f3240d86f1b
   react-native-netinfo: 85b2a435c4d3705c08b0c42ff2d6ef6b9622ea0a
+  react-native-override-color-scheme: 3badbbee9a4ea2a9c3e5b4a5d9fd9eaba8761870
   react-native-safe-area-context: 99b24a0c5acd0d5dcac2b1a7f18c49ea317be99a
   react-native-skia: 7f9a3bd36c4247005e87005d912dcf6db76a6289
   react-native-volume-manager: 3c58b64125fd42438fb8b95776566910dce54a46
@@ -799,7 +805,7 @@ SPEC CHECKSUMS:
   RNCClipboard: 2834e1c4af68697089cdd455ee4a4cdd198fa7dd
   RNFlashList: 18d906a373da5ff16776e5013df9495d826edc7e
   RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
-  RNReanimated: 2a91e85fcd343f8af3c58d3425b99fdd285590a5
+  RNReanimated: ce445c233a6ff5600223484a88ad5704945d972a
   RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
   RNSVG: 07dbd870b0dcdecc99b3a202fa37c8ca163caec2
   Yoga: eca980a5771bf114c41a754098cd85e6e0d90ed7
