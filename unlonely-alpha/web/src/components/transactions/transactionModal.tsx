@@ -140,6 +140,7 @@ export default function TransactionModal({ onSuccess, title }: Props) {
         approvalRejectError.message.includes("user rejected transaction")
       ) {
         setError("Approval transaction rejected, please try again.");
+        setStep(0);
         return;
       }
       setError(
@@ -161,6 +162,7 @@ export default function TransactionModal({ onSuccess, title }: Props) {
         transferRejectedError.message.includes("user rejected transaction")
       ) {
         setError("Transfer transaction rejected, please try again.");
+        setStep(0);
         return;
       }
       setError(
