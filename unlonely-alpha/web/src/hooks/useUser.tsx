@@ -33,7 +33,11 @@ const UserContext = createContext<{
   setUser: () => {},
 });
 
-export const UserProvider = ({ children }: { children: JSX.Element }) => {
+export const UserProvider = ({
+  children,
+}: {
+  children: JSX.Element[] | JSX.Element;
+}) => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const { address } = useAccount();
   // ignore console log build error for now

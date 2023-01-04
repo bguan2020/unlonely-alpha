@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import theme from "../styles/theme";
 
 import { ChakraProvider } from "@chakra-ui/react";
+
 import { ApolloProvider } from "@apollo/client";
 import { createClient, WagmiConfig } from "wagmi";
 import { ConnectKitProvider, getDefaultClient } from "connectkit";
@@ -23,7 +24,6 @@ function App({ Component, pageProps, cookies }: Props) {
     pageProps ? pageProps.initialApolloState : null,
     cookies
   );
-
   const wagmiClient = createClient(
     getDefaultClient({
       appName: "Unlonely",
