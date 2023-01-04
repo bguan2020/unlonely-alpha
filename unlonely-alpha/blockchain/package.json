@@ -1,0 +1,42 @@
+{
+  "name": "newsapp-blockchain",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "UNLICENSED",
+  "scripts": {
+    "compile": "hardhat compile --show-stack-traces",
+    "clean": "hardhat clean",
+    "serve": "hardhat node",
+    "deploy": "hardhat run --network localhost scripts/deploy.js",
+    "deploy:goerli": "hardhat run --network goerli scripts/deploy.js",
+    "deploy:mumbai": "hardhat run --network mumbai scripts/deploy.js",
+    "deploy:matic": "hardhat run --network matic scripts/deploy.js",
+    "deploy:mainnet": "hardhat run --network mainnet scripts/deploy.js",
+    "test": "hardhat run scripts/run.js",
+    "test:watch": "hardhat watch test"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.5",
+    "@nomiclabs/hardhat-waffle": "^2.0.0",
+    "@openzeppelin/hardhat-upgrades": "^1.15.0",
+    "@typechain/ethers-v5": "^8.0.3",
+    "@typechain/hardhat": "^3.0.0",
+    "@types/chai": "^4.2.22",
+    "@types/jest": "^27.0.3",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.11.11",
+    "chai": "^4.3.4",
+    "ethereum-waffle": "^3.0.0",
+    "ethers": "^5.5.4",
+    "hardhat": "^2.6.8",
+    "ts-node": "^10.4.0",
+    "typechain": "^6.0.3",
+    "typescript": "^4.5.2",
+    "vercel": "^23.1.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.5.0",
+    "dotenv": "^16.0.0",
+    "hardhat-watcher": "^2.1.1"
+  }
+}
