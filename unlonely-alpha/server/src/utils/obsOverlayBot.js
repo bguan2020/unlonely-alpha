@@ -1,7 +1,41 @@
 const { default: OBSWebSocket } = require("obs-websocket-js");
+const net = require("net");
 
-// connect to obs-websocket running on localhost with same port
-const obs_IP = "192.168.0.232:4455";
+// Create a server socket and bind it to a local port
+(async () => {
+  console.log(net);
+    const server = net.createServer((client) => {
+      console.log('Client connected');
+  
+    // Receive messages from the client and execute code as needed
+    client.on('data', (data) => {
+      const message = data.toString();
+      if (message === 'do something') {
+        // Execute some code here
+        client.write('done');
+      } else if (message === 'do something else') {
+        // Execute some different code here
+        client.write('done');
+      }
+      // etc.
+    });
+});
+
+server.on('error', (err) => {
+  console.error(`Error: ${err.message}`);
+});
+
+// listen on all available interfaces
+server.listen(12346, '0.0.0.0');
+})();  
+
+
+
+
+
+
+
+const obs_IP = "192.168.1.84:4455";
 const obs_password = "VllUxAIAhTwVUMBE";
 (async () => {
   const obs = new OBSWebSocket();
@@ -22,7 +56,8 @@ const obs_password = "VllUxAIAhTwVUMBE";
         return (
           scene.sceneName !== currentProgramSceneName &&
           scene.sceneName !== "desktop+cam" &&
-          scene.sceneName !== "face-cam"
+          scene.sceneName !== "face-cam" &&
+          scene.sceneName !== "ZOOM-face-cam only"
         );
       });
       console.log(filteredScenes);
