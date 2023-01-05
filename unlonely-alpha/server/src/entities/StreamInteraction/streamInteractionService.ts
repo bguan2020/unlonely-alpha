@@ -14,6 +14,7 @@ export const postStreamInteraction = (
   dotenv.config();
   const obs_IP_address = process.env.OBS_WEBSOCKET_IP_ADDRESS;
   const obs_port = process.env.OBS_WEBSOCKET_PORT;
+  console.log(Number(obs_port), "obs port");
   try {
     console.log("obs_IP_address", obs_IP_address);
     const client = net.createConnection({ port: Number(obs_port), host: obs_IP_address}, () => {
