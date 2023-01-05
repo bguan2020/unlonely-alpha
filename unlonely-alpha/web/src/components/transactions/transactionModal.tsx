@@ -30,17 +30,21 @@ import {
 import BrianToken from "../../utils/newsToken.json";
 import { CustomToast } from "../general/CustomToast";
 import { useUser } from "../../hooks/useUser";
-import usePostStreamInteraction from "../../hooks/usePostStreamInteraction";
-
+import { ChatBot } from "../../pages/channels/brian";
 
 type Props = {
   onSuccess: (hash: string) => void;
   title: string;
+  setChatBot: (chatBot: ChatBot[]) => void;
+  chatBot: ChatBot[];
 };
 
-export default function TransactionModal({ onSuccess, title }: Props) {
-  const { postStreamInteraction, loading: postChatLoading } =
-    usePostStreamInteraction({});
+export default function TransactionModal({
+  onSuccess,
+  title,
+  chatBot,
+  setChatBot,
+}: Props) {
   const { user } = useUser();
   const [error, setError] = useState(null as any);
   const { addToast } = CustomToast();
@@ -159,6 +163,18 @@ export default function TransactionModal({ onSuccess, title }: Props) {
       setOpen(false);
       setStep(0);
       onSuccess && onSuccess(transferData?.hash as string);
+      if (user) {
+        setChatBot([
+          ...chatBot,
+          {
+            username: user.username ? user.username : "anonymous",
+            address: user.address,
+            title: title,
+            taskType: "scene-change",
+            description: "",
+          },
+        ]);
+      }
     }
     if (transferRejectedError || transferError) {
       if (
@@ -177,18 +193,17 @@ export default function TransactionModal({ onSuccess, title }: Props) {
   }, [isTransferSuccess, transferRejectedError, transferError]);
 
   const handleTransaction = async (price: string) => {
-    await postStreamInteraction({ interactionType: "scene-change" });
-    // setError(null as any);
-    // try {
-    //   if (allowance && allowance._hex >= parseInt(price)) {
-    //     setStep(1);
-    //     transferWrite && (await transferWrite());
-    //   } else {
-    //     writeApproval && (await writeApproval());
-    //   }
-    // } catch (e) {
-    //   setStep(0);
-    // }
+    setError(null as any);
+    try {
+      if (allowance && allowance._hex >= parseInt(price)) {
+        setStep(1);
+        transferWrite && (await transferWrite());
+      } else {
+        writeApproval && (await writeApproval());
+      }
+    } catch (e) {
+      setStep(0);
+    }
   };
 
   const handleOpen = () => {

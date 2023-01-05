@@ -127,12 +127,28 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   useEffect(() => {
     if (chatBot.length > 0) {
       const lastMessage = chatBot[chatBot.length - 1];
+      if (lastMessage.taskType === "video") {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        channel.publish({
+          name: "chat-message",
+          data: {
+            messageText: `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`,
+            username: "chatbot🤖",
+            chatColor: "black",
+            address: "chatbotAddress",
+            isFC: false,
+            reactions: initializeEmojis,
+          },
+        });
+        return;
+      }
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       channel.publish({
         name: "chat-message",
         data: {
-          messageText: `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`,
+          messageText: `${username} paid 5 $BRIAN to switch to a random scene!`,
           username: "chatbot🤖",
           chatColor: "black",
           address: "chatbotAddress",

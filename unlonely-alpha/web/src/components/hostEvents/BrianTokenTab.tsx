@@ -2,10 +2,19 @@ import { Box, Flex, Text, Stack, Image } from "@chakra-ui/react";
 import Link from "next/link";
 
 import usePostStreamInteraction from "../../hooks/usePostStreamInteraction";
+import { ChatBot } from "../../pages/channels/brian";
 import { CustomToast } from "../general/CustomToast";
 import TransactionModal from "../transactions/transactionModal";
 
-const BrianTokenTab: React.FunctionComponent<any> = () => {
+type Props = {
+  setChatBot: (chatBot: ChatBot[]) => void;
+  chatBot: ChatBot[];
+};
+
+const BrianTokenTab: React.FunctionComponent<Props> = ({
+  chatBot,
+  setChatBot,
+}) => {
   const { postStreamInteraction, loading: postChatLoading } =
     usePostStreamInteraction({});
   const { addToast } = CustomToast();
@@ -18,6 +27,8 @@ const BrianTokenTab: React.FunctionComponent<any> = () => {
 
         <TransactionModal
           title="Randomize Scene"
+          chatBot={chatBot}
+          setChatBot={setChatBot}
           onSuccess={async (hash) => {
             try {
               addToast({
@@ -41,6 +52,7 @@ const BrianTokenTab: React.FunctionComponent<any> = () => {
                 ),
               });
               await postStreamInteraction({ interactionType: "scene-change" });
+              // wait 3 seconds then setChatBot
             } catch (e) {}
           }}
         />
