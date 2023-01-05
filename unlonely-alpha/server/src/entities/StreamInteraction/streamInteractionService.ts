@@ -16,7 +16,7 @@ export const postStreamInteraction = (
   // obs-websocket-js
   const obs = new OBSWebSocket();
   obs
-    .connect(`ws://${obs_IP_address}`, obs_password)
+    .connect(`wss://${obs_IP_address}`, obs_password)
     .then(async () => {
       console.log("Successfully connected to OBS!");
       const { currentProgramSceneName } = await obs.call(

@@ -17,4 +17,11 @@ export const resolvers = {
       return streamInteractionService.postStreamInteraction(data, ctx); // add ctx.user
     },
   },
+  Subscription: {
+    streamInteractionCreated: {
+      subscribe: (_: any, __: any, ctx: Context) => {
+        return ctx.prisma.$subscribe.streamInteraction().node();
+      }
+    }
+  }
 };

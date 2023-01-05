@@ -9,6 +9,10 @@ export const typeDef = gql`
     updatedAt: DateTime!
   }
 
+  type Subscription {
+    streamInteractionCreated: StreamInteraction
+  }
+
   input PostStreamInteractionInput {
     interactionType: String!
   }

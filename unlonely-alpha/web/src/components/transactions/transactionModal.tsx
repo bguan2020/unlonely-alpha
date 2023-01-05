@@ -177,18 +177,17 @@ export default function TransactionModal({ onSuccess, title }: Props) {
   }, [isTransferSuccess, transferRejectedError, transferError]);
 
   const handleTransaction = async (price: string) => {
-    await postStreamInteraction({ interactionType: "scene-change" });
-    // setError(null as any);
-    // try {
-    //   if (allowance && allowance._hex >= parseInt(price)) {
-    //     setStep(1);
-    //     transferWrite && (await transferWrite());
-    //   } else {
-    //     writeApproval && (await writeApproval());
-    //   }
-    // } catch (e) {
-    //   setStep(0);
-    // }
+    setError(null as any);
+    try {
+      if (allowance && allowance._hex >= parseInt(price)) {
+        setStep(1);
+        transferWrite && (await transferWrite());
+      } else {
+        writeApproval && (await writeApproval());
+      }
+    } catch (e) {
+      setStep(0);
+    }
   };
 
   const handleOpen = () => {
