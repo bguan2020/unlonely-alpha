@@ -4,7 +4,7 @@ import {
 import { Wallet } from "ethers";
 import wallet from "./wallet";
 
-const replyTo = "0x7a2200f4a85c3c15738a7061966fe737e941ae380535e22c2fefad25a1c95347"; // INSERT HERE
+const replyTo = "0x48c187b91a1455b4b76afd116880df1960d6c0ef909df991c6b9b2757f8cd5d4"; // INSERT HERE
 
 export default async function _publishCast(text: string) { 
   const signer = new Wallet(wallet.privateKey);
