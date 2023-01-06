@@ -1,5 +1,6 @@
 import { MotiPressable } from 'moti/interactions';
-import { StyleProps } from 'react-native-reanimated';
+import { runOnJS, StyleProps } from 'react-native-reanimated';
+import { useHaptics } from '../../utils/haptics';
 
 type AnimatedPressableProps = {
   onPress?: () => void;
@@ -12,9 +13,9 @@ export const AnimatedPressable = ({ onPress, style, children, bouncy }: Animated
   return (
     <MotiPressable
       onPress={onPress}
-      animate={({ pressed }) => {
+      animate={({ hovered, pressed }) => {
         'worklet';
-
+        if (hovered || pressed) runOnJS(useHaptics)('light');
         return {
           scale: pressed ? (bouncy ? 0.75 : 0.85) : 1,
         };

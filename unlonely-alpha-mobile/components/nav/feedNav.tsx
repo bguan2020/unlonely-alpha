@@ -8,7 +8,7 @@ import { MotiView } from 'moti';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 import { AnimatedMenuView } from '../buttons/animatedMenuView';
 
-const AVATAR_SIZE = 40;
+const AVATAR_SIZE = 48;
 
 const sortingIconAnimationOptions: any = {
   animateInitialState: false,
@@ -22,7 +22,7 @@ const sortingIconAnimationOptions: any = {
     },
     opacity: {
       type: 'timing',
-      duration: 160,
+      duration: 100,
     },
   },
 };
@@ -118,7 +118,7 @@ export function FeedNav() {
               setNFCFeedSorting('recent');
             }
           }}
-          title="sorting"
+          title="sort NFCs by"
           actions={[
             {
               title: 'most recent',

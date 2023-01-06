@@ -60,7 +60,7 @@ export const UnlonelyTopGradientWithLogo = () => (
       justifyContent: 'center',
       alignItems: 'center',
       position: 'absolute',
-      height: 190,
+      height: 196,
       zIndex: -1,
       top: 0,
       left: 0,

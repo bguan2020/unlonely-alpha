@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useWindowDimensions, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useWindowDimensions, View, Text } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useAppSettingsStore } from '../../utils/store';
 import { useHaptics } from '../../utils/haptics';
@@ -45,7 +45,10 @@ export const SettingsSheet = () => {
             backgroundColor: 'yellow',
             flex: 1,
           }}
-        ></View>
+        >
+          <Text>start putting shit in here so it actually works</Text>
+          <Text>same with connectkit wallet and grabbing ens and avatar</Text>
+        </View>
       </BottomSheet>
     </>
   );
