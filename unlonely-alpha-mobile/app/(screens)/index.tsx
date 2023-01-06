@@ -12,7 +12,7 @@ export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
   const videoRefs = useRef([]);
   const { status, data, error, isFetching } = useNfcFeed({
-    limit: 9,
+    limit: 3,
   });
   const nfcs = data?.getNFCFeed;
   const onViewableItemsChanged = useRef(({ changed }) => {

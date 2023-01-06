@@ -16,13 +16,17 @@ type SortingTypes = 'recent' | 'liked';
 
 type AppSettingsStore = {
   isSettingsSheetOpen: boolean;
-  pushNotifications: boolean;
-  blurEnabled: boolean;
-  nfcAutoplayEnabled: boolean;
+  isNotificationPermissionGranted: boolean;
+  isLivePushNotificationsEnabled: boolean;
+  isNewNfcPushNotificationsEnabled: boolean;
+  isBlurEnabled: boolean;
+  isNfcAutoplayEnabled: boolean;
   nfcFeedSorting: SortingTypes;
   toggleSettingsSheet: () => void;
   closeSettingsSheet: () => void;
-  togglePushNotifications: () => void;
+  grantNotificationPermissions: () => void;
+  toggleLivePushNotifications: () => void;
+  toggleNewNfcPushNotifications: () => void;
   toggleBlur: () => void;
   toggleNfcAutoplay: () => void;
   setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => void;
@@ -31,15 +35,20 @@ type AppSettingsStore = {
 export const useAppSettingsStore = create<AppSettingsStore>(set => ({
   // make sure to save this to async storage and read it on app start
   isSettingsSheetOpen: false,
-  pushNotifications: false,
-  blurEnabled: true,
-  nfcAutoplayEnabled: true,
+  isNotificationPermissionGranted: false,
+  isLivePushNotificationsEnabled: true,
+  isNewNfcPushNotificationsEnabled: true,
+  isBlurEnabled: true,
+  isNfcAutoplayEnabled: true,
   nfcFeedSorting: 'recent',
   toggleSettingsSheet: () => set(z => ({ isSettingsSheetOpen: !z.isSettingsSheetOpen })),
   closeSettingsSheet: () => set({ isSettingsSheetOpen: false }),
-  togglePushNotifications: () => set(z => ({ pushNotifications: !z.pushNotifications })),
-  toggleBlur: () => set(z => ({ blurEnabled: !z.blurEnabled })),
-  toggleNfcAutoplay: () => set(z => ({ nfcAutoplayEnabled: !z.nfcAutoplayEnabled })),
+  grantNotificationPermissions: () => set({ isNotificationPermissionGranted: true }),
+  toggleLivePushNotifications: () => set(z => ({ isLivePushNotificationsEnabled: !z.isLivePushNotificationsEnabled })),
+  toggleNewNfcPushNotifications: () =>
+    set(z => ({ isNewNfcPushNotificationsEnabled: !z.isNewNfcPushNotificationsEnabled })),
+  toggleBlur: () => set(z => ({ isBlurEnabled: !z.isBlurEnabled })),
+  toggleNfcAutoplay: () => set(z => ({ isNfcAutoplayEnabled: !z.isNfcAutoplayEnabled })),
   setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => set({ nfcFeedSorting }),
 }));
 

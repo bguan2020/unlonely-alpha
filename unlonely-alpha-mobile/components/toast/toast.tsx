@@ -3,7 +3,7 @@ import { BlurView } from 'expo-blur';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const TOAST_HEIGHT = 48;
+const TOAST_HEIGHT = 40;
 
 export const toast = (message: string) =>
   nativeToast(message, {
@@ -18,6 +18,7 @@ export const toast = (message: string) =>
           alignItems: 'center',
           height: TOAST_HEIGHT,
           width: Dimensions.get('window').width - 32,
+          top: 3,
         }}
       >
         <View
@@ -54,6 +55,7 @@ export const toast = (message: string) =>
             color="white"
             style={{
               marginRight: TOAST_HEIGHT / 6,
+              top: 1,
             }}
           />
           <Text style={styles.text}>{message}</Text>
@@ -67,6 +69,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: TOAST_HEIGHT / 3,
     fontFamily: 'NeuePixelSans',
+    top: 1,
   },
   blur: {
     position: 'absolute',

@@ -185,7 +185,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'space-between',
-              paddingHorizontal: 8,
+              paddingHorizontal: 4,
             }}
           >
             <AnimatedMenuView
