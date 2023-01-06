@@ -13,7 +13,6 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
-  useAccount,
   useContractRead,
   useContractWrite,
   usePrepareContractWrite,
@@ -50,7 +49,6 @@ export default function TransactionModal({
   const { addToast } = CustomToast();
   const [open, setOpen] = useState<boolean>(false);
   const [step, setStep] = useState<number>(0);
-  const accountData = useAccount();
 
   const {
     data: balanceOfData,
@@ -60,7 +58,7 @@ export default function TransactionModal({
     addressOrName: BRIAN_TOKEN_ADDRESS,
     contractInterface: BrianToken,
     functionName: "balanceOf",
-    args: [accountData?.address],
+    args: [user?.address],
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
   });
 
@@ -73,7 +71,7 @@ export default function TransactionModal({
     addressOrName: BRIAN_TOKEN_ADDRESS,
     contractInterface: BrianToken,
     functionName: "allowance",
-    args: [accountData?.address, BRIAN_TOKEN_ADDRESS],
+    args: [user?.address, BRIAN_TOKEN_ADDRESS],
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
   });
 
