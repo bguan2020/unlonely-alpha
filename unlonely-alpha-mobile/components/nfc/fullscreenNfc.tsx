@@ -7,6 +7,8 @@ import { MenuView } from '@react-native-menu/menu';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { toast } from '../toast/toast';
 import { useHaptics } from '../../utils/haptics';
+import { AnimatedMenuView } from '../buttons/animatedMenuView';
+import { AnimatedPressable } from '../buttons/animatedPressable';
 
 type FullscreenNfcProps = {
   height: number;
@@ -74,6 +76,7 @@ const NfcVideo = (props: NfcVideoProps) => (
 export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) => {
   const ref = useRef(null);
   const [shouldPlay, setShouldPlay] = useState(false);
+  const [isLiked, setIsLiked] = useState(props.item.liked);
 
   useImperativeHandle(parentRef, () => ({
     play,
@@ -182,7 +185,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
               paddingHorizontal: 4,
             }}
           >
-            <MenuView
+            <AnimatedMenuView
               onPressAction={({ nativeEvent }) => {
                 if (nativeEvent.event === 'opensea') {
                   Linking.openURL(props.item.openseaLink);
@@ -210,7 +213,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
               <View>
                 <MaterialCommunityIcons name="dots-horizontal" size={32} color="rgba(255,255,255,0.75)" />
               </View>
-            </MenuView>
+            </AnimatedMenuView>
             <View
               style={{
                 flexDirection: 'row',
@@ -218,17 +221,22 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
               }}
             >
               <Text style={styles.likedCount}>{props.item.score}</Text>
-              <Pressable
+              <AnimatedPressable
                 style={{
-                  // backgroundColor: 'rgba(255,255,0,0.25)',
                   width: 48,
                   height: 48,
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
+                onPress={() => setIsLiked(!isLiked)}
+                bouncy
               >
-                <Ionicons name="md-heart-outline" size={32} color="rgba(255,255,255,0.75)" />
-              </Pressable>
+                {isLiked ? (
+                  <Ionicons name="md-heart" size={32} color="rgba(255,255,255,0.75)" />
+                ) : (
+                  <Ionicons name="md-heart-outline" size={32} color="rgba(255,255,255,0.75)" />
+                )}
+              </AnimatedPressable>
             </View>
           </View>
           <View

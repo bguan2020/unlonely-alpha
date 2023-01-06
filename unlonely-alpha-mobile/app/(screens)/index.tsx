@@ -5,8 +5,8 @@ import { useRef } from 'react';
 import { FullscreenNfc } from '../../components/nfc/fullscreenNfc';
 import { useNfcFeed } from '../../api/queries/useNfcFeed';
 import { useHaptics } from '../../utils/haptics';
-import { FeedNav } from '../../components/nav/feed-nav';
-import { UnlonelyTopGradientWithLogo } from '../../components/nav/top-gradient';
+import { FeedNav } from '../../components/nav/feedNav';
+import { UnlonelyTopGradientWithLogo } from '../../components/nav/topGradient';
 
 export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
@@ -29,6 +29,8 @@ export default function NfcFeedScreen() {
       }
     });
   });
+
+  console.log(nfcs);
 
   const nfcVideoRenderItem = ({ item }) => {
     return <FullscreenNfc item={item} ref={ref => (videoRefs.current[item.id] = ref)} height={height} width={width} />;

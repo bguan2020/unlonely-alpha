@@ -2,8 +2,6 @@ import { useCallback, useEffect } from 'react';
 import { Tabs } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Platform, View, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { easeGradient } from 'react-native-easing-gradient';
 import { useFonts } from 'expo-font';
 import { QueryClientProvider, onlineManager } from '@tanstack/react-query';
 import { queryClient } from '../../api/client';
@@ -11,8 +9,8 @@ import NetInfo from '@react-native-community/netinfo';
 import { useAppState } from '../../utils/useAppState';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Toasts } from '@backpackapp-io/react-native-toast';
-import { UnlonelyTopGradient } from '../../components/nav/top-gradient';
-import { FadedTabBar } from '../../components/nav/bottom-gradient';
+import { UnlonelyTopGradient } from '../../components/nav/topGradient';
+import { FadedTabBar } from '../../components/nav/bottomGradient';
 
 export default function Layout() {
   // Load up the fonts as early as possible
