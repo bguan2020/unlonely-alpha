@@ -21,6 +21,7 @@ type AppSettingsStore = {
   nfcAutoplayEnabled: boolean;
   nfcFeedSorting: SortingTypes;
   toggleSettingsSheet: () => void;
+  closeSettingsSheet: () => void;
   togglePushNotifications: () => void;
   toggleBlur: () => void;
   toggleNfcAutoplay: () => void;
@@ -35,6 +36,7 @@ export const useAppSettingsStore = create<AppSettingsStore>(set => ({
   nfcAutoplayEnabled: true,
   nfcFeedSorting: 'recent',
   toggleSettingsSheet: () => set(z => ({ isSettingsSheetOpen: !z.isSettingsSheetOpen })),
+  closeSettingsSheet: () => set({ isSettingsSheetOpen: false }),
   togglePushNotifications: () => set(z => ({ pushNotifications: !z.pushNotifications })),
   toggleBlur: () => set(z => ({ blurEnabled: !z.blurEnabled })),
   toggleNfcAutoplay: () => set(z => ({ nfcAutoplayEnabled: !z.nfcAutoplayEnabled })),

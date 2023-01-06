@@ -9,6 +9,7 @@ import { toast } from '../toast/toast';
 import { useHaptics } from '../../utils/haptics';
 import { AnimatedMenuView } from '../buttons/animatedMenuView';
 import { AnimatedPressable } from '../buttons/animatedPressable';
+import { format, parseISO } from 'date-fns';
 
 type FullscreenNfcProps = {
   height: number;
@@ -77,6 +78,8 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
   const ref = useRef(null);
   const [shouldPlay, setShouldPlay] = useState(false);
   const [isLiked, setIsLiked] = useState(props.item.liked);
+  const parsedDate = parseISO(props.item.createdAt);
+  const nfcMintDate = format(parsedDate, 'EEEE, MMM dd h:mm a').toLocaleLowerCase();
 
   useImperativeHandle(parentRef, () => ({
     play,
@@ -182,7 +185,8 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'space-between',
-              paddingHorizontal: 4,
+              paddingLeft: 8,
+              paddingRight: 4,
             }}
           >
             <AnimatedMenuView
@@ -203,6 +207,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
                 }
               }}
               actions={shareMenuActions}
+              title={`minted on ${nfcMintDate}`}
               style={{
                 width: 48,
                 height: 48,

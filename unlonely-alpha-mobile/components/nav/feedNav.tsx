@@ -12,12 +12,13 @@ const AVATAR_SIZE = 40;
 
 const sortingIconAnimationOptions: any = {
   animateInitialState: false,
-  from: { opacity: 0, scale: 0.85 },
+  from: { opacity: 0, scale: 1.25 },
   animate: { opacity: 1, scale: 1 },
   transition: {
     scale: {
       type: 'spring',
-      stiffness: 600,
+      stiffness: 300,
+      mass: 1,
     },
     opacity: {
       type: 'timing',

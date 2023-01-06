@@ -5,17 +5,16 @@ import { useAppSettingsStore } from '../../utils/store';
 import { useHaptics } from '../../utils/haptics';
 
 export const SettingsSheet = () => {
+  const { isSettingsSheetOpen, closeSettingsSheet } = useAppSettingsStore(z => ({
+    isSettingsSheetOpen: z.isSettingsSheetOpen,
+    closeSettingsSheet: z.closeSettingsSheet,
+  }));
   const { height } = useWindowDimensions();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => [height - 130], [height]); // figure out top bar height and add it here?
   const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
+    if (index === -1) closeSettingsSheet();
   }, []);
-
-  // settings
-  const { isSettingsSheetOpen } = useAppSettingsStore(z => ({
-    isSettingsSheetOpen: z.isSettingsSheetOpen,
-  }));
 
   useEffect(() => {
     if (isSettingsSheetOpen) {
@@ -34,10 +33,16 @@ export const SettingsSheet = () => {
         index={-1}
         onChange={handleSheetChanges}
         enablePanDownToClose
+        style={{
+          shadowColor: 'black',
+          shadowOffset: { width: 0, height: -10 },
+          shadowOpacity: 0.5,
+          shadowRadius: 15,
+        }}
       >
         <View
           style={{
-            backgroundColor: 'red',
+            backgroundColor: 'yellow',
             flex: 1,
           }}
         ></View>

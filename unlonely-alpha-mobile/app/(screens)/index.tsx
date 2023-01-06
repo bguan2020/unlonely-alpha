@@ -30,8 +30,6 @@ export default function NfcFeedScreen() {
     });
   });
 
-  console.log(nfcs);
-
   const nfcVideoRenderItem = ({ item }) => {
     return <FullscreenNfc item={item} ref={ref => (videoRefs.current[item.id] = ref)} height={height} width={width} />;
   };
