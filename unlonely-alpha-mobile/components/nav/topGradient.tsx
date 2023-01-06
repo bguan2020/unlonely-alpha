@@ -2,8 +2,8 @@ import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { SvgProps, Path } from 'react-native-svg';
 
+// Unlonely branded gradient that shows up at the top of the screen
 export const UnlonelyTopGradient = () => (
-  // Unlonely branded gradient that shows up at the top of the screen
   <View style={styles.rootContainer}>
     <LinearGradient
       colors={['#e2f979', '#b0e5cf', '#ba98d7', '#d16fce']}
@@ -16,6 +16,7 @@ export const UnlonelyTopGradient = () => (
   </View>
 );
 
+// Logo from mendicantbias.eth
 const UnlonelyLogo = (props: SvgProps) => (
   <Svg id="unlonely-logo" viewBox="0 0 1072.45 236.81" {...props}>
     <Path
@@ -53,6 +54,7 @@ const UnlonelyLogo = (props: SvgProps) => (
   </Svg>
 );
 
+// Special component for NFC feed when you overscroll to the top
 export const UnlonelyTopGradientWithLogo = () => (
   <View
     style={{

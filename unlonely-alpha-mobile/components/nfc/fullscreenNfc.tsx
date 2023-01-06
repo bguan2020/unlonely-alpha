@@ -10,6 +10,7 @@ import { useHaptics } from '../../utils/haptics';
 import { AnimatedMenuView } from '../buttons/animatedMenuView';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 import { format, parseISO } from 'date-fns';
+import { useAppSettingsStore } from '../../utils/store';
 
 type FullscreenNfcProps = {
   height: number;
@@ -75,6 +76,10 @@ const NfcVideo = (props: NfcVideoProps) => (
 );
 
 export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) => {
+  const { isBlurEnabled, isNfcAutoplayEnabled } = useAppSettingsStore(z => ({
+    isBlurEnabled: z.isBlurEnabled,
+    isNfcAutoplayEnabled: z.isNfcAutoplayEnabled,
+  }));
   const ref = useRef(null);
   const [shouldPlay, setShouldPlay] = useState(false);
   const [isLiked, setIsLiked] = useState(props.item.liked);
@@ -94,7 +99,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
 
     try {
       // await ref.current.playAsync();
-      // setShouldPlay(true);
+      if (isNfcAutoplayEnabled) setShouldPlay(true);
       // TODO: uncomment play stuff before release
     } catch {
       alert('error playing video');
@@ -138,28 +143,31 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
         backgroundColor: 'black',
       }}
     >
-      <View
-        style={{
-          flex: 1,
-          width: '100%',
-          height: props.height,
-          position: 'absolute',
-        }}
-      >
-        {/* make it a user selectable setting to disable these blurs for better performance */}
-        {/* also disable on android */}
-        <NfcVideo item={props.item} height={props.height} blurred play={shouldPlay} />
-      </View>
-      <BlurView
-        intensity={80}
-        tint="dark"
-        style={{
-          position: 'absolute',
-          height: props.height,
-          width: '100%',
-          backgroundColor: 'rgba(0,0,0, 0.5)',
-        }}
-      />
+      {isBlurEnabled && (
+        <>
+          {/* also disable on android */}
+          <View
+            style={{
+              flex: 1,
+              width: '100%',
+              height: props.height,
+              position: 'absolute',
+            }}
+          >
+            <NfcVideo item={props.item} height={props.height} blurred play={shouldPlay} />
+          </View>
+          <BlurView
+            intensity={80}
+            tint="dark"
+            style={{
+              position: 'absolute',
+              height: props.height,
+              width: '100%',
+              backgroundColor: 'rgba(0,0,0, 0.5)',
+            }}
+          />
+        </>
+      )}
       <View
         style={{
           flex: 1,
