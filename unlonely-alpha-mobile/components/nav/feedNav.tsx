@@ -12,7 +12,7 @@ const AVATAR_SIZE = 48;
 
 const sortingIconAnimationOptions: any = {
   animateInitialState: false,
-  from: { opacity: 0, scale: 1.25 },
+  from: { opacity: 0, scale: 1.2 },
   animate: { opacity: 1, scale: 1 },
   transition: {
     scale: {
@@ -52,6 +52,7 @@ export function FeedNav() {
           alignItems: 'center',
           paddingHorizontal: 12,
         }}
+        pointerEvents="box-none" // prevents wrapper from blocking touch events on lower view
       >
         <AnimatedPressable onPress={toggleSettingsSheet}>
           <View
@@ -69,17 +70,26 @@ export function FeedNav() {
             }}
           >
             {connectedWallet ? (
-              <Image
-                style={{
-                  width: AVATAR_SIZE,
-                  height: AVATAR_SIZE,
-                  borderRadius: 100,
-                  resizeMode: 'cover',
-                }}
-                source={{
-                  uri: 'https://wojtek.im/face.jpg',
-                }}
-              />
+              <View
+                style={[
+                  styles.floatingButton,
+                  {
+                    backgroundColor: 'rgba(0,0,0,0.15)',
+                  },
+                ]}
+              >
+                <Image
+                  style={{
+                    width: AVATAR_SIZE - 8,
+                    height: AVATAR_SIZE - 8,
+                    borderRadius: 100,
+                    resizeMode: 'cover',
+                  }}
+                  source={{
+                    uri: 'https://wojtek.im/face.jpg',
+                  }}
+                />
+              </View>
             ) : (
               <View style={styles.floatingButton}>
                 <BlurView
