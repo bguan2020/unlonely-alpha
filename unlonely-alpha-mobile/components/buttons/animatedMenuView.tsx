@@ -16,6 +16,7 @@ export const AnimatedMenuView = ({
   actions,
   title,
   shouldOpenOnLongPress,
+  style,
   children,
 }: AnimatedMenuViewProps) => {
   return (
@@ -25,7 +26,7 @@ export const AnimatedMenuView = ({
       title={title}
       shouldOpenOnLongPress={shouldOpenOnLongPress}
     >
-      <AnimatedPressable>{children}</AnimatedPressable>
+      <AnimatedPressable style={style}>{children}</AnimatedPressable>
     </MenuView>
   );
 };
