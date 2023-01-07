@@ -191,7 +191,6 @@ export default function TransactionModal({
   }, [isTransferSuccess, transferRejectedError, transferError]);
 
   const handleTransaction = async (price: string) => {
-    /*
     setError(null as any);
     try {
       if (allowance && allowance._hex >= parseInt(price)) {
@@ -203,7 +202,6 @@ export default function TransactionModal({
     } catch (e) {
       setStep(0);
     }
-    */
     onSuccess && onSuccess(transferData?.hash as string);
   };
 
