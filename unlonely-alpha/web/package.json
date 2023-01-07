@@ -3,6 +3,7 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
+    "preinstall": "yarn config set ignore-engines true",
     "dev": "next dev",
     "build": "next build",
     "vercel:install": "cd .. && yarn install; cd ./web && yarn install;",
@@ -14,9 +15,6 @@
     "graphtypes": "graphql-codegen --config codegen.yml",
     "graphtypes:watch": "graphql-codegen --watch --config codegen.yml",
     "cypress": "TS_NODE_PROJECT=0 cypress open-ct"
-  },
-  "engines": {
-    "node": "16.9.1"
   },
   "dependencies": {
     "@ably-labs/react-hooks": "^2.0.6",
