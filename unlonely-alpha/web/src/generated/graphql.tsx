@@ -603,44 +603,6 @@ export type VideoFeed1808Query = {
   } | null> | null;
 };
 
-export type HostEventChannelFeedQueryVariables = Exact<{
-  data: HostEventFeedInput;
-}>;
-
-export type HostEventChannelFeedQuery = {
-  __typename?: "Query";
-  getHostEventFeed?: Array<{
-    __typename?: "HostEvent";
-    id: string;
-    hostDate: any;
-    title: string;
-    description?: string | null;
-    score: number;
-    liked?: boolean | null;
-    disliked?: boolean | null;
-    owner: {
-      __typename?: "User";
-      username?: string | null;
-      FCImageUrl?: string | null;
-    };
-    challenge?: {
-      __typename?: "HostEvent";
-      id: string;
-      hostDate: any;
-      title: string;
-      description?: string | null;
-      score: number;
-      liked?: boolean | null;
-      disliked?: boolean | null;
-      owner: {
-        __typename?: "User";
-        username?: string | null;
-        FCImageUrl?: string | null;
-      };
-    } | null;
-  } | null> | null;
-};
-
 export type HostEventFeedQueryVariables = Exact<{
   data: HostEventFeedInput;
 }>;
@@ -1372,87 +1334,6 @@ export type VideoFeed1808LazyQueryHookResult = ReturnType<
 export type VideoFeed1808QueryResult = Apollo.QueryResult<
   VideoFeed1808Query,
   VideoFeed1808QueryVariables
->;
-export const HostEventChannelFeedDocument = gql`
-  query HostEventChannelFeed($data: HostEventFeedInput!) {
-    getHostEventFeed(data: $data) {
-      id
-      hostDate
-      title
-      description
-      score
-      owner {
-        username
-        FCImageUrl
-      }
-      liked
-      disliked
-      challenge {
-        id
-        hostDate
-        title
-        description
-        score
-        owner {
-          username
-          FCImageUrl
-        }
-        liked
-        disliked
-      }
-    }
-  }
-`;
-
-/**
- * __useHostEventChannelFeedQuery__
- *
- * To run a query within a React component, call `useHostEventChannelFeedQuery` and pass it any options that fit your needs.
- * When your component renders, `useHostEventChannelFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useHostEventChannelFeedQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useHostEventChannelFeedQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    HostEventChannelFeedQuery,
-    HostEventChannelFeedQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    HostEventChannelFeedQuery,
-    HostEventChannelFeedQueryVariables
-  >(HostEventChannelFeedDocument, options);
-}
-export function useHostEventChannelFeedLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    HostEventChannelFeedQuery,
-    HostEventChannelFeedQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    HostEventChannelFeedQuery,
-    HostEventChannelFeedQueryVariables
-  >(HostEventChannelFeedDocument, options);
-}
-export type HostEventChannelFeedQueryHookResult = ReturnType<
-  typeof useHostEventChannelFeedQuery
->;
-export type HostEventChannelFeedLazyQueryHookResult = ReturnType<
-  typeof useHostEventChannelFeedLazyQuery
->;
-export type HostEventChannelFeedQueryResult = Apollo.QueryResult<
-  HostEventChannelFeedQuery,
-  HostEventChannelFeedQueryVariables
 >;
 export const HostEventFeedDocument = gql`
   query HostEventFeed($data: HostEventFeedInput!) {

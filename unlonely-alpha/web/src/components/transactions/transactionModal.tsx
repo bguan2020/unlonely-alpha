@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
+  useBalance,
   useContractRead,
   useContractWrite,
   usePrepareContractWrite,
@@ -25,6 +26,7 @@ import {
   ETHEREUM_MAINNET_CHAIN_ID,
   BRIAN_TOKEN_APPROVAL_PRICE,
   BRIAN_TOKEN_STREAM_INTERACTION_PRICE,
+  BRIAN_TOKEN_STREAM_INTERACTION_PRICE_DECIMAL,
 } from "../../constants";
 import BrianToken from "../../utils/newsToken.json";
 import { CustomToast } from "../general/CustomToast";
@@ -50,16 +52,11 @@ export default function TransactionModal({
   const [open, setOpen] = useState<boolean>(false);
   const [step, setStep] = useState<number>(0);
 
-  const {
-    data: balanceOfData,
-    error: balanceOfError,
-    isLoading: balanceOfLoading,
-  } = useContractRead({
-    addressOrName: BRIAN_TOKEN_ADDRESS,
-    contractInterface: BrianToken,
-    functionName: "balanceOf",
-    args: [user?.address],
-    chainId: ETHEREUM_MAINNET_CHAIN_ID,
+  const { data: balanceOfData, isError: balanceOfError, isLoading: balanceOfLoading } = useBalance({
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    address: user?.address,
+    token: BRIAN_TOKEN_ADDRESS,
   });
 
   const {
@@ -68,8 +65,8 @@ export default function TransactionModal({
     isLoading: allowanceLoading,
     refetch: refetchAllowance,
   } = useContractRead({
-    addressOrName: BRIAN_TOKEN_ADDRESS,
-    contractInterface: BrianToken,
+    address: BRIAN_TOKEN_ADDRESS,
+    abi: BrianToken,
     functionName: "allowance",
     args: [user?.address, BRIAN_TOKEN_ADDRESS],
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
@@ -77,8 +74,8 @@ export default function TransactionModal({
 
   // step 1: approval
   const { config: approvalConfig } = usePrepareContractWrite({
-    addressOrName: BRIAN_TOKEN_ADDRESS,
-    contractInterface: BrianToken,
+    address: BRIAN_TOKEN_ADDRESS,
+    abi: BrianToken,
     functionName: "approve",
     args: [BRIAN_TOKEN_ADDRESS, BRIAN_TOKEN_APPROVAL_PRICE],
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
@@ -109,8 +106,8 @@ export default function TransactionModal({
 
   // step 2: transfer
   const { config: transferConfig } = usePrepareContractWrite({
-    addressOrName: BRIAN_TOKEN_ADDRESS,
-    contractInterface: BrianToken,
+    address: BRIAN_TOKEN_ADDRESS,
+    abi: BrianToken,
     functionName: "transfer",
     args: [BRIAN_TOKEN_ADDRESS, BRIAN_TOKEN_STREAM_INTERACTION_PRICE],
     onError: (err) => {
@@ -246,12 +243,10 @@ export default function TransactionModal({
                   Price: 5 $BRIAN
                 </Text>
                 <Text>
-                  Current $BRIAN balance:{" "}
+                  Your Current Balance:{" "}
                   {balanceOfData
-                    ? Math.round(
-                        Number(ethers.utils.formatEther(balanceOfData))
-                      )
-                    : "0"}
+                    ? Math.round(Number(balanceOfData.formatted))
+                    : "0"} ${balanceOfData && balanceOfData.symbol}
                 </Text>
               </ModalBody>
               <ModalFooter justifyContent="space-between">
@@ -278,8 +273,8 @@ export default function TransactionModal({
                   disabled={
                     step === 1 ||
                     (balanceOfData &&
-                      balanceOfData._hex <
-                        parseInt(BRIAN_TOKEN_STREAM_INTERACTION_PRICE))
+                      Number(ethers.utils.formatEther(balanceOfData.value)) <
+                        parseInt(BRIAN_TOKEN_STREAM_INTERACTION_PRICE_DECIMAL))
                   }
                   colorScheme="green"
                 >
