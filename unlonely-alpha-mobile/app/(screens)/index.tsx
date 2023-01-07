@@ -7,6 +7,7 @@ import { useNfcFeed } from '../../api/queries/useNfcFeed';
 import { useHaptics } from '../../utils/haptics';
 import { FeedNav } from '../../components/nav/feedNav';
 import { UnlonelyTopGradientWithLogo } from '../../components/nav/topGradient';
+import { ConnectKitSheet } from '../../components/settings/connectkit';
 
 export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
@@ -65,6 +66,7 @@ export default function NfcFeedScreen() {
         {/* animate ↑ this in with reanimated with a 10 second delay after the app loads */}
       </View>
       <FeedNav />
+      <ConnectKitSheet />
     </View>
   );
 }

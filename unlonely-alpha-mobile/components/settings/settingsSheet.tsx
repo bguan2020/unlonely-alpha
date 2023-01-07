@@ -58,10 +58,10 @@ export const SettingsSheet = () => {
   useEffect(() => {
     if (isSettingsSheetOpen) {
       bottomSheetRef.current?.expand();
+      useHaptics('light');
     } else {
       bottomSheetRef.current?.close();
     }
-    useHaptics('light');
   }, [isSettingsSheetOpen]);
 
   return (

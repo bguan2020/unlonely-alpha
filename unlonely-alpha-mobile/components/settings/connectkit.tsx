@@ -1,47 +1,68 @@
 import BottomSheet from '@gorhom/bottom-sheet';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useWindowDimensions, View } from 'react-native';
 import WebView from 'react-native-webview';
+import { useHaptics } from '../../utils/haptics';
+import { useConnectedWalletStore } from '../../utils/store';
 import { useUserCredentials } from '../../utils/useUserCredentials';
+
+const CONNECTKIT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/connect-wallet';
 
 export function ConnectKitSheet() {
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const webViewRef = useRef<WebView>(null);
   const { height, width } = useWindowDimensions();
   const { userCredentials, storeCredentials } = useUserCredentials();
+  const { isCKSheetOpen, closeCKSheet } = useConnectedWalletStore(z => ({
+    isCKSheetOpen: z.isCKSheetOpen,
+    closeCKSheet: z.closeCKSheet,
+  }));
+  const [webViewKey, setWebViewKey] = useState(0);
 
   const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-
-    // if -1 then reload the webview
+    if (index === -1) {
+      closeCKSheet();
+      // console.log('[connectkit] reloading webview back to intial page...');
+      // don't reload if wallet_disconnected?
+      // setWebViewKey(webViewKey + 1); // reloads the webview back to initial page
+    }
   }, []);
 
-  // const catchWebViewNavigationStateChange = (newNavState: any) => {
-  //   const { url } = newNavState;
+  useEffect(() => {
+    if (isCKSheetOpen) {
+      bottomSheetRef.current?.expand();
+      useHaptics('light');
+    } else {
+      bottomSheetRef.current?.close();
+    }
+  }, [isCKSheetOpen]);
 
-  //   if (url !== CHAT_WEBVIEW_URL) {
-  //     webViewRef.current.stopLoading();
-  //     webViewRef.current.reload();
-  //   }
-  // };
+  const handleNavigationStateChange = (newNavState: any) => {
+    const { url } = newNavState;
+
+    if (url !== CONNECTKIT_WEBVIEW_URL) {
+      console.log('[connectkit] webview is changing url...', url);
+      // webViewRef.current.stopLoading();
+      // closeCKSheet();
+    }
+  };
 
   return (
-    <>
-      {/* <View style={styles.main}>
-        <Text style={styles.title}>Settings</Text>
-        <Pressable
-          onPress={() => {
-            storeCredentials(null);
-            console.log('clearing user data');
-          }}
-        >
-          <Text style={styles.subtitle}>Clear AsyncStorage</Text>
-        </Pressable>
-        <Text style={styles.title}>{JSON.stringify(userCredentials)}</Text>
-      </View> */}
+    <View
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: isCKSheetOpen ? 100 : 1,
+      }}
+      pointerEvents={isCKSheetOpen ? 'auto' : 'none'}
+    >
       <BottomSheet
         ref={bottomSheetRef}
-        index={0}
-        snapPoints={['90%']}
+        index={-1}
+        snapPoints={['100%']}
         onChange={handleSheetChanges}
         enablePanDownToClose
         bottomInset={100}
@@ -55,24 +76,23 @@ export function ConnectKitSheet() {
           opacity: 0,
         }}
         style={{
-          shadowOffset: {
-            width: 0,
-            height: -10,
-          },
-          shadowColor: 'black',
-          shadowOpacity: 0.5,
-          shadowRadius: 20,
+          backgroundColor: 'transparent',
         }}
       >
         <View
           style={{
             flex: 1,
-            borderRadius: 42,
             overflow: 'hidden',
             backgroundColor: 'transparent',
+            borderBottomLeftRadius: 50,
+            borderBottomRightRadius: 50,
+            zIndex: 100,
           }}
         >
           <WebView
+            ref={webViewRef}
+            key={webViewKey}
+            onNavigationStateChange={handleNavigationStateChange}
             contentMode="mobile"
             overScrollMode="never"
             scalesPageToFit={false}
@@ -81,22 +101,45 @@ export function ConnectKitSheet() {
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}
             scrollEnabled={false}
+            forceDarkOn
+            // @ts-ignore
             zoomScale={1}
-            source={{ uri: 'https://unlonely.app/mobile/connect-wallet' }}
+            source={{ uri: CONNECTKIT_WEBVIEW_URL }}
             onMessage={event => {
-              // alert(event.nativeEvent.data);
               const { data } = event.nativeEvent;
+              // these events will always fire so we need to check
+              // against wallet data stored in async storage and zustand
               storeCredentials(data);
+              // figure out a way to store this and subscribe to different parts
+              // of ui based on what is stored in userCredentials
+              // best bet would be to store this data in zustand
+              // if ck_modal_closed, don't change any data, etc.
+              // if wallet_disconnected, clear storage and wipe user data
+              // if address, store address and set isWalletConnected to true
+              // and manage the ui based on these states
+
+              console.log(data);
+
+              if (data === 'ck_modal_closed') {
+                closeCKSheet();
+                // bottomSheetRef.current?.collapse();
+              }
+
+              if (data === 'wallet_disconnected') {
+                // clear storage
+                closeCKSheet();
+              }
             }}
             style={{
               height: '100%',
-              width: width,
+              width: '100.5%',
+              left: -1,
               backgroundColor: 'transparent',
               overflow: 'hidden',
             }}
           />
         </View>
       </BottomSheet>
-    </>
+    </View>
   );
 }

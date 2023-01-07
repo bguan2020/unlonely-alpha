@@ -1,17 +1,5 @@
 import create from 'zustand';
 
-type ConnectedWallet = {
-  address: string;
-  avatar?: string;
-  ens?: string;
-};
-
-type ConnectedWalletStore = {
-  connectedWallet: ConnectedWallet | null;
-  setConnectedWallet: (wallet: ConnectedWallet) => void;
-  clearConnectedWallet: () => void;
-};
-
 type SortingTypes = 'recent' | 'liked';
 
 type AppSettingsStore = {
@@ -30,6 +18,21 @@ type AppSettingsStore = {
   toggleBlur: () => void;
   toggleNfcAutoplay: () => void;
   setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => void;
+};
+
+type ConnectedWallet = {
+  address: string;
+  avatar?: string;
+  ens?: string;
+};
+
+type ConnectedWalletStore = {
+  isCKSheetOpen: boolean;
+  connectedWallet: ConnectedWallet | null;
+  openCKSheet: () => void;
+  closeCKSheet: () => void;
+  setConnectedWallet: (wallet: ConnectedWallet) => void;
+  clearConnectedWallet: () => void;
 };
 
 export const useAppSettingsStore = create<AppSettingsStore>(set => ({
@@ -53,8 +56,11 @@ export const useAppSettingsStore = create<AppSettingsStore>(set => ({
 }));
 
 export const useConnectedWalletStore = create<ConnectedWalletStore>(set => ({
+  isCKSheetOpen: false,
   connectedWallet: null,
   // make sure to save this to async storage and read it on app start
+  openCKSheet: () => set({ isCKSheetOpen: true }),
+  closeCKSheet: () => set({ isCKSheetOpen: false }),
   setConnectedWallet: (wallet: ConnectedWallet) => set({ connectedWallet: wallet }),
   clearConnectedWallet: () => set({ connectedWallet: null }),
 }));

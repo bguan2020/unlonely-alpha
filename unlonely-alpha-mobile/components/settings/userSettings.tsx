@@ -1,18 +1,21 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Text, StyleSheet, View, Image } from 'react-native';
 import { useConnectedWalletStore } from '../../utils/store';
+import { useUserCredentials } from '../../utils/useUserCredentials';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 
 const AVATAR_SIZE = 48;
 
 export const UserSettings = () => {
-  const { connectedWallet } = useConnectedWalletStore(z => ({
+  const { connectedWallet, openCKSheet } = useConnectedWalletStore(z => ({
     connectedWallet: z.connectedWallet,
+    openCKSheet: z.openCKSheet,
   }));
+  const { userCredentials } = useUserCredentials();
 
   return (
     <>
-      <Text style={styles.title}>Connected Wallet</Text>
+      <Text style={styles.title}>Connected as</Text>
       <View
         style={{
           flexDirection: 'row',
@@ -76,13 +79,18 @@ export const UserSettings = () => {
               paddingLeft: 12,
             }}
           >
-            <Text style={styles.ensText}>pugson.eth</Text>
-            <Text style={styles.addressText}>0x96a77...fa23</Text>
+            {userCredentials ? (
+              <Text style={styles.ensText}>wallet.eth???</Text>
+            ) : (
+              <Text style={styles.ensText}>lonely anon</Text>
+            )}
+
+            {userCredentials && <Text style={styles.addressText}>{userCredentials}</Text>}
           </View>
         </View>
         <View>
-          <AnimatedPressable style={styles.manageButton}>
-            <Text style={styles.manageButtonText}>manage</Text>
+          <AnimatedPressable style={styles.manageButton} onPress={openCKSheet}>
+            <Text style={styles.manageButtonText}>{connectedWallet ? 'manage' : 'connect'}</Text>
           </AnimatedPressable>
         </View>
       </View>
