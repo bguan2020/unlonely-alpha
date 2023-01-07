@@ -4,8 +4,14 @@ import theme from "../styles/theme";
 import { ChakraProvider } from "@chakra-ui/react";
 
 import { ApolloProvider } from "@apollo/client";
-import { createClient, WagmiConfig } from "wagmi";
-import { ConnectKitProvider, getDefaultClient } from "connectkit";
+import { createClient, WagmiConfig, configureChains } from "wagmi";
+import { mainnet } from "wagmi/chains";
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
+import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
+import { MetaMaskConnector } from "wagmi/connectors/metaMask";
+
+import { ConnectKitProvider } from "connectkit";
 import { AppProps } from "next/app";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
@@ -24,12 +30,35 @@ function App({ Component, pageProps, cookies }: Props) {
     pageProps ? pageProps.initialApolloState : null,
     cookies
   );
-  const wagmiClient = createClient(
-    getDefaultClient({
-      appName: "Unlonely",
-      autoConnect: true,
-      infuraId: "3b2a738fb8834266ba5a7538efe46d7e",
-    })
+
+  const { provider, chains } = configureChains(
+    [mainnet],
+    [
+      alchemyProvider({ apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F" }),
+    ],
+  );
+
+
+  const wagmiClient = createClient({
+    autoConnect: true,
+    provider,
+    connectors: [
+      new MetaMaskConnector({
+        chains}),
+      new CoinbaseWalletConnector({
+        chains,
+        options: {
+          appName: "Unlonely",
+        }
+      }),
+      new WalletConnectConnector({
+        chains,
+        options: {
+          qrcode: true,
+        },
+      }),
+    ],
+  }
   );
 
   return (

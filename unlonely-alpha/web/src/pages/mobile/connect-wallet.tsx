@@ -9,40 +9,55 @@ const styles = `
     background: transparent !important;
   }
 
-  .hkQOmQ {
+  div[role="dialog"] {
     --ck-overlay-background: transparent !important;
+  }
+
+  button[aria-label="Close"] {
+    display: none !important;
   }
 
   .mobile-connectkit-button-load-in-transition {
     opacity: 0;
-    animation: ck-load-mobile 0.25s 1s ease forwards;
-    padding-bottom: 12px;
-  }
-
-  @keyframes ck-load-mobile {
-    from { opacity: 0; }
-    to { opacity: 1; }
   }
 `;
 
 export default function MobileConnectWallet() {
-  const { setOpen } = useModal();
+  const { open, setOpen } = useModal();
   const account = useAccount({
     onConnect({ address }) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      window.ReactNativeWebView.postMessage(address);
+      if (window.ReactNativeWebView !== undefined) {
+        // @ts-ignore
+        window.ReactNativeWebView.postMessage(address);
+      }
     },
     onDisconnect() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      window.ReactNativeWebView.postMessage("wallet_disconnected");
+      if (window.ReactNativeWebView !== undefined) {
+        // @ts-ignore
+        window.ReactNativeWebView.postMessage("wallet_disconnected");
+      }
     },
   });
 
   useEffect(() => {
     setOpen(true);
   }, []);
+
+  useEffect(() => {
+    if (!open) {
+      // @ts-ignore
+      if (window.ReactNativeWebView !== undefined) {
+        // @ts-ignore
+        window.ReactNativeWebView.postMessage("ck_modal_closed");
+      }
+
+      setTimeout(() => setOpen(true), 1000);
+    }
+  }, [open]);
 
   return (
     <Flex
