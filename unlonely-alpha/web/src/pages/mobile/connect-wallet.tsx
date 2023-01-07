@@ -59,7 +59,7 @@ export default function MobileConnectWallet() {
         window.ReactNativeWebView.postMessage("ck_modal_closed");
       }
 
-      setTimeout(() => setOpen(true), 2000);
+      setTimeout(() => setOpen(true), 1000);
     }
   }, [open]);
 
