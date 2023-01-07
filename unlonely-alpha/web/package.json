@@ -16,7 +16,7 @@
     "cypress": "TS_NODE_PROJECT=0 cypress open-ct"
   },
   "engines": {
-    "node": "16.18.1"
+    "node": "16.9.1"
   },
   "dependencies": {
     "@ably-labs/react-hooks": "^2.0.6",
