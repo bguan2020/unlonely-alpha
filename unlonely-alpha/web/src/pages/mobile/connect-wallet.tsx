@@ -18,7 +18,7 @@ const styles = `
   }
 
   .enYPqY::before {
-    border-radius: 50px;
+    border-radius: 50px !important;
   }
 
   .mobile-connectkit-button-load-in-transition {
