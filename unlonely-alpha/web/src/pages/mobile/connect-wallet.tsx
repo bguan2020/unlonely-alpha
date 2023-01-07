@@ -9,6 +9,10 @@ const styles = `
     background: transparent !important;
   }
 
+  *, *:before, *:after {
+    user-select: none !important;
+  }
+
   div[role="dialog"] {
     --ck-overlay-background: transparent !important;
   }
