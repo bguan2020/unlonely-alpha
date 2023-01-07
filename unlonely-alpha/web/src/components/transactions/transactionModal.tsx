@@ -71,6 +71,7 @@ export default function TransactionModal({
     args: [user?.address, BRIAN_TOKEN_ADDRESS],
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
   });
+  console.log("allowance", allowance);
 
   // step 1: approval
   const { config: approvalConfig } = usePrepareContractWrite({
@@ -190,7 +191,9 @@ export default function TransactionModal({
   const handleTransaction = async (price: string) => {
     setError(null as any);
     try {
-      if (allowance && allowance._hex >= parseInt(price)) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (allowance && Number(ethers.utils.formatEther(allowance)) >= parseInt(price)) {
         setStep(1);
         transferWrite && (await transferWrite());
       } else {
