@@ -8,9 +8,9 @@ import { ETHEREUM_MAINNET_CHAIN_ID } from "./constants";
 // API key for Ethereum node
 // Two popular services are Infura (infura.io) and Alchemy (alchemy.com)
 const RPC_URLS: IRPCMap = {
-  1: process.env.ALCHEMY_ETHEREUM_MAINNET_RPC_URL as string,
-  137: process.env.ALCHEMY_POLYGON_MATIC_RPC_URL as string,
-  80001: process.env.ALCHEMY_POLYGON_MUMBAI_RPC_URL as string,
+  1: process.env.NEXT_PUBLIC_ALCHEMY_ETHEREUM_MAINNET_RPC_URL as string,
+  // 137: process.env.ALCHEMY_POLYGON_MATIC_RPC_URL as string,
+  // 80001: process.env.ALCHEMY_POLYGON_MUMBAI_RPC_URL as string,
 };
 
 // Chains for connectors to support
