@@ -202,7 +202,6 @@ export default function TransactionModal({
     } catch (e) {
       setStep(0);
     }
-    onSuccess && onSuccess(transferData?.hash as string);
   };
 
   const handleOpen = () => {
