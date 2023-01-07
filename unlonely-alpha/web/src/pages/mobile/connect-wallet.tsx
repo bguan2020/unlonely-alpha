@@ -13,8 +13,12 @@ const styles = `
     --ck-overlay-background: transparent !important;
   }
 
-  button[aria-label="Close"] {
+  .sc-iqcoie.fNQent button {
     display: none !important;
+  }
+
+  .enYPqY::before {
+    border-radius: 50px;
   }
 
   .mobile-connectkit-button-load-in-transition {
@@ -55,7 +59,7 @@ export default function MobileConnectWallet() {
         window.ReactNativeWebView.postMessage("ck_modal_closed");
       }
 
-      setTimeout(() => setOpen(true), 1000);
+      setTimeout(() => setOpen(true), 2000);
     }
   }, [open]);
 
