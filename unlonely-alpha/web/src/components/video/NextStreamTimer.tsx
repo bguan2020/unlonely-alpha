@@ -27,7 +27,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
     const now = new Date();
     // next stream time set to july 25, 2022 at 7pm PST, timezone specificed in moment-timezone
     const nextStreamTime = moment.tz(
-      "2023-01-06T18:00:00",
+      "2023-01-09T18:00:00",
       "America/Los_Angeles"
     );
     const diff = nextStreamTime.diff(now, "seconds");
