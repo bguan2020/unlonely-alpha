@@ -15,9 +15,6 @@
     "graphtypes:watch": "graphql-codegen --watch --config codegen.yml",
     "cypress": "TS_NODE_PROJECT=0 cypress open-ct"
   },
-  "engines": {
-    "node": "16.9.1"
-  },
   "dependencies": {
     "@ably-labs/react-hooks": "^2.0.6",
     "@apollo/client": "^3.6.9",
