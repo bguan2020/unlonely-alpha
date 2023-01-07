@@ -71,7 +71,6 @@ export default function TransactionModal({
     args: [user?.address, BRIAN_TOKEN_ADDRESS],
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
   });
-  console.log("allowance", allowance);
 
   // step 1: approval
   const { config: approvalConfig } = usePrepareContractWrite({
