@@ -37,7 +37,6 @@ export default function NfcFeedScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="dark" />
       {/* animate ↓ this in with reanimated with a 10 second delay after the app loads */}
       <UnlonelyTopGradientWithLogo />
       <FlashList
@@ -67,6 +66,7 @@ export default function NfcFeedScreen() {
       </View>
       <FeedNav />
       <ConnectKitSheet />
+      <StatusBar style="dark" />
     </View>
   );
 }

@@ -1,6 +1,6 @@
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useWindowDimensions, View } from 'react-native';
+import { useWindowDimensions, View, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
 import { useHaptics } from '../../utils/haptics';
 import { useConnectedWalletStore } from '../../utils/store';
@@ -18,13 +18,17 @@ export function ConnectKitSheet() {
     closeCKSheet: z.closeCKSheet,
   }));
   const [webViewKey, setWebViewKey] = useState(0);
+  const [showResetButton, setShowResetButton] = useState(false);
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
       closeCKSheet();
-      // console.log('[connectkit] reloading webview back to intial page...');
-      // don't reload if wallet_disconnected?
-      // setWebViewKey(webViewKey + 1); // reloads the webview back to initial page
+      if (showResetButton) {
+        setShowResetButton(false);
+        // console.log('[connectkit] reloading webview back to intial page...');
+        // don't reload if wallet_disconnected?
+        // setWebViewKey(webViewKey + 1); // reloads the webview back to initial page
+      }
     }
   }, []);
 
@@ -44,6 +48,7 @@ export function ConnectKitSheet() {
       console.log('[connectkit] webview is changing url...', url);
       // webViewRef.current.stopLoading();
       // closeCKSheet();
+      setShowResetButton(true);
     }
   };
 
@@ -66,29 +71,12 @@ export function ConnectKitSheet() {
         onChange={handleSheetChanges}
         enablePanDownToClose
         bottomInset={100}
-        backgroundStyle={{
-          backgroundColor: 'transparent',
-        }}
+        backgroundStyle={styles.transparentBg}
         detached
-        handleIndicatorStyle={{
-          backgroundColor: 'white',
-          top: 20,
-          opacity: 0,
-        }}
-        style={{
-          backgroundColor: 'transparent',
-        }}
+        handleIndicatorStyle={styles.grabHandle}
+        style={styles.transparentBg}
       >
-        <View
-          style={{
-            flex: 1,
-            overflow: 'hidden',
-            backgroundColor: 'transparent',
-            borderBottomLeftRadius: 50,
-            borderBottomRightRadius: 50,
-            zIndex: 100,
-          }}
-        >
+        <View style={styles.viewWrapper}>
           <WebView
             ref={webViewRef}
             key={webViewKey}
@@ -130,16 +118,36 @@ export function ConnectKitSheet() {
                 closeCKSheet();
               }
             }}
-            style={{
-              height: '100%',
-              width: '100.5%',
-              left: -1,
-              backgroundColor: 'transparent',
-              overflow: 'hidden',
-            }}
+            style={styles.webView}
           />
         </View>
       </BottomSheet>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  viewWrapper: {
+    flex: 1,
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
+    borderBottomLeftRadius: 50,
+    borderBottomRightRadius: 50,
+    zIndex: 100,
+  },
+  webView: {
+    height: '100%',
+    width: '100.5%',
+    left: -1,
+    backgroundColor: 'transparent',
+    overflow: 'hidden',
+  },
+  transparentBg: {
+    backgroundColor: 'transparent',
+  },
+  grabHandle: {
+    backgroundColor: 'white',
+    top: 20,
+    opacity: 0,
+  },
+});

@@ -36,7 +36,6 @@ type ConnectedWalletStore = {
 };
 
 export const useAppSettingsStore = create<AppSettingsStore>(set => ({
-  // make sure to save this to async storage and read it on app start
   isSettingsSheetOpen: false,
   isNotificationPermissionGranted: false,
   isLivePushNotificationsEnabled: true,
@@ -46,21 +45,43 @@ export const useAppSettingsStore = create<AppSettingsStore>(set => ({
   nfcFeedSorting: 'recent',
   toggleSettingsSheet: () => set(z => ({ isSettingsSheetOpen: !z.isSettingsSheetOpen })),
   closeSettingsSheet: () => set({ isSettingsSheetOpen: false }),
-  grantNotificationPermissions: () => set({ isNotificationPermissionGranted: true }),
-  toggleLivePushNotifications: () => set(z => ({ isLivePushNotificationsEnabled: !z.isLivePushNotificationsEnabled })),
-  toggleNewNfcPushNotifications: () =>
-    set(z => ({ isNewNfcPushNotificationsEnabled: !z.isNewNfcPushNotificationsEnabled })),
-  toggleBlur: () => set(z => ({ isBlurEnabled: !z.isBlurEnabled })),
-  toggleNfcAutoplay: () => set(z => ({ isNfcAutoplayEnabled: !z.isNfcAutoplayEnabled })),
-  setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => set({ nfcFeedSorting }),
+  grantNotificationPermissions: () => {
+    set({ isNotificationPermissionGranted: true });
+    // save to async storage
+  },
+  toggleLivePushNotifications: () => {
+    set(z => ({ isLivePushNotificationsEnabled: !z.isLivePushNotificationsEnabled }));
+    // save to async storage
+  },
+  toggleNewNfcPushNotifications: () => {
+    set(z => ({ isNewNfcPushNotificationsEnabled: !z.isNewNfcPushNotificationsEnabled }));
+    // save to async storage
+  },
+  toggleBlur: () => {
+    set(z => ({ isBlurEnabled: !z.isBlurEnabled }));
+    // save to async storage
+  },
+  toggleNfcAutoplay: () => {
+    set(z => ({ isNfcAutoplayEnabled: !z.isNfcAutoplayEnabled }));
+    // save to async storage
+  },
+  setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => {
+    set({ nfcFeedSorting });
+    // save to async storage
+  },
 }));
 
 export const useConnectedWalletStore = create<ConnectedWalletStore>(set => ({
   isCKSheetOpen: false,
   connectedWallet: null,
-  // make sure to save this to async storage and read it on app start
   openCKSheet: () => set({ isCKSheetOpen: true }),
   closeCKSheet: () => set({ isCKSheetOpen: false }),
-  setConnectedWallet: (wallet: ConnectedWallet) => set({ connectedWallet: wallet }),
-  clearConnectedWallet: () => set({ connectedWallet: null }),
+  setConnectedWallet: (wallet: ConnectedWallet) => {
+    set({ connectedWallet: wallet });
+    // save to async storage
+  },
+  clearConnectedWallet: () => {
+    set({ connectedWallet: null });
+    // save to async storage
+  },
 }));

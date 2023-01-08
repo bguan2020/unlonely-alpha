@@ -11,6 +11,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Toasts } from '@backpackapp-io/react-native-toast';
 import { UnlonelyTopGradient } from '../../components/nav/topGradient';
 import { FadedTabBar } from '../../components/nav/bottomGradient';
+import { StatusBar } from 'expo-status-bar';
+import overrideColorScheme from 'react-native-override-color-scheme';
+
+// This is the main layout file for the app. Everything here is shared across all views.
+
+overrideColorScheme.setScheme('dark');
 
 export default function Layout() {
   // Load up the fonts as early as possible
@@ -43,6 +49,7 @@ export default function Layout() {
 
   return (
     <View style={styles.rootContainer} onLayout={onLayoutRootView}>
+      <StatusBar style="dark" />
       <GestureHandlerRootView style={{ flex: 1 }}>
         {/* maybe add a custom splash screen animation here */}
         <QueryClientProvider client={queryClient}>

@@ -8,6 +8,7 @@ import { AppSettings } from './appSettings';
 import { UserSettings } from './userSettings';
 import { LinearGradient } from 'expo-linear-gradient';
 import { easeGradient } from 'react-native-easing-gradient';
+import { DeveloperSettings } from './developerSettings';
 
 const { colors, locations } = easeGradient({
   // Eased gradient function so it doesn’t look like garbage
@@ -85,6 +86,7 @@ export const SettingsSheet = () => {
             <UserSettings />
             <NotificationSettings />
             <AppSettings />
+            <DeveloperSettings />
           </ScrollView>
         </View>
       </BottomSheet>
