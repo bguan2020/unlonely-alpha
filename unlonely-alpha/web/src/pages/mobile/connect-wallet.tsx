@@ -2,6 +2,7 @@ import { Box, Flex } from "@chakra-ui/react";
 import { useModal } from "connectkit";
 import { useEffect } from "react";
 import { useAccount, useEnsAvatar, useEnsName } from "wagmi";
+import NextHead from "../../components/layout/NextHead";
 import ConnectWallet from "../../components/navigation/ConnectKit";
 
 const styles = `
@@ -94,6 +95,7 @@ export default function MobileConnectWallet() {
       width="100%"
       height="100svh"
     >
+      <NextHead title="Unlonely" image={""} description={""} />
       <style>{styles}</style>
       <div className="mobile-connectkit-button-load-in-transition">
         <Box
