@@ -69,10 +69,8 @@ export default function MobileConnectWallet() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (window.ReactNativeWebView !== undefined) {
-        setTimeout(() => {
-          // @ts-ignore
-          window.ReactNativeWebView.postMessage(JSON.stringify(walletData));
-        }, 1000);
+        // @ts-ignore
+        window.ReactNativeWebView.postMessage(JSON.stringify(walletData));
       }
     }
   }, [account, ensName, ensAvatar]);
