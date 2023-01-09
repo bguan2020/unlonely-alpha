@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import create from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-type SortingTypes = 'recent' | 'liked';
+type SortingTypes = 'createdAt' | 'score';
 
 type AppSettingsStore = {
   isSettingsSheetOpen: boolean;
@@ -33,7 +33,7 @@ export const useAppSettingsStore = create<AppSettingsStore>()(
       isNewNfcPushNotificationsEnabled: true,
       isBlurEnabled: true,
       isNfcAutoplayEnabled: true,
-      nfcFeedSorting: 'recent',
+      nfcFeedSorting: 'createdAt',
       toggleSettingsSheet: () => set(z => ({ isSettingsSheetOpen: !z.isSettingsSheetOpen })),
       closeSettingsSheet: () => set({ isSettingsSheetOpen: false }),
       grantNotificationPermissions: () => set({ isNotificationPermissionGranted: true }),
@@ -103,3 +103,25 @@ export const useConnectedWalletStore = create<ConnectedWalletStore>()(
     }
   )
 );
+
+type VideoPlayerStore = {
+  isNFCPlaying: boolean;
+  isLiveStreamPlaying: boolean;
+  toggleNFCPlaying: () => void;
+  toggleLiveStreamPlaying: () => void;
+};
+
+export const useVideoPlayerStore = create<VideoPlayerStore>()(set => ({
+  isNFCPlaying: false,
+  isLiveStreamPlaying: false,
+  toggleNFCPlaying: () =>
+    set(z => ({
+      isNFCPlaying: !z.isNFCPlaying,
+      isLiveStreamPlaying: false,
+    })),
+  toggleLiveStreamPlaying: () =>
+    set(z => ({
+      isLiveStreamPlaying: !z.isLiveStreamPlaying,
+      isNFCPlaying: false,
+    })),
+}));

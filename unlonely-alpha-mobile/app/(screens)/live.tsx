@@ -88,7 +88,7 @@ export default function LiveScreen() {
           <Text style={styles.videoOverlayText}>loading live stream...</Text>
         </View>
       </View>
-      <View style={styles.bar}>
+      {/* <View style={styles.bar}>
         <Pressable onPress={togglePip}>
           <Text style={styles.pip}>Toggle PiP</Text>
         </Pressable>
@@ -100,7 +100,7 @@ export default function LiveScreen() {
         <Pressable onPress={handlePause}>
           <Text style={styles.pip}>Pause</Text>
         </Pressable>
-      </View>
+      </View> */}
       <WebView
         ref={webViewRef}
         source={{ uri: CHAT_WEBVIEW_URL }}

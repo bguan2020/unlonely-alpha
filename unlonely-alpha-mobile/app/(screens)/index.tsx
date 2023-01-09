@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { FlashList } from '@shopify/flash-list';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { FullscreenNfc } from '../../components/nfc/fullscreenNfc';
 import { useNfcFeed } from '../../api/queries/useNfcFeed';
 import { useHaptics } from '../../utils/haptics';
@@ -14,24 +14,27 @@ export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
   const videoRefs = useRef([]);
   const nfcFeedSorting = useAppSettingsStore(z => z.nfcFeedSorting);
-  const { status, data, error, isFetching } = useNfcFeed({
+  const { status, data, error, isFetching } = useNfcFeed(nfcFeedSorting, {
     limit: 9,
-    orderBy: nfcFeedSorting === 'liked' ? 'score' : 'createdAt',
+    orderBy: nfcFeedSorting,
   });
   const nfcs = data?.getNFCFeed;
-  const onViewableItemsChanged = useRef(({ changed }) => {
-    changed.forEach(element => {
-      const nfcItem = videoRefs.current[element.item.id];
 
-      if (nfcItem) {
-        if (element.isViewable) {
-          nfcItem.play();
-          useHaptics('light');
-        } else {
-          nfcItem.pause();
+  const onViewableItemsChanged = useRef(({ changed }) => {
+    if (data && !error && !isFetching) {
+      changed.forEach(element => {
+        const nfcItem = videoRefs.current[element.item.id];
+
+        if (nfcItem) {
+          if (element.isViewable) {
+            nfcItem.play();
+            useHaptics('light');
+          } else {
+            nfcItem.pause();
+          }
         }
-      }
-    });
+      });
+    }
   });
 
   const nfcVideoRenderItem = ({ item }) => {

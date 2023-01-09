@@ -37,8 +37,8 @@ export function FeedNav() {
     setNFCFeedSorting: z.setNFCFeedSorting,
     toggleSettingsSheet: z.toggleSettingsSheet,
   }));
-  const isSortingByRecent = nfcFeedSort === 'recent';
-  const isSortingByLiked = nfcFeedSort === 'liked';
+  const isSortingByRecent = nfcFeedSort === 'createdAt';
+  const isSortingByLiked = nfcFeedSort === 'score';
 
   return (
     <>
@@ -122,20 +122,13 @@ export function FeedNav() {
         <AnimatedMenuView
           onPressAction={({ nativeEvent }) => {
             useHaptics('light');
-
-            if (nativeEvent.event === 'liked') {
-              setNFCFeedSorting('liked');
-            }
-
-            if (nativeEvent.event === 'recent') {
-              setNFCFeedSorting('recent');
-            }
+            setNFCFeedSorting(nativeEvent.event);
           }}
           title="sort NFCs by"
           actions={[
             {
               title: 'most recent',
-              id: 'recent',
+              id: 'createdAt',
               state: isSortingByRecent ? 'on' : 'off',
               image: Platform.select({
                 ios: 'sparkles',
@@ -144,7 +137,7 @@ export function FeedNav() {
             },
             {
               title: 'most liked',
-              id: 'liked',
+              id: 'score',
               state: isSortingByLiked ? 'on' : 'off',
               image: Platform.select({
                 ios: 'heart',
