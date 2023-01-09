@@ -69,6 +69,7 @@ export default function Page() {
       },
     },
   });
+
   const {
     data: dataNFCs,
     loading: loadingNFCs,
@@ -77,7 +78,7 @@ export default function Page() {
     variables: {
       data: {
         limit: 20,
-        orderBy: null,
+        orderBy: "createdAt",
       },
     },
   });

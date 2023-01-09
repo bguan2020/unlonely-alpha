@@ -52,7 +52,6 @@ function App({ Component, pageProps, cookies }: Props) {
       new WalletConnectConnector({
         chains,
         options: {
-          name: "Unlonely",
           qrcode: false,
         },
       }),
