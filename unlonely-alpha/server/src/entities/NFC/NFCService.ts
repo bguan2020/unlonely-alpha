@@ -59,7 +59,7 @@ export interface IGetNFCFeedInput {
 }
 
 export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
-  if ((data.orderBy = "createdAt")) {
+  if (data.orderBy === "createdAt") {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
       skip: data.offset,
@@ -73,7 +73,7 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
         createdAt: "desc",
       },
     });
-  } else if ((data.orderBy = "score")) {
+  } else if (data.orderBy === "score") {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
       skip: data.offset,
