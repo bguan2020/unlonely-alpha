@@ -51,8 +51,12 @@ export default function MobileConnectWallet() {
       }
     },
   });
-  const { data: ensName } = useEnsName({ address: account.address });
-  const { data: ensAvatar } = useEnsAvatar({ address: account.address });
+  const { data: ensName, isLoading: isNameLoading } = useEnsName({
+    address: account.address,
+  });
+  const { data: ensAvatar, isLoading: isAvatarLoading } = useEnsAvatar({
+    address: account.address,
+  });
 
   useEffect(() => {
     const walletData = {
@@ -61,7 +65,7 @@ export default function MobileConnectWallet() {
       ensAvatar: ensAvatar,
     };
 
-    if (walletData.address) {
+    if (walletData.address && !isNameLoading && !isAvatarLoading) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (window.ReactNativeWebView !== undefined) {
