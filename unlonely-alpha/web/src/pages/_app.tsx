@@ -33,33 +33,31 @@ function App({ Component, pageProps, cookies }: Props) {
 
   const { provider, chains } = configureChains(
     [mainnet],
-    [
-      alchemyProvider({ apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F" }),
-    ],
+    [alchemyProvider({ apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F" })]
   );
-
 
   const wagmiClient = createClient({
     autoConnect: true,
     provider,
     connectors: [
       new MetaMaskConnector({
-        chains}),
+        chains,
+      }),
       new CoinbaseWalletConnector({
         chains,
         options: {
           appName: "Unlonely",
-        }
+        },
       }),
       new WalletConnectConnector({
         chains,
         options: {
-          qrcode: true,
+          name: "Unlonely",
+          qrcode: false,
         },
       }),
     ],
-  }
-  );
+  });
 
   return (
     <ChakraProvider theme={theme}>
