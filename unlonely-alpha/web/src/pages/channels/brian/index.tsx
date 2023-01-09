@@ -64,7 +64,17 @@ const Example: React.FunctionComponent = () => {
 
   return (
     <>
-      <Grid gridTemplateColumns={"80% 20%"} minH="calc(100vh - 48px)" mb="20px">
+      <Grid
+        gridTemplateColumns={[
+          "65% 35%",
+          "80% 20%",
+          "80% 20%",
+          "80% 20%",
+          "80% 20%",
+        ]}
+        minH="calc(100vh - 48px)"
+        mb="20px"
+      >
         <GridItem rowSpan={2} colSpan={1}>
           <NextStreamTimer isTheatreMode={true} />
         </GridItem>

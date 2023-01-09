@@ -83,8 +83,8 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
           width="100%"
           height={
             isTheatreMode
-              ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
-              : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
+              ? { base: "80%", sm: "700px", md: "700px", lg: "700px" }
+              : { base: "40%", sm: "300px", md: "400px", lg: "500px" }
           }
           mt="10px"
         >
@@ -97,8 +97,8 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
           width="100%"
           height={
             isTheatreMode
-              ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
-              : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
+              ? { base: "90%", sm: "700px", md: "700px", lg: "700px" }
+              : { base: "70%", sm: "300px", md: "400px", lg: "500px" }
           }
           mt="10px"
         >
