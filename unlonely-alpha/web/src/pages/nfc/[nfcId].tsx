@@ -72,7 +72,7 @@ const NfcDetail = ({
   } = useQuery(NFC_RECOMMENDATIONS_QUERY, {
     variables: {
       data: {
-        limit: 9,
+        limit: 20,
         orderBy: "score",
       },
     },

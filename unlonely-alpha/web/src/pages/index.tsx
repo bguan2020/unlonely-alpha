@@ -77,7 +77,7 @@ export default function Page() {
   } = useQuery(NFC_FEED_QUERY, {
     variables: {
       data: {
-        limit: 20,
+        limit: 30,
         orderBy: "createdAt",
       },
     },
