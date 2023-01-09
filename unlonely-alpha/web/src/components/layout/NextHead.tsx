@@ -12,11 +12,6 @@ const NextHead: React.FC<{
   return (
     <Head>
       <link
-        rel="apple-touch-icon"
-        sizes="180x180"
-        href="/images/apple-touch-icon.png"
-      />
-      <link
         rel="icon"
         type="image/png"
         sizes="32x32"

@@ -101,7 +101,11 @@ export default function MobileConnectWallet() {
       width="100%"
       height="100svh"
     >
-      <NextHead title="Unlonely" image={""} description={""} />
+      <NextHead
+        title="Unlonely"
+        image="/images/favicon-32x32.png"
+        description="Never watch alone again."
+      />
       <style>{styles}</style>
       <div className="mobile-connectkit-button-load-in-transition">
         <Box
