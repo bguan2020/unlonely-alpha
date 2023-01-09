@@ -1,7 +1,8 @@
 import { Box, Flex } from "@chakra-ui/react";
 import { useModal } from "connectkit";
 import { useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useEnsAvatar, useEnsName } from "wagmi";
+import NextHead from "../../components/layout/NextHead";
 import ConnectWallet from "../../components/navigation/ConnectKit";
 
 const styles = `
@@ -9,12 +10,20 @@ const styles = `
     background: transparent !important;
   }
 
+  *, *:before, *:after {
+    user-select: none !important;
+  }
+
   div[role="dialog"] {
     --ck-overlay-background: transparent !important;
   }
 
-  button[aria-label="Close"] {
+  .sc-iqcoie.fNQent button {
     display: none !important;
+  }
+
+  .enYPqY::before {
+    border-radius: 50px !important;
   }
 
   .mobile-connectkit-button-load-in-transition {
@@ -25,12 +34,12 @@ const styles = `
 export default function MobileConnectWallet() {
   const { open, setOpen } = useModal();
   const account = useAccount({
-    onConnect({ address }) {
+    onConnect() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (window.ReactNativeWebView !== undefined) {
         // @ts-ignore
-        window.ReactNativeWebView.postMessage(address);
+        window.ReactNativeWebView.postMessage("wallet_connected");
       }
     },
     onDisconnect() {
@@ -42,6 +51,29 @@ export default function MobileConnectWallet() {
       }
     },
   });
+  const { data: ensName, isLoading: isNameLoading } = useEnsName({
+    address: account.address,
+  });
+  const { data: ensAvatar, isLoading: isAvatarLoading } = useEnsAvatar({
+    address: account.address,
+  });
+
+  useEffect(() => {
+    const walletData = {
+      address: account.address,
+      ensName: ensName,
+      ensAvatar: ensAvatar,
+    };
+
+    if (walletData.address && !isNameLoading && !isAvatarLoading) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (window.ReactNativeWebView !== undefined) {
+        // @ts-ignore
+        window.ReactNativeWebView.postMessage(JSON.stringify(walletData));
+      }
+    }
+  }, [account, ensName, ensAvatar]);
 
   useEffect(() => {
     setOpen(true);
@@ -67,6 +99,11 @@ export default function MobileConnectWallet() {
       width="100%"
       height="100svh"
     >
+      <NextHead
+        title="Unlonely"
+        image="/images/favicon-32x32.png"
+        description="Never watch alone again."
+      />
       <style>{styles}</style>
       <div className="mobile-connectkit-button-load-in-transition">
         <Box
