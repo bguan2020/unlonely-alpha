@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, Switch } from 'react-native';
+import { useNotificationPermissions } from '../../utils/notifications';
 import { useAppSettingsStore } from '../../utils/store';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 
@@ -18,6 +19,11 @@ export const NotificationSettings = () => {
     toggleLivePushNotifications: z.toggleLivePushNotifications,
     toggleNewNfcPushNotifications: z.toggleNewNfcPushNotifications,
   }));
+
+  const grantPermissions = async () => {
+    const token = await useNotificationPermissions();
+    console.log(token);
+  };
 
   return (
     <>
@@ -63,7 +69,7 @@ export const NotificationSettings = () => {
           <Text style={styles.notificationPermissionsText}>
             enable notifications to receive updates when things happen on unlonely
           </Text>
-          <AnimatedPressable style={styles.notificationPermissionsButton} onPress={grantNotificationPermissions}>
+          <AnimatedPressable style={styles.notificationPermissionsButton} onPress={grantPermissions}>
             <Text style={styles.notificationPermissionsButtonText}>enable</Text>
           </AnimatedPressable>
         </View>

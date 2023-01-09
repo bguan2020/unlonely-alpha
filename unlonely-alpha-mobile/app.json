@@ -16,7 +16,9 @@
     "ios": {
       "bundleIdentifier": "app.unlonely.mobile",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": ["audio"],
+        "NSNotificationsUsageDescription": "Unlonely would like to send you notifications about streams going live and new NFCs being published.",
+        "NSUserNotificationAlertStyle": "banner"
       }
     },
     "extra": {
