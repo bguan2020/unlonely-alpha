@@ -56,17 +56,19 @@ export default function MobileConnectWallet() {
 
   useEffect(() => {
     const walletData = {
-      address: account.address || null,
-      ensName: ensName || null,
-      ensAvatar: ensAvatar || null,
+      address: account.address,
+      ensName: ensName,
+      ensAvatar: ensAvatar,
     };
 
     if (walletData.address) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (window.ReactNativeWebView !== undefined) {
-        // @ts-ignore
-        window.ReactNativeWebView.postMessage(JSON.stringify(walletData));
+        setTimeout(() => {
+          // @ts-ignore
+          window.ReactNativeWebView.postMessage(JSON.stringify(walletData));
+        }, 1000);
       }
     }
   }, [account, ensName, ensAvatar]);
