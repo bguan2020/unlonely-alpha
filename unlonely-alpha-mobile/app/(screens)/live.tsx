@@ -105,6 +105,9 @@ export default function LiveScreen() {
         ref={webViewRef}
         source={{ uri: CHAT_WEBVIEW_URL }}
         onNavigationStateChange={catchWebViewNavigationStateChange}
+        onContentProcessDidTerminate={webViewRef.current?.reload}
+        // reload chat if it crashes?
+        // maybe app entitlements needs to request more memory?
         style={{
           paddingBottom: 100,
         }}
@@ -113,7 +116,7 @@ export default function LiveScreen() {
         // this is a hack to make the webview not go under the tab bar
         style={{
           backgroundColor: 'black',
-          height: 80,
+          height: 90,
         }}
       />
     </View>

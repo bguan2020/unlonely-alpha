@@ -1,6 +1,6 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
-import { View, Image, StyleSheet, Platform } from 'react-native';
+import { View, Image, StyleSheet, Platform, Text } from 'react-native';
 import { useHaptics } from '../../utils/haptics';
 import { useAppSettingsStore, useConnectedWalletStore } from '../../utils/store';
 import { SettingsSheet } from '../settings/settingsSheet';
@@ -28,7 +28,10 @@ const sortingIconAnimationOptions: any = {
 };
 
 export function FeedNav() {
-  const connectedWallet = useConnectedWalletStore(z => z.connectedWallet);
+  const { connectedWallet, _hasHydrated } = useConnectedWalletStore(z => ({
+    connectedWallet: z.connectedWallet,
+    _hasHydrated: z._hasHydrated,
+  }));
   const { nfcFeedSort, setNFCFeedSorting, toggleSettingsSheet } = useAppSettingsStore(z => ({
     nfcFeedSort: z.nfcFeedSorting,
     setNFCFeedSorting: z.setNFCFeedSorting,
@@ -69,7 +72,7 @@ export function FeedNav() {
               alignItems: 'center',
             }}
           >
-            {connectedWallet ? (
+            {_hasHydrated && connectedWallet && connectedWallet.ensAvatar ? (
               <View
                 style={[
                   styles.floatingButton,
@@ -86,7 +89,7 @@ export function FeedNav() {
                     resizeMode: 'cover',
                   }}
                   source={{
-                    uri: 'https://wojtek.im/face.jpg',
+                    uri: connectedWallet.ensAvatar,
                   }}
                 />
               </View>

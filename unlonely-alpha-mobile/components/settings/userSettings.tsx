@@ -1,17 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Text, StyleSheet, View, Image } from 'react-native';
 import { useConnectedWalletStore } from '../../utils/store';
-import { useUserCredentials } from '../../utils/useUserCredentials';
+import { truncate0x, truncateEns } from '../../utils/truncate';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 
 const AVATAR_SIZE = 48;
 
 export const UserSettings = () => {
-  const { connectedWallet, openCKSheet } = useConnectedWalletStore(z => ({
+  const { connectedWallet, openCKSheet, _hasHydrated } = useConnectedWalletStore(z => ({
     connectedWallet: z.connectedWallet,
     openCKSheet: z.openCKSheet,
+    _hasHydrated: z._hasHydrated,
   }));
-  const { userCredentials } = useUserCredentials();
 
   return (
     <>
@@ -39,7 +39,7 @@ export const UserSettings = () => {
               marginLeft: -4,
             }}
           >
-            {connectedWallet ? (
+            {connectedWallet && connectedWallet.ensAvatar ? (
               <View
                 style={[
                   styles.floatingButton,
@@ -56,7 +56,7 @@ export const UserSettings = () => {
                     resizeMode: 'cover',
                   }}
                   source={{
-                    uri: 'https://wojtek.im/face.jpg',
+                    uri: connectedWallet.ensAvatar,
                   }}
                 />
               </View>
@@ -79,13 +79,13 @@ export const UserSettings = () => {
               paddingLeft: 12,
             }}
           >
-            {userCredentials ? (
-              <Text style={styles.ensText}>wallet.eth???</Text>
+            {connectedWallet ? (
+              connectedWallet.ensName && <Text style={styles.ensText}>{truncateEns(connectedWallet.ensName)}</Text>
             ) : (
               <Text style={styles.ensText}>lonely anon</Text>
             )}
 
-            {userCredentials && <Text style={styles.addressText}>{userCredentials}</Text>}
+            {connectedWallet && <Text style={styles.addressText}>{truncate0x(connectedWallet.address)}</Text>}
           </View>
         </View>
         <View>
@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
     color: '#666',
     fontFamily: 'NeuePixelSans',
     fontSize: 14,
+    letterSpacing: 1.5,
   },
   manageButton: {
     backgroundColor: '#be47d1',

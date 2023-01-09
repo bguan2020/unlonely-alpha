@@ -1,4 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import create from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 type SortingTypes = 'recent' | 'liked';
 
@@ -18,12 +20,51 @@ type AppSettingsStore = {
   toggleBlur: () => void;
   toggleNfcAutoplay: () => void;
   setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => void;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
 };
+
+export const useAppSettingsStore = create<AppSettingsStore>()(
+  persist(
+    (set, get) => ({
+      isSettingsSheetOpen: false,
+      isNotificationPermissionGranted: false,
+      isLivePushNotificationsEnabled: true,
+      isNewNfcPushNotificationsEnabled: true,
+      isBlurEnabled: true,
+      isNfcAutoplayEnabled: true,
+      nfcFeedSorting: 'recent',
+      toggleSettingsSheet: () => set(z => ({ isSettingsSheetOpen: !z.isSettingsSheetOpen })),
+      closeSettingsSheet: () => set({ isSettingsSheetOpen: false }),
+      grantNotificationPermissions: () => set({ isNotificationPermissionGranted: true }),
+      toggleLivePushNotifications: () =>
+        set(z => ({ isLivePushNotificationsEnabled: !z.isLivePushNotificationsEnabled })),
+      toggleNewNfcPushNotifications: () =>
+        set(z => ({ isNewNfcPushNotificationsEnabled: !z.isNewNfcPushNotificationsEnabled })),
+      toggleBlur: () => set(z => ({ isBlurEnabled: !z.isBlurEnabled })),
+      toggleNfcAutoplay: () => set(z => ({ isNfcAutoplayEnabled: !z.isNfcAutoplayEnabled })),
+      setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => set({ nfcFeedSorting }),
+      _hasHydrated: false,
+      setHasHydrated: state => {
+        set({
+          _hasHydrated: state,
+        });
+      },
+    }),
+    {
+      name: 'app-settings',
+      storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => state => {
+        state.setHasHydrated(true);
+      },
+    }
+  )
+);
 
 type ConnectedWallet = {
   address: string;
-  avatar?: string;
-  ens?: string;
+  ensAvatar?: string;
+  ensName?: string;
 };
 
 type ConnectedWalletStore = {
@@ -33,55 +74,32 @@ type ConnectedWalletStore = {
   closeCKSheet: () => void;
   setConnectedWallet: (wallet: ConnectedWallet) => void;
   clearConnectedWallet: () => void;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
 };
 
-export const useAppSettingsStore = create<AppSettingsStore>(set => ({
-  isSettingsSheetOpen: false,
-  isNotificationPermissionGranted: false,
-  isLivePushNotificationsEnabled: true,
-  isNewNfcPushNotificationsEnabled: true,
-  isBlurEnabled: true,
-  isNfcAutoplayEnabled: true,
-  nfcFeedSorting: 'recent',
-  toggleSettingsSheet: () => set(z => ({ isSettingsSheetOpen: !z.isSettingsSheetOpen })),
-  closeSettingsSheet: () => set({ isSettingsSheetOpen: false }),
-  grantNotificationPermissions: () => {
-    set({ isNotificationPermissionGranted: true });
-    // save to async storage
-  },
-  toggleLivePushNotifications: () => {
-    set(z => ({ isLivePushNotificationsEnabled: !z.isLivePushNotificationsEnabled }));
-    // save to async storage
-  },
-  toggleNewNfcPushNotifications: () => {
-    set(z => ({ isNewNfcPushNotificationsEnabled: !z.isNewNfcPushNotificationsEnabled }));
-    // save to async storage
-  },
-  toggleBlur: () => {
-    set(z => ({ isBlurEnabled: !z.isBlurEnabled }));
-    // save to async storage
-  },
-  toggleNfcAutoplay: () => {
-    set(z => ({ isNfcAutoplayEnabled: !z.isNfcAutoplayEnabled }));
-    // save to async storage
-  },
-  setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => {
-    set({ nfcFeedSorting });
-    // save to async storage
-  },
-}));
-
-export const useConnectedWalletStore = create<ConnectedWalletStore>(set => ({
-  isCKSheetOpen: false,
-  connectedWallet: null,
-  openCKSheet: () => set({ isCKSheetOpen: true }),
-  closeCKSheet: () => set({ isCKSheetOpen: false }),
-  setConnectedWallet: (wallet: ConnectedWallet) => {
-    set({ connectedWallet: wallet });
-    // save to async storage
-  },
-  clearConnectedWallet: () => {
-    set({ connectedWallet: null });
-    // save to async storage
-  },
-}));
+export const useConnectedWalletStore = create<ConnectedWalletStore>()(
+  persist(
+    (set, get) => ({
+      isCKSheetOpen: false,
+      connectedWallet: null,
+      openCKSheet: () => set({ isCKSheetOpen: true }),
+      closeCKSheet: () => set({ isCKSheetOpen: false }),
+      setConnectedWallet: (wallet: ConnectedWallet) => set({ connectedWallet: wallet }),
+      clearConnectedWallet: () => set({ connectedWallet: null }),
+      _hasHydrated: false,
+      setHasHydrated: state => {
+        set({
+          _hasHydrated: state,
+        });
+      },
+    }),
+    {
+      name: 'connected-wallet',
+      storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => state => {
+        state.setHasHydrated(true);
+      },
+    }
+  )
+);

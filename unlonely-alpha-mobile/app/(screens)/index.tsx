@@ -8,12 +8,15 @@ import { useHaptics } from '../../utils/haptics';
 import { FeedNav } from '../../components/nav/feedNav';
 import { UnlonelyTopGradientWithLogo } from '../../components/nav/topGradient';
 import { ConnectKitSheet } from '../../components/settings/connectkit';
+import { useAppSettingsStore } from '../../utils/store';
 
 export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
   const videoRefs = useRef([]);
+  const nfcFeedSorting = useAppSettingsStore(z => z.nfcFeedSorting);
   const { status, data, error, isFetching } = useNfcFeed({
-    limit: 3,
+    limit: 9,
+    orderBy: nfcFeedSorting === 'liked' ? 'score' : 'createdAt',
   });
   const nfcs = data?.getNFCFeed;
   const onViewableItemsChanged = useRef(({ changed }) => {

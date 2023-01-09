@@ -14,10 +14,6 @@ import { FadedTabBar } from '../../components/nav/bottomGradient';
 import { StatusBar } from 'expo-status-bar';
 import overrideColorScheme from 'react-native-override-color-scheme';
 
-// This is the main layout file for the app. Everything here is shared across all views.
-
-overrideColorScheme.setScheme('dark');
-
 export default function Layout() {
   // Load up the fonts as early as possible
   const [fontsLoaded] = useFonts({
@@ -28,6 +24,7 @@ export default function Layout() {
     if (fontsLoaded) {
       // do some splash screen animation here
       console.log('======== FONTS LOADED ==================================');
+      overrideColorScheme.setScheme('dark');
     }
   }, [fontsLoaded]);
 
@@ -103,10 +100,9 @@ export default function Layout() {
               tabBarBackground: () => <FadedTabBar />,
             })}
           >
-            {/* Icons for the main bottom tab bar */}
             <Tabs.Screen name="index" options={{ title: 'NFCs' }} />
             <Tabs.Screen name="live" options={{ title: 'stream' }} />
-            <Tabs.Screen name="schedule" options={{ title: 'upcoming' }} />
+            {/* <Tabs.Screen name="schedule" options={{ title: 'upcoming' }} /> */}
           </Tabs>
           <Toasts />
         </QueryClientProvider>
