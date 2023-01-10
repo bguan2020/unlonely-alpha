@@ -38,6 +38,7 @@ export default function MobileConnectWallet() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (window.ReactNativeWebView !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         window.ReactNativeWebView.postMessage("wallet_connected");
       }
@@ -46,6 +47,7 @@ export default function MobileConnectWallet() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (window.ReactNativeWebView !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         window.ReactNativeWebView.postMessage("wallet_disconnected");
       }
@@ -69,6 +71,7 @@ export default function MobileConnectWallet() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (window.ReactNativeWebView !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         window.ReactNativeWebView.postMessage(JSON.stringify(walletData));
       }
@@ -81,8 +84,10 @@ export default function MobileConnectWallet() {
 
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (window.ReactNativeWebView !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         window.ReactNativeWebView.postMessage("ck_modal_closed");
       }

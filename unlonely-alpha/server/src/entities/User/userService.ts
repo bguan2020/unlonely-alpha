@@ -1,5 +1,6 @@
 import { Context } from "../../context";
 import axios from "axios";
+import { User } from "@prisma/client";
 
 export const getLeaderboard = (ctx: Context) => {
   return ctx.prisma.user.findMany({
@@ -53,3 +54,24 @@ export const getAllUsers = async (ctx: Context) => {
     }
   }
 };
+
+export interface IUpdateUserNotificationsInput {
+  notificationsTokens: string;
+  notificationsLive: boolean;
+  notificationsNFCs: boolean;
+}
+
+export const updateUserNotifications = async (
+  data: IUpdateUserNotificationsInput, user: User, ctx: Context
+) => {
+  return ctx.prisma.user.update({
+    where: {
+      address: user.address,
+    },
+    data: {
+      notificationsTokens: data.notificationsTokens,
+      notificationsLive: data.notificationsLive,
+      notificationsNFCs: data.notificationsNFCs,
+    },
+  });
+}

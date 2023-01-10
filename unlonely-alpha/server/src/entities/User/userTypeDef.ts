@@ -17,10 +17,19 @@ export const typeDef = gql`
     signature: String
     sigTimestamp: BigInt
     FCImageUrl: String
+    notificationsTokens: String
+    notificationsLive: Boolean
+    notificationsNFCs: Boolean
   }
 
   input GetUserInput {
     address: String
+  }
+
+  input UpdateUserNotificationsInput {
+    notificationsTokens: String
+    notificationsLive: Boolean
+    notificationsNFCs: Boolean
   }
 
   extend type Query {
@@ -29,5 +38,9 @@ export const typeDef = gql`
     getUser(data: GetUserInput!): User
     getLeaderboard: [User]
     getAllUsers: [User]
+  }
+
+  extend type Mutation {
+    updateUserNotifications(data: UpdateUserNotificationsInput!): User
   }
 `;
