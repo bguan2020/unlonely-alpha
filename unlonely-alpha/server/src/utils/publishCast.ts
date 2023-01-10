@@ -4,7 +4,7 @@ import {
 import { Wallet } from "ethers";
 import wallet from "./wallet";
 
-const replyTo = "0x48c187b91a1455b4b76afd116880df1960d6c0ef909df991c6b9b2757f8cd5d4"; // INSERT HERE
+const replyTo = "0x323fb0639f0baa90c14a05ee5d1cdc8adfd7f54d8ae3e07400bdf846d5c7acf8"; // INSERT HERE
 
 export default async function _publishCast(text: string) { 
   const signer = new Wallet(wallet.privateKey);
@@ -15,7 +15,15 @@ export default async function _publishCast(text: string) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   // const signedCast = await Farcaster.signCast(unsignedCast, signer);
-  const cast = await publishCast(signer, text, replyObj);
-  console.log("3: published cast");
-  return cast;
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const cast = await publishCast(signer, text, replyObj);
+    console.log("3: published cast");
+    return cast;
+
+  } catch (e) {
+    console.log("4: error publishing cast", e);
+    return e;
+  }
 }
