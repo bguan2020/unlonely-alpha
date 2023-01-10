@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Linking, Platform, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import { ResizeMode, Video } from 'expo-av';
 import { BlurView } from 'expo-blur';
@@ -76,9 +76,10 @@ const NfcVideo = (props: NfcVideoProps) => (
 );
 
 export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) => {
-  const { isBlurEnabled, isNfcAutoplayEnabled } = useAppSettingsStore(z => ({
+  const { isBlurEnabled, isNfcAutoplayEnabled, _hasHydrated } = useAppSettingsStore(z => ({
     isBlurEnabled: z.isBlurEnabled,
     isNfcAutoplayEnabled: z.isNfcAutoplayEnabled,
+    _hasHydrated: z._hasHydrated,
   }));
   const ref = useRef(null);
   const [shouldPlay, setShouldPlay] = useState(false);
@@ -98,9 +99,11 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
     if (status?.isPlaying) return;
 
     try {
-      // await ref.current.playAsync();
-      if (isNfcAutoplayEnabled) setShouldPlay(true);
-      // TODO: uncomment play stuff before release
+      if (_hasHydrated && isNfcAutoplayEnabled) {
+        // TODO: uncomment play stuff before release
+        await ref.current.playAsync();
+        setShouldPlay(true);
+      }
     } catch {
       alert('error playing video');
     }
@@ -112,7 +115,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
     if (!status?.isPlaying) return;
 
     try {
-      // await ref.current.pauseAsync();
+      await ref.current.pauseAsync();
       setShouldPlay(false);
     } catch {
       alert('error stopping video');
@@ -133,6 +136,16 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
   // useEffect(() => {
   //   unload();
   // }, []);
+
+  useEffect(() => {
+    if (!isNfcAutoplayEnabled) {
+      pause();
+      // setShouldPlay(false);
+    } else {
+      play();
+      // setShouldPlay(true);
+    }
+  }, [isNfcAutoplayEnabled]);
 
   return (
     <View

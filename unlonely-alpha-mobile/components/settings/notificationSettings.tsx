@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Switch } from 'react-native';
-import { useNotificationPermissions } from '../../utils/notifications';
+import { registerForPushNotificationsAsync } from '../../utils/notifications';
 import { useAppSettingsStore } from '../../utils/store';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 
@@ -20,14 +20,15 @@ export const NotificationSettings = () => {
     toggleNewNfcPushNotifications: z.toggleNewNfcPushNotifications,
   }));
 
-  const grantPermissions = async () => {
-    const token = await useNotificationPermissions();
-    console.log(token);
+  const grantPermissions = () => {
+    registerForPushNotificationsAsync().then(token => {
+      grantNotificationPermissions();
+    });
   };
 
   return (
     <>
-      <Text style={styles.title}>Notification Settings</Text>
+      <Text style={styles.title}>Notify me when</Text>
       <View
         style={[
           styles.settingsToggleRow,
@@ -36,7 +37,7 @@ export const NotificationSettings = () => {
           },
         ]}
       >
-        <Text style={styles.subtitle}>stream going live</Text>
+        <Text style={styles.subtitle}>stream goes live</Text>
         <Switch
           value={isLivePushNotificationsEnabled}
           onValueChange={toggleLivePushNotifications}

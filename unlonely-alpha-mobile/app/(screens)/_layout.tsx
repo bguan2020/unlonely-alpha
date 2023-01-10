@@ -13,6 +13,15 @@ import { UnlonelyTopGradient } from '../../components/nav/topGradient';
 import { FadedTabBar } from '../../components/nav/bottomGradient';
 import { StatusBar } from 'expo-status-bar';
 import overrideColorScheme from 'react-native-override-color-scheme';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function Layout() {
   // Load up the fonts as early as possible
@@ -24,6 +33,7 @@ export default function Layout() {
     if (fontsLoaded) {
       // do some splash screen animation here
       console.log('======== FONTS LOADED ==================================');
+
       overrideColorScheme.setScheme('dark');
     }
   }, [fontsLoaded]);

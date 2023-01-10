@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Constants from 'expo-constants';
 import { useEffect, useState } from 'react';
 import { AnimatedPressable } from '../buttons/animatedPressable';
+import { schedulePushNotification } from '../../utils/notifications';
 
 const version = Constants.manifest.version;
 
@@ -24,24 +25,45 @@ export const DeveloperSettings = () => {
           }}
         >
           <Text style={styles.title}>Developer Settings</Text>
-          <AnimatedPressable>
+
+          <AnimatedPressable onPress={schedulePushNotification}>
             <View style={styles.settingsToggleRow}>
-              <Text style={styles.subtitle}>clear connected wallet</Text>
-              <Text style={styles.subtitle}>☠️</Text>
+              <Text
+                style={[
+                  styles.subtitle,
+                  {
+                    color: '#be47d1',
+                  },
+                ]}
+              >
+                send local test notification
+              </Text>
+              <Text style={styles.subtitle}>🔔</Text>
             </View>
           </AnimatedPressable>
-          <AnimatedPressable>
-            <View style={styles.settingsToggleRow}>
-              <Text style={styles.subtitle}>clear app settings</Text>
-              <Text style={styles.subtitle}>💣️</Text>
-            </View>
-          </AnimatedPressable>
+
           <AnimatedPressable>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>reset notification permissions</Text>
               <Text style={styles.subtitle}>🔕</Text>
             </View>
           </AnimatedPressable>
+
+          <AnimatedPressable>
+            <View style={styles.settingsToggleRow}>
+              <Text style={styles.subtitle}>clear connected wallet</Text>
+              {/* clear state and also wipe localstorage in webviews */}
+              <Text style={styles.subtitle}>☠️</Text>
+            </View>
+          </AnimatedPressable>
+
+          <AnimatedPressable>
+            <View style={styles.settingsToggleRow}>
+              <Text style={styles.subtitle}>clear app settings</Text>
+              <Text style={styles.subtitle}>💣️</Text>
+            </View>
+          </AnimatedPressable>
+
           <AnimatedPressable>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>reset async storage</Text>

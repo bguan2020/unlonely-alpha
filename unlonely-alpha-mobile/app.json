@@ -21,6 +21,16 @@
         "NSUserNotificationAlertStyle": "banner"
       }
     },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "mode": "development",
+          "androidMode": "development",
+          "iosMode": "development"
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "d3a8a2ee-d6c1-4d55-9e6b-b732b0802275"

@@ -21,10 +21,9 @@ export default function NfcFeedScreen() {
   const nfcs = data?.getNFCFeed;
 
   const onViewableItemsChanged = useRef(({ changed }) => {
-    if (data && !error && !isFetching) {
-      changed.forEach(element => {
+    try {
+      changed.forEach((element): any => {
         const nfcItem = videoRefs.current[element.item.id];
-
         if (nfcItem) {
           if (element.isViewable) {
             nfcItem.play();
@@ -34,6 +33,8 @@ export default function NfcFeedScreen() {
           }
         }
       });
+    } catch (error) {
+      console.log(error);
     }
   });
 
