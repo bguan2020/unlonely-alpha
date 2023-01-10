@@ -41,4 +41,18 @@ export const resolvers = {
       return userService.getAllUsers(ctx);
     },
   },
+  Mutation: {
+    updateUserNotifications: (
+      _: any,
+      { data }: { data: userService.IUpdateUserNotificationsInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user) {
+        throw new AuthenticationError("Not authenticated");
+      }
+
+      return userService.updateUserNotifications(data, ctx.user, ctx);
+    }
+
+  }
 };

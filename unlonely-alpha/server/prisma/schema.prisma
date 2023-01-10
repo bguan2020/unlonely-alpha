@@ -24,6 +24,10 @@ model User {
   videoSavantLvl Int @default(0)
   nfcRank Int @default(0)
 
+  notificationsTokens String @default("")
+  notificationsLive Boolean @default(false)
+  notificationsNFCs Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

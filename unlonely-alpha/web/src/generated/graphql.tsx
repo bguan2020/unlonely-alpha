@@ -161,6 +161,7 @@ export type Mutation = {
   postVideo?: Maybe<Video>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
+  updateUserNotifications?: Maybe<User>;
 };
 
 export type MutationHandleLikeArgs = {
@@ -197,6 +198,10 @@ export type MutationSoftDeleteTaskArgs = {
 
 export type MutationSoftDeleteVideoArgs = {
   id: Scalars["ID"];
+};
+
+export type MutationUpdateUserNotificationsArgs = {
+  data: UpdateUserNotificationsInput;
 };
 
 export type Nfc = Likable & {
@@ -356,6 +361,12 @@ export type TaskFeedInput = {
   skip?: InputMaybe<Scalars["Int"]>;
 };
 
+export type UpdateUserNotificationsInput = {
+  notificationsLive?: InputMaybe<Scalars["Boolean"]>;
+  notificationsNFCs?: InputMaybe<Scalars["Boolean"]>;
+  notificationsTokens?: InputMaybe<Scalars["String"]>;
+};
+
 export type User = {
   __typename?: "User";
   FCImageUrl?: Maybe<Scalars["String"]>;
@@ -366,6 +377,9 @@ export type User = {
   id: Scalars["ID"];
   isFCUser: Scalars["Boolean"];
   nfcRank: Scalars["Int"];
+  notificationsLive?: Maybe<Scalars["Boolean"]>;
+  notificationsNFCs?: Maybe<Scalars["Boolean"]>;
+  notificationsTokens?: Maybe<Scalars["String"]>;
   powerUserLvl: Scalars["Int"];
   reputation?: Maybe<Scalars["Int"]>;
   sigTimestamp?: Maybe<Scalars["BigInt"]>;
@@ -561,6 +575,20 @@ export type PostVideoMutationVariables = Exact<{
 export type PostVideoMutation = {
   __typename?: "Mutation";
   postVideo?: { __typename?: "Video"; id: string } | null;
+};
+
+export type UpdateUserNotificationsMutationVariables = Exact<{
+  data: UpdateUserNotificationsInput;
+}>;
+
+export type UpdateUserNotificationsMutation = {
+  __typename?: "Mutation";
+  updateUserNotifications?: {
+    __typename?: "User";
+    notificationsTokens?: string | null;
+    notificationsLive?: boolean | null;
+    notificationsNFCs?: boolean | null;
+  } | null;
 };
 
 export type GetUserQueryVariables = Exact<{
@@ -1209,6 +1237,58 @@ export type PostVideoMutationResult = Apollo.MutationResult<PostVideoMutation>;
 export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
   PostVideoMutation,
   PostVideoMutationVariables
+>;
+export const UpdateUserNotificationsDocument = gql`
+  mutation updateUserNotifications($data: UpdateUserNotificationsInput!) {
+    updateUserNotifications(data: $data) {
+      notificationsTokens
+      notificationsLive
+      notificationsNFCs
+    }
+  }
+`;
+export type UpdateUserNotificationsMutationFn = Apollo.MutationFunction<
+  UpdateUserNotificationsMutation,
+  UpdateUserNotificationsMutationVariables
+>;
+
+/**
+ * __useUpdateUserNotificationsMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserNotificationsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserNotificationsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserNotificationsMutation, { data, loading, error }] = useUpdateUserNotificationsMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateUserNotificationsMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateUserNotificationsMutation,
+    UpdateUserNotificationsMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateUserNotificationsMutation,
+    UpdateUserNotificationsMutationVariables
+  >(UpdateUserNotificationsDocument, options);
+}
+export type UpdateUserNotificationsMutationHookResult = ReturnType<
+  typeof useUpdateUserNotificationsMutation
+>;
+export type UpdateUserNotificationsMutationResult =
+  Apollo.MutationResult<UpdateUserNotificationsMutation>;
+export type UpdateUserNotificationsMutationOptions = Apollo.BaseMutationOptions<
+  UpdateUserNotificationsMutation,
+  UpdateUserNotificationsMutationVariables
 >;
 export const GetUserDocument = gql`
   query getUser($data: GetUserInput!) {
