@@ -61,7 +61,6 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
           alignItems="center"
           width="100%"
           height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
-          mt="10px"
           bg="black"
         >
           <Spinner />
@@ -86,7 +85,6 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
               ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
               : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
           }
-          mt="10px"
         >
           <IVSPlayer isTheatreMode={isTheatreMode} />
         </Flex>
@@ -100,7 +98,6 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
               ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
               : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
           }
-          mt="10px"
         >
           <Flex
             direction="column"

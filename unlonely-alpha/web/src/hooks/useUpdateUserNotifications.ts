@@ -31,7 +31,13 @@ const useUpdateUserNotifications = ({ onError }: Props) => {
   const updateUserNotifications = useCallback(
     async (data) => {
       const mutationResult = await mutate({
-        variables: { data: { notificationsTokens: data.notificationsTokens, notificationsLive: data.notificationsLive, notificationsNFCs: data.notificationsNFCs } },
+        variables: {
+          data: {
+            notificationsTokens: data.notificationsTokens,
+            notificationsLive: data.notificationsLive,
+            notificationsNFCs: data.notificationsNFCs,
+          },
+        },
       });
 
       const res = mutationResult?.data?.updateUserNotifications;

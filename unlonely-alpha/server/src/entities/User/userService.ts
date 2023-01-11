@@ -62,7 +62,9 @@ export interface IUpdateUserNotificationsInput {
 }
 
 export const updateUserNotifications = async (
-  data: IUpdateUserNotificationsInput, user: User, ctx: Context
+  data: IUpdateUserNotificationsInput,
+  user: User,
+  ctx: Context
 ) => {
   return ctx.prisma.user.update({
     where: {
@@ -74,4 +76,4 @@ export const updateUserNotifications = async (
       notificationsNFCs: data.notificationsNFCs,
     },
   });
-}
+};
