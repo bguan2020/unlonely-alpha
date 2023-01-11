@@ -31,7 +31,7 @@ const usePostNFC = ({ onError }: Props) => {
       });
 
       const res = mutationResult?.data?.handleNFC;
-
+      /* eslint-disable no-console */
       if (res) {
         console.log("success");
       } else {

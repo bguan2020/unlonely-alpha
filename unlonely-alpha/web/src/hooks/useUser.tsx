@@ -4,7 +4,7 @@ import { useAccount } from "wagmi";
 import { useQuery } from "@apollo/client";
 
 import { User } from "../generated/graphql";
-
+/* eslint-disable prefer-template no-empty-function */
 const GET_USER_QUERY = gql`
   query getUser($data: GetUserInput!) {
     getUser(data: $data) {
@@ -42,7 +42,6 @@ export const UserProvider = ({
   const { address } = useAccount();
   // ignore console log build error for now
   //
-  console.log("address from wagmi", address);
   const { data, loading, error } = useQuery(GET_USER_QUERY, {
     variables: { data: { address } },
   });
