@@ -7,9 +7,10 @@ import useScript from "../../hooks/useScript";
 
 type Props = {
   isTheatreMode: boolean;
+  hasTimer?: boolean;
 };
 
-const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
+const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTimer }) => {
   const [streamingTime, setStreamingTime] = useState<boolean>(false);
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);
@@ -76,7 +77,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
 
   return (
     <>
-      {streamingTime ? (
+    {hasTimer !== undefined && !hasTimer ? (
         <Flex
           flexDirection="row"
           justifyContent="center"
@@ -91,66 +92,85 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
           <IVSPlayer isTheatreMode={isTheatreMode} />
         </Flex>
       ) : (
-        <Flex
-          flexDirection="row"
-          justifyContent="center"
-          width="100%"
-          height={
-            isTheatreMode
-              ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
-              : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
-          }
-          mt="10px"
-        >
-          <Flex
-            direction="column"
-            width="100%"
-            maxW="100%"
-            pt="100px"
-            pl="10px"
-            color="white"
-            fontWeight="bold"
-            fontSize="40px"
-            bg="black"
-          >
-            <Text fontFamily="Anonymous Pro, monospace">Next stream in:</Text>
-            <Flex direction="row">
-              <Flex direction="row" mr="5px">
-                <Text mr="5px" fontSize="62px" color="#76D201">
-                  {days}
+        <>
+          {streamingTime ? (
+            <Flex
+              flexDirection="row"
+              justifyContent="center"
+              width="100%"
+              height={
+                isTheatreMode
+                  ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
+                  : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
+              }
+              mt="10px"
+            >
+              <IVSPlayer isTheatreMode={isTheatreMode} />
+            </Flex>
+          ) : (
+            <Flex
+              flexDirection="row"
+              justifyContent="center"
+              width="100%"
+              height={
+                isTheatreMode
+                  ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
+                  : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
+              }
+              mt="10px"
+            >
+              <Flex
+                direction="column"
+                width="100%"
+                maxW="100%"
+                pt="100px"
+                pl="10px"
+                color="white"
+                fontWeight="bold"
+                fontSize="40px"
+                bg="black"
+              >
+                <Text fontFamily="Anonymous Pro, monospace">Next stream in:</Text>
+                <Flex direction="row">
+                  <Flex direction="row" mr="5px">
+                    <Text mr="5px" fontSize="62px" color="#76D201">
+                      {days}
+                    </Text>
+                    <Text>days</Text>
+                  </Flex>
+                  <Flex direction="row" mr="5px">
+                    <Text mr="5px" fontSize="62px" color="#FF3EA5">
+                      {hours}
+                    </Text>
+                    <Text>hours</Text>
+                  </Flex>
+                  <Flex direction="row" mr="5px">
+                    <Text mr="5px" fontSize="62px" color="#BB29BB">
+                      {minutes}
+                    </Text>
+                    <Text>minutes</Text>
+                  </Flex>
+                  <Flex direction="row" mr="5px">
+                    <Text mr="5px" fontSize="62px" color="#FF6D6A">
+                      {seconds}
+                    </Text>
+                    <Text>seconds</Text>
+                  </Flex>
+                </Flex>
+                <Text lineHeight={5} mb="10px" fontSize="14px">
+                  Wanna get notified before the stream goes live?
+                  <Link href="https://t.me/unlonely1" isExternal>
+                    {" "}
+                    Join our telegram here!
+                    <ExternalLinkIcon mx="2px" />
+                  </Link>
                 </Text>
-                <Text>days</Text>
-              </Flex>
-              <Flex direction="row" mr="5px">
-                <Text mr="5px" fontSize="62px" color="#FF3EA5">
-                  {hours}
-                </Text>
-                <Text>hours</Text>
-              </Flex>
-              <Flex direction="row" mr="5px">
-                <Text mr="5px" fontSize="62px" color="#BB29BB">
-                  {minutes}
-                </Text>
-                <Text>minutes</Text>
-              </Flex>
-              <Flex direction="row" mr="5px">
-                <Text mr="5px" fontSize="62px" color="#FF6D6A">
-                  {seconds}
-                </Text>
-                <Text>seconds</Text>
               </Flex>
             </Flex>
-            <Text lineHeight={5} mb="10px" fontSize="14px">
-              Wanna get notified before the stream goes live?
-              <Link href="https://t.me/unlonely1" isExternal>
-                {" "}
-                Join our telegram here!
-                <ExternalLinkIcon mx="2px" />
-              </Link>
-            </Text>
-          </Flex>
-        </Flex>
-      )}
+          )}
+        </>
+      )
+    }
     </>
   );
 };

@@ -66,7 +66,7 @@ const Example: React.FunctionComponent = () => {
     <>
       <Grid gridTemplateColumns={"80% 20%"} minH="calc(100vh - 48px)" mb="20px">
         <GridItem rowSpan={2} colSpan={1}>
-          <NextStreamTimer isTheatreMode={true} />
+          <NextStreamTimer isTheatreMode={true} hasTimer={false}/>
         </GridItem>
         <GridItem
           rowSpan={3}
@@ -121,63 +121,7 @@ const Example: React.FunctionComponent = () => {
               </Text>
             </Flex>
             <Flex direction="row" width="100%" margin="auto">
-              <Tabs variant="unstyled" width="100%">
-                <TabList width="100%" ml="10%" mr="10%">
-                  <Tab _selected={{ color: "white", bg: "blue.500" }}>
-                    scene tab
-                  </Tab>
-                  <Tab _selected={{ color: "white", bg: "green.400" }}>
-                    task tab
-                  </Tab>
-                </TabList>
-                <TabPanels>
-                  <TabPanel>
-                    <Flex
-                      margin="auto"
-                      maxW={{
-                        base: "100%",
-                        sm: "533px",
-                        md: "711px",
-                        lg: "889px",
-                      }}
-                      w="100%"
-                      borderRadius="0.3125rem"
-                      pt="1rem"
-                      justifyContent="center"
-                      backgroundColor="rgba(0,0,0,0.2)"
-                    >
-                      <Flex
-                        width="100%"
-                        justifyContent="center"
-                        alignItems="center"
-                        direction="column"
-                      >
-                        <BrianTokenTab
-                          chatBot={chatBot}
-                          setChatBot={setChatBot}
-                        />
-                      </Flex>
-                    </Flex>
-                  </TabPanel>
-                  <TabPanel>
-                    <Flex
-                      margin="auto"
-                      maxW={{
-                        base: "100%",
-                        sm: "533px",
-                        md: "711px",
-                        lg: "889px",
-                      }}
-                      borderRadius="0.3125rem"
-                      pt="1rem"
-                      justifyContent="center"
-                      backgroundColor="rgba(0,0,0,0.2)"
-                    >
-                      <TaskList chatBot={chatBot} setChatBot={setChatBot} />
-                    </Flex>
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
+              add any description here...
             </Flex>
           </Flex>
         </GridItem>
