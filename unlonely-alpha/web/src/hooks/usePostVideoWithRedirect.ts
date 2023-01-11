@@ -45,7 +45,7 @@ const usePostVideoWithRedirect = ({
         return;
       }
 
-      await router.push(`/channels/youtube`);
+      await router.push("/channels/youtube");
       setLoading(false);
     },
     [mutate, onError, router]

@@ -19,7 +19,7 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { ethers } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 
 import {
   BRIAN_TOKEN_ADDRESS,
@@ -198,7 +198,7 @@ export default function TransactionModal({
       // @ts-ignore
       if (
         allowance &&
-        Number(ethers.utils.formatEther(allowance)) >= parseInt(price)
+        Number(ethers.utils.formatEther(allowance as BigNumberish)) >= parseInt(price)
       ) {
         setStep(1);
         transferWrite && (await transferWrite());
