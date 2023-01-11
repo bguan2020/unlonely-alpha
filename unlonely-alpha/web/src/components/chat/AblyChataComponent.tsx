@@ -923,7 +923,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
             direction="column"
             overflowX="auto"
             height="100%"
-            maxH={["300px","400px"]}
+            maxH={["300px", "400px"]}
             id="chat"
             position="relative"
             mt="8px"
