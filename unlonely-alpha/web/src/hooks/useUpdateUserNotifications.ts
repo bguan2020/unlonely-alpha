@@ -11,7 +11,6 @@ import {
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
-
 const UPDATE_USER_NOTIFICATIONS_MUTATION = gql`
   mutation updateUserNotifications($data: UpdateUserNotificationsInput!) {
     updateUserNotifications(data: $data) {
@@ -31,11 +30,17 @@ const useUpdateUserNotifications = ({ onError }: Props) => {
   const updateUserNotifications = useCallback(
     async (data) => {
       const mutationResult = await mutate({
-        variables: { data: { notificationsTokens: data.notificationsTokens, notificationsLive: data.notificationsLive, notificationsNFCs: data.notificationsNFCs } },
+        variables: {
+          data: {
+            notificationsTokens: data.notificationsTokens,
+            notificationsLive: data.notificationsLive,
+            notificationsNFCs: data.notificationsNFCs,
+          },
+        },
       });
 
       const res = mutationResult?.data?.updateUserNotifications;
-
+      /* eslint-disable no-console */
       if (res) {
         console.log("success");
       } else {

@@ -1,3 +1,4 @@
+/* eslint-disable prefer-template */
 // take timestamp, convert to hh:mm
 export const timestampConverter = (timestamp: number) => {
   const current_date = new Date(timestamp);

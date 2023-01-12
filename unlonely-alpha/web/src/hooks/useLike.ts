@@ -67,6 +67,7 @@ const useLike = ({ likedObj, likableId, powerLvl }: UseLikeProps) => {
 
     return { like, dislike };
   }
+  /* eslint-disable */
   return { like: () => {}, dislike: () => {} };
 };
 

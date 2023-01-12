@@ -885,8 +885,8 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
         setIsScrolled(false);
         setHasMessagesLoaded(true);
         return;
-      } //every message after (might have to determine a better number than 500)
-      else if (chat.scrollHeight - chat.scrollTop > 500) {
+      } //every message after (might have to determine a better number than 600)
+      else if (chat.scrollHeight - chat.scrollTop > 600) {
         setIsScrolled(true);
         return;
       }
@@ -906,8 +906,8 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
 
   return (
     <>
-      <Flex p="10px" h="100%" minW="100%" width="100%">
-        <Flex direction="column" minW="100%" width="100%">
+      <Flex h="100%" minW="100%">
+        <Flex mt="10px" direction="column" minW="100%" width="100%">
           <Participants />
           <Text
             lineHeight={5}
@@ -923,7 +923,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
             direction="column"
             overflowX="auto"
             height="100%"
-            maxH="400px"
+            maxH={["300px", "400px"]}
             id="chat"
             position="relative"
             mt="8px"

@@ -5,7 +5,7 @@ import {
   InMemoryCache,
   NormalizedCacheObject,
 } from "@apollo/client";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import cookieCutter from "cookie-cutter";
 import pickBy from "lodash/pickBy";
 
@@ -49,6 +49,7 @@ const authLink = (cookies: Cookies, isSSR?: boolean) =>
      * Hence we have this method of getting the relevant cookie in two ways.
      */
     // const browserAddressCookie = useCookies("unlonelyAddress");
+    /* eslint-disable no-console */
     let address: string | undefined;
     const nextAddressCookie = cookies["unlonelyAddress"];
     console.log(nextAddressCookie, isSSR);

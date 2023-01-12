@@ -19,7 +19,7 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { ethers } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 
 import {
   BRIAN_TOKEN_ADDRESS,
@@ -52,7 +52,11 @@ export default function TransactionModal({
   const [open, setOpen] = useState<boolean>(false);
   const [step, setStep] = useState<number>(0);
 
-  const { data: balanceOfData, isError: balanceOfError, isLoading: balanceOfLoading } = useBalance({
+  const {
+    data: balanceOfData,
+    isError: balanceOfError,
+    isLoading: balanceOfLoading,
+  } = useBalance({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     address: user?.address,
@@ -192,7 +196,10 @@ export default function TransactionModal({
     try {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      if (allowance && Number(ethers.utils.formatEther(allowance)) >= parseInt(price)) {
+      if (
+        allowance &&
+        Number(ethers.utils.formatEther(allowance as BigNumberish)) >= parseInt(price)
+      ) {
         setStep(1);
         transferWrite && (await transferWrite());
       } else {
@@ -241,14 +248,13 @@ export default function TransactionModal({
               </ModalHeader>
               <ModalCloseButton />
               <ModalBody>
-              <Text>
-                  Price: 5 $BRIAN
-                </Text>
+                <Text>Price: 5 $BRIAN</Text>
                 <Text>
                   Your Current Balance:{" "}
                   {balanceOfData
                     ? Math.round(Number(balanceOfData.formatted))
-                    : "0"} ${balanceOfData && balanceOfData.symbol}
+                    : "0"}{" "}
+                  ${balanceOfData && balanceOfData.symbol}
                 </Text>
               </ModalBody>
               <ModalFooter justifyContent="space-between">

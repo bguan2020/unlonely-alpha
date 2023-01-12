@@ -13,7 +13,6 @@ export default function Chat() {
   });
   const [formError, setFormError] = useState<null | string[]>(null);
 
-
   return (
     <Flex
       flexDirection="column"
@@ -22,7 +21,7 @@ export default function Chat() {
       width="100%"
       height="100%"
     >
-     {"notifications i guess..."}
+      {"notifications i guess..."}
     </Flex>
   );
 }
