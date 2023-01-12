@@ -888,8 +888,8 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
         setIsScrolled(false);
         setHasMessagesLoaded(true);
         return;
-      } //every message after (might have to determine a better number than 500)
-      else if (chat.scrollHeight - chat.scrollTop > 500) {
+      } //every message after (might have to determine a better number than 600)
+      else if (chat.scrollHeight - chat.scrollTop > 600) {
         setIsScrolled(true);
         return;
       }
@@ -909,8 +909,8 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
 
   return (
     <>
-      <Flex p="10px" h="100%" minW="100%" width="100%">
-        <Flex direction="column" minW="100%" width="100%">
+      <Flex h="100%" minW="100%">
+        <Flex mt="10px" direction="column" minW="100%" width="100%">
           <Participants ablyPresenceChannel={ablyPresenceChannel}/>
           <Text
             lineHeight={5}
@@ -926,7 +926,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             direction="column"
             overflowX="auto"
             height="100%"
-            maxH="400px"
+            maxH={["300px", "400px"]}
             id="chat"
             position="relative"
             mt="8px"

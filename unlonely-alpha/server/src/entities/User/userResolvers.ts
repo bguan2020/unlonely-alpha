@@ -52,7 +52,6 @@ export const resolvers = {
       }
 
       return userService.updateUserNotifications(data, ctx.user, ctx);
-    }
-
-  }
+    },
+  },
 };

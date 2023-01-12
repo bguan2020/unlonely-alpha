@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import {
   Text,
   Flex,
-  Grid,
-  GridItem,
-  Box,
   Button,
   Tabs,
   TabList,
   Tab,
   TabPanels,
   TabPanel,
+  Stack,
+  Container,
 } from "@chakra-ui/react";
 
 import { useAccount } from "wagmi";
@@ -23,6 +22,7 @@ import NextStreamTimer from "../../../components/video/NextStreamTimer";
 import { useUser } from "../../../hooks/useUser";
 import TaskList from "../../../components/task/TaskList";
 import BrianTokenTab from "../../../components/hostEvents/BrianTokenTab";
+import { useWindowSize } from "../../../hooks/useWindowSize";
 
 export type ChatBot = {
   username: string;
@@ -33,13 +33,19 @@ export type ChatBot = {
 };
 
 const Example: React.FunctionComponent = () => {
+  const [width, height] = useWindowSize();
+
   const { user } = useUser();
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
   const router = useRouter();
-  const [isTheatreMode, setIsTheatreMode] = useState<boolean>(
-    router.query.theatreMode === "true"
-  );
+  //used on mobile view
+  const [hideChat, setHideChat] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const toggleChatVideos = function () {
+    setHideChat(!hideChat);
+  };
+
   const accountData = useAccount();
   useEffect(() => {
     const fetchEns = async () => {
@@ -53,153 +59,136 @@ const Example: React.FunctionComponent = () => {
     fetchEns();
   }, [accountData?.address]);
 
-  const toggleTheatreMode = () => {
-    if (isTheatreMode) {
-      // route to /channels/brian
-      window.location.href = "/channels/brian";
-      return;
-    }
-    window.location.href = "/channels/brian?theatreMode=true";
-  };
+  useEffect(() => {
+    const fetchEns = async () => {
+      if (accountData?.address) {
+        const ens = await getEnsName(accountData.address);
+        const username = ens ? ens : centerEllipses(accountData.address, 9);
+        setUsername(username);
+      }
+    };
+
+    fetchEns();
+  }, [accountData?.address]);
+
+  const isHidden = useCallback(
+    (isChat: boolean) => {
+      //checks if width is <= 48 em (base size) if so checks switch tab is disabled
+      return width <= 768 && (isChat ? hideChat : !hideChat);
+    },
+    [width, hideChat]
+  );
 
   return (
-    <>
-      <Grid gridTemplateColumns={"80% 20%"} minH="calc(100vh - 48px)" mb="20px">
-        <GridItem rowSpan={2} colSpan={1}>
+    <Stack direction="column">
+      <Stack
+        mx={[8, 4]}
+        alignItems={["center", "initial"]}
+        mt="10px"
+        spacing={8}
+        direction={["column", "row", "row"]}
+      >
+        <Flex width={{ base: "100%", sm: "70%", md: "70%", lg: "100%" }}>
           <NextStreamTimer isTheatreMode={true} />
-        </GridItem>
-        <GridItem
-          rowSpan={3}
-          colSpan={1}
-          border="2px"
-          mt="10px"
-          mb="190px"
-          maxH="700px"
-          id="xeedev-chat-div"
+        </Flex>
+        <Button
+          height={{
+            //only show on mobile
+            base: "100%", // 0-48em
+            md: "0%", // 48em-80em,
+            xl: "0%", // 80em+
+          }}
+          onClick={toggleChatVideos}
+          id="xeedev-poaav"
         >
-          <Flex
-            justifyContent="center"
-            direction="column"
-            bg="black"
-            pb="10px"
-            pt="10px"
+          Toggle Chat/Host Schedule
+        </Button>
+        <Container
+          hidden={isHidden(true)}
+          maxW={["768px", "300px"]}
+          mr="10px"
+          borderWidth="3px"
+          borderColor="black"
+          centerContent
+        >
+          <Text
+            mt="10px"
+            align="center"
+            fontWeight={"bold"}
+            fontSize="20px"
+            color="white"
           >
-            <Box bg="black" margin="auto">
-              <Text fontWeight={"bold"} fontSize="20px" color="white">
-                The Chat Room!
-              </Text>
-            </Box>
-          </Flex>
+            The Chat Room!
+          </Text>
           <AblyChatComponent
             username={username}
             chatBot={chatBot}
             user={user}
           />
-        </GridItem>
-        <Button onClick={toggleChatVideos} id="xeedev-poaav">
-          Toggle Chat/Host Schedule
-        </Button>
-        <GridItem
-          rowSpan={1}
-          colSpan={1}
-          mr="20px"
-          id="xeedev-video-modal"
+        </Container>
+      </Stack>
+      <Flex hidden={isHidden(false)} direction="column">
+        <Text align="center" fontSize="2rem" fontWeight="bold">
+          Welcome to Unlonely! Control My Stream with $BRIAN!
+        </Text>
+        <Tabs
           className="xeedev-class-hide"
+          align="center"
+          variant="unstyled"
+          width="100%"
         >
-          <Flex direction="column">
-            <Flex
-              maxH="400px"
-              margin="auto"
-              mb="16px"
-              ml="32px"
-              w="100%"
-              justifyContent="space-between"
-              pr="32px"
-            >
-              <Text fontSize="2rem" fontWeight="bold">
-                Welcome to Unlonely! Control My Stream with $BRIAN!
-              </Text>
-            </Flex>
-            <Flex direction="row" width="100%" margin="auto">
-              <Tabs variant="unstyled" width="100%">
-                <TabList width="100%" ml="10%" mr="10%">
-                  <Tab _selected={{ color: "white", bg: "blue.500" }}>
-                    scene tab
-                  </Tab>
-                  <Tab _selected={{ color: "white", bg: "green.400" }}>
-                    task tab
-                  </Tab>
-                </TabList>
-                <TabPanels>
-                  <TabPanel>
-                    <Flex
-                      margin="auto"
-                      maxW={{
-                        base: "100%",
-                        sm: "533px",
-                        md: "711px",
-                        lg: "889px",
-                      }}
-                      w="100%"
-                      borderRadius="0.3125rem"
-                      pt="1rem"
-                      justifyContent="center"
-                      backgroundColor="rgba(0,0,0,0.2)"
-                    >
-                      <Flex
-                        width="100%"
-                        justifyContent="center"
-                        alignItems="center"
-                        direction="column"
-                      >
-                        <BrianTokenTab
-                          chatBot={chatBot}
-                          setChatBot={setChatBot}
-                        />
-                      </Flex>
-                    </Flex>
-                  </TabPanel>
-                  <TabPanel>
-                    <Flex
-                      margin="auto"
-                      maxW={{
-                        base: "100%",
-                        sm: "533px",
-                        md: "711px",
-                        lg: "889px",
-                      }}
-                      borderRadius="0.3125rem"
-                      pt="1rem"
-                      justifyContent="center"
-                      backgroundColor="rgba(0,0,0,0.2)"
-                    >
-                      <TaskList chatBot={chatBot} setChatBot={setChatBot} />
-                    </Flex>
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </Flex>
-          </Flex>
-        </GridItem>
-      </Grid>
-    </>
+          <TabList width="100%">
+            <Tab _selected={{ color: "white", bg: "blue.500" }}>scene tab</Tab>
+            <Tab _selected={{ color: "white", bg: "green.400" }}>task tab</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <Flex
+                margin="auto"
+                maxW={{
+                  base: "100%",
+                  sm: "533px",
+                  md: "711px",
+                  lg: "889px",
+                }}
+                w="100%"
+                borderRadius="0.3125rem"
+                pt="1rem"
+                justifyContent="center"
+                backgroundColor="rgba(0,0,0,0.2)"
+              >
+                <Flex
+                  width="100%"
+                  justifyContent="center"
+                  alignItems="center"
+                  direction="column"
+                >
+                  <BrianTokenTab chatBot={chatBot} setChatBot={setChatBot} />
+                </Flex>
+              </Flex>
+            </TabPanel>
+            <TabPanel>
+              <Flex
+                margin="auto"
+                maxW={{
+                  base: "100%",
+                  sm: "533px",
+                  md: "711px",
+                  lg: "889px",
+                }}
+                borderRadius="0.3125rem"
+                pt="1rem"
+                justifyContent="center"
+                backgroundColor="rgba(0,0,0,0.2)"
+              >
+                <TaskList chatBot={chatBot} setChatBot={setChatBot} />
+              </Flex>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </Flex>
+    </Stack>
   );
-};
-
-const toggleChatVideos = function () {
-  document
-    .getElementById("xeedev-video-modal")
-    ?.classList.toggle("xeedev-class-block");
-  document
-    .getElementById("xeedev-chat-div")
-    ?.classList.toggle("xeedev-class-hide");
-
-  const poaav = document.getElementById("xeedev-poaav");
-  if (poaav?.innerHTML === "Vote/Add Upcoming Videos") {
-    poaav.innerHTML = "Return to Chat";
-  } else if (poaav?.innerHTML === "Return to Chat") {
-    poaav.innerHTML = "Vote/Add Upcoming Videos";
-  }
 };
 
 export default function Page() {

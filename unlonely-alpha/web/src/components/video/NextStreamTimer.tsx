@@ -28,7 +28,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTim
     const now = new Date();
     // next stream time set to july 25, 2022 at 7pm PST, timezone specificed in moment-timezone
     const nextStreamTime = moment.tz(
-      "2023-01-10T18:00:00",
+      "2023-01-11T18:00:00",
       "America/Los_Angeles"
     );
     const diff = nextStreamTime.diff(now, "seconds");
@@ -62,7 +62,6 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTim
           alignItems="center"
           width="100%"
           height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
-          mt="10px"
           bg="black"
         >
           <Spinner />
@@ -87,7 +86,6 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTim
               ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
               : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
           }
-          mt="10px"
         >
           <IVSPlayer isTheatreMode={isTheatreMode} />
         </Flex>

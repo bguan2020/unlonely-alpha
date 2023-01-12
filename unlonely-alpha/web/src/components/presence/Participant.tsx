@@ -55,7 +55,7 @@ const Participant = ({ user }: Props) => {
             ) : (
               <Avatar
                 name={user.username ? user.username : user.address}
-                size="md"
+                size="sm"
               />
             )}
           </Tooltip>
