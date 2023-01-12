@@ -87,8 +87,9 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
     },
   });
   const toast = useToast();
+  const channelName = ablyChatChannel ? `persistMessages:${ablyChatChannel}` : "persistMessages:chat-demo";
 
-  const [channel, ably] = useChannel(ablyChatChannel ? ablyChatChannel : "persistMessages:chat-demo", (message) => {
+  const [channel, ably] = useChannel(channelName, (message) => {
     const history = receivedMessages.slice(-199);
     // remove messages where name = add-reaction
     const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
