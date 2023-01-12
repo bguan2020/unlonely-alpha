@@ -117,7 +117,6 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTim
                   ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
                   : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
               }
-              mt="10px"
             >
               <Flex
                 direction="column"
