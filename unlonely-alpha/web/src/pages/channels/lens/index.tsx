@@ -107,7 +107,7 @@ const Example: React.FunctionComponent = () => {
                 Welcome to Unlonely! This is the Lens Channel!
               </Text>
             </Flex>
-            <Flex direction="row" width="100%" margin="auto">
+            <Flex direction="row" width="100%" margin="auto" ml="32px">
               add any description here...
             </Flex>
           </Flex>
