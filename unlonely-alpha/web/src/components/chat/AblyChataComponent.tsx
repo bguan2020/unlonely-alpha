@@ -26,6 +26,8 @@ type Props = {
   chatBot: ChatBot[];
   user: User | undefined;
   mobileChat?: boolean;
+  ablyChatChannel?: string;
+  ablyPresenceChannel?: string;
 };
 
 const GET_POAP_QUERY = gql`
@@ -55,7 +57,7 @@ const emojis = [
 
 const chatbotAddress = "0x0000000000000000000000000000000000000000";
 
-const AblyChatComponent = ({ username, chatBot }: Props) => {
+const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceChannel }: Props) => {
   const { user } = useUser();
   const { address } = useAccount();
   const ADD_REACTION_EVENT = "add-reaction";
@@ -86,7 +88,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
   });
   const toast = useToast();
 
-  const [channel, ably] = useChannel("persistMessages:chat-demo", (message) => {
+  const [channel, ably] = useChannel(ablyChatChannel ? ablyChatChannel : "persistMessages:chat-demo", (message) => {
     const history = receivedMessages.slice(-199);
     // remove messages where name = add-reaction
     const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
@@ -908,7 +910,7 @@ const AblyChatComponent = ({ username, chatBot }: Props) => {
     <>
       <Flex p="10px" h="100%" minW="100%" width="100%">
         <Flex direction="column" minW="100%" width="100%">
-          <Participants />
+          <Participants ablyPresenceChannel={ablyPresenceChannel}/>
           <Text
             lineHeight={5}
             mt="4px"

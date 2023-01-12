@@ -29,9 +29,9 @@ export const resolvers = {
 
       return NFCService.handleNFC(data, ctx, ctx.user);
     },
-    // openseaNFCScript: async (_: any, __: any, ctx: Context) => {
-    //   return NFCService.openseaNFCScript(ctx);
-    // },
+    openseaNFCScript: async (_: any, __: any, ctx: Context) => {
+      return NFCService.openseaNFCScript(ctx);
+    },
   },
   NFC: {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {

@@ -14,6 +14,10 @@ configureAbly({
   authUrl: "/api/createTokenRequest",
 });
 
+type Props = {
+  ablyPresenceChannel?: string;
+}
+
 type Presence = {
   id: string;
   data: { user: User };
@@ -23,9 +27,9 @@ type Presence = {
   timestamp: number;
 };
 
-const Participants = () => {
+const Participants = ({ ablyPresenceChannel }: Props) => {
   const { user } = useUser();
-  const [presenceData, updateStatus] = usePresence("presence");
+  const [presenceData, updateStatus] = usePresence(ablyPresenceChannel? ablyPresenceChannel : "presence");
   const [participantOrder, setParticipantOrder] = useState<Presence[]>([]);
 
   useEffect(() => {

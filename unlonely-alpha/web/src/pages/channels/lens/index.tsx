@@ -7,11 +7,6 @@ import {
   GridItem,
   Box,
   Button,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
 } from "@chakra-ui/react";
 
 import { useAccount } from "wagmi";
@@ -21,8 +16,6 @@ import centerEllipses from "../../../utils/centerEllipses";
 import AblyChatComponent from "../../../components/chat/AblyChataComponent";
 import NextStreamTimer from "../../../components/video/NextStreamTimer";
 import { useUser } from "../../../hooks/useUser";
-import TaskList from "../../../components/task/TaskList";
-import BrianTokenTab from "../../../components/hostEvents/BrianTokenTab";
 
 export type ChatBot = {
   username: string;
@@ -41,6 +34,7 @@ const Example: React.FunctionComponent = () => {
     router.query.theatreMode === "true"
   );
   const accountData = useAccount();
+
   useEffect(() => {
     const fetchEns = async () => {
       if (accountData?.address) {
@@ -52,15 +46,6 @@ const Example: React.FunctionComponent = () => {
 
     fetchEns();
   }, [accountData?.address]);
-
-  const toggleTheatreMode = () => {
-    if (isTheatreMode) {
-      // route to /channels/brian
-      window.location.href = "/channels/brian";
-      return;
-    }
-    window.location.href = "/channels/brian?theatreMode=true";
-  };
 
   return (
     <>
@@ -94,6 +79,8 @@ const Example: React.FunctionComponent = () => {
             username={username}
             chatBot={chatBot}
             user={user}
+            ablyChatChannel="lens-chat-channel"
+            ablyPresenceChannel="lens-presence-channel"
           />
         </GridItem>
         <Button onClick={toggleChatVideos} id="xeedev-poaav">
