@@ -11,6 +11,7 @@ type AppSettingsStore = {
   isNewNfcPushNotificationsEnabled: boolean;
   isBlurEnabled: boolean;
   isNfcAutoplayEnabled: boolean;
+  expoPushToken: string | null;
   nfcFeedSorting: SortingTypes;
   toggleSettingsSheet: () => void;
   closeSettingsSheet: () => void;
@@ -19,6 +20,7 @@ type AppSettingsStore = {
   toggleNewNfcPushNotifications: () => void;
   toggleBlur: () => void;
   toggleNfcAutoplay: () => void;
+  saveExpoPushToken: (token: string) => void;
   setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => void;
   _hasHydrated: boolean;
   setHasHydrated: (state: boolean) => void;
@@ -26,7 +28,7 @@ type AppSettingsStore = {
 
 export const useAppSettingsStore = create<AppSettingsStore>()(
   persist(
-    (set, get) => ({
+    set => ({
       isSettingsSheetOpen: false,
       isNotificationPermissionGranted: false,
       isLivePushNotificationsEnabled: true,
@@ -34,6 +36,7 @@ export const useAppSettingsStore = create<AppSettingsStore>()(
       isBlurEnabled: true,
       isNfcAutoplayEnabled: true,
       nfcFeedSorting: 'createdAt',
+      expoPushToken: null,
       toggleSettingsSheet: () => set(z => ({ isSettingsSheetOpen: !z.isSettingsSheetOpen })),
       closeSettingsSheet: () => set({ isSettingsSheetOpen: false }),
       grantNotificationPermissions: () => set({ isNotificationPermissionGranted: true }),
@@ -43,6 +46,7 @@ export const useAppSettingsStore = create<AppSettingsStore>()(
         set(z => ({ isNewNfcPushNotificationsEnabled: !z.isNewNfcPushNotificationsEnabled })),
       toggleBlur: () => set(z => ({ isBlurEnabled: !z.isBlurEnabled })),
       toggleNfcAutoplay: () => set(z => ({ isNfcAutoplayEnabled: !z.isNfcAutoplayEnabled })),
+      saveExpoPushToken: (token: string) => set({ expoPushToken: token }),
       setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => set({ nfcFeedSorting }),
       _hasHydrated: false,
       setHasHydrated: state => {
@@ -80,7 +84,7 @@ type ConnectedWalletStore = {
 
 export const useConnectedWalletStore = create<ConnectedWalletStore>()(
   persist(
-    (set, get) => ({
+    set => ({
       isCKSheetOpen: false,
       connectedWallet: null,
       openCKSheet: () => set({ isCKSheetOpen: true }),
@@ -96,6 +100,50 @@ export const useConnectedWalletStore = create<ConnectedWalletStore>()(
     }),
     {
       name: 'connected-wallet',
+      storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => state => {
+        state.setHasHydrated(true);
+      },
+    }
+  )
+);
+
+type UserStore = {
+  userData: {
+    address: string;
+    username?: string;
+    signature?: string;
+    bio?: string;
+    powerUserLvl?: number;
+    videoSavantLvl?: number;
+    nfcRank?: number;
+    FCImageUrl?: string;
+    isFCUser?: boolean;
+    notificationsTokens?: string;
+    notificationsLive?: boolean;
+    notificationsNFCs?: boolean;
+  } | null;
+  setUser: (user: UserStore['userData']) => void;
+  clearUser: () => void;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
+};
+
+export const useUserStore = create<UserStore>()(
+  persist(
+    set => ({
+      userData: null,
+      setUser: (user: UserStore['userData']) => set({ userData: user }),
+      clearUser: () => set({ userData: null }),
+      _hasHydrated: false,
+      setHasHydrated: state => {
+        set({
+          _hasHydrated: state,
+        });
+      },
+    }),
+    {
+      name: 'unlonely-user',
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => state => {
         state.setHasHydrated(true);

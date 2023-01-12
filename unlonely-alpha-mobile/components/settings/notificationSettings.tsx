@@ -1,5 +1,6 @@
+import { useEffect } from 'react';
 import { View, Text, StyleSheet, Switch } from 'react-native';
-import { registerForPushNotificationsAsync } from '../../utils/notifications';
+import { allowsNotificationsAsync, registerForPushNotificationsAsync } from '../../utils/notifications';
 import { useAppSettingsStore } from '../../utils/store';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 
@@ -11,6 +12,8 @@ export const NotificationSettings = () => {
     grantNotificationPermissions,
     toggleLivePushNotifications,
     toggleNewNfcPushNotifications,
+    saveExpoPushToken,
+    expoPushToken,
   } = useAppSettingsStore(z => ({
     isNotificationPermissionGranted: z.isNotificationPermissionGranted,
     isLivePushNotificationsEnabled: z.isLivePushNotificationsEnabled,
@@ -18,13 +21,26 @@ export const NotificationSettings = () => {
     grantNotificationPermissions: z.grantNotificationPermissions,
     toggleLivePushNotifications: z.toggleLivePushNotifications,
     toggleNewNfcPushNotifications: z.toggleNewNfcPushNotifications,
+    saveExpoPushToken: z.saveExpoPushToken,
+    expoPushToken: z.expoPushToken,
   }));
 
   const grantPermissions = () => {
     registerForPushNotificationsAsync().then(token => {
       grantNotificationPermissions();
+      if (expoPushToken !== token) {
+        saveExpoPushToken(token);
+      }
     });
   };
+
+  useEffect(() => {
+    allowsNotificationsAsync().then(settings => {
+      console.log(settings);
+      // figure out permission stuff here for displaying the button and
+      // setting zustand variable settings
+    });
+  }, [isNotificationPermissionGranted]);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Tabs } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Platform, View, StyleSheet } from 'react-native';
@@ -14,20 +14,17 @@ import { FadedTabBar } from '../../components/nav/bottomGradient';
 import { StatusBar } from 'expo-status-bar';
 import overrideColorScheme from 'react-native-override-color-scheme';
 import * as Notifications from 'expo-notifications';
+import { initializeNotificationSettings } from '../../utils/notifications';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
+initializeNotificationSettings();
 
 export default function Layout() {
   // Load up the fonts as early as possible
   const [fontsLoaded] = useFonts({
     NeuePixelSans: require('../../assets/fonts/NeuePixelSans.ttf'),
   });
+  const notificationListener = useRef<any>();
+  const responseListener = useRef<any>();
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
@@ -49,6 +46,37 @@ export default function Layout() {
       });
     }
   }, []);
+
+  useEffect(() => {
+    // This listener is fired whenever a notification is received while the app is foregrounded
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      notificationCommonHandler(notification);
+    });
+
+    // This listener is fired whenever a user taps on or interacts with a notification
+    // (works when app is foregrounded, backgrounded, or killed)
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      notificationCommonHandler(response.notification);
+      notificationNavigationHandler(response.notification.request.content);
+    });
+
+    // The listeners must be clear on app unmount
+    return () => {
+      // @ts-ignore
+      Notifications.removeNotificationSubscription(notificationListener);
+      // @ts-ignore
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, []);
+
+  const notificationCommonHandler = notification => {
+    console.log('A notification has been received', notification);
+  };
+
+  const notificationNavigationHandler = ({ data }) => {
+    // navigate to app screen
+    console.log('A notification has been touched', data);
+  };
 
   if (!fontsLoaded) {
     return null;

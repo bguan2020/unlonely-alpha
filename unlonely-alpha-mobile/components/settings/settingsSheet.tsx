@@ -11,11 +11,9 @@ import { easeGradient } from 'react-native-easing-gradient';
 import { DeveloperSettings } from './developerSettings';
 
 const { colors, locations } = easeGradient({
-  // Eased gradient function so it doesn’t look like garbage
   colorStops: {
     1: {
       color: 'hsl(0, 0%, 8%)',
-      // color: 'red',
     },
     0: {
       color: 'hsla(0, 0%, 8%, 0)',
@@ -69,19 +67,7 @@ export const SettingsSheet = () => {
     <>
       <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints} onChange={handleSheetChanges} {...bottomSheetOptions}>
         <View style={[styles.main, styles.sheetWrapper]}>
-          <LinearGradient
-            colors={colors}
-            locations={locations}
-            start={[0, 1]}
-            end={[0, 0]}
-            style={{
-              width: '120%',
-              height: 40,
-              position: 'absolute',
-              top: 0,
-              zIndex: 4,
-            }}
-          />
+          <LinearGradient colors={colors} locations={locations} start={[0, 1]} end={[0, 0]} style={styles.fade} />
           <ScrollView style={[styles.main, styles.scroll]}>
             <UserSettings />
             <NotificationSettings />
@@ -107,5 +93,12 @@ const styles = StyleSheet.create({
   scroll: {
     paddingHorizontal: 16,
     paddingTop: 8,
+  },
+  fade: {
+    width: '120%',
+    height: 40,
+    position: 'absolute',
+    top: 0,
+    zIndex: 4,
   },
 });

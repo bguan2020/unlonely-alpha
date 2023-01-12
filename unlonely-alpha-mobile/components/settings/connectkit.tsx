@@ -1,15 +1,18 @@
 import BottomSheet from '@gorhom/bottom-sheet';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
+import { useUser } from '../../api/queries/useUser';
 import { useHaptics } from '../../utils/haptics';
-import { useConnectedWalletStore } from '../../utils/store';
+import { useConnectedWalletStore, useUserStore } from '../../utils/store';
 
 const CONNECTKIT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/connect-wallet';
 
 export function ConnectKitSheet() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const webViewRef = useRef<WebView>(null);
+  const [webViewKey, setWebViewKey] = useState(0);
+  const [showResetButton, setShowResetButton] = useState(false);
   const { isCKSheetOpen, closeCKSheet, clearConnectedWallet, setConnectedWallet, connectedWallet, _hasHydrated } =
     useConnectedWalletStore(z => ({
       isCKSheetOpen: z.isCKSheetOpen,
@@ -19,8 +22,17 @@ export function ConnectKitSheet() {
       connectedWallet: z.connectedWallet,
       _hasHydrated: z._hasHydrated,
     }));
-  const [webViewKey, setWebViewKey] = useState(0);
-  const [showResetButton, setShowResetButton] = useState(false);
+  const { userData, setUser, clearUser } = useUserStore(z => ({
+    userData: z.userData,
+    setUser: z.setUser,
+    clearUser: z.clearUser,
+  }));
+  const hydratedWalletAddress = _hasHydrated && connectedWallet ? connectedWallet.address : 'user';
+  const {
+    data: apiUser,
+    isLoading,
+    run: getUserData,
+  } = useUser(hydratedWalletAddress, { address: hydratedWalletAddress });
 
   const handleSheetChanges = (index: number) => {
     if (index === -1) {
@@ -44,7 +56,7 @@ export function ConnectKitSheet() {
     }
   };
 
-  const handleWebConnectKitConnection = (event: any) => {
+  const handleWebConnectKitConnection = async (event: any) => {
     const { data } = event.nativeEvent;
 
     if (data === 'ck_modal_closed') {
@@ -55,11 +67,14 @@ export function ConnectKitSheet() {
     if (data === 'wallet_disconnected') {
       closeCKSheet();
       clearConnectedWallet();
+      clearUser();
       return;
     }
 
     if (data === 'wallet_connected') {
       // loading wallet info...
+      // TODO: add a loading state to settings view here with zustand state so
+      // it looks more seamless when bottomsheet closes and data is being loaded
       closeCKSheet();
     }
 
@@ -70,10 +85,7 @@ export function ConnectKitSheet() {
       const sameAvatar = connectedWallet?.ensAvatar === walletData.ensAvatar;
 
       if (sameAddress && sameName && sameAvatar) return;
-      console.log('[connectkit] walletData', walletData);
       setConnectedWallet(walletData);
-      // figure out a way to fix the flash when ensName and ensAvatar come back
-      // as null from the webview. maybe delay the postMessage until the data is ready?
     }
   };
 
@@ -85,6 +97,18 @@ export function ConnectKitSheet() {
       bottomSheetRef.current?.close();
     }
   }, [isCKSheetOpen]);
+
+  useEffect(() => {
+    if (apiUser) {
+      setUser(apiUser);
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    if (connectedWallet !== null) {
+      getUserData();
+    }
+  }, [connectedWallet]);
 
   return (
     <View
