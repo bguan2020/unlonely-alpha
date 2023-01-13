@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Text, Flex, Link, Spinner } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import moment from "moment-timezone";
-import IVSPlayer from "../stream/IVSPlayer";
+import IVSPlayer from "./IVSPlayer";
 import useScript from "../../hooks/useScript";
 
 type Props = {
@@ -28,7 +28,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTim
     const now = new Date();
     // next stream time set to july 25, 2022 at 7pm PST, timezone specificed in moment-timezone
     const nextStreamTime = moment.tz(
-      "2023-01-11T18:00:00",
+      "2023-01-12T18:00:00",
       "America/Los_Angeles"
     );
     const diff = nextStreamTime.diff(now, "seconds");
