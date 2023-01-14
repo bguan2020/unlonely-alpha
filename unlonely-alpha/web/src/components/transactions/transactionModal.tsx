@@ -198,7 +198,8 @@ export default function TransactionModal({
       // @ts-ignore
       if (
         allowance &&
-        Number(ethers.utils.formatEther(allowance as BigNumberish)) >= parseInt(price)
+        Number(ethers.utils.formatEther(allowance as BigNumberish)) >=
+          parseInt(price)
       ) {
         setStep(1);
         transferWrite && (await transferWrite());

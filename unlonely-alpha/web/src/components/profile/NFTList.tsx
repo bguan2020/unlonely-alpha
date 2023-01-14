@@ -27,7 +27,12 @@ const NFTList: React.FunctionComponent<Props> = ({
           </Text>
         }
       >
-        <NFTModalBody address={address} author={author} isLens={isLens} lensHandle={lensHandle}/>
+        <NFTModalBody
+          address={address}
+          author={author}
+          isLens={isLens}
+          lensHandle={lensHandle}
+        />
         <NFTModalFooter />
       </NFTModalRoot>
     </>

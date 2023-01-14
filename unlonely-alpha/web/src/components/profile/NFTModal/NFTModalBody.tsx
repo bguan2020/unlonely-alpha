@@ -44,7 +44,6 @@ const NFTModalBody: React.FunctionComponent<NFTModalBodyProps> = ({
   const [nftList, setNftList] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  console.log(isLens);
 
   useEffect(() => {
     const fetchNFTList = async () => {
@@ -74,13 +73,18 @@ const NFTModalBody: React.FunctionComponent<NFTModalBodyProps> = ({
         {isLens && (
           <>
             <Button bgColor="#befb5a" mb="1rem">
-            <Image
-              src="/images/lens_logo.png"
-              width="20px"
-              height="20px"
-              mr="5px"
-            />
-              <a href={`https://www.lensfrens.xyz/${lensHandle}/follow`} target="_blank">follow on Lens</a>
+              <Image
+                src="/images/lens_logo.png"
+                width="20px"
+                height="20px"
+                mr="5px"
+              />
+              <a
+                href={`https://www.lensfrens.xyz/${lensHandle}/follow`}
+                target="_blank"
+              >
+                follow on Lens
+              </a>
             </Button>
           </>
         )}

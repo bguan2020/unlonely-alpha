@@ -65,7 +65,7 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
           }}
         ></video>
         <Flex justifyContent="center" bg="#FF6D6A">
-          {offline && (<>Stream offline</>)}
+          {offline && <>Stream offline</>}
         </Flex>
       </Flex>
     </>

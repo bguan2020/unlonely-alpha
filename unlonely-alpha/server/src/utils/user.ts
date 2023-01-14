@@ -19,19 +19,19 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
         ethereumAddress: address,
       },
     });
-      
-      if (data.defaultProfile) {
-        user = await prisma.user.update({
-          where: {
-            address: address,
-          },
-          data: {
-            isLensUser: true,
-            lensHandle: data.defaultProfile.handle,
-            lensImageUrl: data.defaultProfile.picture.original.url,
-          },
-        });
-      }
+
+    if (data.defaultProfile) {
+      user = await prisma.user.update({
+        where: {
+          address: address,
+        },
+        data: {
+          isLensUser: true,
+          lensHandle: data.defaultProfile.handle,
+          lensImageUrl: data.defaultProfile.picture.original.url,
+        },
+      });
+    }
   }
 
   if (!user) {
@@ -50,7 +50,9 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
         username: username,
         isLensUser: data.defaultProfile ? true : false,
         lensHandle: data.defaultProfile ? data.defaultProfile.handle : "",
-        lensImageUrl: data.defaultProfile ? data.defaultProfile.picture.original.url : "",
+        lensImageUrl: data.defaultProfile
+          ? data.defaultProfile.picture.original.url
+          : "",
       },
     });
   }

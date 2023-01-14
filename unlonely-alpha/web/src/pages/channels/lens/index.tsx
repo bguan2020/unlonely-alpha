@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import {
-  Text,
-  Flex,
-  Grid,
-  GridItem,
-  Box,
-  Button,
-} from "@chakra-ui/react";
+import { Text, Flex, Grid, GridItem, Box, Button } from "@chakra-ui/react";
 
 import { useAccount } from "wagmi";
 import AppLayout from "../../../components/layout/AppLayout";
@@ -51,7 +44,7 @@ const Example: React.FunctionComponent = () => {
     <>
       <Grid gridTemplateColumns={"80% 20%"} minH="calc(100vh - 48px)" mb="20px">
         <GridItem rowSpan={2} colSpan={1}>
-          <NextStreamTimer isTheatreMode={true} hasTimer={false}/>
+          <NextStreamTimer isTheatreMode={true} hasTimer={false} />
         </GridItem>
         <GridItem
           rowSpan={3}

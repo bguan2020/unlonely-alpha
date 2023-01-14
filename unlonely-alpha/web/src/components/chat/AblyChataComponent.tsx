@@ -57,7 +57,12 @@ const emojis = [
 
 const chatbotAddress = "0x0000000000000000000000000000000000000000";
 
-const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceChannel }: Props) => {
+const AblyChatComponent = ({
+  username,
+  chatBot,
+  ablyChatChannel,
+  ablyPresenceChannel,
+}: Props) => {
   const { user } = useUser();
   const { address } = useAccount();
   const ADD_REACTION_EVENT = "add-reaction";
@@ -87,7 +92,9 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
     },
   });
   const toast = useToast();
-  const channelName = ablyChatChannel ? `persistMessages:${ablyChatChannel}` : "persistMessages:chat-demo";
+  const channelName = ablyChatChannel
+    ? `persistMessages:${ablyChatChannel}`
+    : "persistMessages:chat-demo";
 
   const [channel, ably] = useChannel(channelName, (message) => {
     const history = receivedMessages.slice(-199);
@@ -487,10 +494,6 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
       splitURL[splitURL.length - 1] = `https://${
         splitURL[splitURL.length - 1]
       }`;
-    }
-
-    if (message.data.isLens) {
-      console.log("isLens", message.data.isLens);
     }
 
     return (
@@ -930,7 +933,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
     <>
       <Flex h="100%" minW="100%">
         <Flex mt="10px" direction="column" minW="100%" width="100%">
-          <Participants ablyPresenceChannel={ablyPresenceChannel}/>
+          <Participants ablyPresenceChannel={ablyPresenceChannel} />
           <Text
             lineHeight={5}
             mt="4px"
