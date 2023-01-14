@@ -376,6 +376,9 @@ export type User = {
   createdAt: Scalars["DateTime"];
   id: Scalars["ID"];
   isFCUser: Scalars["Boolean"];
+  isLensUser: Scalars["Boolean"];
+  lensHandle?: Maybe<Scalars["String"]>;
+  lensImageUrl?: Maybe<Scalars["String"]>;
   nfcRank: Scalars["Int"];
   notificationsLive?: Maybe<Scalars["Boolean"]>;
   notificationsNFCs?: Maybe<Scalars["Boolean"]>;
@@ -608,6 +611,9 @@ export type GetUserQuery = {
     nfcRank: number;
     FCImageUrl?: string | null;
     isFCUser: boolean;
+    isLensUser: boolean;
+    lensHandle?: string | null;
+    lensImageUrl?: string | null;
   } | null;
 };
 
@@ -1302,6 +1308,9 @@ export const GetUserDocument = gql`
       nfcRank
       FCImageUrl
       isFCUser
+      isLensUser
+      lensHandle
+      lensImageUrl
     }
   }
 `;

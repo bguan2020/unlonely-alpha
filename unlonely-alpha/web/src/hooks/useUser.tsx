@@ -17,6 +17,9 @@ const GET_USER_QUERY = gql`
       nfcRank
       FCImageUrl
       isFCUser
+      isLensUser
+      lensHandle
+      lensImageUrl
     }
   }
 `;

@@ -139,4 +139,5 @@ export const openseaNFCScript = async (ctx: Context) => {
   } catch (e) {
     console.log(e);
   }
+
 };

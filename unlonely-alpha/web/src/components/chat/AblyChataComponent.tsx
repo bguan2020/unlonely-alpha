@@ -141,6 +141,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             chatColor: "black",
             address: "chatbotAddress",
             isFC: false,
+            isLens: false,
             reactions: initializeEmojis,
           },
         });
@@ -156,6 +157,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
           chatColor: "black",
           address: "chatbotAddress",
           isFC: false,
+          isLens: false,
           reactions: initializeEmojis,
         },
       });
@@ -177,6 +179,8 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             username: user.username,
             chatColor,
             isFC: user.isFCUser,
+            isLens: user.isLensUser,
+            lensHandle: user.lensHandle,
             address: user.address,
             powerUserLvl: user?.powerUserLvl,
             videoSavantLvl: user?.videoSavantLvl,
@@ -196,6 +200,8 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             username: user.username,
             chatColor,
             isFC: user.isFCUser,
+            isLens: user.isLensUser,
+            lensHandle: user.lensHandle,
             address: user.address,
             powerUserLvl: user?.powerUserLvl,
             videoSavantLvl: user?.videoSavantLvl,
@@ -222,6 +228,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             username: null,
             chatColor,
             isFC: false,
+            isLens: false,
             address: address,
             powerUserLvl: 0,
             videoSavantLvl: 0,
@@ -268,6 +275,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
           chatColor: "black",
           address: chatbotAddress,
           isFC: false,
+          isLens: false,
           isGif: false,
           reactions: initializeEmojis,
         },
@@ -295,6 +303,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
           chatColor: "black",
           address: chatbotAddress,
           isFC: false,
+          isLens: false,
           isGif: false,
           reactions: initializeEmojis,
         },
@@ -324,6 +333,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
               chatColor: "black",
               address: chatbotAddress,
               isFC: false,
+              isLens: false,
               isGif: false,
               reactions: initializeEmojis,
             },
@@ -341,6 +351,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
               chatColor: "black",
               address: chatbotAddress,
               isFC: false,
+              isLens: false,
               isGif: false,
               reactions: initializeEmojis,
             },
@@ -357,6 +368,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             chatColor: "black",
             address: chatbotAddress,
             isFC: false,
+            isLens: false,
             isGif: false,
             reactions: initializeEmojis,
           },
@@ -377,6 +389,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             chatColor: "black",
             address: chatbotAddress,
             isFC: false,
+            isLens: false,
             isGif: false,
             reactions: initializeEmojis,
           },
@@ -476,6 +489,10 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
       }`;
     }
 
+    if (message.data.isLens) {
+      console.log("isLens", message.data.isLens);
+    }
+
     return (
       <>
         <Flex direction="column">
@@ -487,6 +504,8 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             <NFTList
               address={message.data.address}
               author={message.data.username}
+              isLens={message.data.isLens}
+              lensHandle={message.data.lensHandle}
             />
           </Flex>
           <div className="showhim">
