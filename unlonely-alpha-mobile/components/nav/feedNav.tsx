@@ -2,11 +2,13 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { View, Image, StyleSheet, Platform, Text } from 'react-native';
 import { useHaptics } from '../../utils/haptics';
-import { useAppSettingsStore, useConnectedWalletStore } from '../../utils/store';
 import { SettingsSheet } from '../settings/settingsSheet';
 import { MotiView } from 'moti';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 import { AnimatedMenuView } from '../buttons/animatedMenuView';
+import { useUserStore } from '../../utils/store/userStore';
+import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
+import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
 
 const AVATAR_SIZE = 48;
 
@@ -28,17 +30,19 @@ const sortingIconAnimationOptions: any = {
 };
 
 export function FeedNav() {
-  const { connectedWallet, _hasHydrated } = useConnectedWalletStore(z => ({
+  const { _hasHydrated, connectedWallet, userData } = useUserStore(z => ({
     connectedWallet: z.connectedWallet,
+    userData: z.userData,
     _hasHydrated: z._hasHydrated,
   }));
-  const { nfcFeedSort, setNFCFeedSorting, toggleSettingsSheet } = useAppSettingsStore(z => ({
-    nfcFeedSort: z.nfcFeedSorting,
+  const { nfcFeedSorting, setNFCFeedSorting } = useAppSettingsStore(z => ({
+    nfcFeedSorting: z.nfcFeedSorting,
     setNFCFeedSorting: z.setNFCFeedSorting,
-    toggleSettingsSheet: z.toggleSettingsSheet,
   }));
-  const isSortingByRecent = nfcFeedSort === 'createdAt';
-  const isSortingByLiked = nfcFeedSort === 'score';
+  const toggleSettingsSheet = useBottomSheetStore(z => z.toggleSettingsSheet);
+
+  const isSortingByRecent = nfcFeedSorting === 'createdAt';
+  const isSortingByLiked = nfcFeedSorting === 'score';
 
   return (
     <>
@@ -81,15 +85,30 @@ export function FeedNav() {
                   },
                 ]}
               >
+                <BlurView
+                  intensity={80}
+                  tint="dark"
+                  style={{
+                    position: 'absolute',
+                    width: AVATAR_SIZE,
+                    height: AVATAR_SIZE,
+                    zIndex: 1,
+                  }}
+                ></BlurView>
                 <Image
                   style={{
-                    width: AVATAR_SIZE - 8,
-                    height: AVATAR_SIZE - 8,
+                    width: AVATAR_SIZE - 6,
+                    height: AVATAR_SIZE - 6,
                     borderRadius: 100,
                     resizeMode: 'cover',
+                    zIndex: 2,
                   }}
                   source={{
-                    uri: connectedWallet.ensAvatar,
+                    uri: userData
+                      ? userData.isFCUser
+                        ? userData.FCImageUrl
+                        : connectedWallet.ensAvatar
+                      : connectedWallet.ensAvatar,
                   }}
                 />
               </View>

@@ -2,5 +2,6 @@
   "search.exclude": {
     "**/yarn.lock": true,
     "**/node_modules": true
-  }
+  },
+  "dotenv.enableAutocloaking": true
 }

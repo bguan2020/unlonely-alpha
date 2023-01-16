@@ -10,7 +10,7 @@ import { useHaptics } from '../../utils/haptics';
 import { AnimatedMenuView } from '../buttons/animatedMenuView';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 import { format, parseISO } from 'date-fns';
-import { useAppSettingsStore } from '../../utils/store';
+import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 
 type FullscreenNfcProps = {
   height: number;

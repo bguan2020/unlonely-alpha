@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useWindowDimensions, StyleSheet, ScrollView, View } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
-import { useAppSettingsStore } from '../../utils/store';
 import { useHaptics } from '../../utils/haptics';
 import { NotificationSettings } from './notificationSettings';
 import { AppSettings } from './appSettings';
@@ -9,6 +8,7 @@ import { UserSettings } from './userSettings';
 import { LinearGradient } from 'expo-linear-gradient';
 import { easeGradient } from 'react-native-easing-gradient';
 import { DeveloperSettings } from './developerSettings';
+import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
 
 const { colors, locations } = easeGradient({
   colorStops: {
@@ -43,13 +43,14 @@ const bottomSheetOptions = {
 };
 
 export const SettingsSheet = () => {
-  const { isSettingsSheetOpen, closeSettingsSheet } = useAppSettingsStore(z => ({
-    isSettingsSheetOpen: z.isSettingsSheetOpen,
-    closeSettingsSheet: z.closeSettingsSheet,
-  }));
   const { height } = useWindowDimensions();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => [height - 112], [height]); // figure out top bar height and add it here?
+  const { isSettingsSheetOpen, closeSettingsSheet } = useBottomSheetStore(z => ({
+    isSettingsSheetOpen: z.isSettingsSheetOpen,
+    closeSettingsSheet: z.closeSettingsSheet,
+  }));
+
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) closeSettingsSheet();
   }, []);
@@ -68,12 +69,14 @@ export const SettingsSheet = () => {
       <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints} onChange={handleSheetChanges} {...bottomSheetOptions}>
         <View style={[styles.main, styles.sheetWrapper]}>
           <LinearGradient colors={colors} locations={locations} start={[0, 1]} end={[0, 0]} style={styles.fade} />
-          <ScrollView style={[styles.main, styles.scroll]}>
-            <UserSettings />
-            <NotificationSettings />
-            <AppSettings />
-            <DeveloperSettings />
-          </ScrollView>
+          {isSettingsSheetOpen && (
+            <ScrollView style={[styles.main, styles.scroll]}>
+              <UserSettings />
+              <NotificationSettings />
+              <AppSettings />
+              <DeveloperSettings />
+            </ScrollView>
+          )}
         </View>
       </BottomSheet>
     </>

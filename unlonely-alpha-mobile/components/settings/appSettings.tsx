@@ -1,13 +1,8 @@
 import { View, Text, StyleSheet, Switch } from 'react-native';
-import { useAppSettingsStore } from '../../utils/store';
+import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 
 export const AppSettings = () => {
-  const { isBlurEnabled, isNfcAutoplayEnabled, toggleBlur, toggleNfcAutoplay } = useAppSettingsStore(z => ({
-    isBlurEnabled: z.isBlurEnabled,
-    isNfcAutoplayEnabled: z.isNfcAutoplayEnabled,
-    toggleBlur: z.toggleBlur,
-    toggleNfcAutoplay: z.toggleNfcAutoplay,
-  }));
+  const { isBlurEnabled, isNfcAutoplayEnabled, toggleBlur, toggleNfcAutoplay } = useAppSettingsStore();
 
   return (
     <>

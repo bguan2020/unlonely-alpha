@@ -8,7 +8,7 @@ import { useHaptics } from '../../utils/haptics';
 import { FeedNav } from '../../components/nav/feedNav';
 import { UnlonelyTopGradientWithLogo } from '../../components/nav/topGradient';
 import { ConnectKitSheet } from '../../components/settings/connectkit';
-import { useAppSettingsStore } from '../../utils/store';
+import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 
 export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();

@@ -4,7 +4,8 @@ import { View, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
 import { useUser } from '../../api/queries/useUser';
 import { useHaptics } from '../../utils/haptics';
-import { useConnectedWalletStore, useUserStore } from '../../utils/store';
+import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
+import { useUserStore } from '../../utils/store/userStore';
 
 const CONNECTKIT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/connect-wallet';
 
@@ -13,26 +14,23 @@ export function ConnectKitSheet() {
   const webViewRef = useRef<WebView>(null);
   const [webViewKey, setWebViewKey] = useState(0);
   const [showResetButton, setShowResetButton] = useState(false);
-  const { isCKSheetOpen, closeCKSheet, clearConnectedWallet, setConnectedWallet, connectedWallet, _hasHydrated } =
-    useConnectedWalletStore(z => ({
-      isCKSheetOpen: z.isCKSheetOpen,
-      closeCKSheet: z.closeCKSheet,
-      clearConnectedWallet: z.clearConnectedWallet,
-      setConnectedWallet: z.setConnectedWallet,
-      connectedWallet: z.connectedWallet,
+
+  // store
+  const { isSettingsSheetOpen, isCKSheetOpen, closeCKSheet } = useBottomSheetStore();
+  const { _hasHydrated, connectedWallet, setConnectedWallet, clearConnectedWallet, userData, setUser, clearUser } =
+    useUserStore(z => ({
       _hasHydrated: z._hasHydrated,
+      connectedWallet: z.connectedWallet,
+      setConnectedWallet: z.setConnectedWallet,
+      clearConnectedWallet: z.clearConnectedWallet,
+      userData: z.userData,
+      setUser: z.setUser,
+      clearUser: z.clearUser,
     }));
-  const { userData, setUser, clearUser } = useUserStore(z => ({
-    userData: z.userData,
-    setUser: z.setUser,
-    clearUser: z.clearUser,
-  }));
   const hydratedWalletAddress = _hasHydrated && connectedWallet ? connectedWallet.address : 'user';
-  const {
-    data: apiUser,
-    isLoading,
-    run: getUserData,
-  } = useUser(hydratedWalletAddress, { address: hydratedWalletAddress });
+
+  // query
+  const { data: apiUser, run: getUserData } = useUser(hydratedWalletAddress, { address: hydratedWalletAddress });
 
   const handleSheetChanges = (index: number) => {
     if (index === -1) {
@@ -60,22 +58,23 @@ export function ConnectKitSheet() {
     const { data } = event.nativeEvent;
 
     if (data === 'ck_modal_closed') {
+      console.log('[connectkit] modal closed ⬇️');
       closeCKSheet();
       return;
     }
 
     if (data === 'wallet_disconnected') {
-      closeCKSheet();
-      clearConnectedWallet();
+      console.log('[connectkit] wallet disconnected 🗑️');
       clearUser();
+      clearConnectedWallet();
       return;
     }
 
     if (data === 'wallet_connected') {
+      console.log('[connectkit] wallet connected ✅');
       // loading wallet info...
       // TODO: add a loading state to settings view here with zustand state so
       // it looks more seamless when bottomsheet closes and data is being loaded
-      closeCKSheet();
     }
 
     if (data.includes('address')) {
@@ -85,6 +84,7 @@ export function ConnectKitSheet() {
       const sameAvatar = connectedWallet?.ensAvatar === walletData.ensAvatar;
 
       if (sameAddress && sameName && sameAvatar) return;
+      console.log('[ck] saving connected wallet data...');
       setConnectedWallet(walletData);
     }
   };
@@ -99,10 +99,11 @@ export function ConnectKitSheet() {
   }, [isCKSheetOpen]);
 
   useEffect(() => {
-    if (apiUser) {
-      setUser(apiUser);
+    if (apiUser?.getUser) {
+      console.log('[ck] saving userData to zustand...');
+      setUser(apiUser.getUser);
     }
-  }, [userData]);
+  }, [apiUser]);
 
   useEffect(() => {
     if (connectedWallet !== null) {
@@ -145,27 +146,29 @@ export function ConnectKitSheet() {
           },
         ]}
       >
-        <View style={styles.viewWrapper}>
-          <WebView
-            ref={webViewRef}
-            key={webViewKey}
-            onNavigationStateChange={handleNavigationStateChange}
-            contentMode="mobile"
-            overScrollMode="never"
-            scalesPageToFit={false}
-            setBuiltInZoomControls={false}
-            setDisplayZoomControls={false}
-            showsHorizontalScrollIndicator={false}
-            showsVerticalScrollIndicator={false}
-            scrollEnabled={false}
-            forceDarkOn
-            // @ts-ignore
-            zoomScale={1}
-            source={{ uri: CONNECTKIT_WEBVIEW_URL }}
-            onMessage={handleWebConnectKitConnection}
-            style={styles.webView}
-          />
-        </View>
+        {isSettingsSheetOpen && (
+          <View style={styles.viewWrapper}>
+            <WebView
+              ref={webViewRef}
+              key={webViewKey}
+              onNavigationStateChange={handleNavigationStateChange}
+              contentMode="mobile"
+              overScrollMode="never"
+              scalesPageToFit={false}
+              setBuiltInZoomControls={false}
+              setDisplayZoomControls={false}
+              showsHorizontalScrollIndicator={false}
+              showsVerticalScrollIndicator={false}
+              scrollEnabled={false}
+              forceDarkOn
+              // @ts-ignore
+              zoomScale={1}
+              source={{ uri: CONNECTKIT_WEBVIEW_URL }}
+              onMessage={handleWebConnectKitConnection}
+              style={styles.webView}
+            />
+          </View>
+        )}
       </BottomSheet>
     </View>
   );

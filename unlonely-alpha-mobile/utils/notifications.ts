@@ -56,6 +56,6 @@ export async function schedulePushNotification() {
       body: 'hello friend. welcome to unlonely developer settings.',
       data: { data: '$BRIAN' },
     },
-    trigger: { seconds: 10 },
+    trigger: { seconds: 1 },
   });
 }

@@ -11,10 +11,11 @@ export function useUser(key: string, params: { address: string }) {
     [key],
     async () => {
       if (shouldRun) {
+        console.log('[query] useUser grabbing user data right now...', params);
         return request(API_ENDPOINT, USER_QUERY, { data: params });
       }
     },
-    { enabled: shouldRun }
+    { enabled: shouldRun, staleTime: 3000 }
   );
 
   useEffect(() => {

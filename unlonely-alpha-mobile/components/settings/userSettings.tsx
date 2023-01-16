@@ -1,17 +1,38 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useEffect } from 'react';
 import { Text, StyleSheet, View, Image } from 'react-native';
-import { useConnectedWalletStore } from '../../utils/store';
+import { useUser } from '../../api/queries/useUser';
+import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
+import { useUserStore } from '../../utils/store/userStore';
 import { truncate0x, truncateEns } from '../../utils/truncate';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 
 const AVATAR_SIZE = 48;
 
 export const UserSettings = () => {
-  const { connectedWallet, openCKSheet, _hasHydrated } = useConnectedWalletStore(z => ({
+  const openCKSheet = useBottomSheetStore(z => z.openCKSheet);
+  const { hasHydrated, connectedWallet, userData, setUser } = useUserStore(z => ({
+    hasHydrated: z._hasHydrated,
     connectedWallet: z.connectedWallet,
-    openCKSheet: z.openCKSheet,
-    _hasHydrated: z._hasHydrated,
+    userData: z.userData,
+    setUser: z.setUser,
   }));
+  const hydratedWalletAddress = hasHydrated && connectedWallet ? connectedWallet.address : 'user';
+  const { data: apiUser, run: getUserData } = useUser(hydratedWalletAddress, { address: hydratedWalletAddress });
+
+  useEffect(() => {
+    // runs pretty much on every open of the settings bottom sheet
+    // and whenever userData changes
+    if (userData) {
+      getUserData();
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    if (apiUser) {
+      setUser(apiUser.getUser);
+    }
+  }, [apiUser]);
 
   return (
     <>
@@ -23,71 +44,81 @@ export const UserSettings = () => {
           alignItems: 'center',
         }}
       >
-        <View style={styles.userRow}>
-          <View
-            style={{
-              width: AVATAR_SIZE,
-              height: AVATAR_SIZE,
-              borderRadius: 100,
-              shadowColor: 'black',
-              shadowOffset: { width: 0, height: 5 },
-              shadowOpacity: 0.5,
-              shadowRadius: 15,
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginLeft: -4,
-            }}
-          >
-            {connectedWallet && connectedWallet.ensAvatar ? (
-              <View
-                style={[
-                  styles.floatingButton,
-                  {
-                    backgroundColor: 'rgba(0,0,0,0.15)',
-                  },
-                ]}
-              >
-                <Image
-                  style={{
-                    width: AVATAR_SIZE - 8,
-                    height: AVATAR_SIZE - 8,
-                    borderRadius: 100,
-                    resizeMode: 'cover',
-                  }}
-                  source={{
-                    uri: connectedWallet.ensAvatar,
-                  }}
-                />
-              </View>
-            ) : (
-              <View style={styles.floatingButton}>
-                <Ionicons
-                  name="ios-person"
-                  size={20}
-                  color="#e6f88a"
-                  style={{
-                    top: -1,
-                    zIndex: 2,
-                  }}
-                />
-              </View>
-            )}
-          </View>
-          <View
-            style={{
-              paddingLeft: 12,
-            }}
-          >
-            {connectedWallet ? (
-              connectedWallet.ensName && <Text style={styles.ensText}>{truncateEns(connectedWallet.ensName)}</Text>
-            ) : (
-              <Text style={styles.ensText}>lonely anon</Text>
-            )}
+        {hasHydrated ? (
+          <View style={styles.userRow}>
+            <View
+              style={{
+                width: AVATAR_SIZE,
+                height: AVATAR_SIZE,
+                borderRadius: 100,
+                shadowColor: 'black',
+                shadowOffset: { width: 0, height: 5 },
+                shadowOpacity: 0.5,
+                shadowRadius: 15,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginLeft: -4,
+              }}
+            >
+              {connectedWallet && connectedWallet.ensAvatar ? (
+                <View
+                  style={[
+                    styles.floatingButton,
+                    {
+                      backgroundColor: 'rgba(0,0,0,0.15)',
+                    },
+                  ]}
+                >
+                  <Image
+                    style={{
+                      width: AVATAR_SIZE - 6,
+                      height: AVATAR_SIZE - 6,
+                      borderRadius: 100,
+                      resizeMode: 'cover',
+                    }}
+                    source={{
+                      uri: userData
+                        ? userData.isFCUser
+                          ? userData.FCImageUrl
+                          : connectedWallet.ensAvatar
+                        : connectedWallet.ensAvatar,
+                    }}
+                  />
+                </View>
+              ) : (
+                <View style={styles.floatingButton}>
+                  <Ionicons
+                    name="ios-person"
+                    size={20}
+                    color="#e6f88a"
+                    style={{
+                      top: -1,
+                      zIndex: 2,
+                    }}
+                  />
+                </View>
+              )}
+            </View>
+            <View
+              style={{
+                paddingLeft: 12,
+              }}
+            >
+              {connectedWallet ? (
+                connectedWallet.ensName && <Text style={styles.ensText}>{truncateEns(connectedWallet.ensName)}</Text>
+              ) : (
+                <Text style={styles.ensText}>lonely anon</Text>
+              )}
 
-            {connectedWallet && <Text style={styles.addressText}>{truncate0x(connectedWallet.address)}</Text>}
+              {connectedWallet && <Text style={styles.addressText}>{truncate0x(connectedWallet.address)}</Text>}
+            </View>
           </View>
-        </View>
+        ) : (
+          <View style={styles.userRow}>
+            <Text style={styles.ensText}>hydrating...</Text>
+          </View>
+        )}
         <View>
           <AnimatedPressable style={styles.manageButton} onPress={openCKSheet}>
             <Text style={styles.manageButtonText}>{connectedWallet ? 'manage' : 'connect'}</Text>
