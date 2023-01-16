@@ -7,17 +7,15 @@ import {
 } from "amazon-ivs-player";
 import { Flex } from "@chakra-ui/react";
 
-const defaultPlaybackUrl =
-  "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8";
-
 type Props = {
   isTheatreMode: boolean;
+  playbackUrl: string;
 };
 
-const IVSPlayer: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
+const IVSPlayer: React.FunctionComponent<Props> = ({ isTheatreMode, playbackUrl }) => {
   const [offline, setOffline] = useState<boolean>(false);
   useEffect(() => {
-    const PLAYBACK_URL = defaultPlaybackUrl;
+    const PLAYBACK_URL = playbackUrl;
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore

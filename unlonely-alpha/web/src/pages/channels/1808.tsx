@@ -38,6 +38,9 @@ type Props = {
   loading: boolean;
 };
 
+const brianPlaybackUrl =
+  "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8";
+
 const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
   const { user } = useUser();
   const [sortVideoAs, setSortVideoAs] = useState<VideoAttribute>("score");
@@ -117,7 +120,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
             mt="10px"
           >
-            <IVSPlayer isTheatreMode={false} />
+            <IVSPlayer isTheatreMode={false} playbackUrl={brianPlaybackUrl}/>
           </Flex>
         </GridItem>
         <GridItem rowSpan={1} colSpan={1} mr="20px">

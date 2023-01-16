@@ -24,6 +24,8 @@ export type ChatBot = {
   description: string | null | undefined;
 };
 
+const lensPlaybackUrl = "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.Ys4fo4t2hKP1.m3u8";
+
 const Example: React.FunctionComponent = () => {
   const [width, height] = useWindowSize();
   const { user } = useUser();
@@ -67,7 +69,7 @@ const Example: React.FunctionComponent = () => {
           direction={["column", "row", "row"]}
         >
           <Flex width={{ base: "100%", sm: "70%", md: "70%", lg: "100%" }}>
-            <NextStreamTimer isTheatreMode={true} hasTimer={false} />
+            <NextStreamTimer isTheatreMode={true} hasTimer={false} playbackUrl={lensPlaybackUrl}/>
           </Flex>
           <Button
             height={{

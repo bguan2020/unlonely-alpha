@@ -7,12 +7,14 @@ import useScript from "../../hooks/useScript";
 
 type Props = {
   isTheatreMode: boolean;
+  playbackUrl: string;
   hasTimer?: boolean;
 };
 
 const NextStreamTimer: React.FunctionComponent<Props> = ({
   isTheatreMode,
   hasTimer,
+  playbackUrl,
 }) => {
   const [streamingTime, setStreamingTime] = useState<boolean>(false);
   const [days, setDays] = useState<number>(0);
@@ -90,7 +92,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
               : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
           }
         >
-          <IVSPlayer isTheatreMode={isTheatreMode} />
+          <IVSPlayer isTheatreMode={isTheatreMode} playbackUrl={playbackUrl}/>
         </Flex>
       ) : (
         <>
@@ -106,7 +108,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
               }
               mt="10px"
             >
-              <IVSPlayer isTheatreMode={isTheatreMode} />
+              <IVSPlayer isTheatreMode={isTheatreMode} playbackUrl={playbackUrl}/>
             </Flex>
           ) : (
             <Flex
