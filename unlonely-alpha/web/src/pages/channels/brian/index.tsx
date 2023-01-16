@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/router";
 import {
   Text,
   Flex,
@@ -34,30 +33,15 @@ export type ChatBot = {
 
 const Example: React.FunctionComponent = () => {
   const [width, height] = useWindowSize();
-
   const { user } = useUser();
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
-  const router = useRouter();
+  const accountData = useAccount();
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
-  const [isMobile, setIsMobile] = useState(false);
   const toggleChatVideos = function () {
     setHideChat(!hideChat);
   };
-
-  const accountData = useAccount();
-  useEffect(() => {
-    const fetchEns = async () => {
-      if (accountData?.address) {
-        const ens = await getEnsName(accountData.address);
-        const username = ens ? ens : centerEllipses(accountData.address, 9);
-        setUsername(username);
-      }
-    };
-
-    fetchEns();
-  }, [accountData?.address]);
 
   useEffect(() => {
     const fetchEns = async () => {

@@ -1,6 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { Text, Flex, Grid, GridItem, Box, Button } from "@chakra-ui/react";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  Text,
+  Flex,
+  Button,
+  Container,
+  Stack,
+} from "@chakra-ui/react";
 
 import { useAccount } from "wagmi";
 import AppLayout from "../../../components/layout/AppLayout";
@@ -9,6 +14,7 @@ import centerEllipses from "../../../utils/centerEllipses";
 import AblyChatComponent from "../../../components/chat/AblyChataComponent";
 import NextStreamTimer from "../../../components/stream/NextStreamTimer";
 import { useUser } from "../../../hooks/useUser";
+import { useWindowSize } from "../../../hooks/useWindowSize";
 
 export type ChatBot = {
   username: string;
@@ -19,14 +25,24 @@ export type ChatBot = {
 };
 
 const Example: React.FunctionComponent = () => {
+  const [width, height] = useWindowSize();
   const { user } = useUser();
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
-  const router = useRouter();
-  const [isTheatreMode, setIsTheatreMode] = useState<boolean>(
-    router.query.theatreMode === "true"
-  );
   const accountData = useAccount();
+  //used on mobile view
+  const [hideChat, setHideChat] = useState<boolean>(false);
+  const toggleChatVideos = function () {
+    setHideChat(!hideChat);
+  };
+
+  const isHidden = useCallback(
+    (isChat: boolean) => {
+      //checks if width is <= 48 em (base size) if so checks switch tab is disabled
+      return width <= 768 && (isChat ? hideChat : !hideChat);
+    },
+    [width, hideChat]
+  );
 
   useEffect(() => {
     const fetchEns = async () => {
@@ -42,70 +58,72 @@ const Example: React.FunctionComponent = () => {
 
   return (
     <>
-      <Grid gridTemplateColumns={"80% 20%"} minH="calc(100vh - 48px)" mb="20px">
-        <GridItem rowSpan={2} colSpan={1}>
-          <NextStreamTimer isTheatreMode={true} hasTimer={false} />
-        </GridItem>
-        <GridItem
-          rowSpan={3}
-          colSpan={1}
-          border="2px"
+      <Stack direction="column">
+        <Stack
+          mx={[8, 4]}
+          alignItems={["center", "initial"]}
           mt="10px"
-          mb="190px"
-          maxH="700px"
-          id="xeedev-chat-div"
+          spacing={8}
+          direction={["column", "row", "row"]}
         >
-          <Flex
-            justifyContent="center"
-            direction="column"
-            bg="black"
-            pb="10px"
-            pt="10px"
+          <Flex width={{ base: "100%", sm: "70%", md: "70%", lg: "100%" }}>
+            <NextStreamTimer isTheatreMode={true} hasTimer={false} />
+          </Flex>
+          <Button
+            height={{
+              //only show on mobile
+              base: "100%", // 0-48em
+              md: "0%", // 48em-80em,
+              xl: "0%", // 80em+
+            }}
+            onClick={toggleChatVideos}
+            id="xeedev-poaav"
           >
-            <Box bg="black" margin="auto">
-              <Text fontWeight={"bold"} fontSize="20px" color="white">
-                The Chat Room!
-              </Text>
-            </Box>
-          </Flex>
-          <AblyChatComponent
-            username={username}
-            chatBot={chatBot}
-            user={user}
-            ablyChatChannel="lens-chat-channel"
-            ablyPresenceChannel="lens-presence-channel"
-          />
-        </GridItem>
-        <Button onClick={toggleChatVideos} id="xeedev-poaav">
-          Toggle Chat/Host Schedule
-        </Button>
-        <GridItem
-          rowSpan={1}
-          colSpan={1}
-          mr="20px"
-          id="xeedev-video-modal"
-          className="xeedev-class-hide"
-        >
-          <Flex direction="column">
-            <Flex
-              maxH="400px"
-              margin="auto"
-              mb="16px"
-              ml="32px"
-              w="100%"
-              justifyContent="space-between"
-              pr="32px"
+            Toggle Chat/Host Schedule
+          </Button>
+          <Container
+            hidden={isHidden(true)}
+            maxW={["768px", "300px"]}
+            mr="10px"
+            borderWidth="3px"
+            borderColor="black"
+            centerContent
+          >
+            <Text
+              mt="10px"
+              align="center"
+              fontWeight={"bold"}
+              fontSize="20px"
+              color="white"
             >
-              <Text fontSize="2rem" fontWeight="bold">
-                Welcome to Unlonely! This is the Lens Channel!
-              </Text>
-            </Flex>
-            <Flex direction="row" width="100%" margin="auto" ml="32px">
-              add any description here...
-            </Flex>
+              The Chat Room!
+            </Text>
+            <AblyChatComponent
+              username={username}
+              chatBot={chatBot}
+              user={user}
+            />
+          </Container>
+        </Stack>
+        <Flex direction="column">
+          <Flex
+            maxH="400px"
+            margin="auto"
+            mb="16px"
+            ml="32px"
+            w="100%"
+            justifyContent="space-between"
+            pr="32px"
+          >
+            <Text fontSize="2rem" fontWeight="bold">
+              Welcome to Unlonely! This is the Lens Channel!
+            </Text>
           </Flex>
-        </GridItem>
-      </Grid>
+          <Flex direction="row" width="100%" margin="auto" ml="32px">
+            add any description here...
+          </Flex>
+        </Flex>
+      </Stack>
     </>
   );
 };
