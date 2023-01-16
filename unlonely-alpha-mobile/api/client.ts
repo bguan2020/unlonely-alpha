@@ -15,7 +15,7 @@ export const useGqlClient = (): GraphQLClient => {
     _hasHydrated: z._hasHydrated,
   }));
 
-  let headers;
+  let headers: { 'x-auth-address'?: string; 'x-auth-signed-message'?: string };
 
   if (_hasHydrated && userData) {
     if (userData.address && userData.signature) {

@@ -9,6 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { easeGradient } from 'react-native-easing-gradient';
 import { DeveloperSettings } from './developerSettings';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
+import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
 
 const { colors, locations } = easeGradient({
   colorStops: {
@@ -50,6 +51,10 @@ export const SettingsSheet = () => {
     isSettingsSheetOpen: z.isSettingsSheetOpen,
     closeSettingsSheet: z.closeSettingsSheet,
   }));
+  const { startNFCPlaying, stopNFCPlaying } = useVideoPlayerStore(z => ({
+    startNFCPlaying: z.startNFCPlaying,
+    stopNFCPlaying: z.stopNFCPlaying,
+  }));
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) closeSettingsSheet();
@@ -57,10 +62,12 @@ export const SettingsSheet = () => {
 
   useEffect(() => {
     if (isSettingsSheetOpen) {
+      stopNFCPlaying();
       bottomSheetRef.current?.expand();
       useHaptics('light');
     } else {
       bottomSheetRef.current?.close();
+      startNFCPlaying();
     }
   }, [isSettingsSheetOpen]);
 
@@ -69,14 +76,12 @@ export const SettingsSheet = () => {
       <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints} onChange={handleSheetChanges} {...bottomSheetOptions}>
         <View style={[styles.main, styles.sheetWrapper]}>
           <LinearGradient colors={colors} locations={locations} start={[0, 1]} end={[0, 0]} style={styles.fade} />
-          {isSettingsSheetOpen && (
-            <ScrollView style={[styles.main, styles.scroll]}>
-              <UserSettings />
-              <NotificationSettings />
-              <AppSettings />
-              <DeveloperSettings />
-            </ScrollView>
-          )}
+          <ScrollView style={[styles.main, styles.scroll]}>
+            <UserSettings />
+            <NotificationSettings />
+            <AppSettings />
+            <DeveloperSettings />
+          </ScrollView>
         </View>
       </BottomSheet>
     </>

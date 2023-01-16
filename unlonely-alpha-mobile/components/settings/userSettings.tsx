@@ -10,7 +10,10 @@ import { AnimatedPressable } from '../buttons/animatedPressable';
 const AVATAR_SIZE = 48;
 
 export const UserSettings = () => {
-  const openCKSheet = useBottomSheetStore(z => z.openCKSheet);
+  const { isSettingsSheetOpen, openCKSheet } = useBottomSheetStore(z => ({
+    isSettingsSheetOpen: z.isSettingsSheetOpen,
+    openCKSheet: z.openCKSheet,
+  }));
   const { hasHydrated, connectedWallet, userData, setUser } = useUserStore(z => ({
     hasHydrated: z._hasHydrated,
     connectedWallet: z.connectedWallet,
@@ -23,12 +26,15 @@ export const UserSettings = () => {
   useEffect(() => {
     // runs pretty much on every open of the settings bottom sheet
     // and whenever userData changes
-    if (userData) {
+    if (userData && !isSettingsSheetOpen) {
+      // refreshes user data from the database
+      console.log('[settings] refreshing user data...');
       getUserData();
     }
   }, [userData]);
 
   useEffect(() => {
+    // runs after getUserData() is called
     if (apiUser) {
       setUser(apiUser.getUser);
     }

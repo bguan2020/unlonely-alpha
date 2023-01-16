@@ -3,21 +3,17 @@ import create from 'zustand';
 type VideoPlayerStore = {
   isNFCPlaying: boolean;
   isLiveStreamPlaying: boolean;
-  toggleNFCPlaying: () => void;
-  toggleLiveStreamPlaying: () => void;
+  startNFCPlaying: () => void;
+  stopNFCPlaying: () => void;
+  startLiveStreamPlaying: () => void;
+  stopLiveStreamPlaying: () => void;
 };
 
 export const useVideoPlayerStore = create<VideoPlayerStore>()(set => ({
   isNFCPlaying: false,
   isLiveStreamPlaying: false,
-  toggleNFCPlaying: () =>
-    set(z => ({
-      isNFCPlaying: !z.isNFCPlaying,
-      isLiveStreamPlaying: false,
-    })),
-  toggleLiveStreamPlaying: () =>
-    set(z => ({
-      isLiveStreamPlaying: !z.isLiveStreamPlaying,
-      isNFCPlaying: false,
-    })),
+  startNFCPlaying: () => set({ isNFCPlaying: true, isLiveStreamPlaying: false }),
+  stopNFCPlaying: () => set({ isNFCPlaying: false }),
+  startLiveStreamPlaying: () => set({ isLiveStreamPlaying: true, isNFCPlaying: false }),
+  stopLiveStreamPlaying: () => set({ isLiveStreamPlaying: false }),
 }));

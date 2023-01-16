@@ -76,6 +76,7 @@ export function FeedNav() {
               alignItems: 'center',
             }}
           >
+            {/* TODO: change to X icon when bottom sheet is open? */}
             {_hasHydrated && connectedWallet && connectedWallet.ensAvatar ? (
               <View
                 style={[

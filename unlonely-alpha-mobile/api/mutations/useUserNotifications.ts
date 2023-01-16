@@ -22,7 +22,7 @@ export const useUserNotifications = () => {
   }
 
   const mutate = useMutation(async (params: UserNotificationSettingsType) => {
-    console.log('----- mutating shit -----');
+    console.log('----- mutating notifications -----');
     return gqlClient.request(NOTIFICATIONS_UPDATE, {
       data: params,
     });

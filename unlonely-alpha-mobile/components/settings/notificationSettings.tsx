@@ -1,43 +1,78 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Switch } from 'react-native';
+import { View, Text, StyleSheet, Switch, ActivityIndicator } from 'react-native';
 import { useUserNotifications } from '../../api/mutations/useUserNotifications';
+import { useHaptics } from '../../utils/haptics';
 import { allowsNotificationsAsync, registerForPushNotificationsAsync } from '../../utils/notifications';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 import { useUserStore } from '../../utils/store/userStore';
 import { AnimatedPressable } from '../buttons/animatedPressable';
+import { toast } from '../toast/toast';
 
 export const NotificationSettings = () => {
+  const [loading, setLoading] = useState(false);
   const [liveEnabled, setLiveEnabled] = useState(false); // default before data loads
   const [nfcEnabled, setNfcEnabled] = useState(false); // default before data loads
   const { isNotificationPermissionGranted, grantNotificationPermissions } = useAppSettingsStore(z => ({
     isNotificationPermissionGranted: z.isNotificationsPermissionGranted,
     grantNotificationPermissions: z.grantNotificationsPermission,
   }));
-  const { userData, setUser } = useUserStore();
-
-  // const userNotifications = useUserNotifications();
-
+  const { userData, setUser } = useUserStore(z => ({
+    userData: z.userData,
+    setUser: z.setUser,
+  }));
+  const userNotifications = useUserNotifications();
   const allowed = isNotificationPermissionGranted && userData;
 
   const grantPermissions = () => {
     registerForPushNotificationsAsync().then(token => {
       grantNotificationPermissions();
+
+      // default mutation enabling notification types and sending token?
+
       // userNotifications.mutate({
-      //   notificationsLive: liveEnabled,
-      //   notificationsNFCs: nfcEnabled,
+      //   notificationsLive: true,
+      //   notificationsNFCs: true,
       //   notificationsTokens: JSON.stringify([token]),
       // });
-      // console.log('grantPermissions =====');
+      console.log('grantPermissions =====');
     });
+  };
+
+  const toggleLive = () => {
+    if (userData) {
+      userNotifications?.mutate({
+        notificationsLive: !liveEnabled,
+      });
+      setLoading(true);
+
+      setUser({
+        ...userData,
+        notificationsLive: !liveEnabled,
+      });
+    }
+  };
+
+  const toggleNfc = () => {
+    if (userData) {
+      userNotifications?.mutate({
+        notificationsNFCs: !nfcEnabled,
+      });
+      setLoading(true);
+
+      setUser({
+        ...userData,
+        notificationsNFCs: !nfcEnabled,
+      });
+    }
   };
 
   useEffect(() => {
     allowsNotificationsAsync().then(enabled => {
-      // console.log('[notification setttings]: isNotificationPermissionGranted change');
+      console.log('[allowsNotificationsAsync] ...');
       if (enabled) {
         grantNotificationPermissions();
-        // if userData.notificationsToken does not include the token then we need to
-        // register it with a mutation
+        console.log('[allowsNotificationsAsync] enabled');
+        // mutation with token?
       }
 
       // figure out extra permission stuff here for displaying the button and
@@ -45,84 +80,40 @@ export const NotificationSettings = () => {
     });
   }, []);
 
-  // useEffect(() => {
-  //   if (userNotifications.data) {
-  //     // setUser(userNotifications.data.updateUserNotifications);
-  //     setLiveEnabled(userNotifications.data.updateUserNotifications.notificationsLive);
-  //     setNfcEnabled(userNotifications.data.updateUserNotifications.notificationsNFCs);
-  //   }
-  // }, [userNotifications.data]);
-
-  // useEffect(() => {
-  //   console.log('[settings] liveEnabled', liveEnabled);
-  //   console.log('[settings] nfcEnabled', nfcEnabled);
-
-  //   if (userData) {
-  //     userNotifications.mutate({
-  //       notificationsLive: liveEnabled,
-  //       notificationsNFCs: nfcEnabled,
-  //       // notificationsTokens: JSON.stringify([new Date().getMinutes(), new Date().getMilliseconds()]),
-  //     });
-  //   }
-  // }, [liveEnabled, nfcEnabled]);
-
-  const toggleLive = () => {
-    setUser({
-      ...userData,
-      notificationsLive: !liveEnabled,
-    });
-  };
-
-  const toggleNfc = () => {
-    setUser({
-      ...userData,
-      notificationsNFCs: !nfcEnabled,
-    });
-  };
-
   useEffect(() => {
     // handle default & disconnected state
     if (userData) {
-      setLiveEnabled(userData.notificationsLive);
-      setNfcEnabled(userData.notificationsNFCs);
+      setLiveEnabled(userData?.notificationsLive);
+      setNfcEnabled(userData?.notificationsNFCs);
     } else {
       setLiveEnabled(false);
       setNfcEnabled(false);
     }
-  }, [userData]);
+  }, [loading]);
+
+  useEffect(() => {
+    if (userNotifications?.data) {
+      setLoading(false);
+      toast('notifications updated');
+      useHaptics('light');
+    }
+  }, [userNotifications?.data]);
 
   return (
     <>
       {userData && (
         <>
           <View style={styles.settingsToggleRow}>
-            <Text style={styles.subtitle}>address</Text>
-            <Text
-              style={[
-                styles.subtitle,
-                {
-                  fontSize: 11,
-                },
-              ]}
-            >
-              {userData.address}
-            </Text>
-          </View>
-          <View style={styles.settingsToggleRow}>
-            <Text style={styles.subtitle}>username</Text>
-            <Text style={styles.subtitle}>{userData.username}</Text>
-          </View>
-          <View style={styles.settingsToggleRow}>
             <Text style={styles.subtitle}>tokens</Text>
-            <Text style={styles.subtitle}>{userData.notificationsTokens}</Text>
+            <Text style={styles.subtitle}>{userData?.notificationsTokens}</Text>
           </View>
           <View style={styles.settingsToggleRow}>
             <Text style={styles.subtitle}>live</Text>
-            <Text style={styles.subtitle}>{userData.notificationsLive.toString()}</Text>
+            <Text style={styles.subtitle}>{userData?.notificationsLive.toString()}</Text>
           </View>
           <View style={styles.settingsToggleRow}>
             <Text style={styles.subtitle}>nfc</Text>
-            <Text style={styles.subtitle}>{userData.notificationsNFCs.toString()}</Text>
+            <Text style={styles.subtitle}>{userData?.notificationsNFCs.toString()}</Text>
           </View>
         </>
       )}
@@ -139,14 +130,24 @@ export const NotificationSettings = () => {
         ]}
       >
         <Text style={styles.subtitle}>stream goes live</Text>
-        <Switch
-          value={liveEnabled}
-          onValueChange={toggleLive}
-          trackColor={{
-            true: '#be47d1',
-          }}
-          disabled={!allowed}
-        />
+        <View style={styles.activitySwitch}>
+          {loading && (
+            <ActivityIndicator
+              size="small"
+              style={{
+                paddingRight: 8,
+              }}
+            />
+          )}
+          <Switch
+            value={liveEnabled}
+            onValueChange={toggleLive}
+            trackColor={{
+              true: '#be47d1',
+            }}
+            disabled={!allowed || loading}
+          />
+        </View>
       </View>
       <View
         style={[
@@ -157,14 +158,24 @@ export const NotificationSettings = () => {
         ]}
       >
         <Text style={styles.subtitle}>new NFCs created</Text>
-        <Switch
-          value={nfcEnabled}
-          onValueChange={toggleNfc}
-          trackColor={{
-            true: '#be47d1',
-          }}
-          disabled={!allowed}
-        />
+        <View style={styles.activitySwitch}>
+          {loading && (
+            <ActivityIndicator
+              size="small"
+              style={{
+                paddingRight: 8,
+              }}
+            />
+          )}
+          <Switch
+            value={nfcEnabled}
+            onValueChange={toggleNfc}
+            trackColor={{
+              true: '#be47d1',
+            }}
+            disabled={!allowed || loading}
+          />
+        </View>
       </View>
       {!isNotificationPermissionGranted ? (
         <View style={styles.notificationPermissionsBox}>
@@ -251,5 +262,9 @@ const styles = StyleSheet.create({
     width: 280,
     marginLeft: 'auto',
     marginRight: 'auto',
+  },
+  activitySwitch: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

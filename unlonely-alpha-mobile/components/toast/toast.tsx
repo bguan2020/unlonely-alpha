@@ -17,8 +17,10 @@ export const toast = (message: string) =>
           justifyContent: 'center',
           alignItems: 'center',
           height: TOAST_HEIGHT,
-          width: Dimensions.get('window').width - 32,
+          width: Dimensions.get('window').width - 96 - 32,
+          left: 48,
           top: 3,
+          position: 'absolute',
         }}
       >
         <View

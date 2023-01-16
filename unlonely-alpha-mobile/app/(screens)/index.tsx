@@ -9,10 +9,17 @@ import { FeedNav } from '../../components/nav/feedNav';
 import { UnlonelyTopGradientWithLogo } from '../../components/nav/topGradient';
 import { ConnectKitSheet } from '../../components/settings/connectkit';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
+import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
 
 export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
   const videoRefs = useRef([]);
+  const isNfcAutoplayEnabled = useAppSettingsStore(z => z.isNfcAutoplayEnabled);
+  const { isNFCPlaying, startNFCPlaying, stopNFCPlaying } = useVideoPlayerStore(z => ({
+    startNFCPlaying: z.startNFCPlaying,
+    isNFCPlaying: z.isNFCPlaying,
+    stopNFCPlaying: z.stopNFCPlaying,
+  }));
   const nfcFeedSorting = useAppSettingsStore(z => z.nfcFeedSorting);
   const { status, data, error, isFetching } = useNfcFeed(nfcFeedSorting, {
     limit: 9,
@@ -22,6 +29,7 @@ export default function NfcFeedScreen() {
 
   const onViewableItemsChanged = useRef(({ changed }) => {
     try {
+      console.log('---- changing NFC in feed ----');
       changed.forEach((element): any => {
         const nfcItem = videoRefs.current[element.item.id];
         if (nfcItem) {
@@ -37,6 +45,18 @@ export default function NfcFeedScreen() {
       console.log(error);
     }
   });
+
+  // useEffect(() => {
+  //   if (nfcs?.length > 0 && isNfcAutoplayEnabled) {
+  //     console.log('== starting NFC playback ==');
+  //     setTimeout(() => {
+  //       startNFCPlaying();
+  //     }, 1000);
+  //   } else {
+  //     console.log('== stopping NFC playback ==');
+  //     stopNFCPlaying();
+  //   }
+  // }, [nfcs, isNfcAutoplayEnabled]);
 
   const nfcVideoRenderItem = ({ item }) => {
     return <FullscreenNfc item={item} ref={ref => (videoRefs.current[item.id] = ref)} height={height} width={width} />;

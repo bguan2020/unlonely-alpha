@@ -75,6 +75,8 @@ export function ConnectKitSheet() {
       // loading wallet info...
       // TODO: add a loading state to settings view here with zustand state so
       // it looks more seamless when bottomsheet closes and data is being loaded
+
+      // use the Moti skeleton loader component in place?
     }
 
     if (data.includes('address')) {
@@ -99,7 +101,7 @@ export function ConnectKitSheet() {
   }, [isCKSheetOpen]);
 
   useEffect(() => {
-    if (apiUser?.getUser) {
+    if (isCKSheetOpen && apiUser?.getUser) {
       console.log('[ck] saving userData to zustand...');
       setUser(apiUser.getUser);
     }

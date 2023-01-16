@@ -1,9 +1,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Linking, Platform, Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, Share, StyleSheet, Text, View } from 'react-native';
 import { ResizeMode, Video } from 'expo-av';
 import { BlurView } from 'expo-blur';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { MenuView } from '@react-native-menu/menu';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { toast } from '../toast/toast';
 import { useHaptics } from '../../utils/haptics';
@@ -11,6 +10,7 @@ import { AnimatedMenuView } from '../buttons/animatedMenuView';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 import { format, parseISO } from 'date-fns';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
+import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
 
 type FullscreenNfcProps = {
   height: number;
@@ -81,6 +81,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
     isNfcAutoplayEnabled: z.isNfcAutoplayEnabled,
     _hasHydrated: z._hasHydrated,
   }));
+  const isNFCPlaying = useVideoPlayerStore(z => z.isNFCPlaying);
   const ref = useRef(null);
   const [shouldPlay, setShouldPlay] = useState(false);
   const [isLiked, setIsLiked] = useState(props.item.liked);
@@ -99,9 +100,9 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
     if (status?.isPlaying) return;
 
     try {
-      if (_hasHydrated && isNfcAutoplayEnabled) {
+      if (_hasHydrated && isNfcAutoplayEnabled && isNFCPlaying) {
         // TODO: uncomment play stuff before release
-        await ref.current.playAsync();
+        // await ref.current.playAsync();
         setShouldPlay(true);
       }
     } catch {
@@ -115,7 +116,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
     if (!status?.isPlaying) return;
 
     try {
-      await ref.current.pauseAsync();
+      // await ref.current.pauseAsync();
       setShouldPlay(false);
     } catch {
       alert('error stopping video');
@@ -138,14 +139,14 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
   // }, []);
 
   useEffect(() => {
-    if (!isNfcAutoplayEnabled) {
-      pause();
+    if (!isNfcAutoplayEnabled || !isNFCPlaying) {
       // setShouldPlay(false);
+      pause();
     } else {
-      play();
       // setShouldPlay(true);
+      play();
     }
-  }, [isNfcAutoplayEnabled]);
+  }, [isNfcAutoplayEnabled, isNFCPlaying]);
 
   return (
     <View
