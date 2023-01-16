@@ -57,7 +57,12 @@ const emojis = [
 
 const chatbotAddress = "0x0000000000000000000000000000000000000000";
 
-const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceChannel }: Props) => {
+const AblyChatComponent = ({
+  username,
+  chatBot,
+  ablyChatChannel,
+  ablyPresenceChannel,
+}: Props) => {
   const { user } = useUser();
   const { address } = useAccount();
   const ADD_REACTION_EVENT = "add-reaction";
@@ -87,7 +92,9 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
     },
   });
   const toast = useToast();
-  const channelName = ablyChatChannel ? `persistMessages:${ablyChatChannel}` : "persistMessages:chat-demo";
+  const channelName = ablyChatChannel
+    ? `persistMessages:${ablyChatChannel}`
+    : "persistMessages:chat-demo";
 
   const [channel, ably] = useChannel(channelName, (message) => {
     const history = receivedMessages.slice(-199);
@@ -141,6 +148,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             chatColor: "black",
             address: "chatbotAddress",
             isFC: false,
+            isLens: false,
             reactions: initializeEmojis,
           },
         });
@@ -156,6 +164,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
           chatColor: "black",
           address: "chatbotAddress",
           isFC: false,
+          isLens: false,
           reactions: initializeEmojis,
         },
       });
@@ -177,6 +186,8 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             username: user.username,
             chatColor,
             isFC: user.isFCUser,
+            isLens: user.isLensUser,
+            lensHandle: user.lensHandle,
             address: user.address,
             powerUserLvl: user?.powerUserLvl,
             videoSavantLvl: user?.videoSavantLvl,
@@ -196,6 +207,8 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             username: user.username,
             chatColor,
             isFC: user.isFCUser,
+            isLens: user.isLensUser,
+            lensHandle: user.lensHandle,
             address: user.address,
             powerUserLvl: user?.powerUserLvl,
             videoSavantLvl: user?.videoSavantLvl,
@@ -222,6 +235,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             username: null,
             chatColor,
             isFC: false,
+            isLens: false,
             address: address,
             powerUserLvl: 0,
             videoSavantLvl: 0,
@@ -268,6 +282,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
           chatColor: "black",
           address: chatbotAddress,
           isFC: false,
+          isLens: false,
           isGif: false,
           reactions: initializeEmojis,
         },
@@ -295,6 +310,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
           chatColor: "black",
           address: chatbotAddress,
           isFC: false,
+          isLens: false,
           isGif: false,
           reactions: initializeEmojis,
         },
@@ -324,6 +340,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
               chatColor: "black",
               address: chatbotAddress,
               isFC: false,
+              isLens: false,
               isGif: false,
               reactions: initializeEmojis,
             },
@@ -341,6 +358,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
               chatColor: "black",
               address: chatbotAddress,
               isFC: false,
+              isLens: false,
               isGif: false,
               reactions: initializeEmojis,
             },
@@ -357,6 +375,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             chatColor: "black",
             address: chatbotAddress,
             isFC: false,
+            isLens: false,
             isGif: false,
             reactions: initializeEmojis,
           },
@@ -377,6 +396,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             chatColor: "black",
             address: chatbotAddress,
             isFC: false,
+            isLens: false,
             isGif: false,
             reactions: initializeEmojis,
           },
@@ -487,6 +507,8 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
             <NFTList
               address={message.data.address}
               author={message.data.username}
+              isLens={message.data.isLens}
+              lensHandle={message.data.lensHandle}
             />
           </Flex>
           <div className="showhim">
@@ -911,7 +933,7 @@ const AblyChatComponent = ({ username, chatBot, ablyChatChannel, ablyPresenceCha
     <>
       <Flex h="100%" minW="100%">
         <Flex mt="10px" direction="column" minW="100%" width="100%">
-          <Participants ablyPresenceChannel={ablyPresenceChannel}/>
+          <Participants ablyPresenceChannel={ablyPresenceChannel} />
           <Text
             lineHeight={5}
             mt="4px"

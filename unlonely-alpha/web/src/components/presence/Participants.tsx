@@ -16,7 +16,7 @@ configureAbly({
 
 type Props = {
   ablyPresenceChannel?: string;
-}
+};
 
 type Presence = {
   id: string;
@@ -29,7 +29,9 @@ type Presence = {
 
 const Participants = ({ ablyPresenceChannel }: Props) => {
   const { user } = useUser();
-  const [presenceData, updateStatus] = usePresence(ablyPresenceChannel? ablyPresenceChannel : "presence");
+  const [presenceData, updateStatus] = usePresence(
+    ablyPresenceChannel ? ablyPresenceChannel : "presence"
+  );
   const [participantOrder, setParticipantOrder] = useState<Presence[]>([]);
 
   useEffect(() => {

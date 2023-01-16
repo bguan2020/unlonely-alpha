@@ -12,11 +12,14 @@ export const typeDef = gql`
     nfcRank: Int!
     reputation: Int
     isFCUser: Boolean!
+    FCImageUrl: String
+    isLensUser: Boolean!
+    lensHandle: String
+    lensImageUrl: String
     createdAt: DateTime!
     updatedAt: DateTime!
     signature: String
     sigTimestamp: BigInt
-    FCImageUrl: String
     notificationsTokens: String
     notificationsLive: Boolean
     notificationsNFCs: Boolean

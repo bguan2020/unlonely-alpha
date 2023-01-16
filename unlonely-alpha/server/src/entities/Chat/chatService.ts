@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 
 import { Context } from "../../context";
 // import publishCast from "../../utils/publishCast";
-import verifyCast from "../../utils/verifyCast";
+import verifyCast from "../../utils/farcaster/verifyCast";
 
 export interface IPostChatInput {
   text: string;

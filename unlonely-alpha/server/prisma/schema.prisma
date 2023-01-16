@@ -19,6 +19,10 @@ model User {
   isFCUser Boolean @default(false)
   FCImageUrl String? @default("")
 
+  isLensUser Boolean @default(false)
+  lensHandle String? @default("")
+  lensImageUrl String? @default("")
+
   bio String @default("")
   powerUserLvl Int @default(0)
   videoSavantLvl Int @default(0)

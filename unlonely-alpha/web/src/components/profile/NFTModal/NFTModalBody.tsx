@@ -5,6 +5,7 @@ import {
   Flex,
   Link,
   Text,
+  Button,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import centerEllipses from "../../../utils/centerEllipses";
@@ -16,6 +17,8 @@ export type NFTModalBodyProps = {
   children?: React.ReactNode;
   address: string;
   author: string;
+  isLens: boolean;
+  lensHandle?: string;
 };
 const NFTModalBodyStyles = {
   textAlign: "center",
@@ -35,6 +38,8 @@ const NFTModalBody: React.FunctionComponent<NFTModalBodyProps> = ({
   styles,
   address,
   author,
+  isLens,
+  lensHandle,
 }) => {
   const [nftList, setNftList] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -65,6 +70,24 @@ const NFTModalBody: React.FunctionComponent<NFTModalBodyProps> = ({
         </Text>
       </NFTModalHeader>
       <ModalBody sx={{ ...styles, ...NFTModalBodyStyles }}>
+        {isLens && (
+          <>
+            <Button bgColor="#befb5a" mb="1rem">
+              <Image
+                src="/images/lens_logo.png"
+                width="20px"
+                height="20px"
+                mr="5px"
+              />
+              <a
+                href={`https://www.lensfrens.xyz/${lensHandle}/follow`}
+                target="_blank"
+              >
+                follow on Lens
+              </a>
+            </Button>
+          </>
+        )}
         <SimpleGrid columns={3} width="100%">
           {loading && <Text>Loading...</Text>}
           {nftList.length > 0

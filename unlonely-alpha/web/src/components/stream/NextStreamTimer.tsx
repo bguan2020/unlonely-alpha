@@ -7,10 +7,15 @@ import useScript from "../../hooks/useScript";
 
 type Props = {
   isTheatreMode: boolean;
+  playbackUrl: string;
   hasTimer?: boolean;
 };
 
-const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTimer }) => {
+const NextStreamTimer: React.FunctionComponent<Props> = ({
+  isTheatreMode,
+  hasTimer,
+  playbackUrl,
+}) => {
   const [streamingTime, setStreamingTime] = useState<boolean>(false);
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);
@@ -76,7 +81,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTim
 
   return (
     <>
-    {hasTimer !== undefined && !hasTimer ? (
+      {hasTimer !== undefined && !hasTimer ? (
         <Flex
           flexDirection="row"
           justifyContent="center"
@@ -87,7 +92,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTim
               : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
           }
         >
-          <IVSPlayer isTheatreMode={isTheatreMode} />
+          <IVSPlayer isTheatreMode={isTheatreMode} playbackUrl={playbackUrl}/>
         </Flex>
       ) : (
         <>
@@ -103,7 +108,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTim
               }
               mt="10px"
             >
-              <IVSPlayer isTheatreMode={isTheatreMode} />
+              <IVSPlayer isTheatreMode={isTheatreMode} playbackUrl={playbackUrl}/>
             </Flex>
           ) : (
             <Flex
@@ -127,7 +132,9 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTim
                 fontSize="40px"
                 bg="black"
               >
-                <Text fontFamily="Anonymous Pro, monospace">Next stream in:</Text>
+                <Text fontFamily="Anonymous Pro, monospace">
+                  Next stream in:
+                </Text>
                 <Flex direction="row">
                   <Flex direction="row" mr="5px">
                     <Text mr="5px" fontSize="62px" color="#76D201">
@@ -166,8 +173,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({ isTheatreMode, hasTim
             </Flex>
           )}
         </>
-      )
-    }
+      )}
     </>
   );
 };

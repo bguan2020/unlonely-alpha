@@ -89,6 +89,16 @@ export default function Badges({ message, user }: Props) {
           />
         </Tooltip>
       )}
+      {message.data.isLens && (
+        <Tooltip label="Lens Badge">
+          <Image
+            src="/images/lens_logo.png"
+            width="20px"
+            height="20px"
+            mr="5px"
+          />
+        </Tooltip>
+      )}
     </>
   );
 }

@@ -8,11 +8,15 @@ import centerEllipses from "../../utils/centerEllipses";
 type Props = {
   address: string;
   author: string;
+  isLens: boolean;
+  lensHandle?: string;
 };
 
 const NFTList: React.FunctionComponent<Props> = ({
   address,
   author,
+  isLens,
+  lensHandle,
 }: Props) => {
   return (
     <>
@@ -23,7 +27,12 @@ const NFTList: React.FunctionComponent<Props> = ({
           </Text>
         }
       >
-        <NFTModalBody address={address} author={author} />
+        <NFTModalBody
+          address={address}
+          author={author}
+          isLens={isLens}
+          lensHandle={lensHandle}
+        />
         <NFTModalFooter />
       </NFTModalRoot>
     </>

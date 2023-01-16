@@ -8,6 +8,16 @@ type Props = {
   user: User;
 };
 const Participant = ({ user }: Props) => {
+  const imageUrl = user?.FCImageUrl
+    ? user.FCImageUrl
+    : user?.lensImageUrl
+    ? user.lensImageUrl
+    : anonUrl;
+  // if imageUrl begins with  ipfs://, convert to https://ipfs.io/ipfs/
+  const ipfsUrl = imageUrl.startsWith("ipfs://")
+    ? `https://ipfs.io/ipfs/${imageUrl.slice(7)}`
+    : imageUrl;
+
   const toolTipMessage = (user: User) => {
     return (
       <>
@@ -34,7 +44,7 @@ const Participant = ({ user }: Props) => {
             ) : null}
             {user.isFCUser ? (
               <Image
-                src="https://searchcaster.xyz/img/logo.png"
+                src="/images/farcaster_logo.png"
                 width="20px"
                 height="20px"
                 mr="5px"
@@ -50,14 +60,11 @@ const Participant = ({ user }: Props) => {
       {user ? (
         <>
           <Tooltip label={toolTipMessage(user)} hasArrow arrowSize={14}>
-            {user.FCImageUrl ? (
-              <Avatar src={user.FCImageUrl} size="md" />
-            ) : (
-              <Avatar
-                name={user.username ? user.username : user.address}
-                size="md"
-              />
-            )}
+            <Avatar
+              name={user.username ? user.username : user.address}
+              src={ipfsUrl}
+              size="md"
+            />
           </Tooltip>
         </>
       ) : (
