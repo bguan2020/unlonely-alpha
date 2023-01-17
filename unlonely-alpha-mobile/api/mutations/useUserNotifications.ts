@@ -16,16 +16,13 @@ export const useUserNotifications = () => {
     _hasHydrated: z._hasHydrated,
   }));
 
-  if (_hasHydrated && !userData) {
-    console.log('[useUserNotifications] no userData');
-    return;
-  }
-
-  const mutate = useMutation(async (params: UserNotificationSettingsType) => {
-    console.log('----- mutating notifications -----');
-    return gqlClient.request(NOTIFICATIONS_UPDATE, {
-      data: params,
-    });
+  const mutate = useMutation((params: UserNotificationSettingsType) => {
+    if (params && userData && _hasHydrated) {
+      console.log('🥕 ----- mutating notifications -----');
+      return gqlClient.request(NOTIFICATIONS_UPDATE, {
+        data: params,
+      });
+    }
   });
 
   return mutate;

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Switch, ActivityIndicator } from 'react-native';
 import { useUserNotifications } from '../../api/mutations/useUserNotifications';
+import { useUser } from '../../api/queries/useUser';
 import { useHaptics } from '../../utils/haptics';
 import { allowsNotificationsAsync, registerForPushNotificationsAsync } from '../../utils/notifications';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
+import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
 import { useUserStore } from '../../utils/store/userStore';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 import { toast } from '../toast/toast';
@@ -16,35 +18,44 @@ export const NotificationSettings = () => {
     isNotificationPermissionGranted: z.isNotificationsPermissionGranted,
     grantNotificationPermissions: z.grantNotificationsPermission,
   }));
-  const { userData, setUser } = useUserStore(z => ({
+  const { userData, setUser, connectedWallet, _hasHydrated } = useUserStore(z => ({
+    _hasHydrated: z._hasHydrated,
+    connectedWallet: z.connectedWallet,
     userData: z.userData,
     setUser: z.setUser,
   }));
-  const userNotifications = useUserNotifications();
   const allowed = isNotificationPermissionGranted && userData;
 
-  const grantPermissions = () => {
+  const hydratedWalletAddress = _hasHydrated && connectedWallet ? connectedWallet.address : 'user';
+  const isSettingsSheetOpen = useBottomSheetStore(z => z.isSettingsSheetOpen);
+  const { data: apiUser, run: getUserData } = useUser(hydratedWalletAddress, { address: hydratedWalletAddress });
+  const userNotifications = useUserNotifications();
+
+  const grantPermissions = async () => {
     registerForPushNotificationsAsync().then(token => {
       grantNotificationPermissions();
 
       // default mutation enabling notification types and sending token?
 
+      console.log('🔔 setting defaults 🔔');
+
+      // read tokens and settings first. then transform token array to add a new token if it doesn't exist. then update the array.
+      // then run the mutation with the new array and settings.
+
       // userNotifications.mutate({
-      //   notificationsLive: true,
-      //   notificationsNFCs: true,
+      //   notificationsLive: liveEnabled,
+      //   notificationsNFCs: nfcEnabled,
       //   notificationsTokens: JSON.stringify([token]),
       // });
-      console.log('grantPermissions =====');
     });
   };
 
-  const toggleLive = () => {
+  const toggleLive = async () => {
     if (userData) {
       userNotifications?.mutate({
         notificationsLive: !liveEnabled,
       });
       setLoading(true);
-
       setUser({
         ...userData,
         notificationsLive: !liveEnabled,
@@ -52,13 +63,12 @@ export const NotificationSettings = () => {
     }
   };
 
-  const toggleNfc = () => {
+  const toggleNfc = async () => {
     if (userData) {
       userNotifications?.mutate({
         notificationsNFCs: !nfcEnabled,
       });
       setLoading(true);
-
       setUser({
         ...userData,
         notificationsNFCs: !nfcEnabled,
@@ -68,13 +78,10 @@ export const NotificationSettings = () => {
 
   useEffect(() => {
     allowsNotificationsAsync().then(enabled => {
-      console.log('[allowsNotificationsAsync] ...');
       if (enabled) {
-        grantNotificationPermissions();
-        console.log('[allowsNotificationsAsync] enabled');
-        // mutation with token?
+        grantPermissions();
+        console.log('🔔 [allowsNotificationsAsync] enabled');
       }
-
       // figure out extra permission stuff here for displaying the button and
       // setting zustand variable settings
     });
@@ -89,7 +96,7 @@ export const NotificationSettings = () => {
       setLiveEnabled(false);
       setNfcEnabled(false);
     }
-  }, [loading]);
+  }, [loading, userData, apiUser]);
 
   useEffect(() => {
     if (userNotifications?.data) {
@@ -99,13 +106,29 @@ export const NotificationSettings = () => {
     }
   }, [userNotifications?.data]);
 
+  useEffect(() => {
+    if (connectedWallet?.address) {
+      getUserData();
+    }
+  }, [isSettingsSheetOpen]);
+
   return (
     <>
       {userData && (
         <>
           <View style={styles.settingsToggleRow}>
             <Text style={styles.subtitle}>tokens</Text>
-            <Text style={styles.subtitle}>{userData?.notificationsTokens}</Text>
+            <Text
+              style={[
+                styles.subtitle,
+                {
+                  fontSize: 11,
+                  color: '#666',
+                },
+              ]}
+            >
+              {userData?.notificationsTokens}
+            </Text>
           </View>
           <View style={styles.settingsToggleRow}>
             <Text style={styles.subtitle}>live</Text>
@@ -157,7 +180,7 @@ export const NotificationSettings = () => {
           },
         ]}
       >
-        <Text style={styles.subtitle}>new NFCs created</Text>
+        <Text style={styles.subtitle}>new NFCs are created</Text>
         <View style={styles.activitySwitch}>
           {loading && (
             <ActivityIndicator
@@ -257,11 +280,8 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 2,
     color: '#666',
-    textAlign: 'center',
-    marginTop: 16,
-    width: 280,
-    marginLeft: 'auto',
-    marginRight: 'auto',
+    textAlign: 'left',
+    marginTop: 8,
   },
   activitySwitch: {
     flexDirection: 'row',
