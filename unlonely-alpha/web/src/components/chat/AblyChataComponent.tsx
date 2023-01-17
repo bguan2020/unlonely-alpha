@@ -334,7 +334,7 @@ const AblyChatComponent = ({
             data: {
               messageText:
                 res && res < 0
-                  ? "Failed to clip. No clips remaining this week."
+                  ? "Failed to clip. You're only allowed 1 clip a day!"
                   : `"${title}" clipped successfully! You have ${res} clips left this week.`,
               username: "chatbot🤖",
               chatColor: "black",
@@ -364,22 +364,6 @@ const AblyChatComponent = ({
             },
           });
         }
-      } else if (user && user?.powerUserLvl === 0) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        channel.publish({
-          name: "chat-message",
-          data: {
-            messageText: "You must be a power user to use this command.",
-            username: "chatbot🤖",
-            chatColor: "black",
-            address: chatbotAddress,
-            isFC: false,
-            isLens: false,
-            isGif: false,
-            reactions: initializeEmojis,
-          },
-        });
       }
     } else if (messageText.startsWith("@rules")) {
       const rules =

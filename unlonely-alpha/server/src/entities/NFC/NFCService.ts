@@ -17,24 +17,19 @@ export const handleNFC = async (
     throw new Error("User is not allowed to post NFCs");
   }
 
-  //get date of most recent Monday at 12am
-  const date = new Date();
-  const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-  const monday = new Date(date.setDate(diff));
-  monday.setHours(0, 0, 0, 0);
+  // check how many NFCs user has posted today starting at 12am PST
+  const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
 
-  // check how many NFCs user has posted this week starting at 12am on Monday
-  const numNFCsPostedThisWeek = await ctx.prisma.nFC.count({
+  const numNFCsPostedToday = await ctx.prisma.nFC.count({
     where: {
       ownerAddr: user.address,
       createdAt: {
-        gte: monday,
+        gte: startOfToday,
       },
     },
   });
 
-  if (numNFCsPostedThisWeek >= numNFCsAllowed) return -1;
+  if (numNFCsPostedToday >= 1) return -1;
 
   await ctx.prisma.nFC.create({
     data: {
@@ -47,7 +42,7 @@ export const handleNFC = async (
     },
   });
 
-  const remainingNFCs = numNFCsAllowed - numNFCsPostedThisWeek - 1;
+  const remainingNFCs = 0;
   return remainingNFCs;
 };
 
