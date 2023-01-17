@@ -59,20 +59,20 @@ const BrianTokenTab: React.FunctionComponent<Props> = ({
       </Flex>
       <Stack mb={2} justify="start" direction="row" spacing={5}>
         <Image
-          width={250}
-          height={125}
+          width={[100, 125, 200]}
+          height={[50, 75, 100]}
           alt="Unlonely one"
           src="/images/unlonelyone.jpg"
         />
         <Image
-          width={250}
-          height={125}
+          width={[100, 150, 200]}
+          height={[50, 75, 100]}
           alt="Unlonely one"
           src="/images/unlonely2.jpg"
         />
         <Image
-          width={250}
-          height={125}
+          width={[100, 150, 200]}
+          height={[50, 75, 100]}
           alt="Unlonely one"
           src="/images/unlonely3.jpg"
         />
