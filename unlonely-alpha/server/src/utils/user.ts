@@ -20,7 +20,7 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
       },
     });
 
-    if (data.defaultProfile) {
+    if (data && data.defaultProfile) {
       user = await prisma.user.update({
         where: {
           address: address,
@@ -48,9 +48,9 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
       data: {
         address: address,
         username: username,
-        isLensUser: data.defaultProfile ? true : false,
-        lensHandle: data.defaultProfile ? data.defaultProfile.handle : "",
-        lensImageUrl: data.defaultProfile
+        isLensUser: data && data.defaultProfile ? true : false,
+        lensHandle: data && data.defaultProfile ? data.defaultProfile.handle : "",
+        lensImageUrl: data && data.defaultProfile
           ? data.defaultProfile.picture.original.url
           : "",
       },

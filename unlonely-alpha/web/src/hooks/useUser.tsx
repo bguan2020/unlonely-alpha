@@ -52,6 +52,7 @@ export const UserProvider = ({
   useEffect(() => {
     setUser(data?.getUser);
   }, [data]);
+  console.log("useUser", user, loading, error);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

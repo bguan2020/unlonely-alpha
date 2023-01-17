@@ -26,6 +26,9 @@ export type ChatBot = {
 
 const lensPlaybackUrl = "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.Ys4fo4t2hKP1.m3u8";
 
+const ablyChatChannel = "lens-channel";
+const ablyPresenceChannel = "lens-presence-channel";
+
 const Example: React.FunctionComponent = () => {
   const [width, height] = useWindowSize();
   const { user } = useUser();
@@ -104,6 +107,8 @@ const Example: React.FunctionComponent = () => {
               username={username}
               chatBot={chatBot}
               user={user}
+              ablyChatChannel={ablyChatChannel}
+              ablyPresenceChannel={ablyPresenceChannel}
             />
           </Container>
         </Stack>
