@@ -25,11 +25,11 @@ const PrivacyPage = () => {
                   Privacy Policy
                 </Text>
                 <Text>
-                  Introduction Nuanced Labs, Inc. dba Honk ("Company" or "We")
+                  Introduction Nuanced Labs, Inc. dba Unlonely ("Company" or "We")
                   respects your privacy and is committed to protecting it. This
                   policy describes: The types of information we may collect or
                   that you may provide when you download, install, register
-                  with, access, or use the Honk application (the "App"). Our
+                  with, access, or use the Unlonely application (the "App"). Our
                   practices for collecting, using, maintaining, protecting, and
                   disclosing that information. This policy applies only to
                   information we collect in this App and in email, text, and
@@ -95,10 +95,10 @@ const PrivacyPage = () => {
                   it only for the purposes for which we disclose it to them. To
                   a buyer or other successor in the event of a merger,
                   divestiture, restructuring, reorganization, dissolution, or
-                  other sale or transfer of some or all of LFE, Inc.'s assets,
+                  other sale or transfer of some or all of Nuanced Labs, Inc.'s assets,
                   whether as a going concern or as part of bankruptcy,
                   liquidation, or similar proceeding, in which personal
-                  information held by LFE, Inc. about our App users is among the
+                  information held by Nuanced Labs, Inc. about our App users is among the
                   assets transferred. To fulfill the purpose for which you
                   provide it. For any other purpose disclosed by us when you
                   provide the information. With your consent. To comply with any
