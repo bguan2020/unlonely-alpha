@@ -13,7 +13,7 @@ export function ConnectKitSheet() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const webViewRef = useRef<WebView>(null);
   const [webViewKey, setWebViewKey] = useState(0);
-  const [showResetButton, setShowResetButton] = useState(false);
+  const [resetToInitialCKPage, setResetToInitialCKPage] = useState(false);
 
   // store
   const { isSettingsSheetOpen, isCKSheetOpen, closeCKSheet } = useBottomSheetStore();
@@ -36,8 +36,8 @@ export function ConnectKitSheet() {
     if (index === -1) {
       closeCKSheet();
 
-      if (showResetButton) {
-        setShowResetButton(false);
+      if (resetToInitialCKPage) {
+        setResetToInitialCKPage(false);
         console.log('[connectkit] reloading webview back to intial page...');
         setWebViewKey(webViewKey + 1); // reloads the webview back to initial page
       }
@@ -48,7 +48,7 @@ export function ConnectKitSheet() {
     const { url } = newNavState;
 
     if (url !== CONNECTKIT_WEBVIEW_URL) {
-      setShowResetButton(true);
+      setResetToInitialCKPage(true);
       console.log('[connectkit] webview is changing url...', url);
       webViewRef.current.stopLoading();
     }

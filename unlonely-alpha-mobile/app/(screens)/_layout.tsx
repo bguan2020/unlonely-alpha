@@ -12,7 +12,7 @@ import { Toasts } from '@backpackapp-io/react-native-toast';
 import { UnlonelyTopGradient } from '../../components/nav/topGradient';
 import { FadedTabBar } from '../../components/nav/bottomGradient';
 import { StatusBar } from 'expo-status-bar';
-import overrideColorScheme from 'react-native-override-color-scheme';
+// import overrideColorScheme from 'react-native-override-color-scheme';
 import * as Notifications from 'expo-notifications';
 import { initializeNotificationSettings } from '../../utils/notifications';
 
@@ -31,7 +31,7 @@ export default function Layout() {
       // do some splash screen animation here
       console.log('======== FONTS LOADED ==================================');
 
-      overrideColorScheme.setScheme('dark');
+      // overrideColorScheme.setScheme('dark');
     }
   }, [fontsLoaded]);
 
@@ -83,9 +83,9 @@ export default function Layout() {
   }
 
   return (
-    <View style={styles.rootContainer} onLayout={onLayoutRootView}>
-      <StatusBar style="dark" />
-      <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.rootContainer} onLayout={onLayoutRootView}>
+        <StatusBar style="dark" />
         {/* maybe add a custom splash screen animation here */}
         <QueryClientProvider client={queryClient}>
           <Tabs
@@ -144,8 +144,8 @@ export default function Layout() {
           </Tabs>
           <Toasts />
         </QueryClientProvider>
-      </GestureHandlerRootView>
-    </View>
+      </View>
+    </GestureHandlerRootView>
   );
 }
 

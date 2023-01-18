@@ -54,16 +54,7 @@ export const DeveloperSettings = () => {
 
           <AnimatedPressable onPress={schedulePushNotification}>
             <View style={styles.settingsToggleRow}>
-              <Text
-                style={[
-                  styles.subtitle,
-                  {
-                    color: '#be47d1',
-                  },
-                ]}
-              >
-                send local test notification
-              </Text>
+              <Text style={styles.subtitle}>send local test notification</Text>
               <Text style={styles.subtitle}>🔔</Text>
             </View>
           </AnimatedPressable>
@@ -83,19 +74,19 @@ export const DeveloperSettings = () => {
             </View>
           </AnimatedPressable>
 
-          <AnimatedPressable>
+          {/* <AnimatedPressable>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>clear app settings</Text>
               <Text style={styles.subtitle}>💣️</Text>
             </View>
-          </AnimatedPressable>
+          </AnimatedPressable> */}
 
-          <AnimatedPressable>
+          {/* <AnimatedPressable>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>reset async storage</Text>
               <Text style={styles.subtitle}>⚠️</Text>
             </View>
-          </AnimatedPressable>
+          </AnimatedPressable> */}
           <AnimatedPressable onPress={resetNotificationTokens}>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>reset notification tokens</Text>

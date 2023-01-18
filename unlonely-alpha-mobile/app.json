@@ -18,8 +18,10 @@
       "bundleIdentifier": "app.unlonely.mobile",
       "infoPlist": {
         "UIBackgroundModes": ["audio"],
-        "NSUserNotificationAlertStyle": "banner"
-      }
+        "NSUserNotificationAlertStyle": "banner",
+        "UIUserInterfaceStyle": "dark"
+      },
+      "userInterfaceStyle": "dark"
     },
     "plugins": [
       [
@@ -38,7 +40,8 @@
     },
     "android": {
       "package": "app.unlonely.mobile",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "userInterfaceStyle": "dark"
     }
   }
 }

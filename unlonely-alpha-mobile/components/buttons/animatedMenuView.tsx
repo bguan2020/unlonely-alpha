@@ -1,5 +1,6 @@
 import { MenuView, MenuAction } from '@react-native-menu/menu';
 import { StyleProps } from 'react-native-reanimated';
+import { useHaptics } from '../../utils/haptics';
 import { AnimatedPressable } from './animatedPressable';
 
 type AnimatedMenuViewProps = {

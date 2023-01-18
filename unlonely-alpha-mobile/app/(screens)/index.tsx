@@ -46,17 +46,17 @@ export default function NfcFeedScreen() {
     }
   });
 
-  // useEffect(() => {
-  //   if (nfcs?.length > 0 && isNfcAutoplayEnabled) {
-  //     console.log('== starting NFC playback ==');
-  //     setTimeout(() => {
-  //       startNFCPlaying();
-  //     }, 1000);
-  //   } else {
-  //     console.log('== stopping NFC playback ==');
-  //     stopNFCPlaying();
-  //   }
-  // }, [nfcs, isNfcAutoplayEnabled]);
+  useEffect(() => {
+    if (nfcs?.length > 0 && isNfcAutoplayEnabled) {
+      console.log('== starting NFC playback ==');
+      setTimeout(() => {
+        startNFCPlaying();
+      }, 1000);
+    } else {
+      console.log('== stopping NFC playback ==');
+      stopNFCPlaying();
+    }
+  }, [nfcs, isNfcAutoplayEnabled]);
 
   const nfcVideoRenderItem = ({ item }) => {
     return <FullscreenNfc item={item} ref={ref => (videoRefs.current[item.id] = ref)} height={height} width={width} />;

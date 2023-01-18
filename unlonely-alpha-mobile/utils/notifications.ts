@@ -39,7 +39,7 @@ export async function registerForPushNotificationsAsync() {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('All', {
       name: 'All',
-      importance: Notifications.AndroidImportance.MAX,
+      importance: Notifications.AndroidImportance.HIGH, // maybe this should be MAX?? idk
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#e6f88a',
     });

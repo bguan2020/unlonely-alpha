@@ -4,16 +4,16 @@ import { useUpcomingSchedule } from '../../api/queries/useUpcomingSchedule';
 import { ScheduleCard } from '../../components/schedule/scheduleCard';
 
 export default function ScheduleScreen() {
-  const { status, data, error, isFetching } = useUpcomingSchedule({
-    limit: 9,
-  });
-  const schedule = data?.getHostEventFeed;
+  // const { status, data, error, isFetching } = useUpcomingSchedule({
+  //   limit: 9,
+  // });
+  // const schedule = data?.getHostEventFeed;
 
-  console.log(schedule);
+  // console.log(schedule);
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.main}>
+      {/* <View style={styles.main}>
         <Text style={styles.title}>Upcoming Streams</Text>
         <ScheduleCard />
         <ScheduleCard />
@@ -21,6 +21,9 @@ export default function ScheduleScreen() {
         <ScheduleCard />
         <ScheduleCard />
         <ScheduleCard />
+      </View> */}
+      <View style={[styles.main, styles.center]}>
+        <Text style={[styles.title, styles.subtitle]}>coming in the next update</Text>
       </View>
     </ScrollView>
   );
@@ -36,6 +39,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingTop: 76,
     paddingBottom: 100,
+  },
+  center: {
+    flex: 1,
+    height: 800,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 16,

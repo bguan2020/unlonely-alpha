@@ -117,35 +117,6 @@ export const NotificationSettings = () => {
 
   return (
     <>
-      {userData && (
-        <>
-          <View style={styles.settingsToggleRow}>
-            <Text style={styles.subtitle}>tokens</Text>
-            <Text
-              style={[
-                styles.subtitle,
-                {
-                  fontSize: 11,
-                  color: '#666',
-                },
-              ]}
-            >
-              {userData?.notificationsTokens}
-            </Text>
-          </View>
-          <View style={styles.settingsToggleRow}>
-            <Text style={styles.subtitle}>live</Text>
-            <Text style={styles.subtitle}>{userData?.notificationsLive.toString()}</Text>
-          </View>
-          <View style={styles.settingsToggleRow}>
-            <Text style={styles.subtitle}>nfc</Text>
-            <Text style={styles.subtitle}>{userData?.notificationsNFCs.toString()}</Text>
-          </View>
-        </>
-      )}
-
-      {/*  */}
-
       <Text style={styles.title}>Notify me when</Text>
       <View
         style={[
@@ -160,6 +131,7 @@ export const NotificationSettings = () => {
           {loading && (
             <ActivityIndicator
               size="small"
+              color={'#ccc'}
               style={{
                 paddingRight: 8,
               }}
@@ -189,6 +161,7 @@ export const NotificationSettings = () => {
           {loading && (
             <ActivityIndicator
               size="small"
+              color={'#ccc'}
               style={{
                 paddingRight: 8,
               }}
@@ -293,6 +266,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-function mergedTokens(notificationsTokens: string, token: any): string {
-  throw new Error('Function not implemented.');
-}
