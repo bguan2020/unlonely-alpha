@@ -4,7 +4,7 @@ const fetch = require("node-fetch");
 const { MerkleAPIClient } = require("@standard-crypto/farcaster-js");
 const PrismaClient = require("@prisma/client").PrismaClient;
 
-const parentCastHash = "0xce6eccd65fbbbe6adb75b842a9ec983ebd5066a255be995163fdf0efc3413cd3";
+const parentCastHash = "0x2cba5a4f516d01dc9853747fb8439d174b6f8f46569bdc4f42c91c303b705430";
 
 // connect to database
 const client = new Client({
