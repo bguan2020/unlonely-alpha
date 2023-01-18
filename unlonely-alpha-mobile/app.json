@@ -6,7 +6,6 @@
     "backgroundColor": "#000000",
     "userInterfaceStyle": "dark",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "splash": {
       "backgroundColor": "#000000",
       "image": "./assets/splash.png"
@@ -17,6 +16,7 @@
     },
     "ios": {
       "bundleIdentifier": "app.unlonely.mobile",
+      "icon": "./assets/icon.png",
       "infoPlist": {
         "UIBackgroundModes": ["audio"],
         "NSUserNotificationAlertStyle": "banner",
