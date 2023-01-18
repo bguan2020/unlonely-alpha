@@ -10,6 +10,7 @@ type AppSettingsStore = {
   isNfcAutoplayEnabled: boolean;
   nfcFeedSorting: SortingTypes;
   grantNotificationsPermission: () => void;
+  revokeNotificationsPermission: () => void;
   toggleBlur: () => void;
   toggleNfcAutoplay: () => void;
   setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => void;
@@ -25,6 +26,7 @@ export const useAppSettingsStore = create<AppSettingsStore>()(
       isNfcAutoplayEnabled: true,
       nfcFeedSorting: 'createdAt',
       grantNotificationsPermission: () => set({ isNotificationsPermissionGranted: true }),
+      revokeNotificationsPermission: () => set({ isNotificationsPermissionGranted: false }),
       toggleBlur: () => set(z => ({ isBlurEnabled: !z.isBlurEnabled })),
       toggleNfcAutoplay: () => set(z => ({ isNfcAutoplayEnabled: !z.isNfcAutoplayEnabled })),
       setNFCFeedSorting: (nfcFeedSorting: SortingTypes) => set({ nfcFeedSorting }),

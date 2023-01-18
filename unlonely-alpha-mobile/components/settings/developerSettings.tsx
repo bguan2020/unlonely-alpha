@@ -3,18 +3,33 @@ import Constants from 'expo-constants';
 import { useEffect, useState } from 'react';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 import { schedulePushNotification } from '../../utils/notifications';
+import { useUserNotifications } from '../../api/mutations/useUserNotifications';
+import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 
 const version = Constants.manifest.version;
 
 export const DeveloperSettings = () => {
   const [timesPressed, setTimesPressed] = useState(0);
   const [showDevMenu, setShowDevMenu] = useState(false);
+  const userNotifications = useUserNotifications();
+  const revokeNotificationsPermission = useAppSettingsStore(z => z.revokeNotificationsPermission);
 
   useEffect(() => {
     if (timesPressed > 9) {
       setShowDevMenu(true);
     }
   }, [timesPressed]);
+
+  const resetNotificationPermissions = () => {
+    revokeNotificationsPermission();
+  };
+
+  const resetNotificationTokens = () => {
+    resetNotificationPermissions();
+    userNotifications?.mutate({
+      notificationsTokens: '',
+    });
+  };
 
   return (
     <>
@@ -25,6 +40,17 @@ export const DeveloperSettings = () => {
           }}
         >
           <Text style={styles.title}>Developer Settings</Text>
+          <Text
+            style={[
+              styles.subtitle,
+              {
+                fontSize: 14,
+                color: '#666',
+              },
+            ]}
+          >
+            please do not touch any of this shit
+          </Text>
 
           <AnimatedPressable onPress={schedulePushNotification}>
             <View style={styles.settingsToggleRow}>
@@ -42,7 +68,7 @@ export const DeveloperSettings = () => {
             </View>
           </AnimatedPressable>
 
-          <AnimatedPressable>
+          <AnimatedPressable onPress={resetNotificationPermissions}>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>reset notification permissions</Text>
               <Text style={styles.subtitle}>🔕</Text>
@@ -67,6 +93,12 @@ export const DeveloperSettings = () => {
           <AnimatedPressable>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>reset async storage</Text>
+              <Text style={styles.subtitle}>⚠️</Text>
+            </View>
+          </AnimatedPressable>
+          <AnimatedPressable onPress={resetNotificationTokens}>
+            <View style={styles.settingsToggleRow}>
+              <Text style={styles.subtitle}>reset notification tokens</Text>
               <Text style={styles.subtitle}>⚠️</Text>
             </View>
           </AnimatedPressable>

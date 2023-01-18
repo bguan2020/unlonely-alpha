@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
 const projectId = Constants.expoConfig.extra.eas.projectId;
 
@@ -13,6 +14,20 @@ export function initializeNotificationSettings() {
   });
 }
 
+export function mergeTokens(existingTokens: string, newToken: string) {
+  if (newToken === null) return existingTokens;
+
+  if (existingTokens !== '') {
+    const tokensArray = JSON.parse(existingTokens);
+    const filteredTokens = tokensArray.filter((token: string) => token !== newToken);
+    const mergedTokens = JSON.stringify([...filteredTokens, newToken]);
+
+    return mergedTokens;
+  }
+
+  return JSON.stringify([newToken]);
+}
+
 export async function allowsNotificationsAsync() {
   const settings = await Notifications.getPermissionsAsync();
   return settings.granted || settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
@@ -21,14 +36,14 @@ export async function allowsNotificationsAsync() {
 export async function registerForPushNotificationsAsync() {
   let token;
 
-  // if (Platform.OS === 'android') {
-  //   await Notifications.setNotificationChannelAsync('default', {
-  //     name: 'default',
-  //     importance: Notifications.AndroidImportance.MAX,
-  //     vibrationPattern: [0, 250, 250, 250],
-  //     lightColor: '#FF231F7C',
-  //   });
-  // }
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('All', {
+      name: 'All',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#e6f88a',
+    });
+  }
 
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
@@ -56,6 +71,6 @@ export async function schedulePushNotification() {
       body: 'hello friend. welcome to unlonely developer settings.',
       data: { data: '$BRIAN' },
     },
-    trigger: { seconds: 1 },
+    trigger: { seconds: 1, channelId: 'All' },
   });
 }

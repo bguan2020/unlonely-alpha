@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useWindowDimensions, StyleSheet, ScrollView, View } from 'react-native';
+import { useWindowDimensions, StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useHaptics } from '../../utils/haptics';
 import { NotificationSettings } from './notificationSettings';

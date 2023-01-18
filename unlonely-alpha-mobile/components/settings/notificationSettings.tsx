@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Switch, ActivityIndicator } from 'react-native'
 import { useUserNotifications } from '../../api/mutations/useUserNotifications';
 import { useUser } from '../../api/queries/useUser';
 import { useHaptics } from '../../utils/haptics';
-import { allowsNotificationsAsync, registerForPushNotificationsAsync } from '../../utils/notifications';
+import { allowsNotificationsAsync, mergeTokens, registerForPushNotificationsAsync } from '../../utils/notifications';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
 import { useUserStore } from '../../utils/store/userStore';
@@ -14,10 +14,12 @@ export const NotificationSettings = () => {
   const [loading, setLoading] = useState(false);
   const [liveEnabled, setLiveEnabled] = useState(false); // default before data loads
   const [nfcEnabled, setNfcEnabled] = useState(false); // default before data loads
-  const { isNotificationPermissionGranted, grantNotificationPermissions } = useAppSettingsStore(z => ({
-    isNotificationPermissionGranted: z.isNotificationsPermissionGranted,
-    grantNotificationPermissions: z.grantNotificationsPermission,
-  }));
+  const { isNotificationPermissionGranted, grantNotificationPermissions, revokeNotificationsPermission } =
+    useAppSettingsStore(z => ({
+      isNotificationPermissionGranted: z.isNotificationsPermissionGranted,
+      grantNotificationPermissions: z.grantNotificationsPermission,
+      revokeNotificationsPermission: z.revokeNotificationsPermission,
+    }));
   const { userData, setUser, connectedWallet, _hasHydrated } = useUserStore(z => ({
     _hasHydrated: z._hasHydrated,
     connectedWallet: z.connectedWallet,
@@ -31,49 +33,47 @@ export const NotificationSettings = () => {
   const { data: apiUser, run: getUserData } = useUser(hydratedWalletAddress, { address: hydratedWalletAddress });
   const userNotifications = useUserNotifications();
 
+  const toggleLive = () => {
+    if (userData) {
+      userNotifications?.mutate({
+        notificationsLive: !liveEnabled,
+      });
+      setLoading(true);
+      setUser({
+        ...userData,
+        notificationsLive: !liveEnabled,
+      });
+    }
+  };
+
+  const toggleNfc = () => {
+    if (userData) {
+      userNotifications?.mutate({
+        notificationsNFCs: !nfcEnabled,
+      });
+      setLoading(true);
+      setUser({
+        ...userData,
+        notificationsNFCs: !nfcEnabled,
+      });
+    }
+  };
+
   const grantPermissions = async () => {
     registerForPushNotificationsAsync().then(token => {
       grantNotificationPermissions();
+      // read tokens and settings first. add new token if not already there
+      // and send the mutation with the new token and default settings
 
-      // default mutation enabling notification types and sending token?
+      if (userData?.notificationsTokens?.includes(token)) return;
+      if (token === null) return;
 
-      console.log('🔔 setting defaults 🔔');
-
-      // read tokens and settings first. then transform token array to add a new token if it doesn't exist. then update the array.
-      // then run the mutation with the new array and settings.
-
-      // userNotifications.mutate({
-      //   notificationsLive: liveEnabled,
-      //   notificationsNFCs: nfcEnabled,
-      //   notificationsTokens: JSON.stringify([token]),
-      // });
+      userNotifications.mutate({
+        notificationsLive: liveEnabled,
+        notificationsNFCs: nfcEnabled,
+        notificationsTokens: mergeTokens(userData?.notificationsTokens, token),
+      });
     });
-  };
-
-  const toggleLive = async () => {
-    if (userData) {
-      userNotifications?.mutate({
-        notificationsLive: !liveEnabled,
-      });
-      setLoading(true);
-      setUser({
-        ...userData,
-        notificationsLive: !liveEnabled,
-      });
-    }
-  };
-
-  const toggleNfc = async () => {
-    if (userData) {
-      userNotifications?.mutate({
-        notificationsNFCs: !nfcEnabled,
-      });
-      setLoading(true);
-      setUser({
-        ...userData,
-        notificationsNFCs: !nfcEnabled,
-      });
-    }
   };
 
   useEffect(() => {
@@ -81,6 +81,9 @@ export const NotificationSettings = () => {
       if (enabled) {
         grantPermissions();
         console.log('🔔 [allowsNotificationsAsync] enabled');
+      } else {
+        revokeNotificationsPermission();
+        console.log('🔕 [allowsNotificationsAsync] disabled');
       }
       // figure out extra permission stuff here for displaying the button and
       // setting zustand variable settings
@@ -99,7 +102,7 @@ export const NotificationSettings = () => {
   }, [loading, userData, apiUser]);
 
   useEffect(() => {
-    if (userNotifications?.data) {
+    if (userNotifications?.data?.updateUserNotifications) {
       setLoading(false);
       toast('notifications updated');
       useHaptics('light');
@@ -168,6 +171,7 @@ export const NotificationSettings = () => {
             trackColor={{
               true: '#be47d1',
             }}
+            thumbColor="white"
             disabled={!allowed || loading}
           />
         </View>
@@ -196,6 +200,7 @@ export const NotificationSettings = () => {
             trackColor={{
               true: '#be47d1',
             }}
+            thumbColor="white"
             disabled={!allowed || loading}
           />
         </View>
@@ -288,3 +293,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+function mergedTokens(notificationsTokens: string, token: any): string {
+  throw new Error('Function not implemented.');
+}

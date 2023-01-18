@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "337882980887",
+    "project_id": "unlonely-mobile",
+    "storage_bucket": "unlonely-mobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:337882980887:android:d4f6da748fcf60cbcef252",
+        "android_client_info": {
+          "package_name": "app.unlonely.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "337882980887-pdec374i7v53gcctrm2o70vp0gu8g3bs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIEoGfFDqYYCbHAhWcuWJZ10zlTeaEvC0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "337882980887-pdec374i7v53gcctrm2o70vp0gu8g3bs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

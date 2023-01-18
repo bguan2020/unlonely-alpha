@@ -15,6 +15,7 @@ export const AppSettings = () => {
           trackColor={{
             true: '#be47d1',
           }}
+          thumbColor="white"
         />
       </View>
       <View style={styles.settingsToggleRow}>
@@ -25,6 +26,7 @@ export const AppSettings = () => {
           trackColor={{
             true: '#be47d1',
           }}
+          thumbColor="white"
         />
       </View>
     </>

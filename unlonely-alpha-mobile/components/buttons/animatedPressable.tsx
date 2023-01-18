@@ -13,9 +13,9 @@ export const AnimatedPressable = ({ onPress, style, children, bouncy }: Animated
   return (
     <MotiPressable
       onPress={onPress}
-      animate={({ hovered, pressed }) => {
+      animate={({ pressed }) => {
         'worklet';
-        if (hovered || pressed) runOnJS(useHaptics)('light');
+        if (pressed) runOnJS(useHaptics)('light');
         return {
           scale: pressed ? (bouncy ? 0.75 : 0.85) : 1,
         };
