@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { FlashList } from '@shopify/flash-list';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FullscreenNfc } from '../../components/nfc/fullscreenNfc';
 import { useNfcFeed } from '../../api/queries/useNfcFeed';
 import { useHaptics } from '../../utils/haptics';
@@ -13,6 +13,7 @@ import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
 
 export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
+  const [showBacksplash, setShowBacksplash] = useState(true);
   const videoRefs = useRef([]);
   const isNfcAutoplayEnabled = useAppSettingsStore(z => z.isNfcAutoplayEnabled);
   const { isNFCPlaying, startNFCPlaying, stopNFCPlaying } = useVideoPlayerStore(z => ({
@@ -47,6 +48,13 @@ export default function NfcFeedScreen() {
   });
 
   useEffect(() => {
+    if (nfcs?.length > 0) {
+      setTimeout(() => {
+        // hide dark backsplash after 3 seconds
+        setShowBacksplash(false);
+      }, 3000);
+    }
+
     if (nfcs?.length > 0 && isNfcAutoplayEnabled) {
       console.log('== starting NFC playback ==');
       setTimeout(() => {
@@ -66,6 +74,31 @@ export default function NfcFeedScreen() {
     <View style={styles.container}>
       {/* animate ↓ this in with reanimated with a 10 second delay after the app loads */}
       <UnlonelyTopGradientWithLogo />
+      <View
+        style={{
+          position: 'absolute',
+          zIndex: -1,
+          bottom: -15,
+          left: 0,
+          right: 0,
+        }}
+      >
+        <Text style={styles.hiddenMessage}>that’s it. you’re done.</Text>
+        {/* animate ↑ this in with reanimated with a 10 second delay after the app loads */}
+      </View>
+      {showBacksplash && (
+        <View
+          style={{
+            position: 'absolute',
+            zIndex: -1,
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'black',
+          }}
+        ></View>
+      )}
       <FlashList
         data={nfcs}
         removeClippedSubviews
@@ -79,18 +112,6 @@ export default function NfcFeedScreen() {
         }}
         onViewableItemsChanged={onViewableItemsChanged.current}
       />
-      <View
-        style={{
-          position: 'absolute',
-          zIndex: -1,
-          bottom: -15,
-          left: 0,
-          right: 0,
-        }}
-      >
-        <Text style={styles.hiddenMessage}>that’s it. you’re done.</Text>
-        {/* animate ↑ this in with reanimated with a 10 second delay after the app loads */}
-      </View>
       <FeedNav />
       <ConnectKitSheet />
       <StatusBar style="dark" />
