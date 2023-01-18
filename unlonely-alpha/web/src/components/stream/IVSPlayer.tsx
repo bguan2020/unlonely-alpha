@@ -12,7 +12,10 @@ type Props = {
   playbackUrl: string;
 };
 
-const IVSPlayer: React.FunctionComponent<Props> = ({ isTheatreMode, playbackUrl }) => {
+const IVSPlayer: React.FunctionComponent<Props> = ({
+  isTheatreMode,
+  playbackUrl,
+}) => {
   const [offline, setOffline] = useState<boolean>(false);
   useEffect(() => {
     const PLAYBACK_URL = playbackUrl;

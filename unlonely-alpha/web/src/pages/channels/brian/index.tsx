@@ -76,7 +76,10 @@ const Example: React.FunctionComponent = () => {
         direction={["column", "row", "row"]}
       >
         <Flex width={{ base: "100%", sm: "70%", md: "70%", lg: "100%" }}>
-          <NextStreamTimer isTheatreMode={true} playbackUrl={brianPlaybackUrl}/>
+          <NextStreamTimer
+            isTheatreMode={true}
+            playbackUrl={brianPlaybackUrl}
+          />
         </Flex>
         <Button
           height={{
