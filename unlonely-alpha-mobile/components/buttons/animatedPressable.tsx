@@ -13,8 +13,8 @@ export const AnimatedPressable = ({ onPress, style, children, bouncy }: Animated
   return (
     <MotiPressable
       onPress={() => {
-        onPress();
         useHaptics('light');
+        onPress && onPress();
       }}
       animate={({ pressed }) => {
         'worklet';

@@ -39,7 +39,7 @@ export async function registerForPushNotificationsAsync() {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('Live', {
       name: 'Live',
-      importance: Notifications.AndroidImportance.HIGH, // maybe this should be MAX?? idk
+      importance: Notifications.AndroidImportance.MAX, // maybe this should be MAX?? idk
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#ff0200',
       sound: 'live.wav',

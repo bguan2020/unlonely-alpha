@@ -64,9 +64,10 @@ export const NotificationSettings = () => {
       grantNotificationPermissions();
       // read tokens and settings first. add new token if not already there
       // and send the mutation with the new token and default settings
-
       if (userData?.notificationsTokens?.includes(token)) return;
       if (token === null) return;
+
+      console.log('🔔 [grantPermissions] setting default notification settings with token:', token);
 
       userNotifications.mutate({
         notificationsLive: liveEnabled,
@@ -178,7 +179,7 @@ export const NotificationSettings = () => {
           />
         </View>
       </View>
-      {!isNotificationPermissionGranted ? (
+      {!isNotificationPermissionGranted && userData ? (
         <View style={styles.notificationPermissionsBox}>
           <Text style={styles.notificationPermissionsText}>
             enable notifications to receive updates when things happen on unlonely

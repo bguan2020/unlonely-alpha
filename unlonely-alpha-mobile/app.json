@@ -44,7 +44,6 @@
       "package": "app.unlonely.mobile",
       "googleServicesFile": "./google-services.json",
       "userInterfaceStyle": "dark",
-      "icon": "./assets/adaptive-icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon-top.png",
         "backgroundImage": "./assets/adaptive-icon-bottom.png"
