@@ -37,11 +37,20 @@ export async function registerForPushNotificationsAsync() {
   let token;
 
   if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('All', {
-      name: 'All',
+    await Notifications.setNotificationChannelAsync('Live', {
+      name: 'Live',
+      importance: Notifications.AndroidImportance.HIGH, // maybe this should be MAX?? idk
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#ff0200',
+      sound: 'live.wav',
+    });
+
+    await Notifications.setNotificationChannelAsync('NFC', {
+      name: 'NFC',
       importance: Notifications.AndroidImportance.HIGH, // maybe this should be MAX?? idk
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#e6f88a',
+      sound: 'nfc.wav',
     });
   }
 
@@ -69,8 +78,9 @@ export async function schedulePushNotification() {
     content: {
       title: 'local test notification',
       body: 'hello friend. welcome to unlonely developer settings.',
+      sound: 'live.wav',
       data: { data: '$BRIAN' },
     },
-    trigger: { seconds: 1, channelId: 'All' },
+    trigger: { seconds: 1, channelId: 'Live' },
   });
 }

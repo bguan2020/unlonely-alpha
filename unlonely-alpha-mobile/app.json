@@ -6,9 +6,10 @@
     "backgroundColor": "#000000",
     "userInterfaceStyle": "dark",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "splash": {
       "backgroundColor": "#000000",
-      "image": "./splash.png"
+      "image": "./assets/splash.png"
     },
     "version": "1.0.0",
     "web": {
@@ -29,7 +30,8 @@
         {
           "mode": "development",
           "androidMode": "development",
-          "iosMode": "development"
+          "iosMode": "development",
+          "sounds": ["./assets/sounds/live.wav", "./assets/sounds/nfc.wav"]
         }
       ]
     ],
@@ -41,7 +43,12 @@
     "android": {
       "package": "app.unlonely.mobile",
       "googleServicesFile": "./google-services.json",
-      "userInterfaceStyle": "dark"
+      "userInterfaceStyle": "dark",
+      "icon": "./assets/adaptive-icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon-top.png",
+        "backgroundImage": "./assets/adaptive-icon-bottom.png"
+      }
     }
   }
 }
