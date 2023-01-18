@@ -23,7 +23,7 @@ export const useAppSettingsStore = create<AppSettingsStore>()(
     set => ({
       isNotificationsPermissionGranted: false,
       isBlurEnabled: true,
-      isNfcAutoplayEnabled: true,
+      isNfcAutoplayEnabled: false,
       nfcFeedSorting: 'createdAt',
       grantNotificationsPermission: () => set({ isNotificationsPermissionGranted: true }),
       revokeNotificationsPermission: () => set({ isNotificationsPermissionGranted: false }),
