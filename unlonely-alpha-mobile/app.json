@@ -8,7 +8,8 @@
     "orientation": "portrait",
     "splash": {
       "backgroundColor": "#000000",
-      "image": "./assets/splash.png"
+      "image": "./assets/gradient-splash.png",
+      "resizeMode": "cover"
     },
     "version": "1.0.0",
     "web": {
@@ -22,7 +23,8 @@
         "NSUserNotificationAlertStyle": "banner",
         "UIUserInterfaceStyle": "dark"
       },
-      "userInterfaceStyle": "dark"
+      "userInterfaceStyle": "dark",
+      "supportsTablet": false
     },
     "plugins": [
       [
