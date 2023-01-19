@@ -45,11 +45,21 @@ export const toast = (message: string) =>
                 flex: 1,
                 borderRadius: 100,
                 overflow: 'hidden',
+                height: TOAST_HEIGHT,
               },
-              styles.blur,
+              StyleSheet.absoluteFillObject,
             ]}
           >
-            <BlurLayer blurAmount={30} blurType="dark" style={styles.blur} />
+            <BlurLayer
+              blurAmount={30}
+              blurType="dark"
+              style={[
+                StyleSheet.absoluteFillObject,
+                {
+                  height: TOAST_HEIGHT,
+                },
+              ]}
+            />
           </View>
           <Ionicons
             name="ios-checkmark-circle-outline"
@@ -72,13 +82,5 @@ const styles = StyleSheet.create({
     fontSize: TOAST_HEIGHT / 3,
     fontFamily: 'NeuePixelSans',
     top: 1,
-  },
-  blur: {
-    position: 'absolute',
-    height: TOAST_HEIGHT,
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
 });

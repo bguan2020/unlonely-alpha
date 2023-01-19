@@ -16,7 +16,7 @@ const { colors, locations } = easeGradient({
 
 export const FadedTabBar = () => (
   // Custom tab bar background that fades out at the top
-  <View style={styles.rootContainer}>
+  <View style={StyleSheet.absoluteFillObject}>
     <LinearGradient
       colors={colors}
       locations={locations}
@@ -31,13 +31,3 @@ export const FadedTabBar = () => (
     />
   </View>
 );
-
-const styles = StyleSheet.create({
-  rootContainer: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-  },
-});

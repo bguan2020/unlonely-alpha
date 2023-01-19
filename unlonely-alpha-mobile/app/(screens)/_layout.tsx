@@ -84,7 +84,7 @@ export default function Layout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={styles.rootContainer} onLayout={onLayoutRootView}>
+      <View style={StyleSheet.absoluteFillObject} onLayout={onLayoutRootView}>
         <StatusBar style="dark" />
         {/* maybe add a custom splash screen animation here */}
         <QueryClientProvider client={queryClient}>
@@ -148,13 +148,3 @@ export default function Layout() {
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  rootContainer: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-  },
-});

@@ -4,7 +4,7 @@ import Svg, { SvgProps, Path } from 'react-native-svg';
 
 // Unlonely branded gradient that shows up at the top of the screen
 export const UnlonelyTopGradient = () => (
-  <View style={styles.rootContainer}>
+  <View style={StyleSheet.absoluteFillObject}>
     <LinearGradient
       colors={['#e2f979', '#b0e5cf', '#ba98d7', '#d16fce']}
       end={[1, 0]}
@@ -84,13 +84,3 @@ export const UnlonelyTopGradientWithLogo = () => (
     <UnlonelyLogo width={160} height={100} />
   </View>
 );
-
-const styles = StyleSheet.create({
-  rootContainer: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-  },
-});
