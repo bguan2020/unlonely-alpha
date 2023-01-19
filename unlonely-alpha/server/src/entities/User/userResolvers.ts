@@ -40,6 +40,9 @@ export const resolvers = {
     getAllUsers: (_: any, _args: any, ctx: Context) => {
       return userService.getAllUsers(ctx);
     },
+    updateAllUsers: (_: any, _args: any, ctx: Context) => {
+      return userService.updateAllUsers(ctx);
+    }
   },
   Mutation: {
     updateUserNotifications: (

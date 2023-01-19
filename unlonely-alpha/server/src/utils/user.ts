@@ -23,21 +23,24 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
         },
       });
 
+      if (data && data.defaultProfile) {
+        user = await prisma.user.create({
+          data: {
+            address: address,
+            username: username,
+            lensHandle: data.defaultProfile.handle,
+            lensImageUrl: data.defaultProfile.picture === null ? null : data.defaultProfile.picture.original.url,
+            isLensUser: true,
+          },
+        });
+      }
+    } catch (e) {
+      console.log(e);
       user = await prisma.user.create({
         data: {
           address: address,
-          username: username,
-          isLensUser: data && data.defaultProfile ? true : false,
-          lensHandle:
-            data && data.defaultProfile ? data.defaultProfile.handle : "",
-          lensImageUrl:
-            data && data.defaultProfile
-              ? data.defaultProfile.picture.original.url
-              : "",
         },
       });
-    } catch (e) {
-      console.log(e);
     }
   }
 

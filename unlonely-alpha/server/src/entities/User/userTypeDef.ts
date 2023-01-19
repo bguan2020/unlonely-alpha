@@ -41,6 +41,7 @@ export const typeDef = gql`
     getUser(data: GetUserInput!): User
     getLeaderboard: [User]
     getAllUsers: [User]
+    updateAllUsers: [User]
   }
 
   extend type Mutation {
