@@ -1,7 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Linking, Platform, Share, StyleSheet, Text, View } from 'react-native';
 import { ResizeMode, Video } from 'expo-av';
-import { BlurView } from 'expo-blur';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { toast } from '../toast/toast';
@@ -11,6 +10,7 @@ import { AnimatedPressable } from '../buttons/animatedPressable';
 import { format, parseISO } from 'date-fns';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
+import { BlurLayer } from '../blur/blurLayer';
 
 type FullscreenNfcProps = {
   height: number;
@@ -170,9 +170,9 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
           >
             <NfcVideo item={props.item} height={props.height} blurred play={shouldPlay} />
           </View>
-          <BlurView
-            intensity={80}
-            tint="dark"
+          <BlurLayer
+            blurAmount={20}
+            blurType="dark"
             style={{
               position: 'absolute',
               height: props.height,

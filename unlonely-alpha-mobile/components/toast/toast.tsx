@@ -1,7 +1,7 @@
 import { toast as nativeToast, ToastPosition } from '@backpackapp-io/react-native-toast';
-import { BlurView } from 'expo-blur';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurLayer } from '../blur/blurLayer';
 
 const TOAST_HEIGHT = 40;
 
@@ -49,7 +49,7 @@ export const toast = (message: string) =>
               styles.blur,
             ]}
           >
-            <BlurView intensity={80} tint="dark" style={styles.blur} />
+            <BlurLayer blurAmount={30} blurType="dark" style={styles.blur} />
           </View>
           <Ionicons
             name="ios-checkmark-circle-outline"

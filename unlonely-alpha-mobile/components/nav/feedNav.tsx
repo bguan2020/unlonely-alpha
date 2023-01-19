@@ -1,5 +1,4 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { View, Image, StyleSheet, Platform, Text } from 'react-native';
 import { useHaptics } from '../../utils/haptics';
 import { SettingsSheet } from '../settings/settingsSheet';
@@ -9,6 +8,7 @@ import { AnimatedMenuView } from '../buttons/animatedMenuView';
 import { useUserStore } from '../../utils/store/userStore';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
+import { BlurLayer } from '../blur/blurLayer';
 
 const AVATAR_SIZE = 48;
 
@@ -86,16 +86,16 @@ export function FeedNav() {
                   },
                 ]}
               >
-                <BlurView
-                  intensity={80}
-                  tint="dark"
+                <BlurLayer
+                  blurAmount={30}
+                  blurType="dark"
                   style={{
                     position: 'absolute',
                     width: AVATAR_SIZE,
                     height: AVATAR_SIZE,
                     zIndex: 1,
                   }}
-                ></BlurView>
+                ></BlurLayer>
                 <Image
                   style={{
                     width: AVATAR_SIZE - 6,
@@ -115,16 +115,16 @@ export function FeedNav() {
               </View>
             ) : (
               <View style={styles.floatingButton}>
-                <BlurView
-                  intensity={80}
-                  tint="dark"
+                <BlurLayer
+                  blurAmount={30}
+                  blurType="dark"
                   style={{
                     position: 'absolute',
                     width: AVATAR_SIZE,
                     height: AVATAR_SIZE,
                     zIndex: 1,
                   }}
-                ></BlurView>
+                ></BlurLayer>
                 <Ionicons
                   name="ios-person"
                   size={20}
@@ -181,16 +181,16 @@ export function FeedNav() {
             }}
           >
             <View style={styles.floatingButton}>
-              <BlurView
-                intensity={80}
-                tint="dark"
+              <BlurLayer
+                blurAmount={30}
+                blurType="dark"
                 style={{
                   position: 'absolute',
                   width: AVATAR_SIZE,
                   height: AVATAR_SIZE,
                   zIndex: 1,
                 }}
-              ></BlurView>
+              ></BlurLayer>
               <View
                 style={{
                   height: AVATAR_SIZE,
