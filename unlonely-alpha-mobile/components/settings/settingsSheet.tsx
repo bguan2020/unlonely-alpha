@@ -12,17 +12,6 @@ import { DeveloperSettings } from './developerSettings';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
 import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
 
-const { colors, locations } = easeGradient({
-  colorStops: {
-    1: {
-      color: 'hsl(0, 0%, 8%)',
-    },
-    0: {
-      color: 'hsla(0, 0%, 8%, 0)',
-    },
-  },
-});
-
 const bottomSheetOptions = {
   index: -1,
   enablePanDownToClose: true,
@@ -88,6 +77,17 @@ export const SettingsSheet = () => {
     </>
   );
 };
+
+const { colors, locations } = easeGradient({
+  colorStops: {
+    1: {
+      color: 'hsl(0, 0%, 8%)',
+    },
+    0: {
+      color: 'hsla(0, 0%, 8%, 0)',
+    },
+  },
+});
 
 const styles = StyleSheet.create({
   sheetWrapper: {

@@ -16,6 +16,7 @@ export const AppSettings = () => {
             true: '#be47d1',
           }}
           thumbColor="white"
+          disabled
         />
       </View>
       <View style={styles.settingsToggleRow}>

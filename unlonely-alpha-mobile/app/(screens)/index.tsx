@@ -23,7 +23,7 @@ export default function NfcFeedScreen() {
   }));
   const nfcFeedSorting = useAppSettingsStore(z => z.nfcFeedSorting);
   const { status, data, error, isFetching } = useNfcFeed(nfcFeedSorting, {
-    limit: 9,
+    limit: 20,
     orderBy: nfcFeedSorting,
   });
   const nfcs = data?.getNFCFeed;
@@ -50,9 +50,13 @@ export default function NfcFeedScreen() {
   useEffect(() => {
     if (nfcs?.length > 0) {
       setTimeout(() => {
-        // hide dark backsplash after 3 seconds
+        // hide dark backsplash after 2 seconds
         setShowBacksplash(false);
-      }, 3000);
+      }, 2000);
+    }
+
+    if (isFetching) {
+      setShowBacksplash(true);
     }
 
     if (nfcs?.length > 0 && isNfcAutoplayEnabled) {
@@ -64,7 +68,7 @@ export default function NfcFeedScreen() {
       console.log('== stopping NFC playback ==');
       stopNFCPlaying();
     }
-  }, [nfcs, isNfcAutoplayEnabled]);
+  }, [nfcs, isNfcAutoplayEnabled, isFetching, nfcFeedSorting]);
 
   const nfcVideoRenderItem = ({ item }) => {
     return <FullscreenNfc item={item} ref={ref => (videoRefs.current[item.id] = ref)} height={height} width={width} />;
@@ -83,7 +87,7 @@ export default function NfcFeedScreen() {
           right: 0,
         }}
       >
-        <Text style={styles.hiddenMessage}>that’s it. you’re done.</Text>
+        <Text style={styles.hiddenMessage}>that’s it for now.</Text>
         {/* animate ↑ this in with reanimated with a 10 second delay after the app loads */}
       </View>
       {showBacksplash && (

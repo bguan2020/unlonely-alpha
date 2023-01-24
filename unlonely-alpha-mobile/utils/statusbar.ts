@@ -1,9 +1,9 @@
 import { getStatusBarHeight } from 'react-native-safearea-height';
 
-// 59 - iPhone 14 Pro / 14Pro Max
-// 50 - iPhone 13 mini
-// 47 - iPhone 12 / 12Pro / 13 / 13Pro / 13Pro Max / 14 / 14 Plus
-// 44 - on iPhoneX
+// 59 - iPhone 14 Pro / 14 Pro Max
+// 50 - iPhone 13 mini / 12 mini
+// 47 - iPhone 12 / 12 Pro / 13 / 13 Pro / 13 Pro Max / 14 / 14 Plus
+// 44 - on iPhone X / XS / 11 Pro
 // 20 - on iOS device
 // X - on Android platfrom (runtime value)
 // 0 - on all other platforms (default)

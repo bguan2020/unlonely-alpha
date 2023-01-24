@@ -4,6 +4,7 @@ type BottomSheetStore = {
   // main settings
   isSettingsSheetOpen: boolean;
   toggleSettingsSheet: () => void;
+  openSettingsSheet: () => void;
   closeSettingsSheet: () => void;
   // connectkit webview
   isCKSheetOpen: boolean;
@@ -26,6 +27,7 @@ export const useBottomSheetStore = create<BottomSheetStore>()(set => ({
       isSettingsSheetOpen: !z.isSettingsSheetOpen,
       isNFCSheetOpen: false,
     })),
+  openSettingsSheet: () => set({ isSettingsSheetOpen: true }),
   closeSettingsSheet: () => set({ isSettingsSheetOpen: false }),
   isCKSheetOpen: false,
   openCKSheet: () =>

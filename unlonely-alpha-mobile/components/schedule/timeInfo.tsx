@@ -2,31 +2,10 @@ import { differenceInHours, format, parseISO } from 'date-fns';
 import { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTimer } from 'react-timer-hook';
+import { countdownText } from '../../utils/countdown';
 
 type TimeInfoProps = {
   hostDate: string;
-};
-
-const ComputedTimeString = ({ days, hours, minutes, seconds }) => {
-  let string;
-
-  if (seconds > 0) {
-    string = `in ${seconds}s`;
-  }
-
-  if (minutes > 0) {
-    string = `in ${minutes}m ${seconds}s`;
-  }
-
-  if (hours > 0) {
-    string = `in ${hours}h ${minutes}m ${seconds}s`;
-  }
-
-  if (days > 0) {
-    string = `in ${days}d ${hours}h ${minutes}m ${seconds}s`;
-  }
-
-  return <Text style={styles.timeRelativeText}>{string}</Text>;
 };
 
 export const TimeInfo = ({ hostDate }: TimeInfoProps) => {
@@ -48,7 +27,7 @@ export const TimeInfo = ({ hostDate }: TimeInfoProps) => {
       </View>
       {!isCountdownEnded && (
         <View style={styles.timeRelative}>
-          <ComputedTimeString days={days} hours={hours} minutes={minutes} seconds={seconds} />
+          <Text style={styles.timeRelativeText}>{countdownText(days, hours, minutes, seconds)}</Text>
         </View>
       )}
       {isLive && <Text style={styles.liveNowText}>LIVE NOW</Text>}

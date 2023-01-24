@@ -13,18 +13,24 @@ export default function ScheduleScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* <View style={styles.main}>
+      <View style={styles.main}>
         <Text style={styles.title}>Upcoming Streams</Text>
-        <ScheduleCard />
-        <ScheduleCard />
+        <View style={styles.empty}>
+          <Text style={[styles.title, styles.subtitle]}>nothing planned</Text>
+        </View>
+        {/* <ScheduleCard />
+        <ScheduleCard /> */}
         <Text style={[styles.title, styles.subtitle]}>Previous Streams</Text>
+        <View style={styles.empty}>
+          <Text style={[styles.title, styles.subtitle]}>none</Text>
+        </View>
+        {/* <ScheduleCard />
         <ScheduleCard />
-        <ScheduleCard />
-        <ScheduleCard />
-      </View> */}
-      <View style={[styles.main, styles.center]}>
-        <Text style={[styles.title, styles.subtitle]}>coming in the next update</Text>
+        <ScheduleCard /> */}
       </View>
+      {/* <View style={[styles.main, styles.center]}>
+        <Text style={[styles.title, styles.subtitle]}>no upcoming streams</Text>
+      </View> */}
     </ScrollView>
   );
 }
@@ -57,5 +63,14 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: '#666',
+  },
+  empty: {
+    paddingVertical: 8,
+    marginVertical: 8,
+    marginBottom: 32,
+    backgroundColor: '#111',
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 
@@ -14,7 +14,7 @@ export const BlurLayer = ({ style, blurType, blurAmount }: BlurLayerProps) => {
   useEffect(() => {
     setTimeout(() => {
       setShowBlur(true);
-    }, 1000);
+    }, 500);
   }, []);
 
   return (

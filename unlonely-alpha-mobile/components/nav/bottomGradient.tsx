@@ -2,18 +2,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { View, StyleSheet } from 'react-native';
 import { easeGradient } from 'react-native-easing-gradient';
 
-const { colors, locations } = easeGradient({
-  // Eased gradient function so it doesn’t look like garbage
-  colorStops: {
-    0: {
-      color: '#000',
-    },
-    1: {
-      color: 'transparent',
-    },
-  },
-});
-
 export const FadedTabBar = () => (
   // Custom tab bar background that fades out at the top
   <View style={StyleSheet.absoluteFillObject}>
@@ -31,3 +19,15 @@ export const FadedTabBar = () => (
     />
   </View>
 );
+
+const { colors, locations } = easeGradient({
+  // Eased gradient function so it doesn’t look like garbage
+  colorStops: {
+    0: {
+      color: '#000',
+    },
+    1: {
+      color: 'transparent',
+    },
+  },
+});
