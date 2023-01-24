@@ -6,13 +6,13 @@ import { easeGradient } from 'react-native-easing-gradient';
 import { WebView } from 'react-native-webview';
 import { useUserStore } from '../../utils/store/userStore';
 import { AnimatedPressable } from '../buttons/animatedPressable';
-import { useLink } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
 
 const CHAT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/chat';
 
 export function Chat() {
-  const router = useLink();
+  const router = useRouter();
   const webViewRef = useRef<WebView>(null);
   const [chatKey, setChatKey] = useState(0);
   const userData = useUserStore(z => z.userData);
@@ -44,7 +44,7 @@ export function Chat() {
       openSettingsSheet();
       setTimeout(() => {
         openCKSheet();
-      }, 1000);
+      }, 500);
     }
   };
 
