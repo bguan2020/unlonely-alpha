@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { FlashList } from '@shopify/flash-list';
 import { useEffect, useRef, useState } from 'react';
@@ -99,9 +99,14 @@ export default function NfcFeedScreen() {
             bottom: 0,
             left: 0,
             right: 0,
+            paddingTop: 40,
             backgroundColor: 'black',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
-        ></View>
+        >
+          <ActivityIndicator size="large" color="white" />
+        </View>
       )}
       <FlashList
         data={nfcs}

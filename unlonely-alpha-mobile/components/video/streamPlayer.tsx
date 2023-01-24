@@ -38,14 +38,14 @@ export function StreamPlayer() {
     mediaPlayerRef.current?.play();
     setIsPlaying(true);
 
-    startLiveStreamPlaying();
+    // startLiveStreamPlaying();
     stopNFCPlaying();
   };
 
   const pressPause = () => {
+    // stopLiveStreamPlaying();
     mediaPlayerRef.current?.pause();
     setIsPlaying(false);
-    stopLiveStreamPlaying();
   };
 
   const pressRetry = () => {
@@ -118,7 +118,7 @@ export function StreamPlayer() {
               setOverlay('error');
             }
           }}
-          autoplay={isLiveStreamPlaying}
+          autoplay={false}
           volume={1}
           liveLowLatency={true}
           ref={mediaPlayerRef}
