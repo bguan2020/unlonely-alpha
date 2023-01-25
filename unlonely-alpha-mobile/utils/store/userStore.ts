@@ -10,6 +10,8 @@ type UserStore = {
   } | null;
   setConnectedWallet: (wallet: UserStore['connectedWallet']) => void;
   clearConnectedWallet: () => void;
+  userDataLoading: boolean;
+  setUserDataLoading: (state: boolean) => void;
   userData: {
     address?: string;
     username?: string;
@@ -36,6 +38,8 @@ export const useUserStore = create<UserStore>()(
       connectedWallet: null,
       setConnectedWallet: (wallet: UserStore['connectedWallet']) => set({ connectedWallet: wallet }),
       clearConnectedWallet: () => set({ connectedWallet: null }),
+      userDataLoading: false,
+      setUserDataLoading: state => set({ userDataLoading: state }),
       userData: null,
       setUser: (user: UserStore['userData']) => set({ userData: user }),
       clearUser: () => set({ userData: null }),

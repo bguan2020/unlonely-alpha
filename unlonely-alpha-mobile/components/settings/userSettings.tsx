@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import { MotiView } from 'moti';
 import { useEffect } from 'react';
-import { Text, StyleSheet, View, Image } from 'react-native';
+import { Text, StyleSheet, View, Image, ActivityIndicator } from 'react-native';
 import { useUser } from '../../api/queries/useUser';
+import { fadeInScale } from '../../utils/animations';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
 import { useUserStore } from '../../utils/store/userStore';
 import { truncate0x, truncateEns } from '../../utils/truncate';
@@ -14,8 +16,10 @@ export const UserSettings = () => {
     isSettingsSheetOpen: z.isSettingsSheetOpen,
     openCKSheet: z.openCKSheet,
   }));
-  const { hasHydrated, connectedWallet, userData, setUser } = useUserStore(z => ({
+  const { hasHydrated, connectedWallet, userData, setUser, userDataLoading, setUserDataLoading } = useUserStore(z => ({
     hasHydrated: z._hasHydrated,
+    userDataLoading: z.userDataLoading,
+    setUserDataLoading: z.setUserDataLoading,
     connectedWallet: z.connectedWallet,
     userData: z.userData,
     setUser: z.setUser,
@@ -31,11 +35,16 @@ export const UserSettings = () => {
       console.log('[settings] refreshing user data...');
       getUserData();
     }
+
+    if (userData?.address && userDataLoading) {
+      setUserDataLoading(false);
+    }
   }, [userData]);
 
   useEffect(() => {
     // runs after getUserData() is called
     if (apiUser) {
+      setUserDataLoading(false);
       setUser(apiUser.getUser);
     }
   }, [apiUser]);
@@ -48,6 +57,7 @@ export const UserSettings = () => {
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
+          marginTop: 8,
         }}
       >
         {hasHydrated ? (
@@ -68,7 +78,8 @@ export const UserSettings = () => {
               }}
             >
               {connectedWallet && connectedWallet.ensAvatar ? (
-                <View
+                <MotiView
+                  {...fadeInScale}
                   style={[
                     styles.floatingButton,
                     {
@@ -91,19 +102,23 @@ export const UserSettings = () => {
                         : connectedWallet.ensAvatar,
                     }}
                   />
-                </View>
+                </MotiView>
               ) : (
-                <View style={styles.floatingButton}>
-                  <Ionicons
-                    name="ios-person"
-                    size={20}
-                    color="#e6f88a"
-                    style={{
-                      top: -1,
-                      zIndex: 2,
-                    }}
-                  />
-                </View>
+                <MotiView style={styles.floatingButton} {...fadeInScale}>
+                  {userDataLoading ? (
+                    <ActivityIndicator color="white" size="small" />
+                  ) : (
+                    <Ionicons
+                      name="ios-person"
+                      size={20}
+                      color="#e6f88a"
+                      style={{
+                        top: -1,
+                        zIndex: 2,
+                      }}
+                    />
+                  )}
+                </MotiView>
               )}
             </View>
             <View
@@ -125,11 +140,13 @@ export const UserSettings = () => {
             <Text style={styles.ensText}>hydrating...</Text>
           </View>
         )}
-        <View>
-          <AnimatedPressable style={styles.manageButton} onPress={openCKSheet}>
-            <Text style={styles.manageButtonText}>{connectedWallet ? 'manage' : 'connect'}</Text>
-          </AnimatedPressable>
-        </View>
+        {!userDataLoading && (
+          <MotiView {...fadeInScale}>
+            <AnimatedPressable style={styles.manageButton} onPress={openCKSheet}>
+              <Text style={styles.manageButtonText}>{connectedWallet ? 'manage' : 'connect'}</Text>
+            </AnimatedPressable>
+          </MotiView>
+        )}
       </View>
     </>
   );
@@ -154,7 +171,6 @@ const styles = StyleSheet.create({
   userRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
   },
   floatingButton: {
     position: 'absolute',

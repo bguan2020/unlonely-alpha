@@ -17,16 +17,23 @@ export function ConnectKitSheet() {
 
   // store
   const { isSettingsSheetOpen, isCKSheetOpen, closeCKSheet } = useBottomSheetStore();
-  const { _hasHydrated, connectedWallet, setConnectedWallet, clearConnectedWallet, userData, setUser, clearUser } =
-    useUserStore(z => ({
-      _hasHydrated: z._hasHydrated,
-      connectedWallet: z.connectedWallet,
-      setConnectedWallet: z.setConnectedWallet,
-      clearConnectedWallet: z.clearConnectedWallet,
-      userData: z.userData,
-      setUser: z.setUser,
-      clearUser: z.clearUser,
-    }));
+  const {
+    _hasHydrated,
+    connectedWallet,
+    setConnectedWallet,
+    clearConnectedWallet,
+    setUser,
+    clearUser,
+    setUserDataLoading,
+  } = useUserStore(z => ({
+    _hasHydrated: z._hasHydrated,
+    connectedWallet: z.connectedWallet,
+    setConnectedWallet: z.setConnectedWallet,
+    clearConnectedWallet: z.clearConnectedWallet,
+    setUser: z.setUser,
+    clearUser: z.clearUser,
+    setUserDataLoading: z.setUserDataLoading,
+  }));
   const hydratedWalletAddress = _hasHydrated && connectedWallet ? connectedWallet.address : 'user';
 
   // query
@@ -72,11 +79,9 @@ export function ConnectKitSheet() {
 
     if (data === 'wallet_connected') {
       console.log('[connectkit] wallet connected ✅');
-      // loading wallet info...
-      // TODO: add a loading state to settings view here with zustand state so
-      // it looks more seamless when bottomsheet closes and data is being loaded
-
-      // use the Moti skeleton loader component in place?
+      if (!connectedWallet) {
+        setUserDataLoading(true);
+      }
     }
 
     if (data.includes('address')) {
@@ -85,8 +90,11 @@ export function ConnectKitSheet() {
       const sameName = connectedWallet?.ensName === walletData.ensName;
       const sameAvatar = connectedWallet?.ensAvatar === walletData.ensAvatar;
 
-      if (sameAddress && sameName && sameAvatar) return;
-      console.log('[ck] saving connected wallet data...');
+      if (sameAddress && sameName && sameAvatar) {
+        setUserDataLoading(false);
+        return;
+      }
+      console.log('[connectkit] saving connected wallet data...');
       setConnectedWallet(walletData);
     }
   };
@@ -110,6 +118,7 @@ export function ConnectKitSheet() {
   useEffect(() => {
     if (connectedWallet !== null) {
       getUserData();
+      setUserDataLoading(true);
     }
   }, [connectedWallet]);
 

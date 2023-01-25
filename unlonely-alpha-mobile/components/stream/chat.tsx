@@ -76,6 +76,17 @@ export function Chat() {
         style={{
           paddingBottom: 100,
         }}
+        contentMode="mobile"
+        overScrollMode="never"
+        scalesPageToFit={false}
+        setBuiltInZoomControls={false}
+        setDisplayZoomControls={false}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        // scrollEnabled={false}
+        forceDarkOn
+        // @ts-ignore
+        zoomScale={1}
       />
       {!chatEnabled && (
         <MotiView style={styles.overlay}>

@@ -16,6 +16,7 @@
       "bundler": "metro"
     },
     "ios": {
+      "buildNumber": "3",
       "bundleIdentifier": "app.unlonely.mobile",
       "icon": "./assets/icon.png",
       "infoPlist": {
