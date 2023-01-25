@@ -13,6 +13,9 @@ export const resolvers = {
     ) {
       return hostEventService.getHostEventFeed(data, ctx);
     },
+    getNextHostEvent(_: any, __: any, ctx: Context) {
+      return hostEventService.getNextHostEvent(ctx);
+    }
   },
   Mutation: {
     postChallenge: (
