@@ -23,11 +23,12 @@ export const resolvers = {
       { data }: { data: NFCService.IHandleNFCInput },
       ctx: Context
     ) => {
-      if (!ctx.user || !ctx.userIsAuthed) {
-        throw new AuthenticationError("User is not authenticated");
-      }
+      // if (!ctx.user || !ctx.userIsAuthed) {
+      //   throw new AuthenticationError("User is not authenticated");
+      // }
 
-      return NFCService.handleNFC(data, ctx, ctx.user);
+      // return NFCService.handleNFC(data, ctx, ctx.user);
+      return NFCService.handleNFCTest();
     },
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {
       return NFCService.openseaNFCScript(ctx);
