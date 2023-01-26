@@ -6,19 +6,18 @@ import opensea from "./opensea.json";
 
 export interface IHandleNFCInput {
   title: string;
+  videoLink: string;
 }
 
 const channelArn = "arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq";
-const recordingConfigArn = "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
+const recordingConfigArn =
+  "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
 
 export const handleNFC = async (
   data: IHandleNFCInput,
   ctx: Context,
   user: User
 ) => {
-  // first call lambda
-  const url = await lambdaClipUrl();
-
   const numNFCsAllowed = user.powerUserLvl * 2 + 1;
   if (numNFCsAllowed === 0) {
     throw new Error("User is not allowed to post NFCs");
@@ -41,6 +40,7 @@ export const handleNFC = async (
   await ctx.prisma.nFC.create({
     data: {
       title: data.title,
+      videoLink: data.videoLink,
       owner: {
         connect: {
           address: user.address,
@@ -53,36 +53,36 @@ export const handleNFC = async (
   return remainingNFCs;
 };
 
-export const lambdaClipUrl = async () => {
+export const createClip = async () => {
   // first call lambda
   const lambda = new AWS.Lambda({
-    region: "us-west-2" // replace with the region where your Lambda function is located
+    region: "us-west-2", // replace with the region where your Lambda function is located
   });
 
   const params = {
     FunctionName: "sendClipToMediaConvert",
     Payload: JSON.stringify({
-      "detail": {
+      detail: {
         "channel-arn": channelArn,
         "recording-config-arn": recordingConfigArn,
-      }
-    })
+      },
+    }),
   };
 
   let lambdaResponse: any;
   try {
     lambdaResponse = await lambda.invoke(params).promise();
+    console.log(lambdaResponse);
+    const response = JSON.parse(lambdaResponse.Payload);
+    const url = response.body.url;
+    return url;
   } catch (e) {
     console.log(e);
     lambdaResponse = "Error invoking lambda";
   }
   if (lambdaResponse === "Error invoking lambda") {
-    return lambdaResponse;
+    return "Error invoking lambda";
   }
-
-  const response = JSON.parse(lambdaResponse.Payload);
-  const url = response.body.url;
-  return url;
 };
 
 export interface IGetNFCFeedInput {

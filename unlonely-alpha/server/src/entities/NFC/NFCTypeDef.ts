@@ -23,6 +23,7 @@ export const typeDef = gql`
 
   input HandleNFCInput {
     title: String!
+    videoLink: String!
   }
 
   extend type Query {
@@ -31,6 +32,7 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
+    createClip: String
     handleNFC(data: HandleNFCInput!): Int
     openseaNFCScript: String
   }
