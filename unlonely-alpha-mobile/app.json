@@ -16,9 +16,12 @@
       "bundler": "metro"
     },
     "ios": {
-      "buildNumber": "3",
+      "buildNumber": "5",
       "bundleIdentifier": "app.unlonely.mobile",
       "icon": "./assets/icon.png",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"

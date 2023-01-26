@@ -82,7 +82,7 @@
     "ios:device": "eas build --profile development --platform ios",
     "ios:simulator": "eas build --profile development-simulator --platform ios",
     "ios:production": "eas build --platform ios",
-    "testflight": "eas submit -p ios",
+    "testflight": "eas build --platform ios && eas submit --platform ios",
     "start": "expo start --dev-client"
   },
   "version": "1.0.0"
