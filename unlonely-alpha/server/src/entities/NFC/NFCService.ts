@@ -9,10 +9,6 @@ export interface IHandleNFCInput {
   videoLink: string;
 }
 
-const channelArn = "arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq";
-const recordingConfigArn =
-  "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
-
 export const handleNFC = async (
   data: IHandleNFCInput,
   ctx: Context,
@@ -54,6 +50,9 @@ export const handleNFC = async (
 };
 
 export const createClip = async () => {
+  const channelArn = "arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq";
+  const recordingConfigArn =
+  "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
   // first call lambda
   const lambda = new AWS.Lambda({
     region: "us-west-2", // replace with the region where your Lambda function is located
