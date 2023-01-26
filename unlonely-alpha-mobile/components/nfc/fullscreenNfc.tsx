@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Linking, Platform, Share, StyleSheet, Text, View } from 'react-native';
-import { ResizeMode, Video } from 'expo-av';
+import { ResizeMode, Video, Audio } from 'expo-av';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { toast } from '../toast/toast';
@@ -62,6 +62,7 @@ const NfcVideo = (props: NfcVideoProps) => {
     <Video
       isLooping={true}
       isMuted={props.blurred ? true : false}
+      volume={props.blurred ? 0 : 1}
       positionMillis={VIDEO_START_POSITION}
       usePoster
       posterSource={{ uri: `${props.item.videoLink}#t=${VIDEO_START_POSITION / 1000}` }}
@@ -151,6 +152,17 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
       play();
     }
   }, [isNfcAutoplayEnabled, isNFCPlaying]);
+
+  useEffect(() => {
+    // Audio.requestPermissionsAsync();
+    Audio.setAudioModeAsync({
+      staysActiveInBackground: true,
+      shouldDuckAndroid: false,
+      playThroughEarpieceAndroid: false,
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+    });
+  }, []);
 
   return (
     <View

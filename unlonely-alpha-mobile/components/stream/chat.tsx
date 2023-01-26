@@ -23,6 +23,7 @@ export function Chat() {
     openCKSheet: z.openCKSheet,
   }));
   const [chatEnabled, setChatEnabled] = useState(false);
+  const [finishedLoading, setFinishedLoading] = useState(false);
 
   const catchWebViewNavigationStateChange = (newNavState: any) => {
     const { url } = newNavState;
@@ -46,7 +47,7 @@ export function Chat() {
       openSettingsSheet();
       setTimeout(() => {
         openCKSheet();
-      }, 500);
+      }, 1000);
     }
   };
 
@@ -61,90 +62,118 @@ export function Chat() {
   }, [userData]);
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: 'black',
-      }}
-    >
-      <UnlonelyTopGradient />
+    <>
+      {/* <View
+        style={{
+          position: 'relative',
+          height: 32,
+          width: '100%',
+          backgroundColor: '#222',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Text
+          style={{
+            color: 'white',
+          }}
+        >
+          chat top controls
+        </Text>
+      </View> */}
       <View
         style={{
           flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
+          backgroundColor: 'black',
         }}
       >
-        <ActivityIndicator size="large" color="black" />
-        <Text style={styles.loadingText}>loading chat...</Text>
-      </View>
-
-      <WebView
-        key={chatKey}
-        ref={webViewRef}
-        source={{ uri: CHAT_WEBVIEW_URL }}
-        onNavigationStateChange={catchWebViewNavigationStateChange}
-        onContentProcessDidTerminate={webViewRef.current?.reload}
-        // reload chat if it crashes?
-        // maybe app entitlements needs to request more memory?
-        style={{
-          // paddingBottom: 100,
-          backgroundColor: 'transparent',
-        }}
-        contentMode="mobile"
-        overScrollMode="never"
-        scalesPageToFit={false}
-        setBuiltInZoomControls={false}
-        setDisplayZoomControls={false}
-        showsHorizontalScrollIndicator={false}
-        showsVerticalScrollIndicator={false}
-        // scrollEnabled={false}
-        // @ts-ignore
-        zoomScale={1}
-      />
-      {!chatEnabled && (
-        <MotiView style={styles.overlay}>
+        <UnlonelyTopGradient />
+        {!finishedLoading && (
           <View
             style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.7)',
-            }}
-          ></View>
-          <LinearGradient
-            colors={colors}
-            locations={locations}
-            start={[0, 1]}
-            end={[0, 0]}
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              bottom: 0,
-            }}
-          />
-
-          <View
-            style={{
-              paddingVertical: 48,
+              flex: 1,
               justifyContent: 'center',
               alignItems: 'center',
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
             }}
           >
-            <Text style={styles.overlayText}>connect your wallet to chat</Text>
-
-            <AnimatedPressable onPress={handleConnection} style={styles.button}>
-              <Text style={styles.buttonText}>connect</Text>
-            </AnimatedPressable>
+            <ActivityIndicator size="large" color="black" />
+            <Text style={styles.loadingText}>loading chat...</Text>
           </View>
-        </MotiView>
-      )}
-    </View>
+        )}
+
+        <WebView
+          key={chatKey}
+          ref={webViewRef}
+          source={{ uri: CHAT_WEBVIEW_URL }}
+          onNavigationStateChange={catchWebViewNavigationStateChange}
+          onContentProcessDidTerminate={webViewRef.current?.reload}
+          // reload chat if it crashes?
+          // maybe app entitlements needs to request more memory?
+          style={{
+            // paddingBottom: 100,
+            backgroundColor: 'transparent',
+          }}
+          contentMode="mobile"
+          overScrollMode="never"
+          scalesPageToFit={false}
+          setBuiltInZoomControls={false}
+          setDisplayZoomControls={false}
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+          onLoadStart={() => {
+            setFinishedLoading(false);
+          }}
+          onLoadEnd={() => {
+            setFinishedLoading(true);
+          }}
+          // scrollEnabled={false}
+          // @ts-ignore
+          zoomScale={1}
+        />
+        {!chatEnabled && (
+          <MotiView style={styles.overlay}>
+            <View
+              style={{
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.7)',
+              }}
+            ></View>
+            <LinearGradient
+              colors={colors}
+              locations={locations}
+              start={[0, 1]}
+              end={[0, 0]}
+              style={{
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
+                bottom: 0,
+              }}
+            />
+
+            <View
+              style={{
+                paddingVertical: 48,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text style={styles.overlayText}>connect your wallet to chat</Text>
+
+              <AnimatedPressable onPress={handleConnection} style={styles.button}>
+                <Text style={styles.buttonText}>connect</Text>
+              </AnimatedPressable>
+            </View>
+          </MotiView>
+        )}
+      </View>
+    </>
   );
 }
 

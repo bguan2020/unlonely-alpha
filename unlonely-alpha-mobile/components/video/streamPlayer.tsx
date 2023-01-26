@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import IVSPlayer, { IVSPlayerRef, PlayerState } from 'amazon-ivs-react-native-player';
 import { useEffect, useRef, useState } from 'react';
+import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
 import { easeGradient } from 'react-native-easing-gradient';
 import { StreamBufferingOverlay } from './controls/streamBufferingOverlay';
@@ -62,6 +63,16 @@ export function StreamPlayer() {
 
     return () => clearTimeout(timeout);
   }, [overlayTapped]);
+
+  useEffect(() => {
+    Audio.setAudioModeAsync({
+      staysActiveInBackground: true,
+      shouldDuckAndroid: false,
+      playThroughEarpieceAndroid: false,
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+    });
+  }, []);
 
   return (
     <>
