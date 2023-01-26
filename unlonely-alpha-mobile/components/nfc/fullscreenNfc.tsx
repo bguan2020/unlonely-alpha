@@ -30,33 +30,6 @@ type NfcVideoProps = {
 
 const VIDEO_START_POSITION = 1500; // milliseconds
 
-const shareMenuActions = [
-  {
-    id: 'opensea',
-    title: 'view on OpenSea',
-    image: Platform.select({
-      ios: 'globe',
-      android: 'language',
-    }),
-  },
-  {
-    id: 'copy-link',
-    title: 'copy NFC link',
-    image: Platform.select({
-      ios: 'link',
-      android: 'link',
-    }),
-  },
-  {
-    id: 'share',
-    title: 'share',
-    image: Platform.select({
-      ios: 'square.and.arrow.up',
-      android: 'share',
-    }),
-  },
-];
-
 const NfcVideo = (props: NfcVideoProps) => {
   return (
     <Video
@@ -154,7 +127,6 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
   }, [isNfcAutoplayEnabled, isNFCPlaying]);
 
   useEffect(() => {
-    // Audio.requestPermissionsAsync();
     Audio.setAudioModeAsync({
       staysActiveInBackground: true,
       shouldDuckAndroid: false,
@@ -163,6 +135,34 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
       playsInSilentModeIOS: true,
     });
   }, []);
+
+  const sharingActions = [
+    {
+      id: 'copy-link',
+      title: 'copy NFC link',
+      image: Platform.select({
+        ios: 'link',
+        android: 'link',
+      }),
+    },
+    {
+      id: 'share',
+      title: 'share',
+      image: Platform.select({
+        ios: 'square.and.arrow.up',
+        android: 'share',
+      }),
+    },
+  ];
+  const openSeaLink = {
+    id: 'opensea',
+    title: 'view on OpenSea',
+    image: Platform.select({
+      ios: 'globe',
+      android: 'language',
+    }),
+  };
+  const menuActions = props.item.openseaLink ? [openSeaLink, ...sharingActions] : sharingActions;
 
   return (
     <View
@@ -282,8 +282,8 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
                   });
                 }
               }}
-              actions={shareMenuActions}
-              title={`minted on ${nfcMintDate}`}
+              actions={menuActions}
+              title={`${props.item.openseaLink ? 'minted' : 'clipped'} on ${nfcMintDate}`}
               style={{
                 width: 48,
                 height: 48,
