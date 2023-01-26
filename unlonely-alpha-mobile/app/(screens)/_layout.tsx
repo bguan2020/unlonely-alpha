@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Platform, View, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
@@ -25,6 +25,7 @@ export default function Layout() {
   });
   const notificationListener = useRef<any>();
   const responseListener = useRef<any>();
+  const router = useRouter();
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
@@ -68,12 +69,15 @@ export default function Layout() {
   }, []);
 
   const notificationCommonHandler = notification => {
-    console.log('A notification has been received', notification);
+    // console.log('A notification has been received', notification);
   };
 
   const notificationNavigationHandler = ({ data }) => {
     // navigate to app screen
-    console.log('A notification has been touched', data);
+    // console.log('A notification has been touched', data);
+    if (data.redirect === 'live') {
+      router.push('/live');
+    }
   };
 
   if (!fontsLoaded) {

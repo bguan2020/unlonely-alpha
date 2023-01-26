@@ -16,6 +16,9 @@ export function NextStreamBanner({ hostDate }: { hostDate: string }) {
     onExpire: () => setIsCountdownEnded(true),
   });
 
+  // show this briefly when the stream is live and then hide it
+  // should say "live now!"
+
   return (
     <MotiView
       from={{

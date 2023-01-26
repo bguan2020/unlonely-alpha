@@ -23,19 +23,19 @@ export default function NfcFeedScreen() {
   }));
   const nfcFeedSorting = useAppSettingsStore(z => z.nfcFeedSorting);
   const { status, data, error, isFetching } = useNfcFeed(nfcFeedSorting, {
-    limit: 20,
+    limit: 50,
     orderBy: nfcFeedSorting,
   });
   const nfcs = data?.getNFCFeed;
 
   const onViewableItemsChanged = useRef(({ changed }) => {
     try {
-      console.log('---- changing NFC in feed ----');
+      // console.log('---- changing NFC in feed ----');
       changed.forEach((element): any => {
         const nfcItem = videoRefs.current[element.item.id];
         if (nfcItem) {
           if (element.isViewable) {
-            nfcItem.play();
+            // nfcItem.play();
             useHaptics('light');
           } else {
             nfcItem.pause();
@@ -60,12 +60,12 @@ export default function NfcFeedScreen() {
     }
 
     if (nfcs?.length > 0 && isNfcAutoplayEnabled) {
-      console.log('== starting NFC playback ==');
+      // console.log('== starting NFC playback ==');
       setTimeout(() => {
         startNFCPlaying();
       }, 1000);
     } else {
-      console.log('== stopping NFC playback ==');
+      // console.log('== stopping NFC playback ==');
       stopNFCPlaying();
     }
   }, [nfcs, isNfcAutoplayEnabled, isFetching, nfcFeedSorting]);

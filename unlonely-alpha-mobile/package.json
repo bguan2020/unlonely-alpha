@@ -34,6 +34,7 @@
     "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",
     "expo-system-ui": "~2.0.1",
+    "expo-updates": "^0.15.6",
     "graphql-request": "^5.0.0",
     "moti": "^0.21.0",
     "react": "18.1.0",
@@ -75,6 +76,7 @@
   "scripts": {
     "android": "expo run:android",
     "android:device": "eas build --profile development --platform android",
+    "android:preview": "eas build --profile preview --platform android",
     "android:production": "eas build --platform android",
     "ios": "expo run:ios",
     "ios:device": "eas build --profile development --platform ios",

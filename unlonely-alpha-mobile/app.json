@@ -11,12 +11,12 @@
       "image": "./assets/gradient-splash.png",
       "resizeMode": "cover"
     },
-    "version": "1.0.1",
+    "version": "1.0.2",
     "web": {
       "bundler": "metro"
     },
     "ios": {
-      "buildNumber": "3",
+      "buildNumber": "1",
       "bundleIdentifier": "app.unlonely.mobile",
       "icon": "./assets/icon.png",
       "infoPlist": {

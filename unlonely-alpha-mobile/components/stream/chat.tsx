@@ -1,15 +1,17 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { MotiView } from 'moti';
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { easeGradient } from 'react-native-easing-gradient';
 import { WebView } from 'react-native-webview';
 import { useUserStore } from '../../utils/store/userStore';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 import { useRouter } from 'expo-router';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
+import { UnlonelyTopGradient } from '../nav/topGradient';
 
 const CHAT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/chat';
+// const CHAT_WEBVIEW_URL = 'http://192.168.1.69:3000/mobile/chat';
 
 export function Chat() {
   const router = useRouter();
@@ -65,6 +67,21 @@ export function Chat() {
         backgroundColor: 'black',
       }}
     >
+      <UnlonelyTopGradient />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        <ActivityIndicator size="large" color="black" />
+        <Text style={styles.loadingText}>loading chat...</Text>
+      </View>
+
       <WebView
         key={chatKey}
         ref={webViewRef}
@@ -74,7 +91,8 @@ export function Chat() {
         // reload chat if it crashes?
         // maybe app entitlements needs to request more memory?
         style={{
-          paddingBottom: 100,
+          // paddingBottom: 100,
+          backgroundColor: 'transparent',
         }}
         contentMode="mobile"
         overScrollMode="never"
@@ -84,7 +102,6 @@ export function Chat() {
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
         // scrollEnabled={false}
-        forceDarkOn
         // @ts-ignore
         zoomScale={1}
       />
@@ -172,5 +189,11 @@ const styles = StyleSheet.create({
     fontFamily: 'NeuePixelSans',
     fontSize: 16,
     letterSpacing: 0.5,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontFamily: 'NeuePixelSans',
+    letterSpacing: 0.5,
+    color: 'black',
   },
 });

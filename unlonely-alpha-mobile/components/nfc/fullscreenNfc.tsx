@@ -11,6 +11,7 @@ import { format, parseISO } from 'date-fns';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
 import { BlurLayer } from '../blur/blurLayer';
+import { useDeviceInfo } from '../../utils/useDeviceInfo';
 
 type FullscreenNfcProps = {
   height: number;
@@ -56,24 +57,26 @@ const shareMenuActions = [
   },
 ];
 
-const NfcVideo = (props: NfcVideoProps) => (
-  <Video
-    isLooping={true}
-    isMuted={props.blurred ? true : false}
-    positionMillis={VIDEO_START_POSITION}
-    usePoster
-    posterSource={{ uri: `${props.item.videoLink}#t=${VIDEO_START_POSITION / 1000}` }}
-    // loading a still from the video start position rather than the poster image
-    // so it doesn’t create an awkward repeating transition when a new video starts playing
-    posterStyle={{ width: '100%', height: props.height, resizeMode: 'contain' }}
-    ref={props.videoRef}
-    resizeMode={props.blurred ? ResizeMode.COVER : ResizeMode.CONTAIN}
-    shouldPlay={props.play}
-    source={{ uri: props.item.videoLink }}
-    videoStyle={{ width: '100%', height: props.height }}
-    style={styles.video}
-  />
-);
+const NfcVideo = (props: NfcVideoProps) => {
+  return (
+    <Video
+      isLooping={true}
+      isMuted={props.blurred ? true : false}
+      positionMillis={VIDEO_START_POSITION}
+      usePoster
+      posterSource={{ uri: `${props.item.videoLink}#t=${VIDEO_START_POSITION / 1000}` }}
+      // loading a still from the video start position rather than the poster image
+      // so it doesn’t create an awkward repeating transition when a new video starts playing
+      posterStyle={{ width: '100%', height: props.height, resizeMode: 'contain' }}
+      ref={props.videoRef}
+      resizeMode={props.blurred ? ResizeMode.COVER : ResizeMode.CONTAIN}
+      shouldPlay={props.play}
+      source={{ uri: props.item.videoLink }}
+      videoStyle={{ width: '100%', height: props.height }}
+      style={styles.video}
+    />
+  );
+};
 
 export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) => {
   const { isBlurEnabled, isNfcAutoplayEnabled, _hasHydrated } = useAppSettingsStore(z => ({
@@ -81,6 +84,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
     isNfcAutoplayEnabled: z.isNfcAutoplayEnabled,
     _hasHydrated: z._hasHydrated,
   }));
+  const { deviceiOS, deviceAndroid } = useDeviceInfo();
   const isNFCPlaying = useVideoPlayerStore(z => z.isNFCPlaying);
   const ref = useRef(null);
   const [shouldPlay, setShouldPlay] = useState(false);
@@ -157,9 +161,8 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
         backgroundColor: 'black',
       }}
     >
-      {isBlurEnabled && (
+      {isBlurEnabled && !deviceAndroid && (
         <>
-          {/* also disable on android */}
           <View
             style={{
               flex: 1,
@@ -190,6 +193,46 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
         }}
       >
         <NfcVideo item={props.item} videoRef={ref} height={props.height} play={shouldPlay} />
+
+        <View
+          style={{
+            flex: 1,
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: '100%',
+            height: props.height,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <AnimatedPressable
+            onPress={() => {
+              setShouldPlay(!shouldPlay);
+            }}
+            style={{
+              opacity: shouldPlay ? 0 : 1,
+              width: 300,
+              height: 200,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <View
+              style={{
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 1,
+                shadowRadius: 18,
+              }}
+            >
+              <Ionicons name="md-play" size={64} color="white" />
+            </View>
+          </AnimatedPressable>
+        </View>
 
         <View
           style={{
@@ -240,7 +283,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
                 <MaterialCommunityIcons name="dots-horizontal" size={32} color="rgba(255,255,255,0.75)" />
               </View>
             </AnimatedMenuView>
-            <View
+            {/* <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -263,7 +306,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
                   <Ionicons name="md-heart-outline" size={32} color="rgba(255,255,255,0.75)" />
                 )}
               </AnimatedPressable>
-            </View>
+            </View> */}
           </View>
           <View
             style={{

@@ -77,9 +77,9 @@ export async function schedulePushNotification() {
   await Notifications.scheduleNotificationAsync({
     content: {
       title: 'local test notification',
-      body: 'hello friend. welcome to unlonely developer settings.',
+      body: 'hello friend. tapping this notification should open up the stream page.',
       sound: 'live.wav',
-      data: { data: '$BRIAN' },
+      data: { redirect: 'live' },
     },
     trigger: { seconds: 1, channelId: 'Live' },
   });
