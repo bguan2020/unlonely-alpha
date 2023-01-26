@@ -26,11 +26,13 @@ const ClipDetail = () => {
 
   // update progress bar every 5 seconds, adding 8 to progress bar
   useEffect(() => {
-    if (progressBar > 85) return;
     const interval = setInterval(() => {
+      if (progressBar > 85) {
+        clearInterval(interval);
+        return;
+      }
       setProgressBar((prev) => prev + 8);
     }, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   return (
