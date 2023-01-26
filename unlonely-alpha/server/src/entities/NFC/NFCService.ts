@@ -55,7 +55,9 @@ export const createClip = async () => {
   "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
   // first call lambda
   const lambda = new AWS.Lambda({
-    region: "us-west-2", // replace with the region where your Lambda function is located
+    region: "us-west-2",
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   });
 
   const params = {
