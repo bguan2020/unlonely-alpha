@@ -103,6 +103,7 @@ export type HandleLikeInput = {
 
 export type HandleNfcInput = {
   title: Scalars["String"];
+  videoLink: Scalars["String"];
 };
 
 export type HostEvent = Likable & {
@@ -151,6 +152,7 @@ export enum LikeObj {
 export type Mutation = {
   __typename?: "Mutation";
   _empty?: Maybe<Scalars["String"]>;
+  createClip?: Maybe<Scalars["String"]>;
   handleLike?: Maybe<Likable>;
   handleNFC?: Maybe<Scalars["Int"]>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
@@ -285,6 +287,7 @@ export type Query = {
   getUser?: Maybe<User>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
+  updateAllUsers?: Maybe<Array<Maybe<User>>>;
 };
 
 export type QueryGetHostEventFeedArgs = {
@@ -506,6 +509,13 @@ export type VideoCard_VideoFragment = {
   owner: { __typename?: "User"; username?: string | null; address: string };
 };
 
+export type MutationMutationVariables = Exact<{ [key: string]: never }>;
+
+export type MutationMutation = {
+  __typename?: "Mutation";
+  createClip?: string | null;
+};
+
 export type LikeMutationVariables = Exact<{
   data: HandleLikeInput;
 }>;
@@ -699,6 +709,21 @@ export type NfcFeedQuery = {
       powerUserLvl: number;
       videoSavantLvl: number;
     };
+  } | null> | null;
+};
+
+export type GetAllUsersQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAllUsersQuery = {
+  __typename?: "Query";
+  getAllUsers?: Array<{
+    __typename?: "User";
+    id: string;
+    username?: string | null;
+    address: string;
+    notificationsTokens?: string | null;
+    notificationsLive?: boolean | null;
+    notificationsNFCs?: boolean | null;
   } | null> | null;
 };
 
@@ -953,6 +978,50 @@ export type TaskFeedLazyQueryHookResult = ReturnType<
 export type TaskFeedQueryResult = Apollo.QueryResult<
   TaskFeedQuery,
   TaskFeedQueryVariables
+>;
+export const MutationDocument = gql`
+  mutation Mutation {
+    createClip
+  }
+`;
+export type MutationMutationFn = Apollo.MutationFunction<
+  MutationMutation,
+  MutationMutationVariables
+>;
+
+/**
+ * __useMutationMutation__
+ *
+ * To run a mutation, you first call `useMutationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMutationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [mutationMutation, { data, loading, error }] = useMutationMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMutationMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    MutationMutation,
+    MutationMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<MutationMutation, MutationMutationVariables>(
+    MutationDocument,
+    options
+  );
+}
+export type MutationMutationHookResult = ReturnType<typeof useMutationMutation>;
+export type MutationMutationResult = Apollo.MutationResult<MutationMutation>;
+export type MutationMutationOptions = Apollo.BaseMutationOptions<
+  MutationMutation,
+  MutationMutationVariables
 >;
 export const LikeDocument = gql`
   mutation Like($data: HandleLikeInput!) {
@@ -1566,6 +1635,66 @@ export type NfcFeedLazyQueryHookResult = ReturnType<typeof useNfcFeedLazyQuery>;
 export type NfcFeedQueryResult = Apollo.QueryResult<
   NfcFeedQuery,
   NfcFeedQueryVariables
+>;
+export const GetAllUsersDocument = gql`
+  query GetAllUsers {
+    getAllUsers {
+      id
+      username
+      address
+      notificationsTokens
+      notificationsLive
+      notificationsNFCs
+    }
+  }
+`;
+
+/**
+ * __useGetAllUsersQuery__
+ *
+ * To run a query within a React component, call `useGetAllUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllUsersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllUsersQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllUsersQuery,
+    GetAllUsersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(
+    GetAllUsersDocument,
+    options
+  );
+}
+export function useGetAllUsersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllUsersQuery,
+    GetAllUsersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(
+    GetAllUsersDocument,
+    options
+  );
+}
+export type GetAllUsersQueryHookResult = ReturnType<typeof useGetAllUsersQuery>;
+export type GetAllUsersLazyQueryHookResult = ReturnType<
+  typeof useGetAllUsersLazyQuery
+>;
+export type GetAllUsersQueryResult = Apollo.QueryResult<
+  GetAllUsersQuery,
+  GetAllUsersQueryVariables
 >;
 export const NfcDetailDocument = gql`
   query NFCDetail($id: ID!) {

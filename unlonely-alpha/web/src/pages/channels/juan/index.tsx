@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Text,
-  Flex,
-  Button,
-  Container,
-  Stack,
-} from "@chakra-ui/react";
+import { Text, Flex, Button, Container, Stack } from "@chakra-ui/react";
 
 import { useAccount } from "wagmi";
 import AppLayout from "../../../components/layout/AppLayout";
@@ -24,7 +18,8 @@ export type ChatBot = {
   description: string | null | undefined;
 };
 
-const juansPlaybackUrl = "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.J11mNb7pYY3d.m3u8";
+const juansPlaybackUrl =
+  "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.J11mNb7pYY3d.m3u8";
 
 const ablyChatChannel = "juans-channel";
 const ablyPresenceChannel = "juans-presence-channel";
@@ -72,7 +67,11 @@ const Example: React.FunctionComponent = () => {
           direction={["column", "row", "row"]}
         >
           <Flex width={{ base: "100%", sm: "70%", md: "70%", lg: "100%" }}>
-            <NextStreamTimer isTheatreMode={true} hasTimer={false} playbackUrl={juansPlaybackUrl}/>
+            <NextStreamTimer
+              isTheatreMode={true}
+              hasTimer={false}
+              playbackUrl={juansPlaybackUrl}
+            />
           </Flex>
           <Button
             height={{

@@ -14,7 +14,9 @@ type Props = {
 
 const HANDLE_NFC_MUTATION = gql`
   mutation HandleNFC($data: HandleNFCInput!) {
-    handleNFC(data: $data)
+    handleNFC(data: $data) {
+      id
+    }
   }
 `;
 
@@ -27,7 +29,7 @@ const usePostNFC = ({ onError }: Props) => {
   const postNFC = useCallback(
     async (data) => {
       const mutationResult = await mutate({
-        variables: { data: { title: data.title } },
+        variables: { data: { title: data.title, videoLink: data.videoLink } },
       });
 
       const res = mutationResult?.data?.handleNFC;

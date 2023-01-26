@@ -29,7 +29,10 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
             address: address,
             username: username,
             lensHandle: data.defaultProfile.handle,
-            lensImageUrl: data.defaultProfile.picture === null ? null : data.defaultProfile.picture.original.url,
+            lensImageUrl:
+              data.defaultProfile.picture === null
+                ? null
+                : data.defaultProfile.picture.original.url,
             isLensUser: true,
           },
         });

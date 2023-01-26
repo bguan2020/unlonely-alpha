@@ -1,8 +1,5 @@
 import { Button, Flex } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
 
-import { useUser } from "../../hooks/useUser";
-import useUpdateUserNotifications from "../../hooks/useUpdateUserNotifications";
 import { gql, useLazyQuery } from "@apollo/client";
 
 const GET_ALL_USERS = gql`
@@ -31,9 +28,9 @@ export default function MobileNotifications() {
   // });
   // const [formError, setFormError] = useState<null | string[]>(null);
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+  // useEffect(() => {
+  //   console.log(data);
+  // }, [data]);
 
   return (
     <Flex

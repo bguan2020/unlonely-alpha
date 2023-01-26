@@ -1,11 +1,17 @@
 import { User } from "@prisma/client";
+import * as AWS from "aws-sdk";
 
 import { Context } from "../../context";
 import opensea from "./opensea.json";
 
 export interface IHandleNFCInput {
   title: string;
+  videoLink: string;
 }
+
+const channelArn = "arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq";
+const recordingConfigArn =
+  "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
 
 export const handleNFC = async (
   data: IHandleNFCInput,
@@ -34,6 +40,7 @@ export const handleNFC = async (
   await ctx.prisma.nFC.create({
     data: {
       title: data.title,
+      videoLink: data.videoLink,
       owner: {
         connect: {
           address: user.address,
@@ -44,6 +51,38 @@ export const handleNFC = async (
 
   const remainingNFCs = 0;
   return remainingNFCs;
+};
+
+export const createClip = async () => {
+  // first call lambda
+  const lambda = new AWS.Lambda({
+    region: "us-west-2", // replace with the region where your Lambda function is located
+  });
+
+  const params = {
+    FunctionName: "sendClipToMediaConvert",
+    Payload: JSON.stringify({
+      detail: {
+        "channel-arn": channelArn,
+        "recording-config-arn": recordingConfigArn,
+      },
+    }),
+  };
+
+  let lambdaResponse: any;
+  try {
+    lambdaResponse = await lambda.invoke(params).promise();
+    console.log(lambdaResponse);
+    const response = JSON.parse(lambdaResponse.Payload);
+    const url = response.body.url;
+    return url;
+  } catch (e) {
+    console.log(e);
+    lambdaResponse = "Error invoking lambda";
+  }
+  if (lambdaResponse === "Error invoking lambda") {
+    return "Error invoking lambda";
+  }
 };
 
 export interface IGetNFCFeedInput {
