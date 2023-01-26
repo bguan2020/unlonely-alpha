@@ -4,36 +4,17 @@ import * as AWS from "aws-sdk";
 import { Context } from "../../context";
 import opensea from "./opensea.json";
 
-export interface IHandleNFCInput {
+export interface IPostNFCInput {
   title: string;
   videoLink: string;
 }
 
-export const handleNFC = async (
-  data: IHandleNFCInput,
+export const postNFC = async (
+  data: IPostNFCInput,
   ctx: Context,
   user: User
 ) => {
-  const numNFCsAllowed = user.powerUserLvl * 2 + 1;
-  if (numNFCsAllowed === 0) {
-    throw new Error("User is not allowed to post NFCs");
-  }
-
-  // check how many NFCs user has posted today starting at 12am PST
-  const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
-
-  const numNFCsPostedToday = await ctx.prisma.nFC.count({
-    where: {
-      ownerAddr: user.address,
-      createdAt: {
-        gte: startOfToday,
-      },
-    },
-  });
-
-  if (numNFCsPostedToday >= 1) return -1;
-
-  await ctx.prisma.nFC.create({
+  return await ctx.prisma.nFC.create({
     data: {
       title: data.title,
       videoLink: data.videoLink,
@@ -44,15 +25,12 @@ export const handleNFC = async (
       },
     },
   });
-
-  const remainingNFCs = 0;
-  return remainingNFCs;
 };
 
 export const createClip = async () => {
   const channelArn = "arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq";
   const recordingConfigArn =
-  "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
+    "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
   // first call lambda
   const lambda = new AWS.Lambda({
     region: "us-west-2",

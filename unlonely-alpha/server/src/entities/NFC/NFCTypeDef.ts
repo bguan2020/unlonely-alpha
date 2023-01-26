@@ -21,7 +21,7 @@ export const typeDef = gql`
     orderBy: SortBy
   }
 
-  input HandleNFCInput {
+  input PostNFCInput {
     title: String!
     videoLink: String!
   }
@@ -33,7 +33,7 @@ export const typeDef = gql`
 
   extend type Mutation {
     createClip: String
-    handleNFC(data: HandleNFCInput!): Int
+    postNFC(data: PostNFCInput!): NFC
     openseaNFCScript: String
   }
 `;

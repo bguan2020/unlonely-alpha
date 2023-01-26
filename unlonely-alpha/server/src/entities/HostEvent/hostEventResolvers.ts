@@ -15,7 +15,7 @@ export const resolvers = {
     },
     getNextHostEvent(_: any, __: any, ctx: Context) {
       return hostEventService.getNextHostEvent(ctx);
-    }
+    },
   },
   Mutation: {
     postChallenge: (
