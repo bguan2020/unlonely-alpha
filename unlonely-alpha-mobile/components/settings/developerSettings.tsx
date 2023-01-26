@@ -7,6 +7,7 @@ import { useUserNotifications } from '../../api/mutations/useUserNotifications';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 
 const version = Constants.manifest.version;
+const buildNumber = Constants.manifest.ios.buildNumber;
 
 export const DeveloperSettings = () => {
   const [timesPressed, setTimesPressed] = useState(0);
@@ -97,7 +98,9 @@ export const DeveloperSettings = () => {
       )}
       <Pressable onPress={() => setTimesPressed(pressed => pressed + 1)}>
         <Text style={styles.versionText}>unlonely mobile</Text>
-        <Text style={styles.versionNumber}>version {version}</Text>
+        <Text style={styles.versionNumber}>
+          version {version} ({buildNumber})
+        </Text>
       </Pressable>
       <View style={styles.scrollViewFiller} />
     </>
