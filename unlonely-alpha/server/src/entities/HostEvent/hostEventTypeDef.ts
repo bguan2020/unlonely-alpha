@@ -30,6 +30,7 @@ export const typeDef = gql`
 
   extend type Query {
     getHostEventFeed(data: HostEventFeedInput): [HostEvent]
+    getNextHostEvent: HostEvent
   }
 
   extend type Mutation {

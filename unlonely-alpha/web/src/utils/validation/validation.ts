@@ -27,3 +27,11 @@ export const postSongSchema = object({
     .required("your reason is required")
     .max(100, "reason must be less than 100 characters"),
 });
+
+export const postNfcSchema = object({
+  title: string()
+    .trim()
+    .required("title is required")
+    .min(5, "title must be more than 5 characters")
+    .max(100, "title must be less than 50 characters"),
+});

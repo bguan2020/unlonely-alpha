@@ -49,10 +49,26 @@ export const getHostEventFeed = (
     where: {
       isChallenger: false,
       hostDate: {
-        gte: new Date(Date.now() - 72 * 60 * 60 * 1000),
+        gte: new Date(Date.now() - 4 * 72 * 60 * 60 * 1000),
       },
     },
     take: data.limit || undefined,
+    orderBy: [
+      {
+        hostDate: "asc",
+      },
+    ],
+  });
+};
+
+export const getNextHostEvent = (ctx: Context) => {
+  return ctx.prisma.hostEvent.findFirst({
+    where: {
+      isChallenger: false,
+      hostDate: {
+        gt: new Date(),
+      },
+    },
     orderBy: [
       {
         hostDate: "asc",

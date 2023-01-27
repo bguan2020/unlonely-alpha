@@ -18,16 +18,19 @@ export const resolvers = {
     },
   },
   Mutation: {
-    handleNFC: (
+    postNFC: (
       _: any,
-      { data }: { data: NFCService.IHandleNFCInput },
+      { data }: { data: NFCService.IPostNFCInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
 
-      return NFCService.handleNFC(data, ctx, ctx.user);
+      return NFCService.postNFC(data, ctx, ctx.user);
+    },
+    createClip: (_: any, __: any, ctx: Context) => {
+      return NFCService.createClip();
     },
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {
       return NFCService.openseaNFCScript(ctx);

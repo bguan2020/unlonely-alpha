@@ -83,6 +83,13 @@ export type Chat = {
   updatedAt: Scalars["DateTime"];
 };
 
+export type ClipOutput = {
+  __typename?: "ClipOutput";
+  errorMessage?: Maybe<Scalars["String"]>;
+  thumbnail?: Maybe<Scalars["String"]>;
+  url?: Maybe<Scalars["String"]>;
+};
+
 export type GetChatInput = {
   address?: InputMaybe<Scalars["String"]>;
 };
@@ -99,10 +106,6 @@ export type HandleLikeInput = {
   likableId: Scalars["ID"];
   likedObj: LikeObj;
   value: Scalars["Int"];
-};
-
-export type HandleNfcInput = {
-  title: Scalars["String"];
 };
 
 export type HostEvent = Likable & {
@@ -151,11 +154,12 @@ export enum LikeObj {
 export type Mutation = {
   __typename?: "Mutation";
   _empty?: Maybe<Scalars["String"]>;
+  createClip?: Maybe<ClipOutput>;
   handleLike?: Maybe<Likable>;
-  handleNFC?: Maybe<Scalars["Int"]>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
   postChallenge?: Maybe<HostEvent>;
   postFirstChat?: Maybe<Chat>;
+  postNFC?: Maybe<Nfc>;
   postStreamInteraction?: Maybe<StreamInteraction>;
   postTask?: Maybe<Task>;
   postVideo?: Maybe<Video>;
@@ -168,16 +172,16 @@ export type MutationHandleLikeArgs = {
   data: HandleLikeInput;
 };
 
-export type MutationHandleNfcArgs = {
-  data: HandleNfcInput;
-};
-
 export type MutationPostChallengeArgs = {
   data: PostChallengeInput;
 };
 
 export type MutationPostFirstChatArgs = {
   data: PostChatInput;
+};
+
+export type MutationPostNfcArgs = {
+  data: PostNfcInput;
 };
 
 export type MutationPostStreamInteractionArgs = {
@@ -247,6 +251,12 @@ export type PostChatInput = {
   text: Scalars["String"];
 };
 
+export type PostNfcInput = {
+  title: Scalars["String"];
+  videoLink: Scalars["String"];
+  videoThumbnail: Scalars["String"];
+};
+
 export type PostStreamInteractionInput = {
   interactionType: Scalars["String"];
 };
@@ -280,11 +290,13 @@ export type Query = {
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
   getNFC?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
+  getNextHostEvent?: Maybe<HostEvent>;
   getPoap?: Maybe<Poap>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getUser?: Maybe<User>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
+  updateAllUsers?: Maybe<Array<Maybe<User>>>;
 };
 
 export type QueryGetHostEventFeedArgs = {
@@ -506,6 +518,18 @@ export type VideoCard_VideoFragment = {
   owner: { __typename?: "User"; username?: string | null; address: string };
 };
 
+export type MutationMutationVariables = Exact<{ [key: string]: never }>;
+
+export type MutationMutation = {
+  __typename?: "Mutation";
+  createClip?: {
+    __typename?: "ClipOutput";
+    url?: string | null;
+    thumbnail?: string | null;
+    errorMessage?: string | null;
+  } | null;
+};
+
 export type LikeMutationVariables = Exact<{
   data: HandleLikeInput;
 }>;
@@ -541,13 +565,13 @@ export type PostFirstChatMutation = {
   postFirstChat?: { __typename?: "Chat"; id: string } | null;
 };
 
-export type HandleNfcMutationVariables = Exact<{
-  data: HandleNfcInput;
+export type PostNfcMutationVariables = Exact<{
+  data: PostNfcInput;
 }>;
 
-export type HandleNfcMutation = {
+export type PostNfcMutation = {
   __typename?: "Mutation";
-  handleNFC?: number | null;
+  postNFC?: { __typename?: "NFC"; id: string } | null;
 };
 
 export type PostStreamInteractionMutationVariables = Exact<{
@@ -699,6 +723,21 @@ export type NfcFeedQuery = {
       powerUserLvl: number;
       videoSavantLvl: number;
     };
+  } | null> | null;
+};
+
+export type GetAllUsersQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAllUsersQuery = {
+  __typename?: "Query";
+  getAllUsers?: Array<{
+    __typename?: "User";
+    id: string;
+    username?: string | null;
+    address: string;
+    notificationsTokens?: string | null;
+    notificationsLive?: boolean | null;
+    notificationsNFCs?: boolean | null;
   } | null> | null;
 };
 
@@ -954,6 +993,54 @@ export type TaskFeedQueryResult = Apollo.QueryResult<
   TaskFeedQuery,
   TaskFeedQueryVariables
 >;
+export const MutationDocument = gql`
+  mutation Mutation {
+    createClip {
+      url
+      thumbnail
+      errorMessage
+    }
+  }
+`;
+export type MutationMutationFn = Apollo.MutationFunction<
+  MutationMutation,
+  MutationMutationVariables
+>;
+
+/**
+ * __useMutationMutation__
+ *
+ * To run a mutation, you first call `useMutationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMutationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [mutationMutation, { data, loading, error }] = useMutationMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMutationMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    MutationMutation,
+    MutationMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<MutationMutation, MutationMutationVariables>(
+    MutationDocument,
+    options
+  );
+}
+export type MutationMutationHookResult = ReturnType<typeof useMutationMutation>;
+export type MutationMutationResult = Apollo.MutationResult<MutationMutation>;
+export type MutationMutationOptions = Apollo.BaseMutationOptions<
+  MutationMutation,
+  MutationMutationVariables
+>;
 export const LikeDocument = gql`
   mutation Like($data: HandleLikeInput!) {
     handleLike(data: $data) {
@@ -1051,52 +1138,52 @@ export type PostFirstChatMutationOptions = Apollo.BaseMutationOptions<
   PostFirstChatMutation,
   PostFirstChatMutationVariables
 >;
-export const HandleNfcDocument = gql`
-  mutation HandleNFC($data: HandleNFCInput!) {
-    handleNFC(data: $data)
+export const PostNfcDocument = gql`
+  mutation PostNFC($data: PostNFCInput!) {
+    postNFC(data: $data) {
+      id
+    }
   }
 `;
-export type HandleNfcMutationFn = Apollo.MutationFunction<
-  HandleNfcMutation,
-  HandleNfcMutationVariables
+export type PostNfcMutationFn = Apollo.MutationFunction<
+  PostNfcMutation,
+  PostNfcMutationVariables
 >;
 
 /**
- * __useHandleNfcMutation__
+ * __usePostNfcMutation__
  *
- * To run a mutation, you first call `useHandleNfcMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useHandleNfcMutation` returns a tuple that includes:
+ * To run a mutation, you first call `usePostNfcMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostNfcMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [handleNfcMutation, { data, loading, error }] = useHandleNfcMutation({
+ * const [postNfcMutation, { data, loading, error }] = usePostNfcMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useHandleNfcMutation(
+export function usePostNfcMutation(
   baseOptions?: Apollo.MutationHookOptions<
-    HandleNfcMutation,
-    HandleNfcMutationVariables
+    PostNfcMutation,
+    PostNfcMutationVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<HandleNfcMutation, HandleNfcMutationVariables>(
-    HandleNfcDocument,
+  return Apollo.useMutation<PostNfcMutation, PostNfcMutationVariables>(
+    PostNfcDocument,
     options
   );
 }
-export type HandleNfcMutationHookResult = ReturnType<
-  typeof useHandleNfcMutation
->;
-export type HandleNfcMutationResult = Apollo.MutationResult<HandleNfcMutation>;
-export type HandleNfcMutationOptions = Apollo.BaseMutationOptions<
-  HandleNfcMutation,
-  HandleNfcMutationVariables
+export type PostNfcMutationHookResult = ReturnType<typeof usePostNfcMutation>;
+export type PostNfcMutationResult = Apollo.MutationResult<PostNfcMutation>;
+export type PostNfcMutationOptions = Apollo.BaseMutationOptions<
+  PostNfcMutation,
+  PostNfcMutationVariables
 >;
 export const PostStreamInteractionDocument = gql`
   mutation PostStreamInteraction($data: PostStreamInteractionInput!) {
@@ -1566,6 +1653,66 @@ export type NfcFeedLazyQueryHookResult = ReturnType<typeof useNfcFeedLazyQuery>;
 export type NfcFeedQueryResult = Apollo.QueryResult<
   NfcFeedQuery,
   NfcFeedQueryVariables
+>;
+export const GetAllUsersDocument = gql`
+  query GetAllUsers {
+    getAllUsers {
+      id
+      username
+      address
+      notificationsTokens
+      notificationsLive
+      notificationsNFCs
+    }
+  }
+`;
+
+/**
+ * __useGetAllUsersQuery__
+ *
+ * To run a query within a React component, call `useGetAllUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllUsersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllUsersQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllUsersQuery,
+    GetAllUsersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(
+    GetAllUsersDocument,
+    options
+  );
+}
+export function useGetAllUsersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllUsersQuery,
+    GetAllUsersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(
+    GetAllUsersDocument,
+    options
+  );
+}
+export type GetAllUsersQueryHookResult = ReturnType<typeof useGetAllUsersQuery>;
+export type GetAllUsersLazyQueryHookResult = ReturnType<
+  typeof useGetAllUsersLazyQuery
+>;
+export type GetAllUsersQueryResult = Apollo.QueryResult<
+  GetAllUsersQuery,
+  GetAllUsersQueryVariables
 >;
 export const NfcDetailDocument = gql`
   query NFCDetail($id: ID!) {

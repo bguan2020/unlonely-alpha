@@ -318,55 +318,11 @@ const AblyChatComponent = ({
       messageText.startsWith("@nfc-it") ||
       messageText.startsWith("@nfc")
     ) {
-      // first check if they're a poweruser
-      if (user && user?.powerUserLvl > 0) {
-        // const that removes the @nfc-it: from the beginning of the message
-        const title = messageText.startsWith("@nfc-it")
-          ? messageText.substring(8)
-          : messageText.substring(5);
-        if (title) {
-          const { res } = await postNFC({ title });
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          channel.publish({
-            name: "chat-message",
-            data: {
-              messageText:
-                res && res < 0
-                  ? "Failed to clip. You're only allowed 1 clip a day!"
-                  : `"${title}" clipped successfully! You have ${res} clips left this week.`,
-              username: "chatbot🤖",
-              chatColor: "black",
-              address: chatbotAddress,
-              isFC: false,
-              isLens: false,
-              isGif: false,
-              reactions: initializeEmojis,
-            },
-          });
-        } else {
-          // no title
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          channel.publish({
-            name: "chat-message",
-            data: {
-              messageText:
-                "Failed to clip. Include clip title: '@nfc-it [title]'",
-              username: "chatbot🤖",
-              chatColor: "black",
-              address: chatbotAddress,
-              isFC: false,
-              isLens: false,
-              isGif: false,
-              reactions: initializeEmojis,
-            },
-          });
-        }
-      }
+      // open new tab to /clip page
+      window.open("/clip", "_blank");
     } else if (messageText.startsWith("@rules")) {
       const rules =
-        '"@chatbot [question]" to ask chatbot a question\n"@nfc [title]" to clip a moment\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';
+        '"@chatbot [question]" to ask chatbot a question\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';
       // wait 1 second before sending rules
       setTimeout(() => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

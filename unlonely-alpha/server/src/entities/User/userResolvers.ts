@@ -42,7 +42,7 @@ export const resolvers = {
     },
     updateAllUsers: (_: any, _args: any, ctx: Context) => {
       return userService.updateAllUsers(ctx);
-    }
+    },
   },
   Mutation: {
     updateUserNotifications: (
