@@ -30,7 +30,13 @@ const usePostNFC = ({ onError }: Props) => {
     async (data) => {
       setLoading(true);
       const mutationResult = await mutate({
-        variables: { data: { title: data.title, videoLink: data.videoLink } },
+        variables: {
+          data: {
+            title: data.title,
+            videoLink: data.videoLink,
+            videoThumbnail: data.videoThumbnail,
+          },
+        },
       });
 
       const res = mutationResult?.data?.postNFC;

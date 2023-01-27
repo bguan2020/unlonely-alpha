@@ -83,6 +83,13 @@ export type Chat = {
   updatedAt: Scalars["DateTime"];
 };
 
+export type ClipOutput = {
+  __typename?: "ClipOutput";
+  errorMessage?: Maybe<Scalars["String"]>;
+  thumbnail?: Maybe<Scalars["String"]>;
+  url?: Maybe<Scalars["String"]>;
+};
+
 export type GetChatInput = {
   address?: InputMaybe<Scalars["String"]>;
 };
@@ -147,7 +154,7 @@ export enum LikeObj {
 export type Mutation = {
   __typename?: "Mutation";
   _empty?: Maybe<Scalars["String"]>;
-  createClip?: Maybe<Scalars["String"]>;
+  createClip?: Maybe<ClipOutput>;
   handleLike?: Maybe<Likable>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
   postChallenge?: Maybe<HostEvent>;
@@ -247,6 +254,7 @@ export type PostChatInput = {
 export type PostNfcInput = {
   title: Scalars["String"];
   videoLink: Scalars["String"];
+  videoThumbnail: Scalars["String"];
 };
 
 export type PostStreamInteractionInput = {
@@ -514,7 +522,12 @@ export type MutationMutationVariables = Exact<{ [key: string]: never }>;
 
 export type MutationMutation = {
   __typename?: "Mutation";
-  createClip?: string | null;
+  createClip?: {
+    __typename?: "ClipOutput";
+    url?: string | null;
+    thumbnail?: string | null;
+    errorMessage?: string | null;
+  } | null;
 };
 
 export type LikeMutationVariables = Exact<{
@@ -982,7 +995,11 @@ export type TaskFeedQueryResult = Apollo.QueryResult<
 >;
 export const MutationDocument = gql`
   mutation Mutation {
-    createClip
+    createClip {
+      url
+      thumbnail
+      errorMessage
+    }
   }
 `;
 export type MutationMutationFn = Apollo.MutationFunction<

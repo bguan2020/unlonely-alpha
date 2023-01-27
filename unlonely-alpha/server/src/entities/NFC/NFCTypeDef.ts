@@ -15,6 +15,12 @@ export const typeDef = gql`
     updatedAt: DateTime!
   }
 
+  type ClipOutput {
+    url: String
+    thumbnail: String
+    errorMessage: String
+  }
+
   input NFCFeedInput {
     limit: Int
     offset: Int
@@ -24,6 +30,7 @@ export const typeDef = gql`
   input PostNFCInput {
     title: String!
     videoLink: String!
+    videoThumbnail: String!
   }
 
   extend type Query {
@@ -32,7 +39,7 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    createClip: String
+    createClip: ClipOutput
     postNFC(data: PostNFCInput!): NFC
     openseaNFCScript: String
   }

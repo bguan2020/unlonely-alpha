@@ -7,6 +7,7 @@ import opensea from "./opensea.json";
 export interface IPostNFCInput {
   title: string;
   videoLink: string;
+  videoThumbnail: string;
 }
 
 export const postNFC = async (
@@ -18,6 +19,7 @@ export const postNFC = async (
     data: {
       title: data.title,
       videoLink: data.videoLink,
+      videoThumbnail: data.videoThumbnail,
       owner: {
         connect: {
           address: user.address,
@@ -53,8 +55,13 @@ export const createClip = async () => {
     lambdaResponse = await lambda.invoke(params).promise();
     console.log(lambdaResponse);
     const response = JSON.parse(lambdaResponse.Payload);
+    // if response contains "errorMessage" field, then there was an error and return message
+    if (response.errorMessage) {
+      return { errorMessage: response.errorMessage };
+    }
     const url = response.body.url;
-    return url;
+    const thumbnail = response.body.thumbnail;
+    return { url, thumbnail };
   } catch (e) {
     console.log(e);
     lambdaResponse = "Error invoking lambda";
