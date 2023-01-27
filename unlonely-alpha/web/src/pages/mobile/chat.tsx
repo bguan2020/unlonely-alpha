@@ -875,6 +875,10 @@ export default function Chat() {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             "-webkit-overflow-scrolling": "touch",
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            "-webkit-mask-image":
+              "linear-gradient(180deg, rgba(0,0,0,1) 92%, rgba(0,0,0,0) 100%)",
           }}
         >
           <div
@@ -940,7 +944,8 @@ export default function Chat() {
           position: "fixed",
           bottom: 0,
           padding: 8,
-          background: "linear-gradient(0deg, rgba(0,0,0,1), rgba(0,0,0,0))",
+          paddingBottom: 0,
+          // background: "linear-gradient(0deg, rgba(0,0,0,1), rgba(0,0,0,0))",
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           // "-webkit-backdrop-filter": "blur(6px)",
