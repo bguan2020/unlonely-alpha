@@ -319,22 +319,8 @@ const AblyChatComponent = ({
       messageText.startsWith("@nfc-it") ||
       messageText.startsWith("@nfc")
     ) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      channel.publish({
-        name: "chat-message",
-        data: {
-          messageText:
-            "Press the Clip Button instead. @nfc command has been deprecated.",
-          username: "chatbot🤖",
-          chatColor: "black",
-          address: chatbotAddress,
-          isFC: false,
-          isLens: false,
-          isGif: false,
-          reactions: initializeEmojis,
-        },
-      });
+      // open new tab to /clip page
+      window.open("/clip", "_blank");
     } else if (messageText.startsWith("@rules")) {
       const rules =
         '"@chatbot [question]" to ask chatbot a question\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';

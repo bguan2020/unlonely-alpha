@@ -10,7 +10,11 @@ type Props = {
 
 const CREATE_CLIP = gql`
   mutation Mutation {
-    createClip
+    createClip {
+      url
+      thumbnail
+      errorMessage
+    }
   }
 `;
 

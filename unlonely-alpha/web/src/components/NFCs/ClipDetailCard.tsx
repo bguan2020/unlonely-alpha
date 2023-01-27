@@ -13,7 +13,6 @@ const ClipDetailCard = ({ clipUrl }: Prop) => {
         padding="0.3rem"
         borderRadius="1rem"
         minW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
-        mb="1.5rem"
         mt="8px"
         mr="1rem"
       >
