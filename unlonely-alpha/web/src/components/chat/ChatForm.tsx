@@ -8,9 +8,10 @@ import { EmojiType } from "./emoji/types";
 type Props = {
   sendChatMessage: (message: string, isGif: boolean) => void;
   inputBox: HTMLTextAreaElement | null;
+  mobile?: boolean;
 };
 
-const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
+const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
   const [messageText, setMessageText] = useState<string>("");
   const [privateChat, setPrivateChat] = useState<boolean>(true);
   const [commandsOpen, setCommandsOpen] = useState(false);
@@ -77,6 +78,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             fontFamily="Inter"
             fontWeight="medium"
             placeholder="try asking @chatbot a question"
+            enterkeyhint="send"
             onChange={(e) => {
               if (e.target.value === "") {
                 setCommandsOpen(false);
@@ -86,14 +88,15 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
             onKeyPress={handleKeyPress}
             background="white"
             minW="100%"
-            style={{ zIndex: 0 }}
+            style={{ zIndex: 0, minHeight: mobile ? "68px" : "80px" }}
             position="relative"
+            resize="none"
           ></Textarea>
           <Flex
             position="absolute"
-            zIndex={1}
+            zIndex={3}
             bottom="5px"
-            right="8px"
+            left="8px"
             pt="2px"
             pb="1px"
             pl="2px"
@@ -113,7 +116,7 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
           <Tooltip label="Toggle to send private message. Private messages won't get displayed to Farcaster.">
             <Flex
               position="absolute"
-              zIndex={2}
+              zIndex={3}
               bottom="12px"
               right="8px"
               pt="2px"
@@ -132,22 +135,25 @@ const ChatForm = ({ sendChatMessage, inputBox }: Props) => {
           </Tooltip>
 
           <EmojiButton
+            mobile={mobile}
             onSelectEmoji={(emoji) => addEmoji(emoji)}
             onSelectGif={(gif) => sendGif(gif)}
           />
         </Flex>
-        <Flex width="100%" justifyContent="right" mb="5px">
-          <Button
-            type="submit"
-            disabled={messageTextIsEmpty}
-            mt="7px"
-            bg="#27415E"
-            color="white"
-            className="xeedev-button-desktop"
-          >
-            Send
-          </Button>
-        </Flex>
+        {!mobile && (
+          <Flex width="100%" justifyContent="right" mb="5px">
+            <Button
+              type="submit"
+              disabled={messageTextIsEmpty}
+              mt="7px"
+              bg="#27415E"
+              color="white"
+              className="xeedev-button-desktop"
+            >
+              Send
+            </Button>
+          </Flex>
+        )}
       </form>
     </>
   );
