@@ -61,6 +61,12 @@ export function Chat() {
     }
   }, [userData]);
 
+  const handlePresence = async (event: any) => {
+    const { data } = event.nativeEvent;
+
+    // console.log(data);
+  };
+
   return (
     <>
       {/* <View
@@ -132,16 +138,17 @@ export function Chat() {
           // scrollEnabled={false}
           // @ts-ignore
           zoomScale={1}
+          onMessage={handlePresence}
         />
         {!chatEnabled && (
           <MotiView style={styles.overlay}>
             <View
               style={{
                 width: '100%',
-                height: '100%',
+                height: 80,
                 position: 'absolute',
                 bottom: 0,
-                backgroundColor: 'rgba(0,0,0,0.7)',
+                backgroundColor: 'rgba(0,0,0,0.25)',
               }}
             ></View>
             <LinearGradient
@@ -151,15 +158,15 @@ export function Chat() {
               end={[0, 0]}
               style={{
                 width: '100%',
-                height: '100%',
+                height: 220,
                 position: 'absolute',
                 bottom: 0,
               }}
+              pointerEvents="none"
             />
 
             <View
               style={{
-                paddingVertical: 48,
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
@@ -191,9 +198,12 @@ const { colors, locations } = easeGradient({
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
     alignItems: 'center',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   overlayText: {
     fontSize: 16,
@@ -203,7 +213,7 @@ const styles = StyleSheet.create({
     color: '#e2f979',
     textAlign: 'center',
     paddingHorizontal: 32,
-    paddingVertical: 24,
+    paddingVertical: 12,
   },
   button: {
     backgroundColor: '#be47d1',

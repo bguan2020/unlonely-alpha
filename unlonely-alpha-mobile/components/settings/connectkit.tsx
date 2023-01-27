@@ -171,7 +171,6 @@ export function ConnectKitSheet() {
               showsHorizontalScrollIndicator={false}
               showsVerticalScrollIndicator={false}
               scrollEnabled={false}
-              forceDarkOn
               // @ts-ignore
               zoomScale={1}
               source={{ uri: CONNECTKIT_WEBVIEW_URL }}
