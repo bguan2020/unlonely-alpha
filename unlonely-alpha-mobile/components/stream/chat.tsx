@@ -43,6 +43,7 @@ export function Chat() {
     if (userData?.address) {
       reloadChat();
     } else {
+      setChatEnabled(true);
       router.push('/');
       openSettingsSheet();
       setTimeout(() => {
