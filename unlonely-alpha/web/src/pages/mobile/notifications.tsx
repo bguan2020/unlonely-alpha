@@ -1,8 +1,5 @@
 import { Box, Button, Flex } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
-
-import { useUser } from "../../hooks/useUser";
-import useUpdateUserNotifications from "../../hooks/useUpdateUserNotifications";
+import React from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 
 type UserNotificationsType = {

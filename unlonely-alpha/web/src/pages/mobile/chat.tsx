@@ -1,24 +1,20 @@
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { Box, Text, Flex, Link, useToast, Image } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
-import { gql, useLazyQuery } from "@apollo/client";
 import { AddIcon } from "@chakra-ui/icons";
 import { useAccount } from "wagmi";
 
 import useChannel from "../../hooks/useChannel";
 import { ChatBot } from "../../pages/channels/brian";
-import { COLORS } from "../../styles/Colors";
 import { timestampConverter } from "../../utils/timestampConverter";
 import NFTList from "../../components/profile/NFTList";
 import Badges from "../../components/chat/Badges";
 import { Message, initializeEmojis } from "../../components/chat/types/index";
-import { User } from "../../generated/graphql";
 import ChatForm from "../../components/chat/ChatForm";
 import usePostFirstChat from "../../hooks/usePostFirstChat";
 import NebulousButton from "../../components/general/button/NebulousButton";
 import EmojiDisplay from "../../components/chat/emoji/EmojiDisplay";
 import usePostNFC from "../../hooks/usePostNFC";
-import Participants from "../../components/presence/Participants";
 import { useUser } from "../../hooks/useUser";
 import {
   chatbotAddress,
@@ -864,6 +860,7 @@ export default function Chat() {
 
   const forceScrollDown = () => {
     const node = ReactDOM.findDOMNode(anchorRef.current);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     node?.scrollIntoView({ behavior: "smooth" });
   };
@@ -886,6 +883,7 @@ export default function Chat() {
         }
       });
     });
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     observer.observe(anchorRef.current);
     return () => {
@@ -918,6 +916,7 @@ export default function Chat() {
             paddingBottom: CHAT_INPUT_PANEL_HEIGHT,
             overflowY: "scroll",
             overscrollBehavior: "contain",
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             "-webkit-overflow-scrolling": "touch",
           }}
@@ -965,6 +964,7 @@ export default function Chat() {
                 padding: 8,
                 borderRadius: 32,
                 boxShadow: "0 3px 12px rgba(0,0,0,0.5)",
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 "-webkit-backdrop-filter": "blur(6px)",
                 backdropFilter: "blur(6px)",
@@ -985,6 +985,7 @@ export default function Chat() {
           bottom: 0,
           padding: 8,
           background: "linear-gradient(0deg, rgba(0,0,0,1), rgba(0,0,0,0))",
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           // "-webkit-backdrop-filter": "blur(6px)",
           // backdropFilter: "blur(6px)",
