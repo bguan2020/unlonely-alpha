@@ -6477,11 +6477,6 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-native-check-mute@^0.1.7:
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/react-native-check-mute/-/react-native-check-mute-0.1.7.tgz#fb64fafa3849343c0b53be65428e4b861b78bc7d"
-  integrity sha512-9ntQuXQq12f+4bPwXa/SMN3soo5nCf/jSPXZE4jKEcVxozAXeD2hROpowi9dw3L3HOsKsCnwGV9oLcuKShGZ7g==
-
 react-native-codegen@^0.70.6:
   version "0.70.6"
   resolved "https://registry.yarnpkg.com/react-native-codegen/-/react-native-codegen-0.70.6.tgz#2ce17d1faad02ad4562345f8ee7cbe6397eda5cb"
