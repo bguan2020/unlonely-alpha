@@ -16,14 +16,16 @@
       "bundler": "metro"
     },
     "ios": {
-      "buildNumber": "5",
+      "buildNumber": "7",
       "bundleIdentifier": "app.unlonely.mobile",
       "icon": "./assets/icon.png",
       "config": {
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        "UIBackgroundModes": ["audio"],
+        "UIBackgroundModes": [
+          "audio"
+        ],
         "NSUserNotificationAlertStyle": "banner",
         "UIUserInterfaceStyle": "dark"
       },
@@ -37,7 +39,10 @@
           "mode": "development",
           "androidMode": "development",
           "iosMode": "development",
-          "sounds": ["./assets/sounds/live.wav", "./assets/sounds/nfc.wav"]
+          "sounds": [
+            "./assets/sounds/live.wav",
+            "./assets/sounds/nfc.wav"
+          ]
         }
       ]
     ],

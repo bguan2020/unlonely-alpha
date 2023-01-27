@@ -94,6 +94,19 @@ export function Chat() {
         }}
       >
         <UnlonelyTopGradient />
+        <LinearGradient
+          colors={colors}
+          locations={locations}
+          start={[0, 1]}
+          end={[0, 0]}
+          style={{
+            width: '100%',
+            height: 80,
+            position: 'absolute',
+            bottom: -5,
+          }}
+          pointerEvents="none"
+        />
         {!finishedLoading && (
           <View
             style={{
@@ -188,10 +201,10 @@ const { colors, locations } = easeGradient({
   // Eased gradient function so it doesn’t look like garbage
   colorStops: {
     0: {
-      color: '#000',
+      color: 'rgba(0,0,0,1)',
     },
     1: {
-      color: 'transparent',
+      color: 'rgba(0,0,0,0)',
     },
   },
 });
