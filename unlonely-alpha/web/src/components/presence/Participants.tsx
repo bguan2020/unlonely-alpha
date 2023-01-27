@@ -79,6 +79,17 @@ const Participants = ({ ablyPresenceChannel }: Props) => {
       if (combinedPresenceData === participantOrder) return;
 
       setParticipantOrder(combinedPresenceData);
+
+      // send combinedPresenceData to react native webview
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (window.ReactNativeWebView !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify(combinedPresenceData)
+        );
+      }
     }
   }, [presenceData]);
 
