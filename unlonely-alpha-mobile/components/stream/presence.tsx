@@ -44,7 +44,7 @@ export function Presence({ data, reloadChat, reloadStream, openPresenceSheet }) 
               id: 'reload-chat',
               image: Platform.select({
                 ios: 'arrow.triangle.2.circlepath',
-                android: 'temp_preferences_custom',
+                android: 'temp_preferences_custom', // TODO: replace with a better icon
               }),
             },
             // {
