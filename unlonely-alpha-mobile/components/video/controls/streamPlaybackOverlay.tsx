@@ -47,13 +47,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   videoOverlayText: {
-    color: '#666',
+    color: '#999',
     fontSize: 14,
     letterSpacing: 0.5,
     fontFamily: 'NeuePixelSans',
     paddingTop: 12,
     position: 'absolute',
-    bottom: 10,
+    bottom: 40,
   },
   latencyView: {
     position: 'absolute',

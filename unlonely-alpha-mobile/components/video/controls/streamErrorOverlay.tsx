@@ -33,7 +33,7 @@ export function StreamErrorOverlay({ error, retry }) {
   return (
     <>
       <MotiView style={styles.center} {...fadeInScale}>
-        <MaterialCommunityIcons name="sleep" size={48} color="#666" />
+        <MaterialCommunityIcons name="sleep" size={48} color="#999" />
         <Text style={styles.videoOverlayText}>stream is offline</Text>
         <View
           style={{

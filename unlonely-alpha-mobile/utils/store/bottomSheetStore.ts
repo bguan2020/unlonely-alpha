@@ -18,6 +18,10 @@ type BottomSheetStore = {
   challengeSheetOpen: boolean;
   openChallengeSheet: () => void;
   closeChallengeSheet: () => void;
+  // presence sheet in chat
+  isPresenceSheetOpen: boolean;
+  openPresenceSheet: () => void;
+  closePresenceSheet: () => void;
 };
 
 export const useBottomSheetStore = create<BottomSheetStore>()(set => ({
@@ -47,4 +51,7 @@ export const useBottomSheetStore = create<BottomSheetStore>()(set => ({
   challengeSheetOpen: false,
   openChallengeSheet: () => set({ challengeSheetOpen: true }),
   closeChallengeSheet: () => set({ challengeSheetOpen: false }),
+  isPresenceSheetOpen: false,
+  openPresenceSheet: () => set({ isPresenceSheetOpen: true }),
+  closePresenceSheet: () => set({ isPresenceSheetOpen: false }),
 }));
