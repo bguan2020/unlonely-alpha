@@ -75,7 +75,7 @@ export default function Chat() {
     : "persistMessages:chat-demo";
 
   const [channel, ably] = useChannel(channelName, (message) => {
-    const history = receivedMessages.slice(-99);
+    const history = receivedMessages.slice(-199);
     // remove messages where name = add-reaction
     const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
     if (message.name === ADD_REACTION_EVENT) {
