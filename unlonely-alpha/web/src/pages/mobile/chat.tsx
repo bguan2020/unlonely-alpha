@@ -75,7 +75,7 @@ export default function Chat() {
     : "persistMessages:chat-demo";
 
   const [channel, ably] = useChannel(channelName, (message) => {
-    const history = receivedMessages.slice(-199);
+    const history = receivedMessages.slice(-99);
     // remove messages where name = add-reaction
     const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
     if (message.name === ADD_REACTION_EVENT) {
@@ -365,19 +365,6 @@ export default function Chat() {
     }
     getMessages();
   }, []);
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
 
   const messages = receivedMessages.map((message, index) => {
     if (message.name !== "chat-message") return null;
@@ -809,9 +796,6 @@ export default function Chat() {
   // new shit
   //
   //
-  //
-  //
-  //
   const anchorRef = useRef(null);
   const [scrolledUp, setScrolledUp] = useState(false);
 
@@ -827,6 +811,16 @@ export default function Chat() {
       // unless scrolled up, then don't scroll to it and show a button
       // to scroll to the bottom
       forceScrollDown();
+    }
+
+    if (receivedMessages.length > 1) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (window.ReactNativeWebView !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        window.ReactNativeWebView.postMessage("chat_loaded");
+      }
     }
   }, [receivedMessages]);
 
