@@ -116,8 +116,8 @@ export default function MobileNotifications() {
 
     // each array of 20 users is being looped over
     userChunks.forEach(async (chunk) => {
-      let tokens: any[] = [];
-      let templates: any[] = [];
+      const tokens: any[] = [];
+      const templates: any[] = [];
 
       // looping through each user in the array of 20
       chunk.forEach((userChunk: any, index: number) => {
