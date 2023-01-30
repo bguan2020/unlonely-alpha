@@ -329,7 +329,7 @@ export default function MobileNotifications() {
                   if (index === 0) {
                     setSelectedType("live");
                   } else {
-                    setSelectedType("nfcs");
+                    setSelectedType("nfc");
                   }
                 }}
               >
