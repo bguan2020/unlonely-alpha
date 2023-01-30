@@ -23,6 +23,7 @@ import {
 } from "../../components/chat/AblyChataComponent";
 import ReactDOM from "react-dom";
 import NextHead from "../../components/layout/NextHead";
+import Participants from "../../components/presence/Participants";
 
 const CHAT_INPUT_PANEL_HEIGHT = 80;
 
@@ -856,6 +857,7 @@ export default function Chat() {
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
         />
       </NextHead>
+      <Participants mobile />
       <div
         // chat area wrapper
         style={{

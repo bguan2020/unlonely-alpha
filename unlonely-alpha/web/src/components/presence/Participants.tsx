@@ -16,6 +16,7 @@ configureAbly({
 
 type Props = {
   ablyPresenceChannel?: string;
+  mobile?: boolean;
 };
 
 type Presence = {
@@ -27,7 +28,7 @@ type Presence = {
   timestamp: number;
 };
 
-const Participants = ({ ablyPresenceChannel }: Props) => {
+const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
   const { user } = useUser();
   const [presenceData, updateStatus] = usePresence(
     ablyPresenceChannel ? ablyPresenceChannel : "presence"
@@ -117,6 +118,8 @@ const Participants = ({ ablyPresenceChannel }: Props) => {
       </>
     );
   };
+
+  if (mobile) return <></>;
 
   // make Participant overlap each other a bit and show a max of 6, with the last one being a count of the rest
   return (
