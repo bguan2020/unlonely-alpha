@@ -18,6 +18,7 @@ import {
   Heading,
   Image,
   Input,
+  Link,
   Progress,
   Stack,
   Tab,
@@ -28,10 +29,12 @@ import {
   Text,
   Textarea,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useRef, useState } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 import NextHead from "../../components/layout/NextHead";
+import { splitArray } from "../../utils/splitArray";
 
 type UserNotificationsType = {
   username: string;
@@ -54,6 +57,7 @@ const GET_ALL_USERS = gql`
 `;
 
 export default function MobileNotifications() {
+  const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
   const [isSending, setIsSending] = useState(false);
@@ -82,18 +86,112 @@ export default function MobileNotifications() {
       return user;
     }
   });
-  const usersWithLive = users?.filter((user: UserNotificationsType) => {
-    if (user.notificationsLive) return user;
-  });
-  const usersWithNFCs = users?.filter((user: UserNotificationsType) => {
-    if (user.notificationsNFCs) return user;
-  });
+  const usersWithLive = usersWithTokens?.filter(
+    (user: UserNotificationsType) => {
+      if (user.notificationsLive) return user;
+    }
+  );
+  const usersWithNFCs = usersWithTokens?.filter(
+    (user: UserNotificationsType) => {
+      if (user.notificationsNFCs) return user;
+    }
+  );
 
   const sendNotifications = async () => {
-    setTimeout(() => {
-      onClose();
-      setIsSending(false);
-    }, 3000);
+    if (isSending) return;
+    let users: any;
+
+    if (selectedType === "live") {
+      users = usersWithLive;
+    }
+
+    if (selectedType === "nfc") {
+      users = usersWithNFCs;
+    }
+
+    // all users are split into arrays of 20
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const userChunks = splitArray([users], 20);
+
+    // each array of 20 users is being looped over
+    userChunks.forEach(async (chunk) => {
+      let tokens: any[] = [];
+      let templates: any[] = [];
+
+      // looping through each user in the array of 20
+      chunk.forEach((userChunk: any, index: number) => {
+        // looping through each token in the user
+        userChunk.forEach((user: UserNotificationsType, userIndex: number) => {
+          const userTokens = JSON.parse(user.notificationsTokens);
+          const filtered = userTokens.filter(
+            (token: string | undefined) => token !== null
+          );
+
+          // returning multiple tokens into one array of all 20 users
+          filtered.forEach((token: string) => {
+            tokens.push(token);
+          });
+        });
+      });
+
+      // preparing notification templates for every token from a single chunk
+      // sending requests to all tokens of 20 users at once from a single chunk
+      tokens.forEach((device) => {
+        templates.push({
+          to: device,
+          title: selectedType === "live" ? titleLive : titleNFCs,
+          body: selectedType === "live" ? bodyLive : bodyNFCs,
+          sound: "default",
+          data: {
+            redirect: selectedType === "live" ? "live" : "nfc",
+          },
+          channelId: selectedType === "live" ? "Live" : "NFC",
+        });
+      });
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const chunkedTemplates = splitArray(templates, 100);
+
+      chunkedTemplates.forEach(async (template, index) => {
+        const req = await fetch(
+          "https://mysterious-stream-82183.herokuapp.com/https://exp.host/--/api/v2/push/send",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(template),
+          }
+        );
+
+        if (req.ok) {
+          toast({
+            id: new Date().getMilliseconds(),
+            title: `batch notification sent to ${template.length} devices`,
+            status: "success",
+            duration: 6000,
+            isClosable: true,
+          });
+
+          if (chunkedTemplates.length === index + 1) {
+            setIsSending(false);
+            onClose();
+          }
+        }
+
+        if (!req.ok) {
+          toast({
+            id: new Date().getMilliseconds(),
+            title: `failed to send notifications to ${template.length} devices`,
+            status: "error",
+            duration: 6000,
+            isClosable: true,
+          });
+        }
+      });
+    });
   };
 
   return (
@@ -139,9 +237,17 @@ export default function MobileNotifications() {
                       </AccordionButton>
                     </h2>
                     <AccordionPanel pb={4}>
+                      <Link
+                        href="https://expo.dev/notifications"
+                        color={"blue"}
+                        target="_blank"
+                      >
+                        Expo Push Notifications Tool ↗️
+                      </Link>
+                      <Divider mb={4} mt={2}></Divider>
                       {usersWithTokens?.map((user: UserNotificationsType) => {
                         return (
-                          <Box marginBottom={8}>
+                          <Box marginBottom={8} key={user.address}>
                             <Flex>
                               <Text fontSize="lg" fontWeight={"bold"}>
                                 {user.username}
@@ -156,7 +262,7 @@ export default function MobileNotifications() {
                                   if (token === null) return;
 
                                   return (
-                                    <Box mb="4px" w={"100%"}>
+                                    <Box mb="4px" w={"100%"} key={token}>
                                       <Textarea
                                         onClick={(event) => {
                                           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -172,9 +278,9 @@ export default function MobileNotifications() {
                                           width: "100%",
                                           fontSize: "12px",
                                         }}
-                                      >
-                                        {token}
-                                      </Textarea>
+                                        readOnly
+                                        value={token}
+                                      ></Textarea>
                                     </Box>
                                   );
                                 }
@@ -236,24 +342,24 @@ export default function MobileNotifications() {
                     <Input
                       mb={2}
                       color="gray.500"
-                      value={titleLive}
+                      defaultValue={titleLive}
                       onChange={(event) => setTitleLive(event.target.value)}
                     />
                     <Input
-                      value={bodyLive}
+                      defaultValue={bodyLive}
                       color="gray.500"
                       onChange={(event) => setBodyLive(event.target.value)}
                     />
                   </TabPanel>
                   <TabPanel padding={0} pt={3}>
                     <Input
-                      value={titleNFCs}
+                      defaultValue={titleNFCs}
                       mb={2}
                       color="gray.500"
                       onChange={(event) => setTitleNFCs(event.target.value)}
                     />
                     <Input
-                      value={bodyNFCs}
+                      defaultValue={bodyNFCs}
                       color="gray.500"
                       onChange={(event) => setBodyNFCs(event.target.value)}
                     />
