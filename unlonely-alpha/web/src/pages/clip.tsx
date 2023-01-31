@@ -14,6 +14,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/router";
+// import {
+//   usePrepareContractWrite,
+//   useContractWrite,
+//   useWaitForTransaction,
+// } from "wagmi";
 
 import AppLayout from "../components/layout/AppLayout";
 import useCreateClip from "../hooks/useCreateClip";
