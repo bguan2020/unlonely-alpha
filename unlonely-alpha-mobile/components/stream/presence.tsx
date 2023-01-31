@@ -91,7 +91,12 @@ export function Presence({ data, reloadChat, reloadStream, openPresenceSheet }) 
           </View>
         </AnimatedMenuView>
         <View>
-          <AnimatedPressable onPress={openPresenceSheet}>
+          <AnimatedPressable
+            onPress={openPresenceSheet}
+            style={{
+              paddingLeft: 8,
+            }}
+          >
             <View
               style={{
                 flexDirection: 'row',

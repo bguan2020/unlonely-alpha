@@ -238,7 +238,7 @@ export function Chat() {
           style={{
             position: 'absolute',
             right: 4,
-            top: -13,
+            top: -12,
             zIndex: 9,
           }}
         >
