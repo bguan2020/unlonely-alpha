@@ -14,11 +14,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/router";
-// import {
-//   usePrepareContractWrite,
-//   useContractWrite,
-//   useWaitForTransaction,
-// } from "wagmi";
+import {
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
+import { create } from "ipfs-http-client";
 
 import AppLayout from "../components/layout/AppLayout";
 import useCreateClip from "../hooks/useCreateClip";
@@ -27,6 +27,24 @@ import { PostNfcInput } from "../generated/graphql";
 import { postNfcSchema } from "../utils/validation/validation";
 import usePostNFC from "../hooks/usePostNFC";
 import { useUser } from "../hooks/useUser";
+import { UNLONELYNFCV2_ADDRESS } from "../constants";
+import UnlonelyNFCsV2 from "../utils/UnlonelyNFCsV2.json";
+
+const projectId = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
+const projectSecret = "7d400aacc9bc6c0f0d6e59b65a83d764";
+const auth = `Basic ${Buffer.from(`${projectId}:${projectSecret}`).toString(
+  "base64"
+)}`;
+
+const client = create({
+  host: "ipfs.infura.io",
+  port: 5001,
+  protocol: "https",
+  apiPath: "api/v0",
+  headers: {
+    authorization: auth,
+  },
+});
 
 const ClipDetail = () => {
   const { user } = useUser();
@@ -36,6 +54,18 @@ const ClipDetail = () => {
   const [clipThumbnail, setClipThumbnail] = useState<null | any>(null);
   const toast = useToast();
   const router = useRouter();
+
+  // mint nft hooks
+  const { data, write } = useContractWrite({
+    address: UNLONELYNFCV2_ADDRESS,
+    abi: UnlonelyNFCsV2.abi,
+    functionName: "mint",
+    mode: "recklesslyUnprepared",
+  });
+ 
+  const { data: txnData, isLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  });
 
   const form = useForm<PostNfcInput>({
     defaultValues: {},
@@ -80,14 +110,69 @@ const ClipDetail = () => {
     }, 5000);
   }, []);
 
+  useEffect(() => {
+    const _postNFC = async () => {
+      const { title } = watch();
+      toast({
+        title: "NFT Minted",
+        description: "Your NFT has been minted",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      const { res } = await postNFC({
+        videoLink: clipUrl,
+        videoThumbnail: clipThumbnail,
+        title,
+        openseaLink: txnData?.logs[0].topics[3] ? `https://opensea.io/assets/${UNLONELYNFCV2_ADDRESS}/${parseInt(txnData?.logs[0].topics[3], 16)}` : null,
+      });
+      router.push(`/nfc/${res?.id}`);
+    };
+    if (isSuccess) {
+      _postNFC();
+    }
+  }, [isSuccess, txnData]);
+
   const submitNFC = async () => {
     const { title } = watch();
-    const { res } = await postNFC({
-      videoLink: clipUrl,
-      videoThumbnail: clipThumbnail,
-      title,
+    // first upload to ipfs
+    // then mint nft
+    const uri = await uploadToIPFS(title, clipUrl);
+    if (!uri) {
+      setFormError(["Error Minting NFT"]);
+      return;
+    }
+
+    if (!write) {
+      setFormError(["Error Minting NFT"]);
+      return;
+    };
+
+    const tx = await write({ recklesslySetUnpreparedArgs: [user?.address, uri] });
+  };
+
+  const uploadToIPFS = async (name: string, clipUrl: string) => {
+    // destructing. getting value of name, desc and price from formInput.
+    if (!name || !clipUrl) return;
+    // if any of the valuable is empty return
+
+    /* first, upload metadata to IPFS */
+    const data = JSON.stringify({
+      name,
+      description: "this is an NFC (non-fungible clip) highlight from an unlonely livestream",
+      image: clipUrl,
+      external_url: "https://www.unlonely.app/",
+      image_url: clipThumbnail,
     });
-    router.push(`/nfc/${res?.id}`);
+    try {
+      const added = await client.add(data);
+      const url = `https://cloudflare-ipfs.com/ipfs/${added.path}`;
+
+      /* after metadata is uploaded to IPFS, return the URL to use it in the transaction */
+      return url;
+    } catch (error) {
+      setFormError(["Error uploading file to IPFS"]);
+    }
   };
 
   return (
@@ -194,14 +279,29 @@ const ClipDetail = () => {
                           </FormControl>
                           <Flex width="100%" flexDirection="row-reverse">
                             {user ? (
-                              <Button
-                                bg="#FFCC15"
-                                _hover={loading ? {} : { bg: "black" }}
-                                type="submit"
-                                isLoading={loading}
-                              >
-                                Submit
-                              </Button>
+                              <>
+                                {isSuccess ? (
+                                  <> 
+                                    <Button
+                                      bg="#FFCC15"
+                                      disabled={true}
+                                    >
+                                      Successfully Minted!
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <Button
+                                    bg="#FFCC15"
+                                    _hover={{ bg: "black" }}
+                                    type="submit"
+                                    isLoading={isLoading || loading}
+                                    loadingText="Minting..."
+                                  >
+                                    Mint
+                                  </Button>
+                                )}
+                              
+                              </>
                             ) : (
                               <Button
                                 bg="#FFCC15"
@@ -218,7 +318,7 @@ const ClipDetail = () => {
                                   });
                                 }}
                               >
-                                Submit
+                                Mint
                               </Button>
                             )}
                           </Flex>

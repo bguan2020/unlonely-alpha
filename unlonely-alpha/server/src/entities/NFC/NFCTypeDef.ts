@@ -31,6 +31,7 @@ export const typeDef = gql`
     title: String!
     videoLink: String!
     videoThumbnail: String!
+    openseaLink: String!
   }
 
   extend type Query {

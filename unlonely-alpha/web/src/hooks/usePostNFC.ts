@@ -35,6 +35,7 @@ const usePostNFC = ({ onError }: Props) => {
             title: data.title,
             videoLink: data.videoLink,
             videoThumbnail: data.videoThumbnail,
+            openseaLink: data.openseaLink,
           },
         },
       });
