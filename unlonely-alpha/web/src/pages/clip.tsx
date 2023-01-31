@@ -29,7 +29,7 @@ import { postNfcSchema } from "../utils/validation/validation";
 import usePostNFC from "../hooks/usePostNFC";
 import { useUser } from "../hooks/useUser";
 import { UNLONELYNFCV2_ADDRESS } from "../constants";
-import UnlonelyNFCsV2 from "../../../blockchain/artifacts/contracts/UnlonelyNFCsV2.sol/UnlonelyNFCsV2.json";
+import UnlonelyNFCsV2 from "../utils/UnlonelyNFCsV2.json";
 
 const projectId = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
 const projectSecret = "7d400aacc9bc6c0f0d6e59b65a83d764";
