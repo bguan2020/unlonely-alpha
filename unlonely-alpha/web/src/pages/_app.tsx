@@ -5,7 +5,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 
 import { ApolloProvider } from "@apollo/client";
 import { createClient, WagmiConfig, configureChains } from "wagmi";
-import { mainnet, goerli } from "wagmi/chains";
+import { mainnet } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
