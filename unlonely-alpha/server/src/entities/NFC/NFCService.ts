@@ -8,6 +8,7 @@ export interface IPostNFCInput {
   title: string;
   videoLink: string;
   videoThumbnail: string;
+  openseaLink: string;
 }
 
 export const postNFC = async (
@@ -20,6 +21,7 @@ export const postNFC = async (
       title: data.title,
       videoLink: data.videoLink,
       videoThumbnail: data.videoThumbnail,
+      openseaLink: data.openseaLink,
       owner: {
         connect: {
           address: user.address,

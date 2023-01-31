@@ -252,6 +252,7 @@ export type PostChatInput = {
 };
 
 export type PostNfcInput = {
+  openseaLink: Scalars["String"];
   title: Scalars["String"];
   videoLink: Scalars["String"];
   videoThumbnail: Scalars["String"];

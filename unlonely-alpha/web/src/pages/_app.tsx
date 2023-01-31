@@ -32,7 +32,7 @@ function App({ Component, pageProps, cookies }: Props) {
   );
 
   const { provider, chains } = configureChains(
-    [goerli],
+    [mainnet],
     [alchemyProvider({ apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F" })]
   );
 
