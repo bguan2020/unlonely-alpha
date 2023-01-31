@@ -20,7 +20,6 @@ import {
 } from "wagmi";
 import { create } from "ipfs-http-client";
 
-
 import AppLayout from "../components/layout/AppLayout";
 import useCreateClip from "../hooks/useCreateClip";
 import ClipDetailCard from "../components/NFCs/ClipDetailCard";

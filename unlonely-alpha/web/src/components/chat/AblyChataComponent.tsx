@@ -25,7 +25,6 @@ type Props = {
   username: string | null | undefined;
   chatBot: ChatBot[];
   user: User | undefined;
-  mobileChat?: boolean;
   ablyChatChannel?: string;
   ablyPresenceChannel?: string;
 };
@@ -39,9 +38,9 @@ const GET_POAP_QUERY = gql`
   }
 `;
 
-const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+export const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
-const emojis = [
+export const emojis = [
   "https://i.imgur.com/wbUNcyS.gif",
   "https://i.imgur.com/zTfFgtZ.gif",
   "https://i.imgur.com/NurjwAK.gif",
@@ -55,7 +54,7 @@ const emojis = [
   "🚀",
 ];
 
-const chatbotAddress = "0x0000000000000000000000000000000000000000";
+export const chatbotAddress = "0x0000000000000000000000000000000000000000";
 
 const AblyChatComponent = ({
   username,
