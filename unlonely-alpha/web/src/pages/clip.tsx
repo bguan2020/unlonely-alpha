@@ -14,6 +14,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/router";
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 
 import AppLayout from "../components/layout/AppLayout";
 import useCreateClip from "../hooks/useCreateClip";
@@ -22,15 +27,41 @@ import { PostNfcInput } from "../generated/graphql";
 import { postNfcSchema } from "../utils/validation/validation";
 import usePostNFC from "../hooks/usePostNFC";
 import { useUser } from "../hooks/useUser";
+import { BigNumber } from "ethers/lib/ethers";
 
 const ClipDetail = () => {
   const { user } = useUser();
   const [progressBar, setProgressBar] = useState<number>(8);
   const [clipError, setClipError] = useState<null | string[]>(null);
-  const [clipUrl, setClipUrl] = useState<null | any>(null);
-  const [clipThumbnail, setClipThumbnail] = useState<null | any>(null);
+  const [clipUrl, setClipUrl] = useState<null | any>("https://unlonely-clips.s3.us-west-2.amazonaws.com/brian-clips/20230127033209/clip.mp4");
+  const [clipThumbnail, setClipThumbnail] = useState<null | any>("https://unlonely-clips.s3.us-west-2.amazonaws.com/brian-clips/20230127033209/thumbnail.jpg");
   const toast = useToast();
   const router = useRouter();
+
+  // mint nft hooks
+  const { config } = usePrepareContractWrite({
+    address: "0x55d78c09a0a8F0136392Eb493a9aECC9c0dED225",
+    abi: [
+      {
+        name: "mintBase",
+        type: "function",
+        stateMutability: "nonpayable",
+        inputs: [],
+        outputs: [],
+      },
+    ],
+    functionName: "mintBase",
+    // args: [],
+    overrides: {
+      gasLimit: BigNumber.from(1e7),
+    }
+  });
+  const { data, write } = useContractWrite(config);
+  console.log(data, write);
+ 
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  });
 
   const form = useForm<PostNfcInput>({
     defaultValues: {},
@@ -50,19 +81,19 @@ const ClipDetail = () => {
   });
 
   // useeffect to call createClip
-  useEffect(() => {
-    const fetchData = async () => {
-      const { res } = await createClip();
-      // if res.errorMessage is not null, then show error message
-      if (res.errorMessage) {
-        setClipError(res.errorMessage);
-        return;
-      }
-      setClipUrl(res.url);
-      setClipThumbnail(res.thumbnail);
-    };
-    fetchData();
-  }, []);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const { res } = await createClip();
+  //     // if res.errorMessage is not null, then show error message
+  //     if (res.errorMessage) {
+  //       setClipError(res.errorMessage);
+  //       return;
+  //     }
+  //     setClipUrl(res.url);
+  //     setClipThumbnail(res.thumbnail);
+  //   };
+  //   fetchData();
+  // }, []);
 
   // update progress bar every 5 seconds, adding 8 to progress bar
   useEffect(() => {
@@ -76,6 +107,21 @@ const ClipDetail = () => {
   }, []);
 
   const submitNFC = async () => {
+    // first upload to ipfs
+    // then mint nft
+
+    if (!write) {
+      toast({
+        title: "Error",
+        description: "An error occurred while minting.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    };
+    const result = await write();
+    console.log(result);
     const { title } = watch();
     const { res } = await postNFC({
       videoLink: clipUrl,
@@ -193,9 +239,10 @@ const ClipDetail = () => {
                                 bg="#FFCC15"
                                 _hover={loading ? {} : { bg: "black" }}
                                 type="submit"
-                                isLoading={loading}
+                                isLoading={loading || isLoading}
+                                disabled={!write || isLoading}
                               >
-                                Submit
+                                Mint
                               </Button>
                             ) : (
                               <Button

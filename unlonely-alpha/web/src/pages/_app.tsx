@@ -5,7 +5,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 
 import { ApolloProvider } from "@apollo/client";
 import { createClient, WagmiConfig, configureChains } from "wagmi";
-import { mainnet } from "wagmi/chains";
+import { mainnet, goerli } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
@@ -32,7 +32,7 @@ function App({ Component, pageProps, cookies }: Props) {
   );
 
   const { provider, chains } = configureChains(
-    [mainnet],
+    [goerli],
     [alchemyProvider({ apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F" })]
   );
 

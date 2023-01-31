@@ -41,6 +41,7 @@
     "ethers": "^5.7.2",
     "framer-motion": "4",
     "graphql": "^16.5.0",
+    "ipfs-http-client": "^60.0.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.34",
     "next": "^13.1.1",
