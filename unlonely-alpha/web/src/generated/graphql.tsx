@@ -733,7 +733,6 @@ export type GetAllUsersQuery = {
   __typename?: "Query";
   getAllUsers?: Array<{
     __typename?: "User";
-    id: string;
     username?: string | null;
     address: string;
     notificationsTokens?: string | null;
@@ -1658,7 +1657,6 @@ export type NfcFeedQueryResult = Apollo.QueryResult<
 export const GetAllUsersDocument = gql`
   query GetAllUsers {
     getAllUsers {
-      id
       username
       address
       notificationsTokens
