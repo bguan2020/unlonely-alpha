@@ -26,7 +26,6 @@ import usePostNFC from "../hooks/usePostNFC";
 import { useUser } from "../hooks/useUser";
 import { UNLONELYNFCV2_ADDRESS } from "../constants";
 import UnlonelyNFCsV2 from "../utils/UnlonelyNFCsV2.json";
-import NextHead from "../components/layout/NextHead";
 
 const projectId = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
 const projectSecret = "7d400aacc9bc6c0f0d6e59b65a83d764";
@@ -98,19 +97,23 @@ const ClipDetail = () => {
       setClipUrl(res.url);
       setClipThumbnail(res.thumbnail);
     };
-    fetchData();
-  }, []);
+    if (user) {
+      fetchData();
+    }
+  }, [user?.address]);
 
   // update progress bar every 5 seconds, adding 8 to progress bar
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (progressBar > 85) {
-        clearInterval(interval);
-        return;
-      }
-      setProgressBar((prev) => prev + 6);
-    }, 5000);
-  }, []);
+    if (user) {
+      const interval = setInterval(() => {
+        if (progressBar > 85) {
+          clearInterval(interval);
+          return;
+        }
+        setProgressBar((prev) => prev + 6);
+      }, 5000);
+    }
+  }, [user?.address]);
 
   useEffect(() => {
     const _postNFC = async () => {
@@ -188,17 +191,13 @@ const ClipDetail = () => {
   return (
     <>
       <AppLayout isCustomHeader={false}>
-        <NextHead
-          title={isSuccess ? "done! mint the nfc now" : "generating clip..."}
-          description=""
-          image=""
-        ></NextHead>
         <Flex justifyContent="center" mt="5rem" direction="column">
-          {clipError ? (
+          {clipError || !user ? (
             <Flex width="100%" justifyContent="center">
               <Alert status="error" width="60%">
                 <AlertIcon />
-                {clipError}
+                {clipError && clipError}
+                {!user && "Please connect wallet to make clip."}
               </Alert>
             </Flex>
           ) : (
