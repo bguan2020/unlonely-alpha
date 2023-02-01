@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { MotiView } from 'moti';
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Image, Keyboard, Linking } from 'react-native';
 import { easeGradient } from 'react-native-easing-gradient';
 import { WebView } from 'react-native-webview';
 import { useUserStore } from '../../utils/store/userStore';
@@ -52,12 +52,19 @@ export function Chat() {
   const [finishedLoading, setFinishedLoading] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([]);
 
+  const openExternalLink = (url: string): void => {
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) Linking.openURL(url);
+    });
+  };
+
   const catchWebViewNavigationStateChange = (newNavState: any) => {
     const { url } = newNavState;
 
     if (url !== CHAT_WEBVIEW_URL) {
       webViewRef.current.stopLoading();
-      webViewRef.current.reload();
+      openExternalLink(url);
+      // webViewRef.current.reload();
     }
   };
 
@@ -111,7 +118,10 @@ export function Chat() {
         data={onlineUsers}
         reloadChat={reloadChat}
         reloadStream={reloadStream}
-        openPresenceSheet={() => bottomSheetRef.current?.expand()}
+        openPresenceSheet={() => {
+          Keyboard.dismiss();
+          bottomSheetRef.current?.expand();
+        }}
       />
       <View
         // chat container

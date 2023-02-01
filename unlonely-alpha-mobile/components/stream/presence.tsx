@@ -1,6 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { MotiView } from 'moti';
-import { View, Platform, Image, StyleSheet } from 'react-native';
+import { View, Platform, Image, StyleSheet, Keyboard } from 'react-native';
 import { useHaptics } from '../../utils/haptics';
 import { BlurLayer } from '../blur/blurLayer';
 import { AnimatedMenuView } from '../buttons/animatedMenuView';
@@ -29,6 +29,7 @@ export function Presence({ data, reloadChat, reloadStream, openPresenceSheet }) 
         <AnimatedMenuView
           onPressAction={({ nativeEvent }) => {
             useHaptics('light');
+            Keyboard.dismiss();
 
             if (nativeEvent.event === 'reload-chat') {
               reloadChat();

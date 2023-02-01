@@ -37,6 +37,11 @@ export function StreamPlaybackOverlay({
           <Text style={styles.videoOverlayText}>stream delay: {formattedLatency}s</Text>
         </View>
       )}
+      {!playing && (
+        <View style={styles.latencyView} pointerEvents="none">
+          <Text style={styles.videoOverlayLiveText}>LIVE NOW</Text>
+        </View>
+      )}
     </>
   );
 }
@@ -50,6 +55,15 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 14,
     letterSpacing: 0.5,
+    fontFamily: 'NeuePixelSans',
+    paddingTop: 12,
+    position: 'absolute',
+    bottom: 40,
+  },
+  videoOverlayLiveText: {
+    color: '#e6f88a',
+    fontSize: 14,
+    letterSpacing: 1,
     fontFamily: 'NeuePixelSans',
     paddingTop: 12,
     position: 'absolute',
