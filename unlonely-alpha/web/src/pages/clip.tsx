@@ -14,10 +14,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/router";
-import {
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import { useContractWrite, useWaitForTransaction } from "wagmi";
 import { create } from "ipfs-http-client";
 
 import AppLayout from "../components/layout/AppLayout";
@@ -29,6 +26,7 @@ import usePostNFC from "../hooks/usePostNFC";
 import { useUser } from "../hooks/useUser";
 import { UNLONELYNFCV2_ADDRESS } from "../constants";
 import UnlonelyNFCsV2 from "../utils/UnlonelyNFCsV2.json";
+import NextHead from "../components/layout/NextHead";
 
 const projectId = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
 const projectSecret = "7d400aacc9bc6c0f0d6e59b65a83d764";
@@ -62,8 +60,12 @@ const ClipDetail = () => {
     functionName: "mint",
     mode: "recklesslyUnprepared",
   });
- 
-  const { data: txnData, isLoading, isSuccess } = useWaitForTransaction({
+
+  const {
+    data: txnData,
+    isLoading,
+    isSuccess,
+  } = useWaitForTransaction({
     hash: data?.hash,
   });
 
@@ -124,7 +126,12 @@ const ClipDetail = () => {
         videoLink: clipUrl,
         videoThumbnail: clipThumbnail,
         title,
-        openseaLink: txnData?.logs[0].topics[3] ? `https://opensea.io/assets/${UNLONELYNFCV2_ADDRESS}/${parseInt(txnData?.logs[0].topics[3], 16)}` : null,
+        openseaLink: txnData?.logs[0].topics[3]
+          ? `https://opensea.io/assets/${UNLONELYNFCV2_ADDRESS}/${parseInt(
+              txnData?.logs[0].topics[3],
+              16
+            )}`
+          : null,
       });
       router.push(`/nfc/${res?.id}`);
     };
@@ -146,9 +153,11 @@ const ClipDetail = () => {
     if (!write) {
       setFormError(["Error Minting NFT"]);
       return;
-    };
+    }
 
-    const tx = await write({ recklesslySetUnpreparedArgs: [user?.address, uri] });
+    const tx = await write({
+      recklesslySetUnpreparedArgs: [user?.address, uri],
+    });
   };
 
   const uploadToIPFS = async (name: string, clipUrl: string) => {
@@ -159,7 +168,8 @@ const ClipDetail = () => {
     /* first, upload metadata to IPFS */
     const data = JSON.stringify({
       name,
-      description: "this is an NFC (non-fungible clip) highlight from an unlonely livestream",
+      description:
+        "this is an NFC (non-fungible clip) highlight from an unlonely livestream",
       image: clipUrl,
       external_url: "https://www.unlonely.app/",
       image_url: clipThumbnail,
@@ -178,6 +188,11 @@ const ClipDetail = () => {
   return (
     <>
       <AppLayout isCustomHeader={false}>
+        <NextHead
+          title={isSuccess ? "done! mint the nfc now" : "generating clip..."}
+          description=""
+          image=""
+        ></NextHead>
         <Flex justifyContent="center" mt="5rem" direction="column">
           {clipError ? (
             <Flex width="100%" justifyContent="center">
@@ -281,11 +296,8 @@ const ClipDetail = () => {
                             {user ? (
                               <>
                                 {isSuccess ? (
-                                  <> 
-                                    <Button
-                                      bg="#FFCC15"
-                                      disabled={true}
-                                    >
+                                  <>
+                                    <Button bg="#FFCC15" disabled={true}>
                                       Successfully Minted!
                                     </Button>
                                   </>
@@ -300,7 +312,6 @@ const ClipDetail = () => {
                                     Mint
                                   </Button>
                                 )}
-                              
                               </>
                             ) : (
                               <Button
