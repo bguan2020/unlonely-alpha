@@ -900,7 +900,7 @@ export default function Chat() {
           <button
             style={{
               position: "fixed",
-              top: 0,
+              top: 8,
               fontSize: 13,
               height: 64,
               width: "100%",
