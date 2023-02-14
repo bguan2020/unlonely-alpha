@@ -22,10 +22,12 @@ const CHAT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/chat';
 const funnyName = [
   'ted’s mom',
   'borodutch in VR',
-  'blob',
+  'Vitalik’s Butter Inn',
   'dan romero on his iPad',
   'ivy’s clubhouse nemesis',
   'one of the fake vitaliks',
+  'purple member',
+  'blobs',
   'narc andreessen',
   '200 people from brian’s family group chat',
   'someone from lens',
@@ -64,6 +66,8 @@ export function Chat() {
     if (url !== CHAT_WEBVIEW_URL) {
       webViewRef.current.stopLoading();
       openExternalLink(url);
+      setChatEnabled(true);
+      setFinishedLoading(true);
       // webViewRef.current.reload();
     }
   };

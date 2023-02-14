@@ -36,7 +36,7 @@
     "expo-system-ui": "~2.0.1",
     "expo-updates": "^0.15.6",
     "graphql-request": "^5.0.0",
-    "moti": "^0.21.0",
+    "moti": "^0.23.4",
     "react": "18.1.0",
     "react-dom": "18.1.0",
     "react-native": "0.70.5",
