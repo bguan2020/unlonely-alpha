@@ -22,7 +22,7 @@ export const AnimatedPressable = ({ onPress, style, children, bouncy, disabled }
         'worklet';
         if (disabled) return;
         return {
-          scale: pressed ? (bouncy ? 0.75 : 0.85) : 1,
+          scale: pressed ? (bouncy ? 0.8 : 0.9) : 1,
         };
       }}
       transition={
