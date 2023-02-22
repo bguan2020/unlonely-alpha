@@ -90,6 +90,10 @@ export type ClipOutput = {
   url?: Maybe<Scalars["String"]>;
 };
 
+export type CreateClipInput = {
+  channelArn: Scalars["String"];
+};
+
 export type GetChatInput = {
   address?: InputMaybe<Scalars["String"]>;
 };
@@ -166,6 +170,10 @@ export type Mutation = {
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   updateUserNotifications?: Maybe<User>;
+};
+
+export type MutationCreateClipArgs = {
+  data?: InputMaybe<CreateClipInput>;
 };
 
 export type MutationHandleLikeArgs = {
@@ -519,9 +527,11 @@ export type VideoCard_VideoFragment = {
   owner: { __typename?: "User"; username?: string | null; address: string };
 };
 
-export type MutationMutationVariables = Exact<{ [key: string]: never }>;
+export type CreateClipMutationVariables = Exact<{
+  data: CreateClipInput;
+}>;
 
-export type MutationMutation = {
+export type CreateClipMutation = {
   __typename?: "Mutation";
   createClip?: {
     __typename?: "ClipOutput";
@@ -993,53 +1003,57 @@ export type TaskFeedQueryResult = Apollo.QueryResult<
   TaskFeedQuery,
   TaskFeedQueryVariables
 >;
-export const MutationDocument = gql`
-  mutation Mutation {
-    createClip {
+export const CreateClipDocument = gql`
+  mutation CreateClip($data: CreateClipInput!) {
+    createClip(data: $data) {
       url
       thumbnail
       errorMessage
     }
   }
 `;
-export type MutationMutationFn = Apollo.MutationFunction<
-  MutationMutation,
-  MutationMutationVariables
+export type CreateClipMutationFn = Apollo.MutationFunction<
+  CreateClipMutation,
+  CreateClipMutationVariables
 >;
 
 /**
- * __useMutationMutation__
+ * __useCreateClipMutation__
  *
- * To run a mutation, you first call `useMutationMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useMutationMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreateClipMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateClipMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [mutationMutation, { data, loading, error }] = useMutationMutation({
+ * const [createClipMutation, { data, loading, error }] = useCreateClipMutation({
  *   variables: {
+ *      data: // value for 'data'
  *   },
  * });
  */
-export function useMutationMutation(
+export function useCreateClipMutation(
   baseOptions?: Apollo.MutationHookOptions<
-    MutationMutation,
-    MutationMutationVariables
+    CreateClipMutation,
+    CreateClipMutationVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<MutationMutation, MutationMutationVariables>(
-    MutationDocument,
+  return Apollo.useMutation<CreateClipMutation, CreateClipMutationVariables>(
+    CreateClipDocument,
     options
   );
 }
-export type MutationMutationHookResult = ReturnType<typeof useMutationMutation>;
-export type MutationMutationResult = Apollo.MutationResult<MutationMutation>;
-export type MutationMutationOptions = Apollo.BaseMutationOptions<
-  MutationMutation,
-  MutationMutationVariables
+export type CreateClipMutationHookResult = ReturnType<
+  typeof useCreateClipMutation
+>;
+export type CreateClipMutationResult =
+  Apollo.MutationResult<CreateClipMutation>;
+export type CreateClipMutationOptions = Apollo.BaseMutationOptions<
+  CreateClipMutation,
+  CreateClipMutationVariables
 >;
 export const LikeDocument = gql`
   mutation Like($data: HandleLikeInput!) {

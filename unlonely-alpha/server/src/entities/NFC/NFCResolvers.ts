@@ -29,8 +29,12 @@ export const resolvers = {
 
       return NFCService.postNFC(data, ctx, ctx.user);
     },
-    createClip: (_: any, __: any, ctx: Context) => {
-      return NFCService.createClip();
+    createClip: (
+      _: any,
+      { data }: { data: NFCService.ICreateClipInput },
+      ctx: Context
+    ) => {
+      return NFCService.createClip(data);
     },
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {
       return NFCService.openseaNFCScript(ctx);

@@ -51,6 +51,7 @@ const ClipDetail = () => {
   const [clipThumbnail, setClipThumbnail] = useState<null | any>(null);
   const toast = useToast();
   const router = useRouter();
+  const { query } = router;
 
   // mint nft hooks
   const { data, write } = useContractWrite({
@@ -88,7 +89,7 @@ const ClipDetail = () => {
   // useeffect to call createClip
   useEffect(() => {
     const fetchData = async () => {
-      const { res } = await createClip();
+      const { res } = await createClip({ channelArn: query.arn });
       // if res.errorMessage is not null, then show error message
       if (res.errorMessage) {
         setClipError(res.errorMessage);

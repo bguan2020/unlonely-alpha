@@ -11,6 +11,10 @@ export interface IPostNFCInput {
   openseaLink: string;
 }
 
+export interface ICreateClipInput {
+  channelArn: string;
+}
+
 export const postNFC = async (
   data: IPostNFCInput,
   ctx: Context,
@@ -31,8 +35,7 @@ export const postNFC = async (
   });
 };
 
-export const createClip = async () => {
-  const channelArn = "arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq";
+export const createClip = async (data: ICreateClipInput) => {
   const recordingConfigArn =
     "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
   // first call lambda
@@ -46,7 +49,7 @@ export const createClip = async () => {
     FunctionName: "sendClipToMediaConvert",
     Payload: JSON.stringify({
       detail: {
-        "channel-arn": channelArn,
+        "channel-arn": data.channelArn,
         "recording-config-arn": recordingConfigArn,
       },
     }),

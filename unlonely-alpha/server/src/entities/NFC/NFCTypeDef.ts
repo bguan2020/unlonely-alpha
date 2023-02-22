@@ -34,13 +34,17 @@ export const typeDef = gql`
     openseaLink: String!
   }
 
+  input CreateClipInput {
+    channelArn: String!
+  }
+
   extend type Query {
     getNFCFeed(data: NFCFeedInput): [NFC]
     getNFC(id: ID!): NFC
   }
 
   extend type Mutation {
-    createClip: ClipOutput
+    createClip(data: CreateClipInput): ClipOutput
     postNFC(data: PostNFCInput!): NFC
     openseaNFCScript: String
   }
