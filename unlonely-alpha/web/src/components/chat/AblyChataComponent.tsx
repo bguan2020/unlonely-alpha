@@ -27,6 +27,7 @@ type Props = {
   user: User | undefined;
   ablyChatChannel?: string;
   ablyPresenceChannel?: string;
+  channelArn: string;
 };
 
 const GET_POAP_QUERY = gql`
@@ -61,6 +62,7 @@ const AblyChatComponent = ({
   chatBot,
   ablyChatChannel,
   ablyPresenceChannel,
+  channelArn,
 }: Props) => {
   const { user } = useUser();
   const { address } = useAccount();
@@ -319,7 +321,7 @@ const AblyChatComponent = ({
       messageText.startsWith("@nfc")
     ) {
       // open new tab to /clip page
-      window.open("/clip", "_blank");
+      window.open(`/clip?arn=${channelArn}`, "_blank");
     } else if (messageText.startsWith("@rules")) {
       const rules =
         '"@chatbot [question]" to ask chatbot a question\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';

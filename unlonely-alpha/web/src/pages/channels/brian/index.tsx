@@ -34,6 +34,8 @@ export type ChatBot = {
 const brianPlaybackUrl =
   "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8";
 
+const channelArn = "arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq";
+
 const Example: React.FunctionComponent = () => {
   const [width, height] = useWindowSize();
   const { user } = useUser();
@@ -114,6 +116,7 @@ const Example: React.FunctionComponent = () => {
             username={username}
             chatBot={chatBot}
             user={user}
+            channelArn={channelArn}
           />
         </Container>
       </Stack>

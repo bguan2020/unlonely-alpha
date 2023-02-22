@@ -4,9 +4,7 @@
     {
       "Ownable": {
         "src": "@openzeppelin/contracts/access/Ownable.sol:20",
-        "inherit": [
-          "Context"
-        ],
+        "inherit": ["Context"],
         "libraries": [],
         "methods": [
           "owner()",
@@ -48,11 +46,7 @@
           "withoutMetadata": "912b4bdaa227babb84384f65799fc2ff73eb2fb57f91aedad0aa02d07d1c0f3c",
           "linkedWithoutMetadata": "912b4bdaa227babb84384f65799fc2ff73eb2fb57f91aedad0aa02d07d1c0f3c"
         },
-        "inherit": [
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
         "methods": [
           "(string,string)",
@@ -163,15 +157,9 @@
       },
       "IERC20Metadata": {
         "src": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol:13",
-        "inherit": [
-          "IERC20"
-        ],
+        "inherit": ["IERC20"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "decimals()"
-        ],
+        "methods": ["name()", "symbol()", "decimals()"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -195,10 +183,7 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Address",
-          "Strings"
-        ],
+        "libraries": ["Address", "Strings"],
         "methods": [
           "(string,string)",
           "supportsInterface(bytes4)",
@@ -306,9 +291,7 @@
       },
       "IERC721": {
         "src": "@openzeppelin/contracts/token/ERC721/IERC721.sol:11",
-        "inherit": [
-          "IERC165"
-        ],
+        "inherit": ["IERC165"],
         "libraries": [],
         "methods": [
           "balanceOf(address)",
@@ -334,9 +317,7 @@
         "src": "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol:11",
         "inherit": [],
         "libraries": [],
-        "methods": [
-          "onERC721Received(address,address,uint256,bytes)"
-        ],
+        "methods": ["onERC721Received(address,address,uint256,bytes)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -356,12 +337,8 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Strings"
-        ],
-        "methods": [
-          "tokenURI(uint256)"
-        ],
+        "libraries": ["Strings"],
+        "methods": ["tokenURI(uint256)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -458,16 +435,9 @@
       },
       "IERC721Metadata": {
         "src": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol:12",
-        "inherit": [
-          "IERC721",
-          "IERC165"
-        ],
+        "inherit": ["IERC721", "IERC165"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "tokenURI(uint256)"
-        ],
+        "methods": ["name()", "symbol()", "tokenURI(uint256)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -542,9 +512,7 @@
           "linkedWithoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff"
         },
         "inherit": [],
-        "libraries": [
-          "Math"
-        ],
+        "libraries": ["Math"],
         "methods": [],
         "linkReferences": [],
         "errors": [],
@@ -557,13 +525,9 @@
       },
       "ERC165": {
         "src": "@openzeppelin/contracts/utils/introspection/ERC165.sol:22",
-        "inherit": [
-          "IERC165"
-        ],
+        "inherit": ["IERC165"],
         "libraries": [],
-        "methods": [
-          "supportsInterface(bytes4)"
-        ],
+        "methods": ["supportsInterface(bytes4)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -577,9 +541,7 @@
         "src": "@openzeppelin/contracts/utils/introspection/IERC165.sol:15",
         "inherit": [],
         "libraries": [],
-        "methods": [
-          "supportsInterface(bytes4)"
-        ],
+        "methods": ["supportsInterface(bytes4)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -615,16 +577,9 @@
           "withoutMetadata": "a9a69437e6866787a759359881941fcbb5612287a36a1ea871af290f3086d1ab",
           "linkedWithoutMetadata": "a9a69437e6866787a759359881941fcbb5612287a36a1ea871af290f3086d1ab"
         },
-        "inherit": [
-          "ERC20",
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["ERC20", "IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
-        "methods": [
-          "(string,string,uint256)"
-        ],
+        "methods": ["(string,string,uint256)"],
         "linkReferences": [],
         "errors": [
           {
@@ -713,9 +668,7 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Counters"
-        ],
+        "libraries": ["Counters"],
         "methods": [
           "(string,string)",
           "mint(address,string)",
@@ -873,10 +826,7 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Address",
-          "Strings"
-        ],
+        "libraries": ["Address", "Strings"],
         "methods": [
           "(string,string)",
           "supportsInterface(bytes4)",
@@ -984,9 +934,7 @@
       },
       "IERC721": {
         "src": "@openzeppelin/contracts/token/ERC721/IERC721.sol:11",
-        "inherit": [
-          "IERC165"
-        ],
+        "inherit": ["IERC165"],
         "libraries": [],
         "methods": [
           "balanceOf(address)",
@@ -1012,9 +960,7 @@
         "src": "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol:11",
         "inherit": [],
         "libraries": [],
-        "methods": [
-          "onERC721Received(address,address,uint256,bytes)"
-        ],
+        "methods": ["onERC721Received(address,address,uint256,bytes)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -1034,12 +980,8 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Strings"
-        ],
-        "methods": [
-          "tokenURI(uint256)"
-        ],
+        "libraries": ["Strings"],
+        "methods": ["tokenURI(uint256)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -1136,16 +1078,9 @@
       },
       "IERC721Metadata": {
         "src": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol:12",
-        "inherit": [
-          "IERC721",
-          "IERC165"
-        ],
+        "inherit": ["IERC721", "IERC165"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "tokenURI(uint256)"
-        ],
+        "methods": ["name()", "symbol()", "tokenURI(uint256)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -1233,13 +1168,9 @@
       },
       "ERC165": {
         "src": "@openzeppelin/contracts/utils/introspection/ERC165.sol:22",
-        "inherit": [
-          "IERC165"
-        ],
+        "inherit": ["IERC165"],
         "libraries": [],
-        "methods": [
-          "supportsInterface(bytes4)"
-        ],
+        "methods": ["supportsInterface(bytes4)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -1253,9 +1184,7 @@
         "src": "@openzeppelin/contracts/utils/introspection/IERC165.sol:15",
         "inherit": [],
         "libraries": [],
-        "methods": [
-          "supportsInterface(bytes4)"
-        ],
+        "methods": ["supportsInterface(bytes4)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -1281,13 +1210,8 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Counters"
-        ],
-        "methods": [
-          "(string,string)",
-          "mint(address,string)"
-        ],
+        "libraries": ["Counters"],
+        "methods": ["(string,string)", "mint(address,string)"],
         "linkReferences": [],
         "errors": [
           {
@@ -1409,9 +1333,7 @@
     {
       "Ownable": {
         "src": "@openzeppelin/contracts/access/Ownable.sol:20",
-        "inherit": [
-          "Context"
-        ],
+        "inherit": ["Context"],
         "libraries": [],
         "methods": [
           "owner()",
@@ -1460,10 +1382,7 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Address",
-          "Strings"
-        ],
+        "libraries": ["Address", "Strings"],
         "methods": [
           "(string,string)",
           "supportsInterface(bytes4)",
@@ -1571,9 +1490,7 @@
       },
       "IERC721": {
         "src": "@openzeppelin/contracts/token/ERC721/IERC721.sol:11",
-        "inherit": [
-          "IERC165"
-        ],
+        "inherit": ["IERC165"],
         "libraries": [],
         "methods": [
           "balanceOf(address)",
@@ -1599,9 +1516,7 @@
         "src": "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol:11",
         "inherit": [],
         "libraries": [],
-        "methods": [
-          "onERC721Received(address,address,uint256,bytes)"
-        ],
+        "methods": ["onERC721Received(address,address,uint256,bytes)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -1621,12 +1536,8 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Strings"
-        ],
-        "methods": [
-          "tokenURI(uint256)"
-        ],
+        "libraries": ["Strings"],
+        "methods": ["tokenURI(uint256)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -1723,16 +1634,9 @@
       },
       "IERC721Metadata": {
         "src": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol:12",
-        "inherit": [
-          "IERC721",
-          "IERC165"
-        ],
+        "inherit": ["IERC721", "IERC165"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "tokenURI(uint256)"
-        ],
+        "methods": ["name()", "symbol()", "tokenURI(uint256)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -1820,13 +1724,9 @@
       },
       "ERC165": {
         "src": "@openzeppelin/contracts/utils/introspection/ERC165.sol:22",
-        "inherit": [
-          "IERC165"
-        ],
+        "inherit": ["IERC165"],
         "libraries": [],
-        "methods": [
-          "supportsInterface(bytes4)"
-        ],
+        "methods": ["supportsInterface(bytes4)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -1840,9 +1740,7 @@
         "src": "@openzeppelin/contracts/utils/introspection/IERC165.sol:15",
         "inherit": [],
         "libraries": [],
-        "methods": [
-          "supportsInterface(bytes4)"
-        ],
+        "methods": ["supportsInterface(bytes4)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -1869,13 +1767,8 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Counters"
-        ],
-        "methods": [
-          "(string,string)",
-          "mint(address,string)"
-        ],
+        "libraries": ["Counters"],
+        "methods": ["(string,string)", "mint(address,string)"],
         "linkReferences": [],
         "errors": [
           {
@@ -2005,9 +1898,7 @@
     {
       "Ownable": {
         "src": "@openzeppelin/contracts/access/Ownable.sol:20",
-        "inherit": [
-          "Context"
-        ],
+        "inherit": ["Context"],
         "libraries": [],
         "methods": [
           "owner()",
@@ -2056,10 +1947,7 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Address",
-          "Strings"
-        ],
+        "libraries": ["Address", "Strings"],
         "methods": [
           "(string,string)",
           "supportsInterface(bytes4)",
@@ -2167,9 +2055,7 @@
       },
       "IERC721": {
         "src": "@openzeppelin/contracts/token/ERC721/IERC721.sol:11",
-        "inherit": [
-          "IERC165"
-        ],
+        "inherit": ["IERC165"],
         "libraries": [],
         "methods": [
           "balanceOf(address)",
@@ -2195,9 +2081,7 @@
         "src": "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol:11",
         "inherit": [],
         "libraries": [],
-        "methods": [
-          "onERC721Received(address,address,uint256,bytes)"
-        ],
+        "methods": ["onERC721Received(address,address,uint256,bytes)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -2217,12 +2101,8 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Strings"
-        ],
-        "methods": [
-          "tokenURI(uint256)"
-        ],
+        "libraries": ["Strings"],
+        "methods": ["tokenURI(uint256)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -2319,16 +2199,9 @@
       },
       "IERC721Metadata": {
         "src": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol:12",
-        "inherit": [
-          "IERC721",
-          "IERC165"
-        ],
+        "inherit": ["IERC721", "IERC165"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "tokenURI(uint256)"
-        ],
+        "methods": ["name()", "symbol()", "tokenURI(uint256)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -2416,13 +2289,9 @@
       },
       "ERC165": {
         "src": "@openzeppelin/contracts/utils/introspection/ERC165.sol:22",
-        "inherit": [
-          "IERC165"
-        ],
+        "inherit": ["IERC165"],
         "libraries": [],
-        "methods": [
-          "supportsInterface(bytes4)"
-        ],
+        "methods": ["supportsInterface(bytes4)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -2436,9 +2305,7 @@
         "src": "@openzeppelin/contracts/utils/introspection/IERC165.sol:15",
         "inherit": [],
         "libraries": [],
-        "methods": [
-          "supportsInterface(bytes4)"
-        ],
+        "methods": ["supportsInterface(bytes4)"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -2465,13 +2332,8 @@
           "IERC165",
           "Context"
         ],
-        "libraries": [
-          "Counters"
-        ],
-        "methods": [
-          "(string,string)",
-          "mint(address,string)"
-        ],
+        "libraries": ["Counters"],
+        "methods": ["(string,string)", "mint(address,string)"],
         "linkReferences": [],
         "errors": [
           {
@@ -2601,9 +2463,7 @@
     {
       "Ownable": {
         "src": "@openzeppelin/contracts/access/Ownable.sol:20",
-        "inherit": [
-          "Context"
-        ],
+        "inherit": ["Context"],
         "libraries": [],
         "methods": [
           "owner()",
@@ -2645,11 +2505,7 @@
           "withoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448",
           "linkedWithoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448"
         },
-        "inherit": [
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
         "methods": [
           "(string,string)",
@@ -2760,15 +2616,9 @@
       },
       "IERC20Metadata": {
         "src": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol:13",
-        "inherit": [
-          "IERC20"
-        ],
+        "inherit": ["IERC20"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "decimals()"
-        ],
+        "methods": ["name()", "symbol()", "decimals()"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -2799,16 +2649,9 @@
           "withoutMetadata": "92337bdeb769a5485d6ae390f9b7b7f0ae1bea2f9a1158b4128bc1f75e50dc09",
           "linkedWithoutMetadata": "92337bdeb769a5485d6ae390f9b7b7f0ae1bea2f9a1158b4128bc1f75e50dc09"
         },
-        "inherit": [
-          "ERC20",
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["ERC20", "IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
-        "methods": [
-          "(string,string,uint256)"
-        ],
+        "methods": ["(string,string,uint256)"],
         "linkReferences": [],
         "errors": [
           {
@@ -2904,9 +2747,7 @@
     {
       "Ownable": {
         "src": "@openzeppelin/contracts/access/Ownable.sol:20",
-        "inherit": [
-          "Context"
-        ],
+        "inherit": ["Context"],
         "libraries": [],
         "methods": [
           "owner()",
@@ -2948,11 +2789,7 @@
           "withoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448",
           "linkedWithoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448"
         },
-        "inherit": [
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
         "methods": [
           "(string,string)",
@@ -3063,15 +2900,9 @@
       },
       "IERC20Metadata": {
         "src": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol:13",
-        "inherit": [
-          "IERC20"
-        ],
+        "inherit": ["IERC20"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "decimals()"
-        ],
+        "methods": ["name()", "symbol()", "decimals()"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -3102,11 +2933,7 @@
           "withoutMetadata": "36943198abd1e908b4f616a6fa007c41e2e856f05e3b51cee62e011af4e88d75",
           "linkedWithoutMetadata": "36943198abd1e908b4f616a6fa007c41e2e856f05e3b51cee62e011af4e88d75"
         },
-        "inherit": [
-          "Ownable",
-          "Context",
-          "Voting"
-        ],
+        "inherit": ["Ownable", "Context", "Voting"],
         "libraries": [],
         "methods": [
           "(address)",
@@ -3200,16 +3027,9 @@
           "withoutMetadata": "92337bdeb769a5485d6ae390f9b7b7f0ae1bea2f9a1158b4128bc1f75e50dc09",
           "linkedWithoutMetadata": "92337bdeb769a5485d6ae390f9b7b7f0ae1bea2f9a1158b4128bc1f75e50dc09"
         },
-        "inherit": [
-          "ERC20",
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["ERC20", "IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
-        "methods": [
-          "(string,string,uint256)"
-        ],
+        "methods": ["(string,string,uint256)"],
         "linkReferences": [],
         "errors": [
           {
@@ -3319,9 +3139,7 @@
     {
       "Ownable": {
         "src": "@openzeppelin/contracts/access/Ownable.sol:20",
-        "inherit": [
-          "Context"
-        ],
+        "inherit": ["Context"],
         "libraries": [],
         "methods": [
           "owner()",
@@ -3363,11 +3181,7 @@
           "withoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448",
           "linkedWithoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448"
         },
-        "inherit": [
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
         "methods": [
           "(string,string)",
@@ -3478,15 +3292,9 @@
       },
       "IERC20Metadata": {
         "src": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol:13",
-        "inherit": [
-          "IERC20"
-        ],
+        "inherit": ["IERC20"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "decimals()"
-        ],
+        "methods": ["name()", "symbol()", "decimals()"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -3517,11 +3325,7 @@
           "withoutMetadata": "2a1d7689cdb3204a6f08dfbcf9d97d5d2c3d5c39ad61c039187935e7fcd23712",
           "linkedWithoutMetadata": "2a1d7689cdb3204a6f08dfbcf9d97d5d2c3d5c39ad61c039187935e7fcd23712"
         },
-        "inherit": [
-          "Ownable",
-          "Context",
-          "Voting"
-        ],
+        "inherit": ["Ownable", "Context", "Voting"],
         "libraries": [],
         "methods": [
           "(address)",
@@ -3615,16 +3419,9 @@
           "withoutMetadata": "92337bdeb769a5485d6ae390f9b7b7f0ae1bea2f9a1158b4128bc1f75e50dc09",
           "linkedWithoutMetadata": "92337bdeb769a5485d6ae390f9b7b7f0ae1bea2f9a1158b4128bc1f75e50dc09"
         },
-        "inherit": [
-          "ERC20",
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["ERC20", "IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
-        "methods": [
-          "(string,string,uint256)"
-        ],
+        "methods": ["(string,string,uint256)"],
         "linkReferences": [],
         "errors": [
           {
@@ -3739,11 +3536,7 @@
           "withoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448",
           "linkedWithoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448"
         },
-        "inherit": [
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
         "methods": [
           "(string,string)",
@@ -3854,15 +3647,9 @@
       },
       "IERC20Metadata": {
         "src": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol:13",
-        "inherit": [
-          "IERC20"
-        ],
+        "inherit": ["IERC20"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "decimals()"
-        ],
+        "methods": ["name()", "symbol()", "decimals()"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -3893,9 +3680,7 @@
           "withoutMetadata": "e58c4cebb346f773aeb4153671692c6ff318b5e1904d875a1a971ef11de9fc24",
           "linkedWithoutMetadata": "e58c4cebb346f773aeb4153671692c6ff318b5e1904d875a1a971ef11de9fc24"
         },
-        "inherit": [
-          "Voting"
-        ],
+        "inherit": ["Voting"],
         "libraries": [],
         "methods": [
           "(address)",
@@ -3977,16 +3762,9 @@
           "withoutMetadata": "92337bdeb769a5485d6ae390f9b7b7f0ae1bea2f9a1158b4128bc1f75e50dc09",
           "linkedWithoutMetadata": "92337bdeb769a5485d6ae390f9b7b7f0ae1bea2f9a1158b4128bc1f75e50dc09"
         },
-        "inherit": [
-          "ERC20",
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["ERC20", "IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
-        "methods": [
-          "(string,string,uint256)"
-        ],
+        "methods": ["(string,string,uint256)"],
         "linkReferences": [],
         "errors": [
           {
@@ -4101,11 +3879,7 @@
           "withoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448",
           "linkedWithoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448"
         },
-        "inherit": [
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
         "methods": [
           "(string,string)",
@@ -4216,15 +3990,9 @@
       },
       "IERC20Metadata": {
         "src": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol:13",
-        "inherit": [
-          "IERC20"
-        ],
+        "inherit": ["IERC20"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "decimals()"
-        ],
+        "methods": ["name()", "symbol()", "decimals()"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -4255,9 +4023,7 @@
           "withoutMetadata": "8c0ad7ad30404ffd75b7829453a96576ae6d660a705b2ed270b44f2e9c26e347",
           "linkedWithoutMetadata": "8c0ad7ad30404ffd75b7829453a96576ae6d660a705b2ed270b44f2e9c26e347"
         },
-        "inherit": [
-          "Voting"
-        ],
+        "inherit": ["Voting"],
         "libraries": [],
         "methods": [
           "(address)",
@@ -4339,16 +4105,9 @@
           "withoutMetadata": "92337bdeb769a5485d6ae390f9b7b7f0ae1bea2f9a1158b4128bc1f75e50dc09",
           "linkedWithoutMetadata": "92337bdeb769a5485d6ae390f9b7b7f0ae1bea2f9a1158b4128bc1f75e50dc09"
         },
-        "inherit": [
-          "ERC20",
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["ERC20", "IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
-        "methods": [
-          "(string,string,uint256)"
-        ],
+        "methods": ["(string,string,uint256)"],
         "linkReferences": [],
         "errors": [
           {
@@ -4463,11 +4222,7 @@
           "withoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448",
           "linkedWithoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448"
         },
-        "inherit": [
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
         "methods": [
           "(string,string)",
@@ -4578,15 +4333,9 @@
       },
       "IERC20Metadata": {
         "src": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol:13",
-        "inherit": [
-          "IERC20"
-        ],
+        "inherit": ["IERC20"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "decimals()"
-        ],
+        "methods": ["name()", "symbol()", "decimals()"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -4617,12 +4366,8 @@
           "withoutMetadata": "55a1ef4eb6a19aaa26f4d1742e18c17667fe98b817fd4df7524842f55dcb9c1a",
           "linkedWithoutMetadata": "55a1ef4eb6a19aaa26f4d1742e18c17667fe98b817fd4df7524842f55dcb9c1a"
         },
-        "inherit": [
-          "Voting"
-        ],
-        "libraries": [
-          "console"
-        ],
+        "inherit": ["Voting"],
+        "libraries": ["console"],
         "methods": [
           "(address)",
           "createArticle()",
@@ -4704,18 +4449,9 @@
           "withoutMetadata": "7036807bbd317ae25d3d6d8a7756a8d194699aac25c685b6ad9174c5279f8871",
           "linkedWithoutMetadata": "7036807bbd317ae25d3d6d8a7756a8d194699aac25c685b6ad9174c5279f8871"
         },
-        "inherit": [
-          "ERC20",
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
-        "libraries": [
-          "console"
-        ],
-        "methods": [
-          "(string,string,uint256)"
-        ],
+        "inherit": ["ERC20", "IERC20Metadata", "IERC20", "Context"],
+        "libraries": ["console"],
+        "methods": ["(string,string,uint256)"],
         "linkReferences": [],
         "errors": [
           {
@@ -4830,11 +4566,7 @@
           "withoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448",
           "linkedWithoutMetadata": "7e7a4d2dea64835b308c8a359c3029d74988a4318ba8ef4240ab30513edfd448"
         },
-        "inherit": [
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
+        "inherit": ["IERC20Metadata", "IERC20", "Context"],
         "libraries": [],
         "methods": [
           "(string,string)",
@@ -4945,15 +4677,9 @@
       },
       "IERC20Metadata": {
         "src": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol:13",
-        "inherit": [
-          "IERC20"
-        ],
+        "inherit": ["IERC20"],
         "libraries": [],
-        "methods": [
-          "name()",
-          "symbol()",
-          "decimals()"
-        ],
+        "methods": ["name()", "symbol()", "decimals()"],
         "linkReferences": [],
         "errors": [],
         "layout": {
@@ -4984,12 +4710,8 @@
           "withoutMetadata": "754f565f0371ca26ca3f29fc80810bb99106bc9e45b0c1ff0d5e57b8b34a0283",
           "linkedWithoutMetadata": "754f565f0371ca26ca3f29fc80810bb99106bc9e45b0c1ff0d5e57b8b34a0283"
         },
-        "inherit": [
-          "Voting"
-        ],
-        "libraries": [
-          "console"
-        ],
+        "inherit": ["Voting"],
+        "libraries": ["console"],
         "methods": [
           "(address)",
           "createArticle()",
@@ -5070,18 +4792,9 @@
           "withoutMetadata": "7036807bbd317ae25d3d6d8a7756a8d194699aac25c685b6ad9174c5279f8871",
           "linkedWithoutMetadata": "7036807bbd317ae25d3d6d8a7756a8d194699aac25c685b6ad9174c5279f8871"
         },
-        "inherit": [
-          "ERC20",
-          "IERC20Metadata",
-          "IERC20",
-          "Context"
-        ],
-        "libraries": [
-          "console"
-        ],
-        "methods": [
-          "(string,string,uint256)"
-        ],
+        "inherit": ["ERC20", "IERC20Metadata", "IERC20", "Context"],
+        "libraries": ["console"],
+        "methods": ["(string,string,uint256)"],
         "linkReferences": [],
         "errors": [
           {

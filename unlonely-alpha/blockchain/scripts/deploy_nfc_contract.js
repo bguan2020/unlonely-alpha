@@ -1,6 +1,5 @@
 const hre = require("hardhat");
 
-
 async function main() {
   // We get the contract to deploy
   const Nfc = await hre.ethers.getContractFactory("UnlonelyNFCsV2");

@@ -21,6 +21,8 @@ export type ChatBot = {
 const juansPlaybackUrl =
   "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.J11mNb7pYY3d.m3u8";
 
+const channelArn = "arn:aws:ivs:us-west-2:500434899882:channel/J11mNb7pYY3d";
+
 const ablyChatChannel = "juans-channel";
 const ablyPresenceChannel = "juans-presence-channel";
 
@@ -108,6 +110,7 @@ const Example: React.FunctionComponent = () => {
               user={user}
               ablyChatChannel={ablyChatChannel}
               ablyPresenceChannel={ablyPresenceChannel}
+              channelArn={channelArn}
             />
           </Container>
         </Stack>

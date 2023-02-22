@@ -9,8 +9,8 @@ type Props = {
 };
 
 const CREATE_CLIP = gql`
-  mutation Mutation {
-    createClip {
+  mutation CreateClip($data: CreateClipInput!) {
+    createClip(data: $data) {
       url
       thumbnail
       errorMessage
@@ -21,21 +21,30 @@ const CREATE_CLIP = gql`
 const useCreateClip = ({ onError }: Props) => {
   const [mutate] = useAuthedMutation<any, any>(CREATE_CLIP);
 
-  const createClip = useCallback(async () => {
-    const mutationResult = await mutate();
+  const createClip = useCallback(
+    async (data) => {
+      const mutationResult = await mutate({
+        variables: {
+          data: {
+            channelArn: data.channelArn,
+          },
+        },
+      });
 
-    const res = mutationResult?.data?.createClip;
-    /* eslint-disable no-console */
-    if (res) {
-      console.log("success");
-    } else {
-      onError && onError();
-    }
+      const res = mutationResult?.data?.createClip;
+      /* eslint-disable no-console */
+      if (res) {
+        console.log("success");
+      } else {
+        onError && onError();
+      }
 
-    return {
-      res,
-    };
-  }, [mutate, onError]);
+      return {
+        res,
+      };
+    },
+    [mutate, onError]
+  );
 
   return { createClip };
 };
