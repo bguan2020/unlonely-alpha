@@ -59,6 +59,7 @@
         "foregroundImage": "./assets/adaptive-icon-top.png",
         "backgroundImage": "./assets/adaptive-icon-bottom.png"
       }
-    }
+    },
+    "owner": "pugson"
   }
 }
