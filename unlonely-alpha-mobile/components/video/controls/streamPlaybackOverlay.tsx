@@ -3,18 +3,20 @@ import { MotiView } from 'moti';
 import { StyleSheet, Text, View } from 'react-native';
 import { fadeInScale } from '../../../utils/animations';
 import { AnimatedPressable } from '../../buttons/animatedPressable';
-import { UnlonelyTopGradient } from '../../nav/topGradient';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export function StreamPlaybackOverlay({
   play,
   pause,
   playing,
   latency,
+  togglePip,
 }: {
   play: () => void;
   pause: () => void;
   playing: boolean;
   latency: number;
+  togglePip: () => void;
 }) {
   const latencySeconds = latency / 1000;
   const formattedLatency = latencySeconds.toFixed(1);
@@ -42,6 +44,22 @@ export function StreamPlaybackOverlay({
           <Text style={styles.videoOverlayLiveText}>LIVE NOW</Text>
         </View>
       )}
+      <View
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: 0,
+        }}
+      >
+        <AnimatedPressable
+          onPress={togglePip}
+          style={{
+            padding: 24,
+          }}
+        >
+          <MaterialIcons name="picture-in-picture-alt" size={24} color="white" />
+        </AnimatedPressable>
+      </View>
     </>
   );
 }

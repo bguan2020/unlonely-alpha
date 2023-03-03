@@ -26,6 +26,7 @@ const funnyName = [
   'dan romero on his iPad',
   'ivy’s clubhouse nemesis',
   'one of the fake vitaliks',
+  'ETH Denver Ping-Pong Champion',
   'purple member',
   'blobs',
   'narc andreessen',
@@ -77,8 +78,6 @@ export function Chat() {
     setChatEnabled(true);
   };
 
-  const reloadStream = () => {};
-
   const handleConnection = () => {
     if (userData?.address || connectedWallet?.address) {
       reloadChat();
@@ -121,7 +120,6 @@ export function Chat() {
       <Presence
         data={onlineUsers}
         reloadChat={reloadChat}
-        reloadStream={reloadStream}
         openPresenceSheet={() => {
           Keyboard.dismiss();
           bottomSheetRef.current?.expand();

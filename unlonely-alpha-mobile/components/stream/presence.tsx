@@ -2,13 +2,20 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { MotiView } from 'moti';
 import { View, Platform, Image, StyleSheet, Keyboard } from 'react-native';
 import { useHaptics } from '../../utils/haptics';
+import { useLiveSettingsStore } from '../../utils/store/liveSettingsStore';
 import { BlurLayer } from '../blur/blurLayer';
 import { AnimatedMenuView } from '../buttons/animatedMenuView';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 
 const AVATAR_SIZE = 32;
 
-export function Presence({ data, reloadChat, reloadStream, openPresenceSheet }) {
+export function Presence({ data, reloadChat, openPresenceSheet }) {
+  const { updateStreamPlayerKey, toggleChatExpand, isChatExpanded } = useLiveSettingsStore(z => ({
+    isChatExpanded: z.isChatExpanded,
+    toggleChatExpand: z.toggleChatExpand,
+    updateStreamPlayerKey: z.updateStreamPlayerKey,
+  }));
+
   return (
     <>
       <View
@@ -31,31 +38,43 @@ export function Presence({ data, reloadChat, reloadStream, openPresenceSheet }) 
             useHaptics('light');
             Keyboard.dismiss();
 
+            if (nativeEvent.event === 'expand-chat') {
+              toggleChatExpand();
+            }
+
             if (nativeEvent.event === 'reload-chat') {
               reloadChat();
             }
 
             if (nativeEvent.event === 'reload-stream') {
-              reloadStream();
+              updateStreamPlayerKey();
             }
           }}
           actions={[
+            {
+              title: isChatExpanded ? 'expand video player' : 'expand chat',
+              id: 'expand-chat',
+              image: Platform.select({
+                ios: isChatExpanded ? 'rectangle.compress.vertical' : 'rectangle.expand.vertical',
+                android: 'expand', // TODO: replace with a better icon
+              }),
+            },
             {
               title: 'reload chat',
               id: 'reload-chat',
               image: Platform.select({
                 ios: 'arrow.triangle.2.circlepath',
-                android: 'temp_preferences_custom', // TODO: replace with a better icon
+                android: 'sync_problem', // TODO: replace with a better icon
               }),
             },
-            // {
-            //   title: 'reload stream player',
-            //   id: 'reload-stream',
-            //   image: Platform.select({
-            //     ios: 'arrow.triangle.2.circlepath',
-            //     android: 'temp_preferences_custom',
-            //   }),
-            // },
+            {
+              title: 'reload stream player',
+              id: 'reload-stream',
+              image: Platform.select({
+                ios: 'arrow.triangle.2.circlepath',
+                android: 'sync_problem',
+              }),
+            },
           ]}
         >
           <View

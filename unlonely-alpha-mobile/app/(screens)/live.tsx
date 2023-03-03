@@ -6,6 +6,8 @@ import { useUpcomingSchedule } from '../../api/queries/useUpcomingSchedule';
 import { Chat } from '../../components/stream/chat';
 import { NextStreamBanner } from '../../components/stream/nextStreamBanner';
 import { StreamPlayer } from '../../components/video/streamPlayer';
+import { MotiView } from 'moti';
+import { useLiveSettingsStore } from '../../utils/store/liveSettingsStore';
 
 export default function LiveScreen() {
   const { data } = useUpcomingSchedule({
@@ -45,6 +47,9 @@ export default function LiveScreen() {
   //   },
   // ];
   const [showBanner, setShowBanner] = useState(false);
+  const { isChatExpanded } = useLiveSettingsStore(z => ({
+    isChatExpanded: z.isChatExpanded,
+  }));
 
   useEffect(() => {
     if (schedule && schedule[0]?.hostDate) {
@@ -55,7 +60,18 @@ export default function LiveScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StreamPlayer />
+      <MotiView
+        animate={{
+          marginTop: isChatExpanded ? -190 : 0,
+        }}
+        transition={{
+          type: 'spring',
+          damping: 20,
+          stiffness: 180,
+        }}
+      >
+        <StreamPlayer />
+      </MotiView>
       {showBanner && <NextStreamBanner hostDate={schedule[0]?.hostDate} />}
       <Chat />
       <View

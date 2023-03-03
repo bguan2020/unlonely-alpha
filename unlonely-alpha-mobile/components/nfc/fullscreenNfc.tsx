@@ -326,7 +326,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
             style={{
               flex: 1,
               justifyContent: 'flex-end',
-              paddingBottom: 100,
+              paddingBottom: 82,
             }}
           >
             <View
