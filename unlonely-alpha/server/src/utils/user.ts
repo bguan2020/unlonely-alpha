@@ -12,6 +12,7 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
     },
   });
   console.log("finding unique user", user);
+  console.log("address", address);
 
   if (!user) {
     console.log("!user", !user);
