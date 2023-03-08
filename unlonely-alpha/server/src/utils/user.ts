@@ -11,8 +11,10 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
       address: address,
     },
   });
+  console.log("finding unique user", user);
 
   if (!user) {
+    console.log("!user", !user);
     try {
       const username = await getEnsName(address);
 
