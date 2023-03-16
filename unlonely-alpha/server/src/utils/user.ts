@@ -25,6 +25,7 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
           ethereumAddress: address,
         },
       });
+      console.log(data, "lens data");
 
       if (data && data.defaultProfile) {
         user = await prisma.user.create({
@@ -37,6 +38,13 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
                 ? null
                 : data.defaultProfile.picture.original.url,
             isLensUser: true,
+          },
+        });
+      } else {
+        user = await prisma.user.create({
+          data: {
+            address: address,
+            username: username,
           },
         });
       }
