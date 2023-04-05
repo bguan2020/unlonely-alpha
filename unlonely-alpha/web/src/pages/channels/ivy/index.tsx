@@ -124,7 +124,7 @@ const Example: React.FunctionComponent = () => {
             pr="32px"
           >
             <Text fontSize="2rem" fontWeight="bold">
-              UnFashioned with Les
+              Ivy's Kinky Room
             </Text>
           </Flex>
           <Flex direction="row" width="100%" margin="auto" ml="32px">

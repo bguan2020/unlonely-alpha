@@ -124,7 +124,7 @@ const Example: React.FunctionComponent = () => {
             pr="32px"
           >
             <Text fontSize="2rem" fontWeight="bold">
-              UnFashioned with Les
+              The Seam Channel
             </Text>
           </Flex>
           <Flex direction="row" width="100%" margin="auto" ml="32px">
