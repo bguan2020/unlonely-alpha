@@ -74,6 +74,25 @@ export type Scalars = {
   Void: any;
 };
 
+export type Channel = {
+  __typename?: "Channel";
+  awsId: Scalars["String"];
+  channelArn?: Maybe<Scalars["String"]>;
+  createdAt: Scalars["DateTime"];
+  description?: Maybe<Scalars["String"]>;
+  id: Scalars["ID"];
+  name?: Maybe<Scalars["String"]>;
+  owner: User;
+  playbackUrl?: Maybe<Scalars["String"]>;
+  updatedAt: Scalars["DateTime"];
+};
+
+export type ChannelFeedInput = {
+  limit?: InputMaybe<Scalars["Int"]>;
+  offset?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<SortBy>;
+};
+
 export type Chat = {
   __typename?: "Chat";
   createdAt: Scalars["DateTime"];
@@ -169,6 +188,7 @@ export type Mutation = {
   postVideo?: Maybe<Video>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
+  updateChannelText?: Maybe<Channel>;
   updateUserNotifications?: Maybe<User>;
 };
 
@@ -210,6 +230,10 @@ export type MutationSoftDeleteTaskArgs = {
 
 export type MutationSoftDeleteVideoArgs = {
   id: Scalars["ID"];
+};
+
+export type MutationUpdateChannelTextArgs = {
+  data: UpdateChannelTextInput;
 };
 
 export type MutationUpdateUserNotificationsArgs = {
@@ -295,6 +319,9 @@ export type Query = {
   currentUserAuthMessage?: Maybe<Scalars["String"]>;
   firstChatExists?: Maybe<Scalars["Boolean"]>;
   getAllUsers?: Maybe<Array<Maybe<User>>>;
+  getChannelById?: Maybe<Channel>;
+  getChannelBySlug?: Maybe<Channel>;
+  getChannelFeed?: Maybe<Array<Maybe<Channel>>>;
   getHostEventFeed?: Maybe<Array<Maybe<HostEvent>>>;
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
   getNFC?: Maybe<Nfc>;
@@ -306,6 +333,18 @@ export type Query = {
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
   updateAllUsers?: Maybe<Array<Maybe<User>>>;
+};
+
+export type QueryGetChannelByIdArgs = {
+  id: Scalars["ID"];
+};
+
+export type QueryGetChannelBySlugArgs = {
+  slug: Scalars["String"];
+};
+
+export type QueryGetChannelFeedArgs = {
+  data?: InputMaybe<ChannelFeedInput>;
 };
 
 export type QueryGetHostEventFeedArgs = {
@@ -380,6 +419,12 @@ export type TaskFeedInput = {
   orderBy?: InputMaybe<SortOrder>;
   searchString?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;
+};
+
+export type UpdateChannelTextInput = {
+  description: Scalars["String"];
+  id: Scalars["ID"];
+  name: Scalars["String"];
 };
 
 export type UpdateUserNotificationsInput = {
@@ -670,6 +715,29 @@ export type VideoFeed1808Query = {
     skipped?: boolean | null;
     owner: { __typename?: "User"; username?: string | null; address: string };
   } | null> | null;
+};
+
+export type ChannelDetailQueryVariables = Exact<{
+  slug: Scalars["String"];
+}>;
+
+export type ChannelDetailQuery = {
+  __typename?: "Query";
+  getChannelBySlug?: {
+    __typename?: "Channel";
+    awsId: string;
+    channelArn?: string | null;
+    description?: string | null;
+    id: string;
+    name?: string | null;
+    playbackUrl?: string | null;
+    owner: {
+      __typename?: "User";
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+      username?: string | null;
+    };
+  } | null;
 };
 
 export type HostEventFeedQueryVariables = Exact<{
@@ -1524,6 +1592,74 @@ export type VideoFeed1808LazyQueryHookResult = ReturnType<
 export type VideoFeed1808QueryResult = Apollo.QueryResult<
   VideoFeed1808Query,
   VideoFeed1808QueryVariables
+>;
+export const ChannelDetailDocument = gql`
+  query ChannelDetail($slug: String!) {
+    getChannelBySlug(slug: $slug) {
+      awsId
+      channelArn
+      description
+      id
+      name
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+      }
+      playbackUrl
+    }
+  }
+`;
+
+/**
+ * __useChannelDetailQuery__
+ *
+ * To run a query within a React component, call `useChannelDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChannelDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChannelDetailQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useChannelDetailQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ChannelDetailQuery,
+    ChannelDetailQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
+    ChannelDetailDocument,
+    options
+  );
+}
+export function useChannelDetailLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ChannelDetailQuery,
+    ChannelDetailQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
+    ChannelDetailDocument,
+    options
+  );
+}
+export type ChannelDetailQueryHookResult = ReturnType<
+  typeof useChannelDetailQuery
+>;
+export type ChannelDetailLazyQueryHookResult = ReturnType<
+  typeof useChannelDetailLazyQuery
+>;
+export type ChannelDetailQueryResult = Apollo.QueryResult<
+  ChannelDetailQuery,
+  ChannelDetailQueryVariables
 >;
 export const HostEventFeedDocument = gql`
   query HostEventFeed($data: HostEventFeedInput!) {
