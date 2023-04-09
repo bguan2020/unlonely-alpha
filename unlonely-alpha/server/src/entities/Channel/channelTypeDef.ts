@@ -8,7 +8,10 @@ export const typeDef = gql`
     name: String
     description: String
     playbackUrl: String
+    isLive: Boolean
+    thumbnailUrl: String
     owner: User!
+    slug: String!
     createdAt: DateTime!
     updatedAt: DateTime!
   }

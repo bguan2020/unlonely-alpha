@@ -81,9 +81,12 @@ export type Channel = {
   createdAt: Scalars["DateTime"];
   description?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
+  isLive?: Maybe<Scalars["Boolean"]>;
   name?: Maybe<Scalars["String"]>;
   owner: User;
   playbackUrl?: Maybe<Scalars["String"]>;
+  slug: Scalars["String"];
+  thumbnailUrl?: Maybe<Scalars["String"]>;
   updatedAt: Scalars["DateTime"];
 };
 
@@ -730,6 +733,7 @@ export type ChannelDetailQuery = {
     description?: string | null;
     id: string;
     name?: string | null;
+    slug: string;
     playbackUrl?: string | null;
     owner: {
       __typename?: "User";
@@ -1601,6 +1605,7 @@ export const ChannelDetailDocument = gql`
       description
       id
       name
+      slug
       owner {
         FCImageUrl
         lensImageUrl

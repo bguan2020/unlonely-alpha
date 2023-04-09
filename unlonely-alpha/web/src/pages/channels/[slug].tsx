@@ -36,6 +36,7 @@ const CHANNEL_DETAIL_QUERY = gql`
       description
       id
       name
+      slug
       owner {
         FCImageUrl
         lensImageUrl
@@ -200,7 +201,7 @@ export async function getServerSideProps(
 
   const apolloClient = initializeApollo(null, context.req.cookies, true);
 
-  const { data } = await apolloClient.query({
+  const { data, error } = await apolloClient.query({
     query: CHANNEL_DETAIL_QUERY,
     variables: { slug },
   });
