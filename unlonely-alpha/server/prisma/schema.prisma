@@ -44,6 +44,7 @@ model User {
   host HostEvent[]
   NFCs NFC[]
   streamInteractions StreamInteraction[]
+  channel Channel[]
 }
 
 model Video {
@@ -188,6 +189,23 @@ model StreamInteraction {
   id           Int     @id @default(autoincrement())
 
   interactionType String
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Channel {
+  id           Int     @id @default(autoincrement())
+  awsId String
+  channelArn String
+
+  name String
+  description String
+  playbackUrl String
+  slug String @unique
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
