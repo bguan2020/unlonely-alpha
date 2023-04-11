@@ -39,7 +39,11 @@ export const getChannelFeed = async (
   const allChannels: Channel[] = await ctx.prisma.channel.findMany();
 
   // aws-sdk to find out whos currently live
-  AWS.config.update({ region: "us-west-2" });
+  AWS.config.update({ 
+    region: "us-west-2",
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  });
   const ivs = new AWS.IVS();
   try {
     const liveStreams = await ivs.listStreams().promise();
