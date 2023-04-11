@@ -84,9 +84,7 @@ export const getChannelFeed = async (
     await Promise.all(
       sortedChannels.map(async (channel) => {
         if (liveChannelArns.includes(channel.channelArn)) {
-          channel.thumbnailUrl = await getThumbnailUrl(
-            channel.channelArn
-          );
+          channel.thumbnailUrl = await getThumbnailUrl(channel.channelArn);
         }
       })
     );
@@ -133,7 +131,7 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
   const params: Lambda.Types.InvocationRequest = {
     FunctionName: "getChannelThumbnail",
     Payload: JSON.stringify({
-      "detail": {
+      detail: {
         "channel-arn": channelArn,
         "recording-config-arn": recordingConfigArn,
       },

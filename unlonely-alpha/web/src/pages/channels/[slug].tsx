@@ -165,6 +165,7 @@ const ChannelDetail = ({
                 ablyChatChannel={ablyChatChannel}
                 ablyPresenceChannel={ablyPresenceChannel}
                 channelArn={channel.channelArn ? channel.channelArn : ""}
+                channelId={channel.id ? Number(channel.id) : 3}
               />
             </Container>
           </Stack>

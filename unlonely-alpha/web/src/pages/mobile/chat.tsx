@@ -154,7 +154,10 @@ export default function Chat() {
       if (!user.signature) {
         // postFirstChat comes before channel.publish b/c it will set the signature
         // subsequent chats do not need to call postFirstChat first
-        await postFirstChat({ text: messageText }, { isFirst: true });
+        await postFirstChat(
+          { text: messageText, channelId: 3 },
+          { isFirst: true }
+        );
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         channel.publish({
@@ -199,7 +202,10 @@ export default function Chat() {
         // postFirstChat comes after to speed up chat
         // wait a few seconds before postFirstChat
         setTimeout(async function () {
-          await postFirstChat({ text: messageText }, { isFirst: false });
+          await postFirstChat(
+            { text: messageText, channelId: 3 },
+            { isFirst: false }
+          );
         }, 5000);
       }
     } else {

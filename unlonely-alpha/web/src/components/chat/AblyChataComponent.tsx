@@ -28,6 +28,7 @@ type Props = {
   ablyChatChannel?: string;
   ablyPresenceChannel?: string;
   channelArn: string;
+  channelId: number;
 };
 
 const GET_POAP_QUERY = gql`
@@ -63,6 +64,7 @@ const AblyChatComponent = ({
   ablyChatChannel,
   ablyPresenceChannel,
   channelArn,
+  channelId,
 }: Props) => {
   const { user } = useUser();
   const { address } = useAccount();
@@ -177,7 +179,10 @@ const AblyChatComponent = ({
       if (!user.signature) {
         // postFirstChat comes before channel.publish b/c it will set the signature
         // subsequent chats do not need to call postFirstChat first
-        await postFirstChat({ text: messageText }, { isFirst: true });
+        await postFirstChat(
+          { text: messageText, channelId: channelId },
+          { isFirst: true }
+        );
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         channel.publish({
@@ -222,7 +227,10 @@ const AblyChatComponent = ({
         // postFirstChat comes after to speed up chat
         // wait a few seconds before postFirstChat
         setTimeout(async function () {
-          await postFirstChat({ text: messageText }, { isFirst: false });
+          await postFirstChat(
+            { text: messageText, channelId: channelId },
+            { isFirst: false }
+          );
         }, 5000);
       }
     } else {

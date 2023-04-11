@@ -109,6 +109,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             chatBot={chatBot}
             user={user}
             channelArn="arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq"
+            channelId={3}
           />
         </GridItem>
         <GridItem rowSpan={3} colSpan={1}></GridItem>

@@ -14,6 +14,13 @@ export const resolvers = {
     // chatBot(_: any, _args: any, ctx: Context) {
     //   return chatService.chatbot(ctx);
     // },
+    getRecentChats: (
+      _: any,
+      { data }: { data: chatService.IGetChatInput },
+      ctx: Context
+    ) => {
+      return chatService.getRecentChats(data, ctx);
+    },
   },
   Mutation: {
     postFirstChat: (

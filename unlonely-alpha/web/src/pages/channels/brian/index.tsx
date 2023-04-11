@@ -117,6 +117,7 @@ const Example: React.FunctionComponent = () => {
             chatBot={chatBot}
             user={user}
             channelArn={channelArn}
+            channelId={3}
           />
         </Container>
       </Stack>
