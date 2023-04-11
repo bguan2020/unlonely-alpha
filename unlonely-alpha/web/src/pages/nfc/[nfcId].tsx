@@ -94,7 +94,7 @@ const NfcDetail = ({
       <AppLayout
         title={nfc?.title}
         image={nfc?.videoThumbnail}
-        isCustomHeader={false}
+        isCustomHeader={true}
       >
         <Flex justifyContent="center" mt="5rem" direction="column">
           {!nfc ? (

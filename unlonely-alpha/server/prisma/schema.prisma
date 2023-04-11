@@ -132,6 +132,8 @@ model Chat {
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
+  channelId Int @default(3)
+  channel   Channel  @relation(fields: [channelId], references: [id])
 }
 
 model Poap {
@@ -206,10 +208,13 @@ model Channel {
   description String
   playbackUrl String
   slug String @unique
+  isLive Boolean @default(false)
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  chats Chat[]
 }

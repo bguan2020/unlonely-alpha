@@ -81,9 +81,12 @@ export type Channel = {
   createdAt: Scalars["DateTime"];
   description?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
+  isLive?: Maybe<Scalars["Boolean"]>;
   name?: Maybe<Scalars["String"]>;
   owner: User;
   playbackUrl?: Maybe<Scalars["String"]>;
+  slug: Scalars["String"];
+  thumbnailUrl?: Maybe<Scalars["String"]>;
   updatedAt: Scalars["DateTime"];
 };
 
@@ -95,6 +98,7 @@ export type ChannelFeedInput = {
 
 export type Chat = {
   __typename?: "Chat";
+  channel: Channel;
   createdAt: Scalars["DateTime"];
   id: Scalars["ID"];
   owner: User;
@@ -114,7 +118,8 @@ export type CreateClipInput = {
 };
 
 export type GetChatInput = {
-  address?: InputMaybe<Scalars["String"]>;
+  channelId: Scalars["Int"];
+  limit: Scalars["Int"];
 };
 
 export type GetPoapInput = {
@@ -280,6 +285,7 @@ export type PostChallengeInput = {
 };
 
 export type PostChatInput = {
+  channelId: Scalars["Int"];
   text: Scalars["String"];
 };
 
@@ -328,6 +334,7 @@ export type Query = {
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
   getNextHostEvent?: Maybe<HostEvent>;
   getPoap?: Maybe<Poap>;
+  getRecentChats?: Maybe<Array<Maybe<Chat>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getUser?: Maybe<User>;
   getVideo?: Maybe<Video>;
@@ -361,6 +368,10 @@ export type QueryGetNfcFeedArgs = {
 
 export type QueryGetPoapArgs = {
   data?: InputMaybe<GetPoapInput>;
+};
+
+export type QueryGetRecentChatsArgs = {
+  data: GetChatInput;
 };
 
 export type QueryGetTaskFeedArgs = {
@@ -730,6 +741,7 @@ export type ChannelDetailQuery = {
     description?: string | null;
     id: string;
     name?: string | null;
+    slug: string;
     playbackUrl?: string | null;
     owner: {
       __typename?: "User";
@@ -1601,6 +1613,7 @@ export const ChannelDetailDocument = gql`
       description
       id
       name
+      slug
       owner {
         FCImageUrl
         lensImageUrl

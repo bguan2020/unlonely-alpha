@@ -5,6 +5,7 @@ import { Context } from "../../context";
 import verifyCast from "../../utils/farcaster/verifyCast";
 
 export interface IPostChatInput {
+  channelId: number;
   text: string;
 }
 
@@ -19,7 +20,27 @@ export const postFirstChat = (
       owner: {
         connect: { address: user.address },
       },
+      channel: {
+        connect: { id: data.channelId },
+      },
     },
+  });
+};
+
+export interface IGetChatInput {
+  channelId: number;
+  limit: number;
+}
+
+export const getRecentChats = async (data: IGetChatInput, ctx: Context) => {
+  return ctx.prisma.chat.findMany({
+    where: {
+      channelId: data.channelId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: data.limit,
   });
 };
 
