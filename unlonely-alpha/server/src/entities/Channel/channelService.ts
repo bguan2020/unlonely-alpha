@@ -126,7 +126,11 @@ interface ThumbnailEvent {
 const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
   const recordingConfigArn =
     "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
-  const lambda = new Lambda({ region: "us-west-2" });
+  const lambda = new Lambda({ 
+    region: "us-west-2", 
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, 
+  });
 
   const params: Lambda.Types.InvocationRequest = {
     FunctionName: "getChannelThumbnail",
