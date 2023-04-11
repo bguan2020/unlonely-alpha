@@ -126,9 +126,9 @@ export default function Page() {
                 width="100%"
                 height={{
                   base: "14rem",
-                  sm: "18rem",
-                  md: "18rem",
-                  lg: "18rem",
+                  sm: "19rem",
+                  md: "19rem",
+                  lg: "19rem",
                 }}
               >
                 <NfcList nfcs={nfcs} />
