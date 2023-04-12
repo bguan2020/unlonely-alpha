@@ -6,37 +6,28 @@ import HostEventList from "../components/hostEvents/HostEventList";
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
+import ChannelList from "../components/channels/ChannelList";
+import LiveChannelList from "../components/channels/LiveChannelList";
 
-const HOSTEVENT_FEED_QUERY = gql`
-  query HostEventFeed($data: HostEventFeedInput!) {
-    getHostEventFeed(data: $data) {
+const CHANNEL_FEED_QUERY = gql`
+  query GetChannelFeed {
+    getChannelFeed {
       id
-      hostDate
-      title
+      isLive
+      name
       description
-      score
+      slug
       owner {
         username
+        address
         FCImageUrl
+        lensImageUrl
       }
-      liked
-      disliked
-      challenge {
-        id
-        hostDate
-        title
-        description
-        score
-        owner {
-          username
-          FCImageUrl
-        }
-        liked
-        disliked
-      }
+      thumbnailUrl
     }
   }
 `;
+
 
 const NFC_FEED_QUERY = gql`
   query NFCFeed($data: NFCFeedInput!) {
@@ -61,10 +52,10 @@ const NFC_FEED_QUERY = gql`
 `;
 
 export default function Page() {
-  const { data, loading, error } = useQuery(HOSTEVENT_FEED_QUERY, {
+  const { data, loading, error } = useQuery(CHANNEL_FEED_QUERY, {
     variables: {
       data: {
-        limit: 9,
+        limit: 10,
         orderBy: null,
       },
     },
@@ -83,7 +74,7 @@ export default function Page() {
     },
   });
 
-  const hostEvents = data?.getHostEventFeed;
+  const channels = data?.getChannelFeed;
   const nfcs = dataNFCs?.getNFCFeed;
 
   return (
@@ -94,6 +85,23 @@ export default function Page() {
           maxW="80%"
           flexDirection="column"
         >
+          {!channels || loading ? (
+            <Flex
+              direction="row"
+              overflowX="scroll"
+              overflowY="clip"
+              width="100%"
+              height="18rem"
+            >
+              {[1, 2, 3, 4, 5].map((i) => (
+                <NfcCardSkeleton />
+              ))}
+            </Flex>
+          ) : (
+            <>
+              <LiveChannelList channels={channels} />
+            </>
+          )}
           <Flex w="100%" justifyContent="center">
             <Text
               color="black"
@@ -135,55 +143,31 @@ export default function Page() {
               </Flex>
             </>
           )}
-          <Flex w="100%" justifyContent="center" mt="10px" mb="20px">
-            <SimpleGrid columns={[1]} spacing="40px">
-              <Flex w="100%" justifyContent="center">
-                <Button
-                  variantColor="white"
-                  bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
-                  variant="outline"
-                  size="lg"
-                  minW="50%"
-                  h="50px"
-                  borderRadius="20px"
-                  mt="10px"
-                  mb="10px"
-                  pr="10px"
-                  pl="10px"
-                  color="white"
-                  _hover={{ bg: "white", color: "black" }}
-                  onClick={() => {
-                    window.location.href = "/channels/brian";
-                  }}
-                >
-                  Join Now!
-                </Button>
-              </Flex>
-            </SimpleGrid>
-          </Flex>
-          {!hostEvents || loading ? (
-            <Flex
-              width="100%"
-              justifyContent="center"
-              alignItems="center"
-              direction="column"
+          <Flex w="100%" justifyContent="center" mt="3rem">
+            <Text
+              color="black"
+              fontSize={{ base: "20px", md: "30px", lg: "40px" }}
+              lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
+              fontWeight="bold"
+              textAlign="left"
             >
-              {[1, 2, 3, 4, 5].map((i) => (
-                <HostEventCardSkeleton />
-              ))}
-            </Flex>
-          ) : (
-            <>
-              <Flex
+              All Unlonely Channels
+            </Text>
+          </Flex>
+          <Flex
+                direction="row"
+                overflowX="scroll"
+                overflowY="clip"
                 width="100%"
-                justifyContent="center"
-                alignItems="center"
-                direction="column"
+                height={{
+                  base: "14rem",
+                  sm: "19rem",
+                  md: "19rem",
+                  lg: "19rem",
+                }}
               >
-                <HostEventList hostEvents={hostEvents} />
+                <ChannelList channels={channels} />
               </Flex>
-            </>
-          )}
         </Flex>
       </Flex>
     </AppLayout>

@@ -36,6 +36,7 @@ export const getChannelFeed = async (
   data: IGetChannelFeedInput,
   ctx: Context
 ) => {
+  console.log("hit this")
   const allChannels: Channel[] = await ctx.prisma.channel.findMany();
 
   // aws-sdk to find out whos currently live
@@ -47,8 +48,17 @@ export const getChannelFeed = async (
   const ivs = new AWS.IVS();
   try {
     const liveStreams = await ivs.listStreams().promise();
+    
     if (liveStreams.streams.length === 0) {
-      return allChannels;
+      // Update isLive field for all channels to false
+      await ctx.prisma.channel.updateMany({
+        where: { isLive: true },
+        data: { isLive: false },
+      });
+
+      // Update the allChannels array with the updated isLive values
+      const updatedChannels = await ctx.prisma.channel.findMany();
+      return updatedChannels;
     }
 
     const liveChannelArns = liveStreams.streams.map(
