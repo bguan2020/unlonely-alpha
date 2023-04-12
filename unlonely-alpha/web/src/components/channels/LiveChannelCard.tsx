@@ -21,12 +21,13 @@ const LiveChannelCard = ({ channel }: Props) => {
     <>
       <Flex
         direction="column"
-        w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
-        h={{ base: "9rem", sm: "3rem", md: "6rem", lg: "9rem" }}
+        w={{ base: "60%", md: "60%", lg: "60%", sm: "60%" }}
+        h={{ base: "24rem", sm: "24rem", md: "24rem", lg: "24rem" }}
         padding="0.3rem"
         borderRadius="1rem"
         minH="8rem"
         minW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
+        maxW={"48rem"}
         mb="1.5rem"
         mt="8px"
         mr="1rem"
@@ -54,7 +55,7 @@ const LiveChannelCard = ({ channel }: Props) => {
             }
           />
         </Flex>
-        <Flex direction="row" justifyContent="left">
+        <Flex direction="row" justifyContent="left" mt="1rem">
           <Image
             height="2.5rem"
             width="2.5rem"

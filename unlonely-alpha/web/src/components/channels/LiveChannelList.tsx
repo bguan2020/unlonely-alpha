@@ -12,18 +12,7 @@ const LiveChannelList: React.FunctionComponent<Props> = ({ channels }) => {
   return (
     <>
       {liveChannels && liveChannels.length > 0 && (
-        <Flex
-        direction="row"
-        overflowX="scroll"
-        overflowY="clip"
-        width="100%"
-        height={{
-          base: "14rem",
-          sm: "19rem",
-          md: "19rem",
-          lg: "19rem",
-        }}
-      >
+        <>
         <Flex w="100%" justifyContent="left">
           <Text
             color="black"
@@ -35,12 +24,25 @@ const LiveChannelList: React.FunctionComponent<Props> = ({ channels }) => {
             🔴 Live Now!
           </Text>
         </Flex>
-      {channels?.map((channel: Channel) =>
-          channel.isLive ? (
-            <LiveChannelCard key={channel.id} channel={channel} />
-          ) : null,
-        )}
-      </Flex>
+        <Flex
+          direction="row"
+          overflowX="scroll"
+          overflowY="clip"
+          width="100%"
+          height={{
+            base: "24rem",
+            sm: "24rem",
+            md: "28rem",
+            lg: "36rem",
+          }}
+        >
+        {channels?.map((channel: Channel) =>
+            channel.isLive ? (
+              <LiveChannelCard key={channel.id} channel={channel} />
+            ) : null,
+          )}
+        </Flex>
+        </>
       )}
     </>
   );
