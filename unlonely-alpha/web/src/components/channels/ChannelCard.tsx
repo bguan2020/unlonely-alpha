@@ -7,7 +7,7 @@ const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
 type Props = {
   channel: Channel;
-}
+};
 
 const ChannelCard = ({ channel }: Props) => {
   const handleRedirect = () => {
@@ -34,7 +34,11 @@ const ChannelCard = ({ channel }: Props) => {
             height="2.5rem"
             width="2.5rem"
             objectFit="cover"
-            src={channel.owner.FCImageUrl ? channel.owner.FCImageUrl : unlonelyAvatar}
+            src={
+              channel.owner.FCImageUrl
+                ? channel.owner.FCImageUrl
+                : unlonelyAvatar
+            }
             borderRadius="full"
             mr="0.5rem"
           />
@@ -51,10 +55,20 @@ const ChannelCard = ({ channel }: Props) => {
           </Text>
         </Flex>
         <Flex justifyContent="space-between" flexDirection="column">
-          <Text fontSize={24} fontWeight="medium" noOfLines={2} fontFamily="Inter">
+          <Text
+            fontSize={24}
+            fontWeight="medium"
+            noOfLines={2}
+            fontFamily="Inter"
+          >
             {channel.name}
           </Text>
-          <Text fontSize={12} fontWeight="medium" noOfLines={4} fontFamily="Inter">
+          <Text
+            fontSize={12}
+            fontWeight="medium"
+            noOfLines={4}
+            fontFamily="Inter"
+          >
             {channel.description}
           </Text>
         </Flex>

@@ -1,8 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
-import { Text, Flex, Button, SimpleGrid } from "@chakra-ui/react";
+import { Text, Flex } from "@chakra-ui/react";
 
-import HostEventCardSkeleton from "../components/hostEvents/HostEventCardSkeleton";
-import HostEventList from "../components/hostEvents/HostEventList";
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
@@ -27,7 +25,6 @@ const CHANNEL_FEED_QUERY = gql`
     }
   }
 `;
-
 
 const NFC_FEED_QUERY = gql`
   query NFCFeed($data: NFCFeedInput!) {
@@ -155,19 +152,19 @@ export default function Page() {
             </Text>
           </Flex>
           <Flex
-                direction="row"
-                overflowX="scroll"
-                overflowY="clip"
-                width="100%"
-                height={{
-                  base: "14rem",
-                  sm: "19rem",
-                  md: "19rem",
-                  lg: "19rem",
-                }}
-              >
-                <ChannelList channels={channels} />
-              </Flex>
+            direction="row"
+            overflowX="scroll"
+            overflowY="clip"
+            width="100%"
+            height={{
+              base: "14rem",
+              sm: "19rem",
+              md: "19rem",
+              lg: "19rem",
+            }}
+          >
+            <ChannelList channels={channels} />
+          </Flex>
         </Flex>
       </Flex>
     </AppLayout>

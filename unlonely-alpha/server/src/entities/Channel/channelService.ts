@@ -36,11 +36,10 @@ export const getChannelFeed = async (
   data: IGetChannelFeedInput,
   ctx: Context
 ) => {
-  console.log("hit this")
   const allChannels: Channel[] = await ctx.prisma.channel.findMany();
 
   // aws-sdk to find out whos currently live
-  AWS.config.update({ 
+  AWS.config.update({
     region: "us-west-2",
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -48,7 +47,7 @@ export const getChannelFeed = async (
   const ivs = new AWS.IVS();
   try {
     const liveStreams = await ivs.listStreams().promise();
-    
+
     if (liveStreams.streams.length === 0) {
       // Update isLive field for all channels to false
       await ctx.prisma.channel.updateMany({
@@ -140,10 +139,10 @@ interface ThumbnailEvent {
 const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
   const recordingConfigArn =
     "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
-  const lambda = new Lambda({ 
-    region: "us-west-2", 
+  const lambda = new Lambda({
+    region: "us-west-2",
     accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, 
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   });
 
   const params: Lambda.Types.InvocationRequest = {

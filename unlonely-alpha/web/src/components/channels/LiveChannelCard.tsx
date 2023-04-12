@@ -7,13 +7,12 @@ const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
 type Props = {
   channel: Channel;
-}
+};
 
 const LiveChannelCard = ({ channel }: Props) => {
   const handleRedirect = () => {
     window.location.href = `/channels/${channel.slug}`;
   };
-  console.log("live channel card", channel)
 
   if (!channel.isLive) return null;
 
@@ -39,7 +38,7 @@ const LiveChannelCard = ({ channel }: Props) => {
             position: "relative",
           }}
         >
-          {channel.thumbnailUrl && <video poster={channel.thumbnailUrl}/>}
+          {channel.thumbnailUrl && <video poster={channel.thumbnailUrl} />}
           <Image
             src="/images/playIcon.png"
             opacity={0.5}
@@ -60,7 +59,11 @@ const LiveChannelCard = ({ channel }: Props) => {
             height="2.5rem"
             width="2.5rem"
             objectFit="cover"
-            src={channel.owner.FCImageUrl ? channel.owner.FCImageUrl : unlonelyAvatar}
+            src={
+              channel.owner.FCImageUrl
+                ? channel.owner.FCImageUrl
+                : unlonelyAvatar
+            }
             borderRadius="full"
             mr="0.5rem"
           />
@@ -77,10 +80,20 @@ const LiveChannelCard = ({ channel }: Props) => {
           </Text>
         </Flex>
         <Flex justifyContent="space-between" flexDirection="column">
-          <Text fontSize={24} fontWeight="medium" noOfLines={2} fontFamily="Inter">
+          <Text
+            fontSize={24}
+            fontWeight="medium"
+            noOfLines={2}
+            fontFamily="Inter"
+          >
             {channel.name}
           </Text>
-          <Text fontSize={12} fontWeight="medium" noOfLines={4} fontFamily="Inter">
+          <Text
+            fontSize={12}
+            fontWeight="medium"
+            noOfLines={4}
+            fontFamily="Inter"
+          >
             {channel.description}
           </Text>
         </Flex>
