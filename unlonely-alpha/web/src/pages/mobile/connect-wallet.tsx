@@ -1,7 +1,7 @@
-import { Box, Flex } from "@chakra-ui/react";
 import { useModal } from "connectkit";
 import { useEffect } from "react";
 import { useAccount, useEnsAvatar, useEnsName } from "wagmi";
+
 import NextHead from "../../components/layout/NextHead";
 import ConnectWallet from "../../components/navigation/ConnectKit";
 
