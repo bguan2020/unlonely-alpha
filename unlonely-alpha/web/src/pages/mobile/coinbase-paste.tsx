@@ -1,8 +1,5 @@
-import React, { useEffect, useState } from "react";
-import ConnectWallet from "../../components/navigation/ConnectKit";
+import React, { useState } from "react";
 import { Box } from "@chakra-ui/react";
-import { useClipboard } from "use-clipboard-copy";
-import { useAccount } from "wagmi";
 
 export default function MobileCoinbasePaste() {
   const [done, setDone] = useState(false);
