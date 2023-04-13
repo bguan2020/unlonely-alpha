@@ -82,19 +82,7 @@ export default function Page() {
           maxW="80%"
           flexDirection="column"
         >
-          {!channels || loading ? (
-            <Flex
-              direction="row"
-              overflowX="scroll"
-              overflowY="clip"
-              width="100%"
-              height="18rem"
-            >
-              {[1, 2, 3, 4, 5].map((i) => (
-                <NfcCardSkeleton />
-              ))}
-            </Flex>
-          ) : (
+          {!channels || loading ? null : (
             <>
               <LiveChannelList channels={channels} />
             </>
