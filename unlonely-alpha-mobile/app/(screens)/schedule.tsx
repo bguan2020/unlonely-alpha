@@ -1,15 +1,14 @@
 import { Link } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useUpcomingSchedule } from '../../api/queries/useUpcomingSchedule';
-import { ScheduleCard } from '../../components/schedule/scheduleCard';
+import { useChannels } from '../../api/queries/useChannels';
 
 export default function ScheduleScreen() {
-  // const { status, data, error, isFetching } = useUpcomingSchedule({
-  //   limit: 9,
-  // });
-  // const schedule = data?.getHostEventFeed;
+  const { status, data, error, isFetching } = useChannels({
+    limit: 9,
+  });
+  const channels = data?.getHostEventFeed;
 
-  // console.log(schedule);
+  console.log(channels);
 
   return (
     <ScrollView style={styles.container}>
