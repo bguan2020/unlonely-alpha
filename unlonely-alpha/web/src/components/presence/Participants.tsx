@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
-import { Avatar, Flex, SimpleGrid, Tooltip } from "@chakra-ui/react";
+import { Flex, SimpleGrid, Tooltip, Box } from "@chakra-ui/react";
 
 // import { usePresence } from "../../hooks/usePresence";
 import { usePresence } from "@ably-labs/react-hooks";
@@ -128,11 +128,18 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
         {!!participantOrder.slice(6).length && (
           <Flex ml={-2}>
             <Tooltip label={participantTooltip()} hasArrow arrowSize={14}>
-              <Avatar
-                size="md"
-                name={`+ ${participantOrder.slice(6).length}`}
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                fontSize="14px"
                 bg="white"
-              />
+                borderRadius="50%"
+                width="2.6rem"
+                height="2.6rem"
+              >
+                {`+${participantOrder.slice(6).length}`}
+              </Box>
             </Tooltip>
           </Flex>
         )}
