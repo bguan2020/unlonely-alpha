@@ -100,7 +100,7 @@ export default function MobileConnectWallet() {
         }
 
         .sc-iqcoie.fNQent button,
-        .sc-ckMVTt.dAEvKF button:nth-child(2) {
+        .sc-fbPSWO.gZQqvL:nth-child(2) {
           display: none !important;
         }
 
