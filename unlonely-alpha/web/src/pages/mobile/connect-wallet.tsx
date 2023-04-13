@@ -18,7 +18,8 @@ const styles = `
     --ck-overlay-background: transparent !important;
   }
 
-  .sc-iqcoie.fNQent button {
+  .sc-iqcoie.fNQent button,
+  .sc-ckMVTt.dAEvKF button:nth-child(2) {
     display: none !important;
   }
 
