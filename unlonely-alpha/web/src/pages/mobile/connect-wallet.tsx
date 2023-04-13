@@ -1,35 +1,15 @@
-import { Box, Flex } from "@chakra-ui/react";
 import { useModal } from "connectkit";
 import { useEffect } from "react";
 import { useAccount, useEnsAvatar, useEnsName } from "wagmi";
+
 import NextHead from "../../components/layout/NextHead";
 import ConnectWallet from "../../components/navigation/ConnectKit";
 
-const styles = `
-  html, body {
-    background: transparent !important;
-  }
-
-  *, *:before, *:after {
-    user-select: none !important;
-  }
-
-  div[role="dialog"] {
-    --ck-overlay-background: transparent !important;
-  }
-
-  .sc-iqcoie.fNQent button {
-    display: none !important;
-  }
-
-  .enYPqY::before {
-    border-radius: 50px !important;
-  }
-
-  .mobile-connectkit-button-load-in-transition {
-    opacity: 0;
-  }
-`;
+export async function getServerSideProps() {
+  return {
+    props: {},
+  };
+}
 
 export default function MobileConnectWallet() {
   const { open, setOpen } = useModal();
@@ -97,28 +77,45 @@ export default function MobileConnectWallet() {
   }, [open]);
 
   return (
-    <Flex
-      flexDirection="column"
-      justifyContent="flex-end"
-      alignItems="center"
-      width="100%"
-      height="100svh"
-    >
+    <>
       <NextHead
         title="Unlonely"
         image="/images/favicon-32x32.png"
         description="Never watch alone again."
       />
-      <style>{styles}</style>
+      <style jsx global>{`
+        html,
+        body {
+          background: transparent !important;
+        }
+
+        *,
+        *:before,
+        *:after {
+          user-select: none !important;
+        }
+
+        div[role="dialog"] {
+          --ck-overlay-background: transparent !important;
+        }
+
+        .sc-iqcoie.fNQent button,
+        .sc-ckMVTt.dAEvKF button:nth-child(2) {
+          display: none !important;
+        }
+
+        .enYPqY::before {
+          border-radius: 50px !important;
+        }
+
+        .mobile-connectkit-button-load-in-transition {
+          opacity: 0;
+          display: none;
+        }
+      `}</style>
       <div className="mobile-connectkit-button-load-in-transition">
-        <Box
-          borderRadius="20px"
-          bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
-          padding={2}
-        >
-          <ConnectWallet />
-        </Box>
+        <ConnectWallet />
       </div>
-    </Flex>
+    </>
   );
 }
