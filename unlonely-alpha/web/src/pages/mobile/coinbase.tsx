@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box } from "@chakra-ui/react";
 import { useClipboard } from "use-clipboard-copy";
 import { useAccount } from "wagmi";
@@ -41,6 +41,14 @@ export default function MobileCoinbase() {
       setShowCloneButton(false);
     },
   });
+
+  useEffect(() => {
+    const connected = localStorage.getItem("wagmi.connected");
+
+    if (connected && connected === "true") {
+      setShowCloneButton(true);
+    }
+  }, []);
 
   return (
     <div
