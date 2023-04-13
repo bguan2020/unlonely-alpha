@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const AVATAR_SIZE = 48;
 const CHAT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/chat';
-// const CHAT_WEBVIEW_URL = 'http://192.168.1.69:3000/mobile/chat';
+// const CHAT_WEBVIEW_URL = 'http://192.168.1.165:3000/mobile/chat';
 
 const funnyName = [
   'ted’s mom',
@@ -47,9 +47,9 @@ export function Chat() {
     userData: z.userData,
     connectedWallet: z.connectedWallet,
   }));
-  const { openSettingsSheet, openCKSheet } = useBottomSheetStore(z => ({
+  const { openSettingsSheet, openCoinbaseSheet } = useBottomSheetStore(z => ({
     openSettingsSheet: z.openSettingsSheet,
-    openCKSheet: z.openCKSheet,
+    openCoinbaseSheet: z.openCoinbaseSheet,
   }));
   const [chatEnabled, setChatEnabled] = useState(false);
   const [finishedLoading, setFinishedLoading] = useState(false);
@@ -86,7 +86,7 @@ export function Chat() {
       router.push('/');
       openSettingsSheet();
       setTimeout(() => {
-        openCKSheet();
+        openCoinbaseSheet();
       }, 1000);
     }
   };

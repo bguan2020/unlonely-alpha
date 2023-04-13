@@ -12,9 +12,9 @@ import { AnimatedPressable } from '../buttons/animatedPressable';
 const AVATAR_SIZE = 48;
 
 export const UserSettings = () => {
-  const { isSettingsSheetOpen, openCKSheet } = useBottomSheetStore(z => ({
+  const { isSettingsSheetOpen, openCoinbaseSheet } = useBottomSheetStore(z => ({
     isSettingsSheetOpen: z.isSettingsSheetOpen,
-    openCKSheet: z.openCKSheet,
+    openCoinbaseSheet: z.openCoinbaseSheet,
   }));
   const { hasHydrated, connectedWallet, userData, setUser, userDataLoading, setUserDataLoading } = useUserStore(z => ({
     hasHydrated: z._hasHydrated,
@@ -142,7 +142,7 @@ export const UserSettings = () => {
         )}
         {!userDataLoading && (
           <MotiView {...fadeInScale}>
-            <AnimatedPressable style={styles.manageButton} onPress={openCKSheet}>
+            <AnimatedPressable style={styles.manageButton} onPress={openCoinbaseSheet}>
               <Text style={styles.manageButtonText}>{connectedWallet ? 'manage' : 'connect'}</Text>
             </AnimatedPressable>
           </MotiView>

@@ -7,7 +7,8 @@ import { useHaptics } from '../../utils/haptics';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
 import { useUserStore } from '../../utils/store/userStore';
 
-const CONNECTKIT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/connect-wallet';
+// const CONNECTKIT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/connect-wallet';
+const CONNECTKIT_WEBVIEW_URL = 'http://192.168.1.165:3000/mobile/connect-wallet';
 
 export function ConnectKitSheet() {
   const bottomSheetRef = useRef<BottomSheet>(null);

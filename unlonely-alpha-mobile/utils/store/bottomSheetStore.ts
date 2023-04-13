@@ -10,6 +10,10 @@ type BottomSheetStore = {
   isCKSheetOpen: boolean;
   openCKSheet: () => void;
   closeCKSheet: () => void;
+  // coinbase decision
+  isCoinbaseSheetOpen: boolean;
+  openCoinbaseSheet: () => void;
+  closeCoinbaseSheet: () => void;
   // single nfc deeplink view
   isNFCSheetOpen: boolean;
   openNFCSheet: () => void;
@@ -40,6 +44,9 @@ export const useBottomSheetStore = create<BottomSheetStore>()(set => ({
       isNFCSheetOpen: false,
     }),
   closeCKSheet: () => set({ isCKSheetOpen: false }),
+  isCoinbaseSheetOpen: false,
+  openCoinbaseSheet: () => set({ isCoinbaseSheetOpen: true }),
+  closeCoinbaseSheet: () => set({ isCoinbaseSheetOpen: false }),
   isNFCSheetOpen: false,
   openNFCSheet: () =>
     set({
