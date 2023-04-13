@@ -15,8 +15,10 @@ export default function MobileCoinbase() {
     const localStorageObj = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const value = localStorage.getItem(key);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       localStorageObj[key] = value;
     }
@@ -25,6 +27,8 @@ export default function MobileCoinbase() {
     clipboard.copy(jsonString);
   };
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const account = useAccount({
     onConnect() {
       const connected = localStorage.getItem("wagmi.connected");
