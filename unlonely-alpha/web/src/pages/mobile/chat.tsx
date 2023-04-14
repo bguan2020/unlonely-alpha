@@ -43,8 +43,8 @@ const styles = `
 `;
 
 export default function Chat() {
-  const username = "brian";
-  const ablyChatChannel = "chat-demo";
+  const username = "giu";
+  const ablyChatChannel = "52KUAfN8ftxM-chat-channel";
   const { user } = useUser();
   const { address } = useAccount();
   const ADD_REACTION_EVENT = "add-reaction";
@@ -394,6 +394,8 @@ export default function Chat() {
 
     return (
       <>
+        {/* // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore */}
         <Flex direction="column">
           <Flex key={index} direction="row" align="center">
             <Text color="#5A5A5A" fontSize="12px" mr="5px">
