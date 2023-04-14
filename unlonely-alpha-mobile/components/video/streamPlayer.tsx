@@ -102,7 +102,7 @@ export function StreamPlayer() {
           style={styles.videoPlayer}
           resizeMode="aspectFit"
           streamUrl={
-            'https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8'
+            'https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.52KUAfN8ftxM.m3u8'
           }
           initialBufferDuration={0.2}
           onLiveLatencyChange={latency => {

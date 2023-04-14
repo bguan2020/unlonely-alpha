@@ -6,7 +6,7 @@ export default function ScheduleScreen() {
   const { status, data, error, isFetching } = useChannels({
     limit: 9,
   });
-  const channels = data?.getHostEventFeed;
+  const channels = data?.getChannelFeed;
 
   console.log(channels);
 
