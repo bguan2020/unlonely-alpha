@@ -217,7 +217,6 @@ export function FeedNav() {
         </AnimatedMenuView>
       </View>
       <SettingsSheet />
-      <CoinbaseSheet />
     </>
   );
 }

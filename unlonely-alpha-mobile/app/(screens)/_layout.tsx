@@ -143,7 +143,7 @@ export default function Layout() {
             >
               <Tabs.Screen name="index" options={{ title: 'NFCs' }} />
               <Tabs.Screen name="live" options={{ title: 'stream' }} />
-              <Tabs.Screen name="schedule" options={{ title: 'upcoming' }} />
+              {/* <Tabs.Screen name="schedule" options={{ title: 'upcoming' }} /> */}
             </Tabs>
             <Toasts />
           </QueryClientProvider>

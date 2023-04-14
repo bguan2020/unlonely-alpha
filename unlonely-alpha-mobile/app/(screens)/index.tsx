@@ -7,9 +7,9 @@ import { useNfcFeed } from '../../api/queries/useNfcFeed';
 import { useHaptics } from '../../utils/haptics';
 import { FeedNav } from '../../components/nav/feedNav';
 import { UnlonelyTopGradientWithLogo } from '../../components/nav/topGradient';
-import { ConnectKitSheet } from '../../components/settings/connectkit';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
+import { CoinbaseSheet } from '../../components/settings/coinbaseSheet';
 
 export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
@@ -122,7 +122,7 @@ export default function NfcFeedScreen() {
         onViewableItemsChanged={onViewableItemsChanged.current}
       />
       <FeedNav />
-      <ConnectKitSheet />
+      <CoinbaseSheet />
       <StatusBar style="dark" />
     </View>
   );
