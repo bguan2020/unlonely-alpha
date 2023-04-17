@@ -49,7 +49,7 @@ const styles = `
 export default function Chat() {
   const router = useRouter();
   const { awsId } = router.query;
-  const username = "giu";
+  const username = "brian";
   const ablyChatChannel = `${awsId}-chat-channel`;
   const ablyPresenceChannel = `${awsId}-presence-channel`;
   const { user } = useUser();
