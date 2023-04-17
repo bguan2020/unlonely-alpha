@@ -54,6 +54,7 @@ export function StreamPlaybackOverlay({
         <AnimatedPressable
           onPress={togglePip}
           style={{
+            top: -1,
             padding: 24,
           }}
         >

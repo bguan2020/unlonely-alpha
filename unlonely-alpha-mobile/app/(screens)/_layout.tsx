@@ -76,7 +76,7 @@ export default function Layout() {
     // navigate to app screen
     // console.log('A notification has been touched', data);
     if (data.redirect === 'live') {
-      router.push('/live');
+      router.push('/channels');
     }
   };
 
@@ -130,7 +130,7 @@ export default function Layout() {
                   elevation: 0,
                 },
                 tabBarBackground: () => <FadedTabBar />,
-                tabBarHideOnKeyboard: true,
+                // tabBarHideOnKeyboard: true,
               })}
             >
               <Tabs.Screen name="index" options={{ title: 'NFCs' }} />
