@@ -7,10 +7,11 @@ type AnimatedPressableProps = {
   children?: JSX.Element | JSX.Element[];
   style?: StyleProps;
   bouncy?: boolean;
+  minimal?: boolean;
   disabled?: boolean;
 };
 
-export const AnimatedPressable = ({ onPress, style, children, bouncy, disabled }: AnimatedPressableProps) => {
+export const AnimatedPressable = ({ onPress, style, children, bouncy, minimal, disabled }: AnimatedPressableProps) => {
   return (
     <MotiPressable
       onPress={() => {
@@ -21,6 +22,13 @@ export const AnimatedPressable = ({ onPress, style, children, bouncy, disabled }
       animate={({ pressed }) => {
         'worklet';
         if (disabled) return;
+
+        if (minimal) {
+          return {
+            scale: pressed ? 0.96 : 1,
+          };
+        }
+
         return {
           scale: pressed ? (bouncy ? 0.8 : 0.9) : 1,
         };

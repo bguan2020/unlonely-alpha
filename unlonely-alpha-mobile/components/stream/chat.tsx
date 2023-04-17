@@ -38,7 +38,7 @@ const funnyName = [
   'kevin trying to hack into the mainframe',
 ];
 
-export function Chat() {
+export function Chat({ awsId, slug }) {
   const router = useRouter();
   const webViewRef = useRef<WebView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -64,7 +64,7 @@ export function Chat() {
   const catchWebViewNavigationStateChange = (newNavState: any) => {
     const { url } = newNavState;
 
-    if (url !== CHAT_WEBVIEW_URL) {
+    if (!url.includes(CHAT_WEBVIEW_URL)) {
       webViewRef.current.stopLoading();
       openExternalLink(url);
       setChatEnabled(true);
@@ -165,7 +165,7 @@ export function Chat() {
         <WebView
           key={chatKey}
           ref={webViewRef}
-          source={{ uri: CHAT_WEBVIEW_URL }}
+          source={{ uri: `${CHAT_WEBVIEW_URL}/${awsId}` }}
           onNavigationStateChange={catchWebViewNavigationStateChange}
           onContentProcessDidTerminate={webViewRef.current?.reload}
           // reload chat if it crashes?

@@ -11,8 +11,9 @@ import { StreamPlaybackOverlay } from './controls/streamPlaybackOverlay';
 import { MotiView } from 'moti';
 import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
 import { useLiveSettingsStore } from '../../utils/store/liveSettingsStore';
+import { Image } from 'expo-image';
 
-export function StreamPlayer() {
+export function StreamPlayer({ awsId, thumbnailUrl, name }) {
   const { width } = useWindowDimensions();
   const { isLiveStreamPlaying, stopNFCPlaying, startLiveStreamPlaying, stopLiveStreamPlaying } = useVideoPlayerStore(
     z => ({
@@ -101,9 +102,7 @@ export function StreamPlayer() {
           key={streamPlayerKey}
           style={styles.videoPlayer}
           resizeMode="aspectFit"
-          streamUrl={
-            'https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.52KUAfN8ftxM.m3u8'
-          }
+          streamUrl={`https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.${awsId}.m3u8`}
           initialBufferDuration={0.2}
           onLiveLatencyChange={latency => {
             // console.log('live latency: ', latency);
@@ -160,6 +159,16 @@ export function StreamPlayer() {
               opacity: forceOverlayDisplay ? 1 : 0,
             }}
           >
+            {thumbnailUrl && !isPlaying && (
+              <Image
+                source={thumbnailUrl}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  position: 'absolute',
+                }}
+              />
+            )}
             <LinearGradient
               colors={colors}
               locations={locations}
@@ -171,6 +180,26 @@ export function StreamPlayer() {
                 position: 'absolute',
               }}
             />
+            <View
+              style={{
+                position: 'absolute',
+                left: 16,
+                top: 24,
+                width: '80%',
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontFamily: 'NeuePixelSans',
+                  letterSpacing: 0.5,
+                  color: 'white',
+                  textAlign: 'left',
+                }}
+              >
+                {name}
+              </Text>
+            </View>
             {overlay === 'loading' && <StreamLoadingOverlay />}
             {overlay === 'buffering' && <StreamBufferingOverlay />}
             {overlay === 'error' && <StreamErrorOverlay error={errorMessage} retry={pressRetry} />}
@@ -187,14 +216,18 @@ export function StreamPlayer() {
         </Pressable>
       </View>
       <Video
+        // DO NOT REMOVE
+        // this whole component is a hack to get
+        // the audio to play in the background
+        // even when the phone is muted
         isMuted={false}
         volume={1}
         shouldPlay={isPlaying}
         source={{ uri: 'https://i.imgur.com/HRejmKy.mp4' }}
         style={{
           position: 'absolute',
-          width: 20,
-          height: 20,
+          width: 2,
+          height: 2,
           display: 'none',
         }}
       />
@@ -221,13 +254,11 @@ const styles = StyleSheet.create({
   },
   videoContainer: {
     backgroundColor: 'hsl(0, 0%, 2%)',
-    // backgroundColor: 'red',
   },
   videoPlayer: {
     position: 'absolute',
     width: '100%',
     height: '100%',
-    // backgroundColor: 'yellow',
   },
   videoOverlay: {
     justifyContent: 'center',

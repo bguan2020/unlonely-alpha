@@ -4,9 +4,14 @@ import request from 'graphql-request';
 import { CHANNEL_FEED_QUERY } from '../graphql/channels';
 
 export function useChannels(params) {
-  return useQuery(['getChannelFeed'], async () =>
-    request(API_ENDPOINT, CHANNEL_FEED_QUERY, {
-      data: params,
-    })
+  return useQuery(
+    ['getChannelFeed'],
+    async () =>
+      request(API_ENDPOINT, CHANNEL_FEED_QUERY, {
+        data: params,
+      }),
+    {
+      refetchInterval: 3000,
+    }
   );
 }

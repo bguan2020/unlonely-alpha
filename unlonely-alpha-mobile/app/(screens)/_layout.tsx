@@ -101,28 +101,19 @@ export default function Layout() {
                 headerShadowVisible: false,
                 headerTransparent: true,
                 headerBackground: () => <UnlonelyTopGradient />,
-                tabBarIcon: ({ focused, color, size }) => {
+                tabBarIcon: ({ color, size }) => {
                   let iconName;
 
                   if (route.name === 'index') {
                     iconName = 'local-movies';
-                  } else if (route.name === 'live') {
+                  } else if (route.name === 'channels/index') {
                     iconName = 'ondemand-video';
-                  } else if (route.name === 'schedule') {
-                    iconName = 'calendar-today';
                   }
 
                   return <MaterialIcons name={iconName} size={size} color={color} />;
                 },
-                // tabBarBadge: route.name === 'live' ? '1' : null,
-                // tabBarBadgeStyle: {
-                //   backgroundColor: 'red',
-                //   color: 'white',
-                // },
                 tabBarActiveTintColor:
-                  (route.name === 'index' && '#e2f979') ||
-                  (route.name === 'live' && '#95f9cf') ||
-                  (route.name === 'schedule' && '#db78e0'),
+                  (route.name === 'index' && '#e2f979') || (route.name === 'channels/index' && '#db78e0'),
                 tabBarInactiveTintColor: 'white',
                 tabBarLabelStyle: {
                   fontFamily: 'NeuePixelSans',
@@ -139,11 +130,17 @@ export default function Layout() {
                   elevation: 0,
                 },
                 tabBarBackground: () => <FadedTabBar />,
+                tabBarHideOnKeyboard: true,
               })}
             >
               <Tabs.Screen name="index" options={{ title: 'NFCs' }} />
-              <Tabs.Screen name="live" options={{ title: 'stream' }} />
-              {/* <Tabs.Screen name="schedule" options={{ title: 'upcoming' }} /> */}
+              <Tabs.Screen name="channels/index" options={{ title: 'channels' }} />
+              <Tabs.Screen
+                name="channels/[awsId]"
+                options={{
+                  href: null, // hides the tab
+                }}
+              />
             </Tabs>
             <Toasts />
           </QueryClientProvider>
