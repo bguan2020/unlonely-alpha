@@ -10,6 +10,10 @@ type BottomSheetStore = {
   isCKSheetOpen: boolean;
   openCKSheet: () => void;
   closeCKSheet: () => void;
+  // coinbase decision
+  isCoinbaseSheetOpen: boolean;
+  openCoinbaseSheet: () => void;
+  closeCoinbaseSheet: () => void;
   // single nfc deeplink view
   isNFCSheetOpen: boolean;
   openNFCSheet: () => void;
@@ -18,6 +22,10 @@ type BottomSheetStore = {
   challengeSheetOpen: boolean;
   openChallengeSheet: () => void;
   closeChallengeSheet: () => void;
+  // presence sheet in chat
+  isPresenceSheetOpen: boolean;
+  openPresenceSheet: () => void;
+  closePresenceSheet: () => void;
 };
 
 export const useBottomSheetStore = create<BottomSheetStore>()(set => ({
@@ -36,6 +44,9 @@ export const useBottomSheetStore = create<BottomSheetStore>()(set => ({
       isNFCSheetOpen: false,
     }),
   closeCKSheet: () => set({ isCKSheetOpen: false }),
+  isCoinbaseSheetOpen: false,
+  openCoinbaseSheet: () => set({ isCoinbaseSheetOpen: true }),
+  closeCoinbaseSheet: () => set({ isCoinbaseSheetOpen: false }),
   isNFCSheetOpen: false,
   openNFCSheet: () =>
     set({
@@ -47,4 +58,7 @@ export const useBottomSheetStore = create<BottomSheetStore>()(set => ({
   challengeSheetOpen: false,
   openChallengeSheet: () => set({ challengeSheetOpen: true }),
   closeChallengeSheet: () => set({ challengeSheetOpen: false }),
+  isPresenceSheetOpen: false,
+  openPresenceSheet: () => set({ isPresenceSheetOpen: true }),
+  closePresenceSheet: () => set({ isPresenceSheetOpen: false }),
 }));

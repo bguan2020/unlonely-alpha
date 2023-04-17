@@ -9,6 +9,7 @@ import { useUserStore } from '../../utils/store/userStore';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
 import { BlurLayer } from '../blur/blurLayer';
+import { CoinbaseSheet } from '../settings/coinbaseSheet';
 
 const AVATAR_SIZE = 48;
 

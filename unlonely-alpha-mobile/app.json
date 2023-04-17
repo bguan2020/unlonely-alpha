@@ -16,7 +16,7 @@
       "bundler": "metro"
     },
     "ios": {
-      "buildNumber": "9",
+      "buildNumber": "19",
       "bundleIdentifier": "app.unlonely.mobile",
       "icon": "./assets/icon.png",
       "config": {
@@ -58,7 +58,9 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon-top.png",
         "backgroundImage": "./assets/adaptive-icon-bottom.png"
-      }
-    }
+      },
+      "versionCode": 2
+    },
+    "owner": "pugson"
   }
 }

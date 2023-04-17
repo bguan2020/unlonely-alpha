@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import IVSPlayer, { IVSPlayerRef, PlayerState } from 'amazon-ivs-react-native-player';
 import { useEffect, useRef, useState } from 'react';
-import { Audio } from 'expo-av';
+import { Audio, Video } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
 import { easeGradient } from 'react-native-easing-gradient';
 import { StreamBufferingOverlay } from './controls/streamBufferingOverlay';
@@ -10,8 +10,10 @@ import { StreamLoadingOverlay } from './controls/streamLoadingOverlay';
 import { StreamPlaybackOverlay } from './controls/streamPlaybackOverlay';
 import { MotiView } from 'moti';
 import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
+import { useLiveSettingsStore } from '../../utils/store/liveSettingsStore';
+import { Image } from 'expo-image';
 
-export function StreamPlayer() {
+export function StreamPlayer({ awsId, thumbnailUrl, name }) {
   const { width } = useWindowDimensions();
   const { isLiveStreamPlaying, stopNFCPlaying, startLiveStreamPlaying, stopLiveStreamPlaying } = useVideoPlayerStore(
     z => ({
@@ -21,8 +23,11 @@ export function StreamPlayer() {
       stopLiveStreamPlaying: z.stopLiveStreamPlaying,
     })
   );
+  const { streamPlayerKey, updateStreamPlayerKey } = useLiveSettingsStore(z => ({
+    streamPlayerKey: z.streamPlayerKey,
+    updateStreamPlayerKey: z.updateStreamPlayerKey,
+  }));
   const mediaPlayerRef = useRef<IVSPlayerRef>(null);
-  const [playerKey, setPlayerKey] = useState(0);
   const [latency, setLatency] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [overlay, setOverlay] = useState<'loading' | 'playback' | 'buffering' | 'error'>('loading');
@@ -39,6 +44,14 @@ export function StreamPlayer() {
     mediaPlayerRef.current?.play();
     setIsPlaying(true);
 
+    Audio.setAudioModeAsync({
+      staysActiveInBackground: true,
+      shouldDuckAndroid: false,
+      playThroughEarpieceAndroid: false,
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+    });
+
     // startLiveStreamPlaying();
     stopNFCPlaying();
   };
@@ -52,7 +65,7 @@ export function StreamPlayer() {
   const pressRetry = () => {
     setOverlay('loading');
     pressPlay();
-    setPlayerKey(playerKey + 1); // force repaint of player
+    updateStreamPlayerKey(); // force repaint of player
   };
 
   useEffect(() => {
@@ -86,12 +99,10 @@ export function StreamPlayer() {
         ]}
       >
         <IVSPlayer
-          key={playerKey}
+          key={streamPlayerKey}
           style={styles.videoPlayer}
           resizeMode="aspectFit"
-          streamUrl={
-            'https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8'
-          }
+          streamUrl={`https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.${awsId}.m3u8`}
           initialBufferDuration={0.2}
           onLiveLatencyChange={latency => {
             // console.log('live latency: ', latency);
@@ -148,6 +159,16 @@ export function StreamPlayer() {
               opacity: forceOverlayDisplay ? 1 : 0,
             }}
           >
+            {thumbnailUrl && !isPlaying && (
+              <Image
+                source={thumbnailUrl}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  position: 'absolute',
+                }}
+              />
+            )}
             <LinearGradient
               colors={colors}
               locations={locations}
@@ -159,15 +180,57 @@ export function StreamPlayer() {
                 position: 'absolute',
               }}
             />
+            <View
+              style={{
+                position: 'absolute',
+                left: 16,
+                top: 24,
+                width: '80%',
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontFamily: 'NeuePixelSans',
+                  letterSpacing: 0.5,
+                  color: 'white',
+                  textAlign: 'left',
+                }}
+              >
+                {name}
+              </Text>
+            </View>
             {overlay === 'loading' && <StreamLoadingOverlay />}
             {overlay === 'buffering' && <StreamBufferingOverlay />}
             {overlay === 'error' && <StreamErrorOverlay error={errorMessage} retry={pressRetry} />}
             {overlay === 'playback' && (
-              <StreamPlaybackOverlay play={pressPlay} pause={pressPause} playing={isPlaying} latency={latency} />
+              <StreamPlaybackOverlay
+                play={pressPlay}
+                pause={pressPause}
+                playing={isPlaying}
+                latency={latency}
+                togglePip={togglePip}
+              />
             )}
           </MotiView>
         </Pressable>
       </View>
+      <Video
+        // DO NOT REMOVE
+        // this whole component is a hack to get
+        // the audio to play in the background
+        // even when the phone is muted
+        isMuted={false}
+        volume={1}
+        shouldPlay={isPlaying}
+        source={{ uri: 'https://i.imgur.com/HRejmKy.mp4' }}
+        style={{
+          position: 'absolute',
+          width: 2,
+          height: 2,
+          display: 'none',
+        }}
+      />
     </>
   );
 }
@@ -191,13 +254,11 @@ const styles = StyleSheet.create({
   },
   videoContainer: {
     backgroundColor: 'hsl(0, 0%, 2%)',
-    // backgroundColor: 'red',
   },
   videoPlayer: {
     position: 'absolute',
     width: '100%',
     height: '100%',
-    // backgroundColor: 'yellow',
   },
   videoOverlay: {
     justifyContent: 'center',

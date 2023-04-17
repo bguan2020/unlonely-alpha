@@ -38,7 +38,8 @@ const NfcVideo = (props: NfcVideoProps) => {
       volume={props.blurred ? 0 : 1}
       positionMillis={VIDEO_START_POSITION}
       usePoster
-      posterSource={{ uri: `${props.item.videoLink}#t=${VIDEO_START_POSITION / 1000}` }}
+      posterSource={{ uri: props.item.videoThumbnail }}
+      // posterSource={{ uri: `${props.item.videoLink}#t=${VIDEO_START_POSITION / 1000}` }}
       // loading a still from the video start position rather than the poster image
       // so it doesn’t create an awkward repeating transition when a new video starts playing
       posterStyle={{ width: '100%', height: props.height, resizeMode: 'contain' }}
@@ -295,7 +296,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
                 <MaterialCommunityIcons name="dots-horizontal" size={32} color="rgba(255,255,255,0.75)" />
               </View>
             </AnimatedMenuView>
-            {/* <View
+            <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -311,6 +312,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
                 }}
                 onPress={() => setIsLiked(!isLiked)}
                 bouncy
+                disabled
               >
                 {isLiked ? (
                   <Ionicons name="md-heart" size={32} color="rgba(255,255,255,0.75)" />
@@ -318,13 +320,13 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
                   <Ionicons name="md-heart-outline" size={32} color="rgba(255,255,255,0.75)" />
                 )}
               </AnimatedPressable>
-            </View> */}
+            </View>
           </View>
           <View
             style={{
               flex: 1,
               justifyContent: 'flex-end',
-              paddingBottom: 100,
+              paddingBottom: 82,
             }}
           >
             <View
