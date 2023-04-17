@@ -4,26 +4,30 @@ import React, { useEffect, useRef, useState } from "react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useAccount } from "wagmi";
 
-import useChannel from "../../hooks/useChannel";
-import { ChatBot } from "../../pages/channels/brian";
-import { timestampConverter } from "../../utils/timestampConverter";
-import NFTList from "../../components/profile/NFTList";
-import Badges from "../../components/chat/Badges";
-import { Message, initializeEmojis } from "../../components/chat/types/index";
-import ChatForm from "../../components/chat/ChatForm";
-import usePostFirstChat from "../../hooks/usePostFirstChat";
-import NebulousButton from "../../components/general/button/NebulousButton";
-import EmojiDisplay from "../../components/chat/emoji/EmojiDisplay";
-import usePostNFC from "../../hooks/usePostNFC";
-import { useUser } from "../../hooks/useUser";
+import useChannel from "../../../hooks/useChannel";
+import { ChatBot } from "../../channels/brian";
+import { timestampConverter } from "../../../utils/timestampConverter";
+import NFTList from "../../../components/profile/NFTList";
+import Badges from "../../../components/chat/Badges";
+import {
+  Message,
+  initializeEmojis,
+} from "../../../components/chat/types/index";
+import ChatForm from "../../../components/chat/ChatForm";
+import usePostFirstChat from "../../../hooks/usePostFirstChat";
+import NebulousButton from "../../../components/general/button/NebulousButton";
+import EmojiDisplay from "../../../components/chat/emoji/EmojiDisplay";
+import usePostNFC from "../../../hooks/usePostNFC";
+import { useUser } from "../../../hooks/useUser";
 import {
   chatbotAddress,
   chatColor,
   emojis,
-} from "../../components/chat/AblyChataComponent";
+} from "../../../components/chat/AblyChataComponent";
 import ReactDOM from "react-dom";
-import NextHead from "../../components/layout/NextHead";
-import Participants from "../../components/presence/Participants";
+import NextHead from "../../../components/layout/NextHead";
+import Participants from "../../../components/presence/Participants";
+import { useRouter } from "next/router";
 
 const CHAT_INPUT_PANEL_HEIGHT = 80;
 
@@ -43,8 +47,11 @@ const styles = `
 `;
 
 export default function Chat() {
-  const username = "giu";
-  const ablyChatChannel = "52KUAfN8ftxM-chat-channel";
+  const router = useRouter();
+  const { awsId } = router.query;
+  const username = "brian";
+  const ablyChatChannel = `${awsId}-chat-channel`;
+  const ablyPresenceChannel = `${awsId}-presence-channel`;
   const { user } = useUser();
   const { address } = useAccount();
   const ADD_REACTION_EVENT = "add-reaction";
@@ -859,7 +866,7 @@ export default function Chat() {
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
         />
       </NextHead>
-      <Participants mobile />
+      <Participants mobile ablyPresenceChannel={ablyPresenceChannel} />
       <div
         // chat area wrapper
         style={{
