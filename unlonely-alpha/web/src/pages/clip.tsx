@@ -193,12 +193,11 @@ const ClipDetail = () => {
     <>
       <AppLayout isCustomHeader={false}>
         <Flex justifyContent="center" mt="5rem" direction="column">
-          {clipError || !user ? (
+          {clipError ? (
             <Flex width="100%" justifyContent="center">
               <Alert status="error" width="60%">
                 <AlertIcon />
                 {clipError && clipError}
-                {!user && "Please connect wallet to make clip."}
               </Alert>
             </Flex>
           ) : (
