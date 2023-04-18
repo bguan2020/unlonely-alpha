@@ -100,6 +100,7 @@ const AblyChatComponent = ({
     : "persistMessages:chat-demo";
 
   const [channel, ably] = useChannel(channelName, (message) => {
+    setHasMessagesLoaded(false);
     const history = receivedMessages.slice(-199);
     // remove messages where name = add-reaction
     const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
@@ -135,6 +136,7 @@ const AblyChatComponent = ({
       setMessages([...messageHistory]);
     }
     setMessages([...messageHistory, message]);
+    setHasMessagesLoaded(true);
   });
 
   useEffect(() => {
@@ -905,15 +907,11 @@ const AblyChatComponent = ({
             {messages.length > 0 ? (
               messages
             ) : (
-              <Flex flexDirection="row">
-                <Image
-                  src="https://i.imgur.com/tS6RUJt.gif"
-                  width="2rem"
-                  height="2rem"
-                  mr="0.5rem"
-                />
-                {"loading messages"}
-              </Flex>
+              <>
+                <Flex flexDirection="row">
+                  {"No messages to show. Messages delete every 48 hrs."}
+                </Flex>
+              </>
             )}
             {messages}
             {autoScroll.current && (
