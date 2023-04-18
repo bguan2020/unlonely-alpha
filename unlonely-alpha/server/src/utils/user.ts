@@ -9,15 +9,19 @@ const prisma = new PrismaClient();
 const userCreationPromises = new Map();
 
 export const findOrCreateUser = async ({ address }: { address: string }) => {
+  console.log("1. address in", address);
   let user = await prisma.user.findUnique({
     where: {
       address: address,
     },
   });
+  console.log("2. find existing user", user)
 
   if (!user) {
+    console.log("2a. no user found");
     // Check if there's an ongoing user creation request for this address
     if (userCreationPromises.has(address)) {
+      console.log("ongoing user create req")
       // If yes, return the existing promise
       return await userCreationPromises.get(address);
     }
@@ -63,6 +67,7 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
             username: username,
           },
         });
+        console.log("error but still created new user", user);
       } finally {
         // Remove the promise from the map when the request is complete
         userCreationPromises.delete(address);
