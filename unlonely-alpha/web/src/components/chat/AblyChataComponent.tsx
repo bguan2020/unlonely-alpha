@@ -99,10 +99,6 @@ const AblyChatComponent = ({
     ? `persistMessages:${ablyChatChannel}`
     : "persistMessages:chat-demo";
 
-    useEffect(() => {
-      console.log(hasMessagesLoaded);
-    }, [hasMessagesLoaded]);
-
   const [channel, ably] = useChannel(channelName, (message) => {
     setHasMessagesLoaded(false);
     const history = receivedMessages.slice(-199);
