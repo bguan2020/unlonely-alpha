@@ -10,7 +10,13 @@ import {
 import { EditIcon } from "../../components/icons/EditIcon";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
 import useUpdateChannelText from "../../hooks/useUpdateChannelText";
-import { Button, FormControl, FormErrorMessage, Textarea, Tooltip } from "@chakra-ui/react";
+import {
+  Button,
+  FormControl,
+  FormErrorMessage,
+  Textarea,
+  Tooltip,
+} from "@chakra-ui/react";
 
 type Props = {
   channel: ChannelDetailQuery["getChannelBySlug"];
@@ -30,11 +36,8 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
   });
-  console.log(isOwner, "isOwner");
 
   const onSubmit = (data: UpdateChannelTextInput) => {
-    console.log(data, "data");
-    console.log(channel?.id, "channel?.id");
     updateChannelText({
       id: channel?.id,
       name: data.name,
@@ -49,51 +52,55 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
         <>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Flex direction="column">
-            <Flex
-  maxH="400px"
-  margin="auto"
-  mb="16px"
-  ml="32px"
-  mt="12px"
-  w="60%"
-  justifyContent="left"
-  flexDirection="row"
-  position="relative"
->
-  <FormControl isInvalid={!!formState.errors.name}>
-    <Textarea
-      id="name"
-      placeholder={
-        channel?.name ? channel.name : "Enter a title for your stream."
-      }
-      _placeholder={{ color: "grey" }}
-      lineHeight="1.2"
-      background="#F1F4F8"
-      borderRadius="10px"
-      boxShadow="#F1F4F8"
-      minHeight="3.4rem"
-      color="#2C3A50"
-      fontWeight="medium"
-      fontSize="2rem"
-      w="100%"
-      padding="auto"
-      {...register("name")}
-    />
-    <FormErrorMessage>{formState.errors.name?.message}</FormErrorMessage>
-  </FormControl>
-  {isOwner && (
-    <EditIcon
-      boxSize={5}
-      position="absolute"
-      right="-1.4rem"
-      top="15%"
-      transform="translateY(-50%)"
-      onClick={() => {
-        setEditableText((prevEditableText) => !prevEditableText);
-      }}
-    />
-  )}
-</Flex>
+              <Flex
+                maxH="400px"
+                margin="auto"
+                mb="16px"
+                ml="32px"
+                mt="12px"
+                w="60%"
+                justifyContent="left"
+                flexDirection="row"
+                position="relative"
+              >
+                <FormControl isInvalid={!!formState.errors.name}>
+                  <Textarea
+                    id="name"
+                    placeholder={
+                      channel?.name
+                        ? channel.name
+                        : "Enter a title for your stream."
+                    }
+                    _placeholder={{ color: "grey" }}
+                    lineHeight="1.2"
+                    background="#F1F4F8"
+                    borderRadius="10px"
+                    boxShadow="#F1F4F8"
+                    minHeight="3.4rem"
+                    color="#2C3A50"
+                    fontWeight="medium"
+                    fontSize="2rem"
+                    w="100%"
+                    padding="auto"
+                    {...register("name")}
+                  />
+                  <FormErrorMessage>
+                    {formState.errors.name?.message}
+                  </FormErrorMessage>
+                </FormControl>
+                {isOwner && (
+                  <EditIcon
+                    boxSize={5}
+                    position="absolute"
+                    right="-1.4rem"
+                    top="15%"
+                    transform="translateY(-50%)"
+                    onClick={() => {
+                      setEditableText((prevEditableText) => !prevEditableText);
+                    }}
+                  />
+                )}
+              </Flex>
               <Flex direction="row" width="60%" margin="auto" ml="32px">
                 <FormControl isInvalid={!!formState.errors.description}>
                   <Textarea
