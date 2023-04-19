@@ -36,12 +36,17 @@ const brianPlaybackUrl =
 
 const channelArn = "arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq";
 
+const awsId = "8e2oKm7LXNGq";
+
 const Example: React.FunctionComponent = () => {
   const [width, height] = useWindowSize();
   const { user } = useUser();
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
   const accountData = useAccount();
+
+  const ablyChatChannel = `${awsId}-chat-channel`;
+  const ablyPresenceChannel = `${awsId}-presence-channel`;
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
   const toggleChatVideos = function () {
@@ -116,6 +121,8 @@ const Example: React.FunctionComponent = () => {
             username={username}
             chatBot={chatBot}
             user={user}
+            ablyChatChannel={ablyChatChannel}
+            ablyPresenceChannel={ablyPresenceChannel}
             channelArn={channelArn}
             channelId={3}
           />
