@@ -32,6 +32,7 @@ const useUpdateChannelText = ({
   const updateChannelText = useCallback(
     async (data) => {
       setLoading(true);
+
       const mutationResult = await mutate({ variables: { data } });
 
       if (
@@ -53,3 +54,7 @@ const useUpdateChannelText = ({
 };
 
 export default useUpdateChannelText;
+function except(e: any) {
+  throw new Error("Function not implemented.");
+}
+

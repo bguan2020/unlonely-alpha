@@ -18,7 +18,7 @@ export const updateChannelText = (
   ctx: Context
 ) => {
   return ctx.prisma.channel.update({
-    where: { id: data.id },
+    where: { id: Number(data.id) },
     data: {
       name: data.name,
       description: data.description,

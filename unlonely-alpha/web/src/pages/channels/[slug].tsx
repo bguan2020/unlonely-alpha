@@ -15,7 +15,7 @@ import { useWindowSize } from "../../hooks/useWindowSize";
 import { initializeApollo } from "../../apiClient/client";
 import { ChannelDetailQuery } from "../../generated/graphql";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
-import { EditIcon } from "../../components/icons/EditIcon";
+import ChannelDesc from "../../components/channels/ChannelDesc";
 
 export type ChatBot = {
   username: string;
@@ -74,7 +74,7 @@ const ChannelDetail = ({
   const [width, height] = useWindowSize();
   const { user } = useUser();
   const isOwner = user?.address === channel?.owner.address;
-  const [editableText, setEditableText] = useState<boolean>(false);
+
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
   const accountData = useAccount();
@@ -173,28 +173,7 @@ const ChannelDetail = ({
               />
             </Container>
           </Stack>
-          <Flex direction="column">
-            <Flex
-              maxH="400px"
-              margin="auto"
-              mb="16px"
-              ml="32px"
-              w="100%"
-              justifyContent="space-between"
-              pr="32px"
-              flexDirection="row"
-            >
-              <Text fontSize="2rem" fontWeight="bold">
-                {channel.name}
-              </Text>
-              {isOwner && <EditIcon boxSize={5} onClick={() => {
-                setEditableText((prevEditableText) => !prevEditableText);
-              }}/>}
-            </Flex>
-            <Flex direction="row" width="100%" margin="auto" ml="32px">
-              {channel.description}
-            </Flex>
-          </Flex>
+          <ChannelDesc channel={channel} isOwner={isOwner} />
         </Stack>
       </AppLayout>
     </>

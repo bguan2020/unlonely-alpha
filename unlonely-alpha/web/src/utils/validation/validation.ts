@@ -35,3 +35,15 @@ export const postNfcSchema = object({
     .min(5, "title must be more than 5 characters")
     .max(100, "title must be less than 50 characters"),
 });
+
+export const updateChannelTextSchema = object({
+  name: string()
+    .trim()
+    .required("title is required")
+    .min(5, "title must be more than 5 characters")
+    .max(100, "title must be less than 50 characters"),
+  description: string()
+    .trim()
+    .required("description is required")
+    .max(100, "description must be less than 100 characters"),
+});
