@@ -671,6 +671,20 @@ export type PostVideoMutation = {
   postVideo?: { __typename?: "Video"; id: string } | null;
 };
 
+export type UpdateChannelTextMutationVariables = Exact<{
+  data: UpdateChannelTextInput;
+}>;
+
+export type UpdateChannelTextMutation = {
+  __typename?: "Mutation";
+  updateChannelText?: {
+    __typename?: "Channel";
+    id: string;
+    name?: string | null;
+    description?: string | null;
+  } | null;
+};
+
 export type UpdateUserNotificationsMutationVariables = Exact<{
   data: UpdateUserNotificationsInput;
 }>;
@@ -748,45 +762,30 @@ export type ChannelDetailQuery = {
       FCImageUrl?: string | null;
       lensImageUrl?: string | null;
       username?: string | null;
+      address: string;
     };
   } | null;
 };
 
-export type HostEventFeedQueryVariables = Exact<{
-  data: HostEventFeedInput;
-}>;
+export type GetChannelFeedQueryVariables = Exact<{ [key: string]: never }>;
 
-export type HostEventFeedQuery = {
+export type GetChannelFeedQuery = {
   __typename?: "Query";
-  getHostEventFeed?: Array<{
-    __typename?: "HostEvent";
+  getChannelFeed?: Array<{
+    __typename?: "Channel";
     id: string;
-    hostDate: any;
-    title: string;
+    isLive?: boolean | null;
+    name?: string | null;
     description?: string | null;
-    score: number;
-    liked?: boolean | null;
-    disliked?: boolean | null;
+    slug: string;
+    thumbnailUrl?: string | null;
     owner: {
       __typename?: "User";
       username?: string | null;
+      address: string;
       FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
     };
-    challenge?: {
-      __typename?: "HostEvent";
-      id: string;
-      hostDate: any;
-      title: string;
-      description?: string | null;
-      score: number;
-      liked?: boolean | null;
-      disliked?: boolean | null;
-      owner: {
-        __typename?: "User";
-        username?: string | null;
-        FCImageUrl?: string | null;
-      };
-    } | null;
   } | null> | null;
 };
 
@@ -1425,6 +1424,58 @@ export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
   PostVideoMutation,
   PostVideoMutationVariables
 >;
+export const UpdateChannelTextDocument = gql`
+  mutation UpdateChannelText($data: UpdateChannelTextInput!) {
+    updateChannelText(data: $data) {
+      id
+      name
+      description
+    }
+  }
+`;
+export type UpdateChannelTextMutationFn = Apollo.MutationFunction<
+  UpdateChannelTextMutation,
+  UpdateChannelTextMutationVariables
+>;
+
+/**
+ * __useUpdateChannelTextMutation__
+ *
+ * To run a mutation, you first call `useUpdateChannelTextMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChannelTextMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChannelTextMutation, { data, loading, error }] = useUpdateChannelTextMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChannelTextMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateChannelTextMutation,
+    UpdateChannelTextMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateChannelTextMutation,
+    UpdateChannelTextMutationVariables
+  >(UpdateChannelTextDocument, options);
+}
+export type UpdateChannelTextMutationHookResult = ReturnType<
+  typeof useUpdateChannelTextMutation
+>;
+export type UpdateChannelTextMutationResult =
+  Apollo.MutationResult<UpdateChannelTextMutation>;
+export type UpdateChannelTextMutationOptions = Apollo.BaseMutationOptions<
+  UpdateChannelTextMutation,
+  UpdateChannelTextMutationVariables
+>;
 export const UpdateUserNotificationsDocument = gql`
   mutation updateUserNotifications($data: UpdateUserNotificationsInput!) {
     updateUserNotifications(data: $data) {
@@ -1618,6 +1669,7 @@ export const ChannelDetailDocument = gql`
         FCImageUrl
         lensImageUrl
         username
+        address
       }
       playbackUrl
     }
@@ -1674,86 +1726,73 @@ export type ChannelDetailQueryResult = Apollo.QueryResult<
   ChannelDetailQuery,
   ChannelDetailQueryVariables
 >;
-export const HostEventFeedDocument = gql`
-  query HostEventFeed($data: HostEventFeedInput!) {
-    getHostEventFeed(data: $data) {
+export const GetChannelFeedDocument = gql`
+  query GetChannelFeed {
+    getChannelFeed {
       id
-      hostDate
-      title
+      isLive
+      name
       description
-      score
+      slug
       owner {
         username
+        address
         FCImageUrl
+        lensImageUrl
       }
-      liked
-      disliked
-      challenge {
-        id
-        hostDate
-        title
-        description
-        score
-        owner {
-          username
-          FCImageUrl
-        }
-        liked
-        disliked
-      }
+      thumbnailUrl
     }
   }
 `;
 
 /**
- * __useHostEventFeedQuery__
+ * __useGetChannelFeedQuery__
  *
- * To run a query within a React component, call `useHostEventFeedQuery` and pass it any options that fit your needs.
- * When your component renders, `useHostEventFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetChannelFeedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useHostEventFeedQuery({
+ * const { data, loading, error } = useGetChannelFeedQuery({
  *   variables: {
- *      data: // value for 'data'
  *   },
  * });
  */
-export function useHostEventFeedQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    HostEventFeedQuery,
-    HostEventFeedQueryVariables
+export function useGetChannelFeedQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetChannelFeedQuery,
+    GetChannelFeedQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<HostEventFeedQuery, HostEventFeedQueryVariables>(
-    HostEventFeedDocument,
+  return Apollo.useQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
+    GetChannelFeedDocument,
     options
   );
 }
-export function useHostEventFeedLazyQuery(
+export function useGetChannelFeedLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    HostEventFeedQuery,
-    HostEventFeedQueryVariables
+    GetChannelFeedQuery,
+    GetChannelFeedQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<HostEventFeedQuery, HostEventFeedQueryVariables>(
-    HostEventFeedDocument,
+  return Apollo.useLazyQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
+    GetChannelFeedDocument,
     options
   );
 }
-export type HostEventFeedQueryHookResult = ReturnType<
-  typeof useHostEventFeedQuery
+export type GetChannelFeedQueryHookResult = ReturnType<
+  typeof useGetChannelFeedQuery
 >;
-export type HostEventFeedLazyQueryHookResult = ReturnType<
-  typeof useHostEventFeedLazyQuery
+export type GetChannelFeedLazyQueryHookResult = ReturnType<
+  typeof useGetChannelFeedLazyQuery
 >;
-export type HostEventFeedQueryResult = Apollo.QueryResult<
-  HostEventFeedQuery,
-  HostEventFeedQueryVariables
+export type GetChannelFeedQueryResult = Apollo.QueryResult<
+  GetChannelFeedQuery,
+  GetChannelFeedQueryVariables
 >;
 export const NfcFeedDocument = gql`
   query NFCFeed($data: NFCFeedInput!) {
