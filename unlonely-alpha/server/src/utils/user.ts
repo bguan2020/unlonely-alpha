@@ -15,13 +15,13 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
       address: address,
     },
   });
-  console.log("2. find existing user", user)
+  console.log("2. find existing user", user);
 
   if (!user) {
     console.log("2a. no user found");
     // Check if there's an ongoing user creation request for this address
     if (userCreationPromises.has(address)) {
-      console.log("ongoing user create req")
+      console.log("ongoing user create req");
       // If yes, return the existing promise
       return await userCreationPromises.get(address);
     }
