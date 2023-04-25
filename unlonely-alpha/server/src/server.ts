@@ -1,3 +1,5 @@
+import * as dotenv from "dotenv";
+
 /* eslint-disable no-console */
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
@@ -10,6 +12,8 @@ import graphqlSchema from "./entities/graphqlSchema";
 
 const app = express();
 app.use(cors(), bodyParser.json());
+
+const result = dotenv.config()
 
 app.get("/", (_, res) => res.sendStatus(200));
 
