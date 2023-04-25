@@ -112,7 +112,7 @@ const ClipDetail = () => {
           return;
         }
         setProgressBar((prev) => prev + 6);
-      }, 5000);
+      }, 10000);
     }
   }, [user?.address]);
 
@@ -239,7 +239,7 @@ const ClipDetail = () => {
                     <Flex width="100%" justifyContent="center">
                       <Text fontSize="16px">
                         Do no refresh or close this page! Clip is being
-                        generated!
+                        generated! This will take a few minutes, so go back to the livestream if you want!
                       </Text>
                     </Flex>
                   ) : (
