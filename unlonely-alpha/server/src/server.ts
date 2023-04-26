@@ -1,5 +1,4 @@
 import * as dotenv from "dotenv";
-
 /* eslint-disable no-console */
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
