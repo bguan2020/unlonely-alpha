@@ -30,35 +30,12 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
     const username = await getEnsName(address);
     const userCreationPromise = (async () => {
       try {
-        const { data } = await lensClient.query({
-          query: LENS_GET_DEFAULT_PROFILE,
-          variables: {
-            ethereumAddress: address,
-          },
-        });
-        console.log(data, "lens data");
-
-        if (data && data.defaultProfile) {
-          user = await prisma.user.create({
-            data: {
-              address: address,
-              username: username,
-              lensHandle: data.defaultProfile.handle,
-              lensImageUrl:
-                data.defaultProfile.picture === null
-                  ? null
-                  : data.defaultProfile.picture.original.url,
-              isLensUser: true,
-            },
-          });
-        } else {
           user = await prisma.user.create({
             data: {
               address: address,
               username: username,
             },
           });
-        }
       } catch (e) {
         console.log(e);
         user = await prisma.user.create({
