@@ -28,6 +28,7 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
 
     // Otherwise, create a new user and store the promise in the map
     const username = await getEnsName(address);
+    console.log(username);
     const userCreationPromise = (async () => {
       try {
           user = await prisma.user.create({

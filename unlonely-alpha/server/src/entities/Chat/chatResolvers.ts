@@ -35,4 +35,9 @@ export const resolvers = {
       return chatService.postFirstChat(data, ctx.user, ctx);
     },
   },
+  Chat: {
+    owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
+      return chatService.getOwner({ ownerAddr }, ctx);
+    },
+  }
 };
