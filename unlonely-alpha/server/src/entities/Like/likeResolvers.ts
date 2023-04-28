@@ -19,10 +19,10 @@ export const resolvers = {
     },
   },
   Likable: {
-    __resolveType: (obj: Comment | HostEvent | NFC, _ctx: Context) => {
-      if ("hostDate" in obj) {
-        return "HostEvent";
-      }
+    __resolveType: (obj: Comment | NFC, _ctx: Context) => {
+      // if ("hostDate" in obj) {
+      //   return "HostEvent";
+      // }
 
       if ("videoLink" in obj) {
         return "NFC";

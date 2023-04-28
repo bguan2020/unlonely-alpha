@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import AppLayout from "../../components/layout/AppLayout";
 import { getEnsName } from "../../utils/ens";
 import centerEllipses from "../../utils/centerEllipses";
-import AblyChatComponent from "../../components/chat/AblyChataComponent";
+import AblyChatComponent from "../../components/chat/ChatComponent";
 import NextStreamTimer from "../../components/stream/NextStreamTimer";
 import { useUser } from "../../hooks/useUser";
 import { useWindowSize } from "../../hooks/useWindowSize";
