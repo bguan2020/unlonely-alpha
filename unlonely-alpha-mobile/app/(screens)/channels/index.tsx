@@ -64,19 +64,20 @@ export default function ScheduleScreen() {
             </View>
           </View>
         )}
-        <Text style={[styles.title, styles.subtitle]}>Channels</Text>
         {status === 'loading' ? (
           <View
             style={{
-              height: height - 200,
+              height: height - 140,
               justifyContent: 'center',
               alignItems: 'center',
             }}
           >
             <ActivityIndicator size="large" color="white" />
+            <Text style={[styles.title, styles.subtitle, { paddingTop: 16, paddingLeft: 0 }]}>loading channels...</Text>
           </View>
         ) : (
           <View>
+            <Text style={[styles.title, styles.subtitle]}>All Channels</Text>
             {offlineChannels?.map((channel: Channel) => (
               <ChannelTile
                 key={channel.awsId}
@@ -217,7 +218,7 @@ export const ChannelInfo = ({ channel, size }: { channel: Channel; size: 'big' |
           width: size === 'big' ? 50 : 40,
           height: size === 'big' ? 50 : 40,
           borderRadius: 8,
-          backgroundColor: 'black',
+          backgroundColor: '#222',
         }}
         source={channel.owner.FCImageUrl || `https://ensdata.net/media/avatar/${channel.owner.address}`}
       />
@@ -237,17 +238,19 @@ export const ChannelInfo = ({ channel, size }: { channel: Channel; size: 'big' |
         >
           {channel.name}
         </Text>
-        <Text
-          style={{
-            fontSize: 14,
-            fontFamily: 'NeuePixelSans',
-            letterSpacing: 0.75,
-            color: 'rgba(255,255,255,0.35)',
-            textAlign: 'left',
-          }}
-        >
-          {channel.owner.username}
-        </Text>
+        {channel.owner.username && (
+          <Text
+            style={{
+              fontSize: 14,
+              fontFamily: 'NeuePixelSans',
+              letterSpacing: 0.75,
+              color: 'rgba(255,255,255,0.4)',
+              textAlign: 'left',
+            }}
+          >
+            {channel.owner.username}
+          </Text>
+        )}
       </View>
     </View>
   );

@@ -12,6 +12,7 @@ import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
 import { BlurLayer } from '../blur/blurLayer';
 import { useDeviceInfo } from '../../utils/useDeviceInfo';
+import { truncate0x } from '../../utils/truncate';
 
 type FullscreenNfcProps = {
   height: number;
@@ -337,7 +338,9 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
               }}
             >
               <Text style={styles.title}>{props.item.title}</Text>
-              <Text style={styles.subtitle}>owned by {props.item.owner.username}</Text>
+              <Text style={styles.subtitle}>
+                owned by {props.item.owner.username || truncate0x(props.item.owner.address)}
+              </Text>
             </View>
           </View>
         </View>

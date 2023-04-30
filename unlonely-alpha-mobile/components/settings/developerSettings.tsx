@@ -5,6 +5,7 @@ import { AnimatedPressable } from '../buttons/animatedPressable';
 import { schedulePushNotification } from '../../utils/notifications';
 import { useUserNotifications } from '../../api/mutations/useUserNotifications';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
+import { useUserStore } from '../../utils/store/userStore';
 
 const version = Constants.manifest.version;
 const buildNumber = Constants.manifest.ios.buildNumber;
@@ -14,6 +15,11 @@ export const DeveloperSettings = () => {
   const [showDevMenu, setShowDevMenu] = useState(false);
   const userNotifications = useUserNotifications();
   const revokeNotificationsPermission = useAppSettingsStore(z => z.revokeNotificationsPermission);
+  const { clearUser, clearConnectedWallet, setUserDataLoading } = useUserStore(z => ({
+    clearUser: z.clearUser,
+    clearConnectedWallet: z.clearConnectedWallet,
+    setUserDataLoading: z.setUserDataLoading,
+  }));
 
   useEffect(() => {
     if (timesPressed > 9) {
@@ -30,6 +36,12 @@ export const DeveloperSettings = () => {
     userNotifications?.mutate({
       notificationsTokens: '',
     });
+  };
+
+  const clearWallet = () => {
+    clearUser();
+    clearConnectedWallet();
+    setUserDataLoading(false);
   };
 
   return (
@@ -67,10 +79,9 @@ export const DeveloperSettings = () => {
             </View>
           </AnimatedPressable>
 
-          <AnimatedPressable>
+          <AnimatedPressable onPress={clearWallet}>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>clear connected wallet</Text>
-              {/* clear state and also wipe localstorage in webviews */}
               <Text style={styles.subtitle}>☠️</Text>
             </View>
           </AnimatedPressable>
@@ -82,12 +93,6 @@ export const DeveloperSettings = () => {
             </View>
           </AnimatedPressable> */}
 
-          {/* <AnimatedPressable>
-            <View style={styles.settingsToggleRow}>
-              <Text style={styles.subtitle}>reset async storage</Text>
-              <Text style={styles.subtitle}>⚠️</Text>
-            </View>
-          </AnimatedPressable> */}
           <AnimatedPressable onPress={resetNotificationTokens}>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>reset notification tokens</Text>

@@ -9,7 +9,6 @@ import { useUserStore } from '../../utils/store/userStore';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
 import { BlurLayer } from '../blur/blurLayer';
-import { CoinbaseSheet } from '../settings/coinbaseSheet';
 
 const AVATAR_SIZE = 48;
 
@@ -140,6 +139,22 @@ export function FeedNav() {
           </View>
         </AnimatedPressable>
 
+        {!connectedWallet && (
+          <AnimatedPressable onPress={toggleSettingsSheet}>
+            <View
+              style={{
+                width: 180,
+                height: AVATAR_SIZE,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text style={styles.title}>connect wallet</Text>
+            </View>
+          </AnimatedPressable>
+        )}
+
         <AnimatedMenuView
           onPressAction={({ nativeEvent }) => {
             useHaptics('light');
@@ -234,5 +249,16 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderColor: 'rgba(255,255,255,0.08)',
     borderWidth: 1,
+  },
+  title: {
+    fontSize: 16,
+    fontFamily: 'NeuePixelSans',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+    color: '#e2f979',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 1,
   },
 });

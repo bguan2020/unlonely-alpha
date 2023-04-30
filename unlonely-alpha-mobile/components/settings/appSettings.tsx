@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, Switch } from 'react-native';
+import { View, Text, StyleSheet, Switch, Linking } from 'react-native';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
+import { AnimatedPressable } from '../buttons/animatedPressable';
 
 export const AppSettings = () => {
   const { isBlurEnabled, isNfcAutoplayEnabled, toggleBlur, toggleNfcAutoplay } = useAppSettingsStore();
@@ -7,7 +8,7 @@ export const AppSettings = () => {
   return (
     <>
       <Text style={styles.title}>App Settings</Text>
-      <View style={styles.settingsToggleRow}>
+      {/* <View style={styles.settingsToggleRow}>
         <Text style={styles.subtitle}>autoplay NFCs</Text>
         <Switch
           value={isNfcAutoplayEnabled}
@@ -18,7 +19,7 @@ export const AppSettings = () => {
           thumbColor="white"
           disabled
         />
-      </View>
+      </View> */}
       <View style={styles.settingsToggleRow}>
         <Text style={styles.subtitle}>blur</Text>
         <Switch
@@ -30,6 +31,24 @@ export const AppSettings = () => {
           thumbColor="white"
         />
       </View>
+      <AnimatedPressable
+        onPress={() => {
+          Linking.openURL('https://t.me/+aDgcqW4DKLxmODlh');
+        }}
+      >
+        <View style={styles.settingsToggleRow}>
+          <Text
+            style={[
+              styles.subtitle,
+              {
+                color: '#be47d1',
+              },
+            ]}
+          >
+            join the telegram group chat
+          </Text>
+        </View>
+      </AnimatedPressable>
     </>
   );
 };

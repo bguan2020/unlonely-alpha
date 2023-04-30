@@ -12,9 +12,10 @@ import { AnimatedPressable } from '../buttons/animatedPressable';
 const AVATAR_SIZE = 48;
 
 export const UserSettings = () => {
-  const { isSettingsSheetOpen, openCoinbaseSheet } = useBottomSheetStore(z => ({
+  const { isSettingsSheetOpen, openCoinbaseSheet, openCKSheet } = useBottomSheetStore(z => ({
     isSettingsSheetOpen: z.isSettingsSheetOpen,
     openCoinbaseSheet: z.openCoinbaseSheet,
+    openCKSheet: z.openCKSheet,
   }));
   const { hasHydrated, connectedWallet, userData, setUser, userDataLoading, setUserDataLoading } = useUserStore(z => ({
     hasHydrated: z._hasHydrated,
@@ -111,7 +112,7 @@ export const UserSettings = () => {
                     <Ionicons
                       name="ios-person"
                       size={20}
-                      color="#e6f88a"
+                      color="#e2f979"
                       style={{
                         top: -1,
                         zIndex: 2,
@@ -142,8 +143,8 @@ export const UserSettings = () => {
         )}
         {!userDataLoading && (
           <MotiView {...fadeInScale}>
-            <AnimatedPressable style={styles.manageButton} onPress={openCoinbaseSheet}>
-              <Text style={styles.manageButtonText}>{connectedWallet ? 'manage' : 'connect'}</Text>
+            <AnimatedPressable style={styles.manageButton} onPress={connectedWallet ? openCKSheet : openCoinbaseSheet}>
+              <Text style={styles.manageButtonText}>{connectedWallet ? 'disconnect' : 'connect wallet'}</Text>
             </AnimatedPressable>
           </MotiView>
         )}

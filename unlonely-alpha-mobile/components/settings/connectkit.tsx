@@ -1,5 +1,5 @@
 import BottomSheet from '@gorhom/bottom-sheet';
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
 import { useUser } from '../../api/queries/useUser';
@@ -10,7 +10,7 @@ import { useUserStore } from '../../utils/store/userStore';
 const CONNECTKIT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/connect-wallet';
 // const CONNECTKIT_WEBVIEW_URL = 'http://192.168.1.165:3000/mobile/connect-wallet';
 
-export const ConnectKitSheet = forwardRef((props, ref) => {
+export const ConnectKitSheet = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const webViewRef = useRef<WebView>(null);
   const [webViewKey, setWebViewKey] = useState(0);
@@ -123,28 +123,6 @@ export const ConnectKitSheet = forwardRef((props, ref) => {
     }
   }, [connectedWallet]);
 
-  const handleCoinbaseConnection = (sessionData: string) => {
-    try {
-      const parsedSessionData = JSON.parse(sessionData);
-      const injectJS = `
-      const localStorageObj = ${JSON.stringify(parsedSessionData)};
-      for (const key in localStorageObj) {
-        if (localStorageObj.hasOwnProperty(key)) {
-          localStorage.setItem(key, localStorageObj[key]);
-        }
-      }
-      true;
-    `;
-      webViewRef.current.injectJavaScript(injectJS);
-    } catch (error) {
-      console.error('Error parsing session data:', error);
-    }
-  };
-
-  useImperativeHandle(ref, () => ({
-    handleCoinbaseConnection,
-  }));
-
   return (
     <View
       style={{
@@ -205,7 +183,7 @@ export const ConnectKitSheet = forwardRef((props, ref) => {
       </BottomSheet>
     </View>
   );
-});
+};
 
 const styles = StyleSheet.create({
   viewWrapper: {

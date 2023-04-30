@@ -17,7 +17,6 @@ import { Ionicons } from '@expo/vector-icons';
 
 const AVATAR_SIZE = 48;
 const CHAT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/chat';
-// const CHAT_WEBVIEW_URL = 'http://192.168.1.165:3000/mobile/chat';
 
 const funnyName = [
   'ted’s mom',
@@ -180,7 +179,7 @@ export function Chat({ awsId, slug }) {
           setBuiltInZoomControls={false}
           setDisplayZoomControls={false}
           showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           onLoadStart={() => {
             setFinishedLoading(false);
           }}

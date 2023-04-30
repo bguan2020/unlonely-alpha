@@ -106,6 +106,7 @@ export default function NfcFeedScreen() {
           }}
         >
           <ActivityIndicator size="large" color="white" />
+          <Text style={styles.loading}>loading nfc...</Text>
         </View>
       )}
       <FlashList
@@ -160,5 +161,14 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 1,
+  },
+  loading: {
+    fontSize: 16,
+    fontFamily: 'NeuePixelSans',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+    color: '#666',
+    textAlign: 'left',
+    marginTop: 16,
   },
 });
