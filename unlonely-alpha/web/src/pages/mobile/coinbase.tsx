@@ -75,7 +75,7 @@ export default function MobileCoinbase() {
       <ConnectWallet />
       {showCloneButton && (
         <>
-          <Box marginTop={2}>first you need to</Box>
+          <Box marginTop={10}>first you need to</Box>
           <Box marginTop={4}>
             <button
               onClick={signTransaction}
@@ -89,7 +89,7 @@ export default function MobileCoinbase() {
             </button>
           </Box>
           <Box marginTop={2}>and then</Box>
-          <Box marginTop={10}>
+          <Box marginTop={2}>
             <button
               onClick={cloneSession}
               style={{

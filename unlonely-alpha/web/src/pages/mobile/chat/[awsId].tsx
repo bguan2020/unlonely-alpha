@@ -158,63 +158,26 @@ export default function Chat() {
 
   const sendChatMessage = async (messageText: string, isGif: boolean) => {
     if (user) {
-      if (!user.signature) {
-        // postFirstChat comes before channel.publish b/c it will set the signature
-        // subsequent chats do not need to call postFirstChat first
-        await postFirstChat(
-          { text: messageText, channelId: 3 },
-          { isFirst: true }
-        );
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        channel.publish({
-          name: "chat-message",
-          data: {
-            messageText,
-            username: user.username,
-            chatColor,
-            isFC: user.isFCUser,
-            isLens: user.isLensUser,
-            lensHandle: user.lensHandle,
-            address: user.address,
-            powerUserLvl: user?.powerUserLvl,
-            videoSavantLvl: user?.videoSavantLvl,
-            nfcRank: user?.nfcRank,
-            isGif,
-            reactions: initializeEmojis,
-          },
-        });
-        handleChatCommand(messageText);
-      } else {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        channel.publish({
-          name: "chat-message",
-          data: {
-            messageText,
-            username: user.username,
-            chatColor,
-            isFC: user.isFCUser,
-            isLens: user.isLensUser,
-            lensHandle: user.lensHandle,
-            address: user.address,
-            powerUserLvl: user?.powerUserLvl,
-            videoSavantLvl: user?.videoSavantLvl,
-            nfcRank: user?.nfcRank,
-            isGif,
-            reactions: initializeEmojis,
-          },
-        });
-        handleChatCommand(messageText);
-        // postFirstChat comes after to speed up chat
-        // wait a few seconds before postFirstChat
-        setTimeout(async function () {
-          await postFirstChat(
-            { text: messageText, channelId: 3 },
-            { isFirst: false }
-          );
-        }, 5000);
-      }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      channel.publish({
+        name: "chat-message",
+        data: {
+          messageText,
+          username: user.username,
+          chatColor,
+          isFC: user.isFCUser,
+          isLens: user.isLensUser,
+          lensHandle: user.lensHandle,
+          address: user.address,
+          powerUserLvl: user?.powerUserLvl,
+          videoSavantLvl: user?.videoSavantLvl,
+          nfcRank: user?.nfcRank,
+          isGif,
+          reactions: initializeEmojis,
+        },
+      });
+      handleChatCommand(messageText);
     } else {
       if (address) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
