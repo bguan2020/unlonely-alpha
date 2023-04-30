@@ -7,7 +7,7 @@ export const AppSettings = () => {
   return (
     <>
       <Text style={styles.title}>App Settings</Text>
-      <View style={styles.settingsToggleRow}>
+      {/* <View style={styles.settingsToggleRow}>
         <Text style={styles.subtitle}>autoplay NFCs</Text>
         <Switch
           value={isNfcAutoplayEnabled}
@@ -18,7 +18,7 @@ export const AppSettings = () => {
           thumbColor="white"
           disabled
         />
-      </View>
+      </View> */}
       <View style={styles.settingsToggleRow}>
         <Text style={styles.subtitle}>blur</Text>
         <Switch

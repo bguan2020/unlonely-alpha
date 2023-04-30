@@ -16,18 +16,23 @@ export const UserSettings = () => {
     isSettingsSheetOpen: z.isSettingsSheetOpen,
     openCoinbaseSheet: z.openCoinbaseSheet,
   }));
-  const { hasHydrated, connectedWallet, userData, setUser, userDataLoading, setUserDataLoading } = useUserStore(z => ({
-    hasHydrated: z._hasHydrated,
-    userDataLoading: z.userDataLoading,
-    setUserDataLoading: z.setUserDataLoading,
-    connectedWallet: z.connectedWallet,
-    userData: z.userData,
-    setUser: z.setUser,
-  }));
+  const { hasHydrated, connectedWallet, userData, setUser, userDataLoading, setUserDataLoading, coinbaseSession } =
+    useUserStore(z => ({
+      hasHydrated: z._hasHydrated,
+      userDataLoading: z.userDataLoading,
+      setUserDataLoading: z.setUserDataLoading,
+      connectedWallet: z.connectedWallet,
+      userData: z.userData,
+      setUser: z.setUser,
+      coinbaseSession: z.coinbaseSession,
+    }));
   const hydratedWalletAddress = hasHydrated && connectedWallet ? connectedWallet.address : 'user';
   const { data: apiUser, run: getUserData } = useUser(hydratedWalletAddress, { address: hydratedWalletAddress });
 
   useEffect(() => {
+    // console.log({ userData });
+    // console.log({ connectedWallet });
+    // console.log({ apiUser });
     // runs pretty much on every open of the settings bottom sheet
     // and whenever userData changes
     if (userData && !isSettingsSheetOpen) {
@@ -111,7 +116,7 @@ export const UserSettings = () => {
                     <Ionicons
                       name="ios-person"
                       size={20}
-                      color="#e6f88a"
+                      color={coinbaseSession !== null ? '#2151f5' : '#e2f979'}
                       style={{
                         top: -1,
                         zIndex: 2,
@@ -143,7 +148,7 @@ export const UserSettings = () => {
         {!userDataLoading && (
           <MotiView {...fadeInScale}>
             <AnimatedPressable style={styles.manageButton} onPress={openCoinbaseSheet}>
-              <Text style={styles.manageButtonText}>{connectedWallet ? 'manage' : 'connect'}</Text>
+              <Text style={styles.manageButtonText}>{connectedWallet ? 'disconnect' : 'connect wallet'}</Text>
             </AnimatedPressable>
           </MotiView>
         )}

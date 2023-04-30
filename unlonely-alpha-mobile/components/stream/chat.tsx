@@ -16,8 +16,8 @@ import { truncate0x, truncateEns } from '../../utils/truncate';
 import { Ionicons } from '@expo/vector-icons';
 
 const AVATAR_SIZE = 48;
-const CHAT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/chat';
-// const CHAT_WEBVIEW_URL = 'http://192.168.1.165:3000/mobile/chat';
+// const CHAT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/chat';
+const CHAT_WEBVIEW_URL = 'http://192.168.1.165:3000/mobile/chat';
 
 const funnyName = [
   'ted’s mom',
@@ -43,9 +43,10 @@ export function Chat({ awsId, slug }) {
   const webViewRef = useRef<WebView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [chatKey, setChatKey] = useState(0);
-  const { userData, connectedWallet } = useUserStore(z => ({
+  const { userData, connectedWallet, coinbaseSession } = useUserStore(z => ({
     userData: z.userData,
     connectedWallet: z.connectedWallet,
+    coinbaseSession: z.coinbaseSession,
   }));
   const { openSettingsSheet, openCoinbaseSheet } = useBottomSheetStore(z => ({
     openSettingsSheet: z.openSettingsSheet,
@@ -115,6 +116,21 @@ export function Chat({ awsId, slug }) {
     setOnlineUsers(parsedData);
   };
 
+  // useEffect(() => {
+  //   console.log('setting coinbase session in chat webview');
+  //   const injectJS = `
+  //     const localStorageCoinbase = ${JSON.stringify(coinbaseSession)};
+  //     for (const key in localStorageCoinbase) {
+  //       if (localStorageCoinbase.hasOwnProperty(key)) {
+  //         localStorage.setItem(key, localStorageCoinbase[key]);
+  //       }
+  //     }
+  //     true;
+  //   `;
+  //   webViewRef.current.injectJavaScript(injectJS);
+  //   webViewRef.current.reload();
+  // }, [userData, connectedWallet, coinbaseSession]);
+
   return (
     <>
       <Presence
@@ -180,7 +196,7 @@ export function Chat({ awsId, slug }) {
           setBuiltInZoomControls={false}
           setDisplayZoomControls={false}
           showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           onLoadStart={() => {
             setFinishedLoading(false);
           }}

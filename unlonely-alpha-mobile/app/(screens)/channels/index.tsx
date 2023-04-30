@@ -218,7 +218,7 @@ export const ChannelInfo = ({ channel, size }: { channel: Channel; size: 'big' |
           width: size === 'big' ? 50 : 40,
           height: size === 'big' ? 50 : 40,
           borderRadius: 8,
-          backgroundColor: '#121212',
+          backgroundColor: '#222',
         }}
         source={channel.owner.FCImageUrl || `https://ensdata.net/media/avatar/${channel.owner.address}`}
       />
@@ -244,7 +244,7 @@ export const ChannelInfo = ({ channel, size }: { channel: Channel; size: 'big' |
               fontSize: 14,
               fontFamily: 'NeuePixelSans',
               letterSpacing: 0.75,
-              color: 'rgba(255,255,255,0.35)',
+              color: 'rgba(255,255,255,0.4)',
               textAlign: 'left',
             }}
           >
