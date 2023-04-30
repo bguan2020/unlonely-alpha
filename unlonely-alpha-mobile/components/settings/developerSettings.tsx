@@ -15,10 +15,9 @@ export const DeveloperSettings = () => {
   const [showDevMenu, setShowDevMenu] = useState(false);
   const userNotifications = useUserNotifications();
   const revokeNotificationsPermission = useAppSettingsStore(z => z.revokeNotificationsPermission);
-  const { clearUser, clearConnectedWallet, setCoinbaseSession, setUserDataLoading } = useUserStore(z => ({
+  const { clearUser, clearConnectedWallet, setUserDataLoading } = useUserStore(z => ({
     clearUser: z.clearUser,
     clearConnectedWallet: z.clearConnectedWallet,
-    setCoinbaseSession: z.setCoinbaseSession,
     setUserDataLoading: z.setUserDataLoading,
   }));
 
@@ -42,7 +41,6 @@ export const DeveloperSettings = () => {
   const clearWallet = () => {
     clearUser();
     clearConnectedWallet();
-    setCoinbaseSession(null);
     setUserDataLoading(false);
   };
 
@@ -84,7 +82,6 @@ export const DeveloperSettings = () => {
           <AnimatedPressable onPress={clearWallet}>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>clear connected wallet</Text>
-              {/* clear state and also wipe localstorage in webviews */}
               <Text style={styles.subtitle}>☠️</Text>
             </View>
           </AnimatedPressable>

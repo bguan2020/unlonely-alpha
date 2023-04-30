@@ -1,5 +1,5 @@
 import BottomSheet from '@gorhom/bottom-sheet';
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
 import { useUser } from '../../api/queries/useUser';
@@ -10,14 +10,14 @@ import { useUserStore } from '../../utils/store/userStore';
 const CONNECTKIT_WEBVIEW_URL = 'https://www.unlonely.app/mobile/connect-wallet';
 // const CONNECTKIT_WEBVIEW_URL = 'http://192.168.1.165:3000/mobile/connect-wallet';
 
-export const ConnectKitSheet = forwardRef((props, ref) => {
+export const ConnectKitSheet = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const webViewRef = useRef<WebView>(null);
   const [webViewKey, setWebViewKey] = useState(0);
   const [resetToInitialCKPage, setResetToInitialCKPage] = useState(false);
 
   // store
-  const { isSettingsSheetOpen, isCKSheetOpen, closeCKSheet, openCKSheet } = useBottomSheetStore();
+  const { isSettingsSheetOpen, isCKSheetOpen, closeCKSheet } = useBottomSheetStore();
   const {
     _hasHydrated,
     connectedWallet,
@@ -26,13 +26,11 @@ export const ConnectKitSheet = forwardRef((props, ref) => {
     setUser,
     clearUser,
     setUserDataLoading,
-    setCoinbaseSession,
   } = useUserStore(z => ({
     _hasHydrated: z._hasHydrated,
     connectedWallet: z.connectedWallet,
     setConnectedWallet: z.setConnectedWallet,
     clearConnectedWallet: z.clearConnectedWallet,
-    setCoinbaseSession: z.setCoinbaseSession,
     setUser: z.setUser,
     clearUser: z.clearUser,
     setUserDataLoading: z.setUserDataLoading,
@@ -67,8 +65,6 @@ export const ConnectKitSheet = forwardRef((props, ref) => {
   const handleWebConnectKitConnection = async (event: any) => {
     const { data } = event.nativeEvent;
 
-    console.log({ data });
-
     if (data === 'ck_modal_closed') {
       console.log('[connectkit] modal closed ⬇️');
       closeCKSheet();
@@ -77,7 +73,6 @@ export const ConnectKitSheet = forwardRef((props, ref) => {
 
     if (data === 'wallet_disconnected') {
       console.log('[connectkit] wallet disconnected 🗑️');
-      setCoinbaseSession(null);
       clearUser();
       clearConnectedWallet();
       return;
@@ -127,55 +122,6 @@ export const ConnectKitSheet = forwardRef((props, ref) => {
       setUserDataLoading(true);
     }
   }, [connectedWallet]);
-
-  const handleCoinbaseConnection = (sessionData: string) => {
-    try {
-      const parsedSessionData = JSON.parse(sessionData);
-      // const extraShit = {
-      //   `-walletlink:https://www.walletlink.org:Addresses`: `0x96a77560146501eaeb5e6d5b7d8dd1ed23defa23`,
-      //   `-walletlink:https://www.walletlink.org:session:secret`: `d83b5f66f32d4be3e9abfc4647e5fa5a4951c32741ac598255cdcf27a1dadd1d`,
-      //   `wagmi.connected`: `true`
-      // }
-      setCoinbaseSession(parsedSessionData);
-      //   const injectJS = `
-      //   let localStorageObj = {};
-      //   localStorageObj = ${sessionData};
-      //   for (const key in localStorageObj) {
-      //     if (localStorageObj.hasOwnProperty(key)) {
-      //       localStorage.setItem(key, localStorageObj[key]);
-      //     }
-      //   }
-      //   true;
-      // `;
-      //   webViewRef.current.injectJavaScript(injectJS);
-      // webViewRef.current.reload();
-      // openCKSheet();
-      // setTimeout(() => {
-      //   setWebViewKey(webViewKey + 1);
-      // }, 2000);
-
-      console.log(parsedSessionData);
-
-      const jsCode = `
-    Object.keys(${parsedSessionData}).forEach((key) => {
-      localStorage.setItem(${parsedSessionData}[key], ${parsedSessionData}[key]);
-    }); true;`;
-
-      webViewRef.current.injectJavaScript(jsCode);
-      setTimeout(() => {
-        webViewRef.current.reload();
-      }, 2000);
-
-      // TODO: send a message to the webview to query the user api with the wallet address
-      // that was injected from coinbase into localstorage
-    } catch (error) {
-      console.error('Error parsing session data:', error);
-    }
-  };
-
-  useImperativeHandle(ref, () => ({
-    handleCoinbaseConnection,
-  }));
 
   return (
     <View
@@ -237,7 +183,7 @@ export const ConnectKitSheet = forwardRef((props, ref) => {
       </BottomSheet>
     </View>
   );
-});
+};
 
 const styles = StyleSheet.create({
   viewWrapper: {

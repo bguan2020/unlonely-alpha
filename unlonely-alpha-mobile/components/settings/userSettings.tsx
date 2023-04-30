@@ -12,27 +12,23 @@ import { AnimatedPressable } from '../buttons/animatedPressable';
 const AVATAR_SIZE = 48;
 
 export const UserSettings = () => {
-  const { isSettingsSheetOpen, openCoinbaseSheet } = useBottomSheetStore(z => ({
+  const { isSettingsSheetOpen, openCoinbaseSheet, openCKSheet } = useBottomSheetStore(z => ({
     isSettingsSheetOpen: z.isSettingsSheetOpen,
     openCoinbaseSheet: z.openCoinbaseSheet,
+    openCKSheet: z.openCKSheet,
   }));
-  const { hasHydrated, connectedWallet, userData, setUser, userDataLoading, setUserDataLoading, coinbaseSession } =
-    useUserStore(z => ({
-      hasHydrated: z._hasHydrated,
-      userDataLoading: z.userDataLoading,
-      setUserDataLoading: z.setUserDataLoading,
-      connectedWallet: z.connectedWallet,
-      userData: z.userData,
-      setUser: z.setUser,
-      coinbaseSession: z.coinbaseSession,
-    }));
+  const { hasHydrated, connectedWallet, userData, setUser, userDataLoading, setUserDataLoading } = useUserStore(z => ({
+    hasHydrated: z._hasHydrated,
+    userDataLoading: z.userDataLoading,
+    setUserDataLoading: z.setUserDataLoading,
+    connectedWallet: z.connectedWallet,
+    userData: z.userData,
+    setUser: z.setUser,
+  }));
   const hydratedWalletAddress = hasHydrated && connectedWallet ? connectedWallet.address : 'user';
   const { data: apiUser, run: getUserData } = useUser(hydratedWalletAddress, { address: hydratedWalletAddress });
 
   useEffect(() => {
-    // console.log({ userData });
-    // console.log({ connectedWallet });
-    // console.log({ apiUser });
     // runs pretty much on every open of the settings bottom sheet
     // and whenever userData changes
     if (userData && !isSettingsSheetOpen) {
@@ -116,7 +112,7 @@ export const UserSettings = () => {
                     <Ionicons
                       name="ios-person"
                       size={20}
-                      color={coinbaseSession !== null ? '#2151f5' : '#e2f979'}
+                      color="#e2f979"
                       style={{
                         top: -1,
                         zIndex: 2,
@@ -147,7 +143,7 @@ export const UserSettings = () => {
         )}
         {!userDataLoading && (
           <MotiView {...fadeInScale}>
-            <AnimatedPressable style={styles.manageButton} onPress={openCoinbaseSheet}>
+            <AnimatedPressable style={styles.manageButton} onPress={connectedWallet ? openCKSheet : openCoinbaseSheet}>
               <Text style={styles.manageButtonText}>{connectedWallet ? 'disconnect' : 'connect wallet'}</Text>
             </AnimatedPressable>
           </MotiView>

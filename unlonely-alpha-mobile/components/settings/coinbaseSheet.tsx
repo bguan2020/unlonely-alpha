@@ -1,18 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, Linking } from 'react-native';
-import Clipboard from '@react-native-clipboard/clipboard';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useHaptics } from '../../utils/haptics';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 import { Ionicons } from '@expo/vector-icons';
 import { ConnectKitSheet } from './connectkit';
-import { useUserStore } from '../../utils/store/userStore';
-
-const COINBASE_WALLET_URL = 'https://go.cb-w.com/dapp?cb_url=https%3A%2F%2Funlonely.app%2Fmobile%2Fcoinbase';
-// const COINBASE_WALLET_URL = 'https://go.cb-w.com/dapp?cb_url=http%3A%2F%2F192.168.1.165%3A3000%2Fmobile%2Fcoinbase';
-const COINBASE_PASTE_URL = 'https://unlonely.app/mobile/coinbase-paste';
-// const COINBASE_PASTE_URL = 'http://192.168.1.165:3000/mobile/coinbase-paste';
 
 const bottomSheetOptions = {
   index: -1,
@@ -36,81 +29,46 @@ const bottomSheetOptions = {
 };
 
 export const CoinbaseSheet = () => {
-  const childRef = useRef(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = [500];
-  const { setCoinbaseSession, coinbaseSession, connectedWallet, clearConnectedWallet, clearUser } = useUserStore(z => ({
-    coinbaseSession: z.coinbaseSession,
-    setCoinbaseSession: z.setCoinbaseSession,
-    connectedWallet: z.connectedWallet,
-    clearConnectedWallet: z.clearConnectedWallet,
-    clearUser: z.clearUser,
-  }));
+  const snapPoints = [280, 590];
   const { isCoinbaseSheetOpen, closeCoinbaseSheet, openCKSheet } = useBottomSheetStore(z => ({
     isCoinbaseSheetOpen: z.isCoinbaseSheetOpen,
     closeCoinbaseSheet: z.closeCoinbaseSheet,
     openCKSheet: z.openCKSheet,
   }));
-  const [showCoinbasePasteView, setShowCoinbasePasteView] = useState(false);
   const [showCoinbaseExplainerView, setShowCoinbaseExplainerView] = useState(false);
 
   const handleYes = () => {
-    if (connectedWallet?.address && coinbaseSession) {
-      setCoinbaseSession(null);
-      clearConnectedWallet();
-      clearUser();
-      closeCoinbaseSheet();
-    } else {
-      setShowCoinbaseExplainerView(true);
-    }
+    setShowCoinbaseExplainerView(true);
+    bottomSheetRef.current?.snapToIndex(1);
   };
 
   const handleNo = () => {
-    setShowCoinbasePasteView(false);
     setShowCoinbaseExplainerView(false);
     closeCoinbaseSheet();
     openCKSheet();
   };
 
-  const handleOpenCoinbaseApp = () => {
-    // open coinbase-paste webview
-    setShowCoinbasePasteView(true);
-    // redirect to url
-    Linking.openURL(COINBASE_WALLET_URL);
-  };
-
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
       closeCoinbaseSheet();
-      setShowCoinbasePasteView(false);
       setShowCoinbaseExplainerView(false);
     }
   }, []);
 
   useEffect(() => {
     if (isCoinbaseSheetOpen) {
-      bottomSheetRef.current?.expand();
+      bottomSheetRef.current?.snapToIndex(0);
       useHaptics('light');
     } else {
       bottomSheetRef.current?.close();
     }
   }, [isCoinbaseSheetOpen]);
 
-  const handlePaste = () => {
-    Clipboard.getString().then(content => {
-      if (content.includes('coinbase')) {
-        childRef.current.handleCoinbaseConnection(content);
-        // closeCoinbaseSheet();
-      } else {
-        alert('invalid session. make sure the coinbase session is in your clipboard and try pasting it again.');
-      }
-    });
-  };
-
   return (
     <>
       <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints} onChange={handleSheetChanges} {...bottomSheetOptions}>
-        {!showCoinbaseExplainerView && !showCoinbasePasteView && (
+        {!showCoinbaseExplainerView && (
           <View style={[styles.main, styles.sheetWrapper]}>
             <View
               style={{
@@ -173,12 +131,39 @@ export const CoinbaseSheet = () => {
               </AnimatedPressable>
             </View>
             <View>
-              <Text style={styles.title}>coinbase wallet instructions</Text>
-              <ExplainerItem counter="1" text="tap the button below to open the coinbase wallet app" />
-              <ExplainerItem counter="2" text="connect your wallet inside coinbase" />
-              <ExplainerItem counter="3" text="sign a transaction" />
-              <ExplainerItem counter="4" text="copy your session from coinbase wallet" />
-              <ExplainerItem counter="5" text="go back to unlonely and tap the paste button to connect" />
+              <Text style={styles.title}>sorry but...</Text>
+              <Text
+                style={[
+                  styles.subtitle,
+                  {
+                    color: 'white',
+                    marginBottom: 8,
+                  },
+                ]}
+              >
+                Coinbase Wallet is not supported in the Unlonely mobile app at this time.
+              </Text>
+              <Text
+                style={[
+                  styles.subtitle,
+                  {
+                    marginBottom: 12,
+                  },
+                ]}
+              >
+                Please use a different mobile wallet by importing your recovery phrase from Coinbase Wallet into it. We
+                recommend using Rainbow.
+              </Text>
+              <ExplainerItem counter="1" text="tap the button below to download and install Rainbow" />
+              <AnimatedPressable
+                onPress={() => {
+                  Linking.openURL('https://learn.rainbow.me/add-an-existing-eth-wallet');
+                }}
+                minimal
+              >
+                <ExplainerItem counter="2" text="import your Coinbase recovery phrase into Rainbow" />
+              </AnimatedPressable>
+              <ExplainerItem counter="3" text="once that’s done, come back to Unlonely and connect your wallet" />
             </View>
             <View
               style={{
@@ -186,20 +171,28 @@ export const CoinbaseSheet = () => {
                 paddingTop: 16,
               }}
             >
-              {showCoinbasePasteView ? (
-                <AnimatedPressable style={[styles.button, styles.buttonPrimary]} onPress={handlePaste}>
-                  <Text style={styles.buttonText}>paste</Text>
-                </AnimatedPressable>
-              ) : (
-                <AnimatedPressable style={[styles.button, styles.buttonPrimary]} onPress={handleOpenCoinbaseApp}>
-                  <Text style={styles.buttonText}>open coinbase wallet</Text>
-                </AnimatedPressable>
-              )}
+              <AnimatedPressable
+                style={[styles.button, styles.buttonPrimary]}
+                onPress={() => {
+                  Linking.openURL('https://rainbow.me');
+                }}
+              >
+                <Text style={styles.buttonText}>get rainbow</Text>
+              </AnimatedPressable>
+              <AnimatedPressable
+                style={[styles.button, styles.buttonSecondary]}
+                onPress={() => {
+                  closeCoinbaseSheet();
+                  openCKSheet();
+                }}
+              >
+                <Text style={styles.buttonText}>connect wallet</Text>
+              </AnimatedPressable>
             </View>
           </View>
         )}
       </BottomSheet>
-      <ConnectKitSheet ref={childRef} />
+      <ConnectKitSheet />
     </>
   );
 };
@@ -217,7 +210,7 @@ function ExplainerItem({ counter, text }) {
     >
       <View
         style={{
-          backgroundColor: '#2151f5',
+          backgroundColor: '#e2f979',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -228,7 +221,7 @@ function ExplainerItem({ counter, text }) {
       >
         <Text
           style={{
-            color: 'white',
+            color: 'black',
           }}
         >
           {counter}
@@ -254,11 +247,11 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'hsl(0, 0%, 12%)',
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 48,
-    paddingTop: 0,
+    paddingTop: 48,
   },
   title: {
     fontSize: 18,
@@ -278,7 +271,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   explainerText: {
-    color: '#999',
+    color: '#e2f979',
     fontFamily: 'NeuePixelSans',
     fontSize: 16,
     letterSpacing: 0.5,
@@ -299,6 +292,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   buttonPrimary: {
-    backgroundColor: '#2151f5',
+    backgroundColor: '#be47d1',
+  },
+  buttonSecondary: {
+    backgroundColor: '#333',
   },
 });

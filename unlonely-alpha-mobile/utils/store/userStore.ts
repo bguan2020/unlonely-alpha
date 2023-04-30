@@ -8,9 +8,7 @@ type UserStore = {
     ensAvatar?: string;
     ensName?: string;
   } | null;
-  coinbaseSession: object;
   setConnectedWallet: (wallet: UserStore['connectedWallet']) => void;
-  setCoinbaseSession: (session: UserStore['coinbaseSession']) => void;
   clearConnectedWallet: () => void;
   userDataLoading: boolean;
   setUserDataLoading: (state: boolean) => void;
@@ -39,8 +37,6 @@ export const useUserStore = create<UserStore>()(
     set => ({
       connectedWallet: null,
       setConnectedWallet: (wallet: UserStore['connectedWallet']) => set({ connectedWallet: wallet }),
-      coinbaseSession: null,
-      setCoinbaseSession: (session: UserStore['coinbaseSession']) => set({ coinbaseSession: session }),
       clearConnectedWallet: () => set({ connectedWallet: null }),
       userDataLoading: false,
       setUserDataLoading: state => set({ userDataLoading: state }),
