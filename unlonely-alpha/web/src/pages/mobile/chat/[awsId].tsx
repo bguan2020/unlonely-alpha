@@ -238,11 +238,11 @@ export default function Chat() {
       } else {
         toast({
           title: "Sign in first.",
-          description: "Please sign into your wallet first.",
+          description: "Please sign a transaction to connect your wallet.",
           status: "warning",
-          duration: 9000,
+          duration: 5000,
           isClosable: true,
-          position: "top",
+          position: "bottom",
         });
       }
     }
