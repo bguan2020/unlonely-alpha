@@ -4,8 +4,14 @@ import { useClipboard } from "use-clipboard-copy";
 import { useAccount } from "wagmi";
 
 import ConnectWallet from "../../components/navigation/ConnectKit";
+import usePostFirstChat from "../../hooks/usePostFirstChat";
 
 export default function MobileCoinbase() {
+  const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
+    onError: (m: any) => {
+      alert("unknown error occured");
+    },
+  });
   const [showCloneButton, setShowCloneButton] = useState(false);
   const clipboard = useClipboard({
     copiedTimeout: 10000, // timeout duration in milliseconds
@@ -50,6 +56,10 @@ export default function MobileCoinbase() {
     }
   }, []);
 
+  const signTransaction = async () => {
+    await postFirstChat({ text: "gm", channelId: 3 }, { isFirst: true });
+  };
+
   return (
     <div
       style={{
@@ -64,18 +74,34 @@ export default function MobileCoinbase() {
     >
       <ConnectWallet />
       {showCloneButton && (
-        <Box marginTop={10}>
-          <button
-            onClick={cloneSession}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "white",
-              borderRadius: 12,
-            }}
-          >
-            {clipboard.copied ? "✅ copied" : "copy session"}
-          </button>
-        </Box>
+        <>
+          <Box marginTop={2}>first you need to</Box>
+          <Box marginTop={4}>
+            <button
+              onClick={signTransaction}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "white",
+                borderRadius: 12,
+              }}
+            >
+              sign a transaction
+            </button>
+          </Box>
+          <Box marginTop={2}>and then</Box>
+          <Box marginTop={10}>
+            <button
+              onClick={cloneSession}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "white",
+                borderRadius: 12,
+              }}
+            >
+              {clipboard.copied ? "✅ copied" : "copy session"}
+            </button>
+          </Box>
+        </>
       )}
       <Box marginTop={2}>
         {clipboard.copied ? (
