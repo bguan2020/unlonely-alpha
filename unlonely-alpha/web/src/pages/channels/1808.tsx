@@ -8,7 +8,7 @@ import VideoSort, { VideoAttribute } from "../../components/video/VideoSort";
 import { getEnsName } from "../../utils/ens";
 import centerEllipses from "../../utils/centerEllipses";
 import { VideoCard_VideoFragment } from "../../generated/graphql";
-import AblyChatComponent from "../../components/chat/AblyChataComponent";
+import AblyChatComponent from "../../components/chat/ChatComponent";
 import { ChatBot } from "./brian";
 import { useUser } from "../../hooks/useUser";
 import useScript from "../../hooks/useScript";

@@ -16,11 +16,11 @@ import { useAccount } from "wagmi";
 import AppLayout from "../../../components/layout/AppLayout";
 import { getEnsName } from "../../../utils/ens";
 import centerEllipses from "../../../utils/centerEllipses";
-import AblyChatComponent from "../../../components/chat/AblyChataComponent";
+import AblyChatComponent from "../../../components/chat/ChatComponent";
 import NextStreamTimer from "../../../components/stream/NextStreamTimer";
 import { useUser } from "../../../hooks/useUser";
 import TaskList from "../../../components/task/TaskList";
-import BrianTokenTab from "../../../components/hostEvents/BrianTokenTab";
+import BrianTokenTab from "../../../components/arcade/BrianTokenTab";
 import { useWindowSize } from "../../../hooks/useWindowSize";
 
 export type ChatBot = {

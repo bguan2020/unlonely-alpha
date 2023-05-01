@@ -23,7 +23,7 @@ import {
   chatbotAddress,
   chatColor,
   emojis,
-} from "../../../components/chat/AblyChataComponent";
+} from "../../../components/chat/ChatComponent";
 import ReactDOM from "react-dom";
 import NextHead from "../../../components/layout/NextHead";
 import Participants from "../../../components/presence/Participants";
