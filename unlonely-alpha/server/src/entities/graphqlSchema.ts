@@ -15,6 +15,8 @@ import { typeDef as chatTypeDef } from "./Chat/chatTypeDef";
 import { typeDef as nfcTypeDef } from "./NFC/NFCTypeDef";
 import { typeDef as streamInteractionTypeDef } from "./StreamInteraction/streamInteractionTypeDef";
 import { typeDef as channelTypeDef } from "./Channel/channelTypeDef";
+import { typeDef as deviceTokenTypeDef } from "./DeviceToken/deviceTokenTypeDef";
+
 import { resolvers as likeResolvers } from "./Like/likeResolvers";
 import { resolvers as userResolvers } from "./User/userResolvers";
 import { resolvers as videoResolvers } from "./Video/videoResolvers";
@@ -24,6 +26,7 @@ import { resolvers as chatResolvers } from "./Chat/chatResolvers";
 import { resolvers as nfcResolvers } from "./NFC/NFCResolvers";
 import { resolvers as streamInteractionResolvers } from "./StreamInteraction/streamInteractionResolvers";
 import { resolvers as channelResolvers } from "./Channel/channelResolvers";
+import { resolvers as deviceTokenResolvers } from "./DeviceToken/deviceTokenResolvers";
 
 const Query = gql`
   enum SortOrder {
@@ -62,6 +65,7 @@ export default makeExecutableSchema({
     nfcTypeDef,
     streamInteractionTypeDef,
     channelTypeDef,
+    deviceTokenTypeDef,
   ],
   resolvers: merge(
     resolvers,
@@ -73,6 +77,7 @@ export default makeExecutableSchema({
     chatResolvers,
     nfcResolvers,
     streamInteractionResolvers,
-    channelResolvers
+    channelResolvers,
+    deviceTokenResolvers,
   ),
 });
