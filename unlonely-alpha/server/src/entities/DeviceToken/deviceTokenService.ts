@@ -4,12 +4,18 @@ import { Context } from "../../context";
 
 export interface IPostDeviceTokenInput {
   token: string;
+  notificationsLive?: boolean;
+  notificationsNFCs?: boolean;
+  address?: string;
 }
 
 export const postDeviceToken = (data: IPostDeviceTokenInput, ctx: Context) => {
   return ctx.prisma.deviceToken.create({
     data: {
       token: data.token,
+      notificationsLive: data.notificationsLive,
+      notificationsNFCs: data.notificationsNFCs,
+      address: data.address,
     },
   });
 };

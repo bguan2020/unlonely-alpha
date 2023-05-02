@@ -13,6 +13,9 @@ export const typeDef = gql`
 
   input PostDeviceTokenInput {
     token: String!
+    notificationsLive: Boolean
+    notificationsNFCs: Boolean
+    address: String
   }
 
   input UpdateDeviceInput {
