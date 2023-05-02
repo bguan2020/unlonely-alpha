@@ -4,7 +4,7 @@ const fetch = require("node-fetch");
 const { MerkleAPIClient } = require("@standard-crypto/farcaster-js");
 const PrismaClient = require("@prisma/client").PrismaClient;
 
-const parentCastHash = "0x14b42bc954efc080ecd1ad333f245e5c72926e55";
+const parentCastHash = "0x9f89409340b0b08fb30cbd478e09ab296381024a";
 
 // connect to database
 const client = new Client({
@@ -61,7 +61,7 @@ const prismaClient = new PrismaClient();
 })().catch((e) => console.error(e));
 
 function verifyCast(cast) {
-  if (cast.startsWith("@noFCplz") || cast.length > 320 || cast.length < 10) {
+  if (cast.startsWith("@noFCplz") || cast.length > 320 || cast.length < 5) {
     return false;
   }
   return true;
@@ -69,26 +69,39 @@ function verifyCast(cast) {
 
 async function publishCast(text) {
   // connect to farcaster
-  const wallet = ethers.Wallet.fromMnemonic('dice exit onion number drama liberty club tennis speed method walk bright');
-
+  // const wallet = ethers.Wallet.fromMnemonic('dice exit onion number drama liberty club tennis speed method walk bright');
+  const privatekey ="0x80819f742b18e34f3c95b60581579fb323485df131e952f2ac896b5291144a9a";
+  const wallet = new ethers.Wallet(privatekey);
   const merkleClient = new MerkleAPIClient(wallet)
 
   const EXPIRY_DURATION_MS = 31536000000 // 1 year
   const bearerToken = await merkleClient.createAuthToken(EXPIRY_DURATION_MS)
-
-  const fcResponse = await fetch("https://api.farcaster.xyz/v2/casts", {
-    method: 'POST',
-    headers: {
-      'accept': 'application/json',
-      'authorization': `Bearer ${bearerToken.secret}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      text: text,
-      parent: {
-        fid: 548,
-        hash: parentCastHash
-      }
-    })
-  });
+  console.log(bearerToken);
+  try {
+    const fcResponse = await fetch("https://api.warpcast.com/v2/casts", {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'authorization': `Bearer ${bearerToken.secret}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: text,
+        parent: {
+          fid: 548,
+          hash: parentCastHash
+        }
+      })
+    });
+    const fcJson = await fcResponse.json();
+    console.log(fcJson);
+    // const parentCastObj = {
+    //   fid: 548,
+    //   hash: parentCastHash
+    // }
+    // const apiCall = await merkleClient.publishCast(text, parentCastObj);
+    // console.log(apiCall.response);
+  } catch (e) {
+    console.log(e.response.data);
+  }
 }
