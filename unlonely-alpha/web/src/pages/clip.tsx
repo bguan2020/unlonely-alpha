@@ -87,21 +87,21 @@ const ClipDetail = () => {
   });
 
   // useeffect to call createClip
-  useEffect(() => {
-    const fetchData = async () => {
-      const { res } = await createClip({ channelArn: query.arn });
-      // if res.errorMessage is not null, then show error message
-      if (res.errorMessage) {
-        setClipError(res.errorMessage);
-        return;
-      }
-      setClipUrl(res.url);
-      setClipThumbnail(res.thumbnail);
-    };
-    if (user) {
-      fetchData();
-    }
-  }, [user?.address]);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const { res } = await createClip({ channelArn: query.arn });
+  //     // if res.errorMessage is not null, then show error message
+  //     if (res.errorMessage) {
+  //       setClipError(res.errorMessage);
+  //       return;
+  //     }
+  //     setClipUrl(res.url);
+  //     setClipThumbnail(res.thumbnail);
+  //   };
+  //   if (user) {
+  //     fetchData();
+  //   }
+  // }, [user?.address]);
 
   // update progress bar every 5 seconds, adding 8 to progress bar
   useEffect(() => {
@@ -234,10 +234,10 @@ const ClipDetail = () => {
                 </Flex>
               )}
               <Flex width="100%" justifyContent="center" mt="2rem">
-                <Flex width="100%" justifyContent="center" direction="column">
+                <Flex width="80%" justifyContent="center" direction="column">
                   {!clipUrl ? (
-                    <Flex width="80%" justifyContent="center">
-                      <Text fontSize="16px">
+                    <Flex width="100%" justifyContent="center">
+                      <Text fontSize="16px" fontFamily="Inter">
                         Do no refresh or close this page! Clip is being
                         generated! This will take a few minutes, so go back to
                         the livestream if you want!
