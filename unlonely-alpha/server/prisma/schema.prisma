@@ -218,3 +218,15 @@ model Channel {
 
   chats Chat[]
 }
+
+model DeviceToken {
+  id           Int     @id @default(autoincrement())
+  token String @unique
+  address String?
+
+  notificationsLive Boolean @default(true)
+  notificationsNFCs Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
