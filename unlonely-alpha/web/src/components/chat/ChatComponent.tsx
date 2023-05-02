@@ -200,12 +200,10 @@ const AblyChatComponent = ({
         handleChatCommand(messageText);
         // postFirstChat comes after to speed up chat
         // wait a few seconds before postFirstChat
-        setTimeout(async function () {
-          await postFirstChat(
-            { text: messageText, channelId: channelId },
-            { isFirst: false }
-          );
-        }, 5000);
+        await postFirstChat(
+          { text: messageText, channelId: channelId },
+          { isFirst: false }
+        );
       }
     } else {
       if (address) {
@@ -299,8 +297,6 @@ const AblyChatComponent = ({
       }, 1000);
     }
   };
-
-
 
   useEffect(() => {
     async function getMessages() {
@@ -408,7 +404,7 @@ const AblyChatComponent = ({
             position="relative"
             mt="8px"
           >
-            <MessageList messages={receivedMessages} channel={channel}/>
+            <MessageList messages={receivedMessages} channel={channel} />
             {autoScroll.current && (
               <Box
               // ref={(el) => {

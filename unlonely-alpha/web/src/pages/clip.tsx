@@ -236,10 +236,11 @@ const ClipDetail = () => {
               <Flex width="100%" justifyContent="center" mt="2rem">
                 <Flex width="100%" justifyContent="center" direction="column">
                   {!clipUrl ? (
-                    <Flex width="100%" justifyContent="center">
+                    <Flex width="80%" justifyContent="center">
                       <Text fontSize="16px">
                         Do no refresh or close this page! Clip is being
-                        generated! This will take a few minutes, so go back to the livestream if you want!
+                        generated! This will take a few minutes, so go back to
+                        the livestream if you want!
                       </Text>
                     </Flex>
                   ) : (

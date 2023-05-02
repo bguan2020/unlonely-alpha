@@ -34,7 +34,7 @@ export const updateAllUsers = async (ctx: Context) => {
   const users = await ctx.prisma.user.findMany({
     where: {
       FCImageUrl: "",
-    }
+    },
   });
   // for loop through userse
   for (let i = 0; i < users.length; i++) {
@@ -43,12 +43,12 @@ export const updateAllUsers = async (ctx: Context) => {
     const response = await axios.get(
       `https://searchcaster.xyz/api/profiles?connected_address=${users[i].address}`
     );
-    console.log(users[i].address, users[i].username)
+    console.log(users[i].address, users[i].username);
     console.log(response);
 
     // // if data array is not empty
     if (response.data.length > 0) {
-      console.log(response.data[0].body)
+      console.log(response.data[0].body);
       // update user with FCImageUrl and isFCUser to true
       await ctx.prisma.user.update({
         where: {
@@ -95,7 +95,7 @@ export const updateAllUsers = async (ctx: Context) => {
           data.defaultProfile.picture.original.url
         );
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
     }
   }

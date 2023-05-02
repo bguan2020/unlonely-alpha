@@ -36,7 +36,14 @@ const MessageList = ({ messages, channel }: Props) => {
 
             return (
               <div key={index}>
-                <MessageBody index={index} message={message} messageText={messageText} isLink={isLink} splitURL={splitURL} channel={channel}/>
+                <MessageBody
+                  index={index}
+                  message={message}
+                  messageText={messageText}
+                  isLink={isLink}
+                  splitURL={splitURL}
+                  channel={channel}
+                />
               </div>
             );
           })}
@@ -50,6 +57,6 @@ const MessageList = ({ messages, channel }: Props) => {
       )}
     </>
   );
-}
+};
 
 export default MessageList;

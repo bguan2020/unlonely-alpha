@@ -6,10 +6,7 @@ export interface IPostDeviceTokenInput {
   token: string;
 }
 
-export const postDeviceToken = (
-  data: IPostDeviceTokenInput,
-  ctx: Context
-) => {
+export const postDeviceToken = (data: IPostDeviceTokenInput, ctx: Context) => {
   return ctx.prisma.deviceToken.create({
     data: {
       token: data.token,
@@ -40,7 +37,7 @@ export interface IUpdateDeviceTokenInput {
 
 export const updateDeviceToken = (
   data: IUpdateDeviceTokenInput,
-  user: User, 
+  user: User,
   ctx: Context
 ) => {
   if (user) {
@@ -66,8 +63,6 @@ export const updateDeviceToken = (
   });
 };
 
-export const getAllDevices = (
-  ctx: Context
-) => {
+export const getAllDevices = (ctx: Context) => {
   return ctx.prisma.deviceToken.findMany();
-}
+};

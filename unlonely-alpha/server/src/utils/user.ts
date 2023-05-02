@@ -31,12 +31,12 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
     console.log(username);
     const userCreationPromise = (async () => {
       try {
-          user = await prisma.user.create({
-            data: {
-              address: address,
-              username: username,
-            },
-          });
+        user = await prisma.user.create({
+          data: {
+            address: address,
+            username: username,
+          },
+        });
       } catch (e) {
         console.log(e);
         user = await prisma.user.create({

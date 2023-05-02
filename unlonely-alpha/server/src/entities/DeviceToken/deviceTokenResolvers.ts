@@ -10,12 +10,9 @@ export const resolvers = {
     ) => {
       return deviceTokenService.getDeviceByToken(data, ctx);
     },
-    getAllDevices: (
-      _: any,
-      ctx: Context
-    ) => {
+    getAllDevices: (_: any, ctx: Context) => {
       return deviceTokenService.getAllDevices(ctx);
-    }
+    },
   },
   Mutation: {
     postDeviceToken: (
@@ -24,6 +21,6 @@ export const resolvers = {
       ctx: Context
     ) => {
       return deviceTokenService.postDeviceToken(data, ctx);
-    }
+    },
   },
 };

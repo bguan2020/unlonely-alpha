@@ -78,6 +78,6 @@ export default makeExecutableSchema({
     nfcResolvers,
     streamInteractionResolvers,
     channelResolvers,
-    deviceTokenResolvers,
+    deviceTokenResolvers
   ),
 });
