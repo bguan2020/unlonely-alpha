@@ -28,6 +28,19 @@ export const getAllUsers = (ctx: Context) => {
   return ctx.prisma.user.findMany();
 };
 
+export const getAllUsersWithChannel = (ctx: Context) => {
+  return ctx.prisma.user.findMany({
+    where: {
+      channel: {
+        some: {},
+      },
+    },
+    include: {
+      channel: true,
+    },
+  });
+};
+
 export const updateAllUsers = async (ctx: Context) => {
   // where FCimageurl is null
 
