@@ -1,9 +1,4 @@
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
   AlertDialog,
   AlertDialogBody,
   AlertDialogCloseButton,
@@ -18,7 +13,6 @@ import {
   Heading,
   Image,
   Input,
-  Link,
   Progress,
   Stack,
   Tab,
@@ -27,16 +21,13 @@ import {
   TabPanels,
   Tabs,
   Text,
-  Textarea,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 import NextHead from "../../components/layout/NextHead";
 import { splitArray } from "../../utils/splitArray";
-import { useUser } from "../../hooks/useUser";
-import AppLayout from "../../components/layout/AppLayout";
 
 type UserNotificationsType = {
   username: string;
@@ -59,16 +50,6 @@ const GET_ALL_USERS = gql`
 `;
 
 export default function MobileNotifications() {
-  const { user } = useUser();
-  const [auth, setAuth] = useState(false);
-
-  //useeffect to check if user is admin
-  useEffect(() => {
-    if (user?.address === "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa") {
-      setAuth(true);
-    }
-  }, [user]);
-
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
@@ -207,223 +188,148 @@ export default function MobileNotifications() {
   };
 
   return (
-    <AppLayout isCustomHeader={false}>
+    <Flex direction={"column"} alignItems="center">
       <NextHead
         title="Push Notifications"
         description="send em"
         image=""
       ></NextHead>
       <Flex padding={[4, 16]} justifyContent="center" maxW="1200px" w={"100%"}>
-        {auth ? (
-          <Stack
-            direction={["column", "row"]}
-            spacing="24px"
-            alignItems="flex-start"
-            w={"100%"}
-          >
-            <Box borderWidth="1px" padding="16px" w={["100%", "60%"]}>
-              {!loading && data ? (
-                <>
-                  <Flex direction="row" justifyContent="space-between" pb="4px">
-                    <p>users w/ notifications on</p>
-                    <Text pl="24px">{usersWithTokens?.length}</Text>
-                  </Flex>
-                  <Divider></Divider>
-                  <Flex direction="row" justifyContent="space-between" pb="4px">
-                    <p>going live</p>
-                    <Text pl="24px">{usersWithLive?.length}</Text>
-                  </Flex>
-                  <Divider></Divider>
-                  <Flex direction="row" justifyContent="space-between" pb="4px">
-                    <p>new NFCs</p>
-                    <Text pl="24px">{usersWithNFCs?.length}</Text>
-                  </Flex>
-
-                  <Accordion>
-                    <AccordionItem>
-                      <h2>
-                        <AccordionButton>
-                          <Box as="span" flex="1" textAlign="left">
-                            show all users and their tokens
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                      </h2>
-                      <AccordionPanel pb={4}>
-                        <Link
-                          href="https://expo.dev/notifications"
-                          color={"blue"}
-                          target="_blank"
-                        >
-                          Expo Push Notifications Tool ↗️
-                        </Link>
-                        <Divider mb={4} mt={2}></Divider>
-                        {usersWithTokens?.map((user: UserNotificationsType) => {
-                          return (
-                            <Box marginBottom={8} key={user.address}>
-                              <Flex>
-                                <Text fontSize="lg" fontWeight={"bold"}>
-                                  {user.username}
-                                </Text>
-                              </Flex>
-                              <Flex>
-                                <Text fontSize={"xs"}>{user.address}</Text>
-                              </Flex>
-                              <Flex direction="column">
-                                {JSON.parse(user?.notificationsTokens).map(
-                                  (token: string) => {
-                                    if (token === null) return;
-
-                                    return (
-                                      <Box mb="4px" w={"100%"} key={token}>
-                                        <Textarea
-                                          onClick={(event) => {
-                                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                            // @ts-ignore
-                                            event.target.select();
-                                          }}
-                                          resize="none"
-                                          padding={"8px"}
-                                          color="gray.500"
-                                          rows={1}
-                                          style={{
-                                            display: "block",
-                                            width: "100%",
-                                            fontSize: "12px",
-                                          }}
-                                          readOnly
-                                          value={token}
-                                        ></Textarea>
-                                      </Box>
-                                    );
-                                  }
-                                )}
-                              </Flex>
-                            </Box>
-                          );
-                        })}
-                      </AccordionPanel>
-                    </AccordionItem>
-                  </Accordion>
-                </>
-              ) : (
-                <Button
-                  onClick={() => {
-                    getAllUsers();
-                  }}
-                  isLoading={loading}
-                  loadingText="fetching users"
-                  disabled={loading || isSending}
-                >
-                  fetch users
-                </Button>
-              )}
-              {loading && (
-                <Progress
-                  size="sm"
-                  isIndeterminate
-                  width="300px"
-                  height="6px"
-                  borderRadius="32px"
-                  mt={"48px"}
-                />
-              )}
+        <Stack
+          direction={["column", "row"]}
+          spacing="24px"
+          alignItems="flex-start"
+          w={"100%"}
+        >
+          <Box borderWidth="1px" padding="16px" w={["100%", "60%"]}>
+            {!loading && data ? (
+              <>
+                <Flex direction="row" justifyContent="space-between" pb="4px">
+                  <p>users w/ notifications on</p>
+                  <Text pl="24px">{usersWithTokens?.length}</Text>
+                </Flex>
+                <Divider></Divider>
+                <Flex direction="row" justifyContent="space-between" pb="4px">
+                  <p>going live</p>
+                  <Text pl="24px">{usersWithLive?.length}</Text>
+                </Flex>
+                <Divider></Divider>
+              </>
+            ) : (
+              <Button
+                onClick={() => {
+                  getAllUsers();
+                }}
+                isLoading={loading}
+                loadingText="fetching users"
+                disabled={loading || isSending}
+              >
+                fetch users
+              </Button>
+            )}
+            {loading && (
+              <Progress
+                size="sm"
+                isIndeterminate
+                width="300px"
+                height="6px"
+                borderRadius="32px"
+                mt={"48px"}
+              />
+            )}
+          </Box>
+          <Box w={"100%"} position="sticky" display={"block"} top="32px">
+            <Box borderWidth="1px" bg="white" padding="32px" w={"100%"}>
+              <Heading size="md" paddingBottom="16px">
+                send notification
+              </Heading>
+              <Tabs
+                variant="soft-rounded"
+                colorScheme="green"
+                defaultIndex={0}
+                onChange={(index) => {
+                  if (index === 0) {
+                    setSelectedType("live");
+                  } else {
+                    setSelectedType("nfc");
+                  }
+                }}
+              >
+                <TabList>
+                  <Tab>going live</Tab>
+                  {/* <Tab>new NFCs</Tab> */}
+                </TabList>
+                <TabPanels>
+                  <TabPanel padding={0} pt={3}>
+                    <Input
+                      mb={2}
+                      color="gray.500"
+                      defaultValue={titleLive}
+                      onChange={(event) => setTitleLive(event.target.value)}
+                    />
+                    <Input
+                      defaultValue={bodyLive}
+                      color="gray.500"
+                      onChange={(event) => setBodyLive(event.target.value)}
+                    />
+                  </TabPanel>
+                  {/* <TabPanel padding={0} pt={3}>
+                    <Input
+                      defaultValue={titleNFCs}
+                      mb={2}
+                      color="gray.500"
+                      onChange={(event) => setTitleNFCs(event.target.value)}
+                    />
+                    <Input
+                      defaultValue={bodyNFCs}
+                      color="gray.500"
+                      onChange={(event) => setBodyNFCs(event.target.value)}
+                    />
+                  </TabPanel> */}
+                </TabPanels>
+              </Tabs>
+              <Button
+                onClick={() => {
+                  getAllUsers();
+                }}
+                isLoading={loading}
+                loadingText=""
+                colorScheme={"gray"}
+                mt={3}
+                mr={3}
+                disabled={!data || loading || isSending}
+              >
+                refetch user list
+              </Button>
+              <Button
+                onClick={onOpen}
+                isLoading={loading}
+                loadingText="fetching users"
+                colorScheme={"blue"}
+                mt={3}
+                disabled={!data || loading || isSending}
+              >
+                send to{" "}
+                {selectedType === "live"
+                  ? usersWithLive?.length
+                  : usersWithNFCs?.length}{" "}
+                users
+              </Button>
             </Box>
-            <Box w={"100%"} position="sticky" display={"block"} top="32px">
-              <Box borderWidth="1px" bg="white" padding="32px" w={"100%"}>
-                <Heading size="md" paddingBottom="16px">
-                  send notification
-                </Heading>
-                <Tabs
-                  variant="soft-rounded"
-                  colorScheme="green"
-                  defaultIndex={0}
-                  onChange={(index) => {
-                    if (index === 0) {
-                      setSelectedType("live");
-                    } else {
-                      setSelectedType("nfc");
-                    }
-                  }}
-                >
-                  <TabList>
-                    <Tab>going live</Tab>
-                    <Tab>new NFCs</Tab>
-                  </TabList>
-                  <TabPanels>
-                    <TabPanel padding={0} pt={3}>
-                      <Input
-                        mb={2}
-                        color="gray.500"
-                        defaultValue={titleLive}
-                        onChange={(event) => setTitleLive(event.target.value)}
-                      />
-                      <Input
-                        defaultValue={bodyLive}
-                        color="gray.500"
-                        onChange={(event) => setBodyLive(event.target.value)}
-                      />
-                    </TabPanel>
-                    <TabPanel padding={0} pt={3}>
-                      <Input
-                        defaultValue={titleNFCs}
-                        mb={2}
-                        color="gray.500"
-                        onChange={(event) => setTitleNFCs(event.target.value)}
-                      />
-                      <Input
-                        defaultValue={bodyNFCs}
-                        color="gray.500"
-                        onChange={(event) => setBodyNFCs(event.target.value)}
-                      />
-                    </TabPanel>
-                  </TabPanels>
-                </Tabs>
-                <Button
-                  onClick={() => {
-                    getAllUsers();
-                  }}
-                  isLoading={loading}
-                  loadingText=""
-                  colorScheme={"gray"}
-                  mt={3}
-                  mr={3}
-                  disabled={!data || loading || isSending}
-                >
-                  refetch user list
-                </Button>
-                <Button
-                  onClick={onOpen}
-                  isLoading={loading}
-                  loadingText="fetching users"
-                  colorScheme={"blue"}
-                  mt={3}
-                  disabled={!data || loading || isSending}
-                >
-                  send to{" "}
-                  {selectedType === "live"
-                    ? usersWithLive?.length
-                    : usersWithNFCs?.length}{" "}
-                  users
-                </Button>
-              </Box>
-              <Text pb={5} pt={5} textAlign="center">
-                preview
-              </Text>
-              <Flex justifyContent={"center"}>
-                <PreviewNotification
-                  selectedType={selectedType}
-                  titleLive={titleLive}
-                  titleNFCs={titleNFCs}
-                  bodyLive={bodyLive}
-                  bodyNFCs={bodyNFCs}
-                />
-              </Flex>
-            </Box>
-          </Stack>
-        ) : (
-          <>Not admin. You cannot access this page.</>
-        )}
+            <Text pb={5} pt={5} textAlign="center">
+              preview
+            </Text>
+            <Flex justifyContent={"center"}>
+              <PreviewNotification
+                selectedType={selectedType}
+                titleLive={titleLive}
+                titleNFCs={titleNFCs}
+                bodyLive={bodyLive}
+                bodyNFCs={bodyNFCs}
+              />
+            </Flex>
+          </Box>
+        </Stack>
       </Flex>
       <AlertDialog
         motionPreset="slideInBottom"
@@ -494,7 +400,7 @@ export default function MobileNotifications() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AppLayout>
+    </Flex>
   );
 }
 
