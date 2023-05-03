@@ -42,6 +42,7 @@ export const typeDef = gql`
     getLeaderboard: [User]
     getAllUsers: [User]
     updateAllUsers: [User]
+    getAllUsersWithChannel: [User]
   }
 
   extend type Mutation {
