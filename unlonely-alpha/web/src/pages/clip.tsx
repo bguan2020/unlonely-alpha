@@ -87,21 +87,21 @@ const ClipDetail = () => {
   });
 
   // useeffect to call createClip
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const { res } = await createClip({ channelArn: query.arn });
-  //     // if res.errorMessage is not null, then show error message
-  //     if (res.errorMessage) {
-  //       setClipError(res.errorMessage);
-  //       return;
-  //     }
-  //     setClipUrl(res.url);
-  //     setClipThumbnail(res.thumbnail);
-  //   };
-  //   if (user) {
-  //     fetchData();
-  //   }
-  // }, [user?.address]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const { res } = await createClip({ channelArn: query.arn });
+      // if res.errorMessage is not null, then show error message
+      if (res.errorMessage) {
+        setClipError(res.errorMessage);
+        return;
+      }
+      setClipUrl(res.url);
+      setClipThumbnail(res.thumbnail);
+    };
+    if (user) {
+      fetchData();
+    }
+  }, [user?.address]);
 
   // update progress bar every 5 seconds, adding 8 to progress bar
   useEffect(() => {
