@@ -22,5 +22,15 @@ export const resolvers = {
     ) => {
       return deviceTokenService.postDeviceToken(data, ctx);
     },
+    updateDeviceToken: (
+      _: any,
+      { data }: { data: deviceTokenService.IUpdateDeviceTokenInput },
+      ctx: Context
+    ) => {
+      if (ctx.user) {
+        return deviceTokenService.updateDeviceToken(data, ctx.user, ctx);
+      }
+      return deviceTokenService.updateDeviceToken(data, null, ctx);
+    }
   },
 };

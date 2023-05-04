@@ -41,9 +41,9 @@ export interface IUpdateDeviceTokenInput {
   notificationsNFCs: boolean;
 }
 
-export const updateDeviceToken = (
+export const updateDeviceToken = async (
   data: IUpdateDeviceTokenInput,
-  user: User,
+  user: User | null,
   ctx: Context
 ) => {
   if (user) {
