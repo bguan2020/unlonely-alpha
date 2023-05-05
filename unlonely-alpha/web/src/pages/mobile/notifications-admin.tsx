@@ -68,12 +68,12 @@ export default function MobileNotifications() {
   });
   const devices = data?.getAllDevices;
 
-  const devicesWithLive = devices.filter(
+  const devicesWithLive = devices?.filter(
     (device: DeviceNotificationsType) => {
       if (device.notificationsLive) return device;
     }
   );
-  const devicesWithNFCs = devices.filter(
+  const devicesWithNFCs = devices?.filter(
     (device: DeviceNotificationsType) => {
       if (device.notificationsNFCs) return device;
     }
