@@ -112,7 +112,7 @@ export const UserSettings = () => {
                     <Ionicons
                       name="ios-person"
                       size={20}
-                      color="#e2f979"
+                      color={connectedWallet ? '#e2f979' : '#999'}
                       style={{
                         top: -1,
                         zIndex: 2,
@@ -130,7 +130,7 @@ export const UserSettings = () => {
               {connectedWallet ? (
                 connectedWallet.ensName && <Text style={styles.ensText}>{truncateEns(connectedWallet.ensName)}</Text>
               ) : (
-                <Text style={styles.ensText}>lonely anon</Text>
+                <Text style={styles.ensText}>{userDataLoading ? 'connecting...' : 'lonely anon'}</Text>
               )}
 
               {connectedWallet && <Text style={styles.addressText}>{truncate0x(connectedWallet.address)}</Text>}

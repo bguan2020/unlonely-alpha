@@ -6,6 +6,12 @@ type SortingTypes = 'createdAt' | 'score';
 
 type AppSettingsStore = {
   isNotificationsPermissionGranted: boolean;
+  notificationsToken: string | null;
+  setNotificationsToken: (token: string | null) => void;
+  isNotificationsLiveEnabled: boolean;
+  isNotificationsNFCsEnabled: boolean;
+  setNotificationsLive: (state: boolean) => void;
+  setNotificationsNFCs: (state: boolean) => void;
   isBlurEnabled: boolean;
   isNfcAutoplayEnabled: boolean;
   nfcFeedSorting: SortingTypes;
@@ -22,6 +28,20 @@ export const useAppSettingsStore = create<AppSettingsStore>()(
   persist(
     set => ({
       isNotificationsPermissionGranted: false,
+      notificationsToken: null,
+      setNotificationsToken: token => {
+        set({ notificationsToken: token });
+      },
+      isNotificationsLiveEnabled: false,
+      isNotificationsNFCsEnabled: false,
+      setNotificationsLive: state => {
+        set({ isNotificationsLiveEnabled: state });
+      },
+      setNotificationsNFCs: state => {
+        set({
+          isNotificationsNFCsEnabled: state,
+        });
+      },
       isBlurEnabled: true,
       isNfcAutoplayEnabled: false,
       nfcFeedSorting: 'createdAt',

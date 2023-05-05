@@ -3,7 +3,6 @@ import Constants from 'expo-constants';
 import { useEffect, useState } from 'react';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 import { schedulePushNotification } from '../../utils/notifications';
-import { useUserNotifications } from '../../api/mutations/useUserNotifications';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 import { useUserStore } from '../../utils/store/userStore';
 
@@ -13,8 +12,13 @@ const buildNumber = Constants.manifest.ios.buildNumber;
 export const DeveloperSettings = () => {
   const [timesPressed, setTimesPressed] = useState(0);
   const [showDevMenu, setShowDevMenu] = useState(false);
-  const userNotifications = useUserNotifications();
-  const revokeNotificationsPermission = useAppSettingsStore(z => z.revokeNotificationsPermission);
+  const { revokeNotificationsPermission, setNotificationsToken, setNotificationsLive, setNotificationsNFCs } =
+    useAppSettingsStore(z => ({
+      revokeNotificationsPermission: z.revokeNotificationsPermission,
+      setNotificationsToken: z.setNotificationsToken,
+      setNotificationsLive: z.setNotificationsLive,
+      setNotificationsNFCs: z.setNotificationsNFCs,
+    }));
   const { clearUser, clearConnectedWallet, setUserDataLoading } = useUserStore(z => ({
     clearUser: z.clearUser,
     clearConnectedWallet: z.clearConnectedWallet,
@@ -29,13 +33,13 @@ export const DeveloperSettings = () => {
 
   const resetNotificationPermissions = () => {
     revokeNotificationsPermission();
+    setNotificationsToken(null);
+    setNotificationsLive(false);
+    setNotificationsNFCs(false);
   };
 
   const resetNotificationTokens = () => {
     resetNotificationPermissions();
-    userNotifications?.mutate({
-      notificationsTokens: '',
-    });
   };
 
   const clearWallet = () => {
@@ -95,7 +99,7 @@ export const DeveloperSettings = () => {
 
           <AnimatedPressable onPress={resetNotificationTokens}>
             <View style={styles.settingsToggleRow}>
-              <Text style={styles.subtitle}>reset notification tokens</Text>
+              <Text style={styles.subtitle}>reset notification permissions</Text>
               <Text style={styles.subtitle}>⚠️</Text>
             </View>
           </AnimatedPressable>
@@ -114,7 +118,7 @@ export const DeveloperSettings = () => {
 
 const styles = StyleSheet.create({
   scrollViewFiller: {
-    height: 150,
+    height: 120,
   },
   versionText: {
     fontSize: 16,
