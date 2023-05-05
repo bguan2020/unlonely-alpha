@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { MotiView } from 'moti';
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image, Keyboard, Linking } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Image, Keyboard, Linking, AppState } from 'react-native';
 import { easeGradient } from 'react-native-easing-gradient';
 import { WebView } from 'react-native-webview';
 import { useUserStore } from '../../utils/store/userStore';
@@ -53,6 +53,23 @@ export function Chat({ awsId, slug }) {
   const [chatEnabled, setChatEnabled] = useState(false);
   const [finishedLoading, setFinishedLoading] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [inBackground, setInBackground] = useState(false);
+
+  const handleAppStateChange = nextAppState => {
+    if (nextAppState === 'active') {
+      setInBackground(false);
+    } else {
+      setInBackground(true);
+    }
+  };
+
+  useEffect(() => {
+    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+
+    if (finishedLoading) {
+      appStateSubscription.remove();
+    }
+  }, [finishedLoading]);
 
   const openExternalLink = (url: string): void => {
     Linking.canOpenURL(url).then(supported => {
@@ -68,7 +85,7 @@ export function Chat({ awsId, slug }) {
       openExternalLink(url);
       setChatEnabled(true);
       setFinishedLoading(true);
-      // webViewRef.current.reload();
+      webViewRef.current.reload();
     }
   };
 
@@ -89,6 +106,12 @@ export function Chat({ awsId, slug }) {
       }, 1000);
     }
   };
+
+  useEffect(() => {
+    if (inBackground) {
+      setChatKey(chatKey + 1);
+    }
+  }, [inBackground]);
 
   useEffect(() => {
     if (userData?.address || connectedWallet?.address) {
@@ -112,6 +135,7 @@ export function Chat({ awsId, slug }) {
 
     if (parsedData.length === onlineUsers.length) return;
     setOnlineUsers(parsedData);
+    setFinishedLoading(true);
   };
 
   return (

@@ -5,7 +5,7 @@ import { BlurLayer } from '../blur/blurLayer';
 
 const TOAST_HEIGHT = 40;
 
-export const toast = (message: string) =>
+export const toast = (message: string, variant?: string) =>
   nativeToast(message, {
     duration: 2000,
     height: TOAST_HEIGHT,
@@ -36,6 +36,7 @@ export const toast = (message: string) =>
             shadowOffset: { width: 0, height: 1 },
             shadowOpacity: 0.5,
             shadowRadius: 15,
+            backgroundColor: variant === 'error' ? '#ff4d4d' : 'black',
           }}
         >
           <View
@@ -62,9 +63,9 @@ export const toast = (message: string) =>
             />
           </View>
           <Ionicons
-            name="ios-checkmark-circle-outline"
+            name={variant === 'error' ? 'ios-close-circle-outline' : 'ios-checkmark-circle-outline'}
             size={TOAST_HEIGHT / 2}
-            color="white"
+            color={variant === 'error' ? '#ff4d4d' : '#e2f979'}
             style={{
               marginRight: TOAST_HEIGHT / 6,
               top: 1,

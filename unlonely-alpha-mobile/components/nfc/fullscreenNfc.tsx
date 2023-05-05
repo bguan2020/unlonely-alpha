@@ -226,13 +226,16 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
             }}
             style={{
               opacity: shouldPlay ? 0 : 1,
-              width: 300,
-              height: 200,
+              width: 380,
+              height: 180,
               justifyContent: 'center',
               alignItems: 'center',
             }}
           >
-            <View
+            <Ionicons
+              name="md-play"
+              size={64}
+              color="white"
               style={{
                 shadowColor: '#000',
                 shadowOffset: {
@@ -242,9 +245,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
                 shadowOpacity: 1,
                 shadowRadius: 18,
               }}
-            >
-              <Ionicons name="md-play" size={64} color="white" />
-            </View>
+            />
           </AnimatedPressable>
         </View>
 
@@ -368,6 +369,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 1,
+    elevation: 5,
   },
   subtitle: {
     fontSize: 18,
@@ -377,6 +379,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 1,
+    elevation: 5,
   },
   likedCount: {
     fontSize: 18,
@@ -386,5 +389,6 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 1,
+    elevation: 5,
   },
 });
