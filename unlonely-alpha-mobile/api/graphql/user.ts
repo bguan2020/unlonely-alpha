@@ -12,9 +12,6 @@ export const USER_QUERY = gql`
       nfcRank
       FCImageUrl
       isFCUser
-      notificationsTokens
-      notificationsLive
-      notificationsNFCs
     }
   }
 `;

@@ -22,12 +22,10 @@ type Channel = {
   thumbnailUrl: string | null;
 };
 
-export default function ScheduleScreen() {
+export default function ChannelsIndex() {
   const { height } = useWindowDimensions();
   const router = useRouter();
-  const { status, data, error, isFetching } = useChannels({
-    limit: 9,
-  });
+  const { status, data, error, isFetching } = useChannels();
   const channels = data?.getChannelFeed;
   const liveChannels = channels?.filter((channel: Channel) => channel.isLive);
   const offlineChannels = channels?.filter((channel: Channel) => !channel.isLive);

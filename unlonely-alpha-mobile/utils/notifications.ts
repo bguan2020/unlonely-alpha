@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
-import { Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 
 const projectId = Constants.expoConfig.extra.eas.projectId;
 
@@ -12,20 +12,6 @@ export function initializeNotificationSettings() {
       shouldSetBadge: false,
     }),
   });
-}
-
-export function mergeTokens(existingTokens: string, newToken: string) {
-  if (newToken === null) return existingTokens;
-
-  if (existingTokens !== '') {
-    const tokensArray = JSON.parse(existingTokens);
-    const filteredTokens = tokensArray.filter((token: string) => token !== newToken);
-    const mergedTokens = JSON.stringify([...filteredTokens, newToken]);
-
-    return mergedTokens;
-  }
-
-  return JSON.stringify([newToken]);
 }
 
 export async function allowsNotificationsAsync() {
@@ -61,7 +47,7 @@ export async function registerForPushNotificationsAsync() {
     finalStatus = status;
   }
   if (finalStatus !== 'granted') {
-    alert('Failed to get push token for push notification!');
+    Linking.openSettings();
     return;
   }
   token = (
@@ -77,7 +63,7 @@ export async function schedulePushNotification() {
   await Notifications.scheduleNotificationAsync({
     content: {
       title: 'local test notification',
-      body: 'hello friend. tapping this notification should open up the stream page.',
+      body: 'hello friend. tapping this notification should open up the channels tab.',
       sound: 'live.wav',
       data: { redirect: 'live' },
     },
