@@ -69,6 +69,6 @@ export const updateDeviceToken = async (
   });
 };
 
-export const getAllDevices = (ctx: Context) => {
+export const getAllDevices = async (ctx: Context) => {
   return ctx.prisma.deviceToken.findMany();
 };

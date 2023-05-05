@@ -43,6 +43,7 @@ export const typeDef = gql`
     getAllUsers: [User]
     updateAllUsers: [User]
     getAllUsersWithChannel: [User]
+    getAllUsersWithNotificationsToken: [User]
   }
 
   extend type Mutation {

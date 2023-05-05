@@ -10,7 +10,7 @@ export const resolvers = {
     ) => {
       return deviceTokenService.getDeviceByToken(data, ctx);
     },
-    getAllDevices: (_: any, ctx: Context) => {
+    getAllDevices: (_: any, _args: any, ctx: Context) => {
       return deviceTokenService.getAllDevices(ctx);
     },
   },

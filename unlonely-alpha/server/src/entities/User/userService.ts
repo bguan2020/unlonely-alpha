@@ -28,6 +28,53 @@ export const getAllUsers = (ctx: Context) => {
   return ctx.prisma.user.findMany();
 };
 
+// get all users with notificationsToken legnth > 0, then add that users address, notificationsLive notificationsNFCs to deviveToken table
+export const migrateAllUsersWithNotificationsToken = async (ctx: Context) => {
+  console.log(ctx);
+  const users = await ctx.prisma.user.findMany({
+    where: {
+      notificationsTokens: {
+        not: "",
+      },
+    },
+  });
+
+  for (let i = 0; i < users.length; i++) {
+    // Parse the string as an array
+    const tokensArray = JSON.parse(users[i].notificationsTokens);
+
+    // Filter out null values
+    const nonNullTokens = tokensArray.filter((token: any) => token !== null);
+
+    // If there are any non-null tokens, create the deviceToken
+    if (nonNullTokens.length > 0) {
+      const token = nonNullTokens[0]; // Assuming only one non-null token, extract it
+
+      // Check if the deviceToken with the same token value already exists
+      const existingDeviceToken = await ctx.prisma.deviceToken.findFirst({
+        where: {
+          token: token,
+        },
+      });
+
+      // If the deviceToken does not exist, create a new one
+      if (!existingDeviceToken) {
+        await ctx.prisma.deviceToken.create({
+          data: {
+            address: users[i].address,
+            token: token,
+            notificationsLive: users[i].notificationsLive,
+            notificationsNFCs: users[i].notificationsNFCs,
+          },
+        });
+        console.log("added user", users[i].username, token);
+      } else {
+        console.log("skipped user", users[i].username, token, "as the token already exists");
+      }
+    }
+  }
+};
+
 export const getAllUsersWithChannel = (ctx: Context) => {
   return ctx.prisma.user.findMany({
     where: {

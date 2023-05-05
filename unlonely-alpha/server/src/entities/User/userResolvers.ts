@@ -43,6 +43,9 @@ export const resolvers = {
     getAllUsersWithChannel: (_: any, _args: any, ctx: Context) => {
       return userService.getAllUsersWithChannel(ctx);
     },
+    getAllUsersWithNotificationsToken: (_: any, _args: any, ctx: Context) => {
+      return userService.migrateAllUsersWithNotificationsToken(ctx);
+    },
     // updateAllUsers: (_: any, _args: any, ctx: Context) => {
     //   return userService.updateAllUsers(ctx);
     // },

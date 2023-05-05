@@ -24,13 +24,11 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import React, { useRef, useState } from "react";
+import { gql, useLazyQuery } from "@apollo/client";
 
 import NextHead from "../../components/layout/NextHead";
 import { splitArray } from "../../utils/splitArray";
-import { useUser } from "../../hooks/useUser";
-import { User } from "../../generated/graphql";
 import AppLayout from "../../components/layout/AppLayout";
 
 type DeviceNotificationsType = {
@@ -51,23 +49,7 @@ const GET_ALL_DEVICE_TOKENS = gql`
   }
 `;
 
-const GET_ALL_USERS_WITH_CHANNEL = gql`
-  query GetAllUsersWithChannel {
-    getAllUsersWithChannel {
-      address
-      username
-    }
-  }
-`;
-
 export default function MobileNotifications() {
-  const { user } = useUser();
-  const {
-    loading: authLoading,
-    error,
-    data: authData,
-  } = useQuery(GET_ALL_USERS_WITH_CHANNEL);
-  const [isAuthed, setIsAuthed] = useState(false);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
@@ -86,12 +68,12 @@ export default function MobileNotifications() {
   });
   const devices = data?.getAllDevices;
 
-  const devicesWithLive = devices?.filter(
+  const devicesWithLive = devices.filter(
     (device: DeviceNotificationsType) => {
       if (device.notificationsLive) return device;
     }
   );
-  const devicesWithNFCs = devices?.filter(
+  const devicesWithNFCs = devices.filter(
     (device: DeviceNotificationsType) => {
       if (device.notificationsNFCs) return device;
     }
@@ -187,20 +169,6 @@ export default function MobileNotifications() {
     });
   };
 
-  // useEffect to check if user is authorized
-  useEffect(() => {
-    if (authData && user) {
-      const authorizedUsers: User[] = authData.getAllUsersWithChannel.filter(
-        (u: User) => u.address === user?.address
-      );
-      const isAuthenticated = authorizedUsers.length > 0;
-      setIsAuthed(isAuthenticated);
-    }
-  }, [authData, user]);
-
-  if (authLoading) return <Progress size="xs" isIndeterminate />;
-  if (error) return <Text>Error</Text>;
-
   return (
     <AppLayout isCustomHeader={false}>
       <Flex direction={"column"} alignItems="center">
@@ -209,8 +177,6 @@ export default function MobileNotifications() {
           description="send em"
           image=""
         ></NextHead>
-        {isAuthed ? (
-          <>
             <Flex
               padding={[4, 16]}
               justifyContent="center"
@@ -434,17 +400,6 @@ export default function MobileNotifications() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          </>
-        ) : (
-          <Flex
-            justifyContent={"center"}
-            alignItems={"center"}
-            width={"100%"}
-            height={"100vh"}
-          >
-            Unauthenticated. Please connect wallet to continue.
-          </Flex>
-        )}
       </Flex>
     </AppLayout>
   );
