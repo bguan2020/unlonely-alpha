@@ -22,12 +22,13 @@ export function useLikeNfc({ likableId }: LikeNfcTypes) {
 
   const powerLvl = userData?.powerUserLvl || 0;
   const likeAmount = powerValues[powerLvl];
+  const likeValue = Number(likeAmount) / 2;
 
   const like = useMutation(['like'], () => {
     console.log('👍 ----- liking nfc -----');
     return gqlClient.request(LIKE_NFC_MUTATION, {
       // value is half becuase some weird shit is happening with double mutations idk, really weird
-      data: { likedObj: 'NFC', likableId: likableId, value: Number(likeAmount) / 2 },
+      data: { likedObj: 'NFC', likableId: likableId, value: likeValue < 1 ? 1 : likeValue },
     });
   });
 
@@ -49,12 +50,13 @@ export function useDislikeNfc({ likableId }: LikeNfcTypes) {
 
   const powerLvl = userData?.powerUserLvl || 0;
   const likeAmount = powerValues[powerLvl];
+  const dislikeValue = Number(-likeAmount) / 2;
 
   const dislike = useMutation(['dislike'], () => {
     console.log('👎 ----- disliking nfc -----');
     return gqlClient.request(DISLIKE_NFC_MUTATION, {
       // value is half becuase some weird shit is happening with double mutations idk, really weird
-      data: { likedObj: 'NFC', likableId: likableId, value: Number(-likeAmount) / 2 },
+      data: { likedObj: 'NFC', likableId: likableId, value: dislikeValue < 1 ? 1 : dislikeValue },
     });
   });
 
