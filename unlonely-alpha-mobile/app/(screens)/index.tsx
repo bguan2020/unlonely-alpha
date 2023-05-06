@@ -10,6 +10,7 @@ import { UnlonelyTopGradientWithLogo } from '../../components/nav/topGradient';
 import { useAppSettingsStore } from '../../utils/store/appSettingsStore';
 import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
 import { CoinbaseSheet } from '../../components/settings/coinbaseSheet';
+import { useUserStore } from '../../utils/store/userStore';
 
 export default function NfcFeedScreen() {
   const { height, width } = useWindowDimensions();
@@ -21,8 +22,10 @@ export default function NfcFeedScreen() {
     isNFCPlaying: z.isNFCPlaying,
     stopNFCPlaying: z.stopNFCPlaying,
   }));
+  const { userData } = useUserStore(z => ({ userData: z.userData }));
   const nfcFeedSorting = useAppSettingsStore(z => z.nfcFeedSorting);
-  const { status, data, error, isFetching } = useNfcFeed(nfcFeedSorting, {
+  const [queryKey, setQueryKey] = useState<string>(`${nfcFeedSorting}-${userData?.address}`);
+  const { data, isFetching } = useNfcFeed(queryKey, {
     limit: 50,
     orderBy: nfcFeedSorting,
   });
@@ -50,25 +53,37 @@ export default function NfcFeedScreen() {
   useEffect(() => {
     if (nfcs?.length > 0) {
       setTimeout(() => {
-        // hide dark backsplash after 2 seconds
+        // hide dark backsplash after 10 seconds
         setShowBacksplash(false);
-      }, 2000);
+      }, 10000);
     }
 
     if (isFetching) {
       setShowBacksplash(true);
     }
 
-    if (nfcs?.length > 0 && isNfcAutoplayEnabled) {
-      // console.log('== starting NFC playback ==');
-      setTimeout(() => {
-        startNFCPlaying();
-      }, 1000);
-    } else {
-      // console.log('== stopping NFC playback ==');
-      stopNFCPlaying();
-    }
-  }, [nfcs, isNfcAutoplayEnabled, isFetching, nfcFeedSorting]);
+    // if (nfcs?.length > 0 && isNfcAutoplayEnabled) {
+    //   // console.log('== starting NFC playback ==');
+    //   setTimeout(() => {
+    //     startNFCPlaying();
+    //   }, 1000);
+    // } else {
+    //   // console.log('== stopping NFC playback ==');
+    //   stopNFCPlaying();
+    // }
+  }, [nfcs, isNfcAutoplayEnabled, isFetching]);
+
+  useEffect(() => {
+    setShowBacksplash(true);
+    setQueryKey(`${nfcFeedSorting}-${userData?.address}`);
+  }, [userData?.address]);
+
+  useEffect(() => {
+    if (nfcFeedSorting === queryKey) return;
+
+    setShowBacksplash(true);
+    setQueryKey(nfcFeedSorting);
+  }, [nfcFeedSorting]);
 
   const nfcVideoRenderItem = ({ item }) => {
     return <FullscreenNfc item={item} ref={ref => (videoRefs.current[item.id] = ref)} height={height} width={width} />;
@@ -110,6 +125,7 @@ export default function NfcFeedScreen() {
         </View>
       )}
       <FlashList
+        key={queryKey}
         data={nfcs}
         removeClippedSubviews
         renderItem={nfcVideoRenderItem}
