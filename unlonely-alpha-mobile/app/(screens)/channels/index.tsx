@@ -36,7 +36,7 @@ export default function ChannelsIndex() {
       <View style={styles.main}>
         {anyLive && (
           <View>
-            <Text style={styles.title}>Online</Text>
+            <Text style={styles.title}>Currently Streaming</Text>
             <View
               style={{
                 marginBottom: 24,

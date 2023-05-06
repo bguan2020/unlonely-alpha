@@ -21,3 +21,25 @@ export const NFC_FEED_QUERY = gql`
     }
   }
 `;
+
+export const LIKE_NFC_MUTATION = gql`
+  mutation Like($data: HandleLikeInput!) {
+    handleLike(data: $data) {
+      id
+      score
+      liked
+      disliked
+    }
+  }
+`;
+
+export const DISLIKE_NFC_MUTATION = gql`
+  mutation Dislike($data: HandleLikeInput!) {
+    handleLike(data: $data) {
+      id
+      score
+      liked
+      disliked
+    }
+  }
+`;

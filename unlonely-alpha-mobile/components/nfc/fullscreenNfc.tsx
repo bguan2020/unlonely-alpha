@@ -13,6 +13,7 @@ import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
 import { BlurLayer } from '../blur/blurLayer';
 import { useDeviceInfo } from '../../utils/useDeviceInfo';
 import { truncate0x } from '../../utils/truncate';
+import { LikeCounter } from './likeCounter';
 
 type FullscreenNfcProps = {
   height: number;
@@ -64,7 +65,6 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
   const isNFCPlaying = useVideoPlayerStore(z => z.isNFCPlaying);
   const ref = useRef(null);
   const [shouldPlay, setShouldPlay] = useState(false);
-  const [isLiked, setIsLiked] = useState(props.item.liked);
   const parsedDate = parseISO(props.item.createdAt);
   const nfcMintDate = format(parsedDate, 'EEEE, MMM dd h:mm a').toLocaleLowerCase();
 
@@ -298,31 +298,7 @@ export const FullscreenNfc = forwardRef((props: FullscreenNfcProps, parentRef) =
                 <MaterialCommunityIcons name="dots-horizontal" size={32} color="rgba(255,255,255,0.75)" />
               </View>
             </AnimatedMenuView>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
-            >
-              <Text style={styles.likedCount}>{props.item.score}</Text>
-              <AnimatedPressable
-                style={{
-                  width: 48,
-                  height: 48,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                onPress={() => setIsLiked(!isLiked)}
-                bouncy
-                disabled
-              >
-                {isLiked ? (
-                  <Ionicons name="md-heart" size={32} color="rgba(255,255,255,0.75)" />
-                ) : (
-                  <Ionicons name="md-heart-outline" size={32} color="rgba(255,255,255,0.75)" />
-                )}
-              </AnimatedPressable>
-            </View>
+            <LikeCounter score={props.item.score} liked={props.item.liked} key={props.item.id} nfcId={props.item.id} />
           </View>
           <View
             style={{
@@ -372,16 +348,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   subtitle: {
-    fontSize: 18,
-    color: 'rgba(255,255,255,0.75)',
-    paddingVertical: 16,
-    fontFamily: 'NeuePixelSans',
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 1,
-    elevation: 5,
-  },
-  likedCount: {
     fontSize: 18,
     color: 'rgba(255,255,255,0.75)',
     paddingVertical: 16,

@@ -18,6 +18,12 @@ export const useGqlClient = (): GraphQLClient => {
   let headers: { 'x-auth-address'?: string; 'x-auth-signed-message'?: string };
 
   if (_hasHydrated && userData) {
+    if (userData.address) {
+      headers = {
+        'x-auth-address': userData.address,
+      };
+    }
+
     if (userData.address && userData.signature) {
       headers = {
         'x-auth-address': userData.address,
@@ -29,8 +35,6 @@ export const useGqlClient = (): GraphQLClient => {
   const gqlClient = new GraphQLClient(API_ENDPOINT, {
     headers,
   });
-
-  // console.log('gqlClient auth', headers);
 
   return gqlClient;
 };
