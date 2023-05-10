@@ -13,6 +13,9 @@
     "deploy:matic": "hardhat run --network matic scripts/deploy.js",
     "deploy:mainnet": "hardhat run --network mainnet scripts/deploy.js",
     "deploy-nfc:mainnet": "hardhat run --network mainnet scripts/deploy_nfc_contract.js",
+    "deploy-nfc:goerli": "hardhat run --network goerli scripts/deploy_nfc_contract.js",
+    "deploy-arcade:mainnet": "hardhat run --network mainnet scripts/deploy_arcade_contract.js",
+    "deploy-arcade:goerli": "hardhat run --network goerli scripts/deploy_arcade_contract.js",
     "test": "hardhat run scripts/run.js",
     "test:watch": "hardhat watch test"
   },
@@ -37,6 +40,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "4.8.1",
+    "@remix-project/remixd": "^0.6.13",
     "dotenv": "^16.0.0",
     "hardhat-watcher": "^2.1.1"
   }
