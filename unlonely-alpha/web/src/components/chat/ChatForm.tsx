@@ -77,7 +77,7 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
             value={messageText}
             fontFamily="Inter"
             fontWeight="medium"
-            placeholder="try asking @chatbot a question"
+            placeholder="say something in chat!"
             enterkeyhint="send"
             onChange={(e) => {
               if (e.target.value === "") {
