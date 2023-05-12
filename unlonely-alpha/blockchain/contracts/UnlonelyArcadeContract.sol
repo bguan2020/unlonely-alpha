@@ -44,19 +44,17 @@ contract UnlonelyArcadeContract {
         creatorToken.safeTransferFrom(brian, msg.sender, tokenAmount);
     }
 
-    function useFeature(uint256 times, uint256 _featurePrice) external {
-        uint256 cost = _featurePrice * times;
-
+    function useFeature(uint256 _featurePrice) external {
         // Check if the user has enough tokens
-        require(creatorToken.balanceOf(msg.sender) >= cost, "Insufficient CreatorToken balance");
+        require(creatorToken.balanceOf(msg.sender) >= _featurePrice, "Insufficient CreatorToken balance");
 
         // Transfer tokens from the user to Brian
-        creatorToken.safeTransferFrom(msg.sender, brian, cost);
+        creatorToken.safeTransferFrom(msg.sender, brian, _featurePrice);
 
         // Implement the actual feature usage logic here
     }
 
-    function calculateEthAmount(uint256 tokenAmount) internal view returns (uint256) {
+    function calculateEthAmount(uint256 tokenAmount) external view returns (uint256) {
         return tokenAmount / tokenPrice;
     }
 }
