@@ -6,15 +6,44 @@ import { useLiveSettingsStore } from '../../utils/store/liveSettingsStore';
 import { BlurLayer } from '../blur/blurLayer';
 import { AnimatedMenuView } from '../buttons/animatedMenuView';
 import { AnimatedPressable } from '../buttons/animatedPressable';
+import { useState } from 'react';
+import { Audio } from 'expo-av';
+import { useVideoPlayerStore } from '../../utils/store/videoPlayerStore';
 
 const AVATAR_SIZE = 32;
 
-export function Presence({ data, reloadChat, openPresenceSheet }) {
-  const { updateStreamPlayerKey, toggleChatExpand, isChatExpanded } = useLiveSettingsStore(z => ({
-    isChatExpanded: z.isChatExpanded,
-    toggleChatExpand: z.toggleChatExpand,
-    updateStreamPlayerKey: z.updateStreamPlayerKey,
+export function Presence({ data, reloadChat, openPresenceSheet, awsId }) {
+  const { updateStreamPlayerKey, toggleChatExpand, isChatExpanded, isAudioOnly, toggleAudioOnly } =
+    useLiveSettingsStore(z => ({
+      isChatExpanded: z.isChatExpanded,
+      toggleChatExpand: z.toggleChatExpand,
+      updateStreamPlayerKey: z.updateStreamPlayerKey,
+      isAudioOnly: z.isAudioOnly,
+      toggleAudioOnly: z.toggleAudioOnly,
+    }));
+  const { stopLiveStreamPlaying } = useVideoPlayerStore(z => ({
+    stopLiveStreamPlaying: z.stopLiveStreamPlaying,
   }));
+  const [soundStream, setSoundStream] = useState();
+
+  async function playSound() {
+    const { sound } = await Audio.Sound.createAsync(
+      {
+        uri: `https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.${awsId}.m3u8`,
+      },
+      { shouldPlay: true }
+    );
+    // @ts-ignore
+    setSoundStream(sound);
+  }
+
+  async function stopSound() {
+    // @ts-ignore
+    await soundStream.stopAsync();
+    // @ts-ignore
+    await soundStream.unloadAsync();
+    setSoundStream(null);
+  }
 
   return (
     <>
@@ -49,6 +78,17 @@ export function Presence({ data, reloadChat, openPresenceSheet }) {
             if (nativeEvent.event === 'reload-stream') {
               updateStreamPlayerKey();
             }
+
+            if (nativeEvent.event === 'audio-only') {
+              stopLiveStreamPlaying();
+              toggleAudioOnly();
+              toggleChatExpand();
+              if (isAudioOnly) {
+                stopSound();
+              } else {
+                playSound();
+              }
+            }
           }}
           actions={[
             {
@@ -68,11 +108,19 @@ export function Presence({ data, reloadChat, openPresenceSheet }) {
               }),
             },
             {
-              title: 'reload stream player',
+              title: 'reload player',
               id: 'reload-stream',
               image: Platform.select({
                 ios: 'arrow.triangle.2.circlepath',
                 android: 'sync_problem',
+              }),
+            },
+            {
+              title: isAudioOnly ? 'turn on video stream' : 'turn on audio only',
+              id: 'audio-only',
+              image: Platform.select({
+                ios: isAudioOnly ? 'play.tv' : 'speaker.wave.3.fill',
+                android: 'campaign',
               }),
             },
           ]}

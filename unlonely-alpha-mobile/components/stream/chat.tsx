@@ -147,6 +147,7 @@ export function Chat({ awsId, slug }) {
           Keyboard.dismiss();
           bottomSheetRef.current?.expand();
         }}
+        awsId={awsId}
       />
       <View
         // chat container
