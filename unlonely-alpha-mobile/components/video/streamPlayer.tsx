@@ -23,9 +23,10 @@ export function StreamPlayer({ awsId, thumbnailUrl, name }) {
       stopLiveStreamPlaying: z.stopLiveStreamPlaying,
     })
   );
-  const { streamPlayerKey, updateStreamPlayerKey } = useLiveSettingsStore(z => ({
+  const { streamPlayerKey, updateStreamPlayerKey, isAudioOnly } = useLiveSettingsStore(z => ({
     streamPlayerKey: z.streamPlayerKey,
     updateStreamPlayerKey: z.updateStreamPlayerKey,
+    isAudioOnly: z.isAudioOnly,
   }));
   const mediaPlayerRef = useRef<IVSPlayerRef>(null);
   const [latency, setLatency] = useState(0);
@@ -86,6 +87,12 @@ export function StreamPlayer({ awsId, thumbnailUrl, name }) {
       playsInSilentModeIOS: true,
     });
   }, []);
+
+  useEffect(() => {
+    if (isAudioOnly) {
+      pressPause();
+    }
+  }, [isAudioOnly]);
 
   return (
     <>
