@@ -232,6 +232,8 @@ export const ChannelInfo = ({ channel, size }: { channel: Channel; size: 'big' |
             letterSpacing: 0.5,
             color: 'white',
             textAlign: 'left',
+            width: '100%',
+            maxWidth: 310,
           }}
         >
           {channel.name}
