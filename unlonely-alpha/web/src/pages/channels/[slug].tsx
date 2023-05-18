@@ -38,6 +38,7 @@ const CHANNEL_DETAIL_QUERY = gql`
       id
       name
       slug
+      allowNFCs
       owner {
         FCImageUrl
         lensImageUrl
@@ -170,6 +171,7 @@ const ChannelDetail = ({
                 ablyPresenceChannel={ablyPresenceChannel}
                 channelArn={channel.channelArn ? channel.channelArn : ""}
                 channelId={channel.id ? Number(channel.id) : 3}
+                allowNFCs={channel.allowNFCs ? channel.allowNFCs : true}
               />
             </Container>
           </Stack>

@@ -125,6 +125,7 @@ const Example: React.FunctionComponent = () => {
             ablyPresenceChannel={ablyPresenceChannel}
             channelArn={channelArn}
             channelId={3}
+            allowNFCs={true}
           />
         </Container>
       </Stack>

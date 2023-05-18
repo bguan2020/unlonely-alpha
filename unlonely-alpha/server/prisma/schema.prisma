@@ -209,6 +209,7 @@ model Channel {
   playbackUrl String
   slug String @unique
   isLive Boolean @default(false)
+  allowNFCs Boolean @default(true)
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])

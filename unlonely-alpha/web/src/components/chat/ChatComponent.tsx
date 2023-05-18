@@ -21,6 +21,7 @@ type Props = {
   ablyPresenceChannel?: string;
   channelArn: string;
   channelId: number;
+  allowNFCs: boolean;
 };
 
 export const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
@@ -48,6 +49,7 @@ const AblyChatComponent = ({
   ablyPresenceChannel,
   channelArn,
   channelId,
+  allowNFCs,
 }: Props) => {
   const { user } = useUser();
   const { address } = useAccount();
@@ -272,8 +274,26 @@ const AblyChatComponent = ({
       messageText.startsWith("@nfc-it") ||
       messageText.startsWith("@nfc")
     ) {
-      // open new tab to /clip page
-      window.open(`/clip?arn=${channelArn}`, "_blank");
+      if (allowNFCs) {
+        // open new tab to /clip page
+        window.open(`/clip?arn=${channelArn}`, "_blank");
+      } else {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        channel.publish({
+          name: "chat-message",
+          data: {
+            messageText: "NFCs are not allowed on this channel.",
+            username: "chatbot🤖",
+            chatColor: "black",
+            address: chatbotAddress,
+            isFC: false,
+            isLens: false,
+            isGif: false,
+            reactions: initializeEmojis,
+          },
+        });
+      }
     } else if (messageText.startsWith("@rules")) {
       const rules =
         '"@chatbot [question]" to ask chatbot a question\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';
