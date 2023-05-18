@@ -81,21 +81,20 @@ export default function MobileNotifications() {
   const [titleNFCs, setTitleNFCs] = useState(placeholderTitleNFCs);
   const [bodyLive, setBodyLive] = useState(placeholderBodyLive);
   const [bodyNFCs, setBodyNFCs] = useState(placeholderBodyNFCs);
-  const [getAllDeviceTokens, { loading, data }] = useLazyQuery(GET_ALL_DEVICE_TOKENS, {
-    fetchPolicy: "no-cache",
-  });
+  const [getAllDeviceTokens, { loading, data }] = useLazyQuery(
+    GET_ALL_DEVICE_TOKENS,
+    {
+      fetchPolicy: "no-cache",
+    }
+  );
   const devices = data?.getAllDevices;
 
-  const devicesWithLive = devices?.filter(
-    (device: DeviceNotificationsType) => {
-      if (device.notificationsLive) return device;
-    }
-  );
-  const devicesWithNFCs = devices?.filter(
-    (device: DeviceNotificationsType) => {
-      if (device.notificationsNFCs) return device;
-    }
-  );
+  const devicesWithLive = devices?.filter((device: DeviceNotificationsType) => {
+    if (device.notificationsLive) return device;
+  });
+  const devicesWithNFCs = devices?.filter((device: DeviceNotificationsType) => {
+    if (device.notificationsNFCs) return device;
+  });
 
   const sendNotifications = async () => {
     if (isSending) return;
@@ -122,10 +121,12 @@ export default function MobileNotifications() {
       // looping through each user in the array of 20
       chunk.forEach((deviceChunk: any, index: number) => {
         // looping through each token in the user
-        deviceChunk.forEach((device: DeviceNotificationsType, deviceIndex: number) => {
-          const deviceToken = device.token;
-          tokens.push(deviceToken);
-        });
+        deviceChunk.forEach(
+          (device: DeviceNotificationsType, deviceIndex: number) => {
+            const deviceToken = device.token;
+            tokens.push(deviceToken);
+          }
+        );
       });
 
       // preparing notification templates for every token from a single chunk

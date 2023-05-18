@@ -31,6 +31,6 @@ export const resolvers = {
         return deviceTokenService.updateDeviceToken(data, ctx.user, ctx);
       }
       return deviceTokenService.updateDeviceToken(data, null, ctx);
-    }
+    },
   },
 };

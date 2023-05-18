@@ -9,6 +9,7 @@ export const typeDef = gql`
     description: String
     playbackUrl: String
     isLive: Boolean
+    allowNFCs: Boolean
     thumbnailUrl: String
     owner: User!
     slug: String!

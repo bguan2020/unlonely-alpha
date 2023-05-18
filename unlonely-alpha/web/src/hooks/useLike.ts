@@ -71,13 +71,4 @@ const useLike = ({ likedObj, likableId, powerLvl }: UseLikeProps) => {
   return { like: () => {}, dislike: () => {} };
 };
 
-useLike.fragments = {
-  hostEvent: gql`
-    fragment useLike_hostEvent on HostEvent {
-      id
-      __typename
-    }
-  `,
-};
-
 export default useLike;

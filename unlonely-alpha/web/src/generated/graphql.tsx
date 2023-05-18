@@ -76,6 +76,7 @@ export type Scalars = {
 
 export type Channel = {
   __typename?: "Channel";
+  allowNFCs?: Maybe<Scalars["Boolean"]>;
   awsId: Scalars["String"];
   channelArn?: Maybe<Scalars["String"]>;
   createdAt: Scalars["DateTime"];
@@ -117,9 +118,24 @@ export type CreateClipInput = {
   channelArn: Scalars["String"];
 };
 
+export type DeviceToken = {
+  __typename?: "DeviceToken";
+  address?: Maybe<Scalars["String"]>;
+  createdAt: Scalars["DateTime"];
+  id: Scalars["ID"];
+  notificationsLive: Scalars["Boolean"];
+  notificationsNFCs: Scalars["Boolean"];
+  token: Scalars["String"];
+  updatedAt: Scalars["DateTime"];
+};
+
 export type GetChatInput = {
   channelId: Scalars["Int"];
   limit: Scalars["Int"];
+};
+
+export type GetDeviceByTokenInput = {
+  token: Scalars["String"];
 };
 
 export type GetPoapInput = {
@@ -136,27 +152,6 @@ export type HandleLikeInput = {
   value: Scalars["Int"];
 };
 
-export type HostEvent = Likable & {
-  __typename?: "HostEvent";
-  challenge?: Maybe<HostEvent>;
-  createdAt: Scalars["DateTime"];
-  description?: Maybe<Scalars["String"]>;
-  disliked?: Maybe<Scalars["Boolean"]>;
-  hostDate: Scalars["DateTime"];
-  id: Scalars["ID"];
-  isChallenger: Scalars["Boolean"];
-  liked?: Maybe<Scalars["Boolean"]>;
-  owner: User;
-  score: Scalars["Int"];
-  title: Scalars["String"];
-  updatedAt: Scalars["DateTime"];
-};
-
-export type HostEventFeedInput = {
-  limit?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<SortOrder>;
-};
-
 export type Likable = {
   disliked?: Maybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
@@ -167,7 +162,6 @@ export type Likable = {
 export type Like = {
   __typename?: "Like";
   disliked: Scalars["Boolean"];
-  hostEvent?: Maybe<HostEvent>;
   id: Scalars["ID"];
   liked: Scalars["Boolean"];
   liker: User;
@@ -185,7 +179,7 @@ export type Mutation = {
   createClip?: Maybe<ClipOutput>;
   handleLike?: Maybe<Likable>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
-  postChallenge?: Maybe<HostEvent>;
+  postDeviceToken?: Maybe<DeviceToken>;
   postFirstChat?: Maybe<Chat>;
   postNFC?: Maybe<Nfc>;
   postStreamInteraction?: Maybe<StreamInteraction>;
@@ -194,6 +188,7 @@ export type Mutation = {
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   updateChannelText?: Maybe<Channel>;
+  updateDeviceToken?: Maybe<DeviceToken>;
   updateUserNotifications?: Maybe<User>;
 };
 
@@ -205,8 +200,8 @@ export type MutationHandleLikeArgs = {
   data: HandleLikeInput;
 };
 
-export type MutationPostChallengeArgs = {
-  data: PostChallengeInput;
+export type MutationPostDeviceTokenArgs = {
+  data: PostDeviceTokenInput;
 };
 
 export type MutationPostFirstChatArgs = {
@@ -239,6 +234,10 @@ export type MutationSoftDeleteVideoArgs = {
 
 export type MutationUpdateChannelTextArgs = {
   data: UpdateChannelTextInput;
+};
+
+export type MutationUpdateDeviceTokenArgs = {
+  data: UpdateDeviceInput;
 };
 
 export type MutationUpdateUserNotificationsArgs = {
@@ -277,16 +276,16 @@ export type Poap = {
   updatedAt: Scalars["DateTime"];
 };
 
-export type PostChallengeInput = {
-  description?: InputMaybe<Scalars["String"]>;
-  hostDate: Scalars["DateTime"];
-  originalHostEventId: Scalars["Int"];
-  title: Scalars["String"];
-};
-
 export type PostChatInput = {
   channelId: Scalars["Int"];
   text: Scalars["String"];
+};
+
+export type PostDeviceTokenInput = {
+  address?: InputMaybe<Scalars["String"]>;
+  notificationsLive?: InputMaybe<Scalars["Boolean"]>;
+  notificationsNFCs?: InputMaybe<Scalars["Boolean"]>;
+  token: Scalars["String"];
 };
 
 export type PostNfcInput = {
@@ -324,15 +323,17 @@ export type Query = {
   currentUser?: Maybe<User>;
   currentUserAuthMessage?: Maybe<Scalars["String"]>;
   firstChatExists?: Maybe<Scalars["Boolean"]>;
+  getAllDevices?: Maybe<Array<Maybe<DeviceToken>>>;
   getAllUsers?: Maybe<Array<Maybe<User>>>;
+  getAllUsersWithChannel?: Maybe<Array<Maybe<User>>>;
+  getAllUsersWithNotificationsToken?: Maybe<Array<Maybe<User>>>;
   getChannelById?: Maybe<Channel>;
   getChannelBySlug?: Maybe<Channel>;
   getChannelFeed?: Maybe<Array<Maybe<Channel>>>;
-  getHostEventFeed?: Maybe<Array<Maybe<HostEvent>>>;
+  getDeviceByToken?: Maybe<DeviceToken>;
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
   getNFC?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
-  getNextHostEvent?: Maybe<HostEvent>;
   getPoap?: Maybe<Poap>;
   getRecentChats?: Maybe<Array<Maybe<Chat>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
@@ -354,8 +355,8 @@ export type QueryGetChannelFeedArgs = {
   data?: InputMaybe<ChannelFeedInput>;
 };
 
-export type QueryGetHostEventFeedArgs = {
-  data?: InputMaybe<HostEventFeedInput>;
+export type QueryGetDeviceByTokenArgs = {
+  data: GetDeviceByTokenInput;
 };
 
 export type QueryGetNfcArgs = {
@@ -438,6 +439,12 @@ export type UpdateChannelTextInput = {
   name: Scalars["String"];
 };
 
+export type UpdateDeviceInput = {
+  notificationsLive: Scalars["Boolean"];
+  notificationsNFCs: Scalars["Boolean"];
+  token: Scalars["String"];
+};
+
 export type UpdateUserNotificationsInput = {
   notificationsLive?: InputMaybe<Scalars["Boolean"]>;
   notificationsNFCs?: InputMaybe<Scalars["Boolean"]>;
@@ -494,46 +501,6 @@ export type VideoFeedInput = {
   orderBy?: InputMaybe<SortOrder>;
   searchString?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;
-};
-
-export type GetPoapQueryVariables = Exact<{
-  data: GetPoapInput;
-}>;
-
-export type GetPoapQuery = {
-  __typename?: "Query";
-  getPoap?: { __typename?: "Poap"; id: string; link?: string | null } | null;
-};
-
-export type HostEventCard_HostEventFragment = {
-  __typename: "HostEvent";
-  id: string;
-  hostDate: any;
-  title: string;
-  description?: string | null;
-  score: number;
-  liked?: boolean | null;
-  disliked?: boolean | null;
-  owner: {
-    __typename?: "User";
-    username?: string | null;
-    FCImageUrl?: string | null;
-  };
-  challenge?: {
-    __typename?: "HostEvent";
-    id: string;
-    hostDate: any;
-    title: string;
-    description?: string | null;
-    score: number;
-    liked?: boolean | null;
-    disliked?: boolean | null;
-    owner: {
-      __typename?: "User";
-      username?: string | null;
-      FCImageUrl?: string | null;
-    };
-  } | null;
 };
 
 export type TaskCard_TaskFragment = {
@@ -603,25 +570,14 @@ export type LikeMutationVariables = Exact<{
 
 export type LikeMutation = {
   __typename?: "Mutation";
-  handleLike?:
-    | {
-        __typename?: "HostEvent";
-        id: string;
-        score: number;
-        liked?: boolean | null;
-        disliked?: boolean | null;
-      }
-    | {
-        __typename?: "NFC";
-        id: string;
-        score: number;
-        liked?: boolean | null;
-        disliked?: boolean | null;
-      }
-    | null;
+  handleLike?: {
+    __typename?: "NFC";
+    id: string;
+    score: number;
+    liked?: boolean | null;
+    disliked?: boolean | null;
+  } | null;
 };
-
-export type UseLike_HostEventFragment = { __typename: "HostEvent"; id: string };
 
 export type PostFirstChatMutationVariables = Exact<{
   data: PostChatInput;
@@ -756,6 +712,7 @@ export type ChannelDetailQuery = {
     id: string;
     name?: string | null;
     slug: string;
+    allowNFCs?: boolean | null;
     playbackUrl?: string | null;
     owner: {
       __typename?: "User";
@@ -813,6 +770,32 @@ export type NfcFeedQuery = {
       powerUserLvl: number;
       videoSavantLvl: number;
     };
+  } | null> | null;
+};
+
+export type GetAllDevicesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAllDevicesQuery = {
+  __typename?: "Query";
+  getAllDevices?: Array<{
+    __typename?: "DeviceToken";
+    token: string;
+    notificationsLive: boolean;
+    notificationsNFCs: boolean;
+    address?: string | null;
+  } | null> | null;
+};
+
+export type GetAllUsersWithChannelQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetAllUsersWithChannelQuery = {
+  __typename?: "Query";
+  getAllUsersWithChannel?: Array<{
+    __typename?: "User";
+    address: string;
+    username?: string | null;
   } | null> | null;
 };
 
@@ -900,42 +883,6 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
-export const UseLike_HostEventFragmentDoc = gql`
-  fragment useLike_hostEvent on HostEvent {
-    id
-    __typename
-  }
-`;
-export const HostEventCard_HostEventFragmentDoc = gql`
-  fragment HostEventCard_hostEvent on HostEvent {
-    id
-    hostDate
-    title
-    description
-    score
-    owner {
-      username
-      FCImageUrl
-    }
-    challenge {
-      id
-      hostDate
-      title
-      description
-      score
-      owner {
-        username
-        FCImageUrl
-      }
-      liked
-      disliked
-    }
-    liked
-    disliked
-    ...useLike_hostEvent
-  }
-  ${UseLike_HostEventFragmentDoc}
-`;
 export const TaskCard_TaskFragmentDoc = gql`
   fragment TaskCard_task on Task {
     id
@@ -969,55 +916,6 @@ export const VideoCard_VideoFragmentDoc = gql`
     liked
   }
 `;
-export const GetPoapDocument = gql`
-  query GetPoap($data: GetPoapInput!) {
-    getPoap(data: $data) {
-      id
-      link
-    }
-  }
-`;
-
-/**
- * __useGetPoapQuery__
- *
- * To run a query within a React component, call `useGetPoapQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPoapQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetPoapQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useGetPoapQuery(
-  baseOptions: Apollo.QueryHookOptions<GetPoapQuery, GetPoapQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetPoapQuery, GetPoapQueryVariables>(
-    GetPoapDocument,
-    options
-  );
-}
-export function useGetPoapLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetPoapQuery, GetPoapQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<GetPoapQuery, GetPoapQueryVariables>(
-    GetPoapDocument,
-    options
-  );
-}
-export type GetPoapQueryHookResult = ReturnType<typeof useGetPoapQuery>;
-export type GetPoapLazyQueryHookResult = ReturnType<typeof useGetPoapLazyQuery>;
-export type GetPoapQueryResult = Apollo.QueryResult<
-  GetPoapQuery,
-  GetPoapQueryVariables
->;
 export const TaskFeedDocument = gql`
   query TaskFeed($data: TaskFeedInput!) {
     getTaskFeed(data: $data) {
@@ -1665,6 +1563,7 @@ export const ChannelDetailDocument = gql`
       id
       name
       slug
+      allowNFCs
       owner {
         FCImageUrl
         lensImageUrl
@@ -1855,6 +1754,124 @@ export type NfcFeedLazyQueryHookResult = ReturnType<typeof useNfcFeedLazyQuery>;
 export type NfcFeedQueryResult = Apollo.QueryResult<
   NfcFeedQuery,
   NfcFeedQueryVariables
+>;
+export const GetAllDevicesDocument = gql`
+  query GetAllDevices {
+    getAllDevices {
+      token
+      notificationsLive
+      notificationsNFCs
+      address
+    }
+  }
+`;
+
+/**
+ * __useGetAllDevicesQuery__
+ *
+ * To run a query within a React component, call `useGetAllDevicesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllDevicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllDevicesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllDevicesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllDevicesQuery,
+    GetAllDevicesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAllDevicesQuery, GetAllDevicesQueryVariables>(
+    GetAllDevicesDocument,
+    options
+  );
+}
+export function useGetAllDevicesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllDevicesQuery,
+    GetAllDevicesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAllDevicesQuery, GetAllDevicesQueryVariables>(
+    GetAllDevicesDocument,
+    options
+  );
+}
+export type GetAllDevicesQueryHookResult = ReturnType<
+  typeof useGetAllDevicesQuery
+>;
+export type GetAllDevicesLazyQueryHookResult = ReturnType<
+  typeof useGetAllDevicesLazyQuery
+>;
+export type GetAllDevicesQueryResult = Apollo.QueryResult<
+  GetAllDevicesQuery,
+  GetAllDevicesQueryVariables
+>;
+export const GetAllUsersWithChannelDocument = gql`
+  query GetAllUsersWithChannel {
+    getAllUsersWithChannel {
+      address
+      username
+    }
+  }
+`;
+
+/**
+ * __useGetAllUsersWithChannelQuery__
+ *
+ * To run a query within a React component, call `useGetAllUsersWithChannelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllUsersWithChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllUsersWithChannelQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllUsersWithChannelQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >(GetAllUsersWithChannelDocument, options);
+}
+export function useGetAllUsersWithChannelLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >(GetAllUsersWithChannelDocument, options);
+}
+export type GetAllUsersWithChannelQueryHookResult = ReturnType<
+  typeof useGetAllUsersWithChannelQuery
+>;
+export type GetAllUsersWithChannelLazyQueryHookResult = ReturnType<
+  typeof useGetAllUsersWithChannelLazyQuery
+>;
+export type GetAllUsersWithChannelQueryResult = Apollo.QueryResult<
+  GetAllUsersWithChannelQuery,
+  GetAllUsersWithChannelQueryVariables
 >;
 export const GetAllUsersDocument = gql`
   query GetAllUsers {

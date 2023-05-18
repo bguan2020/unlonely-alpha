@@ -69,7 +69,12 @@ export const migrateAllUsersWithNotificationsToken = async (ctx: Context) => {
         });
         console.log("added user", users[i].username, token);
       } else {
-        console.log("skipped user", users[i].username, token, "as the token already exists");
+        console.log(
+          "skipped user",
+          users[i].username,
+          token,
+          "as the token already exists"
+        );
       }
     }
   }
