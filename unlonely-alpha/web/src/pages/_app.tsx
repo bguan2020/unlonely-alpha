@@ -18,6 +18,7 @@ import cookies from "next-cookies";
 
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/useUser";
+import { PusherProvider } from "../hooks/usePusherChannel";
 
 interface InitialProps {
   cookies: Cookies;
@@ -75,7 +76,9 @@ function App({ Component, pageProps, cookies }: Props) {
         >
           <ApolloProvider client={apolloClient}>
             <UserProvider>
-              <Component {...pageProps} />
+              <PusherProvider>
+                <Component {...pageProps} />
+              </PusherProvider>
             </UserProvider>
           </ApolloProvider>
         </ConnectKitProvider>

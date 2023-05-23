@@ -10,9 +10,17 @@ export const typeDef = gql`
     channel: Channel!
   }
 
+  input Emoji {
+    emojiType: String!
+    count: Int!
+  }
+
   input PostChatInput {
     channelId: Int!
     text: String!
+    isGif: Boolean
+    initializeEmojis: [Emoji!]!
+    chatColor: String
   }
 
   input GetChatInput {

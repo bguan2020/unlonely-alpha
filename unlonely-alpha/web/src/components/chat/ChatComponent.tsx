@@ -12,6 +12,7 @@ import usePostFirstChat from "../../hooks/usePostFirstChat";
 import Participants from "../presence/Participants";
 import { useUser } from "../../hooks/useUser";
 import MessageList from "./MessageList";
+import { usePusherChannel } from "../../hooks/usePusherChannel";
 
 type Props = {
   username: string | null | undefined;
@@ -69,48 +70,48 @@ const AblyChatComponent = ({
     },
   });
   const toast = useToast();
-  const channelName = ablyChatChannel
-    ? `persistMessages:${ablyChatChannel}`
-    : "persistMessages:chat-demo";
+  const channelName = channelId ? `chat-${channelId}` : "chat-demo";
 
-  const [channel, ably] = useChannel(channelName, (message) => {
-    setHasMessagesLoaded(false);
-    const history = receivedMessages.slice(-199);
-    // remove messages where name = add-reaction
-    const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
-    if (message.name === ADD_REACTION_EVENT) {
-      const reaction = message;
-      const timeserial = reaction.data.extras.reference.timeserial;
-      const emojiType = reaction.data.body;
+  //   setHasMessagesLoaded(false);
+  //   const history = receivedMessages.slice(-199);
+  //   // remove messages where name = add-reaction
+  //   const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
+  //   if (message.name === ADD_REACTION_EVENT) {
+  //     const reaction = message;
+  //     const timeserial = reaction.data.extras.reference.timeserial;
+  //     const emojiType = reaction.data.body;
 
-      // get index of message in filteredHistory array where timeserial matches
-      const index = messageHistory.findIndex(
-        (m) => m.extras.timeserial === timeserial
-      );
+  //     // get index of message in filteredHistory array where timeserial matches
+  //     const index = messageHistory.findIndex(
+  //       (m) => m.extras.timeserial === timeserial
+  //     );
 
-      // if index is found, update the message object with the reaction count
-      const messageToUpdate = messageHistory[index];
-      const emojisToUpdate = messageToUpdate.data.reactions;
-      const emojiIndex = emojisToUpdate.findIndex(
-        (e) => e.emojiType === emojiType
-      );
+  //     // if index is found, update the message object with the reaction count
+  //     const messageToUpdate = messageHistory[index];
+  //     const emojisToUpdate = messageToUpdate.data.reactions;
+  //     const emojiIndex = emojisToUpdate.findIndex(
+  //       (e) => e.emojiType === emojiType
+  //     );
 
-      if (emojiIndex !== -1) {
-        emojisToUpdate[emojiIndex].count += 1;
-      }
-      const updatedMessage = {
-        ...messageToUpdate,
-        data: {
-          ...messageToUpdate.data,
-          reactions: emojisToUpdate,
-        },
-      };
-      messageHistory[index] = updatedMessage;
+  //     if (emojiIndex !== -1) {
+  //       emojisToUpdate[emojiIndex].count += 1;
+  //     }
+  //     const updatedMessage = {
+  //       ...messageToUpdate,
+  //       data: {
+  //         ...messageToUpdate.data,
+  //         reactions: emojisToUpdate,
+  //       },
+  //     };
+  //     messageHistory[index] = updatedMessage;
 
-      setMessages([...messageHistory]);
-    }
-    setMessages([...messageHistory, message]);
-    setHasMessagesLoaded(true);
+  //     setMessages([...messageHistory]);
+  //   }
+  //   setMessages([...messageHistory, message]);
+  //   setHasMessagesLoaded(true);
+  // });
+  const channel = usePusherChannel(channelName, "new-chat", (message) => {
+    setMessages(prevMessages => [...prevMessages, message]);
   });
 
   useEffect(() => {
@@ -156,7 +157,7 @@ const AblyChatComponent = ({
         // postFirstChat comes before channel.publish b/c it will set the signature
         // subsequent chats do not need to call postFirstChat first
         await postFirstChat(
-          { text: messageText, channelId: channelId },
+          { text: messageText, channelId: channelId, isGif: isGif, chatColor, initializeEmojis },
           { isFirst: true }
         );
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -203,7 +204,7 @@ const AblyChatComponent = ({
         // postFirstChat comes after to speed up chat
         // wait a few seconds before postFirstChat
         await postFirstChat(
-          { text: messageText, channelId: channelId },
+          { text: messageText, channelId: channelId, isGif: isGif, chatColor, initializeEmojis },
           { isFirst: false }
         );
       }

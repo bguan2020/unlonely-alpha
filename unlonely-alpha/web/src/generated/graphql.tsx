@@ -129,6 +129,11 @@ export type DeviceToken = {
   updatedAt: Scalars["DateTime"];
 };
 
+export type Emoji = {
+  count: Scalars["Int"];
+  emojiType: Scalars["String"];
+};
+
 export type GetChatInput = {
   channelId: Scalars["Int"];
   limit: Scalars["Int"];
@@ -278,6 +283,9 @@ export type Poap = {
 
 export type PostChatInput = {
   channelId: Scalars["Int"];
+  chatColor?: InputMaybe<Scalars["String"]>;
+  initializeEmojis: Array<Emoji>;
+  isGif?: InputMaybe<Scalars["Boolean"]>;
   text: Scalars["String"];
 };
 

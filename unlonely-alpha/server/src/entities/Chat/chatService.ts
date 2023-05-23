@@ -2,19 +2,38 @@ import { User } from "@prisma/client";
 
 import { Context } from "../../context";
 // import publishCast from "../../utils/publishCast";
-import verifyCast from "../../utils/farcaster/verifyCast";
+import { pusher } from "./utils/pusher";
 
 export interface IPostChatInput {
   channelId: number;
+  chatColor: string;
+  isGif: boolean;
+  initializeEmojis: any[];
   text: string;
 }
 
-export const postFirstChat = (
+export const postFirstChat = async (
   data: IPostChatInput,
   user: User,
   ctx: Context
 ) => {
-  return ctx.prisma.chat.create({
+  const chatData = {
+    text: data.text,
+    username: user.username,
+    chatColor: data.chatColor,
+    isFC: user.isFCUser,
+    isLens: user.isLensUser,
+    lensHandle: user.lensHandle,
+    address: user.address,
+    powerUserLvl: user?.powerUserLvl,
+    videoSavantLvl: user?.videoSavantLvl,
+    nfcRank: user?.nfcRank,
+    isGif: data.isGif,
+    reactions: data.initializeEmojis,
+  };
+  // Trigger a 'new-chat' event on your Pusher channel
+  pusher.trigger(`channel-${data.channelId}`, "new-chat", chatData);
+  const chat = await ctx.prisma.chat.create({
     data: {
       text: data.text,
       owner: {
@@ -25,6 +44,9 @@ export const postFirstChat = (
       },
     },
   });
+
+  // Trigger a 'new-chat' event on your Pusher channel
+  pusher.trigger(`channel-${data.channelId}`, "new-chat", chat);
 };
 
 export interface IGetChatInput {
