@@ -17,16 +17,11 @@ export interface Context {
   signedMessage?: string;
 }
 
-// const useCookies = (key: string) => {
-//   const [cookie, setCookie] = useState<string>("");
+// Generate a random string
+function generateRandomId() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
 
-//   useEffect(() => {
-//     const value = cookieCutter && cookieCutter.get ? cookieCutter.get(key) : "";
-//     setCookie(value ? value : "");
-//   }, [key]);
-
-//   return cookie;
-// };
 
 const authLink = (cookies: Cookies, isSSR?: boolean) =>
   new ApolloLink((operation, forward) => {
