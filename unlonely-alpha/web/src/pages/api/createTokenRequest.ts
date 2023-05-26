@@ -12,11 +12,13 @@ export default async function handler(
 
   if (cookie) {
     // Parse the cookies into an object
-    const cookies = cookie.split(';').reduce((res: Record<string, string>, item) => {
-      const data = item.trim().split('=');
-      return { ...res, [data[0]]: data[1] };
-    }, {});
-  
+    const cookies = cookie
+      .split(";")
+      .reduce((res: Record<string, string>, item) => {
+        const data = item.trim().split("=");
+        return { ...res, [data[0]]: data[1] };
+      }, {});
+
     // Extract unlonelyAddress value
     const unlonelyAddress = cookies["unlonelyAddress"];
     clientId = unlonelyAddress || clientId;

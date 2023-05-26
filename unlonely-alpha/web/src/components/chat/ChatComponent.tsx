@@ -1,7 +1,6 @@
 import { Box, Text, Flex, useToast } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { useAccount } from "wagmi";
-import Ably from 'ably';
 
 import useChannel from "../../hooks/useChannel";
 import { ChatBot } from "../../pages/channels/brian";
@@ -74,7 +73,6 @@ const AblyChatComponent = ({
     ? `persistMessages:${ablyChatChannel}`
     : "persistMessages:chat-demo";
 
-
   const [channel, ably] = useChannel(channelName, (message) => {
     setHasMessagesLoaded(false);
     const history = receivedMessages.slice(-199);
@@ -118,12 +116,12 @@ const AblyChatComponent = ({
   useEffect(() => {
     if (chatBot.length > 0) {
       const lastMessage = chatBot[chatBot.length - 1];
-  
+
       let messageText = `${username} paid 5 $BRIAN to switch to a random scene!`;
       if (lastMessage.taskType === "video") {
         messageText = `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`;
       }
-  
+
       channel.publish({
         name: "chat-message",
         data: {
@@ -140,7 +138,6 @@ const AblyChatComponent = ({
   }, [chatBot]);
 
   const sendChatMessage = async (messageText: string, isGif: boolean) => {
-    console.log("sending chat message")
     if (user) {
       if (!user.signature) {
         // postFirstChat comes before channel.publish b/c it will set the signature
@@ -225,9 +222,9 @@ const AblyChatComponent = ({
   };
 
   const handleChatCommand = async (messageText: string) => {
-    let messageToPublish: string = "";
-    let allowPublish: boolean = false;
-  
+    let messageToPublish = "";
+    let allowPublish = false;
+
     if (messageText.startsWith("@chatbot")) {
       const prompt = messageText.substring(9);
       const res = await fetch("/api/openai", {
@@ -241,7 +238,10 @@ const AblyChatComponent = ({
       });
       const data = await res.json();
       messageToPublish = `${data}`;
-    } else if (messageText.startsWith("@nfc-it") || messageText.startsWith("@nfc")) {
+    } else if (
+      messageText.startsWith("@nfc-it") ||
+      messageText.startsWith("@nfc")
+    ) {
       if (allowNFCs) {
         window.open(`/clip?arn=${channelArn}`, "_blank");
         allowPublish = false;
@@ -257,14 +257,13 @@ const AblyChatComponent = ({
       }, 1000);
       allowPublish = false;
     }
-  
+
     if (allowPublish) {
       publishMessage(messageToPublish);
     }
   };
-  
+
   const publishMessage = (messageText: string) => {
-    console.log("is this being called?")
     channel.publish({
       name: "chat-message",
       data: {

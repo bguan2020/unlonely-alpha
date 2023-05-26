@@ -19,9 +19,11 @@ export interface Context {
 
 // Generate a random string
 function generateRandomId() {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }
-
 
 const authLink = (cookies: Cookies, isSSR?: boolean) =>
   new ApolloLink((operation, forward) => {
