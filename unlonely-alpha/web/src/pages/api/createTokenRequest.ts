@@ -5,11 +5,27 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const client = new Ably.Realtime(process.env.ABLY_API_KEY);
+  const client = new Ably.Realtime.Promise({ key: process.env.ABLY_API_KEY });
+  const cookie = req.headers.cookie;
+
+  let clientId = "unlonely-cookie" as string;
+
+  if (cookie) {
+    // Parse the cookies into an object
+    const cookies = cookie
+      .split(";")
+      .reduce((res: Record<string, string>, item) => {
+        const data = item.trim().split("=");
+        return { ...res, [data[0]]: data[1] };
+      }, {});
+
+    // Extract unlonelyAddress value
+    const unlonelyAddress = cookies["unlonelyAddress"];
+    clientId = unlonelyAddress || clientId;
+  }
+
   const tokenRequestData = await client.auth.createTokenRequest({
-    clientId: req.query.rnd as string,
+    clientId: clientId,
   });
 
   res.status(200).json(tokenRequestData);

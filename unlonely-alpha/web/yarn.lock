@@ -3858,13 +3858,22 @@ abitype@^0.2.5:
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.2.5.tgz#e571ef2ed99db1cae551fffde5bcbcee4e446177"
   integrity sha512-t1iiokWYpkrziu4WL2Gb6YdGvaP9ZKs7WnA39TI8TsW2E99GVRgDPW/xOKhzoCdyxOYt550CNYEFluCwGaFHaA==
 
-ably@^1.2.22, ably@^1.2.27:
+ably@^1.2.22:
   version "1.2.27"
   resolved "https://registry.yarnpkg.com/ably/-/ably-1.2.27.tgz#e39f4cde258cb28a41a282da368c036195dd53e7"
   integrity sha512-hf8KoOpln3me0CfV4NruAVjXWpWgiVUc+dhSuoVAsWpcqjTgTBlYin14t9o2dE5a8Sjn8HMoRhLMTB8VazXzqg==
   dependencies:
     "@ably/msgpack-js" "^0.4.0"
     got "^11.8.2"
+    ws "^5.1"
+
+ably@^1.2.39:
+  version "1.2.39"
+  resolved "https://registry.yarnpkg.com/ably/-/ably-1.2.39.tgz#a5877e8394228a2747236265aa2f36773e73ccc5"
+  integrity sha512-xL57mIHGZsdJlgQv2DqZUFxgvh3QmUZOOZioP4dBbzCu6hgnoTlWHiZT40uwr0D8/OpAyvhidjhoVcqMk3TIAQ==
+  dependencies:
+    "@ably/msgpack-js" "^0.4.0"
+    got "^11.8.5"
     ws "^5.1"
 
 abort-controller@^3.0.0:
@@ -6489,6 +6498,23 @@ got@^11.8.2:
   version "11.8.5"
   resolved "https://registry.yarnpkg.com/got/-/got-11.8.5.tgz#ce77d045136de56e8f024bebb82ea349bc730046"
   integrity sha512-o0Je4NvQObAuZPHLFoRSkdG2lTgtcynqymzg2Vupdx6PorhaT5MCbIyXG6d4D94kk8ZG57QeosgdiqfJWhEhlQ==
+  dependencies:
+    "@sindresorhus/is" "^4.0.0"
+    "@szmarczak/http-timer" "^4.0.5"
+    "@types/cacheable-request" "^6.0.1"
+    "@types/responselike" "^1.0.0"
+    cacheable-lookup "^5.0.3"
+    cacheable-request "^7.0.2"
+    decompress-response "^6.0.0"
+    http2-wrapper "^1.0.0-beta.5.2"
+    lowercase-keys "^2.0.0"
+    p-cancelable "^2.0.0"
+    responselike "^2.0.0"
+
+got@^11.8.5:
+  version "11.8.6"
+  resolved "https://registry.yarnpkg.com/got/-/got-11.8.6.tgz#276e827ead8772eddbcfc97170590b841823233a"
+  integrity sha512-6tfZ91bOr7bOXnK7PRDCGBLa1H4U080YHNaAQ2KsMGlLEzRbk44nsZF2E1IeRc3vtJHPVbKCYgdFbaGO2ljd8g==
   dependencies:
     "@sindresorhus/is" "^4.0.0"
     "@szmarczak/http-timer" "^4.0.5"

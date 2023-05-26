@@ -116,29 +116,16 @@ const AblyChatComponent = ({
   useEffect(() => {
     if (chatBot.length > 0) {
       const lastMessage = chatBot[chatBot.length - 1];
+
+      let messageText = `${username} paid 5 $BRIAN to switch to a random scene!`;
       if (lastMessage.taskType === "video") {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        channel.publish({
-          name: "chat-message",
-          data: {
-            messageText: `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`,
-            username: "chatbot🤖",
-            chatColor: "black",
-            address: "chatbotAddress",
-            isFC: false,
-            isLens: false,
-            reactions: initializeEmojis,
-          },
-        });
-        return;
+        messageText = `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`;
       }
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+
       channel.publish({
         name: "chat-message",
         data: {
-          messageText: `${username} paid 5 $BRIAN to switch to a random scene!`,
+          messageText: messageText,
           username: "chatbot🤖",
           chatColor: "black",
           address: "chatbotAddress",
@@ -159,8 +146,6 @@ const AblyChatComponent = ({
           { text: messageText, channelId: channelId },
           { isFirst: true }
         );
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         channel.publish({
           name: "chat-message",
           data: {
@@ -180,8 +165,6 @@ const AblyChatComponent = ({
         });
         handleChatCommand(messageText);
       } else {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         channel.publish({
           name: "chat-message",
           data: {
@@ -201,7 +184,6 @@ const AblyChatComponent = ({
         });
         handleChatCommand(messageText);
         // postFirstChat comes after to speed up chat
-        // wait a few seconds before postFirstChat
         await postFirstChat(
           { text: messageText, channelId: channelId },
           { isFirst: false }
@@ -209,8 +191,6 @@ const AblyChatComponent = ({
       }
     } else {
       if (address) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         channel.publish({
           name: "chat-message",
           data: {
@@ -242,8 +222,10 @@ const AblyChatComponent = ({
   };
 
   const handleChatCommand = async (messageText: string) => {
+    let messageToPublish = "";
+    let allowPublish = false;
+
     if (messageText.startsWith("@chatbot")) {
-      // const that removes the @chatbot: from the beginning of the message
       const prompt = messageText.substring(9);
       const res = await fetch("/api/openai", {
         body: JSON.stringify({
@@ -255,67 +237,46 @@ const AblyChatComponent = ({
         method: "POST",
       });
       const data = await res.json();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      channel.publish({
-        name: "chat-message",
-        data: {
-          messageText: `${data}`,
-          username: "chatbot🤖",
-          chatColor: "black",
-          address: chatbotAddress,
-          isFC: false,
-          isLens: false,
-          isGif: false,
-          reactions: initializeEmojis,
-        },
-      });
+      messageToPublish = `${data}`;
     } else if (
       messageText.startsWith("@nfc-it") ||
       messageText.startsWith("@nfc")
     ) {
       if (allowNFCs) {
-        // open new tab to /clip page
         window.open(`/clip?arn=${channelArn}`, "_blank");
+        allowPublish = false;
       } else {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        channel.publish({
-          name: "chat-message",
-          data: {
-            messageText: "NFCs are not allowed on this channel.",
-            username: "chatbot🤖",
-            chatColor: "black",
-            address: chatbotAddress,
-            isFC: false,
-            isLens: false,
-            isGif: false,
-            reactions: initializeEmojis,
-          },
-        });
+        messageToPublish = "NFCs are not allowed on this channel.";
       }
     } else if (messageText.startsWith("@rules")) {
       const rules =
         '"@chatbot [question]" to ask chatbot a question\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';
-      // wait 1 second before sending rules
       setTimeout(() => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        channel.publish({
-          name: "chat-message",
-          data: {
-            messageText: rules,
-            username: "chatbot🤖",
-            chatColor: "black",
-            address: chatbotAddress,
-            isFC: false,
-            isLens: false,
-            isGif: false,
-            reactions: initializeEmojis,
-          },
-        });
+        messageToPublish = rules;
+        publishMessage(messageToPublish);
       }, 1000);
+      allowPublish = false;
     }
+
+    if (allowPublish) {
+      publishMessage(messageToPublish);
+    }
+  };
+
+  const publishMessage = (messageText: string) => {
+    channel.publish({
+      name: "chat-message",
+      data: {
+        messageText: messageText,
+        username: "chatbot🤖",
+        chatColor: "black",
+        address: chatbotAddress,
+        isFC: false,
+        isLens: false,
+        isGif: false,
+        reactions: initializeEmojis,
+      },
+    });
   };
 
   useEffect(() => {
