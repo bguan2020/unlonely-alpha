@@ -164,16 +164,16 @@ const ChannelDetail = ({
                 The Chat Room!
               </Text>
               {channel ? (
-                  <AblyChatComponent
-                    username={username}
-                    chatBot={chatBot}
-                    user={user}
-                    ablyChatChannel={ablyChatChannel}
-                    ablyPresenceChannel={ablyPresenceChannel}
-                    channelArn={channel.channelArn || ""}
-                    channelId={channel.id ? Number(channel.id) : 3}
-                    allowNFCs={channel.allowNFCs || false}
-                  />
+                <AblyChatComponent
+                  username={username}
+                  chatBot={chatBot}
+                  user={user}
+                  ablyChatChannel={ablyChatChannel}
+                  ablyPresenceChannel={ablyPresenceChannel}
+                  channelArn={channel.channelArn || ""}
+                  channelId={channel.id ? Number(channel.id) : 3}
+                  allowNFCs={channel.allowNFCs || false}
+                />
               ) : null}
             </Container>
           </Stack>

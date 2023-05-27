@@ -144,9 +144,7 @@ export default function Chat() {
       if (!user.signature) {
         // postFirstChat comes before channel.publish b/c it will set the signature
         // subsequent chats do not need to call postFirstChat first
-        await postChatByAwsId(
-          { text: messageText, awsId }
-        );
+        await postChatByAwsId({ text: messageText, awsId });
         channel.publish({
           name: "chat-message",
           data: {

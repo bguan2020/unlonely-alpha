@@ -39,8 +39,8 @@ export const postChatByAwsId = async (
 ) => {
   const channel = await ctx.prisma.channel.findUnique({
     where: {
-      awsId: data.awsId
-    }
+      awsId: data.awsId,
+    },
   });
 
   // If the channel does not exist, throw an error
@@ -62,7 +62,7 @@ export const postChatByAwsId = async (
   });
 
   return newChat;
-}
+};
 
 export interface IGetChatInput {
   channelId: number;

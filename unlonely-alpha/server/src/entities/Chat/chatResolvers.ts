@@ -44,7 +44,7 @@ export const resolvers = {
       }
 
       return chatService.postChatByAwsId(data, ctx.user, ctx);
-    }
+    },
   },
   Chat: {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
