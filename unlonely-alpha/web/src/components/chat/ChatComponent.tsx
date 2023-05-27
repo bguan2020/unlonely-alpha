@@ -238,6 +238,7 @@ const AblyChatComponent = ({
       });
       const data = await res.json();
       messageToPublish = `${data}`;
+      allowPublish = true;
     } else if (
       messageText.startsWith("@nfc-it") ||
       messageText.startsWith("@nfc")
@@ -247,6 +248,7 @@ const AblyChatComponent = ({
         allowPublish = false;
       } else {
         messageToPublish = "NFCs are not allowed on this channel.";
+        allowPublish = true;
       }
     } else if (messageText.startsWith("@rules")) {
       const rules =
