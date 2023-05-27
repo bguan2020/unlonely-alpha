@@ -14,10 +14,8 @@ import {
   initializeEmojis,
 } from "../../../components/chat/types/index";
 import ChatForm from "../../../components/chat/ChatForm";
-import usePostFirstChat from "../../../hooks/usePostFirstChat";
 import NebulousButton from "../../../components/general/button/NebulousButton";
 import EmojiDisplay from "../../../components/chat/emoji/EmojiDisplay";
-import usePostNFC from "../../../hooks/usePostNFC";
 import { useUser } from "../../../hooks/useUser";
 import {
   chatbotAddress,
