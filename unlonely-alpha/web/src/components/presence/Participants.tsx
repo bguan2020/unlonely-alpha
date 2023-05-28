@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { Flex, SimpleGrid, Tooltip, Box } from "@chakra-ui/react";
 
-// import { usePresence } from "../../hooks/usePresence";
 import { usePresence } from "@ably-labs/react-hooks";
 import Participant from "./Participant";
 import { User } from "../../generated/graphql";

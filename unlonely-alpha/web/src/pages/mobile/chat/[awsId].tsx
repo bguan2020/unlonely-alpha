@@ -772,8 +772,6 @@ export default function Chat() {
   });
 
   // new shit
-  //
-  //
   const anchorRef = useRef(null);
   const [scrolledUp, setScrolledUp] = useState(false);
 
