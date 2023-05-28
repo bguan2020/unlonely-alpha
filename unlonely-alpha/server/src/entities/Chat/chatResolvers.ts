@@ -34,6 +34,17 @@ export const resolvers = {
 
       return chatService.postFirstChat(data, ctx.user, ctx);
     },
+    postChatByAwsId: (
+      _: any,
+      { data }: { data: chatService.IPostChatByAwsIdInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+
+      return chatService.postChatByAwsId(data, ctx.user, ctx);
+    },
   },
   Chat: {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
