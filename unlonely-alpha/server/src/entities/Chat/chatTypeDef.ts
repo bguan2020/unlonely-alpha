@@ -15,6 +15,11 @@ export const typeDef = gql`
     text: String!
   }
 
+  input PostChatByAwsIdInput {
+    awsId: String!
+    text: String!
+  }
+
   input GetChatInput {
     channelId: Int!
     limit: Int!
@@ -28,5 +33,6 @@ export const typeDef = gql`
 
   extend type Mutation {
     postFirstChat(data: PostChatInput!): Chat
+    postChatByAwsId(data: PostChatByAwsIdInput!): Chat
   }
 `;

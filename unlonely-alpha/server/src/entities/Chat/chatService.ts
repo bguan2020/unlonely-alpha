@@ -9,6 +9,11 @@ export interface IPostChatInput {
   text: string;
 }
 
+export interface IPostChatByAwsIdInput {
+  awsId: string;
+  text: string;
+}
+
 export const postFirstChat = (
   data: IPostChatInput,
   user: User,
@@ -25,6 +30,38 @@ export const postFirstChat = (
       },
     },
   });
+};
+
+export const postChatByAwsId = async (
+  data: IPostChatByAwsIdInput,
+  user: User,
+  ctx: Context
+) => {
+  const channel = await ctx.prisma.channel.findUnique({
+    where: {
+      awsId: data.awsId,
+    },
+  });
+
+  // If the channel does not exist, throw an error
+  if (!channel) {
+    throw new Error(`Channel with AWS ID: ${data.awsId} not found`);
+  }
+
+  // If channel exists, add a chat to it
+  const newChat = await ctx.prisma.chat.create({
+    data: {
+      text: data.text,
+      owner: {
+        connect: { address: user.address },
+      },
+      channel: {
+        connect: { id: channel.id },
+      },
+    },
+  });
+
+  return newChat;
 };
 
 export interface IGetChatInput {

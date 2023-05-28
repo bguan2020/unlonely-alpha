@@ -179,6 +179,7 @@ export type Mutation = {
   createClip?: Maybe<ClipOutput>;
   handleLike?: Maybe<Likable>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
+  postChatByAwsId?: Maybe<Chat>;
   postDeviceToken?: Maybe<DeviceToken>;
   postFirstChat?: Maybe<Chat>;
   postNFC?: Maybe<Nfc>;
@@ -198,6 +199,10 @@ export type MutationCreateClipArgs = {
 
 export type MutationHandleLikeArgs = {
   data: HandleLikeInput;
+};
+
+export type MutationPostChatByAwsIdArgs = {
+  data: PostChatByAwsIdInput;
 };
 
 export type MutationPostDeviceTokenArgs = {
@@ -274,6 +279,11 @@ export type Poap = {
   link?: Maybe<Scalars["String"]>;
   owner: User;
   updatedAt: Scalars["DateTime"];
+};
+
+export type PostChatByAwsIdInput = {
+  awsId: Scalars["String"];
+  text: Scalars["String"];
 };
 
 export type PostChatInput = {
@@ -577,6 +587,15 @@ export type LikeMutation = {
     liked?: boolean | null;
     disliked?: boolean | null;
   } | null;
+};
+
+export type PostChatByAwsIdMutationVariables = Exact<{
+  data: PostChatByAwsIdInput;
+}>;
+
+export type PostChatByAwsIdMutation = {
+  __typename?: "Mutation";
+  postChatByAwsId?: { __typename?: "Chat"; id: string } | null;
 };
 
 export type PostFirstChatMutationVariables = Exact<{
@@ -1078,6 +1097,56 @@ export type LikeMutationResult = Apollo.MutationResult<LikeMutation>;
 export type LikeMutationOptions = Apollo.BaseMutationOptions<
   LikeMutation,
   LikeMutationVariables
+>;
+export const PostChatByAwsIdDocument = gql`
+  mutation PostChatByAwsId($data: PostChatByAwsIdInput!) {
+    postChatByAwsId(data: $data) {
+      id
+    }
+  }
+`;
+export type PostChatByAwsIdMutationFn = Apollo.MutationFunction<
+  PostChatByAwsIdMutation,
+  PostChatByAwsIdMutationVariables
+>;
+
+/**
+ * __usePostChatByAwsIdMutation__
+ *
+ * To run a mutation, you first call `usePostChatByAwsIdMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostChatByAwsIdMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postChatByAwsIdMutation, { data, loading, error }] = usePostChatByAwsIdMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostChatByAwsIdMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostChatByAwsIdMutation,
+    PostChatByAwsIdMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostChatByAwsIdMutation,
+    PostChatByAwsIdMutationVariables
+  >(PostChatByAwsIdDocument, options);
+}
+export type PostChatByAwsIdMutationHookResult = ReturnType<
+  typeof usePostChatByAwsIdMutation
+>;
+export type PostChatByAwsIdMutationResult =
+  Apollo.MutationResult<PostChatByAwsIdMutation>;
+export type PostChatByAwsIdMutationOptions = Apollo.BaseMutationOptions<
+  PostChatByAwsIdMutation,
+  PostChatByAwsIdMutationVariables
 >;
 export const PostFirstChatDocument = gql`
   mutation PostFirstChat($data: PostChatInput!) {

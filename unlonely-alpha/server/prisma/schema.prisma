@@ -201,7 +201,7 @@ model StreamInteraction {
 
 model Channel {
   id           Int     @id @default(autoincrement())
-  awsId String
+  awsId String @unique
   channelArn String
 
   name String

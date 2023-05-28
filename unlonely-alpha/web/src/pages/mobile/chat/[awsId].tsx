@@ -14,10 +14,8 @@ import {
   initializeEmojis,
 } from "../../../components/chat/types/index";
 import ChatForm from "../../../components/chat/ChatForm";
-import usePostFirstChat from "../../../hooks/usePostFirstChat";
 import NebulousButton from "../../../components/general/button/NebulousButton";
 import EmojiDisplay from "../../../components/chat/emoji/EmojiDisplay";
-import usePostNFC from "../../../hooks/usePostNFC";
 import { useUser } from "../../../hooks/useUser";
 import {
   chatbotAddress,
@@ -28,6 +26,7 @@ import ReactDOM from "react-dom";
 import NextHead from "../../../components/layout/NextHead";
 import Participants from "../../../components/presence/Participants";
 import { useRouter } from "next/router";
+import usePostChatByAwsId from "../../../hooks/usePostChatByAwsId";
 
 const CHAT_INPUT_PANEL_HEIGHT = 80;
 
@@ -66,12 +65,7 @@ export default function Chat() {
   const [emojiList, setEmojiList] = useState<string[]>(emojis);
   // const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
-  const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
-    onError: (m) => {
-      setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
-    },
-  });
-  const { postNFC } = usePostNFC({
+  const { postChatByAwsId, loading: postChatLoading } = usePostChatByAwsId({
     onError: (m) => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
@@ -122,29 +116,16 @@ export default function Chat() {
   useEffect(() => {
     if (chatBot.length > 0) {
       const lastMessage = chatBot[chatBot.length - 1];
+
+      let messageText = `${username} paid 5 $BRIAN to switch to a random scene!`;
       if (lastMessage.taskType === "video") {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        channel.publish({
-          name: "chat-message",
-          data: {
-            messageText: `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`,
-            username: "chatbot🤖",
-            chatColor: "black",
-            address: "chatbotAddress",
-            isFC: false,
-            isLens: false,
-            reactions: initializeEmojis,
-          },
-        });
-        return;
+        messageText = `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`;
       }
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+
       channel.publish({
         name: "chat-message",
         data: {
-          messageText: `${username} paid 5 $BRIAN to switch to a random scene!`,
+          messageText: messageText,
           username: "chatbot🤖",
           chatColor: "black",
           address: "chatbotAddress",
@@ -158,30 +139,51 @@ export default function Chat() {
 
   const sendChatMessage = async (messageText: string, isGif: boolean) => {
     if (user) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      channel.publish({
-        name: "chat-message",
-        data: {
-          messageText,
-          username: user.username,
-          chatColor,
-          isFC: user.isFCUser,
-          isLens: user.isLensUser,
-          lensHandle: user.lensHandle,
-          address: user.address,
-          powerUserLvl: user?.powerUserLvl,
-          videoSavantLvl: user?.videoSavantLvl,
-          nfcRank: user?.nfcRank,
-          isGif,
-          reactions: initializeEmojis,
-        },
-      });
-      handleChatCommand(messageText);
+      if (!user.signature) {
+        // postFirstChat comes before channel.publish b/c it will set the signature
+        // subsequent chats do not need to call postFirstChat first
+        await postChatByAwsId({ text: messageText, awsId });
+        channel.publish({
+          name: "chat-message",
+          data: {
+            messageText,
+            username: user.username,
+            chatColor,
+            isFC: user.isFCUser,
+            isLens: user.isLensUser,
+            lensHandle: user.lensHandle,
+            address: user.address,
+            powerUserLvl: user?.powerUserLvl,
+            videoSavantLvl: user?.videoSavantLvl,
+            nfcRank: user?.nfcRank,
+            isGif,
+            reactions: initializeEmojis,
+          },
+        });
+        handleChatCommand(messageText);
+      } else {
+        channel.publish({
+          name: "chat-message",
+          data: {
+            messageText,
+            username: user.username,
+            chatColor,
+            isFC: user.isFCUser,
+            isLens: user.isLensUser,
+            lensHandle: user.lensHandle,
+            address: user.address,
+            powerUserLvl: user?.powerUserLvl,
+            videoSavantLvl: user?.videoSavantLvl,
+            nfcRank: user?.nfcRank,
+            isGif,
+            reactions: initializeEmojis,
+          },
+        });
+        handleChatCommand(messageText);
+        await postChatByAwsId({ text: messageText, awsId });
+      }
     } else {
       if (address) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         channel.publish({
           name: "chat-message",
           data: {
@@ -226,8 +228,6 @@ export default function Chat() {
         method: "POST",
       });
       const data = await res.json();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       channel.publish({
         name: "chat-message",
         data: {
@@ -252,8 +252,6 @@ export default function Chat() {
         '"@chatbot [question]" to ask chatbot a question\n"@nfc [title]" to clip a moment\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';
       // wait 1 second before sending rules
       setTimeout(() => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         channel.publish({
           name: "chat-message",
           data: {
@@ -279,8 +277,6 @@ export default function Chat() {
     timeserial: any,
     reactionEvent: string
   ) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     channel.publish(reactionEvent, {
       body: emoji,
       name: reactionEvent,
@@ -364,8 +360,6 @@ export default function Chat() {
 
     return (
       <>
-        {/* // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore */}
         <Flex direction="column">
           <Flex key={index} direction="row" align="center">
             <Text color="#5A5A5A" fontSize="12px" mr="5px">

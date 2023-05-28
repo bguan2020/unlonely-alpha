@@ -163,16 +163,18 @@ const ChannelDetail = ({
               >
                 The Chat Room!
               </Text>
-              <AblyChatComponent
-                username={username}
-                chatBot={chatBot}
-                user={user}
-                ablyChatChannel={ablyChatChannel}
-                ablyPresenceChannel={ablyPresenceChannel}
-                channelArn={channel.channelArn ? channel.channelArn : ""}
-                channelId={channel.id ? Number(channel.id) : 3}
-                allowNFCs={channel.allowNFCs ? channel.allowNFCs : true}
-              />
+              {channel ? (
+                <AblyChatComponent
+                  username={username}
+                  chatBot={chatBot}
+                  user={user}
+                  ablyChatChannel={ablyChatChannel}
+                  ablyPresenceChannel={ablyPresenceChannel}
+                  channelArn={channel.channelArn || ""}
+                  channelId={channel.id ? Number(channel.id) : 3}
+                  allowNFCs={channel.allowNFCs || false}
+                />
+              ) : null}
             </Container>
           </Stack>
           <ChannelDesc channel={channel} isOwner={isOwner} />
