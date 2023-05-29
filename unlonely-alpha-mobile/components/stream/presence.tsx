@@ -170,7 +170,7 @@ export function Presence({ data, reloadChat, openPresenceSheet, awsId }) {
                 flexDirection: 'row',
               }}
             >
-              {data.map(d => {
+              {data.map((d, i) => {
                 const user = d.data.user;
 
                 return (
@@ -188,7 +188,7 @@ export function Presence({ data, reloadChat, openPresenceSheet, awsId }) {
                       duration: 150,
                       delay: 250,
                     }}
-                    key={d.clientId}
+                    key={`${d.clientId}-${i}`}
                     style={{
                       width: AVATAR_SIZE - 4,
                       height: AVATAR_SIZE - 4,

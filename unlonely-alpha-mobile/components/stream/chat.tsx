@@ -300,7 +300,7 @@ export function Chat({ awsId, slug }) {
               const user = d.data.user;
 
               return (
-                <View style={styles.presenceRow} key={d.clientId}>
+                <View style={styles.presenceRow} key={`${d.clientId}-${index}`}>
                   <View
                     style={{
                       width: AVATAR_SIZE - 4,
