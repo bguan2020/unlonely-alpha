@@ -1,4 +1,4 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import React from "react";
 
 import MessageBody from "./MessageBody";
@@ -51,7 +51,9 @@ const MessageList = ({ messages, channel }: Props) => {
       ) : (
         <>
           <Flex flexDirection="row">
-            {"No messages to show. Messages delete every 48 hrs."}
+            <Text color="white">
+              {"No messages to show. Messages delete every 48 hrs."}
+            </Text>
           </Flex>
         </>
       )}

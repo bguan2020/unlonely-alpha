@@ -102,13 +102,15 @@ const Example: React.FunctionComponent = () => {
         </Button>
         <Container
           hidden={isHidden(true)}
-          maxW={["768px", "300px"]}
+          maxW={["768px", "380px"]}
           mr="10px"
           borderWidth="3px"
           borderColor="black"
+          borderRadius={10}
           centerContent
+          background={"#19162F"}
         >
-          <Text
+          {/* <Text
             mt="10px"
             align="center"
             fontWeight={"bold"}
@@ -116,7 +118,7 @@ const Example: React.FunctionComponent = () => {
             color="white"
           >
             The Chat Room!
-          </Text>
+          </Text> */}
           <AblyChatComponent
             username={username}
             chatBot={chatBot}

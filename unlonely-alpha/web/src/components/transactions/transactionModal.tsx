@@ -239,6 +239,7 @@ export default function TransactionModal({
         <ModalContent>
           {!isLoading && !transferLoading ? (
             <>
+              <ModalCloseButton />
               <ModalHeader>
                 {step === 1 ? "Please accept transfer transaction" : title}
                 {error && (
@@ -247,7 +248,6 @@ export default function TransactionModal({
                   </Text>
                 )}
               </ModalHeader>
-              <ModalCloseButton />
               <ModalBody>
                 <Text>Price: 5 $BRIAN</Text>
                 <Text>

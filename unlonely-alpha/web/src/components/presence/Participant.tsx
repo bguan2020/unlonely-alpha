@@ -63,7 +63,7 @@ const Participant = ({ user }: Props) => {
             <Avatar
               name={user.username ? user.username : user.address}
               src={ipfsUrl}
-              size="md"
+              size="sm"
             />
           </Tooltip>
         </>
