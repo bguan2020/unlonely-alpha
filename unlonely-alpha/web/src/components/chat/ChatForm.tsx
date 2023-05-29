@@ -1,12 +1,4 @@
-import {
-  Flex,
-  Button,
-  Textarea,
-  Switch,
-  Tooltip,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Flex, Button, Textarea, Stack } from "@chakra-ui/react";
 import React, { useState } from "react";
 import Commands from "./Commands";
 
@@ -88,6 +80,8 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
               fontFamily="Inter"
               fontWeight="medium"
               placeholder="say something in chat!"
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               enterkeyhint="send"
               onChange={(e) => {
                 if (e.target.value === "") {

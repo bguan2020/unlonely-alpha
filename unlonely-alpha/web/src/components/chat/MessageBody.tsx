@@ -4,7 +4,6 @@ import React, { useState } from "react";
 
 import { useUser } from "../../hooks/useUser";
 import { timestampConverter } from "../../utils/timestampConverter";
-import NebulousButton from "../general/button/NebulousButton";
 import NFTList from "../profile/NFTList";
 import Badges from "./Badges";
 import EmojiDisplay from "./emoji/EmojiDisplay";
@@ -73,7 +72,7 @@ const MessageBody = ({
         <Flex
           className="showhim"
           justifyContent={
-            user?.username == message.data.username ? "end" : "start"
+            user?.username === message.data.username ? "end" : "start"
           }
         >
           {message.data.nfcRank && message.data.nfcRank > 0 ? (
@@ -166,7 +165,7 @@ const MessageBody = ({
                       )}
                     </>
                   )}
-                  {message.data.username != user?.username && (
+                  {message.data.username !== user?.username && (
                     <div
                       className="showme"
                       style={{
@@ -380,7 +379,7 @@ const MessageBody = ({
                       )}
                     </>
                   )}
-                  {message.data.username != user?.username && (
+                  {message.data.username !== user?.username && (
                     <div
                       className="showme"
                       style={{

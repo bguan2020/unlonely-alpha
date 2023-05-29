@@ -366,13 +366,7 @@ export default function Chat() {
               {`${timestampConverter(message.timestamp)}`}
             </Text>
             <Badges user={user} message={message} />
-            <NFTList
-              mobile
-              address={message.data.address}
-              author={message.data.username}
-              isLens={message.data.isLens}
-              lensHandle={message.data.lensHandle}
-            />
+            <NFTList mobile message={message} />
           </Flex>
           <div className="showhim">
             {message.data.nfcRank && message.data.nfcRank > 0 ? (
