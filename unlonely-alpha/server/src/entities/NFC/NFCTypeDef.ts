@@ -47,5 +47,6 @@ export const typeDef = gql`
     createClip(data: CreateClipInput): ClipOutput
     postNFC(data: PostNFCInput!): NFC
     openseaNFCScript: String
+    updateOpenseaLink: NFC
   }
 `;

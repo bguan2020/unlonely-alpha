@@ -35,6 +35,32 @@ export const postNFC = async (
   });
 };
 
+// function that gets all NFCS where nfc.openseaLink starts with "https://opensea.io/assets/0xC7E230CE8d67B2ad116208c69d616dD6bFC96a8d" and updates it to "https://opensea.io/assets/ethereum/0xC7E230CE8d67B2ad116208c69d616dD6bFC96a8d/41"
+export const updateOpenseaLink = async (ctx: Context) => {
+  const nFCs = await ctx.prisma.nFC.findMany({
+    where: {
+      openseaLink: {
+        startsWith:
+          "https://opensea.io/assets/0xC7E230CE8d67B2ad116208c69d616dD6bFC96a8d",
+      },
+    },
+  });
+  for (const nFC of nFCs) {
+    const tokenId = nFC.openseaLink?.split("/")[5];
+    console.log(tokenId, nFC.id, nFC.openseaLink);
+    const newOpenseaLink = `https://opensea.io/assets/ethereum/0xC7E230CE8d67B2ad116208c69d616dD6bFC96a8d/${tokenId}`;
+    await ctx.prisma.nFC.update({
+      where: {
+        id: nFC.id,
+      },
+      data: {
+        openseaLink: newOpenseaLink,
+      },
+    });
+    console.log("updated  ", nFC.id, " to ", newOpenseaLink);
+  }
+};
+
 export const createClip = async (data: ICreateClipInput) => {
   const recordingConfigArn =
     "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
