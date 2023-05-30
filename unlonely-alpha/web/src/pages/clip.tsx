@@ -131,7 +131,7 @@ const ClipDetail = () => {
         videoThumbnail: clipThumbnail,
         title,
         openseaLink: txnData?.logs[0].topics[3]
-          ? `https://opensea.io/assets/${UNLONELYNFCV2_ADDRESS}/${parseInt(
+          ? `https://opensea.io/assets/ethereum/${UNLONELYNFCV2_ADDRESS}/${parseInt(
               txnData?.logs[0].topics[3],
               16
             )}`

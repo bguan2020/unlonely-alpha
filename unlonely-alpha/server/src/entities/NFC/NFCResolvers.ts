@@ -39,6 +39,13 @@ export const resolvers = {
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {
       return NFCService.openseaNFCScript(ctx);
     },
+    // updateOpenseaLink: async (
+    //   _: any,
+    //   __: any,
+    //   ctx: Context
+    // ) => {
+    //   return NFCService.updateOpenseaLink(ctx);
+    // }
   },
   NFC: {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
