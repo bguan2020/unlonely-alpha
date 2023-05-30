@@ -50,9 +50,7 @@ const ConnectWallet: React.FunctionComponent<{
               bg={"#131323"}
               borderRadius="10px"
             >
-              <Text color="white">
-                {isConnected ? truncatedAddress : "Connect"}
-              </Text>
+              <Text>{isConnected ? truncatedAddress : "Connect"}</Text>
             </Button>
           </Flex>
         );

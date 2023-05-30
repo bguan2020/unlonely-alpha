@@ -45,7 +45,6 @@ const ChannelCard = ({ channel }: Props) => {
           <Text
             fontSize="16px"
             noOfLines={1}
-            color="#4E5153"
             fontWeight="light"
             textAlign="center"
             fontFamily="Inter"

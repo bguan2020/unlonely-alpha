@@ -89,7 +89,6 @@ export default function Page() {
           )}
           <Flex w="100%" justifyContent="center">
             <Text
-              color="black"
               fontSize={{ base: "20px", md: "30px", lg: "40px" }}
               lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
               fontWeight="bold"
@@ -130,7 +129,6 @@ export default function Page() {
           )}
           <Flex w="100%" justifyContent="center" mt="3rem">
             <Text
-              color="black"
               fontSize={{ base: "20px", md: "30px", lg: "40px" }}
               lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
               fontWeight="bold"

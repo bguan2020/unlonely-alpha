@@ -1,7 +1,3 @@
-import "@fontsource/inter/500.css";
-import "@fontsource/inter/600.css";
-import "@fontsource/inter/800.css";
-
 import { extendTheme } from "@chakra-ui/react";
 import { StyleFunctionProps } from "@chakra-ui/theme-tools";
 
@@ -58,12 +54,13 @@ export default extendTheme({
 
   fonts: {
     body: "Anonymous Pro, monospace",
-    heading: "Anonymous Pro, monospace",
+    heading: "Neue Pixel Sans, sans-serif",
   },
 
   styles: {
     global: {
       body: {
+        color: "white",
         fontFamily: "Anonymous Pro, monospace",
       },
     },

@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Text, Flex, Button, Container, Stack } from "@chakra-ui/react";
+import {
+  Flex,
+  Button,
+  Container,
+  Stack,
+  Grid,
+  Box,
+  GridItem,
+  Tooltip,
+} from "@chakra-ui/react";
 import { GetServerSidePropsContext } from "next";
 import { useAccount } from "wagmi";
 import { gql, useQuery } from "@apollo/client";
@@ -16,6 +25,11 @@ import { initializeApollo } from "../../apiClient/client";
 import { ChannelDetailQuery } from "../../generated/graphql";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import ChannelDesc from "../../components/channels/ChannelDesc";
+import BuyButton from "../../components/arcade/BuyButton";
+import CoinButton from "../../components/arcade/CoinButton";
+import ControlButton from "../../components/arcade/ControlButton";
+import DiceButton from "../../components/arcade/DiceButton";
+import SwordButton from "../../components/arcade/SwordButton";
 
 export type ChatBot = {
   username: string;
@@ -125,15 +139,64 @@ const ChannelDetail = ({
             spacing={8}
             direction={["column", "row", "row"]}
           >
-            <Flex width={{ base: "100%", sm: "70%", md: "70%", lg: "100%" }}>
-              {channel.playbackUrl ? (
-                <NextStreamTimer
-                  isTheatreMode={true}
-                  hasTimer={false}
-                  playbackUrl={channel.playbackUrl}
-                />
-              ) : null}
-            </Flex>
+            <Stack direction="column" width={"100%"}>
+              <Flex width={{ base: "100%", sm: "70%", md: "70%", lg: "100%" }}>
+                {channel.playbackUrl ? (
+                  <NextStreamTimer
+                    isTheatreMode={true}
+                    hasTimer={false}
+                    playbackUrl={channel.playbackUrl}
+                  />
+                ) : null}
+              </Flex>
+              <Grid templateColumns="repeat(3, 1fr)" gap={4}>
+                <GridItem colSpan={2}>
+                  <ChannelDesc channel={channel} isOwner={isOwner} />
+                </GridItem>
+                <GridItem justifyItems={"center"}>
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    gap={5}
+                  >
+                    <Grid
+                      templateColumns="repeat(2, 1fr)"
+                      templateRows="repeat(2, 1fr)"
+                      gridGap={4}
+                      alignItems="flex-start"
+                      justifyItems="flex-start"
+                    >
+                      <Tooltip label={"Not available"}>
+                        <span>
+                          <ControlButton />
+                        </span>
+                      </Tooltip>
+                      <Tooltip label={"Not available"}>
+                        <span>
+                          <DiceButton />
+                        </span>
+                      </Tooltip>
+                      <Tooltip label={"Not available"}>
+                        <span>
+                          <SwordButton />
+                        </span>
+                      </Tooltip>
+                      <Tooltip label={"Not available"}>
+                        <span>
+                          <CoinButton />
+                        </span>
+                      </Tooltip>
+                    </Grid>
+                    <Tooltip label={"Not available"}>
+                      <span>
+                        <BuyButton tokenName="Token" />
+                      </span>
+                    </Tooltip>
+                  </Box>
+                </GridItem>
+              </Grid>
+            </Stack>
             <Button
               height={{
                 //only show on mobile
@@ -148,21 +211,14 @@ const ChannelDetail = ({
             </Button>
             <Container
               hidden={isHidden(true)}
-              maxW={["768px", "300px"]}
+              maxW={["768px", "380px"]}
               mr="10px"
               borderWidth="3px"
               borderColor="black"
+              borderRadius={10}
               centerContent
+              background={"#19162F"}
             >
-              <Text
-                mt="10px"
-                align="center"
-                fontWeight={"bold"}
-                fontSize="20px"
-                color="white"
-              >
-                The Chat Room!
-              </Text>
               {channel ? (
                 <AblyChatComponent
                   username={username}
@@ -177,7 +233,6 @@ const ChannelDetail = ({
               ) : null}
             </Container>
           </Stack>
-          <ChannelDesc channel={channel} isOwner={isOwner} />
         </Stack>
       </AppLayout>
     </>

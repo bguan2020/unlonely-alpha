@@ -193,6 +193,8 @@ const MessageBody = ({
                           minWidth={"0px"}
                           bg={"#C6C0C0"}
                           _hover={{}}
+                          _active={{}}
+                          _focus={{}}
                         >
                           <AddIcon height="12px" width="12px" color={"white"} />
                         </Button>
@@ -407,6 +409,8 @@ const MessageBody = ({
                           minWidth={"0px"}
                           bg={"#C6C0C0"}
                           _hover={{}}
+                          _active={{}}
+                          _focus={{}}
                         >
                           <AddIcon height="12px" width="12px" color={"white"} />
                         </Button>

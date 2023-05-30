@@ -37,9 +37,9 @@ const AppLayout: React.FC<Props> = ({
       <Grid
         display={["grid"]}
         gridTemplateColumns={["1px auto"]}
-        bgGradient="linear(to-r, #e2f979, #b0e5cf, #ba98d7, #d16fce)"
-        // bgGradient="linear-gradient(90deg, #E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-        // background="rgba(0, 0, 0, 0.65)"
+        // bgGradient="linear(to-r, #e2f979, #b0e5cf, #ba98d7, #d16fce)"
+        bgGradient="linear-gradient(90deg, #E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+        background="rgba(0, 0, 0, 0.65)"
       >
         {isCustomHeader === false ? (
           <NextHead

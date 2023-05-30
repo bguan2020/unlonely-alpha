@@ -12,6 +12,8 @@ import {
   Td,
   Th,
   Tr,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { useAccount } from "wagmi";
@@ -26,6 +28,11 @@ import usePostFirstChat from "../../hooks/usePostFirstChat";
 import Participants from "../presence/Participants";
 import { useUser } from "../../hooks/useUser";
 import MessageList from "./MessageList";
+import { useOnClickOutside } from "../../hooks/useOnClickOutside";
+import SwordButton from "../arcade/SwordButton";
+import CoinButton from "../arcade/CoinButton";
+import ControlButton from "../arcade/ControlButton";
+import DiceButton from "../arcade/DiceButton";
 
 type Props = {
   username: string | null | undefined;
@@ -78,6 +85,27 @@ const AblyChatComponent = ({
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
+  const [showArcade, setShowArcade] = useState<boolean>(false);
+
+  const clickedOutsideLeaderBoard = useRef(false);
+  const clickedOutsideArcade = useRef(false);
+  const leaderboardRef = useRef<HTMLDivElement>(null);
+  const arcadeRef = useRef<HTMLDivElement>(null);
+
+  useOnClickOutside(leaderboardRef, () => {
+    if (showLeaderboard) {
+      setShowLeaderboard(false);
+      clickedOutsideLeaderBoard.current = true;
+    }
+    clickedOutsideArcade.current = false;
+  });
+  useOnClickOutside(arcadeRef, () => {
+    if (showArcade) {
+      setShowArcade(false);
+      clickedOutsideArcade.current = true;
+    }
+    clickedOutsideLeaderBoard.current = false;
+  });
 
   const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
     onError: (m) => {
@@ -396,17 +424,24 @@ const AblyChatComponent = ({
               bg={
                 "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
               }
+              width={"100%"}
             >
               <Button
-                className="xeedev-button-desktop"
+                opacity={showArcade ? 0.9 : 1}
+                width="100%"
                 bg={"#131323"}
                 _hover={{}}
                 _focus={{}}
                 _active={{}}
+                onClick={() => {
+                  if (clickedOutsideArcade.current) {
+                    clickedOutsideArcade.current = false;
+                    return;
+                  }
+                  setShowArcade(!showArcade);
+                }}
               >
-                <Text fontSize={"20px"} color="white">
-                  chat room
-                </Text>
+                <Text fontSize={"20px"}>arcade</Text>
               </Button>
             </Flex>
             <Flex
@@ -415,23 +450,78 @@ const AblyChatComponent = ({
               bg={
                 "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
               }
+              width={"100%"}
             >
               <Button
-                className="xeedev-button-desktop"
+                opacity={showLeaderboard ? 0.9 : 1}
+                width="100%"
                 bg={"#131323"}
                 _hover={{}}
                 _focus={{}}
                 _active={{}}
-                onClick={() => setShowLeaderboard(!showLeaderboard)}
+                onClick={() => {
+                  if (clickedOutsideLeaderBoard.current) {
+                    clickedOutsideLeaderBoard.current = false;
+                    return;
+                  }
+                  setShowLeaderboard(!showLeaderboard);
+                }}
               >
-                <Text fontSize={"20px"} color="white">
-                  leaderboard
-                </Text>
+                <Text fontSize={"20px"}>leaderboard</Text>
               </Button>
-            </Flex>{" "}
+            </Flex>
           </Stack>
+          {showArcade && (
+            <Flex
+              ref={arcadeRef}
+              borderRadius={"5px"}
+              p="1px"
+              position="absolute"
+              top="50px"
+              width={"100%"}
+              zIndex={3}
+              style={{
+                border: "1px solid",
+                borderWidth: "1px",
+                borderImageSource:
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
+                borderImageSlice: 1,
+                borderRadius: "5px",
+              }}
+            >
+              <Flex
+                direction="column"
+                bg={"rgba(19, 19, 35, 0.8)"}
+                style={{ backdropFilter: "blur(6px)" }}
+                borderRadius={"5px"}
+                width={"100%"}
+                padding={"40px"}
+              >
+                <Grid
+                  templateColumns="repeat(2, 1fr)"
+                  gap={12}
+                  alignItems="center"
+                  justifyItems="center"
+                >
+                  <GridItem>
+                    <ControlButton />
+                  </GridItem>
+                  <GridItem>
+                    <DiceButton />
+                  </GridItem>
+                  <GridItem>
+                    <SwordButton />
+                  </GridItem>
+                  <GridItem>
+                    <CoinButton />
+                  </GridItem>
+                </Grid>
+              </Flex>
+            </Flex>
+          )}
           {showLeaderboard && (
             <Flex
+              ref={leaderboardRef}
               borderRadius={"5px"}
               p="1px"
               position="absolute"
@@ -474,63 +564,44 @@ const AblyChatComponent = ({
                   <Table variant="unstyled">
                     <Thead>
                       <Tr>
-                        <Th color="white" fontSize={"24px"}>
-                          rank
-                        </Th>
-                        <Th color="white" fontSize={"24px"}>
-                          name
-                        </Th>
-                        <Th color="white" fontSize={"24px"} isNumeric>
+                        <Th fontSize={"24px"}>rank</Th>
+                        <Th fontSize={"24px"}>name</Th>
+                        <Th fontSize={"24px"} isNumeric>
                           amount
                         </Th>
                       </Tr>
                     </Thead>
                     <Tbody>
                       <Tr>
-                        <Td color="white" fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} textAlign="center">
                           1
                         </Td>
-                        <Td color="white" fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} textAlign="center">
                           cruzy
                         </Td>
-                        <Td
-                          color="white"
-                          fontSize={"24px"}
-                          textAlign="center"
-                          isNumeric
-                        >
+                        <Td fontSize={"24px"} textAlign="center" isNumeric>
                           25000
                         </Td>
                       </Tr>
                       <Tr>
-                        <Td color="white" fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} textAlign="center">
                           2
                         </Td>
-                        <Td color="white" fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} textAlign="center">
                           tiny
                         </Td>
-                        <Td
-                          color="white"
-                          fontSize={"24px"}
-                          textAlign="center"
-                          isNumeric
-                        >
+                        <Td fontSize={"24px"} textAlign="center" isNumeric>
                           3000
                         </Td>
                       </Tr>
                       <Tr>
-                        <Td color="white" fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} textAlign="center">
                           3
                         </Td>
-                        <Td color="white" fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} textAlign="center">
                           me
                         </Td>
-                        <Td
-                          color="white"
-                          fontSize={"24px"}
-                          textAlign="center"
-                          isNumeric
-                        >
+                        <Td fontSize={"24px"} textAlign="center" isNumeric>
                           10
                         </Td>
                       </Tr>
@@ -556,7 +627,7 @@ const AblyChatComponent = ({
             direction="column"
             overflowX="auto"
             height="100%"
-            maxH={["300px", "50vh"]}
+            maxH={["300px", "550px"]}
             id="chat"
             position="relative"
             mt="8px"
@@ -582,7 +653,7 @@ const AblyChatComponent = ({
                 }}
                 onClick={() => setIsScrolled(false)}
               >
-                <Text fontFamily="Inter" fontSize="12px" color="white">
+                <Text fontFamily="Inter" fontSize="12px">
                   scrolling paused. click to scroll to bottom.
                 </Text>
               </Box>

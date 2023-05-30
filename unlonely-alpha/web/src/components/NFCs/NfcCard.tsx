@@ -77,7 +77,6 @@ const NfcCard = ({ nfc }: any) => {
           <Text
             fontSize="12px"
             noOfLines={1}
-            color="black"
             fontWeight="light"
             textAlign="center"
             fontFamily="Inter"
