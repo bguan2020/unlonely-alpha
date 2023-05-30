@@ -53,7 +53,7 @@ export default extendTheme({
   },
 
   fonts: {
-    body: "Anonymous Pro, monospace",
+    body: "Neue Pixel Sans, sans-serif",
     heading: "Neue Pixel Sans, sans-serif",
   },
 
@@ -61,7 +61,7 @@ export default extendTheme({
     global: {
       body: {
         color: "white",
-        fontFamily: "Anonymous Pro, monospace",
+        fontFamily: "Space Mono, monospace",
       },
     },
   },
