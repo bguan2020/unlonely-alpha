@@ -36,7 +36,6 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
           _focus={{}}
           _hover={{ transform: "scale(1.15)" }}
           _active={{ transform: "scale(1.3)" }}
-          className="xeedev-button-desktop"
         >
           <Text fontSize="30px" textAlign={"center"}>
             😃

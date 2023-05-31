@@ -8,6 +8,7 @@ import {
   Box,
   GridItem,
   Tooltip,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { GetServerSidePropsContext } from "next";
 import { useAccount } from "wagmi";
@@ -99,6 +100,8 @@ const ChannelDetail = ({
     setHideChat(!hideChat);
   };
 
+  const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
+
   const isHidden = useCallback(
     (isChat: boolean) => {
       //checks if width is <= 48 em (base size) if so checks switch tab is disabled
@@ -140,7 +143,7 @@ const ChannelDetail = ({
             direction={["column", "row", "row"]}
           >
             <Stack direction="column" width={"100%"}>
-              <Flex width={{ base: "100%", sm: "70%", md: "70%", lg: "100%" }}>
+              <Flex width={"100%"}>
                 {channel.playbackUrl ? (
                   <NextStreamTimer
                     isTheatreMode={true}
@@ -149,52 +152,54 @@ const ChannelDetail = ({
                   />
                 ) : null}
               </Flex>
-              <Grid templateColumns="repeat(3, 1fr)" gap={4}>
-                <GridItem colSpan={2}>
-                  <ChannelDesc channel={channel} isOwner={isOwner} />
+              <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
+                <GridItem colSpan={showArcadeButtons ? 2 : 3}>
+                  <ChannelDesc channel={channel} user={user} />
                 </GridItem>
-                <GridItem justifyItems={"center"}>
-                  <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    gap={5}
-                  >
-                    <Grid
-                      templateColumns="repeat(2, 1fr)"
-                      templateRows="repeat(2, 1fr)"
-                      gridGap={4}
-                      alignItems="flex-start"
-                      justifyItems="flex-start"
+                {showArcadeButtons && (
+                  <GridItem justifyItems={"center"}>
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                      gap={5}
                     >
+                      <Grid
+                        templateColumns="repeat(2, 1fr)"
+                        templateRows="repeat(2, 1fr)"
+                        gridGap={4}
+                        alignItems="flex-start"
+                        justifyItems="flex-start"
+                      >
+                        <Tooltip label={"Not available"}>
+                          <span>
+                            <ControlButton />
+                          </span>
+                        </Tooltip>
+                        <Tooltip label={"Not available"}>
+                          <span>
+                            <DiceButton />
+                          </span>
+                        </Tooltip>
+                        <Tooltip label={"Not available"}>
+                          <span>
+                            <SwordButton />
+                          </span>
+                        </Tooltip>
+                        <Tooltip label={"Not available"}>
+                          <span>
+                            <CoinButton />
+                          </span>
+                        </Tooltip>
+                      </Grid>
                       <Tooltip label={"Not available"}>
                         <span>
-                          <ControlButton />
+                          <BuyButton tokenName="Token" />
                         </span>
                       </Tooltip>
-                      <Tooltip label={"Not available"}>
-                        <span>
-                          <DiceButton />
-                        </span>
-                      </Tooltip>
-                      <Tooltip label={"Not available"}>
-                        <span>
-                          <SwordButton />
-                        </span>
-                      </Tooltip>
-                      <Tooltip label={"Not available"}>
-                        <span>
-                          <CoinButton />
-                        </span>
-                      </Tooltip>
-                    </Grid>
-                    <Tooltip label={"Not available"}>
-                      <span>
-                        <BuyButton tokenName="Token" />
-                      </span>
-                    </Tooltip>
-                  </Box>
-                </GridItem>
+                    </Box>
+                  </GridItem>
+                )}
               </Grid>
             </Stack>
             <Button
@@ -209,29 +214,39 @@ const ChannelDetail = ({
             >
               Toggle Chat/Channel Details
             </Button>
-            <Container
-              hidden={isHidden(true)}
-              maxW={["768px", "380px"]}
-              mr="10px"
-              borderWidth="3px"
-              borderColor="black"
-              borderRadius={10}
-              centerContent
-              background={"#19162F"}
-            >
-              {channel ? (
-                <AblyChatComponent
-                  username={username}
-                  chatBot={chatBot}
-                  user={user}
-                  ablyChatChannel={ablyChatChannel}
-                  ablyPresenceChannel={ablyPresenceChannel}
-                  channelArn={channel.channelArn || ""}
-                  channelId={channel.id ? Number(channel.id) : 3}
-                  allowNFCs={channel.allowNFCs || false}
-                />
-              ) : null}
-            </Container>
+            {channel ? (
+              <Flex
+                hidden={isHidden(true)}
+                borderWidth="1px"
+                borderRadius={"10px"}
+                p="1px"
+                bg={
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                }
+                width="100%"
+                maxW={["768px", "380px"]}
+                maxH={["500px", "850px"]}
+                mr="10px"
+                boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
+              >
+                <Container
+                  borderRadius={10}
+                  background={"#19162F"}
+                  centerContent
+                >
+                  <AblyChatComponent
+                    username={username}
+                    chatBot={chatBot}
+                    user={user}
+                    ablyChatChannel={ablyChatChannel}
+                    ablyPresenceChannel={ablyPresenceChannel}
+                    channelArn={channel.channelArn || ""}
+                    channelId={channel.id ? Number(channel.id) : 3}
+                    allowNFCs={channel.allowNFCs || false}
+                  />
+                </Container>
+              </Flex>
+            ) : null}
           </Stack>
         </Stack>
       </AppLayout>

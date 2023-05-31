@@ -63,6 +63,7 @@ const IVSPlayer: React.FunctionComponent<Props> = ({
             maxWidth: isTheatreMode ? "100%" : "889px",
             height: "100% !important",
             width: "100% !important",
+            borderRadius: "10px",
           }}
         ></video>
         <Flex justifyContent="center" bg="#FF6D6A">

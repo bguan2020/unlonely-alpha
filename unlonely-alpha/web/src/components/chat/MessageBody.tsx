@@ -3,7 +3,6 @@ import { Box, Flex, Text, Image, Link, Button } from "@chakra-ui/react";
 import React, { useState } from "react";
 
 import { useUser } from "../../hooks/useUser";
-import { timestampConverter } from "../../utils/timestampConverter";
 import NFTList from "../profile/NFTList";
 import Badges from "./Badges";
 import EmojiDisplay from "./emoji/EmojiDisplay";
@@ -78,9 +77,6 @@ const MessageBody = ({
           {message.data.nfcRank && message.data.nfcRank > 0 ? (
             <Flex direction={"column"}>
               <Flex direction="row" align="center">
-                <Text color="#5A5A5A" fontSize="12px" mr="5px">
-                  {`${timestampConverter(message.timestamp)}`}
-                </Text>
                 <Badges user={user} message={message} />
                 <NFTList message={message} />
               </Flex>{" "}
@@ -170,8 +166,8 @@ const MessageBody = ({
                       className="showme"
                       style={{
                         position: "absolute",
-                        right: "5px",
-                        top: "0px",
+                        left: "5px",
+                        bottom: "-10px",
                       }}
                     >
                       <Flex
@@ -294,20 +290,18 @@ const MessageBody = ({
           ) : (
             <Flex direction={"column"}>
               <Flex direction="row" align="center">
-                <Text color="#5A5A5A" fontSize="12px" mr="5px">
-                  {`${timestampConverter(message.timestamp)}`}
-                </Text>
                 <Badges user={user} message={message} />
                 <NFTList message={message} />
-              </Flex>{" "}
+              </Flex>
               <Box
                 key={index}
                 borderRadius="10px"
                 bg={"#3C3548"}
-                pr="10px"
-                pl="10px"
-                mb="10px"
-                pb={showEmojiList === message.id ? "10px" : "0px"}
+                pr="2px"
+                pl="2px"
+                mt="5px"
+                mb="15px"
+                pb={showEmojiList === message.id ? "10px" : "10px"}
                 position="relative"
                 width={"274px"}
               >
@@ -386,8 +380,8 @@ const MessageBody = ({
                       className="showme"
                       style={{
                         position: "absolute",
-                        right: "5px",
-                        top: "0px",
+                        left: "5px",
+                        bottom: "-10px",
                       }}
                     >
                       <Flex
@@ -398,7 +392,6 @@ const MessageBody = ({
                         }
                       >
                         <Button
-                          // opacity={"0.3"}
                           aria-label="Chat-Reaction"
                           onClick={() =>
                             setShowEmojiList(showEmojiList ? null : message.id)

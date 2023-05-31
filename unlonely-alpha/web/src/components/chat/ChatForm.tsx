@@ -1,4 +1,4 @@
-import { Flex, Button, Textarea, Stack } from "@chakra-ui/react";
+import { Flex, Textarea, Stack, IconButton, Image } from "@chakra-ui/react";
 import React, { useState } from "react";
 import Commands from "./Commands";
 
@@ -69,15 +69,15 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
         className="xeedev-form-i"
         style={{ width: "100%" }}
       >
-        <Stack direction={"row"} spacing={2} mb={"10px"}>
+        <Stack direction={"row"} spacing={"3px"} mb={"15px"}>
           <Flex width="100%" position="relative">
             <Textarea
+              variant="unstyled"
               ref={(element) => {
                 inputBox = element;
               }}
               value={messageText}
               color={"white"}
-              fontFamily="Inter"
               fontWeight="medium"
               placeholder="say something in chat!"
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -96,6 +96,9 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
               position="relative"
               resize="none"
               height={"100%"}
+              border="2px solid white"
+              borderRadius="12px"
+              p="10px"
             />
             {/* <Tooltip label="Toggle to send private message. Private messages won't get displayed to Farcaster.">
               <Flex
@@ -148,25 +151,16 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
           <Stack direction="column">
             {!mobile && (
               <Flex justifyContent="right">
-                <Button
+                <IconButton
                   type="submit"
                   disabled={messageTextIsEmpty}
-                  bg="#27415E"
-                  color="white"
-                  className="xeedev-button-desktop"
-                >
-                  Send
-                </Button>
-                {/* <Button
-                  width={"40px"}
-                  height={"40px"}
-                  background={
-                    "linear-gradient(90deg, #E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-                  }
-                  borderRadius={8}
-                  transform={"rotate(90deg)"}
-                >
-                </Button> */}
+                  icon={<Image src="/svg/send.svg" />}
+                  aria-label="send message"
+                  bg="transparent"
+                  _focus={{}}
+                  _hover={{ transform: "scale(1.15)" }}
+                  _active={{ transform: "scale(1.3)" }}
+                />
               </Flex>
             )}
             <EmojiButton

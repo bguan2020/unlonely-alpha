@@ -5,7 +5,7 @@ import { anonUrl } from "./AnonUrl";
 import centerEllipses from "../../utils/centerEllipses";
 
 type Props = {
-  user: User;
+  user?: User;
 };
 const Participant = ({ user }: Props) => {
   const imageUrl = user?.FCImageUrl

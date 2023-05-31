@@ -417,14 +417,15 @@ const AblyChatComponent = ({
           width="100%"
           position={"relative"}
         >
-          <Stack spacing="5px" direction={"row"}>
+          <Stack direction={"row"} spacing="10px">
             <Flex
               borderRadius={"5px"}
               p="1px"
               bg={
                 "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
               }
-              width={"100%"}
+              flex={1}
+              minWidth={0}
             >
               <Button
                 opacity={showArcade ? 0.9 : 1}
@@ -441,7 +442,9 @@ const AblyChatComponent = ({
                   setShowArcade(!showArcade);
                 }}
               >
-                <Text fontSize={"20px"}>arcade</Text>
+                <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
+                  arcade
+                </Text>
               </Button>
             </Flex>
             <Flex
@@ -450,7 +453,8 @@ const AblyChatComponent = ({
               bg={
                 "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
               }
-              width={"100%"}
+              flex={1}
+              minWidth={0}
             >
               <Button
                 opacity={showLeaderboard ? 0.9 : 1}
@@ -467,7 +471,9 @@ const AblyChatComponent = ({
                   setShowLeaderboard(!showLeaderboard);
                 }}
               >
-                <Text fontSize={"20px"}>leaderboard</Text>
+                <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
+                  leaderboard
+                </Text>
               </Button>
             </Flex>
           </Stack>
@@ -564,44 +570,68 @@ const AblyChatComponent = ({
                   <Table variant="unstyled">
                     <Thead>
                       <Tr>
-                        <Th fontSize={"24px"}>rank</Th>
-                        <Th fontSize={"24px"}>name</Th>
-                        <Th fontSize={"24px"} isNumeric>
+                        <Th fontSize={"24px"} p="10px" textAlign="center">
+                          rank
+                        </Th>
+                        <Th fontSize={"24px"} p="10px" textAlign="center">
+                          name
+                        </Th>
+                        <Th
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                          isNumeric
+                        >
                           amount
                         </Th>
                       </Tr>
                     </Thead>
                     <Tbody>
                       <Tr>
-                        <Td fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
                           1
                         </Td>
-                        <Td fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
                           cruzy
                         </Td>
-                        <Td fontSize={"24px"} textAlign="center" isNumeric>
+                        <Td
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                          isNumeric
+                        >
                           25000
                         </Td>
                       </Tr>
                       <Tr>
-                        <Td fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
                           2
                         </Td>
-                        <Td fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
                           tiny
                         </Td>
-                        <Td fontSize={"24px"} textAlign="center" isNumeric>
+                        <Td
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                          isNumeric
+                        >
                           3000
                         </Td>
                       </Tr>
                       <Tr>
-                        <Td fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
                           3
                         </Td>
-                        <Td fontSize={"24px"} textAlign="center">
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
                           me
                         </Td>
-                        <Td fontSize={"24px"} textAlign="center" isNumeric>
+                        <Td
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                          isNumeric
+                        >
                           10
                         </Td>
                       </Tr>
@@ -627,7 +657,6 @@ const AblyChatComponent = ({
             direction="column"
             overflowX="auto"
             height="100%"
-            maxH={["300px", "550px"]}
             id="chat"
             position="relative"
             mt="8px"
@@ -653,7 +682,7 @@ const AblyChatComponent = ({
                 }}
                 onClick={() => setIsScrolled(false)}
               >
-                <Text fontFamily="Inter" fontSize="12px">
+                <Text fontSize="12px">
                   scrolling paused. click to scroll to bottom.
                 </Text>
               </Box>

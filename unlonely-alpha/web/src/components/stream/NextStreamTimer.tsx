@@ -68,6 +68,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
           width="100%"
           height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
           bg="black"
+          borderRadius="10px"
         >
           <Spinner />
         </Flex>
@@ -106,7 +107,6 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
                   ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
                   : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
               }
-              mt="10px"
             >
               <IVSPlayer
                 isTheatreMode={isTheatreMode}
@@ -134,6 +134,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
                 fontWeight="bold"
                 fontSize="40px"
                 bg="black"
+                borderRadius="10px"
               >
                 <Text fontFamily="Anonymous Pro, monospace">
                   Next stream in:

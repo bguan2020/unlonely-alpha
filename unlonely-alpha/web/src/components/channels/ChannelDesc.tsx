@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   ChannelDetailQuery,
   UpdateChannelTextInput,
+  User,
 } from "../../generated/graphql";
 import { EditIcon } from "../../components/icons/EditIcon";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
@@ -16,14 +17,16 @@ import {
   FormErrorMessage,
   Textarea,
   Tooltip,
+  Avatar,
 } from "@chakra-ui/react";
+import { anonUrl } from "../presence/AnonUrl";
 
 type Props = {
   channel: ChannelDetailQuery["getChannelBySlug"];
-  isOwner: boolean;
+  user?: User;
 };
 
-const ChannelDesc = ({ channel, isOwner }: Props) => {
+const ChannelDesc = ({ channel, user }: Props) => {
   const [editableText, setEditableText] = useState<boolean>(false);
   const [formError, setFormError] = useState<string[]>([]);
   const form = useForm<UpdateChannelTextInput>({
@@ -45,6 +48,17 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
     });
     setEditableText(false);
   };
+
+  const isOwner = user?.address === channel?.owner.address;
+
+  const imageUrl = channel?.owner?.FCImageUrl
+    ? channel?.owner.FCImageUrl
+    : channel?.owner?.lensImageUrl
+    ? channel?.owner.lensImageUrl
+    : anonUrl;
+  const ipfsUrl = imageUrl.startsWith("ipfs://")
+    ? `https://ipfs.io/ipfs/${imageUrl.slice(7)}`
+    : imageUrl;
 
   return (
     <>
@@ -143,7 +157,16 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
           </form>
         </>
       ) : (
-        <>
+        <Flex direction="row">
+          <Avatar
+            name={
+              channel?.owner.username
+                ? channel?.owner.username
+                : channel?.owner.address
+            }
+            src={ipfsUrl}
+            size="md"
+          />
           <Flex direction="column">
             <Flex
               maxH="400px"
@@ -174,7 +197,7 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
               {channel?.description}
             </Flex>
           </Flex>
-        </>
+        </Flex>
       )}
     </>
   );
