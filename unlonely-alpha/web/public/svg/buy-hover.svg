@@ -1108,6 +1108,12 @@
 <rect x="70" y="120" width="10" height="10" fill="#D88500"/>
 <rect x="30" y="40" width="10" height="10" fill="white"/>
 <rect x="40" y="40" width="10" height="10" fill="white"/>
+<rect x="50" y="40" width="10" height="10" fill="white"/>
+<rect x="60" y="40" width="10" height="10" fill="white"/>
+<rect x="60" y="50" width="10" height="10" fill="white"/>
+<rect x="70" y="60" width="10" height="10" fill="white"/>
+<rect x="50" y="50" width="10" height="10" fill="white"/>
+<rect x="40" y="30" width="10" height="10" fill="white"/>
 <rect x="40" y="50" width="10" height="10" fill="white"/>
 <rect x="30" y="50" width="10" height="10" fill="white"/>
 <rect x="60" y="60" width="10" height="10" fill="white"/>
@@ -1141,6 +1147,7 @@
 <rect x="80" y="90" width="10" height="10" fill="#D88500"/>
 <rect x="70" y="90" width="10" height="10" fill="#D88500"/>
 <rect x="60" y="80" width="10" height="10" fill="white"/>
+<rect x="70" y="80" width="10" height="10" fill="white"/>
 <rect x="40" y="80" width="10" height="10" fill="white"/>
 <rect x="60" y="90" width="10" height="10" fill="#AD6C29"/>
 <rect x="30" y="80" width="10" height="10" fill="#AD6C29"/>
@@ -1155,6 +1162,7 @@
 <rect x="80" y="110" width="10" height="10" fill="#D88500"/>
 <rect x="70" y="110" width="10" height="10" fill="#D88500"/>
 <rect x="60" y="100" width="10" height="10" fill="white"/>
+<rect x="70" y="100" width="10" height="10" fill="white"/>
 <rect x="40" y="100" width="10" height="10" fill="white"/>
 <rect x="50" y="100" width="10" height="10" fill="white"/>
 <rect x="60" y="110" width="10" height="10" fill="#AD6C29"/>

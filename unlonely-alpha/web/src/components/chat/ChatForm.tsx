@@ -69,7 +69,7 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
         className="xeedev-form-i"
         style={{ width: "100%" }}
       >
-        <Stack direction={"row"} spacing={"3px"} mb={"15px"}>
+        <Stack direction={"row"} spacing={"3px"}>
           <Flex width="100%" position="relative">
             <Textarea
               variant="unstyled"

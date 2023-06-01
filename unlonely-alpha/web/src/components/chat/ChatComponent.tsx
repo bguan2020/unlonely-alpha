@@ -417,66 +417,68 @@ const AblyChatComponent = ({
           width="100%"
           position={"relative"}
         >
-          <Stack direction={"row"} spacing="10px">
-            <Flex
-              borderRadius={"5px"}
-              p="1px"
-              bg={
-                "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-              }
-              flex={1}
-              minWidth={0}
-            >
-              <Button
-                opacity={showArcade ? 0.9 : 1}
-                width="100%"
-                bg={"#131323"}
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                onClick={() => {
-                  if (clickedOutsideArcade.current) {
-                    clickedOutsideArcade.current = false;
-                    return;
-                  }
-                  setShowArcade(!showArcade);
-                }}
+          {ablyChatChannel?.includes("channel") && (
+            <Stack direction={"row"} spacing="10px">
+              <Flex
+                borderRadius={"5px"}
+                p="1px"
+                bg={
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                }
+                flex={1}
+                minWidth={0}
               >
-                <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
-                  arcade
-                </Text>
-              </Button>
-            </Flex>
-            <Flex
-              borderRadius={"5px"}
-              p="1px"
-              bg={
-                "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-              }
-              flex={1}
-              minWidth={0}
-            >
-              <Button
-                opacity={showLeaderboard ? 0.9 : 1}
-                width="100%"
-                bg={"#131323"}
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                onClick={() => {
-                  if (clickedOutsideLeaderBoard.current) {
-                    clickedOutsideLeaderBoard.current = false;
-                    return;
-                  }
-                  setShowLeaderboard(!showLeaderboard);
-                }}
+                <Button
+                  opacity={showArcade ? 0.9 : 1}
+                  width="100%"
+                  bg={"#131323"}
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={() => {
+                    if (clickedOutsideArcade.current) {
+                      clickedOutsideArcade.current = false;
+                      return;
+                    }
+                    setShowArcade(!showArcade);
+                  }}
+                >
+                  <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
+                    arcade
+                  </Text>
+                </Button>
+              </Flex>
+              <Flex
+                borderRadius={"5px"}
+                p="1px"
+                bg={
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                }
+                flex={1}
+                minWidth={0}
               >
-                <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
-                  leaderboard
-                </Text>
-              </Button>
-            </Flex>
-          </Stack>
+                <Button
+                  opacity={showLeaderboard ? 0.9 : 1}
+                  width="100%"
+                  bg={"#131323"}
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={() => {
+                    if (clickedOutsideLeaderBoard.current) {
+                      clickedOutsideLeaderBoard.current = false;
+                      return;
+                    }
+                    setShowLeaderboard(!showLeaderboard);
+                  }}
+                >
+                  <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
+                    leaderboard
+                  </Text>
+                </Button>
+              </Flex>
+            </Stack>
+          )}
           {showArcade && (
             <Flex
               ref={arcadeRef}
@@ -550,12 +552,7 @@ const AblyChatComponent = ({
                 borderRadius={"5px"}
                 width={"100%"}
               >
-                <Text
-                  color={"white"}
-                  fontSize={"44px"}
-                  fontWeight="400"
-                  textAlign={"center"}
-                >
+                <Text fontSize={"44px"} fontWeight="400" textAlign={"center"}>
                   HIGH SCORES
                 </Text>
                 <Text
@@ -570,13 +567,24 @@ const AblyChatComponent = ({
                   <Table variant="unstyled">
                     <Thead>
                       <Tr>
-                        <Th fontSize={"24px"} p="10px" textAlign="center">
+                        <Th
+                          textTransform={"lowercase"}
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                        >
                           rank
                         </Th>
-                        <Th fontSize={"24px"} p="10px" textAlign="center">
+                        <Th
+                          textTransform={"lowercase"}
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                        >
                           name
                         </Th>
                         <Th
+                          textTransform={"lowercase"}
                           fontSize={"24px"}
                           p="10px"
                           textAlign="center"

@@ -34,6 +34,19 @@ body {
   ) !important;
 }
 
+.gradient-text {
+  background: linear-gradient(
+    90deg,
+    #e2f979 0%,
+    #b0e5cf 34.37%,
+    #ba98d7 66.67%,
+    #d16fce 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .css-o4poyf:hover,
 .css-o4poyf:active {
   background-color: #717ba7 !important;

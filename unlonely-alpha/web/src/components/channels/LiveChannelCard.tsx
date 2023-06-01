@@ -1,5 +1,5 @@
 import { Text, Flex } from "@chakra-ui/layout";
-import { Image } from "@chakra-ui/react";
+import { Box, Image, Stack } from "@chakra-ui/react";
 
 import { Channel } from "../../generated/graphql";
 
@@ -20,17 +20,14 @@ const LiveChannelCard = ({ channel }: Props) => {
     <>
       <Flex
         direction="column"
-        w={{ base: "60%", md: "60%", lg: "60%", sm: "60%" }}
-        h={{ base: "24rem", sm: "24rem", md: "24rem", lg: "24rem" }}
         padding="0.3rem"
         borderRadius="1rem"
         minH="8rem"
         minW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
-        maxW={"48rem"}
-        mb="1.5rem"
-        mt="8px"
-        mr="1rem"
         onClick={handleRedirect}
+        bg={"#131323"}
+        p={"20px"}
+        gap={"10px"}
       >
         <Flex
           _hover={{
@@ -38,64 +35,92 @@ const LiveChannelCard = ({ channel }: Props) => {
             position: "relative",
           }}
         >
-          {channel.thumbnailUrl && <video poster={channel.thumbnailUrl} />}
-          <Image
-            src="/images/playIcon.png"
-            opacity={0.5}
-            style={
-              {
-                position: "relative",
-                zIndex: 1,
-                visibility: "visible",
-                margin: "auto",
-                top: "0%",
-                left: "-65%",
-              } as React.CSSProperties
-            }
-          />
+          {channel.thumbnailUrl && (
+            <Box position="relative">
+              <Image
+                src={channel.thumbnailUrl}
+                width={[200, 500]}
+                height={[112, 281]}
+                borderRadius={"10px"}
+                boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
+              />
+              <Image
+                src="/images/playIcon.png"
+                opacity={0.5}
+                style={
+                  {
+                    position: "absolute",
+                    zIndex: 1,
+                    visibility: "visible",
+                    margin: "auto",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                  } as React.CSSProperties
+                }
+              />
+            </Box>
+          )}
         </Flex>
-        <Flex direction="row" justifyContent="left" mt="1rem">
-          <Image
-            height="2.5rem"
-            width="2.5rem"
-            objectFit="cover"
-            src={
-              channel.owner.FCImageUrl
-                ? channel.owner.FCImageUrl
-                : unlonelyAvatar
-            }
-            borderRadius="full"
-            mr="0.5rem"
-          />
-          <Text
-            fontSize="16px"
-            noOfLines={1}
-            color="#4E5153"
-            fontWeight="light"
-            textAlign="center"
-            fontFamily="Inter"
-            mt="1.2rem"
-          >
-            {channel.owner.username}'s channel
-          </Text>
-        </Flex>
+        <Flex direction="row" justifyContent="left" mt="1rem"></Flex>
         <Flex justifyContent="space-between" flexDirection="column">
-          <Text
-            fontSize={24}
-            fontWeight="medium"
-            noOfLines={2}
-            fontFamily="Inter"
-          >
-            {channel.name}
-          </Text>
-          <Text
-            fontSize={12}
-            fontWeight="medium"
-            noOfLines={4}
-            fontFamily="Inter"
-          >
-            {channel.description}
-          </Text>
+          <Stack direction="column">
+            <Stack direction="row" alignItems={"center"}>
+              <Flex
+                p="1px"
+                bg={
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                }
+                borderRadius="10px"
+                boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
+              >
+                <Flex bg={"#131323"} borderRadius="10px" px="10px">
+                  🔴 Live
+                </Flex>
+              </Flex>
+              <Text
+                fontSize={20}
+                fontWeight="bold"
+                noOfLines={2}
+                textShadow="rgba(208, 234, 53, 0.4) 1px 0 5px"
+                width={[200, 400]}
+              >
+                {channel.name}
+              </Text>
+            </Stack>
+            <Text
+              fontSize={12}
+              fontWeight="medium"
+              noOfLines={4}
+              textShadow="rgba(208, 234, 53, 0.4) 1px 0 5px"
+            >
+              {channel.description}
+            </Text>
+            <Flex mt="1.2rem">
+              <Image
+                height="1.5rem"
+                width="1.5rem"
+                objectFit="cover"
+                src={
+                  channel.owner.FCImageUrl
+                    ? channel.owner.FCImageUrl
+                    : unlonelyAvatar
+                }
+                borderRadius="full"
+                mr="0.5rem"
+              />
+              <Text
+                fontSize="16px"
+                noOfLines={1}
+                fontWeight="light"
+                textAlign="center"
+                textShadow="rgba(208, 234, 53, 0.4) 1px 0 5px"
+                color={"#D094FF"}
+              >
+                {channel.owner.username}
+              </Text>
+            </Flex>
+          </Stack>
         </Flex>
       </Flex>
     </>
