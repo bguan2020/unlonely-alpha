@@ -23,11 +23,10 @@ const LiveChannelCard = ({ channel }: Props) => {
         padding="0.3rem"
         borderRadius="1rem"
         minH="8rem"
-        minW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
+        w={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
         onClick={handleRedirect}
         bg={"#131323"}
-        p={"20px"}
-        gap={"10px"}
+        p={"10px"}
       >
         <Flex
           _hover={{
@@ -39,8 +38,8 @@ const LiveChannelCard = ({ channel }: Props) => {
             <Box position="relative">
               <Image
                 src={channel.thumbnailUrl}
-                width={[200, 500]}
-                height={[112, 281]}
+                // width={["300px", "500px"]}
+                // height={["168px", "281px"]}
                 borderRadius={"10px"}
                 boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
               />
@@ -74,7 +73,12 @@ const LiveChannelCard = ({ channel }: Props) => {
                 borderRadius="10px"
                 boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
               >
-                <Flex bg={"#131323"} borderRadius="10px" px="10px">
+                <Flex
+                  bg={"#131323"}
+                  borderRadius="10px"
+                  px="10px"
+                  whiteSpace="nowrap"
+                >
                   🔴 Live
                 </Flex>
               </Flex>
@@ -83,7 +87,6 @@ const LiveChannelCard = ({ channel }: Props) => {
                 fontWeight="bold"
                 noOfLines={2}
                 textShadow="rgba(208, 234, 53, 0.4) 1px 0 5px"
-                width={[200, 400]}
               >
                 {channel.name}
               </Text>

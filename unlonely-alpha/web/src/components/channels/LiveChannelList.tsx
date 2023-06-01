@@ -18,13 +18,24 @@ const LiveChannelList: React.FunctionComponent<Props> = ({ channels }) => {
             overflowX="scroll"
             overflowY="clip"
             width="100%"
-            justifyContent={"center"}
+            height={{
+              base: "20rem",
+              sm: "26rem",
+              md: "26rem",
+              lg: "26rem",
+            }}
             gap={"1rem"}
           >
             {channels?.map((channel: Channel) =>
               channel.isLive ? (
-                <LiveChannelCard key={channel.id} channel={channel} />
-              ) : null
+                <>
+                  <LiveChannelCard key={channel.id} channel={channel} />
+                  {/* <LiveChannelCard key={channel.id} channel={channel} />
+                  <LiveChannelCard key={channel.id} channel={channel} />
+                  <LiveChannelCard key={channel.id} channel={channel} /> */}
+                </>
+              ) : // <LiveChannelCard key={channel.id} channel={channel} />
+              null
             )}
           </Flex>
         </>

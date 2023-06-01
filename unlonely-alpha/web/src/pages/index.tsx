@@ -145,21 +145,7 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
             ))}
           </Flex>
         ) : (
-          <Flex
-            direction="row"
-            overflowX="scroll"
-            overflowY="clip"
-            width="100%"
-            height={{
-              base: "14rem",
-              sm: "19rem",
-              md: "19rem",
-              lg: "19rem",
-            }}
-            gap={"1rem"}
-          >
-            <NfcList nfcs={nfcs} />
-          </Flex>
+          <NfcList nfcs={nfcs} />
         )}
       </Flex>
       <Flex direction="column" width="100%">
@@ -223,7 +209,7 @@ export default function Page() {
           <Flex>
             <Box
               width={{
-                base: "1000%",
+                base: "100%",
                 md: "70%",
                 xl: "70%",
               }}
