@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { Box, Container, Flex, Text } from "@chakra-ui/react";
+import { Box, Container, Flex, Hide, Text } from "@chakra-ui/react";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
@@ -79,7 +79,7 @@ const FixedComponent = () => {
     <Flex
       borderWidth="1px"
       borderRadius={"10px"}
-      p="12px"
+      px="12px"
       bg={
         "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
       }
@@ -122,8 +122,8 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
       <TokenLeaderboard />
       <Flex direction="column" width="100%">
         <Text
-          fontSize={{ base: "20px", md: "30px", lg: "40px" }}
-          lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
+          fontSize={{ base: "30px", lg: "40px" }}
+          lineHeight={{ base: "60px", lg: "80px" }}
           textAlign="center"
           fontFamily="Neue Pixel Sans"
         >
@@ -150,27 +150,15 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
       </Flex>
       <Flex direction="column" width="100%">
         <Text
-          fontSize={{ base: "20px", md: "30px", lg: "40px" }}
-          lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
+          fontSize={{ base: "30px", lg: "40px" }}
+          lineHeight={{ base: "60px", lg: "80px" }}
           textAlign="center"
           fontFamily="Neue Pixel Sans"
         >
           unlonely channels
         </Text>
-        <Flex
-          direction="row"
-          overflowX="scroll"
-          overflowY="clip"
-          width="100%"
-          height={{
-            base: "14rem",
-            sm: "19rem",
-            md: "19rem",
-            lg: "19rem",
-          }}
-        >
-          <ChannelList channels={channels} />
-        </Flex>
+
+        <ChannelList channels={channels} />
       </Flex>
     </>
   );
@@ -216,7 +204,7 @@ export default function Page() {
             >
               <Container
                 overflowY="auto"
-                maxHeight={"100vh"}
+                maxHeight={"98vh"}
                 centerContent
                 maxWidth={"100%"}
                 px={10}
@@ -224,17 +212,19 @@ export default function Page() {
                 <ScrollableComponent channels={channels} />
               </Container>
             </Box>
-            <Box
-              width={{
-                base: "0%",
-                md: "30%",
-                xl: "30%",
-              }}
-            >
-              <Container height="100vh">
-                <FixedComponent />
-              </Container>
-            </Box>
+            <Hide below="md">
+              <Box
+                width={{
+                  base: "0%",
+                  md: "30%",
+                  xl: "30%",
+                }}
+              >
+                <Container height="98vh">
+                  <FixedComponent />
+                </Container>
+              </Box>
+            </Hide>
           </Flex>
           {/* <Flex
           marginTop={{ base: "40px", md: "60px", lg: "100px" }}

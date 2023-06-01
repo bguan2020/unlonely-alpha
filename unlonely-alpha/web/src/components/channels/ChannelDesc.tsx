@@ -167,16 +167,17 @@ const ChannelDesc = ({ channel, user }: Props) => {
             src={ipfsUrl}
             size="md"
           />
-          <Flex direction="column">
+          <Flex direction="column" gap={"16px"}>
             <Flex
               maxH="400px"
               margin="auto"
-              mb="16px"
               ml="32px"
-              w="100%"
               justifyContent="left"
               pr="32px"
               flexDirection="row"
+              alignItems={"baseline"}
+              gap="1rem"
+              wordBreak={"break-all"}
             >
               <Text fontSize="2rem" fontWeight="bold">
                 {channel?.name}
@@ -193,7 +194,7 @@ const ChannelDesc = ({ channel, user }: Props) => {
                 </Tooltip>
               )}
             </Flex>
-            <Flex direction="row" width="100%" margin="auto" ml="32px">
+            <Flex direction="row" margin="auto" ml="32px">
               {channel?.description}
             </Flex>
           </Flex>

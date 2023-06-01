@@ -46,7 +46,7 @@ const TokenLeaderboard = () => {
         borderWidth="1px"
         borderColor="#615C5C"
         borderRadius={10}
-        height="100vh"
+        height={["30vh", "100vh"]}
       >
         <TableContainer overflowX={"hidden"}>
           <Table variant="unstyled">

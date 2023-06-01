@@ -71,7 +71,7 @@ const MessageBody = ({
         <Flex
           className="showhim"
           justifyContent={
-            user?.username === message.data.username ? "end" : "start"
+            user?.address === message.data.address ? "end" : "start"
           }
         >
           {message.data.nfcRank && message.data.nfcRank > 0 ? (
@@ -161,7 +161,7 @@ const MessageBody = ({
                       )}
                     </>
                   )}
-                  {message.data.username !== user?.username && (
+                  {message.data.address !== user?.address && (
                     <div
                       className="showme"
                       style={{
@@ -375,7 +375,7 @@ const MessageBody = ({
                       )}
                     </>
                   )}
-                  {message.data.username !== user?.username && (
+                  {message.data.address !== user?.address && (
                     <div
                       className="showme"
                       style={{

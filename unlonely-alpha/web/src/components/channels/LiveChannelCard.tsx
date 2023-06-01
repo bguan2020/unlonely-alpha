@@ -1,7 +1,9 @@
 import { Text, Flex } from "@chakra-ui/layout";
 import { Box, Image, Stack } from "@chakra-ui/react";
+import { useState } from "react";
 
 import { Channel } from "../../generated/graphql";
+import centerEllipses from "../../utils/centerEllipses";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
@@ -16,6 +18,16 @@ const LiveChannelCard = ({ channel }: Props) => {
 
   if (!channel.isLive) return null;
 
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
   return (
     <>
       <Flex
@@ -23,10 +35,16 @@ const LiveChannelCard = ({ channel }: Props) => {
         padding="0.3rem"
         borderRadius="1rem"
         minH="8rem"
-        w={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
+        maxW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
+        minW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
         onClick={handleRedirect}
-        bg={"#131323"}
+        // bg={"#131323"}
         p={"10px"}
+        transform={isHovered ? "scale(1.05)" : "scale(1)"}
+        transition="transform 0.2s"
+        cursor="pointer"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <Flex
           _hover={{
@@ -38,8 +56,8 @@ const LiveChannelCard = ({ channel }: Props) => {
             <Box position="relative">
               <Image
                 src={channel.thumbnailUrl}
-                // width={["300px", "500px"]}
-                // height={["168px", "281px"]}
+                width={["236px", "380px"]}
+                height={["132px", "213px"]}
                 borderRadius={"10px"}
                 boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
               />
@@ -120,7 +138,8 @@ const LiveChannelCard = ({ channel }: Props) => {
                 textShadow="rgba(208, 234, 53, 0.4) 1px 0 5px"
                 color={"#D094FF"}
               >
-                {channel.owner.username}
+                {channel.owner.username ??
+                  centerEllipses(channel.owner.address, 15)}
               </Text>
             </Flex>
           </Stack>

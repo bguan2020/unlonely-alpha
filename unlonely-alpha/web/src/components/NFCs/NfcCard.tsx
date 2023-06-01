@@ -33,7 +33,12 @@ const NfcCard = ({ nfc }: any) => {
         >
           {nfc.videoThumbnail && (
             <Box position="relative">
-              <Image src={nfc.videoThumbnail} borderRadius={"10px"} />
+              <Image
+                src={nfc.videoThumbnail}
+                width={["236px", "380px"]}
+                height={["132px", "213px"]}
+                borderRadius={"10px"}
+              />
               <Image
                 src="/images/playIcon.png"
                 opacity={0.5}
