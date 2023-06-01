@@ -1,17 +1,15 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
-  Text,
   Flex,
   Button,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
   Stack,
   Container,
+  Grid,
+  GridItem,
+  Box,
+  useBreakpointValue,
 } from "@chakra-ui/react";
-
+import { gql, useQuery } from "@apollo/client";
 import { useAccount } from "wagmi";
 import AppLayout from "../../../components/layout/AppLayout";
 import { getEnsName } from "../../../utils/ens";
@@ -19,9 +17,17 @@ import centerEllipses from "../../../utils/centerEllipses";
 import AblyChatComponent from "../../../components/chat/ChatComponent";
 import NextStreamTimer from "../../../components/stream/NextStreamTimer";
 import { useUser } from "../../../hooks/useUser";
-import TaskList from "../../../components/task/TaskList";
-import BrianTokenTab from "../../../components/arcade/BrianTokenTab";
 import { useWindowSize } from "../../../hooks/useWindowSize";
+import BuyButton from "../../../components/arcade/BuyButton";
+import ControlButton from "../../../components/arcade/ControlButton";
+import DiceButton from "../../../components/arcade/DiceButton";
+import SwordButton from "../../../components/arcade/SwordButton";
+import CoinButton from "../../../components/arcade/CoinButton";
+import ChannelDesc from "../../../components/channels/ChannelDesc";
+import { GetServerSidePropsContext } from "next";
+import { initializeApollo } from "../../../apiClient/client";
+import { ChannelDetailQuery } from "../../../generated/graphql";
+import ChannelNextHead from "../../../components/layout/ChannelNextHead";
 
 export type ChatBot = {
   username: string;
@@ -31,6 +37,31 @@ export type ChatBot = {
   description: string | null | undefined;
 };
 
+type UrlParams = {
+  slug: string;
+};
+
+const CHANNEL_DETAIL_QUERY = gql`
+  query ChannelDetail($slug: String!) {
+    getChannelBySlug(slug: $slug) {
+      awsId
+      channelArn
+      description
+      id
+      name
+      slug
+      allowNFCs
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+      playbackUrl
+    }
+  }
+`;
+
 const brianPlaybackUrl =
   "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8";
 
@@ -38,9 +69,28 @@ const channelArn = "arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq";
 
 const awsId = "8e2oKm7LXNGq";
 
-const Example: React.FunctionComponent = () => {
+const ChannelDetail = ({
+  slug,
+  channelData,
+}: UrlParams & { channelData: ChannelDetailQuery }) => {
+  const { data, loading, error } = useQuery<ChannelDetailQuery>(
+    CHANNEL_DETAIL_QUERY,
+    {
+      variables: {
+        slug,
+      },
+    }
+  );
+
+  const channelSSR = useMemo(
+    () => channelData?.getChannelBySlug,
+    [channelData]
+  );
+  const channel = useMemo(() => data?.getChannelBySlug, [data]);
+
   const [width, height] = useWindowSize();
   const { user } = useUser();
+
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
   const accountData = useAccount();
@@ -52,6 +102,8 @@ const Example: React.FunctionComponent = () => {
   const toggleChatVideos = function () {
     setHideChat(!hideChat);
   };
+
+  const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
   useEffect(() => {
     const fetchEns = async () => {
@@ -74,62 +126,100 @@ const Example: React.FunctionComponent = () => {
   );
 
   return (
-    <Stack direction="column">
-      <Stack
-        mx={[8, 4]}
-        alignItems={["center", "initial"]}
-        mt="10px"
-        spacing={8}
-        direction={["column", "row", "row"]}
+    <>
+      {channelSSR && <ChannelNextHead channel={channelSSR} />}
+      <AppLayout
+        title={channel?.name}
+        image={channel?.owner?.FCImageUrl}
+        isCustomHeader={true}
       >
-        <Flex width={{ base: "100%", sm: "70%", md: "70%", lg: "100%" }}>
-          <NextStreamTimer
-            isTheatreMode={true}
-            playbackUrl={brianPlaybackUrl}
-          />
-        </Flex>
-        <Button
-          height={{
-            //only show on mobile
-            base: "100%", // 0-48em
-            md: "0%", // 48em-80em,
-            xl: "0%", // 80em+
-          }}
-          onClick={toggleChatVideos}
-          id="xeedev-poaav"
-        >
-          Toggle Chat/Host Schedule
-        </Button>
-        <Container
-          hidden={isHidden(true)}
-          maxW={["768px", "300px"]}
-          mr="10px"
-          borderWidth="3px"
-          borderColor="black"
-          centerContent
-        >
-          <Text
+        <Stack direction="column">
+          <Stack
+            mx={[8, 4]}
+            alignItems={["center", "initial"]}
             mt="10px"
-            align="center"
-            fontWeight={"bold"}
-            fontSize="20px"
-            color="white"
+            spacing={8}
+            direction={["column", "row", "row"]}
           >
-            The Chat Room!
-          </Text>
-          <AblyChatComponent
-            username={username}
-            chatBot={chatBot}
-            user={user}
-            ablyChatChannel={ablyChatChannel}
-            ablyPresenceChannel={ablyPresenceChannel}
-            channelArn={channelArn}
-            channelId={3}
-            allowNFCs={true}
-          />
-        </Container>
-      </Stack>
-      <Flex hidden={isHidden(false)} direction="column">
+            <Stack direction="column" width={"100%"}>
+              <Flex width={"100%"}>
+                <NextStreamTimer
+                  isTheatreMode={true}
+                  playbackUrl={brianPlaybackUrl}
+                />
+              </Flex>
+              <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
+                <GridItem colSpan={showArcadeButtons ? 2 : 3}>
+                  <ChannelDesc channel={channel} user={user} />
+                </GridItem>
+                {showArcadeButtons && (
+                  <GridItem justifyItems={"center"}>
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                      gap={5}
+                    >
+                      <Grid
+                        templateColumns="repeat(2, 1fr)"
+                        templateRows="repeat(2, 1fr)"
+                        gridGap={4}
+                        alignItems="flex-start"
+                        justifyItems="flex-start"
+                      >
+                        <ControlButton />
+                        <DiceButton />
+                        <SwordButton />
+                        <CoinButton />
+                      </Grid>
+                      <BuyButton tokenName="$BRIAN" />
+                    </Box>
+                  </GridItem>
+                )}
+              </Grid>
+            </Stack>
+            <Button
+              height={{
+                //only show on mobile
+                base: "100%", // 0-48em
+                md: "0%", // 48em-80em,
+                xl: "0%", // 80em+
+              }}
+              onClick={toggleChatVideos}
+              id="xeedev-poaav"
+              bg="#27415E"
+            >
+              Toggle Chat/Host Schedule
+            </Button>
+            <Flex
+              hidden={isHidden(true)}
+              borderWidth="1px"
+              borderRadius={"10px"}
+              p="1px"
+              bg={
+                "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+              }
+              width="100%"
+              maxW={["768px", "380px"]}
+              maxH={["500px", "850px"]}
+              mr="10px"
+              boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
+            >
+              <Container borderRadius={10} background={"#19162F"} centerContent>
+                <AblyChatComponent
+                  username={username}
+                  chatBot={chatBot}
+                  user={user}
+                  ablyChatChannel={ablyChatChannel}
+                  ablyPresenceChannel={ablyPresenceChannel}
+                  channelArn={channelArn}
+                  channelId={3}
+                  allowNFCs={true}
+                />
+              </Container>
+            </Flex>
+          </Stack>
+          {/* <Flex hidden={isHidden(false)} direction="column">
         <Text align="center" fontSize="2rem" fontWeight="bold">
           Welcome to Unlonely! Control My Stream with $BRIAN!
         </Text>
@@ -188,15 +278,24 @@ const Example: React.FunctionComponent = () => {
             </TabPanel>
           </TabPanels>
         </Tabs>
-      </Flex>
-    </Stack>
+      </Flex> */}
+        </Stack>
+      </AppLayout>
+    </>
   );
 };
 
-export default function Page() {
-  return (
-    <AppLayout isCustomHeader={false}>
-      <Example />
-    </AppLayout>
-  );
+export default ChannelDetail;
+
+export async function getServerSideProps(
+  context: GetServerSidePropsContext<UrlParams>
+) {
+  const apolloClient = initializeApollo(null, context.req.cookies, true);
+
+  const { data, error } = await apolloClient.query({
+    query: CHANNEL_DETAIL_QUERY,
+    variables: { slug: "brian" },
+  });
+
+  return { props: { slug: "brian", channelData: data } };
 }

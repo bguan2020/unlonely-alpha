@@ -1,7 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=DM+Sans&display=swap");
 
+@font-face {
+  font-family: "Neue Pixel Sans";
+  src: url("/fonts/NeuePixelSans.ttf");
+}
+
+@font-face {
+  font-family: "Space Mono";
+  src: url("/fonts/SpaceMono-Regular.ttf");
+}
+
 body {
-  font-family: "Anonymous Pro", sans-serif;
+  font-family: "Space Mono", sans-serif;
   font-size: 16px;
   line-height: 1.5;
   color: #333;
@@ -9,7 +19,7 @@ body {
 }
 
 h1 {
-  font-family: "Anonymous Pro", sans-serif;
+  font-family: "Neue Pixel Sans", sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
@@ -22,6 +32,19 @@ body {
     #ba98d7,
     #d16fce
   ) !important;
+}
+
+.gradient-text {
+  background: linear-gradient(
+    90deg,
+    #e2f979 0%,
+    #b0e5cf 34.37%,
+    #ba98d7 66.67%,
+    #d16fce 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .css-o4poyf:hover,

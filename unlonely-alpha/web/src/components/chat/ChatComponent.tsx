@@ -1,4 +1,20 @@
-import { Box, Text, Flex, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Text,
+  Flex,
+  useToast,
+  Button,
+  Stack,
+  Table,
+  TableContainer,
+  Thead,
+  Tbody,
+  Td,
+  Th,
+  Tr,
+  Grid,
+  GridItem,
+} from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 
@@ -12,6 +28,11 @@ import usePostFirstChat from "../../hooks/usePostFirstChat";
 import Participants from "../presence/Participants";
 import { useUser } from "../../hooks/useUser";
 import MessageList from "./MessageList";
+import { useOnClickOutside } from "../../hooks/useOnClickOutside";
+import SwordButton from "../arcade/SwordButton";
+import CoinButton from "../arcade/CoinButton";
+import ControlButton from "../arcade/ControlButton";
+import DiceButton from "../arcade/DiceButton";
 
 type Props = {
   username: string | null | undefined;
@@ -63,6 +84,29 @@ const AblyChatComponent = ({
   const [formError, setFormError] = useState<null | string[]>(null);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
+  const [showArcade, setShowArcade] = useState<boolean>(false);
+
+  const clickedOutsideLeaderBoard = useRef(false);
+  const clickedOutsideArcade = useRef(false);
+  const leaderboardRef = useRef<HTMLDivElement>(null);
+  const arcadeRef = useRef<HTMLDivElement>(null);
+
+  useOnClickOutside(leaderboardRef, () => {
+    if (showLeaderboard) {
+      setShowLeaderboard(false);
+      clickedOutsideLeaderBoard.current = true;
+    }
+    clickedOutsideArcade.current = false;
+  });
+  useOnClickOutside(arcadeRef, () => {
+    if (showArcade) {
+      setShowArcade(false);
+      clickedOutsideArcade.current = true;
+    }
+    clickedOutsideLeaderBoard.current = false;
+  });
+
   const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
     onError: (m) => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
@@ -366,23 +410,261 @@ const AblyChatComponent = ({
   return (
     <>
       <Flex h="100%" minW="100%">
-        <Flex mt="10px" direction="column" minW="100%" width="100%">
-          <Participants ablyPresenceChannel={ablyPresenceChannel} />
+        <Flex
+          mt="10px"
+          direction="column"
+          minW="100%"
+          width="100%"
+          position={"relative"}
+        >
+          {ablyChatChannel?.includes("channel") && (
+            <Stack direction={"row"} spacing="10px">
+              <Flex
+                borderRadius={"5px"}
+                p="1px"
+                bg={
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                }
+                flex={1}
+                minWidth={0}
+              >
+                <Button
+                  opacity={showArcade ? 0.9 : 1}
+                  width="100%"
+                  bg={"#131323"}
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={() => {
+                    if (clickedOutsideArcade.current) {
+                      clickedOutsideArcade.current = false;
+                      return;
+                    }
+                    setShowArcade(!showArcade);
+                  }}
+                >
+                  <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
+                    arcade
+                  </Text>
+                </Button>
+              </Flex>
+              <Flex
+                borderRadius={"5px"}
+                p="1px"
+                bg={
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                }
+                flex={1}
+                minWidth={0}
+              >
+                <Button
+                  opacity={showLeaderboard ? 0.9 : 1}
+                  width="100%"
+                  bg={"#131323"}
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={() => {
+                    if (clickedOutsideLeaderBoard.current) {
+                      clickedOutsideLeaderBoard.current = false;
+                      return;
+                    }
+                    setShowLeaderboard(!showLeaderboard);
+                  }}
+                >
+                  <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
+                    leaderboard
+                  </Text>
+                </Button>
+              </Flex>
+            </Stack>
+          )}
+          {showArcade && (
+            <Flex
+              ref={arcadeRef}
+              borderRadius={"5px"}
+              p="1px"
+              position="absolute"
+              top="50px"
+              width={"100%"}
+              zIndex={3}
+              style={{
+                border: "1px solid",
+                borderWidth: "1px",
+                borderImageSource:
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
+                borderImageSlice: 1,
+                borderRadius: "5px",
+              }}
+            >
+              <Flex
+                direction="column"
+                bg={"rgba(19, 19, 35, 0.8)"}
+                style={{ backdropFilter: "blur(6px)" }}
+                borderRadius={"5px"}
+                width={"100%"}
+                padding={"40px"}
+              >
+                <Grid
+                  templateColumns="repeat(2, 1fr)"
+                  gap={12}
+                  alignItems="center"
+                  justifyItems="center"
+                >
+                  <GridItem>
+                    <ControlButton />
+                  </GridItem>
+                  <GridItem>
+                    <DiceButton />
+                  </GridItem>
+                  <GridItem>
+                    <SwordButton />
+                  </GridItem>
+                  <GridItem>
+                    <CoinButton />
+                  </GridItem>
+                </Grid>
+              </Flex>
+            </Flex>
+          )}
+          {showLeaderboard && (
+            <Flex
+              ref={leaderboardRef}
+              borderRadius={"5px"}
+              p="1px"
+              position="absolute"
+              top="50px"
+              width={"100%"}
+              zIndex={3}
+              style={{
+                border: "1px solid",
+                borderWidth: "1px",
+                borderImageSource:
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
+                borderImageSlice: 1,
+                borderRadius: "5px",
+              }}
+            >
+              <Flex
+                direction="column"
+                bg={"rgba(19, 19, 35, 0.8)"}
+                style={{ backdropFilter: "blur(6px)" }}
+                borderRadius={"5px"}
+                width={"100%"}
+              >
+                <Text fontSize={"44px"} fontWeight="400" textAlign={"center"}>
+                  HIGH SCORES
+                </Text>
+                <Text
+                  color={"#B6B6B6"}
+                  fontSize={"18"}
+                  fontWeight="400"
+                  textAlign={"center"}
+                >
+                  Who owns the most $BRIAN?
+                </Text>
+                <TableContainer overflowX={"hidden"}>
+                  <Table variant="unstyled">
+                    <Thead>
+                      <Tr>
+                        <Th
+                          textTransform={"lowercase"}
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                        >
+                          rank
+                        </Th>
+                        <Th
+                          textTransform={"lowercase"}
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                        >
+                          name
+                        </Th>
+                        <Th
+                          textTransform={"lowercase"}
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                          isNumeric
+                        >
+                          amount
+                        </Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      <Tr>
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                          1
+                        </Td>
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                          cruzy
+                        </Td>
+                        <Td
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                          isNumeric
+                        >
+                          25000
+                        </Td>
+                      </Tr>
+                      <Tr>
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                          2
+                        </Td>
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                          tiny
+                        </Td>
+                        <Td
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                          isNumeric
+                        >
+                          3000
+                        </Td>
+                      </Tr>
+                      <Tr>
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                          3
+                        </Td>
+                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                          me
+                        </Td>
+                        <Td
+                          fontSize={"24px"}
+                          p="10px"
+                          textAlign="center"
+                          isNumeric
+                        >
+                          10
+                        </Td>
+                      </Tr>
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+              </Flex>
+            </Flex>
+          )}
           <Text
             lineHeight={5}
             mt="4px"
             mb="4px"
-            fontWeight="bold"
-            fontSize={18}
+            fontWeight="light"
+            fontSize={13}
             textAlign="center"
+            color="#A9ADCC"
           >
-            Currently Watching
+            Who's here?
           </Text>
+          <Participants ablyPresenceChannel={ablyPresenceChannel} />
           <Flex
             direction="column"
             overflowX="auto"
             height="100%"
-            maxH={["300px", "400px"]}
             id="chat"
             position="relative"
             mt="8px"
@@ -408,13 +690,13 @@ const AblyChatComponent = ({
                 }}
                 onClick={() => setIsScrolled(false)}
               >
-                <Text fontFamily="Inter" fontSize="9px" color="black">
+                <Text fontSize="12px">
                   scrolling paused. click to scroll to bottom.
                 </Text>
               </Box>
             ) : null}
           </Flex>
-          <Flex mt="20px" w="100%">
+          <Flex mt="40px" w="100%" mb="15px">
             <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox} />
           </Flex>
         </Flex>

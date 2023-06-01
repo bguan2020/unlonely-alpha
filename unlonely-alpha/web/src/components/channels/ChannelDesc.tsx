@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   ChannelDetailQuery,
   UpdateChannelTextInput,
+  User,
 } from "../../generated/graphql";
 import { EditIcon } from "../../components/icons/EditIcon";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
@@ -16,14 +17,16 @@ import {
   FormErrorMessage,
   Textarea,
   Tooltip,
+  Avatar,
 } from "@chakra-ui/react";
+import { anonUrl } from "../presence/AnonUrl";
 
 type Props = {
   channel: ChannelDetailQuery["getChannelBySlug"];
-  isOwner: boolean;
+  user?: User;
 };
 
-const ChannelDesc = ({ channel, isOwner }: Props) => {
+const ChannelDesc = ({ channel, user }: Props) => {
   const [editableText, setEditableText] = useState<boolean>(false);
   const [formError, setFormError] = useState<string[]>([]);
   const form = useForm<UpdateChannelTextInput>({
@@ -45,6 +48,17 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
     });
     setEditableText(false);
   };
+
+  const isOwner = user?.address === channel?.owner.address;
+
+  const imageUrl = channel?.owner?.FCImageUrl
+    ? channel?.owner.FCImageUrl
+    : channel?.owner?.lensImageUrl
+    ? channel?.owner.lensImageUrl
+    : anonUrl;
+  const ipfsUrl = imageUrl.startsWith("ipfs://")
+    ? `https://ipfs.io/ipfs/${imageUrl.slice(7)}`
+    : imageUrl;
 
   return (
     <>
@@ -143,17 +157,27 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
           </form>
         </>
       ) : (
-        <>
-          <Flex direction="column">
+        <Flex direction="row">
+          <Avatar
+            name={
+              channel?.owner.username
+                ? channel?.owner.username
+                : channel?.owner.address
+            }
+            src={ipfsUrl}
+            size="md"
+          />
+          <Flex direction="column" gap={"16px"}>
             <Flex
               maxH="400px"
               margin="auto"
-              mb="16px"
               ml="32px"
-              w="100%"
               justifyContent="left"
               pr="32px"
               flexDirection="row"
+              alignItems={"baseline"}
+              gap="1rem"
+              wordBreak={"break-all"}
             >
               <Text fontSize="2rem" fontWeight="bold">
                 {channel?.name}
@@ -170,11 +194,11 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
                 </Tooltip>
               )}
             </Flex>
-            <Flex direction="row" width="100%" margin="auto" ml="32px">
+            <Flex direction="row" margin="auto" ml="32px">
               {channel?.description}
             </Flex>
           </Flex>
-        </>
+        </Flex>
       )}
     </>
   );
