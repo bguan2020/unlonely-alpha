@@ -28,6 +28,7 @@ import { GetServerSidePropsContext } from "next";
 import { initializeApollo } from "../../../apiClient/client";
 import { ChannelDetailQuery } from "../../../generated/graphql";
 import ChannelNextHead from "../../../components/layout/ChannelNextHead";
+import io, { Socket } from "socket.io-client";
 
 export type ChatBot = {
   username: string;
@@ -103,7 +104,37 @@ const ChannelDetail = ({
     setHideChat(!hideChat);
   };
 
+  const [socket, setSocket] = useState<Socket | undefined>(undefined);
+
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
+
+  const handleSendMessage = (message: string) => {
+    // console.log("sending message", message);
+    if (!socket) return;
+    socket.emit("send-message", {
+      message,
+      username: accountData?.address,
+    });
+  };
+
+  useEffect(() => {
+    const socketInit = async () => {
+      await fetch("/api/socket");
+
+      const newSocket = io();
+      setSocket(newSocket);
+
+      newSocket.on("receive-message", (data) => {
+        // console.log("received message", data);
+      });
+    };
+    socketInit();
+
+    return () => {
+      if (!socket) return;
+      socket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     const fetchEns = async () => {
@@ -178,6 +209,9 @@ const ChannelDetail = ({
                 )}
               </Grid>
             </Stack>
+            <Button onClick={() => handleSendMessage("hola")}>
+              Test socket
+            </Button>
             <Button
               height={{
                 //only show on mobile
