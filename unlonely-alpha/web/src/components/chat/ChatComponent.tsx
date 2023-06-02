@@ -33,6 +33,7 @@ import SwordButton from "../arcade/SwordButton";
 import CoinButton from "../arcade/CoinButton";
 import ControlButton from "../arcade/ControlButton";
 import DiceButton from "../arcade/DiceButton";
+import { useScrollPercentage } from "../../hooks/useScrollPercentage";
 
 type Props = {
   username: string | null | undefined;
@@ -112,6 +113,8 @@ const AblyChatComponent = ({
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
   });
+  const { scrollRef, scrollPercentage } = useScrollPercentage();
+
   const toast = useToast();
   const channelName = ablyChatChannel
     ? `persistMessages:${ablyChatChannel}`
@@ -382,30 +385,22 @@ const AblyChatComponent = ({
     const chat = document.getElementById("chat");
     if (!chat) return;
     if (autoScroll.current) {
-      //inital message load
       if (!hasMessagesLoaded && receivedMessages.length) {
         chat.scrollTop = chat.scrollHeight;
-        setIsScrolled(false);
         setHasMessagesLoaded(true);
         return;
-      } //every message after (might have to determine a better number than 600)
-      else if (chat.scrollHeight - chat.scrollTop > 600) {
-        setIsScrolled(true);
-        return;
       }
-      //anything else
-      chat.scrollTop = chat.scrollHeight;
+      if (scrollPercentage === 100) {
+        chat.scrollTop = chat.scrollHeight;
+      }
     }
   }, [receivedMessages]);
 
-  useEffect(() => {
+  const handleScrollToPresent = () => {
     const chat = document.getElementById("chat");
     if (!chat) return;
-    if (!isScrolled) {
-      chat.scrollTop = chat.scrollHeight;
-      return;
-    }
-  }, [isScrolled]);
+    chat.scrollTop = chat.scrollHeight;
+  };
 
   return (
     <>
@@ -668,6 +663,7 @@ const AblyChatComponent = ({
             id="chat"
             position="relative"
             mt="8px"
+            ref={scrollRef}
           >
             <MessageList messages={receivedMessages} channel={channel} />
             {autoScroll.current && (
@@ -679,7 +675,7 @@ const AblyChatComponent = ({
             )}
           </Flex>
           <Flex justifyContent="center">
-            {isScrolled ? (
+            {scrollPercentage < 100 && hasMessagesLoaded ? (
               <Box
                 bg="rgba(98, 98, 98, 0.6)"
                 p="4px"
@@ -688,7 +684,7 @@ const AblyChatComponent = ({
                   background: "rgba(98, 98, 98, 0.3)",
                   cursor: "pointer",
                 }}
-                onClick={() => setIsScrolled(false)}
+                onClick={handleScrollToPresent}
               >
                 <Text fontSize="12px">
                   scrolling paused. click to scroll to bottom.
