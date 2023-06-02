@@ -8,7 +8,7 @@ import VideoSort, { VideoAttribute } from "../../components/video/VideoSort";
 import { getEnsName } from "../../utils/ens";
 import centerEllipses from "../../utils/centerEllipses";
 import { VideoCard_VideoFragment } from "../../generated/graphql";
-import AblyChatComponent from "../../components/chat/AblyChataComponent";
+import AblyChatComponent from "../../components/chat/ChatComponent";
 import { ChatBot } from "./brian";
 import { useUser } from "../../hooks/useUser";
 import useScript from "../../hooks/useScript";
@@ -37,6 +37,9 @@ type Props = {
   videos: VideoCard_VideoFragment[];
   loading: boolean;
 };
+
+const brianPlaybackUrl =
+  "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8";
 
 const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
   const { user } = useUser();
@@ -105,6 +108,9 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             username={username}
             chatBot={chatBot}
             user={user}
+            channelArn="arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq"
+            channelId={3}
+            allowNFCs={true}
           />
         </GridItem>
         <GridItem rowSpan={3} colSpan={1}></GridItem>
@@ -117,7 +123,7 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
             mt="10px"
           >
-            <IVSPlayer isTheatreMode={false} />
+            <IVSPlayer isTheatreMode={false} playbackUrl={brianPlaybackUrl} />
           </Flex>
         </GridItem>
         <GridItem rowSpan={1} colSpan={1} mr="20px">

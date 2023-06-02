@@ -72,14 +72,21 @@ const NfcDetail = ({
   } = useQuery(NFC_RECOMMENDATIONS_QUERY, {
     variables: {
       data: {
-        limit: 9,
-        orderBy: null,
+        limit: 20,
+        orderBy: "score",
       },
     },
   });
   const nfcSSR = useMemo(() => nfcData?.getNFC, [nfcData]);
   const nfc = useMemo(() => data?.getNFC, [data]);
   const nfcs = dataNFCs?.getNFCFeed;
+  // randomize the order of the NFCs
+  const randomizedNFCs = useMemo(() => {
+    if (nfcs) {
+      return [...nfcs].sort(() => Math.random() - 0.5);
+    }
+    return [];
+  }, [nfcs]);
 
   return (
     <>
@@ -124,7 +131,7 @@ const NfcDetail = ({
                       lg: "18rem",
                     }}
                   >
-                    <NfcList nfcs={nfcs} />
+                    <NfcList nfcs={randomizedNFCs} />
                   </Flex>
                 )}
               </Flex>

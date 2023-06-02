@@ -11,8 +11,15 @@ export const resolvers = {
       }
       return chatService.firstChatExists(ctx.user, ctx);
     },
-    chatBot(_: any, _args: any, ctx: Context) {
-      return chatService.chatbot(ctx);
+    // chatBot(_: any, _args: any, ctx: Context) {
+    //   return chatService.chatbot(ctx);
+    // },
+    getRecentChats: (
+      _: any,
+      { data }: { data: chatService.IGetChatInput },
+      ctx: Context
+    ) => {
+      return chatService.getRecentChats(data, ctx);
     },
   },
   Mutation: {
@@ -26,6 +33,22 @@ export const resolvers = {
       }
 
       return chatService.postFirstChat(data, ctx.user, ctx);
+    },
+    postChatByAwsId: (
+      _: any,
+      { data }: { data: chatService.IPostChatByAwsIdInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+
+      return chatService.postChatByAwsId(data, ctx.user, ctx);
+    },
+  },
+  Chat: {
+    owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
+      return chatService.getOwner({ ownerAddr }, ctx);
     },
   },
 };

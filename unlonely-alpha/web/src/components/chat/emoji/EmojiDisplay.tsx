@@ -25,7 +25,7 @@ const EmojiDisplay = ({
 
   return (
     <>
-      <Flex p="5px 5px 0px 5px">
+      <Flex>
         {isGif ? (
           <Gif
             gif={emoji}

@@ -74,8 +74,32 @@ export type Scalars = {
   Void: any;
 };
 
+export type Channel = {
+  __typename?: "Channel";
+  allowNFCs?: Maybe<Scalars["Boolean"]>;
+  awsId: Scalars["String"];
+  channelArn?: Maybe<Scalars["String"]>;
+  createdAt: Scalars["DateTime"];
+  description?: Maybe<Scalars["String"]>;
+  id: Scalars["ID"];
+  isLive?: Maybe<Scalars["Boolean"]>;
+  name?: Maybe<Scalars["String"]>;
+  owner: User;
+  playbackUrl?: Maybe<Scalars["String"]>;
+  slug: Scalars["String"];
+  thumbnailUrl?: Maybe<Scalars["String"]>;
+  updatedAt: Scalars["DateTime"];
+};
+
+export type ChannelFeedInput = {
+  limit?: InputMaybe<Scalars["Int"]>;
+  offset?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<SortBy>;
+};
+
 export type Chat = {
   __typename?: "Chat";
+  channel: Channel;
   createdAt: Scalars["DateTime"];
   id: Scalars["ID"];
   owner: User;
@@ -83,8 +107,35 @@ export type Chat = {
   updatedAt: Scalars["DateTime"];
 };
 
+export type ClipOutput = {
+  __typename?: "ClipOutput";
+  errorMessage?: Maybe<Scalars["String"]>;
+  thumbnail?: Maybe<Scalars["String"]>;
+  url?: Maybe<Scalars["String"]>;
+};
+
+export type CreateClipInput = {
+  channelArn: Scalars["String"];
+};
+
+export type DeviceToken = {
+  __typename?: "DeviceToken";
+  address?: Maybe<Scalars["String"]>;
+  createdAt: Scalars["DateTime"];
+  id: Scalars["ID"];
+  notificationsLive: Scalars["Boolean"];
+  notificationsNFCs: Scalars["Boolean"];
+  token: Scalars["String"];
+  updatedAt: Scalars["DateTime"];
+};
+
 export type GetChatInput = {
-  address?: InputMaybe<Scalars["String"]>;
+  channelId: Scalars["Int"];
+  limit: Scalars["Int"];
+};
+
+export type GetDeviceByTokenInput = {
+  token: Scalars["String"];
 };
 
 export type GetPoapInput = {
@@ -101,31 +152,6 @@ export type HandleLikeInput = {
   value: Scalars["Int"];
 };
 
-export type HandleNfcInput = {
-  title: Scalars["String"];
-};
-
-export type HostEvent = Likable & {
-  __typename?: "HostEvent";
-  challenge?: Maybe<HostEvent>;
-  createdAt: Scalars["DateTime"];
-  description?: Maybe<Scalars["String"]>;
-  disliked?: Maybe<Scalars["Boolean"]>;
-  hostDate: Scalars["DateTime"];
-  id: Scalars["ID"];
-  isChallenger: Scalars["Boolean"];
-  liked?: Maybe<Scalars["Boolean"]>;
-  owner: User;
-  score: Scalars["Int"];
-  title: Scalars["String"];
-  updatedAt: Scalars["DateTime"];
-};
-
-export type HostEventFeedInput = {
-  limit?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<SortOrder>;
-};
-
 export type Likable = {
   disliked?: Maybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
@@ -136,7 +162,6 @@ export type Likable = {
 export type Like = {
   __typename?: "Like";
   disliked: Scalars["Boolean"];
-  hostEvent?: Maybe<HostEvent>;
   id: Scalars["ID"];
   liked: Scalars["Boolean"];
   liker: User;
@@ -151,32 +176,45 @@ export enum LikeObj {
 export type Mutation = {
   __typename?: "Mutation";
   _empty?: Maybe<Scalars["String"]>;
+  createClip?: Maybe<ClipOutput>;
   handleLike?: Maybe<Likable>;
-  handleNFC?: Maybe<Scalars["Int"]>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
-  postChallenge?: Maybe<HostEvent>;
+  postChatByAwsId?: Maybe<Chat>;
+  postDeviceToken?: Maybe<DeviceToken>;
   postFirstChat?: Maybe<Chat>;
+  postNFC?: Maybe<Nfc>;
   postStreamInteraction?: Maybe<StreamInteraction>;
   postTask?: Maybe<Task>;
   postVideo?: Maybe<Video>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
+  updateChannelText?: Maybe<Channel>;
+  updateDeviceToken?: Maybe<DeviceToken>;
+  updateUserNotifications?: Maybe<User>;
+};
+
+export type MutationCreateClipArgs = {
+  data?: InputMaybe<CreateClipInput>;
 };
 
 export type MutationHandleLikeArgs = {
   data: HandleLikeInput;
 };
 
-export type MutationHandleNfcArgs = {
-  data: HandleNfcInput;
+export type MutationPostChatByAwsIdArgs = {
+  data: PostChatByAwsIdInput;
 };
 
-export type MutationPostChallengeArgs = {
-  data: PostChallengeInput;
+export type MutationPostDeviceTokenArgs = {
+  data: PostDeviceTokenInput;
 };
 
 export type MutationPostFirstChatArgs = {
   data: PostChatInput;
+};
+
+export type MutationPostNfcArgs = {
+  data: PostNfcInput;
 };
 
 export type MutationPostStreamInteractionArgs = {
@@ -197,6 +235,18 @@ export type MutationSoftDeleteTaskArgs = {
 
 export type MutationSoftDeleteVideoArgs = {
   id: Scalars["ID"];
+};
+
+export type MutationUpdateChannelTextArgs = {
+  data: UpdateChannelTextInput;
+};
+
+export type MutationUpdateDeviceTokenArgs = {
+  data: UpdateDeviceInput;
+};
+
+export type MutationUpdateUserNotificationsArgs = {
+  data: UpdateUserNotificationsInput;
 };
 
 export type Nfc = Likable & {
@@ -231,15 +281,28 @@ export type Poap = {
   updatedAt: Scalars["DateTime"];
 };
 
-export type PostChallengeInput = {
-  description?: InputMaybe<Scalars["String"]>;
-  hostDate: Scalars["DateTime"];
-  originalHostEventId: Scalars["Int"];
-  title: Scalars["String"];
+export type PostChatByAwsIdInput = {
+  awsId: Scalars["String"];
+  text: Scalars["String"];
 };
 
 export type PostChatInput = {
+  channelId: Scalars["Int"];
   text: Scalars["String"];
+};
+
+export type PostDeviceTokenInput = {
+  address?: InputMaybe<Scalars["String"]>;
+  notificationsLive?: InputMaybe<Scalars["Boolean"]>;
+  notificationsNFCs?: InputMaybe<Scalars["Boolean"]>;
+  token: Scalars["String"];
+};
+
+export type PostNfcInput = {
+  openseaLink: Scalars["String"];
+  title: Scalars["String"];
+  videoLink: Scalars["String"];
+  videoThumbnail: Scalars["String"];
 };
 
 export type PostStreamInteractionInput = {
@@ -270,20 +333,40 @@ export type Query = {
   currentUser?: Maybe<User>;
   currentUserAuthMessage?: Maybe<Scalars["String"]>;
   firstChatExists?: Maybe<Scalars["Boolean"]>;
+  getAllDevices?: Maybe<Array<Maybe<DeviceToken>>>;
   getAllUsers?: Maybe<Array<Maybe<User>>>;
-  getHostEventFeed?: Maybe<Array<Maybe<HostEvent>>>;
+  getAllUsersWithChannel?: Maybe<Array<Maybe<User>>>;
+  getAllUsersWithNotificationsToken?: Maybe<Array<Maybe<User>>>;
+  getChannelById?: Maybe<Channel>;
+  getChannelBySlug?: Maybe<Channel>;
+  getChannelFeed?: Maybe<Array<Maybe<Channel>>>;
+  getDeviceByToken?: Maybe<DeviceToken>;
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
   getNFC?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
   getPoap?: Maybe<Poap>;
+  getRecentChats?: Maybe<Array<Maybe<Chat>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getUser?: Maybe<User>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
+  updateAllUsers?: Maybe<Array<Maybe<User>>>;
 };
 
-export type QueryGetHostEventFeedArgs = {
-  data?: InputMaybe<HostEventFeedInput>;
+export type QueryGetChannelByIdArgs = {
+  id: Scalars["ID"];
+};
+
+export type QueryGetChannelBySlugArgs = {
+  slug: Scalars["String"];
+};
+
+export type QueryGetChannelFeedArgs = {
+  data?: InputMaybe<ChannelFeedInput>;
+};
+
+export type QueryGetDeviceByTokenArgs = {
+  data: GetDeviceByTokenInput;
 };
 
 export type QueryGetNfcArgs = {
@@ -296,6 +379,10 @@ export type QueryGetNfcFeedArgs = {
 
 export type QueryGetPoapArgs = {
   data?: InputMaybe<GetPoapInput>;
+};
+
+export type QueryGetRecentChatsArgs = {
+  data: GetChatInput;
 };
 
 export type QueryGetTaskFeedArgs = {
@@ -356,6 +443,24 @@ export type TaskFeedInput = {
   skip?: InputMaybe<Scalars["Int"]>;
 };
 
+export type UpdateChannelTextInput = {
+  description: Scalars["String"];
+  id: Scalars["ID"];
+  name: Scalars["String"];
+};
+
+export type UpdateDeviceInput = {
+  notificationsLive: Scalars["Boolean"];
+  notificationsNFCs: Scalars["Boolean"];
+  token: Scalars["String"];
+};
+
+export type UpdateUserNotificationsInput = {
+  notificationsLive?: InputMaybe<Scalars["Boolean"]>;
+  notificationsNFCs?: InputMaybe<Scalars["Boolean"]>;
+  notificationsTokens?: InputMaybe<Scalars["String"]>;
+};
+
 export type User = {
   __typename?: "User";
   FCImageUrl?: Maybe<Scalars["String"]>;
@@ -365,7 +470,13 @@ export type User = {
   createdAt: Scalars["DateTime"];
   id: Scalars["ID"];
   isFCUser: Scalars["Boolean"];
+  isLensUser: Scalars["Boolean"];
+  lensHandle?: Maybe<Scalars["String"]>;
+  lensImageUrl?: Maybe<Scalars["String"]>;
   nfcRank: Scalars["Int"];
+  notificationsLive?: Maybe<Scalars["Boolean"]>;
+  notificationsNFCs?: Maybe<Scalars["Boolean"]>;
+  notificationsTokens?: Maybe<Scalars["String"]>;
   powerUserLvl: Scalars["Int"];
   reputation?: Maybe<Scalars["Int"]>;
   sigTimestamp?: Maybe<Scalars["BigInt"]>;
@@ -400,46 +511,6 @@ export type VideoFeedInput = {
   orderBy?: InputMaybe<SortOrder>;
   searchString?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;
-};
-
-export type GetPoapQueryVariables = Exact<{
-  data: GetPoapInput;
-}>;
-
-export type GetPoapQuery = {
-  __typename?: "Query";
-  getPoap?: { __typename?: "Poap"; id: string; link?: string | null } | null;
-};
-
-export type HostEventCard_HostEventFragment = {
-  __typename: "HostEvent";
-  id: string;
-  hostDate: any;
-  title: string;
-  description?: string | null;
-  score: number;
-  liked?: boolean | null;
-  disliked?: boolean | null;
-  owner: {
-    __typename?: "User";
-    username?: string | null;
-    FCImageUrl?: string | null;
-  };
-  challenge?: {
-    __typename?: "HostEvent";
-    id: string;
-    hostDate: any;
-    title: string;
-    description?: string | null;
-    score: number;
-    liked?: boolean | null;
-    disliked?: boolean | null;
-    owner: {
-      __typename?: "User";
-      username?: string | null;
-      FCImageUrl?: string | null;
-    };
-  } | null;
 };
 
 export type TaskCard_TaskFragment = {
@@ -489,31 +560,43 @@ export type VideoCard_VideoFragment = {
   owner: { __typename?: "User"; username?: string | null; address: string };
 };
 
+export type CreateClipMutationVariables = Exact<{
+  data: CreateClipInput;
+}>;
+
+export type CreateClipMutation = {
+  __typename?: "Mutation";
+  createClip?: {
+    __typename?: "ClipOutput";
+    url?: string | null;
+    thumbnail?: string | null;
+    errorMessage?: string | null;
+  } | null;
+};
+
 export type LikeMutationVariables = Exact<{
   data: HandleLikeInput;
 }>;
 
 export type LikeMutation = {
   __typename?: "Mutation";
-  handleLike?:
-    | {
-        __typename?: "HostEvent";
-        id: string;
-        score: number;
-        liked?: boolean | null;
-        disliked?: boolean | null;
-      }
-    | {
-        __typename?: "NFC";
-        id: string;
-        score: number;
-        liked?: boolean | null;
-        disliked?: boolean | null;
-      }
-    | null;
+  handleLike?: {
+    __typename?: "NFC";
+    id: string;
+    score: number;
+    liked?: boolean | null;
+    disliked?: boolean | null;
+  } | null;
 };
 
-export type UseLike_HostEventFragment = { __typename: "HostEvent"; id: string };
+export type PostChatByAwsIdMutationVariables = Exact<{
+  data: PostChatByAwsIdInput;
+}>;
+
+export type PostChatByAwsIdMutation = {
+  __typename?: "Mutation";
+  postChatByAwsId?: { __typename?: "Chat"; id: string } | null;
+};
 
 export type PostFirstChatMutationVariables = Exact<{
   data: PostChatInput;
@@ -524,13 +607,13 @@ export type PostFirstChatMutation = {
   postFirstChat?: { __typename?: "Chat"; id: string } | null;
 };
 
-export type HandleNfcMutationVariables = Exact<{
-  data: HandleNfcInput;
+export type PostNfcMutationVariables = Exact<{
+  data: PostNfcInput;
 }>;
 
-export type HandleNfcMutation = {
+export type PostNfcMutation = {
   __typename?: "Mutation";
-  handleNFC?: number | null;
+  postNFC?: { __typename?: "NFC"; id: string } | null;
 };
 
 export type PostStreamInteractionMutationVariables = Exact<{
@@ -563,6 +646,34 @@ export type PostVideoMutation = {
   postVideo?: { __typename?: "Video"; id: string } | null;
 };
 
+export type UpdateChannelTextMutationVariables = Exact<{
+  data: UpdateChannelTextInput;
+}>;
+
+export type UpdateChannelTextMutation = {
+  __typename?: "Mutation";
+  updateChannelText?: {
+    __typename?: "Channel";
+    id: string;
+    name?: string | null;
+    description?: string | null;
+  } | null;
+};
+
+export type UpdateUserNotificationsMutationVariables = Exact<{
+  data: UpdateUserNotificationsInput;
+}>;
+
+export type UpdateUserNotificationsMutation = {
+  __typename?: "Mutation";
+  updateUserNotifications?: {
+    __typename?: "User";
+    notificationsTokens?: string | null;
+    notificationsLive?: boolean | null;
+    notificationsNFCs?: boolean | null;
+  } | null;
+};
+
 export type GetUserQueryVariables = Exact<{
   data: GetUserInput;
 }>;
@@ -580,6 +691,9 @@ export type GetUserQuery = {
     nfcRank: number;
     FCImageUrl?: string | null;
     isFCUser: boolean;
+    isLensUser: boolean;
+    lensHandle?: string | null;
+    lensImageUrl?: string | null;
   } | null;
 };
 
@@ -603,79 +717,51 @@ export type VideoFeed1808Query = {
   } | null> | null;
 };
 
-export type HostEventChannelFeedQueryVariables = Exact<{
-  data: HostEventFeedInput;
+export type ChannelDetailQueryVariables = Exact<{
+  slug: Scalars["String"];
 }>;
 
-export type HostEventChannelFeedQuery = {
+export type ChannelDetailQuery = {
   __typename?: "Query";
-  getHostEventFeed?: Array<{
-    __typename?: "HostEvent";
-    id: string;
-    hostDate: any;
-    title: string;
+  getChannelBySlug?: {
+    __typename?: "Channel";
+    awsId: string;
+    channelArn?: string | null;
     description?: string | null;
-    score: number;
-    liked?: boolean | null;
-    disliked?: boolean | null;
+    id: string;
+    name?: string | null;
+    slug: string;
+    allowNFCs?: boolean | null;
+    playbackUrl?: string | null;
     owner: {
       __typename?: "User";
-      username?: string | null;
       FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+      username?: string | null;
+      address: string;
     };
-    challenge?: {
-      __typename?: "HostEvent";
-      id: string;
-      hostDate: any;
-      title: string;
-      description?: string | null;
-      score: number;
-      liked?: boolean | null;
-      disliked?: boolean | null;
-      owner: {
-        __typename?: "User";
-        username?: string | null;
-        FCImageUrl?: string | null;
-      };
-    } | null;
-  } | null> | null;
+  } | null;
 };
 
-export type HostEventFeedQueryVariables = Exact<{
-  data: HostEventFeedInput;
-}>;
+export type GetChannelFeedQueryVariables = Exact<{ [key: string]: never }>;
 
-export type HostEventFeedQuery = {
+export type GetChannelFeedQuery = {
   __typename?: "Query";
-  getHostEventFeed?: Array<{
-    __typename?: "HostEvent";
+  getChannelFeed?: Array<{
+    __typename?: "Channel";
     id: string;
-    hostDate: any;
-    title: string;
+    isLive?: boolean | null;
+    name?: string | null;
     description?: string | null;
-    score: number;
-    liked?: boolean | null;
-    disliked?: boolean | null;
+    slug: string;
+    thumbnailUrl?: string | null;
     owner: {
       __typename?: "User";
       username?: string | null;
+      address: string;
       FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
     };
-    challenge?: {
-      __typename?: "HostEvent";
-      id: string;
-      hostDate: any;
-      title: string;
-      description?: string | null;
-      score: number;
-      liked?: boolean | null;
-      disliked?: boolean | null;
-      owner: {
-        __typename?: "User";
-        username?: string | null;
-        FCImageUrl?: string | null;
-      };
-    } | null;
   } | null> | null;
 };
 
@@ -703,6 +789,46 @@ export type NfcFeedQuery = {
       powerUserLvl: number;
       videoSavantLvl: number;
     };
+  } | null> | null;
+};
+
+export type GetAllDevicesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAllDevicesQuery = {
+  __typename?: "Query";
+  getAllDevices?: Array<{
+    __typename?: "DeviceToken";
+    token: string;
+    notificationsLive: boolean;
+    notificationsNFCs: boolean;
+    address?: string | null;
+  } | null> | null;
+};
+
+export type GetAllUsersWithChannelQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetAllUsersWithChannelQuery = {
+  __typename?: "Query";
+  getAllUsersWithChannel?: Array<{
+    __typename?: "User";
+    address: string;
+    username?: string | null;
+  } | null> | null;
+};
+
+export type GetAllUsersQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAllUsersQuery = {
+  __typename?: "Query";
+  getAllUsers?: Array<{
+    __typename?: "User";
+    username?: string | null;
+    address: string;
+    notificationsTokens?: string | null;
+    notificationsLive?: boolean | null;
+    notificationsNFCs?: boolean | null;
   } | null> | null;
 };
 
@@ -776,42 +902,6 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
-export const UseLike_HostEventFragmentDoc = gql`
-  fragment useLike_hostEvent on HostEvent {
-    id
-    __typename
-  }
-`;
-export const HostEventCard_HostEventFragmentDoc = gql`
-  fragment HostEventCard_hostEvent on HostEvent {
-    id
-    hostDate
-    title
-    description
-    score
-    owner {
-      username
-      FCImageUrl
-    }
-    challenge {
-      id
-      hostDate
-      title
-      description
-      score
-      owner {
-        username
-        FCImageUrl
-      }
-      liked
-      disliked
-    }
-    liked
-    disliked
-    ...useLike_hostEvent
-  }
-  ${UseLike_HostEventFragmentDoc}
-`;
 export const TaskCard_TaskFragmentDoc = gql`
   fragment TaskCard_task on Task {
     id
@@ -845,55 +935,6 @@ export const VideoCard_VideoFragmentDoc = gql`
     liked
   }
 `;
-export const GetPoapDocument = gql`
-  query GetPoap($data: GetPoapInput!) {
-    getPoap(data: $data) {
-      id
-      link
-    }
-  }
-`;
-
-/**
- * __useGetPoapQuery__
- *
- * To run a query within a React component, call `useGetPoapQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPoapQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetPoapQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useGetPoapQuery(
-  baseOptions: Apollo.QueryHookOptions<GetPoapQuery, GetPoapQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetPoapQuery, GetPoapQueryVariables>(
-    GetPoapDocument,
-    options
-  );
-}
-export function useGetPoapLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetPoapQuery, GetPoapQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<GetPoapQuery, GetPoapQueryVariables>(
-    GetPoapDocument,
-    options
-  );
-}
-export type GetPoapQueryHookResult = ReturnType<typeof useGetPoapQuery>;
-export type GetPoapLazyQueryHookResult = ReturnType<typeof useGetPoapLazyQuery>;
-export type GetPoapQueryResult = Apollo.QueryResult<
-  GetPoapQuery,
-  GetPoapQueryVariables
->;
 export const TaskFeedDocument = gql`
   query TaskFeed($data: TaskFeedInput!) {
     getTaskFeed(data: $data) {
@@ -958,6 +999,58 @@ export type TaskFeedQueryResult = Apollo.QueryResult<
   TaskFeedQuery,
   TaskFeedQueryVariables
 >;
+export const CreateClipDocument = gql`
+  mutation CreateClip($data: CreateClipInput!) {
+    createClip(data: $data) {
+      url
+      thumbnail
+      errorMessage
+    }
+  }
+`;
+export type CreateClipMutationFn = Apollo.MutationFunction<
+  CreateClipMutation,
+  CreateClipMutationVariables
+>;
+
+/**
+ * __useCreateClipMutation__
+ *
+ * To run a mutation, you first call `useCreateClipMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateClipMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createClipMutation, { data, loading, error }] = useCreateClipMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateClipMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CreateClipMutation,
+    CreateClipMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateClipMutation, CreateClipMutationVariables>(
+    CreateClipDocument,
+    options
+  );
+}
+export type CreateClipMutationHookResult = ReturnType<
+  typeof useCreateClipMutation
+>;
+export type CreateClipMutationResult =
+  Apollo.MutationResult<CreateClipMutation>;
+export type CreateClipMutationOptions = Apollo.BaseMutationOptions<
+  CreateClipMutation,
+  CreateClipMutationVariables
+>;
 export const LikeDocument = gql`
   mutation Like($data: HandleLikeInput!) {
     handleLike(data: $data) {
@@ -1004,6 +1097,56 @@ export type LikeMutationResult = Apollo.MutationResult<LikeMutation>;
 export type LikeMutationOptions = Apollo.BaseMutationOptions<
   LikeMutation,
   LikeMutationVariables
+>;
+export const PostChatByAwsIdDocument = gql`
+  mutation PostChatByAwsId($data: PostChatByAwsIdInput!) {
+    postChatByAwsId(data: $data) {
+      id
+    }
+  }
+`;
+export type PostChatByAwsIdMutationFn = Apollo.MutationFunction<
+  PostChatByAwsIdMutation,
+  PostChatByAwsIdMutationVariables
+>;
+
+/**
+ * __usePostChatByAwsIdMutation__
+ *
+ * To run a mutation, you first call `usePostChatByAwsIdMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostChatByAwsIdMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postChatByAwsIdMutation, { data, loading, error }] = usePostChatByAwsIdMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostChatByAwsIdMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostChatByAwsIdMutation,
+    PostChatByAwsIdMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostChatByAwsIdMutation,
+    PostChatByAwsIdMutationVariables
+  >(PostChatByAwsIdDocument, options);
+}
+export type PostChatByAwsIdMutationHookResult = ReturnType<
+  typeof usePostChatByAwsIdMutation
+>;
+export type PostChatByAwsIdMutationResult =
+  Apollo.MutationResult<PostChatByAwsIdMutation>;
+export type PostChatByAwsIdMutationOptions = Apollo.BaseMutationOptions<
+  PostChatByAwsIdMutation,
+  PostChatByAwsIdMutationVariables
 >;
 export const PostFirstChatDocument = gql`
   mutation PostFirstChat($data: PostChatInput!) {
@@ -1055,52 +1198,52 @@ export type PostFirstChatMutationOptions = Apollo.BaseMutationOptions<
   PostFirstChatMutation,
   PostFirstChatMutationVariables
 >;
-export const HandleNfcDocument = gql`
-  mutation HandleNFC($data: HandleNFCInput!) {
-    handleNFC(data: $data)
+export const PostNfcDocument = gql`
+  mutation PostNFC($data: PostNFCInput!) {
+    postNFC(data: $data) {
+      id
+    }
   }
 `;
-export type HandleNfcMutationFn = Apollo.MutationFunction<
-  HandleNfcMutation,
-  HandleNfcMutationVariables
+export type PostNfcMutationFn = Apollo.MutationFunction<
+  PostNfcMutation,
+  PostNfcMutationVariables
 >;
 
 /**
- * __useHandleNfcMutation__
+ * __usePostNfcMutation__
  *
- * To run a mutation, you first call `useHandleNfcMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useHandleNfcMutation` returns a tuple that includes:
+ * To run a mutation, you first call `usePostNfcMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostNfcMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [handleNfcMutation, { data, loading, error }] = useHandleNfcMutation({
+ * const [postNfcMutation, { data, loading, error }] = usePostNfcMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useHandleNfcMutation(
+export function usePostNfcMutation(
   baseOptions?: Apollo.MutationHookOptions<
-    HandleNfcMutation,
-    HandleNfcMutationVariables
+    PostNfcMutation,
+    PostNfcMutationVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<HandleNfcMutation, HandleNfcMutationVariables>(
-    HandleNfcDocument,
+  return Apollo.useMutation<PostNfcMutation, PostNfcMutationVariables>(
+    PostNfcDocument,
     options
   );
 }
-export type HandleNfcMutationHookResult = ReturnType<
-  typeof useHandleNfcMutation
->;
-export type HandleNfcMutationResult = Apollo.MutationResult<HandleNfcMutation>;
-export type HandleNfcMutationOptions = Apollo.BaseMutationOptions<
-  HandleNfcMutation,
-  HandleNfcMutationVariables
+export type PostNfcMutationHookResult = ReturnType<typeof usePostNfcMutation>;
+export type PostNfcMutationResult = Apollo.MutationResult<PostNfcMutation>;
+export type PostNfcMutationOptions = Apollo.BaseMutationOptions<
+  PostNfcMutation,
+  PostNfcMutationVariables
 >;
 export const PostStreamInteractionDocument = gql`
   mutation PostStreamInteraction($data: PostStreamInteractionInput!) {
@@ -1248,6 +1391,110 @@ export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
   PostVideoMutation,
   PostVideoMutationVariables
 >;
+export const UpdateChannelTextDocument = gql`
+  mutation UpdateChannelText($data: UpdateChannelTextInput!) {
+    updateChannelText(data: $data) {
+      id
+      name
+      description
+    }
+  }
+`;
+export type UpdateChannelTextMutationFn = Apollo.MutationFunction<
+  UpdateChannelTextMutation,
+  UpdateChannelTextMutationVariables
+>;
+
+/**
+ * __useUpdateChannelTextMutation__
+ *
+ * To run a mutation, you first call `useUpdateChannelTextMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChannelTextMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChannelTextMutation, { data, loading, error }] = useUpdateChannelTextMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChannelTextMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateChannelTextMutation,
+    UpdateChannelTextMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateChannelTextMutation,
+    UpdateChannelTextMutationVariables
+  >(UpdateChannelTextDocument, options);
+}
+export type UpdateChannelTextMutationHookResult = ReturnType<
+  typeof useUpdateChannelTextMutation
+>;
+export type UpdateChannelTextMutationResult =
+  Apollo.MutationResult<UpdateChannelTextMutation>;
+export type UpdateChannelTextMutationOptions = Apollo.BaseMutationOptions<
+  UpdateChannelTextMutation,
+  UpdateChannelTextMutationVariables
+>;
+export const UpdateUserNotificationsDocument = gql`
+  mutation updateUserNotifications($data: UpdateUserNotificationsInput!) {
+    updateUserNotifications(data: $data) {
+      notificationsTokens
+      notificationsLive
+      notificationsNFCs
+    }
+  }
+`;
+export type UpdateUserNotificationsMutationFn = Apollo.MutationFunction<
+  UpdateUserNotificationsMutation,
+  UpdateUserNotificationsMutationVariables
+>;
+
+/**
+ * __useUpdateUserNotificationsMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserNotificationsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserNotificationsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserNotificationsMutation, { data, loading, error }] = useUpdateUserNotificationsMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateUserNotificationsMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateUserNotificationsMutation,
+    UpdateUserNotificationsMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateUserNotificationsMutation,
+    UpdateUserNotificationsMutationVariables
+  >(UpdateUserNotificationsDocument, options);
+}
+export type UpdateUserNotificationsMutationHookResult = ReturnType<
+  typeof useUpdateUserNotificationsMutation
+>;
+export type UpdateUserNotificationsMutationResult =
+  Apollo.MutationResult<UpdateUserNotificationsMutation>;
+export type UpdateUserNotificationsMutationOptions = Apollo.BaseMutationOptions<
+  UpdateUserNotificationsMutation,
+  UpdateUserNotificationsMutationVariables
+>;
 export const GetUserDocument = gql`
   query getUser($data: GetUserInput!) {
     getUser(data: $data) {
@@ -1260,6 +1507,9 @@ export const GetUserDocument = gql`
       nfcRank
       FCImageUrl
       isFCUser
+      isLensUser
+      lensHandle
+      lensImageUrl
     }
   }
 `;
@@ -1373,167 +1623,144 @@ export type VideoFeed1808QueryResult = Apollo.QueryResult<
   VideoFeed1808Query,
   VideoFeed1808QueryVariables
 >;
-export const HostEventChannelFeedDocument = gql`
-  query HostEventChannelFeed($data: HostEventFeedInput!) {
-    getHostEventFeed(data: $data) {
-      id
-      hostDate
-      title
+export const ChannelDetailDocument = gql`
+  query ChannelDetail($slug: String!) {
+    getChannelBySlug(slug: $slug) {
+      awsId
+      channelArn
       description
-      score
+      id
+      name
+      slug
+      allowNFCs
       owner {
-        username
         FCImageUrl
+        lensImageUrl
+        username
+        address
       }
-      liked
-      disliked
-      challenge {
-        id
-        hostDate
-        title
-        description
-        score
-        owner {
-          username
-          FCImageUrl
-        }
-        liked
-        disliked
-      }
+      playbackUrl
     }
   }
 `;
 
 /**
- * __useHostEventChannelFeedQuery__
+ * __useChannelDetailQuery__
  *
- * To run a query within a React component, call `useHostEventChannelFeedQuery` and pass it any options that fit your needs.
- * When your component renders, `useHostEventChannelFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useChannelDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChannelDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useHostEventChannelFeedQuery({
+ * const { data, loading, error } = useChannelDetailQuery({
  *   variables: {
- *      data: // value for 'data'
+ *      slug: // value for 'slug'
  *   },
  * });
  */
-export function useHostEventChannelFeedQuery(
+export function useChannelDetailQuery(
   baseOptions: Apollo.QueryHookOptions<
-    HostEventChannelFeedQuery,
-    HostEventChannelFeedQueryVariables
+    ChannelDetailQuery,
+    ChannelDetailQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    HostEventChannelFeedQuery,
-    HostEventChannelFeedQueryVariables
-  >(HostEventChannelFeedDocument, options);
+  return Apollo.useQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
+    ChannelDetailDocument,
+    options
+  );
 }
-export function useHostEventChannelFeedLazyQuery(
+export function useChannelDetailLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    HostEventChannelFeedQuery,
-    HostEventChannelFeedQueryVariables
+    ChannelDetailQuery,
+    ChannelDetailQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    HostEventChannelFeedQuery,
-    HostEventChannelFeedQueryVariables
-  >(HostEventChannelFeedDocument, options);
+  return Apollo.useLazyQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
+    ChannelDetailDocument,
+    options
+  );
 }
-export type HostEventChannelFeedQueryHookResult = ReturnType<
-  typeof useHostEventChannelFeedQuery
+export type ChannelDetailQueryHookResult = ReturnType<
+  typeof useChannelDetailQuery
 >;
-export type HostEventChannelFeedLazyQueryHookResult = ReturnType<
-  typeof useHostEventChannelFeedLazyQuery
+export type ChannelDetailLazyQueryHookResult = ReturnType<
+  typeof useChannelDetailLazyQuery
 >;
-export type HostEventChannelFeedQueryResult = Apollo.QueryResult<
-  HostEventChannelFeedQuery,
-  HostEventChannelFeedQueryVariables
+export type ChannelDetailQueryResult = Apollo.QueryResult<
+  ChannelDetailQuery,
+  ChannelDetailQueryVariables
 >;
-export const HostEventFeedDocument = gql`
-  query HostEventFeed($data: HostEventFeedInput!) {
-    getHostEventFeed(data: $data) {
+export const GetChannelFeedDocument = gql`
+  query GetChannelFeed {
+    getChannelFeed {
       id
-      hostDate
-      title
+      isLive
+      name
       description
-      score
+      slug
       owner {
         username
+        address
         FCImageUrl
+        lensImageUrl
       }
-      liked
-      disliked
-      challenge {
-        id
-        hostDate
-        title
-        description
-        score
-        owner {
-          username
-          FCImageUrl
-        }
-        liked
-        disliked
-      }
+      thumbnailUrl
     }
   }
 `;
 
 /**
- * __useHostEventFeedQuery__
+ * __useGetChannelFeedQuery__
  *
- * To run a query within a React component, call `useHostEventFeedQuery` and pass it any options that fit your needs.
- * When your component renders, `useHostEventFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetChannelFeedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useHostEventFeedQuery({
+ * const { data, loading, error } = useGetChannelFeedQuery({
  *   variables: {
- *      data: // value for 'data'
  *   },
  * });
  */
-export function useHostEventFeedQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    HostEventFeedQuery,
-    HostEventFeedQueryVariables
+export function useGetChannelFeedQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetChannelFeedQuery,
+    GetChannelFeedQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<HostEventFeedQuery, HostEventFeedQueryVariables>(
-    HostEventFeedDocument,
+  return Apollo.useQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
+    GetChannelFeedDocument,
     options
   );
 }
-export function useHostEventFeedLazyQuery(
+export function useGetChannelFeedLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    HostEventFeedQuery,
-    HostEventFeedQueryVariables
+    GetChannelFeedQuery,
+    GetChannelFeedQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<HostEventFeedQuery, HostEventFeedQueryVariables>(
-    HostEventFeedDocument,
+  return Apollo.useLazyQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
+    GetChannelFeedDocument,
     options
   );
 }
-export type HostEventFeedQueryHookResult = ReturnType<
-  typeof useHostEventFeedQuery
+export type GetChannelFeedQueryHookResult = ReturnType<
+  typeof useGetChannelFeedQuery
 >;
-export type HostEventFeedLazyQueryHookResult = ReturnType<
-  typeof useHostEventFeedLazyQuery
+export type GetChannelFeedLazyQueryHookResult = ReturnType<
+  typeof useGetChannelFeedLazyQuery
 >;
-export type HostEventFeedQueryResult = Apollo.QueryResult<
-  HostEventFeedQuery,
-  HostEventFeedQueryVariables
+export type GetChannelFeedQueryResult = Apollo.QueryResult<
+  GetChannelFeedQuery,
+  GetChannelFeedQueryVariables
 >;
 export const NfcFeedDocument = gql`
   query NFCFeed($data: NFCFeedInput!) {
@@ -1596,6 +1823,183 @@ export type NfcFeedLazyQueryHookResult = ReturnType<typeof useNfcFeedLazyQuery>;
 export type NfcFeedQueryResult = Apollo.QueryResult<
   NfcFeedQuery,
   NfcFeedQueryVariables
+>;
+export const GetAllDevicesDocument = gql`
+  query GetAllDevices {
+    getAllDevices {
+      token
+      notificationsLive
+      notificationsNFCs
+      address
+    }
+  }
+`;
+
+/**
+ * __useGetAllDevicesQuery__
+ *
+ * To run a query within a React component, call `useGetAllDevicesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllDevicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllDevicesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllDevicesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllDevicesQuery,
+    GetAllDevicesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAllDevicesQuery, GetAllDevicesQueryVariables>(
+    GetAllDevicesDocument,
+    options
+  );
+}
+export function useGetAllDevicesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllDevicesQuery,
+    GetAllDevicesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAllDevicesQuery, GetAllDevicesQueryVariables>(
+    GetAllDevicesDocument,
+    options
+  );
+}
+export type GetAllDevicesQueryHookResult = ReturnType<
+  typeof useGetAllDevicesQuery
+>;
+export type GetAllDevicesLazyQueryHookResult = ReturnType<
+  typeof useGetAllDevicesLazyQuery
+>;
+export type GetAllDevicesQueryResult = Apollo.QueryResult<
+  GetAllDevicesQuery,
+  GetAllDevicesQueryVariables
+>;
+export const GetAllUsersWithChannelDocument = gql`
+  query GetAllUsersWithChannel {
+    getAllUsersWithChannel {
+      address
+      username
+    }
+  }
+`;
+
+/**
+ * __useGetAllUsersWithChannelQuery__
+ *
+ * To run a query within a React component, call `useGetAllUsersWithChannelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllUsersWithChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllUsersWithChannelQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllUsersWithChannelQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >(GetAllUsersWithChannelDocument, options);
+}
+export function useGetAllUsersWithChannelLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >(GetAllUsersWithChannelDocument, options);
+}
+export type GetAllUsersWithChannelQueryHookResult = ReturnType<
+  typeof useGetAllUsersWithChannelQuery
+>;
+export type GetAllUsersWithChannelLazyQueryHookResult = ReturnType<
+  typeof useGetAllUsersWithChannelLazyQuery
+>;
+export type GetAllUsersWithChannelQueryResult = Apollo.QueryResult<
+  GetAllUsersWithChannelQuery,
+  GetAllUsersWithChannelQueryVariables
+>;
+export const GetAllUsersDocument = gql`
+  query GetAllUsers {
+    getAllUsers {
+      username
+      address
+      notificationsTokens
+      notificationsLive
+      notificationsNFCs
+    }
+  }
+`;
+
+/**
+ * __useGetAllUsersQuery__
+ *
+ * To run a query within a React component, call `useGetAllUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllUsersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllUsersQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllUsersQuery,
+    GetAllUsersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(
+    GetAllUsersDocument,
+    options
+  );
+}
+export function useGetAllUsersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllUsersQuery,
+    GetAllUsersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(
+    GetAllUsersDocument,
+    options
+  );
+}
+export type GetAllUsersQueryHookResult = ReturnType<typeof useGetAllUsersQuery>;
+export type GetAllUsersLazyQueryHookResult = ReturnType<
+  typeof useGetAllUsersLazyQuery
+>;
+export type GetAllUsersQueryResult = Apollo.QueryResult<
+  GetAllUsersQuery,
+  GetAllUsersQueryVariables
 >;
 export const NfcDetailDocument = gql`
   query NFCDetail($id: ID!) {

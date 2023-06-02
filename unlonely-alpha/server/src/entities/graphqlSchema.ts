@@ -13,17 +13,20 @@ import { typeDef as taskTypeDef } from "./Task/taskTypeDef";
 import { typeDef as poapTypeDef } from "./POAP/poapTypeDef";
 import { typeDef as chatTypeDef } from "./Chat/chatTypeDef";
 import { typeDef as nfcTypeDef } from "./NFC/NFCTypeDef";
-import { typeDef as hostEventTypeDef } from "./HostEvent/hostEventTypeDef";
 import { typeDef as streamInteractionTypeDef } from "./StreamInteraction/streamInteractionTypeDef";
+import { typeDef as channelTypeDef } from "./Channel/channelTypeDef";
+import { typeDef as deviceTokenTypeDef } from "./DeviceToken/deviceTokenTypeDef";
+
 import { resolvers as likeResolvers } from "./Like/likeResolvers";
 import { resolvers as userResolvers } from "./User/userResolvers";
 import { resolvers as videoResolvers } from "./Video/videoResolvers";
 import { resolvers as taskResolvers } from "./Task/taskResolvers";
 import { resolvers as poapResolvers } from "./POAP/poapResolvers";
 import { resolvers as chatResolvers } from "./Chat/chatResolvers";
-import { resolvers as hostEventResolvers } from "./HostEvent/hostEventResolvers";
 import { resolvers as nfcResolvers } from "./NFC/NFCResolvers";
 import { resolvers as streamInteractionResolvers } from "./StreamInteraction/streamInteractionResolvers";
+import { resolvers as channelResolvers } from "./Channel/channelResolvers";
+import { resolvers as deviceTokenResolvers } from "./DeviceToken/deviceTokenResolvers";
 
 const Query = gql`
   enum SortOrder {
@@ -59,9 +62,10 @@ export default makeExecutableSchema({
     taskTypeDef,
     poapTypeDef,
     chatTypeDef,
-    hostEventTypeDef,
     nfcTypeDef,
     streamInteractionTypeDef,
+    channelTypeDef,
+    deviceTokenTypeDef,
   ],
   resolvers: merge(
     resolvers,
@@ -71,8 +75,9 @@ export default makeExecutableSchema({
     taskResolvers,
     poapResolvers,
     chatResolvers,
-    hostEventResolvers,
     nfcResolvers,
-    streamInteractionResolvers
+    streamInteractionResolvers,
+    channelResolvers,
+    deviceTokenResolvers
   ),
 });

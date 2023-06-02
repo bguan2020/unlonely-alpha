@@ -13,19 +13,20 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
-  useAccount,
+  useBalance,
   useContractRead,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { ethers } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 
 import {
   BRIAN_TOKEN_ADDRESS,
   ETHEREUM_MAINNET_CHAIN_ID,
   BRIAN_TOKEN_APPROVAL_PRICE,
   BRIAN_TOKEN_STREAM_INTERACTION_PRICE,
+  BRIAN_TOKEN_STREAM_INTERACTION_PRICE_DECIMAL,
 } from "../../constants";
 import BrianToken from "../../utils/newsToken.json";
 import { CustomToast } from "../general/CustomToast";
@@ -50,18 +51,16 @@ export default function TransactionModal({
   const { addToast } = CustomToast();
   const [open, setOpen] = useState<boolean>(false);
   const [step, setStep] = useState<number>(0);
-  const accountData = useAccount();
 
   const {
     data: balanceOfData,
-    error: balanceOfError,
+    isError: balanceOfError,
     isLoading: balanceOfLoading,
-  } = useContractRead({
-    addressOrName: BRIAN_TOKEN_ADDRESS,
-    contractInterface: BrianToken,
-    functionName: "balanceOf",
-    args: [accountData?.address],
-    chainId: ETHEREUM_MAINNET_CHAIN_ID,
+  } = useBalance({
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    address: user?.address,
+    token: BRIAN_TOKEN_ADDRESS,
   });
 
   const {
@@ -70,17 +69,17 @@ export default function TransactionModal({
     isLoading: allowanceLoading,
     refetch: refetchAllowance,
   } = useContractRead({
-    addressOrName: BRIAN_TOKEN_ADDRESS,
-    contractInterface: BrianToken,
+    address: BRIAN_TOKEN_ADDRESS,
+    abi: BrianToken,
     functionName: "allowance",
-    args: [accountData?.address, BRIAN_TOKEN_ADDRESS],
+    args: [user?.address, BRIAN_TOKEN_ADDRESS],
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
   });
 
   // step 1: approval
   const { config: approvalConfig } = usePrepareContractWrite({
-    addressOrName: BRIAN_TOKEN_ADDRESS,
-    contractInterface: BrianToken,
+    address: BRIAN_TOKEN_ADDRESS,
+    abi: BrianToken,
     functionName: "approve",
     args: [BRIAN_TOKEN_ADDRESS, BRIAN_TOKEN_APPROVAL_PRICE],
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
@@ -111,8 +110,8 @@ export default function TransactionModal({
 
   // step 2: transfer
   const { config: transferConfig } = usePrepareContractWrite({
-    addressOrName: BRIAN_TOKEN_ADDRESS,
-    contractInterface: BrianToken,
+    address: BRIAN_TOKEN_ADDRESS,
+    abi: BrianToken,
     functionName: "transfer",
     args: [BRIAN_TOKEN_ADDRESS, BRIAN_TOKEN_STREAM_INTERACTION_PRICE],
     onError: (err) => {
@@ -195,7 +194,13 @@ export default function TransactionModal({
   const handleTransaction = async (price: string) => {
     setError(null as any);
     try {
-      if (allowance && allowance._hex >= parseInt(price)) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (
+        allowance &&
+        Number(ethers.utils.formatEther(allowance as BigNumberish)) >=
+          parseInt(price)
+      ) {
         setStep(1);
         transferWrite && (await transferWrite());
       } else {
@@ -234,6 +239,7 @@ export default function TransactionModal({
         <ModalContent>
           {!isLoading && !transferLoading ? (
             <>
+              <ModalCloseButton />
               <ModalHeader>
                 {step === 1 ? "Please accept transfer transaction" : title}
                 {error && (
@@ -242,15 +248,14 @@ export default function TransactionModal({
                   </Text>
                 )}
               </ModalHeader>
-              <ModalCloseButton />
               <ModalBody>
+                <Text>Price: 5 $BRIAN</Text>
                 <Text>
-                  Current $BRIAN balance:{" "}
+                  Your Current Balance:{" "}
                   {balanceOfData
-                    ? Math.round(
-                        Number(ethers.utils.formatEther(balanceOfData))
-                      )
-                    : "0"}
+                    ? Math.round(Number(balanceOfData.formatted))
+                    : "0"}{" "}
+                  ${balanceOfData && balanceOfData.symbol}
                 </Text>
               </ModalBody>
               <ModalFooter justifyContent="space-between">
@@ -277,8 +282,8 @@ export default function TransactionModal({
                   disabled={
                     step === 1 ||
                     (balanceOfData &&
-                      balanceOfData._hex <
-                        parseInt(BRIAN_TOKEN_STREAM_INTERACTION_PRICE))
+                      Number(ethers.utils.formatEther(balanceOfData.value)) <
+                        parseInt(BRIAN_TOKEN_STREAM_INTERACTION_PRICE_DECIMAL))
                   }
                   colorScheme="green"
                 >

@@ -12,6 +12,7 @@
     "deploy:mumbai": "hardhat run --network mumbai scripts/deploy.js",
     "deploy:matic": "hardhat run --network matic scripts/deploy.js",
     "deploy:mainnet": "hardhat run --network mainnet scripts/deploy.js",
+    "deploy-nfc:mainnet": "hardhat run --network mainnet scripts/deploy_nfc_contract.js",
     "test": "hardhat run scripts/run.js",
     "test:watch": "hardhat watch test"
   },
@@ -35,7 +36,7 @@
     "vercel": "^23.1.2"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.5.0",
+    "@openzeppelin/contracts": "4.8.1",
     "dotenv": "^16.0.0",
     "hardhat-watcher": "^2.1.1"
   }

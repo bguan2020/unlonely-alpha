@@ -19,10 +19,18 @@ model User {
   isFCUser Boolean @default(false)
   FCImageUrl String? @default("")
 
+  isLensUser Boolean @default(false)
+  lensHandle String? @default("")
+  lensImageUrl String? @default("")
+
   bio String @default("")
   powerUserLvl Int @default(0)
   videoSavantLvl Int @default(0)
   nfcRank Int @default(0)
+
+  notificationsTokens String @default("")
+  notificationsLive Boolean @default(false)
+  notificationsNFCs Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -36,6 +44,7 @@ model User {
   host HostEvent[]
   NFCs NFC[]
   streamInteractions StreamInteraction[]
+  channel Channel[]
 }
 
 model Video {
@@ -123,6 +132,8 @@ model Chat {
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
+  channelId Int @default(3)
+  channel   Channel  @relation(fields: [channelId], references: [id])
 }
 
 model Poap {
@@ -183,6 +194,39 @@ model StreamInteraction {
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Channel {
+  id           Int     @id @default(autoincrement())
+  awsId String @unique
+  channelArn String
+
+  name String
+  description String
+  playbackUrl String
+  slug String @unique
+  isLive Boolean @default(false)
+  allowNFCs Boolean @default(true)
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chats Chat[]
+}
+
+model DeviceToken {
+  id           Int     @id @default(autoincrement())
+  token String @unique
+  address String?
+
+  notificationsLive Boolean @default(true)
+  notificationsNFCs Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

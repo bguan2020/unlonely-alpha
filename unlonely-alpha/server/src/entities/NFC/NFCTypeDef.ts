@@ -15,14 +15,27 @@ export const typeDef = gql`
     updatedAt: DateTime!
   }
 
+  type ClipOutput {
+    url: String
+    thumbnail: String
+    errorMessage: String
+  }
+
   input NFCFeedInput {
     limit: Int
     offset: Int
     orderBy: SortBy
   }
 
-  input HandleNFCInput {
+  input PostNFCInput {
     title: String!
+    videoLink: String!
+    videoThumbnail: String!
+    openseaLink: String!
+  }
+
+  input CreateClipInput {
+    channelArn: String!
   }
 
   extend type Query {
@@ -31,7 +44,9 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    handleNFC(data: HandleNFCInput!): Int
+    createClip(data: CreateClipInput): ClipOutput
+    postNFC(data: PostNFCInput!): NFC
     openseaNFCScript: String
+    updateOpenseaLink: NFC
   }
 `;

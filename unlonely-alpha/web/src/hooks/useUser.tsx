@@ -4,7 +4,7 @@ import { useAccount } from "wagmi";
 import { useQuery } from "@apollo/client";
 
 import { User } from "../generated/graphql";
-
+/* eslint-disable */
 const GET_USER_QUERY = gql`
   query getUser($data: GetUserInput!) {
     getUser(data: $data) {
@@ -17,6 +17,9 @@ const GET_USER_QUERY = gql`
       nfcRank
       FCImageUrl
       isFCUser
+      isLensUser
+      lensHandle
+      lensImageUrl
     }
   }
 `;
@@ -42,7 +45,6 @@ export const UserProvider = ({
   const { address } = useAccount();
   // ignore console log build error for now
   //
-  console.log("address from wagmi", address);
   const { data, loading, error } = useQuery(GET_USER_QUERY, {
     variables: { data: { address } },
   });
@@ -50,6 +52,7 @@ export const UserProvider = ({
   useEffect(() => {
     setUser(data?.getUser);
   }, [data]);
+  console.log("useUser", user, loading, error);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

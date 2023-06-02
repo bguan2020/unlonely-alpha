@@ -1,0 +1,66 @@
+{
+  "expo": {
+    "name": "Unlonely",
+    "scheme": "unlonely",
+    "slug": "unlonely",
+    "backgroundColor": "#000000",
+    "userInterfaceStyle": "dark",
+    "orientation": "portrait",
+    "splash": {
+      "backgroundColor": "#000000",
+      "image": "./assets/gradient-splash.png",
+      "resizeMode": "cover"
+    },
+    "version": "1.0.2",
+    "web": {
+      "bundler": "metro"
+    },
+    "ios": {
+      "buildNumber": "28",
+      "bundleIdentifier": "app.unlonely.mobile",
+      "icon": "./assets/icon.png",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ],
+        "NSUserNotificationAlertStyle": "banner",
+        "UIUserInterfaceStyle": "dark"
+      },
+      "userInterfaceStyle": "dark",
+      "supportsTablet": false
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "mode": "development",
+          "androidMode": "development",
+          "iosMode": "development",
+          "sounds": [
+            "./assets/sounds/live.wav",
+            "./assets/sounds/nfc.wav"
+          ]
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "d3a8a2ee-d6c1-4d55-9e6b-b732b0802275"
+      }
+    },
+    "android": {
+      "package": "app.unlonely.mobile",
+      "googleServicesFile": "./google-services.json",
+      "userInterfaceStyle": "dark",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon-top.png",
+        "backgroundImage": "./assets/adaptive-icon-bottom.png"
+      },
+      "versionCode": 2
+    },
+    "owner": "pugson"
+  }
+}

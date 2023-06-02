@@ -17,7 +17,7 @@ export const typeDef = gql`
     liked: Boolean!
     disliked: Boolean!
     liker: User!
-    hostEvent: HostEvent
+    # hostEvent: HostEvent
     nFC: NFC
   }
 

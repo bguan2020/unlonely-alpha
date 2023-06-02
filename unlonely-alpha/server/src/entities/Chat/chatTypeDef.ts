@@ -7,22 +7,32 @@ export const typeDef = gql`
     owner: User!
     createdAt: DateTime!
     updatedAt: DateTime!
+    channel: Channel!
   }
 
   input PostChatInput {
+    channelId: Int!
+    text: String!
+  }
+
+  input PostChatByAwsIdInput {
+    awsId: String!
     text: String!
   }
 
   input GetChatInput {
-    address: String
+    channelId: Int!
+    limit: Int!
   }
 
   extend type Query {
+    getRecentChats(data: GetChatInput!): [Chat]
     firstChatExists: Boolean
     chatBot: [Chat]
   }
 
   extend type Mutation {
     postFirstChat(data: PostChatInput!): Chat
+    postChatByAwsId(data: PostChatByAwsIdInput!): Chat
   }
 `;

@@ -1,45 +1,31 @@
 import { User } from "@prisma/client";
-import axios from "axios";
+import * as AWS from "aws-sdk";
 
 import { Context } from "../../context";
 import opensea from "./opensea.json";
 
-export interface IHandleNFCInput {
+export interface IPostNFCInput {
   title: string;
+  videoLink: string;
+  videoThumbnail: string;
+  openseaLink: string;
 }
 
-export const handleNFC = async (
-  data: IHandleNFCInput,
+export interface ICreateClipInput {
+  channelArn: string;
+}
+
+export const postNFC = async (
+  data: IPostNFCInput,
   ctx: Context,
   user: User
 ) => {
-  const numNFCsAllowed = user.powerUserLvl * 2 + 1;
-  if (numNFCsAllowed === 0) {
-    throw new Error("User is not allowed to post NFCs");
-  }
-
-  //get date of most recent Monday at 12am
-  const date = new Date();
-  const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-  const monday = new Date(date.setDate(diff));
-  monday.setHours(0, 0, 0, 0);
-
-  // check how many NFCs user has posted this week starting at 12am on Monday
-  const numNFCsPostedThisWeek = await ctx.prisma.nFC.count({
-    where: {
-      ownerAddr: user.address,
-      createdAt: {
-        gte: monday,
-      },
-    },
-  });
-
-  if (numNFCsPostedThisWeek >= numNFCsAllowed) return -1;
-
-  await ctx.prisma.nFC.create({
+  return await ctx.prisma.nFC.create({
     data: {
       title: data.title,
+      videoLink: data.videoLink,
+      videoThumbnail: data.videoThumbnail,
+      openseaLink: data.openseaLink,
       owner: {
         connect: {
           address: user.address,
@@ -47,9 +33,73 @@ export const handleNFC = async (
       },
     },
   });
+};
 
-  const remainingNFCs = numNFCsAllowed - numNFCsPostedThisWeek - 1;
-  return remainingNFCs;
+// function that gets all NFCS where nfc.openseaLink starts with "https://opensea.io/assets/0xC7E230CE8d67B2ad116208c69d616dD6bFC96a8d" and updates it to "https://opensea.io/assets/ethereum/0xC7E230CE8d67B2ad116208c69d616dD6bFC96a8d/41"
+export const updateOpenseaLink = async (ctx: Context) => {
+  const nFCs = await ctx.prisma.nFC.findMany({
+    where: {
+      openseaLink: {
+        startsWith:
+          "https://opensea.io/assets/0xC7E230CE8d67B2ad116208c69d616dD6bFC96a8d",
+      },
+    },
+  });
+  for (const nFC of nFCs) {
+    const tokenId = nFC.openseaLink?.split("/")[5];
+    console.log(tokenId, nFC.id, nFC.openseaLink);
+    const newOpenseaLink = `https://opensea.io/assets/ethereum/0xC7E230CE8d67B2ad116208c69d616dD6bFC96a8d/${tokenId}`;
+    await ctx.prisma.nFC.update({
+      where: {
+        id: nFC.id,
+      },
+      data: {
+        openseaLink: newOpenseaLink,
+      },
+    });
+    console.log("updated  ", nFC.id, " to ", newOpenseaLink);
+  }
+};
+
+export const createClip = async (data: ICreateClipInput) => {
+  const recordingConfigArn =
+    "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
+  // first call lambda
+  const lambda = new AWS.Lambda({
+    region: "us-west-2",
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  });
+
+  const params = {
+    FunctionName: "sendClipToMediaConvert",
+    Payload: JSON.stringify({
+      detail: {
+        "channel-arn": data.channelArn,
+        "recording-config-arn": recordingConfigArn,
+      },
+    }),
+  };
+
+  let lambdaResponse: any;
+  try {
+    lambdaResponse = await lambda.invoke(params).promise();
+    console.log(lambdaResponse);
+    const response = JSON.parse(lambdaResponse.Payload);
+    // if response contains "errorMessage" field, then there was an error and return message
+    if (response.errorMessage) {
+      return { errorMessage: response.errorMessage };
+    }
+    const url = response.body.url;
+    const thumbnail = response.body.thumbnail;
+    return { url, thumbnail };
+  } catch (e) {
+    console.log(e);
+    lambdaResponse = "Error invoking lambda";
+  }
+  if (lambdaResponse === "Error invoking lambda") {
+    return "Error invoking lambda";
+  }
 };
 
 export interface IGetNFCFeedInput {
@@ -59,7 +109,7 @@ export interface IGetNFCFeedInput {
 }
 
 export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
-  if ((data.orderBy = "createdAt")) {
+  if (data.orderBy === "createdAt") {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
       skip: data.offset,
@@ -73,7 +123,7 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
         createdAt: "desc",
       },
     });
-  } else if ((data.orderBy = "score")) {
+  } else if (data.orderBy === "score") {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
       skip: data.offset,
@@ -115,22 +165,13 @@ export const openseaNFCScript = async (ctx: Context) => {
     },
   });
 
-  // const { assets } = await fetch(
-  //   "https://api.opensea.io/api/v1/assets?asset_contract_address=0x55d78c09a0a8f0136392eb493a9aecc9c0ded225"
-  // ).then((res) => res.json());
-  // write opensea api request using axios
-  // const response = await axios.get(
-  //   "https://api.opensea.io/api/v1/assets?asset_contract_address=0x55d78c09a0a8f0136392eb493a9aecc9c0ded225&limit=200"
-  // );
-  // console.log(response);
   const assets = opensea.assets;
+  console.log("num of NFCs ", assets.length);
 
   // compare each nfc to each opensea asset where nfc.title === asset.name and update nfc.videoLink and nfc.videoThumbnail
   try {
     for (let i = 0; i < nfc.length; i++) {
-      console.log("hit this");
       for (let j = 0; j < assets.length; j++) {
-        console.log("hit this");
         if (nfc[i].title?.trim() === assets[j].name?.trim()) {
           console.log("match found", nfc[i].title, assets[j].name);
           await ctx.prisma.nFC.update({

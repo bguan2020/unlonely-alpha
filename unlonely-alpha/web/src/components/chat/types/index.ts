@@ -55,6 +55,8 @@ export type Message = {
     chatColor: string;
     address: string;
     isFC: boolean;
+    isLens: boolean;
+    lensHandle?: string;
     powerUserLvl: number | null;
     videoSavantLvl: number | null;
     nfcRank: number | null;

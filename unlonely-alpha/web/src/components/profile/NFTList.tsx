@@ -4,28 +4,54 @@ import NFTModalRoot from "./NFTModal/NFTModalRoot";
 import NFTModalBody from "./NFTModal/NFTModalBody";
 import NFTModalFooter from "./NFTModal/NFTModalFooter";
 import centerEllipses from "../../utils/centerEllipses";
+import { Message } from "../chat/types";
 
 type Props = {
-  address: string;
-  author: string;
+  message: Message;
+  mobile?: boolean;
 };
 
 const NFTList: React.FunctionComponent<Props> = ({
-  address,
-  author,
+  message,
+  mobile,
 }: Props) => {
   return (
     <>
-      <NFTModalRoot
-        TriggerButton={
-          <Text _hover={{ cursor: "pointer" }} fontSize="16px">
-            {author ? author : centerEllipses(address, 10)}:
-          </Text>
-        }
-      >
-        <NFTModalBody address={address} author={author} />
-        <NFTModalFooter />
-      </NFTModalRoot>
+      {mobile ? (
+        <Text
+          _hover={{ cursor: "pointer" }}
+          fontSize="16px"
+          color={message.data.chatColor}
+        >
+          {message.data.username
+            ? message.data.username
+            : centerEllipses(message.data.address, 10)}
+          :
+        </Text>
+      ) : (
+        <NFTModalRoot
+          TriggerButton={
+            <Text
+              _hover={{ cursor: "pointer" }}
+              fontSize="16px"
+              color={message.data.chatColor}
+            >
+              {message.data.username
+                ? message.data.username
+                : centerEllipses(message.data.address, 10)}
+              :
+            </Text>
+          }
+        >
+          <NFTModalBody
+            address={message.data.address}
+            author={message.data.username}
+            isLens={message.data.isLens}
+            lensHandle={message.data.lensHandle}
+          />
+          <NFTModalFooter />
+        </NFTModalRoot>
+      )}
     </>
   );
 };

@@ -40,5 +40,27 @@ export const resolvers = {
     getAllUsers: (_: any, _args: any, ctx: Context) => {
       return userService.getAllUsers(ctx);
     },
+    getAllUsersWithChannel: (_: any, _args: any, ctx: Context) => {
+      return userService.getAllUsersWithChannel(ctx);
+    },
+    getAllUsersWithNotificationsToken: (_: any, _args: any, ctx: Context) => {
+      return userService.migrateAllUsersWithNotificationsToken(ctx);
+    },
+    // updateAllUsers: (_: any, _args: any, ctx: Context) => {
+    //   return userService.updateAllUsers(ctx);
+    // },
+  },
+  Mutation: {
+    updateUserNotifications: (
+      _: any,
+      { data }: { data: userService.IUpdateUserNotificationsInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user) {
+        throw new AuthenticationError("Not authenticated");
+      }
+
+      return userService.updateUserNotifications(data, ctx.user, ctx);
+    },
   },
 };

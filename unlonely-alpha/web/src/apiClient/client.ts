@@ -5,7 +5,7 @@ import {
   InMemoryCache,
   NormalizedCacheObject,
 } from "@apollo/client";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import cookieCutter from "cookie-cutter";
 import pickBy from "lodash/pickBy";
 
@@ -17,16 +17,13 @@ export interface Context {
   signedMessage?: string;
 }
 
-// const useCookies = (key: string) => {
-//   const [cookie, setCookie] = useState<string>("");
-
-//   useEffect(() => {
-//     const value = cookieCutter && cookieCutter.get ? cookieCutter.get(key) : "";
-//     setCookie(value ? value : "");
-//   }, [key]);
-
-//   return cookie;
-// };
+// Generate a random string
+function generateRandomId() {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
+}
 
 const authLink = (cookies: Cookies, isSSR?: boolean) =>
   new ApolloLink((operation, forward) => {
@@ -49,6 +46,7 @@ const authLink = (cookies: Cookies, isSSR?: boolean) =>
      * Hence we have this method of getting the relevant cookie in two ways.
      */
     // const browserAddressCookie = useCookies("unlonelyAddress");
+    /* eslint-disable no-console */
     let address: string | undefined;
     const nextAddressCookie = cookies["unlonelyAddress"];
     console.log(nextAddressCookie, isSSR);

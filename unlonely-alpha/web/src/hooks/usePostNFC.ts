@@ -1,43 +1,53 @@
 import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../apiClient/hooks";
 import {
-  HandleNfcMutation,
-  HandleNfcMutationVariables,
+  PostNfcMutation,
+  PostNfcMutationVariables,
 } from "../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
-const HANDLE_NFC_MUTATION = gql`
-  mutation HandleNFC($data: HandleNFCInput!) {
-    handleNFC(data: $data)
+const POST_NFC_MUTATION = gql`
+  mutation PostNFC($data: PostNFCInput!) {
+    postNFC(data: $data) {
+      id
+    }
   }
 `;
 
 const usePostNFC = ({ onError }: Props) => {
-  const [mutate] = useAuthedMutation<
-    HandleNfcMutation,
-    HandleNfcMutationVariables
-  >(HANDLE_NFC_MUTATION);
+  const [loading, setLoading] = useState(false);
+  const [mutate] = useAuthedMutation<PostNfcMutation, PostNfcMutationVariables>(
+    POST_NFC_MUTATION
+  );
 
   const postNFC = useCallback(
     async (data) => {
+      setLoading(true);
       const mutationResult = await mutate({
-        variables: { data: { title: data.title } },
+        variables: {
+          data: {
+            title: data.title,
+            videoLink: data.videoLink,
+            videoThumbnail: data.videoThumbnail,
+            openseaLink: data.openseaLink,
+          },
+        },
       });
 
-      const res = mutationResult?.data?.handleNFC;
-
+      const res = mutationResult?.data?.postNFC;
+      /* eslint-disable no-console */
       if (res) {
         console.log("success");
       } else {
         onError && onError();
       }
-
+      setLoading(false);
       return {
         res,
       };
@@ -45,7 +55,7 @@ const usePostNFC = ({ onError }: Props) => {
     [mutate, onError]
   );
 
-  return { postNFC };
+  return { postNFC, loading };
 };
 
 export default usePostNFC;
