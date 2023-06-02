@@ -119,7 +119,28 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
 
   return (
     <>
-      <TokenLeaderboard />
+      <TokenLeaderboard
+        ranked
+        headers={[
+          "rank",
+          "token name",
+          "price (ETH)",
+          "# hodlers",
+          "channel owner",
+        ]}
+        dataset={[
+          { data: ["$BRIAN", "0.0005", "50", "br1an.eth"] },
+          { data: ["$H3IDI", "n/a", "n/a", "h3idi.eth"], obscureText: true },
+          { data: ["$SIRSU", "n/a", "n/a", "sirsu.eth"], obscureText: true },
+          { data: ["$GRACE", "n/a", "n/a", "0eggs.eth"], obscureText: true },
+          { data: ["$SAM", "n/a", "n/a", "samchai.eth"], obscureText: true },
+          {
+            data: ["$CASSIE", "n/a", "n/a", "cassieheart.eth"],
+            obscureText: true,
+          },
+          { data: ["$KATY", "n/a", "n/a", "katy.eth"], obscureText: true },
+        ]}
+      />
       <Flex direction="column" width="100%">
         <Text
           fontSize={{ base: "30px", lg: "40px" }}
