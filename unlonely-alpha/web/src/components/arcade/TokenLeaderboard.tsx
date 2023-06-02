@@ -11,7 +11,15 @@ import {
   Box,
 } from "@chakra-ui/react";
 
-const TokenLeaderboard = () => {
+const TokenLeaderboard = ({
+  headers,
+  dataset,
+  ranked,
+}: {
+  headers: string[];
+  dataset: { data: string[]; obscureText?: boolean }[];
+  ranked: boolean;
+}) => {
   return (
     <Flex
       borderWidth="1px"
@@ -51,109 +59,55 @@ const TokenLeaderboard = () => {
         <TableContainer overflowX={"hidden"}>
           <Table variant="unstyled">
             <Thead>
+              {ranked && (
+                <Tr>
+                  <Th
+                    textTransform={"lowercase"}
+                    fontSize={"24px"}
+                    p="10px"
+                    textAlign="center"
+                    borderBottom="1px solid #615C5C"
+                  >
+                    {"rank"}
+                  </Th>
+                </Tr>
+              )}
               <Tr>
-                <Th
-                  textTransform={"lowercase"}
-                  fontSize={"24px"}
-                  p="10px"
-                  textAlign="center"
-                  borderBottom="1px solid #615C5C"
-                >
-                  rank
-                </Th>
-                <Th
-                  textTransform={"lowercase"}
-                  fontSize={"24px"}
-                  p="10px"
-                  textAlign="center"
-                  borderBottom="1px solid #615C5C"
-                >
-                  token
-                </Th>
-                <Th
-                  textTransform={"lowercase"}
-                  fontSize={"24px"}
-                  p="10px"
-                  textAlign="center"
-                  borderBottom="1px solid #615C5C"
-                  isNumeric
-                >
-                  price (ETH)
-                </Th>
-                <Th
-                  textTransform={"lowercase"}
-                  fontSize={"24px"}
-                  p="10px"
-                  textAlign="center"
-                  borderBottom="1px solid #615C5C"
-                  isNumeric
-                >
-                  # hodlers
-                </Th>
-                <Th
-                  textTransform={"lowercase"}
-                  fontSize={"24px"}
-                  p="10px"
-                  textAlign="center"
-                  borderBottom="1px solid #615C5C"
-                  isNumeric
-                >
-                  channel owner
-                </Th>
+                {headers.map((header, i) => (
+                  <Th
+                    textTransform={"lowercase"}
+                    fontSize={"24px"}
+                    p="10px"
+                    textAlign="center"
+                    borderBottom="1px solid #615C5C"
+                    key={i}
+                  >
+                    {header}
+                  </Th>
+                ))}
               </Tr>
             </Thead>
             <Tbody>
-              <Tr>
-                <Td fontSize={"24px"} p="10px" textAlign="center">
-                  1
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center">
-                  cruzy
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center" isNumeric>
-                  25000
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center" isNumeric>
-                  25000
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center" isNumeric>
-                  25000
-                </Td>
-              </Tr>
-              <Tr>
-                <Td fontSize={"24px"} p="10px" textAlign="center">
-                  2
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center">
-                  tiny
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center" isNumeric>
-                  3000
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center" isNumeric>
-                  25000
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center" isNumeric>
-                  25000
-                </Td>
-              </Tr>
-              <Tr>
-                <Td fontSize={"24px"} p="10px" textAlign="center">
-                  3
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center">
-                  me
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center" isNumeric>
-                  10
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center" isNumeric>
-                  25000
-                </Td>
-                <Td fontSize={"24px"} p="10px" textAlign="center" isNumeric>
-                  25000
-                </Td>
-              </Tr>
+              {dataset.map((data, i) => (
+                <Tr key={i}>
+                  {ranked && (
+                    <Td fontSize={"24px"} p="10px" textAlign="center">
+                      {i + 1}
+                    </Td>
+                  )}
+                  {data.data.map((col, j) => (
+                    <Td
+                      fontSize={"24px"}
+                      p="10px"
+                      textAlign="center"
+                      key={j}
+                      opacity={data.obscureText ? 0.5 : 1}
+                    >
+                      {col}
+                    </Td>
+                  ))}
+                </Tr>
+              ))}
             </Tbody>
           </Table>
         </TableContainer>
