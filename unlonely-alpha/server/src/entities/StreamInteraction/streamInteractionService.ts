@@ -2,6 +2,7 @@ import { User } from "@prisma/client";
 import { Context } from "../../context";
 export interface IPostStreamInteractionInput {
   interactionType: string;
+  channelId: number;
 }
 
 export const postStreamInteraction = (
@@ -15,6 +16,11 @@ export const postStreamInteraction = (
       owner: {
         connect: {
           address: user.address,
+        },
+      },
+      channel: {
+        connect: {
+          id: data.channelId,
         },
       },
     },

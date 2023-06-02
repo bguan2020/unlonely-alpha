@@ -5,12 +5,14 @@ export const typeDef = gql`
     id: ID!
     interactionType: String!
     owner: User!
+    channel: Channel!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
 
   input PostStreamInteractionInput {
     interactionType: String!
+    channelId: Int!
   }
 
   extend type Mutation {
