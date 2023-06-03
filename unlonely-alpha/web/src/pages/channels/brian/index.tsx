@@ -108,6 +108,19 @@ const ChannelDetail = ({
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
+  // FAILED ATTEMPT AT OBS INTEGRATION
+  // const obs = new OBSWebSocket();
+
+  // obs
+  //   .connect("ws://12.232.55.194:4455", "unlonelybrian")
+  //   .then(async () => {
+  //     console.log("Connected to OBS");
+  //     await obs.call("SetCurrentProgramScene", { sceneName: "pornhub" });
+  //   })
+  //   .catch((err) => {
+  //     console.error("Failed to connect to OBS:", err);
+  //   });
+
   const handleSendMessage = (message: string) => {
     // console.log("sending message", message);
     if (!socket) return;
