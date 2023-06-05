@@ -106,7 +106,7 @@ const ChannelDetail = ({
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
   const handleSendMessage = (message: string) => {
-    // console.log("sending message", message);
+    console.log("sending message", message);
     if (!socket) return;
     socket.emit("send-message", {
       message,
@@ -122,7 +122,7 @@ const ChannelDetail = ({
       setSocket(newSocket);
 
       newSocket.on("receive-message", (data) => {
-        // console.log("received message", data);
+        console.log("received message", data);
       });
     };
     socketInit();
