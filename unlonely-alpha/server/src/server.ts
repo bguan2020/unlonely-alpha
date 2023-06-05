@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
 import bodyParser from "body-parser";
@@ -11,7 +10,8 @@ import { getContext } from "./context";
 import graphqlSchema from "./entities/graphqlSchema";
 
 const app = express();
-app.use(cors(), bodyParser.json());
+app.use(cors());
+app.use(bodyParser.json());
 
 app.get("/", (_, res) => res.sendStatus(200));
 
@@ -20,25 +20,34 @@ const startServer = async () => {
     schema: graphqlSchema,
     context: getContext,
   });
+
   await apolloServer.start();
+
+  // Apply Apollo middleware to the Express app
   apolloServer.applyMiddleware({ app, path: "/graphql" });
 
-  // create http server and attach the express app
+  // Create an HTTP server using the Express app
   const httpServer = http.createServer(app);
 
-  // Create socket.io server and attach to http server
-  const io = new Server(httpServer);
+  // Create a Socket.IO server and attach it to the HTTP server
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "*", // Replace with the actual origin of your frontend application
+      methods: ["GET", "POST"],
+      allowedHeaders: ["Authorization", "Content-Type"],
+    },
+  });
 
   io.on("connection", (socket) => {
-    console.log('a user connected');
+    console.log("a user connected");
 
-    socket.on('send-message', (message) => {
+    socket.on("send-message", (message) => {
       // You can broadcast the message to all connected clients
-      io.emit('receive-message', message);
+      io.emit("receive-message", message);
     });
 
-    socket.on('disconnect', () => {
-      console.log('user disconnected');
+    socket.on("disconnect", () => {
+      console.log("user disconnected");
     });
   });
 

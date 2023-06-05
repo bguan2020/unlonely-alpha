@@ -127,7 +127,7 @@ const ChannelDetail = ({
   };
 
   const handleSendMessage = (message: string) => {
-    callbackMessage(`send ${message}}`);
+    callbackMessage(`send ${message}`);
     if (!socket) return;
     socket.emit("send-message", {
       message,
@@ -137,13 +137,13 @@ const ChannelDetail = ({
 
   useEffect(() => {
     const socketInit = async () => {
-      await fetch("/api/socket");
-
-      const newSocket = io();
+      const newSocket = io("ws://localhost:4000", {
+        transports: ["websocket"],
+      });
       setSocket(newSocket);
 
       newSocket.on("receive-message", (data) => {
-        callbackMessage(`received ${data}}`);
+        callbackMessage(`received ${data}`);
       });
     };
     socketInit();
