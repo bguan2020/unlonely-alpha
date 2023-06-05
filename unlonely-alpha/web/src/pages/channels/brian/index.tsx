@@ -108,19 +108,6 @@ const ChannelDetail = ({
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
-  // FAILED ATTEMPT AT OBS INTEGRATION
-  // const obs = new OBSWebSocket();
-
-  // obs
-  //   .connect("ws://12.232.55.194:4455", "unlonelybrian")
-  //   .then(async () => {
-  //     console.log("Connected to OBS");
-  //     await obs.call("SetCurrentProgramScene", { sceneName: "pornhub" });
-  //   })
-  //   .catch((err) => {
-  //     console.error("Failed to connect to OBS:", err);
-  //   });
-
   const callbackMessage = (any: any) => {
     /* eslint-disable no-console */
     console.log("callbackMessage", any);
@@ -137,7 +124,7 @@ const ChannelDetail = ({
 
   useEffect(() => {
     const socketInit = async () => {
-      const newSocket = io("ws://localhost:4000", {
+      const newSocket = io("https://unlonely-vqeii.ondigitalocean.app", {
         transports: ["websocket"],
       });
       setSocket(newSocket);
