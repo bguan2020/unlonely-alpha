@@ -105,8 +105,13 @@ const ChannelDetail = ({
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
+  const callbackMessage = (any: any) => {
+    /* eslint-disable no-console */
+    console.log("callbackMessage", any);
+  };
+
   const handleSendMessage = (message: string) => {
-    console.log("sending message", message);
+    callbackMessage(`send ${message}}`);
     if (!socket) return;
     socket.emit("send-message", {
       message,
@@ -122,7 +127,7 @@ const ChannelDetail = ({
       setSocket(newSocket);
 
       newSocket.on("receive-message", (data) => {
-        console.log("received message", data);
+        callbackMessage(`received ${data}}`);
       });
     };
     socketInit();
