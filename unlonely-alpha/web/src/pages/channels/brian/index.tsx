@@ -8,6 +8,8 @@ import {
   GridItem,
   Box,
   useBreakpointValue,
+  Image,
+  Text,
 } from "@chakra-ui/react";
 import { gql, useQuery } from "@apollo/client";
 import { useAccount } from "wagmi";
@@ -29,6 +31,11 @@ import { initializeApollo } from "../../../apiClient/client";
 import { ChannelDetailQuery } from "../../../generated/graphql";
 import ChannelNextHead from "../../../components/layout/ChannelNextHead";
 import io, { Socket } from "socket.io-client";
+import { BRIAN_TOKEN_ADDRESS } from "../../../constants";
+import TipTransactionModal from "../../../components/transactions/TipTransactionModal";
+import ControlTransactionModal from "../../../components/transactions/ControlTransactionModal";
+import ChanceTransactionModal from "../../../components/transactions/ChanceTransactionModal";
+import PvpTransactionModal from "../../../components/transactions/PvpTransactionModal";
 
 export type ChatBot = {
   username: string;
@@ -94,6 +101,21 @@ const ChannelDetail = ({
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
+  const [showTipModal, setShowTipModal] = useState<boolean>(false);
+  const [showChanceModal, setShowChanceModal] = useState<boolean>(false);
+  const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
+  const [showControlModal, setShowControlModal] = useState<boolean>(false);
+
+  const [textOverVideo, setTextOverVideo] = useState<
+    {
+      id: number;
+      content: string;
+    }[]
+  >([]);
+  const [counter, setCounter] = useState<number>(0);
+
+  const x = 2;
+
   const accountData = useAccount();
 
   const ablyChatChannel = `${awsId}-chat-channel`;
@@ -153,12 +175,44 @@ const ChannelDetail = ({
     fetchEns();
   }, [accountData?.address]);
 
+  useEffect(() => {
+    if (textOverVideo.length > 0) {
+      const timer = setTimeout(() => {
+        setTextOverVideo((prev) => prev.slice(x));
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [textOverVideo]);
+
+  const addTextOverVideo = () => {
+    console.log("addTextOverVideo", textOverVideo, counter);
+    setCounter((prev) => prev + 1);
+    setTextOverVideo((prev) => [
+      ...prev,
+      { id: counter, content: `Message ${counter + 1}` },
+    ]);
+  };
+
   const isHidden = useCallback(
     (isChat: boolean) => {
       //checks if width is <= 48 em (base size) if so checks switch tab is disabled
       return width <= 768 && (isChat ? hideChat : !hideChat);
     },
     [width, hideChat]
+  );
+
+  const handleClose = useCallback(() => {
+    setShowTipModal(false);
+    setShowChanceModal(false);
+    setShowPvpModal(false);
+    setShowControlModal(false);
+  }, []);
+
+  const addToChatbot = useCallback(
+    (chatBotMessageToAdd: ChatBot) => {
+      setChatBot((prev) => [...prev, chatBotMessageToAdd]);
+    },
+    [chatBot]
   );
 
   return (
@@ -169,6 +223,56 @@ const ChannelDetail = ({
         image={channel?.owner?.FCImageUrl}
         isCustomHeader={true}
       >
+        <ControlTransactionModal
+          icon={
+            <Image
+              alt="control"
+              src="/svg/control.svg"
+              width="60px"
+              height="60px"
+            />
+          }
+          title="control the stream!"
+          isOpen={showControlModal}
+          handleClose={handleClose}
+          contractAddress={BRIAN_TOKEN_ADDRESS}
+          addToChatbot={addToChatbot}
+        />
+        <TipTransactionModal
+          icon={
+            <Image alt="coin" src="/svg/coin.svg" width="60px" height="60px" />
+          }
+          title="tip on the stream!"
+          isOpen={showTipModal}
+          handleClose={handleClose}
+          contractAddress={BRIAN_TOKEN_ADDRESS}
+          addToChatbot={addToChatbot}
+        />
+        <ChanceTransactionModal
+          icon={
+            <Image alt="dice" src="/svg/dice.svg" width="60px" height="60px" />
+          }
+          title="feeling lucky? roll the die for a surprise!"
+          isOpen={showChanceModal}
+          handleClose={handleClose}
+          contractAddress={BRIAN_TOKEN_ADDRESS}
+          addToChatbot={addToChatbot}
+        />
+        <PvpTransactionModal
+          icon={
+            <Image
+              alt="sword"
+              src="/svg/sword.svg"
+              width="60px"
+              height="60px"
+            />
+          }
+          title="unlock player vs player features in chat"
+          isOpen={showPvpModal}
+          handleClose={handleClose}
+          contractAddress={BRIAN_TOKEN_ADDRESS}
+          addToChatbot={addToChatbot}
+        />
         <Stack direction="column">
           <Stack
             mx={[8, 4]}
@@ -178,7 +282,23 @@ const ChannelDetail = ({
             direction={["column", "row", "row"]}
           >
             <Stack direction="column" width={"100%"}>
-              <Flex width={"100%"}>
+              <Button onClick={addTextOverVideo}>Add Message</Button>
+              <Flex width={"100%"} position="relative">
+                <Box
+                  position="absolute"
+                  zIndex={10}
+                  maxHeight={{
+                    base: "100%",
+                    sm: "700px",
+                    md: "700px",
+                    lg: "700px",
+                  }}
+                  overflow="hidden"
+                >
+                  {textOverVideo.map((text, index) => (
+                    <Text key={index}>{text.content}</Text>
+                  ))}
+                </Box>
                 <NextStreamTimer
                   isTheatreMode={true}
                   playbackUrl={brianPlaybackUrl}
@@ -203,10 +323,12 @@ const ChannelDetail = ({
                         alignItems="flex-start"
                         justifyItems="flex-start"
                       >
-                        <ControlButton />
-                        <DiceButton />
-                        <SwordButton />
-                        <CoinButton />
+                        <ControlButton
+                          callback={() => setShowControlModal(true)}
+                        />
+                        <DiceButton callback={() => setShowChanceModal(true)} />
+                        <SwordButton callback={() => setShowPvpModal(true)} />
+                        <CoinButton callback={() => setShowTipModal(true)} />
                       </Grid>
                       <BuyButton tokenName="$BRIAN" />
                     </Box>

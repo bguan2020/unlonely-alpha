@@ -227,6 +227,13 @@ export default extendTheme({
       },
     },
     Input: {
+      baseStyle: {
+        field: {
+          borderColor: "#244FA7",
+          borderRadius: "10px",
+          background: "#244FA70D",
+        },
+      },
       variants: {
         outline: {
           field: {
@@ -239,6 +246,14 @@ export default extendTheme({
             borderRadius: 20,
             color: "#291E4BA8",
           },
+        },
+      },
+    },
+    Modal: {
+      baseStyle: {
+        dialog: {
+          borderRadius: "md",
+          bg: "#1F2D31",
         },
       },
     },
