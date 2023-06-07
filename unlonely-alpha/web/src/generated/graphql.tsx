@@ -142,6 +142,10 @@ export type GetPoapInput = {
   date: Scalars["String"];
 };
 
+export type GetRecentStreamInteractionsByChannelInput = {
+  channelId: Scalars["ID"];
+};
+
 export type GetUserInput = {
   address?: InputMaybe<Scalars["String"]>;
 };
@@ -190,6 +194,7 @@ export type Mutation = {
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   updateChannelText?: Maybe<Channel>;
   updateDeviceToken?: Maybe<DeviceToken>;
+  updateOpenseaLink?: Maybe<Nfc>;
   updateUserNotifications?: Maybe<User>;
 };
 
@@ -306,7 +311,9 @@ export type PostNfcInput = {
 };
 
 export type PostStreamInteractionInput = {
+  channelId: Scalars["ID"];
   interactionType: Scalars["String"];
+  text?: InputMaybe<Scalars["String"]>;
 };
 
 export type PostTaskInput = {
@@ -346,6 +353,7 @@ export type Query = {
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
   getPoap?: Maybe<Poap>;
   getRecentChats?: Maybe<Array<Maybe<Chat>>>;
+  getRecentStreamInteractionsByChannel?: Maybe<Array<Maybe<StreamInteraction>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getUser?: Maybe<User>;
   getVideo?: Maybe<Video>;
@@ -385,6 +393,10 @@ export type QueryGetRecentChatsArgs = {
   data: GetChatInput;
 };
 
+export type QueryGetRecentStreamInteractionsByChannelArgs = {
+  data?: InputMaybe<GetRecentStreamInteractionsByChannelInput>;
+};
+
 export type QueryGetTaskFeedArgs = {
   data?: InputMaybe<TaskFeedInput>;
 };
@@ -413,10 +425,12 @@ export enum SortOrder {
 
 export type StreamInteraction = {
   __typename?: "StreamInteraction";
+  channel: Channel;
   createdAt: Scalars["DateTime"];
   id: Scalars["ID"];
   interactionType: Scalars["String"];
   owner: User;
+  text?: Maybe<Scalars["String"]>;
   updatedAt: Scalars["DateTime"];
 };
 

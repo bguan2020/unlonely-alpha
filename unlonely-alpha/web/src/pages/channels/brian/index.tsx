@@ -36,6 +36,7 @@ import TipTransactionModal from "../../../components/transactions/TipTransaction
 import ControlTransactionModal from "../../../components/transactions/ControlTransactionModal";
 import ChanceTransactionModal from "../../../components/transactions/ChanceTransactionModal";
 import PvpTransactionModal from "../../../components/transactions/PvpTransactionModal";
+import usePostStreamInteraction from "../../../hooks/usePostStreamInteraction";
 
 export type ChatBot = {
   username: string;
@@ -70,6 +71,26 @@ const CHANNEL_DETAIL_QUERY = gql`
   }
 `;
 
+const GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY = gql`
+  query GetRecentStreamInteractions(
+    $data: GetRecentStreamInteractionsByChannelInput
+  ) {
+    getRecentStreamInteractionsByChannel(data: $data) {
+      id
+      interactionType
+      text
+      createdAt
+      updatedAt
+      channel {
+        id
+      }
+      owner {
+        id
+      }
+    }
+  }
+`;
+
 const brianPlaybackUrl =
   "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8";
 
@@ -81,11 +102,19 @@ const ChannelDetail = ({
   slug,
   channelData,
 }: UrlParams & { channelData: ChannelDetailQuery }) => {
-  const { data, loading, error } = useQuery<ChannelDetailQuery>(
-    CHANNEL_DETAIL_QUERY,
+  const { data } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
+    variables: {
+      slug,
+    },
+  });
+
+  const { data: recentStreamInteractionsData } = useQuery(
+    GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
     {
       variables: {
-        slug,
+        data: {
+          channelId: data?.getChannelBySlug?.id,
+        },
       },
     }
   );
@@ -98,6 +127,7 @@ const ChannelDetail = ({
 
   const [width, height] = useWindowSize();
   const { user } = useUser();
+  const { postStreamInteraction, loading } = usePostStreamInteraction({});
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
@@ -106,15 +136,7 @@ const ChannelDetail = ({
   const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
   const [showControlModal, setShowControlModal] = useState<boolean>(false);
 
-  const [textOverVideo, setTextOverVideo] = useState<
-    {
-      id: number;
-      content: string;
-    }[]
-  >([]);
-  const [counter, setCounter] = useState<number>(0);
-
-  const x = 2;
+  const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
 
   const accountData = useAccount();
 
@@ -178,19 +200,20 @@ const ChannelDetail = ({
   useEffect(() => {
     if (textOverVideo.length > 0) {
       const timer = setTimeout(() => {
-        setTextOverVideo((prev) => prev.slice(x));
+        setTextOverVideo((prev) => prev.slice(2));
       }, 5000);
       return () => clearTimeout(timer);
     }
   }, [textOverVideo]);
 
   const addTextOverVideo = () => {
-    console.log("addTextOverVideo", textOverVideo, counter);
-    setCounter((prev) => prev + 1);
-    setTextOverVideo((prev) => [
-      ...prev,
-      { id: counter, content: `Message ${counter + 1}` },
-    ]);
+    const message = "test";
+    postStreamInteraction({
+      text: message,
+      channelId: channel?.id ? Number(channel?.id) : 3,
+      interactionType: "control-text",
+    });
+    setTextOverVideo((prev) => [...prev, message]);
   };
 
   const isHidden = useCallback(
@@ -214,6 +237,14 @@ const ChannelDetail = ({
     },
     [chatBot]
   );
+
+  useEffect(() => {
+    const interactions =
+      recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
+    if (interactions.length > 0) {
+      setTextOverVideo(interactions);
+    }
+  }, [recentStreamInteractionsData]);
 
   return (
     <>
@@ -295,8 +326,8 @@ const ChannelDetail = ({
                   }}
                   overflow="hidden"
                 >
-                  {textOverVideo.map((text, index) => (
-                    <Text key={index}>{text.content}</Text>
+                  {textOverVideo.map((data: string, index: number) => (
+                    <Text key={index}>{data}</Text>
                   ))}
                 </Box>
                 <NextStreamTimer
