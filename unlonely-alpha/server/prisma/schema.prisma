@@ -191,9 +191,13 @@ model StreamInteraction {
   id           Int     @id @default(autoincrement())
 
   interactionType String
+  text String?
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
+
+  channelId Int
+  channel Channel @relation(fields: [channelId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -218,6 +222,7 @@ model Channel {
   updatedAt DateTime @updatedAt
 
   chats Chat[]
+  streamInteractions StreamInteraction[]
 }
 
 model DeviceToken {
