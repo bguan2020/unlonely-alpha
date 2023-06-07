@@ -12,6 +12,7 @@ contract UnlonelyArcadeContract {
     address public brian;
     mapping(address => IERC20) public creatorTokens;
     mapping(address => uint256) public tokenPrices;
+    mapping(address => address) public tokenOwners;
 
     constructor() {
         brian = msg.sender;
@@ -22,12 +23,13 @@ contract UnlonelyArcadeContract {
         _;
     }
 
-    function addCreatorToken(address _creatorToken, uint256 _initialPrice) external onlyBrian {
+    function addCreatorToken(address _creatorToken, uint256 _initialPrice, address _tokenOwner) external onlyBrian {
         require(_initialPrice > 0, "Token price must be greater than zero.");
         require(creatorTokens[_creatorToken] == IERC20(address(0)), "Token already exists.");
 
         creatorTokens[_creatorToken] = IERC20(_creatorToken);
         tokenPrices[_creatorToken] = _initialPrice;
+        tokenOwners[_creatorToken] = _tokenOwner;
     }
 
     function setTokenPrice(address _creatorToken, uint256 _newPrice) external onlyBrian {
@@ -39,14 +41,18 @@ contract UnlonelyArcadeContract {
 
     function buyCreatorToken(address _creatorToken, uint256 tokenAmount) payable external {
         require(creatorTokens[_creatorToken] != IERC20(address(0)), "Token does not exist.");
+        require(tokenOwners[_creatorToken] != address(0), "Token does not have an owner.");
+        // require tokenAmount > 0
+        require(tokenAmount > 0, "Token amount must be greater than zero.");
 
         // Calculate required ETH amount
         uint256 ethAmount = calculateEthAmount(_creatorToken, tokenAmount);
 
         require(msg.value >= ethAmount, "Insufficient Ether sent.");
 
+        // TODO: send ETH to the owner of the creator token
         // Send ETH to Brian
-        (bool sent,) = payable(brian).call{value: msg.value}("");
+        (bool sent,) = payable(tokenOwners[_creatorToken]).call{value: msg.value}("");
         require(sent, "Failed to transfer Ether");
 
         // Transfer CreatorToken to the buyer
