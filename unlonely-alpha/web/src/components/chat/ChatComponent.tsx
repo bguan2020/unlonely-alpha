@@ -168,13 +168,24 @@ const AblyChatComponent = ({
       if (lastMessage.taskType === "video") {
         messageText = `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`;
       }
+      if (lastMessage.taskType === "tip") {
+        messageText = lastMessage.description ?? "Tip";
+      }
+      if (lastMessage.taskType === "pvp") {
+        messageText = lastMessage.description ?? "Pvp";
+      }
+      if (lastMessage.taskType === "chance") {
+        messageText = lastMessage.description ?? "Chance";
+      }
+      if (lastMessage.taskType === "control") {
+        messageText = lastMessage.description ?? "Control";
+      }
 
       channel.publish({
         name: "chat-message",
         data: {
           messageText: messageText,
           username: "chatbot🤖",
-          chatColor: "black",
           address: "chatbotAddress",
           isFC: false,
           isLens: false,

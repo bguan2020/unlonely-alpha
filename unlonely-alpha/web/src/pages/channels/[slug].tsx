@@ -31,6 +31,7 @@ import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
 import DiceButton from "../../components/arcade/DiceButton";
 import SwordButton from "../../components/arcade/SwordButton";
+import io, { Socket } from "socket.io-client";
 
 export type ChatBot = {
   username: string;
@@ -100,7 +101,42 @@ const ChannelDetail = ({
     setHideChat(!hideChat);
   };
 
+  const [socket, setSocket] = useState<Socket | undefined>(undefined);
+
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
+
+  const callbackMessage = (any: any) => {
+    /* eslint-disable no-console */
+    console.log("callbackMessage", any);
+  };
+
+  const handleSendMessage = (message: string) => {
+    callbackMessage(`send ${message}`);
+    if (!socket) return;
+    socket.emit("send-message", {
+      message,
+      username: accountData?.address,
+    });
+  };
+
+  useEffect(() => {
+    const socketInit = async () => {
+      const newSocket = io("ws://localhost:4000", {
+        transports: ["websocket"],
+      });
+      setSocket(newSocket);
+
+      newSocket.on("receive-message", (data) => {
+        callbackMessage(`received ${data}`);
+      });
+    };
+    socketInit();
+
+    return () => {
+      if (!socket) return;
+      socket.disconnect();
+    };
+  }, []);
 
   const isHidden = useCallback(
     (isChat: boolean) => {
@@ -202,6 +238,9 @@ const ChannelDetail = ({
                 )}
               </Grid>
             </Stack>
+            <Button onClick={() => handleSendMessage("hola")}>
+              Test socket
+            </Button>
             <Button
               height={{
                 //only show on mobile
