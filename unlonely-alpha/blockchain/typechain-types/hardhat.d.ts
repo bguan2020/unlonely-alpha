@@ -21,6 +21,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20__factory>;
     getContractFactory(
+      name: "IERC20Permit",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20Permit__factory>;
+    getContractFactory(
       name: "IERC20Metadata",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20Metadata__factory>;
@@ -73,6 +77,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Voting__factory>;
     getContractFactory(
+      name: "UnlonelyArcadeContract",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.UnlonelyArcadeContract__factory>;
+    getContractFactory(
       name: "UnlonelyNFCsV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UnlonelyNFCsV2__factory>;
@@ -87,6 +95,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20>;
+    getContractAt(
+      name: "IERC20Permit",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20Permit>;
     getContractAt(
       name: "IERC20Metadata",
       address: string,
@@ -152,6 +165,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Voting>;
+    getContractAt(
+      name: "UnlonelyArcadeContract",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.UnlonelyArcadeContract>;
     getContractAt(
       name: "UnlonelyNFCsV2",
       address: string,

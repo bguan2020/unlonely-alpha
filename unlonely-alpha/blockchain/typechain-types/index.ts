@@ -3,6 +3,7 @@
 /* eslint-disable */
 export type { Ownable } from "./Ownable";
 export type { ERC20 } from "./ERC20";
+export type { IERC20Permit } from "./IERC20Permit";
 export type { IERC20Metadata } from "./IERC20Metadata";
 export type { IERC20 } from "./IERC20";
 export type { ERC721 } from "./ERC721";
@@ -16,10 +17,12 @@ export type { BrianToken } from "./BrianToken";
 export type { NewsContract } from "./NewsContract";
 export type { NewsToken } from "./NewsToken";
 export type { Voting } from "./Voting";
+export type { UnlonelyArcadeContract } from "./UnlonelyArcadeContract";
 export type { UnlonelyNFCsV2 } from "./UnlonelyNFCsV2";
 
 export { Ownable__factory } from "./factories/Ownable__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
+export { IERC20Permit__factory } from "./factories/IERC20Permit__factory";
 export { IERC20Metadata__factory } from "./factories/IERC20Metadata__factory";
 export { IERC20__factory } from "./factories/IERC20__factory";
 export { ERC721__factory } from "./factories/ERC721__factory";
@@ -33,4 +36,5 @@ export { BrianToken__factory } from "./factories/BrianToken__factory";
 export { NewsContract__factory } from "./factories/NewsContract__factory";
 export { NewsToken__factory } from "./factories/NewsToken__factory";
 export { Voting__factory } from "./factories/Voting__factory";
+export { UnlonelyArcadeContract__factory } from "./factories/UnlonelyArcadeContract__factory";
 export { UnlonelyNFCsV2__factory } from "./factories/UnlonelyNFCsV2__factory";
