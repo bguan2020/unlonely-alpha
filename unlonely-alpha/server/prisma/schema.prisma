@@ -191,11 +191,13 @@ model StreamInteraction {
   id           Int     @id @default(autoincrement())
 
   interactionType String
+  text String?
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
 
-  channelId Int @default(3)
+
+  channelId Int
   channel Channel @relation(fields: [channelId], references: [id])
 
   createdAt DateTime @default(now())

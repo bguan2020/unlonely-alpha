@@ -8,6 +8,8 @@ import {
   GridItem,
   Box,
   useBreakpointValue,
+  Image,
+  Text,
 } from "@chakra-ui/react";
 import { gql, useQuery } from "@apollo/client";
 import { useAccount } from "wagmi";
@@ -28,6 +30,13 @@ import { GetServerSidePropsContext } from "next";
 import { initializeApollo } from "../../../apiClient/client";
 import { ChannelDetailQuery } from "../../../generated/graphql";
 import ChannelNextHead from "../../../components/layout/ChannelNextHead";
+import io, { Socket } from "socket.io-client";
+import { BRIAN_TOKEN_ADDRESS } from "../../../constants";
+import TipTransactionModal from "../../../components/transactions/TipTransactionModal";
+import ControlTransactionModal from "../../../components/transactions/ControlTransactionModal";
+import ChanceTransactionModal from "../../../components/transactions/ChanceTransactionModal";
+import PvpTransactionModal from "../../../components/transactions/PvpTransactionModal";
+import usePostStreamInteraction from "../../../hooks/usePostStreamInteraction";
 
 export type ChatBot = {
   username: string;
@@ -62,6 +71,26 @@ const CHANNEL_DETAIL_QUERY = gql`
   }
 `;
 
+const GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY = gql`
+  query GetRecentStreamInteractions(
+    $data: GetRecentStreamInteractionsByChannelInput
+  ) {
+    getRecentStreamInteractionsByChannel(data: $data) {
+      id
+      interactionType
+      text
+      createdAt
+      updatedAt
+      channel {
+        id
+      }
+      owner {
+        id
+      }
+    }
+  }
+`;
+
 const brianPlaybackUrl =
   "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8";
 
@@ -73,11 +102,19 @@ const ChannelDetail = ({
   slug,
   channelData,
 }: UrlParams & { channelData: ChannelDetailQuery }) => {
-  const { data, loading, error } = useQuery<ChannelDetailQuery>(
-    CHANNEL_DETAIL_QUERY,
+  const { data } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
+    variables: {
+      slug,
+    },
+  });
+
+  const { data: recentStreamInteractionsData } = useQuery(
+    GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
     {
       variables: {
-        slug,
+        data: {
+          channelId: data?.getChannelBySlug?.id,
+        },
       },
     }
   );
@@ -90,9 +127,17 @@ const ChannelDetail = ({
 
   const [width, height] = useWindowSize();
   const { user } = useUser();
+  const { postStreamInteraction, loading } = usePostStreamInteraction({});
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
+  const [showTipModal, setShowTipModal] = useState<boolean>(false);
+  const [showChanceModal, setShowChanceModal] = useState<boolean>(false);
+  const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
+  const [showControlModal, setShowControlModal] = useState<boolean>(false);
+
+  const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
+
   const accountData = useAccount();
 
   const ablyChatChannel = `${awsId}-chat-channel`;
@@ -103,7 +148,42 @@ const ChannelDetail = ({
     setHideChat(!hideChat);
   };
 
+  const [socket, setSocket] = useState<Socket | undefined>(undefined);
+
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
+
+  const callbackMessage = (any: any) => {
+    /* eslint-disable no-console */
+    console.log("callbackMessage", any);
+  };
+
+  const handleSendMessage = (message: string) => {
+    callbackMessage(`send ${message}`);
+    if (!socket) return;
+    socket.emit("send-message", {
+      message,
+      username: accountData?.address,
+    });
+  };
+
+  useEffect(() => {
+    const socketInit = async () => {
+      const newSocket = io("https://unlonely-vqeii.ondigitalocean.app", {
+        transports: ["websocket"],
+      });
+      setSocket(newSocket);
+
+      newSocket.on("receive-message", (data) => {
+        callbackMessage(`received ${data}`);
+      });
+    };
+    socketInit();
+
+    return () => {
+      if (!socket) return;
+      socket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     const fetchEns = async () => {
@@ -117,6 +197,25 @@ const ChannelDetail = ({
     fetchEns();
   }, [accountData?.address]);
 
+  useEffect(() => {
+    if (textOverVideo.length > 0) {
+      const timer = setTimeout(() => {
+        setTextOverVideo((prev) => prev.slice(2));
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [textOverVideo]);
+
+  const addTextOverVideo = () => {
+    const message = "test";
+    postStreamInteraction({
+      text: message,
+      channelId: channel?.id ? Number(channel?.id) : 3,
+      interactionType: "control-text",
+    });
+    setTextOverVideo((prev) => [...prev, message]);
+  };
+
   const isHidden = useCallback(
     (isChat: boolean) => {
       //checks if width is <= 48 em (base size) if so checks switch tab is disabled
@@ -124,6 +223,28 @@ const ChannelDetail = ({
     },
     [width, hideChat]
   );
+
+  const handleClose = useCallback(() => {
+    setShowTipModal(false);
+    setShowChanceModal(false);
+    setShowPvpModal(false);
+    setShowControlModal(false);
+  }, []);
+
+  const addToChatbot = useCallback(
+    (chatBotMessageToAdd: ChatBot) => {
+      setChatBot((prev) => [...prev, chatBotMessageToAdd]);
+    },
+    [chatBot]
+  );
+
+  useEffect(() => {
+    const interactions =
+      recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
+    if (interactions.length > 0) {
+      setTextOverVideo(interactions);
+    }
+  }, [recentStreamInteractionsData]);
 
   return (
     <>
@@ -133,6 +254,56 @@ const ChannelDetail = ({
         image={channel?.owner?.FCImageUrl}
         isCustomHeader={true}
       >
+        <ControlTransactionModal
+          icon={
+            <Image
+              alt="control"
+              src="/svg/control.svg"
+              width="60px"
+              height="60px"
+            />
+          }
+          title="control the stream!"
+          isOpen={showControlModal}
+          handleClose={handleClose}
+          contractAddress={BRIAN_TOKEN_ADDRESS}
+          addToChatbot={addToChatbot}
+        />
+        <TipTransactionModal
+          icon={
+            <Image alt="coin" src="/svg/coin.svg" width="60px" height="60px" />
+          }
+          title="tip on the stream!"
+          isOpen={showTipModal}
+          handleClose={handleClose}
+          contractAddress={BRIAN_TOKEN_ADDRESS}
+          addToChatbot={addToChatbot}
+        />
+        <ChanceTransactionModal
+          icon={
+            <Image alt="dice" src="/svg/dice.svg" width="60px" height="60px" />
+          }
+          title="feeling lucky? roll the die for a surprise!"
+          isOpen={showChanceModal}
+          handleClose={handleClose}
+          contractAddress={BRIAN_TOKEN_ADDRESS}
+          addToChatbot={addToChatbot}
+        />
+        <PvpTransactionModal
+          icon={
+            <Image
+              alt="sword"
+              src="/svg/sword.svg"
+              width="60px"
+              height="60px"
+            />
+          }
+          title="unlock player vs player features in chat"
+          isOpen={showPvpModal}
+          handleClose={handleClose}
+          contractAddress={BRIAN_TOKEN_ADDRESS}
+          addToChatbot={addToChatbot}
+        />
         <Stack direction="column">
           <Stack
             mx={[8, 4]}
@@ -142,7 +313,23 @@ const ChannelDetail = ({
             direction={["column", "row", "row"]}
           >
             <Stack direction="column" width={"100%"}>
-              <Flex width={"100%"}>
+              <Button onClick={addTextOverVideo}>Add Message</Button>
+              <Flex width={"100%"} position="relative">
+                <Box
+                  position="absolute"
+                  zIndex={10}
+                  maxHeight={{
+                    base: "100%",
+                    sm: "700px",
+                    md: "700px",
+                    lg: "700px",
+                  }}
+                  overflow="hidden"
+                >
+                  {textOverVideo.map((data: string, index: number) => (
+                    <Text key={index}>{data}</Text>
+                  ))}
+                </Box>
                 <NextStreamTimer
                   isTheatreMode={true}
                   playbackUrl={brianPlaybackUrl}
@@ -167,10 +354,12 @@ const ChannelDetail = ({
                         alignItems="flex-start"
                         justifyItems="flex-start"
                       >
-                        <ControlButton />
-                        <DiceButton />
-                        <SwordButton />
-                        <CoinButton />
+                        <ControlButton
+                          callback={() => setShowControlModal(true)}
+                        />
+                        <DiceButton callback={() => setShowChanceModal(true)} />
+                        <SwordButton callback={() => setShowPvpModal(true)} />
+                        <CoinButton callback={() => setShowTipModal(true)} />
                       </Grid>
                       <BuyButton tokenName="$BRIAN" />
                     </Box>
@@ -178,6 +367,9 @@ const ChannelDetail = ({
                 )}
               </Grid>
             </Stack>
+            <Button onClick={() => handleSendMessage("hola")}>
+              Test socket
+            </Button>
             <Button
               height={{
                 //only show on mobile
