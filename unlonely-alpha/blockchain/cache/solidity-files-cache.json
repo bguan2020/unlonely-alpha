@@ -837,10 +837,10 @@
         "IERC20Permit"
       ]
     },
-    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/contracts/UnlonelyArcadeContract.sol": {
-      "lastModificationDate": 1683761173002,
-      "contentHash": "e3d52df996c94f0b3093a1a4aace71a7",
-      "sourceName": "contracts/UnlonelyArcadeContract.sol",
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/contracts/UnlonelyArcadeContractV2.sol": {
+      "lastModificationDate": 1686251525257,
+      "contentHash": "f7e2d27daba28aaf316d0f0b5e2cfc7f",
+      "sourceName": "contracts/UnlonelyArcadeContractV2.sol",
       "solcConfig": {
         "version": "0.8.4",
         "settings": {

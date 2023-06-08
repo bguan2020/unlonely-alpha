@@ -10,20 +10,31 @@ contract UnlonelyArcadeContract {
     using SafeERC20 for IERC20;
 
     address public brian;
+    address public danny;
+    address public grace;
+
     mapping(address => IERC20) public creatorTokens;
     mapping(address => uint256) public tokenPrices;
     mapping(address => address) public tokenOwners;
 
     constructor() {
         brian = msg.sender;
+        danny = 0x34Bb9e91dC8AC1E13fb42A0e23f7236999e063D4;
+        grace = 0x281D479A15b92A87754316Ec43D2817cCC2a22f1;
     }
 
-    modifier onlyBrian() {
-        require(msg.sender == brian, "Only Brian can call this function.");
+    modifier onlyAdmin() {
+        require(msg.sender == brian || msg.sender == danny || msg.sender == grace, "Only an admin can call this function.");
         _;
     }
 
-    function addCreatorToken(address _creatorToken, uint256 _initialPrice, address _tokenOwner) external onlyBrian {
+    function calculateEthAmount(address _creatorToken, uint256 tokenAmount) public view returns (uint256) {
+        require(creatorTokens[_creatorToken] != IERC20(address(0)), "Token does not exist.");
+
+        return tokenAmount / tokenPrices[_creatorToken];
+    }
+
+    function addCreatorToken(address _creatorToken, uint256 _initialPrice, address _tokenOwner) external onlyAdmin {
         require(_initialPrice > 0, "Token price must be greater than zero.");
         require(creatorTokens[_creatorToken] == IERC20(address(0)), "Token already exists.");
 
@@ -32,7 +43,7 @@ contract UnlonelyArcadeContract {
         tokenOwners[_creatorToken] = _tokenOwner;
     }
 
-    function setTokenPrice(address _creatorToken, uint256 _newPrice) external onlyBrian {
+    function setTokenPrice(address _creatorToken, uint256 _newPrice) external onlyAdmin {
         require(_newPrice > 0, "Token price must be greater than zero.");
         require(creatorTokens[_creatorToken] != IERC20(address(0)), "Token does not exist.");
 
@@ -69,11 +80,5 @@ contract UnlonelyArcadeContract {
         creatorTokens[_creatorToken].safeTransferFrom(msg.sender, brian, _featurePrice);
 
         // Implement the actual feature usage logic here
-    }
-
-    function calculateEthAmount(address _creatorToken, uint256 tokenAmount) public view returns (uint256) {
-        require(creatorTokens[_creatorToken] != IERC20(address(0)), "Token does not exist.");
-
-        return tokenAmount / tokenPrices[_creatorToken];
     }
 }
