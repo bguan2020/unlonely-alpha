@@ -45,6 +45,7 @@ model User {
   NFCs NFC[]
   streamInteractions StreamInteraction[]
   channel Channel[]
+  tokens UserCreatorToken[]
 }
 
 model Video {
@@ -218,6 +219,7 @@ model Channel {
   updatedAt DateTime @updatedAt
 
   chats Chat[]
+  token CreatorToken?
 }
 
 model DeviceToken {
@@ -230,4 +232,26 @@ model DeviceToken {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CreatorToken {
+  id        Int      @id @default(autoincrement())
+  address   String @unique
+  symbol    String   @unique
+  name      String   
+
+  channel   Channel  @relation(fields: [channelId], references: [id])
+  channelId Int      @unique
+
+  users     UserCreatorToken[]
+}
+
+model UserCreatorToken {
+  userId  String
+  tokenId Int
+  quantity Int     @default(0)
+  user    User     @relation(fields: [userId], references: [address])
+  token   CreatorToken    @relation(fields: [tokenId], references: [id])
+  
+  @@id([userId, tokenId])
 }
