@@ -26,6 +26,8 @@ export const typeDef = gql`
   }
 
   extend type Query {
-    getRecentStreamInteractionsByChannel(data: GetRecentStreamInteractionsByChannelInput): [StreamInteraction]
+    getRecentStreamInteractionsByChannel(
+      data: GetRecentStreamInteractionsByChannelInput
+    ): [StreamInteraction]
   }
 `;

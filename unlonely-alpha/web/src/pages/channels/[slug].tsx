@@ -11,12 +11,11 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { GetServerSidePropsContext } from "next";
-import { useAccount } from "wagmi";
+import { useAccount, useEnsName } from "wagmi";
 import { gql, useQuery } from "@apollo/client";
 import { useMemo } from "react";
 
 import AppLayout from "../../components/layout/AppLayout";
-import { getEnsName } from "../../utils/ens";
 import centerEllipses from "../../utils/centerEllipses";
 import AblyChatComponent from "../../components/chat/ChatComponent";
 import NextStreamTimer from "../../components/stream/NextStreamTimer";
@@ -146,17 +145,20 @@ const ChannelDetail = ({
     [width, hideChat]
   );
 
+  const { data: ensData } = useEnsName({
+    address: accountData?.address,
+  });
+
   useEffect(() => {
     const fetchEns = async () => {
       if (accountData?.address) {
-        const ens = await getEnsName(accountData.address);
-        const username = ens ? ens : centerEllipses(accountData.address, 9);
+        const username = ensData ?? centerEllipses(accountData.address, 9);
         setUsername(username);
       }
     };
 
     fetchEns();
-  }, [accountData?.address]);
+  }, [accountData?.address, ensData]);
 
   if (!channel) {
     return null;

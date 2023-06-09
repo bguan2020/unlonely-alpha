@@ -24,7 +24,7 @@ contract UnlonelyArcadeContract {
     }
 
     modifier onlyAdmin() {
-        require(msg.sender == brian || msg.sender == danny || msg.sender == grace, "Only an admin can call this function.");
+        require(msg.sender == brian ||  msg.sender == danny ||  msg.sender == grace, "Only an admin can call this function.");
         _;
     }
 
@@ -37,6 +37,13 @@ contract UnlonelyArcadeContract {
     function addCreatorToken(address _creatorToken, uint256 _initialPrice, address _tokenOwner) external onlyAdmin {
         require(_initialPrice > 0, "Token price must be greater than zero.");
         require(creatorTokens[_creatorToken] == IERC20(address(0)), "Token already exists.");
+        
+        IERC20 token = IERC20(_creatorToken);
+
+        // Check if the contract is an ERC20 token
+        // This will fail if the contract doesn't implement these functions
+        token.totalSupply();
+        token.balanceOf(_tokenOwner);
 
         creatorTokens[_creatorToken] = IERC20(_creatorToken);
         tokenPrices[_creatorToken] = _initialPrice;
@@ -53,7 +60,6 @@ contract UnlonelyArcadeContract {
     function buyCreatorToken(address _creatorToken, uint256 tokenAmount) payable external {
         require(creatorTokens[_creatorToken] != IERC20(address(0)), "Token does not exist.");
         require(tokenOwners[_creatorToken] != address(0), "Token does not have an owner.");
-        // require tokenAmount > 0
         require(tokenAmount > 0, "Token amount must be greater than zero.");
 
         // Calculate required ETH amount
@@ -61,13 +67,13 @@ contract UnlonelyArcadeContract {
 
         require(msg.value >= ethAmount, "Insufficient Ether sent.");
 
-        // TODO: send ETH to the owner of the creator token
-        // Send ETH to Brian
         (bool sent,) = payable(tokenOwners[_creatorToken]).call{value: msg.value}("");
         require(sent, "Failed to transfer Ether");
 
         // Transfer CreatorToken to the buyer
-        creatorTokens[_creatorToken].safeTransferFrom(brian, msg.sender, tokenAmount);
+        IERC20 token = creatorTokens[_creatorToken];
+        address tokenOwner = tokenOwners[_creatorToken];
+        token.safeTransferFrom(tokenOwner, msg.sender, tokenAmount);
     }
 
     function useFeature(address _creatorToken, uint256 _featurePrice) external {

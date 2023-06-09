@@ -15,3 +15,5 @@ export enum InteractionType {
   TIP = "tip-interaction",
   BUY = "buy-tokens-interaction",
 }
+
+export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";

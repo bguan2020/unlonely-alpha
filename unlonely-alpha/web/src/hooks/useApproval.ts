@@ -1,4 +1,3 @@
-import { parseUnits } from "ethers/lib/utils.js";
 import { useMemo } from "react";
 import {
   useContractRead,
@@ -12,9 +11,9 @@ export const useApproval = (
   tokenAddress: `0x${string}`,
   abi: any,
   spender: string,
-  amount: string,
+  amount: bigint,
   chainId: number,
-  callbacks: {
+  callbacks?: {
     onReadSuccess?: (data: any) => void;
     onReadError?: (error: any) => void;
     onPrepareWriteSuccess?: (data: any) => void;
@@ -38,8 +37,8 @@ export const useApproval = (
     functionName: "allowance",
     args: [user?.address ?? "", spender],
     chainId,
-    onSuccess: (data) => callbacks.onReadSuccess?.(data),
-    onError: (error) => callbacks.onReadError?.(error),
+    onSuccess: (data) => callbacks?.onReadSuccess?.(data),
+    onError: (error) => callbacks?.onReadError?.(error),
   });
 
   const { config } = usePrepareContractWrite({
@@ -48,8 +47,8 @@ export const useApproval = (
     functionName: "approve",
     args: [spender, amount],
     chainId,
-    onSuccess: (data) => callbacks.onPrepareWriteSuccess?.(data),
-    onError: (error) => callbacks.onPrepareWriteError?.(error),
+    onSuccess: (data) => callbacks?.onPrepareWriteSuccess?.(data),
+    onError: (error) => callbacks?.onPrepareWriteError?.(error),
   });
 
   const {
@@ -58,15 +57,12 @@ export const useApproval = (
     writeAsync: writeApproval,
   } = useContractWrite({
     ...config,
-    onSuccess: (data) => callbacks.onWriteSuccess?.(data),
-    onError: (error) => callbacks.onWriteError?.(error),
+    onSuccess: (data) => callbacks?.onWriteSuccess?.(data),
+    onError: (error) => callbacks?.onWriteError?.(error),
   });
 
   const requiresApproval = useMemo(() => {
-    return allowance &&
-      parseUnits(allowance as unknown as string, 18).gt(parseUnits(amount, 18))
-      ? true
-      : false;
+    return (allowance as unknown as bigint) < amount;
   }, [allowance, amount]);
 
   const {
@@ -76,10 +72,10 @@ export const useApproval = (
   } = useWaitForTransaction({
     hash: approvalData?.hash,
     onSuccess: async (data) => {
-      callbacks.onTxSuccess?.(data);
+      callbacks?.onTxSuccess?.(data);
       await refetchAllowance();
     },
-    onError: (error) => callbacks.onTxError?.(error),
+    onError: (error) => callbacks?.onTxError?.(error),
   });
 
   return {

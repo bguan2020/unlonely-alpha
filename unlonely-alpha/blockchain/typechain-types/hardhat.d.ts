@@ -65,18 +65,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BrianToken__factory>;
     getContractFactory(
-      name: "NewsContract",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.NewsContract__factory>;
-    getContractFactory(
-      name: "NewsToken",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.NewsToken__factory>;
-    getContractFactory(
-      name: "Voting",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Voting__factory>;
-    getContractFactory(
       name: "UnlonelyArcadeContract",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UnlonelyArcadeContract__factory>;
@@ -150,21 +138,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.BrianToken>;
-    getContractAt(
-      name: "NewsContract",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.NewsContract>;
-    getContractAt(
-      name: "NewsToken",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.NewsToken>;
-    getContractAt(
-      name: "Voting",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Voting>;
     getContractAt(
       name: "UnlonelyArcadeContract",
       address: string,

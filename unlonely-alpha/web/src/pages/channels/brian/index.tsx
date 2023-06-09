@@ -12,9 +12,8 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { gql, useQuery } from "@apollo/client";
-import { useAccount } from "wagmi";
+import { useAccount, useEnsName } from "wagmi";
 import AppLayout from "../../../components/layout/AppLayout";
-import { getEnsName } from "../../../utils/ens";
 import centerEllipses from "../../../utils/centerEllipses";
 import AblyChatComponent from "../../../components/chat/ChatComponent";
 import NextStreamTimer from "../../../components/stream/NextStreamTimer";
@@ -185,17 +184,20 @@ const ChannelDetail = ({
     };
   }, []);
 
+  const { data: ensData } = useEnsName({
+    address: accountData?.address,
+  });
+
   useEffect(() => {
     const fetchEns = async () => {
       if (accountData?.address) {
-        const ens = await getEnsName(accountData.address);
-        const username = ens ? ens : centerEllipses(accountData.address, 9);
+        const username = ensData ?? centerEllipses(accountData.address, 9);
         setUsername(username);
       }
     };
 
     fetchEns();
-  }, [accountData?.address]);
+  }, [accountData?.address, ensData]);
 
   useEffect(() => {
     if (textOverVideo.length > 0) {

@@ -23,8 +23,8 @@ export const postStreamInteraction = (
       channel: {
         connect: {
           id: Number(data.channelId),
-        }
-      }
+        },
+      },
     },
   });
 };

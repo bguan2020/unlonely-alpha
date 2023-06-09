@@ -7,14 +7,18 @@ export const resolvers = {
   Query: {
     getRecentStreamInteractionsByChannel: (
       _: any,
-      { data }: { data: streamInteractionService.IGetRecentStreamInteractionsByChannelInput },
+      {
+        data,
+      }: {
+        data: streamInteractionService.IGetRecentStreamInteractionsByChannelInput;
+      },
       ctx: Context
     ) => {
       return streamInteractionService.getRecentStreamInteractionsByChannel(
         data,
         ctx
       );
-    }
+    },
   },
   Mutation: {
     postStreamInteraction: (

@@ -58,7 +58,7 @@ const ClipDetail = () => {
     address: UNLONELYNFCV2_ADDRESS,
     abi: UnlonelyNFCsV2.abi,
     functionName: "mint",
-    mode: "recklesslyUnprepared",
+    // mode: "recklesslyUnprepared",
   });
 
   const {
@@ -160,7 +160,7 @@ const ClipDetail = () => {
     }
 
     const tx = await write({
-      recklesslySetUnpreparedArgs: [user?.address, uri],
+      // recklesslySetUnpreparedArgs: [user?.address, uri],
     });
   };
 

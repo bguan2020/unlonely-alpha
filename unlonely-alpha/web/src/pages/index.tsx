@@ -10,9 +10,8 @@ import HeroBanner from "../components/layout/HeroBanner";
 import AblyChatComponent from "../components/chat/ChatComponent";
 import { useUser } from "../hooks/useUser";
 import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useEnsName } from "wagmi";
 import centerEllipses from "../utils/centerEllipses";
-import { getEnsName } from "../utils/ens";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { Channel } from "../generated/graphql";
 
@@ -62,18 +61,20 @@ const FixedComponent = () => {
   const accountData = useAccount();
 
   const { user } = useUser();
+  const { data: ensData } = useEnsName({
+    address: accountData?.address,
+  });
 
   useEffect(() => {
     const fetchEns = async () => {
       if (accountData?.address) {
-        const ens = await getEnsName(accountData.address);
-        const username = ens ? ens : centerEllipses(accountData.address, 9);
+        const username = ensData ?? centerEllipses(accountData.address, 9);
         setUsername(username);
       }
     };
 
     fetchEns();
-  }, [accountData?.address]);
+  }, [accountData?.address, ensData]);
 
   return (
     <Flex

@@ -14,9 +14,6 @@ export type { IERC721Receiver } from "./IERC721Receiver";
 export type { ERC165 } from "./ERC165";
 export type { IERC165 } from "./IERC165";
 export type { BrianToken } from "./BrianToken";
-export type { NewsContract } from "./NewsContract";
-export type { NewsToken } from "./NewsToken";
-export type { Voting } from "./Voting";
 export type { UnlonelyArcadeContract } from "./UnlonelyArcadeContract";
 export type { UnlonelyNFCsV2 } from "./UnlonelyNFCsV2";
 
@@ -33,8 +30,5 @@ export { IERC721Receiver__factory } from "./factories/IERC721Receiver__factory";
 export { ERC165__factory } from "./factories/ERC165__factory";
 export { IERC165__factory } from "./factories/IERC165__factory";
 export { BrianToken__factory } from "./factories/BrianToken__factory";
-export { NewsContract__factory } from "./factories/NewsContract__factory";
-export { NewsToken__factory } from "./factories/NewsToken__factory";
-export { Voting__factory } from "./factories/Voting__factory";
 export { UnlonelyArcadeContract__factory } from "./factories/UnlonelyArcadeContract__factory";
 export { UnlonelyNFCsV2__factory } from "./factories/UnlonelyNFCsV2__factory";
