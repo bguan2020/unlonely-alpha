@@ -429,7 +429,7 @@ const AdminContent = () => {
             _hover={{}}
             _focus={{}}
             _active={{}}
-            onClick={setTokenPrice}
+            onClick={writeApproval}
             isDisabled={!isAddress(creatorTokenAddress) || !writeApproval}
           >
             Send
