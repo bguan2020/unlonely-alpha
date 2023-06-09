@@ -10,6 +10,7 @@ import { useUser } from "./useUser";
 export const useApproval = (
   tokenAddress: `0x${string}`,
   abi: any,
+  owner: string,
   spender: string,
   amount: bigint,
   chainId: number,
@@ -35,7 +36,7 @@ export const useApproval = (
     address: tokenAddress,
     abi,
     functionName: "allowance",
-    args: [user?.address ?? "", spender],
+    args: [owner, spender],
     chainId,
     onSuccess: (data) => callbacks?.onReadSuccess?.(data),
     onError: (error) => callbacks?.onReadError?.(error),
@@ -71,10 +72,7 @@ export const useApproval = (
     error: approvalRejectError,
   } = useWaitForTransaction({
     hash: approvalData?.hash,
-    onSuccess: async (data) => {
-      callbacks?.onTxSuccess?.(data);
-      await refetchAllowance();
-    },
+    onSuccess: async (data) => callbacks?.onTxSuccess?.(data),
     onError: (error) => callbacks?.onTxError?.(error),
   });
 
@@ -87,5 +85,6 @@ export const useApproval = (
     readAllowanceError: allowanceError,
     writeApproval,
     requiresApproval,
+    refetchAllowance,
   };
 };

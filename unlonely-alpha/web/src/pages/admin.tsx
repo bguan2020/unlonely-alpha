@@ -1,5 +1,13 @@
-import { Button, Flex, Input, Spinner, Text, VStack } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import {
+  Button,
+  Flex,
+  Input,
+  Spinner,
+  Text,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
+import { useEffect, useMemo, useState } from "react";
 import { formatUnits, isAddress, isAddressEqual, parseUnits } from "viem";
 import { erc20ABI, useAccount, useNetwork } from "wagmi";
 import AppLayout from "../components/layout/AppLayout";
@@ -54,6 +62,7 @@ export default function AdminPage() {
 }
 
 const AdminContent = () => {
+  const toast = useToast();
   const network = useNetwork();
   const localNetwork = useMemo(() => {
     return (
@@ -78,9 +87,12 @@ const AdminContent = () => {
     [buyTokenAmount]
   );
 
-  const { refetch, creatorToken, tokenPrice, tokenOwner } = useReadPublic(
-    creatorTokenAddress as `0x${string}`
-  );
+  const {
+    refetch: refetchPublic,
+    creatorToken,
+    tokenPrice,
+    tokenOwner,
+  } = useReadPublic(creatorTokenAddress as `0x${string}`);
 
   const { refetch: refetchEthAmount, amountIn } = useCalculateEthAmount(
     creatorTokenAddress as `0x${string}`,
@@ -91,33 +103,78 @@ const AdminContent = () => {
     requiresApproval,
     writeApproval,
     isTxLoading: isApprovalLoading,
+    refetchAllowance,
   } = useApproval(
     creatorTokenAddress as `0x${string}`,
     erc20ABI,
+    tokenOwner as `0x${string}`,
     contract?.address as `0x${string}`,
-    parseUnits(formatIncompleteNumber(buyTokenAmount) as `${number}`, 18),
-    contract?.chainId as number
+    buyTokenAmount_bigint,
+    contract?.chainId as number,
+    {
+      onTxSuccess: (data) => {
+        toast({
+          title: "approve",
+          description: "success",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchPublic();
+      },
+    }
   );
 
   const {
     buyCreatorToken,
     buyCreatorTokenData,
-    buyCreatorTxData,
-    buyCreatorTxLoading,
-  } = useBuyCreatorToken({
-    creatorTokenAddress: creatorTokenAddress as `0x${string}`,
-    amountIn,
-    amountOut: buyTokenAmount_bigint,
-  });
+    buyCreatorTokenTxData,
+    buyCreatorTokenTxLoading,
+  } = useBuyCreatorToken(
+    {
+      creatorTokenAddress: creatorTokenAddress as `0x${string}`,
+      amountIn,
+      amountOut: buyTokenAmount_bigint,
+    },
+    {
+      onTxSuccess: (data) => {
+        toast({
+          title: "buyCreatorToken",
+          description: "success",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchPublic();
+      },
+    }
+  );
 
   const { useFeature, useFeatureData, useFeatureTxData, useFeatureTxLoading } =
-    useUseFeature({
-      creatorTokenAddress: creatorTokenAddress as `0x${string}`,
-      featurePrice: parseUnits(
-        formatIncompleteNumber(featurePrice) as `${number}`,
-        18
-      ),
-    });
+    useUseFeature(
+      {
+        creatorTokenAddress: creatorTokenAddress as `0x${string}`,
+        featurePrice: parseUnits(
+          formatIncompleteNumber(featurePrice) as `${number}`,
+          18
+        ),
+      },
+      {
+        onTxSuccess: (data) => {
+          toast({
+            title: "useFeature",
+            description: "success",
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+          refetchPublic();
+        },
+      }
+    );
 
   const {
     addCreatorToken,
@@ -134,7 +191,17 @@ const AdminContent = () => {
       tokenOwner: tokenOwnerAddress as `0x${string}`,
     },
     {
-      onTxSuccess: refetch,
+      onTxSuccess: (data) => {
+        toast({
+          title: "addCreatorToken",
+          description: "success",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchPublic();
+      },
     }
   );
 
@@ -152,15 +219,19 @@ const AdminContent = () => {
       ),
     },
     {
-      onTxSuccess: refetch,
+      onTxSuccess: (data) => {
+        toast({
+          title: "setTokenPrice",
+          description: "success",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchPublic();
+      },
     }
   );
-
-  const handleInputChange = (event: any, callback: (str: string) => void) => {
-    const input = event.target.value;
-    const filtered = filteredInput(input);
-    callback(filtered);
-  };
 
   const acceptableNewPrice = useMemo(() => {
     const newPrice = parseUnits(
@@ -171,9 +242,22 @@ const AdminContent = () => {
     return newPrice !== tokenPrice && newPrice >= BigInt(0);
   }, [tokenPrice, tokenPriceState]);
 
+  const handleInputChange = (event: any, callback: (str: string) => void) => {
+    const input = event.target.value;
+    const filtered = filteredInput(input);
+    callback(filtered);
+  };
+
+  useEffect(() => {
+    if (creatorTokenAddress) refetchAllowance();
+  }, [buyCreatorTokenTxLoading, isApprovalLoading]);
+
   return (
     <Flex direction="column" p="10px" gap="20px">
       <Flex>{localNetwork.config.name}</Flex>
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
+        addCreatorToken
+      </Text>
       <Flex gap={"10px"} alignItems="flex-end">
         <VStack>
           <Text>new creator token address</Text>
@@ -218,6 +302,9 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
+        useFeature
+      </Text>
       <Flex gap={"10px"} alignItems="flex-end">
         <VStack>
           <Text>existing creator token address</Text>
@@ -262,6 +349,9 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
+        buyCreatorToken
+      </Text>
       <Flex gap={"10px"} alignItems="flex-end">
         <VStack>
           <Text>existing creator token address</Text>
@@ -304,7 +394,7 @@ const AdminContent = () => {
             }
           />
         </VStack>
-        {buyCreatorTxLoading ? (
+        {buyCreatorTokenTxLoading ? (
           <Spinner />
         ) : (
           <Button
@@ -319,6 +409,9 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
+        setTokenPrice
+      </Text>
       <Flex gap={"10px"} alignItems="flex-end">
         <VStack>
           <Text>existing creator token address</Text>
@@ -380,6 +473,9 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
+        approve (owners only)
+      </Text>
       <Flex gap={"10px"} alignItems="flex-end">
         <VStack>
           <Text>existing creator token address</Text>

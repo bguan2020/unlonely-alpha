@@ -118,24 +118,6 @@ export const useAdmins = () => {
     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
   }, [network]);
   const contract = getContract("unlonelyArcade", localNetwork);
-
-  // if (contract == undefined) return undefined;
-
-  // const { data: danny } = useRead<`0x${string}`>(contract, "danny");
-  // const { data: grace } = useRead<`0x${string}`>(contract, "grace");
-  // const { data: brian } = useRead<`0x${string}`>(contract, "brian");
-
-  // const admins = useMemo(() => {
-  //   if (danny == undefined || grace == undefined || brian == undefined)
-  //     return undefined;
-  //   return [
-  //     danny as `0x${string}`,
-  //     grace as `0x${string}`,
-  //     brian as `0x${string}`,
-  //   ];
-  // }, [danny, grace, brian]);
-
-  // return admins;
   const publicClient = usePublicClient();
 
   const [admins, setAdmins] = useState<string[]>([]);
@@ -196,15 +178,15 @@ export const useBuyCreatorToken = (
     return {
       buyCreatorToken: undefined,
       buyCreatorTokenData: undefined,
-      buyCreatorTxData: undefined,
-      buyCreatorTxLoading: undefined,
+      buyCreatorTokenTxData: undefined,
+      buyCreatorTokenTxLoading: undefined,
     };
 
   const {
     writeAsync: buyCreatorToken,
     writeData: buyCreatorTokenData,
-    txData: buyCreatorTxData,
-    isTxLoading: buyCreatorTxLoading,
+    txData: buyCreatorTokenTxData,
+    isTxLoading: buyCreatorTokenTxLoading,
   } = useWrite(
     contract,
     "buyCreatorToken",
@@ -216,8 +198,8 @@ export const useBuyCreatorToken = (
   return {
     buyCreatorToken,
     buyCreatorTokenData,
-    buyCreatorTxData,
-    buyCreatorTxLoading,
+    buyCreatorTokenTxData,
+    buyCreatorTokenTxLoading,
   };
 };
 
