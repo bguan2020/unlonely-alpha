@@ -27,6 +27,7 @@ const BuyButton: React.FunctionComponent<Props> = ({ tokenName, callback }) => {
         _focus={{}}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={callback}
         position="relative"
       />
       <Flex

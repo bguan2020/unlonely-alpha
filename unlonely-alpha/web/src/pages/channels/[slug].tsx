@@ -89,7 +89,6 @@ const ChannelDetail = ({
 
   const [width, height] = useWindowSize();
   const { user } = useUser();
-  const isOwner = user?.address === channel?.owner.address;
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();

@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { formatUnits, isAddress, isAddressEqual, parseUnits } from "viem";
 import { erc20ABI, useAccount, useNetwork } from "wagmi";
 import AppLayout from "../components/layout/AppLayout";
+import { NULL_ADDRESS } from "../constants";
 import { NETWORKS } from "../constants/networks";
 import {
   useAddCreatorToken,
@@ -65,6 +66,7 @@ const AdminContent = () => {
   const [creatorTokenAddress, setCreatorTokenAddress] = useState<string>("");
   const [newCreatorTokenAddress, setNewCreatorTokenAddress] =
     useState<string>("");
+  const [tokenOwnerAddress, setTokenOwnerAddress] = useState<string>("");
 
   const [buyTokenAmount, setBuyTokenAmount] = useState<string>("");
   const [featurePrice, setFeaturePrice] = useState<string>("");
@@ -129,7 +131,7 @@ const AdminContent = () => {
         formatIncompleteNumber(initialPrice) as `${number}`,
         18
       ),
-      tokenOwner: "0x7a9f28eb62c791422aa23ceae1da9c847cbec9b0",
+      tokenOwner: tokenOwnerAddress as `0x${string}`,
     },
     {
       onTxSuccess: refetch,
@@ -177,7 +179,7 @@ const AdminContent = () => {
           <Text>new creator token address</Text>
           <Input
             {...inputStyle}
-            width="600px"
+            width="400px"
             isInvalid={!isAddress(newCreatorTokenAddress)}
             value={newCreatorTokenAddress}
             onChange={(e) => setNewCreatorTokenAddress(e.target.value)}
@@ -186,10 +188,19 @@ const AdminContent = () => {
         <VStack>
           <Text>how much eth will this new token cost?</Text>
           <Input
-            width="600px"
+            width="400px"
             {...inputStyle}
             value={initialPrice}
             onChange={(e) => handleInputChange(e, setInitialPrice)}
+          />
+        </VStack>
+        <VStack>
+          <Text>what is the address of the token owner?</Text>
+          <Input
+            width="400px"
+            {...inputStyle}
+            value={tokenOwnerAddress}
+            onChange={(e) => setTokenOwnerAddress(e.target.value)}
           />
         </VStack>
         {addCreatorTokenTxLoading ? (
@@ -212,17 +223,26 @@ const AdminContent = () => {
           <Text>existing creator token address</Text>
           <Input
             {...inputStyle}
-            width="600px"
+            width="400px"
             isInvalid={!isAddress(creatorTokenAddress)}
             value={creatorTokenAddress}
             onChange={(e) => setCreatorTokenAddress(e.target.value)}
           />
         </VStack>
         <VStack>
+          <Text>owner</Text>
+          <Input
+            {...inputStyle}
+            width="300px"
+            isReadOnly
+            value={tokenOwner !== NULL_ADDRESS ? tokenOwner : ""}
+          />
+        </VStack>
+        <VStack>
           <Text>how much of this token does this feature cost?</Text>
           <Input
             {...inputStyle}
-            width="600px"
+            width="500px"
             value={featurePrice}
             onChange={(e) => handleInputChange(e, setFeaturePrice)}
           />
@@ -246,7 +266,7 @@ const AdminContent = () => {
         <VStack>
           <Text>existing creator token address</Text>
           <Input
-            width="600px"
+            width="400px"
             {...inputStyle}
             isInvalid={!isAddress(creatorTokenAddress)}
             value={creatorTokenAddress}
@@ -254,9 +274,18 @@ const AdminContent = () => {
           />
         </VStack>
         <VStack>
+          <Text>owner</Text>
+          <Input
+            {...inputStyle}
+            width="300px"
+            isReadOnly
+            value={tokenOwner !== NULL_ADDRESS ? tokenOwner : ""}
+          />
+        </VStack>
+        <VStack>
           <Text>how much of this creator token do you want to buy?</Text>
           <Input
-            width="600px"
+            width="500px"
             {...inputStyle}
             value={buyTokenAmount}
             onChange={(e) => handleInputChange(e, setBuyTokenAmount)}
@@ -295,17 +324,26 @@ const AdminContent = () => {
           <Text>existing creator token address</Text>
           <Input
             {...inputStyle}
-            width="600px"
+            width="400px"
             isInvalid={!isAddress(creatorTokenAddress)}
             value={creatorTokenAddress}
             onChange={(e) => setCreatorTokenAddress(e.target.value)}
           />
         </VStack>
         <VStack>
+          <Text>owner</Text>
+          <Input
+            {...inputStyle}
+            width="300px"
+            isReadOnly
+            value={tokenOwner !== NULL_ADDRESS ? tokenOwner : ""}
+          />
+        </VStack>
+        <VStack>
           <Text>how much ETH will this token cost?</Text>
           <Input
             {...inputStyle}
-            width="600px"
+            width="500px"
             value={tokenPriceState}
             onChange={(e) => handleInputChange(e, setTokenPriceState)}
           />
@@ -347,10 +385,19 @@ const AdminContent = () => {
           <Text>existing creator token address</Text>
           <Input
             {...inputStyle}
-            width="600px"
+            width="400px"
             isInvalid={!isAddress(creatorTokenAddress)}
             value={creatorTokenAddress}
             onChange={(e) => setCreatorTokenAddress(e.target.value)}
+          />
+        </VStack>
+        <VStack>
+          <Text>owner</Text>
+          <Input
+            {...inputStyle}
+            width="300px"
+            isReadOnly
+            value={tokenOwner !== NULL_ADDRESS ? tokenOwner : ""}
           />
         </VStack>
         <VStack>
@@ -359,13 +406,13 @@ const AdminContent = () => {
           </Text>
           <Input
             {...inputStyle}
-            width="600px"
+            width="500px"
             value={buyTokenAmount}
             onChange={(e) => handleInputChange(e, setBuyTokenAmount)}
           />
         </VStack>
         <VStack>
-          <Text>Needs approval?</Text>
+          <Text>needs approval?</Text>
           <Input
             width="200px"
             {...inputStyle}

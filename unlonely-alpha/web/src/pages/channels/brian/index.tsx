@@ -134,6 +134,7 @@ const ChannelDetail = ({
   const [showChanceModal, setShowChanceModal] = useState<boolean>(false);
   const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
   const [showControlModal, setShowControlModal] = useState<boolean>(false);
+  const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
 
   const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
 
@@ -363,7 +364,10 @@ const ChannelDetail = ({
                         <SwordButton callback={() => setShowPvpModal(true)} />
                         <CoinButton callback={() => setShowTipModal(true)} />
                       </Grid>
-                      <BuyButton tokenName="$BRIAN" />
+                      <BuyButton
+                        tokenName="$BRIAN"
+                        callback={() => setShowBuyModal(true)}
+                      />
                     </Box>
                   </GridItem>
                 )}
@@ -413,66 +417,6 @@ const ChannelDetail = ({
               </Container>
             </Flex>
           </Stack>
-          {/* <Flex hidden={isHidden(false)} direction="column">
-        <Text align="center" fontSize="2rem" fontWeight="bold">
-          Welcome to Unlonely! Control My Stream with $BRIAN!
-        </Text>
-        <Tabs
-          className="xeedev-class-hide"
-          align="center"
-          variant="unstyled"
-          width="100%"
-        >
-          <TabList width="100%">
-            <Tab _selected={{ color: "white", bg: "blue.500" }}>scene tab</Tab>
-            <Tab _selected={{ color: "white", bg: "green.400" }}>task tab</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <Flex
-                margin="auto"
-                maxW={{
-                  base: "100%",
-                  sm: "533px",
-                  md: "711px",
-                  lg: "889px",
-                }}
-                w="100%"
-                borderRadius="0.3125rem"
-                pt="1rem"
-                justifyContent="center"
-                backgroundColor="rgba(0,0,0,0.2)"
-              >
-                <Flex
-                  width="100%"
-                  justifyContent="center"
-                  alignItems="center"
-                  direction="column"
-                >
-                  <BrianTokenTab chatBot={chatBot} setChatBot={setChatBot} />
-                </Flex>
-              </Flex>
-            </TabPanel>
-            <TabPanel>
-              <Flex
-                margin="auto"
-                maxW={{
-                  base: "100%",
-                  sm: "533px",
-                  md: "711px",
-                  lg: "889px",
-                }}
-                borderRadius="0.3125rem"
-                pt="1rem"
-                justifyContent="center"
-                backgroundColor="rgba(0,0,0,0.2)"
-              >
-                <TaskList chatBot={chatBot} setChatBot={setChatBot} />
-              </Flex>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Flex> */}
         </Stack>
       </AppLayout>
     </>
