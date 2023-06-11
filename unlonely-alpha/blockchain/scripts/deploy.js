@@ -23,7 +23,7 @@ async function main() {
   console.log("contract balance: ", contractBalance);
   console.log("owner balance: ", ownerBalance);
 
-  console.log("NewsToken deployed to:", BrianTokenAddress);
+  console.log("token deployed to:", BrianTokenAddress);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
