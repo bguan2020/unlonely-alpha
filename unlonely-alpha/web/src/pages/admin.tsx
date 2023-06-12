@@ -8,8 +8,8 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import { formatUnits, isAddress, isAddressEqual, parseUnits } from "viem";
-import { erc20ABI, useAccount, useNetwork } from "wagmi";
+import { formatUnits, isAddress, parseUnits } from "viem";
+import { erc20ABI, useNetwork } from "wagmi";
 import AppLayout from "../components/layout/AppLayout";
 import { NULL_ADDRESS } from "../constants";
 import { NETWORKS } from "../constants/networks";
@@ -50,9 +50,7 @@ export default function AdminPage() {
   const isAdmin = useMemo(() => {
     if (admins !== undefined && user?.address) {
       const userAddress = user.address;
-      return admins.some((admin) =>
-        userAddress === admin
-      );
+      return admins.some((admin) => userAddress === admin);
     }
     return false;
   }, [user, admins]);
@@ -164,7 +162,7 @@ const AdminContent = () => {
 
   const { createCreatorToken } = useCreateCreatorToken({
     onError: (error: any) => {
-      console.log(error);
+      // console.log(error);
     },
   });
 
@@ -205,7 +203,7 @@ const AdminContent = () => {
         },
       }
     );
-  
+
   const {
     buyCreatorToken,
     buyCreatorTokenData,
@@ -234,7 +232,7 @@ const AdminContent = () => {
 
   const { updateUserCreatorTokenQuantity } = useUpdateUserCreatorTokenQuantity({
     onError: (error: any) => {
-      console.log(error);
+      // console.log(error);
     },
   });
 
@@ -279,7 +277,7 @@ const AdminContent = () => {
 
   const { updateCreatorTokenPrice } = useUpdateCreatorTokenPrice({
     onError: (error: any) => {
-      console.log(error);
+      // console.log(error);
     },
   });
 
@@ -314,7 +312,7 @@ const AdminContent = () => {
   }, [buyCreatorTokenTxLoading, isApprovalLoading]);
 
   return (
-    <Flex direction="column" p="10px" gap="20px" bg="grey">
+    <Flex direction="column" p="10px" gap="20px">
       <Flex>{localNetwork.config.name}</Flex>
       <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         addCreatorToken

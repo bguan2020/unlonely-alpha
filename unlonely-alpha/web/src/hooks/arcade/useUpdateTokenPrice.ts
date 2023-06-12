@@ -24,8 +24,8 @@ const useUpdateCreatorTokenPrice = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-  UpdateCreatorTokenPriceMutation,
-  UpdateCreatorTokenPriceMutationVariables
+    UpdateCreatorTokenPriceMutation,
+    UpdateCreatorTokenPriceMutationVariables
   >(UPDATE_CREATOR_TOKEN_PRICE_MUTATION);
 
   const updateCreatorTokenPrice = useCallback(

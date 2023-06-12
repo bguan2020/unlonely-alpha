@@ -76,7 +76,7 @@ contract UnlonelyArcadeContract {
 
         // Transfer Ether to the token owner
         payable(tokenOwners[_creatorToken]).transfer(msg.value);
-
+        
         // Transfer CreatorToken to the buyer
         IERC20 token = creatorTokens[_creatorToken];
         address tokenOwner = tokenOwners[_creatorToken];

@@ -22,9 +22,10 @@ const CREATE_CREATOR_TOKEN_MUTATION = gql`
 
 const useCreateCreatorToken = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<CreateCreatorTokenMutation, CreateCreatorTokenMutationVariables>(
-    CREATE_CREATOR_TOKEN_MUTATION
-  );
+  const [mutate] = useAuthedMutation<
+    CreateCreatorTokenMutation,
+    CreateCreatorTokenMutationVariables
+  >(CREATE_CREATOR_TOKEN_MUTATION);
 
   const createCreatorToken = useCallback(
     async (data) => {

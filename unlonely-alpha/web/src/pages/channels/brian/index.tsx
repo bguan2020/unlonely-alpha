@@ -118,7 +118,7 @@ const ChannelDetail = ({
     }
   );
 
-  console.log("recentStreamInteractionsData", recentStreamInteractionsData);
+  // console.log("recentStreamInteractionsData", recentStreamInteractionsData);
 
   const channelSSR = useMemo(
     () => channelData?.getChannelBySlug,
