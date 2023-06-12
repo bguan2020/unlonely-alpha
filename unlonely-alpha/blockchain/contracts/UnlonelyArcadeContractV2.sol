@@ -31,7 +31,7 @@ contract UnlonelyArcadeContract {
     function calculateEthAmount(address _creatorToken, uint256 tokenAmount) public view returns (uint256) {
         require(creatorTokens[_creatorToken] != IERC20(address(0)), "Token does not exist.");
 
-        return tokenAmount / tokenPrices[_creatorToken];
+        return tokenAmount * tokenPrices[_creatorToken];
     }
 
     function addCreatorToken(address _creatorToken, uint256 _initialPrice, address _tokenOwner) external onlyAdmin {
@@ -58,6 +58,11 @@ contract UnlonelyArcadeContract {
     }
 
     function buyCreatorToken(address _creatorToken, uint256 tokenAmount) payable external {
+        /// @dev Buys a CreatorToken from the token owner.
+        /// @param _creatorToken The address of the CreatorToken contract.
+        /// @param tokenAmount The amount of CreatorTokens to buy.
+        /// @return The amount of ETH paid for the CreatorTokens.
+
         require(creatorTokens[_creatorToken] != IERC20(address(0)), "Token does not exist.");
         require(tokenOwners[_creatorToken] != address(0), "Token does not have an owner.");
         require(tokenAmount > 0, "Token amount must be greater than zero.");
@@ -67,7 +72,8 @@ contract UnlonelyArcadeContract {
 
         require(msg.value >= ethAmount, "Insufficient Ether sent.");
 
-        (bool sent,) = payable(tokenOwners[_creatorToken]).call{value: msg.value}("");
+        // Transfer Ether to the token owner
+        tokenOwners[_creatorToken].transfer(msg.value);
         require(sent, "Failed to transfer Ether");
 
         // Transfer CreatorToken to the buyer
