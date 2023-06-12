@@ -78,6 +78,8 @@ contract UnlonelyArcadeContract {
 
     function useFeature(address _creatorToken, uint256 _featurePrice) external {
         require(creatorTokens[_creatorToken] != IERC20(address(0)), "Token does not exist.");
+        // add require to check if the feature price is greater than zero
+        require(_featurePrice > 0, "Feature price must be greater than zero.");
 
         // Check if the user has enough tokens
         require(creatorTokens[_creatorToken].balanceOf(msg.sender) >= _featurePrice, "Insufficient CreatorToken balance");
