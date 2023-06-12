@@ -12,7 +12,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { gql, useQuery } from "@apollo/client";
-import { useAccount, useEnsName } from "wagmi";
+import { useAccount, useBalance, useEnsName } from "wagmi";
 import AppLayout from "../../../components/layout/AppLayout";
 import centerEllipses from "../../../utils/centerEllipses";
 import AblyChatComponent from "../../../components/chat/ChatComponent";
@@ -30,12 +30,13 @@ import { initializeApollo } from "../../../apiClient/client";
 import { ChannelDetailQuery } from "../../../generated/graphql";
 import ChannelNextHead from "../../../components/layout/ChannelNextHead";
 import io, { Socket } from "socket.io-client";
-import { BRIAN_TOKEN_ADDRESS } from "../../../constants";
+import { DANNY_TOKEN_ADDRESS } from "../../../constants";
 import TipTransactionModal from "../../../components/transactions/TipTransactionModal";
 import ControlTransactionModal from "../../../components/transactions/ControlTransactionModal";
 import ChanceTransactionModal from "../../../components/transactions/ChanceTransactionModal";
 import PvpTransactionModal from "../../../components/transactions/PvpTransactionModal";
 import usePostStreamInteraction from "../../../hooks/usePostStreamInteraction";
+import BuyTransactionModal from "../../../components/transactions/BuyTransactionModal";
 
 export type ChatBot = {
   username: string;
@@ -154,6 +155,15 @@ const ChannelDetail = ({
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
+  const { data: tokenBalanceData, refetch: balanceOfRefetchToken } = useBalance(
+    {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      address: user?.address ?? "",
+      token: DANNY_TOKEN_ADDRESS as `0x${string}`,
+    }
+  );
+
   const callbackMessage = (any: any) => {
     /* eslint-disable no-console */
     console.log("callbackMessage", any);
@@ -234,6 +244,7 @@ const ChannelDetail = ({
     setShowChanceModal(false);
     setShowPvpModal(false);
     setShowControlModal(false);
+    setShowBuyModal(false);
   }, []);
 
   const addToChatbot = useCallback(
@@ -261,6 +272,9 @@ const ChannelDetail = ({
         isCustomHeader={true}
       >
         <ControlTransactionModal
+          channel={channel}
+          tokenBalanceData={tokenBalanceData}
+          callback={balanceOfRefetchToken}
           icon={
             <Image
               alt="control"
@@ -272,17 +286,29 @@ const ChannelDetail = ({
           title="control the stream!"
           isOpen={showControlModal}
           handleClose={handleClose}
-          contractAddress={BRIAN_TOKEN_ADDRESS}
+          tokenContractAddress={DANNY_TOKEN_ADDRESS}
+          addToChatbot={addToChatbot}
+        />
+        <BuyTransactionModal
+          title=""
+          tokenBalanceData={tokenBalanceData}
+          callback={balanceOfRefetchToken}
+          icon={<BuyButton tokenName={`$${tokenBalanceData?.symbol}`} />}
+          isOpen={showBuyModal}
+          handleClose={handleClose}
+          tokenContractAddress={DANNY_TOKEN_ADDRESS}
           addToChatbot={addToChatbot}
         />
         <TipTransactionModal
+          tokenBalanceData={tokenBalanceData}
+          callback={balanceOfRefetchToken}
           icon={
             <Image alt="coin" src="/svg/coin.svg" width="60px" height="60px" />
           }
           title="tip on the stream!"
           isOpen={showTipModal}
           handleClose={handleClose}
-          contractAddress={BRIAN_TOKEN_ADDRESS}
+          tokenContractAddress={DANNY_TOKEN_ADDRESS}
           addToChatbot={addToChatbot}
         />
         <ChanceTransactionModal
@@ -292,7 +318,7 @@ const ChannelDetail = ({
           title="feeling lucky? roll the die for a surprise!"
           isOpen={showChanceModal}
           handleClose={handleClose}
-          contractAddress={BRIAN_TOKEN_ADDRESS}
+          tokenContractAddress={DANNY_TOKEN_ADDRESS}
           addToChatbot={addToChatbot}
         />
         <PvpTransactionModal
@@ -307,7 +333,7 @@ const ChannelDetail = ({
           title="unlock player vs player features in chat"
           isOpen={showPvpModal}
           handleClose={handleClose}
-          contractAddress={BRIAN_TOKEN_ADDRESS}
+          tokenContractAddress={DANNY_TOKEN_ADDRESS}
           addToChatbot={addToChatbot}
         />
         <Stack direction="column">
@@ -368,7 +394,7 @@ const ChannelDetail = ({
                         <CoinButton callback={() => setShowTipModal(true)} />
                       </Grid>
                       <BuyButton
-                        tokenName="$BRIAN"
+                        tokenName={`$${tokenBalanceData?.symbol}`}
                         callback={() => setShowBuyModal(true)}
                       />
                     </Box>

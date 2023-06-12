@@ -1,6 +1,9 @@
 import { Network } from "../constants/types";
 
-export const getContract = (contractName: string, network?: Network) => {
+export const getContractFromNetwork = (
+  contractName: string,
+  network?: Network
+) => {
   if (
     !network ||
     !network.config.contracts[contractName] ||

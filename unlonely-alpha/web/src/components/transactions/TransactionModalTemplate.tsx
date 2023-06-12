@@ -12,55 +12,38 @@ import {
   Spinner,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
-import { useBalance } from "wagmi";
 import { useUser } from "../../hooks/useUser";
 
 export const TransactionModalTemplate = ({
   title,
-  contractAddress,
+  confirmButton,
   isOpen,
   canSend,
   icon,
   children,
+  isModalLoading,
+  needsApproval,
+  approve,
   handleClose,
   onSend,
 }: {
   title: string;
-  contractAddress: string;
+  confirmButton: string;
   isOpen: boolean;
+  children: React.ReactNode;
+  isModalLoading: boolean;
   canSend?: boolean;
   icon?: JSX.Element;
-  children: React.ReactNode;
+  needsApproval?: boolean;
+  approve?: () => void;
   handleClose: () => void;
   onSend?: () => void;
 }) => {
-  const [loading, setLoading] = useState(false);
   const { user } = useUser();
-
-  const {
-    data: balanceOfData,
-    isError: balanceOfError,
-    isLoading: balanceOfLoading,
-  } = useBalance({
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    address: user?.address ?? "",
-    token: contractAddress as `0x${string}`,
-  });
-
-  const handleSend = async () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      onSend && onSend();
-      handleClose();
-    }, 7000);
-  };
 
   return (
     <Modal
-      closeOnOverlayClick={!loading}
+      closeOnOverlayClick={!isModalLoading}
       isCentered
       isOpen={isOpen}
       onClose={handleClose}
@@ -75,7 +58,7 @@ export const TransactionModalTemplate = ({
           bg="transparent"
           icon={<Image alt="close" src="/svg/close.svg" width="20px" />}
           onClick={handleClose}
-          disabled={loading}
+          disabled={isModalLoading}
           position="absolute"
           left="5px"
           top="5px"
@@ -83,41 +66,63 @@ export const TransactionModalTemplate = ({
         <ModalHeader flex="1" mt="15px">
           <Flex gap="10px" justifyContent={"space-around"} mx="20px">
             {icon && icon}
-            <Text
-              fontSize="25px"
-              textAlign={"center"}
-              fontFamily="Neue Pixel Sans"
-              fontWeight="medium"
-            >
-              {title}
-            </Text>
+            {title && (
+              <Text
+                fontSize="25px"
+                textAlign={"center"}
+                fontFamily="Neue Pixel Sans"
+                fontWeight="medium"
+              >
+                {title}
+              </Text>
+            )}
           </Flex>
         </ModalHeader>
-        {!loading && (
+        {!isModalLoading && (
           <>
             <ModalBody>{children}</ModalBody>
             <ModalFooter>
-              <Button
-                bg="#131323"
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                onClick={handleSend}
-                disabled={!canSend || !user}
-              >
-                Send
-              </Button>
+              {needsApproval && (
+                <Button
+                  bg="#CB520E"
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={approve}
+                  width="100%"
+                  disabled={!approve}
+                  borderRadius="25px"
+                >
+                  approve tokens transfer
+                </Button>
+              )}
+              {!needsApproval && (
+                <Button
+                  bg="#E09025"
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={onSend}
+                  width="100%"
+                  disabled={!canSend || !user}
+                  borderRadius="25px"
+                >
+                  {confirmButton}
+                </Button>
+              )}
             </ModalFooter>
           </>
         )}
-        {loading && (
+        {isModalLoading && (
           <ModalBody>
-            <Flex justifyContent={"center"}>
-              <Spinner size="xl" />
+            <Flex direction="column" gap="20px">
+              <Flex justifyContent={"center"}>
+                <Spinner size="xl" />
+              </Flex>
+              <Text textAlign={"center"}>
+                Executing transaction, please do not exit this page
+              </Text>
             </Flex>
-            <Text textAlign={"center"}>
-              Executing transaction, please do not exit this page
-            </Text>
           </ModalBody>
         )}
       </ModalContent>

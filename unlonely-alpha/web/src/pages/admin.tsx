@@ -25,7 +25,7 @@ import {
 import { useApproval } from "../hooks/useApproval";
 import useCreateCreatorToken from "../hooks/arcade/useCreateCreatorToken";
 import { useUser } from "../hooks/useUser";
-import { getContract } from "../utils/contract";
+import { getContractFromNetwork } from "../utils/contract";
 import {
   filteredInput,
   formatIncompleteNumber,
@@ -73,7 +73,7 @@ const AdminContent = () => {
       NETWORKS[1]
     );
   }, [network]);
-  const contract = getContract("unlonelyArcade", localNetwork);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const [creatorTokenAddress, setCreatorTokenAddress] = useState<string>("");
   const [creatorTokenSymbol, setCreatorTokenSymbol] = useState<string>("");
@@ -100,12 +100,10 @@ const AdminContent = () => {
     tokenOwner,
   } = useReadPublic(creatorTokenAddress as `0x${string}`);
 
-  const { refetch: refetchEthAmount, amountIn } = useCalculateEthAmount(
+  const { amountIn } = useCalculateEthAmount(
     creatorTokenAddress as `0x${string}`,
     buyTokenAmount_bigint
   );
-
-  console.log(amountIn);
 
   const {
     requiresApproval,
@@ -117,8 +115,9 @@ const AdminContent = () => {
     erc20ABI,
     tokenOwner as `0x${string}`,
     contract?.address as `0x${string}`,
-    buyTokenAmount_bigint,
     contract?.chainId as number,
+    buyTokenAmount_bigint,
+    undefined,
     {
       onTxSuccess: (data) => {
         toast({
@@ -174,13 +173,13 @@ const AdminContent = () => {
     // first call smart contract
     await addCreatorToken();
     // then call our database
-    await createCreatorToken({
-      address: newCreatorTokenAddress as `0x${string}`,
-      symbol: creatorTokenSymbol,
-      name: creatorTokenName,
-      price: Number(initialPrice),
-      channelId: channelId,
-    });
+    // await createCreatorToken({
+    //   address: newCreatorTokenAddress as `0x${string}`,
+    //   symbol: creatorTokenSymbol,
+    //   name: creatorTokenName,
+    //   price: Number(initialPrice),
+    //   channelId: channelId,
+    // });
   };
 
   const { useFeature, useFeatureData, useFeatureTxData, useFeatureTxLoading } =

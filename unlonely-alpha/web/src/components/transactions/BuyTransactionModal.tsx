@@ -1,4 +1,4 @@
-import { Text, Input, Flex } from "@chakra-ui/react";
+import { Text, Input, Flex, useToast } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { useUser } from "../../hooks/useUser";
 import { ChatBot } from "../../pages/channels/brian";
@@ -6,21 +6,36 @@ import {
   filteredInput,
   formatIncompleteNumber,
 } from "../../utils/validation/input";
+import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "./TransactionModalTemplate";
 import { ModalButton } from "../general/button/ModalButton";
+import {
+  useBuyCreatorToken,
+  useCalculateEthAmount,
+  useReadPublic,
+} from "../../hooks/contracts/useArcadeContract";
+import { useNetwork } from "wagmi";
+import { formatUnits, parseUnits } from "viem";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { NETWORKS } from "../../constants/networks";
+import { FetchBalanceResult } from "../../constants/types";
 
-export default function ChanceTransactionModal({
+export default function BuyTransactionModal({
   title,
   isOpen,
   tokenContractAddress,
+  tokenBalanceData,
   icon,
+  callback,
   handleClose,
   addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
   tokenContractAddress: string;
+  tokenBalanceData?: FetchBalanceResult;
   icon?: JSX.Element;
+  callback?: () => void;
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
@@ -30,15 +45,72 @@ export default function ChanceTransactionModal({
   >("5");
 
   const { user } = useUser();
+  const toast = useToast();
+  const network = useNetwork();
+  const localNetwork = useMemo(() => {
+    return (
+      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
+      NETWORKS[1]
+    );
+  }, [network]);
+  // const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+
+  const buyTokenAmount_bigint = useMemo(
+    () =>
+      parseUnits(
+        formatIncompleteNumber(
+          amountOption === "custom" ? amount : amountOption
+        ) as `${number}`,
+        18
+      ),
+    [amountOption, amount]
+  );
+
+  const { refetch: refetchPublic, tokenOwner } = useReadPublic(
+    tokenContractAddress as `0x${string}`
+  );
+
+  const { amountIn } = useCalculateEthAmount(
+    tokenContractAddress as `0x${string}`,
+    buyTokenAmount_bigint
+  );
+
+  const { buyCreatorToken, buyCreatorTokenTxLoading } = useBuyCreatorToken(
+    {
+      creatorTokenAddress: tokenContractAddress as `0x${string}`,
+      amountIn,
+      amountOut: buyTokenAmount_bigint,
+    },
+    {
+      onTxSuccess: (data) => {
+        toast({
+          title: "buyCreatorToken",
+          description: "success",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchPublic();
+        callback?.();
+      },
+    }
+  );
 
   const handleSend = async () => {
+    if (!buyCreatorToken) return;
+    await buyCreatorToken();
     if (!addToChatbot) return;
     addToChatbot({
       username: user?.username ?? "",
       address: user?.address ?? "",
-      taskType: "chance",
-      title: "Chance",
-      description: "CHANCE",
+      taskType: "tip",
+      title: "Tip",
+      description: `${
+        user?.username ?? centerEllipses(user?.address, 15)
+      } tipped ${amountOption === "custom" ? amount : amountOption} $${
+        tokenBalanceData?.symbol
+      }`,
     });
   };
 
@@ -48,31 +120,31 @@ export default function ChanceTransactionModal({
     setAmount(filtered);
   };
 
-  const formattedAmount = useMemo(
-    () => formatIncompleteNumber(amount),
-    [amount]
-  );
-
   const canSend = useMemo(() => {
-    // if (!balanceOfData) return false;
-    // if (Number(formatEther(balanceOfData.value)) < Number(formattedAmount))
-    //   return false;
-    if (amountOption === "custom" && Number(formattedAmount) < 5) return false;
+    if (amountOption === "custom" && buyTokenAmount_bigint <= BigInt(0))
+      return false;
+    if (!buyCreatorToken) return false;
     return true;
-  }, [formattedAmount, amountOption]);
+  }, [buyTokenAmount_bigint, amountOption, buyCreatorToken]);
 
   return (
     <TransactionModalTemplate
       title={title}
-      confirmButton="purchase"
+      confirmButton={"purchase"}
       isOpen={isOpen}
       icon={icon}
-      isModalLoading={false}
+      isModalLoading={buyCreatorTokenTxLoading ?? false}
       canSend={canSend}
       onSend={handleSend}
       handleClose={handleClose}
     >
       <Flex direction={"column"} gap="16px">
+        <Text textAlign={"center"} fontSize="25px" color="#BABABA">
+          you own{" "}
+          {`${truncateValue(tokenBalanceData?.formatted ?? "0", 3)} $${
+            tokenBalanceData?.symbol
+          }`}
+        </Text>
         <Flex justifyContent={"space-between"}>
           <ModalButton
             width="120px"
@@ -129,6 +201,7 @@ export default function ChanceTransactionModal({
         </Flex>
         {amountOption === "custom" && (
           <Input
+            placeholder={`enter amount of $${tokenBalanceData?.symbol}`}
             value={amount}
             onChange={handleInputChange}
             borderWidth="1px"
@@ -140,6 +213,9 @@ export default function ChanceTransactionModal({
             py="10px"
           />
         )}
+        <Text textAlign={"right"} fontSize="25px" color="#BABABA">
+          cost: {`${truncateValue(formatUnits(amountIn, 18) ?? "0", 3)} eth`}
+        </Text>
       </Flex>
     </TransactionModalTemplate>
   );

@@ -12,14 +12,14 @@ import { ModalButton } from "../general/button/ModalButton";
 export default function PvpTransactionModal({
   title,
   isOpen,
-  contractAddress,
+  tokenContractAddress,
   icon,
   handleClose,
   addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
-  contractAddress: string;
+  tokenContractAddress: string;
   icon?: JSX.Element;
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
@@ -64,10 +64,11 @@ export default function PvpTransactionModal({
   return (
     <TransactionModalTemplate
       title={title}
-      contractAddress={contractAddress}
+      confirmButton="purchase"
       isOpen={isOpen}
       icon={icon}
       canSend={canSend}
+      isModalLoading={false}
       onSend={handleSend}
       handleClose={handleClose}
     >
@@ -128,7 +129,6 @@ export default function PvpTransactionModal({
         </Flex>
         {amountOption === "custom" && (
           <Input
-            placeholder="enter amount of $brian"
             value={amount}
             onChange={handleInputChange}
             borderWidth="1px"

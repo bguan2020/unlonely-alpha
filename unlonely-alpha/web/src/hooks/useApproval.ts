@@ -7,13 +7,15 @@ import {
 } from "wagmi";
 import { useUser } from "./useUser";
 
+// function uses variables amount and amountToApprove to differentiate the value used for comparison and the value used for the actual approval
 export const useApproval = (
   tokenAddress: `0x${string}`,
   abi: any,
   owner: string,
   spender: string,
-  amount: bigint,
   chainId: number,
+  amount: bigint,
+  amountToApprove?: bigint,
   callbacks?: {
     onReadSuccess?: (data: any) => void;
     onReadError?: (error: any) => void;
@@ -46,7 +48,7 @@ export const useApproval = (
     address: tokenAddress,
     abi,
     functionName: "approve",
-    args: [spender, amount],
+    args: [spender, amountToApprove ?? amount],
     chainId,
     onSuccess: (data) => callbacks?.onPrepareWriteSuccess?.(data),
     onError: (error) => callbacks?.onPrepareWriteError?.(error),
@@ -80,6 +82,7 @@ export const useApproval = (
     isTxLoading: isLoading,
     isTxSuccess: isSuccess,
     isTxError: approvalRejectError,
+    allowance: (allowance as unknown as bigint) ?? BigInt(0),
     isAllowanceLoading: allowanceLoading,
     writeApprovalError: approvalError,
     readAllowanceError: allowanceError,

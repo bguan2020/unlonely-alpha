@@ -4,7 +4,7 @@ import { useNetwork, usePublicClient } from "wagmi";
 import { NULL_ADDRESS } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import { WriteCallbacks } from "../../constants/types";
-import { getContract } from "../../utils/contract";
+import { getContractFromNetwork } from "../../utils/contract";
 import { useWrite } from "../useWrite";
 
 export const useReadPublic = (creatorTokenAddress: `0x${string}`) => {
@@ -12,7 +12,7 @@ export const useReadPublic = (creatorTokenAddress: `0x${string}`) => {
   const localNetwork = useMemo(() => {
     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
   }, [network]);
-  const contract = getContract("unlonelyArcade", localNetwork);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const publicClient = usePublicClient();
   const [creatorToken, setCreatorToken] = useState<string>(NULL_ADDRESS);
@@ -77,7 +77,7 @@ export const useCalculateEthAmount = (
   const localNetwork = useMemo(() => {
     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
   }, [network]);
-  const contract = getContract("unlonelyArcade", localNetwork);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const publicClient = usePublicClient();
 
@@ -117,7 +117,7 @@ export const useAdmins = () => {
   const localNetwork = useMemo(() => {
     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
   }, [network]);
-  const contract = getContract("unlonelyArcade", localNetwork);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
   const publicClient = usePublicClient();
 
   const [admins, setAdmins] = useState<string[]>([]);
@@ -172,7 +172,7 @@ export const useBuyCreatorToken = (
   const localNetwork = useMemo(() => {
     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
   }, [network]);
-  const contract = getContract("unlonelyArcade", localNetwork);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   if (contract === undefined)
     return {
@@ -214,7 +214,7 @@ export const useUseFeature = (
   const localNetwork = useMemo(() => {
     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
   }, [network]);
-  const contract = getContract("unlonelyArcade", localNetwork);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   if (contract === undefined)
     return {
@@ -256,7 +256,7 @@ export const useAddCreatorToken = (
   const localNetwork = useMemo(() => {
     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
   }, [network]);
-  const contract = getContract("unlonelyArcade", localNetwork);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   if (contract === undefined)
     return {
@@ -297,7 +297,7 @@ export const useSetTokenPrice = (
   const localNetwork = useMemo(() => {
     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
   }, [network]);
-  const contract = getContract("unlonelyArcade", localNetwork);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   if (contract === undefined)
     return {

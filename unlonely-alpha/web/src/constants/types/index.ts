@@ -8,3 +8,10 @@ export type WriteCallbacks = {
   onTxSuccess?: (data: any) => any;
   onTxError?: (error: any) => any;
 };
+
+export type FetchBalanceResult = {
+  decimals: number;
+  formatted: string;
+  symbol: string;
+  value: bigint;
+};

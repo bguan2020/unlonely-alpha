@@ -4,9 +4,14 @@ import { useState } from "react";
 type Props = {
   tokenName: string;
   callback?: () => void;
+  noHover?: boolean;
 };
 
-const BuyButton: React.FunctionComponent<Props> = ({ tokenName, callback }) => {
+const BuyButton: React.FunctionComponent<Props> = ({
+  tokenName,
+  callback,
+  noHover,
+}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -14,7 +19,7 @@ const BuyButton: React.FunctionComponent<Props> = ({ tokenName, callback }) => {
       <IconButton
         aria-label={`${tokenName}-buy`}
         icon={
-          isHovered ? (
+          isHovered && noHover ? (
             <Image src="/svg/buy-hover.svg" width="100%" />
           ) : (
             <Image src="/svg/buy.svg" width="100%" />
