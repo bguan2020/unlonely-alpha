@@ -82,6 +82,6 @@ export default makeExecutableSchema({
     streamInteractionResolvers,
     channelResolvers,
     deviceTokenResolvers,
-    creatorTokenResolvers,
+    creatorTokenResolvers
   ),
 });

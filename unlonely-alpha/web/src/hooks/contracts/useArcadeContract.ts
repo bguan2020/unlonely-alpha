@@ -1,8 +1,6 @@
-import { gql } from "@apollo/client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { isAddress } from "viem";
 import { useNetwork, usePublicClient } from "wagmi";
-import { useAuthedMutation } from "../../apiClient/hooks";
 import { NULL_ADDRESS } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import { WriteCallbacks } from "../../constants/types";

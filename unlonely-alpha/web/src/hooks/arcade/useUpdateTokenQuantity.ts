@@ -9,10 +9,12 @@ import {
 import { useAuthedMutation } from "../../apiClient/hooks";
 
 const UPDATE_USER_TOKEN_QUANTITY_MUTATION = gql`
-  mutation UpdateUserCreatorTokenQuantity($data: UpdateUserCreatorTokenQuantityInput!) {
+  mutation UpdateUserCreatorTokenQuantity(
+    $data: UpdateUserCreatorTokenQuantityInput!
+  ) {
     updateUserCreatorTokenQuantity(data: $data) {
       quantity
-      user { 
+      user {
         address
       }
     }
@@ -33,7 +35,7 @@ const useUpdateUserCreatorTokenQuantity = ({
   const updateUserCreatorTokenQuantity = useCallback(
     async (data) => {
       setLoading(true);
-      console.log(data, "hook");
+      // console.log(data, "hook");
 
       const mutationResult = await mutate({ variables: { data } });
 

@@ -73,9 +73,8 @@ contract UnlonelyArcadeContract {
         require(msg.value >= ethAmount, "Insufficient Ether sent.");
 
         // Transfer Ether to the token owner
-        tokenOwners[_creatorToken].transfer(msg.value);
-        require(sent, "Failed to transfer Ether");
-
+        payable(tokenOwners[_creatorToken]).transfer(msg.value);
+        
         // Transfer CreatorToken to the buyer
         IERC20 token = creatorTokens[_creatorToken];
         address tokenOwner = tokenOwners[_creatorToken];

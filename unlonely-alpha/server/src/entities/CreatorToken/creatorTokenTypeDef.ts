@@ -44,6 +44,8 @@ export const typeDef = gql`
   extend type Mutation {
     createCreatorToken(data: CreateCreatorTokenInput!): CreatorToken!
     updateCreatorTokenPrice(data: UpdateCreatorTokenPriceInput!): CreatorToken!
-    updateUserCreatorTokenQuantity(data: UpdateUserCreatorTokenQuantityInput!): UserCreatorToken!
+    updateUserCreatorTokenQuantity(
+      data: UpdateUserCreatorTokenQuantityInput!
+    ): UserCreatorToken!
   }
 `;

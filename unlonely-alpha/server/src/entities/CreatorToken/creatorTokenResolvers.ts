@@ -11,7 +11,7 @@ export const resolvers = {
       ctx: Context
     ) => {
       return creatorTokenService.getTokenHoldersByChannel(data, ctx);
-    }
+    },
   },
   Mutation: {
     createCreatorToken: (
