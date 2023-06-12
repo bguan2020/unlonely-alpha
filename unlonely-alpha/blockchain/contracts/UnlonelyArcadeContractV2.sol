@@ -31,9 +31,7 @@ contract UnlonelyArcadeContract {
     function calculateEthAmount(address _creatorToken, uint256 tokenAmount) public view returns (uint256) {
         require(creatorTokens[_creatorToken] != IERC20(address(0)), "Token does not exist.");
 
-        uint256 tokenAmountInEth = tokenAmount / 1e18;
-
-        return tokenAmountInEth * tokenPrices[_creatorToken];
+        return tokenAmount * tokenPrices[_creatorToken] / 1e18;
     }
 
     function addCreatorToken(address _creatorToken, uint256 _initialPrice, address _tokenOwner) external onlyAdmin {

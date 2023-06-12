@@ -11,7 +11,7 @@ export const Goerli: Network = {
     isTestnet: true,
     contracts: {
       unlonelyArcade: {
-        address: "0x20aabe81a5deefa5a81985403a2088fe2e98d99c",
+        address: "0xef33df40714df4de9f5f8e6e4b8d749030152bca",
         abi: unlonelyArcadeAbi,
       },
     },

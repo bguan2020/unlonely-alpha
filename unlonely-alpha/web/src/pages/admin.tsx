@@ -57,8 +57,9 @@ export default function AdminPage() {
 
   return (
     <AppLayout isCustomHeader={false}>
-      {isAdmin && <AdminContent />}
-      {!isAdmin && <Text>You're not supposed to be here.</Text>}
+      {/* {isAdmin && <AdminContent />}
+      {!isAdmin && <Text>You're not supposed to be here.</Text>} */}
+      <AdminContent />
     </AppLayout>
   );
 }
@@ -103,6 +104,8 @@ const AdminContent = () => {
     creatorTokenAddress as `0x${string}`,
     buyTokenAmount_bigint
   );
+
+  console.log(amountIn);
 
   const {
     requiresApproval,
