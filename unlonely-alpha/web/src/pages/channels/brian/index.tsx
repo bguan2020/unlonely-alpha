@@ -118,6 +118,8 @@ const ChannelDetail = ({
     }
   );
 
+  console.log("recentStreamInteractionsData", recentStreamInteractionsData);
+
   const channelSSR = useMemo(
     () => channelData?.getChannelBySlug,
     [channelData]
@@ -241,13 +243,14 @@ const ChannelDetail = ({
     [chatBot]
   );
 
-  useEffect(() => {
-    const interactions =
-      recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
-    if (interactions.length > 0) {
-      setTextOverVideo(interactions);
-    }
-  }, [recentStreamInteractionsData]);
+  // useEffect(() => {
+  //   // add check in case recentStreamInteractionsData is undefined
+  //   const interactions =
+  //     recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
+  //   if (interactions.length > 0) {
+  //     setTextOverVideo(interactions);
+  //   }
+  // }, [recentStreamInteractionsData]);
 
   return (
     <>

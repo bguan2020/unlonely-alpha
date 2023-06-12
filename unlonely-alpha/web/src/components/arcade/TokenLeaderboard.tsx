@@ -28,7 +28,7 @@ const TokenLeaderboard = ({
       bg={
         "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
       }
-      height="100%"
+      height="500px"
       boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
       background={"#19162F"}
       direction="column"
@@ -59,19 +59,6 @@ const TokenLeaderboard = ({
         <TableContainer overflowX={"hidden"}>
           <Table variant="unstyled">
             <Thead>
-              {ranked && (
-                <Tr>
-                  <Th
-                    textTransform={"lowercase"}
-                    fontSize={"24px"}
-                    p="10px"
-                    textAlign="center"
-                    borderBottom="1px solid #615C5C"
-                  >
-                    {"rank"}
-                  </Th>
-                </Tr>
-              )}
               <Tr>
                 {headers.map((header, i) => (
                   <Th

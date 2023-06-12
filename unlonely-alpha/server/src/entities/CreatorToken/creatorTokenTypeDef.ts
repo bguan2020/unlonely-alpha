@@ -32,12 +32,18 @@ export const typeDef = gql`
     purchasedAmount: Int!
   }
 
+  input UpdateCreatorTokenPriceInput {
+    tokenAddress: String!
+    price: Float!
+  }
+
   extend type Query {
     getTokenHoldersByChannel(tokenId: ID!): [UserCreatorToken!]!
   }
 
   extend type Mutation {
     createCreatorToken(data: CreateCreatorTokenInput!): CreatorToken!
+    updateCreatorTokenPrice(data: UpdateCreatorTokenPriceInput!): CreatorToken!
     updateUserCreatorTokenQuantity(data: UpdateUserCreatorTokenQuantityInput!): UserCreatorToken!
   }
 `;

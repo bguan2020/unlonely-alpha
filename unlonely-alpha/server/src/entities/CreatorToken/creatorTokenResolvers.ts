@@ -24,6 +24,16 @@ export const resolvers = {
       }
       return creatorTokenService.createCreatorToken(data, ctx);
     },
+    updateCreatorTokenPrice: (
+      _: any,
+      { data }: { data: creatorTokenService.IUpdateCreatorTokenPriceInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      return creatorTokenService.updateCreatorTokenPrice(data, ctx);
+    },
     updateUserCreatorTokenQuantity: (
       _: any,
       {

@@ -23,11 +23,15 @@ import {
   useUseFeature,
 } from "../hooks/contracts/useArcadeContract";
 import { useApproval } from "../hooks/useApproval";
+import useCreateCreatorToken from "../hooks/arcade/useCreateCreatorToken";
+import { useUser } from "../hooks/useUser";
 import { getContract } from "../utils/contract";
 import {
   filteredInput,
   formatIncompleteNumber,
 } from "../utils/validation/input";
+import useUpdateCreatorTokenPrice from "../hooks/arcade/useUpdateTokenPrice";
+import useUpdateUserCreatorTokenQuantity from "../hooks/arcade/useUpdateTokenQuantity";
 
 const inputStyle = {
   borderWidth: "1px",
@@ -40,18 +44,18 @@ const inputStyle = {
 };
 
 export default function AdminPage() {
-  const account = useAccount();
+  const { user } = useUser();
   const { admins } = useAdmins();
 
   const isAdmin = useMemo(() => {
-    if (admins !== undefined && account?.address) {
-      const user = account.address;
+    if (admins !== undefined && user?.address) {
+      const userAddress = user.address;
       return admins.some((admin) =>
-        isAddressEqual(admin as `0x${string}`, user)
+        userAddress === admin
       );
     }
     return false;
-  }, [account, admins]);
+  }, [user, admins]);
 
   return (
     <AppLayout isCustomHeader={false}>
@@ -73,6 +77,9 @@ const AdminContent = () => {
   const contract = getContract("unlonelyArcade", localNetwork);
 
   const [creatorTokenAddress, setCreatorTokenAddress] = useState<string>("");
+  const [creatorTokenSymbol, setCreatorTokenSymbol] = useState<string>("");
+  const [creatorTokenName, setCreatorTokenName] = useState<string>("");
+  const [channelId, setChannelId] = useState<string>("");
   const [newCreatorTokenAddress, setNewCreatorTokenAddress] =
     useState<string>("");
   const [tokenOwnerAddress, setTokenOwnerAddress] = useState<string>("");
@@ -127,56 +134,6 @@ const AdminContent = () => {
   );
 
   const {
-    buyCreatorToken,
-    buyCreatorTokenData,
-    buyCreatorTokenTxData,
-    buyCreatorTokenTxLoading,
-  } = useBuyCreatorToken(
-    {
-      creatorTokenAddress: creatorTokenAddress as `0x${string}`,
-      amountIn,
-      amountOut: buyTokenAmount_bigint,
-    },
-    {
-      onTxSuccess: (data) => {
-        toast({
-          title: "buyCreatorToken",
-          description: "success",
-          status: "success",
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-        refetchPublic();
-      },
-    }
-  );
-
-  const { useFeature, useFeatureData, useFeatureTxData, useFeatureTxLoading } =
-    useUseFeature(
-      {
-        creatorTokenAddress: creatorTokenAddress as `0x${string}`,
-        featurePrice: parseUnits(
-          formatIncompleteNumber(featurePrice) as `${number}`,
-          18
-        ),
-      },
-      {
-        onTxSuccess: (data) => {
-          toast({
-            title: "useFeature",
-            description: "success",
-            status: "success",
-            duration: 9000,
-            isClosable: true,
-            position: "top-right",
-          });
-          refetchPublic();
-        },
-      }
-    );
-
-  const {
     addCreatorToken,
     addCreatorTokenData,
     addCreatorTokenTxData,
@@ -204,6 +161,93 @@ const AdminContent = () => {
       },
     }
   );
+
+  const { createCreatorToken } = useCreateCreatorToken({
+    onError: (error: any) => {
+      console.log(error);
+    },
+  });
+
+  const handleCreateCreatorToken = async () => {
+    if (!addCreatorToken) return;
+    // first call smart contract
+    await addCreatorToken();
+    // then call our database
+    await createCreatorToken({
+      address: newCreatorTokenAddress as `0x${string}`,
+      symbol: creatorTokenSymbol,
+      name: creatorTokenName,
+      price: Number(initialPrice),
+      channelId: channelId,
+    });
+  };
+
+  const { useFeature, useFeatureData, useFeatureTxData, useFeatureTxLoading } =
+    useUseFeature(
+      {
+        creatorTokenAddress: creatorTokenAddress as `0x${string}`,
+        featurePrice: parseUnits(
+          formatIncompleteNumber(featurePrice) as `${number}`,
+          18
+        ),
+      },
+      {
+        onTxSuccess: (data) => {
+          toast({
+            title: "useFeature",
+            description: "success",
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+          refetchPublic();
+        },
+      }
+    );
+  
+  const {
+    buyCreatorToken,
+    buyCreatorTokenData,
+    buyCreatorTokenTxData,
+    buyCreatorTokenTxLoading,
+  } = useBuyCreatorToken(
+    {
+      creatorTokenAddress: creatorTokenAddress as `0x${string}`,
+      amountIn,
+      amountOut: buyTokenAmount_bigint,
+    },
+    {
+      onTxSuccess: (data) => {
+        toast({
+          title: "buyCreatorToken",
+          description: "success",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchPublic();
+      },
+    }
+  );
+
+  const { updateUserCreatorTokenQuantity } = useUpdateUserCreatorTokenQuantity({
+    onError: (error: any) => {
+      console.log(error);
+    },
+  });
+
+  const handleBuyCreatorToken = async () => {
+    if (!buyCreatorToken) return;
+    // first call smart contract
+    await buyCreatorToken();
+    // then call our database
+    await updateUserCreatorTokenQuantity({
+      tokenAddress: creatorTokenAddress as `0x${string}`,
+      purchasedAmount: Number(buyTokenAmount),
+    });
+  };
 
   const {
     setTokenPrice,
@@ -233,6 +277,23 @@ const AdminContent = () => {
     }
   );
 
+  const { updateCreatorTokenPrice } = useUpdateCreatorTokenPrice({
+    onError: (error: any) => {
+      console.log(error);
+    },
+  });
+
+  const handleSetTokenPrice = async () => {
+    if (!setTokenPrice) return;
+    // first call smart contract
+    await setTokenPrice();
+    // then call our database
+    await updateCreatorTokenPrice({
+      tokenAddress: creatorTokenAddress as `0x${string}`,
+      price: Number(tokenPriceState),
+    });
+  };
+
   const acceptableNewPrice = useMemo(() => {
     const newPrice = parseUnits(
       formatIncompleteNumber(tokenPriceState) as `${number}`,
@@ -253,7 +314,7 @@ const AdminContent = () => {
   }, [buyCreatorTokenTxLoading, isApprovalLoading]);
 
   return (
-    <Flex direction="column" p="10px" gap="20px">
+    <Flex direction="column" p="10px" gap="20px" bg="grey">
       <Flex>{localNetwork.config.name}</Flex>
       <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         addCreatorToken
@@ -263,16 +324,43 @@ const AdminContent = () => {
           <Text>new creator token address</Text>
           <Input
             {...inputStyle}
-            width="400px"
+            width="300px"
             isInvalid={!isAddress(newCreatorTokenAddress)}
             value={newCreatorTokenAddress}
             onChange={(e) => setNewCreatorTokenAddress(e.target.value)}
           />
         </VStack>
         <VStack>
+          <Text>symbol</Text>
+          <Input
+            {...inputStyle}
+            width="96px"
+            value={creatorTokenSymbol}
+            onChange={(e) => setCreatorTokenSymbol(e.target.value)}
+          />
+        </VStack>
+        <VStack>
+          <Text>name</Text>
+          <Input
+            {...inputStyle}
+            width="128px"
+            value={creatorTokenName}
+            onChange={(e) => setCreatorTokenName(e.target.value)}
+          />
+        </VStack>
+        <VStack>
+          <Text>channelId</Text>
+          <Input
+            {...inputStyle}
+            width="64px"
+            value={channelId}
+            onChange={(e) => setChannelId(e.target.value)}
+          />
+        </VStack>
+        <VStack>
           <Text>how much eth will this new token cost?</Text>
           <Input
-            width="400px"
+            width="128px"
             {...inputStyle}
             value={initialPrice}
             onChange={(e) => handleInputChange(e, setInitialPrice)}
@@ -295,7 +383,7 @@ const AdminContent = () => {
             _hover={{}}
             _focus={{}}
             _active={{}}
-            onClick={addCreatorToken}
+            onClick={handleCreateCreatorToken}
             isDisabled={!addCreatorToken}
           >
             Send
@@ -329,7 +417,7 @@ const AdminContent = () => {
           <Text>how much of this token does this feature cost?</Text>
           <Input
             {...inputStyle}
-            width="500px"
+            width="250px"
             value={featurePrice}
             onChange={(e) => handleInputChange(e, setFeaturePrice)}
           />
@@ -402,7 +490,7 @@ const AdminContent = () => {
             _hover={{}}
             _focus={{}}
             _active={{}}
-            onClick={buyCreatorToken}
+            onClick={handleBuyCreatorToken}
             isDisabled={!isAddress(creatorTokenAddress) || !buyCreatorToken}
           >
             Send
@@ -462,7 +550,7 @@ const AdminContent = () => {
             _hover={{}}
             _focus={{}}
             _active={{}}
-            onClick={setTokenPrice}
+            onClick={handleSetTokenPrice}
             isDisabled={
               !isAddress(creatorTokenAddress) ||
               !setTokenPrice ||

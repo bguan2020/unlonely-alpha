@@ -6,7 +6,7 @@ export interface ICreateCreatorTokenInput {
   address: string;
   symbol: string;
   name: string;
-  price: number;
+  price: number | string;
   channelId: string;
 }
 
@@ -19,12 +19,32 @@ export const createCreatorToken = (
       address: data.address,
       symbol: data.symbol,
       name: data.name,
-      price: data.price,
+      price: Number(data.price),
       channel: {
         connect: {
           id: Number(data.channelId),
         },
       },
+    },
+  });
+};
+
+// update the price of a token
+export interface IUpdateCreatorTokenPriceInput {
+  tokenAddress: string;
+  price: number | string;
+}
+
+export const updateCreatorTokenPrice = (
+  data: IUpdateCreatorTokenPriceInput,
+  ctx: Context
+) => {
+  return ctx.prisma.creatorToken.update({
+    where: {
+      address: data.tokenAddress,
+    },
+    data: {
+      price: Number(data.price),
     },
   });
 };
