@@ -191,7 +191,6 @@ export default function Page() {
         direction="column"
         justifyContent="center"
         width="100vw"
-        overflowX={"hidden"}
         gap={10}
         pb="10px"
       >
@@ -213,11 +212,11 @@ export default function Page() {
           >
             <Container
               overflowY="auto"
-              maxHeight={"98vh"}
               centerContent
               maxWidth={"100%"}
               pl={"16px"}
               pr={"10px"}
+              gap="1rem"
             >
               <ScrollableComponent channels={channels} />
             </Container>

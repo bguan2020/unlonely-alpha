@@ -28,14 +28,14 @@ const TokenLeaderboard = ({
       bg={
         "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
       }
-      height="500px"
+      // height="500px"
       boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
       background={"#19162F"}
       direction="column"
       width="100%"
     >
       <Text
-        fontSize={"44px"}
+        fontSize={{ base: "30px", lg: "40px" }}
         fontWeight="400"
         textAlign={"center"}
         fontFamily={"Neue Pixel Sans"}
@@ -44,18 +44,14 @@ const TokenLeaderboard = ({
       </Text>
       <Text
         color={"#B6B6B6"}
-        fontSize={"18"}
+        fontSize={"18px"}
         fontWeight="400"
         textAlign={"center"}
+        mb="20px"
       >
         who has the most valuable token?
       </Text>
-      <Box
-        borderWidth="1px"
-        borderColor="#615C5C"
-        borderRadius={10}
-        height={["30vh", "100vh"]}
-      >
+      <Box borderWidth="1px" borderColor="#615C5C" borderRadius={10}>
         <TableContainer overflowX={"hidden"}>
           <Table variant="unstyled">
             <Thead>
@@ -63,7 +59,7 @@ const TokenLeaderboard = ({
                 {headers.map((header, i) => (
                   <Th
                     textTransform={"lowercase"}
-                    fontSize={"24px"}
+                    fontSize={["20px", "24px"]}
                     p="10px"
                     textAlign="center"
                     borderBottom="1px solid #615C5C"
@@ -78,13 +74,13 @@ const TokenLeaderboard = ({
               {dataset.map((data, i) => (
                 <Tr key={i}>
                   {ranked && (
-                    <Td fontSize={"24px"} p="10px" textAlign="center">
+                    <Td fontSize={["20px", "24px"]} p="10px" textAlign="center">
                       {i + 1}
                     </Td>
                   )}
                   {data.data.map((col, j) => (
                     <Td
-                      fontSize={"24px"}
+                      fontSize={["20px", "24px"]}
                       p="10px"
                       textAlign="center"
                       key={j}

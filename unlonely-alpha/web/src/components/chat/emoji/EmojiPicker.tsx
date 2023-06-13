@@ -21,8 +21,20 @@ const EmojiCategory = ({
 }) => {
   return (
     <Flex direction="column">
-      <Text fontWeight={"bold"}>{category}</Text>
-      <SimpleGrid minChildWidth="20px" spacing="4px" alignContent="center">
+      <Text
+        fontWeight={"bold"}
+        style={{
+          textShadow: "0 0 0.2em black",
+        }}
+      >
+        {category}
+      </Text>
+      <SimpleGrid
+        minChildWidth="20px"
+        spacing="4px"
+        alignContent="center"
+        overflow={"auto"}
+      >
         {emojis.map((emoji) => (
           <Emoji
             key={emoji.unicodeString}

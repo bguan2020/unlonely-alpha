@@ -44,11 +44,11 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
       </PopoverTrigger>
       <PopoverContent
         zIndex={4}
-        maxHeight="400px"
-        overflowY="scroll"
-        overflow={mobile ? "hidden" : "auto"}
-        right={12}
-        bottom={5}
+        right={9}
+        bottom={10}
+        bg={"rgba(255, 255, 255, 0.5)"}
+        _focus={{ outline: "none" }}
+        borderWidth="0px"
       >
         <PopoverArrow />
         <PopoverCloseButton />
