@@ -37,4 +37,9 @@ export const resolvers = {
       );
     },
   },
+  StreamInteraction: {
+    owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
+      return streamInteractionService.getOwner({ ownerAddr }, ctx);
+    },
+  },
 };

@@ -301,7 +301,7 @@ const MessageBody = ({
                 pl="2px"
                 mt="5px"
                 mb="15px"
-                pb={showEmojiList === message.id ? "10px" : "10px"}
+                pb={showEmojiList === message.id ? "10px" : "0px"}
                 position="relative"
                 width={"274px"}
               >
@@ -368,7 +368,7 @@ const MessageBody = ({
                           }
                           wordBreak="break-word"
                           textAlign="left"
-                          p={"10px"}
+                          p={"5px"}
                         >
                           {messageText}
                         </Text>

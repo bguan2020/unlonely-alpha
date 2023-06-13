@@ -33,7 +33,7 @@ import {
 } from "../../../generated/graphql";
 import ChannelNextHead from "../../../components/layout/ChannelNextHead";
 import io, { Socket } from "socket.io-client";
-import { DANNY_TOKEN_ADDRESS } from "../../../constants";
+import { DANNY_TOKEN_ADDRESS, InteractionType } from "../../../constants";
 import TipTransactionModal from "../../../components/transactions/TipTransactionModal";
 import ControlTransactionModal from "../../../components/transactions/ControlTransactionModal";
 import ChanceTransactionModal from "../../../components/transactions/ChanceTransactionModal";
@@ -84,11 +84,8 @@ const GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY = gql`
       text
       createdAt
       updatedAt
-      channel {
-        id
-      }
       owner {
-        id
+        address
       }
     }
   }
@@ -214,20 +211,10 @@ const ChannelDetail = ({
     if (textOverVideo.length > 0) {
       const timer = setTimeout(() => {
         setTextOverVideo((prev) => prev.slice(2));
-      }, 5000);
+      }, 20000);
       return () => clearTimeout(timer);
     }
   }, [textOverVideo]);
-
-  const addTextOverVideo = () => {
-    const message = "test";
-    postStreamInteraction({
-      text: message,
-      channelId: channel?.id ? Number(channel?.id) : 3,
-      interactionType: "control-text",
-    });
-    handleSendMessage(message);
-  };
 
   const isHidden = useCallback(
     (isChat: boolean) => {
@@ -253,14 +240,12 @@ const ChannelDetail = ({
   );
 
   useEffect(() => {
-    // add check in case recentStreamInteractionsData is undefined
     if (!recentStreamInteractionsData) return;
-    console.log("hello", recentStreamInteractionsData);
     const interactions =
       recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
     if (interactions && interactions.length > 0) {
       const textInteractions = interactions.filter(
-        (i) => i?.interactionType === "control-text" && i.text
+        (i) => i?.interactionType === InteractionType.CONTROL && i.text
       );
       setTextOverVideo(textInteractions.map((i) => String(i?.text)));
     }
@@ -277,7 +262,10 @@ const ChannelDetail = ({
         <ControlTransactionModal
           channel={channel}
           tokenBalanceData={tokenBalanceData}
-          callback={balanceOfRefetchToken}
+          callback={(text: string) => {
+            handleSendMessage(text);
+            balanceOfRefetchToken();
+          }}
           icon={
             <Image
               alt="control"
@@ -339,7 +327,7 @@ const ChannelDetail = ({
           tokenContractAddress={DANNY_TOKEN_ADDRESS}
           addToChatbot={addToChatbot}
         />
-        <Stack direction="column">
+        <Stack direction="column" mt={"1rem"}>
           <Stack
             mx={[8, 4]}
             alignItems={["center", "initial"]}
@@ -348,7 +336,7 @@ const ChannelDetail = ({
             direction={["column", "row", "row"]}
           >
             <Stack direction="column" width={"100%"}>
-              <Button onClick={addTextOverVideo}>Add Message</Button>
+              {/* <Button onClick={addTextOverVideo}>Add Message</Button> */}
               <Flex width={"100%"} position="relative">
                 <Box
                   position="absolute"

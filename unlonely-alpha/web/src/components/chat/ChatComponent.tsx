@@ -568,16 +568,16 @@ const AblyChatComponent = ({
                 borderRadius={"5px"}
                 width={"100%"}
               >
-                <Text fontSize={"44px"} fontWeight="400" textAlign={"center"}>
+                <Text fontSize={"36px"} fontWeight="bold" textAlign={"center"}>
                   HIGH SCORES
                 </Text>
                 <Text
                   color={"#B6B6B6"}
-                  fontSize={"18"}
+                  fontSize={"14px"}
                   fontWeight="400"
                   textAlign={"center"}
                 >
-                  Who owns the most $BRIAN?
+                  who owns the most $BRIAN?
                 </Text>
                 <TableContainer overflowX={"hidden"}>
                   <Table variant="unstyled">
@@ -585,7 +585,7 @@ const AblyChatComponent = ({
                       <Tr>
                         <Th
                           textTransform={"lowercase"}
-                          fontSize={"24px"}
+                          fontSize={"20px"}
                           p="10px"
                           textAlign="center"
                         >
@@ -593,7 +593,7 @@ const AblyChatComponent = ({
                         </Th>
                         <Th
                           textTransform={"lowercase"}
-                          fontSize={"24px"}
+                          fontSize={"20px"}
                           p="10px"
                           textAlign="center"
                         >
@@ -601,7 +601,7 @@ const AblyChatComponent = ({
                         </Th>
                         <Th
                           textTransform={"lowercase"}
-                          fontSize={"24px"}
+                          fontSize={"20px"}
                           p="10px"
                           textAlign="center"
                           isNumeric
@@ -612,14 +612,14 @@ const AblyChatComponent = ({
                     </Thead>
                     <Tbody>
                       <Tr>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                        <Td fontSize={"20px"} p="10px" textAlign="center">
                           1
                         </Td>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                        <Td fontSize={"20px"} p="10px" textAlign="center">
                           cruzy
                         </Td>
                         <Td
-                          fontSize={"24px"}
+                          fontSize={"20px"}
                           p="10px"
                           textAlign="center"
                           isNumeric
@@ -628,14 +628,14 @@ const AblyChatComponent = ({
                         </Td>
                       </Tr>
                       <Tr>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                        <Td fontSize={"20px"} p="10px" textAlign="center">
                           2
                         </Td>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                        <Td fontSize={"20px"} p="10px" textAlign="center">
                           tiny
                         </Td>
                         <Td
-                          fontSize={"24px"}
+                          fontSize={"20px"}
                           p="10px"
                           textAlign="center"
                           isNumeric
@@ -644,14 +644,14 @@ const AblyChatComponent = ({
                         </Td>
                       </Tr>
                       <Tr>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                        <Td fontSize={"20px"} p="10px" textAlign="center">
                           3
                         </Td>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
+                        <Td fontSize={"20px"} p="10px" textAlign="center">
                           me
                         </Td>
                         <Td
-                          fontSize={"24px"}
+                          fontSize={"20px"}
                           p="10px"
                           textAlign="center"
                           isNumeric
@@ -665,18 +665,18 @@ const AblyChatComponent = ({
               </Flex>
             </Flex>
           )}
-          <Text
-            lineHeight={5}
-            mt="4px"
-            mb="4px"
-            fontWeight="light"
-            fontSize={13}
-            textAlign="center"
-            color="#A9ADCC"
-          >
-            who's here?
-          </Text>
-          <Participants ablyPresenceChannel={ablyPresenceChannel} />
+          <Flex my="10px" direction={"column"}>
+            <Text
+              lineHeight={5}
+              fontWeight="light"
+              fontSize={13}
+              textAlign="center"
+              color="#A9ADCC"
+            >
+              who's here?
+            </Text>
+            <Participants ablyPresenceChannel={ablyPresenceChannel} />
+          </Flex>
           <Flex
             direction="column"
             overflowX="auto"

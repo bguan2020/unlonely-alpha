@@ -123,31 +123,38 @@ export default function ControlTransactionModal({
     }
   );
 
+  const canSend = useMemo(
+    () => user !== undefined && useFeature !== undefined,
+    [useFeature, user]
+  );
+
   const masterLoading = useMemo(() => {
     return loading || (useFeatureTxLoading ?? false) || isApprovalLoading;
   }, [loading, useFeatureTxLoading, isApprovalLoading]);
 
   const handleSend = async () => {
-    // if (!useFeature) return;
-    // await useFeature();
+    if (!useFeature) return;
+    await useFeature();
     if (!addToChatbot) return;
     addToChatbot({
       username: user?.username ?? "",
       address: user?.address ?? "",
-      taskType: "control",
+      taskType: InteractionType.CONTROL,
       title: "Control",
       description: "CONTROL",
     });
   };
 
   const onSubmit = async (data: PostStreamInteractionInput) => {
-    await handleSend();
-    postStreamInteraction({
-      channelId: channel?.id,
-      text: data.text,
-      interactionType: InteractionType.CONTROL,
-    });
-    callback?.(data.text);
+    await handleSend()
+      .then(() => {
+        postStreamInteraction({
+          channelId: channel?.id,
+          text: data.text,
+          interactionType: InteractionType.CONTROL,
+        });
+      })
+      .then(() => callback?.(data.text));
   };
 
   return (
@@ -222,9 +229,9 @@ export default function ControlTransactionModal({
               _hover={{}}
               _focus={{}}
               _active={{}}
-              // onClick={handleSend}
+              onClick={handleSend}
               width="100%"
-              // disabled={!(useFeature !== undefined ? true : false) || !user}
+              disabled={!canSend}
               type="submit"
               borderRadius="25px"
             >

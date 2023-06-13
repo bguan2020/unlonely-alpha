@@ -46,7 +46,7 @@ export const getRecentStreamInteractionsByChannel = (
       createdAt: {
         gt: new Date(Date.now() - 5 * 60 * 1000),
       },
-      interactionType: "control-text",
+      interactionType: "control-text-interaction",
     },
     orderBy: {
       createdAt: "asc",

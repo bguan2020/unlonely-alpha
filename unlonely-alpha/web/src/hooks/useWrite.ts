@@ -7,7 +7,7 @@ import {
 import { WriteCallbacks } from "../constants/types";
 
 export const useWrite = (
-  contract: { address: `0x${string}`; abi: any; chainId: number },
+  contract: { address?: `0x${string}`; abi?: any; chainId?: number },
   functionName: string,
   args: any[],
   callbacks?: WriteCallbacks,

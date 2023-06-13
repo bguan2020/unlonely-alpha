@@ -187,124 +187,54 @@ export default function Page() {
 
   return (
     <AppLayout isCustomHeader={false}>
-      <Flex>
-        <Flex
-          direction="column"
-          justifyContent="center"
-          width="100vw"
-          gap={10}
-          pb="10px"
-        >
-          <Flex direction="column" gap={5}>
-            <HeroBanner />
-            {!channels || loading ? null : (
-              <>
-                <LiveChannelList channels={channels} />
-              </>
-            )}
-          </Flex>
-          <Flex>
-            <Box
-              width={{
-                base: "100%",
-                md: "70%",
-                xl: "70%",
-              }}
-            >
-              <Container
-                overflowY="auto"
-                maxHeight={"98vh"}
-                centerContent
-                maxWidth={"100%"}
-                px={10}
-              >
-                <ScrollableComponent channels={channels} />
-              </Container>
-            </Box>
-            <Hide below="md">
-              <Box
-                width={{
-                  base: "0%",
-                  md: "30%",
-                  xl: "30%",
-                }}
-              >
-                <Container height="98vh">
-                  <FixedComponent />
-                </Container>
-              </Box>
-            </Hide>
-          </Flex>
-          {/* <Flex
-          marginTop={{ base: "40px", md: "60px", lg: "100px" }}
-          maxW="80%"
-          flexDirection="column"
-        >
-          <Flex w="100%" justifyContent="center">
-            <Text
-              fontSize={{ base: "20px", md: "30px", lg: "40px" }}
-              lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
-              fontWeight="bold"
-              textAlign="center"
-            >
-              Non-Fungible Clips from Unlonely Streams
-            </Text>
-          </Flex>
-          {!nfcs || loadingNFCs ? (
-            <Flex
-              direction="row"
-              overflowX="scroll"
-              overflowY="clip"
-              width="100%"
-              height="18rem"
-            >
-              {[1, 2, 3, 4, 5].map((i) => (
-                <NfcCardSkeleton />
-              ))}
-            </Flex>
-          ) : (
+      <Flex
+        direction="column"
+        justifyContent="center"
+        width="100vw"
+        overflowX={"hidden"}
+        gap={10}
+        pb="10px"
+      >
+        <Flex direction="column" gap={5}>
+          <HeroBanner />
+          {!channels || loading ? null : (
             <>
-              <Flex
-                direction="row"
-                overflowX="scroll"
-                overflowY="clip"
-                width="100%"
-                height={{
-                  base: "14rem",
-                  sm: "19rem",
-                  md: "19rem",
-                  lg: "19rem",
-                }}
-              >
-                <NfcList nfcs={nfcs} />
-              </Flex>
+              <LiveChannelList channels={channels} />
             </>
           )}
-          <Flex w="100%" justifyContent="center" mt="3rem">
-            <Text
-              fontSize={{ base: "20px", md: "30px", lg: "40px" }}
-              lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
-              fontWeight="bold"
-              textAlign="left"
-            >
-              All Unlonely Channels
-            </Text>
-          </Flex>
-          <Flex
-            direction="row"
-            overflowX="scroll"
-            overflowY="clip"
-            width="100%"
-            height={{
-              base: "14rem",
-              sm: "19rem",
-              md: "19rem",
-              lg: "19rem",
+        </Flex>
+        <Flex>
+          <Box
+            width={{
+              base: "100%",
+              md: "70%",
+              xl: "70%",
             }}
           >
-            <ChannelList channels={channels} />
-          </Flex>
-        </Flex> */}
+            <Container
+              overflowY="auto"
+              maxHeight={"98vh"}
+              centerContent
+              maxWidth={"100%"}
+              pl={"16px"}
+              pr={"10px"}
+            >
+              <ScrollableComponent channels={channels} />
+            </Container>
+          </Box>
+          <Hide below="md">
+            <Box
+              width={{
+                base: "0%",
+                md: "30%",
+                xl: "30%",
+              }}
+            >
+              <Container height="98vh">
+                <FixedComponent />
+              </Container>
+            </Box>
+          </Hide>
         </Flex>
       </Flex>
     </AppLayout>

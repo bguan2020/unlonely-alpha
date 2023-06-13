@@ -45,8 +45,8 @@ const BuyButton: React.FunctionComponent<Props> = ({
         width={"80%"}
         pointerEvents="none"
       >
-        <Text lineHeight={1} fontSize="30px" textAlign={"left"}>
-          Buy {tokenName}
+        <Text lineHeight={1} fontSize="25px" textAlign={"left"}>
+          buy {tokenName ? tokenName : "token"}
         </Text>
       </Flex>
     </Flex>

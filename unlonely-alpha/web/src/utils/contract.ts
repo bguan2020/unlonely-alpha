@@ -10,7 +10,11 @@ export const getContractFromNetwork = (
     !network.config.contracts[contractName].address ||
     !network.config.contracts[contractName].abi
   )
-    return undefined;
+    return {
+      address: undefined,
+      abi: undefined,
+      chainId: undefined,
+    };
   const contract = {
     address: network.config.contracts[contractName].address as `0x${string}`,
     abi: network.config.contracts[contractName].abi,

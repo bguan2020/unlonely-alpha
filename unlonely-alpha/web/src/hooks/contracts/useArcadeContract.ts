@@ -20,7 +20,12 @@ export const useReadPublic = (creatorTokenAddress: `0x${string}`) => {
   const [tokenOwner, setTokenOwner] = useState<string>(NULL_ADDRESS);
 
   const getData = useCallback(async () => {
-    if (!contract || !isAddress(creatorTokenAddress) || !publicClient) {
+    if (
+      !contract.address ||
+      !contract.abi ||
+      !isAddress(creatorTokenAddress) ||
+      !publicClient
+    ) {
       setCreatorToken(NULL_ADDRESS);
       setTokenPrice(BigInt(0));
       setTokenOwner(NULL_ADDRESS);
@@ -84,7 +89,12 @@ export const useCalculateEthAmount = (
   const [amountIn, setAmountIn] = useState<bigint>(BigInt(0));
 
   const getData = useCallback(async () => {
-    if (!contract || !isAddress(creatorTokenAddress) || !publicClient) {
+    if (
+      !contract.address ||
+      !contract.abi ||
+      !isAddress(creatorTokenAddress) ||
+      !publicClient
+    ) {
       setAmountIn(BigInt(0));
       return;
     }
@@ -123,7 +133,7 @@ export const useAdmins = () => {
   const [admins, setAdmins] = useState<string[]>([]);
 
   const getData = useCallback(async () => {
-    if (!contract || !publicClient) {
+    if (!contract.address || !contract.abi || !publicClient) {
       setAdmins([]);
       return;
     }
@@ -174,14 +184,6 @@ export const useBuyCreatorToken = (
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
-  if (contract === undefined)
-    return {
-      buyCreatorToken: undefined,
-      buyCreatorTokenData: undefined,
-      buyCreatorTokenTxData: undefined,
-      buyCreatorTokenTxLoading: undefined,
-    };
-
   const {
     writeAsync: buyCreatorToken,
     writeData: buyCreatorTokenData,
@@ -215,14 +217,6 @@ export const useUseFeature = (
     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-
-  if (contract === undefined)
-    return {
-      useFeature: undefined,
-      useFeatureData: undefined,
-      useFeatureTxData: undefined,
-      useFeatureTxLoading: undefined,
-    };
 
   const {
     writeAsync: useFeature,
@@ -258,14 +252,6 @@ export const useAddCreatorToken = (
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
-  if (contract === undefined)
-    return {
-      addCreatorToken: undefined,
-      addCreatorTokenData: undefined,
-      addCreatorTokenTxData: undefined,
-      addCreatorTokenTxLoading: undefined,
-    };
-
   const {
     writeAsync: addCreatorToken,
     writeData: addCreatorTokenData,
@@ -298,14 +284,6 @@ export const useSetTokenPrice = (
     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-
-  if (contract === undefined)
-    return {
-      setTokenPrice: undefined,
-      setTokenPriceData: undefined,
-      setTokenPriceTxData: undefined,
-      setTokenPriceTxLoading: undefined,
-    };
 
   const {
     writeAsync: setTokenPrice,

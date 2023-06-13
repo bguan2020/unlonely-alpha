@@ -146,10 +146,6 @@ const ChannelDetail = ({
     fetchEns();
   }, [accountData?.address, ensData]);
 
-  if (!channel) {
-    return null;
-  }
-
   const isHidden = useCallback(
     (isChat: boolean) => {
       //checks if width is <= 48 em (base size) if so checks switch tab is disabled
@@ -160,128 +156,132 @@ const ChannelDetail = ({
 
   return (
     <>
-      {channelSSR && <ChannelNextHead channel={channelSSR} />}
-      <AppLayout
-        title={channel?.name}
-        image={channel?.owner?.FCImageUrl}
-        isCustomHeader={true}
-      >
-        <Stack direction="column">
-          <Stack
-            mx={[8, 4]}
-            alignItems={["center", "initial"]}
-            mt="10px"
-            spacing={8}
-            direction={["column", "row", "row"]}
+      {channel && (
+        <>
+          {channelSSR && <ChannelNextHead channel={channelSSR} />}
+          <AppLayout
+            title={channel?.name}
+            image={channel?.owner?.FCImageUrl}
+            isCustomHeader={true}
           >
-            <Stack direction="column" width={"100%"}>
-              <Flex width={"100%"}>
-                {channel.playbackUrl ? (
-                  <NextStreamTimer
-                    isTheatreMode={true}
-                    hasTimer={false}
-                    playbackUrl={channel.playbackUrl}
-                  />
-                ) : null}
-              </Flex>
-              <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
-                <GridItem colSpan={showArcadeButtons ? 2 : 3}>
-                  <ChannelDesc channel={channel} user={user} />
-                </GridItem>
-                {showArcadeButtons && (
-                  <GridItem justifyItems={"center"}>
-                    <Box
-                      display="flex"
-                      justifyContent="center"
-                      alignItems="center"
-                      gap={5}
-                    >
-                      <Grid
-                        templateColumns="repeat(2, 1fr)"
-                        templateRows="repeat(2, 1fr)"
-                        gridGap={4}
-                        alignItems="flex-start"
-                        justifyItems="flex-start"
-                      >
-                        <Tooltip label={"Not available"}>
-                          <span>
-                            <ControlButton />
-                          </span>
-                        </Tooltip>
-                        <Tooltip label={"Not available"}>
-                          <span>
-                            <DiceButton />
-                          </span>
-                        </Tooltip>
-                        <Tooltip label={"Not available"}>
-                          <span>
-                            <SwordButton />
-                          </span>
-                        </Tooltip>
-                        <Tooltip label={"Not available"}>
-                          <span>
-                            <CoinButton />
-                          </span>
-                        </Tooltip>
-                      </Grid>
-                      <Tooltip label={"Not available"}>
-                        <span>
-                          <BuyButton tokenName="Token" />
-                        </span>
-                      </Tooltip>
-                    </Box>
-                  </GridItem>
-                )}
-              </Grid>
-            </Stack>
-            <Button
-              height={{
-                //only show on mobile
-                base: "100%", // 0-48em
-                md: "0%", // 48em-80em,
-                xl: "0%", // 80em+
-              }}
-              onClick={toggleChatVideos}
-              id="xeedev-poaav"
-            >
-              Toggle Chat/Channel Details
-            </Button>
-            {channel ? (
-              <Flex
-                hidden={isHidden(true)}
-                borderWidth="1px"
-                borderRadius={"10px"}
-                p="1px"
-                bg={
-                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-                }
-                width="100%"
-                maxW={["768px", "380px"]}
-                maxH={["500px", "850px"]}
-                mr="10px"
-                boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
+            <Stack direction="column" mt={"1rem"}>
+              <Stack
+                mx={[8, 4]}
+                alignItems={["center", "initial"]}
+                mt="10px"
+                spacing={8}
+                direction={["column", "row", "row"]}
               >
-                <Container
-                  borderRadius={10}
-                  background={"#19162F"}
-                  centerContent
+                <Stack direction="column" width={"100%"}>
+                  <Flex width={"100%"}>
+                    {channel.playbackUrl ? (
+                      <NextStreamTimer
+                        isTheatreMode={true}
+                        hasTimer={false}
+                        playbackUrl={channel.playbackUrl}
+                      />
+                    ) : null}
+                  </Flex>
+                  <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
+                    <GridItem colSpan={showArcadeButtons ? 2 : 3}>
+                      <ChannelDesc channel={channel} user={user} />
+                    </GridItem>
+                    {showArcadeButtons && (
+                      <GridItem justifyItems={"center"}>
+                        <Box
+                          display="flex"
+                          justifyContent="center"
+                          alignItems="center"
+                          gap={5}
+                        >
+                          <Grid
+                            templateColumns="repeat(2, 1fr)"
+                            templateRows="repeat(2, 1fr)"
+                            gridGap={4}
+                            alignItems="flex-start"
+                            justifyItems="flex-start"
+                          >
+                            <Tooltip label={"Not available"}>
+                              <span>
+                                <ControlButton />
+                              </span>
+                            </Tooltip>
+                            <Tooltip label={"Not available"}>
+                              <span>
+                                <DiceButton />
+                              </span>
+                            </Tooltip>
+                            <Tooltip label={"Not available"}>
+                              <span>
+                                <SwordButton />
+                              </span>
+                            </Tooltip>
+                            <Tooltip label={"Not available"}>
+                              <span>
+                                <CoinButton />
+                              </span>
+                            </Tooltip>
+                          </Grid>
+                          <Tooltip label={"Not available"}>
+                            <span>
+                              <BuyButton tokenName="Token" />
+                            </span>
+                          </Tooltip>
+                        </Box>
+                      </GridItem>
+                    )}
+                  </Grid>
+                </Stack>
+                <Button
+                  height={{
+                    //only show on mobile
+                    base: "100%", // 0-48em
+                    md: "0%", // 48em-80em,
+                    xl: "0%", // 80em+
+                  }}
+                  onClick={toggleChatVideos}
+                  id="xeedev-poaav"
                 >
-                  <AblyChatComponent
-                    username={username}
-                    chatBot={chatBot}
-                    user={user}
-                    ablyChatChannel={ablyChatChannel}
-                    ablyPresenceChannel={ablyPresenceChannel}
-                    channelArn={channel.channelArn || ""}
-                    channelId={channel.id ? Number(channel.id) : 3}
-                    allowNFCs={channel.allowNFCs || false}
-                  />
-                </Container>
-              </Flex>
-            ) : null}
-          </Stack>
-        </Stack>
-      </AppLayout>
+                  Toggle Chat/Channel Details
+                </Button>
+                {channel ? (
+                  <Flex
+                    hidden={isHidden(true)}
+                    borderWidth="1px"
+                    borderRadius={"10px"}
+                    p="1px"
+                    bg={
+                      "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                    }
+                    width="100%"
+                    maxW={["768px", "380px"]}
+                    maxH={["500px", "850px"]}
+                    mr="10px"
+                    boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
+                  >
+                    <Container
+                      borderRadius={10}
+                      background={"#19162F"}
+                      centerContent
+                    >
+                      <AblyChatComponent
+                        username={username}
+                        chatBot={chatBot}
+                        user={user}
+                        ablyChatChannel={ablyChatChannel}
+                        ablyPresenceChannel={ablyPresenceChannel}
+                        channelArn={channel.channelArn || ""}
+                        channelId={channel.id ? Number(channel.id) : 3}
+                        allowNFCs={channel.allowNFCs || false}
+                      />
+                    </Container>
+                  </Flex>
+                ) : null}
+              </Stack>
+            </Stack>
+          </AppLayout>
+        </>
+      )}
     </>
   );
 };
