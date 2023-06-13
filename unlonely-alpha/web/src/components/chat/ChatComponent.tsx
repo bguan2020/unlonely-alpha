@@ -15,7 +15,7 @@ import {
   Grid,
   GridItem,
 } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 
 import useChannel from "../../hooks/useChannel";
@@ -34,6 +34,7 @@ import CoinButton from "../arcade/CoinButton";
 import ControlButton from "../arcade/ControlButton";
 import DiceButton from "../arcade/DiceButton";
 import { useScrollPercentage } from "../../hooks/useScrollPercentage";
+import { InteractionType } from "../../constants";
 
 type Props = {
   username: string | null | undefined;
@@ -83,6 +84,7 @@ const AblyChatComponent = ({
 
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [formError, setFormError] = useState<null | string[]>(null);
+  const [chatHeightGrounded, setChatHeightGrounded] = useState(false);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
@@ -114,6 +116,10 @@ const AblyChatComponent = ({
     },
   });
   const { scrollRef, scrollPercentage } = useScrollPercentage();
+
+  const hasScrolled = useMemo(() => {
+    return scrollPercentage < 100 && !chatHeightGrounded;
+  }, [scrollPercentage, chatHeightGrounded]);
 
   const toast = useToast();
   const channelName = ablyChatChannel
@@ -168,7 +174,7 @@ const AblyChatComponent = ({
       if (lastMessage.taskType === "video") {
         messageText = `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`;
       }
-      if (lastMessage.taskType === "tip") {
+      if (lastMessage.taskType === InteractionType.TIP) {
         messageText = lastMessage.description ?? "Tip";
       }
       if (lastMessage.taskType === "pvp") {
@@ -177,8 +183,11 @@ const AblyChatComponent = ({
       if (lastMessage.taskType === "chance") {
         messageText = lastMessage.description ?? "Chance";
       }
-      if (lastMessage.taskType === "control") {
+      if (lastMessage.taskType === InteractionType.CONTROL) {
         messageText = lastMessage.description ?? "Control";
+      }
+      if (lastMessage.taskType === InteractionType.BUY) {
+        messageText = lastMessage.description ?? "Buy";
       }
 
       channel.publish({
@@ -404,6 +413,7 @@ const AblyChatComponent = ({
       if (scrollPercentage === 100) {
         chat.scrollTop = chat.scrollHeight;
       }
+      setChatHeightGrounded(chat.scrollHeight >= chat.clientHeight);
     }
   }, [receivedMessages]);
 
@@ -664,7 +674,7 @@ const AblyChatComponent = ({
             textAlign="center"
             color="#A9ADCC"
           >
-            Who's here?
+            who's here?
           </Text>
           <Participants ablyPresenceChannel={ablyPresenceChannel} />
           <Flex
@@ -677,16 +687,16 @@ const AblyChatComponent = ({
             ref={scrollRef}
           >
             <MessageList messages={receivedMessages} channel={channel} />
-            {autoScroll.current && (
+            {/* {autoScroll.current && (
               <Box
-              // ref={(el) => {
-              //   if (el) el.scrollIntoView({ behavior: "smooth" });
-              // }}
+              ref={(el) => {
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
               />
-            )}
+            )} */}
           </Flex>
           <Flex justifyContent="center">
-            {scrollPercentage < 100 && hasMessagesLoaded ? (
+            {hasScrolled && hasMessagesLoaded ? (
               <Box
                 bg="rgba(98, 98, 98, 0.6)"
                 p="4px"

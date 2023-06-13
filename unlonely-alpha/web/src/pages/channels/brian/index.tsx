@@ -27,7 +27,10 @@ import CoinButton from "../../../components/arcade/CoinButton";
 import ChannelDesc from "../../../components/channels/ChannelDesc";
 import { GetServerSidePropsContext } from "next";
 import { initializeApollo } from "../../../apiClient/client";
-import { ChannelDetailQuery } from "../../../generated/graphql";
+import {
+  ChannelDetailQuery,
+  GetRecentStreamInteractionsQuery,
+} from "../../../generated/graphql";
 import ChannelNextHead from "../../../components/layout/ChannelNextHead";
 import io, { Socket } from "socket.io-client";
 import { DANNY_TOKEN_ADDRESS } from "../../../constants";
@@ -108,18 +111,17 @@ const ChannelDetail = ({
     },
   });
 
-  const { data: recentStreamInteractionsData } = useQuery(
-    GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
-    {
-      variables: {
-        data: {
-          channelId: data?.getChannelBySlug?.id,
+  const { data: recentStreamInteractionsData } =
+    useQuery<GetRecentStreamInteractionsQuery>(
+      GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
+      {
+        variables: {
+          data: {
+            channelId: 3,
+          },
         },
-      },
-    }
-  );
-
-  // console.log("recentStreamInteractionsData", recentStreamInteractionsData);
+      }
+    );
 
   const channelSSR = useMemo(
     () => channelData?.getChannelBySlug,
@@ -164,13 +166,7 @@ const ChannelDetail = ({
     }
   );
 
-  const callbackMessage = (any: any) => {
-    /* eslint-disable no-console */
-    console.log("callbackMessage", any);
-  };
-
   const handleSendMessage = (message: string) => {
-    callbackMessage(`send ${message}`);
     if (!socket) return;
     socket.emit("send-message", {
       message,
@@ -186,7 +182,9 @@ const ChannelDetail = ({
       setSocket(newSocket);
 
       newSocket.on("receive-message", (data) => {
-        callbackMessage(`received ${data}`);
+        /* eslint-disable no-console */
+        console.log("received message", data);
+        setTextOverVideo((prev) => [...prev, data.message]);
       });
     };
     socketInit();
@@ -228,7 +226,7 @@ const ChannelDetail = ({
       channelId: channel?.id ? Number(channel?.id) : 3,
       interactionType: "control-text",
     });
-    setTextOverVideo((prev) => [...prev, message]);
+    handleSendMessage(message);
   };
 
   const isHidden = useCallback(
@@ -254,14 +252,19 @@ const ChannelDetail = ({
     [chatBot]
   );
 
-  // useEffect(() => {
-  //   // add check in case recentStreamInteractionsData is undefined
-  //   const interactions =
-  //     recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
-  //   if (interactions.length > 0) {
-  //     setTextOverVideo(interactions);
-  //   }
-  // }, [recentStreamInteractionsData]);
+  useEffect(() => {
+    // add check in case recentStreamInteractionsData is undefined
+    if (!recentStreamInteractionsData) return;
+    console.log("hello", recentStreamInteractionsData);
+    const interactions =
+      recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
+    if (interactions && interactions.length > 0) {
+      const textInteractions = interactions.filter(
+        (i) => i?.interactionType === "control-text" && i.text
+      );
+      setTextOverVideo(textInteractions.map((i) => String(i?.text)));
+    }
+  }, [recentStreamInteractionsData]);
 
   return (
     <>
@@ -402,9 +405,6 @@ const ChannelDetail = ({
                 )}
               </Grid>
             </Stack>
-            <Button onClick={() => handleSendMessage("hola")}>
-              Test socket
-            </Button>
             <Button
               height={{
                 //only show on mobile

@@ -48,7 +48,7 @@ const TokenLeaderboard = ({
         fontWeight="400"
         textAlign={"center"}
       >
-        Who has the most valuable token?
+        who has the most valuable token?
       </Text>
       <Box
         borderWidth="1px"

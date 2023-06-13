@@ -4,7 +4,6 @@ import { Box, Container, Flex, Hide, Text } from "@chakra-ui/react";
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
-import ChannelList from "../components/channels/ChannelList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import HeroBanner from "../components/layout/HeroBanner";
 import AblyChatComponent from "../components/chat/ChatComponent";
@@ -169,18 +168,6 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
         ) : (
           <NfcList nfcs={nfcs} />
         )}
-      </Flex>
-      <Flex direction="column" width="100%">
-        <Text
-          fontSize={{ base: "30px", lg: "40px" }}
-          lineHeight={{ base: "60px", lg: "80px" }}
-          textAlign="center"
-          fontFamily="Neue Pixel Sans"
-        >
-          unlonely channels
-        </Text>
-
-        <ChannelList channels={channels} />
       </Flex>
     </>
   );

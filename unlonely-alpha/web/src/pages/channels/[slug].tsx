@@ -103,13 +103,7 @@ const ChannelDetail = ({
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
-  const callbackMessage = (any: any) => {
-    /* eslint-disable no-console */
-    console.log("callbackMessage", any);
-  };
-
   const handleSendMessage = (message: string) => {
-    callbackMessage(`send ${message}`);
     if (!socket) return;
     socket.emit("send-message", {
       message,
@@ -119,13 +113,14 @@ const ChannelDetail = ({
 
   useEffect(() => {
     const socketInit = async () => {
-      const newSocket = io("ws://localhost:4000", {
+      const newSocket = io("https://unlonely-vqeii.ondigitalocean.app", {
         transports: ["websocket"],
       });
       setSocket(newSocket);
 
       newSocket.on("receive-message", (data) => {
-        callbackMessage(`received ${data}`);
+        /* eslint-disable no-console */
+        console.log("received message", data);
       });
     };
     socketInit();
@@ -135,14 +130,6 @@ const ChannelDetail = ({
       socket.disconnect();
     };
   }, []);
-
-  const isHidden = useCallback(
-    (isChat: boolean) => {
-      //checks if width is <= 48 em (base size) if so checks switch tab is disabled
-      return width <= 768 && (isChat ? hideChat : !hideChat);
-    },
-    [width, hideChat]
-  );
 
   const { data: ensData } = useEnsName({
     address: accountData?.address,
@@ -162,6 +149,14 @@ const ChannelDetail = ({
   if (!channel) {
     return null;
   }
+
+  const isHidden = useCallback(
+    (isChat: boolean) => {
+      //checks if width is <= 48 em (base size) if so checks switch tab is disabled
+      return width <= 768 && (isChat ? hideChat : !hideChat);
+    },
+    [width, hideChat]
+  );
 
   return (
     <>
@@ -239,9 +234,6 @@ const ChannelDetail = ({
                 )}
               </Grid>
             </Stack>
-            <Button onClick={() => handleSendMessage("hola")}>
-              Test socket
-            </Button>
             <Button
               height={{
                 //only show on mobile

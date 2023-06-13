@@ -1,4 +1,5 @@
 import {
+  Button,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -46,7 +47,7 @@ export default function ControlTransactionModal({
   channel: ChannelDetailQuery["getChannelBySlug"];
   tokenBalanceData?: FetchBalanceResult;
   icon?: JSX.Element;
-  callback?: () => void;
+  callback?: any;
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
@@ -70,14 +71,6 @@ export default function ControlTransactionModal({
   const { register, formState, handleSubmit, watch } = form;
 
   const { postStreamInteraction, loading } = usePostStreamInteraction({});
-
-  const onSubmit = (data: PostStreamInteractionInput) => {
-    postStreamInteraction({
-      channelId: channel?.id,
-      text: data.text,
-      interactionType: InteractionType.CONTROL,
-    });
-  };
 
   const {
     requiresApproval,
@@ -135,9 +128,8 @@ export default function ControlTransactionModal({
   }, [loading, useFeatureTxLoading, isApprovalLoading]);
 
   const handleSend = async () => {
-    if (!useFeature) return;
-    await useFeature();
-    handleSubmit(onSubmit)();
+    // if (!useFeature) return;
+    // await useFeature();
     if (!addToChatbot) return;
     addToChatbot({
       username: user?.username ?? "",
@@ -148,18 +140,25 @@ export default function ControlTransactionModal({
     });
   };
 
+  const onSubmit = async (data: PostStreamInteractionInput) => {
+    await handleSend();
+    postStreamInteraction({
+      channelId: channel?.id,
+      text: data.text,
+      interactionType: InteractionType.CONTROL,
+    });
+    callback?.(data.text);
+  };
+
   return (
     <TransactionModalTemplate
       title={title}
       confirmButton="purchase"
       isOpen={isOpen}
       icon={icon}
-      canSend={useFeature !== undefined ? true : false}
       isModalLoading={masterLoading}
-      onSend={handleSend}
       handleClose={handleClose}
-      needsApproval={requiresApproval}
-      approve={writeApproval}
+      hideFooter
     >
       <Flex direction="column" gap="16px">
         <Flex justifyContent={"space-evenly"} alignItems="center">
@@ -173,44 +172,66 @@ export default function ControlTransactionModal({
           </ModalButton>
           <Text color="#EBE6E6">Cover stream with text</Text>
         </Flex>
-        {/* <Flex justifyContent={"space-evenly"} alignItems="center">
-          <ModalButton
-            width="120px"
-            height="50px"
-            fade={amountOption === "10" ? 1 : 0.2}
-            onClick={() => setAmountOption("10")}
-          >
-            <Text fontSize="20px">10</Text>
-          </ModalButton>
-          <Text color="#EBE6E6">Change to a new scene</Text>
-        </Flex> */}
-        {amountOption === "5" && (
-          <FormControl isInvalid={!!formState.errors.text}>
-            <Textarea
-              id="text"
-              placeholder="enter text over stream"
-              _placeholder={{ color: "grey" }}
-              lineHeight="1.2"
-              background="rgba(36, 79, 167, 0.05)"
-              borderRadius="10px"
-              p="15px"
-              borderColor="#244FA7"
-              borderWidth="1px"
-              boxShadow="#F1F4F8"
-              minHeight="4rem"
-              fontWeight="medium"
-              w="100%"
-              height="200px"
-              _active={{}}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {amountOption === "5" && (
+            <FormControl isInvalid={!!formState.errors.text}>
+              <Textarea
+                id="text"
+                placeholder="enter text over stream"
+                _placeholder={{ color: "grey" }}
+                lineHeight="1.2"
+                background="rgba(36, 79, 167, 0.05)"
+                borderRadius="10px"
+                p="15px"
+                borderColor="#244FA7"
+                borderWidth="1px"
+                boxShadow="#F1F4F8"
+                minHeight="4rem"
+                fontWeight="medium"
+                w="100%"
+                height="200px"
+                _active={{}}
+                _focus={{}}
+                variant="unstyled"
+                {...register("text")}
+              />
+              <FormErrorMessage>
+                {formState.errors.text?.message}
+              </FormErrorMessage>
+            </FormControl>
+          )}
+          {requiresApproval && (
+            <Button
+              mt="10px"
+              bg="#CB520E"
+              _hover={{}}
               _focus={{}}
-              variant="unstyled"
-              {...register("text")}
-            />
-            <FormErrorMessage>
-              {formState.errors.text?.message}
-            </FormErrorMessage>
-          </FormControl>
-        )}
+              _active={{}}
+              onClick={writeApproval}
+              width="100%"
+              disabled={!writeApproval}
+              borderRadius="25px"
+            >
+              approve tokens transfer
+            </Button>
+          )}
+          {!requiresApproval && (
+            <Button
+              mt="10px"
+              bg="#E09025"
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              // onClick={handleSend}
+              width="100%"
+              // disabled={!(useFeature !== undefined ? true : false) || !user}
+              type="submit"
+              borderRadius="25px"
+            >
+              {"purchase"}
+            </Button>
+          )}
+        </form>
       </Flex>
     </TransactionModalTemplate>
   );

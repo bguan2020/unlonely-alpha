@@ -8,7 +8,7 @@ const HeroBanner = () => {
         fontFamily={"Neue Pixel Sans"}
         textAlign="center"
       >
-        Welcome to unlonely
+        welcome to unlonely
       </Text>
       <Text
         fontSize={["20px", "24px"]}

@@ -23,6 +23,7 @@ export const TransactionModalTemplate = ({
   children,
   isModalLoading,
   needsApproval,
+  hideFooter,
   approve,
   handleClose,
   onSend,
@@ -35,6 +36,7 @@ export const TransactionModalTemplate = ({
   canSend?: boolean;
   icon?: JSX.Element;
   needsApproval?: boolean;
+  hideFooter?: boolean;
   approve?: () => void;
   handleClose: () => void;
   onSend?: () => void;
@@ -81,36 +83,38 @@ export const TransactionModalTemplate = ({
         {!isModalLoading && (
           <>
             <ModalBody>{children}</ModalBody>
-            <ModalFooter>
-              {needsApproval && (
-                <Button
-                  bg="#CB520E"
-                  _hover={{}}
-                  _focus={{}}
-                  _active={{}}
-                  onClick={approve}
-                  width="100%"
-                  disabled={!approve}
-                  borderRadius="25px"
-                >
-                  approve tokens transfer
-                </Button>
-              )}
-              {!needsApproval && (
-                <Button
-                  bg="#E09025"
-                  _hover={{}}
-                  _focus={{}}
-                  _active={{}}
-                  onClick={onSend}
-                  width="100%"
-                  disabled={!canSend || !user}
-                  borderRadius="25px"
-                >
-                  {confirmButton}
-                </Button>
-              )}
-            </ModalFooter>
+            {!hideFooter && (
+              <ModalFooter>
+                {needsApproval && (
+                  <Button
+                    bg="#CB520E"
+                    _hover={{}}
+                    _focus={{}}
+                    _active={{}}
+                    onClick={approve}
+                    width="100%"
+                    disabled={!approve}
+                    borderRadius="25px"
+                  >
+                    approve tokens transfer
+                  </Button>
+                )}
+                {!needsApproval && (
+                  <Button
+                    bg="#E09025"
+                    _hover={{}}
+                    _focus={{}}
+                    _active={{}}
+                    onClick={onSend}
+                    width="100%"
+                    disabled={!canSend || !user}
+                    borderRadius="25px"
+                  >
+                    {confirmButton}
+                  </Button>
+                )}
+              </ModalFooter>
+            )}
           </>
         )}
         {isModalLoading && (
