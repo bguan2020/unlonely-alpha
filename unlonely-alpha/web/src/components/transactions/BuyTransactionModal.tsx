@@ -98,9 +98,8 @@ export default function BuyTransactionModal({
   );
 
   const handleSend = async () => {
-    if (!buyCreatorToken) return;
+    if (!buyCreatorToken || !addToChatbot) return;
     await buyCreatorToken();
-    if (!addToChatbot) return;
     addToChatbot({
       username: user?.username ?? "",
       address: user?.address ?? "",

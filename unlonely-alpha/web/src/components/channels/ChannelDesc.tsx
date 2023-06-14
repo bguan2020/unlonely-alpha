@@ -167,7 +167,7 @@ const ChannelDesc = ({ channel, user }: Props) => {
             src={ipfsUrl}
             size="md"
           />
-          <Flex direction="column" gap={"16px"}>
+          <Flex direction="column" gap={["0px", "16px"]}>
             <Flex
               maxH="400px"
               margin="auto"
@@ -179,7 +179,11 @@ const ChannelDesc = ({ channel, user }: Props) => {
               gap="1rem"
               wordBreak={"break-all"}
             >
-              <Text fontSize="2rem" fontWeight="bold">
+              <Text
+                fontSize={["1rem", "1.5rem", "2rem"]}
+                fontWeight="bold"
+                noOfLines={2}
+              >
                 {channel?.name}
               </Text>
               {isOwner && (
@@ -194,8 +198,10 @@ const ChannelDesc = ({ channel, user }: Props) => {
                 </Tooltip>
               )}
             </Flex>
-            <Flex direction="row" margin="auto" ml="32px">
-              {channel?.description}
+            <Flex direction="row" ml="32px">
+              <Text fontSize={["0.8rem", "1.2rem"]}>
+                {channel?.description}
+              </Text>
             </Flex>
           </Flex>
         </Flex>

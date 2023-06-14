@@ -133,9 +133,8 @@ export default function ControlTransactionModal({
   }, [loading, useFeatureTxLoading, isApprovalLoading]);
 
   const handleSend = async () => {
-    if (!useFeature) return;
+    if (!useFeature || !addToChatbot) return;
     await useFeature();
-    if (!addToChatbot) return;
     addToChatbot({
       username: user?.username ?? "",
       address: user?.address ?? "",
@@ -229,7 +228,6 @@ export default function ControlTransactionModal({
               _hover={{}}
               _focus={{}}
               _active={{}}
-              onClick={handleSend}
               width="100%"
               disabled={!canSend}
               type="submit"

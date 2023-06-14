@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Flex,
-  Button,
   Stack,
   Container,
   Grid,
@@ -284,7 +283,9 @@ const ChannelDetail = ({
           title=""
           tokenBalanceData={tokenBalanceData}
           callback={balanceOfRefetchToken}
-          icon={<BuyButton tokenName={`$${tokenBalanceData?.symbol}`} />}
+          icon={
+            <BuyButton tokenName={`$${tokenBalanceData?.symbol}`} noHover />
+          }
           isOpen={showBuyModal}
           handleClose={handleClose}
           tokenContractAddress={DANNY_TOKEN_ADDRESS}
@@ -329,14 +330,13 @@ const ChannelDetail = ({
         />
         <Stack direction="column" mt={"1rem"}>
           <Stack
-            mx={[8, 4]}
+            mx={[0, 8, 4]}
             alignItems={["center", "initial"]}
             mt="10px"
-            spacing={8}
-            direction={["column", "row", "row"]}
+            spacing={[4, 8]}
+            direction={["column", "column", "row", "row"]}
           >
             <Stack direction="column" width={"100%"}>
-              {/* <Button onClick={addTextOverVideo}>Add Message</Button> */}
               <Flex width={"100%"} position="relative">
                 <Box
                   position="absolute"
@@ -393,19 +393,6 @@ const ChannelDetail = ({
                 )}
               </Grid>
             </Stack>
-            <Button
-              height={{
-                //only show on mobile
-                base: "100%", // 0-48em
-                md: "0%", // 48em-80em,
-                xl: "0%", // 80em+
-              }}
-              onClick={toggleChatVideos}
-              id="xeedev-poaav"
-              bg="#27415E"
-            >
-              Toggle Chat/Host Schedule
-            </Button>
             <Flex
               hidden={isHidden(true)}
               borderWidth="1px"
@@ -415,9 +402,8 @@ const ChannelDetail = ({
                 "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
               }
               width="100%"
-              maxW={["768px", "380px"]}
+              maxW={["768px", "100%", "380px"]}
               maxH={["500px", "850px"]}
-              mr="10px"
               boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
             >
               <Container borderRadius={10} background={"#19162F"} centerContent>
@@ -430,6 +416,12 @@ const ChannelDetail = ({
                   channelArn={channelArn}
                   channelId={3}
                   allowNFCs={true}
+                  tokenBalanceData={tokenBalanceData}
+                  handleBuyModal={() => setShowBuyModal(true)}
+                  handleTipModal={() => setShowTipModal(true)}
+                  handleChanceModal={() => setShowChanceModal(true)}
+                  handlePvpModal={() => setShowPvpModal(true)}
+                  handleControlModal={() => setShowControlModal(true)}
                 />
               </Container>
             </Flex>

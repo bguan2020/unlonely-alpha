@@ -111,9 +111,8 @@ export default function TipTransactionModal({
   );
 
   const handleSend = async () => {
-    if (!useFeature) return;
+    if (!useFeature || !addToChatbot) return;
     await useFeature();
-    if (!addToChatbot) return;
     addToChatbot({
       username: user?.username ?? "",
       address: user?.address ?? "",

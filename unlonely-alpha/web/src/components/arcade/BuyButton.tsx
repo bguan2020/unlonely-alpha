@@ -19,7 +19,7 @@ const BuyButton: React.FunctionComponent<Props> = ({
       <IconButton
         aria-label={`${tokenName}-buy`}
         icon={
-          isHovered && noHover ? (
+          isHovered && !noHover ? (
             <Image src="/svg/buy-hover.svg" width="100%" />
           ) : (
             <Image src="/svg/buy.svg" width="100%" />
@@ -38,9 +38,8 @@ const BuyButton: React.FunctionComponent<Props> = ({
       <Flex
         direction="column"
         align="left"
-        top="50%"
-        left="60%"
-        transform="translate(-50%, -50%)"
+        top="7px"
+        left="55px"
         position="absolute"
         width={"80%"}
         pointerEvents="none"

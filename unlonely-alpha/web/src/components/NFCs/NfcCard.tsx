@@ -22,6 +22,8 @@ const NfcCard = ({ nfc }: any) => {
         bg={"#131323"}
         p={"10px"}
         cursor="pointer"
+        transition="transform 0.2s"
+        _hover={{ transform: "scale(1.05)" }}
       >
         <Flex
           _hover={{

@@ -35,6 +35,8 @@ import ControlButton from "../arcade/ControlButton";
 import DiceButton from "../arcade/DiceButton";
 import { useScrollPercentage } from "../../hooks/useScrollPercentage";
 import { InteractionType } from "../../constants";
+import BuyButton from "../arcade/BuyButton";
+import { FetchBalanceResult } from "../../constants/types";
 
 type Props = {
   username: string | null | undefined;
@@ -45,6 +47,12 @@ type Props = {
   channelArn: string;
   channelId: number;
   allowNFCs: boolean;
+  tokenBalanceData?: FetchBalanceResult;
+  handleControlModal?: () => void;
+  handleChanceModal?: () => void;
+  handlePvpModal?: () => void;
+  handleTipModal?: () => void;
+  handleBuyModal?: () => void;
 };
 
 export const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
@@ -73,11 +81,16 @@ const AblyChatComponent = ({
   channelArn,
   channelId,
   allowNFCs,
+  tokenBalanceData,
+  handleControlModal,
+  handleChanceModal,
+  handlePvpModal,
+  handleTipModal,
+  handleBuyModal,
 }: Props) => {
   const { user } = useUser();
   const { address } = useAccount();
   const ADD_REACTION_EVENT = "add-reaction";
-  const autoScroll = useRef(true);
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
   /*eslint-enable prefer-const*/
@@ -404,17 +417,15 @@ const AblyChatComponent = ({
   useEffect(() => {
     const chat = document.getElementById("chat");
     if (!chat) return;
-    if (autoScroll.current) {
-      if (!hasMessagesLoaded && receivedMessages.length) {
-        chat.scrollTop = chat.scrollHeight;
-        setHasMessagesLoaded(true);
-        return;
-      }
-      if (scrollPercentage === 100) {
-        chat.scrollTop = chat.scrollHeight;
-      }
-      setChatHeightGrounded(chat.scrollHeight >= chat.clientHeight);
+    if (!hasMessagesLoaded && receivedMessages.length) {
+      chat.scrollTop = chat.scrollHeight;
+      setHasMessagesLoaded(true);
+      return;
     }
+    if (scrollPercentage === 100) {
+      chat.scrollTop = chat.scrollHeight;
+    }
+    setChatHeightGrounded(chat.scrollHeight <= chat.clientHeight);
   }, [receivedMessages]);
 
   const handleScrollToPresent = () => {
@@ -521,23 +532,28 @@ const AblyChatComponent = ({
                 width={"100%"}
                 padding={"40px"}
               >
+                <BuyButton
+                  tokenName={`$${tokenBalanceData?.symbol}`}
+                  callback={handleBuyModal}
+                />
                 <Grid
+                  mt="50px"
                   templateColumns="repeat(2, 1fr)"
                   gap={12}
                   alignItems="center"
                   justifyItems="center"
                 >
                   <GridItem>
-                    <ControlButton />
+                    <ControlButton callback={handleControlModal} />
                   </GridItem>
                   <GridItem>
-                    <DiceButton />
+                    <DiceButton callback={handleChanceModal} />
                   </GridItem>
                   <GridItem>
-                    <SwordButton />
+                    <SwordButton callback={handlePvpModal} />
                   </GridItem>
                   <GridItem>
-                    <CoinButton />
+                    <CoinButton callback={handleTipModal} />
                   </GridItem>
                 </Grid>
               </Flex>
@@ -687,13 +703,6 @@ const AblyChatComponent = ({
             ref={scrollRef}
           >
             <MessageList messages={receivedMessages} channel={channel} />
-            {/* {autoScroll.current && (
-              <Box
-              ref={(el) => {
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              />
-            )} */}
           </Flex>
           <Flex justifyContent="center">
             {hasScrolled && hasMessagesLoaded ? (

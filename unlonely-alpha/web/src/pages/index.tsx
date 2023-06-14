@@ -1,5 +1,12 @@
 import { gql, useQuery } from "@apollo/client";
-import { Box, Container, Flex, Hide, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Container,
+  Flex,
+  Stack,
+  Text,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
@@ -120,25 +127,36 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
   return (
     <>
       <TokenLeaderboard
-        ranked
-        headers={[
-          "rank",
-          "token name",
-          "price (ETH)",
-          "# hodlers",
-          "channel owner",
-        ]}
         dataset={[
-          { data: ["$BRIAN", "0.0005", "50", "br1an.eth"] },
-          { data: ["$H3IDI", "n/a", "n/a", "h3idi.eth"], obscureText: true },
-          { data: ["$SIRSU", "n/a", "n/a", "sirsu.eth"], obscureText: true },
-          { data: ["$GRACE", "n/a", "n/a", "0eggs.eth"], obscureText: true },
-          { data: ["$SAM", "n/a", "n/a", "samchai.eth"], obscureText: true },
           {
-            data: ["$CASSIE", "n/a", "n/a", "cassieheart.eth"],
+            data: ["1", "$BRIAN", "0.0005", "50", "br1an.eth"],
+            channelLink: "brian",
+          },
+          {
+            data: ["2", "$H3IDI", "n/a", "n/a", "h3idi.eth"],
+            channelLink: "h3idi",
             obscureText: true,
           },
-          { data: ["$KATY", "n/a", "n/a", "katy.eth"], obscureText: true },
+          {
+            data: ["3", "$SIRSU", "n/a", "n/a", "sirsu.eth"],
+            channelLink: "sirsu",
+            obscureText: true,
+          },
+          {
+            data: ["4", "$GRACE", "n/a", "n/a", "0eggs.eth"],
+            channelLink: "grace",
+            obscureText: true,
+          },
+          {
+            data: ["5", "$SAM", "n/a", "n/a", "samchai.eth"],
+            channelLink: "sam",
+            obscureText: true,
+          },
+          {
+            data: ["6", "$CASSIE", "n/a", "n/a", "cassieheart.eth"],
+            channelLink: "cassie",
+            obscureText: true,
+          },
         ]}
       />
       <Flex direction="column" width="100%">
@@ -168,6 +186,19 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
         ) : (
           <NfcList nfcs={nfcs} />
         )}
+        <Flex
+          justifyContent={"space-between"}
+          my="6"
+          direction={["column", "row", "row", "row"]}
+        >
+          <Stack direction="row" spacing={["3", "8", "10", "16"]}>
+            <Text fontFamily="Neue Pixel Sans">twitter</Text>
+            <Text fontFamily="Neue Pixel Sans">farcaster</Text>
+            <Text fontFamily="Neue Pixel Sans">telegram</Text>
+            <Text fontFamily="Neue Pixel Sans">nf.td</Text>
+          </Stack>
+          <Text fontFamily="Neue Pixel Sans">download on ios | android</Text>
+        </Flex>
       </Flex>
     </>
   );
@@ -185,13 +216,20 @@ export default function Page() {
 
   const channels = data?.getChannelFeed;
 
+  const chatBoxBreakpoints = useBreakpointValue({
+    base: false,
+    sm: false,
+    md: true,
+    xl: true,
+  });
+
   return (
     <AppLayout isCustomHeader={false}>
       <Flex
         direction="column"
         justifyContent="center"
         width="100vw"
-        gap={10}
+        gap={"10px"}
         pb="10px"
       >
         <Flex direction="column" gap={5}>
@@ -202,7 +240,7 @@ export default function Page() {
             </>
           )}
         </Flex>
-        <Flex>
+        <Flex p="16px">
           <Box
             width={{
               base: "100%",
@@ -214,14 +252,12 @@ export default function Page() {
               overflowY="auto"
               centerContent
               maxWidth={"100%"}
-              pl={"16px"}
-              pr={"10px"}
               gap="1rem"
             >
               <ScrollableComponent channels={channels} />
             </Container>
           </Box>
-          <Hide below="md">
+          {chatBoxBreakpoints && (
             <Box
               width={{
                 base: "0%",
@@ -233,7 +269,7 @@ export default function Page() {
                 <FixedComponent />
               </Container>
             </Box>
-          </Hide>
+          )}
         </Flex>
       </Flex>
     </AppLayout>

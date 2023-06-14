@@ -31,13 +31,13 @@ const NfcList: React.FunctionComponent<Props> = ({ nfcs }) => {
       overflowY="clip"
       width="100%"
       height={{
-        base: "14rem",
-        sm: "19rem",
-        md: "19rem",
-        lg: "19rem",
+        base: "15rem",
+        sm: "20rem",
+        md: "20rem",
+        lg: "20rem",
       }}
       gap={"1rem"}
-      pb="1rem"
+      py="1rem"
     >
       {nfcs?.map((h: any) => !!h && <NfcCard key={h.id} nfc={h} />)}
     </Flex>
