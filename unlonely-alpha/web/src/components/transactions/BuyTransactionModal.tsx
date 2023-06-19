@@ -14,11 +14,10 @@ import {
   useCalculateEthAmount,
   useReadPublic,
 } from "../../hooks/contracts/useArcadeContract";
-import { useNetwork } from "wagmi";
 import { formatUnits, parseUnits } from "viem";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { NETWORKS } from "../../constants/networks";
 import { FetchBalanceResult } from "../../constants/types";
+import { InteractionType } from "../../constants";
 
 export default function BuyTransactionModal({
   title,
@@ -46,14 +45,6 @@ export default function BuyTransactionModal({
 
   const { user } = useUser();
   const toast = useToast();
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[1]
-    );
-  }, [network]);
-  // const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const buyTokenAmount_bigint = useMemo(
     () =>
@@ -93,6 +84,17 @@ export default function BuyTransactionModal({
         });
         refetchPublic();
         callback?.();
+        addToChatbot?.({
+          username: user?.username ?? "",
+          address: user?.address ?? "",
+          taskType: InteractionType.BUY,
+          title: "Buy",
+          description: `${
+            user?.username ?? centerEllipses(user?.address, 15)
+          } bought ${amountOption === "custom" ? amount : amountOption} $${
+            tokenBalanceData?.symbol
+          }!`,
+        });
       },
     }
   );
@@ -100,17 +102,6 @@ export default function BuyTransactionModal({
   const handleSend = async () => {
     if (!buyCreatorToken || !addToChatbot) return;
     await buyCreatorToken();
-    addToChatbot({
-      username: user?.username ?? "",
-      address: user?.address ?? "",
-      taskType: "tip",
-      title: "Tip",
-      description: `${
-        user?.username ?? centerEllipses(user?.address, 15)
-      } tipped ${amountOption === "custom" ? amount : amountOption} $${
-        tokenBalanceData?.symbol
-      }`,
-    });
   };
 
   const handleInputChange = (event: any) => {

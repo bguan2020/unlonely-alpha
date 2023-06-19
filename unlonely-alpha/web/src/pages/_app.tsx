@@ -8,7 +8,7 @@ import { createConfig, WagmiConfig, configureChains } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
-// import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
+import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 
@@ -60,13 +60,13 @@ function App({ Component, pageProps, cookies }: Props) {
           appName: "Unlonely",
         },
       }),
-      // new WalletConnectConnector({
-      //   chains,
-      //   options: {
-      //     projectId: "unlonely",
-      //     showQrModal: false,
-      //   },
-      // }),
+      new WalletConnectConnector({
+        chains,
+        options: {
+          projectId: "unlonely",
+          showQrModal: false,
+        },
+      }),
     ],
   });
 

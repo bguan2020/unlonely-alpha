@@ -360,7 +360,11 @@ const ChannelDetail = ({
               </Flex>
               <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
                 <GridItem colSpan={showArcadeButtons ? 2 : 3}>
-                  <ChannelDesc channel={channel} user={user} />
+                  <ChannelDesc
+                    channel={channel}
+                    user={user}
+                    tokenBalanceData={tokenBalanceData}
+                  />
                 </GridItem>
                 {showArcadeButtons && (
                   <GridItem justifyItems={"center"}>
@@ -380,9 +384,9 @@ const ChannelDetail = ({
                         <ControlButton
                           callback={() => setShowControlModal(true)}
                         />
+                        <CoinButton callback={() => setShowTipModal(true)} />
                         <DiceButton callback={() => setShowChanceModal(true)} />
                         <SwordButton callback={() => setShowPvpModal(true)} />
-                        <CoinButton callback={() => setShowTipModal(true)} />
                       </Grid>
                       <BuyButton
                         tokenName={`$${tokenBalanceData?.symbol}`}

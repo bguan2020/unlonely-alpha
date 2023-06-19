@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Flex,
-  Button,
   Container,
   Stack,
   Grid,
@@ -22,7 +21,10 @@ import NextStreamTimer from "../../components/stream/NextStreamTimer";
 import { useUser } from "../../hooks/useUser";
 import { useWindowSize } from "../../hooks/useWindowSize";
 import { initializeApollo } from "../../apiClient/client";
-import { ChannelDetailQuery } from "../../generated/graphql";
+import {
+  ChannelDetailQuery,
+  GetRecentStreamInteractionsQuery,
+} from "../../generated/graphql";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import BuyButton from "../../components/arcade/BuyButton";
@@ -31,6 +33,8 @@ import ControlButton from "../../components/arcade/ControlButton";
 import DiceButton from "../../components/arcade/DiceButton";
 import SwordButton from "../../components/arcade/SwordButton";
 import io, { Socket } from "socket.io-client";
+import usePostStreamInteraction from "../../hooks/usePostStreamInteraction";
+import { InteractionType } from "../../constants";
 
 export type ChatBot = {
   username: string;
@@ -65,18 +69,44 @@ const CHANNEL_DETAIL_QUERY = gql`
   }
 `;
 
+const GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY = gql`
+  query GetRecentStreamInteractions(
+    $data: GetRecentStreamInteractionsByChannelInput
+  ) {
+    getRecentStreamInteractionsByChannel(data: $data) {
+      id
+      interactionType
+      text
+      createdAt
+      updatedAt
+      owner {
+        address
+      }
+    }
+  }
+`;
+
 const ChannelDetail = ({
   slug,
   channelData,
 }: UrlParams & { channelData: ChannelDetailQuery }) => {
-  const { data, loading, error } = useQuery<ChannelDetailQuery>(
-    CHANNEL_DETAIL_QUERY,
-    {
-      variables: {
-        slug,
-      },
-    }
-  );
+  const { data } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
+    variables: {
+      slug,
+    },
+  });
+
+  const { data: recentStreamInteractionsData } =
+    useQuery<GetRecentStreamInteractionsQuery>(
+      GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
+      {
+        variables: {
+          data: {
+            channelId: 3,
+          },
+        },
+      }
+    );
 
   const channelSSR = useMemo(
     () => channelData?.getChannelBySlug,
@@ -89,9 +119,18 @@ const ChannelDetail = ({
 
   const [width, height] = useWindowSize();
   const { user } = useUser();
+  const { postStreamInteraction, loading } = usePostStreamInteraction({});
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
+  const [showTipModal, setShowTipModal] = useState<boolean>(false);
+  const [showChanceModal, setShowChanceModal] = useState<boolean>(false);
+  const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
+  const [showControlModal, setShowControlModal] = useState<boolean>(false);
+  const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
+
+  const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
+
   const accountData = useAccount();
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
@@ -154,6 +193,33 @@ const ChannelDetail = ({
     [width, hideChat]
   );
 
+  const handleClose = useCallback(() => {
+    setShowTipModal(false);
+    setShowChanceModal(false);
+    setShowPvpModal(false);
+    setShowControlModal(false);
+    setShowBuyModal(false);
+  }, []);
+
+  const addToChatbot = useCallback(
+    (chatBotMessageToAdd: ChatBot) => {
+      setChatBot((prev) => [...prev, chatBotMessageToAdd]);
+    },
+    [chatBot]
+  );
+
+  useEffect(() => {
+    if (!recentStreamInteractionsData) return;
+    const interactions =
+      recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
+    if (interactions && interactions.length > 0) {
+      const textInteractions = interactions.filter(
+        (i) => i?.interactionType === InteractionType.CONTROL && i.text
+      );
+      setTextOverVideo(textInteractions.map((i) => String(i?.text)));
+    }
+  }, [recentStreamInteractionsData]);
+
   return (
     <>
       {channel && (
@@ -208,17 +274,17 @@ const ChannelDetail = ({
                             </Tooltip>
                             <Tooltip label={"Not available"}>
                               <span>
+                                <CoinButton />
+                              </span>
+                            </Tooltip>
+                            <Tooltip label={"Not available"}>
+                              <span>
                                 <DiceButton />
                               </span>
                             </Tooltip>
                             <Tooltip label={"Not available"}>
                               <span>
                                 <SwordButton />
-                              </span>
-                            </Tooltip>
-                            <Tooltip label={"Not available"}>
-                              <span>
-                                <CoinButton />
                               </span>
                             </Tooltip>
                           </Grid>
@@ -232,7 +298,7 @@ const ChannelDetail = ({
                     )}
                   </Grid>
                 </Stack>
-                <Button
+                {/* <Button
                   height={{
                     //only show on mobile
                     base: "100%", // 0-48em
@@ -243,8 +309,8 @@ const ChannelDetail = ({
                   id="xeedev-poaav"
                 >
                   Toggle Chat/Channel Details
-                </Button>
-                {channel ? (
+                </Button> */}
+                {channel && (
                   <Flex
                     hidden={isHidden(true)}
                     borderWidth="1px"
@@ -276,7 +342,7 @@ const ChannelDetail = ({
                       />
                     </Container>
                   </Flex>
-                ) : null}
+                )}
               </Stack>
             </Stack>
           </AppLayout>
