@@ -113,6 +113,7 @@ export const getTokenHoldersByChannel = (
   ctx: Context
 ) => {
   // add limit and offset pagination, set to top 10 default if empty
+  // order by qunatity descending
   const limit = data.limit || 10;
   const offset = data.offset || 0;
 
@@ -129,6 +130,9 @@ export const getTokenHoldersByChannel = (
     },
     take: limit,
     skip: offset,
+    orderBy: {
+      quantity: "desc",
+    },
   });
 };
 
