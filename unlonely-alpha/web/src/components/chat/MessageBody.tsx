@@ -109,7 +109,6 @@ const MessageBody = ({
                             <>
                               <Text
                                 color="white"
-                                fontFamily="Inter"
                                 fontSize={12}
                                 wordBreak="break-word"
                                 textAlign="left"
@@ -121,7 +120,6 @@ const MessageBody = ({
                                 isExternal
                                 color="white"
                                 fontSize={12}
-                                fontFamily="Inter"
                                 wordBreak="break-word"
                                 textAlign="left"
                               >
@@ -132,7 +130,6 @@ const MessageBody = ({
                           ) : (
                             <Link
                               href={messageText}
-                              fontFamily="Inter"
                               fontWeight="light"
                               isExternal
                               color="white"
@@ -301,7 +298,7 @@ const MessageBody = ({
                 pl="2px"
                 mt="5px"
                 mb="15px"
-                pb={showEmojiList === message.id ? "10px" : "10px"}
+                pb={showEmojiList === message.id ? "10px" : "0px"}
                 position="relative"
                 width={"274px"}
               >
@@ -319,10 +316,9 @@ const MessageBody = ({
                       {isLink && splitURL ? (
                         <>
                           {splitURL.length > 1 ? (
-                            <>
+                            <Flex p={"5px"}>
                               <Text
                                 color="white"
-                                fontFamily="Inter"
                                 fontSize={12}
                                 wordBreak="break-word"
                                 textAlign="left"
@@ -334,18 +330,16 @@ const MessageBody = ({
                                 isExternal
                                 color="white"
                                 fontSize={12}
-                                fontFamily="Inter"
                                 wordBreak="break-word"
                                 textAlign="left"
                               >
                                 {splitURL[splitURL.length - 1]}
                                 <ExternalLinkIcon mx="2px" />
                               </Link>
-                            </>
+                            </Flex>
                           ) : (
                             <Link
                               href={messageText}
-                              fontFamily="Inter"
                               fontWeight="light"
                               isExternal
                               color="white"
@@ -368,7 +362,7 @@ const MessageBody = ({
                           }
                           wordBreak="break-word"
                           textAlign="left"
-                          p={"10px"}
+                          p={"5px"}
                         >
                           {messageText}
                         </Text>

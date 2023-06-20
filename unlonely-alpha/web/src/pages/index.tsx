@@ -1,18 +1,23 @@
 import { gql, useQuery } from "@apollo/client";
-import { Box, Container, Flex, Hide, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Container,
+  Flex,
+  Stack,
+  Text,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
-import ChannelList from "../components/channels/ChannelList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import HeroBanner from "../components/layout/HeroBanner";
 import AblyChatComponent from "../components/chat/ChatComponent";
 import { useUser } from "../hooks/useUser";
 import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useEnsName } from "wagmi";
 import centerEllipses from "../utils/centerEllipses";
-import { getEnsName } from "../utils/ens";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { Channel } from "../generated/graphql";
 
@@ -62,18 +67,20 @@ const FixedComponent = () => {
   const accountData = useAccount();
 
   const { user } = useUser();
+  const { data: ensData } = useEnsName({
+    address: accountData?.address,
+  });
 
   useEffect(() => {
     const fetchEns = async () => {
       if (accountData?.address) {
-        const ens = await getEnsName(accountData.address);
-        const username = ens ? ens : centerEllipses(accountData.address, 9);
+        const username = ensData ?? centerEllipses(accountData.address, 9);
         setUsername(username);
       }
     };
 
     fetchEns();
-  }, [accountData?.address]);
+  }, [accountData?.address, ensData]);
 
   return (
     <Flex
@@ -120,25 +127,36 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
   return (
     <>
       <TokenLeaderboard
-        ranked
-        headers={[
-          "rank",
-          "token name",
-          "price (ETH)",
-          "# hodlers",
-          "channel owner",
-        ]}
         dataset={[
-          { data: ["$BRIAN", "0.0005", "50", "br1an.eth"] },
-          { data: ["$H3IDI", "n/a", "n/a", "h3idi.eth"], obscureText: true },
-          { data: ["$SIRSU", "n/a", "n/a", "sirsu.eth"], obscureText: true },
-          { data: ["$GRACE", "n/a", "n/a", "0eggs.eth"], obscureText: true },
-          { data: ["$SAM", "n/a", "n/a", "samchai.eth"], obscureText: true },
           {
-            data: ["$CASSIE", "n/a", "n/a", "cassieheart.eth"],
+            data: ["1", "$BRIAN", "0.0005", "50", "br1an.eth"],
+            channelLink: "brian",
+          },
+          {
+            data: ["2", "$H3IDI", "n/a", "n/a", "h3idi.eth"],
+            channelLink: "h3idi",
             obscureText: true,
           },
-          { data: ["$KATY", "n/a", "n/a", "katy.eth"], obscureText: true },
+          {
+            data: ["3", "$SIRSU", "n/a", "n/a", "sirsu.eth"],
+            channelLink: "sirsu",
+            obscureText: true,
+          },
+          {
+            data: ["4", "$GRACE", "n/a", "n/a", "0eggs.eth"],
+            channelLink: "grace",
+            obscureText: true,
+          },
+          {
+            data: ["5", "$SAM", "n/a", "n/a", "samchai.eth"],
+            channelLink: "sam",
+            obscureText: true,
+          },
+          {
+            data: ["6", "$CASSIE", "n/a", "n/a", "cassieheart.eth"],
+            channelLink: "cassie",
+            obscureText: true,
+          },
         ]}
       />
       <Flex direction="column" width="100%">
@@ -168,18 +186,19 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
         ) : (
           <NfcList nfcs={nfcs} />
         )}
-      </Flex>
-      <Flex direction="column" width="100%">
-        <Text
-          fontSize={{ base: "30px", lg: "40px" }}
-          lineHeight={{ base: "60px", lg: "80px" }}
-          textAlign="center"
-          fontFamily="Neue Pixel Sans"
+        <Flex
+          justifyContent={"space-between"}
+          my="6"
+          direction={["column", "row", "row", "row"]}
         >
-          unlonely channels
-        </Text>
-
-        <ChannelList channels={channels} />
+          <Stack direction="row" spacing={["3", "8", "10", "16"]}>
+            <Text fontFamily="Neue Pixel Sans">twitter</Text>
+            <Text fontFamily="Neue Pixel Sans">farcaster</Text>
+            <Text fontFamily="Neue Pixel Sans">telegram</Text>
+            <Text fontFamily="Neue Pixel Sans">nf.td</Text>
+          </Stack>
+          <Text fontFamily="Neue Pixel Sans">download on ios | android</Text>
+        </Flex>
       </Flex>
     </>
   );
@@ -197,126 +216,60 @@ export default function Page() {
 
   const channels = data?.getChannelFeed;
 
+  const chatBoxBreakpoints = useBreakpointValue({
+    base: false,
+    sm: false,
+    md: true,
+    xl: true,
+  });
+
   return (
     <AppLayout isCustomHeader={false}>
-      <Flex>
-        <Flex
-          direction="column"
-          justifyContent="center"
-          width="100vw"
-          gap={10}
-          pb="10px"
-        >
-          <Flex direction="column" gap={5}>
-            <HeroBanner />
-            {!channels || loading ? null : (
-              <>
-                <LiveChannelList channels={channels} />
-              </>
-            )}
-          </Flex>
-          <Flex>
-            <Box
-              width={{
-                base: "100%",
-                md: "70%",
-                xl: "70%",
-              }}
-            >
-              <Container
-                overflowY="auto"
-                maxHeight={"98vh"}
-                centerContent
-                maxWidth={"100%"}
-                px={10}
-              >
-                <ScrollableComponent channels={channels} />
-              </Container>
-            </Box>
-            <Hide below="md">
-              <Box
-                width={{
-                  base: "0%",
-                  md: "30%",
-                  xl: "30%",
-                }}
-              >
-                <Container height="98vh">
-                  <FixedComponent />
-                </Container>
-              </Box>
-            </Hide>
-          </Flex>
-          {/* <Flex
-          marginTop={{ base: "40px", md: "60px", lg: "100px" }}
-          maxW="80%"
-          flexDirection="column"
-        >
-          <Flex w="100%" justifyContent="center">
-            <Text
-              fontSize={{ base: "20px", md: "30px", lg: "40px" }}
-              lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
-              fontWeight="bold"
-              textAlign="center"
-            >
-              Non-Fungible Clips from Unlonely Streams
-            </Text>
-          </Flex>
-          {!nfcs || loadingNFCs ? (
-            <Flex
-              direction="row"
-              overflowX="scroll"
-              overflowY="clip"
-              width="100%"
-              height="18rem"
-            >
-              {[1, 2, 3, 4, 5].map((i) => (
-                <NfcCardSkeleton />
-              ))}
-            </Flex>
-          ) : (
+      <Flex
+        direction="column"
+        justifyContent="center"
+        width="100vw"
+        gap={"10px"}
+        pb="10px"
+      >
+        <Flex direction="column" gap={5}>
+          <HeroBanner />
+          {!channels || loading ? null : (
             <>
-              <Flex
-                direction="row"
-                overflowX="scroll"
-                overflowY="clip"
-                width="100%"
-                height={{
-                  base: "14rem",
-                  sm: "19rem",
-                  md: "19rem",
-                  lg: "19rem",
-                }}
-              >
-                <NfcList nfcs={nfcs} />
-              </Flex>
+              <LiveChannelList channels={channels} />
             </>
           )}
-          <Flex w="100%" justifyContent="center" mt="3rem">
-            <Text
-              fontSize={{ base: "20px", md: "30px", lg: "40px" }}
-              lineHeight={{ base: "40px", md: "60px", lg: "80px" }}
-              fontWeight="bold"
-              textAlign="left"
-            >
-              All Unlonely Channels
-            </Text>
-          </Flex>
-          <Flex
-            direction="row"
-            overflowX="scroll"
-            overflowY="clip"
-            width="100%"
-            height={{
-              base: "14rem",
-              sm: "19rem",
-              md: "19rem",
-              lg: "19rem",
+        </Flex>
+        <Flex p="16px">
+          <Box
+            width={{
+              base: "100%",
+              md: "70%",
+              xl: "70%",
             }}
           >
-            <ChannelList channels={channels} />
-          </Flex>
-        </Flex> */}
+            <Container
+              overflowY="auto"
+              centerContent
+              maxWidth={"100%"}
+              gap="1rem"
+            >
+              <ScrollableComponent channels={channels} />
+            </Container>
+          </Box>
+          {chatBoxBreakpoints && (
+            <Box
+              width={{
+                base: "0%",
+                md: "30%",
+                xl: "30%",
+              }}
+            >
+              <Container height="98vh">
+                <FixedComponent />
+              </Container>
+            </Box>
+          )}
         </Flex>
       </Flex>
     </AppLayout>

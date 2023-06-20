@@ -12,14 +12,14 @@ import { ModalButton } from "../general/button/ModalButton";
 export default function ChanceTransactionModal({
   title,
   isOpen,
-  contractAddress,
+  tokenContractAddress,
   icon,
   handleClose,
   addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
-  contractAddress: string;
+  tokenContractAddress: string;
   icon?: JSX.Element;
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
@@ -64,9 +64,10 @@ export default function ChanceTransactionModal({
   return (
     <TransactionModalTemplate
       title={title}
-      contractAddress={contractAddress}
+      confirmButton="purchase"
       isOpen={isOpen}
       icon={icon}
+      isModalLoading={false}
       canSend={canSend}
       onSend={handleSend}
       handleClose={handleClose}
@@ -128,7 +129,6 @@ export default function ChanceTransactionModal({
         </Flex>
         {amountOption === "custom" && (
           <Input
-            placeholder="enter amount of $brian"
             value={amount}
             onChange={handleInputChange}
             borderWidth="1px"

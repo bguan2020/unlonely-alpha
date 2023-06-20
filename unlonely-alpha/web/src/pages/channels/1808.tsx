@@ -1,11 +1,10 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useState, useEffect } from "react";
 import { Text, Flex, Grid, GridItem, Box, Spinner } from "@chakra-ui/react";
-import { useAccount } from "wagmi";
+import { useAccount, useEnsName } from "wagmi";
 
 import AppLayout from "../../components/layout/AppLayout";
 import VideoSort, { VideoAttribute } from "../../components/video/VideoSort";
-import { getEnsName } from "../../utils/ens";
 import centerEllipses from "../../utils/centerEllipses";
 import { VideoCard_VideoFragment } from "../../generated/graphql";
 import AblyChatComponent from "../../components/chat/ChatComponent";
@@ -55,17 +54,20 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
     src: "https://player.live-video.net/1.2.0/amazon-ivs-quality-plugin.min.js",
   });
 
+  const { data: ensData } = useEnsName({
+    address: accountData?.address,
+  });
+
   useEffect(() => {
     const fetchEns = async () => {
       if (accountData?.address) {
-        const ens = await getEnsName(accountData.address);
-        const username = ens ? ens : centerEllipses(accountData.address, 9);
+        const username = ensData ?? centerEllipses(accountData.address, 9);
         setUsername(username);
       }
     };
 
     fetchEns();
-  }, [accountData?.address]);
+  }, [accountData?.address, ensData]);
 
   if (scriptLoading || loadingPlugin) {
     return (

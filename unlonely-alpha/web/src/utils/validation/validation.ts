@@ -47,3 +47,10 @@ export const updateChannelTextSchema = object({
     .required("description is required")
     .max(100, "description cannot go over 100 characters"),
 });
+
+export const postStreamInteractionTextSchema = object({
+  text: string()
+    .trim()
+    .min(1, "text cannot be less than 1 character")
+    .max(280, "text cannot go over 280 characters"),
+});

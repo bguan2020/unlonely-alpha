@@ -16,20 +16,20 @@ const MobileBanner = () => {
     : "https://dub.sh/unlonely-android";
   const deviceType = isIosDevice() ? "iPhone" : "Android";
 
-  if (!isMobileDevice) {
-    return null;
-  }
-
   // make Participant overlap each other a bit and show a max of 6, with the last one being a count of the rest
   return (
-    <Box bg="black" width="100%" textAlign="center" color="white">
-      <Text fontWeight="bold" pt="1rem" pb="0.8rem" fontSize="1.2rem">
-        Download our {deviceType} app for the best experience!
-        <Link href={downloadLink} ml={2} color="blue.300">
-          Click here.
-        </Link>
-      </Text>
-    </Box>
+    <>
+      {isMobileDevice && (
+        <Box bg="black" width="100%" textAlign="center" color="white">
+          <Text fontWeight="bold" pt="1rem" pb="0.8rem" fontSize="1.2rem">
+            Download our {deviceType} app for the best experience!
+            <Link href={downloadLink} ml={2} color="blue.300">
+              Click here.
+            </Link>
+          </Text>
+        </Box>
+      )}
+    </>
   );
 };
 

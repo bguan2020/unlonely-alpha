@@ -81,10 +81,8 @@ const NfcDetailCard = ({ nfc }: any) => {
           <Text
             fontSize="18px"
             noOfLines={1}
-            color="black"
             fontWeight="light"
             textAlign="center"
-            fontFamily="Inter"
           >
             owner: {nfc.owner.username}
           </Text>

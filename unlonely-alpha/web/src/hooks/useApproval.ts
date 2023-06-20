@@ -1,4 +1,3 @@
-import { parseUnits } from "ethers/lib/utils.js";
 import { useMemo } from "react";
 import {
   useContractRead,
@@ -8,13 +7,16 @@ import {
 } from "wagmi";
 import { useUser } from "./useUser";
 
+// function uses variables amount and amountToApprove to differentiate the value used for comparison and the value used for the actual approval
 export const useApproval = (
   tokenAddress: `0x${string}`,
   abi: any,
+  owner: string,
   spender: string,
-  amount: string,
   chainId: number,
-  callbacks: {
+  amount: bigint,
+  amountToApprove?: bigint,
+  callbacks?: {
     onReadSuccess?: (data: any) => void;
     onReadError?: (error: any) => void;
     onPrepareWriteSuccess?: (data: any) => void;
@@ -36,20 +38,20 @@ export const useApproval = (
     address: tokenAddress,
     abi,
     functionName: "allowance",
-    args: [user?.address ?? "", spender],
+    args: [owner, spender],
     chainId,
-    onSuccess: (data) => callbacks.onReadSuccess?.(data),
-    onError: (error) => callbacks.onReadError?.(error),
+    onSuccess: (data) => callbacks?.onReadSuccess?.(data),
+    onError: (error) => callbacks?.onReadError?.(error),
   });
 
   const { config } = usePrepareContractWrite({
     address: tokenAddress,
     abi,
     functionName: "approve",
-    args: [spender, amount],
+    args: [spender, amountToApprove ?? amount],
     chainId,
-    onSuccess: (data) => callbacks.onPrepareWriteSuccess?.(data),
-    onError: (error) => callbacks.onPrepareWriteError?.(error),
+    onSuccess: (data) => callbacks?.onPrepareWriteSuccess?.(data),
+    onError: (error) => callbacks?.onPrepareWriteError?.(error),
   });
 
   const {
@@ -58,15 +60,12 @@ export const useApproval = (
     writeAsync: writeApproval,
   } = useContractWrite({
     ...config,
-    onSuccess: (data) => callbacks.onWriteSuccess?.(data),
-    onError: (error) => callbacks.onWriteError?.(error),
+    onSuccess: (data) => callbacks?.onWriteSuccess?.(data),
+    onError: (error) => callbacks?.onWriteError?.(error),
   });
 
   const requiresApproval = useMemo(() => {
-    return allowance &&
-      parseUnits(allowance as unknown as string, 18).gt(parseUnits(amount, 18))
-      ? true
-      : false;
+    return (allowance as unknown as bigint) < amount;
   }, [allowance, amount]);
 
   const {
@@ -75,21 +74,20 @@ export const useApproval = (
     error: approvalRejectError,
   } = useWaitForTransaction({
     hash: approvalData?.hash,
-    onSuccess: async (data) => {
-      callbacks.onTxSuccess?.(data);
-      await refetchAllowance();
-    },
-    onError: (error) => callbacks.onTxError?.(error),
+    onSuccess: async (data) => callbacks?.onTxSuccess?.(data),
+    onError: (error) => callbacks?.onTxError?.(error),
   });
 
   return {
     isTxLoading: isLoading,
     isTxSuccess: isSuccess,
     isTxError: approvalRejectError,
+    allowance: (allowance as unknown as bigint) ?? BigInt(0),
     isAllowanceLoading: allowanceLoading,
     writeApprovalError: approvalError,
     readAllowanceError: allowanceError,
     writeApproval,
     requiresApproval,
+    refetchAllowance,
   };
 };

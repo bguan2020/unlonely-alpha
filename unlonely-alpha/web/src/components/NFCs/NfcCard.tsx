@@ -2,6 +2,7 @@ import { Text, Flex } from "@chakra-ui/layout";
 import { Box, Image, Spacer } from "@chakra-ui/react";
 
 import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
+import Link from "next/link";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
@@ -10,20 +11,19 @@ const NfcCard = ({ nfc }: any) => {
     window.open(nfc.openseaLink, "_blank");
   };
 
-  const handleRedirect = () => {
-    window.location.href = `/nfc/${nfc.id}`;
-  };
   return (
-    <>
+    <Link href={`/nfc/${nfc.id}`} passHref>
       <Flex
         direction="column"
         padding="0.3rem"
         borderRadius="1rem"
         minH="8rem"
         minW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
-        onClick={handleRedirect}
         bg={"#131323"}
         p={"10px"}
+        cursor="pointer"
+        transition="transform 0.2s"
+        _hover={{ transform: "scale(1.05)" }}
       >
         <Flex
           _hover={{
@@ -32,7 +32,7 @@ const NfcCard = ({ nfc }: any) => {
           }}
         >
           {nfc.videoThumbnail && (
-            <Box position="relative">
+            <Box position="relative" mb="10px">
               <Image
                 src={nfc.videoThumbnail}
                 width={["236px", "380px"]}
@@ -98,7 +98,7 @@ const NfcCard = ({ nfc }: any) => {
           />
         </Flex>
       </Flex>
-    </>
+    </Link>
   );
 };
 

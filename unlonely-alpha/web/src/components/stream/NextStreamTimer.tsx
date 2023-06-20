@@ -128,44 +128,89 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
                 direction="column"
                 width="100%"
                 maxW="100%"
-                pt="100px"
                 pl="10px"
                 color="white"
                 fontWeight="bold"
                 fontSize="40px"
                 bg="black"
                 borderRadius="10px"
+                justifyContent={"center"}
               >
-                <Text fontFamily="Anonymous Pro, monospace">
+                <Text fontFamily="Neue Pixel Sans" textAlign="center">
                   Next stream in:
                 </Text>
-                <Flex direction="row">
-                  <Flex direction="row" mr="5px">
-                    <Text mr="5px" fontSize="62px" color="#76D201">
+                <Flex direction="row" gap="5px" justifyContent={"center"}>
+                  <Flex direction="row" alignItems={"center"}>
+                    <Text
+                      mr="5px"
+                      fontFamily="Neue Pixel Sans"
+                      fontSize={["25px", "30px", "45px"]}
+                      color="#76D201"
+                    >
                       {days}
                     </Text>
-                    <Text>days</Text>
+                    <Text
+                      fontSize={["15px", "25px", "35px"]}
+                      fontWeight="light"
+                    >
+                      days
+                    </Text>
                   </Flex>
-                  <Flex direction="row" mr="5px">
-                    <Text mr="5px" fontSize="62px" color="#FF3EA5">
+                  <Flex direction="row" alignItems={"center"}>
+                    <Text
+                      mr="5px"
+                      fontFamily="Neue Pixel Sans"
+                      fontSize={["25px", "30px", "45px"]}
+                      color="#FF3EA5"
+                    >
                       {hours}
                     </Text>
-                    <Text>hours</Text>
+                    <Text
+                      fontSize={["15px", "25px", "35px"]}
+                      fontWeight="light"
+                    >
+                      hours
+                    </Text>
                   </Flex>
-                  <Flex direction="row" mr="5px">
-                    <Text mr="5px" fontSize="62px" color="#BB29BB">
+                  <Flex direction="row" alignItems={"center"}>
+                    <Text
+                      mr="5px"
+                      fontFamily="Neue Pixel Sans"
+                      fontSize={["25px", "30px", "45px"]}
+                      color="#BB29BB"
+                    >
                       {minutes}
                     </Text>
-                    <Text>minutes</Text>
+                    <Text
+                      fontSize={["15px", "25px", "35px"]}
+                      fontWeight="light"
+                    >
+                      minutes
+                    </Text>
                   </Flex>
-                  <Flex direction="row" mr="5px">
-                    <Text mr="5px" fontSize="62px" color="#FF6D6A">
+                  <Flex direction="row" alignItems={"center"}>
+                    <Text
+                      mr="5px"
+                      fontFamily="Neue Pixel Sans"
+                      fontSize={["25px", "30px", "45px"]}
+                      color="#FF6D6A"
+                    >
                       {seconds}
                     </Text>
-                    <Text>seconds</Text>
+                    <Text
+                      fontSize={["15px", "25px", "35px"]}
+                      fontWeight="light"
+                    >
+                      seconds
+                    </Text>
                   </Flex>
                 </Flex>
-                <Text lineHeight={5} mb="10px" fontSize="14px">
+                <Text
+                  lineHeight={5}
+                  mb="10px"
+                  fontSize="14px"
+                  textAlign={"center"}
+                >
                   Wanna get notified before the stream goes live?
                   <Link href="https://t.me/unlonely1" isExternal>
                     {" "}

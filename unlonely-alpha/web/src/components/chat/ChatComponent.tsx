@@ -14,8 +14,9 @@ import {
   Tr,
   Grid,
   GridItem,
+  Spinner,
 } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 
 import useChannel from "../../hooks/useChannel";
@@ -34,6 +35,13 @@ import CoinButton from "../arcade/CoinButton";
 import ControlButton from "../arcade/ControlButton";
 import DiceButton from "../arcade/DiceButton";
 import { useScrollPercentage } from "../../hooks/useScrollPercentage";
+import { InteractionType } from "../../constants";
+import BuyButton from "../arcade/BuyButton";
+import { FetchBalanceResult } from "../../constants/types";
+import { useLazyQuery } from "@apollo/client";
+import { GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY } from "../../constants/queries";
+import centerEllipses from "../../utils/centerEllipses";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
 type Props = {
   username: string | null | undefined;
@@ -44,6 +52,12 @@ type Props = {
   channelArn: string;
   channelId: number;
   allowNFCs: boolean;
+  tokenBalanceData?: FetchBalanceResult;
+  handleControlModal?: () => void;
+  handleChanceModal?: () => void;
+  handlePvpModal?: () => void;
+  handleTipModal?: () => void;
+  handleBuyModal?: () => void;
 };
 
 export const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
@@ -72,26 +86,68 @@ const AblyChatComponent = ({
   channelArn,
   channelId,
   allowNFCs,
+  tokenBalanceData,
+  handleControlModal,
+  handleChanceModal,
+  handlePvpModal,
+  handleTipModal,
+  handleBuyModal,
 }: Props) => {
   const { user } = useUser();
   const { address } = useAccount();
   const ADD_REACTION_EVENT = "add-reaction";
-  const autoScroll = useRef(true);
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
   /*eslint-enable prefer-const*/
 
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [formError, setFormError] = useState<null | string[]>(null);
+  const [chatHeightGrounded, setChatHeightGrounded] = useState(false);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
-  const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showArcade, setShowArcade] = useState<boolean>(false);
+  const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
+    []
+  );
 
   const clickedOutsideLeaderBoard = useRef(false);
   const clickedOutsideArcade = useRef(false);
   const leaderboardRef = useRef<HTMLDivElement>(null);
   const arcadeRef = useRef<HTMLDivElement>(null);
+
+  const [
+    getTokenHolders,
+    { loading: holdersLoading, error, data: holdersData },
+  ] = useLazyQuery(GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY);
+
+  useEffect(() => {
+    if (showLeaderboard && !holdersLoading && !holdersData) {
+      getTokenHolders({
+        variables: {
+          data: {
+            channelId: channelId,
+          },
+        },
+      });
+    }
+  }, [showLeaderboard]);
+
+  useEffect(() => {
+    if (!holdersLoading && !error && holdersData) {
+      const _holders: { name: string; quantity: number }[] =
+        holdersData.getTokenHoldersByChannel
+          .map((holder: any) => {
+            return {
+              name:
+                holder.user.username ?? centerEllipses(holder.user.address, 10),
+              quantity: holder.quantity,
+            };
+          })
+          .sort((a: any, b: any) => b.quantity - a.quantity)
+          .slice(0, 10);
+      setHolders(_holders);
+    }
+  }, [holdersLoading, error, holdersData]);
 
   useOnClickOutside(leaderboardRef, () => {
     if (showLeaderboard) {
@@ -114,6 +170,10 @@ const AblyChatComponent = ({
     },
   });
   const { scrollRef, scrollPercentage } = useScrollPercentage();
+
+  const hasScrolled = useMemo(() => {
+    return scrollPercentage < 100 && !chatHeightGrounded;
+  }, [scrollPercentage, chatHeightGrounded]);
 
   const toast = useToast();
   const channelName = ablyChatChannel
@@ -168,7 +228,7 @@ const AblyChatComponent = ({
       if (lastMessage.taskType === "video") {
         messageText = `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`;
       }
-      if (lastMessage.taskType === "tip") {
+      if (lastMessage.taskType === InteractionType.TIP) {
         messageText = lastMessage.description ?? "Tip";
       }
       if (lastMessage.taskType === "pvp") {
@@ -177,8 +237,11 @@ const AblyChatComponent = ({
       if (lastMessage.taskType === "chance") {
         messageText = lastMessage.description ?? "Chance";
       }
-      if (lastMessage.taskType === "control") {
+      if (lastMessage.taskType === InteractionType.CONTROL) {
         messageText = lastMessage.description ?? "Control";
+      }
+      if (lastMessage.taskType === InteractionType.BUY) {
+        messageText = lastMessage.description ?? "Buy";
       }
 
       channel.publish({
@@ -395,16 +458,15 @@ const AblyChatComponent = ({
   useEffect(() => {
     const chat = document.getElementById("chat");
     if (!chat) return;
-    if (autoScroll.current) {
-      if (!hasMessagesLoaded && receivedMessages.length) {
-        chat.scrollTop = chat.scrollHeight;
-        setHasMessagesLoaded(true);
-        return;
-      }
-      if (scrollPercentage === 100) {
-        chat.scrollTop = chat.scrollHeight;
-      }
+    if (!hasMessagesLoaded && receivedMessages.length) {
+      chat.scrollTop = chat.scrollHeight;
+      setHasMessagesLoaded(true);
+      return;
     }
+    if (scrollPercentage === 100) {
+      chat.scrollTop = chat.scrollHeight;
+    }
+    setChatHeightGrounded(chat.scrollHeight <= chat.clientHeight);
   }, [receivedMessages]);
 
   const handleScrollToPresent = () => {
@@ -511,23 +573,28 @@ const AblyChatComponent = ({
                 width={"100%"}
                 padding={"40px"}
               >
+                <BuyButton
+                  tokenName={`$${tokenBalanceData?.symbol}`}
+                  callback={handleBuyModal}
+                />
                 <Grid
+                  mt="50px"
                   templateColumns="repeat(2, 1fr)"
                   gap={12}
                   alignItems="center"
                   justifyItems="center"
                 >
                   <GridItem>
-                    <ControlButton />
+                    <ControlButton callback={handleControlModal} />
                   </GridItem>
                   <GridItem>
-                    <DiceButton />
+                    <DiceButton callback={handleChanceModal} />
                   </GridItem>
                   <GridItem>
-                    <SwordButton />
+                    <SwordButton callback={handlePvpModal} />
                   </GridItem>
                   <GridItem>
-                    <CoinButton />
+                    <CoinButton callback={handleTipModal} />
                   </GridItem>
                 </Grid>
               </Flex>
@@ -558,115 +625,97 @@ const AblyChatComponent = ({
                 borderRadius={"5px"}
                 width={"100%"}
               >
-                <Text fontSize={"44px"} fontWeight="400" textAlign={"center"}>
+                <Text fontSize={"36px"} fontWeight="bold" textAlign={"center"}>
                   HIGH SCORES
                 </Text>
                 <Text
                   color={"#B6B6B6"}
-                  fontSize={"18"}
+                  fontSize={"14px"}
                   fontWeight="400"
                   textAlign={"center"}
                 >
-                  Who owns the most $BRIAN?
+                  who owns the most $BRIAN?
                 </Text>
-                <TableContainer overflowX={"hidden"}>
-                  <Table variant="unstyled">
-                    <Thead>
-                      <Tr>
-                        <Th
-                          textTransform={"lowercase"}
-                          fontSize={"24px"}
-                          p="10px"
-                          textAlign="center"
-                        >
-                          rank
-                        </Th>
-                        <Th
-                          textTransform={"lowercase"}
-                          fontSize={"24px"}
-                          p="10px"
-                          textAlign="center"
-                        >
-                          name
-                        </Th>
-                        <Th
-                          textTransform={"lowercase"}
-                          fontSize={"24px"}
-                          p="10px"
-                          textAlign="center"
-                          isNumeric
-                        >
-                          amount
-                        </Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      <Tr>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
-                          1
-                        </Td>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
-                          cruzy
-                        </Td>
-                        <Td
-                          fontSize={"24px"}
-                          p="10px"
-                          textAlign="center"
-                          isNumeric
-                        >
-                          25000
-                        </Td>
-                      </Tr>
-                      <Tr>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
-                          2
-                        </Td>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
-                          tiny
-                        </Td>
-                        <Td
-                          fontSize={"24px"}
-                          p="10px"
-                          textAlign="center"
-                          isNumeric
-                        >
-                          3000
-                        </Td>
-                      </Tr>
-                      <Tr>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
-                          3
-                        </Td>
-                        <Td fontSize={"24px"} p="10px" textAlign="center">
-                          me
-                        </Td>
-                        <Td
-                          fontSize={"24px"}
-                          p="10px"
-                          textAlign="center"
-                          isNumeric
-                        >
-                          10
-                        </Td>
-                      </Tr>
-                    </Tbody>
-                  </Table>
-                </TableContainer>
+                {holdersLoading && (
+                  <Flex justifyContent={"center"} p="20px">
+                    <Spinner />
+                  </Flex>
+                )}
+                {!holdersLoading && holders.length > 0 && (
+                  <TableContainer overflowX={"hidden"}>
+                    <Table variant="unstyled">
+                      <Thead>
+                        <Tr>
+                          <Th
+                            textTransform={"lowercase"}
+                            fontSize={"20px"}
+                            p="10px"
+                            textAlign="center"
+                          >
+                            rank
+                          </Th>
+                          <Th
+                            textTransform={"lowercase"}
+                            fontSize={"20px"}
+                            p="10px"
+                            textAlign="center"
+                          >
+                            name
+                          </Th>
+                          <Th
+                            textTransform={"lowercase"}
+                            fontSize={"20px"}
+                            p="10px"
+                            textAlign="center"
+                            isNumeric
+                          >
+                            amount
+                          </Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {holders.map((holder, index) => (
+                          <Tr>
+                            <Td fontSize={"20px"} p="10px" textAlign="center">
+                              {index + 1}
+                            </Td>
+                            <Td fontSize={"20px"} p="10px" textAlign="center">
+                              {holder.name}
+                            </Td>
+                            <Td
+                              fontSize={"20px"}
+                              p="10px"
+                              textAlign="center"
+                              isNumeric
+                            >
+                              {truncateValue(holder.quantity, 2)}
+                            </Td>
+                          </Tr>
+                        ))}
+                      </Tbody>
+                    </Table>
+                  </TableContainer>
+                )}
+                {!holdersLoading && holders.length === 0 && (
+                  <Text textAlign={"center"} p="20px">
+                    no holders found
+                  </Text>
+                )}
               </Flex>
             </Flex>
           )}
-          <Text
-            lineHeight={5}
-            mt="4px"
-            mb="4px"
-            fontWeight="light"
-            fontSize={13}
-            textAlign="center"
-            color="#A9ADCC"
-          >
-            Who's here?
-          </Text>
-          <Participants ablyPresenceChannel={ablyPresenceChannel} />
+          <Flex my="10px" direction={"column"}>
+            <Text
+              lineHeight={5}
+              fontWeight="light"
+              fontSize={13}
+              textAlign="center"
+              color="#A9ADCC"
+            >
+              who's here?
+            </Text>
+            <Participants ablyPresenceChannel={ablyPresenceChannel} />
+          </Flex>
           <Flex
             direction="column"
             overflowX="auto"
@@ -677,16 +726,9 @@ const AblyChatComponent = ({
             ref={scrollRef}
           >
             <MessageList messages={receivedMessages} channel={channel} />
-            {autoScroll.current && (
-              <Box
-              // ref={(el) => {
-              //   if (el) el.scrollIntoView({ behavior: "smooth" });
-              // }}
-              />
-            )}
           </Flex>
           <Flex justifyContent="center">
-            {scrollPercentage < 100 && hasMessagesLoaded ? (
+            {hasScrolled && hasMessagesLoaded ? (
               <Box
                 bg="rgba(98, 98, 98, 0.6)"
                 p="4px"

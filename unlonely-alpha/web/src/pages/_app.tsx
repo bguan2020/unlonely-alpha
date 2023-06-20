@@ -4,9 +4,10 @@ import theme from "../styles/theme";
 import { ChakraProvider } from "@chakra-ui/react";
 
 import { ApolloProvider } from "@apollo/client";
-import { createClient, WagmiConfig, configureChains } from "wagmi";
-import { mainnet } from "wagmi/chains";
+import { createConfig, WagmiConfig, configureChains } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
+import { publicProvider } from "wagmi/providers/public";
+
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
@@ -16,6 +17,7 @@ import { AppProps } from "next/app";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 
+import { Mainnet, Goerli } from "../constants/networks";
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/useUser";
 
@@ -31,14 +33,23 @@ function App({ Component, pageProps, cookies }: Props) {
     cookies
   );
 
-  const { provider, chains } = configureChains(
-    [mainnet],
-    [alchemyProvider({ apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F" })]
+  const { publicClient, webSocketPublicClient, chains } = configureChains(
+    [Mainnet, Goerli],
+    [
+      alchemyProvider({
+        apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY),
+      }),
+      alchemyProvider({
+        apiKey: "Yv5gKmch-fSlMcOygB5jgDbNd3PL5fSv",
+      }),
+      publicProvider(),
+    ]
   );
 
-  const wagmiClient = createClient({
+  const wagmiConfig = createConfig({
     autoConnect: true,
-    provider,
+    publicClient,
+    webSocketPublicClient,
     connectors: [
       new MetaMaskConnector({
         chains,
@@ -52,7 +63,8 @@ function App({ Component, pageProps, cookies }: Props) {
       new WalletConnectConnector({
         chains,
         options: {
-          qrcode: false,
+          projectId: "unlonely",
+          showQrModal: false,
         },
       }),
     ],
@@ -60,7 +72,7 @@ function App({ Component, pageProps, cookies }: Props) {
 
   return (
     <ChakraProvider theme={theme}>
-      <WagmiConfig client={wagmiClient}>
+      <WagmiConfig config={wagmiConfig}>
         <ConnectKitProvider
           mode={"dark"}
           customTheme={{

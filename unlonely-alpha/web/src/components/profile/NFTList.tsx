@@ -35,6 +35,7 @@ const NFTList: React.FunctionComponent<Props> = ({
               _hover={{ cursor: "pointer" }}
               fontSize="16px"
               color={message.data.chatColor}
+              fontWeight="bold"
             >
               {message.data.username
                 ? message.data.username

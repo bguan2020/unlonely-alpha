@@ -63,7 +63,11 @@ const AppLayout: React.FC<Props> = ({
               <AlertDescription>{error.toString()}</AlertDescription>
             </Alert>
           )}
-          <Skeleton minHeight="calc(100vh - 64px)" isLoaded={!loading}>
+          <Skeleton
+            minHeight="calc(100vh - 64px)"
+            isLoaded={!loading}
+            overflowX="hidden"
+          >
             {children}
           </Skeleton>
         </Box>

@@ -1,4 +1,4 @@
-import { Text, Input, Flex } from "@chakra-ui/react";
+import { Text, Input, Flex, useToast } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { useUser } from "../../hooks/useUser";
 import { ChatBot } from "../../pages/channels/brian";
@@ -9,19 +9,32 @@ import {
 import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "./TransactionModalTemplate";
 import { ModalButton } from "../general/button/ModalButton";
+import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
+import { parseUnits } from "viem";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { FetchBalanceResult } from "../../constants/types";
+import { useNetwork, erc20ABI } from "wagmi";
+import { NETWORKS } from "../../constants/networks";
+import { useApproval } from "../../hooks/useApproval";
+import { getContractFromNetwork } from "../../utils/contract";
+import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 
 export default function TipTransactionModal({
   title,
   isOpen,
-  contractAddress,
+  tokenContractAddress,
+  tokenBalanceData,
   icon,
+  callback,
   handleClose,
   addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
-  contractAddress: string;
+  tokenContractAddress: string;
+  tokenBalanceData?: FetchBalanceResult;
   icon?: JSX.Element;
+  callback?: () => void;
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
@@ -31,18 +44,86 @@ export default function TipTransactionModal({
   >("5");
 
   const { user } = useUser();
+  const toast = useToast();
+  const network = useNetwork();
+  const localNetwork = useMemo(() => {
+    return (
+      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
+      NETWORKS[1]
+    );
+  }, [network]);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+
+  const {
+    requiresApproval,
+    writeApproval,
+    isTxLoading: isApprovalLoading,
+    refetchAllowance,
+  } = useApproval(
+    tokenContractAddress as `0x${string}`,
+    erc20ABI,
+    user?.address as `0x${string}`,
+    contract?.address as `0x${string}`,
+    contract?.chainId as number,
+    parseUnits(
+      (amountOption === "custom" ? amount : amountOption) as `${number}`,
+      18
+    ),
+    parseUnits(USER_APPROVAL_AMOUNT as `${number}`, 18),
+    {
+      onTxSuccess: (data) => {
+        toast({
+          title: "approve",
+          description: "success",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchAllowance();
+      },
+    }
+  );
+
+  const { useFeature, useFeatureTxLoading } = useUseFeature(
+    {
+      creatorTokenAddress: tokenContractAddress as `0x${string}`,
+      featurePrice: parseUnits(
+        formatIncompleteNumber(
+          amountOption === "custom" ? amount : amountOption
+        ) as `${number}`,
+        18
+      ),
+    },
+    {
+      onTxSuccess: (data) => {
+        toast({
+          title: "useFeature",
+          description: "success",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        callback?.();
+        addToChatbot?.({
+          username: user?.username ?? "",
+          address: user?.address ?? "",
+          taskType: InteractionType.TIP,
+          title: "Tip",
+          description: `${
+            user?.username ?? centerEllipses(user?.address, 15)
+          } tipped ${amountOption === "custom" ? amount : amountOption} $${
+            tokenBalanceData?.symbol
+          }!`,
+        });
+      },
+    }
+  );
 
   const handleSend = async () => {
-    if (!addToChatbot) return;
-    addToChatbot({
-      username: user?.username ?? "",
-      address: user?.address ?? "",
-      taskType: "tip",
-      title: "Tip",
-      description: `${
-        user?.username ?? centerEllipses(user?.address, 15)
-      } tipped ${amountOption === "custom" ? amount : amountOption} $BRIAN`,
-    });
+    if (!useFeature || !addToChatbot) return;
+    await useFeature();
   };
 
   const handleInputChange = (event: any) => {
@@ -56,25 +137,37 @@ export default function TipTransactionModal({
     [amount]
   );
 
+  const masterLoading = useMemo(() => {
+    return (useFeatureTxLoading ?? false) || isApprovalLoading;
+  }, [useFeatureTxLoading, isApprovalLoading]);
+
   const canSend = useMemo(() => {
-    // if (!balanceOfData) return false;
-    // if (Number(formatEther(balanceOfData.value)) < Number(formattedAmount))
-    //   return false;
-    if (amountOption === "custom" && Number(formattedAmount) < 5) return false;
+    if (amountOption === "custom" && Number(formattedAmount) === 0)
+      return false;
+    if (!useFeature) return false;
     return true;
-  }, [formattedAmount, amountOption]);
+  }, [formattedAmount, amountOption, useFeature]);
 
   return (
     <TransactionModalTemplate
       title={title}
-      contractAddress={contractAddress}
+      confirmButton={"tip"}
       isOpen={isOpen}
       icon={icon}
+      isModalLoading={masterLoading}
       canSend={canSend}
       onSend={handleSend}
       handleClose={handleClose}
+      needsApproval={requiresApproval}
+      approve={writeApproval}
     >
       <Flex direction={"column"} gap="16px">
+        <Text textAlign={"center"} fontSize="25px" color="#BABABA">
+          you own{" "}
+          {`${truncateValue(tokenBalanceData?.formatted ?? "0", 3)} $${
+            tokenBalanceData?.symbol
+          }`}
+        </Text>
         <Flex justifyContent={"space-between"}>
           <ModalButton
             width="120px"
@@ -131,7 +224,7 @@ export default function TipTransactionModal({
         </Flex>
         {amountOption === "custom" && (
           <Input
-            placeholder="enter amount of $brian"
+            placeholder={`enter amount of $${tokenBalanceData?.symbol}`}
             value={amount}
             onChange={handleInputChange}
             borderWidth="1px"

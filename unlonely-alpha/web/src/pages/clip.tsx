@@ -58,7 +58,7 @@ const ClipDetail = () => {
     address: UNLONELYNFCV2_ADDRESS,
     abi: UnlonelyNFCsV2.abi,
     functionName: "mint",
-    mode: "recklesslyUnprepared",
+    // mode: "recklesslyUnprepared",
   });
 
   const {
@@ -160,7 +160,7 @@ const ClipDetail = () => {
     }
 
     const tx = await write({
-      recklesslySetUnpreparedArgs: [user?.address, uri],
+      // recklesslySetUnpreparedArgs: [user?.address, uri],
     });
   };
 
@@ -237,7 +237,7 @@ const ClipDetail = () => {
                 <Flex width="80%" justifyContent="center" direction="column">
                   {!clipUrl ? (
                     <Flex width="100%" justifyContent="center">
-                      <Text fontSize="16px" fontFamily="Inter">
+                      <Text fontSize="16px">
                         Do no refresh or close this page! Clip is being
                         generated! This will take a few minutes, so go back to
                         the livestream if you want!
@@ -249,11 +249,7 @@ const ClipDetail = () => {
                         direction="column"
                         w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
                       >
-                        <Text
-                          fontSize="32px"
-                          fontWeight="semibold"
-                          fontFamily="Inter"
-                        >
+                        <Text fontSize="32px" fontWeight="semibold">
                           Clip generated! Title and mint your clip to share!
                         </Text>
                         <form onSubmit={handleSubmit(submitNFC)}>
@@ -269,9 +265,7 @@ const ClipDetail = () => {
                             isInvalid={!!formState.errors.title}
                             marginBottom={["20px", "20px"]}
                           >
-                            <Text fontSize="16px" fontFamily="Inter">
-                              Title
-                            </Text>
+                            <Text fontSize="16px">Title</Text>
                             <Textarea
                               id="title"
                               placeholder="brian gets rick rolled"
@@ -281,9 +275,7 @@ const ClipDetail = () => {
                               borderRadius="10px"
                               boxShadow="black"
                               minHeight="2rem"
-                              color="black"
                               fontWeight="medium"
-                              fontFamily="Inter"
                               w="100%"
                               padding="auto"
                               {...register("title")}

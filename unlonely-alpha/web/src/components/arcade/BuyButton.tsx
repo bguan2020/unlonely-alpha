@@ -4,9 +4,14 @@ import { useState } from "react";
 type Props = {
   tokenName: string;
   callback?: () => void;
+  noHover?: boolean;
 };
 
-const BuyButton: React.FunctionComponent<Props> = ({ tokenName, callback }) => {
+const BuyButton: React.FunctionComponent<Props> = ({
+  tokenName,
+  callback,
+  noHover,
+}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -14,7 +19,7 @@ const BuyButton: React.FunctionComponent<Props> = ({ tokenName, callback }) => {
       <IconButton
         aria-label={`${tokenName}-buy`}
         icon={
-          isHovered ? (
+          isHovered && !noHover ? (
             <Image src="/svg/buy-hover.svg" width="100%" />
           ) : (
             <Image src="/svg/buy.svg" width="100%" />
@@ -27,20 +32,20 @@ const BuyButton: React.FunctionComponent<Props> = ({ tokenName, callback }) => {
         _focus={{}}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={callback}
         position="relative"
       />
       <Flex
         direction="column"
         align="left"
-        top="50%"
-        left="60%"
-        transform="translate(-50%, -50%)"
+        top="7px"
+        left="55px"
         position="absolute"
         width={"80%"}
         pointerEvents="none"
       >
-        <Text lineHeight={1} fontSize="30px" textAlign={"left"}>
-          Buy {tokenName}
+        <Text lineHeight={1} fontSize="25px" textAlign={"left"}>
+          buy {tokenName ? tokenName : "token"}
         </Text>
       </Flex>
     </Flex>

@@ -8,7 +8,7 @@ import {
   UpdateChannelTextInput,
   User,
 } from "../../generated/graphql";
-import { EditIcon } from "../../components/icons/EditIcon";
+import { EditIcon } from "../icons/EditIcon";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
 import useUpdateChannelText from "../../hooks/useUpdateChannelText";
 import {
@@ -20,15 +20,26 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import { anonUrl } from "../presence/AnonUrl";
+import { PickCoinIcon } from "../icons/PickCoinIcon";
+import TokenSaleModal from "./TokenSaleModal";
+import { FetchBalanceResult } from "../../constants/types";
 
 type Props = {
   channel: ChannelDetailQuery["getChannelBySlug"];
+  tokenContractAddress: string;
+  tokenBalanceData?: FetchBalanceResult;
   user?: User;
 };
 
-const ChannelDesc = ({ channel, user }: Props) => {
+const ChannelDesc = ({
+  channel,
+  user,
+  tokenBalanceData,
+  tokenContractAddress,
+}: Props) => {
   const [editableText, setEditableText] = useState<boolean>(false);
   const [formError, setFormError] = useState<string[]>([]);
+  const [tokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
   const form = useForm<UpdateChannelTextInput>({
     defaultValues: {},
     resolver: yupResolver(updateChannelTextSchema),
@@ -62,6 +73,14 @@ const ChannelDesc = ({ channel, user }: Props) => {
 
   return (
     <>
+      <TokenSaleModal
+        title={"offer tokens for sale"}
+        isOpen={tokenSaleModal}
+        tokenContractAddress={tokenContractAddress}
+        tokenOwner={user?.address ?? ""}
+        tokenBalanceData={tokenBalanceData}
+        handleClose={() => setTokenSaleModal(false)}
+      />
       {editableText ? (
         <>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -167,7 +186,7 @@ const ChannelDesc = ({ channel, user }: Props) => {
             src={ipfsUrl}
             size="md"
           />
-          <Flex direction="column" gap={"16px"}>
+          <Flex direction="column" gap={["0px", "16px"]} width="100%">
             <Flex
               maxH="400px"
               margin="auto"
@@ -179,24 +198,50 @@ const ChannelDesc = ({ channel, user }: Props) => {
               gap="1rem"
               wordBreak={"break-all"}
             >
-              <Text fontSize="2rem" fontWeight="bold">
+              <Text
+                fontSize={["1rem", "1.5rem", "2rem"]}
+                fontWeight="bold"
+                noOfLines={2}
+              >
                 {channel?.name}
               </Text>
               {isOwner && (
-                <Tooltip label={"edit title/description"}>
-                  <EditIcon
+                <>
+                  <Tooltip label={"edit title/description"}>
+                    <EditIcon
+                      boxSize={5}
+                      cursor="pointer"
+                      onClick={() => {
+                        setEditableText(
+                          (prevEditableText) => !prevEditableText
+                        );
+                      }}
+                    />
+                  </Tooltip>
+                  {channel?.id === "3" && (
+                    <Tooltip label={"put tokens on sale"}>
+                      <PickCoinIcon
+                        boxSize={5}
+                        cursor="pointer"
+                        onClick={() => setTokenSaleModal(true)}
+                      />
+                    </Tooltip>
+                  )}
+                </>
+              )}
+              {channel?.id === "3" && (
+                <Tooltip label={"put tokens on sale"}>
+                  <PickCoinIcon
                     boxSize={5}
                     cursor="pointer"
-                    onClick={() => {
-                      setEditableText((prevEditableText) => !prevEditableText);
-                    }}
+                    onClick={() => setTokenSaleModal(true)}
                   />
                 </Tooltip>
               )}
             </Flex>
-            <Flex direction="row" margin="auto" ml="32px">
+            <Text px="30px" fontSize={["0.8rem", "1.2rem"]}>
               {channel?.description}
-            </Flex>
+            </Text>
           </Flex>
         </Flex>
       )}

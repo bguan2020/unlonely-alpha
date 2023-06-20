@@ -36,11 +36,10 @@
     "ably": "^1.2.39",
     "amazon-ivs-player": "^1.12.0",
     "axios": "^0.27.2",
-    "connectkit": "^1.1.1",
+    "connectkit": "1.4.0",
     "cookie-cutter": "^0.2.0",
     "date-fns": "^2.28.0",
     "emoji-unicode-map": "^1.1.11",
-    "ethers": "^5.7.2",
     "framer-motion": "4",
     "graphql": "^16.5.0",
     "ipfs-http-client": "^60.0.0",
@@ -60,7 +59,8 @@
     "use-clipboard-copy": "^0.2.0",
     "usehooks-ts": "^2.9.1",
     "video.js": "^7.20.2",
-    "wagmi": "^0.10.5",
+    "viem": "^1.0.0",
+    "wagmi": "^1.1.1",
     "yup": "^0.32.11"
   },
   "devDependencies": {
