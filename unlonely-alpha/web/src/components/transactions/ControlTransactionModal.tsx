@@ -7,7 +7,7 @@ import {
   Textarea,
   useToast,
 } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { parseUnits } from "viem";
 import { FetchBalanceResult } from "../../constants/types";
@@ -52,7 +52,8 @@ export default function ControlTransactionModal({
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
-  const [amountOption, setAmountOption] = useState<"5" | "10">("5");
+  const [amountOption, setAmountOption] = useState<"5">("5");
+  const [textToSend, setTextToSend] = useState<string>("");
 
   const { user } = useUser();
   const toast = useToast();
@@ -119,7 +120,7 @@ export default function ControlTransactionModal({
           isClosable: true,
           position: "top-right",
         });
-        callback?.();
+        handleBackendSend();
         addToChatbot?.({
           username: user?.username ?? "",
           address: user?.address ?? "",
@@ -133,10 +134,21 @@ export default function ControlTransactionModal({
     }
   );
 
-  const canSend = useMemo(
-    () => user !== undefined && useFeature !== undefined,
-    [useFeature, user]
-  );
+  const handleBackendSend = useCallback(async () => {
+    postStreamInteraction({
+      channelId: channel?.id,
+      text: textToSend,
+      interactionType: InteractionType.CONTROL,
+    });
+    callback?.(textToSend);
+    setTextToSend("");
+  }, [textToSend]);
+
+  const canSend = useMemo(() => {
+    if (!user) return false;
+    if (!useFeature) return false;
+    return true;
+  }, [useFeature, user]);
 
   const masterLoading = useMemo(() => {
     return loading || (useFeatureTxLoading ?? false) || isApprovalLoading;
@@ -148,15 +160,8 @@ export default function ControlTransactionModal({
   };
 
   const onSubmit = async (data: PostStreamInteractionInput) => {
-    await handleSend()
-      .then(() => {
-        postStreamInteraction({
-          channelId: channel?.id,
-          text: data.text,
-          interactionType: InteractionType.CONTROL,
-        });
-      })
-      .then(() => callback?.(data.text));
+    setTextToSend(String(data.text));
+    await handleSend();
   };
 
   return (

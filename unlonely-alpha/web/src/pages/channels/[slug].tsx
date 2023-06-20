@@ -166,7 +166,7 @@ const ChannelDetail = ({
     if (textOverVideo.length > 0) {
       const timer = setTimeout(() => {
         setTextOverVideo((prev) => prev.slice(2));
-      }, 20000);
+      }, 120000);
       return () => clearTimeout(timer);
     }
   }, [textOverVideo]);
@@ -393,9 +393,7 @@ const ChannelDetail = ({
                           </Grid>
                           <Tooltip label={"Not available"}>
                             <span>
-                              <BuyButton
-                                tokenName={`$${tokenBalanceData?.symbol}`}
-                              />
+                              <BuyButton tokenName={"token"} />
                             </span>
                           </Tooltip>
                         </>
@@ -428,6 +426,7 @@ const ChannelDetail = ({
                   channelArn={channel?.channelArn || ""}
                   channelId={channel?.id ? Number(channel?.id) : 3}
                   allowNFCs={channel?.allowNFCs || false}
+                  tokenContractAddress={channel?.token?.address as string}
                   tokenBalanceData={tokenBalanceData}
                   handleBuyModal={() => setShowBuyModal(true)}
                   handleTipModal={() => setShowTipModal(true)}

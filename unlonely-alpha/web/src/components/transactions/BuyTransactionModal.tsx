@@ -93,7 +93,9 @@ export default function BuyTransactionModal({
         callback?.();
         await updateUserCreatorTokenQuantity({
           tokenAddress: tokenContractAddress as `0x${string}`,
-          purchasedAmount: Number(formatUnits(buyTokenAmount_bigint, 18)),
+          purchasedAmount: Number(
+            amountOption === "custom" ? amount : amountOption
+          ),
         });
         addToChatbot?.({
           username: user?.username ?? "",

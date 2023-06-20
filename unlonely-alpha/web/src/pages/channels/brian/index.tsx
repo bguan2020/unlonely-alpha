@@ -173,7 +173,7 @@ const ChannelDetail = ({
     if (textOverVideo.length > 0) {
       const timer = setTimeout(() => {
         setTextOverVideo((prev) => prev.slice(2));
-      }, 20000);
+      }, 120000);
       return () => clearTimeout(timer);
     }
   }, [textOverVideo]);
@@ -433,6 +433,7 @@ const ChannelDetail = ({
                   channelArn={channelArn}
                   channelId={3}
                   allowNFCs={true}
+                  tokenContractAddress={channel?.token?.address as string}
                   tokenBalanceData={tokenBalanceData}
                   handleBuyModal={() => setShowBuyModal(true)}
                   handleTipModal={() => setShowTipModal(true)}
