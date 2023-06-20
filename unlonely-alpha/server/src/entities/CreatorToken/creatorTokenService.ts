@@ -103,6 +103,8 @@ export const updateUserCreatorTokenQuantity = async (
 };
 
 export interface IGetTokenHoldersByChannelInput {
+  limit?: number;
+  offset?: number;
   channelId: string;
 }
 
@@ -110,6 +112,10 @@ export const getTokenHoldersByChannel = (
   data: IGetTokenHoldersByChannelInput,
   ctx: Context
 ) => {
+  // add limit and offset pagination, set to top 10 default if empty
+  const limit = data.limit || 10;
+  const offset = data.offset || 0;
+
   return ctx.prisma.userCreatorToken.findMany({
     where: {
       token: {
@@ -120,6 +126,19 @@ export const getTokenHoldersByChannel = (
     },
     include: {
       user: true,
+    },
+    take: limit,
+    skip: offset,
+  });
+};
+
+export const getOwner = (
+  { ownerAddr }: { ownerAddr: string },
+  ctx: Context
+) => {
+  return ctx.prisma.user.findUnique({
+    where: {
+      address: ownerAddr,
     },
   });
 };

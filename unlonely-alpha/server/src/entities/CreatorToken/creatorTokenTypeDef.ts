@@ -28,7 +28,10 @@ export const typeDef = gql`
   }
 
   input GetTokenHoldersInput {
+    limit: Int
+    offset: Int
     channelId: ID!
+
   }
 
   input UpdateUserCreatorTokenQuantityInput {

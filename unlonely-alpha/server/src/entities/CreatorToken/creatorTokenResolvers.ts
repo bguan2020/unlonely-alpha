@@ -51,4 +51,9 @@ export const resolvers = {
       );
     },
   },
+  CreatorToken: {
+    user: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
+      return creatorTokenService.getOwner({ ownerAddr }, ctx);
+    }
+  },
 };
