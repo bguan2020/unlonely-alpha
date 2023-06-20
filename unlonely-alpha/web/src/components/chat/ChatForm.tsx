@@ -100,26 +100,6 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
               borderRadius="12px"
               p="10px"
             />
-            {/* <Tooltip label="Toggle to send private message. Private messages won't get displayed to Farcaster.">
-              <Flex
-                position="absolute"
-                zIndex={3}
-                top="50px"
-                right="8px"
-                pt="2px"
-                pb="1px"
-                pl="2px"
-                pr="2px"
-                bg="grey"
-                borderRadius="2rem"
-              >
-                <Switch
-                  size="sm"
-                  colorScheme={"red"}
-                  onChange={() => handlePrivateChat()}
-                />
-              </Flex>
-            </Tooltip> */}
             <Flex
               position="absolute"
               zIndex={3}
@@ -141,12 +121,6 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
                 }}
               />
             </Flex>
-
-            {/* <EmojiButton
-              mobile={mobile}
-              onSelectEmoji={(emoji) => addEmoji(emoji)}
-              onSelectGif={(gif) => sendGif(gif)}
-            /> */}
           </Flex>
           <Stack direction="column">
             {!mobile && (

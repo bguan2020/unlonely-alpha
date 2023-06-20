@@ -33,6 +33,10 @@ export const resolvers = {
     },
   },
   Channel: {
+    // add getChannelCreatorToken
+    token: ({ id }: { id: number }, _: any, ctx: Context) => {
+      return channelService.getChannelCreatorToken({ id }, ctx);
+    },
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
       return channelService.getOwner({ ownerAddr }, ctx);
     },

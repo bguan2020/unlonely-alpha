@@ -17,7 +17,7 @@ import { useNetwork, erc20ABI } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { useApproval } from "../../hooks/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
-import { USER_APPROVAL_AMOUNT } from "../../constants";
+import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 
 export default function TipTransactionModal({
   title,
@@ -106,25 +106,24 @@ export default function TipTransactionModal({
           position: "top-right",
         });
         callback?.();
+        addToChatbot?.({
+          username: user?.username ?? "",
+          address: user?.address ?? "",
+          taskType: InteractionType.TIP,
+          title: "Tip",
+          description: `${
+            user?.username ?? centerEllipses(user?.address, 15)
+          } tipped ${amountOption === "custom" ? amount : amountOption} $${
+            tokenBalanceData?.symbol
+          }!`,
+        });
       },
     }
   );
 
   const handleSend = async () => {
-    if (!useFeature) return;
+    if (!useFeature || !addToChatbot) return;
     await useFeature();
-    if (!addToChatbot) return;
-    addToChatbot({
-      username: user?.username ?? "",
-      address: user?.address ?? "",
-      taskType: "tip",
-      title: "Tip",
-      description: `${
-        user?.username ?? centerEllipses(user?.address, 15)
-      } tipped ${amountOption === "custom" ? amount : amountOption} $${
-        tokenBalanceData?.symbol
-      }`,
-    });
   };
 
   const handleInputChange = (event: any) => {
@@ -147,7 +146,7 @@ export default function TipTransactionModal({
       return false;
     if (!useFeature) return false;
     return true;
-  }, [formattedAmount, amountOption]);
+  }, [formattedAmount, amountOption, useFeature]);
 
   return (
     <TransactionModalTemplate

@@ -57,9 +57,9 @@ export default function AdminPage() {
 
   return (
     <AppLayout isCustomHeader={false}>
-      {/* {isAdmin && <AdminContent />}
-      {!isAdmin && <Text>You're not supposed to be here.</Text>} */}
-      <AdminContent />
+      {isAdmin && <AdminContent />}
+      {!isAdmin && <Text>You're not supposed to be here.</Text>}
+      {/* <AdminContent /> */}
     </AppLayout>
   );
 }
@@ -173,13 +173,13 @@ const AdminContent = () => {
     // first call smart contract
     await addCreatorToken();
     // then call our database
-    // await createCreatorToken({
-    //   address: newCreatorTokenAddress as `0x${string}`,
-    //   symbol: creatorTokenSymbol,
-    //   name: creatorTokenName,
-    //   price: Number(initialPrice),
-    //   channelId: channelId,
-    // });
+    await createCreatorToken({
+      address: newCreatorTokenAddress as `0x${string}`,
+      symbol: creatorTokenSymbol,
+      name: creatorTokenName,
+      price: Number(initialPrice),
+      channelId: channelId,
+    });
   };
 
   const { useFeature, useFeatureData, useFeatureTxData, useFeatureTxLoading } =

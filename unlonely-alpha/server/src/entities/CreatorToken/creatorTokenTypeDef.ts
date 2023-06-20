@@ -27,6 +27,12 @@ export const typeDef = gql`
     channelId: ID!
   }
 
+  input GetTokenHoldersInput {
+    limit: Int
+    offset: Int
+    channelId: ID!
+  }
+
   input UpdateUserCreatorTokenQuantityInput {
     tokenAddress: String!
     purchasedAmount: Int!
@@ -38,7 +44,7 @@ export const typeDef = gql`
   }
 
   extend type Query {
-    getTokenHoldersByChannel(tokenId: ID!): [UserCreatorToken!]!
+    getTokenHoldersByChannel(data: GetTokenHoldersInput): [UserCreatorToken!]!
   }
 
   extend type Mutation {

@@ -29,6 +29,7 @@ import { useApproval } from "../../hooks/useApproval";
 import { erc20ABI, useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
+import centerEllipses from "../../utils/centerEllipses";
 
 export default function ControlTransactionModal({
   title,
@@ -119,6 +120,15 @@ export default function ControlTransactionModal({
           position: "top-right",
         });
         callback?.();
+        addToChatbot?.({
+          username: user?.username ?? "",
+          address: user?.address ?? "",
+          taskType: InteractionType.CONTROL,
+          title: "Control",
+          description: `${
+            user?.username ?? centerEllipses(user?.address, 15)
+          } bought ad space!`,
+        });
       },
     }
   );
@@ -133,16 +143,8 @@ export default function ControlTransactionModal({
   }, [loading, useFeatureTxLoading, isApprovalLoading]);
 
   const handleSend = async () => {
-    if (!useFeature) return;
+    if (!useFeature || !addToChatbot) return;
     await useFeature();
-    if (!addToChatbot) return;
-    addToChatbot({
-      username: user?.username ?? "",
-      address: user?.address ?? "",
-      taskType: InteractionType.CONTROL,
-      title: "Control",
-      description: "CONTROL",
-    });
   };
 
   const onSubmit = async (data: PostStreamInteractionInput) => {
@@ -174,6 +176,7 @@ export default function ControlTransactionModal({
             height="50px"
             fade={amountOption === "5" ? 1 : 0.2}
             onClick={() => setAmountOption("5")}
+            pointerEvents="none"
           >
             <Text fontSize="20px">5</Text>
           </ModalButton>
@@ -229,7 +232,6 @@ export default function ControlTransactionModal({
               _hover={{}}
               _focus={{}}
               _active={{}}
-              onClick={handleSend}
               width="100%"
               disabled={!canSend}
               type="submit"

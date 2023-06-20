@@ -37,7 +37,6 @@ const LiveChannelCard = ({ channel }: Props) => {
           maxW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
           minW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
           onClick={handleRedirect}
-          // bg={"#131323"}
           p={"10px"}
           transform={isHovered ? "scale(1.05)" : "scale(1)"}
           transition="transform 0.2s"
