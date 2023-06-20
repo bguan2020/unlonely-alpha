@@ -21,17 +21,22 @@ import {
 } from "@chakra-ui/react";
 import { anonUrl } from "../presence/AnonUrl";
 import { PickCoinIcon } from "../icons/PickCoinIcon";
-import { DANNY_TOKEN_ADDRESS } from "../../constants";
 import TokenSaleModal from "./TokenSaleModal";
 import { FetchBalanceResult } from "../../constants/types";
 
 type Props = {
   channel: ChannelDetailQuery["getChannelBySlug"];
+  tokenContractAddress: string;
   tokenBalanceData?: FetchBalanceResult;
   user?: User;
 };
 
-const ChannelDesc = ({ channel, user, tokenBalanceData }: Props) => {
+const ChannelDesc = ({
+  channel,
+  user,
+  tokenBalanceData,
+  tokenContractAddress,
+}: Props) => {
   const [editableText, setEditableText] = useState<boolean>(false);
   const [formError, setFormError] = useState<string[]>([]);
   const [tokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
@@ -71,7 +76,7 @@ const ChannelDesc = ({ channel, user, tokenBalanceData }: Props) => {
       <TokenSaleModal
         title={"offer tokens for sale"}
         isOpen={tokenSaleModal}
-        tokenContractAddress={DANNY_TOKEN_ADDRESS}
+        tokenContractAddress={tokenContractAddress}
         tokenOwner={user?.address ?? ""}
         tokenBalanceData={tokenBalanceData}
         handleClose={() => setTokenSaleModal(false)}
@@ -215,7 +220,11 @@ const ChannelDesc = ({ channel, user, tokenBalanceData }: Props) => {
                   </Tooltip>
                   {channel?.id === "3" && (
                     <Tooltip label={"put tokens on sale"}>
-                      <PickCoinIcon boxSize={5} cursor="pointer" />
+                      <PickCoinIcon
+                        boxSize={5}
+                        cursor="pointer"
+                        onClick={() => setTokenSaleModal(true)}
+                      />
                     </Tooltip>
                   )}
                 </>

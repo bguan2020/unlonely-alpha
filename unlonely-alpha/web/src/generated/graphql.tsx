@@ -166,6 +166,12 @@ export type GetRecentStreamInteractionsByChannelInput = {
   channelId: Scalars["ID"];
 };
 
+export type GetTokenHoldersInput = {
+  channelId: Scalars["ID"];
+  limit?: InputMaybe<Scalars["Int"]>;
+  offset?: InputMaybe<Scalars["Int"]>;
+};
+
 export type GetUserInput = {
   address?: InputMaybe<Scalars["String"]>;
 };
@@ -443,7 +449,7 @@ export type QueryGetTaskFeedArgs = {
 };
 
 export type QueryGetTokenHoldersByChannelArgs = {
-  tokenId: Scalars["ID"];
+  data?: InputMaybe<GetTokenHoldersInput>;
 };
 
 export type QueryGetUserArgs = {
@@ -509,8 +515,8 @@ export type UpdateChannelTextInput = {
 };
 
 export type UpdateCreatorTokenPriceInput = {
-  address: Scalars["String"];
   price: Scalars["Float"];
+  tokenAddress: Scalars["String"];
 };
 
 export type UpdateDeviceInput = {
@@ -638,6 +644,69 @@ export type VideoCard_VideoFragment = {
   owner: { __typename?: "User"; username?: string | null; address: string };
 };
 
+export type ChannelDetailQueryVariables = Exact<{
+  slug: Scalars["String"];
+}>;
+
+export type ChannelDetailQuery = {
+  __typename?: "Query";
+  getChannelBySlug?: {
+    __typename?: "Channel";
+    awsId: string;
+    channelArn?: string | null;
+    description?: string | null;
+    id: string;
+    name?: string | null;
+    slug: string;
+    allowNFCs?: boolean | null;
+    playbackUrl?: string | null;
+    owner: {
+      __typename?: "User";
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+      username?: string | null;
+      address: string;
+    };
+    token?: {
+      __typename?: "CreatorToken";
+      id: string;
+      name: string;
+      symbol: string;
+      address: string;
+    } | null;
+  } | null;
+};
+
+export type GetRecentStreamInteractionsQueryVariables = Exact<{
+  data?: InputMaybe<GetRecentStreamInteractionsByChannelInput>;
+}>;
+
+export type GetRecentStreamInteractionsQuery = {
+  __typename?: "Query";
+  getRecentStreamInteractionsByChannel?: Array<{
+    __typename?: "StreamInteraction";
+    id: string;
+    interactionType: string;
+    text?: string | null;
+    createdAt: any;
+    updatedAt: any;
+    owner: { __typename?: "User"; address: string };
+  } | null> | null;
+};
+
+export type GetTokenHoldersByChannelQueryVariables = Exact<{
+  data?: InputMaybe<GetTokenHoldersInput>;
+}>;
+
+export type GetTokenHoldersByChannelQuery = {
+  __typename?: "Query";
+  getTokenHoldersByChannel: Array<{
+    __typename?: "UserCreatorToken";
+    quantity: number;
+    user: { __typename?: "User"; username?: string | null; address: string };
+  }>;
+};
+
 export type CreateCreatorTokenMutationVariables = Exact<{
   data: CreateCreatorTokenInput;
 }>;
@@ -669,7 +738,6 @@ export type UpdateUserCreatorTokenQuantityMutation = {
   updateUserCreatorTokenQuantity: {
     __typename?: "UserCreatorToken";
     quantity: number;
-    user: { __typename?: "User"; address: string };
   };
 };
 
@@ -827,50 +895,6 @@ export type VideoFeed1808Query = {
     liked?: boolean | null;
     skipped?: boolean | null;
     owner: { __typename?: "User"; username?: string | null; address: string };
-  } | null> | null;
-};
-
-export type ChannelDetailQueryVariables = Exact<{
-  slug: Scalars["String"];
-}>;
-
-export type ChannelDetailQuery = {
-  __typename?: "Query";
-  getChannelBySlug?: {
-    __typename?: "Channel";
-    awsId: string;
-    channelArn?: string | null;
-    description?: string | null;
-    id: string;
-    name?: string | null;
-    slug: string;
-    allowNFCs?: boolean | null;
-    playbackUrl?: string | null;
-    owner: {
-      __typename?: "User";
-      FCImageUrl?: string | null;
-      lensImageUrl?: string | null;
-      username?: string | null;
-      address: string;
-    };
-  } | null;
-};
-
-export type GetRecentStreamInteractionsQueryVariables = Exact<{
-  data?: InputMaybe<GetRecentStreamInteractionsByChannelInput>;
-}>;
-
-export type GetRecentStreamInteractionsQuery = {
-  __typename?: "Query";
-  getRecentStreamInteractionsByChannel?: Array<{
-    __typename?: "StreamInteraction";
-    id: string;
-    interactionType: string;
-    text?: string | null;
-    createdAt: any;
-    updatedAt: any;
-    channel: { __typename?: "Channel"; id: string };
-    owner: { __typename?: "User"; id: string };
   } | null> | null;
 };
 
@@ -1130,6 +1154,212 @@ export type TaskFeedQueryResult = Apollo.QueryResult<
   TaskFeedQuery,
   TaskFeedQueryVariables
 >;
+export const ChannelDetailDocument = gql`
+  query ChannelDetail($slug: String!) {
+    getChannelBySlug(slug: $slug) {
+      awsId
+      channelArn
+      description
+      id
+      name
+      slug
+      allowNFCs
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+      token {
+        id
+        name
+        symbol
+        address
+      }
+      playbackUrl
+    }
+  }
+`;
+
+/**
+ * __useChannelDetailQuery__
+ *
+ * To run a query within a React component, call `useChannelDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChannelDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChannelDetailQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useChannelDetailQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ChannelDetailQuery,
+    ChannelDetailQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
+    ChannelDetailDocument,
+    options
+  );
+}
+export function useChannelDetailLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ChannelDetailQuery,
+    ChannelDetailQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
+    ChannelDetailDocument,
+    options
+  );
+}
+export type ChannelDetailQueryHookResult = ReturnType<
+  typeof useChannelDetailQuery
+>;
+export type ChannelDetailLazyQueryHookResult = ReturnType<
+  typeof useChannelDetailLazyQuery
+>;
+export type ChannelDetailQueryResult = Apollo.QueryResult<
+  ChannelDetailQuery,
+  ChannelDetailQueryVariables
+>;
+export const GetRecentStreamInteractionsDocument = gql`
+  query GetRecentStreamInteractions(
+    $data: GetRecentStreamInteractionsByChannelInput
+  ) {
+    getRecentStreamInteractionsByChannel(data: $data) {
+      id
+      interactionType
+      text
+      createdAt
+      updatedAt
+      owner {
+        address
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetRecentStreamInteractionsQuery__
+ *
+ * To run a query within a React component, call `useGetRecentStreamInteractionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRecentStreamInteractionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRecentStreamInteractionsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetRecentStreamInteractionsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetRecentStreamInteractionsQuery,
+    GetRecentStreamInteractionsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetRecentStreamInteractionsQuery,
+    GetRecentStreamInteractionsQueryVariables
+  >(GetRecentStreamInteractionsDocument, options);
+}
+export function useGetRecentStreamInteractionsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetRecentStreamInteractionsQuery,
+    GetRecentStreamInteractionsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetRecentStreamInteractionsQuery,
+    GetRecentStreamInteractionsQueryVariables
+  >(GetRecentStreamInteractionsDocument, options);
+}
+export type GetRecentStreamInteractionsQueryHookResult = ReturnType<
+  typeof useGetRecentStreamInteractionsQuery
+>;
+export type GetRecentStreamInteractionsLazyQueryHookResult = ReturnType<
+  typeof useGetRecentStreamInteractionsLazyQuery
+>;
+export type GetRecentStreamInteractionsQueryResult = Apollo.QueryResult<
+  GetRecentStreamInteractionsQuery,
+  GetRecentStreamInteractionsQueryVariables
+>;
+export const GetTokenHoldersByChannelDocument = gql`
+  query GetTokenHoldersByChannel($data: GetTokenHoldersInput) {
+    getTokenHoldersByChannel(data: $data) {
+      quantity
+      user {
+        username
+        address
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetTokenHoldersByChannelQuery__
+ *
+ * To run a query within a React component, call `useGetTokenHoldersByChannelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTokenHoldersByChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTokenHoldersByChannelQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetTokenHoldersByChannelQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetTokenHoldersByChannelQuery,
+    GetTokenHoldersByChannelQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetTokenHoldersByChannelQuery,
+    GetTokenHoldersByChannelQueryVariables
+  >(GetTokenHoldersByChannelDocument, options);
+}
+export function useGetTokenHoldersByChannelLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetTokenHoldersByChannelQuery,
+    GetTokenHoldersByChannelQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetTokenHoldersByChannelQuery,
+    GetTokenHoldersByChannelQueryVariables
+  >(GetTokenHoldersByChannelDocument, options);
+}
+export type GetTokenHoldersByChannelQueryHookResult = ReturnType<
+  typeof useGetTokenHoldersByChannelQuery
+>;
+export type GetTokenHoldersByChannelLazyQueryHookResult = ReturnType<
+  typeof useGetTokenHoldersByChannelLazyQuery
+>;
+export type GetTokenHoldersByChannelQueryResult = Apollo.QueryResult<
+  GetTokenHoldersByChannelQuery,
+  GetTokenHoldersByChannelQueryVariables
+>;
 export const CreateCreatorTokenDocument = gql`
   mutation CreateCreatorToken($data: CreateCreatorTokenInput!) {
     createCreatorToken(data: $data) {
@@ -1237,9 +1467,6 @@ export const UpdateUserCreatorTokenQuantityDocument = gql`
   ) {
     updateUserCreatorTokenQuantity(data: $data) {
       quantity
-      user {
-        address
-      }
     }
   }
 `;
@@ -1910,147 +2137,6 @@ export type VideoFeed1808LazyQueryHookResult = ReturnType<
 export type VideoFeed1808QueryResult = Apollo.QueryResult<
   VideoFeed1808Query,
   VideoFeed1808QueryVariables
->;
-export const ChannelDetailDocument = gql`
-  query ChannelDetail($slug: String!) {
-    getChannelBySlug(slug: $slug) {
-      awsId
-      channelArn
-      description
-      id
-      name
-      slug
-      allowNFCs
-      owner {
-        FCImageUrl
-        lensImageUrl
-        username
-        address
-      }
-      playbackUrl
-    }
-  }
-`;
-
-/**
- * __useChannelDetailQuery__
- *
- * To run a query within a React component, call `useChannelDetailQuery` and pass it any options that fit your needs.
- * When your component renders, `useChannelDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useChannelDetailQuery({
- *   variables: {
- *      slug: // value for 'slug'
- *   },
- * });
- */
-export function useChannelDetailQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    ChannelDetailQuery,
-    ChannelDetailQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
-    ChannelDetailDocument,
-    options
-  );
-}
-export function useChannelDetailLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    ChannelDetailQuery,
-    ChannelDetailQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
-    ChannelDetailDocument,
-    options
-  );
-}
-export type ChannelDetailQueryHookResult = ReturnType<
-  typeof useChannelDetailQuery
->;
-export type ChannelDetailLazyQueryHookResult = ReturnType<
-  typeof useChannelDetailLazyQuery
->;
-export type ChannelDetailQueryResult = Apollo.QueryResult<
-  ChannelDetailQuery,
-  ChannelDetailQueryVariables
->;
-export const GetRecentStreamInteractionsDocument = gql`
-  query GetRecentStreamInteractions(
-    $data: GetRecentStreamInteractionsByChannelInput
-  ) {
-    getRecentStreamInteractionsByChannel(data: $data) {
-      id
-      interactionType
-      text
-      createdAt
-      updatedAt
-      channel {
-        id
-      }
-      owner {
-        id
-      }
-    }
-  }
-`;
-
-/**
- * __useGetRecentStreamInteractionsQuery__
- *
- * To run a query within a React component, call `useGetRecentStreamInteractionsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetRecentStreamInteractionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetRecentStreamInteractionsQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useGetRecentStreamInteractionsQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
-  >(GetRecentStreamInteractionsDocument, options);
-}
-export function useGetRecentStreamInteractionsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
-  >(GetRecentStreamInteractionsDocument, options);
-}
-export type GetRecentStreamInteractionsQueryHookResult = ReturnType<
-  typeof useGetRecentStreamInteractionsQuery
->;
-export type GetRecentStreamInteractionsLazyQueryHookResult = ReturnType<
-  typeof useGetRecentStreamInteractionsLazyQuery
->;
-export type GetRecentStreamInteractionsQueryResult = Apollo.QueryResult<
-  GetRecentStreamInteractionsQuery,
-  GetRecentStreamInteractionsQueryVariables
 >;
 export const GetChannelFeedDocument = gql`
   query GetChannelFeed {

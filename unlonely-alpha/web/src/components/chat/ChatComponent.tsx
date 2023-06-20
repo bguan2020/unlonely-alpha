@@ -14,6 +14,7 @@ import {
   Tr,
   Grid,
   GridItem,
+  Spinner,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
@@ -37,6 +38,10 @@ import { useScrollPercentage } from "../../hooks/useScrollPercentage";
 import { InteractionType } from "../../constants";
 import BuyButton from "../arcade/BuyButton";
 import { FetchBalanceResult } from "../../constants/types";
+import { useLazyQuery } from "@apollo/client";
+import { GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY } from "../../constants/queries";
+import centerEllipses from "../../utils/centerEllipses";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
 type Props = {
   username: string | null | undefined;
@@ -99,14 +104,50 @@ const AblyChatComponent = ({
   const [formError, setFormError] = useState<null | string[]>(null);
   const [chatHeightGrounded, setChatHeightGrounded] = useState(false);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
-  const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showArcade, setShowArcade] = useState<boolean>(false);
+  const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
+    []
+  );
 
   const clickedOutsideLeaderBoard = useRef(false);
   const clickedOutsideArcade = useRef(false);
   const leaderboardRef = useRef<HTMLDivElement>(null);
   const arcadeRef = useRef<HTMLDivElement>(null);
+
+  const [
+    getTokenHolders,
+    { loading: holdersLoading, error, data: holdersData },
+  ] = useLazyQuery(GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY);
+
+  useEffect(() => {
+    if (showLeaderboard && !holdersLoading && !holdersData) {
+      getTokenHolders({
+        variables: {
+          data: {
+            channelId: channelId,
+          },
+        },
+      });
+    }
+  }, [showLeaderboard]);
+
+  useEffect(() => {
+    if (!holdersLoading && !error && holdersData) {
+      const _holders: { name: string; quantity: number }[] =
+        holdersData.getTokenHoldersByChannel
+          .map((holder: any) => {
+            return {
+              name:
+                holder.user.username ?? centerEllipses(holder.user.address, 10),
+              quantity: holder.quantity,
+            };
+          })
+          .sort((a: any, b: any) => b.quantity - a.quantity)
+          .slice(0, 10);
+      setHolders(_holders);
+    }
+  }, [holdersLoading, error, holdersData]);
 
   useOnClickOutside(leaderboardRef, () => {
     if (showLeaderboard) {
@@ -595,89 +636,71 @@ const AblyChatComponent = ({
                 >
                   who owns the most $BRIAN?
                 </Text>
-                <TableContainer overflowX={"hidden"}>
-                  <Table variant="unstyled">
-                    <Thead>
-                      <Tr>
-                        <Th
-                          textTransform={"lowercase"}
-                          fontSize={"20px"}
-                          p="10px"
-                          textAlign="center"
-                        >
-                          rank
-                        </Th>
-                        <Th
-                          textTransform={"lowercase"}
-                          fontSize={"20px"}
-                          p="10px"
-                          textAlign="center"
-                        >
-                          name
-                        </Th>
-                        <Th
-                          textTransform={"lowercase"}
-                          fontSize={"20px"}
-                          p="10px"
-                          textAlign="center"
-                          isNumeric
-                        >
-                          amount
-                        </Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      <Tr>
-                        <Td fontSize={"20px"} p="10px" textAlign="center">
-                          1
-                        </Td>
-                        <Td fontSize={"20px"} p="10px" textAlign="center">
-                          cruzy
-                        </Td>
-                        <Td
-                          fontSize={"20px"}
-                          p="10px"
-                          textAlign="center"
-                          isNumeric
-                        >
-                          25000
-                        </Td>
-                      </Tr>
-                      <Tr>
-                        <Td fontSize={"20px"} p="10px" textAlign="center">
-                          2
-                        </Td>
-                        <Td fontSize={"20px"} p="10px" textAlign="center">
-                          tiny
-                        </Td>
-                        <Td
-                          fontSize={"20px"}
-                          p="10px"
-                          textAlign="center"
-                          isNumeric
-                        >
-                          3000
-                        </Td>
-                      </Tr>
-                      <Tr>
-                        <Td fontSize={"20px"} p="10px" textAlign="center">
-                          3
-                        </Td>
-                        <Td fontSize={"20px"} p="10px" textAlign="center">
-                          me
-                        </Td>
-                        <Td
-                          fontSize={"20px"}
-                          p="10px"
-                          textAlign="center"
-                          isNumeric
-                        >
-                          10
-                        </Td>
-                      </Tr>
-                    </Tbody>
-                  </Table>
-                </TableContainer>
+                {holdersLoading && (
+                  <Flex justifyContent={"center"} p="20px">
+                    <Spinner />
+                  </Flex>
+                )}
+                {!holdersLoading && holders.length > 0 && (
+                  <TableContainer overflowX={"hidden"}>
+                    <Table variant="unstyled">
+                      <Thead>
+                        <Tr>
+                          <Th
+                            textTransform={"lowercase"}
+                            fontSize={"20px"}
+                            p="10px"
+                            textAlign="center"
+                          >
+                            rank
+                          </Th>
+                          <Th
+                            textTransform={"lowercase"}
+                            fontSize={"20px"}
+                            p="10px"
+                            textAlign="center"
+                          >
+                            name
+                          </Th>
+                          <Th
+                            textTransform={"lowercase"}
+                            fontSize={"20px"}
+                            p="10px"
+                            textAlign="center"
+                            isNumeric
+                          >
+                            amount
+                          </Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {holders.map((holder, index) => (
+                          <Tr>
+                            <Td fontSize={"20px"} p="10px" textAlign="center">
+                              {index + 1}
+                            </Td>
+                            <Td fontSize={"20px"} p="10px" textAlign="center">
+                              {holder.name}
+                            </Td>
+                            <Td
+                              fontSize={"20px"}
+                              p="10px"
+                              textAlign="center"
+                              isNumeric
+                            >
+                              {truncateValue(holder.quantity, 2)}
+                            </Td>
+                          </Tr>
+                        ))}
+                      </Tbody>
+                    </Table>
+                  </TableContainer>
+                )}
+                {!holdersLoading && holders.length === 0 && (
+                  <Text textAlign={"center"} p="20px">
+                    no holders found
+                  </Text>
+                )}
               </Flex>
             </Flex>
           )}

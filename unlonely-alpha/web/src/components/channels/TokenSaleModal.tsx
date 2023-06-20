@@ -4,16 +4,11 @@ import { NETWORKS } from "../../constants/networks";
 import { FetchBalanceResult } from "../../constants/types";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useApproval } from "../../hooks/useApproval";
-import { Flex, Text, useToast, Input } from "@chakra-ui/react";
+import { Flex, Text, useToast } from "@chakra-ui/react";
 import { formatUnits, parseUnits } from "viem";
-import {
-  filteredInput,
-  formatIncompleteNumber,
-} from "../../utils/validation/input";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { ModalButton } from "../general/button/ModalButton";
-import { USER_APPROVAL_AMOUNT } from "../../constants";
 
 export default function TokenSaleModal({
   title,
@@ -43,13 +38,8 @@ export default function TokenSaleModal({
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
-  const [sellTokenAmount, setSellTokenAmount] = useState<string>("");
-  const [isCustom, setIsCustom] = useState<boolean>(false);
-
-  const sellTokenAmount_bigint = useMemo(
-    () =>
-      parseUnits(formatIncompleteNumber(sellTokenAmount) as `${number}`, 18),
-    [sellTokenAmount]
+  const [amountOption, setAmountOption] = useState<"10000" | "100000">(
+    "100000"
   );
 
   const {
@@ -63,9 +53,7 @@ export default function TokenSaleModal({
     tokenOwner as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,
-    isCustom
-      ? sellTokenAmount_bigint
-      : parseUnits(USER_APPROVAL_AMOUNT as `${number}`, 18),
+    parseUnits(amountOption as `${number}`, 18),
     undefined,
     {
       onTxSuccess: (data) => {
@@ -81,17 +69,10 @@ export default function TokenSaleModal({
     }
   );
 
-  const handleInputChange = (event: any) => {
-    const input = event.target.value;
-    const filtered = filteredInput(input);
-    setSellTokenAmount(filtered);
-  };
-
   const canSend = useMemo(() => {
-    if (isCustom && sellTokenAmount_bigint === BigInt(0)) return false;
     if (!writeApproval) return false;
     return true;
-  }, [isCustom, sellTokenAmount_bigint, writeApproval]);
+  }, [writeApproval]);
 
   useEffect(() => {
     if (tokenContractAddress) refetchAllowance();
@@ -120,32 +101,18 @@ export default function TokenSaleModal({
         <Flex justifyContent={"space-between"} direction="column" gap="10px">
           <ModalButton
             height="50px"
-            fade={!isCustom ? 1 : 0.2}
-            onClick={() => setIsCustom(false)}
+            fade={amountOption === "100000" ? 1 : 0.2}
+            onClick={() => setAmountOption("100000")}
           >
-            <Text fontSize="20px">{USER_APPROVAL_AMOUNT}</Text>
+            <Text fontSize="20px">100000</Text>
           </ModalButton>
           <ModalButton
             height="50px"
-            fade={isCustom ? 1 : 0.2}
-            onClick={() => setIsCustom(true)}
+            fade={amountOption === "10000" ? 1 : 0.2}
+            onClick={() => setAmountOption("10000")}
           >
-            <Text fontSize="20px">custom amount</Text>
+            <Text fontSize="20px">10000</Text>
           </ModalButton>
-          {isCustom && (
-            <Input
-              placeholder={`enter amount of $${tokenBalanceData?.symbol}`}
-              value={sellTokenAmount}
-              onChange={handleInputChange}
-              borderWidth="1px"
-              borderRadius="10px"
-              borderColor="#244FA7"
-              bg="rgba(36, 79, 167, 0.05)"
-              variant="unstyled"
-              px="16px"
-              py="10px"
-            />
-          )}
         </Flex>
       </Flex>
     </TransactionModalTemplate>

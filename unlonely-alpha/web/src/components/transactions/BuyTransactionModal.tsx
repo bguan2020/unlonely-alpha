@@ -18,6 +18,7 @@ import { formatUnits, parseUnits } from "viem";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { FetchBalanceResult } from "../../constants/types";
 import { InteractionType } from "../../constants";
+import useUpdateUserCreatorTokenQuantity from "../../hooks/arcade/useUpdateTokenQuantity";
 
 export default function BuyTransactionModal({
   title,
@@ -66,6 +67,12 @@ export default function BuyTransactionModal({
     buyTokenAmount_bigint
   );
 
+  const { updateUserCreatorTokenQuantity } = useUpdateUserCreatorTokenQuantity({
+    onError: (error: any) => {
+      // console.log(error);
+    },
+  });
+
   const { buyCreatorToken, buyCreatorTokenTxLoading } = useBuyCreatorToken(
     {
       creatorTokenAddress: tokenContractAddress as `0x${string}`,
@@ -73,7 +80,7 @@ export default function BuyTransactionModal({
       amountOut: buyTokenAmount_bigint,
     },
     {
-      onTxSuccess: (data) => {
+      onTxSuccess: async (data) => {
         toast({
           title: "buyCreatorToken",
           description: "success",
@@ -84,6 +91,10 @@ export default function BuyTransactionModal({
         });
         refetchPublic();
         callback?.();
+        await updateUserCreatorTokenQuantity({
+          tokenAddress: tokenContractAddress as `0x${string}`,
+          purchasedAmount: Number(formatUnits(buyTokenAmount_bigint, 18)),
+        });
         addToChatbot?.({
           username: user?.username ?? "",
           address: user?.address ?? "",

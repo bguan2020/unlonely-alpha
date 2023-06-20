@@ -14,9 +14,6 @@ const UPDATE_USER_TOKEN_QUANTITY_MUTATION = gql`
   ) {
     updateUserCreatorTokenQuantity(data: $data) {
       quantity
-      user {
-        address
-      }
     }
   }
 `;

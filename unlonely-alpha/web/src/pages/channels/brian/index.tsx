@@ -1,44 +1,49 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useQuery } from "@apollo/client";
 import {
-  Flex,
-  Stack,
+  Box,
   Container,
+  Flex,
   Grid,
   GridItem,
-  Box,
-  useBreakpointValue,
   Image,
+  Stack,
   Text,
+  Tooltip,
+  useBreakpointValue,
 } from "@chakra-ui/react";
-import { gql, useQuery } from "@apollo/client";
+import { GetServerSidePropsContext } from "next";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import io, { Socket } from "socket.io-client";
+import { isAddress } from "viem";
 import { useAccount, useBalance, useEnsName } from "wagmi";
-import AppLayout from "../../../components/layout/AppLayout";
-import centerEllipses from "../../../utils/centerEllipses";
-import AblyChatComponent from "../../../components/chat/ChatComponent";
-import NextStreamTimer from "../../../components/stream/NextStreamTimer";
-import { useUser } from "../../../hooks/useUser";
-import { useWindowSize } from "../../../hooks/useWindowSize";
+import { initializeApollo } from "../../../apiClient/client";
 import BuyButton from "../../../components/arcade/BuyButton";
+import CoinButton from "../../../components/arcade/CoinButton";
 import ControlButton from "../../../components/arcade/ControlButton";
 import DiceButton from "../../../components/arcade/DiceButton";
 import SwordButton from "../../../components/arcade/SwordButton";
-import CoinButton from "../../../components/arcade/CoinButton";
 import ChannelDesc from "../../../components/channels/ChannelDesc";
-import { GetServerSidePropsContext } from "next";
-import { initializeApollo } from "../../../apiClient/client";
+import AblyChatComponent from "../../../components/chat/ChatComponent";
+import AppLayout from "../../../components/layout/AppLayout";
+import ChannelNextHead from "../../../components/layout/ChannelNextHead";
+import NextStreamTimer from "../../../components/stream/NextStreamTimer";
+import BuyTransactionModal from "../../../components/transactions/BuyTransactionModal";
+import ChanceTransactionModal from "../../../components/transactions/ChanceTransactionModal";
+import ControlTransactionModal from "../../../components/transactions/ControlTransactionModal";
+import PvpTransactionModal from "../../../components/transactions/PvpTransactionModal";
+import TipTransactionModal from "../../../components/transactions/TipTransactionModal";
+import { InteractionType } from "../../../constants";
+import {
+  CHANNEL_DETAIL_QUERY,
+  GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
+} from "../../../constants/queries";
 import {
   ChannelDetailQuery,
   GetRecentStreamInteractionsQuery,
 } from "../../../generated/graphql";
-import ChannelNextHead from "../../../components/layout/ChannelNextHead";
-import io, { Socket } from "socket.io-client";
-import { DANNY_TOKEN_ADDRESS, InteractionType } from "../../../constants";
-import TipTransactionModal from "../../../components/transactions/TipTransactionModal";
-import ControlTransactionModal from "../../../components/transactions/ControlTransactionModal";
-import ChanceTransactionModal from "../../../components/transactions/ChanceTransactionModal";
-import PvpTransactionModal from "../../../components/transactions/PvpTransactionModal";
-import usePostStreamInteraction from "../../../hooks/usePostStreamInteraction";
-import BuyTransactionModal from "../../../components/transactions/BuyTransactionModal";
+import { useUser } from "../../../hooks/useUser";
+import { useWindowSize } from "../../../hooks/useWindowSize";
+import centerEllipses from "../../../utils/centerEllipses";
 
 export type ChatBot = {
   username: string;
@@ -51,44 +56,6 @@ export type ChatBot = {
 type UrlParams = {
   slug: string;
 };
-
-const CHANNEL_DETAIL_QUERY = gql`
-  query ChannelDetail($slug: String!) {
-    getChannelBySlug(slug: $slug) {
-      awsId
-      channelArn
-      description
-      id
-      name
-      slug
-      allowNFCs
-      owner {
-        FCImageUrl
-        lensImageUrl
-        username
-        address
-      }
-      playbackUrl
-    }
-  }
-`;
-
-const GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY = gql`
-  query GetRecentStreamInteractions(
-    $data: GetRecentStreamInteractionsByChannelInput
-  ) {
-    getRecentStreamInteractionsByChannel(data: $data) {
-      id
-      interactionType
-      text
-      createdAt
-      updatedAt
-      owner {
-        address
-      }
-    }
-  }
-`;
 
 const brianPlaybackUrl =
   "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8";
@@ -113,7 +80,7 @@ const ChannelDetail = ({
       {
         variables: {
           data: {
-            channelId: 3,
+            channelId: "3",
           },
         },
       }
@@ -127,7 +94,6 @@ const ChannelDetail = ({
 
   const [width, height] = useWindowSize();
   const { user } = useUser();
-  const { postStreamInteraction, loading } = usePostStreamInteraction({});
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [username, setUsername] = useState<string | null>();
@@ -145,9 +111,6 @@ const ChannelDetail = ({
   const ablyPresenceChannel = `${awsId}-presence-channel`;
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
-  const toggleChatVideos = function () {
-    setHideChat(!hideChat);
-  };
 
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
 
@@ -158,7 +121,7 @@ const ChannelDetail = ({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       address: user?.address ?? "",
-      token: DANNY_TOKEN_ADDRESS as `0x${string}`,
+      token: channel?.token?.address as `0x${string}`,
     }
   );
 
@@ -276,7 +239,7 @@ const ChannelDetail = ({
           title="control the stream!"
           isOpen={showControlModal}
           handleClose={handleClose}
-          tokenContractAddress={DANNY_TOKEN_ADDRESS}
+          tokenContractAddress={channel?.token?.address as string}
           addToChatbot={addToChatbot}
         />
         <BuyTransactionModal
@@ -288,7 +251,7 @@ const ChannelDetail = ({
           }
           isOpen={showBuyModal}
           handleClose={handleClose}
-          tokenContractAddress={DANNY_TOKEN_ADDRESS}
+          tokenContractAddress={channel?.token?.address as string}
           addToChatbot={addToChatbot}
         />
         <TipTransactionModal
@@ -300,7 +263,7 @@ const ChannelDetail = ({
           title="tip on the stream!"
           isOpen={showTipModal}
           handleClose={handleClose}
-          tokenContractAddress={DANNY_TOKEN_ADDRESS}
+          tokenContractAddress={channel?.token?.address as string}
           addToChatbot={addToChatbot}
         />
         <ChanceTransactionModal
@@ -310,7 +273,7 @@ const ChannelDetail = ({
           title="feeling lucky? roll the die for a surprise!"
           isOpen={showChanceModal}
           handleClose={handleClose}
-          tokenContractAddress={DANNY_TOKEN_ADDRESS}
+          tokenContractAddress={channel?.token?.address as string}
           addToChatbot={addToChatbot}
         />
         <PvpTransactionModal
@@ -325,7 +288,7 @@ const ChannelDetail = ({
           title="unlock player vs player features in chat"
           isOpen={showPvpModal}
           handleClose={handleClose}
-          tokenContractAddress={DANNY_TOKEN_ADDRESS}
+          tokenContractAddress={channel?.token?.address as string}
           addToChatbot={addToChatbot}
         />
         <Stack direction="column" mt={"1rem"}>
@@ -361,6 +324,7 @@ const ChannelDetail = ({
               <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
                 <GridItem colSpan={showArcadeButtons ? 2 : 3}>
                   <ChannelDesc
+                    tokenContractAddress={channel?.token?.address as string}
                     channel={channel}
                     user={user}
                     tokenBalanceData={tokenBalanceData}
@@ -374,24 +338,73 @@ const ChannelDetail = ({
                       alignItems="center"
                       gap={5}
                     >
-                      <Grid
-                        templateColumns="repeat(2, 1fr)"
-                        templateRows="repeat(2, 1fr)"
-                        gridGap={4}
-                        alignItems="flex-start"
-                        justifyItems="flex-start"
-                      >
-                        <ControlButton
-                          callback={() => setShowControlModal(true)}
-                        />
-                        <CoinButton callback={() => setShowTipModal(true)} />
-                        <DiceButton callback={() => setShowChanceModal(true)} />
-                        <SwordButton callback={() => setShowPvpModal(true)} />
-                      </Grid>
-                      <BuyButton
-                        tokenName={`$${tokenBalanceData?.symbol}`}
-                        callback={() => setShowBuyModal(true)}
-                      />
+                      {isAddress(String(channel?.token?.address)) && (
+                        <>
+                          <Grid
+                            templateColumns="repeat(2, 1fr)"
+                            templateRows="repeat(2, 1fr)"
+                            gridGap={4}
+                            alignItems="flex-start"
+                            justifyItems="flex-start"
+                          >
+                            <ControlButton
+                              callback={() => setShowControlModal(true)}
+                            />
+                            <CoinButton
+                              callback={() => setShowTipModal(true)}
+                            />
+                            <DiceButton
+                              callback={() => setShowChanceModal(true)}
+                            />
+                            <SwordButton
+                              callback={() => setShowPvpModal(true)}
+                            />
+                          </Grid>
+                          <BuyButton
+                            tokenName={`$${tokenBalanceData?.symbol}`}
+                            callback={() => setShowBuyModal(true)}
+                          />
+                        </>
+                      )}
+                      {!isAddress(String(channel?.token?.address)) && (
+                        <>
+                          <Grid
+                            templateColumns="repeat(2, 1fr)"
+                            templateRows="repeat(2, 1fr)"
+                            gridGap={4}
+                            alignItems="flex-start"
+                            justifyItems="flex-start"
+                          >
+                            <Tooltip label={"Not available"}>
+                              <span>
+                                <ControlButton />
+                              </span>
+                            </Tooltip>
+                            <Tooltip label={"Not available"}>
+                              <span>
+                                <CoinButton />
+                              </span>
+                            </Tooltip>
+                            <Tooltip label={"Not available"}>
+                              <span>
+                                <DiceButton />
+                              </span>
+                            </Tooltip>
+                            <Tooltip label={"Not available"}>
+                              <span>
+                                <SwordButton />
+                              </span>
+                            </Tooltip>
+                          </Grid>
+                          <Tooltip label={"Not available"}>
+                            <span>
+                              <BuyButton
+                                tokenName={`$${tokenBalanceData?.symbol}`}
+                              />
+                            </span>
+                          </Tooltip>
+                        </>
+                      )}
                     </Box>
                   </GridItem>
                 )}
