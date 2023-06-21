@@ -19,7 +19,7 @@ import cookies from "next-cookies";
 
 import { Mainnet, Goerli } from "../constants/networks";
 import { Cookies, useApollo } from "../apiClient/client";
-import { UserProvider } from "../hooks/useUser";
+import { UserProvider } from "../hooks/context/useUser";
 
 interface InitialProps {
   cookies: Cookies;

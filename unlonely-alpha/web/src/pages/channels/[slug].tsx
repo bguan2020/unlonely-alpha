@@ -39,8 +39,8 @@ import {
   ChannelDetailQuery,
   GetRecentStreamInteractionsQuery,
 } from "../../generated/graphql";
-import { useUser } from "../../hooks/useUser";
-import { useWindowSize } from "../../hooks/useWindowSize";
+import { useUser } from "../../hooks/context/useUser";
+import { useWindowSize } from "../../hooks/internal/useWindowSize";
 import centerEllipses from "../../utils/centerEllipses";
 import { ChatBot } from "../../constants/types";
 

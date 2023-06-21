@@ -35,7 +35,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 import NextHead from "../../components/layout/NextHead";
 import { splitArray } from "../../utils/splitArray";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/context/useUser";
 import AppLayout from "../../components/layout/AppLayout";
 
 type UserNotificationsType = {

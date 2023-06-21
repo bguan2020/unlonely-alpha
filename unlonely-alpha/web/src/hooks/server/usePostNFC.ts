@@ -4,45 +4,43 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
-  CreateCreatorTokenMutation,
-  CreateCreatorTokenMutationVariables,
+  PostNfcMutation,
+  PostNfcMutationVariables,
 } from "../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
-const CREATE_CREATOR_TOKEN_MUTATION = gql`
-  mutation CreateCreatorToken($data: CreateCreatorTokenInput!) {
-    createCreatorToken(data: $data) {
+const POST_NFC_MUTATION = gql`
+  mutation PostNFC($data: PostNFCInput!) {
+    postNFC(data: $data) {
       id
     }
   }
 `;
 
-const useCreateCreatorToken = ({ onError }: Props) => {
+const usePostNFC = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<
-    CreateCreatorTokenMutation,
-    CreateCreatorTokenMutationVariables
-  >(CREATE_CREATOR_TOKEN_MUTATION);
+  const [mutate] = useAuthedMutation<PostNfcMutation, PostNfcMutationVariables>(
+    POST_NFC_MUTATION
+  );
 
-  const createCreatorToken = useCallback(
+  const postNFC = useCallback(
     async (data) => {
       setLoading(true);
       const mutationResult = await mutate({
         variables: {
           data: {
-            address: data.address,
-            symbol: data.symbol,
-            name: data.name,
-            price: data.price,
-            channelId: data.channelId,
+            title: data.title,
+            videoLink: data.videoLink,
+            videoThumbnail: data.videoThumbnail,
+            openseaLink: data.openseaLink,
           },
         },
       });
 
-      const res = mutationResult?.data?.createCreatorToken;
+      const res = mutationResult?.data?.postNFC;
       /* eslint-disable no-console */
       if (res) {
         console.log("success");
@@ -57,7 +55,7 @@ const useCreateCreatorToken = ({ onError }: Props) => {
     [mutate, onError]
   );
 
-  return { createCreatorToken, loading };
+  return { postNFC, loading };
 };
 
-export default useCreateCreatorToken;
+export default usePostNFC;

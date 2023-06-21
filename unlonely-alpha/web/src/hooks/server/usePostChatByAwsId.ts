@@ -3,51 +3,51 @@ import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
 
 import {
-  PostTaskMutation,
-  PostTaskMutationVariables,
-} from "../generated/graphql";
-import { useAuthedMutation } from "../apiClient/hooks";
+  PostChatByAwsIdMutation,
+  PostChatByAwsIdMutationVariables,
+} from "../../generated/graphql";
+import { useAuthedMutation } from "../../apiClient/hooks";
 
-const POST_TASK_MUTATION = gql`
-  mutation PostTask($data: PostTaskInput!) {
-    postTask(data: $data) {
+const POST_CHAT_BY_AWSID_MUTATION = gql`
+  mutation PostChatByAwsId($data: PostChatByAwsIdInput!) {
+    postChatByAwsId(data: $data) {
       id
     }
   }
 `;
 
-const usePostTask = ({
+const usePostChatByAwsId = ({
   onError,
 }: {
   onError?: (errors?: GraphQLErrors) => void;
 }) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    PostTaskMutation,
-    PostTaskMutationVariables
-  >(POST_TASK_MUTATION);
+    PostChatByAwsIdMutation,
+    PostChatByAwsIdMutationVariables
+  >(POST_CHAT_BY_AWSID_MUTATION);
 
-  const postTask = useCallback(
+  const postChatByAwsId = useCallback(
     async (data) => {
       setLoading(true);
+
       const mutationResult = await mutate({ variables: { data } });
 
       if (
         mutationResult.errors ||
         !mutationResult.data ||
-        !mutationResult.data.postTask
+        !mutationResult.data.postChatByAwsId
       ) {
         onError && onError(mutationResult.errors);
         setLoading(false);
         return;
       }
-
       setLoading(false);
     },
     [mutate, onError]
   );
 
-  return { postTask, loading };
+  return { postChatByAwsId, loading };
 };
 
-export default usePostTask;
+export default usePostChatByAwsId;

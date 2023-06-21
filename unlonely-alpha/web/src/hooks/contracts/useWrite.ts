@@ -4,7 +4,7 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { WriteCallbacks } from "../constants/types";
+import { WriteCallbacks } from "../../constants/types";
 
 export const useWrite = (
   contract: { address?: `0x${string}`; abi?: any; chainId?: number },

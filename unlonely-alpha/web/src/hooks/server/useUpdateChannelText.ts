@@ -5,8 +5,8 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import {
   UpdateChannelTextMutation,
   UpdateChannelTextMutationVariables,
-} from "../generated/graphql";
-import { useAuthedMutation } from "../apiClient/hooks";
+} from "../../generated/graphql";
+import { useAuthedMutation } from "../../apiClient/hooks";
 
 const UPDATE_CHANNEL_TEXT_MUTATION = gql`
   mutation UpdateChannelText($data: UpdateChannelTextInput!) {

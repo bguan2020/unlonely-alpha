@@ -22,16 +22,16 @@ import {
   useSetTokenPrice,
   useUseFeature,
 } from "../hooks/contracts/useArcadeContract";
-import { useApproval } from "../hooks/useApproval";
-import useCreateCreatorToken from "../hooks/arcade/useCreateCreatorToken";
-import { useUser } from "../hooks/useUser";
+import { useApproval } from "../hooks/contracts/useApproval";
+import useCreateCreatorToken from "../hooks/server/arcade/useCreateCreatorToken";
+import { useUser } from "../hooks/context/useUser";
 import { getContractFromNetwork } from "../utils/contract";
 import {
   filteredInput,
   formatIncompleteNumber,
 } from "../utils/validation/input";
-import useUpdateCreatorTokenPrice from "../hooks/arcade/useUpdateTokenPrice";
-import useUpdateUserCreatorTokenQuantity from "../hooks/arcade/useUpdateTokenQuantity";
+import useUpdateCreatorTokenPrice from "../hooks/server/arcade/useUpdateTokenPrice";
+import useUpdateUserCreatorTokenQuantity from "../hooks/server/arcade/useUpdateTokenQuantity";
 import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
 
 const inputStyle = {

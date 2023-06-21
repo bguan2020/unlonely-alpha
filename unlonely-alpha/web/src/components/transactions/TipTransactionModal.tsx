@@ -1,6 +1,6 @@
 import { Text, Input, Flex, useToast } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/context/useUser";
 import { ChatBot } from "../../constants/types";
 import {
   filteredInput,
@@ -15,7 +15,7 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { FetchBalanceResult } from "../../constants/types";
 import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
-import { useApproval } from "../../hooks/useApproval";
+import { useApproval } from "../../hooks/contracts/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";

@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { useQuery } from "@apollo/client";
 
-import { User } from "../generated/graphql";
+import { User } from "../../generated/graphql";
 /* eslint-disable */
 const GET_USER_QUERY = gql`
   query getUser($data: GetUserInput!) {

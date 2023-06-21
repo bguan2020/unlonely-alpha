@@ -3,7 +3,7 @@ import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { FetchBalanceResult } from "../../constants/types";
 import { getContractFromNetwork } from "../../utils/contract";
-import { useApproval } from "../../hooks/useApproval";
+import { useApproval } from "../../hooks/contracts/useApproval";
 import { Flex, Text, useToast } from "@chakra-ui/react";
 import { formatUnits, parseUnits } from "viem";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";

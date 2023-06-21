@@ -1,11 +1,11 @@
 import { gql } from "@apollo/client";
 
-import { useAuthedMutation } from "../apiClient/hooks";
+import { useAuthedMutation } from "../../apiClient/hooks";
 import {
   LikeMutation,
   LikeMutationVariables,
   LikeObj,
-} from "../generated/graphql";
+} from "../../generated/graphql";
 
 const LIKE_MUTATION = gql`
   mutation Like($data: HandleLikeInput!) {

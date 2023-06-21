@@ -1,6 +1,6 @@
 import { Text, Input, Flex } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/context/useUser";
 import { ChatBot } from "../../constants/types";
 import {
   filteredInput,

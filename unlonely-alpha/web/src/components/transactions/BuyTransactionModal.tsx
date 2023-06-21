@@ -1,6 +1,6 @@
 import { Text, Input, Flex, useToast } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/context/useUser";
 import { ChatBot } from "../../constants/types";
 import {
   filteredInput,
@@ -18,7 +18,7 @@ import { formatUnits, parseUnits } from "viem";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { FetchBalanceResult } from "../../constants/types";
 import { InteractionType } from "../../constants";
-import useUpdateUserCreatorTokenQuantity from "../../hooks/arcade/useUpdateTokenQuantity";
+import useUpdateUserCreatorTokenQuantity from "../../hooks/server/arcade/useUpdateTokenQuantity";
 
 export default function BuyTransactionModal({
   title,

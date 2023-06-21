@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { isServer } from "../utils/environment";
+import { isServer } from "../../utils/environment";
 
 export interface ScriptProps {
   /**

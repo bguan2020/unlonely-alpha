@@ -10,7 +10,7 @@ import {
 } from "../../generated/graphql";
 import { EditIcon } from "../icons/EditIcon";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
-import useUpdateChannelText from "../../hooks/useUpdateChannelText";
+import useUpdateChannelText from "../../hooks/server/useUpdateChannelText";
 import {
   Button,
   FormControl,

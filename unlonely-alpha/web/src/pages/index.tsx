@@ -14,7 +14,7 @@ import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import HeroBanner from "../components/layout/HeroBanner";
 import AblyChatComponent from "../components/chat/ChatComponent";
-import { useUser } from "../hooks/useUser";
+import { useUser } from "../hooks/context/useUser";
 import { useState, useEffect } from "react";
 import { useAccount, useEnsName } from "wagmi";
 import centerEllipses from "../utils/centerEllipses";

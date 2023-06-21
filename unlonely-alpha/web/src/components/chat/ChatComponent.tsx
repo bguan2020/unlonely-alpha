@@ -20,21 +20,21 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 
-import useChannel from "../../hooks/useChannel";
+import useChannel from "../../hooks/chat/useChannel";
 import { COLORS } from "../../styles/Colors";
 import { Message, initializeEmojis } from "./types/index";
 import { User } from "../../generated/graphql";
 import ChatForm from "./ChatForm";
-import usePostFirstChat from "../../hooks/usePostFirstChat";
+import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/context/useUser";
 import MessageList from "./MessageList";
-import { useOnClickOutside } from "../../hooks/useOnClickOutside";
+import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import SwordButton from "../arcade/SwordButton";
 import CoinButton from "../arcade/CoinButton";
 import ControlButton from "../arcade/ControlButton";
 import DiceButton from "../arcade/DiceButton";
-import { useScrollPercentage } from "../../hooks/useScrollPercentage";
+import { useScrollPercentage } from "../../hooks/internal/useScrollPercentage";
 import { InteractionType } from "../../constants";
 import BuyButton from "../arcade/BuyButton";
 import { ChatBot, FetchBalanceResult } from "../../constants/types";

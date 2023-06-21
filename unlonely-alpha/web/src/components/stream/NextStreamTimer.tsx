@@ -3,7 +3,7 @@ import { Text, Flex, Link, Spinner } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import moment from "moment-timezone";
 import IVSPlayer from "./IVSPlayer";
-import useScript from "../../hooks/useScript";
+import useScript from "../../hooks/internal/useScript";
 
 type Props = {
   isTheatreMode: boolean;

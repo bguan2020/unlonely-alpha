@@ -2,11 +2,11 @@ import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback } from "react";
 
-import { useAuthedMutation } from "../apiClient/hooks";
+import { useAuthedMutation } from "../../apiClient/hooks";
 import {
   UpdateUserNotificationsMutation,
   UpdateUserNotificationsMutationVariables,
-} from "../generated/graphql";
+} from "../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;

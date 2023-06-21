@@ -2,7 +2,7 @@ import { AddIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { Box, Flex, Text, Image, Link, Button } from "@chakra-ui/react";
 import React, { useState } from "react";
 
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/context/useUser";
 import NFTList from "../profile/NFTList";
 import Badges from "./Badges";
 import EmojiDisplay from "./emoji/EmojiDisplay";
