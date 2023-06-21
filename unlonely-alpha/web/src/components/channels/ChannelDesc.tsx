@@ -23,6 +23,7 @@ import { anonUrl } from "../presence/AnonUrl";
 import { PickCoinIcon } from "../icons/PickCoinIcon";
 import TokenSaleModal from "./TokenSaleModal";
 import { FetchBalanceResult } from "../../constants/types";
+import { isAddress } from "viem";
 
 type Props = {
   channel: ChannelDetailQuery["getChannelBySlug"];
@@ -218,7 +219,7 @@ const ChannelDesc = ({
                       }}
                     />
                   </Tooltip>
-                  {channel?.id === "3" && (
+                  {isAddress(tokenContractAddress) && (
                     <Tooltip label={"put tokens on sale"}>
                       <PickCoinIcon
                         boxSize={5}
@@ -228,15 +229,6 @@ const ChannelDesc = ({
                     </Tooltip>
                   )}
                 </>
-              )}
-              {channel?.id === "3" && (
-                <Tooltip label={"put tokens on sale"}>
-                  <PickCoinIcon
-                    boxSize={5}
-                    cursor="pointer"
-                    onClick={() => setTokenSaleModal(true)}
-                  />
-                </Tooltip>
               )}
             </Flex>
             <Text px="30px" fontSize={["0.8rem", "1.2rem"]}>

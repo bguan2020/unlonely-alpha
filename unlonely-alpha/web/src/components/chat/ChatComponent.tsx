@@ -15,6 +15,7 @@ import {
   Grid,
   GridItem,
   Spinner,
+  Tooltip,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
@@ -42,6 +43,7 @@ import { useLazyQuery } from "@apollo/client";
 import { GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { isAddress } from "viem";
 
 type Props = {
   username: string | null | undefined;
@@ -52,6 +54,7 @@ type Props = {
   channelArn: string;
   channelId: number;
   allowNFCs: boolean;
+  tokenContractAddress: string;
   tokenBalanceData?: FetchBalanceResult;
   handleControlModal?: () => void;
   handleChanceModal?: () => void;
@@ -86,6 +89,7 @@ const AblyChatComponent = ({
   channelArn,
   channelId,
   allowNFCs,
+  tokenContractAddress,
   tokenBalanceData,
   handleControlModal,
   handleChanceModal,
@@ -573,30 +577,79 @@ const AblyChatComponent = ({
                 width={"100%"}
                 padding={"40px"}
               >
-                <BuyButton
-                  tokenName={`$${tokenBalanceData?.symbol}`}
-                  callback={handleBuyModal}
-                />
-                <Grid
-                  mt="50px"
-                  templateColumns="repeat(2, 1fr)"
-                  gap={12}
-                  alignItems="center"
-                  justifyItems="center"
-                >
-                  <GridItem>
-                    <ControlButton callback={handleControlModal} />
-                  </GridItem>
-                  <GridItem>
-                    <DiceButton callback={handleChanceModal} />
-                  </GridItem>
-                  <GridItem>
-                    <SwordButton callback={handlePvpModal} />
-                  </GridItem>
-                  <GridItem>
-                    <CoinButton callback={handleTipModal} />
-                  </GridItem>
-                </Grid>
+                {isAddress(tokenContractAddress) && (
+                  <>
+                    <BuyButton
+                      tokenName={`$${tokenBalanceData?.symbol}`}
+                      callback={handleBuyModal}
+                    />
+                    <Grid
+                      mt="50px"
+                      templateColumns="repeat(2, 1fr)"
+                      gap={12}
+                      alignItems="center"
+                      justifyItems="center"
+                    >
+                      <GridItem>
+                        <ControlButton callback={handleControlModal} />
+                      </GridItem>
+                      <GridItem>
+                        <DiceButton callback={handleChanceModal} />
+                      </GridItem>
+                      <GridItem>
+                        <SwordButton callback={handlePvpModal} />
+                      </GridItem>
+                      <GridItem>
+                        <CoinButton callback={handleTipModal} />
+                      </GridItem>
+                    </Grid>
+                  </>
+                )}
+                {!isAddress(tokenContractAddress) && (
+                  <>
+                    <Tooltip label={"Not available"}>
+                      <span>
+                        <BuyButton tokenName={"token"} />
+                      </span>
+                    </Tooltip>
+                    <Grid
+                      mt="50px"
+                      templateColumns="repeat(2, 1fr)"
+                      gap={12}
+                      alignItems="center"
+                      justifyItems="center"
+                    >
+                      <GridItem>
+                        <Tooltip label={"Not available"}>
+                          <span>
+                            <ControlButton />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                      <GridItem>
+                        <Tooltip label={"Not available"}>
+                          <span>
+                            <CoinButton />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                      <GridItem>
+                        <Tooltip label={"Not available"}>
+                          <span>
+                            <DiceButton />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                      <GridItem>
+                        <Tooltip label={"Not available"}>
+                          <span>
+                            <SwordButton />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                    </Grid>
+                  </>
+                )}
               </Flex>
             </Flex>
           )}

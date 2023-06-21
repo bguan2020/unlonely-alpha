@@ -50,8 +50,9 @@ const EmojiCategory = ({
 const EmojiPicker = ({ onSelectEmoji, onSelectGif }: Props) => {
   return (
     <Flex direction="column">
-      {categoriesList.map((category) => (
+      {categoriesList.map((category, i) => (
         <EmojiCategory
+          key={i}
           onSelectEmoji={onSelectEmoji}
           category={category}
           emojis={unicodeEmojis[category]}

@@ -82,7 +82,7 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
               placeholder="say something in chat!"
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
-              enterkeyhint="send"
+              enterKeyHint="send"
               onChange={(e) => {
                 if (e.target.value === "") {
                   setCommandsOpen(false);

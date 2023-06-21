@@ -120,7 +120,7 @@ export const TransactionModalTemplate = ({
         {isModalLoading && (
           <ModalBody>
             <Flex direction="column" gap="20px">
-              <Flex justifyContent={"center"}>
+              <Flex justifyContent={"center"} p="10px">
                 <Spinner size="xl" />
               </Flex>
               <Text textAlign={"center"}>
