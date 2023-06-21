@@ -1,5 +1,5 @@
 export const filteredInput = (input: string): string => {
-  return input.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); // no letters allowed
+  return input.replace(/[^0-9]/g, ""); // no decimals, letters, or other symbols allowed except for digits
 };
 
 export const formatIncompleteNumber = (str: string) => {
