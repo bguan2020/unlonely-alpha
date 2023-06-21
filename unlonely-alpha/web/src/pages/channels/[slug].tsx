@@ -300,7 +300,11 @@ const ChannelDetail = () => {
                 </Box>
                 <NextStreamTimer
                   isTheatreMode={true}
-                  playbackUrl={channel?.playbackUrl || ""}
+                  playbackUrl={
+                    channel?.playbackUrl == null
+                      ? undefined
+                      : channel?.playbackUrl
+                  }
                 />
               </Flex>
               <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">

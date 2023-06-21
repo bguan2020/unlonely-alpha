@@ -7,7 +7,7 @@ import useScript from "../../hooks/internal/useScript";
 
 type Props = {
   isTheatreMode: boolean;
-  playbackUrl: string;
+  playbackUrl?: string;
   hasTimer?: boolean;
 };
 
@@ -82,7 +82,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
 
   return (
     <>
-      {hasTimer !== undefined && !hasTimer ? (
+      {hasTimer !== undefined && !hasTimer && playbackUrl ? (
         <Flex
           flexDirection="row"
           justifyContent="center"
@@ -97,7 +97,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
         </Flex>
       ) : (
         <>
-          {streamingTime ? (
+          {streamingTime && playbackUrl ? (
             <Flex
               flexDirection="row"
               justifyContent="center"
