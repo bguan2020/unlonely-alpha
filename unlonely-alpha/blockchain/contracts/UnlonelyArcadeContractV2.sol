@@ -89,9 +89,7 @@ contract UnlonelyArcadeContract {
         // Check if the user has enough tokens
         require(creatorTokens[_creatorToken].balanceOf(msg.sender) >= _featurePrice, "Insufficient CreatorToken balance");
 
-        // Transfer tokens from the user to Brian
-        creatorTokens[_creatorToken].safeTransferFrom(msg.sender, brian, _featurePrice);
-
-        // Implement the actual feature usage logic here
+        // Transfer tokens from the msg.sender to owner
+        creatorTokens[_creatorToken].safeTransferFrom(msg.sender, tokenOwners[_creatorToken], _featurePrice);
     }
 }
