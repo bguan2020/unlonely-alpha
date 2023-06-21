@@ -63,7 +63,7 @@ function App({ Component, pageProps, cookies }: Props) {
       new WalletConnectConnector({
         chains,
         options: {
-          projectId: "unlonely",
+          projectId: "e16ffa60853050eaa9746f45acd2207a",
           showQrModal: false,
         },
       }),

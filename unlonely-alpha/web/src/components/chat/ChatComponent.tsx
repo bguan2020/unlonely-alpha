@@ -594,10 +594,18 @@ const AblyChatComponent = ({
                         <ControlButton callback={handleControlModal} />
                       </GridItem>
                       <GridItem>
-                        <DiceButton callback={handleChanceModal} />
+                        <Tooltip label={"coming soon"}>
+                          <span>
+                            <DiceButton noHover />
+                          </span>
+                        </Tooltip>
                       </GridItem>
                       <GridItem>
-                        <SwordButton callback={handlePvpModal} />
+                        <Tooltip label={"coming soon"}>
+                          <span>
+                            <SwordButton noHover />
+                          </span>
+                        </Tooltip>
                       </GridItem>
                       <GridItem>
                         <CoinButton callback={handleTipModal} />
@@ -607,7 +615,7 @@ const AblyChatComponent = ({
                 )}
                 {!isAddress(tokenContractAddress) && (
                   <>
-                    <Tooltip label={"Not available"}>
+                    <Tooltip label={"not available"}>
                       <span>
                         <BuyButton tokenName={"token"} />
                       </span>
@@ -620,28 +628,28 @@ const AblyChatComponent = ({
                       justifyItems="center"
                     >
                       <GridItem>
-                        <Tooltip label={"Not available"}>
+                        <Tooltip label={"not available"}>
                           <span>
                             <ControlButton />
                           </span>
                         </Tooltip>
                       </GridItem>
                       <GridItem>
-                        <Tooltip label={"Not available"}>
+                        <Tooltip label={"not available"}>
                           <span>
                             <CoinButton />
                           </span>
                         </Tooltip>
                       </GridItem>
                       <GridItem>
-                        <Tooltip label={"Not available"}>
+                        <Tooltip label={"not available"}>
                           <span>
                             <DiceButton />
                           </span>
                         </Tooltip>
                       </GridItem>
                       <GridItem>
-                        <Tooltip label={"Not available"}>
+                        <Tooltip label={"not available"}>
                           <span>
                             <SwordButton />
                           </span>

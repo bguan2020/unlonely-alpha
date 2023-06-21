@@ -2,10 +2,11 @@ import { IconButton, Image } from "@chakra-ui/react";
 import { useState } from "react";
 
 type Props = {
+  noHover?: boolean;
   callback?: () => void;
 };
 
-const CoinButton: React.FunctionComponent<Props> = ({ callback }) => {
+const CoinButton: React.FunctionComponent<Props> = ({ noHover, callback }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -18,7 +19,7 @@ const CoinButton: React.FunctionComponent<Props> = ({ callback }) => {
       height="60px"
       bg="transparent"
       icon={
-        isHovered ? (
+        isHovered && !noHover ? (
           <Image alt="coin-hover" src="/svg/coin-hover.svg" width="100%" />
         ) : (
           <Image alt="coin" src="/svg/coin.svg" width="100%" />

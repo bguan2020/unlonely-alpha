@@ -128,7 +128,7 @@ const ChannelDetail = ({
 
   useEffect(() => {
     const socketInit = async () => {
-      const newSocket = io("https://unlonely-vqeii.ondigitalocean.app", {
+      const newSocket = io("https://sea-lion-app-j3rts.ondigitalocean.app", {
         transports: ["websocket"],
       });
       setSocket(newSocket);
@@ -348,12 +348,16 @@ const ChannelDetail = ({
                             <CoinButton
                               callback={() => setShowTipModal(true)}
                             />
-                            <DiceButton
-                              callback={() => setShowChanceModal(true)}
-                            />
-                            <SwordButton
-                              callback={() => setShowPvpModal(true)}
-                            />
+                            <Tooltip label={"coming soon"}>
+                              <span>
+                                <DiceButton noHover />
+                              </span>
+                            </Tooltip>
+                            <Tooltip label={"coming soon"}>
+                              <span>
+                                <SwordButton noHover />
+                              </span>
+                            </Tooltip>
                           </Grid>
                           <BuyButton
                             tokenName={`$${tokenBalanceData?.symbol}`}

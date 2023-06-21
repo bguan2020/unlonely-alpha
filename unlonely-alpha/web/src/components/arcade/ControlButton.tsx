@@ -2,10 +2,14 @@ import { IconButton, Image } from "@chakra-ui/react";
 import { useState } from "react";
 
 type Props = {
+  noHover?: boolean;
   callback?: () => void;
 };
 
-const ControlButton: React.FunctionComponent<Props> = ({ callback }) => {
+const ControlButton: React.FunctionComponent<Props> = ({
+  noHover,
+  callback,
+}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -18,7 +22,7 @@ const ControlButton: React.FunctionComponent<Props> = ({ callback }) => {
       height="60px"
       bg="transparent"
       icon={
-        isHovered ? (
+        isHovered && !noHover ? (
           <Image
             alt="control-hover"
             src="/svg/control-hover.svg"
