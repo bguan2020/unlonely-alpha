@@ -37,7 +37,7 @@ function App({ Component, pageProps, cookies }: Props) {
     [Mainnet, Goerli],
     [
       alchemyProvider({
-        apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY),
+        apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F",
       }),
       alchemyProvider({
         apiKey: "Yv5gKmch-fSlMcOygB5jgDbNd3PL5fSv",
