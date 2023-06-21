@@ -10,9 +10,11 @@ import { TransactionModalTemplate } from "../transactions/TransactionModalTempla
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { ModalButton } from "../general/button/ModalButton";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
+import { ChannelDetailQuery } from "../../generated/graphql";
 
 export default function TokenSaleModal({
   title,
+  channel,
   isOpen,
   tokenContractAddress,
   tokenOwner,
@@ -25,6 +27,7 @@ export default function TokenSaleModal({
   tokenContractAddress: string;
   tokenOwner: string;
   tokenBalanceData?: FetchBalanceResult;
+  channel: ChannelDetailQuery["getChannelBySlug"];
   callback?: any;
   handleClose: () => void;
 }) {
@@ -93,11 +96,11 @@ export default function TokenSaleModal({
         <Text textAlign={"center"} fontSize="25px" color="#BABABA">
           you own{" "}
           {`${truncateValue(tokenBalanceData?.formatted ?? "0", 3)} $${
-            tokenBalanceData?.symbol
+            channel?.token?.symbol
           }`}
         </Text>
         <Text textAlign={"center"} fontSize="25px" color="#BABABA">
-          {`${formatUnits(allowance, 18)} $${tokenBalanceData?.symbol} on sale`}
+          {`${formatUnits(allowance, 18)} $${channel?.token?.symbol} on sale`}
         </Text>
         <Flex justifyContent={"space-between"} direction="column" gap="10px">
           <ModalButton

@@ -19,8 +19,10 @@ import { useApproval } from "../../hooks/contracts/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
+import { ChannelDetailQuery } from "../../generated/graphql";
 
 export default function TipTransactionModal({
+  channel,
   title,
   isOpen,
   tokenContractAddress,
@@ -30,6 +32,7 @@ export default function TipTransactionModal({
   handleClose,
   addToChatbot,
 }: {
+  channel: ChannelDetailQuery["getChannelBySlug"];
   title: string;
   isOpen: boolean;
   tokenContractAddress: string;
@@ -115,7 +118,7 @@ export default function TipTransactionModal({
           description: `${
             user?.username ?? centerEllipses(user?.address, 15)
           } tipped ${amountOption === "custom" ? amount : amountOption} $${
-            tokenBalanceData?.symbol
+            channel?.token?.symbol
           }!`,
         });
       },
@@ -166,7 +169,7 @@ export default function TipTransactionModal({
         <Text textAlign={"center"} fontSize="25px" color="#BABABA">
           you own{" "}
           {`${truncateValue(tokenBalanceData?.formatted ?? "0", 3)} $${
-            tokenBalanceData?.symbol
+            channel?.token?.symbol
           }`}
         </Text>
         <Flex justifyContent={"space-between"}>
@@ -225,7 +228,7 @@ export default function TipTransactionModal({
         </Flex>
         {amountOption === "custom" && (
           <Input
-            placeholder={`enter amount of $${tokenBalanceData?.symbol}`}
+            placeholder={`enter amount of $${channel?.token?.symbol}`}
             value={amount}
             onChange={handleInputChange}
             borderWidth="1px"

@@ -107,7 +107,6 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             </Box>
           </Flex>
           <AblyChatComponent
-            tokenContractAddress=""
             username={username}
             chatBot={chatBot}
             user={user}

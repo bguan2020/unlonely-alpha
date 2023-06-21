@@ -95,7 +95,6 @@ const FixedComponent = () => {
       background={"#19162F"}
     >
       <AblyChatComponent
-        tokenContractAddress=""
         username={username}
         chatBot={[]}
         user={user}

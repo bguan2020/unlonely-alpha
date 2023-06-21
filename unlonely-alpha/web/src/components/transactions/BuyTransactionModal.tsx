@@ -19,8 +19,10 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { FetchBalanceResult } from "../../constants/types";
 import { InteractionType } from "../../constants";
 import useUpdateUserCreatorTokenQuantity from "../../hooks/server/arcade/useUpdateTokenQuantity";
+import { ChannelDetailQuery } from "../../generated/graphql";
 
 export default function BuyTransactionModal({
+  channel,
   title,
   isOpen,
   tokenContractAddress,
@@ -30,6 +32,7 @@ export default function BuyTransactionModal({
   handleClose,
   addToChatbot,
 }: {
+  channel: ChannelDetailQuery["getChannelBySlug"];
   title: string;
   isOpen: boolean;
   tokenContractAddress: string;
@@ -105,7 +108,7 @@ export default function BuyTransactionModal({
           description: `${
             user?.username ?? centerEllipses(user?.address, 15)
           } bought ${amountOption === "custom" ? amount : amountOption} $${
-            tokenBalanceData?.symbol
+            channel?.token?.symbol
           }!`,
         });
       },
@@ -145,7 +148,7 @@ export default function BuyTransactionModal({
         <Text textAlign={"center"} fontSize="25px" color="#BABABA">
           you own{" "}
           {`${truncateValue(tokenBalanceData?.formatted ?? "0", 3)} $${
-            tokenBalanceData?.symbol
+            channel?.token?.symbol
           }`}
         </Text>
         <Flex justifyContent={"space-between"}>
@@ -204,7 +207,7 @@ export default function BuyTransactionModal({
         </Flex>
         {amountOption === "custom" && (
           <Input
-            placeholder={`enter amount of $${tokenBalanceData?.symbol}`}
+            placeholder={`enter amount of $${channel?.token?.symbol}`}
             value={amount}
             onChange={handleInputChange}
             borderWidth="1px"

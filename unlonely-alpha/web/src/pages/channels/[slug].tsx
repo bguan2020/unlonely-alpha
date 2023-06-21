@@ -225,18 +225,18 @@ const ChannelDetail = () => {
           addToChatbot={addToChatbot}
         />
         <BuyTransactionModal
+          channel={channel}
           title=""
           tokenBalanceData={tokenBalanceData}
           callback={balanceOfRefetchToken}
-          icon={
-            <BuyButton tokenName={`$${tokenBalanceData?.symbol}`} noHover />
-          }
+          icon={<BuyButton tokenName={`$${channel?.token?.symbol}`} noHover />}
           isOpen={showBuyModal}
           handleClose={handleClose}
           tokenContractAddress={channel?.token?.address as string}
           addToChatbot={addToChatbot}
         />
         <TipTransactionModal
+          channel={channel}
           tokenBalanceData={tokenBalanceData}
           callback={balanceOfRefetchToken}
           icon={
@@ -347,7 +347,7 @@ const ChannelDetail = () => {
                             </Tooltip>
                           </Grid>
                           <BuyButton
-                            tokenName={`$${tokenBalanceData?.symbol}`}
+                            tokenName={`$${channel?.token?.symbol}`}
                             callback={() => setShowBuyModal(true)}
                           />
                         </>
@@ -409,6 +409,7 @@ const ChannelDetail = () => {
             >
               <Container borderRadius={10} background={"#19162F"} centerContent>
                 <AblyChatComponent
+                  queriedChannel={channel}
                   username={username}
                   chatBot={chatBot}
                   user={user}
@@ -417,8 +418,6 @@ const ChannelDetail = () => {
                   channelArn={channel?.channelArn || ""}
                   channelId={channel?.id ? Number(channel?.id) : 3}
                   allowNFCs={channel?.allowNFCs || false}
-                  tokenContractAddress={channel?.token?.address as string}
-                  tokenBalanceData={tokenBalanceData}
                   handleBuyModal={() => setShowBuyModal(true)}
                   handleTipModal={() => setShowTipModal(true)}
                   handleChanceModal={() => setShowChanceModal(true)}

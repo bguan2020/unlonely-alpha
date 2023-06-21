@@ -75,6 +75,7 @@ const ChannelDesc = ({
   return (
     <>
       <TokenSaleModal
+        channel={channel}
         title={"offer tokens for sale"}
         isOpen={tokenSaleModal}
         tokenContractAddress={tokenContractAddress}

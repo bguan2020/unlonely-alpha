@@ -23,7 +23,7 @@ import { useAccount } from "wagmi";
 import useChannel from "../../hooks/chat/useChannel";
 import { COLORS } from "../../styles/Colors";
 import { Message, initializeEmojis } from "./types/index";
-import { User } from "../../generated/graphql";
+import { ChannelDetailQuery, User } from "../../generated/graphql";
 import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
@@ -37,7 +37,7 @@ import DiceButton from "../arcade/DiceButton";
 import { useScrollPercentage } from "../../hooks/internal/useScrollPercentage";
 import { InteractionType } from "../../constants";
 import BuyButton from "../arcade/BuyButton";
-import { ChatBot, FetchBalanceResult } from "../../constants/types";
+import { ChatBot } from "../../constants/types";
 import { useLazyQuery } from "@apollo/client";
 import { GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
@@ -53,8 +53,7 @@ type Props = {
   channelArn: string;
   channelId: number;
   allowNFCs: boolean;
-  tokenContractAddress: string;
-  tokenBalanceData?: FetchBalanceResult;
+  queriedChannel?: ChannelDetailQuery["getChannelBySlug"];
   handleControlModal?: () => void;
   handleChanceModal?: () => void;
   handlePvpModal?: () => void;
@@ -88,8 +87,7 @@ const AblyChatComponent = ({
   channelArn,
   channelId,
   allowNFCs,
-  tokenContractAddress,
-  tokenBalanceData,
+  queriedChannel,
   handleControlModal,
   handleChanceModal,
   handlePvpModal,
@@ -576,10 +574,10 @@ const AblyChatComponent = ({
                 width={"100%"}
                 padding={"40px"}
               >
-                {isAddress(tokenContractAddress) && (
+                {isAddress(String(queriedChannel?.token?.address)) && (
                   <>
                     <BuyButton
-                      tokenName={`$${tokenBalanceData?.symbol}`}
+                      tokenName={`$${queriedChannel?.token?.symbol}`}
                       callback={handleBuyModal}
                     />
                     <Grid
@@ -612,7 +610,7 @@ const AblyChatComponent = ({
                     </Grid>
                   </>
                 )}
-                {!isAddress(tokenContractAddress) && (
+                {!isAddress(String(queriedChannel?.token?.address)) && (
                   <>
                     <Tooltip label={"not available"}>
                       <span>
