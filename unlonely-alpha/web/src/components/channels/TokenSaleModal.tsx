@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { erc20ABI, useNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { FetchBalanceResult } from "../../constants/types";
 import { getContractFromNetwork } from "../../utils/contract";
@@ -9,6 +9,7 @@ import { formatUnits, parseUnits } from "viem";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { ModalButton } from "../general/button/ModalButton";
+import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 
 export default function TokenSaleModal({
   title,
@@ -49,7 +50,7 @@ export default function TokenSaleModal({
     refetchAllowance,
   } = useApproval(
     tokenContractAddress as `0x${string}`,
-    erc20ABI,
+    CreatorTokenAbi,
     tokenOwner as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,

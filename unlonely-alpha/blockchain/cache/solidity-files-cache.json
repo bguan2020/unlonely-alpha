@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\BrianTokenContract.sol": {
-      "lastModificationDate": 1683144701048,
-      "contentHash": "bd5be2914759a4c62c0bea5c2f214fd4",
+      "lastModificationDate": 1687373916224,
+      "contentHash": "2105773c07a6c00f2bc7335c6b802c3c",
       "sourceName": "contracts/BrianTokenContract.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -39,9 +39,6 @@
       ],
       "artifacts": [
         "BrianToken"
-        "NewsContract",
-        "NewsToken",
-        "Voting"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\hardhat\\console.sol": {
@@ -118,8 +115,7 @@
       ],
       "artifacts": [
         "ERC20"
-        "^0.8.2"
-      ],
+      ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\access\\Ownable.sol": {
       "lastModificationDate": 1686180568953,
@@ -193,10 +189,6 @@
       ],
       "artifacts": [
         "IERC20"
-        ">=0.4.22 <0.9.0"
-      ],
-      "artifacts": [
-        "console"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\extensions\\IERC20Metadata.sol": {
@@ -235,11 +227,6 @@
       ],
       "artifacts": [
         "IERC20Metadata"
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "ERC20"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\Context.sol": {
@@ -271,16 +258,11 @@
         }
       },
       "imports": [],
-=======
-      "imports": [
-        "../utils/Context.sol"
-      ],
       "versionPragmas": [
         "^0.8.0"
       ],
       "artifacts": [
         "Context"
-        "Ownable"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol": {
@@ -320,13 +302,11 @@
         "../../utils/Strings.sol",
         "../../utils/introspection/ERC165.sol"
       ],
-      "imports": [],
       "versionPragmas": [
         "^0.8.0"
       ],
       "artifacts": [
         "ERC721"
-        "IERC20"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\IERC721.sol": {
@@ -359,14 +339,12 @@
       },
       "imports": [
         "../../utils/introspection/IERC165.sol"
-        "../IERC20.sol"
       ],
       "versionPragmas": [
         "^0.8.0"
       ],
       "artifacts": [
         "IERC721"
-        "IERC20Metadata"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\IERC721Receiver.sol": {
@@ -403,7 +381,6 @@
       ],
       "artifacts": [
         "IERC721Receiver"
-        "Context"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\extensions\\IERC721Metadata.sol": {
@@ -442,11 +419,6 @@
       ],
       "artifacts": [
         "IERC721Metadata"
-      "versionPragmas": [
-        ">=0.8.4"
-      ],
-      "artifacts": [
-        "UnlonelyNFCsV2"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\Address.sol": {
@@ -483,11 +455,6 @@
       ],
       "artifacts": [
         "Address"
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "ERC721"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\Strings.sol": {
@@ -520,14 +487,12 @@
       },
       "imports": [
         "./math/Math.sol"
-        "../ERC721.sol"
       ],
       "versionPragmas": [
         "^0.8.0"
       ],
       "artifacts": [
         "Strings"
-        "ERC721URIStorage"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\introspection\\ERC165.sol": {
@@ -561,13 +526,11 @@
       "imports": [
         "./IERC165.sol"
       ],
-      "imports": [],
       "versionPragmas": [
         "^0.8.0"
       ],
       "artifacts": [
         "ERC165"
-        "Counters"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\introspection\\IERC165.sol": {
@@ -599,15 +562,11 @@
         }
       },
       "imports": [],
-      "imports": [
-        "../../utils/introspection/IERC165.sol"
-      ],
       "versionPragmas": [
         "^0.8.0"
       ],
       "artifacts": [
         "IERC165"
-        "IERC721"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\math\\Math.sol": {
@@ -644,7 +603,6 @@
       ],
       "artifacts": [
         "Math"
-        "IERC721Receiver"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\extensions\\ERC721URIStorage.sol": {
@@ -677,14 +635,12 @@
       },
       "imports": [
         "../ERC721.sol"
-        "../IERC721.sol"
       ],
       "versionPragmas": [
         "^0.8.0"
       ],
       "artifacts": [
         "ERC721URIStorage"
-        "IERC721Metadata"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelyNFCsV2.sol": {
@@ -725,12 +681,6 @@
       ],
       "artifacts": [
         "UnlonelyNFCsV2"
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.1"
-      ],
-      "artifacts": [
-        "Address"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\Counters.sol": {
@@ -762,15 +712,11 @@
         }
       },
       "imports": [],
-      "imports": [
-        "./math/Math.sol"
-      ],
       "versionPragmas": [
         "^0.8.0"
       ],
       "artifacts": [
         "Counters"
-        "Strings"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\utils\\SafeERC20.sol": {
@@ -805,14 +751,12 @@
         "../IERC20.sol",
         "../extensions/draft-IERC20Permit.sol",
         "../../../utils/Address.sol"
-        "./IERC165.sol"
       ],
       "versionPragmas": [
         "^0.8.0"
       ],
       "artifacts": [
         "SafeERC20"
-        "ERC165"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\extensions\\draft-IERC20Permit.sol": {
@@ -849,12 +793,11 @@
       ],
       "artifacts": [
         "IERC20Permit"
-        "IERC165"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelyArcadeContractV2.sol": {
-      "lastModificationDate": 1686598134125,
-      "contentHash": "f9b438ac8aa3445d84113a98ce53d6ac",
+      "lastModificationDate": 1687373916224,
+      "contentHash": "c76281faf8428de1b3a4e882db9bd648",
       "sourceName": "contracts/UnlonelyArcadeContractV2.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -890,12 +833,6 @@
       ],
       "artifacts": [
         "UnlonelyArcadeContract"
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "Math"
       ]
     }
   }

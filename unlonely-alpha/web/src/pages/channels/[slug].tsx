@@ -309,12 +309,10 @@ const ChannelDetail = ({
                     <Text key={index}>{data}</Text>
                   ))}
                 </Box>
-                {channel?.playbackUrl && (
-                  <NextStreamTimer
-                    isTheatreMode={true}
-                    playbackUrl={channel.playbackUrl}
-                  />
-                )}
+                <NextStreamTimer
+                  isTheatreMode={true}
+                  playbackUrl={channel?.playbackUrl || ""}
+                />
               </Flex>
               <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
                 <GridItem colSpan={showArcadeButtons ? 2 : 3}>

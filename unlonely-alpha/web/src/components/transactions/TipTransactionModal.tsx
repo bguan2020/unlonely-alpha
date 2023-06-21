@@ -13,11 +13,12 @@ import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { parseUnits } from "viem";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { FetchBalanceResult } from "../../constants/types";
-import { useNetwork, erc20ABI } from "wagmi";
+import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { useApproval } from "../../hooks/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
+import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 
 export default function TipTransactionModal({
   title,
@@ -61,7 +62,7 @@ export default function TipTransactionModal({
     refetchAllowance,
   } = useApproval(
     tokenContractAddress as `0x${string}`,
-    erc20ABI,
+    CreatorTokenAbi,
     user?.address as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,

@@ -26,10 +26,11 @@ import {
   ChannelDetailQuery,
 } from "../../generated/graphql";
 import { useApproval } from "../../hooks/useApproval";
-import { erc20ABI, useNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import centerEllipses from "../../utils/centerEllipses";
+import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 
 export default function ControlTransactionModal({
   title,
@@ -81,7 +82,7 @@ export default function ControlTransactionModal({
     refetchAllowance,
   } = useApproval(
     tokenContractAddress as `0x${string}`,
-    erc20ABI,
+    CreatorTokenAbi,
     user?.address as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,

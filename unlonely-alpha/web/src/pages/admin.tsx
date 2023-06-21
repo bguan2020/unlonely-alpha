@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { formatUnits, isAddress, parseUnits } from "viem";
-import { erc20ABI, useNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
 import AppLayout from "../components/layout/AppLayout";
 import { NULL_ADDRESS } from "../constants";
 import { NETWORKS } from "../constants/networks";
@@ -32,6 +32,7 @@ import {
 } from "../utils/validation/input";
 import useUpdateCreatorTokenPrice from "../hooks/arcade/useUpdateTokenPrice";
 import useUpdateUserCreatorTokenQuantity from "../hooks/arcade/useUpdateTokenQuantity";
+import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
 
 const inputStyle = {
   borderWidth: "1px",
@@ -112,7 +113,7 @@ const AdminContent = () => {
     refetchAllowance,
   } = useApproval(
     creatorTokenAddress as `0x${string}`,
-    erc20ABI,
+    CreatorTokenAbi,
     tokenOwner as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,
