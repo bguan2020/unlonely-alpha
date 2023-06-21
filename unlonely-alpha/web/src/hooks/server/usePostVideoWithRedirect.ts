@@ -1,33 +1,35 @@
 import { useCallback, useState } from "react";
+import { useRouter } from "next/router";
 import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
 
 import {
-  PostChatByAwsIdMutation,
-  PostChatByAwsIdMutationVariables,
-} from "../generated/graphql";
-import { useAuthedMutation } from "../apiClient/hooks";
+  PostVideoMutation,
+  PostVideoMutationVariables,
+} from "../../generated/graphql";
+import { useAuthedMutation } from "../../apiClient/hooks";
 
-const POST_CHAT_BY_AWSID_MUTATION = gql`
-  mutation PostChatByAwsId($data: PostChatByAwsIdInput!) {
-    postChatByAwsId(data: $data) {
+const POST_VIDEO_MUTATION = gql`
+  mutation PostVideo($data: PostVideoInput!) {
+    postVideo(data: $data) {
       id
     }
   }
 `;
 
-const usePostChatByAwsId = ({
+const usePostVideoWithRedirect = ({
   onError,
 }: {
   onError?: (errors?: GraphQLErrors) => void;
 }) => {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    PostChatByAwsIdMutation,
-    PostChatByAwsIdMutationVariables
-  >(POST_CHAT_BY_AWSID_MUTATION);
+    PostVideoMutation,
+    PostVideoMutationVariables
+  >(POST_VIDEO_MUTATION);
 
-  const postChatByAwsId = useCallback(
+  const postVideo = useCallback(
     async (data) => {
       setLoading(true);
 
@@ -36,18 +38,20 @@ const usePostChatByAwsId = ({
       if (
         mutationResult.errors ||
         !mutationResult.data ||
-        !mutationResult.data.postChatByAwsId
+        !mutationResult.data.postVideo
       ) {
         onError && onError(mutationResult.errors);
         setLoading(false);
         return;
       }
+
+      await router.push("/channels/youtube");
       setLoading(false);
     },
-    [mutate, onError]
+    [mutate, onError, router]
   );
 
-  return { postChatByAwsId, loading };
+  return { postVideo, loading };
 };
 
-export default usePostChatByAwsId;
+export default usePostVideoWithRedirect;

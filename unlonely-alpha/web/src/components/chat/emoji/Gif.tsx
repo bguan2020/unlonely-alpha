@@ -1,7 +1,7 @@
 import { Image, Tooltip } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 
-import { useUser } from "../../../hooks/useUser";
+import { useUser } from "../../../hooks/context/useUser";
 
 type Props = {
   gif: string;

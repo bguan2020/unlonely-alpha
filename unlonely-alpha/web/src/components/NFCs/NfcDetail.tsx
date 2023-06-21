@@ -3,8 +3,8 @@ import { Image, Spacer } from "@chakra-ui/react";
 import { useState } from "react";
 
 import { LikeObj } from "../../generated/graphql";
-import useLike from "../../hooks/useLike";
-import { useUser } from "../../hooks/useUser";
+import useLike from "../../hooks/server/useLike";
+import { useUser } from "../../hooks/context/useUser";
 import { LikeIcon, LikedIcon } from "../icons/LikeIcon";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";

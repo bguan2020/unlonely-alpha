@@ -5,8 +5,8 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import {
   PostStreamInteractionMutation,
   PostStreamInteractionMutationVariables,
-} from "../generated/graphql";
-import { useAuthedMutation } from "../apiClient/hooks";
+} from "../../generated/graphql";
+import { useAuthedMutation } from "../../apiClient/hooks";
 
 const POST_STREAM_INTERACTION_MUTATION = gql`
   mutation PostStreamInteraction($data: PostStreamInteractionInput!) {

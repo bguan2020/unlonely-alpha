@@ -5,7 +5,7 @@ import { NULL_ADDRESS } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import { WriteCallbacks } from "../../constants/types";
 import { getContractFromNetwork } from "../../utils/contract";
-import { useWrite } from "../useWrite";
+import { useWrite } from "./useWrite";
 
 export const useReadPublic = (creatorTokenAddress: `0x${string}`) => {
   const network = useNetwork();

@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback } from "react";
 
-import { useAuthedMutation } from "../apiClient/hooks";
+import { useAuthedMutation } from "../../apiClient/hooks";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;

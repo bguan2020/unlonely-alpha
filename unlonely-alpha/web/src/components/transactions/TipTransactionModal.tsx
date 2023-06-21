@@ -1,7 +1,7 @@
 import { Text, Input, Flex, useToast } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
-import { useUser } from "../../hooks/useUser";
-import { ChatBot } from "../../pages/channels/brian";
+import { useUser } from "../../hooks/context/useUser";
+import { ChatBot } from "../../constants/types";
 import {
   filteredInput,
   formatIncompleteNumber,
@@ -13,13 +13,16 @@ import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { parseUnits } from "viem";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { FetchBalanceResult } from "../../constants/types";
-import { useNetwork, erc20ABI } from "wagmi";
+import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
-import { useApproval } from "../../hooks/useApproval";
+import { useApproval } from "../../hooks/contracts/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
+import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
+import { ChannelDetailQuery } from "../../generated/graphql";
 
 export default function TipTransactionModal({
+  channel,
   title,
   isOpen,
   tokenContractAddress,
@@ -29,6 +32,7 @@ export default function TipTransactionModal({
   handleClose,
   addToChatbot,
 }: {
+  channel: ChannelDetailQuery["getChannelBySlug"];
   title: string;
   isOpen: boolean;
   tokenContractAddress: string;
@@ -61,7 +65,7 @@ export default function TipTransactionModal({
     refetchAllowance,
   } = useApproval(
     tokenContractAddress as `0x${string}`,
-    erc20ABI,
+    CreatorTokenAbi,
     user?.address as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,
@@ -114,7 +118,7 @@ export default function TipTransactionModal({
           description: `${
             user?.username ?? centerEllipses(user?.address, 15)
           } tipped ${amountOption === "custom" ? amount : amountOption} $${
-            tokenBalanceData?.symbol
+            channel?.token?.symbol
           }!`,
         });
       },
@@ -165,7 +169,7 @@ export default function TipTransactionModal({
         <Text textAlign={"center"} fontSize="25px" color="#BABABA">
           you own{" "}
           {`${truncateValue(tokenBalanceData?.formatted ?? "0", 3)} $${
-            tokenBalanceData?.symbol
+            channel?.token?.symbol
           }`}
         </Text>
         <Flex justifyContent={"space-between"}>
@@ -224,7 +228,7 @@ export default function TipTransactionModal({
         </Flex>
         {amountOption === "custom" && (
           <Input
-            placeholder={`enter amount of $${tokenBalanceData?.symbol}`}
+            placeholder={`enter amount of $${channel?.token?.symbol}`}
             value={amount}
             onChange={handleInputChange}
             borderWidth="1px"

@@ -8,9 +8,9 @@ import VideoSort, { VideoAttribute } from "../../components/video/VideoSort";
 import centerEllipses from "../../utils/centerEllipses";
 import { VideoCard_VideoFragment } from "../../generated/graphql";
 import AblyChatComponent from "../../components/chat/ChatComponent";
-import { ChatBot } from "./brian";
-import { useUser } from "../../hooks/useUser";
-import useScript from "../../hooks/useScript";
+import { ChatBot } from "../../constants/types";
+import { useUser } from "../../hooks/context/useUser";
+import useScript from "../../hooks/internal/useScript";
 import IVSPlayer from "../../components/stream/IVSPlayer";
 
 const VIDEO_LIST_QUERY = gql`
@@ -107,7 +107,6 @@ const Example: React.FunctionComponent<Props> = ({ videos, loading }) => {
             </Box>
           </Flex>
           <AblyChatComponent
-            tokenContractAddress=""
             username={username}
             chatBot={chatBot}
             user={user}

@@ -5,7 +5,7 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { useUser } from "./useUser";
+import { useUser } from "../context/useUser";
 
 // function uses variables amount and amountToApprove to differentiate the value used for comparison and the value used for the actual approval
 export const useApproval = (

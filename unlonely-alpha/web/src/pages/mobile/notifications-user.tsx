@@ -29,7 +29,7 @@ import { gql, useLazyQuery, useQuery } from "@apollo/client";
 
 import NextHead from "../../components/layout/NextHead";
 import { splitArray } from "../../utils/splitArray";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/context/useUser";
 import { User } from "../../generated/graphql";
 import AppLayout from "../../components/layout/AppLayout";
 

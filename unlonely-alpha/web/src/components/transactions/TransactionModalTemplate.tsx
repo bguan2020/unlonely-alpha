@@ -12,7 +12,7 @@ import {
   Spinner,
   Text,
 } from "@chakra-ui/react";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/context/useUser";
 
 export const TransactionModalTemplate = ({
   title,

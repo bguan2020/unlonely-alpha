@@ -4,8 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useAccount } from "wagmi";
 
-import useChannel from "../../../hooks/useChannel";
-import { ChatBot } from "../../channels/brian";
+import useChannel from "../../../hooks/chat/useChannel";
+import { ChatBot } from "../../../constants/types";
 import { timestampConverter } from "../../../utils/timestampConverter";
 import NFTList from "../../../components/profile/NFTList";
 import Badges from "../../../components/chat/Badges";
@@ -16,7 +16,7 @@ import {
 import ChatForm from "../../../components/chat/ChatForm";
 import NebulousButton from "../../../components/general/button/NebulousButton";
 import EmojiDisplay from "../../../components/chat/emoji/EmojiDisplay";
-import { useUser } from "../../../hooks/useUser";
+import { useUser } from "../../../hooks/context/useUser";
 import {
   chatbotAddress,
   chatColor,
@@ -26,7 +26,7 @@ import ReactDOM from "react-dom";
 import NextHead from "../../../components/layout/NextHead";
 import Participants from "../../../components/presence/Participants";
 import { useRouter } from "next/router";
-import usePostChatByAwsId from "../../../hooks/usePostChatByAwsId";
+import usePostChatByAwsId from "../../../hooks/server/usePostChatByAwsId";
 
 const CHAT_INPUT_PANEL_HEIGHT = 80;
 

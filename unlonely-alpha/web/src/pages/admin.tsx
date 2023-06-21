@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { formatUnits, isAddress, parseUnits } from "viem";
-import { erc20ABI, useNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
 import AppLayout from "../components/layout/AppLayout";
 import { NULL_ADDRESS } from "../constants";
 import { NETWORKS } from "../constants/networks";
@@ -22,16 +22,17 @@ import {
   useSetTokenPrice,
   useUseFeature,
 } from "../hooks/contracts/useArcadeContract";
-import { useApproval } from "../hooks/useApproval";
-import useCreateCreatorToken from "../hooks/arcade/useCreateCreatorToken";
-import { useUser } from "../hooks/useUser";
+import { useApproval } from "../hooks/contracts/useApproval";
+import useCreateCreatorToken from "../hooks/server/arcade/useCreateCreatorToken";
+import { useUser } from "../hooks/context/useUser";
 import { getContractFromNetwork } from "../utils/contract";
 import {
   filteredInput,
   formatIncompleteNumber,
 } from "../utils/validation/input";
-import useUpdateCreatorTokenPrice from "../hooks/arcade/useUpdateTokenPrice";
-import useUpdateUserCreatorTokenQuantity from "../hooks/arcade/useUpdateTokenQuantity";
+import useUpdateCreatorTokenPrice from "../hooks/server/arcade/useUpdateTokenPrice";
+import useUpdateUserCreatorTokenQuantity from "../hooks/server/arcade/useUpdateTokenQuantity";
+import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
 
 const inputStyle = {
   borderWidth: "1px",
@@ -112,7 +113,7 @@ const AdminContent = () => {
     refetchAllowance,
   } = useApproval(
     creatorTokenAddress as `0x${string}`,
-    erc20ABI,
+    CreatorTokenAbi,
     tokenOwner as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,
@@ -303,9 +304,13 @@ const AdminContent = () => {
     return newPrice !== tokenPrice && newPrice >= BigInt(0);
   }, [tokenPrice, tokenPriceState]);
 
-  const handleInputChange = (event: any, callback: (str: string) => void) => {
+  const handleInputChange = (
+    event: any,
+    callback: (str: string) => void,
+    allowDecimals?: boolean
+  ) => {
     const input = event.target.value;
-    const filtered = filteredInput(input);
+    const filtered = filteredInput(input, allowDecimals);
     callback(filtered);
   };
 
@@ -324,6 +329,7 @@ const AdminContent = () => {
           <Text>new creator token address</Text>
           <Input
             {...inputStyle}
+            readOnly={addCreatorTokenTxLoading}
             width="300px"
             isInvalid={!isAddress(newCreatorTokenAddress)}
             value={newCreatorTokenAddress}
@@ -334,6 +340,7 @@ const AdminContent = () => {
           <Text>symbol</Text>
           <Input
             {...inputStyle}
+            readOnly={addCreatorTokenTxLoading}
             width="96px"
             value={creatorTokenSymbol}
             onChange={(e) => setCreatorTokenSymbol(e.target.value)}
@@ -343,6 +350,7 @@ const AdminContent = () => {
           <Text>name</Text>
           <Input
             {...inputStyle}
+            readOnly={addCreatorTokenTxLoading}
             width="128px"
             value={creatorTokenName}
             onChange={(e) => setCreatorTokenName(e.target.value)}
@@ -352,6 +360,7 @@ const AdminContent = () => {
           <Text>channelId</Text>
           <Input
             {...inputStyle}
+            readOnly={addCreatorTokenTxLoading}
             width="64px"
             value={channelId}
             onChange={(e) => setChannelId(e.target.value)}
@@ -362,8 +371,9 @@ const AdminContent = () => {
           <Input
             width="128px"
             {...inputStyle}
+            readOnly={addCreatorTokenTxLoading}
             value={initialPrice}
-            onChange={(e) => handleInputChange(e, setInitialPrice)}
+            onChange={(e) => handleInputChange(e, setInitialPrice, true)}
           />
         </VStack>
         <VStack>
@@ -371,6 +381,7 @@ const AdminContent = () => {
           <Input
             width="400px"
             {...inputStyle}
+            readOnly={addCreatorTokenTxLoading}
             value={tokenOwnerAddress}
             onChange={(e) => setTokenOwnerAddress(e.target.value)}
           />
@@ -398,6 +409,7 @@ const AdminContent = () => {
           <Text>existing creator token address</Text>
           <Input
             {...inputStyle}
+            readOnly={useFeatureTxLoading}
             width="400px"
             isInvalid={!isAddress(creatorTokenAddress)}
             value={creatorTokenAddress}
@@ -417,6 +429,7 @@ const AdminContent = () => {
           <Text>how much of this token does this feature cost?</Text>
           <Input
             {...inputStyle}
+            readOnly={useFeatureTxLoading}
             width="250px"
             value={featurePrice}
             onChange={(e) => handleInputChange(e, setFeaturePrice)}
@@ -446,6 +459,7 @@ const AdminContent = () => {
           <Input
             width="400px"
             {...inputStyle}
+            readOnly={buyCreatorTokenTxLoading}
             isInvalid={!isAddress(creatorTokenAddress)}
             value={creatorTokenAddress}
             onChange={(e) => setCreatorTokenAddress(e.target.value)}
@@ -465,6 +479,7 @@ const AdminContent = () => {
           <Input
             width="500px"
             {...inputStyle}
+            readOnly={buyCreatorTokenTxLoading}
             value={buyTokenAmount}
             onChange={(e) => handleInputChange(e, setBuyTokenAmount)}
           />
@@ -505,6 +520,7 @@ const AdminContent = () => {
           <Text>existing creator token address</Text>
           <Input
             {...inputStyle}
+            readOnly={setTokenPriceTxLoading}
             width="400px"
             isInvalid={!isAddress(creatorTokenAddress)}
             value={creatorTokenAddress}
@@ -524,9 +540,10 @@ const AdminContent = () => {
           <Text>how much ETH will this token cost?</Text>
           <Input
             {...inputStyle}
+            readOnly={setTokenPriceTxLoading}
             width="500px"
             value={tokenPriceState}
-            onChange={(e) => handleInputChange(e, setTokenPriceState)}
+            onChange={(e) => handleInputChange(e, setTokenPriceState, true)}
           />
         </VStack>
         <VStack>
@@ -569,6 +586,7 @@ const AdminContent = () => {
           <Text>existing creator token address</Text>
           <Input
             {...inputStyle}
+            readOnly={isApprovalLoading}
             width="400px"
             isInvalid={!isAddress(creatorTokenAddress)}
             value={creatorTokenAddress}
@@ -590,6 +608,7 @@ const AdminContent = () => {
           </Text>
           <Input
             {...inputStyle}
+            readOnly={isApprovalLoading}
             width="500px"
             value={buyTokenAmount}
             onChange={(e) => handleInputChange(e, setBuyTokenAmount)}

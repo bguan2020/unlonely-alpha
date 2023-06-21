@@ -30,9 +30,8 @@ import {
 } from "../../constants";
 import BrianToken from "../../utils/newsToken.json";
 import { CustomToast } from "../general/CustomToast";
-import { useUser } from "../../hooks/useUser";
-import { ChatBot } from "../../pages/channels/brian";
-
+import { useUser } from "../../hooks/context/useUser";
+import { ChatBot } from "../../constants/types";
 type Props = {
   onSuccess: (hash: string) => void;
   title: string;

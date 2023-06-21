@@ -5,8 +5,8 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import {
   UpdateUserCreatorTokenQuantityMutation,
   UpdateUserCreatorTokenQuantityMutationVariables,
-} from "../../generated/graphql";
-import { useAuthedMutation } from "../../apiClient/hooks";
+} from "../../../generated/graphql";
+import { useAuthedMutation } from "../../../apiClient/hooks";
 
 const UPDATE_USER_TOKEN_QUANTITY_MUTATION = gql`
   mutation UpdateUserCreatorTokenQuantity(

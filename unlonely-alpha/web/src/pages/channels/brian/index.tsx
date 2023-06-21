@@ -11,12 +11,10 @@ import {
   Tooltip,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { GetServerSidePropsContext } from "next";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import io, { Socket } from "socket.io-client";
 import { isAddress } from "viem";
 import { useAccount, useBalance, useEnsName } from "wagmi";
-import { initializeApollo } from "../../../apiClient/client";
 import BuyButton from "../../../components/arcade/BuyButton";
 import CoinButton from "../../../components/arcade/CoinButton";
 import ControlButton from "../../../components/arcade/ControlButton";
@@ -25,7 +23,6 @@ import SwordButton from "../../../components/arcade/SwordButton";
 import ChannelDesc from "../../../components/channels/ChannelDesc";
 import AblyChatComponent from "../../../components/chat/ChatComponent";
 import AppLayout from "../../../components/layout/AppLayout";
-import ChannelNextHead from "../../../components/layout/ChannelNextHead";
 import NextStreamTimer from "../../../components/stream/NextStreamTimer";
 import BuyTransactionModal from "../../../components/transactions/BuyTransactionModal";
 import ChanceTransactionModal from "../../../components/transactions/ChanceTransactionModal";
@@ -37,25 +34,14 @@ import {
   CHANNEL_DETAIL_QUERY,
   GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
 } from "../../../constants/queries";
+import { ChatBot } from "../../../constants/types";
 import {
   ChannelDetailQuery,
   GetRecentStreamInteractionsQuery,
 } from "../../../generated/graphql";
-import { useUser } from "../../../hooks/useUser";
-import { useWindowSize } from "../../../hooks/useWindowSize";
+import { useUser } from "../../../hooks/context/useUser";
+import { useWindowSize } from "../../../hooks/internal/useWindowSize";
 import centerEllipses from "../../../utils/centerEllipses";
-
-export type ChatBot = {
-  username: string;
-  address: string;
-  taskType: string;
-  title: string | null | undefined;
-  description: string | null | undefined;
-};
-
-type UrlParams = {
-  slug: string;
-};
 
 const brianPlaybackUrl =
   "https://0ef8576db087.us-west-2.playback.live-video.net/api/video/v1/us-west-2.500434899882.channel.8e2oKm7LXNGq.m3u8";
@@ -64,14 +50,13 @@ const channelArn = "arn:aws:ivs:us-west-2:500434899882:channel/8e2oKm7LXNGq";
 
 const awsId = "8e2oKm7LXNGq";
 
-const ChannelDetail = ({
-  slug,
-  channelData,
-}: UrlParams & { channelData: ChannelDetailQuery }) => {
-  const { data } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
-    variables: {
-      slug,
-    },
+const ChannelDetail = () => {
+  const {
+    loading,
+    error,
+    data: channelData,
+  } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
+    variables: { slug: "brian" },
   });
 
   const { data: recentStreamInteractionsData } =
@@ -86,11 +71,7 @@ const ChannelDetail = ({
       }
     );
 
-  const channelSSR = useMemo(
-    () => channelData?.getChannelBySlug,
-    [channelData]
-  );
-  const channel = useMemo(() => data?.getChannelBySlug, [data]);
+  const channel = useMemo(() => channelData?.getChannelBySlug, [channelData]);
 
   const [width, height] = useWindowSize();
   const { user } = useUser();
@@ -135,9 +116,14 @@ const ChannelDetail = ({
 
   useEffect(() => {
     const socketInit = async () => {
-      const newSocket = io("https://sea-lion-app-j3rts.ondigitalocean.app", {
-        transports: ["websocket"],
-      });
+      const newSocket = io(
+        process.env.NODE_ENV === "production"
+          ? "https://sea-lion-app-j3rts.ondigitalocean.app"
+          : "http://localhost:4000",
+        {
+          transports: ["websocket"],
+        }
+      );
       setSocket(newSocket);
 
       newSocket.on("receive-message", (data) => {
@@ -215,7 +201,6 @@ const ChannelDetail = ({
 
   return (
     <>
-      {channelSSR && <ChannelNextHead channel={channelSSR} />}
       <AppLayout
         title={channel?.name}
         image={channel?.owner?.FCImageUrl}
@@ -243,18 +228,18 @@ const ChannelDetail = ({
           addToChatbot={addToChatbot}
         />
         <BuyTransactionModal
+          channel={channel}
           title=""
           tokenBalanceData={tokenBalanceData}
           callback={balanceOfRefetchToken}
-          icon={
-            <BuyButton tokenName={`$${tokenBalanceData?.symbol}`} noHover />
-          }
+          icon={<BuyButton tokenName={`$${channel?.token?.symbol}`} noHover />}
           isOpen={showBuyModal}
           handleClose={handleClose}
           tokenContractAddress={channel?.token?.address as string}
           addToChatbot={addToChatbot}
         />
         <TipTransactionModal
+          channel={channel}
           tokenBalanceData={tokenBalanceData}
           callback={balanceOfRefetchToken}
           icon={
@@ -365,7 +350,7 @@ const ChannelDetail = ({
                             </Tooltip>
                           </Grid>
                           <BuyButton
-                            tokenName={`$${tokenBalanceData?.symbol}`}
+                            tokenName={`$${channel?.token?.symbol}`}
                             callback={() => setShowBuyModal(true)}
                           />
                         </>
@@ -402,9 +387,7 @@ const ChannelDetail = ({
                           </Grid>
                           <Tooltip label={"Not available"}>
                             <span>
-                              <BuyButton
-                                tokenName={`$${tokenBalanceData?.symbol}`}
-                              />
+                              <BuyButton tokenName={"token"} />
                             </span>
                           </Tooltip>
                         </>
@@ -429,6 +412,7 @@ const ChannelDetail = ({
             >
               <Container borderRadius={10} background={"#19162F"} centerContent>
                 <AblyChatComponent
+                  queriedChannel={channel}
                   username={username}
                   chatBot={chatBot}
                   user={user}
@@ -437,8 +421,6 @@ const ChannelDetail = ({
                   channelArn={channelArn}
                   channelId={3}
                   allowNFCs={true}
-                  tokenContractAddress={channel?.token?.address as string}
-                  tokenBalanceData={tokenBalanceData}
                   handleBuyModal={() => setShowBuyModal(true)}
                   handleTipModal={() => setShowTipModal(true)}
                   handleChanceModal={() => setShowChanceModal(true)}
@@ -455,16 +437,3 @@ const ChannelDetail = ({
 };
 
 export default ChannelDetail;
-
-export async function getServerSideProps(
-  context: GetServerSidePropsContext<UrlParams>
-) {
-  const apolloClient = initializeApollo(null, context.req.cookies, true);
-
-  const { data, error } = await apolloClient.query({
-    query: CHANNEL_DETAIL_QUERY,
-    variables: { slug: "brian" },
-  });
-
-  return { props: { slug: "brian", channelData: data } };
-}

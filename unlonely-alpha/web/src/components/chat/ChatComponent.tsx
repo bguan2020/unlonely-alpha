@@ -20,25 +20,24 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 
-import useChannel from "../../hooks/useChannel";
-import { ChatBot } from "../../pages/channels/brian";
+import useChannel from "../../hooks/chat/useChannel";
 import { COLORS } from "../../styles/Colors";
 import { Message, initializeEmojis } from "./types/index";
-import { User } from "../../generated/graphql";
+import { ChannelDetailQuery, User } from "../../generated/graphql";
 import ChatForm from "./ChatForm";
-import usePostFirstChat from "../../hooks/usePostFirstChat";
+import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/context/useUser";
 import MessageList from "./MessageList";
-import { useOnClickOutside } from "../../hooks/useOnClickOutside";
+import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import SwordButton from "../arcade/SwordButton";
 import CoinButton from "../arcade/CoinButton";
 import ControlButton from "../arcade/ControlButton";
 import DiceButton from "../arcade/DiceButton";
-import { useScrollPercentage } from "../../hooks/useScrollPercentage";
+import { useScrollPercentage } from "../../hooks/internal/useScrollPercentage";
 import { InteractionType } from "../../constants";
 import BuyButton from "../arcade/BuyButton";
-import { FetchBalanceResult } from "../../constants/types";
+import { ChatBot } from "../../constants/types";
 import { useLazyQuery } from "@apollo/client";
 import { GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
@@ -54,8 +53,7 @@ type Props = {
   channelArn: string;
   channelId: number;
   allowNFCs: boolean;
-  tokenContractAddress: string;
-  tokenBalanceData?: FetchBalanceResult;
+  queriedChannel?: ChannelDetailQuery["getChannelBySlug"];
   handleControlModal?: () => void;
   handleChanceModal?: () => void;
   handlePvpModal?: () => void;
@@ -89,8 +87,7 @@ const AblyChatComponent = ({
   channelArn,
   channelId,
   allowNFCs,
-  tokenContractAddress,
-  tokenBalanceData,
+  queriedChannel,
   handleControlModal,
   handleChanceModal,
   handlePvpModal,
@@ -577,10 +574,10 @@ const AblyChatComponent = ({
                 width={"100%"}
                 padding={"40px"}
               >
-                {isAddress(tokenContractAddress) && (
+                {isAddress(String(queriedChannel?.token?.address)) && (
                   <>
                     <BuyButton
-                      tokenName={`$${tokenBalanceData?.symbol}`}
+                      tokenName={`$${queriedChannel?.token?.symbol}`}
                       callback={handleBuyModal}
                     />
                     <Grid
@@ -613,7 +610,7 @@ const AblyChatComponent = ({
                     </Grid>
                   </>
                 )}
-                {!isAddress(tokenContractAddress) && (
+                {!isAddress(String(queriedChannel?.token?.address)) && (
                   <>
                     <Tooltip label={"not available"}>
                       <span>

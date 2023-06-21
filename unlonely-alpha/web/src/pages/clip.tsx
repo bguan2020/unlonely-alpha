@@ -18,12 +18,12 @@ import { useContractWrite, useWaitForTransaction } from "wagmi";
 import { create } from "ipfs-http-client";
 
 import AppLayout from "../components/layout/AppLayout";
-import useCreateClip from "../hooks/useCreateClip";
+import useCreateClip from "../hooks/server/useCreateClip";
 import ClipDetailCard from "../components/NFCs/ClipDetailCard";
 import { PostNfcInput } from "../generated/graphql";
 import { postNfcSchema } from "../utils/validation/validation";
-import usePostNFC from "../hooks/usePostNFC";
-import { useUser } from "../hooks/useUser";
+import usePostNFC from "../hooks/server/usePostNFC";
+import { useUser } from "../hooks/context/useUser";
 import { UNLONELYNFCV2_ADDRESS } from "../constants";
 import UnlonelyNFCsV2 from "../utils/UnlonelyNFCsV2.json";
 

@@ -3,52 +3,51 @@ import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
 
 import {
-  UpdateCreatorTokenPriceMutation,
-  UpdateCreatorTokenPriceMutationVariables,
+  PostFirstChatMutation,
+  PostFirstChatMutationVariables,
 } from "../../generated/graphql";
 import { useAuthedMutation } from "../../apiClient/hooks";
 
-const UPDATE_CREATOR_TOKEN_PRICE_MUTATION = gql`
-  mutation UpdateCreatorTokenPrice($data: UpdateCreatorTokenPriceInput!) {
-    updateCreatorTokenPrice(data: $data) {
-      address
-      price
+const POST_CHAT_MUTATION = gql`
+  mutation PostFirstChat($data: PostChatInput!) {
+    postFirstChat(data: $data) {
+      id
     }
   }
 `;
 
-const useUpdateCreatorTokenPrice = ({
+const usePostFirstChat = ({
   onError,
 }: {
   onError?: (errors?: GraphQLErrors) => void;
 }) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    UpdateCreatorTokenPriceMutation,
-    UpdateCreatorTokenPriceMutationVariables
-  >(UPDATE_CREATOR_TOKEN_PRICE_MUTATION);
+    PostFirstChatMutation,
+    PostFirstChatMutationVariables
+  >(POST_CHAT_MUTATION);
 
-  const updateCreatorTokenPrice = useCallback(
-    async (data) => {
+  const postFirstChat = useCallback(
+    async (data, { isFirst }) => {
       setLoading(true);
       const mutationResult = await mutate({ variables: { data } });
 
       if (
         mutationResult.errors ||
         !mutationResult.data ||
-        !mutationResult.data.updateCreatorTokenPrice
+        !mutationResult.data.postFirstChat
       ) {
         onError && onError(mutationResult.errors);
         setLoading(false);
         return;
       }
-
+      if (isFirst) window.location.reload();
       setLoading(false);
     },
     [mutate, onError]
   );
 
-  return { updateCreatorTokenPrice, loading };
+  return { postFirstChat, loading };
 };
 
-export default useUpdateCreatorTokenPrice;
+export default usePostFirstChat;

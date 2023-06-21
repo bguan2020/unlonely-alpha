@@ -1,57 +1,53 @@
 import { useCallback, useState } from "react";
-import { useRouter } from "next/router";
 import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
 
 import {
-  PostVideoMutation,
-  PostVideoMutationVariables,
-} from "../generated/graphql";
-import { useAuthedMutation } from "../apiClient/hooks";
+  PostTaskMutation,
+  PostTaskMutationVariables,
+} from "../../generated/graphql";
+import { useAuthedMutation } from "../../apiClient/hooks";
 
-const POST_VIDEO_MUTATION = gql`
-  mutation PostVideo($data: PostVideoInput!) {
-    postVideo(data: $data) {
+const POST_TASK_MUTATION = gql`
+  mutation PostTask($data: PostTaskInput!) {
+    postTask(data: $data) {
       id
     }
   }
 `;
 
-const usePostVideoWithRedirect = ({
+const usePostTask = ({
   onError,
 }: {
   onError?: (errors?: GraphQLErrors) => void;
 }) => {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    PostVideoMutation,
-    PostVideoMutationVariables
-  >(POST_VIDEO_MUTATION);
+    PostTaskMutation,
+    PostTaskMutationVariables
+  >(POST_TASK_MUTATION);
 
-  const postVideo = useCallback(
+  const postTask = useCallback(
     async (data) => {
       setLoading(true);
-
       const mutationResult = await mutate({ variables: { data } });
 
       if (
         mutationResult.errors ||
         !mutationResult.data ||
-        !mutationResult.data.postVideo
+        !mutationResult.data.postTask
       ) {
         onError && onError(mutationResult.errors);
         setLoading(false);
         return;
       }
 
-      await router.push("/channels/youtube");
       setLoading(false);
     },
-    [mutate, onError, router]
+    [mutate, onError]
   );
 
-  return { postVideo, loading };
+  return { postTask, loading };
 };
 
-export default usePostVideoWithRedirect;
+export default usePostTask;

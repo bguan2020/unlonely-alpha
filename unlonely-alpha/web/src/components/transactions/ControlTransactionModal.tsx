@@ -12,24 +12,25 @@ import { useForm } from "react-hook-form";
 import { parseUnits } from "viem";
 import { FetchBalanceResult } from "../../constants/types";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
-import { useUser } from "../../hooks/useUser";
-import { ChatBot } from "../../pages/channels/brian";
+import { useUser } from "../../hooks/context/useUser";
+import { ChatBot } from "../../constants/types";
 import { formatIncompleteNumber } from "../../utils/validation/input";
 import { ModalButton } from "../general/button/ModalButton";
 import { TransactionModalTemplate } from "./TransactionModalTemplate";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { postStreamInteractionTextSchema } from "../../utils/validation/validation";
-import usePostStreamInteraction from "../../hooks/usePostStreamInteraction";
+import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import {
   PostStreamInteractionInput,
   ChannelDetailQuery,
 } from "../../generated/graphql";
-import { useApproval } from "../../hooks/useApproval";
-import { erc20ABI, useNetwork } from "wagmi";
+import { useApproval } from "../../hooks/contracts/useApproval";
+import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import centerEllipses from "../../utils/centerEllipses";
+import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 
 export default function ControlTransactionModal({
   title,
@@ -81,7 +82,7 @@ export default function ControlTransactionModal({
     refetchAllowance,
   } = useApproval(
     tokenContractAddress as `0x${string}`,
-    erc20ABI,
+    CreatorTokenAbi,
     user?.address as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,
