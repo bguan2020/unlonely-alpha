@@ -33,8 +33,8 @@ import {
 import { PostYTLinkInput } from "../../types";
 import usePostTask from "../../hooks/usePostTask";
 import { YT_PUBLIC_KEY } from "../../constants";
-import { ChatBot } from "../../pages/channels/brian";
 import { useUser } from "../../hooks/useUser";
+import { ChatBot } from "../../constants/types";
 
 type Props = {
   setChatBot: (chatBot: ChatBot[]) => void;

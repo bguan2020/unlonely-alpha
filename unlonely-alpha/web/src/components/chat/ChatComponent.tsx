@@ -21,7 +21,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 
 import useChannel from "../../hooks/useChannel";
-import { ChatBot } from "../../pages/channels/brian";
 import { COLORS } from "../../styles/Colors";
 import { Message, initializeEmojis } from "./types/index";
 import { User } from "../../generated/graphql";
@@ -38,7 +37,7 @@ import DiceButton from "../arcade/DiceButton";
 import { useScrollPercentage } from "../../hooks/useScrollPercentage";
 import { InteractionType } from "../../constants";
 import BuyButton from "../arcade/BuyButton";
-import { FetchBalanceResult } from "../../constants/types";
+import { ChatBot, FetchBalanceResult } from "../../constants/types";
 import { useLazyQuery } from "@apollo/client";
 import { GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";

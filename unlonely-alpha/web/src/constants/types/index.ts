@@ -15,3 +15,11 @@ export type FetchBalanceResult = {
   symbol: string;
   value: bigint;
 };
+
+export type ChatBot = {
+  username: string;
+  address: string;
+  taskType: string;
+  title: string | null | undefined;
+  description: string | null | undefined;
+};

@@ -1,4 +1,9 @@
-export const filteredInput = (input: string): string => {
+export const filteredInput = (
+  input: string,
+  allowDecimals?: boolean
+): string => {
+  if (allowDecimals)
+    return input.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1");
   return input.replace(/[^0-9]/g, ""); // no decimals, letters, or other symbols allowed except for digits
 };
 

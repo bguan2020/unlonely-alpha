@@ -1,8 +1,8 @@
 import { Box, Flex, Text, Stack, Image } from "@chakra-ui/react";
 import Link from "next/link";
+import { ChatBot } from "../../constants/types";
 
 import usePostStreamInteraction from "../../hooks/usePostStreamInteraction";
-import { ChatBot } from "../../pages/channels/brian";
 import { CustomToast } from "../general/CustomToast";
 import TransactionModal from "../transactions/transactionModal";
 

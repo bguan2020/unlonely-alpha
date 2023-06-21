@@ -13,7 +13,7 @@ import { parseUnits } from "viem";
 import { FetchBalanceResult } from "../../constants/types";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { useUser } from "../../hooks/useUser";
-import { ChatBot } from "../../pages/channels/brian";
+import { ChatBot } from "../../constants/types";
 import { formatIncompleteNumber } from "../../utils/validation/input";
 import { ModalButton } from "../general/button/ModalButton";
 import { TransactionModalTemplate } from "./TransactionModalTemplate";

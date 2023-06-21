@@ -2,11 +2,11 @@ import { gql, useQuery } from "@apollo/client";
 import { Flex, Text } from "@chakra-ui/react";
 import React from "react";
 
-import { ChatBot } from "../../pages/channels/brian";
 import AddVideoModal from "./TaskVideoModal";
 import TaskCard from "./TaskCard";
 import { TaskCard_TaskFragment } from "../../generated/graphql";
 import TaskCardSkeleton from "./TaskCardSkeleton";
+import { ChatBot } from "../../constants/types";
 
 const TASK_LIST_QUERY = gql`
   query TaskFeed($data: TaskFeedInput!) {

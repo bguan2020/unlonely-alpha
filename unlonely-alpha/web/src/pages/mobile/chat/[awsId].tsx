@@ -5,7 +5,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import { useAccount } from "wagmi";
 
 import useChannel from "../../../hooks/useChannel";
-import { ChatBot } from "../../channels/brian";
+import { ChatBot } from "../../../constants/types";
 import { timestampConverter } from "../../../utils/timestampConverter";
 import NFTList from "../../../components/profile/NFTList";
 import Badges from "../../../components/chat/Badges";

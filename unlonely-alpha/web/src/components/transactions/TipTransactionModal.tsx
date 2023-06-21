@@ -1,7 +1,7 @@
 import { Text, Input, Flex, useToast } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { useUser } from "../../hooks/useUser";
-import { ChatBot } from "../../pages/channels/brian";
+import { ChatBot } from "../../constants/types";
 import {
   filteredInput,
   formatIncompleteNumber,
