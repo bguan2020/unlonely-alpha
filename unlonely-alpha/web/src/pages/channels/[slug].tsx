@@ -113,9 +113,14 @@ const ChannelDetail = () => {
 
   useEffect(() => {
     const socketInit = async () => {
-      const newSocket = io("https://sea-lion-app-j3rts.ondigitalocean.app", {
-        transports: ["websocket"],
-      });
+      const newSocket = io(
+        process.env.NODE_ENV === "production"
+          ? "https://sea-lion-app-j3rts.ondigitalocean.app"
+          : "http://localhost:4000",
+        {
+          transports: ["websocket"],
+        }
+      );
       setSocket(newSocket);
 
       newSocket.on("receive-message", (data) => {
