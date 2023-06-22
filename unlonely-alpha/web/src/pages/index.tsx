@@ -156,6 +156,10 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
             data: ["7", "ANTIMO", "0.0005", "12", "antimo.eth"],
             channelLink: "antimo",
           },
+          {
+            data: ["8", "BRIAN", "0.0005", "11", "br1an.eth"],
+            channelLink: "brian",
+          },
         ]}
       />
       <Flex direction="column" width="100%">
