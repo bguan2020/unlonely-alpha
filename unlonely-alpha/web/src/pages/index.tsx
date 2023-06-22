@@ -129,33 +129,32 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
       <TokenLeaderboard
         dataset={[
           {
-            data: ["1", "$BRIAN", "0.0005", "50", "br1an.eth"],
-            channelLink: "brian",
+            data: ["1", "TED", "0.0005", "50000", "tednotlasso.eth"],
+            channelLink: "ted",
           },
           {
-            data: ["2", "$H3IDI", "n/a", "n/a", "h3idi.eth"],
-            channelLink: "h3idi",
-            obscureText: true,
+            data: ["2", "JONNY", "0.0005", "20000", "jonnyringo.eth"],
+            channelLink: "jonnyringo",
           },
           {
-            data: ["3", "$SIRSU", "n/a", "n/a", "sirsu.eth"],
+            data: ["3", "TLDR", "0.0005", "15004", "tldr.eth"],
+            channelLink: "tldr",
+          },
+          {
+            data: ["4", "SIRSU", "0.0005", "2370", "sirsu.eth"],
             channelLink: "sirsu",
-            obscureText: true,
           },
           {
-            data: ["4", "$GRACE", "n/a", "n/a", "0eggs.eth"],
-            channelLink: "grace",
-            obscureText: true,
+            data: ["5", "KATY", "0.0005", "978", "katherholt.eth"],
+            channelLink: "seam",
           },
           {
-            data: ["5", "$SAM", "n/a", "n/a", "samchai.eth"],
-            channelLink: "sam",
-            obscureText: true,
+            data: ["6", "H3IDI", "0.0005", "140", "h3idi.eth"],
+            channelLink: "h3idi",
           },
           {
-            data: ["6", "$CASSIE", "n/a", "n/a", "cassieheart.eth"],
-            channelLink: "cassie",
-            obscureText: true,
+            data: ["7", "ANTIMO", "0.0005", "12", "antimo.eth"],
+            channelLink: "antimo",
           },
         ]}
       />
