@@ -31,6 +31,7 @@ import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import centerEllipses from "../../utils/centerEllipses";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
 export default function ControlTransactionModal({
   title,
@@ -176,6 +177,12 @@ export default function ControlTransactionModal({
       hideFooter
     >
       <Flex direction="column" gap="16px">
+        <Text textAlign={"center"} fontSize="25px" color="#BABABA">
+          you own{" "}
+          {`${truncateValue(tokenBalanceData?.formatted ?? "0", 3)} $${
+            channel?.token?.symbol
+          }`}
+        </Text>
         <Flex justifyContent={"space-evenly"} alignItems="center">
           <ModalButton
             width="120px"

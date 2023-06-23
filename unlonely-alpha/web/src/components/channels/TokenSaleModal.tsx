@@ -42,10 +42,6 @@ export default function TokenSaleModal({
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
-  const [amountOption, setAmountOption] = useState<"10000" | "100000">(
-    "100000"
-  );
-
   const {
     allowance,
     writeApproval,
@@ -57,7 +53,7 @@ export default function TokenSaleModal({
     tokenOwner as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,
-    parseUnits(amountOption as `${number}`, 18),
+    parseUnits("100000" as `${number}`, 18),
     undefined,
     {
       onTxSuccess: (data) => {
@@ -93,31 +89,9 @@ export default function TokenSaleModal({
       handleClose={handleClose}
     >
       <Flex direction="column" gap="16px">
-        <Text textAlign={"center"} fontSize="25px" color="#BABABA">
-          you own{" "}
-          {`${truncateValue(tokenBalanceData?.formatted ?? "0", 3)} $${
-            channel?.token?.symbol
-          }`}
+        <Text textAlign="center">
+          click to make your tokens available for your viewers to purchase
         </Text>
-        <Text textAlign={"center"} fontSize="25px" color="#BABABA">
-          {`${formatUnits(allowance, 18)} $${channel?.token?.symbol} on sale`}
-        </Text>
-        <Flex justifyContent={"space-between"} direction="column" gap="10px">
-          <ModalButton
-            height="50px"
-            fade={amountOption === "100000" ? 1 : 0.2}
-            onClick={() => setAmountOption("100000")}
-          >
-            <Text fontSize="20px">100000</Text>
-          </ModalButton>
-          <ModalButton
-            height="50px"
-            fade={amountOption === "10000" ? 1 : 0.2}
-            onClick={() => setAmountOption("10000")}
-          >
-            <Text fontSize="20px">10000</Text>
-          </ModalButton>
-        </Flex>
       </Flex>
     </TransactionModalTemplate>
   );
