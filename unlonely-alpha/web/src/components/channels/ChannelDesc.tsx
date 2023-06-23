@@ -3,11 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 
-import {
-  ChannelDetailQuery,
-  UpdateChannelTextInput,
-  User,
-} from "../../generated/graphql";
+import { UpdateChannelTextInput } from "../../generated/graphql";
 import { EditIcon } from "../icons/EditIcon";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
 import useUpdateChannelText from "../../hooks/server/useUpdateChannelText";
@@ -22,22 +18,15 @@ import {
 import { anonUrl } from "../presence/AnonUrl";
 import { PickCoinIcon } from "../icons/PickCoinIcon";
 import TokenSaleModal from "./TokenSaleModal";
-import { FetchBalanceResult } from "../../constants/types";
+import { useUser } from "../../hooks/context/useUser";
+import { useChannelContext } from "../../hooks/context/useChannel";
 import { isAddress } from "viem";
 
-type Props = {
-  channel: ChannelDetailQuery["getChannelBySlug"];
-  tokenContractAddress: string;
-  tokenBalanceData?: FetchBalanceResult;
-  user?: User;
-};
+const ChannelDesc = () => {
+  const { user } = useUser();
+  const { channel, token } = useChannelContext();
+  const { channelBySlug } = channel;
 
-const ChannelDesc = ({
-  channel,
-  user,
-  tokenBalanceData,
-  tokenContractAddress,
-}: Props) => {
   const [editableText, setEditableText] = useState<boolean>(false);
   const [formError, setFormError] = useState<string[]>([]);
   const [tokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
@@ -54,19 +43,19 @@ const ChannelDesc = ({
 
   const onSubmit = (data: UpdateChannelTextInput) => {
     updateChannelText({
-      id: channel?.id,
+      id: channelBySlug?.id,
       name: data.name,
       description: data.description,
     });
     setEditableText(false);
   };
 
-  const isOwner = user?.address === channel?.owner.address;
+  const isOwner = user?.address === channelBySlug?.owner.address;
 
-  const imageUrl = channel?.owner?.FCImageUrl
-    ? channel?.owner.FCImageUrl
-    : channel?.owner?.lensImageUrl
-    ? channel?.owner.lensImageUrl
+  const imageUrl = channelBySlug?.owner?.FCImageUrl
+    ? channelBySlug?.owner.FCImageUrl
+    : channelBySlug?.owner?.lensImageUrl
+    ? channelBySlug?.owner.lensImageUrl
     : anonUrl;
   const ipfsUrl = imageUrl.startsWith("ipfs://")
     ? `https://ipfs.io/ipfs/${imageUrl.slice(7)}`
@@ -75,12 +64,8 @@ const ChannelDesc = ({
   return (
     <>
       <TokenSaleModal
-        channel={channel}
         title={"offer tokens for sale"}
         isOpen={tokenSaleModal}
-        tokenContractAddress={tokenContractAddress}
-        tokenOwner={user?.address ?? ""}
-        tokenBalanceData={tokenBalanceData}
         handleClose={() => setTokenSaleModal(false)}
       />
       {editableText ? (
@@ -102,8 +87,8 @@ const ChannelDesc = ({
                   <Textarea
                     id="name"
                     placeholder={
-                      channel?.name
-                        ? channel.name
+                      channelBySlug?.name
+                        ? channelBySlug.name
                         : "Enter a title for your stream."
                     }
                     _placeholder={{ color: "grey" }}
@@ -141,8 +126,8 @@ const ChannelDesc = ({
                   <Textarea
                     id="description"
                     placeholder={
-                      channel?.description
-                        ? channel.description
+                      channelBySlug?.description
+                        ? channelBySlug.description
                         : "Enter a description for your channel"
                     }
                     _placeholder={{ color: "grey" }}
@@ -181,9 +166,9 @@ const ChannelDesc = ({
         <Flex direction="row">
           <Avatar
             name={
-              channel?.owner.username
-                ? channel?.owner.username
-                : channel?.owner.address
+              channelBySlug?.owner.username
+                ? channelBySlug?.owner.username
+                : channelBySlug?.owner.address
             }
             src={ipfsUrl}
             size="md"
@@ -205,7 +190,7 @@ const ChannelDesc = ({
                 fontWeight="bold"
                 noOfLines={2}
               >
-                {channel?.name}
+                {channelBySlug?.name}
               </Text>
               {isOwner && (
                 <>
@@ -220,20 +205,21 @@ const ChannelDesc = ({
                       }}
                     />
                   </Tooltip>
-                  {isAddress(tokenContractAddress) && (
-                    <Tooltip label={"put tokens on sale"}>
-                      <PickCoinIcon
-                        boxSize={5}
-                        cursor="pointer"
-                        onClick={() => setTokenSaleModal(true)}
-                      />
-                    </Tooltip>
-                  )}
+                  {channelBySlug?.token?.address &&
+                    isAddress(channelBySlug?.token?.address) && (
+                      <Tooltip label={"put tokens on sale"}>
+                        <PickCoinIcon
+                          boxSize={5}
+                          cursor="pointer"
+                          onClick={() => setTokenSaleModal(true)}
+                        />
+                      </Tooltip>
+                    )}
                 </>
               )}
             </Flex>
             <Text px="30px" fontSize={["0.8rem", "1.2rem"]}>
-              {channel?.description}
+              {channelBySlug?.description}
             </Text>
           </Flex>
         </Flex>

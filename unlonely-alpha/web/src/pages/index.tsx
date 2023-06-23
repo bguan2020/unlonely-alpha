@@ -13,11 +13,7 @@ import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import HeroBanner from "../components/layout/HeroBanner";
-import AblyChatComponent from "../components/chat/ChatComponent";
-import { useUser } from "../hooks/context/useUser";
-import { useState, useEffect } from "react";
-import { useAccount, useEnsName } from "wagmi";
-import centerEllipses from "../utils/centerEllipses";
+import AblyHomeChatComponent from "../components/chat/HomeChatComponent";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { Channel } from "../generated/graphql";
 
@@ -63,25 +59,6 @@ const NFC_FEED_QUERY = gql`
 `;
 
 const FixedComponent = () => {
-  const [username, setUsername] = useState<string | null>();
-  const accountData = useAccount();
-
-  const { user } = useUser();
-  const { data: ensData } = useEnsName({
-    address: accountData?.address,
-  });
-
-  useEffect(() => {
-    const fetchEns = async () => {
-      if (accountData?.address) {
-        const username = ensData ?? centerEllipses(accountData.address, 9);
-        setUsername(username);
-      }
-    };
-
-    fetchEns();
-  }, [accountData?.address, ensData]);
-
   return (
     <Flex
       borderWidth="1px"
@@ -94,16 +71,7 @@ const FixedComponent = () => {
       boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
       background={"#19162F"}
     >
-      <AblyChatComponent
-        username={username}
-        chatBot={[]}
-        user={user}
-        ablyChatChannel={"home-page-chat"}
-        ablyPresenceChannel={"home-page-presence"}
-        channelArn={""}
-        channelId={3}
-        allowNFCs={false}
-      />
+      <AblyHomeChatComponent />
     </Flex>
   );
 };

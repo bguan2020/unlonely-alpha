@@ -1,36 +1,29 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
-import { FetchBalanceResult } from "../../constants/types";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import { Flex, Text, useToast } from "@chakra-ui/react";
-import { formatUnits, parseUnits } from "viem";
+import { parseUnits } from "viem";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { ModalButton } from "../general/button/ModalButton";
+import { useUser } from "../../hooks/context/useUser";
+import { useChannelContext } from "../../hooks/context/useChannel";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
-import { ChannelDetailQuery } from "../../generated/graphql";
 
 export default function TokenSaleModal({
   title,
-  channel,
   isOpen,
-  tokenContractAddress,
-  tokenOwner,
-  tokenBalanceData,
   callback,
   handleClose,
 }: {
   title: string;
   isOpen: boolean;
-  tokenContractAddress: string;
-  tokenOwner: string;
-  tokenBalanceData?: FetchBalanceResult;
-  channel: ChannelDetailQuery["getChannelBySlug"];
   callback?: any;
   handleClose: () => void;
 }) {
+  const { user } = useUser();
+  const { channel } = useChannelContext();
+  const { channelBySlug } = channel;
   const toast = useToast();
 
   const network = useNetwork();
@@ -43,14 +36,13 @@ export default function TokenSaleModal({
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const {
-    allowance,
     writeApproval,
     isTxLoading: isApprovalLoading,
     refetchAllowance,
   } = useApproval(
-    tokenContractAddress as `0x${string}`,
+    channelBySlug?.token?.address as `0x${string}`,
     CreatorTokenAbi,
-    tokenOwner as `0x${string}`,
+    user?.address as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,
     parseUnits("100000" as `${number}`, 18),
@@ -65,6 +57,8 @@ export default function TokenSaleModal({
           isClosable: true,
           position: "top-right",
         });
+        callback?.();
+        handleClose();
       },
     }
   );
@@ -75,7 +69,7 @@ export default function TokenSaleModal({
   }, [writeApproval]);
 
   useEffect(() => {
-    if (tokenContractAddress) refetchAllowance();
+    if (channelBySlug?.token?.address) refetchAllowance();
   }, [isApprovalLoading]);
 
   return (

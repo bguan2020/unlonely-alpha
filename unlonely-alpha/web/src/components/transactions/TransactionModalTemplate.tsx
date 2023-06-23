@@ -124,7 +124,7 @@ export const TransactionModalTemplate = ({
                 <Spinner size="xl" />
               </Flex>
               <Text textAlign={"center"}>
-                Executing transaction, please do not exit this page
+                executing transaction, please do not exit this page
               </Text>
             </Flex>
           </ModalBody>

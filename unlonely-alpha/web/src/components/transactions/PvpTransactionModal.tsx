@@ -8,22 +8,24 @@ import {
 } from "../../utils/validation/input";
 import { TransactionModalTemplate } from "./TransactionModalTemplate";
 import { ModalButton } from "../general/button/ModalButton";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 export default function PvpTransactionModal({
   title,
   isOpen,
-  tokenContractAddress,
   icon,
   handleClose,
   addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
-  tokenContractAddress: string;
   icon?: JSX.Element;
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
+  const { channel } = useChannelContext();
+  const { channelBySlug } = channel;
+
   const [amount, setAmount] = useState("");
   const [amountOption, setAmountOption] = useState<
     "custom" | "5" | "10" | "15" | "25" | "50"

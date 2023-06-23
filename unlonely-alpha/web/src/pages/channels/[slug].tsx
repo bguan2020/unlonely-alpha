@@ -1,4 +1,3 @@
-import { useQuery } from "@apollo/client";
 import {
   Box,
   Container,
@@ -12,10 +11,8 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import io, { Socket } from "socket.io-client";
 import { isAddress } from "viem";
-import { useAccount, useBalance, useEnsName } from "wagmi";
-import { useRouter } from "next/router";
+import { useAccount, useEnsName } from "wagmi";
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
@@ -30,53 +27,41 @@ import ChanceTransactionModal from "../../components/transactions/ChanceTransact
 import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
 import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
 import TipTransactionModal from "../../components/transactions/TipTransactionModal";
-import { InteractionType } from "../../constants";
+import { ChatBot } from "../../constants/types";
 import {
-  CHANNEL_DETAIL_QUERY,
-  GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
-} from "../../constants/queries";
-import {
-  ChannelDetailQuery,
-  GetRecentStreamInteractionsQuery,
-} from "../../generated/graphql";
+  ChannelProvider,
+  useChannelContext,
+} from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 import centerEllipses from "../../utils/centerEllipses";
-import { ChatBot } from "../../constants/types";
 
 const ChannelDetail = () => {
-  const router = useRouter();
-  const { slug } = router.query;
+  return (
+    <ChannelProvider>
+      <ChannelPage />
+    </ChannelProvider>
+  );
+};
 
+const ChannelPage = () => {
+  const { channel, recentStreamInteractions, chat } = useChannelContext();
   const {
+    channelBySlug,
     loading: channelDataLoading,
     error: channelDataError,
-    data: channelData,
-  } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
-    variables: { slug },
-  });
-
+  } = channel;
   const {
-    data: recentStreamInteractionsData,
-    loading: recentStreamInteractionsDataLoading,
-    error: recentStreamInteractionsDataError,
-  } = useQuery<GetRecentStreamInteractionsQuery>(
-    GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
-    {
-      variables: {
-        data: {
-          channelId: channelData?.getChannelBySlug?.id,
-        },
-      },
-    }
-  );
+    loading: recentStreamInteractionsLoading,
+    textOverVideo,
+    socket,
+  } = recentStreamInteractions;
+  const { chatChannel, presenceChannel } = chat;
 
   const queryLoading = useMemo(
-    () => channelDataLoading || recentStreamInteractionsDataLoading,
-    [channelDataLoading, recentStreamInteractionsDataLoading]
+    () => channelDataLoading || recentStreamInteractionsLoading,
+    [channelDataLoading, recentStreamInteractionsLoading]
   );
-
-  const channel = useMemo(() => channelData?.getChannelBySlug, [channelData]);
 
   const [width, height] = useWindowSize();
   const { user } = useUser();
@@ -89,32 +74,12 @@ const ChannelDetail = () => {
   const [showControlModal, setShowControlModal] = useState<boolean>(false);
   const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
 
-  const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
-
   const accountData = useAccount();
-
-  const [ablyChatChannel, setAblyChatChannel] = useState<string | undefined>(
-    undefined
-  );
-  const [ablyPresenceChannel, setAblyPresenceChannel] = useState<
-    string | undefined
-  >(undefined);
 
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
 
-  const [socket, setSocket] = useState<Socket | undefined>(undefined);
-
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
-
-  const { data: tokenBalanceData, refetch: balanceOfRefetchToken } = useBalance(
-    {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      address: user?.address ?? "",
-      token: channel?.token?.address as `0x${string}`,
-    }
-  );
 
   const handleSendMessage = (message: string) => {
     if (!socket) return;
@@ -123,32 +88,6 @@ const ChannelDetail = () => {
       username: accountData?.address,
     });
   };
-
-  useEffect(() => {
-    const socketInit = async () => {
-      const newSocket = io(
-        process.env.NODE_ENV === "production"
-          ? "https://sea-lion-app-j3rts.ondigitalocean.app"
-          : "http://localhost:4000",
-        {
-          transports: ["websocket"],
-        }
-      );
-      setSocket(newSocket);
-
-      newSocket.on("receive-message", (data) => {
-        /* eslint-disable no-console */
-        console.log("received message", data);
-        setTextOverVideo((prev) => [...prev, data.message]);
-      });
-    };
-    socketInit();
-
-    return () => {
-      if (!socket) return;
-      socket.disconnect();
-    };
-  }, []);
 
   const { data: ensData } = useEnsName({
     address: accountData?.address,
@@ -164,15 +103,6 @@ const ChannelDetail = () => {
 
     fetchEns();
   }, [accountData?.address, ensData]);
-
-  useEffect(() => {
-    if (textOverVideo.length > 0) {
-      const timer = setTimeout(() => {
-        setTextOverVideo((prev) => prev.slice(2));
-      }, 120000);
-      return () => clearTimeout(timer);
-    }
-  }, [textOverVideo]);
 
   const isHidden = useCallback(
     (isChat: boolean) => {
@@ -197,312 +127,259 @@ const ChannelDetail = () => {
     [chatBot]
   );
 
-  useEffect(() => {
-    if (!recentStreamInteractionsData) return;
-    const interactions =
-      recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
-    if (interactions && interactions.length > 0) {
-      const textInteractions = interactions.filter(
-        (i) => i?.interactionType === InteractionType.CONTROL && i.text
-      );
-      setTextOverVideo(textInteractions.map((i) => String(i?.text)));
-    }
-  }, [recentStreamInteractionsData]);
-
-  useEffect(() => {
-    if (channel && channel.awsId) {
-      setAblyChatChannel(`${channel.awsId}-chat-channel`);
-      setAblyPresenceChannel(`${channel.awsId}-presence-channel`);
-    }
-  }, [channel]);
-
   return (
-    <>
-      <AppLayout
-        title={channel?.name}
-        image={channel?.owner?.FCImageUrl}
-        isCustomHeader={true}
-      >
-        {!queryLoading && !channelDataError ? (
-          <>
-            <ControlTransactionModal
-              channel={channel}
-              tokenBalanceData={tokenBalanceData}
-              callback={(text: string) => {
-                handleSendMessage(text);
-                balanceOfRefetchToken();
-              }}
-              icon={
-                <Image
-                  alt="control"
-                  src="/svg/control.svg"
-                  width="60px"
-                  height="60px"
-                />
-              }
-              title="control the stream!"
-              isOpen={showControlModal}
-              handleClose={handleClose}
-              tokenContractAddress={channel?.token?.address as string}
-              addToChatbot={addToChatbot}
-            />
-            <BuyTransactionModal
-              channel={channel}
-              title=""
-              tokenBalanceData={tokenBalanceData}
-              callback={balanceOfRefetchToken}
-              icon={
-                <BuyButton tokenName={`$${channel?.token?.symbol}`} noHover />
-              }
-              isOpen={showBuyModal}
-              handleClose={handleClose}
-              tokenContractAddress={channel?.token?.address as string}
-              addToChatbot={addToChatbot}
-            />
-            <TipTransactionModal
-              channel={channel}
-              tokenBalanceData={tokenBalanceData}
-              callback={balanceOfRefetchToken}
-              icon={
-                <Image
-                  alt="coin"
-                  src="/svg/coin.svg"
-                  width="60px"
-                  height="60px"
-                />
-              }
-              title="tip on the stream!"
-              isOpen={showTipModal}
-              handleClose={handleClose}
-              tokenContractAddress={channel?.token?.address as string}
-              addToChatbot={addToChatbot}
-            />
-            <ChanceTransactionModal
-              icon={
-                <Image
-                  alt="dice"
-                  src="/svg/dice.svg"
-                  width="60px"
-                  height="60px"
-                />
-              }
-              title="feeling lucky? roll the die for a surprise!"
-              isOpen={showChanceModal}
-              handleClose={handleClose}
-              tokenContractAddress={channel?.token?.address as string}
-              addToChatbot={addToChatbot}
-            />
-            <PvpTransactionModal
-              icon={
-                <Image
-                  alt="sword"
-                  src="/svg/sword.svg"
-                  width="60px"
-                  height="60px"
-                />
-              }
-              title="unlock player vs player features in chat"
-              isOpen={showPvpModal}
-              handleClose={handleClose}
-              tokenContractAddress={channel?.token?.address as string}
-              addToChatbot={addToChatbot}
-            />
-            <Stack direction="column" mt={"1rem"}>
-              <Stack
-                mx={[0, 8, 4]}
-                alignItems={["center", "initial"]}
-                mt="10px"
-                spacing={[4, 8]}
-                direction={["column", "column", "row", "row"]}
-              >
-                <Stack direction="column" width={"100%"}>
-                  <Flex width={"100%"} position="relative">
-                    <Box
-                      position="absolute"
-                      zIndex={10}
-                      maxHeight={{
-                        base: "100%",
-                        sm: "700px",
-                        md: "700px",
-                        lg: "700px",
-                      }}
-                      overflow="hidden"
-                    >
-                      {textOverVideo.map((data: string, index: number) => (
-                        <Text key={index}>{data}</Text>
-                      ))}
-                    </Box>
-                    <NextStreamTimer
-                      isTheatreMode={true}
-                      playbackUrl={
-                        channel?.playbackUrl == null
-                          ? undefined
-                          : channel?.playbackUrl
-                      }
-                    />
-                  </Flex>
-                  <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
-                    <GridItem colSpan={showArcadeButtons ? 2 : 3}>
-                      <ChannelDesc
-                        tokenContractAddress={channel?.token?.address as string}
-                        channel={channel}
-                        user={user}
-                        tokenBalanceData={tokenBalanceData}
-                      />
-                    </GridItem>
-                    {showArcadeButtons && (
-                      <GridItem justifyItems={"center"}>
-                        <Box
-                          display="flex"
-                          justifyContent="center"
-                          alignItems="center"
-                          gap={5}
-                        >
-                          {isAddress(String(channel?.token?.address)) && (
-                            <>
-                              <Grid
-                                templateColumns="repeat(2, 1fr)"
-                                templateRows="repeat(2, 1fr)"
-                                gridGap={4}
-                                alignItems="flex-start"
-                                justifyItems="flex-start"
-                              >
-                                <ControlButton
-                                  callback={() => setShowControlModal(true)}
-                                />
-                                <CoinButton
-                                  callback={() => setShowTipModal(true)}
-                                />
-                                <Tooltip label={"coming soon"}>
-                                  <span>
-                                    <DiceButton noHover />
-                                  </span>
-                                </Tooltip>
-                                <Tooltip label={"coming soon"}>
-                                  <span>
-                                    <SwordButton noHover />
-                                  </span>
-                                </Tooltip>
-                              </Grid>
-                              <BuyButton
-                                tokenName={`$${channel?.token?.symbol}`}
-                                callback={() => setShowBuyModal(true)}
+    <AppLayout
+      title={channelBySlug?.name}
+      image={channelBySlug?.owner?.FCImageUrl}
+      isCustomHeader={true}
+    >
+      {!queryLoading && !channelDataError ? (
+        <>
+          <ControlTransactionModal
+            callback={(text: string) => handleSendMessage(text)}
+            icon={
+              <Image
+                alt="control"
+                src="/svg/control.svg"
+                width="60px"
+                height="60px"
+              />
+            }
+            title="control the stream!"
+            isOpen={showControlModal}
+            handleClose={handleClose}
+            addToChatbot={addToChatbot}
+          />
+          <BuyTransactionModal
+            title=""
+            icon={
+              <BuyButton
+                tokenName={`$${channelBySlug?.token?.symbol}`}
+                noHover
+              />
+            }
+            isOpen={showBuyModal}
+            handleClose={handleClose}
+            addToChatbot={addToChatbot}
+          />
+          <TipTransactionModal
+            icon={
+              <Image
+                alt="coin"
+                src="/svg/coin.svg"
+                width="60px"
+                height="60px"
+              />
+            }
+            title="tip on the stream!"
+            isOpen={showTipModal}
+            handleClose={handleClose}
+            addToChatbot={addToChatbot}
+          />
+          <ChanceTransactionModal
+            icon={
+              <Image
+                alt="dice"
+                src="/svg/dice.svg"
+                width="60px"
+                height="60px"
+              />
+            }
+            title="feeling lucky? roll the die for a surprise!"
+            isOpen={showChanceModal}
+            handleClose={handleClose}
+            addToChatbot={addToChatbot}
+          />
+          <PvpTransactionModal
+            icon={
+              <Image
+                alt="sword"
+                src="/svg/sword.svg"
+                width="60px"
+                height="60px"
+              />
+            }
+            title="unlock player vs player features in chat"
+            isOpen={showPvpModal}
+            handleClose={handleClose}
+            addToChatbot={addToChatbot}
+          />
+          <Stack direction="column" mt={"1rem"}>
+            <Stack
+              mx={[0, 8, 4]}
+              alignItems={["center", "initial"]}
+              mt="10px"
+              spacing={[4, 8]}
+              direction={["column", "column", "row", "row"]}
+            >
+              <Stack direction="column" width={"100%"}>
+                <Flex width={"100%"} position="relative">
+                  <Box
+                    position="absolute"
+                    zIndex={10}
+                    maxHeight={{
+                      base: "100%",
+                      sm: "700px",
+                      md: "700px",
+                      lg: "700px",
+                    }}
+                    overflow="hidden"
+                  >
+                    {textOverVideo.map((data: string, index: number) => (
+                      <Text key={index}>{data}</Text>
+                    ))}
+                  </Box>
+                  <NextStreamTimer isTheatreMode />
+                </Flex>
+                <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
+                  <GridItem colSpan={showArcadeButtons ? 2 : 3}>
+                    <ChannelDesc />
+                  </GridItem>
+                  {showArcadeButtons && (
+                    <GridItem justifyItems={"center"}>
+                      <Box
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                        gap={5}
+                      >
+                        {isAddress(String(channelBySlug?.token?.address)) && (
+                          <>
+                            <Grid
+                              templateColumns="repeat(2, 1fr)"
+                              templateRows="repeat(2, 1fr)"
+                              gridGap={4}
+                              alignItems="flex-start"
+                              justifyItems="flex-start"
+                            >
+                              <ControlButton
+                                callback={() => setShowControlModal(true)}
                               />
-                            </>
-                          )}
-                          {!isAddress(String(channel?.token?.address)) && (
-                            <>
-                              <Grid
-                                templateColumns="repeat(2, 1fr)"
-                                templateRows="repeat(2, 1fr)"
-                                gridGap={4}
-                                alignItems="flex-start"
-                                justifyItems="flex-start"
-                              >
-                                <Tooltip label={"Not available"}>
-                                  <span>
-                                    <ControlButton />
-                                  </span>
-                                </Tooltip>
-                                <Tooltip label={"Not available"}>
-                                  <span>
-                                    <CoinButton />
-                                  </span>
-                                </Tooltip>
-                                <Tooltip label={"Not available"}>
-                                  <span>
-                                    <DiceButton />
-                                  </span>
-                                </Tooltip>
-                                <Tooltip label={"Not available"}>
-                                  <span>
-                                    <SwordButton />
-                                  </span>
-                                </Tooltip>
-                              </Grid>
-                              <Tooltip label={"Not available"}>
+                              <CoinButton
+                                callback={() => setShowTipModal(true)}
+                              />
+                              <Tooltip label={"coming soon"}>
                                 <span>
-                                  <BuyButton tokenName={"token"} />
+                                  <DiceButton noHover />
                                 </span>
                               </Tooltip>
-                            </>
-                          )}
-                        </Box>
-                      </GridItem>
-                    )}
-                  </Grid>
-                </Stack>
-                <Flex
-                  hidden={isHidden(true)}
-                  borderWidth="1px"
-                  borderRadius={"10px"}
-                  p="1px"
-                  bg={
-                    "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-                  }
-                  width="100%"
-                  maxW={["768px", "100%", "380px"]}
-                  maxH={["500px", "850px"]}
-                  boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
-                >
-                  <Container
-                    borderRadius={10}
-                    background={"#19162F"}
-                    centerContent
-                  >
-                    <AblyChatComponent
-                      queriedChannel={channel}
-                      username={username}
-                      chatBot={chatBot}
-                      user={user}
-                      ablyChatChannel={ablyChatChannel}
-                      ablyPresenceChannel={ablyPresenceChannel}
-                      channelArn={channel?.channelArn || ""}
-                      channelId={channel?.id ? Number(channel?.id) : 3}
-                      allowNFCs={channel?.allowNFCs || false}
-                      handleBuyModal={() => setShowBuyModal(true)}
-                      handleTipModal={() => setShowTipModal(true)}
-                      handleChanceModal={() => setShowChanceModal(true)}
-                      handlePvpModal={() => setShowPvpModal(true)}
-                      handleControlModal={() => setShowControlModal(true)}
-                    />
-                  </Container>
-                </Flex>
+                              <Tooltip label={"coming soon"}>
+                                <span>
+                                  <SwordButton noHover />
+                                </span>
+                              </Tooltip>
+                            </Grid>
+                            <BuyButton
+                              tokenName={`$${channelBySlug?.token?.symbol}`}
+                              callback={() => setShowBuyModal(true)}
+                            />
+                          </>
+                        )}
+                        {!isAddress(String(channelBySlug?.token?.address)) && (
+                          <>
+                            <Grid
+                              templateColumns="repeat(2, 1fr)"
+                              templateRows="repeat(2, 1fr)"
+                              gridGap={4}
+                              alignItems="flex-start"
+                              justifyItems="flex-start"
+                            >
+                              <Tooltip label={"Not available"}>
+                                <span>
+                                  <ControlButton />
+                                </span>
+                              </Tooltip>
+                              <Tooltip label={"Not available"}>
+                                <span>
+                                  <CoinButton />
+                                </span>
+                              </Tooltip>
+                              <Tooltip label={"Not available"}>
+                                <span>
+                                  <DiceButton />
+                                </span>
+                              </Tooltip>
+                              <Tooltip label={"Not available"}>
+                                <span>
+                                  <SwordButton />
+                                </span>
+                              </Tooltip>
+                            </Grid>
+                            <Tooltip label={"Not available"}>
+                              <span>
+                                <BuyButton tokenName={"token"} />
+                              </span>
+                            </Tooltip>
+                          </>
+                        )}
+                      </Box>
+                    </GridItem>
+                  )}
+                </Grid>
               </Stack>
+              <Flex
+                hidden={isHidden(true)}
+                borderWidth="1px"
+                borderRadius={"10px"}
+                p="1px"
+                bg={
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                }
+                width="100%"
+                maxW={["768px", "100%", "380px"]}
+                maxH={["500px", "850px"]}
+                boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
+              >
+                <Container
+                  borderRadius={10}
+                  background={"#19162F"}
+                  centerContent
+                >
+                  <AblyChatComponent
+                    username={username}
+                    chatBot={chatBot}
+                    handleBuyModal={() => setShowBuyModal(true)}
+                    handleTipModal={() => setShowTipModal(true)}
+                    handleChanceModal={() => setShowChanceModal(true)}
+                    handlePvpModal={() => setShowPvpModal(true)}
+                    handleControlModal={() => setShowControlModal(true)}
+                  />
+                </Container>
+              </Flex>
             </Stack>
-          </>
-        ) : (
-          <Flex
-            alignItems={"center"}
-            justifyContent={"center"}
-            width="100%"
-            height="calc(100vh - 64px)"
-            fontSize="50px"
-          >
-            {!channelDataError ? (
-              ["l", "o", "a", "d", "i", "n", "g", ".", ".", "."].map(
-                (letter, index) => (
-                  <Text
-                    className="bouncing-text"
-                    key={index}
-                    fontFamily="Neue Pixel Sans"
-                    style={{
-                      animationDelay: `${index * 0.1}s`,
-                    }}
-                  >
-                    {letter}
-                  </Text>
-                )
+          </Stack>
+        </>
+      ) : (
+        <Flex
+          alignItems={"center"}
+          justifyContent={"center"}
+          width="100%"
+          height="calc(100vh - 64px)"
+          fontSize="50px"
+        >
+          {!channelDataError ? (
+            ["l", "o", "a", "d", "i", "n", "g", ".", ".", "."].map(
+              (letter, index) => (
+                <Text
+                  className="bouncing-text"
+                  key={index}
+                  fontFamily="Neue Pixel Sans"
+                  style={{
+                    animationDelay: `${index * 0.1}s`,
+                  }}
+                >
+                  {letter}
+                </Text>
               )
-            ) : (
-              <Text fontFamily="Neue Pixel Sans">
-                server error, please try again later
-              </Text>
-            )}
-          </Flex>
-        )}
-      </AppLayout>
-    </>
+            )
+          ) : (
+            <Text fontFamily="Neue Pixel Sans">
+              server error, please try again later
+            </Text>
+          )}
+        </Flex>
+      )}
+    </AppLayout>
   );
 };
 
