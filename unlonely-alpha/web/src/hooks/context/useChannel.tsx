@@ -145,6 +145,11 @@ export const ChannelProvider = ({
       const newSocket = io(url, {
         transports: ["websocket"],
       });
+
+      newSocket.on("connect_error", (err) => {
+        console.log(`Connect error: ${err}`);
+      });
+
       console.log("socket connected to URL: ", url);
       setSocket(newSocket);
 
