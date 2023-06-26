@@ -118,7 +118,7 @@ export default function ControlTransactionModal({
           isClosable: true,
           position: "top-right",
         });
-        console.log("localText on tx success", localText);
+        console.log("useFeature tx success, text:", localText);
         handleBackendSend();
         addToChatbot?.({
           username: user?.username ?? "",
@@ -136,7 +136,7 @@ export default function ControlTransactionModal({
 
   const handleBackendSend = useCallback(
     async (text?: string) => {
-      console.log("calling handleBackendSend text:", text ?? localText);
+      console.log("calling backend to send text:", text ?? localText);
       postStreamInteraction({
         channelId: channelBySlug?.id,
         text: text ?? localText,
@@ -149,7 +149,14 @@ export default function ControlTransactionModal({
   );
 
   const canSend = useMemo(() => {
-    console.log("canSend Control text", user, useFeature);
+    console.log(
+      "can the user execute transaction? (user is defined and useFeature is defined)",
+      user && useFeature,
+      "user:",
+      user,
+      "useFeature:",
+      useFeature
+    );
     if (!user) return false;
     if (!useFeature) return false;
     return true;
