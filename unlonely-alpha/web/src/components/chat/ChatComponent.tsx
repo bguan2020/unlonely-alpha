@@ -447,8 +447,9 @@ const AblyChatComponent = ({
         // Get index of last sent message from history
       });
     }
+    if (!channel) return;
     getMessages();
-  }, []);
+  }, [channel]);
 
   // useeffect to scroll to the bottom of the chat
   // explain what the useEffect below is doing

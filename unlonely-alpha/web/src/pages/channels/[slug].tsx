@@ -48,7 +48,7 @@ const ChannelDetail = () => {
 };
 
 const ChannelPage = () => {
-  const { channel, recentStreamInteractions, chat } = useChannelContext();
+  const { channel, recentStreamInteractions } = useChannelContext();
   const {
     channelBySlug,
     loading: channelDataLoading,
@@ -60,7 +60,6 @@ const ChannelPage = () => {
     // textOverVideo,
     // socket,
   } = recentStreamInteractions;
-  const { chatChannel, presenceChannel } = chat;
 
   const queryLoading = useMemo(
     () => channelDataLoading || recentStreamInteractionsLoading,
@@ -138,7 +137,7 @@ const ChannelPage = () => {
     const socketInit = async () => {
       const url =
         process.env.NODE_ENV === "production"
-          ? "https://sea-lion-app-j3rts.ondigitalocean.app"
+          ? "wss://sea-lion-app-j3rts.ondigitalocean.app"
           : "http://localhost:4000";
       const newSocket = io(url, {
         transports: ["websocket"],
