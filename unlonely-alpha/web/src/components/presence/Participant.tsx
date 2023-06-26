@@ -5,7 +5,7 @@ import { anonUrl } from "./AnonUrl";
 import centerEllipses from "../../utils/centerEllipses";
 
 type Props = {
-  user: User;
+  user?: User;
 };
 const Participant = ({ user }: Props) => {
   const imageUrl = user?.FCImageUrl
@@ -63,13 +63,13 @@ const Participant = ({ user }: Props) => {
             <Avatar
               name={user.username ? user.username : user.address}
               src={ipfsUrl}
-              size="md"
+              size="sm"
             />
           </Tooltip>
         </>
       ) : (
         <Tooltip label="mysterious anon👀" hasArrow arrowSize={14}>
-          <Avatar name="anon" src={anonUrl} bg="grey" size="md" />
+          <Avatar name="anon" src={anonUrl} bg="grey" size="sm" />
         </Tooltip>
       )}
     </>

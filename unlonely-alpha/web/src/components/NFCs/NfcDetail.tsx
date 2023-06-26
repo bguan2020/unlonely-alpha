@@ -3,8 +3,8 @@ import { Image, Spacer } from "@chakra-ui/react";
 import { useState } from "react";
 
 import { LikeObj } from "../../generated/graphql";
-import useLike from "../../hooks/useLike";
-import { useUser } from "../../hooks/useUser";
+import useLike from "../../hooks/server/useLike";
+import { useUser } from "../../hooks/context/useUser";
 import { LikeIcon, LikedIcon } from "../icons/LikeIcon";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
@@ -81,10 +81,8 @@ const NfcDetailCard = ({ nfc }: any) => {
           <Text
             fontSize="18px"
             noOfLines={1}
-            color="black"
             fontWeight="light"
             textAlign="center"
-            fontFamily="Inter"
           >
             owner: {nfc.owner.username}
           </Text>

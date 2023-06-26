@@ -121,6 +121,16 @@ export const getChannelBySlug = ({ slug }: { slug: string }, ctx: Context) => {
   });
 };
 
+// get channel CreatorToken based on channel id
+export const getChannelCreatorToken = (
+  { id }: { id: number },
+  ctx: Context
+) => {
+  return ctx.prisma.creatorToken.findFirst({
+    where: { channelId: Number(id) },
+  });
+};
+
 export const getOwner = (
   { ownerAddr }: { ownerAddr: string },
   ctx: Context

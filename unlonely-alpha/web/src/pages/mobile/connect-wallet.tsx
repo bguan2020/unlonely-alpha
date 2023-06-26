@@ -37,7 +37,7 @@ export default function MobileConnectWallet() {
     address: account.address,
   });
   const { data: ensAvatar, isLoading: isAvatarLoading } = useEnsAvatar({
-    address: account.address,
+    name: ensName,
   });
 
   useEffect(() => {

@@ -9,3 +9,14 @@ export const BRIAN_TOKEN_STREAM_INTERACTION_PRICE_DECIMAL = "5";
 export const BRIAN_TOKEN_APPROVAL_PRICE = "50000000000000000000"; // 50 BRIAN
 export const UNLONELYNFCV2_ADDRESS =
   "0xC7E230CE8d67B2ad116208c69d616dD6bFC96a8d";
+
+export enum InteractionType {
+  CONTROL = "control-text-interaction",
+  TIP = "tip-interaction",
+  BUY = "buy-tokens-interaction",
+}
+
+export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const DANNY_TOKEN_ADDRESS = "0x5fD600676F55e9a6e68BA2D2a58278D08f6BD978";
+
+export const USER_APPROVAL_AMOUNT = "10000";

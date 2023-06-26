@@ -22,7 +22,7 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.js",
-    "src/hooks/useUser.txs"
+    "src/hooks/context/useUser.tsx"
   ],
   "exclude": ["node_modules"]
 }

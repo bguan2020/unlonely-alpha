@@ -7,3 +7,8 @@ node_modules
 .vercel
 .next
 out
+
+blockchain/cache
+blockchain/artifacts
+blockchain/typechain-types
+blockchain/node_modules

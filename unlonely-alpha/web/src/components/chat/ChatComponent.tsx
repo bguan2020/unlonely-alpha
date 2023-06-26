@@ -1,27 +1,57 @@
-import { Box, Text, Flex, useToast } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
+import {
+  Box,
+  Text,
+  Flex,
+  useToast,
+  Button,
+  Stack,
+  Table,
+  TableContainer,
+  Thead,
+  Tbody,
+  Td,
+  Th,
+  Tr,
+  Grid,
+  GridItem,
+  Spinner,
+  Tooltip,
+} from "@chakra-ui/react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 
-import useChannel from "../../hooks/useChannel";
-import { ChatBot } from "../../pages/channels/brian";
+import useChannel from "../../hooks/chat/useChannel";
 import { COLORS } from "../../styles/Colors";
 import { Message, initializeEmojis } from "./types/index";
-import { User } from "../../generated/graphql";
 import ChatForm from "./ChatForm";
-import usePostFirstChat from "../../hooks/usePostFirstChat";
+import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/context/useUser";
 import MessageList from "./MessageList";
+import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
+import SwordButton from "../arcade/SwordButton";
+import CoinButton from "../arcade/CoinButton";
+import ControlButton from "../arcade/ControlButton";
+import DiceButton from "../arcade/DiceButton";
+import { useScrollPercentage } from "../../hooks/internal/useScrollPercentage";
+import { InteractionType } from "../../constants";
+import BuyButton from "../arcade/BuyButton";
+import { ChatBot } from "../../constants/types";
+import { useLazyQuery } from "@apollo/client";
+import { GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY } from "../../constants/queries";
+import centerEllipses from "../../utils/centerEllipses";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { isAddress } from "viem";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 type Props = {
   username: string | null | undefined;
   chatBot: ChatBot[];
-  user: User | undefined;
-  ablyChatChannel?: string;
-  ablyPresenceChannel?: string;
-  channelArn: string;
-  channelId: number;
-  allowNFCs: boolean;
+  handleControlModal?: () => void;
+  handleChanceModal?: () => void;
+  handlePvpModal?: () => void;
+  handleTipModal?: () => void;
+  handleBuyModal?: () => void;
 };
 
 export const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
@@ -45,32 +75,106 @@ export const chatbotAddress = "0x0000000000000000000000000000000000000000";
 const AblyChatComponent = ({
   username,
   chatBot,
-  ablyChatChannel,
-  ablyPresenceChannel,
-  channelArn,
-  channelId,
-  allowNFCs,
+  handleControlModal,
+  handleChanceModal,
+  handlePvpModal,
+  handleTipModal,
+  handleBuyModal,
 }: Props) => {
+  const { channel: channelContext, chat } = useChannelContext();
+  const { channelBySlug } = channelContext;
+  const { chatChannel, presenceChannel } = chat;
+
+  const channelId = useMemo(
+    () => (channelBySlug?.id ? Number(channelBySlug?.id) : 3),
+    [channelBySlug?.id]
+  );
+
   const { user } = useUser();
   const { address } = useAccount();
   const ADD_REACTION_EVENT = "add-reaction";
-  const autoScroll = useRef(true);
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
   /*eslint-enable prefer-const*/
 
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [formError, setFormError] = useState<null | string[]>(null);
+  const [chatHeightGrounded, setChatHeightGrounded] = useState(false);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
-  const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
+  const [showArcade, setShowArcade] = useState<boolean>(false);
+  const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
+    []
+  );
+
+  const clickedOutsideLeaderBoard = useRef(false);
+  const clickedOutsideArcade = useRef(false);
+  const leaderboardRef = useRef<HTMLDivElement>(null);
+  const arcadeRef = useRef<HTMLDivElement>(null);
+
+  const [
+    getTokenHolders,
+    { loading: holdersLoading, error, data: holdersData },
+  ] = useLazyQuery(GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY);
+
+  useEffect(() => {
+    if (showLeaderboard && !holdersLoading && !holdersData) {
+      getTokenHolders({
+        variables: {
+          data: {
+            channelId,
+          },
+        },
+      });
+    }
+  }, [showLeaderboard]);
+
+  useEffect(() => {
+    if (!holdersLoading && !error && holdersData) {
+      const _holders: { name: string; quantity: number }[] =
+        holdersData.getTokenHoldersByChannel
+          .map((holder: any) => {
+            return {
+              name:
+                holder.user.username ?? centerEllipses(holder.user.address, 10),
+              quantity: holder.quantity,
+            };
+          })
+          .sort((a: any, b: any) => b.quantity - a.quantity)
+          .slice(0, 10);
+      setHolders(_holders);
+    }
+  }, [holdersLoading, error, holdersData]);
+
+  useOnClickOutside(leaderboardRef, () => {
+    if (showLeaderboard) {
+      setShowLeaderboard(false);
+      clickedOutsideLeaderBoard.current = true;
+    }
+    clickedOutsideArcade.current = false;
+  });
+  useOnClickOutside(arcadeRef, () => {
+    if (showArcade) {
+      setShowArcade(false);
+      clickedOutsideArcade.current = true;
+    }
+    clickedOutsideLeaderBoard.current = false;
+  });
+
   const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
     onError: (m) => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
   });
+  const { scrollRef, scrollPercentage } = useScrollPercentage();
+
+  const hasScrolled = useMemo(() => {
+    return scrollPercentage < 100 && !chatHeightGrounded;
+  }, [scrollPercentage, chatHeightGrounded]);
+
   const toast = useToast();
-  const channelName = ablyChatChannel
-    ? `persistMessages:${ablyChatChannel}`
+  const channelName = chatChannel
+    ? `persistMessages:${chatChannel}`
     : "persistMessages:chat-demo";
 
   const [channel, ably] = useChannel(channelName, (message) => {
@@ -121,13 +225,27 @@ const AblyChatComponent = ({
       if (lastMessage.taskType === "video") {
         messageText = `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`;
       }
+      if (lastMessage.taskType === InteractionType.TIP) {
+        messageText = lastMessage.description ?? "Tip";
+      }
+      if (lastMessage.taskType === "pvp") {
+        messageText = lastMessage.description ?? "Pvp";
+      }
+      if (lastMessage.taskType === "chance") {
+        messageText = lastMessage.description ?? "Chance";
+      }
+      if (lastMessage.taskType === InteractionType.CONTROL) {
+        messageText = lastMessage.description ?? "Control";
+      }
+      if (lastMessage.taskType === InteractionType.BUY) {
+        messageText = lastMessage.description ?? "Buy";
+      }
 
       channel.publish({
         name: "chat-message",
         data: {
           messageText: messageText,
           username: "chatbot🤖",
-          chatColor: "black",
           address: "chatbotAddress",
           isFC: false,
           isLens: false,
@@ -243,8 +361,8 @@ const AblyChatComponent = ({
       messageText.startsWith("@nfc-it") ||
       messageText.startsWith("@nfc")
     ) {
-      if (allowNFCs) {
-        window.open(`/clip?arn=${channelArn}`, "_blank");
+      if (channelBySlug?.allowNFCs || false) {
+        window.open(`/clip?arn=${channelBySlug?.channelArn || ""}`, "_blank");
         allowPublish = false;
       } else {
         messageToPublish = "NFCs are not allowed on this channel.";
@@ -337,67 +455,334 @@ const AblyChatComponent = ({
   useEffect(() => {
     const chat = document.getElementById("chat");
     if (!chat) return;
-    if (autoScroll.current) {
-      //inital message load
-      if (!hasMessagesLoaded && receivedMessages.length) {
-        chat.scrollTop = chat.scrollHeight;
-        setIsScrolled(false);
-        setHasMessagesLoaded(true);
-        return;
-      } //every message after (might have to determine a better number than 600)
-      else if (chat.scrollHeight - chat.scrollTop > 600) {
-        setIsScrolled(true);
-        return;
-      }
-      //anything else
+    if (!hasMessagesLoaded && receivedMessages.length) {
       chat.scrollTop = chat.scrollHeight;
-    }
-  }, [receivedMessages]);
-
-  useEffect(() => {
-    const chat = document.getElementById("chat");
-    if (!chat) return;
-    if (!isScrolled) {
-      chat.scrollTop = chat.scrollHeight;
+      setHasMessagesLoaded(true);
       return;
     }
-  }, [isScrolled]);
+    if (scrollPercentage === 100) {
+      chat.scrollTop = chat.scrollHeight;
+    }
+    setChatHeightGrounded(chat.scrollHeight <= chat.clientHeight);
+  }, [receivedMessages]);
+
+  const handleScrollToPresent = () => {
+    const chat = document.getElementById("chat");
+    if (!chat) return;
+    chat.scrollTop = chat.scrollHeight;
+  };
 
   return (
     <>
       <Flex h="100%" minW="100%">
-        <Flex mt="10px" direction="column" minW="100%" width="100%">
-          <Participants ablyPresenceChannel={ablyPresenceChannel} />
-          <Text
-            lineHeight={5}
-            mt="4px"
-            mb="4px"
-            fontWeight="bold"
-            fontSize={18}
-            textAlign="center"
-          >
-            Currently Watching
-          </Text>
+        <Flex
+          mt="10px"
+          direction="column"
+          minW="100%"
+          width="100%"
+          position={"relative"}
+        >
+          {chatChannel?.includes("channel") && (
+            <Stack direction={"row"} spacing="10px">
+              <Flex
+                borderRadius={"5px"}
+                p="1px"
+                bg={
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                }
+                flex={1}
+                minWidth={0}
+              >
+                <Button
+                  opacity={showArcade ? 0.9 : 1}
+                  width="100%"
+                  bg={"#131323"}
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={() => {
+                    if (clickedOutsideArcade.current) {
+                      clickedOutsideArcade.current = false;
+                      return;
+                    }
+                    setShowArcade(!showArcade);
+                  }}
+                >
+                  <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
+                    arcade
+                  </Text>
+                </Button>
+              </Flex>
+              <Flex
+                borderRadius={"5px"}
+                p="1px"
+                bg={
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                }
+                flex={1}
+                minWidth={0}
+              >
+                <Button
+                  opacity={showLeaderboard ? 0.9 : 1}
+                  width="100%"
+                  bg={"#131323"}
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={() => {
+                    if (clickedOutsideLeaderBoard.current) {
+                      clickedOutsideLeaderBoard.current = false;
+                      return;
+                    }
+                    setShowLeaderboard(!showLeaderboard);
+                  }}
+                >
+                  <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
+                    leaderboard
+                  </Text>
+                </Button>
+              </Flex>
+            </Stack>
+          )}
+          {showArcade && (
+            <Flex
+              ref={arcadeRef}
+              borderRadius={"5px"}
+              p="1px"
+              position="absolute"
+              top="50px"
+              width={"100%"}
+              zIndex={3}
+              style={{
+                border: "1px solid",
+                borderWidth: "1px",
+                borderImageSource:
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
+                borderImageSlice: 1,
+                borderRadius: "5px",
+              }}
+            >
+              <Flex
+                direction="column"
+                bg={"rgba(19, 19, 35, 0.8)"}
+                style={{ backdropFilter: "blur(6px)" }}
+                borderRadius={"5px"}
+                width={"100%"}
+                padding={"40px"}
+              >
+                {isAddress(String(channelBySlug?.token?.address)) && (
+                  <>
+                    <BuyButton
+                      tokenName={`$${channelBySlug?.token?.symbol}`}
+                      callback={handleBuyModal}
+                    />
+                    <Grid
+                      mt="50px"
+                      templateColumns="repeat(2, 1fr)"
+                      gap={12}
+                      alignItems="center"
+                      justifyItems="center"
+                    >
+                      <GridItem>
+                        <ControlButton callback={handleControlModal} />
+                      </GridItem>
+                      <GridItem>
+                        <Tooltip label={"coming soon"}>
+                          <span>
+                            <DiceButton noHover />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                      <GridItem>
+                        <Tooltip label={"coming soon"}>
+                          <span>
+                            <SwordButton noHover />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                      <GridItem>
+                        <CoinButton callback={handleTipModal} />
+                      </GridItem>
+                    </Grid>
+                  </>
+                )}
+                {!isAddress(String(channelBySlug?.token?.address)) && (
+                  <>
+                    <Tooltip label={"not available"}>
+                      <span>
+                        <BuyButton tokenName={"token"} />
+                      </span>
+                    </Tooltip>
+                    <Grid
+                      mt="50px"
+                      templateColumns="repeat(2, 1fr)"
+                      gap={12}
+                      alignItems="center"
+                      justifyItems="center"
+                    >
+                      <GridItem>
+                        <Tooltip label={"not available"}>
+                          <span>
+                            <ControlButton />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                      <GridItem>
+                        <Tooltip label={"not available"}>
+                          <span>
+                            <CoinButton />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                      <GridItem>
+                        <Tooltip label={"not available"}>
+                          <span>
+                            <DiceButton />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                      <GridItem>
+                        <Tooltip label={"not available"}>
+                          <span>
+                            <SwordButton />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                    </Grid>
+                  </>
+                )}
+              </Flex>
+            </Flex>
+          )}
+          {showLeaderboard && (
+            <Flex
+              ref={leaderboardRef}
+              borderRadius={"5px"}
+              p="1px"
+              position="absolute"
+              top="50px"
+              width={"100%"}
+              zIndex={3}
+              style={{
+                border: "1px solid",
+                borderWidth: "1px",
+                borderImageSource:
+                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
+                borderImageSlice: 1,
+                borderRadius: "5px",
+              }}
+            >
+              <Flex
+                direction="column"
+                bg={"rgba(19, 19, 35, 0.8)"}
+                style={{ backdropFilter: "blur(6px)" }}
+                borderRadius={"5px"}
+                width={"100%"}
+              >
+                <Text fontSize={"36px"} fontWeight="bold" textAlign={"center"}>
+                  HIGH SCORES
+                </Text>
+                <Text
+                  color={"#B6B6B6"}
+                  fontSize={"14px"}
+                  fontWeight="400"
+                  textAlign={"center"}
+                >
+                  {`who owns the most $${channelBySlug?.token?.symbol}?`}
+                </Text>
+                {holdersLoading && (
+                  <Flex justifyContent={"center"} p="20px">
+                    <Spinner />
+                  </Flex>
+                )}
+                {!holdersLoading && holders.length > 0 && (
+                  <TableContainer overflowX={"hidden"}>
+                    <Table variant="unstyled">
+                      <Thead>
+                        <Tr>
+                          <Th
+                            textTransform={"lowercase"}
+                            fontSize={"20px"}
+                            p="10px"
+                            textAlign="center"
+                          >
+                            rank
+                          </Th>
+                          <Th
+                            textTransform={"lowercase"}
+                            fontSize={"20px"}
+                            p="10px"
+                            textAlign="center"
+                          >
+                            name
+                          </Th>
+                          <Th
+                            textTransform={"lowercase"}
+                            fontSize={"20px"}
+                            p="10px"
+                            textAlign="center"
+                            isNumeric
+                          >
+                            amount
+                          </Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {holders.map((holder, index) => (
+                          <Tr>
+                            <Td fontSize={"20px"} p="10px" textAlign="center">
+                              {index + 1}
+                            </Td>
+                            <Td fontSize={"20px"} p="10px" textAlign="center">
+                              {holder.name}
+                            </Td>
+                            <Td
+                              fontSize={"20px"}
+                              p="10px"
+                              textAlign="center"
+                              isNumeric
+                            >
+                              {truncateValue(holder.quantity, 2)}
+                            </Td>
+                          </Tr>
+                        ))}
+                      </Tbody>
+                    </Table>
+                  </TableContainer>
+                )}
+                {!holdersLoading && holders.length === 0 && (
+                  <Text textAlign={"center"} p="20px">
+                    no holders found
+                  </Text>
+                )}
+              </Flex>
+            </Flex>
+          )}
+          <Flex my="10px" direction={"column"}>
+            <Text
+              lineHeight={5}
+              fontWeight="light"
+              fontSize={13}
+              textAlign="center"
+              color="#A9ADCC"
+            >
+              who's here?
+            </Text>
+            <Participants ablyPresenceChannel={presenceChannel} />
+          </Flex>
           <Flex
             direction="column"
             overflowX="auto"
             height="100%"
-            maxH={["300px", "400px"]}
             id="chat"
             position="relative"
             mt="8px"
+            ref={scrollRef}
           >
             <MessageList messages={receivedMessages} channel={channel} />
-            {autoScroll.current && (
-              <Box
-              // ref={(el) => {
-              //   if (el) el.scrollIntoView({ behavior: "smooth" });
-              // }}
-              />
-            )}
           </Flex>
           <Flex justifyContent="center">
-            {isScrolled ? (
+            {hasScrolled && hasMessagesLoaded ? (
               <Box
                 bg="rgba(98, 98, 98, 0.6)"
                 p="4px"
@@ -406,15 +791,15 @@ const AblyChatComponent = ({
                   background: "rgba(98, 98, 98, 0.3)",
                   cursor: "pointer",
                 }}
-                onClick={() => setIsScrolled(false)}
+                onClick={handleScrollToPresent}
               >
-                <Text fontFamily="Inter" fontSize="9px" color="black">
+                <Text fontSize="12px">
                   scrolling paused. click to scroll to bottom.
                 </Text>
               </Box>
             ) : null}
           </Flex>
-          <Flex mt="20px" w="100%">
+          <Flex mt="40px" w="100%" mb="15px">
             <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox} />
           </Flex>
         </Flex>

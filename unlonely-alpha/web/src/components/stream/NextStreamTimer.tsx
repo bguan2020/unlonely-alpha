@@ -1,21 +1,31 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Text, Flex, Link, Spinner } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import moment from "moment-timezone";
 import IVSPlayer from "./IVSPlayer";
-import useScript from "../../hooks/useScript";
+import useScript from "../../hooks/internal/useScript";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 type Props = {
   isTheatreMode: boolean;
-  playbackUrl: string;
   hasTimer?: boolean;
 };
 
 const NextStreamTimer: React.FunctionComponent<Props> = ({
   isTheatreMode,
   hasTimer,
-  playbackUrl,
 }) => {
+  const { channel } = useChannelContext();
+  const { channelBySlug } = channel;
+
+  const playbackUrl = useMemo(
+    () =>
+      channelBySlug?.playbackUrl == null
+        ? undefined
+        : channelBySlug?.playbackUrl,
+    [channelBySlug]
+  );
+
   const [streamingTime, setStreamingTime] = useState<boolean>(false);
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);
@@ -68,6 +78,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
           width="100%"
           height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
           bg="black"
+          borderRadius="10px"
         >
           <Spinner />
         </Flex>
@@ -81,7 +92,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
 
   return (
     <>
-      {hasTimer !== undefined && !hasTimer ? (
+      {hasTimer !== undefined && !hasTimer && playbackUrl ? (
         <Flex
           flexDirection="row"
           justifyContent="center"
@@ -96,7 +107,7 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
         </Flex>
       ) : (
         <>
-          {streamingTime ? (
+          {streamingTime && playbackUrl ? (
             <Flex
               flexDirection="row"
               justifyContent="center"
@@ -106,7 +117,6 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
                   ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
                   : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
               }
-              mt="10px"
             >
               <IVSPlayer
                 isTheatreMode={isTheatreMode}
@@ -128,43 +138,89 @@ const NextStreamTimer: React.FunctionComponent<Props> = ({
                 direction="column"
                 width="100%"
                 maxW="100%"
-                pt="100px"
                 pl="10px"
                 color="white"
                 fontWeight="bold"
                 fontSize="40px"
                 bg="black"
+                borderRadius="10px"
+                justifyContent={"center"}
               >
-                <Text fontFamily="Anonymous Pro, monospace">
+                <Text fontFamily="Neue Pixel Sans" textAlign="center">
                   Next stream in:
                 </Text>
-                <Flex direction="row">
-                  <Flex direction="row" mr="5px">
-                    <Text mr="5px" fontSize="62px" color="#76D201">
+                <Flex direction="row" gap="5px" justifyContent={"center"}>
+                  <Flex direction="row" alignItems={"center"}>
+                    <Text
+                      mr="5px"
+                      fontFamily="Neue Pixel Sans"
+                      fontSize={["25px", "30px", "45px"]}
+                      color="#76D201"
+                    >
                       {days}
                     </Text>
-                    <Text>days</Text>
+                    <Text
+                      fontSize={["15px", "25px", "35px"]}
+                      fontWeight="light"
+                    >
+                      days
+                    </Text>
                   </Flex>
-                  <Flex direction="row" mr="5px">
-                    <Text mr="5px" fontSize="62px" color="#FF3EA5">
+                  <Flex direction="row" alignItems={"center"}>
+                    <Text
+                      mr="5px"
+                      fontFamily="Neue Pixel Sans"
+                      fontSize={["25px", "30px", "45px"]}
+                      color="#FF3EA5"
+                    >
                       {hours}
                     </Text>
-                    <Text>hours</Text>
+                    <Text
+                      fontSize={["15px", "25px", "35px"]}
+                      fontWeight="light"
+                    >
+                      hours
+                    </Text>
                   </Flex>
-                  <Flex direction="row" mr="5px">
-                    <Text mr="5px" fontSize="62px" color="#BB29BB">
+                  <Flex direction="row" alignItems={"center"}>
+                    <Text
+                      mr="5px"
+                      fontFamily="Neue Pixel Sans"
+                      fontSize={["25px", "30px", "45px"]}
+                      color="#BB29BB"
+                    >
                       {minutes}
                     </Text>
-                    <Text>minutes</Text>
+                    <Text
+                      fontSize={["15px", "25px", "35px"]}
+                      fontWeight="light"
+                    >
+                      minutes
+                    </Text>
                   </Flex>
-                  <Flex direction="row" mr="5px">
-                    <Text mr="5px" fontSize="62px" color="#FF6D6A">
+                  <Flex direction="row" alignItems={"center"}>
+                    <Text
+                      mr="5px"
+                      fontFamily="Neue Pixel Sans"
+                      fontSize={["25px", "30px", "45px"]}
+                      color="#FF6D6A"
+                    >
                       {seconds}
                     </Text>
-                    <Text>seconds</Text>
+                    <Text
+                      fontSize={["15px", "25px", "35px"]}
+                      fontWeight="light"
+                    >
+                      seconds
+                    </Text>
                   </Flex>
                 </Flex>
-                <Text lineHeight={5} mb="10px" fontSize="14px">
+                <Text
+                  lineHeight={5}
+                  mb="10px"
+                  fontSize="14px"
+                  textAlign={"center"}
+                >
                   Wanna get notified before the stream goes live?
                   <Link href="https://t.me/unlonely1" isExternal>
                     {" "}

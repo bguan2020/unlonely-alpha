@@ -4,6 +4,22 @@ import { Context } from "../../context";
 import * as streamInteractionService from "./streamInteractionService";
 
 export const resolvers = {
+  Query: {
+    getRecentStreamInteractionsByChannel: (
+      _: any,
+      {
+        data,
+      }: {
+        data: streamInteractionService.IGetRecentStreamInteractionsByChannelInput;
+      },
+      ctx: Context
+    ) => {
+      return streamInteractionService.getRecentStreamInteractionsByChannel(
+        data,
+        ctx
+      );
+    },
+  },
   Mutation: {
     postStreamInteraction: (
       _: any,
@@ -19,6 +35,11 @@ export const resolvers = {
         ctx.user,
         ctx
       );
+    },
+  },
+  StreamInteraction: {
+    owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
+      return streamInteractionService.getOwner({ ownerAddr }, ctx);
     },
   },
 };

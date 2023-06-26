@@ -3,29 +3,33 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 
-import {
-  ChannelDetailQuery,
-  UpdateChannelTextInput,
-} from "../../generated/graphql";
-import { EditIcon } from "../../components/icons/EditIcon";
+import { UpdateChannelTextInput } from "../../generated/graphql";
+import { EditIcon } from "../icons/EditIcon";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
-import useUpdateChannelText from "../../hooks/useUpdateChannelText";
+import useUpdateChannelText from "../../hooks/server/useUpdateChannelText";
 import {
   Button,
   FormControl,
   FormErrorMessage,
   Textarea,
   Tooltip,
+  Avatar,
 } from "@chakra-ui/react";
+import { anonUrl } from "../presence/AnonUrl";
+import { PickCoinIcon } from "../icons/PickCoinIcon";
+import TokenSaleModal from "./TokenSaleModal";
+import { useUser } from "../../hooks/context/useUser";
+import { useChannelContext } from "../../hooks/context/useChannel";
+import { isAddress } from "viem";
 
-type Props = {
-  channel: ChannelDetailQuery["getChannelBySlug"];
-  isOwner: boolean;
-};
+const ChannelDesc = () => {
+  const { user } = useUser();
+  const { channel, token } = useChannelContext();
+  const { channelBySlug } = channel;
 
-const ChannelDesc = ({ channel, isOwner }: Props) => {
   const [editableText, setEditableText] = useState<boolean>(false);
   const [formError, setFormError] = useState<string[]>([]);
+  const [tokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
   const form = useForm<UpdateChannelTextInput>({
     defaultValues: {},
     resolver: yupResolver(updateChannelTextSchema),
@@ -39,15 +43,31 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
 
   const onSubmit = (data: UpdateChannelTextInput) => {
     updateChannelText({
-      id: channel?.id,
+      id: channelBySlug?.id,
       name: data.name,
       description: data.description,
     });
     setEditableText(false);
   };
 
+  const isOwner = user?.address === channelBySlug?.owner.address;
+
+  const imageUrl = channelBySlug?.owner?.FCImageUrl
+    ? channelBySlug?.owner.FCImageUrl
+    : channelBySlug?.owner?.lensImageUrl
+    ? channelBySlug?.owner.lensImageUrl
+    : anonUrl;
+  const ipfsUrl = imageUrl.startsWith("ipfs://")
+    ? `https://ipfs.io/ipfs/${imageUrl.slice(7)}`
+    : imageUrl;
+
   return (
     <>
+      <TokenSaleModal
+        title={"offer tokens for sale"}
+        isOpen={tokenSaleModal}
+        handleClose={() => setTokenSaleModal(false)}
+      />
       {editableText ? (
         <>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -67,8 +87,8 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
                   <Textarea
                     id="name"
                     placeholder={
-                      channel?.name
-                        ? channel.name
+                      channelBySlug?.name
+                        ? channelBySlug.name
                         : "Enter a title for your stream."
                     }
                     _placeholder={{ color: "grey" }}
@@ -106,8 +126,8 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
                   <Textarea
                     id="description"
                     placeholder={
-                      channel?.description
-                        ? channel.description
+                      channelBySlug?.description
+                        ? channelBySlug.description
                         : "Enter a description for your channel"
                     }
                     _placeholder={{ color: "grey" }}
@@ -143,38 +163,66 @@ const ChannelDesc = ({ channel, isOwner }: Props) => {
           </form>
         </>
       ) : (
-        <>
-          <Flex direction="column">
+        <Flex direction="row">
+          <Avatar
+            name={
+              channelBySlug?.owner.username
+                ? channelBySlug?.owner.username
+                : channelBySlug?.owner.address
+            }
+            src={ipfsUrl}
+            size="md"
+          />
+          <Flex direction="column" gap={["0px", "16px"]} width="100%">
             <Flex
               maxH="400px"
               margin="auto"
-              mb="16px"
               ml="32px"
-              w="100%"
               justifyContent="left"
               pr="32px"
               flexDirection="row"
+              alignItems={"baseline"}
+              gap="1rem"
+              wordBreak={"break-all"}
             >
-              <Text fontSize="2rem" fontWeight="bold">
-                {channel?.name}
+              <Text
+                fontSize={["1rem", "1.5rem", "2rem"]}
+                fontWeight="bold"
+                noOfLines={2}
+              >
+                {channelBySlug?.name}
               </Text>
               {isOwner && (
-                <Tooltip label={"edit title/description"}>
-                  <EditIcon
-                    boxSize={5}
-                    cursor="pointer"
-                    onClick={() => {
-                      setEditableText((prevEditableText) => !prevEditableText);
-                    }}
-                  />
-                </Tooltip>
+                <>
+                  <Tooltip label={"edit title/description"}>
+                    <EditIcon
+                      boxSize={5}
+                      cursor="pointer"
+                      onClick={() => {
+                        setEditableText(
+                          (prevEditableText) => !prevEditableText
+                        );
+                      }}
+                    />
+                  </Tooltip>
+                  {channelBySlug?.token?.address &&
+                    isAddress(channelBySlug?.token?.address) && (
+                      <Tooltip label={"put tokens on sale"}>
+                        <PickCoinIcon
+                          boxSize={5}
+                          cursor="pointer"
+                          onClick={() => setTokenSaleModal(true)}
+                        />
+                      </Tooltip>
+                    )}
+                </>
               )}
             </Flex>
-            <Flex direction="row" width="100%" margin="auto" ml="32px">
-              {channel?.description}
-            </Flex>
+            <Text px="30px" fontSize={["0.8rem", "1.2rem"]}>
+              {channelBySlug?.description}
+            </Text>
           </Flex>
-        </>
+        </Flex>
       )}
     </>
   );

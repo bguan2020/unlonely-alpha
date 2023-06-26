@@ -12,6 +12,7 @@ export const typeDef = gql`
     allowNFCs: Boolean
     thumbnailUrl: String
     owner: User!
+    token: CreatorToken
     slug: String!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -31,6 +32,7 @@ export const typeDef = gql`
 
   extend type Query {
     getChannelFeed(data: ChannelFeedInput): [Channel]
+    getChannelWithTokenById(id: ID!): Channel
     getChannelById(id: ID!): Channel
     getChannelBySlug(slug: String!): Channel
   }
