@@ -11,6 +11,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import io, { Socket } from "socket.io-client";
 import { isAddress } from "viem";
 import { useAccount, useEnsName } from "wagmi";
 import BuyButton from "../../components/arcade/BuyButton";
@@ -27,6 +28,7 @@ import ChanceTransactionModal from "../../components/transactions/ChanceTransact
 import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
 import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
 import TipTransactionModal from "../../components/transactions/TipTransactionModal";
+import { InteractionType } from "../../constants";
 import { ChatBot } from "../../constants/types";
 import {
   ChannelProvider,
@@ -52,9 +54,10 @@ const ChannelPage = () => {
     error: channelDataError,
   } = channel;
   const {
+    data: recentStreamInteractionsData,
     loading: recentStreamInteractionsLoading,
-    textOverVideo,
-    socket,
+    // textOverVideo,
+    // socket,
   } = recentStreamInteractions;
   const { chatChannel, presenceChannel } = chat;
 
@@ -73,6 +76,9 @@ const ChannelPage = () => {
   const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
   const [showControlModal, setShowControlModal] = useState<boolean>(false);
   const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
+
+  const [socket, setSocket] = useState<Socket | undefined>(undefined);
+  const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
 
   const accountData = useAccount();
 
@@ -126,6 +132,58 @@ const ChannelPage = () => {
     },
     [chatBot]
   );
+
+  useEffect(() => {
+    const socketInit = async () => {
+      const url =
+        process.env.NODE_ENV === "production"
+          ? "https://sea-lion-app-j3rts.ondigitalocean.app"
+          : "http://localhost:4000";
+      const newSocket = io(url, {
+        transports: ["websocket"],
+      });
+
+      newSocket.on("connect_error", (err) => {
+        console.log(`Connect error: ${err}`);
+      });
+
+      console.log("socket connected to URL: ", url);
+      setSocket(newSocket);
+
+      newSocket.on("receive-message", (data) => {
+        /* eslint-disable no-console */
+        console.log("socket received message", data);
+        setTextOverVideo((prev) => [...prev, data.message]);
+      });
+    };
+    socketInit();
+
+    return () => {
+      if (!socket) return;
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (textOverVideo.length > 0) {
+      const timer = setTimeout(() => {
+        setTextOverVideo((prev) => prev.slice(2));
+      }, 120000);
+      return () => clearTimeout(timer);
+    }
+  }, [textOverVideo]);
+
+  useEffect(() => {
+    if (!recentStreamInteractionsData) return;
+    const interactions =
+      recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
+    if (interactions && interactions.length > 0) {
+      const textInteractions = interactions.filter(
+        (i) => i?.interactionType === InteractionType.CONTROL && i.text
+      );
+      setTextOverVideo(textInteractions.map((i) => String(i?.text)));
+    }
+  }, [recentStreamInteractionsData]);
 
   return (
     <AppLayout
