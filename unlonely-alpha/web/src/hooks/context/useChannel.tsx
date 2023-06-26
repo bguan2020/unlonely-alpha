@@ -138,19 +138,19 @@ export const ChannelProvider = ({
 
   useEffect(() => {
     const socketInit = async () => {
-      const newSocket = io(
+      const url =
         process.env.NODE_ENV === "production"
           ? "https://sea-lion-app-j3rts.ondigitalocean.app"
-          : "http://localhost:4000",
-        {
-          transports: ["websocket"],
-        }
-      );
+          : "http://localhost:4000";
+      const newSocket = io(url, {
+        transports: ["websocket"],
+      });
+      console.log("socket connected to URL: ", url);
       setSocket(newSocket);
 
       newSocket.on("receive-message", (data) => {
         /* eslint-disable no-console */
-        console.log("received message", data);
+        console.log("socket received message", data);
         setTextOverVideo((prev) => [...prev, data.message]);
       });
     };
