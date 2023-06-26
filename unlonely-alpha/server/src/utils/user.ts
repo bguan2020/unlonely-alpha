@@ -9,7 +9,9 @@ const prisma = new PrismaClient();
 const userCreationPromises = new Map();
 
 export const findOrCreateUser = async ({ address }: { address: string }) => {
-  //console.log("1. address in", address);
+
+  console.log("1. address in", address);
+
   let user = await prisma.user.findUnique({
     where: {
       address: address,
