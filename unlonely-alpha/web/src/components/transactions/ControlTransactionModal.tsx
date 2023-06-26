@@ -50,7 +50,6 @@ export default function ControlTransactionModal({
   const { userTokenBalance, refetchUserTokenBalance } = token;
 
   const [amountOption, setAmountOption] = useState<"5">("5");
-  const [textToSend, setTextToSend] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [localText, setLocalText] = useState<string>("");
 
@@ -119,6 +118,7 @@ export default function ControlTransactionModal({
           isClosable: true,
           position: "top-right",
         });
+        console.log("localText on tx success", localText);
         handleBackendSend();
         addToChatbot?.({
           username: user?.username ?? "",
@@ -134,18 +134,22 @@ export default function ControlTransactionModal({
     }
   );
 
-  const handleBackendSend = useCallback(async () => {
-    postStreamInteraction({
-      channelId: channelBySlug?.id,
-      text: textToSend,
-      interactionType: InteractionType.CONTROL,
-    });
-    callback?.(textToSend);
-    refetchUserTokenBalance?.();
-    setTextToSend("");
-  }, [textToSend]);
+  const handleBackendSend = useCallback(
+    async (text?: string) => {
+      console.log("calling handleBackendSend text:", text ?? localText);
+      postStreamInteraction({
+        channelId: channelBySlug?.id,
+        text: text ?? localText,
+        interactionType: InteractionType.CONTROL,
+      });
+      callback?.(text ?? localText);
+      refetchUserTokenBalance?.();
+    },
+    [localText]
+  );
 
   const canSend = useMemo(() => {
+    console.log("canSend Control text", user, useFeature);
     if (!user) return false;
     if (!useFeature) return false;
     return true;
@@ -161,8 +165,8 @@ export default function ControlTransactionModal({
   };
 
   const onSubmit = async (data: PostStreamInteractionInput) => {
-    setTextToSend(String(data.text));
-    await handleSend();
+    // await handleSend();
+    await handleBackendSend();
   };
 
   useEffect(() => {
@@ -275,7 +279,11 @@ export default function ControlTransactionModal({
               _focus={{}}
               _active={{}}
               width="100%"
-              disabled={!canSend}
+              disabled={
+                !canSend ||
+                localText.trim().length > 280 ||
+                localText.trim().length === 0
+              }
               type="submit"
               borderRadius="25px"
             >
