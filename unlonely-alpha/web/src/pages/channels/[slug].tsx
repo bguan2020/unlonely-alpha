@@ -28,6 +28,7 @@ import ChanceTransactionModal from "../../components/transactions/ChanceTransact
 import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
 import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
 import TipTransactionModal from "../../components/transactions/TipTransactionModal";
+import { InteractionType } from "../../constants";
 import { ChatBot } from "../../constants/types";
 import {
   ChannelProvider,
@@ -36,6 +37,7 @@ import {
 import { useUser } from "../../hooks/context/useUser";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 import centerEllipses from "../../utils/centerEllipses";
+import { io, Socket } from "socket.io-client";
 
 const ChannelDetail = () => {
   return (
@@ -55,8 +57,8 @@ const ChannelPage = () => {
   const {
     data: recentStreamInteractionsData,
     loading: recentStreamInteractionsLoading,
-    textOverVideo,
-    socket,
+    // textOverVideo,
+    // socket,
   } = recentStreamInteractions;
 
   const queryLoading = useMemo(
@@ -75,6 +77,9 @@ const ChannelPage = () => {
   const [showControlModal, setShowControlModal] = useState<boolean>(false);
   const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
 
+  const [socket, setSocket] = useState<Socket | undefined>(undefined);
+  const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
+
   const accountData = useAccount();
 
   //used on mobile view
@@ -82,13 +87,17 @@ const ChannelPage = () => {
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
-  const handleSendMessage = (message: string) => {
-    if (!socket) return;
-    socket.emit("send-message", {
-      message,
-      username: accountData?.address,
-    });
-  };
+  const handleSendMessage = useCallback(
+    (message: string) => {
+      if (!socket) return;
+      socket.emit("send-message", {
+        roomId: channelBySlug?.slug,
+        message,
+        username: accountData?.address,
+      });
+    },
+    [socket, channelBySlug?.slug, accountData?.address]
+  );
 
   const { data: ensData } = useEnsName({
     address: accountData?.address,
@@ -127,6 +136,58 @@ const ChannelPage = () => {
     },
     [chatBot]
   );
+
+  useEffect(() => {
+    const socketInit = async () => {
+      const url =
+        process.env.NODE_ENV === "production"
+          ? "wss://sea-lion-app-j3rts.ondigitalocean.app"
+          : "http://localhost:4000";
+      const newSocket = io(url, {
+        transports: ["websocket"],
+      });
+
+      newSocket.on("connect_error", (err) => {
+        console.log(`Connect error: ${err}`);
+      });
+
+      console.log("socket connected to URL: ", url);
+      setSocket(newSocket);
+
+      newSocket.on("receive-message", (data) => {
+        /* eslint-disable no-console */
+        console.log("socket received message", data);
+        setTextOverVideo((prev) => [...prev, data.message]);
+      });
+    };
+    socketInit();
+
+    return () => {
+      if (!socket) return;
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (textOverVideo.length > 0) {
+      const timer = setTimeout(() => {
+        setTextOverVideo((prev) => prev.slice(2));
+      }, 120000);
+      return () => clearTimeout(timer);
+    }
+  }, [textOverVideo]);
+
+  useEffect(() => {
+    if (!recentStreamInteractionsData) return;
+    const interactions =
+      recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
+    if (interactions && interactions.length > 0) {
+      const textInteractions = interactions.filter(
+        (i) => i?.interactionType === InteractionType.CONTROL && i.text
+      );
+      setTextOverVideo(textInteractions.map((i) => String(i?.text)));
+    }
+  }, [recentStreamInteractionsData]);
 
   return (
     <>
