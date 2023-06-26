@@ -87,18 +87,6 @@ const ChannelPage = () => {
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
-  const handleSendMessage = useCallback(
-    (message: string) => {
-      if (!socket) return;
-      socket.emit("send-message", {
-        roomId: channelBySlug?.slug,
-        message,
-        username: accountData?.address,
-      });
-    },
-    [socket, channelBySlug?.slug, accountData?.address]
-  );
-
   const { data: ensData } = useEnsName({
     address: accountData?.address,
   });
@@ -138,35 +126,44 @@ const ChannelPage = () => {
   );
 
   useEffect(() => {
-    const socketInit = async () => {
-      const url =
-        process.env.NODE_ENV === "production"
-          ? "wss://sea-lion-app-j3rts.ondigitalocean.app"
-          : "http://localhost:4000";
-      const newSocket = io(url, {
-        transports: ["websocket"],
-      });
+    const url =
+      process.env.NODE_ENV === "production"
+        ? "wss://sea-lion-app-j3rts.ondigitalocean.app"
+        : "http://localhost:4000";
+    const newSocket = io(url, {
+      transports: ["websocket"],
+    });
 
-      newSocket.on("connect_error", (err) => {
-        console.log(`Connect error: ${err}`);
-      });
+    console.log("newSocket", newSocket);
+    console.log("socket connected to URL: ", url);
 
-      console.log("socket connected to URL: ", url);
-      setSocket(newSocket);
+    setSocket(newSocket);
+    newSocket.on("connect", () => {
+      console.log("is connected to socket?", newSocket.connected);
+    });
 
-      newSocket.on("receive-message", (data) => {
-        /* eslint-disable no-console */
-        console.log("socket received message", data);
-        setTextOverVideo((prev) => [...prev, data.message]);
-      });
-    };
-    socketInit();
+    newSocket.on("receive-message", (data) => {
+      console.log("socket receive message", data);
+      setTextOverVideo((prev) => [...prev, data.message]);
+    });
+
+    newSocket.on("connect_error", (err) => {
+      console.log(`socket io connect_error: ${err}`);
+    });
 
     return () => {
-      if (!socket) return;
-      socket.disconnect();
+      newSocket.removeAllListeners();
+      newSocket.disconnect();
     };
   }, []);
+
+  const handleSendMessage = (message: string) => {
+    console.log("socket send message", message);
+    socket?.emit("send-message", {
+      message,
+      username: accountData?.address,
+    });
+  };
 
   useEffect(() => {
     if (textOverVideo.length > 0) {
