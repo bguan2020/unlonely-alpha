@@ -9,8 +9,8 @@ import {
   GetRecentStreamInteractionsQuery,
 } from "../../generated/graphql";
 import { ApolloError, useQuery } from "@apollo/client";
-import { InteractionType } from "../../constants";
-import io, { Socket } from "socket.io-client";
+// import { InteractionType } from "../../constants";
+// import io, { Socket } from "socket.io-client";
 import { useBalance } from "wagmi";
 import { FetchBalanceResult } from "../../constants/types";
 import { useUser } from "./useUser";
