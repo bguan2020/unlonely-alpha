@@ -17,14 +17,7 @@ const GifCategory = ({
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   return (
     <Flex direction="column">
-      <Text
-        fontWeight={"bold"}
-        style={{
-          textShadow: "0 0 0.2em black",
-        }}
-      >
-        Power User Badge Hodlers
-      </Text>
+      <Text fontWeight={"bold"}>Power User Badge Hodlers</Text>
       <SimpleGrid minChildWidth="20px" spacing="4px" alignContent="center">
         {gifs.map((gif) => (
           <Gif

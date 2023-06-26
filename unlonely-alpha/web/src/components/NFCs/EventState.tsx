@@ -11,7 +11,13 @@ export default function EventState({ eventDateState }: Props) {
         <>
           <Flex>
             <Circle size="14px" bg="#BCBCBC" ml="0.25rem" />
-            <Text color="#8C8C8C" fontSize="16px" fontWeight="light" ml="5px">
+            <Text
+              color="#8C8C8C"
+              fontSize="16px"
+              fontWeight="light"
+              ml="5px"
+              fontFamily="Inter"
+            >
               previous stream
             </Text>
           </Flex>
@@ -21,7 +27,13 @@ export default function EventState({ eventDateState }: Props) {
         <>
           <Flex>
             <Circle size="14px" bg="rgba(255, 0, 0, 0.38)" ml="0.25rem" />
-            <Text color="#FF0000" fontSize="16px" fontWeight="light" ml="5px">
+            <Text
+              color="#FF0000"
+              fontSize="16px"
+              fontWeight="light"
+              ml="5px"
+              fontFamily="Inter"
+            >
               live now
             </Text>
           </Flex>
@@ -31,7 +43,13 @@ export default function EventState({ eventDateState }: Props) {
         <>
           <Flex>
             <Circle size="14px" bg="rgba(253, 121, 0, 0.38)" ml="0.25rem" />
-            <Text color="#FD7900" fontSize="16px" fontWeight="light" ml="5px">
+            <Text
+              color="#FD7900"
+              fontSize="16px"
+              fontWeight="light"
+              ml="5px"
+              fontFamily="Inter"
+            >
               up next
             </Text>
           </Flex>

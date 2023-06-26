@@ -4,7 +4,7 @@ async function main() {
   // first deploy token contract
   const contract = await hre.ethers.getContractFactory("BrianToken");
   const BrianToken = await contract.deploy(
-    "BrianToken2",
+    "BrianToken",
     "BRIAN",
     "1000000000000000000000000" // 1 million tokens
   );
@@ -23,7 +23,7 @@ async function main() {
   console.log("contract balance: ", contractBalance);
   console.log("owner balance: ", ownerBalance);
 
-  console.log("token deployed to:", BrianTokenAddress);
+  console.log("NewsToken deployed to:", BrianTokenAddress);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

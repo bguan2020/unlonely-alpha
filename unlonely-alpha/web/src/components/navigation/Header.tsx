@@ -106,12 +106,12 @@ const Header: React.FC = () => {
             mt="20px"
             mb="40px"
             pb="10px"
-            color="#fff"
+            color="#2C3A50"
             paddingRight="10px"
             paddingLeft="6px"
             m="auto"
           >
-            unlonely
+            Unlonely
           </Heading>
         </NextLink>
         <Spacer>

@@ -30,8 +30,9 @@ import {
 } from "../../constants";
 import BrianToken from "../../utils/newsToken.json";
 import { CustomToast } from "../general/CustomToast";
-import { useUser } from "../../hooks/context/useUser";
-import { ChatBot } from "../../constants/types";
+import { useUser } from "../../hooks/useUser";
+import { ChatBot } from "../../pages/channels/brian";
+
 type Props = {
   onSuccess: (hash: string) => void;
   title: string;
@@ -238,7 +239,6 @@ export default function TransactionModal({
         <ModalContent>
           {!isLoading && !transferLoading ? (
             <>
-              <ModalCloseButton />
               <ModalHeader>
                 {step === 1 ? "Please accept transfer transaction" : title}
                 {error && (
@@ -247,6 +247,7 @@ export default function TransactionModal({
                   </Text>
                 )}
               </ModalHeader>
+              <ModalCloseButton />
               <ModalBody>
                 <Text>Price: 5 $BRIAN</Text>
                 <Text>

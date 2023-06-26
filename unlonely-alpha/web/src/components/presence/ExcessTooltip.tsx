@@ -10,7 +10,7 @@ type Props = {
 const ExcessTooltip = ({ user }: Props) => {
   return (
     <>
-      <Flex direction="column" justifyContent="flex-start">
+      <Flex direction="column" justifyContent="center">
         <Avatar
           src={user.FCImageUrl ? user.FCImageUrl : ""}
           name={user.username ? user.username : user.address}

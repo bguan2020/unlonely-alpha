@@ -1,8 +1,7 @@
 import { Text, Flex } from "@chakra-ui/layout";
-import { Box, Image, Spacer } from "@chakra-ui/react";
+import { Image, Spacer } from "@chakra-ui/react";
 
 import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
-import Link from "next/link";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
@@ -11,19 +10,23 @@ const NfcCard = ({ nfc }: any) => {
     window.open(nfc.openseaLink, "_blank");
   };
 
+  const handleRedirect = () => {
+    window.location.href = `/nfc/${nfc.id}`;
+  };
   return (
-    <Link href={`/nfc/${nfc.id}`} passHref>
+    <>
       <Flex
         direction="column"
+        w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
+        h={{ base: "9rem", sm: "3rem", md: "6rem", lg: "9rem" }}
         padding="0.3rem"
         borderRadius="1rem"
         minH="8rem"
         minW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
-        bg={"#131323"}
-        p={"10px"}
-        cursor="pointer"
-        transition="transform 0.2s"
-        _hover={{ transform: "scale(1.05)" }}
+        mb="1.5rem"
+        mt="8px"
+        mr="1rem"
+        onClick={handleRedirect}
       >
         <Flex
           _hover={{
@@ -31,31 +34,23 @@ const NfcCard = ({ nfc }: any) => {
             position: "relative",
           }}
         >
-          {nfc.videoThumbnail && (
-            <Box position="relative" mb="10px">
-              <Image
-                src={nfc.videoThumbnail}
-                width={["236px", "380px"]}
-                height={["132px", "213px"]}
-                borderRadius={"10px"}
-              />
-              <Image
-                src="/images/playIcon.png"
-                opacity={0.5}
-                style={
-                  {
-                    position: "absolute",
-                    zIndex: 1,
-                    visibility: "visible",
-                    margin: "auto",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                  } as React.CSSProperties
-                }
-              />
-            </Box>
-          )}
+          <video poster={nfc.videoThumbnail}>
+            <source src={nfc.videoLink} type="video/mp4"></source>
+          </video>
+          <Image
+            src="/images/playIcon.png"
+            opacity={0.5}
+            style={
+              {
+                position: "relative",
+                zIndex: 1,
+                visibility: "visible",
+                margin: "auto",
+                top: "0%",
+                left: "-65%",
+              } as React.CSSProperties
+            }
+          />
         </Flex>
         <Flex justifyContent="space-between">
           <Text fontSize={16} fontWeight="bold" noOfLines={1}>
@@ -82,8 +77,10 @@ const NfcCard = ({ nfc }: any) => {
           <Text
             fontSize="12px"
             noOfLines={1}
+            color="black"
             fontWeight="light"
             textAlign="center"
+            fontFamily="Inter"
           >
             owner: {nfc.owner.username}
           </Text>
@@ -98,7 +95,7 @@ const NfcCard = ({ nfc }: any) => {
           />
         </Flex>
       </Flex>
-    </Link>
+    </>
   );
 };
 

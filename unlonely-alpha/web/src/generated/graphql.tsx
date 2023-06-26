@@ -88,7 +88,6 @@ export type Channel = {
   playbackUrl?: Maybe<Scalars["String"]>;
   slug: Scalars["String"];
   thumbnailUrl?: Maybe<Scalars["String"]>;
-  token?: Maybe<CreatorToken>;
   updatedAt: Scalars["DateTime"];
 };
 
@@ -119,25 +118,6 @@ export type CreateClipInput = {
   channelArn: Scalars["String"];
 };
 
-export type CreateCreatorTokenInput = {
-  address: Scalars["String"];
-  channelId: Scalars["ID"];
-  name: Scalars["String"];
-  price: Scalars["Float"];
-  symbol: Scalars["String"];
-};
-
-export type CreatorToken = {
-  __typename?: "CreatorToken";
-  address: Scalars["String"];
-  channel: Channel;
-  id: Scalars["ID"];
-  name: Scalars["String"];
-  price: Scalars["Float"];
-  symbol: Scalars["String"];
-  users: Array<UserCreatorToken>;
-};
-
 export type DeviceToken = {
   __typename?: "DeviceToken";
   address?: Maybe<Scalars["String"]>;
@@ -160,16 +140,6 @@ export type GetDeviceByTokenInput = {
 
 export type GetPoapInput = {
   date: Scalars["String"];
-};
-
-export type GetRecentStreamInteractionsByChannelInput = {
-  channelId: Scalars["ID"];
-};
-
-export type GetTokenHoldersInput = {
-  channelId: Scalars["ID"];
-  limit?: InputMaybe<Scalars["Int"]>;
-  offset?: InputMaybe<Scalars["Int"]>;
 };
 
 export type GetUserInput = {
@@ -207,7 +177,6 @@ export type Mutation = {
   __typename?: "Mutation";
   _empty?: Maybe<Scalars["String"]>;
   createClip?: Maybe<ClipOutput>;
-  createCreatorToken: CreatorToken;
   handleLike?: Maybe<Likable>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
   postChatByAwsId?: Maybe<Chat>;
@@ -220,19 +189,12 @@ export type Mutation = {
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   updateChannelText?: Maybe<Channel>;
-  updateCreatorTokenPrice: CreatorToken;
   updateDeviceToken?: Maybe<DeviceToken>;
-  updateOpenseaLink?: Maybe<Nfc>;
-  updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
 };
 
 export type MutationCreateClipArgs = {
   data?: InputMaybe<CreateClipInput>;
-};
-
-export type MutationCreateCreatorTokenArgs = {
-  data: CreateCreatorTokenInput;
 };
 
 export type MutationHandleLikeArgs = {
@@ -279,16 +241,8 @@ export type MutationUpdateChannelTextArgs = {
   data: UpdateChannelTextInput;
 };
 
-export type MutationUpdateCreatorTokenPriceArgs = {
-  data: UpdateCreatorTokenPriceInput;
-};
-
 export type MutationUpdateDeviceTokenArgs = {
   data: UpdateDeviceInput;
-};
-
-export type MutationUpdateUserCreatorTokenQuantityArgs = {
-  data: UpdateUserCreatorTokenQuantityInput;
 };
 
 export type MutationUpdateUserNotificationsArgs = {
@@ -352,9 +306,7 @@ export type PostNfcInput = {
 };
 
 export type PostStreamInteractionInput = {
-  channelId: Scalars["ID"];
   interactionType: Scalars["String"];
-  text?: InputMaybe<Scalars["String"]>;
 };
 
 export type PostTaskInput = {
@@ -388,16 +340,13 @@ export type Query = {
   getChannelById?: Maybe<Channel>;
   getChannelBySlug?: Maybe<Channel>;
   getChannelFeed?: Maybe<Array<Maybe<Channel>>>;
-  getChannelWithTokenById?: Maybe<Channel>;
   getDeviceByToken?: Maybe<DeviceToken>;
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
   getNFC?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
   getPoap?: Maybe<Poap>;
   getRecentChats?: Maybe<Array<Maybe<Chat>>>;
-  getRecentStreamInteractionsByChannel?: Maybe<Array<Maybe<StreamInteraction>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
-  getTokenHoldersByChannel: Array<UserCreatorToken>;
   getUser?: Maybe<User>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
@@ -414,10 +363,6 @@ export type QueryGetChannelBySlugArgs = {
 
 export type QueryGetChannelFeedArgs = {
   data?: InputMaybe<ChannelFeedInput>;
-};
-
-export type QueryGetChannelWithTokenByIdArgs = {
-  id: Scalars["ID"];
 };
 
 export type QueryGetDeviceByTokenArgs = {
@@ -440,16 +385,8 @@ export type QueryGetRecentChatsArgs = {
   data: GetChatInput;
 };
 
-export type QueryGetRecentStreamInteractionsByChannelArgs = {
-  data?: InputMaybe<GetRecentStreamInteractionsByChannelInput>;
-};
-
 export type QueryGetTaskFeedArgs = {
   data?: InputMaybe<TaskFeedInput>;
-};
-
-export type QueryGetTokenHoldersByChannelArgs = {
-  data?: InputMaybe<GetTokenHoldersInput>;
 };
 
 export type QueryGetUserArgs = {
@@ -476,12 +413,10 @@ export enum SortOrder {
 
 export type StreamInteraction = {
   __typename?: "StreamInteraction";
-  channel: Channel;
   createdAt: Scalars["DateTime"];
   id: Scalars["ID"];
   interactionType: Scalars["String"];
   owner: User;
-  text?: Maybe<Scalars["String"]>;
   updatedAt: Scalars["DateTime"];
 };
 
@@ -514,20 +449,10 @@ export type UpdateChannelTextInput = {
   name: Scalars["String"];
 };
 
-export type UpdateCreatorTokenPriceInput = {
-  price: Scalars["Float"];
-  tokenAddress: Scalars["String"];
-};
-
 export type UpdateDeviceInput = {
   notificationsLive: Scalars["Boolean"];
   notificationsNFCs: Scalars["Boolean"];
   token: Scalars["String"];
-};
-
-export type UpdateUserCreatorTokenQuantityInput = {
-  purchasedAmount: Scalars["Int"];
-  tokenAddress: Scalars["String"];
 };
 
 export type UpdateUserNotificationsInput = {
@@ -559,15 +484,6 @@ export type User = {
   updatedAt: Scalars["DateTime"];
   username?: Maybe<Scalars["String"]>;
   videoSavantLvl: Scalars["Int"];
-};
-
-export type UserCreatorToken = {
-  __typename?: "UserCreatorToken";
-  quantity: Scalars["Int"];
-  token: CreatorToken;
-  tokenId: Scalars["ID"];
-  user: User;
-  userId: Scalars["String"];
 };
 
 export type Video = {
@@ -642,103 +558,6 @@ export type VideoCard_VideoFragment = {
   createdAt: any;
   liked?: boolean | null;
   owner: { __typename?: "User"; username?: string | null; address: string };
-};
-
-export type ChannelDetailQueryVariables = Exact<{
-  slug: Scalars["String"];
-}>;
-
-export type ChannelDetailQuery = {
-  __typename?: "Query";
-  getChannelBySlug?: {
-    __typename?: "Channel";
-    awsId: string;
-    channelArn?: string | null;
-    description?: string | null;
-    id: string;
-    name?: string | null;
-    slug: string;
-    allowNFCs?: boolean | null;
-    playbackUrl?: string | null;
-    owner: {
-      __typename?: "User";
-      FCImageUrl?: string | null;
-      lensImageUrl?: string | null;
-      username?: string | null;
-      address: string;
-    };
-    token?: {
-      __typename?: "CreatorToken";
-      id: string;
-      name: string;
-      symbol: string;
-      address: string;
-    } | null;
-  } | null;
-};
-
-export type GetRecentStreamInteractionsQueryVariables = Exact<{
-  data?: InputMaybe<GetRecentStreamInteractionsByChannelInput>;
-}>;
-
-export type GetRecentStreamInteractionsQuery = {
-  __typename?: "Query";
-  getRecentStreamInteractionsByChannel?: Array<{
-    __typename?: "StreamInteraction";
-    id: string;
-    interactionType: string;
-    text?: string | null;
-    createdAt: any;
-    updatedAt: any;
-    owner: { __typename?: "User"; address: string };
-  } | null> | null;
-};
-
-export type GetTokenHoldersByChannelQueryVariables = Exact<{
-  data?: InputMaybe<GetTokenHoldersInput>;
-}>;
-
-export type GetTokenHoldersByChannelQuery = {
-  __typename?: "Query";
-  getTokenHoldersByChannel: Array<{
-    __typename?: "UserCreatorToken";
-    quantity: number;
-    user: { __typename?: "User"; username?: string | null; address: string };
-  }>;
-};
-
-export type CreateCreatorTokenMutationVariables = Exact<{
-  data: CreateCreatorTokenInput;
-}>;
-
-export type CreateCreatorTokenMutation = {
-  __typename?: "Mutation";
-  createCreatorToken: { __typename?: "CreatorToken"; id: string };
-};
-
-export type UpdateCreatorTokenPriceMutationVariables = Exact<{
-  data: UpdateCreatorTokenPriceInput;
-}>;
-
-export type UpdateCreatorTokenPriceMutation = {
-  __typename?: "Mutation";
-  updateCreatorTokenPrice: {
-    __typename?: "CreatorToken";
-    address: string;
-    price: number;
-  };
-};
-
-export type UpdateUserCreatorTokenQuantityMutationVariables = Exact<{
-  data: UpdateUserCreatorTokenQuantityInput;
-}>;
-
-export type UpdateUserCreatorTokenQuantityMutation = {
-  __typename?: "Mutation";
-  updateUserCreatorTokenQuantity: {
-    __typename?: "UserCreatorToken";
-    quantity: number;
-  };
 };
 
 export type CreateClipMutationVariables = Exact<{
@@ -896,6 +715,32 @@ export type VideoFeed1808Query = {
     skipped?: boolean | null;
     owner: { __typename?: "User"; username?: string | null; address: string };
   } | null> | null;
+};
+
+export type ChannelDetailQueryVariables = Exact<{
+  slug: Scalars["String"];
+}>;
+
+export type ChannelDetailQuery = {
+  __typename?: "Query";
+  getChannelBySlug?: {
+    __typename?: "Channel";
+    awsId: string;
+    channelArn?: string | null;
+    description?: string | null;
+    id: string;
+    name?: string | null;
+    slug: string;
+    allowNFCs?: boolean | null;
+    playbackUrl?: string | null;
+    owner: {
+      __typename?: "User";
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+      username?: string | null;
+      address: string;
+    };
+  } | null;
 };
 
 export type GetChannelFeedQueryVariables = Exact<{ [key: string]: never }>;
@@ -1154,366 +999,6 @@ export type TaskFeedQueryResult = Apollo.QueryResult<
   TaskFeedQuery,
   TaskFeedQueryVariables
 >;
-export const ChannelDetailDocument = gql`
-  query ChannelDetail($slug: String!) {
-    getChannelBySlug(slug: $slug) {
-      awsId
-      channelArn
-      description
-      id
-      name
-      slug
-      allowNFCs
-      owner {
-        FCImageUrl
-        lensImageUrl
-        username
-        address
-      }
-      token {
-        id
-        name
-        symbol
-        address
-      }
-      playbackUrl
-    }
-  }
-`;
-
-/**
- * __useChannelDetailQuery__
- *
- * To run a query within a React component, call `useChannelDetailQuery` and pass it any options that fit your needs.
- * When your component renders, `useChannelDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useChannelDetailQuery({
- *   variables: {
- *      slug: // value for 'slug'
- *   },
- * });
- */
-export function useChannelDetailQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    ChannelDetailQuery,
-    ChannelDetailQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
-    ChannelDetailDocument,
-    options
-  );
-}
-export function useChannelDetailLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    ChannelDetailQuery,
-    ChannelDetailQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
-    ChannelDetailDocument,
-    options
-  );
-}
-export type ChannelDetailQueryHookResult = ReturnType<
-  typeof useChannelDetailQuery
->;
-export type ChannelDetailLazyQueryHookResult = ReturnType<
-  typeof useChannelDetailLazyQuery
->;
-export type ChannelDetailQueryResult = Apollo.QueryResult<
-  ChannelDetailQuery,
-  ChannelDetailQueryVariables
->;
-export const GetRecentStreamInteractionsDocument = gql`
-  query GetRecentStreamInteractions(
-    $data: GetRecentStreamInteractionsByChannelInput
-  ) {
-    getRecentStreamInteractionsByChannel(data: $data) {
-      id
-      interactionType
-      text
-      createdAt
-      updatedAt
-      owner {
-        address
-      }
-    }
-  }
-`;
-
-/**
- * __useGetRecentStreamInteractionsQuery__
- *
- * To run a query within a React component, call `useGetRecentStreamInteractionsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetRecentStreamInteractionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetRecentStreamInteractionsQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useGetRecentStreamInteractionsQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
-  >(GetRecentStreamInteractionsDocument, options);
-}
-export function useGetRecentStreamInteractionsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
-  >(GetRecentStreamInteractionsDocument, options);
-}
-export type GetRecentStreamInteractionsQueryHookResult = ReturnType<
-  typeof useGetRecentStreamInteractionsQuery
->;
-export type GetRecentStreamInteractionsLazyQueryHookResult = ReturnType<
-  typeof useGetRecentStreamInteractionsLazyQuery
->;
-export type GetRecentStreamInteractionsQueryResult = Apollo.QueryResult<
-  GetRecentStreamInteractionsQuery,
-  GetRecentStreamInteractionsQueryVariables
->;
-export const GetTokenHoldersByChannelDocument = gql`
-  query GetTokenHoldersByChannel($data: GetTokenHoldersInput) {
-    getTokenHoldersByChannel(data: $data) {
-      quantity
-      user {
-        username
-        address
-      }
-    }
-  }
-`;
-
-/**
- * __useGetTokenHoldersByChannelQuery__
- *
- * To run a query within a React component, call `useGetTokenHoldersByChannelQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetTokenHoldersByChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetTokenHoldersByChannelQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useGetTokenHoldersByChannelQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetTokenHoldersByChannelQuery,
-    GetTokenHoldersByChannelQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    GetTokenHoldersByChannelQuery,
-    GetTokenHoldersByChannelQueryVariables
-  >(GetTokenHoldersByChannelDocument, options);
-}
-export function useGetTokenHoldersByChannelLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetTokenHoldersByChannelQuery,
-    GetTokenHoldersByChannelQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    GetTokenHoldersByChannelQuery,
-    GetTokenHoldersByChannelQueryVariables
-  >(GetTokenHoldersByChannelDocument, options);
-}
-export type GetTokenHoldersByChannelQueryHookResult = ReturnType<
-  typeof useGetTokenHoldersByChannelQuery
->;
-export type GetTokenHoldersByChannelLazyQueryHookResult = ReturnType<
-  typeof useGetTokenHoldersByChannelLazyQuery
->;
-export type GetTokenHoldersByChannelQueryResult = Apollo.QueryResult<
-  GetTokenHoldersByChannelQuery,
-  GetTokenHoldersByChannelQueryVariables
->;
-export const CreateCreatorTokenDocument = gql`
-  mutation CreateCreatorToken($data: CreateCreatorTokenInput!) {
-    createCreatorToken(data: $data) {
-      id
-    }
-  }
-`;
-export type CreateCreatorTokenMutationFn = Apollo.MutationFunction<
-  CreateCreatorTokenMutation,
-  CreateCreatorTokenMutationVariables
->;
-
-/**
- * __useCreateCreatorTokenMutation__
- *
- * To run a mutation, you first call `useCreateCreatorTokenMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateCreatorTokenMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createCreatorTokenMutation, { data, loading, error }] = useCreateCreatorTokenMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useCreateCreatorTokenMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    CreateCreatorTokenMutation,
-    CreateCreatorTokenMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    CreateCreatorTokenMutation,
-    CreateCreatorTokenMutationVariables
-  >(CreateCreatorTokenDocument, options);
-}
-export type CreateCreatorTokenMutationHookResult = ReturnType<
-  typeof useCreateCreatorTokenMutation
->;
-export type CreateCreatorTokenMutationResult =
-  Apollo.MutationResult<CreateCreatorTokenMutation>;
-export type CreateCreatorTokenMutationOptions = Apollo.BaseMutationOptions<
-  CreateCreatorTokenMutation,
-  CreateCreatorTokenMutationVariables
->;
-export const UpdateCreatorTokenPriceDocument = gql`
-  mutation UpdateCreatorTokenPrice($data: UpdateCreatorTokenPriceInput!) {
-    updateCreatorTokenPrice(data: $data) {
-      address
-      price
-    }
-  }
-`;
-export type UpdateCreatorTokenPriceMutationFn = Apollo.MutationFunction<
-  UpdateCreatorTokenPriceMutation,
-  UpdateCreatorTokenPriceMutationVariables
->;
-
-/**
- * __useUpdateCreatorTokenPriceMutation__
- *
- * To run a mutation, you first call `useUpdateCreatorTokenPriceMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCreatorTokenPriceMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCreatorTokenPriceMutation, { data, loading, error }] = useUpdateCreatorTokenPriceMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useUpdateCreatorTokenPriceMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateCreatorTokenPriceMutation,
-    UpdateCreatorTokenPriceMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    UpdateCreatorTokenPriceMutation,
-    UpdateCreatorTokenPriceMutationVariables
-  >(UpdateCreatorTokenPriceDocument, options);
-}
-export type UpdateCreatorTokenPriceMutationHookResult = ReturnType<
-  typeof useUpdateCreatorTokenPriceMutation
->;
-export type UpdateCreatorTokenPriceMutationResult =
-  Apollo.MutationResult<UpdateCreatorTokenPriceMutation>;
-export type UpdateCreatorTokenPriceMutationOptions = Apollo.BaseMutationOptions<
-  UpdateCreatorTokenPriceMutation,
-  UpdateCreatorTokenPriceMutationVariables
->;
-export const UpdateUserCreatorTokenQuantityDocument = gql`
-  mutation UpdateUserCreatorTokenQuantity(
-    $data: UpdateUserCreatorTokenQuantityInput!
-  ) {
-    updateUserCreatorTokenQuantity(data: $data) {
-      quantity
-    }
-  }
-`;
-export type UpdateUserCreatorTokenQuantityMutationFn = Apollo.MutationFunction<
-  UpdateUserCreatorTokenQuantityMutation,
-  UpdateUserCreatorTokenQuantityMutationVariables
->;
-
-/**
- * __useUpdateUserCreatorTokenQuantityMutation__
- *
- * To run a mutation, you first call `useUpdateUserCreatorTokenQuantityMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateUserCreatorTokenQuantityMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateUserCreatorTokenQuantityMutation, { data, loading, error }] = useUpdateUserCreatorTokenQuantityMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useUpdateUserCreatorTokenQuantityMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateUserCreatorTokenQuantityMutation,
-    UpdateUserCreatorTokenQuantityMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    UpdateUserCreatorTokenQuantityMutation,
-    UpdateUserCreatorTokenQuantityMutationVariables
-  >(UpdateUserCreatorTokenQuantityDocument, options);
-}
-export type UpdateUserCreatorTokenQuantityMutationHookResult = ReturnType<
-  typeof useUpdateUserCreatorTokenQuantityMutation
->;
-export type UpdateUserCreatorTokenQuantityMutationResult =
-  Apollo.MutationResult<UpdateUserCreatorTokenQuantityMutation>;
-export type UpdateUserCreatorTokenQuantityMutationOptions =
-  Apollo.BaseMutationOptions<
-    UpdateUserCreatorTokenQuantityMutation,
-    UpdateUserCreatorTokenQuantityMutationVariables
-  >;
 export const CreateClipDocument = gql`
   mutation CreateClip($data: CreateClipInput!) {
     createClip(data: $data) {
@@ -2137,6 +1622,77 @@ export type VideoFeed1808LazyQueryHookResult = ReturnType<
 export type VideoFeed1808QueryResult = Apollo.QueryResult<
   VideoFeed1808Query,
   VideoFeed1808QueryVariables
+>;
+export const ChannelDetailDocument = gql`
+  query ChannelDetail($slug: String!) {
+    getChannelBySlug(slug: $slug) {
+      awsId
+      channelArn
+      description
+      id
+      name
+      slug
+      allowNFCs
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+      playbackUrl
+    }
+  }
+`;
+
+/**
+ * __useChannelDetailQuery__
+ *
+ * To run a query within a React component, call `useChannelDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChannelDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChannelDetailQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useChannelDetailQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ChannelDetailQuery,
+    ChannelDetailQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
+    ChannelDetailDocument,
+    options
+  );
+}
+export function useChannelDetailLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ChannelDetailQuery,
+    ChannelDetailQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ChannelDetailQuery, ChannelDetailQueryVariables>(
+    ChannelDetailDocument,
+    options
+  );
+}
+export type ChannelDetailQueryHookResult = ReturnType<
+  typeof useChannelDetailQuery
+>;
+export type ChannelDetailLazyQueryHookResult = ReturnType<
+  typeof useChannelDetailLazyQuery
+>;
+export type ChannelDetailQueryResult = Apollo.QueryResult<
+  ChannelDetailQuery,
+  ChannelDetailQueryVariables
 >;
 export const GetChannelFeedDocument = gql`
   query GetChannelFeed {

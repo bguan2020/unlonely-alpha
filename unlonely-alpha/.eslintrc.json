@@ -8,6 +8,7 @@
     "prettier"
   ],
   "rules": {
+    "no-console": ["error", { "allow": ["error"] }],
     "prefer-template": "error",
     "quotes": [
       "error",

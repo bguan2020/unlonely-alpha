@@ -22,10 +22,10 @@ import { useForm } from "react-hook-form";
 
 import { PostTaskInput } from "../../generated/graphql";
 import { postSongSchema } from "../../utils/validation/validation";
-import usePostTask from "../../hooks/server/usePostTask";
-import { useUser } from "../../hooks/context/useUser";
+import usePostTask from "../../hooks/usePostTask";
+import { ChatBot } from "../../pages/channels/brian";
+import { useUser } from "../../hooks/useUser";
 import { checkPOAP } from "../../utils/checkPoapCount";
-import { ChatBot } from "../../constants/types";
 
 type Props = {
   songIsOpen: boolean;

@@ -21,10 +21,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20__factory>;
     getContractFactory(
-      name: "IERC20Permit",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC20Permit__factory>;
-    getContractFactory(
       name: "IERC20Metadata",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20Metadata__factory>;
@@ -65,9 +61,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BrianToken__factory>;
     getContractFactory(
-      name: "UnlonelyArcadeContract",
+      name: "NewsContract",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.UnlonelyArcadeContract__factory>;
+    ): Promise<Contracts.NewsContract__factory>;
+    getContractFactory(
+      name: "NewsToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.NewsToken__factory>;
+    getContractFactory(
+      name: "Voting",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Voting__factory>;
     getContractFactory(
       name: "UnlonelyNFCsV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -83,11 +87,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20>;
-    getContractAt(
-      name: "IERC20Permit",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IERC20Permit>;
     getContractAt(
       name: "IERC20Metadata",
       address: string,
@@ -139,10 +138,20 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.BrianToken>;
     getContractAt(
-      name: "UnlonelyArcadeContract",
+      name: "NewsContract",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.UnlonelyArcadeContract>;
+    ): Promise<Contracts.NewsContract>;
+    getContractAt(
+      name: "NewsToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NewsToken>;
+    getContractAt(
+      name: "Voting",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Voting>;
     getContractAt(
       name: "UnlonelyNFCsV2",
       address: string,

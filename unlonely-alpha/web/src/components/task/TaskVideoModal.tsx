@@ -31,10 +31,10 @@ import {
   postVideoSchema,
 } from "../../utils/validation/validation";
 import { PostYTLinkInput } from "../../types";
-import usePostTask from "../../hooks/server/usePostTask";
+import usePostTask from "../../hooks/usePostTask";
 import { YT_PUBLIC_KEY } from "../../constants";
-import { useUser } from "../../hooks/context/useUser";
-import { ChatBot } from "../../constants/types";
+import { ChatBot } from "../../pages/channels/brian";
+import { useUser } from "../../hooks/useUser";
 
 type Props = {
   setChatBot: (chatBot: ChatBot[]) => void;

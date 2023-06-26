@@ -31,9 +31,10 @@ import {
   postVideoSchema,
 } from "../../utils/validation/validation";
 import { PostYTLinkInput } from "../../types";
-import usePostVideoWithRedirect from "../../hooks/server/usePostVideoWithRedirect";
+import usePostVideoWithRedirect from "../../hooks/usePostVideoWithRedirect";
 import { YT_PUBLIC_KEY } from "../../constants";
-import { ChatBot } from "../../constants/types";
+import { ChatBot } from "../../pages/channels/brian";
+
 type Props = {
   setChatBot: (chatBot: ChatBot[]) => void;
   chatBot: ChatBot[];
