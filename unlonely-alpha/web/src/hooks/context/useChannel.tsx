@@ -9,11 +9,11 @@ import {
   GetRecentStreamInteractionsQuery,
 } from "../../generated/graphql";
 import { ApolloError, useQuery } from "@apollo/client";
-// import { InteractionType } from "../../constants";
-// import io, { Socket } from "socket.io-client";
 import { useBalance } from "wagmi";
 import { FetchBalanceResult } from "../../constants/types";
 import { useUser } from "./useUser";
+// import { InteractionType } from "../../constants";
+// import { io, Socket } from "socket.io-client";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -135,58 +135,6 @@ export const ChannelProvider = ({
       );
     }
   }, [channelData]);
-
-  // useEffect(() => {
-  //   const socketInit = async () => {
-  //     const url =
-  //       process.env.NODE_ENV === "production"
-  //         ? "https://sea-lion-app-j3rts.ondigitalocean.app"
-  //         : "http://localhost:4000";
-  //     const newSocket = io(url, {
-  //       transports: ["websocket"],
-  //     });
-
-  //     newSocket.on("connect_error", (err) => {
-  //       console.log(`Connect error: ${err}`);
-  //     });
-
-  //     console.log("socket connected to URL: ", url);
-  //     setSocket(newSocket);
-
-  //     newSocket.on("receive-message", (data) => {
-  //       /* eslint-disable no-console */
-  //       console.log("socket received message", data);
-  //       setTextOverVideo((prev) => [...prev, data.message]);
-  //     });
-  //   };
-  //   socketInit();
-
-  //   return () => {
-  //     if (!socket) return;
-  //     socket.disconnect();
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   if (textOverVideo.length > 0) {
-  //     const timer = setTimeout(() => {
-  //       setTextOverVideo((prev) => prev.slice(2));
-  //     }, 120000);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [textOverVideo]);
-
-  // useEffect(() => {
-  //   if (!recentStreamInteractionsData) return;
-  //   const interactions =
-  //     recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
-  //   if (interactions && interactions.length > 0) {
-  //     const textInteractions = interactions.filter(
-  //       (i) => i?.interactionType === InteractionType.CONTROL && i.text
-  //     );
-  //     setTextOverVideo(textInteractions.map((i) => String(i?.text)));
-  //   }
-  // }, [recentStreamInteractionsData]);
 
   const value = useMemo(
     () => ({
