@@ -1,21 +1,31 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Text, Flex, Link, Spinner } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import moment from "moment-timezone";
 import IVSPlayer from "./IVSPlayer";
 import useScript from "../../hooks/internal/useScript";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 type Props = {
   isTheatreMode: boolean;
-  playbackUrl?: string;
   hasTimer?: boolean;
 };
 
 const NextStreamTimer: React.FunctionComponent<Props> = ({
   isTheatreMode,
   hasTimer,
-  playbackUrl,
 }) => {
+  const { channel } = useChannelContext();
+  const { channelBySlug } = channel;
+
+  const playbackUrl = useMemo(
+    () =>
+      channelBySlug?.playbackUrl == null
+        ? undefined
+        : channelBySlug?.playbackUrl,
+    [channelBySlug]
+  );
+
   const [streamingTime, setStreamingTime] = useState<boolean>(false);
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);

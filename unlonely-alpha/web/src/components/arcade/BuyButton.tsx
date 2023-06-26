@@ -37,14 +37,23 @@ const BuyButton: React.FunctionComponent<Props> = ({
       />
       <Flex
         direction="column"
-        align="left"
-        top="7px"
-        left="55px"
+        // align="left"
+        // top="7px"
+        // left="55px"
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
         position="absolute"
-        width={"80%"}
+        width={"250px"}
+        ml={"20px"}
         pointerEvents="none"
       >
-        <Text lineHeight={1} fontSize="25px" textAlign={"left"}>
+        <Text
+          lineHeight={1}
+          fontSize="30px"
+          fontWeight={"bold"}
+          textAlign="center"
+        >
           buy {tokenName ? tokenName : "token"}
         </Text>
       </Flex>

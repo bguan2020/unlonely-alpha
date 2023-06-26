@@ -1,5 +1,5 @@
 import { Text, Input, Flex, useToast } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../hooks/context/useUser";
 import { ChatBot } from "../../constants/types";
 import {
@@ -12,42 +12,61 @@ import { ModalButton } from "../general/button/ModalButton";
 import {
   useBuyCreatorToken,
   useCalculateEthAmount,
-  useReadPublic,
 } from "../../hooks/contracts/useArcadeContract";
 import { formatUnits, parseUnits } from "viem";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { FetchBalanceResult } from "../../constants/types";
 import { InteractionType } from "../../constants";
 import useUpdateUserCreatorTokenQuantity from "../../hooks/server/arcade/useUpdateTokenQuantity";
-import { ChannelDetailQuery } from "../../generated/graphql";
+import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
+import { useChannelContext } from "../../hooks/context/useChannel";
+import { useApproval } from "../../hooks/contracts/useApproval";
+import { useBalance, useNetwork } from "wagmi";
+import { NETWORKS } from "../../constants/networks";
+import { getContractFromNetwork } from "../../utils/contract";
 
 export default function BuyTransactionModal({
-  channel,
   title,
   isOpen,
-  tokenContractAddress,
-  tokenBalanceData,
   icon,
   callback,
   handleClose,
   addToChatbot,
 }: {
-  channel: ChannelDetailQuery["getChannelBySlug"];
   title: string;
   isOpen: boolean;
-  tokenContractAddress: string;
-  tokenBalanceData?: FetchBalanceResult;
   icon?: JSX.Element;
   callback?: () => void;
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
+  const { user } = useUser();
+  const { channel, token } = useChannelContext();
+  const { channelBySlug } = channel;
+  const {
+    userTokenBalance,
+    refetchUserTokenBalance,
+    ownerTokenBalance,
+    refetchOwnerTokenBalance,
+  } = token;
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
+    address: user?.address as `0x${string}`,
+  });
+
+  const network = useNetwork();
+  const localNetwork = useMemo(() => {
+    return (
+      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
+      NETWORKS[1]
+    );
+  }, [network]);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+
   const [amount, setAmount] = useState("");
   const [amountOption, setAmountOption] = useState<
     "custom" | "5" | "10" | "15" | "25" | "50"
   >("5");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const { user } = useUser();
   const toast = useToast();
 
   const buyTokenAmount_bigint = useMemo(
@@ -61,12 +80,17 @@ export default function BuyTransactionModal({
     [amountOption, amount]
   );
 
-  const { refetch: refetchPublic, tokenOwner } = useReadPublic(
-    tokenContractAddress as `0x${string}`
+  const { allowance: ownerAllowance, refetchAllowance } = useApproval(
+    channelBySlug?.token?.address as `0x${string}`,
+    CreatorTokenAbi,
+    channelBySlug?.owner?.address as `0x${string}`,
+    contract?.address as `0x${string}`,
+    contract?.chainId as number,
+    BigInt(0)
   );
 
   const { amountIn } = useCalculateEthAmount(
-    tokenContractAddress as `0x${string}`,
+    channelBySlug?.token?.address as `0x${string}`,
     buyTokenAmount_bigint
   );
 
@@ -78,7 +102,7 @@ export default function BuyTransactionModal({
 
   const { buyCreatorToken, buyCreatorTokenTxLoading } = useBuyCreatorToken(
     {
-      creatorTokenAddress: tokenContractAddress as `0x${string}`,
+      creatorTokenAddress: channelBySlug?.token?.address as `0x${string}`,
       amountIn,
       amountOut: buyTokenAmount_bigint,
     },
@@ -92,10 +116,13 @@ export default function BuyTransactionModal({
           isClosable: true,
           position: "top-right",
         });
-        refetchPublic();
         callback?.();
+        refetchAllowance?.();
+        refetchOwnerTokenBalance?.();
+        refetchUserEthBalance?.();
+        refetchUserTokenBalance?.();
         await updateUserCreatorTokenQuantity({
-          tokenAddress: tokenContractAddress as `0x${string}`,
+          tokenAddress: channelBySlug?.token?.address as `0x${string}`,
           purchasedAmount: Number(
             amountOption === "custom" ? amount : amountOption
           ),
@@ -108,9 +135,10 @@ export default function BuyTransactionModal({
           description: `${
             user?.username ?? centerEllipses(user?.address, 15)
           } bought ${amountOption === "custom" ? amount : amountOption} $${
-            channel?.token?.symbol
+            channelBySlug?.token?.symbol
           }!`,
         });
+        handleClose();
       },
     }
   );
@@ -133,6 +161,28 @@ export default function BuyTransactionModal({
     return true;
   }, [buyTokenAmount_bigint, amountOption, buyCreatorToken]);
 
+  useEffect(() => {
+    if (!user) {
+      setErrorMessage("connect wallet first");
+    } else if (
+      ownerAllowance < buyTokenAmount_bigint ||
+      (ownerTokenBalance?.value &&
+        ownerTokenBalance?.value < buyTokenAmount_bigint)
+    ) {
+      setErrorMessage("there are not enough tokens on sale");
+    } else if (userEthBalance?.value && amountIn > userEthBalance?.value) {
+      setErrorMessage("you don't have enough ETH to spend");
+    } else {
+      setErrorMessage("");
+    }
+  }, [
+    buyTokenAmount_bigint,
+    ownerAllowance,
+    userEthBalance?.value,
+    amountIn,
+    user,
+  ]);
+
   return (
     <TransactionModalTemplate
       title={title}
@@ -147,8 +197,8 @@ export default function BuyTransactionModal({
       <Flex direction={"column"} gap="16px">
         <Text textAlign={"center"} fontSize="25px" color="#BABABA">
           you own{" "}
-          {`${truncateValue(tokenBalanceData?.formatted ?? "0", 3)} $${
-            channel?.token?.symbol
+          {`${truncateValue(userTokenBalance?.formatted ?? "0", 3)} $${
+            channelBySlug?.token?.symbol
           }`}
         </Text>
         <Flex justifyContent={"space-between"}>
@@ -205,9 +255,10 @@ export default function BuyTransactionModal({
             <Text fontSize="20px">custom amount</Text>
           </ModalButton>
         </Flex>
+
         {amountOption === "custom" && (
           <Input
-            placeholder={`enter amount of $${channel?.token?.symbol}`}
+            placeholder={`enter amount of $${channelBySlug?.token?.symbol}`}
             value={amount}
             onChange={handleInputChange}
             borderWidth="1px"
@@ -218,6 +269,11 @@ export default function BuyTransactionModal({
             px="16px"
             py="10px"
           />
+        )}
+        {errorMessage && (
+          <Text textAlign={"center"} color="red.400">
+            {errorMessage}
+          </Text>
         )}
         <Text textAlign={"right"} fontSize="25px" color="#BABABA">
           cost: {`${truncateValue(formatUnits(amountIn, 18) ?? "0", 3)} eth`}

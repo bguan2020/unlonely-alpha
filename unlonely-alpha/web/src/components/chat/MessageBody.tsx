@@ -3,7 +3,8 @@ import { Box, Flex, Text, Image, Link, Button } from "@chakra-ui/react";
 import React, { useState } from "react";
 
 import { useUser } from "../../hooks/context/useUser";
-import NFTList from "../profile/NFTList";
+import centerEllipses from "../../utils/centerEllipses";
+// import NFTList from "../profile/NFTList";
 import Badges from "./Badges";
 import EmojiDisplay from "./emoji/EmojiDisplay";
 import { Message } from "./types";
@@ -78,7 +79,18 @@ const MessageBody = ({
             <Flex direction={"column"}>
               <Flex direction="row" align="center">
                 <Badges user={user} message={message} />
-                <NFTList message={message} />
+                {/* <NFTList message={message} /> */}
+                <Text
+                  _hover={{ cursor: "pointer" }}
+                  fontSize="16px"
+                  color={message.data.chatColor}
+                  fontWeight="bold"
+                >
+                  {message.data.username
+                    ? message.data.username
+                    : centerEllipses(message.data.address, 10)}
+                  :
+                </Text>
               </Flex>{" "}
               <Box
                 key={index}
@@ -288,7 +300,18 @@ const MessageBody = ({
             <Flex direction={"column"}>
               <Flex direction="row" align="center">
                 <Badges user={user} message={message} />
-                <NFTList message={message} />
+                {/* <NFTList message={message} /> */}
+                <Text
+                  _hover={{ cursor: "pointer" }}
+                  fontSize="16px"
+                  color={message.data.chatColor}
+                  fontWeight="bold"
+                >
+                  {message.data.username
+                    ? message.data.username
+                    : centerEllipses(message.data.address, 10)}
+                  :
+                </Text>
               </Flex>
               <Box
                 key={index}

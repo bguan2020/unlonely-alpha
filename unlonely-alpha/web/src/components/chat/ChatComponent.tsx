@@ -23,7 +23,6 @@ import { useAccount } from "wagmi";
 import useChannel from "../../hooks/chat/useChannel";
 import { COLORS } from "../../styles/Colors";
 import { Message, initializeEmojis } from "./types/index";
-import { ChannelDetailQuery, User } from "../../generated/graphql";
 import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
@@ -43,17 +42,11 @@ import { GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { isAddress } from "viem";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 type Props = {
   username: string | null | undefined;
   chatBot: ChatBot[];
-  user: User | undefined;
-  ablyChatChannel?: string;
-  ablyPresenceChannel?: string;
-  channelArn: string;
-  channelId: number;
-  allowNFCs: boolean;
-  queriedChannel?: ChannelDetailQuery["getChannelBySlug"];
   handleControlModal?: () => void;
   handleChanceModal?: () => void;
   handlePvpModal?: () => void;
@@ -82,18 +75,21 @@ export const chatbotAddress = "0x0000000000000000000000000000000000000000";
 const AblyChatComponent = ({
   username,
   chatBot,
-  ablyChatChannel,
-  ablyPresenceChannel,
-  channelArn,
-  channelId,
-  allowNFCs,
-  queriedChannel,
   handleControlModal,
   handleChanceModal,
   handlePvpModal,
   handleTipModal,
   handleBuyModal,
 }: Props) => {
+  const { channel: channelContext, chat } = useChannelContext();
+  const { channelBySlug } = channelContext;
+  const { chatChannel, presenceChannel } = chat;
+
+  const channelId = useMemo(
+    () => (channelBySlug?.id ? Number(channelBySlug?.id) : 3),
+    [channelBySlug?.id]
+  );
+
   const { user } = useUser();
   const { address } = useAccount();
   const ADD_REACTION_EVENT = "add-reaction";
@@ -126,7 +122,7 @@ const AblyChatComponent = ({
       getTokenHolders({
         variables: {
           data: {
-            channelId: channelId,
+            channelId,
           },
         },
       });
@@ -177,8 +173,8 @@ const AblyChatComponent = ({
   }, [scrollPercentage, chatHeightGrounded]);
 
   const toast = useToast();
-  const channelName = ablyChatChannel
-    ? `persistMessages:${ablyChatChannel}`
+  const channelName = chatChannel
+    ? `persistMessages:${chatChannel}`
     : "persistMessages:chat-demo";
 
   const [channel, ably] = useChannel(channelName, (message) => {
@@ -365,8 +361,8 @@ const AblyChatComponent = ({
       messageText.startsWith("@nfc-it") ||
       messageText.startsWith("@nfc")
     ) {
-      if (allowNFCs) {
-        window.open(`/clip?arn=${channelArn}`, "_blank");
+      if (channelBySlug?.allowNFCs || false) {
+        window.open(`/clip?arn=${channelBySlug?.channelArn || ""}`, "_blank");
         allowPublish = false;
       } else {
         messageToPublish = "NFCs are not allowed on this channel.";
@@ -486,7 +482,7 @@ const AblyChatComponent = ({
           width="100%"
           position={"relative"}
         >
-          {ablyChatChannel?.includes("channel") && (
+          {chatChannel?.includes("channel") && (
             <Stack direction={"row"} spacing="10px">
               <Flex
                 borderRadius={"5px"}
@@ -574,10 +570,10 @@ const AblyChatComponent = ({
                 width={"100%"}
                 padding={"40px"}
               >
-                {isAddress(String(queriedChannel?.token?.address)) && (
+                {isAddress(String(channelBySlug?.token?.address)) && (
                   <>
                     <BuyButton
-                      tokenName={`$${queriedChannel?.token?.symbol}`}
+                      tokenName={`$${channelBySlug?.token?.symbol}`}
                       callback={handleBuyModal}
                     />
                     <Grid
@@ -610,7 +606,7 @@ const AblyChatComponent = ({
                     </Grid>
                   </>
                 )}
-                {!isAddress(String(queriedChannel?.token?.address)) && (
+                {!isAddress(String(channelBySlug?.token?.address)) && (
                   <>
                     <Tooltip label={"not available"}>
                       <span>
@@ -692,7 +688,7 @@ const AblyChatComponent = ({
                   fontWeight="400"
                   textAlign={"center"}
                 >
-                  who owns the most $BRIAN?
+                  {`who owns the most $${channelBySlug?.token?.symbol}?`}
                 </Text>
                 {holdersLoading && (
                   <Flex justifyContent={"center"} p="20px">
@@ -772,7 +768,7 @@ const AblyChatComponent = ({
             >
               who's here?
             </Text>
-            <Participants ablyPresenceChannel={ablyPresenceChannel} />
+            <Participants ablyPresenceChannel={presenceChannel} />
           </Flex>
           <Flex
             direction="column"

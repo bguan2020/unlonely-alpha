@@ -7,10 +7,9 @@ import {
   Textarea,
   useToast,
 } from "@chakra-ui/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { parseUnits } from "viem";
-import { FetchBalanceResult } from "../../constants/types";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { useUser } from "../../hooks/context/useUser";
 import { ChatBot } from "../../constants/types";
@@ -21,23 +20,19 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { postStreamInteractionTextSchema } from "../../utils/validation/validation";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
-import {
-  PostStreamInteractionInput,
-  ChannelDetailQuery,
-} from "../../generated/graphql";
+import { PostStreamInteractionInput } from "../../generated/graphql";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import centerEllipses from "../../utils/centerEllipses";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 export default function ControlTransactionModal({
   title,
   isOpen,
-  tokenContractAddress,
-  tokenBalanceData,
-  channel,
   icon,
   callback,
   handleClose,
@@ -45,16 +40,18 @@ export default function ControlTransactionModal({
 }: {
   title: string;
   isOpen: boolean;
-  tokenContractAddress: string;
-  channel: ChannelDetailQuery["getChannelBySlug"];
-  tokenBalanceData?: FetchBalanceResult;
   icon?: JSX.Element;
   callback?: any;
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
+  const { channel, token } = useChannelContext();
+  const { channelBySlug } = channel;
+  const { userTokenBalance, refetchUserTokenBalance } = token;
+
   const [amountOption, setAmountOption] = useState<"5">("5");
-  const [textToSend, setTextToSend] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [localText, setLocalText] = useState<string>("");
 
   const { user } = useUser();
   const toast = useToast();
@@ -71,7 +68,7 @@ export default function ControlTransactionModal({
     defaultValues: {},
     resolver: yupResolver(postStreamInteractionTextSchema),
   });
-  const { register, formState, handleSubmit, watch } = form;
+  const { register, formState, handleSubmit } = form;
 
   const { postStreamInteraction, loading } = usePostStreamInteraction({});
 
@@ -81,7 +78,7 @@ export default function ControlTransactionModal({
     isTxLoading: isApprovalLoading,
     refetchAllowance,
   } = useApproval(
-    tokenContractAddress as `0x${string}`,
+    channelBySlug?.token?.address as `0x${string}`,
     CreatorTokenAbi,
     user?.address as `0x${string}`,
     contract?.address as `0x${string}`,
@@ -105,7 +102,7 @@ export default function ControlTransactionModal({
 
   const { useFeature, useFeatureTxLoading } = useUseFeature(
     {
-      creatorTokenAddress: tokenContractAddress as `0x${string}`,
+      creatorTokenAddress: channelBySlug?.token?.address as `0x${string}`,
       featurePrice: parseUnits(
         formatIncompleteNumber(amountOption) as `${number}`,
         18
@@ -121,6 +118,7 @@ export default function ControlTransactionModal({
           isClosable: true,
           position: "top-right",
         });
+        console.log("useFeature tx success, text:", localText);
         handleBackendSend();
         addToChatbot?.({
           username: user?.username ?? "",
@@ -131,21 +129,34 @@ export default function ControlTransactionModal({
             user?.username ?? centerEllipses(user?.address, 15)
           } bought ad space!`,
         });
+        handleClose();
       },
     }
   );
 
-  const handleBackendSend = useCallback(async () => {
-    postStreamInteraction({
-      channelId: channel?.id,
-      text: textToSend,
-      interactionType: InteractionType.CONTROL,
-    });
-    callback?.(textToSend);
-    setTextToSend("");
-  }, [textToSend]);
+  const handleBackendSend = useCallback(
+    async (text?: string) => {
+      console.log("calling backend to send text:", text ?? localText);
+      postStreamInteraction({
+        channelId: channelBySlug?.id,
+        text: text ?? localText,
+        interactionType: InteractionType.CONTROL,
+      });
+      callback?.(text ?? localText);
+      refetchUserTokenBalance?.();
+    },
+    [localText]
+  );
 
   const canSend = useMemo(() => {
+    console.log(
+      "can the user execute transaction? (user is defined and useFeature is defined)",
+      user && useFeature,
+      "user:",
+      user,
+      "useFeature:",
+      useFeature
+    );
     if (!user) return false;
     if (!useFeature) return false;
     return true;
@@ -161,9 +172,25 @@ export default function ControlTransactionModal({
   };
 
   const onSubmit = async (data: PostStreamInteractionInput) => {
-    setTextToSend(String(data.text));
-    await handleSend();
+    // await handleSend();
+    await handleBackendSend();
   };
+
+  useEffect(() => {
+    if (!user) {
+      setErrorMessage("connect wallet first");
+    } else if (
+      !userTokenBalance?.value ||
+      (userTokenBalance?.value &&
+        parseUnits(amountOption, 18) > userTokenBalance?.value)
+    ) {
+      setErrorMessage(
+        `you don't have enough ${channelBySlug?.token?.symbol} to spend`
+      );
+    } else {
+      setErrorMessage("");
+    }
+  }, [user, userTokenBalance, channelBySlug]);
 
   return (
     <TransactionModalTemplate
@@ -176,6 +203,12 @@ export default function ControlTransactionModal({
       hideFooter
     >
       <Flex direction="column" gap="16px">
+        <Text textAlign={"center"} fontSize="25px" color="#BABABA">
+          you own{" "}
+          {`${truncateValue(userTokenBalance?.formatted ?? "0", 3)} $${
+            channelBySlug?.token?.symbol
+          }`}
+        </Text>
         <Flex justifyContent={"space-evenly"} alignItems="center">
           <ModalButton
             width="120px"
@@ -188,6 +221,11 @@ export default function ControlTransactionModal({
           </ModalButton>
           <Text color="#EBE6E6">Cover stream with text</Text>
         </Flex>
+        {errorMessage && (
+          <Text textAlign={"center"} color="red.400">
+            {errorMessage}
+          </Text>
+        )}
         <form onSubmit={handleSubmit(onSubmit)}>
           {amountOption === "5" && (
             <FormControl isInvalid={!!formState.errors.text}>
@@ -210,12 +248,21 @@ export default function ControlTransactionModal({
                 _focus={{}}
                 variant="unstyled"
                 {...register("text")}
+                onChange={(e) => {
+                  setLocalText(e.target.value);
+                }}
               />
               <FormErrorMessage>
                 {formState.errors.text?.message}
               </FormErrorMessage>
             </FormControl>
           )}
+          <Text
+            color={localText.trim().length <= 280 ? "#BABABA" : "red.300"}
+            textAlign={"right"}
+          >
+            {localText.trim().length}/280
+          </Text>
           {requiresApproval && (
             <Button
               mt="10px"
@@ -239,7 +286,11 @@ export default function ControlTransactionModal({
               _focus={{}}
               _active={{}}
               width="100%"
-              disabled={!canSend}
+              // disabled={
+              //   !canSend ||
+              //   localText.trim().length > 280 ||
+              //   localText.trim().length === 0
+              // }
               type="submit"
               borderRadius="25px"
             >
