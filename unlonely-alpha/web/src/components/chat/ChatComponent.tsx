@@ -688,7 +688,7 @@ const AblyChatComponent = ({
                   fontWeight="400"
                   textAlign={"center"}
                 >
-                  who owns the most $BRIAN?
+                  {`who owns the most $${channelBySlug?.token?.symbol}?`}
                 </Text>
                 {holdersLoading && (
                   <Flex justifyContent={"center"} p="20px">

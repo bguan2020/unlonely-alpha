@@ -88,7 +88,7 @@ function createApolloClient(cookies: Cookies, isSSR?: boolean) {
       new HttpLink({
         uri:
           process.env.NODE_ENV === "production"
-            ? "https://unlonely-vqeii.ondigitalocean.app/graphql"
+            ? "https://unlonely-vqeii.ondigitalocean.app//graphql"
             : "http://localhost:4000/graphql",
       }),
     ]),
