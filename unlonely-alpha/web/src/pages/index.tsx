@@ -16,6 +16,8 @@ import HeroBanner from "../components/layout/HeroBanner";
 import AblyHomeChatComponent from "../components/chat/HomeChatComponent";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { Channel } from "../generated/graphql";
+import Link from "next/link";
+import { isIosDevice } from "../components/mobile/Banner";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -163,12 +165,38 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
           direction={["column", "row", "row", "row"]}
         >
           <Stack direction="row" spacing={["3", "8", "10", "16"]}>
-            <Text fontFamily="Neue Pixel Sans">twitter</Text>
-            <Text fontFamily="Neue Pixel Sans">farcaster</Text>
-            <Text fontFamily="Neue Pixel Sans">telegram</Text>
-            <Text fontFamily="Neue Pixel Sans">nf.td</Text>
+            <Link
+              href="https://twitter.com/unlonely_app"
+              passHref
+              target="_blank"
+            >
+              <Text fontFamily="Neue Pixel Sans">twitter</Text>
+            </Link>
+            <Link href="https://warpcast.com/unlonely" passHref target="_blank">
+              <Text fontFamily="Neue Pixel Sans">farcaster</Text>
+            </Link>
+            <Link
+              href="https://t.me/+IE_BA-tyLIA5MzZh"
+              passHref
+              target="_blank"
+            >
+              <Text fontFamily="Neue Pixel Sans">telegram</Text>
+            </Link>
+            <Link href="https://nf.td/unlonely" passHref target="_blank">
+              <Text fontFamily="Neue Pixel Sans">nf.td</Text>
+            </Link>
           </Stack>
-          <Text fontFamily="Neue Pixel Sans">download on ios | android</Text>
+          <Link
+            href={
+              isIosDevice()
+                ? "https://testflight.apple.com/join/z4PpYxXz"
+                : "https://dub.sh/unlonely-android"
+            }
+            passHref
+            target="_blank"
+          >
+            <Text fontFamily="Neue Pixel Sans">download on ios | android</Text>
+          </Link>
         </Flex>
       </Flex>
     </>
