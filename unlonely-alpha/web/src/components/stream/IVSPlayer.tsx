@@ -114,8 +114,7 @@ const IVSPlayer: React.FunctionComponent<Props> = ({
                 fontSize="20px"
                 textDecoration="underline"
               >
-                or download the iOS/android app to sign up for future
-                notifications
+                or download the mobile app to sign up for future notifications
               </Text>
             </Link>
           </Flex>

@@ -43,7 +43,7 @@ const AppLayout: React.FC<Props> = ({
   const localNetwork = useMemo(() => {
     return (
       NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[1]
+      NETWORKS[0]
     );
   }, [network]);
 

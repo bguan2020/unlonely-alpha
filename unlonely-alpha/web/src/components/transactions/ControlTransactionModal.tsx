@@ -59,7 +59,7 @@ export default function ControlTransactionModal({
   const localNetwork = useMemo(() => {
     return (
       NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[1]
+      NETWORKS[0]
     );
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);

@@ -145,12 +145,12 @@ export const getTokenLeaderboard = async (ctx: Context) => {
     },
     // orderby price and if price is the same, order by the number of holders
     orderBy: {
-      price: 'desc',
+      price: "desc",
     },
   });
 
   // map over the tokens to count the number of holders for each token
-  const tokenWithHolders = tokens.map(token => ({
+  const tokenWithHolders = tokens.map((token) => ({
     ...token,
     holders: token.users.length,
   }));

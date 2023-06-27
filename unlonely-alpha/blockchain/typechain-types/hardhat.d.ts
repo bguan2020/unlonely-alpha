@@ -69,6 +69,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UnlonelyArcadeContract__factory>;
     getContractFactory(
+      name: "UnlonelyArcadeContractV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.UnlonelyArcadeContractV1__factory>;
+    getContractFactory(
       name: "UnlonelyNFCsV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UnlonelyNFCsV2__factory>;
@@ -143,6 +147,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.UnlonelyArcadeContract>;
+    getContractAt(
+      name: "UnlonelyArcadeContractV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.UnlonelyArcadeContractV1>;
     getContractAt(
       name: "UnlonelyNFCsV2",
       address: string,

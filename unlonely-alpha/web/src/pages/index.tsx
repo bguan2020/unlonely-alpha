@@ -160,7 +160,7 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
             passHref
             target="_blank"
           >
-            <Text fontFamily="Neue Pixel Sans">download on ios | android</Text>
+            <Text fontFamily="Neue Pixel Sans">download for mobile</Text>
           </Link>
         </Flex>
       </Flex>

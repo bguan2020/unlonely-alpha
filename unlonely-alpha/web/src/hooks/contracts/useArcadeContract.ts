@@ -272,35 +272,35 @@ export const useAddCreatorToken = (
   };
 };
 
-export const useSetTokenPrice = (
-  args: {
-    creatorTokenAddress: `0x${string}`;
-    price: bigint;
-  },
-  callbacks?: WriteCallbacks
-) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+// export const useSetTokenPrice = (
+//   args: {
+//     creatorTokenAddress: `0x${string}`;
+//     price: bigint;
+//   },
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const network = useNetwork();
+//   const localNetwork = useMemo(() => {
+//     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
+//   }, [network]);
+//   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
-  const {
-    writeAsync: setTokenPrice,
-    writeData: setTokenPriceData,
-    txData: setTokenPriceTxData,
-    isTxLoading: setTokenPriceTxLoading,
-  } = useWrite(
-    contract,
-    "setTokenPrice",
-    [args.creatorTokenAddress, args.price],
-    callbacks
-  );
+//   const {
+//     writeAsync: setTokenPrice,
+//     writeData: setTokenPriceData,
+//     txData: setTokenPriceTxData,
+//     isTxLoading: setTokenPriceTxLoading,
+//   } = useWrite(
+//     contract,
+//     "setTokenPrice",
+//     [args.creatorTokenAddress, args.price],
+//     callbacks
+//   );
 
-  return {
-    setTokenPrice,
-    setTokenPriceData,
-    setTokenPriceTxData,
-    setTokenPriceTxLoading,
-  };
-};
+//   return {
+//     setTokenPrice,
+//     setTokenPriceData,
+//     setTokenPriceTxData,
+//     setTokenPriceTxLoading,
+//   };
+// };
