@@ -18,6 +18,7 @@ contract UnlonelyArcadeContractV1 {
     mapping(address => address) public tokenOwners;
 
     constructor() {
+        // admins
         brian = msg.sender;
         danny = 0x34Bb9e91dC8AC1E13fb42A0e23f7236999e063D4;
         grace = 0x281D479A15b92A87754316Ec43D2817cCC2a22f1;
