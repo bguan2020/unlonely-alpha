@@ -56,17 +56,6 @@ export default function TipTransactionModal({
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
-  const tokenAmount_bigint = useMemo(
-    () =>
-      parseUnits(
-        formatIncompleteNumber(
-          amountOption === "custom" ? amount : amountOption
-        ) as `${number}`,
-        18
-      ),
-    [amountOption, amount]
-  );
-
   const {
     requiresApproval,
     writeApproval,
@@ -96,6 +85,19 @@ export default function TipTransactionModal({
         refetchAllowance();
       },
     }
+  );
+
+  const tokenAmount_bigint = useMemo(
+    () =>
+      requiresApproval
+        ? BigInt(0)
+        : parseUnits(
+            formatIncompleteNumber(
+              amountOption === "custom" ? amount : amountOption
+            ) as `${number}`,
+            18
+          ),
+    [amountOption, amount, requiresApproval]
   );
 
   const { useFeature, useFeatureTxLoading } = useUseFeature(
@@ -152,11 +154,12 @@ export default function TipTransactionModal({
   }, [useFeatureTxLoading, isApprovalLoading]);
 
   const canSend = useMemo(() => {
+    if (requiresApproval) return false;
     if (amountOption === "custom" && Number(formattedAmount) === 0)
       return false;
     if (!useFeature) return false;
     return true;
-  }, [formattedAmount, amountOption, useFeature]);
+  }, [formattedAmount, amountOption, requiresApproval, useFeature]);
 
   useEffect(() => {
     if (!user) {

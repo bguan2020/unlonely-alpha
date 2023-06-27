@@ -100,13 +100,18 @@ export default function ControlTransactionModal({
     }
   );
 
+  const tokenAmount_bigint = useMemo(
+    () =>
+      requiresApproval
+        ? BigInt(0)
+        : parseUnits(formatIncompleteNumber(amountOption) as `${number}`, 18),
+    [amountOption, requiresApproval]
+  );
+
   const { useFeature, useFeatureTxLoading } = useUseFeature(
     {
       creatorTokenAddress: channelBySlug?.token?.address as `0x${string}`,
-      featurePrice: parseUnits(
-        formatIncompleteNumber(amountOption) as `${number}`,
-        18
-      ),
+      featurePrice: tokenAmount_bigint,
     },
     {
       onTxSuccess: (data) => {
@@ -155,8 +160,11 @@ export default function ControlTransactionModal({
       "user:",
       user,
       "useFeature:",
-      useFeature
+      useFeature,
+      "requiresApproval:",
+      requiresApproval
     );
+    if (requiresApproval) return false;
     if (!user) return false;
     if (!useFeature) return false;
     return true;
