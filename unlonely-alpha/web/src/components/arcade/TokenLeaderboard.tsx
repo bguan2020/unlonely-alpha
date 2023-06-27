@@ -28,7 +28,7 @@ const headers = [
   "channel owner",
 ];
 
-const TokenLeaderboard = () => {
+const TokenLeaderboard = ({ callback }: { callback?: () => void }) => {
   const { loading, error, data } = useQuery<GetTokenLeaderboardQuery>(
     GET_TOKEN_LEADERBOARD_QUERY
   );
@@ -44,6 +44,7 @@ const TokenLeaderboard = () => {
   const router = useRouter();
 
   const handleRowClick = (rowIndex: string) => {
+    callback?.();
     router.push(`/channels/${rowIndex}`);
   };
 

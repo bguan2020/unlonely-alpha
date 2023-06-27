@@ -15,9 +15,9 @@ import LiveChannelList from "../components/channels/LiveChannelList";
 import HeroBanner from "../components/layout/HeroBanner";
 import AblyHomeChatComponent from "../components/chat/HomeChatComponent";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
-import { Channel } from "../generated/graphql";
 import Link from "next/link";
 import { isIosDevice } from "../components/mobile/Banner";
+import { useState } from "react";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -78,7 +78,7 @@ const FixedComponent = () => {
   );
 };
 
-const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
+const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
   const {
     data: dataNFCs,
     loading: loadingNFCs,
@@ -96,7 +96,7 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
 
   return (
     <>
-      <TokenLeaderboard />
+      <TokenLeaderboard callback={callback} />
       <Flex direction="column" width="100%">
         <Text
           fontSize={{ base: "30px", lg: "40px" }}
@@ -178,6 +178,8 @@ export default function Page() {
     },
   });
 
+  const [directingToChannel, setDirectingToChannel] = useState<boolean>(false);
+
   const channels = data?.getChannelFeed;
 
   const chatBoxBreakpoints = useBreakpointValue({
@@ -189,53 +191,80 @@ export default function Page() {
 
   return (
     <AppLayout isCustomHeader={false}>
-      <Flex
-        direction="column"
-        justifyContent="center"
-        width="100vw"
-        gap={"10px"}
-        pb="10px"
-      >
-        <Flex direction="column" gap={5}>
-          <HeroBanner />
-          {!channels || loading ? null : (
-            <>
-              <LiveChannelList channels={channels} />
-            </>
-          )}
-        </Flex>
-        <Flex p="16px">
-          <Box
-            width={{
-              base: "100%",
-              md: "70%",
-              xl: "70%",
-            }}
-          >
-            <Container
-              overflowY="auto"
-              centerContent
-              maxWidth={"100%"}
-              gap="1rem"
-            >
-              <ScrollableComponent channels={channels} />
-            </Container>
-          </Box>
-          {chatBoxBreakpoints && (
+      {!directingToChannel ? (
+        <Flex
+          direction="column"
+          justifyContent="center"
+          width="100vw"
+          gap={"10px"}
+          pb="10px"
+        >
+          <Flex direction="column" gap={5}>
+            <HeroBanner />
+            {!channels || loading ? null : (
+              <>
+                <LiveChannelList channels={channels} />
+              </>
+            )}
+          </Flex>
+          <Flex p="16px">
             <Box
               width={{
-                base: "0%",
-                md: "30%",
-                xl: "30%",
+                base: "100%",
+                md: "70%",
+                xl: "70%",
               }}
             >
-              <Container height="98vh">
-                <FixedComponent />
+              <Container
+                overflowY="auto"
+                centerContent
+                maxWidth={"100%"}
+                gap="1rem"
+              >
+                <ScrollableComponent
+                  callback={() => setDirectingToChannel(true)}
+                />
               </Container>
             </Box>
+            {chatBoxBreakpoints && (
+              <Box
+                width={{
+                  base: "0%",
+                  md: "30%",
+                  xl: "30%",
+                }}
+              >
+                <Container height="98vh">
+                  <FixedComponent />
+                </Container>
+              </Box>
+            )}
+          </Flex>
+        </Flex>
+      ) : (
+        <Flex
+          alignItems={"center"}
+          justifyContent={"center"}
+          width="100%"
+          height="calc(100vh - 64px)"
+          fontSize="50px"
+        >
+          {["l", "o", "a", "d", "i", "n", "g", ".", ".", "."].map(
+            (letter, index) => (
+              <Text
+                className="bouncing-text"
+                key={index}
+                fontFamily="Neue Pixel Sans"
+                style={{
+                  animationDelay: `${index * 0.1}s`,
+                }}
+              >
+                {letter}
+              </Text>
+            )
           )}
         </Flex>
-      </Flex>
+      )}
     </AppLayout>
   );
 }
