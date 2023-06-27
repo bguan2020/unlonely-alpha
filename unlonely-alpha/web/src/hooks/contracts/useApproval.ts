@@ -37,8 +37,14 @@ export const useApproval = (
     functionName: "allowance",
     args: [owner, spender],
     chainId,
-    onSuccess: (data) => callbacks?.onReadSuccess?.(data),
-    onError: (error) => callbacks?.onReadError?.(error),
+    onSuccess: (data) => {
+      console.log("useApproval allowance read success", data);
+      callbacks?.onReadSuccess?.(data);
+    },
+    onError: (error) => {
+      console.log("useApproval allowance read error", error);
+      callbacks?.onReadError?.(error);
+    },
   });
 
   const { config } = usePrepareContractWrite({
@@ -47,8 +53,14 @@ export const useApproval = (
     functionName: "approve",
     args: [spender, amountToApprove ?? amount],
     chainId,
-    onSuccess: (data) => callbacks?.onPrepareWriteSuccess?.(data),
-    onError: (error) => callbacks?.onPrepareWriteError?.(error),
+    onSuccess: (data) => {
+      console.log("useApproval approve prepareWrite success", data);
+      callbacks?.onPrepareWriteSuccess?.(data);
+    },
+    onError: (error) => {
+      console.log("useApproval approve prepareWrite error", error);
+      callbacks?.onPrepareWriteError?.(error);
+    },
   });
 
   const {
@@ -57,8 +69,14 @@ export const useApproval = (
     writeAsync: writeApproval,
   } = useContractWrite({
     ...config,
-    onSuccess: (data) => callbacks?.onWriteSuccess?.(data),
-    onError: (error) => callbacks?.onWriteError?.(error),
+    onSuccess: (data) => {
+      console.log("useApproval approve write success", data);
+      callbacks?.onWriteSuccess?.(data);
+    },
+    onError: (error) => {
+      console.log("useApproval approve write error", error);
+      callbacks?.onWriteError?.(error);
+    },
   });
 
   const requiresApproval = useMemo(() => {
@@ -71,8 +89,14 @@ export const useApproval = (
     error: approvalRejectError,
   } = useWaitForTransaction({
     hash: approvalData?.hash,
-    onSuccess: async (data) => callbacks?.onTxSuccess?.(data),
-    onError: (error) => callbacks?.onTxError?.(error),
+    onSuccess: async (data) => {
+      console.log("useApproval approve tx success", data);
+      callbacks?.onTxSuccess?.(data);
+    },
+    onError: (error) => {
+      console.log("useApproval approve tx error", error);
+      callbacks?.onTxError?.(error);
+    },
   });
 
   return {

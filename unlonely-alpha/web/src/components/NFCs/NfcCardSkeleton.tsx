@@ -1,5 +1,5 @@
 import { Flex } from "@chakra-ui/layout";
-import { Skeleton, Spinner } from "@chakra-ui/react";
+import { Skeleton, SkeletonCircle } from "@chakra-ui/react";
 
 const NfcCardSkeleton = () => {
   return (
@@ -19,7 +19,7 @@ const NfcCardSkeleton = () => {
       >
         <Skeleton width="24.4rem" height="10rem" borderRadius="1rem" />
         <Flex direction="row" justifyContent="flex-start" mt="1rem">
-          <Spinner />
+          <SkeletonCircle size="10px" />
         </Flex>
       </Flex>
       <Flex
