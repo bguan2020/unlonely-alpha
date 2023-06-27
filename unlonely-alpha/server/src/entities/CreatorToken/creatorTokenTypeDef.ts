@@ -8,6 +8,7 @@ export const typeDef = gql`
     name: String!
     price: Float!
     channel: Channel!
+    holders: Int
     users: [UserCreatorToken!]!
   }
 
@@ -45,6 +46,7 @@ export const typeDef = gql`
 
   extend type Query {
     getTokenHoldersByChannel(data: GetTokenHoldersInput): [UserCreatorToken!]!
+    getTokenLeaderboard: [CreatorToken!]!
   }
 
   extend type Mutation {
