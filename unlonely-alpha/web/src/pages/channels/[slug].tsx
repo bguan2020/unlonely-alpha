@@ -22,7 +22,7 @@ import ChannelDesc from "../../components/channels/ChannelDesc";
 import AblyChatComponent from "../../components/chat/ChatComponent";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
-import NextStreamTimer from "../../components/stream/NextStreamTimer";
+import StreamComponent from "../../components/stream/StreamComponent";
 import BuyTransactionModal from "../../components/transactions/BuyTransactionModal";
 import ChanceTransactionModal from "../../components/transactions/ChanceTransactionModal";
 import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
@@ -137,6 +137,7 @@ const ChannelPage = () => {
     console.log("newSocket", newSocket);
     console.log("socket connected to URL: ", url);
 
+    // idk, maybe try useRef instead of useEffect (https://github.dev/koolkishan/chat-app-react-nodejs)
     setSocket(newSocket);
     newSocket.on("connect", () => {
       console.log("is connected to socket?", newSocket.connected);
@@ -294,7 +295,7 @@ const ChannelPage = () => {
                         </Flex>
                       ))}
                     </Box>
-                    <NextStreamTimer isTheatreMode />
+                    <StreamComponent isTheatreMode />
                   </Flex>
                   <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
                     <GridItem colSpan={showArcadeButtons ? 2 : 3}>

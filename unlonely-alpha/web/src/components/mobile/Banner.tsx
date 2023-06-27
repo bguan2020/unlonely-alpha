@@ -33,7 +33,7 @@ const MobileBanner = () => {
   );
 };
 
-function isIosDevice() {
+export function isIosDevice() {
   if (typeof window !== "undefined") {
     return (
       navigator.userAgent.match(/iPhone|iPod/i) ||

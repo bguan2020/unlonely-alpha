@@ -16,6 +16,8 @@ import HeroBanner from "../components/layout/HeroBanner";
 import AblyHomeChatComponent from "../components/chat/HomeChatComponent";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { Channel } from "../generated/graphql";
+import Link from "next/link";
+import { isIosDevice } from "../components/mobile/Banner";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -94,42 +96,7 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
 
   return (
     <>
-      <TokenLeaderboard
-        dataset={[
-          {
-            data: ["1", "TED", "0.0005", "50000", "tednotlasso.eth"],
-            channelLink: "ted",
-          },
-          {
-            data: ["2", "JONNY", "0.0005", "20000", "jonnyringo.eth"],
-            channelLink: "jonnyringo",
-          },
-          {
-            data: ["3", "TLDR", "0.0005", "15004", "tldr.eth"],
-            channelLink: "tldr",
-          },
-          {
-            data: ["4", "SIRSU", "0.0005", "2370", "sirsu.eth"],
-            channelLink: "sirsu",
-          },
-          {
-            data: ["5", "KATY", "0.0005", "978", "katherholt.eth"],
-            channelLink: "seam",
-          },
-          {
-            data: ["6", "H3IDI", "0.0005", "140", "h3idi.eth"],
-            channelLink: "h3idi",
-          },
-          {
-            data: ["7", "ANTIMO", "0.0005", "12", "antimo.eth"],
-            channelLink: "antimo",
-          },
-          {
-            data: ["8", "BRIAN", "0.0005", "11", "br1an.eth"],
-            channelLink: "brian",
-          },
-        ]}
-      />
+      <TokenLeaderboard />
       <Flex direction="column" width="100%">
         <Text
           fontSize={{ base: "30px", lg: "40px" }}
@@ -163,12 +130,38 @@ const ScrollableComponent = ({ channels }: { channels: Channel[] }) => {
           direction={["column", "row", "row", "row"]}
         >
           <Stack direction="row" spacing={["3", "8", "10", "16"]}>
-            <Text fontFamily="Neue Pixel Sans">twitter</Text>
-            <Text fontFamily="Neue Pixel Sans">farcaster</Text>
-            <Text fontFamily="Neue Pixel Sans">telegram</Text>
-            <Text fontFamily="Neue Pixel Sans">nf.td</Text>
+            <Link
+              href="https://twitter.com/unlonely_app"
+              passHref
+              target="_blank"
+            >
+              <Text fontFamily="Neue Pixel Sans">twitter</Text>
+            </Link>
+            <Link href="https://warpcast.com/unlonely" passHref target="_blank">
+              <Text fontFamily="Neue Pixel Sans">farcaster</Text>
+            </Link>
+            <Link
+              href="https://t.me/+IE_BA-tyLIA5MzZh"
+              passHref
+              target="_blank"
+            >
+              <Text fontFamily="Neue Pixel Sans">telegram</Text>
+            </Link>
+            <Link href="https://nf.td/unlonely" passHref target="_blank">
+              <Text fontFamily="Neue Pixel Sans">nf.td</Text>
+            </Link>
           </Stack>
-          <Text fontFamily="Neue Pixel Sans">download on ios | android</Text>
+          <Link
+            href={
+              isIosDevice()
+                ? "https://testflight.apple.com/join/z4PpYxXz"
+                : "https://dub.sh/unlonely-android"
+            }
+            passHref
+            target="_blank"
+          >
+            <Text fontFamily="Neue Pixel Sans">download on ios | android</Text>
+          </Link>
         </Flex>
       </Flex>
     </>

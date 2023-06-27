@@ -136,6 +136,37 @@ export const getTokenHoldersByChannel = (
   });
 };
 
+export const getTokenLeaderboard = async (ctx: Context) => {
+  // get all tokens, and the channel the tokens are associated with, order by price descending
+  const tokens = await ctx.prisma.creatorToken.findMany({
+    include: {
+      channel: true,
+      users: true,
+    },
+    // orderby price and if price is the same, order by the number of holders
+    orderBy: {
+      price: 'desc',
+    },
+  });
+
+  // map over the tokens to count the number of holders for each token
+  const tokenWithHolders = tokens.map(token => ({
+    ...token,
+    holders: token.users.length,
+  }));
+
+  // sort the tokens by price descending, and if price is the same, order by holders descending
+  tokenWithHolders.sort((a, b) => {
+    if (a.price !== b.price) {
+      return b.price - a.price;
+    } else {
+      return b.holders - a.holders;
+    }
+  });
+
+  return tokenWithHolders;
+};
+
 export const getOwner = (
   { ownerAddr }: { ownerAddr: string },
   ctx: Context
