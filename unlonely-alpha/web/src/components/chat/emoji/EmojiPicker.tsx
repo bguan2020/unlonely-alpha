@@ -21,8 +21,20 @@ const EmojiCategory = ({
 }) => {
   return (
     <Flex direction="column">
-      <Text fontWeight={"bold"}>{category}</Text>
-      <SimpleGrid minChildWidth="20px" spacing="4px" alignContent="center">
+      <Text
+        fontWeight={"bold"}
+        style={{
+          textShadow: "0 0 0.2em black",
+        }}
+      >
+        {category}
+      </Text>
+      <SimpleGrid
+        minChildWidth="20px"
+        spacing="4px"
+        alignContent="center"
+        overflow={"auto"}
+      >
         {emojis.map((emoji) => (
           <Emoji
             key={emoji.unicodeString}
@@ -38,8 +50,9 @@ const EmojiCategory = ({
 const EmojiPicker = ({ onSelectEmoji, onSelectGif }: Props) => {
   return (
     <Flex direction="column">
-      {categoriesList.map((category) => (
+      {categoriesList.map((category, i) => (
         <EmojiCategory
+          key={i}
           onSelectEmoji={onSelectEmoji}
           category={category}
           emojis={unicodeEmojis[category]}

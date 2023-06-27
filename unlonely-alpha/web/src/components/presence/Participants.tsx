@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { Flex, SimpleGrid, Tooltip, Box } from "@chakra-ui/react";
 
-// import { usePresence } from "../../hooks/usePresence";
 import { usePresence } from "@ably-labs/react-hooks";
 import Participant from "./Participant";
 import { User } from "../../generated/graphql";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/context/useUser";
 import ExcessTooltip from "./ExcessTooltip";
 import AnonExcessTooltip from "./AnonExcessTooltip";
 
@@ -133,10 +132,10 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
                 alignItems="center"
                 justifyContent="center"
                 fontSize="14px"
-                bg="white"
+                bg="black"
                 borderRadius="50%"
-                width="2.6rem"
-                height="2.6rem"
+                width="8"
+                height="8"
               >
                 {`+${participantOrder.slice(6).length}`}
               </Box>
