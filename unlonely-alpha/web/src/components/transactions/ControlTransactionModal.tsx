@@ -172,8 +172,8 @@ export default function ControlTransactionModal({
   };
 
   const onSubmit = async (data: PostStreamInteractionInput) => {
-    // await handleSend();
-    await handleBackendSend();
+    await handleSend();
+    // await handleBackendSend();
   };
 
   useEffect(() => {
