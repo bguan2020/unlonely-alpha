@@ -330,9 +330,7 @@
         ],
         "libraries": [],
         "methods": [
-          "owner()",
-          "renounceOwnership()",
-          "transferOwnership(address)"
+          "supportsInterface(bytes4)"
         ],
         "linkReferences": [],
         "errors": [
@@ -594,7 +592,7 @@
               "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:24"
             },
             {
-              "label": "_symbol",
+              "label": "danny",
               "offset": 0,
               "slot": "1",
               "type": "t_string_storage",
@@ -602,7 +600,7 @@
               "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:27"
             },
             {
-              "label": "_owners",
+              "label": "grace",
               "offset": 0,
               "slot": "2",
               "type": "t_mapping(t_uint256,t_address)",
@@ -610,7 +608,7 @@
               "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:30"
             },
             {
-              "label": "_balances",
+              "label": "creatorTokens",
               "offset": 0,
               "slot": "3",
               "type": "t_mapping(t_address,t_uint256)",
@@ -618,7 +616,7 @@
               "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:33"
             },
             {
-              "label": "_tokenApprovals",
+              "label": "tokenPrices",
               "offset": 0,
               "slot": "4",
               "type": "t_mapping(t_uint256,t_address)",
@@ -759,7 +757,7 @@
               "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:33"
             },
             {
-              "label": "_tokenApprovals",
+              "label": "tokenOwners",
               "offset": 0,
               "slot": "4",
               "type": "t_mapping(t_uint256,t_address)",
@@ -787,26 +785,17 @@
             "t_address": {
               "label": "address"
             },
-            "t_bool": {
-              "label": "bool"
+            "t_contract(IERC20)777": {
+              "label": "contract IERC20"
             },
-            "t_mapping(t_address,t_bool)": {
-              "label": "mapping(address => bool)"
+            "t_mapping(t_address,t_address)": {
+              "label": "mapping(address => address)"
             },
-            "t_mapping(t_address,t_mapping(t_address,t_bool))": {
-              "label": "mapping(address => mapping(address => bool))"
+            "t_mapping(t_address,t_contract(IERC20)777)": {
+              "label": "mapping(address => contract IERC20)"
             },
             "t_mapping(t_address,t_uint256)": {
               "label": "mapping(address => uint256)"
-            },
-            "t_mapping(t_uint256,t_address)": {
-              "label": "mapping(uint256 => address)"
-            },
-            "t_mapping(t_uint256,t_string_storage)": {
-              "label": "mapping(uint256 => string)"
-            },
-            "t_string_storage": {
-              "label": "string"
             },
             "t_uint256": {
               "label": "uint256"

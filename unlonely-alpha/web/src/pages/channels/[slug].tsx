@@ -81,7 +81,6 @@ const ChannelPage = () => {
   const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
 
   const accountData = useAccount();
-
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
 
