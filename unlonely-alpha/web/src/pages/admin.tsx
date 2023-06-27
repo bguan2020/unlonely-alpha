@@ -19,7 +19,7 @@ import {
   useBuyCreatorToken,
   useCalculateEthAmount,
   useReadPublic,
-  useSetTokenPrice,
+  // useSetTokenPrice,
   useUseFeature,
 } from "../hooks/contracts/useArcadeContract";
 import { useApproval } from "../hooks/contracts/useApproval";
@@ -71,7 +71,7 @@ const AdminContent = () => {
   const localNetwork = useMemo(() => {
     return (
       NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[1]
+      NETWORKS[0]
     );
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
@@ -250,33 +250,33 @@ const AdminContent = () => {
     });
   };
 
-  const {
-    setTokenPrice,
-    setTokenPriceData,
-    setTokenPriceTxData,
-    setTokenPriceTxLoading,
-  } = useSetTokenPrice(
-    {
-      creatorTokenAddress: creatorTokenAddress as `0x${string}`,
-      price: parseUnits(
-        formatIncompleteNumber(tokenPriceState) as `${number}`,
-        18
-      ),
-    },
-    {
-      onTxSuccess: (data) => {
-        toast({
-          title: "setTokenPrice",
-          description: "success",
-          status: "success",
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-        refetchPublic();
-      },
-    }
-  );
+  // const {
+  //   setTokenPrice,
+  //   setTokenPriceData,
+  //   setTokenPriceTxData,
+  //   setTokenPriceTxLoading,
+  // } = useSetTokenPrice(
+  //   {
+  //     creatorTokenAddress: creatorTokenAddress as `0x${string}`,
+  //     price: parseUnits(
+  //       formatIncompleteNumber(tokenPriceState) as `${number}`,
+  //       18
+  //     ),
+  //   },
+  //   {
+  //     onTxSuccess: (data) => {
+  //       toast({
+  //         title: "setTokenPrice",
+  //         description: "success",
+  //         status: "success",
+  //         duration: 9000,
+  //         isClosable: true,
+  //         position: "top-right",
+  //       });
+  //       refetchPublic();
+  //     },
+  //   }
+  // );
 
   const { updateCreatorTokenPrice } = useUpdateCreatorTokenPrice({
     onError: (error: any) => {
@@ -284,16 +284,16 @@ const AdminContent = () => {
     },
   });
 
-  const handleSetTokenPrice = async () => {
-    if (!setTokenPrice) return;
-    // first call smart contract
-    await setTokenPrice();
-    // then call our database
-    await updateCreatorTokenPrice({
-      tokenAddress: creatorTokenAddress as `0x${string}`,
-      price: Number(tokenPriceState),
-    });
-  };
+  // const handleSetTokenPrice = async () => {
+  //   if (!setTokenPrice) return;
+  //   // first call smart contract
+  //   await setTokenPrice();
+  //   // then call our database
+  //   await updateCreatorTokenPrice({
+  //     tokenAddress: creatorTokenAddress as `0x${string}`,
+  //     price: Number(tokenPriceState),
+  //   });
+  // };
 
   const acceptableNewPrice = useMemo(() => {
     const newPrice = parseUnits(
@@ -319,7 +319,7 @@ const AdminContent = () => {
   }, [buyCreatorTokenTxLoading, isApprovalLoading]);
 
   return (
-    <Flex direction="column" p="10px" gap="20px">
+    <Flex direction="column" p="10px" gap="20px" bg="#636363">
       <Flex>{localNetwork.config.name}</Flex>
       <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         addCreatorToken
@@ -512,10 +512,10 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
-      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
+      {/* <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         setTokenPrice
       </Text>
-      <Flex gap={"10px"} alignItems="flex-end">
+      <Flex gap={"10px"} alignItems="flex-end" bg='gray'>
         <VStack>
           <Text>existing creator token address</Text>
           <Input
@@ -577,7 +577,7 @@ const AdminContent = () => {
             Send
           </Button>
         )}
-      </Flex>
+      </Flex> */}
       <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         approve (owners only)
       </Text>

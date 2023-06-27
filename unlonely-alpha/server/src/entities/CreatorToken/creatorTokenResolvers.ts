@@ -12,6 +12,9 @@ export const resolvers = {
     ) => {
       return creatorTokenService.getTokenHoldersByChannel(data, ctx);
     },
+    getTokenLeaderboard: (_: any, _args: any, ctx: Context) => {
+      return creatorTokenService.getTokenLeaderboard(ctx);
+    },
   },
   Mutation: {
     createCreatorToken: (

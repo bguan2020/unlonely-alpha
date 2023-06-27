@@ -11,7 +11,7 @@ export const Mainnet: Network = {
     isTestnet: false,
     contracts: {
       unlonelyArcade: {
-        address: undefined,
+        address: "0xab79C816da5CFC71127da3aDe3e9604112348196",
         abi: unlonelyArcadeAbi,
       },
     },

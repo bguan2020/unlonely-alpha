@@ -59,7 +59,7 @@ export default function ControlTransactionModal({
   const localNetwork = useMemo(() => {
     return (
       NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[1]
+      NETWORKS[0]
     );
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
@@ -100,13 +100,18 @@ export default function ControlTransactionModal({
     }
   );
 
+  const tokenAmount_bigint = useMemo(
+    () =>
+      requiresApproval
+        ? BigInt(0)
+        : parseUnits(formatIncompleteNumber(amountOption) as `${number}`, 18),
+    [amountOption, requiresApproval]
+  );
+
   const { useFeature, useFeatureTxLoading } = useUseFeature(
     {
       creatorTokenAddress: channelBySlug?.token?.address as `0x${string}`,
-      featurePrice: parseUnits(
-        formatIncompleteNumber(amountOption) as `${number}`,
-        18
-      ),
+      featurePrice: tokenAmount_bigint,
     },
     {
       onTxSuccess: (data) => {
@@ -155,8 +160,11 @@ export default function ControlTransactionModal({
       "user:",
       user,
       "useFeature:",
-      useFeature
+      useFeature,
+      "requiresApproval:",
+      requiresApproval
     );
+    if (requiresApproval) return false;
     if (!user) return false;
     if (!useFeature) return false;
     return true;
@@ -172,8 +180,8 @@ export default function ControlTransactionModal({
   };
 
   const onSubmit = async (data: PostStreamInteractionInput) => {
-    // await handleSend();
-    await handleBackendSend();
+    await handleSend();
+    // await handleBackendSend();
   };
 
   useEffect(() => {
@@ -286,11 +294,11 @@ export default function ControlTransactionModal({
               _focus={{}}
               _active={{}}
               width="100%"
-              // disabled={
-              //   !canSend ||
-              //   localText.trim().length > 280 ||
-              //   localText.trim().length === 0
-              // }
+              disabled={
+                !canSend ||
+                localText.trim().length > 280 ||
+                localText.trim().length === 0
+              }
               type="submit"
               borderRadius="25px"
             >

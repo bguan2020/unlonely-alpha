@@ -131,6 +131,7 @@ export type CreatorToken = {
   __typename?: "CreatorToken";
   address: Scalars["String"];
   channel: Channel;
+  holders?: Maybe<Scalars["Int"]>;
   id: Scalars["ID"];
   name: Scalars["String"];
   price: Scalars["Float"];
@@ -398,6 +399,7 @@ export type Query = {
   getRecentStreamInteractionsByChannel?: Maybe<Array<Maybe<StreamInteraction>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getTokenHoldersByChannel: Array<UserCreatorToken>;
+  getTokenLeaderboard: Array<CreatorToken>;
   getUser?: Maybe<User>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
@@ -644,6 +646,26 @@ export type VideoCard_VideoFragment = {
   owner: { __typename?: "User"; username?: string | null; address: string };
 };
 
+export type GetTokenLeaderboardQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetTokenLeaderboardQuery = {
+  __typename?: "Query";
+  getTokenLeaderboard: Array<{
+    __typename?: "CreatorToken";
+    symbol: string;
+    price: number;
+    name: string;
+    id: string;
+    holders?: number | null;
+    address: string;
+    channel: {
+      __typename?: "Channel";
+      slug: string;
+      owner: { __typename?: "User"; address: string; username?: string | null };
+    };
+  }>;
+};
+
 export type ChannelDetailQueryVariables = Exact<{
   slug: Scalars["String"];
 }>;
@@ -705,6 +727,29 @@ export type GetTokenHoldersByChannelQuery = {
     quantity: number;
     user: { __typename?: "User"; username?: string | null; address: string };
   }>;
+};
+
+export type GetUserQueryVariables = Exact<{
+  data: GetUserInput;
+}>;
+
+export type GetUserQuery = {
+  __typename?: "Query";
+  getUser?: {
+    __typename?: "User";
+    address: string;
+    username?: string | null;
+    signature?: string | null;
+    bio?: string | null;
+    powerUserLvl: number;
+    videoSavantLvl: number;
+    nfcRank: number;
+    FCImageUrl?: string | null;
+    isFCUser: boolean;
+    isLensUser: boolean;
+    lensHandle?: string | null;
+    lensImageUrl?: string | null;
+  } | null;
 };
 
 export type CreateCreatorTokenMutationVariables = Exact<{
@@ -853,49 +898,6 @@ export type UpdateUserNotificationsMutation = {
     notificationsLive?: boolean | null;
     notificationsNFCs?: boolean | null;
   } | null;
-};
-
-export type GetUserQueryVariables = Exact<{
-  data: GetUserInput;
-}>;
-
-export type GetUserQuery = {
-  __typename?: "Query";
-  getUser?: {
-    __typename?: "User";
-    address: string;
-    username?: string | null;
-    signature?: string | null;
-    bio?: string | null;
-    powerUserLvl: number;
-    videoSavantLvl: number;
-    nfcRank: number;
-    FCImageUrl?: string | null;
-    isFCUser: boolean;
-    isLensUser: boolean;
-    lensHandle?: string | null;
-    lensImageUrl?: string | null;
-  } | null;
-};
-
-export type VideoFeed1808QueryVariables = Exact<{
-  data: VideoFeedInput;
-}>;
-
-export type VideoFeed1808Query = {
-  __typename?: "Query";
-  getVideoFeed?: Array<{
-    __typename?: "Video";
-    id: string;
-    title: string;
-    thumbnail: string;
-    description: string;
-    score: number;
-    createdAt: any;
-    liked?: boolean | null;
-    skipped?: boolean | null;
-    owner: { __typename?: "User"; username?: string | null; address: string };
-  } | null> | null;
 };
 
 export type GetChannelFeedQueryVariables = Exact<{ [key: string]: never }>;
@@ -1154,6 +1156,75 @@ export type TaskFeedQueryResult = Apollo.QueryResult<
   TaskFeedQuery,
   TaskFeedQueryVariables
 >;
+export const GetTokenLeaderboardDocument = gql`
+  query GetTokenLeaderboard {
+    getTokenLeaderboard {
+      symbol
+      price
+      name
+      id
+      holders
+      address
+      channel {
+        slug
+        owner {
+          address
+          username
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetTokenLeaderboardQuery__
+ *
+ * To run a query within a React component, call `useGetTokenLeaderboardQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTokenLeaderboardQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTokenLeaderboardQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetTokenLeaderboardQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetTokenLeaderboardQuery,
+    GetTokenLeaderboardQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetTokenLeaderboardQuery,
+    GetTokenLeaderboardQueryVariables
+  >(GetTokenLeaderboardDocument, options);
+}
+export function useGetTokenLeaderboardLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetTokenLeaderboardQuery,
+    GetTokenLeaderboardQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetTokenLeaderboardQuery,
+    GetTokenLeaderboardQueryVariables
+  >(GetTokenLeaderboardDocument, options);
+}
+export type GetTokenLeaderboardQueryHookResult = ReturnType<
+  typeof useGetTokenLeaderboardQuery
+>;
+export type GetTokenLeaderboardLazyQueryHookResult = ReturnType<
+  typeof useGetTokenLeaderboardLazyQuery
+>;
+export type GetTokenLeaderboardQueryResult = Apollo.QueryResult<
+  GetTokenLeaderboardQuery,
+  GetTokenLeaderboardQueryVariables
+>;
 export const ChannelDetailDocument = gql`
   query ChannelDetail($slug: String!) {
     getChannelBySlug(slug: $slug) {
@@ -1359,6 +1430,65 @@ export type GetTokenHoldersByChannelLazyQueryHookResult = ReturnType<
 export type GetTokenHoldersByChannelQueryResult = Apollo.QueryResult<
   GetTokenHoldersByChannelQuery,
   GetTokenHoldersByChannelQueryVariables
+>;
+export const GetUserDocument = gql`
+  query getUser($data: GetUserInput!) {
+    getUser(data: $data) {
+      address
+      username
+      signature
+      bio
+      powerUserLvl
+      videoSavantLvl
+      nfcRank
+      FCImageUrl
+      isFCUser
+      isLensUser
+      lensHandle
+      lensImageUrl
+    }
+  }
+`;
+
+/**
+ * __useGetUserQuery__
+ *
+ * To run a query within a React component, call `useGetUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetUserQuery(
+  baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    options
+  );
+}
+export function useGetUserLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    options
+  );
+}
+export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
+export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
+export type GetUserQueryResult = Apollo.QueryResult<
+  GetUserQuery,
+  GetUserQueryVariables
 >;
 export const CreateCreatorTokenDocument = gql`
   mutation CreateCreatorToken($data: CreateCreatorTokenInput!) {
@@ -2009,134 +2139,6 @@ export type UpdateUserNotificationsMutationResult =
 export type UpdateUserNotificationsMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserNotificationsMutation,
   UpdateUserNotificationsMutationVariables
->;
-export const GetUserDocument = gql`
-  query getUser($data: GetUserInput!) {
-    getUser(data: $data) {
-      address
-      username
-      signature
-      bio
-      powerUserLvl
-      videoSavantLvl
-      nfcRank
-      FCImageUrl
-      isFCUser
-      isLensUser
-      lensHandle
-      lensImageUrl
-    }
-  }
-`;
-
-/**
- * __useGetUserQuery__
- *
- * To run a query within a React component, call `useGetUserQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetUserQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useGetUserQuery(
-  baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(
-    GetUserDocument,
-    options
-  );
-}
-export function useGetUserLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(
-    GetUserDocument,
-    options
-  );
-}
-export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
-export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
-export type GetUserQueryResult = Apollo.QueryResult<
-  GetUserQuery,
-  GetUserQueryVariables
->;
-export const VideoFeed1808Document = gql`
-  query VideoFeed1808($data: VideoFeedInput!) {
-    getVideoFeed(data: $data) {
-      id
-      title
-      thumbnail
-      description
-      score
-      createdAt
-      owner {
-        username
-        address
-      }
-      liked
-      skipped
-    }
-  }
-`;
-
-/**
- * __useVideoFeed1808Query__
- *
- * To run a query within a React component, call `useVideoFeed1808Query` and pass it any options that fit your needs.
- * When your component renders, `useVideoFeed1808Query` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useVideoFeed1808Query({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useVideoFeed1808Query(
-  baseOptions: Apollo.QueryHookOptions<
-    VideoFeed1808Query,
-    VideoFeed1808QueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<VideoFeed1808Query, VideoFeed1808QueryVariables>(
-    VideoFeed1808Document,
-    options
-  );
-}
-export function useVideoFeed1808LazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    VideoFeed1808Query,
-    VideoFeed1808QueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<VideoFeed1808Query, VideoFeed1808QueryVariables>(
-    VideoFeed1808Document,
-    options
-  );
-}
-export type VideoFeed1808QueryHookResult = ReturnType<
-  typeof useVideoFeed1808Query
->;
-export type VideoFeed1808LazyQueryHookResult = ReturnType<
-  typeof useVideoFeed1808LazyQuery
->;
-export type VideoFeed1808QueryResult = Apollo.QueryResult<
-  VideoFeed1808Query,
-  VideoFeed1808QueryVariables
 >;
 export const GetChannelFeedDocument = gql`
   query GetChannelFeed {

@@ -45,6 +45,7 @@ const startServer = async () => {
 
     socket.on("send-message", (message) => {
       // You can broadcast the message to all connected clients
+      console.log("client count:", io.engine.clientsCount);
       io.emit("receive-message", message);
     });
 

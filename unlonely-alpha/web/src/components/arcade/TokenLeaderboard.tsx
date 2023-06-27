@@ -1,3 +1,4 @@
+import { useQuery } from "@apollo/client";
 import {
   Flex,
   Table,
@@ -11,9 +12,13 @@ import {
   Box,
   useBreakpointValue,
   Button,
+  Spinner,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
+import { GET_TOKEN_LEADERBOARD_QUERY } from "../../constants/queries";
+import { GetTokenLeaderboardQuery } from "../../generated/graphql";
+import centerEllipses from "../../utils/centerEllipses";
 
 const headers = [
   "rank",
@@ -23,11 +28,13 @@ const headers = [
   "channel owner",
 ];
 
-const TokenLeaderboard = ({
-  dataset,
-}: {
-  dataset: { data: string[]; obscureText?: boolean; channelLink: string }[];
-}) => {
+const TokenLeaderboard = ({ callback }: { callback?: () => void }) => {
+  const { loading, error, data } = useQuery<GetTokenLeaderboardQuery>(
+    GET_TOKEN_LEADERBOARD_QUERY
+  );
+
+  const dataset = useMemo(() => data?.getTokenLeaderboard ?? [], [data]);
+
   const visibleColumns = useBreakpointValue({
     base: [1, 2],
     sm: [0, 1, 2],
@@ -37,13 +44,27 @@ const TokenLeaderboard = ({
   const router = useRouter();
 
   const handleRowClick = (rowIndex: string) => {
+    callback?.();
     router.push(`/channels/${rowIndex}`);
   };
 
   const [itemsShown, setItemsShown] = useState(10);
 
   const datasetCapped = useMemo(
-    () => dataset.slice(0, itemsShown),
+    () =>
+      dataset.map((d, i) => {
+        return {
+          data: [
+            `${i + 1}`,
+            d.symbol,
+            d.price,
+            d.holders,
+            d.channel.owner.username ??
+              centerEllipses(d.channel.owner.address, 10),
+          ],
+          channelLink: d.channel.slug,
+        };
+      }),
     [dataset, itemsShown]
   );
 
@@ -78,73 +99,82 @@ const TokenLeaderboard = ({
         who has the most valuable token?
       </Text>
       <Box borderWidth="1px" borderColor="#615C5C" borderRadius={10}>
-        <TableContainer overflowX={"hidden"}>
-          <Table variant="unstyled">
-            <Thead>
-              <Tr>
-                {visibleColumns &&
-                  visibleColumns.map((i) => (
-                    <Th
-                      textTransform={"lowercase"}
-                      fontSize={["20px", "24px"]}
-                      p="10px"
-                      textAlign="center"
-                      borderBottom="1px solid #615C5C"
-                      key={i}
-                    >
-                      {headers[i]}
-                    </Th>
-                  ))}
-              </Tr>
-            </Thead>
-            <Tbody>
-              {datasetCapped.map((row, rowIndex) => (
-                <Tr
-                  onClick={() => handleRowClick(row.channelLink)}
-                  _hover={{ background: "#615C5C" }}
-                  cursor="pointer"
-                  key={rowIndex}
-                >
+        {error ? (
+          <Flex justifyContent={"center"} p="10px">
+            <Text>Cannot fetch data</Text>
+          </Flex>
+        ) : loading ? (
+          <Flex justifyContent={"center"} p="10px">
+            <Spinner />
+          </Flex>
+        ) : (
+          <TableContainer overflowX={"hidden"}>
+            <Table variant="unstyled">
+              <Thead>
+                <Tr>
                   {visibleColumns &&
-                    visibleColumns.map((index) => (
-                      <Td
-                        opacity={row.obscureText ? 0.5 : 1}
+                    visibleColumns.map((i) => (
+                      <Th
+                        textTransform={"lowercase"}
                         fontSize={["20px", "24px"]}
                         p="10px"
                         textAlign="center"
-                        key={index}
+                        borderBottom="1px solid #615C5C"
+                        key={i}
                       >
-                        {row.data[index]}
-                      </Td>
+                        {headers[i]}
+                      </Th>
                     ))}
                 </Tr>
-              ))}
-            </Tbody>
-          </Table>
-          {itemsShown < dataset.length && (
-            <Flex justifyContent={"center"} p="5px">
-              <Flex
-                borderRadius={"5px"}
-                p="1px"
-                bg={
-                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-                }
-              >
-                <Button
-                  bg={"#131323"}
-                  _hover={{ opacity: 0.9 }}
-                  _focus={{}}
-                  _active={{}}
-                  onClick={() => setItemsShown((prev) => prev + 10)}
+              </Thead>
+              <Tbody>
+                {datasetCapped.map((row, rowIndex) => (
+                  <Tr
+                    onClick={() => handleRowClick(row.channelLink)}
+                    _hover={{ background: "#615C5C" }}
+                    cursor="pointer"
+                    key={rowIndex}
+                  >
+                    {visibleColumns &&
+                      visibleColumns.map((index) => (
+                        <Td
+                          fontSize={["20px", "24px"]}
+                          p="10px"
+                          textAlign="center"
+                          key={index}
+                        >
+                          {row.data[index]}
+                        </Td>
+                      ))}
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+            {itemsShown < dataset.length && (
+              <Flex justifyContent={"center"} p="5px">
+                <Flex
+                  borderRadius={"5px"}
+                  p="1px"
+                  bg={
+                    "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                  }
                 >
-                  <Text fontFamily="Neue Pixel Sans" fontWeight="light">
-                    See More
-                  </Text>
-                </Button>
+                  <Button
+                    bg={"#131323"}
+                    _hover={{ opacity: 0.9 }}
+                    _focus={{}}
+                    _active={{}}
+                    onClick={() => setItemsShown((prev) => prev + 10)}
+                  >
+                    <Text fontFamily="Neue Pixel Sans" fontWeight="light">
+                      See More
+                    </Text>
+                  </Button>
+                </Flex>
               </Flex>
-            </Flex>
-          )}
-        </TableContainer>
+            )}
+          </TableContainer>
+        )}
       </Box>
     </Flex>
   );

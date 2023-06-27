@@ -193,7 +193,32 @@ export const useBuyCreatorToken = (
     contract,
     "buyCreatorToken",
     [args.creatorTokenAddress, args.amountOut],
-    callbacks,
+    {
+      onPrepareSuccess: (data) => {
+        console.log("useBuyCreatorToken buyCreatorToken prepare success", data);
+        callbacks?.onPrepareSuccess?.(data);
+      },
+      onPrepareError: (error) => {
+        console.log("useBuyCreatorToken buyCreatorToken prepare error", error);
+        callbacks?.onPrepareError?.(error);
+      },
+      onWriteSuccess: (data) => {
+        console.log("useBuyCreatorToken buyCreatorToken write success", data);
+        callbacks?.onWriteSuccess?.(data);
+      },
+      onWriteError: (error) => {
+        console.log("useBuyCreatorToken buyCreatorToken write error", error);
+        callbacks?.onWriteError?.(error);
+      },
+      onTxSuccess: (data) => {
+        console.log("useBuyCreatorToken buyCreatorToken tx success", data);
+        callbacks?.onTxSuccess?.(data);
+      },
+      onTxError: (error) => {
+        console.log("useBuyCreatorToken buyCreatorToken tx error", error);
+        callbacks?.onTxError?.(error);
+      },
+    },
     { value: args.amountIn }
   );
 
@@ -227,7 +252,32 @@ export const useUseFeature = (
     contract,
     "useFeature",
     [args.creatorTokenAddress, args.featurePrice],
-    callbacks
+    {
+      onPrepareSuccess: (data) => {
+        console.log("useUseFeature useFeature prepare success", data);
+        callbacks?.onPrepareSuccess?.(data);
+      },
+      onPrepareError: (error) => {
+        console.log("useUseFeature useFeature prepare error", error);
+        callbacks?.onPrepareError?.(error);
+      },
+      onWriteSuccess: (data) => {
+        console.log("useUseFeature useFeature write success", data);
+        callbacks?.onWriteSuccess?.(data);
+      },
+      onWriteError: (error) => {
+        console.log("useUseFeature useFeature write error", error);
+        callbacks?.onWriteError?.(error);
+      },
+      onTxSuccess: (data) => {
+        console.log("useUseFeature useFeature tx success", data);
+        callbacks?.onTxSuccess?.(data);
+      },
+      onTxError: (error) => {
+        console.log("useUseFeature useFeature tx error", error);
+        callbacks?.onTxError?.(error);
+      },
+    }
   );
 
   return {
@@ -261,7 +311,32 @@ export const useAddCreatorToken = (
     contract,
     "addCreatorToken",
     [args.creatorTokenAddress, args.initialPrice, args.tokenOwner],
-    callbacks
+    {
+      onPrepareSuccess: (data) => {
+        console.log("useAddCreatorToken addCreatorToken prepare success", data);
+        callbacks?.onPrepareSuccess?.(data);
+      },
+      onPrepareError: (error) => {
+        console.log("useAddCreatorToken addCreatorToken prepare error", error);
+        callbacks?.onPrepareError?.(error);
+      },
+      onWriteSuccess: (data) => {
+        console.log("useAddCreatorToken addCreatorToken write success", data);
+        callbacks?.onWriteSuccess?.(data);
+      },
+      onWriteError: (error) => {
+        console.log("useAddCreatorToken addCreatorToken write error", error);
+        callbacks?.onWriteError?.(error);
+      },
+      onTxSuccess: (data) => {
+        console.log("useAddCreatorToken addCreatorToken tx success", data);
+        callbacks?.onTxSuccess?.(data);
+      },
+      onTxError: (error) => {
+        console.log("useAddCreatorToken addCreatorToken tx error", error);
+        callbacks?.onTxError?.(error);
+      },
+    }
   );
 
   return {
@@ -272,35 +347,35 @@ export const useAddCreatorToken = (
   };
 };
 
-export const useSetTokenPrice = (
-  args: {
-    creatorTokenAddress: `0x${string}`;
-    price: bigint;
-  },
-  callbacks?: WriteCallbacks
-) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+// export const useSetTokenPrice = (
+//   args: {
+//     creatorTokenAddress: `0x${string}`;
+//     price: bigint;
+//   },
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const network = useNetwork();
+//   const localNetwork = useMemo(() => {
+//     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
+//   }, [network]);
+//   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
-  const {
-    writeAsync: setTokenPrice,
-    writeData: setTokenPriceData,
-    txData: setTokenPriceTxData,
-    isTxLoading: setTokenPriceTxLoading,
-  } = useWrite(
-    contract,
-    "setTokenPrice",
-    [args.creatorTokenAddress, args.price],
-    callbacks
-  );
+//   const {
+//     writeAsync: setTokenPrice,
+//     writeData: setTokenPriceData,
+//     txData: setTokenPriceTxData,
+//     isTxLoading: setTokenPriceTxLoading,
+//   } = useWrite(
+//     contract,
+//     "setTokenPrice",
+//     [args.creatorTokenAddress, args.price],
+//     callbacks
+//   );
 
-  return {
-    setTokenPrice,
-    setTokenPriceData,
-    setTokenPriceTxData,
-    setTokenPriceTxLoading,
-  };
-};
+//   return {
+//     setTokenPrice,
+//     setTokenPriceData,
+//     setTokenPriceTxData,
+//     setTokenPriceTxLoading,
+//   };
+// };

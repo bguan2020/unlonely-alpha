@@ -1,5 +1,25 @@
 import { gql } from "@apollo/client";
 
+export const GET_TOKEN_LEADERBOARD_QUERY = gql`
+  query GetTokenLeaderboard {
+    getTokenLeaderboard {
+      symbol
+      price
+      name
+      id
+      holders
+      address
+      channel {
+        slug
+        owner {
+          address
+          username
+        }
+      }
+    }
+  }
+`;
+
 export const CHANNEL_DETAIL_QUERY = gql`
   query ChannelDetail($slug: String!) {
     getChannelBySlug(slug: $slug) {

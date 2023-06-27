@@ -130,17 +130,17 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_creatorToken",
-        "type": "address"
+        "internalType": "address[]",
+        "name": "_creatorTokens",
+        "type": "address[]"
       },
       {
-        "internalType": "uint256",
-        "name": "_newPrice",
-        "type": "uint256"
+        "internalType": "uint256[]",
+        "name": "_newPrices",
+        "type": "uint256[]"
       }
     ],
-    "name": "setTokenPrice",
+    "name": "setTokenPrices",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

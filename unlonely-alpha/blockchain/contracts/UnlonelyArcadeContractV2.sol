@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 
-contract UnlonelyArcadeContract {
+contract UnlonelyArcadeContractV1 {
     using SafeERC20 for IERC20;
 
     address public brian;
@@ -50,11 +50,15 @@ contract UnlonelyArcadeContract {
         tokenOwners[_creatorToken] = _tokenOwner;
     }
 
-    function setTokenPrice(address _creatorToken, uint256 _newPrice) external onlyAdmin {
-        require(_newPrice > 0, "Token price must be greater than zero.");
-        require(creatorTokens[_creatorToken] != IERC20(address(0)), "Token does not exist.");
+    function setTokenPrices(address[] memory _creatorTokens, uint256[] memory _newPrices) external onlyAdmin {
+        require(_creatorTokens.length == _newPrices.length, "Mismatch between array lengths.");
 
-        tokenPrices[_creatorToken] = _newPrice;
+        for (uint i = 0; i < _creatorTokens.length; i++) {
+            require(_newPrices[i] > 0, "Token price must be greater than zero.");
+            require(creatorTokens[_creatorTokens[i]] != IERC20(address(0)), "Token does not exist.");
+
+            tokenPrices[_creatorTokens[i]] = _newPrices[i];
+        }
     }
 
     function buyCreatorToken(address _creatorToken, uint256 tokenAmount) payable external {
