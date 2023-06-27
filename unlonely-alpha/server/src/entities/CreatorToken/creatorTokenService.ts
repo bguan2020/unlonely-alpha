@@ -143,6 +143,7 @@ export const getTokenLeaderboard = async (ctx: Context) => {
       channel: true,
       users: true,
     },
+    // orderby price and if price is the same, order by the number of holders
     orderBy: {
       price: 'desc',
     },
@@ -153,6 +154,15 @@ export const getTokenLeaderboard = async (ctx: Context) => {
     ...token,
     holders: token.users.length,
   }));
+
+  // sort the tokens by price descending, and if price is the same, order by holders descending
+  tokenWithHolders.sort((a, b) => {
+    if (a.price !== b.price) {
+      return b.price - a.price;
+    } else {
+      return b.holders - a.holders;
+    }
+  });
 
   return tokenWithHolders;
 };
