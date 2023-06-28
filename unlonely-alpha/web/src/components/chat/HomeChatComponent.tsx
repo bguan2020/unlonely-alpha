@@ -1,8 +1,6 @@
 import { Box, Text, Flex, useToast } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
-import { useAccount } from "wagmi";
 import useChannel from "../../hooks/chat/useChannel";
-import { COLORS } from "../../styles/Colors";
 import { Message, initializeEmojis } from "./types/index";
 import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/server/usePostFirstChat";
@@ -10,28 +8,14 @@ import Participants from "../presence/Participants";
 import { useUser } from "../../hooks/context/useUser";
 import MessageList from "./MessageList";
 import { useScrollPercentage } from "../../hooks/internal/useScrollPercentage";
-
-export const chatColor = COLORS[Math.floor(Math.random() * COLORS.length)];
-
-export const emojis = [
-  "https://i.imgur.com/wbUNcyS.gif",
-  "https://i.imgur.com/zTfFgtZ.gif",
-  "https://i.imgur.com/NurjwAK.gif",
-  "⛽️",
-  "😂",
-  "❤️",
-  "👑",
-  "👀",
-  "👍",
-  "👎",
-  "🚀",
-];
-
-export const chatbotAddress = "0x0000000000000000000000000000000000000000";
+import {
+  ADD_REACTION_EVENT,
+  NULL_ADDRESS,
+  RANDOM_CHAT_COLOR,
+} from "../../constants";
 
 const AblyHomeChatComponent = () => {
   const { user, userAddress: address } = useUser();
-  const ADD_REACTION_EVENT = "add-reaction";
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
   /*eslint-enable prefer-const*/
@@ -109,7 +93,7 @@ const AblyHomeChatComponent = () => {
           data: {
             messageText,
             username: user.username,
-            chatColor,
+            chatColor: RANDOM_CHAT_COLOR,
             isFC: user.isFCUser,
             isLens: user.isLensUser,
             lensHandle: user.lensHandle,
@@ -128,7 +112,7 @@ const AblyHomeChatComponent = () => {
           data: {
             messageText,
             username: user.username,
-            chatColor,
+            chatColor: RANDOM_CHAT_COLOR,
             isFC: user.isFCUser,
             isLens: user.isLensUser,
             lensHandle: user.lensHandle,
@@ -154,7 +138,7 @@ const AblyHomeChatComponent = () => {
           data: {
             messageText,
             username: null,
-            chatColor,
+            chatColor: RANDOM_CHAT_COLOR,
             isFC: false,
             isLens: false,
             address: address,
@@ -225,7 +209,7 @@ const AblyHomeChatComponent = () => {
         messageText: messageText,
         username: "chatbot🤖",
         chatColor: "black",
-        address: chatbotAddress,
+        address: NULL_ADDRESS,
         isFC: false,
         isLens: false,
         isGif: false,
