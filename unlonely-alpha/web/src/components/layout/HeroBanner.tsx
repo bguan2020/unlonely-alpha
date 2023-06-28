@@ -1,5 +1,4 @@
-import { Flex, Text } from "@chakra-ui/react";
-import Link from "next/link";
+import { Flex, Text, Tooltip } from "@chakra-ui/react";
 
 const HeroBanner = () => {
   return (
@@ -18,18 +17,35 @@ const HeroBanner = () => {
       >
         your cozy space on the internet
       </Text>
-      <Link target="_blank" href={"https://lu.ma/unlonely"} passHref>
-        <Text
-          textAlign="center"
-          fontSize={["12px", "15px"]}
-          textDecoration="underline"
-          fontStyle="italic"
+      <Text textAlign="center" fontSize={["15px", "18px"]}>
+        <span
+          style={{
+            fontWeight: "bold",
+            cursor: "pointer",
+            textDecoration: "underline",
+          }}
         >
-          <span style={{ fontWeight: "bold" }}>start</span> your own channel to{" "}
-          <span style={{ fontWeight: "bold" }}>launch</span> your own arcade
-          token
-        </Text>
-      </Link>
+          <Tooltip
+            label="dm @gracewhiteguan or @brianguan on telegram a picture of your OBS setup to get your own channel"
+            fontWeight={"bold"}
+          >
+            start
+          </Tooltip>
+        </span>{" "}
+        your own channel and{" "}
+        <span
+          style={{
+            fontWeight: "bold",
+            cursor: "pointer",
+            textDecoration: "underline",
+          }}
+        >
+          <Tooltip label="stream for 10 hours to get your own arcade token">
+            launch
+          </Tooltip>
+        </span>{" "}
+        your own arcade token
+      </Text>
     </Flex>
   );
 };

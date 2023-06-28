@@ -147,9 +147,6 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
             >
               <Text fontFamily="Neue Pixel Sans">telegram</Text>
             </Link>
-            <Link href="https://nf.td/unlonely" passHref target="_blank">
-              <Text fontFamily="Neue Pixel Sans">nf.td</Text>
-            </Link>
           </Stack>
           <Link
             href={
