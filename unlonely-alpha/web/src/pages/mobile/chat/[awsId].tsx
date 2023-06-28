@@ -14,8 +14,6 @@ import { useAccount } from "wagmi";
 
 import useChannel from "../../../hooks/chat/useChannel";
 import { ChatBot } from "../../../constants/types";
-import { timestampConverter } from "../../../utils/timestampConverter";
-import NFTList from "../../../components/profile/NFTList";
 import Badges from "../../../components/chat/Badges";
 import {
   Message,
