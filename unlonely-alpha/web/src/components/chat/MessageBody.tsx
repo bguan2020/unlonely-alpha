@@ -1,10 +1,19 @@
 import { AddIcon, ExternalLinkIcon } from "@chakra-ui/icons";
-import { Box, Flex, Text, Image, Link, Button } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Text,
+  Image,
+  Link,
+  Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+} from "@chakra-ui/react";
 import React, { useState } from "react";
 
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
-// import NFTList from "../profile/NFTList";
 import Badges from "./Badges";
 import EmojiDisplay from "./emoji/EmojiDisplay";
 import { Message } from "./types";
@@ -47,6 +56,7 @@ const MessageBody = ({
   const { user } = useUser();
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   // publish emoji reaction using timeserial
   const sendMessageReaction = (
@@ -79,8 +89,25 @@ const MessageBody = ({
             <Flex direction={"column"}>
               <Flex direction="row" align="center">
                 <Badges user={user} message={message} />
-                {/* <NFTList message={message} /> */}
+                <ChatUserModal
+                  isOpen={isOpen}
+                  handleClose={() => setIsOpen(false)}
+                >
+                  <Text
+                    _hover={{ cursor: "pointer" }}
+                    fontSize="16px"
+                    color={message.data.chatColor}
+                    fontWeight="bold"
+                  >
+                    {message.data.username
+                      ? message.data.username
+                      : centerEllipses(message.data.address, 10)}
+                    :
+                  </Text>
+                  {message.data.address}
+                </ChatUserModal>
                 <Text
+                  onClick={() => setIsOpen(true)}
                   _hover={{ cursor: "pointer" }}
                   fontSize="16px"
                   color={message.data.chatColor}
@@ -301,8 +328,25 @@ const MessageBody = ({
             <Flex direction={"column"}>
               <Flex direction="row" align="center">
                 <Badges user={user} message={message} />
-                {/* <NFTList message={message} /> */}
+                <ChatUserModal
+                  isOpen={isOpen}
+                  handleClose={() => setIsOpen(false)}
+                >
+                  <Text
+                    _hover={{ cursor: "pointer" }}
+                    fontSize="16px"
+                    color={message.data.chatColor}
+                    fontWeight="bold"
+                  >
+                    {message.data.username
+                      ? message.data.username
+                      : centerEllipses(message.data.address, 10)}
+                    :
+                  </Text>
+                  {message.data.address}
+                </ChatUserModal>
                 <Text
+                  onClick={() => setIsOpen(true)}
                   _hover={{ cursor: "pointer" }}
                   fontSize="16px"
                   color={message.data.chatColor}
@@ -528,6 +572,31 @@ const MessageBody = ({
         </Flex>
       </Flex>
     </>
+  );
+};
+
+const ChatUserModal = ({
+  isOpen,
+  handleClose,
+  children,
+}: {
+  isOpen: boolean;
+  handleClose: () => void;
+  children?: React.ReactNode;
+}) => {
+  return (
+    <Modal isCentered isOpen={isOpen} onClose={handleClose}>
+      <ModalOverlay backgroundColor="#282828e6" />
+      <ModalContent
+        maxW="500px"
+        boxShadow="0px 8px 28px #0a061c40"
+        padding="12px"
+        borderRadius="5px"
+        bg="#3A3A3A"
+      >
+        {children}
+      </ModalContent>
+    </Modal>
   );
 };
 

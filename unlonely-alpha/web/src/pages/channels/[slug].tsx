@@ -118,12 +118,9 @@ const ChannelPage = () => {
     setShowBuyModal(false);
   }, []);
 
-  const addToChatbot = useCallback(
-    (chatBotMessageToAdd: ChatBot) => {
-      setChatBot((prev) => [...prev, chatBotMessageToAdd]);
-    },
-    [chatBot]
-  );
+  const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
+    setChatBot((prev) => [...prev, chatBotMessageToAdd]);
+  }, []);
 
   useEffect(() => {
     const url =
