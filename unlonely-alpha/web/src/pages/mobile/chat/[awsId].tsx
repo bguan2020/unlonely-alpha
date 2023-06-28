@@ -958,6 +958,7 @@ export default function Chat() {
                 "-webkit-backdrop-filter": "blur(6px)",
                 backdropFilter: "blur(6px)",
                 zIndex: 10,
+                color: "black",
               }}
             >
               👇️ tap to scroll to bottom 👇️
