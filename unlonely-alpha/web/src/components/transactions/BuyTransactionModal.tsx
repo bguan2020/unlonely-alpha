@@ -40,7 +40,7 @@ export default function BuyTransactionModal({
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
   const { user, userAddress } = useUser();
-  const { channel, token } = useChannelContext();
+  const { channel, token, holders } = useChannelContext();
   const { channelBySlug } = channel;
   const {
     userTokenBalance,
@@ -48,6 +48,7 @@ export default function BuyTransactionModal({
     ownerTokenBalance,
     refetchOwnerTokenBalance,
   } = token;
+  const { refetchTokenHolders } = holders;
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
   });
@@ -138,6 +139,7 @@ export default function BuyTransactionModal({
             channelBySlug?.token?.symbol
           }!`,
         });
+        refetchTokenHolders?.();
         handleClose();
       },
     }

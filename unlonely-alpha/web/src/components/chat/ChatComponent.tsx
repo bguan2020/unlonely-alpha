@@ -66,9 +66,19 @@ const AblyChatComponent = ({
   handleTipModal,
   handleBuyModal,
 }: Props) => {
-  const { channel: channelContext, chat } = useChannelContext();
+  const {
+    channel: channelContext,
+    chat,
+    holders: holdersContext,
+  } = useChannelContext();
   const { channelBySlug } = channelContext;
   const { chatChannel, presenceChannel } = chat;
+  const {
+    data: holdersData,
+    loading: holdersLoading,
+    error: holdersError,
+    refetchTokenHolders,
+  } = holdersContext;
 
   const channelId = useMemo(
     () => (channelBySlug?.id ? Number(channelBySlug?.id) : 3),
@@ -95,25 +105,14 @@ const AblyChatComponent = ({
   const leaderboardRef = useRef<HTMLDivElement>(null);
   const arcadeRef = useRef<HTMLDivElement>(null);
 
-  const [
-    getTokenHolders,
-    { loading: holdersLoading, error, data: holdersData },
-  ] = useLazyQuery(GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY);
-
   useEffect(() => {
     if (showLeaderboard && !holdersLoading && !holdersData) {
-      getTokenHolders({
-        variables: {
-          data: {
-            channelId,
-          },
-        },
-      });
+      refetchTokenHolders?.();
     }
   }, [showLeaderboard]);
 
   useEffect(() => {
-    if (!holdersLoading && !error && holdersData) {
+    if (!holdersLoading && !holdersError && holdersData) {
       const _holders: { name: string; quantity: number }[] =
         holdersData.getTokenHoldersByChannel
           .map((holder: any) => {
@@ -127,7 +126,7 @@ const AblyChatComponent = ({
           .slice(0, 10);
       setHolders(_holders);
     }
-  }, [holdersLoading, error, holdersData]);
+  }, [holdersLoading, holdersError, holdersData]);
 
   useOnClickOutside(leaderboardRef, () => {
     if (showLeaderboard) {

@@ -62,7 +62,6 @@ async function getOpenAIResponse() {
       data: {
         messageText: `${gpt3Response[i]}`,
         username: "roastbot😈",
-        chatColor: "black",
         address: "0x0000000000000000000000000000000000000000",
         isFC: false,
       },
