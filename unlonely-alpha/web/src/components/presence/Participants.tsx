@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
-import { Flex, SimpleGrid, Tooltip, Box } from "@chakra-ui/react";
+import {
+  Flex,
+  SimpleGrid,
+  Tooltip,
+  Box,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+} from "@chakra-ui/react";
 
 import { usePresence } from "@ably-labs/react-hooks";
 import Participant from "./Participant";
 import { User } from "../../generated/graphql";
 import { useUser } from "../../hooks/context/useUser";
-import ExcessTooltip from "./ExcessTooltip";
-import AnonExcessTooltip from "./AnonExcessTooltip";
+import ExcessTooltipAvatar from "./ExcessTooltipAvatar";
+import AnonExcessTooltipAvatar from "./AnonExcessTooltipAvatar";
 
 configureAbly({
   authUrl: "/api/createTokenRequest",
@@ -93,31 +102,6 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
     }
   }, [presenceData]);
 
-  const participantTooltip = () => {
-    // display mapping in grid, 3 columns
-    return (
-      <>
-        <SimpleGrid columns={3}>
-          {participantOrder.map((member, index) => {
-            if (member.data?.user) {
-              return (
-                <Flex key={index} m="auto" p="0.5rem">
-                  <ExcessTooltip user={member.data.user} />
-                </Flex>
-              );
-            } else {
-              return (
-                <Flex key={index} m="auto" p="0.5rem">
-                  <AnonExcessTooltip />
-                </Flex>
-              );
-            }
-          })}
-        </SimpleGrid>
-      </>
-    );
-  };
-
   if (mobile) return <></>;
 
   // make Participant overlap each other a bit and show a max of 6, with the last one being a count of the rest
@@ -126,20 +110,42 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
       <Flex flexDirection="row-reverse">
         {!!participantOrder.slice(6).length && (
           <Flex ml={-2}>
-            <Tooltip label={participantTooltip()} hasArrow arrowSize={14}>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                fontSize="14px"
-                bg="black"
-                borderRadius="50%"
-                width="8"
-                height="8"
-              >
-                {`+${participantOrder.slice(6).length}`}
-              </Box>
-            </Tooltip>
+            <Popover trigger="hover">
+              <PopoverTrigger>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  fontSize="14px"
+                  bg="black"
+                  borderRadius="50%"
+                  width="8"
+                  height="8"
+                >
+                  {`+${participantOrder.slice(6).length}`}
+                </Box>
+              </PopoverTrigger>
+              <PopoverContent bg="gray.800" border="none">
+                <PopoverArrow bg="gray.800" />
+                <SimpleGrid columns={3}>
+                  {participantOrder.map((member, index) => {
+                    if (member.data?.user) {
+                      return (
+                        <Flex key={index} m="auto" p="0.5rem">
+                          <ExcessTooltipAvatar user={member.data.user} />
+                        </Flex>
+                      );
+                    } else {
+                      return (
+                        <Flex key={index} m="auto" p="0.5rem">
+                          <AnonExcessTooltipAvatar user={member.data.user} />
+                        </Flex>
+                      );
+                    }
+                  })}
+                </SimpleGrid>
+              </PopoverContent>
+            </Popover>
           </Flex>
         )}
         {participantOrder

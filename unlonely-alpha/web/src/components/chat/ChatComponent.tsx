@@ -653,7 +653,7 @@ const AblyChatComponent = ({
                 </Flex>
               )}
               {!holdersLoading && holders.length > 0 && (
-                <TableContainer overflowX={"hidden"}>
+                <TableContainer overflowX={"auto"}>
                   <Table variant="unstyled">
                     <Thead>
                       <Tr>

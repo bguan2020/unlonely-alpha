@@ -17,7 +17,7 @@ const HeroBanner = () => {
       >
         your cozy space on the internet
       </Text>
-      <Text textAlign="center" fontSize={["15px", "18px"]}>
+      <Text textAlign="center" fontSize={["15px", "18px"]} fontStyle="italic">
         <span
           style={{
             fontWeight: "bold",
