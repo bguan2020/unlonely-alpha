@@ -1,13 +1,19 @@
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { Box, Text, Flex, Link, useToast, Image } from "@chakra-ui/react";
+import {
+  Box,
+  Text,
+  Flex,
+  Link,
+  useToast,
+  Image,
+  Button,
+} from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useAccount } from "wagmi";
 
 import useChannel from "../../../hooks/chat/useChannel";
 import { ChatBot } from "../../../constants/types";
-import { timestampConverter } from "../../../utils/timestampConverter";
-import NFTList from "../../../components/profile/NFTList";
 import Badges from "../../../components/chat/Badges";
 import {
   Message,
@@ -27,6 +33,7 @@ import NextHead from "../../../components/layout/NextHead";
 import Participants from "../../../components/presence/Participants";
 import { useRouter } from "next/router";
 import usePostChatByAwsId from "../../../hooks/server/usePostChatByAwsId";
+import centerEllipses from "../../../utils/centerEllipses";
 
 const CHAT_INPUT_PANEL_HEIGHT = 80;
 
@@ -359,21 +366,33 @@ export default function Chat() {
     }
 
     return (
-      <>
-        <Flex direction="column">
-          <Flex key={index} direction="row" align="center">
-            <Text color="#5A5A5A" fontSize="12px" mr="5px">
-              {`${timestampConverter(message.timestamp)}`}
-            </Text>
-            <Badges user={user} message={message} />
-            <NFTList mobile message={message} />
-          </Flex>
-          <div className="showhim">
-            {message.data.nfcRank && message.data.nfcRank > 0 ? (
+      <Flex direction="column">
+        <Flex
+          className="showhim"
+          justifyContent={
+            user?.address === message.data.address ? "end" : "start"
+          }
+        >
+          {message.data.nfcRank && message.data.nfcRank > 0 ? (
+            <Flex direction="column">
+              <Flex direction="row" align="center">
+                <Badges user={user} message={message} />
+                {/* <NFTList message={message} /> */}
+                <Text
+                  _hover={{ cursor: "pointer" }}
+                  fontSize="16px"
+                  color={message.data.chatColor}
+                  fontWeight="bold"
+                >
+                  {message.data.username
+                    ? message.data.username
+                    : centerEllipses(message.data.address, 10)}
+                  :
+                </Text>
+              </Flex>
               <Box
                 key={index}
                 borderRadius="10px"
-                // bg={message.data.chatColor}
                 bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
                 pr="10px"
                 pl="10px"
@@ -397,7 +416,6 @@ export default function Chat() {
                             <>
                               <Text
                                 color="white"
-                                fontFamily="Inter"
                                 fontSize={12}
                                 wordBreak="break-word"
                                 textAlign="left"
@@ -409,7 +427,6 @@ export default function Chat() {
                                 isExternal
                                 color="white"
                                 fontSize={12}
-                                fontFamily="Inter"
                                 wordBreak="break-word"
                                 textAlign="left"
                               >
@@ -420,7 +437,6 @@ export default function Chat() {
                           ) : (
                             <Link
                               href={messageText}
-                              fontFamily="Inter"
                               fontWeight="light"
                               isExternal
                               color="white"
@@ -436,10 +452,10 @@ export default function Chat() {
                       ) : (
                         <Text
                           color="white"
-                          fontFamily="Inter"
-                          fontWeight="light"
                           fontSize={
-                            message.data.address === chatbotAddress ? 10 : 12
+                            message.data.address === chatbotAddress
+                              ? "12px"
+                              : "14px"
                           }
                           wordBreak="break-word"
                           textAlign="left"
@@ -558,15 +574,35 @@ export default function Chat() {
                   </Flex>
                 ) : null}
               </Box>
-            ) : (
+            </Flex>
+          ) : (
+            <Flex direction={"column"}>
+              <Flex direction="row" align="center">
+                <Badges user={user} message={message} />
+                {/* <NFTList message={message} /> */}
+                <Text
+                  _hover={{ cursor: "pointer" }}
+                  fontSize="16px"
+                  color={message.data.chatColor}
+                  fontWeight="bold"
+                >
+                  {message.data.username
+                    ? message.data.username
+                    : centerEllipses(message.data.address, 10)}
+                  :
+                </Text>
+              </Flex>
               <Box
                 key={index}
                 borderRadius="10px"
-                bg={message.data.chatColor}
-                pr="10px"
-                pl="10px"
+                bg={"#3C3548"}
+                pr="2px"
+                pl="2px"
+                mt="5px"
+                mb="15px"
                 pb={showEmojiList === message.id ? "10px" : "0px"}
                 position="relative"
+                width={"274px"}
               >
                 <Flex justifyContent="space-between" flexDirection="column">
                   {message.data.isGif ? (
@@ -582,10 +618,9 @@ export default function Chat() {
                       {isLink && splitURL ? (
                         <>
                           {splitURL.length > 1 ? (
-                            <>
+                            <Flex p={"5px"}>
                               <Text
                                 color="white"
-                                fontFamily="Inter"
                                 fontSize={12}
                                 wordBreak="break-word"
                                 textAlign="left"
@@ -597,18 +632,16 @@ export default function Chat() {
                                 isExternal
                                 color="white"
                                 fontSize={12}
-                                fontFamily="Inter"
                                 wordBreak="break-word"
                                 textAlign="left"
                               >
                                 {splitURL[splitURL.length - 1]}
                                 <ExternalLinkIcon mx="2px" />
                               </Link>
-                            </>
+                            </Flex>
                           ) : (
                             <Link
                               href={messageText}
-                              fontFamily="Inter"
                               fontWeight="light"
                               isExternal
                               color="white"
@@ -624,24 +657,56 @@ export default function Chat() {
                       ) : (
                         <Text
                           color="white"
-                          fontFamily="Inter"
-                          fontWeight="light"
                           fontSize={
-                            message.data.address === chatbotAddress ? 10 : 12
+                            message.data.address === chatbotAddress
+                              ? "12px"
+                              : "14px"
                           }
                           wordBreak="break-word"
                           textAlign="left"
+                          p={"5px"}
                         >
                           {messageText}
                         </Text>
                       )}
                     </>
                   )}
-                  <Flex
-                    flexDirection="row"
-                    alignItems="center"
-                    paddingBottom={1}
-                  >
+                  {message.data.address !== user?.address && (
+                    <div
+                      className="showme"
+                      style={{
+                        position: "absolute",
+                        left: "5px",
+                        bottom: "-10px",
+                      }}
+                    >
+                      <Flex
+                        borderRadius={"5px"}
+                        p="1px"
+                        bg={
+                          "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                        }
+                      >
+                        <Button
+                          aria-label="Chat-Reaction"
+                          onClick={() =>
+                            setShowEmojiList(showEmojiList ? null : message.id)
+                          }
+                          height="12px"
+                          width="12px"
+                          padding={"10px"}
+                          minWidth={"0px"}
+                          bg={"#C6C0C0"}
+                          _hover={{}}
+                          _active={{}}
+                          _focus={{}}
+                        >
+                          <AddIcon height="12px" width="12px" color={"white"} />
+                        </Button>
+                      </Flex>
+                    </div>
+                  )}
+                  <Flex flexDirection="row">
                     {message.data.reactions?.map((reaction) => (
                       <div
                         key={reaction.emojiType}
@@ -668,8 +733,10 @@ export default function Chat() {
                           <>
                             <Flex
                               flexDirection="row"
-                              alignItems="center"
-                              marginRight={1}
+                              alignItems={"center"}
+                              bgColor="#5A5A5A"
+                              borderRadius={"10px"}
+                              mb={"5px"}
                             >
                               <EmojiDisplay
                                 emoji={reaction.emojiType}
@@ -692,7 +759,7 @@ export default function Chat() {
                         ) : null}
                       </div>
                     ))}
-                    <div
+                    {/* <div
                       className="showme"
                       style={{
                         position: "relative",
@@ -709,7 +776,7 @@ export default function Chat() {
                       >
                         <AddIcon height="12px" width="12px" />
                       </NebulousButton>
-                    </div>
+                    </div> */}
                   </Flex>
                 </Flex>
                 {showEmojiList === message.id ? (
@@ -752,10 +819,10 @@ export default function Chat() {
                   </Flex>
                 ) : null}
               </Box>
-            )}
-          </div>
+            </Flex>
+          )}
         </Flex>
-      </>
+      </Flex>
     );
   });
 

@@ -22,7 +22,7 @@ import usePostStreamInteraction from "../../hooks/server/usePostStreamInteractio
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import { PostStreamInteractionInput } from "../../generated/graphql";
 import { useApproval } from "../../hooks/contracts/useApproval";
-import { useNetwork } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import centerEllipses from "../../utils/centerEllipses";
@@ -54,6 +54,7 @@ export default function ControlTransactionModal({
   const [localText, setLocalText] = useState<string>("");
 
   const { user } = useUser();
+  const accountData = useAccount();
   const toast = useToast();
   const network = useNetwork();
   const localNetwork = useMemo(() => {
@@ -155,20 +156,20 @@ export default function ControlTransactionModal({
 
   const canSend = useMemo(() => {
     console.log(
-      "can the user execute transaction? (user is defined and useFeature is defined)",
-      user && useFeature,
-      "user:",
-      user,
+      "can the user execute transaction? (accountData.address is defined and useFeature is defined)",
+      accountData?.address && useFeature,
+      "accountData.address:",
+      accountData?.address,
       "useFeature:",
       useFeature,
       "requiresApproval:",
       requiresApproval
     );
     if (requiresApproval) return false;
-    if (!user) return false;
+    if (!accountData?.address) return false;
     if (!useFeature) return false;
     return true;
-  }, [useFeature, user]);
+  }, [useFeature, accountData]);
 
   const masterLoading = useMemo(() => {
     return loading || (useFeatureTxLoading ?? false) || isApprovalLoading;
@@ -185,7 +186,7 @@ export default function ControlTransactionModal({
   };
 
   useEffect(() => {
-    if (!user) {
+    if (!accountData?.address) {
       setErrorMessage("connect wallet first");
     } else if (
       !userTokenBalance?.value ||
@@ -198,7 +199,7 @@ export default function ControlTransactionModal({
     } else {
       setErrorMessage("");
     }
-  }, [user, userTokenBalance, channelBySlug]);
+  }, [accountData, userTokenBalance, channelBySlug]);
 
   return (
     <TransactionModalTemplate

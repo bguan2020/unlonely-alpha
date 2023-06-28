@@ -91,15 +91,16 @@ const MessageBody = ({
                     : centerEllipses(message.data.address, 10)}
                   :
                 </Text>
-              </Flex>{" "}
+              </Flex>
               <Box
                 key={index}
                 borderRadius="10px"
                 // bg={message.data.chatColor}
                 bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
-                pr="10px"
-                pl="10px"
-                mb="10px"
+                pr="2px"
+                pl="2px"
+                mt="5px"
+                mb="15px"
                 pb={showEmojiList === message.id ? "10px" : "0px"}
                 position="relative"
                 width={"274px"}

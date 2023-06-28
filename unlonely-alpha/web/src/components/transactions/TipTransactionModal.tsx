@@ -12,7 +12,7 @@ import { ModalButton } from "../general/button/ModalButton";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { parseUnits } from "viem";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { useNetwork } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
@@ -46,6 +46,7 @@ export default function TipTransactionModal({
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const { user } = useUser();
+  const accountData = useAccount();
   const toast = useToast();
   const network = useNetwork();
   const localNetwork = useMemo(() => {
@@ -64,7 +65,7 @@ export default function TipTransactionModal({
   } = useApproval(
     channelBySlug?.token?.address as `0x${string}`,
     CreatorTokenAbi,
-    user?.address as `0x${string}`,
+    accountData?.address as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,
     parseUnits(
@@ -119,11 +120,11 @@ export default function TipTransactionModal({
         refetchUserTokenBalance?.();
         addToChatbot?.({
           username: user?.username ?? "",
-          address: user?.address ?? "",
+          address: accountData?.address ?? "",
           taskType: InteractionType.TIP,
           title: "Tip",
           description: `${
-            user?.username ?? centerEllipses(user?.address, 15)
+            user?.username ?? centerEllipses(accountData?.address, 15)
           } tipped ${amountOption === "custom" ? amount : amountOption} $${
             channelBySlug?.token?.symbol
           }!`,
@@ -162,7 +163,7 @@ export default function TipTransactionModal({
   }, [formattedAmount, amountOption, requiresApproval, useFeature]);
 
   useEffect(() => {
-    if (!user) {
+    if (!accountData?.address) {
       setErrorMessage("connect wallet first");
     } else if (
       !userTokenBalance?.value ||
@@ -174,7 +175,7 @@ export default function TipTransactionModal({
     } else {
       setErrorMessage("");
     }
-  }, [userTokenBalance, tokenAmount_bigint, user, channelBySlug]);
+  }, [userTokenBalance, tokenAmount_bigint, accountData, channelBySlug]);
 
   return (
     <TransactionModalTemplate
