@@ -15,7 +15,7 @@ const BuyButton: React.FunctionComponent<Props> = ({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <Flex position="relative">
+    <Flex position="relative" justifyContent={"center"}>
       <IconButton
         aria-label={`${tokenName}-buy`}
         icon={

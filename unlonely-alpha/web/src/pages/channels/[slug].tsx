@@ -402,6 +402,7 @@ const ChannelPage = () => {
                     borderRadius={10}
                     background={"#19162F"}
                     centerContent
+                    maxW="100%"
                   >
                     <AblyChatComponent
                       username={username}
