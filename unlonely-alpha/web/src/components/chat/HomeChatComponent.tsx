@@ -30,8 +30,7 @@ export const emojis = [
 export const chatbotAddress = "0x0000000000000000000000000000000000000000";
 
 const AblyHomeChatComponent = () => {
-  const { user, username } = useUser();
-  const { address } = useAccount();
+  const { user, userAddress: address } = useUser();
   const ADD_REACTION_EVENT = "add-reaction";
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;

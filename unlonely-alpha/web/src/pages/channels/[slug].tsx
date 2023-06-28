@@ -67,10 +67,9 @@ const ChannelPage = () => {
   );
 
   const [width, height] = useWindowSize();
-  const { user } = useUser();
+  const { username, userAddress } = useUser();
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
-  const [username, setUsername] = useState<string | null>();
   const [showTipModal, setShowTipModal] = useState<boolean>(false);
   const [showChanceModal, setShowChanceModal] = useState<boolean>(false);
   const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
@@ -80,27 +79,14 @@ const ChannelPage = () => {
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
   const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
 
-  const accountData = useAccount();
-
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
   const { data: ensData } = useEnsName({
-    address: accountData?.address,
+    address: userAddress,
   });
-
-  useEffect(() => {
-    const fetchEns = async () => {
-      if (accountData?.address) {
-        const username = ensData ?? centerEllipses(accountData.address, 9);
-        setUsername(username);
-      }
-    };
-
-    fetchEns();
-  }, [accountData?.address, ensData]);
 
   const isHidden = useCallback(
     (isChat: boolean) => {
@@ -159,7 +145,7 @@ const ChannelPage = () => {
     console.log("socket send message", message);
     socket?.emit("send-message", {
       message,
-      username: accountData?.address,
+      username: userAddress,
     });
   };
 

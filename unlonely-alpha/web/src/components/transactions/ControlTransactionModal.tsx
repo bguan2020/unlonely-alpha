@@ -53,8 +53,7 @@ export default function ControlTransactionModal({
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [localText, setLocalText] = useState<string>("");
 
-  const { user } = useUser();
-  const accountData = useAccount();
+  const { user, userAddress } = useUser();
   const toast = useToast();
   const network = useNetwork();
   const localNetwork = useMemo(() => {
@@ -157,19 +156,19 @@ export default function ControlTransactionModal({
   const canSend = useMemo(() => {
     console.log(
       "can the user execute transaction? (accountData.address is defined and useFeature is defined)",
-      accountData?.address && useFeature,
+      userAddress && useFeature,
       "accountData.address:",
-      accountData?.address,
+      userAddress,
       "useFeature:",
       useFeature,
       "requiresApproval:",
       requiresApproval
     );
     if (requiresApproval) return false;
-    if (!accountData?.address) return false;
+    if (!userAddress) return false;
     if (!useFeature) return false;
     return true;
-  }, [useFeature, accountData]);
+  }, [useFeature, userAddress]);
 
   const masterLoading = useMemo(() => {
     return loading || (useFeatureTxLoading ?? false) || isApprovalLoading;
@@ -186,7 +185,7 @@ export default function ControlTransactionModal({
   };
 
   useEffect(() => {
-    if (!accountData?.address) {
+    if (!userAddress) {
       setErrorMessage("connect wallet first");
     } else if (
       !userTokenBalance?.value ||
@@ -199,7 +198,7 @@ export default function ControlTransactionModal({
     } else {
       setErrorMessage("");
     }
-  }, [accountData, userTokenBalance, channelBySlug]);
+  }, [userAddress, userTokenBalance, channelBySlug]);
 
   return (
     <TransactionModalTemplate

@@ -45,8 +45,7 @@ export default function TipTransactionModal({
   >("5");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const { user } = useUser();
-  const accountData = useAccount();
+  const { user, userAddress } = useUser();
   const toast = useToast();
   const network = useNetwork();
   const localNetwork = useMemo(() => {
@@ -65,7 +64,7 @@ export default function TipTransactionModal({
   } = useApproval(
     channelBySlug?.token?.address as `0x${string}`,
     CreatorTokenAbi,
-    accountData?.address as `0x${string}`,
+    userAddress as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,
     parseUnits(
@@ -120,11 +119,11 @@ export default function TipTransactionModal({
         refetchUserTokenBalance?.();
         addToChatbot?.({
           username: user?.username ?? "",
-          address: accountData?.address ?? "",
+          address: userAddress ?? "",
           taskType: InteractionType.TIP,
           title: "Tip",
           description: `${
-            user?.username ?? centerEllipses(accountData?.address, 15)
+            user?.username ?? centerEllipses(userAddress, 15)
           } tipped ${amountOption === "custom" ? amount : amountOption} $${
             channelBySlug?.token?.symbol
           }!`,
@@ -163,7 +162,7 @@ export default function TipTransactionModal({
   }, [formattedAmount, amountOption, requiresApproval, useFeature]);
 
   useEffect(() => {
-    if (!accountData?.address) {
+    if (!userAddress) {
       setErrorMessage("connect wallet first");
     } else if (
       !userTokenBalance?.value ||
@@ -175,7 +174,7 @@ export default function TipTransactionModal({
     } else {
       setErrorMessage("");
     }
-  }, [userTokenBalance, tokenAmount_bigint, accountData, channelBySlug]);
+  }, [userTokenBalance, tokenAmount_bigint, userAddress, channelBySlug]);
 
   return (
     <TransactionModalTemplate

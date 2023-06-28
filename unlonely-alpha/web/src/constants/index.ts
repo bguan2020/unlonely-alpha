@@ -1,3 +1,5 @@
+import { COLORS } from "../styles/Colors";
+
 export const ETHEREUM_MAINNET_CHAIN_ID = 1;
 export const POLYGON_MATIC_CURRENCY = "Matic";
 export const ETHEREUM_MAINNET_CURRENCY = "Eth";
@@ -20,3 +22,22 @@ export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const DANNY_TOKEN_ADDRESS = "0x5fD600676F55e9a6e68BA2D2a58278D08f6BD978";
 
 export const USER_APPROVAL_AMOUNT = "10000";
+
+export const RANDOM_CHAT_COLOR =
+  COLORS[Math.floor(Math.random() * COLORS.length)];
+
+export const EMOJIS = [
+  "https://i.imgur.com/wbUNcyS.gif",
+  "https://i.imgur.com/zTfFgtZ.gif",
+  "https://i.imgur.com/NurjwAK.gif",
+  "⛽️",
+  "😂",
+  "❤️",
+  "👑",
+  "👀",
+  "👍",
+  "👎",
+  "🚀",
+];
+
+export const ADD_REACTION_EVENT = "add-reaction";

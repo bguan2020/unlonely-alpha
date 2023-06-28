@@ -122,7 +122,6 @@ const MessageBody = ({
               <Box
                 key={index}
                 borderRadius="10px"
-                // bg={message.data.chatColor}
                 bgGradient="linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)"
                 pr="2px"
                 pl="2px"
@@ -215,7 +214,6 @@ const MessageBody = ({
                         }
                       >
                         <Button
-                          // opacity={"0.3"}
                           aria-label="Chat-Reaction"
                           onClick={() =>
                             setShowEmojiList(showEmojiList ? null : message.id)

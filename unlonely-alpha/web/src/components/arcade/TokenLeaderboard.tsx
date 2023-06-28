@@ -108,7 +108,7 @@ const TokenLeaderboard = ({ callback }: { callback?: () => void }) => {
             <Spinner />
           </Flex>
         ) : (
-          <TableContainer overflowX={"hidden"}>
+          <TableContainer overflowX={"auto"}>
             <Table variant="unstyled">
               <Thead>
                 <Tr>
