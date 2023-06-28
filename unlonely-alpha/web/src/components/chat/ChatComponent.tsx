@@ -40,8 +40,6 @@ import {
 } from "../../constants";
 import BuyButton from "../arcade/BuyButton";
 import { ChatBot } from "../../constants/types";
-import { useLazyQuery } from "@apollo/client";
-import { GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { isAddress } from "viem";
