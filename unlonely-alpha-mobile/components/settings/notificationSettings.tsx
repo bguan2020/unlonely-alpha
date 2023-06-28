@@ -168,7 +168,7 @@ export const NotificationSettings = () => {
           },
         ]}
       >
-        <Text style={styles.subtitle}>stream goes live</Text>
+        <Text style={styles.subtitle}>streams go live</Text>
         <View style={styles.activitySwitch}>
           {loading && (
             <ActivityIndicator

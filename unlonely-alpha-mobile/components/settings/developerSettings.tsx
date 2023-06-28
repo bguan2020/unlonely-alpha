@@ -11,7 +11,7 @@ const buildNumber = Constants.manifest.ios.buildNumber;
 
 export const DeveloperSettings = () => {
   const [timesPressed, setTimesPressed] = useState(0);
-  const [showDevMenu, setShowDevMenu] = useState(false);
+  const [showDevMenu, setShowDevMenu] = useState(true);
   const { revokeNotificationsPermission, setNotificationsToken, setNotificationsLive, setNotificationsNFCs } =
     useAppSettingsStore(z => ({
       revokeNotificationsPermission: z.revokeNotificationsPermission,
@@ -66,7 +66,7 @@ export const DeveloperSettings = () => {
               },
             ]}
           >
-            please do not touch any of this shit
+            do not touch any of this stuff
           </Text>
 
           <AnimatedPressable onPress={schedulePushNotification}>
@@ -76,12 +76,12 @@ export const DeveloperSettings = () => {
             </View>
           </AnimatedPressable>
 
-          <AnimatedPressable onPress={resetNotificationPermissions}>
+          {/* <AnimatedPressable onPress={resetNotificationPermissions}>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>reset notification permissions</Text>
               <Text style={styles.subtitle}>🔕</Text>
             </View>
-          </AnimatedPressable>
+          </AnimatedPressable> */}
 
           <AnimatedPressable onPress={clearWallet}>
             <View style={styles.settingsToggleRow}>
@@ -97,12 +97,12 @@ export const DeveloperSettings = () => {
             </View>
           </AnimatedPressable> */}
 
-          <AnimatedPressable onPress={resetNotificationTokens}>
+          {/* <AnimatedPressable onPress={resetNotificationTokens}>
             <View style={styles.settingsToggleRow}>
               <Text style={styles.subtitle}>reset notification permissions</Text>
               <Text style={styles.subtitle}>⚠️</Text>
             </View>
-          </AnimatedPressable>
+          </AnimatedPressable> */}
         </View>
       )}
       <Pressable onPress={() => setTimesPressed(pressed => pressed + 1)}>

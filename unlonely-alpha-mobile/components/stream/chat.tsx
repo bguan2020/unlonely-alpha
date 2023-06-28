@@ -8,11 +8,10 @@ import { useUserStore } from '../../utils/store/userStore';
 import { AnimatedPressable } from '../buttons/animatedPressable';
 import { useRouter } from 'expo-router';
 import { useBottomSheetStore } from '../../utils/store/bottomSheetStore';
-import { UnlonelyTopGradient } from '../nav/topGradient';
 import { Presence } from './presence';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { ScrollView } from 'react-native-gesture-handler';
-import { truncate0x, truncateEns } from '../../utils/truncate';
+import { truncate0x } from '../../utils/truncate';
 import { Ionicons } from '@expo/vector-icons';
 
 const AVATAR_SIZE = 48;
@@ -54,11 +53,26 @@ export function Chat({ awsId, slug }) {
   const [finishedLoading, setFinishedLoading] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [inBackground, setInBackground] = useState(false);
+  // const [appStateChangeTime, setAppStateChangeTime] = useState(Date.now());
 
   const handleAppStateChange = nextAppState => {
     if (nextAppState === 'active') {
       setInBackground(false);
+
+      // Reload chat if app has been in the background for a long time
+      // const timeDifference = Date.now() - appStateChangeTime;
+      // const backgroundThreshold = 300_000;
+
+      // console.log({
+      //   appStateChangeTime,
+      //   timeDifference,
+      // });
+
+      // if (timeDifference > backgroundThreshold) {
+      //   // reloadChat();
+      // }
     } else {
+      // setAppStateChangeTime(Date.now());
       setInBackground(true);
     }
   };
@@ -108,12 +122,6 @@ export function Chat({ awsId, slug }) {
   };
 
   useEffect(() => {
-    if (inBackground) {
-      setChatKey(chatKey + 1);
-    }
-  }, [inBackground]);
-
-  useEffect(() => {
     if (userData?.address || connectedWallet?.address) {
       // reload webview if userData changes so it has correct headers
       // happens when user goes to chat tab first then connects wallet
@@ -156,7 +164,14 @@ export function Chat({ awsId, slug }) {
           backgroundColor: 'black',
         }}
       >
-        <UnlonelyTopGradient />
+        <View
+          style={[
+            StyleSheet.absoluteFillObject,
+            {
+              backgroundColor: 'rgb(25, 22, 47)',
+            },
+          ]}
+        ></View>
         <LinearGradient
           colors={colors}
           locations={locations}
@@ -181,7 +196,7 @@ export function Chat({ awsId, slug }) {
               height: '100%',
             }}
           >
-            <ActivityIndicator size="large" color="black" />
+            <ActivityIndicator size="large" color="white" />
             <Text style={styles.loadingText}>loading chat...</Text>
           </View>
         )}
@@ -578,7 +593,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'NeuePixelSans',
     letterSpacing: 0.5,
-    color: 'black',
+    color: 'white',
   },
   bottomSheetBackground: {
     backgroundColor: '#111',
