@@ -20,7 +20,7 @@ import useUpdateUserCreatorTokenQuantity from "../../hooks/server/arcade/useUpda
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useApproval } from "../../hooks/contracts/useApproval";
-import { useAccount, useBalance, useNetwork } from "wagmi";
+import { useBalance, useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 

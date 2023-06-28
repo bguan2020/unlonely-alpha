@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { isAddress } from "viem";
-import { useAccount, useEnsName } from "wagmi";
+import { useEnsName } from "wagmi";
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
@@ -36,7 +36,6 @@ import {
 } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
-import centerEllipses from "../../utils/centerEllipses";
 import { io, Socket } from "socket.io-client";
 
 const ChannelDetail = () => {

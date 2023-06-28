@@ -18,7 +18,6 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useAccount } from "wagmi";
 
 import useChannel from "../../hooks/chat/useChannel";
 import { Message, initializeEmojis } from "./types/index";

@@ -3,7 +3,6 @@ import { configureAbly } from "@ably-labs/react-hooks";
 import {
   Flex,
   SimpleGrid,
-  Tooltip,
   Box,
   Popover,
   PopoverTrigger,
@@ -138,7 +137,7 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
                     } else {
                       return (
                         <Flex key={index} m="auto" p="0.5rem">
-                          <AnonExcessTooltipAvatar user={member.data.user} />
+                          <AnonExcessTooltipAvatar />
                         </Flex>
                       );
                     }

@@ -22,7 +22,7 @@ import usePostStreamInteraction from "../../hooks/server/usePostStreamInteractio
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import { PostStreamInteractionInput } from "../../generated/graphql";
 import { useApproval } from "../../hooks/contracts/useApproval";
-import { useAccount, useNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import centerEllipses from "../../utils/centerEllipses";

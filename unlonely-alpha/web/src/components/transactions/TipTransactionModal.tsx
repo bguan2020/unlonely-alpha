@@ -12,7 +12,7 @@ import { ModalButton } from "../general/button/ModalButton";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { parseUnits } from "viem";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { useAccount, useNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
