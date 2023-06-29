@@ -342,7 +342,10 @@ const AblyChatComponent = ({
         latestMessage.data.body &&
         latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
       ) {
-        const newTextOverVideo = latestMessage.data.body.split(":").shift();
+        const newTextOverVideo = latestMessage.data.body
+          .split(":")
+          .slice(1)
+          .join();
         if (newTextOverVideo) {
           addToTextOverVideo(newTextOverVideo);
         }
