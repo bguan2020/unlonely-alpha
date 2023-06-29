@@ -109,6 +109,8 @@ const AblyChatComponent = ({
   const leaderboardRef = useRef<HTMLDivElement>(null);
   const arcadeRef = useRef<HTMLDivElement>(null);
 
+  const mountingMessages = useRef(true);
+
   useEffect(() => {
     if (showLeaderboard && !holdersLoading && !holdersData) {
       refetchTokenHolders?.();
@@ -336,21 +338,25 @@ const AblyChatComponent = ({
   }, [receivedMessages]);
 
   useEffect(() => {
-    const latestMessage = receivedMessages[receivedMessages.length - 1];
-    if (latestMessage && latestMessage.name === "chat-message") {
-      if (
-        latestMessage.data.body &&
-        latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
-      ) {
-        const newTextOverVideo = latestMessage.data.body
-          .split(":")
-          .slice(1)
-          .join();
-        if (newTextOverVideo) {
-          addToTextOverVideo(newTextOverVideo);
+    if (receivedMessages.length === 0) return;
+    if (!mountingMessages.current) {
+      const latestMessage = receivedMessages[receivedMessages.length - 1];
+      if (latestMessage && latestMessage.name === "chat-message") {
+        if (
+          latestMessage.data.body &&
+          latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
+        ) {
+          const newTextOverVideo = latestMessage.data.body
+            .split(":")
+            .slice(1)
+            .join();
+          if (newTextOverVideo) {
+            addToTextOverVideo(newTextOverVideo);
+          }
         }
       }
     }
+    mountingMessages.current = false;
   }, [receivedMessages]);
 
   const handleScrollToPresent = () => {
