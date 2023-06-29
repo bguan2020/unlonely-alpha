@@ -50,11 +50,8 @@ const ChannelPage = () => {
     loading: channelDataLoading,
     error: channelDataError,
   } = channel;
-  const {
-    loading: recentStreamInteractionsLoading,
-    textOverVideo,
-    addToTextOverVideo,
-  } = recentStreamInteractions;
+  const { loading: recentStreamInteractionsLoading, textOverVideo } =
+    recentStreamInteractions;
 
   const queryLoading = useMemo(
     () => channelDataLoading || recentStreamInteractionsLoading,
@@ -107,7 +104,6 @@ const ChannelPage = () => {
         {!queryLoading && !channelDataError ? (
           <>
             <ControlTransactionModal
-              callback={(text: string) => addToTextOverVideo(text)}
               icon={
                 <Image
                   alt="control"
