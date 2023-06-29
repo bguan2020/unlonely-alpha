@@ -47,45 +47,47 @@ export default function Commands({
   onCommandClick,
   chat,
 }: Props) {
-  const [hydrated, setHydrated] = useState(false);
-  const [currentOpen, setOpen] = useState(open);
+  const [currentOpen, setCurrentOpen] = useState(open);
   const wrapperRef = useRef(null);
   useOutsideAlerter(wrapperRef, onClose);
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
 
   useEffect(() => {
-    setOpen(open);
+    setCurrentOpen(open);
   }, [open]);
-  if (!hydrated) {
-    return null;
-  }
-  if (!currentOpen) {
-    return <></>;
-  }
+
   return (
-    <Flex ref={wrapperRef} zIndex={1} mb="20" w="75%">
-      <Stack style={{ background: "white" }} borderRadius="16px">
-        {commandList
-          .filter((command) => {
-            return command.value.includes(chat);
-          })
-          .map((command) => {
-            return (
-              <Button
-                onClick={() => {
-                  onCommandClick(command.value);
-                }}
-              >
-                <Stack>
-                  <Text fontSize="xs">{command.name}</Text>{" "}
-                  <Text fontSize="xs">{command.description}</Text>
-                </Stack>
-              </Button>
-            );
-          })}
-      </Stack>{" "}
-    </Flex>
+    <>
+      {currentOpen && (
+        <Flex ref={wrapperRef} zIndex={1} mb="20" w="75%">
+          <Stack
+            style={{ background: "rgb(47, 47, 100)" }}
+            borderRadius="10px"
+            p="5px"
+          >
+            {commandList
+              .filter((command) => {
+                return command.value.includes(chat);
+              })
+              .map((command) => {
+                return (
+                  <Button
+                    bg={"#36548f"}
+                    _hover={{ bg: "#d16fce" }}
+                    _active={{ bg: "#d16fce" }}
+                    onClick={() => {
+                      onCommandClick(command.value);
+                    }}
+                  >
+                    <Stack>
+                      <Text fontSize="xs">{command.name}</Text>{" "}
+                      <Text fontSize="xs">{command.description}</Text>
+                    </Stack>
+                  </Button>
+                );
+              })}
+          </Stack>
+        </Flex>
+      )}
+    </>
   );
 }

@@ -90,7 +90,9 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
                 setMessageText(e.target.value);
               }}
               onKeyPress={handleKeyPress}
-              background="rgba(255, 255, 255, 0.35)"
+              background={
+                mobile ? "rgba(34, 34, 34, 0.35)" : "rgba(255, 255, 255, 0.35)"
+              }
               minW="100%"
               style={{ zIndex: 0, minHeight: mobile ? "68px" : "80px" }}
               position="relative"

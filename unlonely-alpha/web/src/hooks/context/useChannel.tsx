@@ -1,14 +1,23 @@
 import { useRouter } from "next/router";
-import { createContext, useContext, useMemo, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import {
   CHANNEL_DETAIL_QUERY,
   GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
+  GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY,
 } from "../../constants/queries";
 import {
   ChannelDetailQuery,
   GetRecentStreamInteractionsQuery,
+  GetTokenHoldersByChannelQuery,
 } from "../../generated/graphql";
-import { ApolloError, useQuery } from "@apollo/client";
+import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
 import { useBalance } from "wagmi";
 import { FetchBalanceResult } from "../../constants/types";
 import { useUser } from "./useUser";
@@ -43,6 +52,12 @@ const ChannelContext = createContext<{
     ownerTokenBalance?: FetchBalanceResult;
     refetchOwnerTokenBalance?: () => void;
   };
+  holders: {
+    data?: GetTokenHoldersByChannelQuery;
+    loading: boolean;
+    error?: ApolloError;
+    refetchTokenHolders?: () => void;
+  };
 }>({
   channel: {
     channelBySlug: undefined,
@@ -66,6 +81,12 @@ const ChannelContext = createContext<{
     refetchUserTokenBalance: () => undefined,
     ownerTokenBalance: undefined,
     refetchOwnerTokenBalance: () => undefined,
+  },
+  holders: {
+    data: undefined,
+    loading: true,
+    error: undefined,
+    refetchTokenHolders: () => undefined,
   },
 });
 
@@ -100,6 +121,11 @@ export const ChannelProvider = ({
       },
     }
   );
+
+  const [
+    getTokenHolders,
+    { loading: holdersLoading, error: holdersError, data: holdersData },
+  ] = useLazyQuery(GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY);
 
   const channelBySlug = useMemo(
     () => channelData?.getChannelBySlug,
@@ -136,6 +162,16 @@ export const ChannelProvider = ({
     }
   }, [channelData]);
 
+  const handleRefetchTokenHolders = useCallback(() => {
+    getTokenHolders({
+      variables: {
+        data: {
+          channelId: channelData?.getChannelBySlug?.id,
+        },
+      },
+    });
+  }, [channelData]);
+
   const value = useMemo(
     () => ({
       channel: {
@@ -161,6 +197,12 @@ export const ChannelProvider = ({
         ownerTokenBalance,
         refetchOwnerTokenBalance,
       },
+      holders: {
+        data: holdersData,
+        loading: holdersLoading,
+        error: holdersError,
+        refetchTokenHolders: handleRefetchTokenHolders,
+      },
     }),
     [
       channelBySlug,
@@ -178,6 +220,10 @@ export const ChannelProvider = ({
       refetchUserTokenBalance,
       ownerTokenBalance,
       refetchOwnerTokenBalance,
+      holdersData,
+      holdersLoading,
+      holdersError,
+      handleRefetchTokenHolders,
     ]
   );
 

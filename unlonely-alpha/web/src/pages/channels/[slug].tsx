@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { isAddress } from "viem";
-import { useAccount, useEnsName } from "wagmi";
+import { useEnsName } from "wagmi";
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
@@ -36,7 +36,6 @@ import {
 } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
-import centerEllipses from "../../utils/centerEllipses";
 import { io, Socket } from "socket.io-client";
 
 const ChannelDetail = () => {
@@ -67,10 +66,9 @@ const ChannelPage = () => {
   );
 
   const [width, height] = useWindowSize();
-  const { user } = useUser();
+  const { username, userAddress } = useUser();
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
-  const [username, setUsername] = useState<string | null>();
   const [showTipModal, setShowTipModal] = useState<boolean>(false);
   const [showChanceModal, setShowChanceModal] = useState<boolean>(false);
   const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
@@ -80,27 +78,14 @@ const ChannelPage = () => {
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
   const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
 
-  const accountData = useAccount();
-
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
   const { data: ensData } = useEnsName({
-    address: accountData?.address,
+    address: userAddress,
   });
-
-  useEffect(() => {
-    const fetchEns = async () => {
-      if (accountData?.address) {
-        const username = ensData ?? centerEllipses(accountData.address, 9);
-        setUsername(username);
-      }
-    };
-
-    fetchEns();
-  }, [accountData?.address, ensData]);
 
   const isHidden = useCallback(
     (isChat: boolean) => {
@@ -118,12 +103,9 @@ const ChannelPage = () => {
     setShowBuyModal(false);
   }, []);
 
-  const addToChatbot = useCallback(
-    (chatBotMessageToAdd: ChatBot) => {
-      setChatBot((prev) => [...prev, chatBotMessageToAdd]);
-    },
-    [chatBot]
-  );
+  const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
+    setChatBot((prev) => [...prev, chatBotMessageToAdd]);
+  }, []);
 
   useEffect(() => {
     const url =
@@ -162,7 +144,7 @@ const ChannelPage = () => {
     console.log("socket send message", message);
     socket?.emit("send-message", {
       message,
-      username: accountData?.address,
+      username: userAddress,
     });
   };
 

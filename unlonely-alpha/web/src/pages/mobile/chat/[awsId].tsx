@@ -23,17 +23,13 @@ import ChatForm from "../../../components/chat/ChatForm";
 import NebulousButton from "../../../components/general/button/NebulousButton";
 import EmojiDisplay from "../../../components/chat/emoji/EmojiDisplay";
 import { useUser } from "../../../hooks/context/useUser";
-import {
-  chatbotAddress,
-  chatColor,
-  emojis,
-} from "../../../components/chat/ChatComponent";
 import ReactDOM from "react-dom";
 import NextHead from "../../../components/layout/NextHead";
 import Participants from "../../../components/presence/Participants";
 import { useRouter } from "next/router";
 import usePostChatByAwsId from "../../../hooks/server/usePostChatByAwsId";
 import centerEllipses from "../../../utils/centerEllipses";
+import { EMOJIS, NULL_ADDRESS, RANDOM_CHAT_COLOR } from "../../../constants";
 
 const CHAT_INPUT_PANEL_HEIGHT = 80;
 
@@ -69,7 +65,7 @@ export default function Chat() {
   const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [formError, setFormError] = useState<null | string[]>(null);
-  const [emojiList, setEmojiList] = useState<string[]>(emojis);
+  const [emojiList, setEmojiList] = useState<string[]>(EMOJIS);
   // const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const { postChatByAwsId, loading: postChatLoading } = usePostChatByAwsId({
@@ -155,7 +151,7 @@ export default function Chat() {
           data: {
             messageText,
             username: user.username,
-            chatColor,
+            chatColor: RANDOM_CHAT_COLOR,
             isFC: user.isFCUser,
             isLens: user.isLensUser,
             lensHandle: user.lensHandle,
@@ -174,7 +170,7 @@ export default function Chat() {
           data: {
             messageText,
             username: user.username,
-            chatColor,
+            chatColor: RANDOM_CHAT_COLOR,
             isFC: user.isFCUser,
             isLens: user.isLensUser,
             lensHandle: user.lensHandle,
@@ -196,7 +192,7 @@ export default function Chat() {
           data: {
             messageText,
             username: null,
-            chatColor,
+            chatColor: RANDOM_CHAT_COLOR,
             isFC: false,
             isLens: false,
             address: address,
@@ -241,7 +237,7 @@ export default function Chat() {
           messageText: `${data}`,
           username: "chatbot🤖",
           chatColor: "black",
-          address: chatbotAddress,
+          address: NULL_ADDRESS,
           isFC: false,
           isLens: false,
           isGif: false,
@@ -265,7 +261,7 @@ export default function Chat() {
             messageText: rules,
             username: "chatbot🤖",
             chatColor: "black",
-            address: chatbotAddress,
+            address: NULL_ADDRESS,
             isFC: false,
             isLens: false,
             isGif: false,
@@ -453,7 +449,7 @@ export default function Chat() {
                         <Text
                           color="white"
                           fontSize={
-                            message.data.address === chatbotAddress
+                            message.data.address === NULL_ADDRESS
                               ? "12px"
                               : "14px"
                           }
@@ -658,7 +654,7 @@ export default function Chat() {
                         <Text
                           color="white"
                           fontSize={
-                            message.data.address === chatbotAddress
+                            message.data.address === NULL_ADDRESS
                               ? "12px"
                               : "14px"
                           }
@@ -958,6 +954,7 @@ export default function Chat() {
                 "-webkit-backdrop-filter": "blur(6px)",
                 backdropFilter: "blur(6px)",
                 zIndex: 10,
+                color: "black",
               }}
             >
               👇️ tap to scroll to bottom 👇️

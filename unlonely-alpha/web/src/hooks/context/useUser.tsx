@@ -32,11 +32,11 @@ export const useUser = () => {
 const UserContext = createContext<{
   user: User | undefined;
   username?: string;
-  setUser: (u: User | undefined) => void;
+  userAddress?: `0x${string}`;
 }>({
   user: undefined,
   username: undefined,
-  setUser: () => {},
+  userAddress: undefined,
 });
 
 export const UserProvider = ({
@@ -73,8 +73,8 @@ export const UserProvider = ({
   }, [data]);
 
   const value = useMemo(
-    () => ({ user, username, setUser }),
-    [user, username, setUser]
+    () => ({ user, username, userAddress: accountData?.address }),
+    [user, username, accountData?.address]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

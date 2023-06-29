@@ -20,7 +20,7 @@ import useUpdateUserCreatorTokenQuantity from "../../hooks/server/arcade/useUpda
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useApproval } from "../../hooks/contracts/useApproval";
-import { useAccount, useBalance, useNetwork } from "wagmi";
+import { useBalance, useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 
@@ -39,9 +39,8 @@ export default function BuyTransactionModal({
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
-  const { user } = useUser();
-  const accountData = useAccount();
-  const { channel, token } = useChannelContext();
+  const { user, userAddress } = useUser();
+  const { channel, token, holders } = useChannelContext();
   const { channelBySlug } = channel;
   const {
     userTokenBalance,
@@ -49,8 +48,9 @@ export default function BuyTransactionModal({
     ownerTokenBalance,
     refetchOwnerTokenBalance,
   } = token;
+  const { refetchTokenHolders } = holders;
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
-    address: accountData?.address as `0x${string}`,
+    address: userAddress as `0x${string}`,
   });
 
   const network = useNetwork();
@@ -130,15 +130,16 @@ export default function BuyTransactionModal({
         });
         addToChatbot?.({
           username: user?.username ?? "",
-          address: accountData?.address ?? "",
+          address: userAddress ?? "",
           taskType: InteractionType.BUY,
           title: "Buy",
           description: `${
-            user?.username ?? centerEllipses(accountData?.address, 15)
+            user?.username ?? centerEllipses(userAddress, 15)
           } bought ${amountOption === "custom" ? amount : amountOption} $${
             channelBySlug?.token?.symbol
           }!`,
         });
+        refetchTokenHolders?.();
         handleClose();
       },
     }
@@ -163,7 +164,7 @@ export default function BuyTransactionModal({
   }, [buyTokenAmount_bigint, amountOption, buyCreatorToken]);
 
   useEffect(() => {
-    if (!accountData) {
+    if (!userAddress) {
       setErrorMessage("connect wallet first");
     } else if (
       ownerAllowance < buyTokenAmount_bigint ||
@@ -181,7 +182,7 @@ export default function BuyTransactionModal({
     ownerAllowance,
     userEthBalance?.value,
     amountIn,
-    accountData,
+    userAddress,
   ]);
 
   return (
