@@ -256,62 +256,60 @@ const AblyHomeChatComponent = () => {
   };
 
   return (
-    <>
-      <Flex h="100%" minW="100%">
-        <Flex
-          mt="10px"
-          direction="column"
-          minW="100%"
-          width="100%"
-          position={"relative"}
-        >
-          <Flex my="10px" direction={"column"}>
-            <Text
-              lineHeight={5}
-              fontWeight="light"
-              fontSize={13}
-              textAlign="center"
-              color="#A9ADCC"
-            >
-              who's here?
-            </Text>
-            <Participants ablyPresenceChannel={"home-page-presence"} />
-          </Flex>
-          <Flex
-            direction="column"
-            overflowX="auto"
-            height="100%"
-            id="chat"
-            position="relative"
-            mt="8px"
-            ref={scrollRef}
+    <Flex h="100%" minW="100%">
+      <Flex
+        mt="10px"
+        direction="column"
+        minW="100%"
+        width="100%"
+        position={"relative"}
+      >
+        <Flex my="10px" direction={"column"}>
+          <Text
+            lineHeight={5}
+            fontWeight="light"
+            fontSize={13}
+            textAlign="center"
+            color="#A9ADCC"
           >
-            <MessageList messages={receivedMessages} channel={channel} />
-          </Flex>
-          <Flex justifyContent="center">
-            {hasScrolled && hasMessagesLoaded ? (
-              <Box
-                bg="rgba(98, 98, 98, 0.6)"
-                p="4px"
-                borderRadius="4px"
-                _hover={{
-                  background: "rgba(98, 98, 98, 0.3)",
-                  cursor: "pointer",
-                }}
-                onClick={handleScrollToPresent}
-              >
-                <Text fontSize="12px">
-                  scrolling paused. click to scroll to bottom.
-                </Text>
-              </Box>
-            ) : null}
-          </Flex>
-          <Flex mt="40px" w="100%" mb="15px">
-            <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox} />
-          </Flex>
+            who's here?
+          </Text>
+          <Participants ablyPresenceChannel={"home-page-presence"} />
+        </Flex>
+        <Flex
+          direction="column"
+          overflowX="auto"
+          height="100%"
+          id="chat"
+          position="relative"
+          mt="8px"
+          ref={scrollRef}
+        >
+          <MessageList messages={receivedMessages} channel={channel} />
+        </Flex>
+        <Flex justifyContent="center">
+          {hasScrolled && hasMessagesLoaded ? (
+            <Box
+              bg="rgba(98, 98, 98, 0.6)"
+              p="4px"
+              borderRadius="4px"
+              _hover={{
+                background: "rgba(98, 98, 98, 0.3)",
+                cursor: "pointer",
+              }}
+              onClick={handleScrollToPresent}
+            >
+              <Text fontSize="12px">
+                scrolling paused. click to scroll to bottom.
+              </Text>
+            </Box>
+          ) : null}
+        </Flex>
+        <Flex mt="40px" w="100%" mb="15px">
+          <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox} />
         </Flex>
       </Flex>
-    </>
+    </Flex>
   );
 };
 

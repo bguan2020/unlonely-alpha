@@ -53,7 +53,7 @@ export default function ControlTransactionModal({
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [localText, setLocalText] = useState<string>("");
 
-  const { user, userAddress } = useUser();
+  const { user, userAddress, walletIsConnected } = useUser();
   const toast = useToast();
   const network = useNetwork();
   const localNetwork = useMemo(() => {
@@ -125,15 +125,6 @@ export default function ControlTransactionModal({
         });
         console.log("useFeature tx success, text:", localText);
         handleBackendSend();
-        addToChatbot?.({
-          username: user?.username ?? "",
-          address: user?.address ?? "",
-          taskType: InteractionType.CONTROL,
-          title: "Control",
-          description: `${
-            user?.username ?? centerEllipses(user?.address, 15)
-          } bought ad space!`,
-        });
         handleClose();
       },
     }
@@ -148,6 +139,15 @@ export default function ControlTransactionModal({
         interactionType: InteractionType.CONTROL,
       });
       callback?.(text ?? localText);
+      addToChatbot?.({
+        username: user?.username ?? "",
+        address: user?.address ?? "",
+        taskType: InteractionType.CONTROL,
+        title: `${
+          user?.username ?? centerEllipses(user?.address, 15)
+        } bought ad space!`,
+        description: localText,
+      });
       refetchUserTokenBalance?.();
     },
     [localText]
@@ -185,7 +185,7 @@ export default function ControlTransactionModal({
   };
 
   useEffect(() => {
-    if (!userAddress) {
+    if (!walletIsConnected) {
       setErrorMessage("connect wallet first");
     } else if (
       !userTokenBalance?.value ||
@@ -198,7 +198,7 @@ export default function ControlTransactionModal({
     } else {
       setErrorMessage("");
     }
-  }, [userAddress, userTokenBalance, channelBySlug]);
+  }, [walletIsConnected, userTokenBalance, channelBySlug, amountOption]);
 
   return (
     <TransactionModalTemplate
