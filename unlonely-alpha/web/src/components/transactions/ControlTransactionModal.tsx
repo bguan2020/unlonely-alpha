@@ -125,15 +125,6 @@ export default function ControlTransactionModal({
         });
         console.log("useFeature tx success, text:", localText);
         handleBackendSend();
-        addToChatbot?.({
-          username: user?.username ?? "",
-          address: user?.address ?? "",
-          taskType: InteractionType.CONTROL,
-          title: `${
-            user?.username ?? centerEllipses(user?.address, 15)
-          } bought ad space!`,
-          description: localText,
-        });
         handleClose();
       },
     }
@@ -148,6 +139,15 @@ export default function ControlTransactionModal({
         interactionType: InteractionType.CONTROL,
       });
       callback?.(text ?? localText);
+      addToChatbot?.({
+        username: user?.username ?? "",
+        address: user?.address ?? "",
+        taskType: InteractionType.CONTROL,
+        title: `${
+          user?.username ?? centerEllipses(user?.address, 15)
+        } bought ad space!`,
+        description: localText,
+      });
       refetchUserTokenBalance?.();
     },
     [localText]
