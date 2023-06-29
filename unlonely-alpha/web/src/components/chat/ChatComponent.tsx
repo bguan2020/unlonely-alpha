@@ -67,6 +67,7 @@ const AblyChatComponent = ({
     channel: channelContext,
     chat,
     holders: holdersContext,
+    recentStreamInteractions,
   } = useChannelContext();
   const { channelBySlug } = channelContext;
   const { chatChannel, presenceChannel } = chat;
@@ -76,6 +77,7 @@ const AblyChatComponent = ({
     error: holdersError,
     refetchTokenHolders,
   } = holdersContext;
+  const { addToTextOverVideo } = recentStreamInteractions;
 
   const channelId = useMemo(
     () => (channelBySlug?.id ? Number(channelBySlug?.id) : 3),
@@ -161,28 +163,31 @@ const AblyChatComponent = ({
   useEffect(() => {
     if (chatBot.length > 0) {
       const lastMessage = chatBot[chatBot.length - 1];
+      let body: string | undefined = undefined;
 
       let messageText = `${username} paid 5 $BRIAN to switch to a random scene!`;
       if (lastMessage.taskType === "video") {
         messageText = `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`;
       }
       if (lastMessage.taskType === InteractionType.TIP) {
-        messageText = lastMessage.description ?? "Tip";
+        messageText = lastMessage.title ?? "Tip";
       }
       if (lastMessage.taskType === "pvp") {
-        messageText = lastMessage.description ?? "Pvp";
+        messageText = lastMessage.title ?? "Pvp";
       }
       if (lastMessage.taskType === "chance") {
-        messageText = lastMessage.description ?? "Chance";
+        messageText = lastMessage.title ?? "Chance";
       }
       if (lastMessage.taskType === InteractionType.CONTROL) {
-        messageText = lastMessage.description ?? "Control";
+        messageText = lastMessage.title ?? "Control";
+        body = lastMessage.description
+          ? `${InteractionType.CONTROL}:${lastMessage.description}`
+          : undefined;
       }
       if (lastMessage.taskType === InteractionType.BUY) {
-        messageText = lastMessage.description ?? "Buy";
+        messageText = lastMessage.title ?? "Buy";
       }
-
-      publishChatBotMessage(messageText);
+      publishChatBotMessage(messageText, body);
     }
   }, [chatBot]);
 
@@ -298,7 +303,7 @@ const AblyChatComponent = ({
     }
   };
 
-  const publishChatBotMessage = (messageText: string) => {
+  const publishChatBotMessage = (messageText: string, body?: string) => {
     channel.publish({
       name: "chat-message",
       data: {
@@ -309,6 +314,7 @@ const AblyChatComponent = ({
         isLens: false,
         isGif: false,
         reactions: initializeEmojis,
+        body,
       },
     });
   };
@@ -329,12 +335,20 @@ const AblyChatComponent = ({
     setChatHeightGrounded(chat.scrollHeight <= chat.clientHeight);
   }, [receivedMessages]);
 
-  // useEffect(() => {
-  //   console.log(
-  //     "latest received message",
-  //     receivedMessages[receivedMessages.length - 1]
-  //   );
-  // }, [receivedMessages]);
+  useEffect(() => {
+    const latestMessage = receivedMessages[receivedMessages.length - 1];
+    if (latestMessage.name === "chat-message") {
+      if (
+        latestMessage.data.body &&
+        latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
+      ) {
+        const newTextOverVideo = latestMessage.data.body.split(":").shift();
+        if (newTextOverVideo) {
+          addToTextOverVideo(newTextOverVideo);
+        }
+      }
+    }
+  }, [receivedMessages]);
 
   const handleScrollToPresent = () => {
     const chat = document.getElementById("chat");

@@ -129,10 +129,10 @@ export default function ControlTransactionModal({
           username: user?.username ?? "",
           address: user?.address ?? "",
           taskType: InteractionType.CONTROL,
-          title: "Control",
-          description: `${
+          title: `${
             user?.username ?? centerEllipses(user?.address, 15)
           } bought ad space!`,
+          description: localText,
         });
         handleClose();
       },

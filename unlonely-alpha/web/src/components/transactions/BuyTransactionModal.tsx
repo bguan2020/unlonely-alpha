@@ -132,12 +132,10 @@ export default function BuyTransactionModal({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.BUY,
-          title: "Buy",
-          description: `${
-            user?.username ?? centerEllipses(userAddress, 15)
-          } bought ${amountOption === "custom" ? amount : amountOption} $${
-            channelBySlug?.token?.symbol
-          }!`,
+          title: `${user?.username ?? centerEllipses(userAddress, 15)} bought ${
+            amountOption === "custom" ? amount : amountOption
+          } $${channelBySlug?.token?.symbol}!`,
+          description: "Buy",
         });
         refetchTokenHolders?.();
         handleClose();

@@ -121,12 +121,10 @@ export default function TipTransactionModal({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.TIP,
-          title: "Tip",
-          description: `${
-            user?.username ?? centerEllipses(userAddress, 15)
-          } tipped ${amountOption === "custom" ? amount : amountOption} $${
-            channelBySlug?.token?.symbol
-          }!`,
+          title: `${user?.username ?? centerEllipses(userAddress, 15)} tipped ${
+            amountOption === "custom" ? amount : amountOption
+          } $${channelBySlug?.token?.symbol}!`,
+          description: "Tip",
         });
         handleClose();
       },
