@@ -12,7 +12,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useAccount } from "wagmi";
 
-import useChannel from "../../../hooks/chat/useChannel";
+import { useAblyChannel } from "../../../hooks/chat/useChannel";
 import { ChatBot } from "../../../constants/types";
 import Badges from "../../../components/chat/Badges";
 import {
@@ -78,7 +78,7 @@ export default function Chat() {
     ? `persistMessages:${ablyChatChannel}`
     : "persistMessages:chat-demo";
 
-  const [channel, ably] = useChannel(channelName, (message) => {
+  const [channel, ably] = useAblyChannel(channelName, (message) => {
     const history = receivedMessages.slice(-199);
     // remove messages where name = add-reaction
     const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
