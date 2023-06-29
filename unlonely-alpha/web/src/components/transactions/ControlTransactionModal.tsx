@@ -53,7 +53,7 @@ export default function ControlTransactionModal({
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [localText, setLocalText] = useState<string>("");
 
-  const { user, userAddress } = useUser();
+  const { user, userAddress, walletIsConnected } = useUser();
   const toast = useToast();
   const network = useNetwork();
   const localNetwork = useMemo(() => {
@@ -185,7 +185,7 @@ export default function ControlTransactionModal({
   };
 
   useEffect(() => {
-    if (!userAddress) {
+    if (!walletIsConnected) {
       setErrorMessage("connect wallet first");
     } else if (
       !userTokenBalance?.value ||
@@ -198,7 +198,7 @@ export default function ControlTransactionModal({
     } else {
       setErrorMessage("");
     }
-  }, [userAddress, userTokenBalance, channelBySlug]);
+  }, [walletIsConnected, userTokenBalance, channelBySlug, amountOption]);
 
   return (
     <TransactionModalTemplate

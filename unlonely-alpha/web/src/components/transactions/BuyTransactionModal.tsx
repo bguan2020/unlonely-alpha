@@ -39,7 +39,7 @@ export default function BuyTransactionModal({
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
-  const { user, userAddress } = useUser();
+  const { user, userAddress, walletIsConnected } = useUser();
   const { channel, token, holders } = useChannelContext();
   const { channelBySlug } = channel;
   const {
@@ -162,7 +162,7 @@ export default function BuyTransactionModal({
   }, [buyTokenAmount_bigint, amountOption, buyCreatorToken]);
 
   useEffect(() => {
-    if (!userAddress) {
+    if (!walletIsConnected) {
       setErrorMessage("connect wallet first");
     } else if (
       ownerAllowance < buyTokenAmount_bigint ||
@@ -180,7 +180,7 @@ export default function BuyTransactionModal({
     ownerAllowance,
     userEthBalance?.value,
     amountIn,
-    userAddress,
+    walletIsConnected,
   ]);
 
   return (
