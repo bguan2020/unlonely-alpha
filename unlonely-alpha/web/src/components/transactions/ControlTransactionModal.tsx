@@ -180,8 +180,8 @@ export default function ControlTransactionModal({
   };
 
   const onSubmit = async (data: PostStreamInteractionInput) => {
-    await handleSend();
-    // await handleBackendSend();
+    // await handleSend();
+    await handleBackendSend();
   };
 
   useEffect(() => {
@@ -294,11 +294,11 @@ export default function ControlTransactionModal({
               _focus={{}}
               _active={{}}
               width="100%"
-              disabled={
-                !canSend ||
-                localText.trim().length > 280 ||
-                localText.trim().length === 0
-              }
+              // disabled={
+              //   !canSend ||
+              //   localText.trim().length > 280 ||
+              //   localText.trim().length === 0
+              // }
               type="submit"
               borderRadius="25px"
             >

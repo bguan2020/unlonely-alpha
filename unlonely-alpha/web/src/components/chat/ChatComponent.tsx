@@ -337,7 +337,7 @@ const AblyChatComponent = ({
 
   useEffect(() => {
     const latestMessage = receivedMessages[receivedMessages.length - 1];
-    if (latestMessage.name === "chat-message") {
+    if (latestMessage && latestMessage.name === "chat-message") {
       if (
         latestMessage.data.body &&
         latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
