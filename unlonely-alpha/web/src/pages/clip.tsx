@@ -10,11 +10,11 @@ import {
   Button,
   useToast,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/router";
-import { useContractWrite, useWaitForTransaction } from "wagmi";
+import { useNetwork } from "wagmi";
 import { create } from "ipfs-http-client";
 
 import AppLayout from "../components/layout/AppLayout";
@@ -26,6 +26,9 @@ import usePostNFC from "../hooks/server/usePostNFC";
 import { useUser } from "../hooks/context/useUser";
 import { UNLONELYNFCV2_ADDRESS } from "../constants";
 import UnlonelyNFCsV2 from "../utils/UnlonelyNFCsV2.json";
+import { NETWORKS } from "../constants/networks";
+
+import { useWrite } from "../hooks/contracts/useWrite";
 
 const projectId = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
 const projectSecret = "7d400aacc9bc6c0f0d6e59b65a83d764";
@@ -49,25 +52,48 @@ const ClipDetail = () => {
   const [clipError, setClipError] = useState<null | string[]>(null);
   const [clipUrl, setClipUrl] = useState<null | any>(null);
   const [clipThumbnail, setClipThumbnail] = useState<null | any>(null);
+  const [uri, setUri] = useState<string | undefined>(undefined);
   const toast = useToast();
   const router = useRouter();
   const { query } = router;
 
-  // mint nft hooks
-  const { data, write } = useContractWrite({
-    address: UNLONELYNFCV2_ADDRESS,
-    abi: UnlonelyNFCsV2.abi,
-    functionName: "mint",
-    // mode: "recklesslyUnprepared",
-  });
+  const network = useNetwork();
+  const localNetwork = useMemo(() => {
+    return (
+      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
+      NETWORKS[0]
+    );
+  }, [network]);
 
-  const {
-    data: txnData,
-    isLoading,
-    isSuccess,
-  } = useWaitForTransaction({
-    hash: data?.hash,
-  });
+  const { writeAsync, txData, isTxLoading, isTxSuccess } = useWrite(
+    {
+      address: UNLONELYNFCV2_ADDRESS,
+      abi: UnlonelyNFCsV2.abi,
+      chainId: localNetwork.config.chainId,
+    },
+    "mint",
+    [user?.address, uri],
+    {
+      onPrepareSuccess: (data) => {
+        console.log("nfc mint prepare success", data);
+      },
+      onPrepareError: (error) => {
+        console.log("nfc mint prepare error", error);
+      },
+      onWriteSuccess: (data) => {
+        console.log("nfc mint write success", data);
+      },
+      onWriteError: (error) => {
+        console.log("nfc mint write error", error);
+      },
+      onTxSuccess: (data) => {
+        console.log("nfc mint tx success", data);
+      },
+      onTxError: (error) => {
+        console.log("nfc mint tx error", error);
+      },
+    }
+  );
 
   const form = useForm<PostNfcInput>({
     defaultValues: {},
@@ -130,19 +156,19 @@ const ClipDetail = () => {
         videoLink: clipUrl,
         videoThumbnail: clipThumbnail,
         title,
-        openseaLink: txnData?.logs[0].topics[3]
+        openseaLink: txData?.logs[0].topics[3]
           ? `https://opensea.io/assets/ethereum/${UNLONELYNFCV2_ADDRESS}/${parseInt(
-              txnData?.logs[0].topics[3],
+              txData?.logs[0].topics[3],
               16
             )}`
           : null,
       });
       router.push(`/nfc/${res?.id}`);
     };
-    if (isSuccess) {
+    if (isTxSuccess) {
       _postNFC();
     }
-  }, [isSuccess, txnData]);
+  }, [isTxSuccess, txData]);
 
   const submitNFC = async () => {
     const { title } = watch();
@@ -154,14 +180,12 @@ const ClipDetail = () => {
       return;
     }
 
-    if (!write) {
+    if (!writeAsync) {
       setFormError(["Error Minting NFT"]);
       return;
     }
 
-    const tx = await write({
-      // recklesslySetUnpreparedArgs: [user?.address, uri],
-    });
+    writeAsync();
   };
 
   const uploadToIPFS = async (name: string, clipUrl: string) => {
@@ -181,6 +205,7 @@ const ClipDetail = () => {
     try {
       const added = await client.add(data);
       const url = `https://cloudflare-ipfs.com/ipfs/${added.path}`;
+      setUri(url);
 
       /* after metadata is uploaded to IPFS, return the URL to use it in the transaction */
       return url;
@@ -197,7 +222,7 @@ const ClipDetail = () => {
             <Flex width="100%" justifyContent="center">
               <Alert status="error" width="60%">
                 <AlertIcon />
-                {clipError && clipError}
+                {clipError && <Text color="black">{clipError}</Text>}
               </Alert>
             </Flex>
           ) : (
@@ -287,7 +312,7 @@ const ClipDetail = () => {
                           <Flex width="100%" flexDirection="row-reverse">
                             {user ? (
                               <>
-                                {isSuccess ? (
+                                {isTxSuccess ? (
                                   <>
                                     <Button bg="#FFCC15" disabled={true}>
                                       Successfully Minted!
@@ -298,7 +323,7 @@ const ClipDetail = () => {
                                     bg="#FFCC15"
                                     _hover={{ bg: "black" }}
                                     type="submit"
-                                    isLoading={isLoading || loading}
+                                    isLoading={isTxLoading || loading}
                                     loadingText="Minting..."
                                   >
                                     Mint
