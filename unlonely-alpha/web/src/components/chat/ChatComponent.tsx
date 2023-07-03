@@ -19,8 +19,8 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import useChannel from "../../hooks/chat/useChannel";
-import { Message, initializeEmojis } from "./types/index";
+import { useChannel } from "../../hooks/chat/useChannel";
+import { initializeEmojis } from "./types/index";
 import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
@@ -36,7 +36,6 @@ import {
   NULL_ADDRESS,
   InteractionType,
   RANDOM_CHAT_COLOR,
-  ADD_REACTION_EVENT,
 } from "../../constants";
 import BuyButton from "../arcade/BuyButton";
 import { ChatBot } from "../../constants/types";
@@ -68,6 +67,7 @@ const AblyChatComponent = ({
     channel: channelContext,
     chat,
     holders: holdersContext,
+    recentStreamInteractions,
   } = useChannelContext();
   const { channelBySlug } = channelContext;
   const { chatChannel, presenceChannel } = chat;
@@ -77,21 +77,27 @@ const AblyChatComponent = ({
     error: holdersError,
     refetchTokenHolders,
   } = holdersContext;
+  const { addToTextOverVideo } = recentStreamInteractions;
 
   const channelId = useMemo(
     () => (channelBySlug?.id ? Number(channelBySlug?.id) : 3),
     [channelBySlug?.id]
   );
 
+  const {
+    ablyChannel: channel,
+    hasMessagesLoaded,
+    setHasMessagesLoaded,
+    receivedMessages,
+  } = useChannel();
+
   const { user, userAddress: address } = useUser();
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
   /*eslint-enable prefer-const*/
 
-  const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [formError, setFormError] = useState<null | string[]>(null);
   const [chatHeightGrounded, setChatHeightGrounded] = useState(false);
-  const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showArcade, setShowArcade] = useState<boolean>(false);
   const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
@@ -102,6 +108,8 @@ const AblyChatComponent = ({
   const clickedOutsideArcade = useRef(false);
   const leaderboardRef = useRef<HTMLDivElement>(null);
   const arcadeRef = useRef<HTMLDivElement>(null);
+
+  const mountingMessages = useRef(true);
 
   useEffect(() => {
     if (showLeaderboard && !holdersLoading && !holdersData) {
@@ -141,7 +149,7 @@ const AblyChatComponent = ({
     clickedOutsideLeaderBoard.current = false;
   });
 
-  const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
+  const { postFirstChat } = usePostFirstChat({
     onError: (m) => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
@@ -153,75 +161,35 @@ const AblyChatComponent = ({
   }, [scrollPercentage, chatHeightGrounded]);
 
   const toast = useToast();
-  const channelName = chatChannel
-    ? `persistMessages:${chatChannel}`
-    : "persistMessages:chat-demo";
-
-  const [channel, ably] = useChannel(channelName, (message) => {
-    setHasMessagesLoaded(false);
-    const history = receivedMessages.slice(-199);
-    // remove messages where name = add-reaction
-    const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
-    if (message.name === ADD_REACTION_EVENT) {
-      const reaction = message;
-      const timeserial = reaction.data.extras.reference.timeserial;
-      const emojiType = reaction.data.body;
-
-      // get index of message in filteredHistory array where timeserial matches
-      const index = messageHistory.findIndex(
-        (m) => m.extras.timeserial === timeserial
-      );
-
-      // if index is found, update the message object with the reaction count
-      const messageToUpdate = messageHistory[index];
-      const emojisToUpdate = messageToUpdate.data.reactions;
-      const emojiIndex = emojisToUpdate.findIndex(
-        (e) => e.emojiType === emojiType
-      );
-
-      if (emojiIndex !== -1) {
-        emojisToUpdate[emojiIndex].count += 1;
-      }
-      const updatedMessage = {
-        ...messageToUpdate,
-        data: {
-          ...messageToUpdate.data,
-          reactions: emojisToUpdate,
-        },
-      };
-      messageHistory[index] = updatedMessage;
-
-      setMessages([...messageHistory]);
-    }
-    setMessages([...messageHistory, message]);
-    setHasMessagesLoaded(true);
-  });
 
   useEffect(() => {
     if (chatBot.length > 0) {
       const lastMessage = chatBot[chatBot.length - 1];
+      let body: string | undefined = undefined;
 
       let messageText = `${username} paid 5 $BRIAN to switch to a random scene!`;
       if (lastMessage.taskType === "video") {
         messageText = `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`;
       }
       if (lastMessage.taskType === InteractionType.TIP) {
-        messageText = lastMessage.description ?? "Tip";
+        messageText = lastMessage.title ?? "Tip";
       }
       if (lastMessage.taskType === "pvp") {
-        messageText = lastMessage.description ?? "Pvp";
+        messageText = lastMessage.title ?? "Pvp";
       }
       if (lastMessage.taskType === "chance") {
-        messageText = lastMessage.description ?? "Chance";
+        messageText = lastMessage.title ?? "Chance";
       }
       if (lastMessage.taskType === InteractionType.CONTROL) {
-        messageText = lastMessage.description ?? "Control";
+        messageText = lastMessage.title ?? "Control";
+        body = lastMessage.description
+          ? `${InteractionType.CONTROL}:${lastMessage.description}`
+          : undefined;
       }
       if (lastMessage.taskType === InteractionType.BUY) {
-        messageText = lastMessage.description ?? "Buy";
+        messageText = lastMessage.title ?? "Buy";
       }
-
-      publishMessage(messageText);
+      publishChatBotMessage(messageText, body);
     }
   }, [chatBot]);
 
@@ -327,17 +295,17 @@ const AblyChatComponent = ({
         '"@chatbot [question]" to ask chatbot a question\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';
       setTimeout(() => {
         messageToPublish = rules;
-        publishMessage(messageToPublish);
+        publishChatBotMessage(messageToPublish);
       }, 1000);
       allowPublish = false;
     }
 
     if (allowPublish) {
-      publishMessage(messageToPublish);
+      publishChatBotMessage(messageToPublish);
     }
   };
 
-  const publishMessage = (messageText: string) => {
+  const publishChatBotMessage = (messageText: string, body?: string) => {
     channel.publish({
       name: "chat-message",
       data: {
@@ -348,61 +316,10 @@ const AblyChatComponent = ({
         isLens: false,
         isGif: false,
         reactions: initializeEmojis,
+        body,
       },
     });
   };
-
-  useEffect(() => {
-    async function getMessages() {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      await channel.history({ limit: 200 }, (err, result) => {
-        const messageHistory: any = result.items.filter(
-          (message: any) => message.name === "chat-message"
-        );
-        const reverse = [...messageHistory].reverse();
-        setMessages(reverse);
-
-        // iterate through result
-        result.items.forEach((message: any) => {
-          if (message.name === ADD_REACTION_EVENT) {
-            const reaction = message;
-            const timeserial = reaction.data.extras.reference.timeserial;
-            const emojiType = reaction.data.body;
-
-            // get index of message in filteredHistory array where timeserial matches
-            const index = messageHistory.findIndex(
-              (m: any) => m.extras.timeserial === timeserial
-            );
-
-            // if index is found, update the message object with the reaction count
-            const messageToUpdate = messageHistory[index];
-            const emojisToUpdate = messageToUpdate.data.reactions;
-            const emojiIndex = emojisToUpdate.findIndex(
-              (e: any) => e.emojiType === emojiType
-            );
-
-            if (emojiIndex !== -1) {
-              emojisToUpdate[emojiIndex].count += 1;
-            }
-            const updatedMessage = {
-              ...messageToUpdate,
-              data: {
-                ...messageToUpdate.data,
-                reactions: emojisToUpdate,
-              },
-            };
-            messageHistory[index] = updatedMessage;
-            const reverse = [...messageHistory, message].reverse();
-            setMessages(reverse);
-          }
-        });
-        // Get index of last sent message from history
-      });
-    }
-    if (!channel) return;
-    getMessages();
-  }, [channel]);
 
   // useeffect to scroll to the bottom of the chat
   // explain what the useEffect below is doing
@@ -418,6 +335,28 @@ const AblyChatComponent = ({
       chat.scrollTop = chat.scrollHeight;
     }
     setChatHeightGrounded(chat.scrollHeight <= chat.clientHeight);
+  }, [receivedMessages]);
+
+  useEffect(() => {
+    if (receivedMessages.length === 0) return;
+    if (!mountingMessages.current) {
+      const latestMessage = receivedMessages[receivedMessages.length - 1];
+      if (latestMessage && latestMessage.name === "chat-message") {
+        if (
+          latestMessage.data.body &&
+          latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
+        ) {
+          const newTextOverVideo = latestMessage.data.body
+            .split(":")
+            .slice(1)
+            .join();
+          if (newTextOverVideo) {
+            addToTextOverVideo(newTextOverVideo);
+          }
+        }
+      }
+    }
+    mountingMessages.current = false;
   }, [receivedMessages]);
 
   const handleScrollToPresent = () => {

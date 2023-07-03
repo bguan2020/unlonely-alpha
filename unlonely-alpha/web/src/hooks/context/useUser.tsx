@@ -33,10 +33,12 @@ const UserContext = createContext<{
   user: User | undefined;
   username?: string;
   userAddress?: `0x${string}`;
+  walletIsConnected: boolean;
 }>({
   user: undefined,
   username: undefined,
   userAddress: undefined,
+  walletIsConnected: false,
 });
 
 export const UserProvider = ({
@@ -46,35 +48,40 @@ export const UserProvider = ({
 }) => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>();
-  const accountData = useAccount();
+  const { address, isConnected } = useAccount();
   // ignore console log build error for now
   //
   const { data, loading, error } = useQuery(GET_USER_QUERY, {
-    variables: { data: { address: accountData.address } },
+    variables: { data: { address } },
   });
 
   const { data: ensData } = useEnsName({
-    address: accountData?.address,
+    address,
   });
 
   useEffect(() => {
     const fetchEns = async () => {
-      if (accountData?.address) {
-        const username = ensData ?? centerEllipses(accountData.address, 9);
+      if (address) {
+        const username = ensData ?? centerEllipses(address, 9);
         setUsername(username);
       }
     };
 
     fetchEns();
-  }, [accountData?.address, ensData]);
+  }, [address, ensData]);
 
   useEffect(() => {
     setUser(data?.getUser);
   }, [data]);
 
   const value = useMemo(
-    () => ({ user, username, userAddress: accountData?.address }),
-    [user, username, accountData?.address]
+    () => ({
+      user,
+      username,
+      userAddress: address,
+      walletIsConnected: isConnected,
+    }),
+    [user, username, address, isConnected]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

@@ -21,8 +21,7 @@ import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
 import { useBalance } from "wagmi";
 import { FetchBalanceResult } from "../../constants/types";
 import { useUser } from "./useUser";
-// import { InteractionType } from "../../constants";
-// import { io, Socket } from "socket.io-client";
+import { InteractionType } from "../../constants";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -36,8 +35,8 @@ const ChannelContext = createContext<{
     error?: ApolloError;
   };
   recentStreamInteractions: {
-    // textOverVideo: string[];
-    // socket?: Socket;
+    textOverVideo: string[];
+    addToTextOverVideo: (message: string) => void;
     data?: GetRecentStreamInteractionsQuery;
     loading: boolean;
     error?: ApolloError;
@@ -66,8 +65,8 @@ const ChannelContext = createContext<{
     error: undefined,
   },
   recentStreamInteractions: {
-    // textOverVideo: [],
-    // socket: undefined,
+    textOverVideo: [],
+    addToTextOverVideo: () => undefined,
     data: undefined,
     loading: true,
     error: undefined,
@@ -150,8 +149,7 @@ export const ChannelProvider = ({
   const [ablyPresenceChannel, setAblyPresenceChannel] = useState<
     string | undefined
   >(undefined);
-  // const [socket, setSocket] = useState<Socket | undefined>(undefined);
-  // const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
+  const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
 
   useEffect(() => {
     if (channelData?.getChannelBySlug && channelData?.getChannelBySlug.awsId) {
@@ -172,6 +170,31 @@ export const ChannelProvider = ({
     });
   }, [channelData]);
 
+  useEffect(() => {
+    if (textOverVideo.length > 0) {
+      const timer = setTimeout(() => {
+        setTextOverVideo((prev) => prev.slice(2));
+      }, 120000);
+      return () => clearTimeout(timer);
+    }
+  }, [textOverVideo]);
+
+  useEffect(() => {
+    if (!recentStreamInteractionsData) return;
+    const interactions =
+      recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
+    if (interactions && interactions.length > 0) {
+      const textInteractions = interactions.filter(
+        (i) => i?.interactionType === InteractionType.CONTROL && i.text
+      );
+      setTextOverVideo(textInteractions.map((i) => String(i?.text)));
+    }
+  }, [recentStreamInteractionsData]);
+
+  const addToTextOverVideo = useCallback((message: string) => {
+    setTextOverVideo((prev) => [...prev, message]);
+  }, []);
+
   const value = useMemo(
     () => ({
       channel: {
@@ -181,8 +204,8 @@ export const ChannelProvider = ({
         error: channelDataError,
       },
       recentStreamInteractions: {
-        // textOverVideo,
-        // socket,
+        textOverVideo,
+        addToTextOverVideo,
         data: recentStreamInteractionsData,
         loading: recentStreamInteractionsDataLoading,
         error: recentStreamInteractionsDataError,
@@ -209,8 +232,8 @@ export const ChannelProvider = ({
       channelData,
       channelDataLoading,
       channelDataError,
-      // textOverVideo,
-      // socket,
+      textOverVideo,
+      addToTextOverVideo,
       recentStreamInteractionsData,
       recentStreamInteractionsDataLoading,
       recentStreamInteractionsDataError,

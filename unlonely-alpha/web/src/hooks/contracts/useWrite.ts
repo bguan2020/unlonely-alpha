@@ -62,5 +62,6 @@ export const useWrite = (
     writeData,
     txData,
     isTxLoading,
+    isTxSuccess,
   };
 };

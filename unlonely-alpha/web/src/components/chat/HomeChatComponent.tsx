@@ -1,7 +1,7 @@
 import { Box, Text, Flex, useToast } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
-import useChannel from "../../hooks/chat/useChannel";
-import { Message, initializeEmojis } from "./types/index";
+import { useChannel } from "../../hooks/chat/useChannel";
+import { initializeEmojis } from "./types/index";
 import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
@@ -20,12 +20,10 @@ const AblyHomeChatComponent = () => {
   let inputBox: HTMLTextAreaElement | null = null;
   /*eslint-enable prefer-const*/
 
-  const [receivedMessages, setMessages] = useState<Message[]>([]);
   const [formError, setFormError] = useState<null | string[]>(null);
   const [chatHeightGrounded, setChatHeightGrounded] = useState(false);
-  const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
 
-  const { postFirstChat, loading: postChatLoading } = usePostFirstChat({
+  const { postFirstChat } = usePostFirstChat({
     onError: (m) => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
@@ -37,47 +35,14 @@ const AblyHomeChatComponent = () => {
   }, [scrollPercentage, chatHeightGrounded]);
 
   const toast = useToast();
-  const channelName = "persistMessages:home-page-chat";
 
-  const [channel, ably] = useChannel(channelName, (message) => {
-    setHasMessagesLoaded(false);
-    const history = receivedMessages.slice(-199);
-    // remove messages where name = add-reaction
-    const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
-    if (message.name === ADD_REACTION_EVENT) {
-      const reaction = message;
-      const timeserial = reaction.data.extras.reference.timeserial;
-      const emojiType = reaction.data.body;
-
-      // get index of message in filteredHistory array where timeserial matches
-      const index = messageHistory.findIndex(
-        (m) => m.extras.timeserial === timeserial
-      );
-
-      // if index is found, update the message object with the reaction count
-      const messageToUpdate = messageHistory[index];
-      const emojisToUpdate = messageToUpdate.data.reactions;
-      const emojiIndex = emojisToUpdate.findIndex(
-        (e) => e.emojiType === emojiType
-      );
-
-      if (emojiIndex !== -1) {
-        emojisToUpdate[emojiIndex].count += 1;
-      }
-      const updatedMessage = {
-        ...messageToUpdate,
-        data: {
-          ...messageToUpdate.data,
-          reactions: emojisToUpdate,
-        },
-      };
-      messageHistory[index] = updatedMessage;
-
-      setMessages([...messageHistory]);
-    }
-    setMessages([...messageHistory, message]);
-    setHasMessagesLoaded(true);
-  });
+  const {
+    ablyChannel: channel,
+    hasMessagesLoaded,
+    setHasMessagesLoaded,
+    receivedMessages,
+    setReceivedMessages,
+  } = useChannel("persistMessages:home-page-chat");
 
   const sendChatMessage = async (messageText: string, isGif: boolean) => {
     if (user) {
@@ -208,7 +173,6 @@ const AblyHomeChatComponent = () => {
       data: {
         messageText: messageText,
         username: "chatbot🤖",
-        chatColor: "black",
         address: NULL_ADDRESS,
         isFC: false,
         isLens: false,
@@ -227,7 +191,7 @@ const AblyHomeChatComponent = () => {
           (message: any) => message.name === "chat-message"
         );
         const reverse = [...messageHistory].reverse();
-        setMessages(reverse);
+        setReceivedMessages(reverse);
 
         // iterate through result
         result.items.forEach((message: any) => {
@@ -260,7 +224,7 @@ const AblyHomeChatComponent = () => {
             };
             messageHistory[index] = updatedMessage;
             const reverse = [...messageHistory, message].reverse();
-            setMessages(reverse);
+            setReceivedMessages(reverse);
           }
         });
         // Get index of last sent message from history
@@ -292,62 +256,60 @@ const AblyHomeChatComponent = () => {
   };
 
   return (
-    <>
-      <Flex h="100%" minW="100%">
-        <Flex
-          mt="10px"
-          direction="column"
-          minW="100%"
-          width="100%"
-          position={"relative"}
-        >
-          <Flex my="10px" direction={"column"}>
-            <Text
-              lineHeight={5}
-              fontWeight="light"
-              fontSize={13}
-              textAlign="center"
-              color="#A9ADCC"
-            >
-              who's here?
-            </Text>
-            <Participants ablyPresenceChannel={"home-page-presence"} />
-          </Flex>
-          <Flex
-            direction="column"
-            overflowX="auto"
-            height="100%"
-            id="chat"
-            position="relative"
-            mt="8px"
-            ref={scrollRef}
+    <Flex h="100%" minW="100%">
+      <Flex
+        mt="10px"
+        direction="column"
+        minW="100%"
+        width="100%"
+        position={"relative"}
+      >
+        <Flex my="10px" direction={"column"}>
+          <Text
+            lineHeight={5}
+            fontWeight="light"
+            fontSize={13}
+            textAlign="center"
+            color="#A9ADCC"
           >
-            <MessageList messages={receivedMessages} channel={channel} />
-          </Flex>
-          <Flex justifyContent="center">
-            {hasScrolled && hasMessagesLoaded ? (
-              <Box
-                bg="rgba(98, 98, 98, 0.6)"
-                p="4px"
-                borderRadius="4px"
-                _hover={{
-                  background: "rgba(98, 98, 98, 0.3)",
-                  cursor: "pointer",
-                }}
-                onClick={handleScrollToPresent}
-              >
-                <Text fontSize="12px">
-                  scrolling paused. click to scroll to bottom.
-                </Text>
-              </Box>
-            ) : null}
-          </Flex>
-          <Flex mt="40px" w="100%" mb="15px">
-            <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox} />
-          </Flex>
+            who's here?
+          </Text>
+          <Participants ablyPresenceChannel={"home-page-presence"} />
+        </Flex>
+        <Flex
+          direction="column"
+          overflowX="auto"
+          height="100%"
+          id="chat"
+          position="relative"
+          mt="8px"
+          ref={scrollRef}
+        >
+          <MessageList messages={receivedMessages} channel={channel} />
+        </Flex>
+        <Flex justifyContent="center">
+          {hasScrolled && hasMessagesLoaded ? (
+            <Box
+              bg="rgba(98, 98, 98, 0.6)"
+              p="4px"
+              borderRadius="4px"
+              _hover={{
+                background: "rgba(98, 98, 98, 0.3)",
+                cursor: "pointer",
+              }}
+              onClick={handleScrollToPresent}
+            >
+              <Text fontSize="12px">
+                scrolling paused. click to scroll to bottom.
+              </Text>
+            </Box>
+          ) : null}
+        </Flex>
+        <Flex mt="40px" w="100%" mb="15px">
+          <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox} />
         </Flex>
       </Flex>
-    </>
+    </Flex>
   );
 };
 

@@ -10,9 +10,8 @@ import {
   Tooltip,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { isAddress } from "viem";
-import { useEnsName } from "wagmi";
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
@@ -28,7 +27,6 @@ import ChanceTransactionModal from "../../components/transactions/ChanceTransact
 import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
 import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
 import TipTransactionModal from "../../components/transactions/TipTransactionModal";
-import { InteractionType } from "../../constants";
 import { ChatBot } from "../../constants/types";
 import {
   ChannelProvider,
@@ -36,7 +34,6 @@ import {
 } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
-import { io, Socket } from "socket.io-client";
 
 const ChannelDetail = () => {
   return (
@@ -53,12 +50,8 @@ const ChannelPage = () => {
     loading: channelDataLoading,
     error: channelDataError,
   } = channel;
-  const {
-    data: recentStreamInteractionsData,
-    loading: recentStreamInteractionsLoading,
-    // textOverVideo,
-    // socket,
-  } = recentStreamInteractions;
+  const { loading: recentStreamInteractionsLoading, textOverVideo } =
+    recentStreamInteractions;
 
   const queryLoading = useMemo(
     () => channelDataLoading || recentStreamInteractionsLoading,
@@ -66,7 +59,7 @@ const ChannelPage = () => {
   );
 
   const [width, height] = useWindowSize();
-  const { username, userAddress } = useUser();
+  const { username } = useUser();
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [showTipModal, setShowTipModal] = useState<boolean>(false);
@@ -75,17 +68,10 @@ const ChannelPage = () => {
   const [showControlModal, setShowControlModal] = useState<boolean>(false);
   const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
 
-  const [socket, setSocket] = useState<Socket | undefined>(undefined);
-  const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
-
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
-
-  const { data: ensData } = useEnsName({
-    address: userAddress,
-  });
 
   const isHidden = useCallback(
     (isChat: boolean) => {
@@ -107,68 +93,6 @@ const ChannelPage = () => {
     setChatBot((prev) => [...prev, chatBotMessageToAdd]);
   }, []);
 
-  useEffect(() => {
-    const url =
-      process.env.NODE_ENV === "production"
-        ? "wss://sea-lion-app-j3rts.ondigitalocean.app"
-        : "http://localhost:4000";
-    const newSocket = io(url, {
-      transports: ["websocket"],
-    });
-
-    console.log("newSocket", newSocket);
-    console.log("socket connected to URL: ", url);
-
-    // idk, maybe try useRef instead of useEffect (https://github.dev/koolkishan/chat-app-react-nodejs)
-    setSocket(newSocket);
-    newSocket.on("connect", () => {
-      console.log("is connected to socket?", newSocket.connected);
-    });
-
-    newSocket.on("receive-message", (data) => {
-      console.log("socket receive message", data);
-      setTextOverVideo((prev) => [...prev, data.message]);
-    });
-
-    newSocket.on("connect_error", (err) => {
-      console.log(`socket io connect_error: ${err}`);
-    });
-
-    return () => {
-      newSocket.removeAllListeners();
-      newSocket.disconnect();
-    };
-  }, []);
-
-  const handleSendMessage = (message: string) => {
-    console.log("socket send message", message);
-    socket?.emit("send-message", {
-      message,
-      username: userAddress,
-    });
-  };
-
-  useEffect(() => {
-    if (textOverVideo.length > 0) {
-      const timer = setTimeout(() => {
-        setTextOverVideo((prev) => prev.slice(2));
-      }, 120000);
-      return () => clearTimeout(timer);
-    }
-  }, [textOverVideo]);
-
-  useEffect(() => {
-    if (!recentStreamInteractionsData) return;
-    const interactions =
-      recentStreamInteractionsData.getRecentStreamInteractionsByChannel;
-    if (interactions && interactions.length > 0) {
-      const textInteractions = interactions.filter(
-        (i) => i?.interactionType === InteractionType.CONTROL && i.text
-      );
-      setTextOverVideo(textInteractions.map((i) => String(i?.text)));
-    }
-  }, [recentStreamInteractionsData]);
-
   return (
     <>
       {channelBySlug && <ChannelNextHead channel={channelBySlug} />}
@@ -180,7 +104,6 @@ const ChannelPage = () => {
         {!queryLoading && !channelDataError ? (
           <>
             <ControlTransactionModal
-              callback={(text: string) => handleSendMessage(text)}
               icon={
                 <Image
                   alt="control"
