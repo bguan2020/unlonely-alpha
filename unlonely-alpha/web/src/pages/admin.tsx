@@ -19,7 +19,7 @@ import {
   useBuyCreatorToken,
   useCalculateEthAmount,
   useReadPublic,
-  // useSetTokenPrice,
+  useSetTokenPrices,
   useUseFeature,
 } from "../hooks/contracts/useArcadeContract";
 import { useApproval } from "../hooks/contracts/useApproval";
@@ -87,7 +87,9 @@ const AdminContent = () => {
   const [buyTokenAmount, setBuyTokenAmount] = useState<string>("");
   const [featurePrice, setFeaturePrice] = useState<string>("");
   const [initialPrice, setInitialPrice] = useState<string>("");
-  const [tokenPriceState, setTokenPriceState] = useState<string>("");
+  const [newTokenPricesStr, setNewTokenPricesStr] = useState<string>("");
+  const [creatorTokenAddressesStr, setCreatorTokenAddressesStr] =
+    useState<string>("");
 
   const buyTokenAmount_bigint = useMemo(
     () => parseUnits(formatIncompleteNumber(buyTokenAmount) as `${number}`, 18),
@@ -250,33 +252,32 @@ const AdminContent = () => {
     });
   };
 
-  // const {
-  //   setTokenPrice,
-  //   setTokenPriceData,
-  //   setTokenPriceTxData,
-  //   setTokenPriceTxLoading,
-  // } = useSetTokenPrice(
-  //   {
-  //     creatorTokenAddress: creatorTokenAddress as `0x${string}`,
-  //     price: parseUnits(
-  //       formatIncompleteNumber(tokenPriceState) as `${number}`,
-  //       18
-  //     ),
-  //   },
-  //   {
-  //     onTxSuccess: (data) => {
-  //       toast({
-  //         title: "setTokenPrice",
-  //         description: "success",
-  //         status: "success",
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //       refetchPublic();
-  //     },
-  //   }
-  // );
+  const {
+    setTokenPrices,
+    setTokenPricesData,
+    setTokenPricesTxData,
+    setTokenPricesTxLoading,
+  } = useSetTokenPrices(
+    {
+      creatorTokens: creatorTokenAddressesStr.split(",") as `0x${string}`[],
+      newPrices: newTokenPricesStr
+        .split(",")
+        .map((p) => parseUnits(formatIncompleteNumber(p) as `${number}`, 18)),
+    },
+    {
+      onTxSuccess: (data) => {
+        toast({
+          title: "setTokenPrice",
+          description: "success",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchPublic();
+      },
+    }
+  );
 
   const { updateCreatorTokenPrice } = useUpdateCreatorTokenPrice({
     onError: (error: any) => {
@@ -284,25 +285,25 @@ const AdminContent = () => {
     },
   });
 
-  // const handleSetTokenPrice = async () => {
-  //   if (!setTokenPrice) return;
-  //   // first call smart contract
-  //   await setTokenPrice();
-  //   // then call our database
-  //   await updateCreatorTokenPrice({
-  //     tokenAddress: creatorTokenAddress as `0x${string}`,
-  //     price: Number(tokenPriceState),
-  //   });
-  // };
-
-  const acceptableNewPrice = useMemo(() => {
-    const newPrice = parseUnits(
-      formatIncompleteNumber(tokenPriceState) as `${number}`,
-      18
+  const handleSetTokenPrices = async () => {
+    if (
+      !setTokenPrices ||
+      newTokenPricesStr.split(",").length !==
+        creatorTokenAddressesStr.split(",").length
+    )
+      return;
+    // first call smart contract
+    await setTokenPrices();
+    // then call our database
+    await Promise.all(
+      creatorTokenAddressesStr.split(",").map(async (tokenAddress, index) => {
+        await updateCreatorTokenPrice({
+          tokenAddress: tokenAddress as `0x${string}`,
+          price: Number(newTokenPricesStr.split(",")[index]),
+        });
+      })
     );
-    if (!tokenPrice && newPrice >= BigInt(0)) return true;
-    return newPrice !== tokenPrice && newPrice >= BigInt(0);
-  }, [tokenPrice, tokenPriceState]);
+  };
 
   const handleInputChange = (
     event: any,
@@ -512,54 +513,38 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
-      {/* <Text fontSize="25px" fontFamily="Neue Pixel Sans">
-        setTokenPrice
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
+        setTokenPrices
       </Text>
-      <Flex gap={"10px"} alignItems="flex-end" bg='gray'>
+      <Flex gap={"10px"} alignItems="flex-end">
         <VStack>
-          <Text>existing creator token address</Text>
+          <Text>existing creator tokens</Text>
           <Input
+            placeholder="0x1234...,0x5678..."
             {...inputStyle}
-            readOnly={setTokenPriceTxLoading}
+            readOnly={setTokenPricesTxLoading}
             width="400px"
-            isInvalid={!isAddress(creatorTokenAddress)}
-            value={creatorTokenAddress}
-            onChange={(e) => setCreatorTokenAddress(e.target.value)}
-          />
-        </VStack>
-        <VStack>
-          <Text>owner</Text>
-          <Input
-            {...inputStyle}
-            width="300px"
-            isReadOnly
-            value={tokenOwner !== NULL_ADDRESS ? tokenOwner : ""}
-          />
-        </VStack>
-        <VStack>
-          <Text>how much ETH will this token cost?</Text>
-          <Input
-            {...inputStyle}
-            readOnly={setTokenPriceTxLoading}
-            width="500px"
-            value={tokenPriceState}
-            onChange={(e) => handleInputChange(e, setTokenPriceState, true)}
-          />
-        </VStack>
-        <VStack>
-          <Text>{tokenPrice ? "price found" : "price not found"}</Text>
-          <Input
-            width="200px"
-            {...inputStyle}
-            isReadOnly
-            value={
-              tokenPrice
-                ? `${formatUnits(tokenPrice ?? BigInt(0), 18)} ETH`
-                : ""
+            isInvalid={
+              creatorTokenAddressesStr
+                .split(",")
+                .filter((address) => !isAddress(address)).length > 0
             }
+            value={creatorTokenAddressesStr}
+            onChange={(e) => setCreatorTokenAddressesStr(e.target.value)}
           />
         </VStack>
-        {setTokenPriceTxLoading ? (
+        <VStack>
+          <Text>how much ETH will these tokens cost?</Text>
+          <Input
+            placeholder="0.0005,0.0015,1200,..."
+            {...inputStyle}
+            readOnly={setTokenPricesTxLoading}
+            width="500px"
+            value={newTokenPricesStr}
+            onChange={(e) => setNewTokenPricesStr(e.target.value)}
+          />
+        </VStack>
+        {setTokenPricesTxLoading ? (
           <Spinner />
         ) : (
           <Button
@@ -567,17 +552,18 @@ const AdminContent = () => {
             _hover={{}}
             _focus={{}}
             _active={{}}
-            onClick={handleSetTokenPrice}
+            onClick={handleSetTokenPrices}
             isDisabled={
               !isAddress(creatorTokenAddress) ||
-              !setTokenPrice ||
-              !acceptableNewPrice
+              !setTokenPrices ||
+              newTokenPricesStr.split(",").length !==
+                creatorTokenAddressesStr.split(",").length
             }
           >
             Send
           </Button>
         )}
-      </Flex> */}
+      </Flex>
       <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         approve (owners only)
       </Text>

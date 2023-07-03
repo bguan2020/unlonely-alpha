@@ -347,6 +347,39 @@ export const useAddCreatorToken = (
   };
 };
 
+export const useSetTokenPrices = (
+  args: {
+    creatorTokens: `0x${string}`[];
+    newPrices: bigint[];
+  },
+  callbacks?: WriteCallbacks
+) => {
+  const network = useNetwork();
+  const localNetwork = useMemo(() => {
+    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
+  }, [network]);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+
+  const {
+    writeAsync: setTokenPrices,
+    writeData: setTokenPricesData,
+    txData: setTokenPricesTxData,
+    isTxLoading: setTokenPricesTxLoading,
+  } = useWrite(
+    contract,
+    "setTokenPrice",
+    [args.creatorTokens, args.newPrices],
+    callbacks
+  );
+
+  return {
+    setTokenPrices,
+    setTokenPricesData,
+    setTokenPricesTxData,
+    setTokenPricesTxLoading,
+  };
+};
+
 // export const useSetTokenPrice = (
 //   args: {
 //     creatorTokenAddress: `0x${string}`;

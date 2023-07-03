@@ -32,9 +32,8 @@ const useCreateClip = ({ onError }: Props) => {
       });
 
       const res = mutationResult?.data?.createClip;
-      /* eslint-disable no-console */
       if (res) {
-        console.log("success");
+        console.log("useCreateClip createClip success", res);
       } else {
         onError && onError();
       }
