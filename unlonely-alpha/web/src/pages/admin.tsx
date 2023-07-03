@@ -265,7 +265,18 @@ const AdminContent = () => {
         .map((p) => parseUnits(formatIncompleteNumber(p) as `${number}`, 18)),
     },
     {
-      onTxSuccess: (data) => {
+      onTxSuccess: async (data) => {
+        // then call our database
+        await Promise.all(
+          creatorTokenAddressesStr
+            .split(",")
+            .map(async (tokenAddress, index) => {
+              await updateCreatorTokenPrice({
+                tokenAddress: tokenAddress as `0x${string}`,
+                price: Number(newTokenPricesStr.split(",")[index]),
+              });
+            })
+        );
         toast({
           title: "setTokenPrices",
           description: "success",
@@ -294,15 +305,6 @@ const AdminContent = () => {
       return;
     // first call smart contract
     await setTokenPrices();
-    // then call our database
-    await Promise.all(
-      creatorTokenAddressesStr.split(",").map(async (tokenAddress, index) => {
-        await updateCreatorTokenPrice({
-          tokenAddress: tokenAddress as `0x${string}`,
-          price: Number(newTokenPricesStr.split(",")[index]),
-        });
-      })
-    );
   };
 
   const handleInputChange = (
@@ -554,7 +556,6 @@ const AdminContent = () => {
             _active={{}}
             onClick={handleSetTokenPrices}
             isDisabled={
-              !isAddress(creatorTokenAddress) ||
               !setTokenPrices ||
               newTokenPricesStr.split(",").length !==
                 creatorTokenAddressesStr.split(",").length
