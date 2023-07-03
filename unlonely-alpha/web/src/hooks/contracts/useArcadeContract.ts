@@ -367,9 +367,34 @@ export const useSetTokenPrices = (
     isTxLoading: setTokenPricesTxLoading,
   } = useWrite(
     contract,
-    "setTokenPrice",
+    "setTokenPrices",
     [args.creatorTokens, args.newPrices],
-    callbacks
+    {
+      onPrepareSuccess: (data) => {
+        console.log("useSetTokenPrices setTokenPrices prepare success", data);
+        callbacks?.onPrepareSuccess?.(data);
+      },
+      onPrepareError: (error) => {
+        console.log("useSetTokenPrices setTokenPrices prepare error", error);
+        callbacks?.onPrepareError?.(error);
+      },
+      onWriteSuccess: (data) => {
+        console.log("useSetTokenPrices setTokenPrices write success", data);
+        callbacks?.onWriteSuccess?.(data);
+      },
+      onWriteError: (error) => {
+        console.log("useSetTokenPrices setTokenPrices write error", error);
+        callbacks?.onWriteError?.(error);
+      },
+      onTxSuccess: (data) => {
+        console.log("useSetTokenPrices setTokenPrices tx success", data);
+        callbacks?.onTxSuccess?.(data);
+      },
+      onTxError: (error) => {
+        console.log("useSetTokenPrices setTokenPrices tx error", error);
+        callbacks?.onTxError?.(error);
+      },
+    }
   );
 
   return {

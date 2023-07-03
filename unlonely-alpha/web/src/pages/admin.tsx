@@ -267,7 +267,7 @@ const AdminContent = () => {
     {
       onTxSuccess: (data) => {
         toast({
-          title: "setTokenPrice",
+          title: "setTokenPrices",
           description: "success",
           status: "success",
           duration: 9000,
