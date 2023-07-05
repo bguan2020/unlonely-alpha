@@ -1,10 +1,13 @@
 import React from "react";
 import { Avatar, Flex, Text, Image } from "@chakra-ui/react";
-import { User } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
 import Link from "next/link";
+import { CustomUser } from "../../constants/types";
+import { useGetBadges } from "../../hooks/internal/useGetBadges";
 
-const ExcessTooltipAvatar = ({ user }: { user: User }) => {
+const ExcessTooltipAvatar = ({ user }: { user: CustomUser }) => {
+  const { rankUrl } = useGetBadges(user.tokenHolderRank);
+
   return (
     <Link
       target="_blank"
@@ -31,29 +34,8 @@ const ExcessTooltipAvatar = ({ user }: { user: User }) => {
           {user.username ? user.username : centerEllipses(user.address, 8)}
         </Text>
         <Flex direction="row" margin="auto">
-          {user.nfcRank > 0 && (
-            <Image
-              src={"/images/badges/nfc_rank_1.png"}
-              width="20px"
-              height="20px"
-              mr="5px"
-            />
-          )}
-          {user.powerUserLvl > 0 && (
-            <Image
-              src={`/images/badges/lvl${user.powerUserLvl}_poweruser.png`}
-              width="20px"
-              height="20px"
-              mr="5px"
-            />
-          )}
-          {user.videoSavantLvl > 0 && (
-            <Image
-              src={`/images/badges/lvl${user.videoSavantLvl}_host.png`}
-              width="20px"
-              height="20px"
-              mr="5px"
-            />
+          {rankUrl && (
+            <Image src={rankUrl} width="20px" height="20px" mr="5px" />
           )}
           {user.isFCUser && (
             <Image

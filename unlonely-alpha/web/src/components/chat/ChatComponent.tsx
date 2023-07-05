@@ -76,6 +76,7 @@ const AblyChatComponent = ({
     loading: holdersLoading,
     error: holdersError,
     refetchTokenHolders,
+    userRank,
   } = holdersContext;
   const { addToTextOverVideo } = recentStreamInteractions;
 
@@ -214,9 +215,7 @@ const AblyChatComponent = ({
           isFC: false,
           isLens: false,
           address: address,
-          powerUserLvl: 0,
-          videoSavantLvl: 0,
-          nfcRank: 0,
+          tokenHolderRank: userRank,
           isGif,
           reactions: initializeEmojis,
         },
@@ -241,9 +240,7 @@ const AblyChatComponent = ({
           isLens: user.isLensUser,
           lensHandle: user.lensHandle,
           address: user.address,
-          powerUserLvl: user?.powerUserLvl,
-          videoSavantLvl: user?.videoSavantLvl,
-          nfcRank: user?.nfcRank,
+          tokenHolderRank: userRank,
           isGif,
           reactions: initializeEmojis,
         },

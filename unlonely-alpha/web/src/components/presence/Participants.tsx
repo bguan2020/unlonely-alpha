@@ -12,10 +12,11 @@ import {
 
 import { usePresence } from "@ably-labs/react-hooks";
 import Participant from "./Participant";
-import { User } from "../../generated/graphql";
 import { useUser } from "../../hooks/context/useUser";
 import ExcessTooltipAvatar from "./ExcessTooltipAvatar";
 import AnonExcessTooltipAvatar from "./AnonExcessTooltipAvatar";
+import { useChannelContext } from "../../hooks/context/useChannel";
+import { CustomUser } from "../../constants/types";
 
 configureAbly({
   authUrl: "/api/createTokenRequest",
@@ -28,7 +29,7 @@ type Props = {
 
 type Presence = {
   id: string;
-  data: { user: User };
+  data: { user: CustomUser };
   action: string;
   clientId: string;
   encoding: string;
@@ -37,6 +38,8 @@ type Presence = {
 
 const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
   const { user } = useUser();
+  const { holders } = useChannelContext();
+  const { userRank } = holders;
   const [presenceData, updateStatus] = usePresence(
     ablyPresenceChannel ? ablyPresenceChannel : "presence"
   );
@@ -46,10 +49,13 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
     if (presenceData) {
       // update my presence data to include my user data
       updateStatus({
-        user,
+        user: {
+          ...user,
+          tokenHolderRank: userRank,
+        },
       });
     }
-  }, [user]);
+  }, [user, userRank]);
 
   useEffect(() => {
     if (presenceData) {

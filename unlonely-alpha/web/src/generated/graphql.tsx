@@ -80,6 +80,8 @@ export type Channel = {
   awsId: Scalars["String"];
   channelArn?: Maybe<Scalars["String"]>;
   createdAt: Scalars["DateTime"];
+  customButtonAction?: Maybe<Scalars["String"]>;
+  customButtonPrice?: Maybe<Scalars["Int"]>;
   description?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
   isLive?: Maybe<Scalars["Boolean"]>;
@@ -177,6 +179,11 @@ export type GetUserInput = {
   address?: InputMaybe<Scalars["String"]>;
 };
 
+export type GetUserTokenHoldingInput = {
+  tokenAddress?: InputMaybe<Scalars["String"]>;
+  userAddress?: InputMaybe<Scalars["String"]>;
+};
+
 export type HandleLikeInput = {
   likableId: Scalars["ID"];
   likedObj: LikeObj;
@@ -220,6 +227,7 @@ export type Mutation = {
   postVideo?: Maybe<Video>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
+  updateChannelCustomButton?: Maybe<Channel>;
   updateChannelText?: Maybe<Channel>;
   updateCreatorTokenPrice: CreatorToken;
   updateDeviceToken?: Maybe<DeviceToken>;
@@ -274,6 +282,10 @@ export type MutationSoftDeleteTaskArgs = {
 
 export type MutationSoftDeleteVideoArgs = {
   id: Scalars["ID"];
+};
+
+export type MutationUpdateChannelCustomButtonArgs = {
+  data: UpdateChannelCustomButtonInput;
 };
 
 export type MutationUpdateChannelTextArgs = {
@@ -401,6 +413,7 @@ export type Query = {
   getTokenHoldersByChannel: Array<UserCreatorToken>;
   getTokenLeaderboard: Array<CreatorToken>;
   getUser?: Maybe<User>;
+  getUserTokenHolding?: Maybe<Scalars["Int"]>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
   updateAllUsers?: Maybe<Array<Maybe<User>>>;
@@ -458,6 +471,10 @@ export type QueryGetUserArgs = {
   data: GetUserInput;
 };
 
+export type QueryGetUserTokenHoldingArgs = {
+  data: GetUserTokenHoldingInput;
+};
+
 export type QueryGetVideoArgs = {
   id: Scalars["ID"];
 };
@@ -508,6 +525,12 @@ export type TaskFeedInput = {
   orderBy?: InputMaybe<SortOrder>;
   searchString?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;
+};
+
+export type UpdateChannelCustomButtonInput = {
+  customButtonAction: Scalars["String"];
+  customButtonPrice: Scalars["Int"];
+  id: Scalars["ID"];
 };
 
 export type UpdateChannelTextInput = {
@@ -644,6 +667,15 @@ export type VideoCard_VideoFragment = {
   createdAt: any;
   liked?: boolean | null;
   owner: { __typename?: "User"; username?: string | null; address: string };
+};
+
+export type QueryQueryVariables = Exact<{
+  data: GetUserTokenHoldingInput;
+}>;
+
+export type QueryQuery = {
+  __typename?: "Query";
+  getUserTokenHolding?: number | null;
 };
 
 export type GetTokenLeaderboardQueryVariables = Exact<{ [key: string]: never }>;
@@ -1059,6 +1091,32 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
+export type MutationMutationVariables = Exact<{
+  data: UpdateChannelCustomButtonInput;
+}>;
+
+export type MutationMutation = {
+  __typename?: "Mutation";
+  updateChannelCustomButton?: {
+    __typename?: "Channel";
+    customButtonAction?: string | null;
+    customButtonPrice?: number | null;
+  } | null;
+};
+
+export type UpdateChannelCustomButtonMutationVariables = Exact<{
+  data: UpdateChannelCustomButtonInput;
+}>;
+
+export type UpdateChannelCustomButtonMutation = {
+  __typename?: "Mutation";
+  updateChannelCustomButton?: {
+    __typename?: "Channel";
+    customButtonAction?: string | null;
+    customButtonPrice?: number | null;
+  } | null;
+};
+
 export const TaskCard_TaskFragmentDoc = gql`
   fragment TaskCard_task on Task {
     id
@@ -1155,6 +1213,52 @@ export type TaskFeedLazyQueryHookResult = ReturnType<
 export type TaskFeedQueryResult = Apollo.QueryResult<
   TaskFeedQuery,
   TaskFeedQueryVariables
+>;
+export const QueryDocument = gql`
+  query Query($data: GetUserTokenHoldingInput!) {
+    getUserTokenHolding(data: $data)
+  }
+`;
+
+/**
+ * __useQueryQuery__
+ *
+ * To run a query within a React component, call `useQueryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQueryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQueryQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useQueryQuery(
+  baseOptions: Apollo.QueryHookOptions<QueryQuery, QueryQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<QueryQuery, QueryQueryVariables>(
+    QueryDocument,
+    options
+  );
+}
+export function useQueryLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<QueryQuery, QueryQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<QueryQuery, QueryQueryVariables>(
+    QueryDocument,
+    options
+  );
+}
+export type QueryQueryHookResult = ReturnType<typeof useQueryQuery>;
+export type QueryLazyQueryHookResult = ReturnType<typeof useQueryLazyQuery>;
+export type QueryQueryResult = Apollo.QueryResult<
+  QueryQuery,
+  QueryQueryVariables
 >;
 export const GetTokenLeaderboardDocument = gql`
   query GetTokenLeaderboard {
@@ -2697,3 +2801,103 @@ export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
 >;
+export const MutationDocument = gql`
+  mutation Mutation($data: UpdateChannelCustomButtonInput!) {
+    updateChannelCustomButton(data: $data) {
+      customButtonAction
+      customButtonPrice
+    }
+  }
+`;
+export type MutationMutationFn = Apollo.MutationFunction<
+  MutationMutation,
+  MutationMutationVariables
+>;
+
+/**
+ * __useMutationMutation__
+ *
+ * To run a mutation, you first call `useMutationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMutationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [mutationMutation, { data, loading, error }] = useMutationMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useMutationMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    MutationMutation,
+    MutationMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<MutationMutation, MutationMutationVariables>(
+    MutationDocument,
+    options
+  );
+}
+export type MutationMutationHookResult = ReturnType<typeof useMutationMutation>;
+export type MutationMutationResult = Apollo.MutationResult<MutationMutation>;
+export type MutationMutationOptions = Apollo.BaseMutationOptions<
+  MutationMutation,
+  MutationMutationVariables
+>;
+export const UpdateChannelCustomButtonDocument = gql`
+  mutation UpdateChannelCustomButton($data: UpdateChannelCustomButtonInput!) {
+    updateChannelCustomButton(data: $data) {
+      customButtonAction
+      customButtonPrice
+    }
+  }
+`;
+export type UpdateChannelCustomButtonMutationFn = Apollo.MutationFunction<
+  UpdateChannelCustomButtonMutation,
+  UpdateChannelCustomButtonMutationVariables
+>;
+
+/**
+ * __useUpdateChannelCustomButtonMutation__
+ *
+ * To run a mutation, you first call `useUpdateChannelCustomButtonMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChannelCustomButtonMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChannelCustomButtonMutation, { data, loading, error }] = useUpdateChannelCustomButtonMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChannelCustomButtonMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateChannelCustomButtonMutation,
+    UpdateChannelCustomButtonMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateChannelCustomButtonMutation,
+    UpdateChannelCustomButtonMutationVariables
+  >(UpdateChannelCustomButtonDocument, options);
+}
+export type UpdateChannelCustomButtonMutationHookResult = ReturnType<
+  typeof useUpdateChannelCustomButtonMutation
+>;
+export type UpdateChannelCustomButtonMutationResult =
+  Apollo.MutationResult<UpdateChannelCustomButtonMutation>;
+export type UpdateChannelCustomButtonMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateChannelCustomButtonMutation,
+    UpdateChannelCustomButtonMutationVariables
+  >;

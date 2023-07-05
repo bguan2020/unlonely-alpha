@@ -1,5 +1,11 @@
 import { gql } from "@apollo/client";
 
+export const GET_USER_TOKEN_HOLDING_QUERY = gql`
+  query Query($data: GetUserTokenHoldingInput!) {
+    getUserTokenHolding(data: $data)
+  }
+`;
+
 export const GET_TOKEN_LEADERBOARD_QUERY = gql`
   query GetTokenLeaderboard {
     getTokenLeaderboard {

@@ -1,84 +1,26 @@
 import { Tooltip, Image } from "@chakra-ui/react";
 import { User } from "../../generated/graphql";
-
 import { Message } from "./types/index";
+import { useGetBadges } from "../../hooks/internal/useGetBadges";
 
 type Props = {
   message: Message;
-  user: User | undefined;
+  user?: User;
 };
 
 export default function Badges({ message, user }: Props) {
-  let numStreams: string;
-  switch (message.data.videoSavantLvl) {
-    case 1:
-      numStreams = "1+";
-      break;
-    case 2:
-      numStreams = "5+";
-      break;
-    case 3:
-      numStreams = "15+";
-      break;
-    default:
-      numStreams = "0";
-  }
-
-  // const that opens a new tab to this link: https://opensea.io/assets/ethereum/0x55d78c09a0a8f0136392eb493a9aecc9c0ded225/1
-  const openNFT = () => {
-    window.open(
-      "https://opensea.io/assets/ethereum/0x55d78c09a0a8f0136392eb493a9aecc9c0ded225/43",
-      "_blank"
-    );
-  };
+  const { rankUrl, rankDesc } = useGetBadges(message.data.tokenHolderRank);
 
   return (
     <>
-      {(user &&
-        user?.nfcRank > 0 &&
-        user?.username === message.data.username) ||
-      (message.data.nfcRank && message.data.nfcRank > 0) ? (
-        <Tooltip label={"Voted Best NFC Holder of the Week. Click to view."}>
-          <Image
-            src={"/images/badges/nfc_rank_1.png"}
-            width="40px"
-            height="40px"
-            mr="5px"
-            mb="4px"
-            onClick={openNFT}
-          />
-        </Tooltip>
-      ) : null}
-      {(user &&
-        user?.powerUserLvl > 0 &&
-        user?.username === message.data.username) ||
-      (message.data.powerUserLvl && message.data.powerUserLvl > 0) ? (
-        <Tooltip
-          label={`Power User lvl:${message.data.powerUserLvl} \nThis badge means you've come to multiple streams and have engaged in chat! Continue the streak to gain levels!`}
-        >
-          <Image
-            src={`/images/badges/lvl${message.data.powerUserLvl}_poweruser.png`}
-            width="20px"
-            height="20px"
-            mr="5px"
-          />
-        </Tooltip>
-      ) : null}
-      {(user &&
-        user?.videoSavantLvl > 0 &&
-        user?.username === message.data.username) ||
-      (message.data.videoSavantLvl && message.data.videoSavantLvl > 0) ? (
-        <Tooltip
-          label={`Host lvl:${message.data.videoSavantLvl}\nHas hosted ${numStreams} streams!`}
-        >
-          <Image
-            src={`/images/badges/lvl${message.data.videoSavantLvl}_host.png`}
-            width="20px"
-            height="20px"
-            mr="5px"
-          />
-        </Tooltip>
-      ) : null}
+      {rankUrl &&
+        (user?.username === message.data.username ? (
+          <Tooltip label={rankDesc}>
+            <Image src={rankUrl} width="20px" height="20px" mr="5px" />
+          </Tooltip>
+        ) : (
+          <Image src={rankUrl} width="20px" height="20px" mr="5px" />
+        ))}
       {message.data.isFC && (
         <Tooltip label="Farcaster Badge">
           <Image
