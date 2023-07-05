@@ -14,6 +14,8 @@ export const typeDef = gql`
     owner: User!
     token: CreatorToken
     slug: String!
+    customButtonAction: String
+    customButtonPrice: Int
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -30,6 +32,12 @@ export const typeDef = gql`
     description: String!
   }
 
+  input UpdateChannelCustomButtonInput {
+    id: ID!
+    customButtonAction: String!
+    customButtonPrice: Int!
+  }
+
   extend type Query {
     getChannelFeed(data: ChannelFeedInput): [Channel]
     getChannelWithTokenById(id: ID!): Channel
@@ -39,5 +47,6 @@ export const typeDef = gql`
 
   extend type Mutation {
     updateChannelText(data: UpdateChannelTextInput!): Channel
+    updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
   }
 `;
