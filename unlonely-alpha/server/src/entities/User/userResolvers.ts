@@ -49,6 +49,13 @@ export const resolvers = {
     // updateAllUsers: (_: any, _args: any, ctx: Context) => {
     //   return userService.updateAllUsers(ctx);
     // },
+    getUserTokenHolding: (
+      _: any,
+      { data }: { data: userService.IGetUserTokenHoldingInput },
+      ctx: Context
+    ) => {
+      return userService.getUserTokenHolding(data, ctx);
+    },
   },
   Mutation: {
     updateUserNotifications: (

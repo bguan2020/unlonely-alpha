@@ -226,6 +226,8 @@ model Channel {
   chats Chat[]
   streamInteractions StreamInteraction[]
   token CreatorToken?
+  customButtonAction String?
+  customButtonPrice Int?
 }
 
 model DeviceToken {
