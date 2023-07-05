@@ -20,9 +20,13 @@ const SwordButton: React.FunctionComponent<Props> = ({ noHover, callback }) => {
       bg="transparent"
       icon={
         isHovered && !noHover ? (
-          <Image alt="sword-hover" src="/svg/sword-hover.svg" width="100%" />
+          <Image
+            alt="sword-hover"
+            src="/svg/arcade/sword-hover.svg"
+            width="100%"
+          />
         ) : (
-          <Image alt="sword" src="/svg/sword.svg" width="100%" />
+          <Image alt="sword" src="/svg/arcade/sword.svg" width="100%" />
         )
       }
       onMouseEnter={() => setIsHovered(true)}

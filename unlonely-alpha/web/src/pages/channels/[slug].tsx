@@ -107,7 +107,7 @@ const ChannelPage = () => {
               icon={
                 <Image
                   alt="control"
-                  src="/svg/control.svg"
+                  src="/svg/arcade/control.svg"
                   width="60px"
                   height="60px"
                 />
@@ -133,7 +133,7 @@ const ChannelPage = () => {
               icon={
                 <Image
                   alt="coin"
-                  src="/svg/coin.svg"
+                  src="/svg/arcade/coin.svg"
                   width="60px"
                   height="60px"
                 />
@@ -147,7 +147,7 @@ const ChannelPage = () => {
               icon={
                 <Image
                   alt="dice"
-                  src="/svg/dice.svg"
+                  src="/svg/arcade/dice.svg"
                   width="60px"
                   height="60px"
                 />
@@ -161,7 +161,7 @@ const ChannelPage = () => {
               icon={
                 <Image
                   alt="sword"
-                  src="/svg/sword.svg"
+                  src="/svg/arcade/sword.svg"
                   width="60px"
                   height="60px"
                 />

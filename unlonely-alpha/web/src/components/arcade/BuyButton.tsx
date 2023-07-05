@@ -20,9 +20,9 @@ const BuyButton: React.FunctionComponent<Props> = ({
         aria-label={`${tokenName}-buy`}
         icon={
           isHovered && !noHover ? (
-            <Image src="/svg/buy-hover.svg" width="100%" />
+            <Image src="/svg/arcade/buy-hover.svg" width="100%" />
           ) : (
-            <Image src="/svg/buy.svg" width="100%" />
+            <Image src="/svg/arcade/buy.svg" width="100%" />
           )
         }
         width="300px"

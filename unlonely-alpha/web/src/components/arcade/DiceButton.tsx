@@ -20,9 +20,13 @@ const DiceButton: React.FunctionComponent<Props> = ({ noHover, callback }) => {
       bg="transparent"
       icon={
         isHovered && !noHover ? (
-          <Image alt="dice-hover" src="/svg/dice-hover.svg" width="100%" />
+          <Image
+            alt="dice-hover"
+            src="/svg/arcade/dice-hover.svg"
+            width="100%"
+          />
         ) : (
-          <Image alt="dice" src="/svg/dice.svg" width="100%" />
+          <Image alt="dice" src="/svg/arcade/dice.svg" width="100%" />
         )
       }
       onMouseEnter={() => setIsHovered(true)}
