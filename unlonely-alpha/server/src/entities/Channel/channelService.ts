@@ -200,6 +200,8 @@ export const getChannelChatCommands = async (
   ctx: Context
 ) => {
   return ctx.prisma.chatCommand.findMany({
-    where: { channelId: Number(id) },
+    // where softDelete is false
+    where: { channelId: Number(id),
+      softDelete: false },
   });
 };
