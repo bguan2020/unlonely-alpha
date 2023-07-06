@@ -30,8 +30,9 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { parseUnits } from "viem";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
-const CUSTOM = "make your own!";
+const CUSTOM = "custom";
 const SAMPLE1 = "pushup";
 const SAMPLE2 = "product review";
 const SAMPLE3 = "song request";
@@ -85,11 +86,12 @@ export default function CustomTransactionModal({
   );
 
   useEffect(() => {
-    setCurrentPrice(String(channelBySlug?.customButtonPrice));
-    setCurrentRequest(String(channelBySlug?.customButtonAction));
+    setCurrentPrice(String(channelBySlug?.customButtonPrice ?? "0"));
+    setCurrentRequest(String(channelBySlug?.customButtonAction ?? "0"));
   }, [channelBySlug?.customButtonAction, channelBySlug?.customButtonPrice]);
 
-  const { updateChannelCustomButton } = useUpdateChannelCustomButton({});
+  const { updateChannelCustomButton, loading: updateLoading } =
+    useUpdateChannelCustomButton({});
 
   const callChange = useCallback(() => {
     updateChannelCustomButton({
@@ -161,6 +163,7 @@ export default function CustomTransactionModal({
           } paid for ${currentRequest}!`,
           description: "",
         });
+        refetchUserTokenBalance?.();
         handleClose();
       },
     }
@@ -241,7 +244,7 @@ export default function CustomTransactionModal({
     currentPrice as `${number}`,
   ]);
 
-  const masterLoading = useMemo(() => {
+  const txnLoading = useMemo(() => {
     return (useFeatureTxLoading ?? false) || isApprovalLoading;
   }, [useFeatureTxLoading, isApprovalLoading]);
 
@@ -251,7 +254,8 @@ export default function CustomTransactionModal({
       confirmButton={isOwner ? "set" : "send"}
       isOpen={isOpen}
       icon={icon}
-      isModalLoading={masterLoading}
+      isModalLoading={txnLoading || updateLoading}
+      loadingText={updateLoading ? "updating..." : undefined}
       canSend={isOwner ? canOwnerSend : canViewerSend}
       onSend={isOwner ? callChange : useFeature}
       handleClose={_handleClose}
@@ -351,6 +355,12 @@ export default function CustomTransactionModal({
           </>
         ) : (
           <>
+            <Text textAlign={"center"} fontSize="25px" color="#BABABA">
+              you own{" "}
+              {`${truncateValue(userTokenBalance?.formatted ?? "0", 3)} $${
+                channelBySlug?.token?.symbol
+              }`}
+            </Text>
             <Flex gap="10px" alignItems="center" justifyContent={"center"}>
               <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
                 action:

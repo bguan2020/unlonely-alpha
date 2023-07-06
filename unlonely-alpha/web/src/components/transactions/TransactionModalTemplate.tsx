@@ -22,6 +22,7 @@ export const TransactionModalTemplate = ({
   icon,
   children,
   isModalLoading,
+  loadingText,
   needsApproval,
   hideFooter,
   approve,
@@ -33,6 +34,7 @@ export const TransactionModalTemplate = ({
   isOpen: boolean;
   children: React.ReactNode;
   isModalLoading: boolean;
+  loadingText?: string;
   canSend?: boolean;
   icon?: JSX.Element;
   needsApproval?: boolean;
@@ -124,7 +126,8 @@ export const TransactionModalTemplate = ({
                 <Spinner size="xl" />
               </Flex>
               <Text textAlign={"center"}>
-                executing transaction, please do not exit this page
+                {loadingText ??
+                  "executing transaction, please do not exit this page"}
               </Text>
             </Flex>
           </ModalBody>
