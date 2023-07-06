@@ -70,8 +70,6 @@ export default function CustomTransactionModal({
     [user, channelBySlug]
   );
 
-  console.log("channelBySlug", channelBySlug);
-
   const [currentRequest, setCurrentRequest] = useState<string>("");
   const [currentPrice, setCurrentPrice] = useState<string>("0");
 
