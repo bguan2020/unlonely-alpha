@@ -51,6 +51,10 @@ export const CHANNEL_DETAIL_QUERY = gql`
         address
       }
       playbackUrl
+      chatCommands {
+        command
+        response
+      }
     }
   }
 `;

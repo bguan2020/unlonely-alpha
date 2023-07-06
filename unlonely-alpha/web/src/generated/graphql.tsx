@@ -78,7 +78,10 @@ export type Channel = {
   __typename?: "Channel";
   allowNFCs?: Maybe<Scalars["Boolean"]>;
   awsId: Scalars["String"];
+  channel: Channel;
   channelArn?: Maybe<Scalars["String"]>;
+  chatCommands?: Maybe<Array<Maybe<ChatCommand>>>;
+  command: Scalars["String"];
   createdAt: Scalars["DateTime"];
   customButtonAction?: Maybe<Scalars["String"]>;
   customButtonPrice?: Maybe<Scalars["Int"]>;
@@ -88,6 +91,7 @@ export type Channel = {
   name?: Maybe<Scalars["String"]>;
   owner: User;
   playbackUrl?: Maybe<Scalars["String"]>;
+  response: Scalars["String"];
   slug: Scalars["String"];
   thumbnailUrl?: Maybe<Scalars["String"]>;
   token?: Maybe<CreatorToken>;
@@ -108,6 +112,17 @@ export type Chat = {
   owner: User;
   text: Scalars["String"];
   updatedAt: Scalars["DateTime"];
+};
+
+export type ChatCommand = {
+  __typename?: "ChatCommand";
+  command: Scalars["String"];
+  response: Scalars["String"];
+};
+
+export type ChatCommandInput = {
+  command: Scalars["String"];
+  response: Scalars["String"];
 };
 
 export type ClipOutput = {
@@ -230,6 +245,7 @@ export type Mutation = {
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelText?: Maybe<Channel>;
   updateCreatorTokenPrice: CreatorToken;
+  updateDeleteChatCommands?: Maybe<Channel>;
   updateDeviceToken?: Maybe<DeviceToken>;
   updateOpenseaLink?: Maybe<Nfc>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
@@ -294,6 +310,10 @@ export type MutationUpdateChannelTextArgs = {
 
 export type MutationUpdateCreatorTokenPriceArgs = {
   data: UpdateCreatorTokenPriceInput;
+};
+
+export type MutationUpdateDeleteChatCommandsArgs = {
+  data: UpdateDeleteChatCommandInput;
 };
 
 export type MutationUpdateDeviceTokenArgs = {
@@ -544,6 +564,11 @@ export type UpdateCreatorTokenPriceInput = {
   tokenAddress: Scalars["String"];
 };
 
+export type UpdateDeleteChatCommandInput = {
+  chatCommands?: InputMaybe<Array<InputMaybe<ChatCommandInput>>>;
+  id: Scalars["ID"];
+};
+
 export type UpdateDeviceInput = {
   notificationsLive: Scalars["Boolean"];
   notificationsNFCs: Scalars["Boolean"];
@@ -730,6 +755,11 @@ export type ChannelDetailQuery = {
       symbol: string;
       address: string;
     } | null;
+    chatCommands?: Array<{
+      __typename?: "ChatCommand";
+      command: string;
+      response: string;
+    } | null> | null;
   } | null;
 };
 
@@ -818,6 +848,23 @@ export type UpdateUserCreatorTokenQuantityMutation = {
     __typename?: "UserCreatorToken";
     quantity: number;
   };
+};
+
+export type UpdateDeleteChatCommandsMutationVariables = Exact<{
+  data: UpdateDeleteChatCommandInput;
+}>;
+
+export type UpdateDeleteChatCommandsMutation = {
+  __typename?: "Mutation";
+  updateDeleteChatCommands?: {
+    __typename?: "Channel";
+    id: string;
+    chatCommands?: Array<{
+      __typename?: "ChatCommand";
+      command: string;
+      response: string;
+    } | null> | null;
+  } | null;
 };
 
 export type CreateClipMutationVariables = Exact<{
@@ -1344,6 +1391,10 @@ export const ChannelDetailDocument = gql`
         address
       }
       playbackUrl
+      chatCommands {
+        command
+        response
+      }
     }
   }
 `;
@@ -1739,6 +1790,61 @@ export type UpdateUserCreatorTokenQuantityMutationOptions =
   Apollo.BaseMutationOptions<
     UpdateUserCreatorTokenQuantityMutation,
     UpdateUserCreatorTokenQuantityMutationVariables
+  >;
+export const UpdateDeleteChatCommandsDocument = gql`
+  mutation UpdateDeleteChatCommands($data: UpdateDeleteChatCommandInput!) {
+    updateDeleteChatCommands(data: $data) {
+      id
+      chatCommands {
+        command
+        response
+      }
+    }
+  }
+`;
+export type UpdateDeleteChatCommandsMutationFn = Apollo.MutationFunction<
+  UpdateDeleteChatCommandsMutation,
+  UpdateDeleteChatCommandsMutationVariables
+>;
+
+/**
+ * __useUpdateDeleteChatCommandsMutation__
+ *
+ * To run a mutation, you first call `useUpdateDeleteChatCommandsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateDeleteChatCommandsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateDeleteChatCommandsMutation, { data, loading, error }] = useUpdateDeleteChatCommandsMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateDeleteChatCommandsMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateDeleteChatCommandsMutation,
+    UpdateDeleteChatCommandsMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateDeleteChatCommandsMutation,
+    UpdateDeleteChatCommandsMutationVariables
+  >(UpdateDeleteChatCommandsDocument, options);
+}
+export type UpdateDeleteChatCommandsMutationHookResult = ReturnType<
+  typeof useUpdateDeleteChatCommandsMutation
+>;
+export type UpdateDeleteChatCommandsMutationResult =
+  Apollo.MutationResult<UpdateDeleteChatCommandsMutation>;
+export type UpdateDeleteChatCommandsMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateDeleteChatCommandsMutation,
+    UpdateDeleteChatCommandsMutationVariables
   >;
 export const CreateClipDocument = gql`
   mutation CreateClip($data: CreateClipInput!) {

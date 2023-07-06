@@ -7,10 +7,10 @@ interface IChatCommand {
 
 export interface IUpdateDeleteChatCommandInput {
   id: number;
-  commandArray: [IChatCommand]
+  chatCommands: [IChatCommand];
 }
 
-export const updateDeleteChannelChatCommands = async (
+export const updateDeleteChatCommands = async (
   data: IUpdateDeleteChatCommandInput,
   ctx: Context
 ) => {
@@ -26,7 +26,7 @@ export const updateDeleteChannelChatCommands = async (
 
   // create new chat commands for channel
   const newChatCommands = await ctx.prisma.chatCommand.createMany({
-    data: data.commandArray.map((command) => ({
+    data: data.chatCommands.map((command) => ({
       command: command.command,
       response: command.response,
       channelId: data.id,
@@ -34,5 +34,4 @@ export const updateDeleteChannelChatCommands = async (
   });
 
   return newChatCommands;
-}
-
+};

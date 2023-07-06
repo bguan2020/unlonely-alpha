@@ -5,7 +5,7 @@ import * as channelService from "./chatCommandService";
 
 export const resolvers = {
   Mutation: {
-    updateDeleteChannelChatCommands: (
+    updateDeleteChatCommands: (
       _: any,
       { data }: { data: channelService.IUpdateDeleteChatCommandInput },
       ctx: Context
@@ -14,7 +14,7 @@ export const resolvers = {
         throw new AuthenticationError("User is not authenticated");
       }
 
-      return channelService.updateDeleteChannelChatCommands(data, ctx);
+      return channelService.updateDeleteChatCommands(data, ctx);
     },
-  }
+  },
 };

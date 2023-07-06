@@ -1,6 +1,6 @@
 import { AddIcon } from "@chakra-ui/icons";
 import { Button, Flex, IconButton, Input, Text, Image } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
