@@ -32,6 +32,8 @@ export const CHANNEL_DETAIL_QUERY = gql`
       awsId
       channelArn
       description
+      customButtonPrice
+      customButtonAction
       id
       name
       slug

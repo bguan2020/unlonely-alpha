@@ -24,7 +24,7 @@ import { isAddress } from "viem";
 
 const ChannelDesc = () => {
   const { user } = useUser();
-  const { channel, token } = useChannelContext();
+  const { channel } = useChannelContext();
   const { channelBySlug } = channel;
 
   const [editableText, setEditableText] = useState<boolean>(false);

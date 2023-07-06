@@ -123,7 +123,6 @@ export default function ControlTransactionModal({
           isClosable: true,
           position: "top-right",
         });
-        console.log("useFeature tx success, text:", localText);
         handleBackendSend();
         handleClose();
       },
@@ -132,7 +131,6 @@ export default function ControlTransactionModal({
 
   const handleBackendSend = useCallback(
     async (text?: string) => {
-      console.log("calling backend to send text:", text ?? localText);
       postStreamInteraction({
         channelId: channelBySlug?.id,
         text: text ?? localText,
@@ -154,21 +152,11 @@ export default function ControlTransactionModal({
   );
 
   const canSend = useMemo(() => {
-    console.log(
-      "can the user execute transaction? (accountData.address is defined and useFeature is defined)",
-      userAddress && useFeature,
-      "accountData.address:",
-      userAddress,
-      "useFeature:",
-      useFeature,
-      "requiresApproval:",
-      requiresApproval
-    );
     if (requiresApproval) return false;
     if (!userAddress) return false;
     if (!useFeature) return false;
     return true;
-  }, [useFeature, userAddress]);
+  }, [useFeature, userAddress, requiresApproval]);
 
   const masterLoading = useMemo(() => {
     return loading || (useFeatureTxLoading ?? false) || isApprovalLoading;

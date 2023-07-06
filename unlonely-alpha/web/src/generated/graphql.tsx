@@ -709,6 +709,8 @@ export type ChannelDetailQuery = {
     awsId: string;
     channelArn?: string | null;
     description?: string | null;
+    customButtonPrice?: number | null;
+    customButtonAction?: string | null;
     id: string;
     name?: string | null;
     slug: string;
@@ -904,6 +906,20 @@ export type PostVideoMutation = {
   postVideo?: { __typename?: "Video"; id: string } | null;
 };
 
+export type UpdateChannelCustomButtonMutationVariables = Exact<{
+  data: UpdateChannelCustomButtonInput;
+}>;
+
+export type UpdateChannelCustomButtonMutation = {
+  __typename?: "Mutation";
+  updateChannelCustomButton?: {
+    __typename?: "Channel";
+    customButtonAction?: string | null;
+    customButtonPrice?: number | null;
+    id: string;
+  } | null;
+};
+
 export type UpdateChannelTextMutationVariables = Exact<{
   data: UpdateChannelTextInput;
 }>;
@@ -1088,32 +1104,6 @@ export type FetchCurrentUserQuery = {
     __typename?: "User";
     signature?: string | null;
     sigTimestamp?: any | null;
-  } | null;
-};
-
-export type MutationMutationVariables = Exact<{
-  data: UpdateChannelCustomButtonInput;
-}>;
-
-export type MutationMutation = {
-  __typename?: "Mutation";
-  updateChannelCustomButton?: {
-    __typename?: "Channel";
-    customButtonAction?: string | null;
-    customButtonPrice?: number | null;
-  } | null;
-};
-
-export type UpdateChannelCustomButtonMutationVariables = Exact<{
-  data: UpdateChannelCustomButtonInput;
-}>;
-
-export type UpdateChannelCustomButtonMutation = {
-  __typename?: "Mutation";
-  updateChannelCustomButton?: {
-    __typename?: "Channel";
-    customButtonAction?: string | null;
-    customButtonPrice?: number | null;
   } | null;
 };
 
@@ -1335,6 +1325,8 @@ export const ChannelDetailDocument = gql`
       awsId
       channelArn
       description
+      customButtonPrice
+      customButtonAction
       id
       name
       slug
@@ -2140,6 +2132,59 @@ export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
   PostVideoMutation,
   PostVideoMutationVariables
 >;
+export const UpdateChannelCustomButtonDocument = gql`
+  mutation UpdateChannelCustomButton($data: UpdateChannelCustomButtonInput!) {
+    updateChannelCustomButton(data: $data) {
+      customButtonAction
+      customButtonPrice
+      id
+    }
+  }
+`;
+export type UpdateChannelCustomButtonMutationFn = Apollo.MutationFunction<
+  UpdateChannelCustomButtonMutation,
+  UpdateChannelCustomButtonMutationVariables
+>;
+
+/**
+ * __useUpdateChannelCustomButtonMutation__
+ *
+ * To run a mutation, you first call `useUpdateChannelCustomButtonMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChannelCustomButtonMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChannelCustomButtonMutation, { data, loading, error }] = useUpdateChannelCustomButtonMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChannelCustomButtonMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateChannelCustomButtonMutation,
+    UpdateChannelCustomButtonMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateChannelCustomButtonMutation,
+    UpdateChannelCustomButtonMutationVariables
+  >(UpdateChannelCustomButtonDocument, options);
+}
+export type UpdateChannelCustomButtonMutationHookResult = ReturnType<
+  typeof useUpdateChannelCustomButtonMutation
+>;
+export type UpdateChannelCustomButtonMutationResult =
+  Apollo.MutationResult<UpdateChannelCustomButtonMutation>;
+export type UpdateChannelCustomButtonMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateChannelCustomButtonMutation,
+    UpdateChannelCustomButtonMutationVariables
+  >;
 export const UpdateChannelTextDocument = gql`
   mutation UpdateChannelText($data: UpdateChannelTextInput!) {
     updateChannelText(data: $data) {
@@ -2801,103 +2846,3 @@ export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
 >;
-export const MutationDocument = gql`
-  mutation Mutation($data: UpdateChannelCustomButtonInput!) {
-    updateChannelCustomButton(data: $data) {
-      customButtonAction
-      customButtonPrice
-    }
-  }
-`;
-export type MutationMutationFn = Apollo.MutationFunction<
-  MutationMutation,
-  MutationMutationVariables
->;
-
-/**
- * __useMutationMutation__
- *
- * To run a mutation, you first call `useMutationMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useMutationMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [mutationMutation, { data, loading, error }] = useMutationMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useMutationMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    MutationMutation,
-    MutationMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<MutationMutation, MutationMutationVariables>(
-    MutationDocument,
-    options
-  );
-}
-export type MutationMutationHookResult = ReturnType<typeof useMutationMutation>;
-export type MutationMutationResult = Apollo.MutationResult<MutationMutation>;
-export type MutationMutationOptions = Apollo.BaseMutationOptions<
-  MutationMutation,
-  MutationMutationVariables
->;
-export const UpdateChannelCustomButtonDocument = gql`
-  mutation UpdateChannelCustomButton($data: UpdateChannelCustomButtonInput!) {
-    updateChannelCustomButton(data: $data) {
-      customButtonAction
-      customButtonPrice
-    }
-  }
-`;
-export type UpdateChannelCustomButtonMutationFn = Apollo.MutationFunction<
-  UpdateChannelCustomButtonMutation,
-  UpdateChannelCustomButtonMutationVariables
->;
-
-/**
- * __useUpdateChannelCustomButtonMutation__
- *
- * To run a mutation, you first call `useUpdateChannelCustomButtonMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateChannelCustomButtonMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateChannelCustomButtonMutation, { data, loading, error }] = useUpdateChannelCustomButtonMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useUpdateChannelCustomButtonMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateChannelCustomButtonMutation,
-    UpdateChannelCustomButtonMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    UpdateChannelCustomButtonMutation,
-    UpdateChannelCustomButtonMutationVariables
-  >(UpdateChannelCustomButtonDocument, options);
-}
-export type UpdateChannelCustomButtonMutationHookResult = ReturnType<
-  typeof useUpdateChannelCustomButtonMutation
->;
-export type UpdateChannelCustomButtonMutationResult =
-  Apollo.MutationResult<UpdateChannelCustomButtonMutation>;
-export type UpdateChannelCustomButtonMutationOptions =
-  Apollo.BaseMutationOptions<
-    UpdateChannelCustomButtonMutation,
-    UpdateChannelCustomButtonMutationVariables
-  >;

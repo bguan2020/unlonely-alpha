@@ -15,6 +15,7 @@ import {
   Grid,
   GridItem,
   Spinner,
+  Image,
   Tooltip,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -183,9 +184,11 @@ const AblyChatComponent = ({
       }
       if (lastMessage.taskType === InteractionType.CONTROL) {
         messageText = lastMessage.title ?? "Control";
-        body = lastMessage.description
-          ? `${InteractionType.CONTROL}:${lastMessage.description}`
-          : undefined;
+        body = `${InteractionType.CONTROL}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === InteractionType.CUSTOM) {
+        messageText = lastMessage.title ?? "Custom";
+        body = `${InteractionType.CUSTOM}:${lastMessage.description ?? ""}`;
       }
       if (lastMessage.taskType === InteractionType.BUY) {
         messageText = lastMessage.title ?? "Buy";
@@ -620,7 +623,17 @@ const AblyChatComponent = ({
                       {holders.map((holder, index) => (
                         <Tr>
                           <Td fontSize={"20px"} p="10px" textAlign="center">
-                            {index + 1}
+                            {index + 1 <= 3 ? (
+                              <Flex justifyContent={"center"}>
+                                <Image
+                                  src={`/svg/holder-${index + 1}.svg`}
+                                  width="20px"
+                                  height="20px"
+                                />
+                              </Flex>
+                            ) : (
+                              index + 1
+                            )}
                           </Td>
                           <Td fontSize={"20px"} p="10px" textAlign="center">
                             {holder.name}

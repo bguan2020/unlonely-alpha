@@ -16,6 +16,7 @@ export enum InteractionType {
   CONTROL = "control-text-interaction",
   TIP = "tip-interaction",
   BUY = "buy-tokens-interaction",
+  CUSTOM = "custom-interaction",
 }
 
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";

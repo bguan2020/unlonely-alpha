@@ -12,17 +12,17 @@ export const useGetBadges = (rank?: number) => {
     }
     switch (rank) {
       case 0:
-        setRankUrl("/svg/holder-1st.svg");
+        setRankUrl("/svg/holder-1.svg");
         setRankDesc(
           "#1 holder of this channel’s token. Serious 👑👑👑 energy, but you’ve got a target on your back!!"
         );
         break;
       case 1:
-        setRankUrl("/svg/holder-2nd.svg");
+        setRankUrl("/svg/holder-2.svg");
         setRankDesc("#2 holder of this channel’s token. Pretty impressed...👀");
         break;
       case 2:
-        setRankUrl("/svg/holder-3rd.svg");
+        setRankUrl("/svg/holder-3.svg");
         setRankDesc(
           "#3 holder of this channel’s token. You’ve just barely made it!"
         );

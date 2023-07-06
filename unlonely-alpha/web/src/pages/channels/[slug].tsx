@@ -15,7 +15,8 @@ import { isAddress } from "viem";
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
-import DiceButton from "../../components/arcade/DiceButton";
+import CustomButton from "../../components/arcade/CustomButton";
+// import DiceButton from "../../components/arcade/DiceButton";
 import SwordButton from "../../components/arcade/SwordButton";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import AblyChatComponent from "../../components/chat/ChatComponent";
@@ -25,6 +26,7 @@ import StreamComponent from "../../components/stream/StreamComponent";
 import BuyTransactionModal from "../../components/transactions/BuyTransactionModal";
 import ChanceTransactionModal from "../../components/transactions/ChanceTransactionModal";
 import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
+import CustomTransactionModal from "../../components/transactions/CustomTransactionModal";
 import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
 import TipTransactionModal from "../../components/transactions/TipTransactionModal";
 import { ChatBot } from "../../constants/types";
@@ -59,7 +61,9 @@ const ChannelPage = () => {
   );
 
   const [width, height] = useWindowSize();
-  const { username } = useUser();
+  const { username, user } = useUser();
+
+  const isOwner = user?.address === channelBySlug?.owner.address;
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [showTipModal, setShowTipModal] = useState<boolean>(false);
@@ -67,6 +71,7 @@ const ChannelPage = () => {
   const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
   const [showControlModal, setShowControlModal] = useState<boolean>(false);
   const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
+  const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
 
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
@@ -87,6 +92,7 @@ const ChannelPage = () => {
     setShowPvpModal(false);
     setShowControlModal(false);
     setShowBuyModal(false);
+    setShowCustomModal(false);
   }, []);
 
   const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
@@ -103,6 +109,20 @@ const ChannelPage = () => {
       >
         {!queryLoading && !channelDataError ? (
           <>
+            <CustomTransactionModal
+              icon={
+                <Image
+                  alt="custom"
+                  src="/svg/arcade/custom.svg"
+                  width="60px"
+                  height="60px"
+                />
+              }
+              title={isOwner ? "customize your button!" : "make a request"}
+              isOpen={showCustomModal}
+              handleClose={handleClose}
+              addToChatbot={addToChatbot}
+            />
             <ControlTransactionModal
               icon={
                 <Image
@@ -229,11 +249,14 @@ const ChannelPage = () => {
                                 <CoinButton
                                   callback={() => setShowTipModal(true)}
                                 />
-                                <Tooltip label={"coming soon"}>
+                                {/* <Tooltip label={"coming soon"}>
                                   <span>
                                     <DiceButton noHover />
                                   </span>
-                                </Tooltip>
+                                </Tooltip> */}
+                                <CustomButton
+                                  callback={() => setShowCustomModal(true)}
+                                />
                                 <Tooltip label={"coming soon"}>
                                   <span>
                                     <SwordButton noHover />
@@ -269,7 +292,7 @@ const ChannelPage = () => {
                                 </Tooltip>
                                 <Tooltip label={"Not available"}>
                                   <span>
-                                    <DiceButton />
+                                    <CustomButton />
                                   </span>
                                 </Tooltip>
                                 <Tooltip label={"Not available"}>

@@ -222,7 +222,10 @@ export default extendTheme({
       variants: {
         outline: {
           field: {
-            ...inputSelectOutlineStyle,
+            bg: "rgba(36, 79, 167, 0.05)",
+            borderRadius: "10px",
+            borderColor: "#244FA7",
+            borderWidth: "1px",
           },
         },
       },
