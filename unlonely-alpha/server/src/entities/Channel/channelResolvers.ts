@@ -51,5 +51,8 @@ export const resolvers = {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
       return channelService.getOwner({ ownerAddr }, ctx);
     },
+    chatCommands: ({ id }: { id: number }, _: any, ctx: Context) => {
+      return channelService.getChannelChatCommands({ id }, ctx);
+    }
   },
 };

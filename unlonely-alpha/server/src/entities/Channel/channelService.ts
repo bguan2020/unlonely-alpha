@@ -193,3 +193,15 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
     return null;
   }
 };
+
+
+export const getChannelChatCommands = async (
+  { id }: { id: number },
+  ctx: Context
+) => {
+  return ctx.prisma.chatCommand.findMany({
+    // where softDelete is false
+    where: { channelId: Number(id),
+      softDelete: false },
+  });
+};
