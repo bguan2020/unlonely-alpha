@@ -268,7 +268,7 @@ model ChatCommand {
   id        Int      @id @default(autoincrement())
   command String
   response String 
-  channelId Int      @unique
+  channelId Int      
   channel   Channel  @relation(fields: [channelId], references: [id])
 
   createdAt DateTime @default(now())
