@@ -33,5 +33,8 @@ export const updateDeleteChatCommands = async (
     })),
   });
 
-  return newChatCommands;
+  return {
+    id: data.id,
+    chatCommands: newChatCommands,
+  };
 };
