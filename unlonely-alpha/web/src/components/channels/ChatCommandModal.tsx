@@ -1,7 +1,9 @@
 import { AddIcon } from "@chakra-ui/icons";
 import { Button, Flex, IconButton, Input, Text, Image } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { ChatCommand } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import useUpdateDeleteChatCommands from "../../hooks/server/updateDeleteChatCommands";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
 const inputStyle = {
@@ -35,6 +37,36 @@ export default function ChatCommandModal({
 
   const [commandsData, setCommandsData] = useState<CommandData[]>([]);
 
+  const { updateDeleteChatCommands, loading: updateLoading } =
+    useUpdateDeleteChatCommands({});
+
+  const isDeletingAll = useMemo(() => {
+    if (
+      commandsData.length === 0 &&
+      channelBySlug?.chatCommands &&
+      channelBySlug?.chatCommands.length > 0
+    ) {
+      return true;
+    }
+    return false;
+  }, [commandsData, channelBySlug]);
+
+  const callChange = useCallback(() => {
+    updateDeleteChatCommands({
+      id: channelBySlug?.id,
+      chatCommands: commandsData,
+    });
+  }, [channelBySlug, commandsData]);
+
+  useEffect(() => {
+    if (channelBySlug?.chatCommands) {
+      const nonNullCommands: ChatCommand[] = channelBySlug.chatCommands.filter(
+        (c): c is ChatCommand => c !== null
+      );
+      setCommandsData(nonNullCommands);
+    }
+  }, [channelBySlug]);
+
   const updateCommands = (c: CommandData, i: number) => {
     const newCommands = [...commandsData];
     newCommands[i] = c;
@@ -53,21 +85,57 @@ export default function ChatCommandModal({
     setCommandsData(newCommands);
   };
 
+  const canSend = useMemo(() => {
+    if (commandsData.length > 0) {
+      for (const c of commandsData) {
+        if (c.command === "" || c.response === "") {
+          return false;
+        }
+      }
+    }
+    return true;
+  }, [commandsData]);
+
   return (
     <TransactionModalTemplate
       title={title}
-      confirmButton={"confirm"}
+      confirmButton={"confirm changes"}
       isOpen={isOpen}
       handleClose={handleClose}
-      isModalLoading={false}
+      isModalLoading={updateLoading}
+      loadingText={"updating commands..."}
+      onSend={callChange}
+      canSend={canSend}
+      hideFooter={commandsData.length === 0 && !isDeletingAll}
     >
       <Flex direction={"column"} gap="16px">
-        <Flex justifyContent={"space-around"}>
-          <Text>command</Text>
-          <Text>response</Text>
-        </Flex>
+        <Text textAlign={"center"} fontSize="15px" color="#BABABA">
+          your viewers can access your commands by typing{" "}
+          <span style={{ color: "white" }}>![command]</span> in the chat
+        </Text>
+        {commandsData.length > 0 && (
+          <Flex justifyContent={"space-around"}>
+            <Text>command</Text>
+            <Text>response</Text>
+          </Flex>
+        )}
+        {commandsData.length === 0 && (
+          <>
+            <Button
+              bg={"#36548f"}
+              _hover={{
+                transform: "scale(1.05)",
+              }}
+              _active={{ transform: "scale(1)" }}
+              _focus={{}}
+              onClick={addCommand}
+            >
+              add empty command
+            </Button>
+          </>
+        )}
         {commandsData.map((c, i) => (
-          <Flex justifyContent={"space-around"} gap="10px">
+          <Flex justifyContent={"space-around"} gap="10px" key={i}>
             <Input
               {...inputStyle}
               placeholder={"command"}
@@ -95,20 +163,22 @@ export default function ChatCommandModal({
             />
           </Flex>
         ))}
-        <Button
-          aria-label="add-chat-command"
-          onClick={addCommand}
-          height="12px"
-          width="12px"
-          padding={"10px"}
-          minWidth={"0px"}
-          bg={"#C6C0C0"}
-          _hover={{}}
-          _active={{}}
-          _focus={{}}
-        >
-          <AddIcon height="12px" width="12px" color={"white"} />
-        </Button>
+        {commandsData.length > 0 && (
+          <Button
+            aria-label="add-chat-command"
+            onClick={addCommand}
+            height="12px"
+            width="12px"
+            padding={"10px"}
+            minWidth={"0px"}
+            bg={"#C6C0C0"}
+            _hover={{}}
+            _active={{}}
+            _focus={{}}
+          >
+            <AddIcon height="12px" width="12px" color={"white"} />
+          </Button>
+        )}
       </Flex>
     </TransactionModalTemplate>
   );

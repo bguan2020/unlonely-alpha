@@ -12,6 +12,7 @@ import {
   Spinner,
   Text,
 } from "@chakra-ui/react";
+import { isAddress } from "viem";
 import { useUser } from "../../hooks/context/useUser";
 
 export const TransactionModalTemplate = ({
@@ -43,7 +44,7 @@ export const TransactionModalTemplate = ({
   handleClose: () => void;
   onSend?: () => void;
 }) => {
-  const { user } = useUser();
+  const { user, userAddress } = useUser();
 
   return (
     <Modal
@@ -109,7 +110,7 @@ export const TransactionModalTemplate = ({
                     _active={{}}
                     onClick={onSend}
                     width="100%"
-                    disabled={!canSend || !user}
+                    disabled={!canSend || !user || !isAddress(userAddress)}
                     borderRadius="25px"
                   >
                     {confirmButton}

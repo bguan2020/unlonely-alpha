@@ -565,7 +565,7 @@ export type UpdateCreatorTokenPriceInput = {
 };
 
 export type UpdateDeleteChatCommandInput = {
-  chatCommands?: InputMaybe<Array<InputMaybe<ChatCommandInput>>>;
+  chatCommands: Array<InputMaybe<ChatCommandInput>>;
   id: Scalars["ID"];
 };
 

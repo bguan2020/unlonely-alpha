@@ -462,45 +462,49 @@ const AblyChatComponent = ({
               width={"100%"}
               padding={"40px"}
             >
-              {isAddress(String(channelBySlug?.token?.address)) && (
+              {isAddress(String(channelBySlug?.token?.address)) &&
+                user &&
+                address && (
+                  <>
+                    <BuyButton
+                      tokenName={`$${channelBySlug?.token?.symbol}`}
+                      callback={handleBuyModal}
+                    />
+                    <Grid
+                      mt="50px"
+                      templateColumns="repeat(2, 1fr)"
+                      gap={12}
+                      alignItems="center"
+                      justifyItems="center"
+                    >
+                      <GridItem>
+                        <ControlButton callback={handleControlModal} />
+                      </GridItem>
+                      <GridItem>
+                        <Tooltip label={"coming soon"}>
+                          <span>
+                            <DiceButton noHover />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                      <GridItem>
+                        <Tooltip label={"coming soon"}>
+                          <span>
+                            <SwordButton noHover />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                      <GridItem>
+                        <CoinButton callback={handleTipModal} />
+                      </GridItem>
+                    </Grid>
+                  </>
+                )}
+              {(!isAddress(String(channelBySlug?.token?.address)) || !user) && (
                 <>
-                  <BuyButton
-                    tokenName={`$${channelBySlug?.token?.symbol}`}
-                    callback={handleBuyModal}
-                  />
-                  <Grid
-                    mt="50px"
-                    templateColumns="repeat(2, 1fr)"
-                    gap={12}
-                    alignItems="center"
-                    justifyItems="center"
+                  <Tooltip
+                    label={!user ? "connect wallet first" : "not available"}
                   >
-                    <GridItem>
-                      <ControlButton callback={handleControlModal} />
-                    </GridItem>
-                    <GridItem>
-                      <Tooltip label={"coming soon"}>
-                        <span>
-                          <DiceButton noHover />
-                        </span>
-                      </Tooltip>
-                    </GridItem>
-                    <GridItem>
-                      <Tooltip label={"coming soon"}>
-                        <span>
-                          <SwordButton noHover />
-                        </span>
-                      </Tooltip>
-                    </GridItem>
-                    <GridItem>
-                      <CoinButton callback={handleTipModal} />
-                    </GridItem>
-                  </Grid>
-                </>
-              )}
-              {!isAddress(String(channelBySlug?.token?.address)) && (
-                <>
-                  <Tooltip label={"not available"}>
                     <span>
                       <BuyButton tokenName={"token"} />
                     </span>
@@ -513,28 +517,36 @@ const AblyChatComponent = ({
                     justifyItems="center"
                   >
                     <GridItem>
-                      <Tooltip label={"not available"}>
+                      <Tooltip
+                        label={!user ? "connect wallet first" : "not available"}
+                      >
                         <span>
                           <ControlButton />
                         </span>
                       </Tooltip>
                     </GridItem>
                     <GridItem>
-                      <Tooltip label={"not available"}>
+                      <Tooltip
+                        label={!user ? "connect wallet first" : "not available"}
+                      >
                         <span>
                           <CoinButton />
                         </span>
                       </Tooltip>
                     </GridItem>
                     <GridItem>
-                      <Tooltip label={"not available"}>
+                      <Tooltip
+                        label={!user ? "connect wallet first" : "not available"}
+                      >
                         <span>
                           <DiceButton />
                         </span>
                       </Tooltip>
                     </GridItem>
                     <GridItem>
-                      <Tooltip label={"not available"}>
+                      <Tooltip
+                        label={!user ? "connect wallet first" : "not available"}
+                      >
                         <span>
                           <SwordButton />
                         </span>

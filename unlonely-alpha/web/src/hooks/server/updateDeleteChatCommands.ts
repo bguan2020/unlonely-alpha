@@ -34,17 +34,27 @@ const useUpdateDeleteChatCommands = ({
     async (data) => {
       setLoading(true);
 
-      const mutationResult = await mutate({ variables: { data } });
+      try {
+        const cleanedChatCommands = data.chatCommands.map(
+          ({ __typename, ...rest }: { __typename: any }) => rest
+        );
 
-      if (
-        mutationResult.errors ||
-        !mutationResult.data ||
-        !mutationResult.data.updateDeleteChatCommands
-      ) {
-        onError && onError(mutationResult.errors);
-        setLoading(false);
-        return;
+        const mutationResult = await mutate({
+          variables: { data: { ...data, chatCommands: cleanedChatCommands } },
+        });
+      } catch (e) {
+        console.log(JSON.stringify(e, null, 2));
       }
+
+      // if (
+      //   mutationResult.errors ||
+      //   !mutationResult.data ||
+      //   !mutationResult.data.updateDeleteChatCommands
+      // ) {
+      //   onError && onError(mutationResult.errors);
+      //   setLoading(false);
+      //   return;
+      // }
 
       setLoading(false);
     },

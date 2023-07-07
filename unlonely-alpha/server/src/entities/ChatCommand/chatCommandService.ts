@@ -15,23 +15,34 @@ export const updateDeleteChatCommands = async (
   ctx: Context
 ) => {
   // soft delete all chat commands for channel
-  const deletedChatCommands = await ctx.prisma.chatCommand.updateMany({
-    where: {
-      channelId: data.id,
-    },
-    data: {
-      softDelete: true,
-    },
-  });
+  console.log("updateDeleteChatCommands data:", data);
+  try {
+    const deletedChatCommands = await ctx.prisma.chatCommand.updateMany({
+      where: {
+        channelId: Number(data.id),
+      },
+      data: {
+        softDelete: true,
+      },
+    });
+  } catch (e) {
+    console.log("updateDeleteChatCommands deletedChatCommands error:", e);
+  }
 
-  // create new chat commands for channel
-  const newChatCommands = await ctx.prisma.chatCommand.createMany({
-    data: data.chatCommands.map((command) => ({
-      command: command.command,
-      response: command.response,
-      channelId: data.id,
-    })),
-  });
+  let newChatCommands: any = [];
+
+  try {
+    // create new chat commands for channel
+    newChatCommands = await ctx.prisma.chatCommand.createMany({
+      data: data.chatCommands.map((command) => ({
+        command: command.command,
+        response: command.response,
+        channelId: Number(data.id),
+      })),
+    });
+  } catch (e) {
+    console.log("updateDeleteChatCommands newChatCommands error:", e);
+  }
 
   return {
     id: data.id,

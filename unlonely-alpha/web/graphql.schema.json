@@ -4620,12 +4620,16 @@
             "name": "chatCommands",
             "description": null,
             "type": {
-              "kind": "LIST",
+              "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "INPUT_OBJECT",
-                "name": "ChatCommandInput",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "ChatCommandInput",
+                  "ofType": null
+                }
               }
             },
             "defaultValue": null,
