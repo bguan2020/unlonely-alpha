@@ -17,7 +17,7 @@ export const typeDef = gql`
 
   input UpdateDeleteChatCommandInput {
     id: ID!
-    chatCommands: [ChatCommandInput]
+    chatCommands: [ChatCommandInput]!
   }
 
   extend type Mutation {
