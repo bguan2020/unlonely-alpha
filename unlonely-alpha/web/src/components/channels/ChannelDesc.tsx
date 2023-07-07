@@ -200,13 +200,13 @@ const ChannelDesc = () => {
               >
                 {channelBySlug?.name}
               </Text>
-              <Tooltip label={"custom commands"}>
+              {/* <Tooltip label={"custom commands"}>
                 <CommandIcon
                   boxSize={5}
                   cursor="pointer"
                   onClick={() => setChatCommandModal(true)}
                 />
-              </Tooltip>
+              </Tooltip> */}
               {isOwner && (
                 <>
                   <Tooltip label={"edit title/description"}>
@@ -221,7 +221,7 @@ const ChannelDesc = () => {
                     />
                   </Tooltip>
                   <Tooltip label={"custom commands"}>
-                    <EditIcon
+                    <CommandIcon
                       boxSize={5}
                       cursor="pointer"
                       onClick={() => setChatCommandModal(true)}

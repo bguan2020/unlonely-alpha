@@ -19,6 +19,12 @@ export enum InteractionType {
   CUSTOM = "custom-interaction",
 }
 
+export enum BaseChatCommand {
+  CHATBOT = "!chatbot",
+  RULES = "!rules",
+  CLIP = "!nfc",
+}
+
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const DANNY_TOKEN_ADDRESS = "0x5fD600676F55e9a6e68BA2D2a58278D08f6BD978";
 
@@ -42,3 +48,8 @@ export const EMOJIS = [
 ];
 
 export const ADD_REACTION_EVENT = "add-reaction";
+
+export type CommandData = {
+  command: string;
+  response: string;
+};

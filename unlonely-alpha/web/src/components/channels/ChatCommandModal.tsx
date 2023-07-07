@@ -1,6 +1,7 @@
 import { AddIcon } from "@chakra-ui/icons";
 import { Button, Flex, IconButton, Input, Text, Image } from "@chakra-ui/react";
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { BaseChatCommand, CommandData } from "../../constants";
 import { ChatCommand } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUpdateDeleteChatCommands from "../../hooks/server/updateDeleteChatCommands";
@@ -14,11 +15,6 @@ const inputStyle = {
   variant: "unstyled",
   px: "16px",
   py: "10px",
-};
-
-type CommandData = {
-  command: string;
-  response: string;
 };
 
 export default function ChatCommandModal({
@@ -88,7 +84,13 @@ export default function ChatCommandModal({
   const canSend = useMemo(() => {
     if (commandsData.length > 0) {
       for (const c of commandsData) {
-        if (c.command === "" || c.response === "") {
+        if (
+          c.command === "" ||
+          c.response === "" ||
+          Object.values(BaseChatCommand).includes(
+            `!${c.command}` as BaseChatCommand
+          )
+        ) {
           return false;
         }
       }
@@ -109,13 +111,9 @@ export default function ChatCommandModal({
       hideFooter={commandsData.length === 0 && !isDeletingAll}
     >
       <Flex direction={"column"} gap="16px">
-        <Text textAlign={"center"} fontSize="15px" color="#BABABA">
-          your viewers can access your commands by typing{" "}
-          <span style={{ color: "white" }}>![command]</span> in the chat
-        </Text>
         {commandsData.length > 0 && (
           <Flex justifyContent={"space-around"}>
-            <Text>command</Text>
+            <Text>![command]</Text>
             <Text>response</Text>
           </Flex>
         )}
@@ -130,7 +128,7 @@ export default function ChatCommandModal({
               _focus={{}}
               onClick={addCommand}
             >
-              add empty command
+              add command
             </Button>
           </>
         )}
@@ -139,9 +137,12 @@ export default function ChatCommandModal({
             <Input
               {...inputStyle}
               placeholder={"command"}
-              value={c.command}
+              value={`!${c.command}`}
+              isInvalid={Object.values(BaseChatCommand).includes(
+                `!${c.command}` as BaseChatCommand
+              )}
               onChange={(e) =>
-                updateCommands({ ...c, command: e.target.value }, i)
+                updateCommands({ ...c, command: e.target.value.slice(1) }, i)
               }
             />
             <Input
@@ -163,7 +164,7 @@ export default function ChatCommandModal({
             />
           </Flex>
         ))}
-        {commandsData.length > 0 && (
+        {commandsData.length > 0 && commandsData.length < 3 && (
           <Button
             aria-label="add-chat-command"
             onClick={addCommand}

@@ -110,7 +110,12 @@ export const TransactionModalTemplate = ({
                     _active={{}}
                     onClick={onSend}
                     width="100%"
-                    disabled={!canSend || !user || !isAddress(userAddress)}
+                    disabled={
+                      !canSend ||
+                      !user ||
+                      !userAddress ||
+                      !isAddress(userAddress)
+                    }
                     borderRadius="25px"
                   >
                     {confirmButton}

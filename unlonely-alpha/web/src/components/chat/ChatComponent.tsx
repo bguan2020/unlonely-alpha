@@ -37,6 +37,7 @@ import {
   NULL_ADDRESS,
   InteractionType,
   RANDOM_CHAT_COLOR,
+  BaseChatCommand,
 } from "../../constants";
 import BuyButton from "../arcade/BuyButton";
 import { ChatBot } from "../../constants/types";
@@ -44,6 +45,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { isAddress } from "viem";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import { ChatCommand } from "../../generated/graphql";
 
 type Props = {
   username: string | null | undefined;
@@ -86,6 +88,16 @@ const AblyChatComponent = ({
     [channelBySlug?.id]
   );
 
+  const channelChatCommands = useMemo(
+    () =>
+      channelBySlug?.chatCommands
+        ? channelBySlug?.chatCommands.filter(
+            (c): c is ChatCommand => c !== null
+          )
+        : [],
+    [channelBySlug?.chatCommands]
+  );
+
   const {
     ablyChannel: channel,
     hasMessagesLoaded,
@@ -112,6 +124,12 @@ const AblyChatComponent = ({
   const arcadeRef = useRef<HTMLDivElement>(null);
 
   const mountingMessages = useRef(true);
+
+  const chatCommands = useMemo(
+    () =>
+      channelBySlug?.chatCommands?.filter((c): c is ChatCommand => c !== null),
+    [channelBySlug]
+  );
 
   useEffect(() => {
     if (showLeaderboard && !holdersLoading && !holdersData) {
@@ -265,7 +283,7 @@ const AblyChatComponent = ({
     let messageToPublish = "";
     let allowPublish = false;
 
-    if (messageText.startsWith("@chatbot")) {
+    if (messageText.startsWith(BaseChatCommand.CHATBOT)) {
       const prompt = messageText.substring(9);
       const res = await fetch("/api/openai", {
         body: JSON.stringify({
@@ -279,10 +297,7 @@ const AblyChatComponent = ({
       const data = await res.json();
       messageToPublish = `${data}`;
       allowPublish = true;
-    } else if (
-      messageText.startsWith("@nfc-it") ||
-      messageText.startsWith("@nfc")
-    ) {
+    } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
       if (channelBySlug?.allowNFCs || false) {
         window.open(`/clip?arn=${channelBySlug?.channelArn || ""}`, "_blank");
         allowPublish = false;
@@ -290,14 +305,26 @@ const AblyChatComponent = ({
         messageToPublish = "NFCs are not allowed on this channel.";
         allowPublish = true;
       }
-    } else if (messageText.startsWith("@rules")) {
+    } else if (messageText.startsWith(BaseChatCommand.RULES)) {
       const rules =
-        '"@chatbot [question]" to ask chatbot a question\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';
+        '"!chatbot [question]" to ask chatbot a question\n"!rules" to see these rules.';
       setTimeout(() => {
         messageToPublish = rules;
         publishChatBotMessage(messageToPublish);
       }, 1000);
       allowPublish = false;
+    } else {
+      for (let i = 0; i < channelChatCommands.length; i++) {
+        const chatCommand = channelChatCommands[i];
+        if (messageText.startsWith(`!${chatCommand}`)) {
+          messageToPublish = chatCommand.response;
+          setTimeout(() => {
+            publishChatBotMessage(messageToPublish);
+          }, 1000);
+          allowPublish = false;
+          break;
+        }
+      }
     }
 
     if (allowPublish) {
@@ -714,7 +741,11 @@ const AblyChatComponent = ({
           ) : null}
         </Flex>
         <Flex mt="40px" w="100%" mb="15px">
-          <ChatForm sendChatMessage={sendChatMessage} inputBox={inputBox} />
+          <ChatForm
+            sendChatMessage={sendChatMessage}
+            inputBox={inputBox}
+            additionalChatCommands={chatCommands}
+          />
         </Flex>
       </Flex>
     </Flex>
