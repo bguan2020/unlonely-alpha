@@ -1,5 +1,6 @@
 import { Flex, Textarea, Stack, IconButton, Image } from "@chakra-ui/react";
 import React, { useState } from "react";
+import { CommandData } from "../../constants";
 import Commands from "./Commands";
 
 import EmojiButton from "./emoji/EmojiButton";
@@ -9,11 +10,16 @@ type Props = {
   sendChatMessage: (message: string, isGif: boolean) => void;
   inputBox: HTMLTextAreaElement | null;
   mobile?: boolean;
+  additionalChatCommands?: CommandData[];
 };
 
-const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
+const ChatForm = ({
+  sendChatMessage,
+  inputBox,
+  mobile,
+  additionalChatCommands,
+}: Props) => {
   const [messageText, setMessageText] = useState<string>("");
-  const [privateChat, setPrivateChat] = useState<boolean>(true);
   const [commandsOpen, setCommandsOpen] = useState(false);
 
   const messageTextIsEmpty =
@@ -31,7 +37,7 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
   const handleKeyPress = (event: any) => {
     const isGif = false;
     if (event.charCode !== 13 || messageTextIsEmpty) {
-      if (event.charCode === 64) {
+      if (event.charCode === 33) {
         setCommandsOpen(true);
       }
       return;
@@ -49,17 +55,6 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
     event.preventDefault();
     sendChatMessage(messageText, isGif);
     setMessageText("");
-  };
-
-  const handlePrivateChat = () => {
-    setPrivateChat(!privateChat);
-    if (privateChat) {
-      // add "@noFCplz" to beginning of messageText
-      setMessageText(`@noFCplz ${messageText}`);
-    } else {
-      // remove "@noFCplz" from beginning of messageText
-      setMessageText(messageText.replace("@noFCplz ", ""));
-    }
   };
 
   return (
@@ -121,6 +116,7 @@ const ChatForm = ({ sendChatMessage, inputBox, mobile }: Props) => {
                   setMessageText(text);
                   setCommandsOpen(false);
                 }}
+                additionalChatCommands={additionalChatCommands}
               />
             </Flex>
           </Flex>

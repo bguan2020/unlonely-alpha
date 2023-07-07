@@ -1,6 +1,11 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
+  type ChatCommand {
+    command: String!
+    response: String!
+  }
+
   type Channel {
     id: ID!
     awsId: String!
@@ -18,6 +23,7 @@ export const typeDef = gql`
     customButtonPrice: Int
     createdAt: DateTime!
     updatedAt: DateTime!
+    chatCommands: [ChatCommand]
   }
 
   input ChannelFeedInput {

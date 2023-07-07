@@ -53,6 +53,6 @@ export const resolvers = {
     },
     chatCommands: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelChatCommands({ id }, ctx);
-    }
+    },
   },
 };

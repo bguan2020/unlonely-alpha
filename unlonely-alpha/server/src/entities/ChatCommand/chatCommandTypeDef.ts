@@ -10,17 +10,17 @@ export const typeDef = gql`
     updatedAt: DateTime!
   }
 
-  type ChatCommand {
+  input ChatCommandInput {
     command: String!
     response: String!
   }
 
   input UpdateDeleteChatCommandInput {
     id: ID!
-    commandArray: [ChatCommand]
+    chatCommands: [ChatCommandInput]!
   }
 
   extend type Mutation {
-    updateDeleteChannelChatCommands(data: UpdateDeleteChatCommandInput!): Channel
+    updateDeleteChatCommands(data: UpdateDeleteChatCommandInput!): Channel
   }
 `;

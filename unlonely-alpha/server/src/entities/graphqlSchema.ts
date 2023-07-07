@@ -17,6 +17,7 @@ import { typeDef as streamInteractionTypeDef } from "./StreamInteraction/streamI
 import { typeDef as channelTypeDef } from "./Channel/channelTypeDef";
 import { typeDef as deviceTokenTypeDef } from "./DeviceToken/deviceTokenTypeDef";
 import { typeDef as creatorTokenTypeDef } from "./CreatorToken/creatorTokenTypeDef";
+import { typeDef as chatCommandTypeDef } from "./ChatCommand/chatCommandTypeDef";
 
 import { resolvers as likeResolvers } from "./Like/likeResolvers";
 import { resolvers as userResolvers } from "./User/userResolvers";
@@ -29,6 +30,7 @@ import { resolvers as streamInteractionResolvers } from "./StreamInteraction/str
 import { resolvers as channelResolvers } from "./Channel/channelResolvers";
 import { resolvers as deviceTokenResolvers } from "./DeviceToken/deviceTokenResolvers";
 import { resolvers as creatorTokenResolvers } from "./CreatorToken/creatorTokenResolvers";
+import { resolvers as chatCommandResolvers } from "./ChatCommand/chatCommandResolvers";
 
 const Query = gql`
   enum SortOrder {
@@ -69,6 +71,7 @@ export default makeExecutableSchema({
     channelTypeDef,
     deviceTokenTypeDef,
     creatorTokenTypeDef,
+    chatCommandTypeDef,
   ],
   resolvers: merge(
     resolvers,
@@ -82,6 +85,7 @@ export default makeExecutableSchema({
     streamInteractionResolvers,
     channelResolvers,
     deviceTokenResolvers,
-    creatorTokenResolvers
+    creatorTokenResolvers,
+    chatCommandResolvers
   ),
 });

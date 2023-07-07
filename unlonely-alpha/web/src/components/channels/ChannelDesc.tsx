@@ -21,6 +21,8 @@ import TokenSaleModal from "./TokenSaleModal";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { isAddress } from "viem";
+import ChatCommandModal from "./ChatCommandModal";
+import { CommandIcon } from "../icons/CommandIcon";
 
 const ChannelDesc = () => {
   const { user } = useUser();
@@ -30,6 +32,7 @@ const ChannelDesc = () => {
   const [editableText, setEditableText] = useState<boolean>(false);
   const [formError, setFormError] = useState<string[]>([]);
   const [tokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
+  const [chatCommandModal, setChatCommandModal] = useState<boolean>(false);
   const form = useForm<UpdateChannelTextInput>({
     defaultValues: {},
     resolver: yupResolver(updateChannelTextSchema),
@@ -67,6 +70,11 @@ const ChannelDesc = () => {
         title={"offer tokens for sale"}
         isOpen={tokenSaleModal}
         handleClose={() => setTokenSaleModal(false)}
+      />
+      <ChatCommandModal
+        title={"custom commands"}
+        isOpen={chatCommandModal}
+        handleClose={() => setChatCommandModal(false)}
       />
       {editableText ? (
         <>
@@ -192,6 +200,13 @@ const ChannelDesc = () => {
               >
                 {channelBySlug?.name}
               </Text>
+              {/* <Tooltip label={"custom commands"}>
+                <CommandIcon
+                  boxSize={5}
+                  cursor="pointer"
+                  onClick={() => setChatCommandModal(true)}
+                />
+              </Tooltip> */}
               {isOwner && (
                 <>
                   <Tooltip label={"edit title/description"}>
@@ -203,6 +218,13 @@ const ChannelDesc = () => {
                           (prevEditableText) => !prevEditableText
                         );
                       }}
+                    />
+                  </Tooltip>
+                  <Tooltip label={"custom commands"}>
+                    <CommandIcon
+                      boxSize={5}
+                      cursor="pointer"
+                      onClick={() => setChatCommandModal(true)}
                     />
                   </Tooltip>
                   {channelBySlug?.token?.address &&
