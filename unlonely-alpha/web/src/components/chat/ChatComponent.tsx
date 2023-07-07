@@ -316,7 +316,7 @@ const AblyChatComponent = ({
     } else {
       for (let i = 0; i < channelChatCommands.length; i++) {
         const chatCommand = channelChatCommands[i];
-        if (messageText.startsWith(`!${chatCommand}`)) {
+        if (messageText.startsWith(`!${chatCommand.command}`)) {
           messageToPublish = chatCommand.response;
           setTimeout(() => {
             publishChatBotMessage(messageToPublish);
