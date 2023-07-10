@@ -12,6 +12,7 @@ import {
   Spinner,
   Text,
 } from "@chakra-ui/react";
+import { isAddress } from "viem";
 import { useUser } from "../../hooks/context/useUser";
 
 export const TransactionModalTemplate = ({
@@ -22,6 +23,7 @@ export const TransactionModalTemplate = ({
   icon,
   children,
   isModalLoading,
+  loadingText,
   needsApproval,
   hideFooter,
   approve,
@@ -33,6 +35,7 @@ export const TransactionModalTemplate = ({
   isOpen: boolean;
   children: React.ReactNode;
   isModalLoading: boolean;
+  loadingText?: string;
   canSend?: boolean;
   icon?: JSX.Element;
   needsApproval?: boolean;
@@ -41,7 +44,7 @@ export const TransactionModalTemplate = ({
   handleClose: () => void;
   onSend?: () => void;
 }) => {
-  const { user } = useUser();
+  const { user, userAddress } = useUser();
 
   return (
     <Modal
@@ -107,7 +110,12 @@ export const TransactionModalTemplate = ({
                     _active={{}}
                     onClick={onSend}
                     width="100%"
-                    disabled={!canSend || !user}
+                    disabled={
+                      !canSend ||
+                      !user ||
+                      !userAddress ||
+                      !isAddress(userAddress)
+                    }
                     borderRadius="25px"
                   >
                     {confirmButton}
@@ -124,7 +132,8 @@ export const TransactionModalTemplate = ({
                 <Spinner size="xl" />
               </Flex>
               <Text textAlign={"center"}>
-                executing transaction, please do not exit this page
+                {loadingText ??
+                  "executing transaction, please do not exit this page"}
               </Text>
             </Flex>
           </ModalBody>

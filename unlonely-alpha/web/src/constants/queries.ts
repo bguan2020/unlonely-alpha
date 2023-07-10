@@ -1,5 +1,11 @@
 import { gql } from "@apollo/client";
 
+export const GET_USER_TOKEN_HOLDING_QUERY = gql`
+  query Query($data: GetUserTokenHoldingInput!) {
+    getUserTokenHolding(data: $data)
+  }
+`;
+
 export const GET_TOKEN_LEADERBOARD_QUERY = gql`
   query GetTokenLeaderboard {
     getTokenLeaderboard {
@@ -26,6 +32,8 @@ export const CHANNEL_DETAIL_QUERY = gql`
       awsId
       channelArn
       description
+      customButtonPrice
+      customButtonAction
       id
       name
       slug
@@ -43,6 +51,10 @@ export const CHANNEL_DETAIL_QUERY = gql`
         address
       }
       playbackUrl
+      chatCommands {
+        command
+        response
+      }
     }
   }
 `;

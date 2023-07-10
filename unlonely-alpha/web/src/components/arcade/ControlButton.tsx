@@ -25,11 +25,11 @@ const ControlButton: React.FunctionComponent<Props> = ({
         isHovered && !noHover ? (
           <Image
             alt="control-hover"
-            src="/svg/control-hover.svg"
+            src="/svg/arcade/control-hover.svg"
             width="100%"
           />
         ) : (
-          <Image alt="control" src="/svg/control.svg" width="100%" />
+          <Image alt="control" src="/svg/arcade/control.svg" width="100%" />
         )
       }
       onMouseEnter={() => setIsHovered(true)}

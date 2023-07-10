@@ -15,8 +15,9 @@ import { isAddress } from "viem";
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
-import DiceButton from "../../components/arcade/DiceButton";
-import SwordButton from "../../components/arcade/SwordButton";
+import CustomButton from "../../components/arcade/CustomButton";
+// import DiceButton from "../../components/arcade/DiceButton";
+// import SwordButton from "../../components/arcade/SwordButton";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import AblyChatComponent from "../../components/chat/ChatComponent";
 import AppLayout from "../../components/layout/AppLayout";
@@ -25,7 +26,8 @@ import StreamComponent from "../../components/stream/StreamComponent";
 import BuyTransactionModal from "../../components/transactions/BuyTransactionModal";
 import ChanceTransactionModal from "../../components/transactions/ChanceTransactionModal";
 import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
-import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
+import CustomTransactionModal from "../../components/transactions/CustomTransactionModal";
+// import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
 import TipTransactionModal from "../../components/transactions/TipTransactionModal";
 import { ChatBot } from "../../constants/types";
 import {
@@ -59,7 +61,9 @@ const ChannelPage = () => {
   );
 
   const [width, height] = useWindowSize();
-  const { username } = useUser();
+  const { username, user, userAddress } = useUser();
+
+  const isOwner = userAddress === channelBySlug?.owner.address;
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [showTipModal, setShowTipModal] = useState<boolean>(false);
@@ -67,6 +71,7 @@ const ChannelPage = () => {
   const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
   const [showControlModal, setShowControlModal] = useState<boolean>(false);
   const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
+  const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
 
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
@@ -87,6 +92,7 @@ const ChannelPage = () => {
     setShowPvpModal(false);
     setShowControlModal(false);
     setShowBuyModal(false);
+    setShowCustomModal(false);
   }, []);
 
   const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
@@ -103,11 +109,25 @@ const ChannelPage = () => {
       >
         {!queryLoading && !channelDataError ? (
           <>
+            <CustomTransactionModal
+              icon={
+                <Image
+                  alt="custom"
+                  src="/svg/arcade/custom.svg"
+                  width="60px"
+                  height="60px"
+                />
+              }
+              title={isOwner ? "customize your button!" : "make a request"}
+              isOpen={showCustomModal}
+              handleClose={handleClose}
+              addToChatbot={addToChatbot}
+            />
             <ControlTransactionModal
               icon={
                 <Image
                   alt="control"
-                  src="/svg/control.svg"
+                  src="/svg/arcade/control.svg"
                   width="60px"
                   height="60px"
                 />
@@ -133,7 +153,7 @@ const ChannelPage = () => {
               icon={
                 <Image
                   alt="coin"
-                  src="/svg/coin.svg"
+                  src="/svg/arcade/coin.svg"
                   width="60px"
                   height="60px"
                 />
@@ -147,7 +167,7 @@ const ChannelPage = () => {
               icon={
                 <Image
                   alt="dice"
-                  src="/svg/dice.svg"
+                  src="/svg/arcade/dice.svg"
                   width="60px"
                   height="60px"
                 />
@@ -157,11 +177,11 @@ const ChannelPage = () => {
               handleClose={handleClose}
               addToChatbot={addToChatbot}
             />
-            <PvpTransactionModal
+            {/* <PvpTransactionModal
               icon={
                 <Image
                   alt="sword"
-                  src="/svg/sword.svg"
+                  src="/svg/arcade/sword.svg"
                   width="60px"
                   height="60px"
                 />
@@ -170,7 +190,7 @@ const ChannelPage = () => {
               isOpen={showPvpModal}
               handleClose={handleClose}
               addToChatbot={addToChatbot}
-            />
+            /> */}
             <Stack direction="column" mt={"1rem"}>
               <Stack
                 mx={[0, 8, 4]}
@@ -214,41 +234,61 @@ const ChannelPage = () => {
                           alignItems="center"
                           gap={5}
                         >
-                          {isAddress(String(channelBySlug?.token?.address)) && (
-                            <>
-                              <Grid
-                                templateColumns="repeat(2, 1fr)"
-                                templateRows="repeat(2, 1fr)"
-                                gridGap={4}
-                                alignItems="flex-start"
-                                justifyItems="flex-start"
-                              >
-                                <ControlButton
-                                  callback={() => setShowControlModal(true)}
-                                />
-                                <CoinButton
-                                  callback={() => setShowTipModal(true)}
-                                />
-                                <Tooltip label={"coming soon"}>
+                          {isAddress(String(channelBySlug?.token?.address)) &&
+                            user &&
+                            userAddress && (
+                              <>
+                                <Grid
+                                  templateColumns="repeat(2, 1fr)"
+                                  templateRows="repeat(2, 1fr)"
+                                  gridGap={4}
+                                  alignItems="flex-start"
+                                  justifyItems="flex-start"
+                                >
+                                  <Tooltip label={"control text on the stream"}>
+                                    <span>
+                                      <ControlButton
+                                        callback={() =>
+                                          setShowControlModal(true)
+                                        }
+                                      />
+                                    </span>
+                                  </Tooltip>
+                                  <Tooltip label={"tip the streamer"}>
+                                    <span>
+                                      <CoinButton
+                                        callback={() => setShowTipModal(true)}
+                                      />
+                                    </span>
+                                  </Tooltip>
+                                  {/* <Tooltip label={"coming soon"}>
                                   <span>
                                     <DiceButton noHover />
                                   </span>
-                                </Tooltip>
-                                <Tooltip label={"coming soon"}>
-                                  <span>
-                                    <SwordButton noHover />
-                                  </span>
-                                </Tooltip>
-                              </Grid>
-                              <BuyButton
-                                tokenName={`$${channelBySlug?.token?.symbol}`}
-                                callback={() => setShowBuyModal(true)}
-                              />
-                            </>
-                          )}
-                          {!isAddress(
-                            String(channelBySlug?.token?.address)
-                          ) && (
+                                </Tooltip> */}
+                                  <Tooltip label={"control the streamer"}>
+                                    <span>
+                                      <CustomButton
+                                        callback={() =>
+                                          setShowCustomModal(true)
+                                        }
+                                      />
+                                    </span>
+                                  </Tooltip>
+                                  {/* <Tooltip label={"coming soon"}>
+                                    <span>
+                                      <SwordButton noHover />
+                                    </span>
+                                  </Tooltip> */}
+                                </Grid>
+                                <BuyButton
+                                  tokenName={`$${channelBySlug?.token?.symbol}`}
+                                  callback={() => setShowBuyModal(true)}
+                                />
+                              </>
+                            )}
+                          {(!isAddress(String(channelBySlug?.token?.address)) ||
+                            !user) && (
                             <>
                               <Grid
                                 templateColumns="repeat(2, 1fr)"
@@ -257,28 +297,58 @@ const ChannelPage = () => {
                                 alignItems="flex-start"
                                 justifyItems="flex-start"
                               >
-                                <Tooltip label={"Not available"}>
+                                <Tooltip
+                                  label={
+                                    !user
+                                      ? "connect wallet first"
+                                      : "not available"
+                                  }
+                                >
                                   <span>
                                     <ControlButton />
                                   </span>
                                 </Tooltip>
-                                <Tooltip label={"Not available"}>
+                                <Tooltip
+                                  label={
+                                    !user
+                                      ? "connect wallet first"
+                                      : "not available"
+                                  }
+                                >
                                   <span>
                                     <CoinButton />
                                   </span>
                                 </Tooltip>
-                                <Tooltip label={"Not available"}>
+                                <Tooltip
+                                  label={
+                                    !user
+                                      ? "connect wallet first"
+                                      : "not available"
+                                  }
+                                >
                                   <span>
-                                    <DiceButton />
+                                    <CustomButton />
                                   </span>
                                 </Tooltip>
-                                <Tooltip label={"Not available"}>
+                                {/* <Tooltip
+                                  label={
+                                    !user
+                                      ? "connect wallet first"
+                                      : "not available"
+                                  }
+                                >
                                   <span>
                                     <SwordButton />
                                   </span>
-                                </Tooltip>
+                                </Tooltip> */}
                               </Grid>
-                              <Tooltip label={"Not available"}>
+                              <Tooltip
+                                label={
+                                  !user
+                                    ? "connect wallet first"
+                                    : "not available"
+                                }
+                              >
                                 <span>
                                   <BuyButton tokenName={"token"} />
                                 </span>
@@ -317,6 +387,7 @@ const ChannelPage = () => {
                       handleChanceModal={() => setShowChanceModal(true)}
                       handlePvpModal={() => setShowPvpModal(true)}
                       handleControlModal={() => setShowControlModal(true)}
+                      handleCustomModal={() => setShowCustomModal(true)}
                     />
                   </Container>
                 </Flex>

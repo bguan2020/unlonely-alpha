@@ -14,6 +14,35 @@ export const getLeaderboard = (ctx: Context) => {
   });
 };
 
+export interface IGetUserTokenHoldingInput {
+  tokenAddress: string;
+  userAddress: string;
+}
+
+export const getUserTokenHolding = async (
+  data: IGetUserTokenHoldingInput,
+  ctx: Context
+) => {
+  // Get all the token holdings for the provided token
+  const tokenHoldings = await ctx.prisma.userCreatorToken.findMany({
+    where: {
+      tokenAddress: data.tokenAddress,
+    },
+    orderBy: {
+      quantity: "desc",
+    },
+  });
+
+  // Find the index of the user in the sorted list of token holdings
+  const userRanking = tokenHoldings.findIndex(
+    (holding) => holding.userAddress === data.userAddress
+  );
+
+  // The 'findIndex' function returns -1 if it does not find the user in the list,
+  // so we need to account for this
+  return userRanking;
+};
+
 export interface IGetUserInput {
   address: string;
 }

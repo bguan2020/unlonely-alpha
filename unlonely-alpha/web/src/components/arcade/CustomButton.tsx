@@ -6,12 +6,15 @@ type Props = {
   callback?: () => void;
 };
 
-const CoinButton: React.FunctionComponent<Props> = ({ noHover, callback }) => {
+const CustomButton: React.FunctionComponent<Props> = ({
+  noHover,
+  callback,
+}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <IconButton
-      aria-label="Coin"
+      aria-label="Custom"
       _hover={{}}
       _active={{}}
       _focus={{}}
@@ -21,12 +24,12 @@ const CoinButton: React.FunctionComponent<Props> = ({ noHover, callback }) => {
       icon={
         isHovered && !noHover ? (
           <Image
-            alt="coin-hover"
-            src="/svg/arcade/coin-hover.svg"
+            alt="custom-hover"
+            src="/svg/arcade/custom-hover.svg"
             width="100%"
           />
         ) : (
-          <Image alt="coin" src="/svg/arcade/coin.svg" width="100%" />
+          <Image alt="custom" src="/svg/arcade/custom.svg" width="100%" />
         )
       }
       onMouseEnter={() => setIsHovered(true)}
@@ -36,4 +39,4 @@ const CoinButton: React.FunctionComponent<Props> = ({ noHover, callback }) => {
   );
 };
 
-export default CoinButton;
+export default CustomButton;

@@ -26,6 +26,25 @@ export const updateChannelText = (
   });
 };
 
+export interface IPostChannelCustomButtonInput {
+  id: number;
+  customButtonAction: string;
+  customButtonPrice: number;
+}
+
+export const updateChannelCustomButton = (
+  data: IPostChannelCustomButtonInput,
+  ctx: Context
+) => {
+  return ctx.prisma.channel.update({
+    where: { id: Number(data.id) },
+    data: {
+      customButtonAction: data.customButtonAction,
+      customButtonPrice: data.customButtonPrice,
+    },
+  });
+};
+
 export interface IGetChannelFeedInput {
   offset: number;
   limit: number;
@@ -173,4 +192,14 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
     console.log(`Error invoking Lambda function: ${error.message}`);
     return null;
   }
+};
+
+export const getChannelChatCommands = async (
+  { id }: { id: number },
+  ctx: Context
+) => {
+  return ctx.prisma.chatCommand.findMany({
+    // where softDelete is false
+    where: { channelId: Number(id), softDelete: false },
+  });
 };

@@ -347,6 +347,64 @@ export const useAddCreatorToken = (
   };
 };
 
+export const useSetTokenPrices = (
+  args: {
+    creatorTokens: `0x${string}`[];
+    newPrices: bigint[];
+  },
+  callbacks?: WriteCallbacks
+) => {
+  const network = useNetwork();
+  const localNetwork = useMemo(() => {
+    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
+  }, [network]);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+
+  const {
+    writeAsync: setTokenPrices,
+    writeData: setTokenPricesData,
+    txData: setTokenPricesTxData,
+    isTxLoading: setTokenPricesTxLoading,
+  } = useWrite(
+    contract,
+    "setTokenPrices",
+    [args.creatorTokens, args.newPrices],
+    {
+      onPrepareSuccess: (data) => {
+        console.log("useSetTokenPrices setTokenPrices prepare success", data);
+        callbacks?.onPrepareSuccess?.(data);
+      },
+      onPrepareError: (error) => {
+        console.log("useSetTokenPrices setTokenPrices prepare error", error);
+        callbacks?.onPrepareError?.(error);
+      },
+      onWriteSuccess: (data) => {
+        console.log("useSetTokenPrices setTokenPrices write success", data);
+        callbacks?.onWriteSuccess?.(data);
+      },
+      onWriteError: (error) => {
+        console.log("useSetTokenPrices setTokenPrices write error", error);
+        callbacks?.onWriteError?.(error);
+      },
+      onTxSuccess: (data) => {
+        console.log("useSetTokenPrices setTokenPrices tx success", data);
+        callbacks?.onTxSuccess?.(data);
+      },
+      onTxError: (error) => {
+        console.log("useSetTokenPrices setTokenPrices tx error", error);
+        callbacks?.onTxError?.(error);
+      },
+    }
+  );
+
+  return {
+    setTokenPrices,
+    setTokenPricesData,
+    setTokenPricesTxData,
+    setTokenPricesTxLoading,
+  };
+};
+
 // export const useSetTokenPrice = (
 //   args: {
 //     creatorTokenAddress: `0x${string}`;

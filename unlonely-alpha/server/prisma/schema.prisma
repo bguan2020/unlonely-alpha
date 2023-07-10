@@ -225,7 +225,10 @@ model Channel {
 
   chats Chat[]
   streamInteractions StreamInteraction[]
+  chatCommands ChatCommand[]
   token CreatorToken?
+  customButtonAction String?
+  customButtonPrice Int?
 }
 
 model DeviceToken {
@@ -259,4 +262,16 @@ model UserCreatorToken {
   token   CreatorToken    @relation(fields: [tokenAddress], references: [address])
   
   @@id([userAddress, tokenAddress])
+}
+
+model ChatCommand {
+  id        Int      @id @default(autoincrement())
+  command String
+  response String 
+  channelId Int      
+  channel   Channel  @relation(fields: [channelId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  softDelete Boolean @default(false)
 }

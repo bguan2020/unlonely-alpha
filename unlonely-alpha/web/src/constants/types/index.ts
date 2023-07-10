@@ -1,3 +1,5 @@
+import { User } from "../../generated/graphql";
+
 export * from "./network";
 
 export type WriteCallbacks = {
@@ -22,4 +24,8 @@ export type ChatBot = {
   taskType: string;
   title: string | null | undefined;
   description: string | null | undefined;
+};
+
+export type CustomUser = User & {
+  tokenHolderRank: number;
 };

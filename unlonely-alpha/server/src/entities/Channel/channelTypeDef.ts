@@ -1,6 +1,11 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
+  type ChatCommand {
+    command: String!
+    response: String!
+  }
+
   type Channel {
     id: ID!
     awsId: String!
@@ -14,8 +19,11 @@ export const typeDef = gql`
     owner: User!
     token: CreatorToken
     slug: String!
+    customButtonAction: String
+    customButtonPrice: Int
     createdAt: DateTime!
     updatedAt: DateTime!
+    chatCommands: [ChatCommand]
   }
 
   input ChannelFeedInput {
@@ -30,6 +38,12 @@ export const typeDef = gql`
     description: String!
   }
 
+  input UpdateChannelCustomButtonInput {
+    id: ID!
+    customButtonAction: String!
+    customButtonPrice: Int!
+  }
+
   extend type Query {
     getChannelFeed(data: ChannelFeedInput): [Channel]
     getChannelWithTokenById(id: ID!): Channel
@@ -39,5 +53,6 @@ export const typeDef = gql`
 
   extend type Mutation {
     updateChannelText(data: UpdateChannelTextInput!): Channel
+    updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
   }
 `;

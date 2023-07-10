@@ -11,6 +11,7 @@ import {
   CHANNEL_DETAIL_QUERY,
   GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
   GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY,
+  GET_USER_TOKEN_HOLDING_QUERY,
 } from "../../constants/queries";
 import {
   ChannelDetailQuery,
@@ -52,6 +53,7 @@ const ChannelContext = createContext<{
     refetchOwnerTokenBalance?: () => void;
   };
   holders: {
+    userRank: number;
     data?: GetTokenHoldersByChannelQuery;
     loading: boolean;
     error?: ApolloError;
@@ -82,6 +84,7 @@ const ChannelContext = createContext<{
     refetchOwnerTokenBalance: () => undefined,
   },
   holders: {
+    userRank: -1,
     data: undefined,
     loading: true,
     error: undefined,
@@ -119,6 +122,20 @@ export const ChannelProvider = ({
         },
       },
     }
+  );
+
+  const { data: userRankData } = useQuery(GET_USER_TOKEN_HOLDING_QUERY, {
+    variables: {
+      data: {
+        tokenAddress: channelData?.getChannelBySlug?.token?.address,
+        userAddress: user?.address,
+      },
+    },
+  });
+
+  const userRank = useMemo(
+    () => userRankData?.getUserTokenHolding,
+    [userRankData]
   );
 
   const [
@@ -221,6 +238,7 @@ export const ChannelProvider = ({
         refetchOwnerTokenBalance,
       },
       holders: {
+        userRank,
         data: holdersData,
         loading: holdersLoading,
         error: holdersError,
@@ -247,6 +265,7 @@ export const ChannelProvider = ({
       holdersLoading,
       holdersError,
       handleRefetchTokenHolders,
+      userRank,
     ]
   );
 

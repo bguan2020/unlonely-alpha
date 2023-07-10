@@ -1,8 +1,9 @@
 import { Flex, Text, Button, Stack } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
+import { BaseChatCommand, CommandData } from "../../constants";
 interface Command {
   name: string;
-  description: string;
+  description?: string;
   value: string;
 }
 
@@ -11,18 +12,19 @@ type Props = {
   onClose: () => void;
   onCommandClick: (text: string) => void;
   chat: string;
+  additionalChatCommands?: CommandData[];
 };
 
 const commandList: Command[] = [
   {
-    name: "@nfc [title]",
+    name: BaseChatCommand.CLIP.concat(" [title]"),
     description: "Make a clip that becomes a NFT.",
-    value: "@nfc ",
+    value: BaseChatCommand.CLIP.concat(" "),
   },
   {
-    name: "@chatbot [question]",
+    name: BaseChatCommand.CHATBOT.concat(" [question]"),
     description: "Ask a question about the stream.",
-    value: "@chatbot ",
+    value: BaseChatCommand.CHATBOT.concat(" "),
   },
 ];
 function useOutsideAlerter(ref: any, onClose: () => void) {
@@ -46,7 +48,19 @@ export default function Commands({
   onClose,
   onCommandClick,
   chat,
+  additionalChatCommands,
 }: Props) {
+  const channelChatComands: Command[] = additionalChatCommands
+    ? additionalChatCommands.map((c) => {
+        return {
+          name: "!".concat(c.command),
+          value: "!".concat(c.command).concat(" "),
+        };
+      })
+    : [];
+
+  const aggregatedCommandList = [...commandList, ...channelChatComands];
+
   const [currentOpen, setCurrentOpen] = useState(open);
   const wrapperRef = useRef(null);
   useOutsideAlerter(wrapperRef, onClose);
@@ -64,7 +78,7 @@ export default function Commands({
             borderRadius="10px"
             p="5px"
           >
-            {commandList
+            {aggregatedCommandList
               .filter((command) => {
                 return command.value.includes(chat);
               })
@@ -79,8 +93,10 @@ export default function Commands({
                     }}
                   >
                     <Stack>
-                      <Text fontSize="xs">{command.name}</Text>{" "}
-                      <Text fontSize="xs">{command.description}</Text>
+                      <Text fontSize="xs">{command.name}</Text>
+                      {command.description && (
+                        <Text fontSize="xs">{command.description}</Text>
+                      )}
                     </Stack>
                   </Button>
                 );

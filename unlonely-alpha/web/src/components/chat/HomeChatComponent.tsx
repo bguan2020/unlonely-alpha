@@ -10,6 +10,7 @@ import MessageList from "./MessageList";
 import { useScrollPercentage } from "../../hooks/internal/useScrollPercentage";
 import {
   ADD_REACTION_EVENT,
+  BaseChatCommand,
   NULL_ADDRESS,
   RANDOM_CHAT_COLOR,
 } from "../../constants";
@@ -63,9 +64,6 @@ const AblyHomeChatComponent = () => {
             isLens: user.isLensUser,
             lensHandle: user.lensHandle,
             address: user.address,
-            powerUserLvl: user?.powerUserLvl,
-            videoSavantLvl: user?.videoSavantLvl,
-            nfcRank: user?.nfcRank,
             isGif,
             reactions: initializeEmojis,
           },
@@ -82,9 +80,6 @@ const AblyHomeChatComponent = () => {
             isLens: user.isLensUser,
             lensHandle: user.lensHandle,
             address: user.address,
-            powerUserLvl: user?.powerUserLvl,
-            videoSavantLvl: user?.videoSavantLvl,
-            nfcRank: user?.nfcRank,
             isGif,
             reactions: initializeEmojis,
           },
@@ -107,9 +102,6 @@ const AblyHomeChatComponent = () => {
             isFC: false,
             isLens: false,
             address: address,
-            powerUserLvl: 0,
-            videoSavantLvl: 0,
-            nfcRank: 0,
             isGif,
             reactions: initializeEmojis,
           },
@@ -132,7 +124,7 @@ const AblyHomeChatComponent = () => {
     let messageToPublish = "";
     let allowPublish = false;
 
-    if (messageText.startsWith("@chatbot")) {
+    if (messageText.startsWith(BaseChatCommand.CHATBOT)) {
       const prompt = messageText.substring(9);
       const res = await fetch("/api/openai", {
         body: JSON.stringify({
@@ -146,15 +138,10 @@ const AblyHomeChatComponent = () => {
       const data = await res.json();
       messageToPublish = `${data}`;
       allowPublish = true;
-    } else if (
-      messageText.startsWith("@nfc-it") ||
-      messageText.startsWith("@nfc")
-    ) {
-      messageToPublish = "NFCs are not allowed on this channel.";
-      allowPublish = true;
-    } else if (messageText.startsWith("@rules")) {
+    }
+    if (messageText.startsWith(BaseChatCommand.RULES)) {
       const rules =
-        '"@chatbot [question]" to ask chatbot a question\n"@noFCplz [message]" to not have message casted.\n"@rules" to see these rules.';
+        '"!chatbot [question]" to ask chatbot a question\n"!rules" to see these rules.';
       setTimeout(() => {
         messageToPublish = rules;
         publishMessage(messageToPublish);

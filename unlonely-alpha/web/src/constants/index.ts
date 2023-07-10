@@ -16,6 +16,14 @@ export enum InteractionType {
   CONTROL = "control-text-interaction",
   TIP = "tip-interaction",
   BUY = "buy-tokens-interaction",
+  CUSTOM = "custom-interaction",
+}
+
+export enum BaseChatCommand {
+  COMMANDS = "!commands",
+  CHATBOT = "!chatbot",
+  RULES = "!rules",
+  CLIP = "!nfc",
 }
 
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -41,3 +49,8 @@ export const EMOJIS = [
 ];
 
 export const ADD_REACTION_EVENT = "add-reaction";
+
+export type CommandData = {
+  command: string;
+  response: string;
+};

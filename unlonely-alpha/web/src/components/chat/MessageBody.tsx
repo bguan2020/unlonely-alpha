@@ -11,7 +11,12 @@ import {
   ModalContent,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { ADD_REACTION_EVENT, EMOJIS, NULL_ADDRESS } from "../../constants";
+import {
+  ADD_REACTION_EVENT,
+  EMOJIS,
+  InteractionType,
+  NULL_ADDRESS,
+} from "../../constants";
 
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
@@ -42,7 +47,10 @@ const MessageBody = ({
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const messageBg = () => {
-    if (message.data.nfcRank && message.data.nfcRank > 0) {
+    if (
+      message.data.body &&
+      message.data.body.split(":")[0] === InteractionType.CUSTOM
+    ) {
       return {
         bgGradient: "linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)",
       };
@@ -187,7 +195,12 @@ const MessageBody = ({
                         textAlign="left"
                         p={"5px"}
                       >
-                        {messageText}
+                        {messageText.split("\n").map((line, index) => (
+                          <span key={index}>
+                            {line}
+                            <br />
+                          </span>
+                        ))}
                       </Text>
                     )}
                   </>

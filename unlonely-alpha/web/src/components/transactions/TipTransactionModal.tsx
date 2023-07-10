@@ -73,6 +73,16 @@ export default function TipTransactionModal({
     ),
     parseUnits(USER_APPROVAL_AMOUNT as `${number}`, 18),
     {
+      onWriteSuccess: (data) => {
+        toast({
+          title: "approve",
+          description: "pending",
+          status: "info",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
       onTxSuccess: (data) => {
         toast({
           title: "approve",
@@ -106,6 +116,16 @@ export default function TipTransactionModal({
       featurePrice: tokenAmount_bigint,
     },
     {
+      onWriteSuccess: (data) => {
+        toast({
+          title: "useFeature",
+          description: "pending",
+          status: "info",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
       onTxSuccess: (data) => {
         toast({
           title: "useFeature",

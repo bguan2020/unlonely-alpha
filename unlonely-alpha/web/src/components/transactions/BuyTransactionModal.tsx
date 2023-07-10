@@ -108,6 +108,16 @@ export default function BuyTransactionModal({
       amountOut: buyTokenAmount_bigint,
     },
     {
+      onWriteSuccess: (data) => {
+        toast({
+          title: "buyCreatorToken",
+          description: "pending",
+          status: "info",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
       onTxSuccess: async (data) => {
         toast({
           title: "buyCreatorToken",

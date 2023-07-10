@@ -48,6 +48,16 @@ export default function TokenSaleModal({
     parseUnits("100000" as `${number}`, 18),
     undefined,
     {
+      onWriteSuccess: (data) => {
+        toast({
+          title: "approve",
+          description: "pending",
+          status: "info",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
       onTxSuccess: (data) => {
         toast({
           title: "approve",

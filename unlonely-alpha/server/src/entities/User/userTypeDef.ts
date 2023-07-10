@@ -29,6 +29,11 @@ export const typeDef = gql`
     address: String
   }
 
+  input GetUserTokenHoldingInput {
+    userAddress: String
+    tokenAddress: String
+  }
+
   input UpdateUserNotificationsInput {
     notificationsTokens: String
     notificationsLive: Boolean
@@ -44,6 +49,7 @@ export const typeDef = gql`
     updateAllUsers: [User]
     getAllUsersWithChannel: [User]
     getAllUsersWithNotificationsToken: [User]
+    getUserTokenHolding(data: GetUserTokenHoldingInput!): Int
   }
 
   extend type Mutation {

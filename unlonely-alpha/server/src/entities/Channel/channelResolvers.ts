@@ -31,6 +31,17 @@ export const resolvers = {
 
       return channelService.updateChannelText(data, ctx);
     },
+    updateChannelCustomButton: (
+      _: any,
+      { data }: { data: channelService.IPostChannelCustomButtonInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+
+      return channelService.updateChannelCustomButton(data, ctx);
+    },
   },
   Channel: {
     // add getChannelCreatorToken
@@ -39,6 +50,9 @@ export const resolvers = {
     },
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {
       return channelService.getOwner({ ownerAddr }, ctx);
+    },
+    chatCommands: ({ id }: { id: number }, _: any, ctx: Context) => {
+      return channelService.getChannelChatCommands({ id }, ctx);
     },
   },
 };
