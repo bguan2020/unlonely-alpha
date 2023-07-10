@@ -13,14 +13,11 @@ export default function Badges({ message, user }: Props) {
 
   return (
     <>
-      {rankUrl &&
-        (user?.username === message.data.username ? (
-          <Tooltip label={rankDesc}>
-            <Image src={rankUrl} width="20px" height="20px" mr="5px" />
-          </Tooltip>
-        ) : (
+      {rankUrl && (
+        <Tooltip label={rankDesc}>
           <Image src={rankUrl} width="20px" height="20px" mr="5px" />
-        ))}
+        </Tooltip>
+      )}
       {message.data.isFC && (
         <Tooltip label="Farcaster Badge">
           <Image

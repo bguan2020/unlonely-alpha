@@ -122,6 +122,16 @@ const AdminContent = () => {
     buyTokenAmount_bigint,
     undefined,
     {
+      onWriteSuccess: (data) => {
+        toast({
+          title: "approve",
+          description: "pending",
+          status: "info",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
       onTxSuccess: (data) => {
         toast({
           title: "approve",
@@ -151,6 +161,16 @@ const AdminContent = () => {
       tokenOwner: tokenOwnerAddress as `0x${string}`,
     },
     {
+      onWriteSuccess: (data) => {
+        toast({
+          title: "addCreatorToken",
+          description: "pending",
+          status: "info",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
       onTxSuccess: (data) => {
         toast({
           title: "addCreatorToken",
@@ -195,6 +215,16 @@ const AdminContent = () => {
         ),
       },
       {
+        onWriteSuccess: (data) => {
+          toast({
+            title: "useFeature",
+            description: "pending",
+            status: "info",
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
         onTxSuccess: (data) => {
           toast({
             title: "useFeature",
@@ -221,6 +251,16 @@ const AdminContent = () => {
       amountOut: buyTokenAmount_bigint,
     },
     {
+      onWriteSuccess: (data) => {
+        toast({
+          title: "buyCreatorToken",
+          description: "pending",
+          status: "info",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
       onTxSuccess: (data) => {
         toast({
           title: "buyCreatorToken",
@@ -265,6 +305,16 @@ const AdminContent = () => {
         .map((p) => parseUnits(formatIncompleteNumber(p) as `${number}`, 18)),
     },
     {
+      onWriteSuccess: async (data) => {
+        toast({
+          title: "setTokenPrices",
+          description: "pending",
+          status: "info",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
       onTxSuccess: async (data) => {
         // then call our database
         await Promise.all(

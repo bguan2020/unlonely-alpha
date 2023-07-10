@@ -20,6 +20,7 @@ export enum InteractionType {
 }
 
 export enum BaseChatCommand {
+  COMMANDS = "!commands",
   CHATBOT = "!chatbot",
   RULES = "!rules",
   CLIP = "!nfc",

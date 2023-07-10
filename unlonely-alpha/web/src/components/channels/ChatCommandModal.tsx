@@ -32,6 +32,9 @@ export default function ChatCommandModal({
   const { channelBySlug } = channel;
 
   const [commandsData, setCommandsData] = useState<CommandData[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  );
 
   const { updateDeleteChatCommands, loading: updateLoading } =
     useUpdateDeleteChatCommands({});
@@ -84,18 +87,26 @@ export default function ChatCommandModal({
   const canSend = useMemo(() => {
     if (commandsData.length > 0) {
       for (const c of commandsData) {
-        if (
-          c.command === "" ||
-          c.response === "" ||
-          Object.values(BaseChatCommand).includes(
-            `!${c.command}` as BaseChatCommand
-          )
-        ) {
+        if (c.command === "" || c.response === "") {
           return false;
         }
       }
     }
     return true;
+  }, [commandsData]);
+
+  useEffect(() => {
+    for (const c of commandsData) {
+      if (
+        Object.values(BaseChatCommand).includes(
+          `!${c.command}` as BaseChatCommand
+        )
+      ) {
+        setErrorMessage("one of your command names is already reserved");
+        return;
+      }
+    }
+    setErrorMessage(undefined);
   }, [commandsData]);
 
   return (
@@ -107,7 +118,7 @@ export default function ChatCommandModal({
       isModalLoading={updateLoading}
       loadingText={"updating commands..."}
       onSend={callChange}
-      canSend={canSend}
+      canSend={canSend && !errorMessage}
       hideFooter={commandsData.length === 0 && !isDeletingAll}
     >
       <Flex direction={"column"} gap="16px">
@@ -164,7 +175,7 @@ export default function ChatCommandModal({
             />
           </Flex>
         ))}
-        {commandsData.length > 0 && commandsData.length < 3 && (
+        {commandsData.length > 0 && commandsData.length < 5 && (
           <Button
             aria-label="add-chat-command"
             onClick={addCommand}
@@ -179,6 +190,11 @@ export default function ChatCommandModal({
           >
             <AddIcon height="12px" width="12px" color={"white"} />
           </Button>
+        )}
+        {errorMessage && (
+          <Text textAlign={"center"} color="red.400">
+            {errorMessage}
+          </Text>
         )}
       </Flex>
     </TransactionModalTemplate>

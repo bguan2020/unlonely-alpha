@@ -195,7 +195,12 @@ const MessageBody = ({
                         textAlign="left"
                         p={"5px"}
                       >
-                        {messageText}
+                        {messageText.split("\n").map((line, index) => (
+                          <span key={index}>
+                            {line}
+                            <br />
+                          </span>
+                        ))}
                       </Text>
                     )}
                   </>

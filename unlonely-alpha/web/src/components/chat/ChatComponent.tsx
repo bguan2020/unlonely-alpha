@@ -15,7 +15,6 @@ import {
   Grid,
   GridItem,
   Spinner,
-  Image,
   Tooltip,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -283,7 +282,17 @@ const AblyChatComponent = ({
     let messageToPublish = "";
     let allowPublish = false;
 
-    if (messageText.startsWith(BaseChatCommand.CHATBOT)) {
+    if (messageText.startsWith("@")) {
+      messageToPublish = "seems you're trying to use commands. try !commands";
+      allowPublish = true;
+    } else if (messageText.startsWith(BaseChatCommand.COMMANDS)) {
+      messageToPublish = `${BaseChatCommand.CHATBOT}\n${
+        BaseChatCommand.CLIP
+      }\n${BaseChatCommand.RULES}\n${channelChatCommands
+        .map((c) => `!${c.command}`)
+        .join("\n")}`;
+      allowPublish = true;
+    } else if (messageText.startsWith(BaseChatCommand.CHATBOT)) {
       const prompt = messageText.substring(9);
       const res = await fetch("/api/openai", {
         body: JSON.stringify({
@@ -662,17 +671,7 @@ const AblyChatComponent = ({
                       {holders.map((holder, index) => (
                         <Tr>
                           <Td fontSize={"20px"} p="10px" textAlign="center">
-                            {index + 1 <= 3 ? (
-                              <Flex justifyContent={"center"}>
-                                <Image
-                                  src={`/svg/holder-${index + 1}.svg`}
-                                  width="20px"
-                                  height="20px"
-                                />
-                              </Flex>
-                            ) : (
-                              index + 1
-                            )}
+                            {index + 1}
                           </Td>
                           <Td fontSize={"20px"} p="10px" textAlign="center">
                             {holder.name}
