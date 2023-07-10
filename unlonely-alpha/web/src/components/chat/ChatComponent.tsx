@@ -517,8 +517,10 @@ const AblyChatComponent = ({
                       justifyItems="center"
                     >
                       <GridItem>
-                        <Tooltip label={"control Text on the stream"}>
-                          <ControlButton callback={handleControlModal} />
+                        <Tooltip label={"control text on the stream"}>
+                          <span>
+                            <ControlButton callback={handleControlModal} />
+                          </span>
                         </Tooltip>
                       </GridItem>
                       {/* <GridItem>
@@ -537,12 +539,16 @@ const AblyChatComponent = ({
                       </GridItem> */}
                       <GridItem>
                         <Tooltip label={"control the streamer"}>
-                          <CustomButton callback={handleCustomModal} />
+                          <span>
+                            <CustomButton callback={handleCustomModal} />
+                          </span>
                         </Tooltip>
                       </GridItem>
                       <GridItem>
                         <Tooltip label={"tip the streamer"}>
-                          <CoinButton callback={handleTipModal} />
+                          <span>
+                            <CoinButton callback={handleTipModal} />
+                          </span>
                         </Tooltip>
                       </GridItem>
                     </Grid>

@@ -246,14 +246,20 @@ const ChannelPage = () => {
                                   justifyItems="flex-start"
                                 >
                                   <Tooltip label={"control text on the stream"}>
-                                    <ControlButton
-                                      callback={() => setShowControlModal(true)}
-                                    />
+                                    <span>
+                                      <ControlButton
+                                        callback={() =>
+                                          setShowControlModal(true)
+                                        }
+                                      />
+                                    </span>
                                   </Tooltip>
                                   <Tooltip label={"tip the streamer"}>
-                                    <CoinButton
-                                      callback={() => setShowTipModal(true)}
-                                    />
+                                    <span>
+                                      <CoinButton
+                                        callback={() => setShowTipModal(true)}
+                                      />
+                                    </span>
                                   </Tooltip>
                                   {/* <Tooltip label={"coming soon"}>
                                   <span>
@@ -261,9 +267,13 @@ const ChannelPage = () => {
                                   </span>
                                 </Tooltip> */}
                                   <Tooltip label={"control the streamer"}>
-                                    <CustomButton
-                                      callback={() => setShowCustomModal(true)}
-                                    />
+                                    <span>
+                                      <CustomButton
+                                        callback={() =>
+                                          setShowCustomModal(true)
+                                        }
+                                      />
+                                    </span>
                                   </Tooltip>
                                   {/* <Tooltip label={"coming soon"}>
                                     <span>
