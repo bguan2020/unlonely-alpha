@@ -27,10 +27,10 @@ import Participants from "../presence/Participants";
 import { useUser } from "../../hooks/context/useUser";
 import MessageList from "./MessageList";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
-import SwordButton from "../arcade/SwordButton";
+// import SwordButton from "../arcade/SwordButton";
 import CoinButton from "../arcade/CoinButton";
 import ControlButton from "../arcade/ControlButton";
-import DiceButton from "../arcade/DiceButton";
+// import DiceButton from "../arcade/DiceButton";
 import { useScrollPercentage } from "../../hooks/internal/useScrollPercentage";
 import {
   NULL_ADDRESS,
@@ -45,6 +45,7 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { isAddress } from "viem";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { ChatCommand } from "../../generated/graphql";
+import CustomButton from "../arcade/CustomButton";
 
 type Props = {
   username: string | null | undefined;
@@ -54,6 +55,7 @@ type Props = {
   handlePvpModal?: () => void;
   handleTipModal?: () => void;
   handleBuyModal?: () => void;
+  handleCustomModal?: () => void;
 };
 
 const AblyChatComponent = ({
@@ -64,6 +66,7 @@ const AblyChatComponent = ({
   handlePvpModal,
   handleTipModal,
   handleBuyModal,
+  handleCustomModal,
 }: Props) => {
   const {
     channel: channelContext,
@@ -514,24 +517,33 @@ const AblyChatComponent = ({
                       justifyItems="center"
                     >
                       <GridItem>
-                        <ControlButton callback={handleControlModal} />
+                        <Tooltip label={"control Text on the stream"}>
+                          <ControlButton callback={handleControlModal} />
+                        </Tooltip>
                       </GridItem>
-                      <GridItem>
+                      {/* <GridItem>
                         <Tooltip label={"coming soon"}>
                           <span>
                             <DiceButton noHover />
                           </span>
                         </Tooltip>
-                      </GridItem>
-                      <GridItem>
+                      </GridItem> */}
+                      {/* <GridItem>
                         <Tooltip label={"coming soon"}>
                           <span>
                             <SwordButton noHover />
                           </span>
                         </Tooltip>
+                      </GridItem> */}
+                      <GridItem>
+                        <Tooltip label={"control the streamer"}>
+                          <CustomButton callback={handleCustomModal} />
+                        </Tooltip>
                       </GridItem>
                       <GridItem>
-                        <CoinButton callback={handleTipModal} />
+                        <Tooltip label={"tip the streamer"}>
+                          <CoinButton callback={handleTipModal} />
+                        </Tooltip>
                       </GridItem>
                     </Grid>
                   </>
@@ -570,7 +582,7 @@ const AblyChatComponent = ({
                         </span>
                       </Tooltip>
                     </GridItem>
-                    <GridItem>
+                    {/* <GridItem>
                       <Tooltip
                         label={!user ? "connect wallet first" : "not available"}
                       >
@@ -578,8 +590,8 @@ const AblyChatComponent = ({
                           <DiceButton />
                         </span>
                       </Tooltip>
-                    </GridItem>
-                    <GridItem>
+                    </GridItem> */}
+                    {/* <GridItem>
                       <Tooltip
                         label={!user ? "connect wallet first" : "not available"}
                       >
@@ -587,7 +599,7 @@ const AblyChatComponent = ({
                           <SwordButton />
                         </span>
                       </Tooltip>
-                    </GridItem>
+                    </GridItem> */}
                   </Grid>
                 </>
               )}

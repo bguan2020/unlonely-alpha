@@ -17,7 +17,7 @@ import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
 import CustomButton from "../../components/arcade/CustomButton";
 // import DiceButton from "../../components/arcade/DiceButton";
-import SwordButton from "../../components/arcade/SwordButton";
+// import SwordButton from "../../components/arcade/SwordButton";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import AblyChatComponent from "../../components/chat/ChatComponent";
 import AppLayout from "../../components/layout/AppLayout";
@@ -27,7 +27,7 @@ import BuyTransactionModal from "../../components/transactions/BuyTransactionMod
 import ChanceTransactionModal from "../../components/transactions/ChanceTransactionModal";
 import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
 import CustomTransactionModal from "../../components/transactions/CustomTransactionModal";
-import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
+// import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
 import TipTransactionModal from "../../components/transactions/TipTransactionModal";
 import { ChatBot } from "../../constants/types";
 import {
@@ -177,7 +177,7 @@ const ChannelPage = () => {
               handleClose={handleClose}
               addToChatbot={addToChatbot}
             />
-            <PvpTransactionModal
+            {/* <PvpTransactionModal
               icon={
                 <Image
                   alt="sword"
@@ -190,7 +190,7 @@ const ChannelPage = () => {
               isOpen={showPvpModal}
               handleClose={handleClose}
               addToChatbot={addToChatbot}
-            />
+            /> */}
             <Stack direction="column" mt={"1rem"}>
               <Stack
                 mx={[0, 8, 4]}
@@ -245,25 +245,31 @@ const ChannelPage = () => {
                                   alignItems="flex-start"
                                   justifyItems="flex-start"
                                 >
-                                  <ControlButton
-                                    callback={() => setShowControlModal(true)}
-                                  />
-                                  <CoinButton
-                                    callback={() => setShowTipModal(true)}
-                                  />
+                                  <Tooltip label={"control text on the stream"}>
+                                    <ControlButton
+                                      callback={() => setShowControlModal(true)}
+                                    />
+                                  </Tooltip>
+                                  <Tooltip label={"tip the streamer"}>
+                                    <CoinButton
+                                      callback={() => setShowTipModal(true)}
+                                    />
+                                  </Tooltip>
                                   {/* <Tooltip label={"coming soon"}>
                                   <span>
                                     <DiceButton noHover />
                                   </span>
                                 </Tooltip> */}
-                                  <CustomButton
-                                    callback={() => setShowCustomModal(true)}
-                                  />
-                                  <Tooltip label={"coming soon"}>
+                                  <Tooltip label={"control the streamer"}>
+                                    <CustomButton
+                                      callback={() => setShowCustomModal(true)}
+                                    />
+                                  </Tooltip>
+                                  {/* <Tooltip label={"coming soon"}>
                                     <span>
                                       <SwordButton noHover />
                                     </span>
-                                  </Tooltip>
+                                  </Tooltip> */}
                                 </Grid>
                                 <BuyButton
                                   tokenName={`$${channelBySlug?.token?.symbol}`}
@@ -314,7 +320,7 @@ const ChannelPage = () => {
                                     <CustomButton />
                                   </span>
                                 </Tooltip>
-                                <Tooltip
+                                {/* <Tooltip
                                   label={
                                     !user
                                       ? "connect wallet first"
@@ -324,7 +330,7 @@ const ChannelPage = () => {
                                   <span>
                                     <SwordButton />
                                   </span>
-                                </Tooltip>
+                                </Tooltip> */}
                               </Grid>
                               <Tooltip
                                 label={
@@ -371,6 +377,7 @@ const ChannelPage = () => {
                       handleChanceModal={() => setShowChanceModal(true)}
                       handlePvpModal={() => setShowPvpModal(true)}
                       handleControlModal={() => setShowControlModal(true)}
+                      handleCustomModal={() => setShowCustomModal(true)}
                     />
                   </Container>
                 </Flex>
