@@ -188,6 +188,8 @@ const ClipDetail = () => {
     if (!writeAsync) {
       setFormError(["Error Minting NFT"]);
       return;
+    } else {
+      setFormError(null);
     }
 
     writeAsync();
@@ -308,6 +310,7 @@ const ClipDetail = () => {
                               fontWeight="medium"
                               w="100%"
                               padding="auto"
+                              color="black"
                               {...register("title")}
                             />
                             <FormErrorMessage>
@@ -325,8 +328,9 @@ const ClipDetail = () => {
                                   </>
                                 ) : (
                                   <Button
+                                    color="black"
                                     bg="#FFCC15"
-                                    _hover={{ bg: "black" }}
+                                    _hover={{ bg: "white" }}
                                     type="submit"
                                     isLoading={isTxLoading || loading}
                                     loadingText="Minting..."
