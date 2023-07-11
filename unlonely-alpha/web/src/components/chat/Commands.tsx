@@ -17,7 +17,7 @@ type Props = {
 
 const commandList: Command[] = [
   {
-    name: BaseChatCommand.CLIP.concat(" [title]"),
+    name: BaseChatCommand.CLIP.concat(""),
     description: "Make a clip that becomes a NFT.",
     value: BaseChatCommand.CLIP.concat(" "),
   },

@@ -10,7 +10,7 @@ import {
   Button,
   useToast,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/router";
@@ -170,7 +170,7 @@ const ClipDetail = () => {
     }
   }, [isTxSuccess, txData]);
 
-  const submitNFC = async () => {
+  const submitNFC = useCallback(async () => {
     const { title } = watch();
     // first upload to ipfs
     // then mint nft
@@ -179,14 +179,21 @@ const ClipDetail = () => {
       setFormError(["Error Minting NFT"]);
       return;
     }
+  }, [clipUrl, user?.address]);
+
+  useEffect(() => {
+    if (!uri) return;
+    console.log("minting", uri, user?.address, writeAsync);
 
     if (!writeAsync) {
       setFormError(["Error Minting NFT"]);
       return;
+    } else {
+      setFormError(null);
     }
 
     writeAsync();
-  };
+  }, [uri, writeAsync]);
 
   const uploadToIPFS = async (name: string, clipUrl: string) => {
     // destructing. getting value of name, desc and price from formInput.
@@ -303,6 +310,7 @@ const ClipDetail = () => {
                               fontWeight="medium"
                               w="100%"
                               padding="auto"
+                              color="black"
                               {...register("title")}
                             />
                             <FormErrorMessage>
@@ -320,8 +328,9 @@ const ClipDetail = () => {
                                   </>
                                 ) : (
                                   <Button
+                                    color="black"
                                     bg="#FFCC15"
-                                    _hover={{ bg: "black" }}
+                                    _hover={{ bg: "white" }}
                                     type="submit"
                                     isLoading={isTxLoading || loading}
                                     loadingText="Minting..."

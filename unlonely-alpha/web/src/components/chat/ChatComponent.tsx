@@ -247,6 +247,7 @@ const AblyChatComponent = ({
     if (user) {
       // postFirstChat comes before channel.publish b/c it will set the signat
       // subsequent chats do not need to call postFirstChat first
+
       if (!user.signature) {
         await postFirstChat(
           { text: messageText, channelId: channelId },
@@ -516,13 +517,6 @@ const AblyChatComponent = ({
                       alignItems="center"
                       justifyItems="center"
                     >
-                      <GridItem>
-                        <Tooltip label={"control text on the stream"}>
-                          <span>
-                            <ControlButton callback={handleControlModal} />
-                          </span>
-                        </Tooltip>
-                      </GridItem>
                       {/* <GridItem>
                         <Tooltip label={"coming soon"}>
                           <span>
@@ -541,6 +535,13 @@ const AblyChatComponent = ({
                         <Tooltip label={"control the streamer"}>
                           <span>
                             <CustomButton callback={handleCustomModal} />
+                          </span>
+                        </Tooltip>
+                      </GridItem>
+                      <GridItem>
+                        <Tooltip label={"control text on the stream"}>
+                          <span>
+                            <ControlButton callback={handleControlModal} />
                           </span>
                         </Tooltip>
                       </GridItem>
@@ -570,6 +571,15 @@ const AblyChatComponent = ({
                     alignItems="center"
                     justifyItems="center"
                   >
+                    <GridItem>
+                      <Tooltip
+                        label={!user ? "connect wallet first" : "not available"}
+                      >
+                        <span>
+                          <CustomButton />
+                        </span>
+                      </Tooltip>
+                    </GridItem>
                     <GridItem>
                       <Tooltip
                         label={!user ? "connect wallet first" : "not available"}
