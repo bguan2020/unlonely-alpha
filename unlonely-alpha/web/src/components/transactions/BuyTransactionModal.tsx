@@ -286,7 +286,7 @@ export default function BuyTransactionModal({
           </Text>
         )}
         <Text textAlign={"right"} fontSize="25px" color="#BABABA">
-          cost: {`${truncateValue(formatUnits(amountIn, 18) ?? "0", 3)} eth`}
+          cost: {`${truncateValue(formatUnits(amountIn, 18) ?? "0", 5)} eth`}
         </Text>
       </Flex>
     </TransactionModalTemplate>
