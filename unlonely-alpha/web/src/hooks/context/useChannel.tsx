@@ -134,7 +134,10 @@ export const ChannelProvider = ({
   });
 
   const userRank = useMemo(
-    () => userRankData?.getUserTokenHolding,
+    () =>
+      channelData?.getChannelBySlug?.token?.address
+        ? userRankData?.getUserTokenHolding
+        : -1,
     [userRankData]
   );
 

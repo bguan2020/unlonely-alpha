@@ -245,11 +245,11 @@ const ChannelPage = () => {
                                   alignItems="flex-start"
                                   justifyItems="flex-start"
                                 >
-                                  <Tooltip label={"control text on the stream"}>
+                                  <Tooltip label={"control the streamer"}>
                                     <span>
-                                      <ControlButton
+                                      <CustomButton
                                         callback={() =>
-                                          setShowControlModal(true)
+                                          setShowCustomModal(true)
                                         }
                                       />
                                     </span>
@@ -266,11 +266,11 @@ const ChannelPage = () => {
                                     <DiceButton noHover />
                                   </span>
                                 </Tooltip> */}
-                                  <Tooltip label={"control the streamer"}>
+                                  <Tooltip label={"control text on the stream"}>
                                     <span>
-                                      <CustomButton
+                                      <ControlButton
                                         callback={() =>
-                                          setShowCustomModal(true)
+                                          setShowControlModal(true)
                                         }
                                       />
                                     </span>
@@ -305,7 +305,7 @@ const ChannelPage = () => {
                                   }
                                 >
                                   <span>
-                                    <ControlButton />
+                                    <CustomButton />
                                   </span>
                                 </Tooltip>
                                 <Tooltip
@@ -327,7 +327,7 @@ const ChannelPage = () => {
                                   }
                                 >
                                   <span>
-                                    <CustomButton />
+                                    <ControlButton />
                                   </span>
                                 </Tooltip>
                                 {/* <Tooltip

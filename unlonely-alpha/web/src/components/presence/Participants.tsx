@@ -49,10 +49,12 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
     if (presenceData) {
       // update my presence data to include my user data
       updateStatus({
-        user: {
-          ...user,
-          tokenHolderRank: userRank,
-        },
+        user: user
+          ? {
+              ...user,
+              tokenHolderRank: userRank,
+            }
+          : undefined,
       });
     }
   }, [user, userRank]);
