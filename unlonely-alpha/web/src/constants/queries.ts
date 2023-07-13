@@ -87,3 +87,23 @@ export const GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY = gql`
     }
   }
 `;
+
+export const GET_ALL_DEVICE_TOKENS = gql`
+  query GetAllDevices {
+    getAllDevices {
+      token
+      notificationsLive
+      notificationsNFCs
+      address
+    }
+  }
+`;
+
+export const GET_ALL_USERS_WITH_CHANNEL = gql`
+  query GetAllUsersWithChannel {
+    getAllUsersWithChannel {
+      address
+      username
+    }
+  }
+`;

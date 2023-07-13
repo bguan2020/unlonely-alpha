@@ -11,7 +11,6 @@ import {
   Divider,
   Flex,
   Heading,
-  Image,
   Input,
   Progress,
   Stack,
@@ -25,13 +24,18 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 
 import NextHead from "../../components/layout/NextHead";
 import { splitArray } from "../../utils/splitArray";
 import { useUser } from "../../hooks/context/useUser";
 import { User } from "../../generated/graphql";
 import AppLayout from "../../components/layout/AppLayout";
+import {
+  GET_ALL_USERS_WITH_CHANNEL,
+  GET_ALL_DEVICE_TOKENS,
+} from "../../constants/queries";
+import { PreviewNotification } from "../../components/mobile/PreviewNotification";
 
 type DeviceNotificationsType = {
   address: string | null;
@@ -39,26 +43,6 @@ type DeviceNotificationsType = {
   notificationsLive: boolean;
   notificationsNFCs: boolean;
 };
-
-const GET_ALL_DEVICE_TOKENS = gql`
-  query GetAllDevices {
-    getAllDevices {
-      token
-      notificationsLive
-      notificationsNFCs
-      address
-    }
-  }
-`;
-
-const GET_ALL_USERS_WITH_CHANNEL = gql`
-  query GetAllUsersWithChannel {
-    getAllUsersWithChannel {
-      address
-      username
-    }
-  }
-`;
 
 export default function MobileNotifications() {
   const { user } = useUser();
@@ -308,19 +292,6 @@ export default function MobileNotifications() {
                             }
                           />
                         </TabPanel>
-                        {/* <TabPanel padding={0} pt={3}>
-                          <Input
-                            defaultValue={titleNFCs}
-                            mb={2}
-                            color="gray.500"
-                            onChange={(event) => setTitleNFCs(event.target.value)}
-                          />
-                          <Input
-                            defaultValue={bodyNFCs}
-                            color="gray.500"
-                            onChange={(event) => setBodyNFCs(event.target.value)}
-                          />
-                        </TabPanel> */}
                       </TabPanels>
                     </Tabs>
                     <Button
@@ -450,74 +421,3 @@ export default function MobileNotifications() {
     </AppLayout>
   );
 }
-
-const PreviewNotification = ({
-  selectedType,
-  titleLive,
-  titleNFCs,
-  bodyLive,
-  bodyNFCs,
-}: {
-  selectedType: string;
-  titleLive: string;
-  titleNFCs: string;
-  bodyLive: string;
-  bodyNFCs: string;
-}) => (
-  <Box
-    backdropBlur={"6px"}
-    backgroundColor="rgba(0,0,0,0.8)"
-    padding="16px"
-    borderRadius={"26px"}
-    width={["100%", "390px"]}
-  >
-    <Flex alignItems={"center"}>
-      <Image
-        src="https://imgur.com/RiQqM30.png"
-        w="40px"
-        borderRadius={"10px"}
-      ></Image>
-      <Box pl={3} w="100%">
-        <Flex justifyContent={"space-between"} w="100%">
-          <Text
-            fontSize="md"
-            color="gray.500"
-            fontWeight={"bold"}
-            fontFamily="system-ui"
-            lineHeight={1.2}
-            noOfLines={1}
-          >
-            {selectedType === "live" ? titleLive : titleNFCs}
-          </Text>
-          <Text
-            fontSize="md"
-            color="gray.700"
-            fontFamily="system-ui"
-            lineHeight={1.2}
-            textAlign={"right"}
-            pl="30px"
-          >
-            now
-          </Text>
-        </Flex>
-        <Text
-          fontSize="md"
-          color="gray.500"
-          fontFamily="system-ui"
-          lineHeight={1.2}
-          noOfLines={4}
-          pt={"2px"}
-          pr={
-            bodyLive.length > 75
-              ? "56px"
-              : "0px" || bodyNFCs.length > 75
-              ? "56px"
-              : "0px"
-          }
-        >
-          {selectedType === "live" ? bodyLive : bodyNFCs}
-        </Text>
-      </Box>
-    </Flex>
-  </Box>
-);
