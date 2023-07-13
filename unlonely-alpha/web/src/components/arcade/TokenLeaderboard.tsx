@@ -52,19 +52,21 @@ const TokenLeaderboard = ({ callback }: { callback?: () => void }) => {
 
   const datasetCapped = useMemo(
     () =>
-      dataset.map((d, i) => {
-        return {
-          data: [
-            `${i + 1}`,
-            d.symbol,
-            d.price,
-            d.holders,
-            d.channel.owner.username ??
-              centerEllipses(d.channel.owner.address, 10),
-          ],
-          channelLink: d.channel.slug,
-        };
-      }),
+      dataset
+        .map((d, i) => {
+          return {
+            data: [
+              `${i + 1}`,
+              d.symbol,
+              d.price,
+              d.holders,
+              d.channel.owner.username ??
+                centerEllipses(d.channel.owner.address, 10),
+            ],
+            channelLink: d.channel.slug,
+          };
+        })
+        .slice(0, itemsShown),
     [dataset, itemsShown]
   );
 

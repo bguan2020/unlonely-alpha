@@ -3,7 +3,8 @@ import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useApproval } from "../../hooks/contracts/useApproval";
-import { Flex, Text, useToast } from "@chakra-ui/react";
+import { Box, Flex, Text, useToast } from "@chakra-ui/react";
+import Link from "next/link";
 import { parseUnits } from "viem";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import { useUser } from "../../hooks/context/useUser";
@@ -50,22 +51,38 @@ export default function TokenSaleModal({
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "approve",
-          description: "pending",
-          status: "info",
           duration: 9000,
           isClosable: true,
           position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                approve pending, click to view
+              </Link>
+            </Box>
+          ),
         });
       },
       onTxSuccess: (data) => {
         toast({
-          title: "approve",
-          description: "success",
-          status: "success",
           duration: 9000,
           isClosable: true,
           position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                approve success, click to view
+              </Link>
+            </Box>
+          ),
         });
         callback?.();
         handleClose();

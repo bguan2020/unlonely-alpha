@@ -1,4 +1,4 @@
-import { Text, Input, Flex, useToast } from "@chakra-ui/react";
+import { Text, Input, Flex, useToast, Box } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../hooks/context/useUser";
 import { ChatBot } from "../../constants/types";
@@ -19,6 +19,7 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import Link from "next/link";
 
 export default function TipTransactionModal({
   title,
@@ -75,9 +76,17 @@ export default function TipTransactionModal({
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "approve",
-          description: "pending",
-          status: "info",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                approve pending, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -85,9 +94,17 @@ export default function TipTransactionModal({
       },
       onTxSuccess: (data) => {
         toast({
-          title: "approve",
-          description: "success",
-          status: "success",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                approve success, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -118,9 +135,17 @@ export default function TipTransactionModal({
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "useFeature",
-          description: "pending",
-          status: "info",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                useFeature pending, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -128,9 +153,17 @@ export default function TipTransactionModal({
       },
       onTxSuccess: (data) => {
         toast({
-          title: "useFeature",
-          description: "success",
-          status: "success",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                useFeature success, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
