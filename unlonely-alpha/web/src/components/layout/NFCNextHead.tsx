@@ -57,7 +57,10 @@ const NFCNextHead: React.FC<{
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@bdguan" />
       <meta name="twitter:title" content={`${nfc.title} | NFC`} />
-      <meta name="twitter:description" content="Never watch alone again." />
+      <meta
+        name="twitter:description"
+        content="Your cozy space on the internet. View live channels & start streaming today."
+      />
       <meta name="twitter:creator" content="@bdguan" />
       <meta
         name="twitter:image"
