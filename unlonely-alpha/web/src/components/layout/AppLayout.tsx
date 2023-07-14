@@ -80,7 +80,7 @@ const AppLayout: React.FC<Props> = ({
       >
         {isCustomHeader === false ? (
           <NextHead
-            title="Unlonely"
+            title=""
             image={image ? image : ""}
             description={description ? description : ""}
             pageUrl={pageUrl ? pageUrl : ""}
