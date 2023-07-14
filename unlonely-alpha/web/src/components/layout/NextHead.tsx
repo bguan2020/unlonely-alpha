@@ -4,11 +4,15 @@ const NextHead: React.FC<{
   title: string;
   image: string;
   description: string;
-}> = ({ title, image, description }) => {
-  const __title: string = title || "Unlonely";
+  pageUrl?: string;
+}> = ({ title, image, description, pageUrl }) => {
+  const __title = `Unlonely${title ? ` | ${title}` : ""}`;
   const __image = image === "" ? "/images/social_banner.png" : image;
   const __description =
-    description === "" ? "Never watch alone again" : description;
+    description === ""
+      ? "Your cozy space on the internet. View live channels & start streaming today."
+      : description;
+  const __pageUrl = pageUrl ?? "";
   return (
     <Head>
       <link
@@ -34,7 +38,7 @@ const NextHead: React.FC<{
       <meta name="description" content={__description} />
 
       <meta property="og:title" content={__title} />
-      <meta property="og:url" content="https://unlonely.app" />
+      <meta property="og:url" content={`https://unlonely.app${__pageUrl}`} />
       <meta property="og:locale" content="en_US" />
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content={__title} />

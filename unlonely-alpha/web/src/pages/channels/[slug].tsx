@@ -105,6 +105,8 @@ const ChannelPage = () => {
       <AppLayout
         title={channelBySlug?.name}
         image={channelBySlug?.owner?.FCImageUrl}
+        pageUrl={`/channels/${channelBySlug?.slug}`}
+        description={channelBySlug?.description}
         isCustomHeader={true}
       >
         {!queryLoading && !channelDataError ? (
