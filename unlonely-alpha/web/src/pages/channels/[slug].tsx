@@ -10,8 +10,10 @@ import {
   Tooltip,
   useBreakpointValue,
 } from "@chakra-ui/react";
+import { GetServerSidePropsContext } from "next";
 import React, { useCallback, useMemo, useState } from "react";
 import { isAddress } from "viem";
+import { initializeApollo } from "../../apiClient/client";
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
@@ -29,7 +31,9 @@ import ControlTransactionModal from "../../components/transactions/ControlTransa
 import CustomTransactionModal from "../../components/transactions/CustomTransactionModal";
 // import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
 import TipTransactionModal from "../../components/transactions/TipTransactionModal";
+import { CHANNEL_DETAIL_QUERY } from "../../constants/queries";
 import { ChatBot } from "../../constants/types";
+import { ChannelDetailQuery } from "../../generated/graphql";
 import {
   ChannelProvider,
   useChannelContext,
@@ -37,15 +41,28 @@ import {
 import { useUser } from "../../hooks/context/useUser";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 
-const ChannelDetail = () => {
+const ChannelDetail = ({
+  channelData,
+}: {
+  channelData: ChannelDetailQuery;
+}) => {
+  const channelSSR = useMemo(
+    () => channelData?.getChannelBySlug,
+    [channelData]
+  );
+
   return (
     <ChannelProvider>
-      <ChannelPage />
+      <ChannelPage channelSSR={channelSSR} />
     </ChannelProvider>
   );
 };
 
-const ChannelPage = () => {
+const ChannelPage = ({
+  channelSSR,
+}: {
+  channelSSR: ChannelDetailQuery["getChannelBySlug"];
+}) => {
   const { channel, recentStreamInteractions } = useChannelContext();
   const {
     channelBySlug,
@@ -101,12 +118,12 @@ const ChannelPage = () => {
 
   return (
     <>
-      {channelBySlug && <ChannelNextHead channel={channelBySlug} />}
+      {channelSSR && <ChannelNextHead channel={channelSSR} />}
       <AppLayout
-        title={channelBySlug?.name}
-        image={channelBySlug?.owner?.FCImageUrl}
-        pageUrl={`/channels/${channelBySlug?.slug}`}
-        description={channelBySlug?.description}
+        title={channelSSR?.name}
+        image={channelSSR?.owner?.FCImageUrl}
+        pageUrl={`/channels/${channelSSR?.slug}`}
+        description={channelSSR?.description}
         isCustomHeader={true}
       >
         {!queryLoading && !channelDataError ? (
@@ -432,3 +449,18 @@ const ChannelPage = () => {
 };
 
 export default ChannelDetail;
+
+export async function getServerSideProps(
+  context: GetServerSidePropsContext<{ slug: string }>
+) {
+  const { slug } = context.params!;
+
+  const apolloClient = initializeApollo(null, context.req.cookies, true);
+
+  const { data, error } = await apolloClient.query({
+    query: CHANNEL_DETAIL_QUERY,
+    variables: { slug },
+  });
+
+  return { props: { channelData: data } };
+}
