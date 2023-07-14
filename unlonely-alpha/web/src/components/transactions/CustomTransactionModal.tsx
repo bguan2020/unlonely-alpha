@@ -409,27 +409,35 @@ export default function CustomTransactionModal({
           </>
         ) : (
           <>
-            <Text textAlign={"center"} fontSize="25px" color="#BABABA">
-              you own{" "}
-              {`${truncateValue(userTokenBalance?.formatted ?? "0", 3)} $${
-                channelBySlug?.token?.symbol
-              }`}
-            </Text>
-            <Flex gap="10px" alignItems="center" justifyContent={"center"}>
-              <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
-                action:
-              </Text>
-              <Text fontSize="30px">{currentRequest}</Text>
-            </Flex>
-            <Flex gap="10px" alignItems="center" justifyContent={"center"}>
-              <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
-                price:
-              </Text>
-              <Text fontSize="30px">{currentPrice}</Text>
-            </Flex>
-            {errorMessage && (
-              <Text textAlign={"center"} color="red.400">
-                {errorMessage}
+            {channelBySlug?.customButtonAction ? (
+              <>
+                <Text textAlign={"center"} fontSize="25px" color="#BABABA">
+                  you own{" "}
+                  {`${truncateValue(userTokenBalance?.formatted ?? "0", 3)} $${
+                    channelBySlug?.token?.symbol
+                  }`}
+                </Text>
+                <Flex gap="10px" alignItems="center" justifyContent={"center"}>
+                  <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
+                    action:
+                  </Text>
+                  <Text fontSize="30px">{currentRequest}</Text>
+                </Flex>
+                <Flex gap="10px" alignItems="center" justifyContent={"center"}>
+                  <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
+                    price:
+                  </Text>
+                  <Text fontSize="30px">{currentPrice}</Text>
+                </Flex>
+                {errorMessage && (
+                  <Text textAlign={"center"} color="red.400">
+                    {errorMessage}
+                  </Text>
+                )}
+              </>
+            ) : (
+              <Text fontSize="20px" textAlign={"center"}>
+                streamer hasn't set a custom action yet
               </Text>
             )}
           </>
