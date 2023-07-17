@@ -127,9 +127,11 @@ function MainContent() {
   );
   // const isBrian = true;
 
-  const titleLive = useMemo(() => {
-    return `🔴 ${user?.channel?.[0]?.slug} is live on unlonely!`;
-  }, [user]);
+  // const titleLive = useMemo(() => {
+  //   return `🔴 ${user?.channel?.[0]?.slug} is live on unlonely!`;
+  // }, [user]);
+
+  const titleLive = useMemo(() => "IGNORE THIS: testing notifications", [user]);
 
   const [titleNFCs, setTitleNFCs] = useState("new NFCs just dropped");
   const [bodyLive, setBodyLive] = useState("join the stream and hang out");
@@ -158,10 +160,18 @@ function MainContent() {
   }, [data]);
 
   const sendNotifications = useCallback(async () => {
+    console.log("isSending 1", isSending);
     if (isSending) return;
     const devices = selectedType === "live" ? devicesWithLive : devicesWithNFCs;
+    console.log("devices", devices);
+    console.log("devicesWithLive", devicesWithLive);
 
     const deviceChunks = splitArray(devices as [], 20);
+    console.log("deviceChunks", deviceChunks);
+    console.log("titleLive", titleLive);
+    console.log("titleNFCs", titleNFCs);
+    console.log("bodyLive", bodyLive);
+    console.log("bodyNFCs", bodyNFCs);
     deviceChunks.forEach(async (chunk) => {
       const tokens: any[] = [];
       const templates: any[] = [];
