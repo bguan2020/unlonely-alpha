@@ -76,7 +76,7 @@ export default function MobileNotifications() {
     <AppLayout isCustomHeader={false}>
       <Flex direction="column" alignItems={"center"}>
         <NextHead title="Push Notifications" description="send em" image="" />
-        {!isAuthLoading && isAuthed && !authError ? (
+        {!isAuthLoading && isAuthed && !authError && user ? (
           <MainContent />
         ) : (
           <Flex
@@ -86,16 +86,16 @@ export default function MobileNotifications() {
             height="calc(100vh - 64px)"
             fontSize="50px"
           >
-            {isAuthLoading ? (
-              <WavyText text="authenticating..." />
+            {!user ? (
+              <Text fontFamily="Neue Pixel Sans">
+                Unauthenticated. Please connect wallet to continue.
+              </Text>
             ) : authError ? (
               <Text fontFamily="Neue Pixel Sans">
                 server authentication error, please try again later
               </Text>
             ) : (
-              <Text fontFamily="Neue Pixel Sans">
-                Unauthenticated. Please connect wallet to continue.
-              </Text>
+              <WavyText text="authenticating..." />
             )}
           </Flex>
         )}
@@ -128,7 +128,7 @@ function MainContent() {
   // const isBrian = true;
 
   const titleLive = useMemo(() => {
-    return `🔴 ${user?.username} is live on unlonely!`;
+    return `🔴 ${user?.channel?.[0]?.slug} is live on unlonely!`;
   }, [user]);
 
   const [titleNFCs, setTitleNFCs] = useState("new NFCs just dropped");
@@ -261,7 +261,7 @@ function MainContent() {
         <AlertDialogOverlay />
 
         <AlertDialogContent>
-          <AlertDialogHeader>preview notification send</AlertDialogHeader>
+          <AlertDialogHeader>preview send</AlertDialogHeader>
           <AlertDialogCloseButton />
           <AlertDialogBody>
             are you sure you wanna blast all these{" "}
@@ -308,7 +308,7 @@ function MainContent() {
               ml={3}
               onClick={() => {
                 setIsSending(true);
-                // sendNotifications();
+                sendNotifications();
               }}
               disabled={isSending}
               isLoading={isSending}

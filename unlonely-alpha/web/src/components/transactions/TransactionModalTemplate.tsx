@@ -69,8 +69,8 @@ export const TransactionModalTemplate = ({
           top="5px"
         />
         <ModalHeader flex="1" mt="15px">
-          <Flex gap="10px" justifyContent={"space-around"} mx="20px">
-            {icon && icon}
+          <Flex direction="column" gap="10px">
+            {icon && <Flex ml="40px">{icon}</Flex>}
             {title && (
               <Text
                 fontSize="25px"
