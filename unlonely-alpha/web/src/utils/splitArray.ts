@@ -1,5 +1,5 @@
-export function splitArray(arr: [], chunkSize: number) {
-  const result = [];
+export function splitArray<T>(arr: T[], chunkSize: number): T[][] {
+  const result: T[][] = [];
   for (let i = 0; i < arr.length; i += chunkSize) {
     result.push(arr.slice(i, i + chunkSize));
   }

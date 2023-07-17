@@ -1,4 +1,13 @@
 import {
+  GET_ALL_DEVICE_TOKENS,
+  GET_ALL_USERS_WITH_CHANNEL,
+} from "../../constants/queries";
+import { useUser } from "../../hooks/context/useUser";
+import { useLazyQuery, useQuery } from "@apollo/client";
+import { GetAllDevicesQuery, User } from "../../generated/graphql";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import AppLayout from "../../components/layout/AppLayout";
+import {
   AlertDialog,
   AlertDialogBody,
   AlertDialogCloseButton,
@@ -10,35 +19,35 @@ import {
   Button,
   Divider,
   Flex,
-  Heading,
   Input,
   Progress,
-  Stack,
   Tab,
   TabList,
-  TabPanel,
-  TabPanels,
   Tabs,
   Text,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
-import { useLazyQuery, useQuery } from "@apollo/client";
-
 import NextHead from "../../components/layout/NextHead";
+import { WavyText } from "../../components/general/WavyText";
 import { splitArray } from "../../utils/splitArray";
-import { useUser } from "../../hooks/context/useUser";
-import { User } from "../../generated/graphql";
-import AppLayout from "../../components/layout/AppLayout";
-import {
-  GET_ALL_USERS_WITH_CHANNEL,
-  GET_ALL_DEVICE_TOKENS,
-} from "../../constants/queries";
+import { isAddressEqual } from "viem";
 import { PreviewNotification } from "../../components/mobile/PreviewNotification";
 
+const inputStyle = {
+  borderWidth: "1px",
+  borderRadius: "10px",
+  borderColor: "#4d679b",
+  bg: "rgba(36, 79, 167, 0.05)",
+  variant: "unstyled",
+  px: "16px",
+  py: "10px",
+};
+
+const BRIAN = "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa";
+
 type DeviceNotificationsType = {
-  address: string | null;
+  address?: string | null;
   token: string;
   notificationsLive: boolean;
   notificationsNFCs: boolean;
@@ -46,78 +55,130 @@ type DeviceNotificationsType = {
 
 export default function MobileNotifications() {
   const { user } = useUser();
-  const {
-    loading: authLoading,
-    error,
-    data: authData,
-  } = useQuery(GET_ALL_USERS_WITH_CHANNEL);
+  const { error: authError, data: authData } = useQuery(
+    GET_ALL_USERS_WITH_CHANNEL
+  );
   const [isAuthed, setIsAuthed] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+  useEffect(() => {
+    if (authData && user) {
+      const authorizedUsers: User[] = authData.getAllUsersWithChannel.filter(
+        (u: User) => u.address === user?.address
+      );
+      const isAuthenticated = authorizedUsers.length > 0;
+      setIsAuthed(isAuthenticated);
+      setIsAuthLoading(false);
+    }
+  }, [authData, user]);
+
+  return (
+    <AppLayout isCustomHeader={false}>
+      <Flex direction="column" alignItems={"center"}>
+        <NextHead title="Push Notifications" description="send em" image="" />
+        {!isAuthLoading && isAuthed && !authError && user ? (
+          <MainContent />
+        ) : (
+          <Flex
+            alignItems={"center"}
+            justifyContent={"center"}
+            width="100%"
+            height="calc(100vh - 64px)"
+            fontSize="50px"
+          >
+            {!user ? (
+              <Text fontFamily="Neue Pixel Sans">
+                Unauthenticated. Please connect wallet to continue.
+              </Text>
+            ) : authError ? (
+              <Text fontFamily="Neue Pixel Sans">
+                server authentication error, please try again later
+              </Text>
+            ) : (
+              <WavyText text="authenticating..." />
+            )}
+          </Flex>
+        )}
+      </Flex>
+    </AppLayout>
+  );
+}
+
+function MainContent() {
+  const [getAllDeviceTokens, { loading, data }] =
+    useLazyQuery<GetAllDevicesQuery>(GET_ALL_DEVICE_TOKENS, {
+      fetchPolicy: "no-cache",
+    });
+  const { user } = useUser();
+  const [isSending, setIsSending] = useState(false);
+  const [selectedType, setSelectedType] = useState("live");
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
-  const [isSending, setIsSending] = useState(false);
-  const [selectedType, setSelectedType] = useState("live");
-  const placeholderTitleLive = "🔴 brian is live on unlonely!";
-  const placeholderBodyLive = "join the stream and hang out";
-  const placeholderTitleNFCs = "new NFCs just dropped";
-  const placeholderBodyNFCs = "watch some highlights from recent streams";
-  const [titleLive, setTitleLive] = useState(placeholderTitleLive);
-  const [titleNFCs, setTitleNFCs] = useState(placeholderTitleNFCs);
-  const [bodyLive, setBodyLive] = useState(placeholderBodyLive);
-  const [bodyNFCs, setBodyNFCs] = useState(placeholderBodyNFCs);
-  const [getAllDeviceTokens, { loading, data }] = useLazyQuery(
-    GET_ALL_DEVICE_TOKENS,
-    {
-      fetchPolicy: "no-cache",
-    }
+
+  const isBrian = useMemo(
+    () =>
+      user?.address
+        ? isAddressEqual(user?.address as `0x${string}`, BRIAN)
+        : false,
+    [user?.address]
   );
-  const devices = data?.getAllDevices;
 
-  const devicesWithLive = devices?.filter((device: DeviceNotificationsType) => {
-    if (device.notificationsLive) return device;
-  });
-  const devicesWithNFCs = devices?.filter((device: DeviceNotificationsType) => {
-    if (device.notificationsNFCs) return device;
-  });
+  const titleLive = useMemo(() => {
+    return `🔴 ${user?.channel?.[0]?.slug} is live on unlonely!`;
+  }, [user]);
 
-  const sendNotifications = async () => {
+  const [titleNFCs, setTitleNFCs] = useState("new NFCs just dropped");
+  const [bodyLive, setBodyLive] = useState("join the stream and hang out");
+  const [bodyNFCs, setBodyNFCs] = useState(
+    "watch some highlights from recent streams"
+  );
+
+  const devices = useMemo(() => {
+    if (!data?.getAllDevices) return [];
+    return data?.getAllDevices.filter(
+      (device): device is DeviceNotificationsType => device !== null
+    );
+  }, [data]);
+
+  const devicesWithLive = useMemo(() => {
+    return devices?.filter((device) => {
+      if (device?.notificationsLive) return device;
+    });
+  }, [devices]);
+
+  const devicesWithNFCs = useMemo(() => {
+    return devices?.filter((device) => {
+      if (device?.notificationsNFCs) return device;
+    });
+  }, [devices]);
+
+  const sendNotifications = useCallback(async () => {
     if (isSending) return;
-    let devices: any;
+    const devices = selectedType === "live" ? devicesWithLive : devicesWithNFCs;
 
-    if (selectedType === "live") {
-      devices = devicesWithLive;
-    }
-
-    if (selectedType === "nfc") {
-      devices = devicesWithNFCs;
-    }
-
-    // all users are split into arrays of 20
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const deviceChunks = splitArray([devices], 20);
-
-    // each array of 20 users is being looped over
+    const deviceChunks = splitArray<DeviceNotificationsType>(devices, 20);
     deviceChunks.forEach(async (chunk) => {
-      const tokens: any[] = [];
-      const templates: any[] = [];
+      const tokens: string[] = [];
+      const templates: {
+        to: string;
+        title: string;
+        body: string;
+        sound: string;
+        data: any;
+        channelId: string;
+      }[] = [];
 
-      // looping through each user in the array of 20
-      chunk.forEach((deviceChunk: any, index: number) => {
-        // looping through each token in the user
-        deviceChunk.forEach(
-          (device: DeviceNotificationsType, deviceIndex: number) => {
-            const deviceToken = device.token;
-            tokens.push(deviceToken);
-          }
-        );
+      // looping through each device in the array of 20
+      chunk.forEach((d: DeviceNotificationsType) => {
+        tokens.push(d.token);
       });
 
       // preparing notification templates for every token from a single chunk
       // sending requests to all tokens of 20 users at once from a single chunk
-      tokens.forEach((device) => {
+      tokens.forEach((token) => {
         templates.push({
-          to: device,
+          to: token,
           title: selectedType === "live" ? titleLive : titleNFCs,
           body: selectedType === "live" ? bodyLive : bodyNFCs,
           sound: "default",
@@ -128,8 +189,6 @@ export default function MobileNotifications() {
         });
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       const chunkedTemplates = splitArray(templates, 100);
 
       chunkedTemplates.forEach(async (template, index) => {
@@ -170,254 +229,211 @@ export default function MobileNotifications() {
         }
       });
     });
-  };
+  }, [selectedType, devicesWithLive, devicesWithNFCs]);
 
-  // useEffect to check if user is authorized
   useEffect(() => {
-    if (authData && user) {
-      const authorizedUsers: User[] = authData.getAllUsersWithChannel.filter(
-        (u: User) => u.address === user?.address
-      );
-      const isAuthenticated = authorizedUsers.length > 0;
-      setIsAuthed(isAuthenticated);
-    }
-  }, [authData, user]);
-
-  if (authLoading) return <Progress size="xs" isIndeterminate />;
-  if (error) return <Text>Error</Text>;
+    getAllDeviceTokens();
+  }, []);
 
   return (
-    <AppLayout isCustomHeader={false}>
-      <Flex direction={"column"} alignItems="center">
-        <NextHead
-          title="Push Notifications"
-          description="send em"
-          image=""
-        ></NextHead>
-        {isAuthed ? (
-          <>
-            <Flex
-              padding={[4, 16]}
-              justifyContent="center"
-              maxW="1200px"
-              w={"100%"}
-            >
-              <Stack
-                direction={["column", "row"]}
-                spacing="24px"
-                alignItems="flex-start"
-                w={"100%"}
-              >
-                <Box borderWidth="1px" padding="16px" w={["100%", "60%"]}>
-                  {!loading && data ? (
-                    <>
-                      <Flex
-                        direction="row"
-                        justifyContent="space-between"
-                        pb="4px"
-                      >
-                        <p>users w/ notifications on</p>
-                        <Text pl="24px">{devices?.length}</Text>
-                      </Flex>
-                      <Divider></Divider>
-                      <Flex
-                        direction="row"
-                        justifyContent="space-between"
-                        pb="4px"
-                      >
-                        <p>going live</p>
-                        <Text pl="24px">{devicesWithLive?.length}</Text>
-                      </Flex>
-                      <Divider></Divider>
-                    </>
-                  ) : (
-                    <Button
-                      onClick={() => {
-                        getAllDeviceTokens();
-                      }}
-                      isLoading={loading}
-                      loadingText="fetching users"
-                      disabled={loading || isSending}
-                    >
-                      fetch users
-                    </Button>
-                  )}
-                  {loading && (
-                    <Progress
-                      size="sm"
-                      isIndeterminate
-                      width="300px"
-                      height="6px"
-                      borderRadius="32px"
-                      mt={"48px"}
-                    />
-                  )}
-                </Box>
-                <Box w={"100%"} position="sticky" display={"block"} top="32px">
-                  <Box borderWidth="1px" bg="white" padding="32px" w={"100%"}>
-                    <Heading size="md" paddingBottom="16px">
-                      send notification
-                    </Heading>
-                    <Tabs
-                      variant="soft-rounded"
-                      colorScheme="green"
-                      defaultIndex={0}
-                      onChange={(index) => {
-                        if (index === 0) {
-                          setSelectedType("live");
-                        } else {
-                          setSelectedType("nfc");
-                        }
-                      }}
-                    >
-                      <TabList>
-                        <Tab>going live</Tab>
-                        {/* <Tab>new NFCs</Tab> */}
-                      </TabList>
-                      <TabPanels>
-                        <TabPanel padding={0} pt={3}>
-                          <Input
-                            mb={2}
-                            color="gray.500"
-                            defaultValue={titleLive}
-                            onChange={(event) =>
-                              setTitleLive(event.target.value)
-                            }
-                          />
-                          <Input
-                            defaultValue={bodyLive}
-                            color="gray.500"
-                            onChange={(event) =>
-                              setBodyLive(event.target.value)
-                            }
-                          />
-                        </TabPanel>
-                      </TabPanels>
-                    </Tabs>
-                    <Button
-                      onClick={() => {
-                        getAllDeviceTokens();
-                      }}
-                      isLoading={loading}
-                      loadingText=""
-                      colorScheme={"gray"}
-                      mt={3}
-                      mr={3}
-                      disabled={!data || loading || isSending}
-                    >
-                      refetch user list
-                    </Button>
-                    <Button
-                      onClick={onOpen}
-                      isLoading={loading}
-                      loadingText="fetching users"
-                      colorScheme={"blue"}
-                      mt={3}
-                      disabled={!data || loading || isSending}
-                    >
-                      send to{" "}
-                      {selectedType === "live"
-                        ? devicesWithLive?.length
-                        : devicesWithNFCs?.length}{" "}
-                      users
-                    </Button>
-                  </Box>
-                  <Text pb={5} pt={5} textAlign="center">
-                    preview
-                  </Text>
-                  <Flex justifyContent={"center"}>
-                    <PreviewNotification
-                      selectedType={selectedType}
-                      titleLive={titleLive}
-                      titleNFCs={titleNFCs}
-                      bodyLive={bodyLive}
-                      bodyNFCs={bodyNFCs}
-                    />
-                  </Flex>
-                </Box>
-              </Stack>
-            </Flex>
-            <AlertDialog
-              motionPreset="slideInBottom"
+    <Flex
+      alignItems={"center"}
+      justifyContent={"center"}
+      height="calc(100vh - 64px)"
+      fontSize="50px"
+      direction="column"
+      gap="40px"
+    >
+      <AlertDialog
+        motionPreset="slideInBottom"
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+        isOpen={isOpen}
+        isCentered
+      >
+        <AlertDialogOverlay />
+
+        <AlertDialogContent>
+          <AlertDialogHeader>preview send</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>
+            are you sure you wanna blast all these{" "}
+            {selectedType === "live"
+              ? devicesWithLive?.length
+              : devicesWithNFCs?.length}{" "}
+            users with a push notification?
+            <Box h={4}></Box>
+            <PreviewNotification
+              selectedType={selectedType}
+              titleLive={titleLive}
+              titleNFCs={titleNFCs}
+              bodyLive={bodyLive}
+              bodyNFCs={bodyNFCs}
+            />
+            {isSending && (
+              <Box pt={5}>
+                <Progress
+                  size="sm"
+                  isIndeterminate
+                  width="100%"
+                  height="6px"
+                  borderRadius="32px"
+                />
+                <Text fontSize="sm" color="red">
+                  sending. do not close this window!
+                </Text>
+              </Box>
+            )}
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
-              leastDestructiveRef={cancelRef}
-              onClose={onClose}
-              isOpen={isOpen}
-              isCentered
+              ref={cancelRef}
+              onClick={onClose}
+              disabled={isSending}
+              colorScheme="blue"
             >
-              <AlertDialogOverlay />
-
-              <AlertDialogContent>
-                <AlertDialogHeader>send notifications</AlertDialogHeader>
-                <AlertDialogCloseButton />
-                <AlertDialogBody>
-                  are you sure you wanna blast all these{" "}
-                  {selectedType === "live"
-                    ? devicesWithLive?.length
-                    : devicesWithNFCs?.length}{" "}
-                  users with a push notification?
-                  <Box h={4}></Box>
-                  <PreviewNotification
-                    selectedType={selectedType}
-                    titleLive={titleLive}
-                    titleNFCs={titleNFCs}
-                    bodyLive={bodyLive}
-                    bodyNFCs={bodyNFCs}
-                  />
-                  {isSending && (
-                    <Box pt={5}>
-                      <Progress
-                        size="sm"
-                        isIndeterminate
-                        width="100%"
-                        height="6px"
-                        borderRadius="32px"
-                      />
-                      <Text fontSize="sm" color="red">
-                        sending. do not close this window!
-                      </Text>
-                    </Box>
-                  )}
-                </AlertDialogBody>
-                <AlertDialogFooter>
-                  <Button
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    ref={cancelRef}
-                    onClick={onClose}
-                    disabled={isSending}
-                  >
-                    cancel
-                  </Button>
-                  <Button
-                    colorScheme="red"
-                    ml={3}
-                    onClick={() => {
-                      setIsSending(true);
-                      sendNotifications();
-                    }}
-                    disabled={isSending}
-                    isLoading={isSending}
-                    loadingText="sending..."
-                  >
-                    fully send it
-                  </Button>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </>
-        ) : (
-          <Flex
-            justifyContent={"center"}
-            alignItems={"center"}
-            width={"100%"}
-            height={"100vh"}
+              not yet
+            </Button>
+            <Button
+              colorScheme="red"
+              ml={3}
+              onClick={() => {
+                setIsSending(true);
+                sendNotifications();
+              }}
+              disabled={isSending}
+              isLoading={isSending}
+              loadingText="sending..."
+            >
+              fully send it
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {!loading && data ? (
+        <>
+          {isBrian && (
+            <Tabs
+              variant="soft-rounded"
+              colorScheme="green"
+              defaultIndex={0}
+              onChange={(index) => {
+                if (index === 0) {
+                  setSelectedType("live");
+                } else {
+                  setSelectedType("nfc");
+                }
+              }}
+            >
+              <TabList>
+                <Tab>going live</Tab>
+                <Tab>new NFCs</Tab>
+              </TabList>
+            </Tabs>
+          )}
+          <Box
+            borderWidth="1px"
+            borderRadius="10px"
+            padding="16px"
+            borderColor="#dadada"
           >
-            Unauthenticated. Please connect wallet to continue.
-          </Flex>
-        )}
-      </Flex>
-    </AppLayout>
+            <Flex
+              direction="row"
+              justifyContent="space-between"
+              pb="4px"
+              gap="12px"
+            >
+              <Text color="#dadada" fontSize={"15px"}>
+                # of users with notifications on
+              </Text>
+              <Text fontSize={"15px"}>{devices?.length}</Text>
+            </Flex>
+            <Divider />
+            <Flex
+              direction="row"
+              justifyContent="space-between"
+              pb="4px"
+              gap="12px"
+            >
+              <Text color="#dadada" fontSize={"15px"}>
+                going live
+              </Text>
+              <Text fontSize={"15px"}>{devicesWithLive?.length}</Text>
+            </Flex>
+          </Box>
+          <Box borderRadius="10px" padding="16px" bg="#1F2D31" width="100%">
+            <Flex direction="column" mb="15px">
+              {selectedType === "nfc" ? (
+                <Flex direction="column" gap="20px">
+                  <Flex direction="column" gap="10px">
+                    <Text fontSize="15px" color="#bababa">
+                      title
+                    </Text>
+                    <Input
+                      {...inputStyle}
+                      defaultValue={titleNFCs}
+                      onChange={(event) => setTitleNFCs(event.target.value)}
+                    />
+                  </Flex>
+                  <Flex direction="column" gap="10px">
+                    <Text fontSize="15px" color="#bababa">
+                      description
+                    </Text>
+                    <Input
+                      {...inputStyle}
+                      defaultValue={bodyNFCs}
+                      onChange={(event) => setBodyNFCs(event.target.value)}
+                    />
+                  </Flex>
+                </Flex>
+              ) : (
+                <Flex direction="column" gap="10px">
+                  <Text fontSize="15px" color="#dadada">
+                    description
+                  </Text>
+                  <Input
+                    {...inputStyle}
+                    defaultValue={bodyLive}
+                    onChange={(event) => setBodyLive(event.target.value)}
+                  />
+                </Flex>
+              )}
+            </Flex>
+            <Button
+              onClick={onOpen}
+              isLoading={loading}
+              loadingText="fetching users"
+              colorScheme={"blue"}
+              py={10}
+              _hover={{ transform: "scale(1.05)" }}
+              _active={{
+                transform: "scale(1)",
+                background: "green",
+              }}
+              borderRadius="10px"
+              _focus={{}}
+              width="100%"
+              disabled={!data || loading || isSending}
+            >
+              <Text fontSize="30px">preview send</Text>
+            </Button>
+          </Box>
+        </>
+      ) : (
+        <Flex
+          alignItems={"center"}
+          justifyContent={"center"}
+          width="100%"
+          height="calc(100vh - 64px)"
+          fontSize="50px"
+        >
+          <WavyText text="fetching..." />
+        </Flex>
+      )}
+    </Flex>
   );
 }
