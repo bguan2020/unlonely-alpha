@@ -21,6 +21,9 @@ const GET_USER_QUERY = gql`
       isLensUser
       lensHandle
       lensImageUrl
+      channel {
+        slug
+      }
     }
   }
 `;

@@ -48,9 +48,17 @@ export interface IGetUserInput {
 }
 
 export const getUser = async (data: IGetUserInput, ctx: Context) => {
-  return ctx.prisma.user.findUnique({
+  const user = await ctx.prisma.user.findUnique({
     where: { address: data.address },
+    include: { channel: { take: 1 } },
   });
+
+  if (!user) {
+    console.log("getUser: user not found");
+    return;
+  }
+  console.log(user);
+  return user;
 };
 
 export const getAllUsers = (ctx: Context) => {
