@@ -445,7 +445,7 @@ const ChannelStreamerPerspective = ({
       >
         <Flex width={"100%"} position="relative" justifyContent={"center"}>
           <SimpleGrid columns={3} spacing={10}>
-            <Flex direction="column" gap="10px">
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">send notifications</Text>
               <Box
                 display="flex"
@@ -465,7 +465,7 @@ const ChannelStreamerPerspective = ({
                 <Image src="/svg/notifications.svg" width="100%" />
               </Box>
             </Flex>
-            <Flex direction="column" gap="10px">
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">offer tokens for sale</Text>
               <Box
                 display="flex"
@@ -485,7 +485,7 @@ const ChannelStreamerPerspective = ({
                 <Image src="/svg/token-sale.svg" width="100%" />
               </Box>
             </Flex>
-            <Flex direction="column" gap="10px">
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">add event</Text>
               <Box
                 display="flex"
@@ -504,7 +504,7 @@ const ChannelStreamerPerspective = ({
                 <Image src="/svg/calendar.svg" width="100%" />
               </Box>
             </Flex>
-            <Flex direction="column" gap="10px">
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">edit channel title / description</Text>
               <Box
                 display="flex"
@@ -524,7 +524,7 @@ const ChannelStreamerPerspective = ({
                 <Image src="/svg/edit.svg" width="100%" />
               </Box>
             </Flex>
-            <Flex direction="column" gap="10px">
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">custom commands</Text>
               <Box
                 display="flex"
@@ -544,7 +544,7 @@ const ChannelStreamerPerspective = ({
                 <Image src="/svg/custom-commands.svg" width="100%" />
               </Box>
             </Flex>
-            <Flex direction="column" gap="10px">
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">paid custom action</Text>
               <Box
                 display="flex"
