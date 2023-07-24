@@ -68,8 +68,8 @@ const ChannelPage = () => {
   const [width, height] = useWindowSize();
   const { username, userAddress, user } = useUser();
 
-  // const isOwner = userAddress === channelBySlug?.owner.address;
-  const isOwner = true;
+  const isOwner = userAddress === channelBySlug?.owner.address;
+  // const isOwner = true;
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [showTipModal, setShowTipModal] = useState<boolean>(false);
@@ -223,6 +223,11 @@ const ChannelPage = () => {
                                 <Image
                                   src="/svg/preview-video.svg"
                                   height={12}
+                                  style={{
+                                    filter: previewStream
+                                      ? "grayscale(100%)"
+                                      : "none",
+                                  }}
                                 />
                               }
                             />
@@ -433,7 +438,7 @@ const ChannelStreamerPerspective = ({
         handleClose={() => setNotificationsModal(false)}
       />
       <Stack
-        my="6rem"
+        my="5rem"
         direction="column"
         width={"100%"}
         justifyContent="center"
