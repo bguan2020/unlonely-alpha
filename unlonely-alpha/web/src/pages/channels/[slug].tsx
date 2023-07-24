@@ -4,7 +4,9 @@ import {
   Flex,
   Grid,
   GridItem,
+  IconButton,
   Image,
+  SimpleGrid,
   Stack,
   Text,
   Tooltip,
@@ -12,18 +14,21 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback, useMemo, useState } from "react";
 import { isAddress } from "viem";
+
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
 import CustomButton from "../../components/arcade/CustomButton";
-// import DiceButton from "../../components/arcade/DiceButton";
-// import SwordButton from "../../components/arcade/SwordButton";
 import ChannelDesc from "../../components/channels/ChannelDesc";
+import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
+import ChatCommandModal from "../../components/channels/ChatCommandModal";
+import EditChannelModal from "../../components/channels/EditChannelModal";
+import NotificationsModal from "../../components/channels/NotificationsModal";
+import TokenSaleModal from "../../components/channels/TokenSaleModal";
 import AblyChatComponent from "../../components/chat/ChatComponent";
 import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
-import StreamComponent from "../../components/stream/StreamComponent";
 import BuyTransactionModal from "../../components/transactions/BuyTransactionModal";
 import ChanceTransactionModal from "../../components/transactions/ChanceTransactionModal";
 import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
@@ -53,8 +58,7 @@ const ChannelPage = () => {
     loading: channelDataLoading,
     error: channelDataError,
   } = channel;
-  const { loading: recentStreamInteractionsLoading, textOverVideo } =
-    recentStreamInteractions;
+  const { loading: recentStreamInteractionsLoading } = recentStreamInteractions;
 
   const queryLoading = useMemo(
     () => channelDataLoading || recentStreamInteractionsLoading,
@@ -62,9 +66,10 @@ const ChannelPage = () => {
   );
 
   const [width, height] = useWindowSize();
-  const { username, user, userAddress } = useUser();
+  const { username, userAddress, user } = useUser();
 
-  const isOwner = userAddress === channelBySlug?.owner.address;
+  // const isOwner = userAddress === channelBySlug?.owner.address;
+  const isOwner = true;
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
   const [showTipModal, setShowTipModal] = useState<boolean>(false);
@@ -74,10 +79,12 @@ const ChannelPage = () => {
   const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
   const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
 
-  //used on mobile view
-  const [hideChat, setHideChat] = useState<boolean>(false);
+  const [previewStream, setPreviewStream] = useState<boolean>(false);
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
+
+  //used on mobile view
+  const [hideChat, setHideChat] = useState<boolean>(false);
 
   const isHidden = useCallback(
     (isChat: boolean) => {
@@ -178,20 +185,6 @@ const ChannelPage = () => {
               handleClose={handleClose}
               addToChatbot={addToChatbot}
             />
-            {/* <PvpTransactionModal
-              icon={
-                <Image
-                  alt="sword"
-                  src="/svg/arcade/sword.svg"
-                  width="60px"
-                  height="60px"
-                />
-              }
-              title="unlock player vs player features in chat"
-              isOpen={showPvpModal}
-              handleClose={handleClose}
-              addToChatbot={addToChatbot}
-            /> */}
             <Stack direction="column" mt={"1rem"}>
               <Stack
                 mx={[0, 8, 4]}
@@ -201,33 +194,43 @@ const ChannelPage = () => {
                 direction={["column", "column", "row", "row"]}
               >
                 <Stack direction="column" width={"100%"}>
-                  <Flex width={"100%"} position="relative">
-                    <Box
-                      position="absolute"
-                      zIndex={10}
-                      maxHeight={{
-                        base: "100%",
-                        sm: "700px",
-                        md: "700px",
-                        lg: "700px",
-                      }}
-                      overflow="hidden"
-                    >
-                      {textOverVideo.map((data: string, index: number) => (
-                        <Flex bg="rgba(0,0,0,0.8)">
-                          <Text fontSize="24px" key={index}>
-                            {data}
-                          </Text>
-                        </Flex>
-                      ))}
-                    </Box>
-                    <StreamComponent isTheatreMode />
-                  </Flex>
+                  {isOwner && !previewStream ? (
+                    <ChannelStreamerPerspective
+                      setCustomActionModal={setShowCustomModal}
+                    />
+                  ) : (
+                    <ChannelViewerPerspective />
+                  )}
                   <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
                     <GridItem colSpan={showArcadeButtons ? 2 : 3}>
                       <ChannelDesc />
                     </GridItem>
-                    {showArcadeButtons && (
+                    {isOwner && (
+                      <GridItem>
+                        <Flex justifyContent={"center"}>
+                          <Tooltip
+                            label={`${
+                              previewStream ? "hide" : "preview"
+                            } stream`}
+                          >
+                            <IconButton
+                              onClick={() => setPreviewStream((prev) => !prev)}
+                              aria-label="preview"
+                              _hover={{}}
+                              _active={{}}
+                              _focus={{}}
+                              icon={
+                                <Image
+                                  src="/svg/preview-video.svg"
+                                  height={12}
+                                />
+                              }
+                            />
+                          </Tooltip>
+                        </Flex>
+                      </GridItem>
+                    )}
+                    {showArcadeButtons && !isOwner && (
                       <GridItem justifyItems={"center"}>
                         <Box
                           display="flex"
@@ -262,11 +265,6 @@ const ChannelPage = () => {
                                       />
                                     </span>
                                   </Tooltip>
-                                  {/* <Tooltip label={"coming soon"}>
-                                  <span>
-                                    <DiceButton noHover />
-                                  </span>
-                                </Tooltip> */}
                                   <Tooltip label={"control text on the stream"}>
                                     <span>
                                       <ControlButton
@@ -276,11 +274,6 @@ const ChannelPage = () => {
                                       />
                                     </span>
                                   </Tooltip>
-                                  {/* <Tooltip label={"coming soon"}>
-                                    <span>
-                                      <SwordButton noHover />
-                                    </span>
-                                  </Tooltip> */}
                                 </Grid>
                                 <BuyButton
                                   tokenName={`$${channelBySlug?.token?.symbol}`}
@@ -331,17 +324,6 @@ const ChannelPage = () => {
                                     <ControlButton />
                                   </span>
                                 </Tooltip>
-                                {/* <Tooltip
-                                  label={
-                                    !user
-                                      ? "connect wallet first"
-                                      : "not available"
-                                  }
-                                >
-                                  <span>
-                                    <SwordButton />
-                                  </span>
-                                </Tooltip> */}
                               </Grid>
                               <Tooltip
                                 label={
@@ -372,6 +354,7 @@ const ChannelPage = () => {
                   width="100%"
                   maxW={["768px", "100%", "380px"]}
                   maxH={["500px", "850px"]}
+                  minH={["500px", "850px"]}
                   boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
                 >
                   <Container
@@ -414,6 +397,172 @@ const ChannelPage = () => {
         )}
       </AppLayout>
     </>
+  );
+};
+
+const ChannelStreamerPerspective = ({
+  setCustomActionModal,
+}: {
+  setCustomActionModal: (value: boolean) => void;
+}) => {
+  const [tokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
+  const [chatCommandModal, setChatCommandModal] = useState<boolean>(false);
+  const [editModal, setEditModal] = useState<boolean>(false);
+  const [notificationsModal, setNotificationsModal] = useState<boolean>(false);
+
+  return (
+    <Flex direction="column" width={"100%"}>
+      <TokenSaleModal
+        title={"offer tokens for sale"}
+        isOpen={tokenSaleModal}
+        handleClose={() => setTokenSaleModal(false)}
+      />
+      <ChatCommandModal
+        title={"custom commands"}
+        isOpen={chatCommandModal}
+        handleClose={() => setChatCommandModal(false)}
+      />
+      <EditChannelModal
+        title={"edit title / description"}
+        isOpen={editModal}
+        handleClose={() => setEditModal(false)}
+      />
+      <NotificationsModal
+        title={"send notifications"}
+        isOpen={notificationsModal}
+        handleClose={() => setNotificationsModal(false)}
+      />
+      <Stack
+        my="6rem"
+        direction="column"
+        width={"100%"}
+        justifyContent="center"
+      >
+        <Flex width={"100%"} position="relative" justifyContent={"center"}>
+          <SimpleGrid columns={3} spacing={10}>
+            <Flex direction="column" gap="10px">
+              <Text textAlign="center">send notifications</Text>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="10px"
+                onClick={() => setNotificationsModal(true)}
+                _hover={{
+                  cursor: "pointer",
+                  transform: "scale(1.1)",
+                  transitionDuration: "0.3s",
+                }}
+                _active={{
+                  transform: "scale(1)",
+                }}
+              >
+                <Image src="/svg/notifications.svg" width="100%" />
+              </Box>
+            </Flex>
+            <Flex direction="column" gap="10px">
+              <Text textAlign="center">offer tokens for sale</Text>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="10px"
+                onClick={() => setTokenSaleModal(true)}
+                _hover={{
+                  cursor: "pointer",
+                  transform: "scale(1.1)",
+                  transitionDuration: "0.3s",
+                }}
+                _active={{
+                  transform: "scale(1)",
+                }}
+              >
+                <Image src="/svg/token-sale.svg" width="100%" />
+              </Box>
+            </Flex>
+            <Flex direction="column" gap="10px">
+              <Text textAlign="center">add event</Text>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="10px"
+                _hover={{
+                  cursor: "pointer",
+                  transform: "scale(1.1)",
+                  transitionDuration: "0.3s",
+                }}
+                _active={{
+                  transform: "scale(1)",
+                }}
+              >
+                <Image src="/svg/calendar.svg" width="100%" />
+              </Box>
+            </Flex>
+            <Flex direction="column" gap="10px">
+              <Text textAlign="center">edit channel title / description</Text>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="10px"
+                onClick={() => setEditModal(true)}
+                _hover={{
+                  cursor: "pointer",
+                  transform: "scale(1.1)",
+                  transitionDuration: "0.3s",
+                }}
+                _active={{
+                  transform: "scale(1)",
+                }}
+              >
+                <Image src="/svg/edit.svg" width="100%" />
+              </Box>
+            </Flex>
+            <Flex direction="column" gap="10px">
+              <Text textAlign="center">custom commands</Text>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="10px"
+                onClick={() => setChatCommandModal(true)}
+                _hover={{
+                  cursor: "pointer",
+                  transform: "scale(1.1)",
+                  transitionDuration: "0.3s",
+                }}
+                _active={{
+                  transform: "scale(1)",
+                }}
+              >
+                <Image src="/svg/custom-commands.svg" width="100%" />
+              </Box>
+            </Flex>
+            <Flex direction="column" gap="10px">
+              <Text textAlign="center">paid custom action</Text>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="10px"
+                onClick={() => setCustomActionModal(true)}
+                _hover={{
+                  cursor: "pointer",
+                  transform: "scale(1.1)",
+                  transitionDuration: "0.3s",
+                }}
+                _active={{
+                  transform: "scale(1)",
+                }}
+              >
+                <Image src="/svg/custom-actions.svg" width="100%" />
+              </Box>
+            </Flex>
+          </SimpleGrid>
+        </Flex>
+      </Stack>
+    </Flex>
   );
 };
 
