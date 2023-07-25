@@ -182,18 +182,9 @@ const ClipDetail = () => {
   }, [clipUrl, user?.address]);
 
   useEffect(() => {
-    if (!uri) return;
-    console.log("minting", uri, user?.address, writeAsync);
-
-    if (!writeAsync) {
-      setFormError(["Error Minting NFT"]);
-      return;
-    } else {
-      setFormError(null);
-    }
-
+    if (!uri || !writeAsync || !user?.address) return;
     writeAsync();
-  }, [uri, writeAsync]);
+  }, [uri, writeAsync, user?.address]);
 
   const uploadToIPFS = async (name: string, clipUrl: string) => {
     // destructing. getting value of name, desc and price from formInput.

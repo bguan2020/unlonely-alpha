@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Flex,
   Input,
@@ -33,6 +34,7 @@ import {
 import useUpdateCreatorTokenPrice from "../hooks/server/arcade/useUpdateTokenPrice";
 import useUpdateUserCreatorTokenQuantity from "../hooks/server/arcade/useUpdateTokenQuantity";
 import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
+import Link from "next/link";
 
 const inputStyle = {
   borderWidth: "1px",
@@ -124,9 +126,17 @@ const AdminContent = () => {
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "approve",
-          description: "pending",
-          status: "info",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                approve pending, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -134,9 +144,17 @@ const AdminContent = () => {
       },
       onTxSuccess: (data) => {
         toast({
-          title: "approve",
-          description: "success",
-          status: "success",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                approve success, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -163,22 +181,38 @@ const AdminContent = () => {
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "addCreatorToken",
-          description: "pending",
-          status: "info",
           duration: 9000,
           isClosable: true,
           position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                addCreatorToken pending, click to view
+              </Link>
+            </Box>
+          ),
         });
       },
       onTxSuccess: (data) => {
         toast({
-          title: "addCreatorToken",
-          description: "success",
-          status: "success",
           duration: 9000,
           isClosable: true,
           position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                addCreatorToken success, click to view
+              </Link>
+            </Box>
+          ),
         });
         refetchPublic();
       },
@@ -217,9 +251,17 @@ const AdminContent = () => {
       {
         onWriteSuccess: (data) => {
           toast({
-            title: "useFeature",
-            description: "pending",
-            status: "info",
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`https://etherscan.io/tx/${data.hash}`}
+                  passHref
+                >
+                  useFeature pending, click to view
+                </Link>
+              </Box>
+            ),
             duration: 9000,
             isClosable: true,
             position: "top-right",
@@ -227,9 +269,17 @@ const AdminContent = () => {
         },
         onTxSuccess: (data) => {
           toast({
-            title: "useFeature",
-            description: "success",
-            status: "success",
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`https://etherscan.io/tx/${data.transactionHash}`}
+                  passHref
+                >
+                  useFeature success, click to view
+                </Link>
+              </Box>
+            ),
             duration: 9000,
             isClosable: true,
             position: "top-right",
@@ -253,9 +303,17 @@ const AdminContent = () => {
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "buyCreatorToken",
-          description: "pending",
-          status: "info",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                buyCreatorToken pending, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -263,9 +321,17 @@ const AdminContent = () => {
       },
       onTxSuccess: (data) => {
         toast({
-          title: "buyCreatorToken",
-          description: "success",
-          status: "success",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                buyCreatorToken success, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -307,9 +373,17 @@ const AdminContent = () => {
     {
       onWriteSuccess: async (data) => {
         toast({
-          title: "setTokenPrices",
-          description: "pending",
-          status: "info",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                setTokenPrices pending, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -328,9 +402,17 @@ const AdminContent = () => {
             })
         );
         toast({
-          title: "setTokenPrices",
-          description: "success",
-          status: "success",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                setTokenPrices success, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",

@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Flex,
   FormControl,
@@ -29,6 +30,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import Link from "next/link";
 
 export default function ControlTransactionModal({
   title,
@@ -88,9 +90,17 @@ export default function ControlTransactionModal({
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "approve",
-          description: "pending",
-          status: "info",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                approve pending, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -98,9 +108,17 @@ export default function ControlTransactionModal({
       },
       onTxSuccess: (data) => {
         toast({
-          title: "approve",
-          description: "success",
-          status: "success",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                approve success, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -126,9 +144,17 @@ export default function ControlTransactionModal({
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "useFeature",
-          description: "pending",
-          status: "info",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                useFeature pending, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -136,9 +162,17 @@ export default function ControlTransactionModal({
       },
       onTxSuccess: (data) => {
         toast({
-          title: "useFeature",
-          description: "success",
-          status: "success",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                useFeature success, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",

@@ -1,4 +1,4 @@
-import { Text, Input, Flex, useToast } from "@chakra-ui/react";
+import { Text, Input, Flex, useToast, Box } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../hooks/context/useUser";
 import { ChatBot } from "../../constants/types";
@@ -23,6 +23,7 @@ import { useApproval } from "../../hooks/contracts/useApproval";
 import { useBalance, useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
+import Link from "next/link";
 
 export default function BuyTransactionModal({
   title,
@@ -110,22 +111,38 @@ export default function BuyTransactionModal({
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "buyCreatorToken",
-          description: "pending",
-          status: "info",
           duration: 9000,
           isClosable: true,
           position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                buyCreatorToken pending, click to view
+              </Link>
+            </Box>
+          ),
         });
       },
       onTxSuccess: async (data) => {
         toast({
-          title: "buyCreatorToken",
-          description: "success",
-          status: "success",
           duration: 9000,
           isClosable: true,
           position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                buyCreatorToken success, click to view
+              </Link>
+            </Box>
+          ),
         });
         callback?.();
         refetchAllowance?.();
@@ -286,7 +303,7 @@ export default function BuyTransactionModal({
           </Text>
         )}
         <Text textAlign={"right"} fontSize="25px" color="#BABABA">
-          cost: {`${truncateValue(formatUnits(amountIn, 18) ?? "0", 3)} eth`}
+          cost: {`${truncateValue(formatUnits(amountIn, 18) ?? "0", 5)} eth`}
         </Text>
       </Flex>
     </TransactionModalTemplate>

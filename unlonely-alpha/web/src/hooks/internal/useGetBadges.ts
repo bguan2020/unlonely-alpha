@@ -8,17 +8,12 @@ export const useGetBadges = (rank?: number) => {
   const [rankDesc, setRankDesc] = useState<string>("");
 
   useEffect(() => {
-    if (!rank || rank === -1) {
+    if (rank === undefined || rank === -1) {
       setRankUrl(undefined);
       setRankDesc("");
       return;
     }
     const channelTokenSymbol = channelBySlug?.token?.symbol;
-    if (rank < -1) {
-      setRankUrl(undefined);
-      setRankDesc("");
-      return;
-    }
     if (rank < 10) {
       setRankUrl("/svg/holder-1.svg");
       setRankDesc(`Top 10 Holder of ${channelTokenSymbol}`);

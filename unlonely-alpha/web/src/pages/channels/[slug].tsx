@@ -22,6 +22,7 @@ import CustomButton from "../../components/arcade/CustomButton";
 // import SwordButton from "../../components/arcade/SwordButton";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import AblyChatComponent from "../../components/chat/ChatComponent";
+import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StreamComponent from "../../components/stream/StreamComponent";
@@ -422,20 +423,7 @@ const ChannelPage = ({
             fontSize="50px"
           >
             {!channelDataError ? (
-              ["l", "o", "a", "d", "i", "n", "g", ".", ".", "."].map(
-                (letter, index) => (
-                  <Text
-                    className="bouncing-text"
-                    key={index}
-                    fontFamily="Neue Pixel Sans"
-                    style={{
-                      animationDelay: `${index * 0.1}s`,
-                    }}
-                  >
-                    {letter}
-                  </Text>
-                )
-              )
+              <WavyText text="loading..." />
             ) : (
               <Text fontFamily="Neue Pixel Sans">
                 server error, please try again later

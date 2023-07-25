@@ -592,6 +592,7 @@ export type User = {
   address: Scalars["String"];
   authedAsMe: Scalars["Boolean"];
   bio?: Maybe<Scalars["String"]>;
+  channel?: Maybe<Array<Maybe<Channel>>>;
   createdAt: Scalars["DateTime"];
   id: Scalars["ID"];
   isFCUser: Scalars["Boolean"];
@@ -793,6 +794,32 @@ export type GetTokenHoldersByChannelQuery = {
   }>;
 };
 
+export type GetAllDevicesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAllDevicesQuery = {
+  __typename?: "Query";
+  getAllDevices?: Array<{
+    __typename?: "DeviceToken";
+    token: string;
+    notificationsLive: boolean;
+    notificationsNFCs: boolean;
+    address?: string | null;
+  } | null> | null;
+};
+
+export type GetAllUsersWithChannelQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetAllUsersWithChannelQuery = {
+  __typename?: "Query";
+  getAllUsersWithChannel?: Array<{
+    __typename?: "User";
+    address: string;
+    username?: string | null;
+  } | null> | null;
+};
+
 export type GetUserQueryVariables = Exact<{
   data: GetUserInput;
 }>;
@@ -813,6 +840,7 @@ export type GetUserQuery = {
     isLensUser: boolean;
     lensHandle?: string | null;
     lensImageUrl?: string | null;
+    channel?: Array<{ __typename?: "Channel"; slug: string } | null> | null;
   } | null;
 };
 
@@ -1041,32 +1069,6 @@ export type NfcFeedQuery = {
       powerUserLvl: number;
       videoSavantLvl: number;
     };
-  } | null> | null;
-};
-
-export type GetAllDevicesQueryVariables = Exact<{ [key: string]: never }>;
-
-export type GetAllDevicesQuery = {
-  __typename?: "Query";
-  getAllDevices?: Array<{
-    __typename?: "DeviceToken";
-    token: string;
-    notificationsLive: boolean;
-    notificationsNFCs: boolean;
-    address?: string | null;
-  } | null> | null;
-};
-
-export type GetAllUsersWithChannelQueryVariables = Exact<{
-  [key: string]: never;
-}>;
-
-export type GetAllUsersWithChannelQuery = {
-  __typename?: "Query";
-  getAllUsersWithChannel?: Array<{
-    __typename?: "User";
-    address: string;
-    username?: string | null;
   } | null> | null;
 };
 
@@ -1578,6 +1580,124 @@ export type GetTokenHoldersByChannelQueryResult = Apollo.QueryResult<
   GetTokenHoldersByChannelQuery,
   GetTokenHoldersByChannelQueryVariables
 >;
+export const GetAllDevicesDocument = gql`
+  query GetAllDevices {
+    getAllDevices {
+      token
+      notificationsLive
+      notificationsNFCs
+      address
+    }
+  }
+`;
+
+/**
+ * __useGetAllDevicesQuery__
+ *
+ * To run a query within a React component, call `useGetAllDevicesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllDevicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllDevicesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllDevicesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllDevicesQuery,
+    GetAllDevicesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAllDevicesQuery, GetAllDevicesQueryVariables>(
+    GetAllDevicesDocument,
+    options
+  );
+}
+export function useGetAllDevicesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllDevicesQuery,
+    GetAllDevicesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAllDevicesQuery, GetAllDevicesQueryVariables>(
+    GetAllDevicesDocument,
+    options
+  );
+}
+export type GetAllDevicesQueryHookResult = ReturnType<
+  typeof useGetAllDevicesQuery
+>;
+export type GetAllDevicesLazyQueryHookResult = ReturnType<
+  typeof useGetAllDevicesLazyQuery
+>;
+export type GetAllDevicesQueryResult = Apollo.QueryResult<
+  GetAllDevicesQuery,
+  GetAllDevicesQueryVariables
+>;
+export const GetAllUsersWithChannelDocument = gql`
+  query GetAllUsersWithChannel {
+    getAllUsersWithChannel {
+      address
+      username
+    }
+  }
+`;
+
+/**
+ * __useGetAllUsersWithChannelQuery__
+ *
+ * To run a query within a React component, call `useGetAllUsersWithChannelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllUsersWithChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllUsersWithChannelQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllUsersWithChannelQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >(GetAllUsersWithChannelDocument, options);
+}
+export function useGetAllUsersWithChannelLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetAllUsersWithChannelQuery,
+    GetAllUsersWithChannelQueryVariables
+  >(GetAllUsersWithChannelDocument, options);
+}
+export type GetAllUsersWithChannelQueryHookResult = ReturnType<
+  typeof useGetAllUsersWithChannelQuery
+>;
+export type GetAllUsersWithChannelLazyQueryHookResult = ReturnType<
+  typeof useGetAllUsersWithChannelLazyQuery
+>;
+export type GetAllUsersWithChannelQueryResult = Apollo.QueryResult<
+  GetAllUsersWithChannelQuery,
+  GetAllUsersWithChannelQueryVariables
+>;
 export const GetUserDocument = gql`
   query getUser($data: GetUserInput!) {
     getUser(data: $data) {
@@ -1593,6 +1713,9 @@ export const GetUserDocument = gql`
       isLensUser
       lensHandle
       lensImageUrl
+      channel {
+        slug
+      }
     }
   }
 `;
@@ -2524,124 +2647,6 @@ export type NfcFeedLazyQueryHookResult = ReturnType<typeof useNfcFeedLazyQuery>;
 export type NfcFeedQueryResult = Apollo.QueryResult<
   NfcFeedQuery,
   NfcFeedQueryVariables
->;
-export const GetAllDevicesDocument = gql`
-  query GetAllDevices {
-    getAllDevices {
-      token
-      notificationsLive
-      notificationsNFCs
-      address
-    }
-  }
-`;
-
-/**
- * __useGetAllDevicesQuery__
- *
- * To run a query within a React component, call `useGetAllDevicesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAllDevicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAllDevicesQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetAllDevicesQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetAllDevicesQuery,
-    GetAllDevicesQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetAllDevicesQuery, GetAllDevicesQueryVariables>(
-    GetAllDevicesDocument,
-    options
-  );
-}
-export function useGetAllDevicesLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetAllDevicesQuery,
-    GetAllDevicesQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<GetAllDevicesQuery, GetAllDevicesQueryVariables>(
-    GetAllDevicesDocument,
-    options
-  );
-}
-export type GetAllDevicesQueryHookResult = ReturnType<
-  typeof useGetAllDevicesQuery
->;
-export type GetAllDevicesLazyQueryHookResult = ReturnType<
-  typeof useGetAllDevicesLazyQuery
->;
-export type GetAllDevicesQueryResult = Apollo.QueryResult<
-  GetAllDevicesQuery,
-  GetAllDevicesQueryVariables
->;
-export const GetAllUsersWithChannelDocument = gql`
-  query GetAllUsersWithChannel {
-    getAllUsersWithChannel {
-      address
-      username
-    }
-  }
-`;
-
-/**
- * __useGetAllUsersWithChannelQuery__
- *
- * To run a query within a React component, call `useGetAllUsersWithChannelQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAllUsersWithChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAllUsersWithChannelQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetAllUsersWithChannelQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetAllUsersWithChannelQuery,
-    GetAllUsersWithChannelQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    GetAllUsersWithChannelQuery,
-    GetAllUsersWithChannelQueryVariables
-  >(GetAllUsersWithChannelDocument, options);
-}
-export function useGetAllUsersWithChannelLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetAllUsersWithChannelQuery,
-    GetAllUsersWithChannelQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    GetAllUsersWithChannelQuery,
-    GetAllUsersWithChannelQueryVariables
-  >(GetAllUsersWithChannelDocument, options);
-}
-export type GetAllUsersWithChannelQueryHookResult = ReturnType<
-  typeof useGetAllUsersWithChannelQuery
->;
-export type GetAllUsersWithChannelLazyQueryHookResult = ReturnType<
-  typeof useGetAllUsersWithChannelLazyQuery
->;
-export type GetAllUsersWithChannelQueryResult = Apollo.QueryResult<
-  GetAllUsersWithChannelQuery,
-  GetAllUsersWithChannelQueryVariables
 >;
 export const GetAllUsersDocument = gql`
   query GetAllUsers {

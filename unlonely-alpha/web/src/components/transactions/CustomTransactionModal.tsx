@@ -8,6 +8,7 @@ import {
   MenuItem,
   MenuList,
   Text,
+  Box,
   useToast,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -31,6 +32,7 @@ import { parseUnits } from "viem";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import Link from "next/link";
 
 const CUSTOM = "custom";
 const SAMPLE1 = "pushup";
@@ -78,16 +80,16 @@ export default function CustomTransactionModal({
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const [newPrice, setNewPrice] = useState<string>(
-    String(channelBySlug?.customButtonPrice)
+    String(channelBySlug?.customButtonPrice ?? "0")
   );
   const [chosenRequest, setChosenRequest] = useState<string>("");
   const [customRequest, setCustomRequest] = useState<string>(
-    String(channelBySlug?.customButtonAction)
+    String(channelBySlug?.customButtonAction ?? "")
   );
 
   useEffect(() => {
     setCurrentPrice(String(channelBySlug?.customButtonPrice ?? "0"));
-    setCurrentRequest(String(channelBySlug?.customButtonAction ?? "0"));
+    setCurrentRequest(String(channelBySlug?.customButtonAction ?? ""));
   }, [channelBySlug?.customButtonAction, channelBySlug?.customButtonPrice]);
 
   const { updateChannelCustomButton, loading: updateLoading } =
@@ -119,9 +121,17 @@ export default function CustomTransactionModal({
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "approve",
-          description: "pending",
-          status: "info",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                approve pending, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -129,9 +139,17 @@ export default function CustomTransactionModal({
       },
       onTxSuccess: (data) => {
         toast({
-          title: "approve",
-          description: "success",
-          status: "success",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                approve success, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -157,9 +175,17 @@ export default function CustomTransactionModal({
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "useFeature",
-          description: "pending",
-          status: "info",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                useFeature pending, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -167,9 +193,17 @@ export default function CustomTransactionModal({
       },
       onTxSuccess: (data) => {
         toast({
-          title: "useFeature",
-          description: "success",
-          status: "success",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                useFeature success, click to view
+              </Link>
+            </Box>
+          ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
@@ -375,27 +409,35 @@ export default function CustomTransactionModal({
           </>
         ) : (
           <>
-            <Text textAlign={"center"} fontSize="25px" color="#BABABA">
-              you own{" "}
-              {`${truncateValue(userTokenBalance?.formatted ?? "0", 3)} $${
-                channelBySlug?.token?.symbol
-              }`}
-            </Text>
-            <Flex gap="10px" alignItems="center" justifyContent={"center"}>
-              <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
-                action:
-              </Text>
-              <Text fontSize="30px">{currentRequest}</Text>
-            </Flex>
-            <Flex gap="10px" alignItems="center" justifyContent={"center"}>
-              <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
-                price:
-              </Text>
-              <Text fontSize="30px">{currentPrice}</Text>
-            </Flex>
-            {errorMessage && (
-              <Text textAlign={"center"} color="red.400">
-                {errorMessage}
+            {channelBySlug?.customButtonAction ? (
+              <>
+                <Text textAlign={"center"} fontSize="25px" color="#BABABA">
+                  you own{" "}
+                  {`${truncateValue(userTokenBalance?.formatted ?? "0", 3)} $${
+                    channelBySlug?.token?.symbol
+                  }`}
+                </Text>
+                <Flex gap="10px" alignItems="center" justifyContent={"center"}>
+                  <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
+                    action:
+                  </Text>
+                  <Text fontSize="30px">{currentRequest}</Text>
+                </Flex>
+                <Flex gap="10px" alignItems="center" justifyContent={"center"}>
+                  <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
+                    price:
+                  </Text>
+                  <Text fontSize="30px">{currentPrice}</Text>
+                </Flex>
+                {errorMessage && (
+                  <Text textAlign={"center"} color="red.400">
+                    {errorMessage}
+                  </Text>
+                )}
+              </>
+            ) : (
+              <Text fontSize="20px" textAlign={"center"}>
+                streamer hasn't set a custom action yet
               </Text>
             )}
           </>

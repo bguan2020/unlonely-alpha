@@ -122,6 +122,9 @@ export default function ChatCommandModal({
       hideFooter={commandsData.length === 0 && !isDeletingAll}
     >
       <Flex direction={"column"} gap="16px">
+        <Text textAlign={"center"} fontSize="20px" color="#BABABA">
+          add up to 5 chat commands
+        </Text>
         {commandsData.length > 0 && (
           <Flex justifyContent={"space-around"}>
             <Text>![command]</Text>

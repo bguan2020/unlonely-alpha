@@ -18,6 +18,7 @@ import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import Link from "next/link";
 import { isIosDevice } from "../components/mobile/Banner";
 import { useState } from "react";
+import { WavyText } from "../components/general/WavyText";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -246,20 +247,7 @@ export default function Page() {
           height="calc(100vh - 64px)"
           fontSize="50px"
         >
-          {["l", "o", "a", "d", "i", "n", "g", ".", ".", "."].map(
-            (letter, index) => (
-              <Text
-                className="bouncing-text"
-                key={index}
-                fontFamily="Neue Pixel Sans"
-                style={{
-                  animationDelay: `${index * 0.1}s`,
-                }}
-              >
-                {letter}
-              </Text>
-            )
-          )}
+          <WavyText text="loading..." />
         </Flex>
       )}
     </AppLayout>
