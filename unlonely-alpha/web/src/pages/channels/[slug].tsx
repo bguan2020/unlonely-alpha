@@ -20,6 +20,7 @@ import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
 import CustomButton from "../../components/arcade/CustomButton";
+import CalendarEventModal from "../../components/channels/CalendarEventModal";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
 import ChatCommandModal from "../../components/channels/ChatCommandModal";
@@ -456,6 +457,7 @@ const ChannelStreamerPerspective = ({
   const [chatCommandModal, setChatCommandModal] = useState<boolean>(false);
   const [editModal, setEditModal] = useState<boolean>(false);
   const [notificationsModal, setNotificationsModal] = useState<boolean>(false);
+  const [eventModal, setEventModal] = useState<boolean>(false);
 
   return (
     <Flex direction="column" width={"100%"}>
@@ -478,6 +480,11 @@ const ChannelStreamerPerspective = ({
         title={"send notifications"}
         isOpen={notificationsModal}
         handleClose={() => setNotificationsModal(false)}
+      />
+      <CalendarEventModal
+        title={"add event"}
+        isOpen={eventModal}
+        handleClose={() => setEventModal(false)}
       />
       <Stack
         my="5rem"
@@ -527,13 +534,14 @@ const ChannelStreamerPerspective = ({
                 <Image src="/svg/token-sale.svg" width="100%" />
               </Box>
             </Flex>
-            {/* <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">add event</Text>
               <Box
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 borderRadius="10px"
+                onClick={() => setEventModal(true)}
                 _hover={{
                   cursor: "pointer",
                   transform: "scale(1.1)",
@@ -545,7 +553,7 @@ const ChannelStreamerPerspective = ({
               >
                 <Image src="/svg/calendar.svg" width="100%" />
               </Box>
-            </Flex> */}
+            </Flex>
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">edit channel title / description</Text>
               <Box
