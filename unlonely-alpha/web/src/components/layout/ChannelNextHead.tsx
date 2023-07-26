@@ -40,7 +40,10 @@ const ChannelNextHead: React.FC<{
         }'s Unlonely Channel!`}
       />
 
-      <meta property="og:title" content={channel.name} />
+      <meta
+        property="og:title"
+        content={`${channel.slug}'s channel | ${channel.name}`}
+      />
       <meta
         property="og:url"
         content={`https://unlonely.app/channel/${channel.slug}`}
@@ -49,11 +52,12 @@ const ChannelNextHead: React.FC<{
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content={channel.name} />
       <meta property="og:image" content={"/images/social_banner.png"} />
+      <meta property="og:description" content={channel.description} />
 
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@bdguan" />
       <meta name="twitter:title" content={channel.name} />
-      <meta name="twitter:description" content="Stream on Unlonely!" />
+      <meta name="twitter:description" content={channel.description} />
       <meta name="twitter:creator" content="@bdguan" />
       <meta name="twitter:image" content={"/images/social_banner.png"} />
     </Head>
