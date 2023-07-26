@@ -40,6 +40,7 @@ import {
   ChannelProvider,
   useChannelContext,
 } from "../../hooks/context/useChannel";
+import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimations";
 import { useUser } from "../../hooks/context/useUser";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 
@@ -52,6 +53,7 @@ const ChannelDetail = () => {
 };
 
 const ChannelPage = () => {
+  const { fireworks } = useScreenAnimationsContext();
   const { channel, recentStreamInteractions } = useChannelContext();
   const {
     channelBySlug,
