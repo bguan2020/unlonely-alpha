@@ -507,7 +507,7 @@ const ChannelStreamerPerspective = ({
                 <Image src="/svg/token-sale.svg" width="100%" />
               </Box>
             </Flex>
-            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+            {/* <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">add event</Text>
               <Box
                 display="flex"
@@ -525,7 +525,7 @@ const ChannelStreamerPerspective = ({
               >
                 <Image src="/svg/calendar.svg" width="100%" />
               </Box>
-            </Flex>
+            </Flex> */}
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">edit channel title / description</Text>
               <Box
