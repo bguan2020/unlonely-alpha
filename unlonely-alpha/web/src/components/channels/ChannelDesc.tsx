@@ -1,57 +1,14 @@
 import { Text, Flex } from "@chakra-ui/layout";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { Avatar } from "@chakra-ui/react";
 
-import { UpdateChannelTextInput } from "../../generated/graphql";
-import { EditIcon } from "../icons/EditIcon";
-import { updateChannelTextSchema } from "../../utils/validation/validation";
-import useUpdateChannelText from "../../hooks/server/useUpdateChannelText";
-import {
-  Button,
-  FormControl,
-  FormErrorMessage,
-  Textarea,
-  Tooltip,
-  Avatar,
-} from "@chakra-ui/react";
 import { anonUrl } from "../presence/AnonUrl";
-import { PickCoinIcon } from "../icons/PickCoinIcon";
-import TokenSaleModal from "./TokenSaleModal";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { isAddress } from "viem";
-import ChatCommandModal from "./ChatCommandModal";
-import { CommandIcon } from "../icons/CommandIcon";
 
 const ChannelDesc = () => {
   const { user } = useUser();
   const { channel } = useChannelContext();
   const { channelBySlug } = channel;
-
-  const [editableText, setEditableText] = useState<boolean>(false);
-  const [formError, setFormError] = useState<string[]>([]);
-  const [tokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
-  const [chatCommandModal, setChatCommandModal] = useState<boolean>(false);
-  const form = useForm<UpdateChannelTextInput>({
-    defaultValues: {},
-    resolver: yupResolver(updateChannelTextSchema),
-  });
-  const { register, formState, handleSubmit, watch } = form;
-  const { updateChannelText, loading } = useUpdateChannelText({
-    onError: (m) => {
-      setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
-    },
-  });
-
-  const onSubmit = (data: UpdateChannelTextInput) => {
-    updateChannelText({
-      id: channelBySlug?.id,
-      name: data.name,
-      description: data.description,
-    });
-    setEditableText(false);
-  };
 
   const isOwner = user?.address === channelBySlug?.owner.address;
 
@@ -65,188 +22,41 @@ const ChannelDesc = () => {
     : imageUrl;
 
   return (
-    <>
-      <TokenSaleModal
-        title={"offer tokens for sale"}
-        isOpen={tokenSaleModal}
-        handleClose={() => setTokenSaleModal(false)}
+    <Flex direction="row">
+      <Avatar
+        name={
+          channelBySlug?.owner.username
+            ? channelBySlug?.owner.username
+            : channelBySlug?.owner.address
+        }
+        src={ipfsUrl}
+        size="md"
       />
-      <ChatCommandModal
-        title={"custom commands"}
-        isOpen={chatCommandModal}
-        handleClose={() => setChatCommandModal(false)}
-      />
-      {editableText ? (
-        <>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Flex direction="column">
-              <Flex
-                maxH="400px"
-                margin="auto"
-                mb="16px"
-                ml="32px"
-                mt="12px"
-                w="60%"
-                justifyContent="left"
-                flexDirection="row"
-                position="relative"
-              >
-                <FormControl isInvalid={!!formState.errors.name}>
-                  <Textarea
-                    id="name"
-                    placeholder={
-                      channelBySlug?.name
-                        ? channelBySlug.name
-                        : "Enter a title for your stream."
-                    }
-                    _placeholder={{ color: "grey" }}
-                    lineHeight="1.2"
-                    background="#F1F4F8"
-                    borderRadius="10px"
-                    boxShadow="#F1F4F8"
-                    minHeight="3.4rem"
-                    color="#2C3A50"
-                    fontWeight="medium"
-                    fontSize="2rem"
-                    w="100%"
-                    padding="auto"
-                    {...register("name")}
-                  />
-                  <FormErrorMessage>
-                    {formState.errors.name?.message}
-                  </FormErrorMessage>
-                </FormControl>
-                {isOwner && (
-                  <EditIcon
-                    boxSize={5}
-                    position="absolute"
-                    right="-1.4rem"
-                    top="15%"
-                    transform="translateY(-50%)"
-                    onClick={() => {
-                      setEditableText((prevEditableText) => !prevEditableText);
-                    }}
-                  />
-                )}
-              </Flex>
-              <Flex direction="row" width="60%" margin="auto" ml="32px">
-                <FormControl isInvalid={!!formState.errors.description}>
-                  <Textarea
-                    id="description"
-                    placeholder={
-                      channelBySlug?.description
-                        ? channelBySlug.description
-                        : "Enter a description for your channel"
-                    }
-                    _placeholder={{ color: "grey" }}
-                    lineHeight="1.2"
-                    background="#F1F4F8"
-                    borderRadius="10px"
-                    boxShadow="#F1F4F8"
-                    minHeight="4rem"
-                    color="#2C3A50"
-                    fontWeight="medium"
-                    w="100%"
-                    padding="auto"
-                    {...register("description")}
-                  />
-                  <FormErrorMessage>
-                    {formState.errors.description?.message}
-                  </FormErrorMessage>
-                </FormControl>
-              </Flex>
-              <Flex width="60%" flexDirection="row-reverse" ml="32px">
-                <Button
-                  bg="#FFCC15"
-                  _hover={loading ? {} : { bg: "black" }}
-                  type="submit"
-                  isLoading={loading}
-                  mt="2rem"
-                  mb="2rem"
-                >
-                  Submit
-                </Button>
-              </Flex>
-            </Flex>
-          </form>
-        </>
-      ) : (
-        <Flex direction="row">
-          <Avatar
-            name={
-              channelBySlug?.owner.username
-                ? channelBySlug?.owner.username
-                : channelBySlug?.owner.address
-            }
-            src={ipfsUrl}
-            size="md"
-          />
-          <Flex direction="column" gap={["0px", "16px"]} width="100%">
-            <Flex
-              maxH="400px"
-              margin="auto"
-              ml="32px"
-              justifyContent="left"
-              pr="32px"
-              flexDirection="row"
-              alignItems={"baseline"}
-              gap="1rem"
-              wordBreak={"break-all"}
-            >
-              <Text
-                fontSize={["1rem", "1.5rem", "2rem"]}
-                fontWeight="bold"
-                noOfLines={2}
-              >
-                {channelBySlug?.name}
-              </Text>
-              {/* <Tooltip label={"custom commands"}>
-                <CommandIcon
-                  boxSize={5}
-                  cursor="pointer"
-                  onClick={() => setChatCommandModal(true)}
-                />
-              </Tooltip> */}
-              {isOwner && (
-                <>
-                  <Tooltip label={"edit title/description"}>
-                    <EditIcon
-                      boxSize={5}
-                      cursor="pointer"
-                      onClick={() => {
-                        setEditableText(
-                          (prevEditableText) => !prevEditableText
-                        );
-                      }}
-                    />
-                  </Tooltip>
-                  <Tooltip label={"custom commands"}>
-                    <CommandIcon
-                      boxSize={5}
-                      cursor="pointer"
-                      onClick={() => setChatCommandModal(true)}
-                    />
-                  </Tooltip>
-                  {channelBySlug?.token?.address &&
-                    isAddress(channelBySlug?.token?.address) && (
-                      <Tooltip label={"put tokens on sale"}>
-                        <PickCoinIcon
-                          boxSize={5}
-                          cursor="pointer"
-                          onClick={() => setTokenSaleModal(true)}
-                        />
-                      </Tooltip>
-                    )}
-                </>
-              )}
-            </Flex>
-            <Text px="30px" fontSize={["0.8rem", "1.2rem"]}>
-              {channelBySlug?.description}
-            </Text>
-          </Flex>
+      <Flex direction="column" gap={["0px", "16px"]} width="100%">
+        <Flex
+          maxH="400px"
+          margin="auto"
+          ml="32px"
+          justifyContent="left"
+          pr="32px"
+          flexDirection="row"
+          alignItems={"baseline"}
+          gap="1rem"
+          wordBreak={"break-all"}
+        >
+          <Text
+            fontSize={["1rem", "1.5rem", "2rem"]}
+            fontWeight="bold"
+            noOfLines={2}
+          >
+            {channelBySlug?.name}
+          </Text>
         </Flex>
-      )}
-    </>
+        <Text px="30px" fontSize={["0.8rem", "1.2rem"]}>
+          {channelBySlug?.description}
+        </Text>
+      </Flex>
+    </Flex>
   );
 };
 
