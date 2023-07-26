@@ -25,6 +25,7 @@ type Props = {
   description?: string | null;
   image?: string | null;
   isCustomHeader: boolean;
+  pageUrl?: string | null;
 };
 
 const AppLayout: React.FC<Props> = ({
@@ -35,6 +36,7 @@ const AppLayout: React.FC<Props> = ({
   image,
   description,
   isCustomHeader,
+  pageUrl,
 }) => {
   const toast = useToast();
   const toastIdRef = useRef<ToastId | undefined>();
@@ -78,9 +80,10 @@ const AppLayout: React.FC<Props> = ({
       >
         {isCustomHeader === false ? (
           <NextHead
-            title="Unlonely"
+            title=""
             image={image ? image : ""}
             description={description ? description : ""}
+            pageUrl={pageUrl ? pageUrl : ""}
           />
         ) : null}
         <Header />
