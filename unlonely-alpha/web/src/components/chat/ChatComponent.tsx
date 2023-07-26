@@ -18,6 +18,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { isAddress } from "viem";
 
 import { useChannel } from "../../hooks/chat/useChannel";
 import { initializeEmojis } from "./types/index";
@@ -42,7 +43,6 @@ import BuyButton from "../arcade/BuyButton";
 import { ChatBot } from "../../constants/types";
 import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { isAddress } from "viem";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { ChatCommand } from "../../generated/graphql";
 import CustomButton from "../arcade/CustomButton";
@@ -532,7 +532,7 @@ const AblyChatComponent = ({
                         </Tooltip>
                       </GridItem> */}
                       <GridItem>
-                        <Tooltip label={"control the streamer"}>
+                        <Tooltip label={"make streamer do X"}>
                           <span>
                             <CustomButton callback={handleCustomModal} />
                           </span>

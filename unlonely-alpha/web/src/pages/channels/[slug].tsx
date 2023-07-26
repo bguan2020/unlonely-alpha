@@ -107,6 +107,16 @@ const ChannelPage = () => {
     setChatBot((prev) => [...prev, chatBotMessageToAdd]);
   }, []);
 
+  const openChatPopout = () => {
+    if (!channelBySlug) return;
+    const windowFeatures = "width=400,height=600,menubar=yes,toolbar=yes";
+    window.open(
+      `https://www.unlonely.app/mobile/chat/${channelBySlug?.awsId}`,
+      "_blank",
+      windowFeatures
+    );
+  };
+
   return (
     <>
       {channelBySlug && <ChannelNextHead channel={channelBySlug} />}
@@ -126,7 +136,7 @@ const ChannelPage = () => {
                   height="60px"
                 />
               }
-              title={isOwner ? "customize your button!" : "make a request"}
+              title={isOwner ? "customize your button!" : "make streamer do X"}
               isOpen={showCustomModal}
               handleClose={handleClose}
               addToChatbot={addToChatbot}
@@ -207,7 +217,7 @@ const ChannelPage = () => {
                     </GridItem>
                     {isOwner && (
                       <GridItem>
-                        <Flex justifyContent={"center"}>
+                        <Flex justifyContent={"center"} gap="10px">
                           <Tooltip
                             label={`${
                               previewStream ? "hide" : "preview"
@@ -229,6 +239,18 @@ const ChannelPage = () => {
                                       : "none",
                                   }}
                                 />
+                              }
+                            />
+                          </Tooltip>
+                          <Tooltip label={"chat popout"}>
+                            <IconButton
+                              onClick={openChatPopout}
+                              aria-label="chat-popout"
+                              _hover={{}}
+                              _active={{}}
+                              _focus={{}}
+                              icon={
+                                <Image src="/svg/pop-out.svg" height={12} />
                               }
                             />
                           </Tooltip>
@@ -254,7 +276,7 @@ const ChannelPage = () => {
                                   alignItems="flex-start"
                                   justifyItems="flex-start"
                                 >
-                                  <Tooltip label={"control the streamer"}>
+                                  <Tooltip label={"make streamer do X"}>
                                     <span>
                                       <CustomButton
                                         callback={() =>
