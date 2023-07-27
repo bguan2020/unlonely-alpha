@@ -9,8 +9,9 @@ import {
   PopoverBody,
   Text,
 } from "@chakra-ui/react";
+
 import EmojiPicker from "./EmojiPicker";
-import { EmojiType } from "./types";
+import { EmojiType } from "../../../constants/types/chat";
 
 type Props = {
   onSelectEmoji: (emoji: EmojiType) => void;

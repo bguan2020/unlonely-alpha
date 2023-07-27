@@ -4,7 +4,7 @@ import NFTModalRoot from "./NFTModal/NFTModalRoot";
 import NFTModalBody from "./NFTModal/NFTModalBody";
 import NFTModalFooter from "./NFTModal/NFTModalFooter";
 import centerEllipses from "../../utils/centerEllipses";
-import { Message } from "../chat/types";
+import { Message } from "../../constants/types/chat";
 
 type Props = {
   message: Message;
