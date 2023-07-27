@@ -1,5 +1,4 @@
-import { Text, Flex } from "@chakra-ui/layout";
-import { Image } from "@chakra-ui/react";
+import { Text, Flex, Image } from "@chakra-ui/react";
 
 import { Channel } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";

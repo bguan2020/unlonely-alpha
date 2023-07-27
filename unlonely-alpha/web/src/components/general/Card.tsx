@@ -1,4 +1,4 @@
-import { Box, BoxProps } from "@chakra-ui/layout";
+import { Box, BoxProps } from "@chakra-ui/react";
 import React from "react";
 
 const Card: React.FC<BoxProps> = ({ children, ...rest }) => {

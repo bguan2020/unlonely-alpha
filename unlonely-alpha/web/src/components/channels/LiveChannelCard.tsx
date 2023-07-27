@@ -1,5 +1,4 @@
-import { Text, Flex } from "@chakra-ui/layout";
-import { Box, Image, Stack } from "@chakra-ui/react";
+import { Text, Flex, Box, Image, Stack } from "@chakra-ui/react";
 import { useState } from "react";
 
 import { Channel } from "../../generated/graphql";
