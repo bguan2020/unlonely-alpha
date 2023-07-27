@@ -27,6 +27,7 @@
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
     "@hookform/resolvers": "^2.9.5",
+    "@privy-io/react-auth": "^1.30.4",
     "@reduxjs/toolkit": "^1.8.5",
     "@types/socket.io": "^3.0.2",
     "@types/socket.io-client": "^3.0.0",
