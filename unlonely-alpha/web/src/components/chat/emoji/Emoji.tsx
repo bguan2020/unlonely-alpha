@@ -1,6 +1,7 @@
 import React from "react";
-import { EmojiType } from "./types";
 import { Button } from "@chakra-ui/react";
+
+import { EmojiType } from "../../../constants/types/chat";
 
 type Props = { emoji: EmojiType; onClick?: (emoji: EmojiType) => void };
 

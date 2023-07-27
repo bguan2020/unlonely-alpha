@@ -11,25 +11,22 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useAccount } from "wagmi";
+import ReactDOM from "react-dom";
+import { useRouter } from "next/router";
 
 import { useAblyChannel } from "../../../hooks/chat/useChannel";
 import { ChatBot } from "../../../constants/types";
 import Badges from "../../../components/chat/Badges";
-import {
-  Message,
-  initializeEmojis,
-} from "../../../components/chat/types/index";
 import ChatForm from "../../../components/chat/ChatForm";
 import NebulousButton from "../../../components/general/button/NebulousButton";
 import EmojiDisplay from "../../../components/chat/emoji/EmojiDisplay";
 import { useUser } from "../../../hooks/context/useUser";
-import ReactDOM from "react-dom";
 import NextHead from "../../../components/layout/NextHead";
 import Participants from "../../../components/presence/Participants";
-import { useRouter } from "next/router";
 import usePostChatByAwsId from "../../../hooks/server/usePostChatByAwsId";
 import centerEllipses from "../../../utils/centerEllipses";
 import { EMOJIS, NULL_ADDRESS, RANDOM_CHAT_COLOR } from "../../../constants";
+import { Message, initializeEmojis } from "../../../constants/types/chat";
 
 const CHAT_INPUT_PANEL_HEIGHT = 80;
 

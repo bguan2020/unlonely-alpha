@@ -22,7 +22,6 @@
     "@chakra-ui/core": "^0.8.0",
     "@chakra-ui/icons": "1.1.1",
     "@chakra-ui/react": "1.8.9",
-    "@coinbase/wallet-sdk": "^3.4.0",
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
     "@hookform/resolvers": "^2.9.5",
