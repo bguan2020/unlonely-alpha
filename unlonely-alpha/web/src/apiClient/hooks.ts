@@ -62,6 +62,7 @@ export const useAuthedMutation = <
       setError({
         message,
         graphQLErrors: [],
+        protocolErrors: [],
         clientErrors: [],
         networkError: null,
         extraInfo: {},
