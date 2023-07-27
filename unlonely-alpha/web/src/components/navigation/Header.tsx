@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 // import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 
-import ConnectWallet from "./ConnectKit";
+import ConnectWallet from "./ConnectWalletButton";
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -33,23 +33,6 @@ const Header: React.FC = () => {
       right="0px"
       zIndex="1000"
     >
-      {/* <IconButton
-        display={["inline-flex", "inline-flex", "none"]}
-        aria-label="Open Menu"
-        size="xs"
-        width="32px"
-        height="32px"
-        marginLeft="0px"
-        fontSize="24px"
-        borderRadius="4px"
-        background="transparent"
-        _hover={{ opacity: 0.8 }}
-        _active={{ opacity: 0.6 }}
-        icon={<HamburgerIcon />}
-        onClick={() => setDisplayMobileMenu(true)}
-      /> */}
-
-      {/* Mobile Nav */}
       <Flex
         as="nav"
         position="fixed"
