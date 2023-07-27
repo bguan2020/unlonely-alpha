@@ -1,5 +1,4 @@
-import { Text, Flex } from "@chakra-ui/layout";
-import { Image, Spacer } from "@chakra-ui/react";
+import { Text, Flex, Image, Spacer } from "@chakra-ui/react";
 import { useState } from "react";
 
 import { LikeObj } from "../../generated/graphql";
