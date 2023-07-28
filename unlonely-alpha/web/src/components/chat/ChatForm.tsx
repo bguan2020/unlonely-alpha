@@ -1,10 +1,10 @@
 import { Flex, Textarea, Stack, IconButton, Image } from "@chakra-ui/react";
 import React, { useState } from "react";
-
 import { CommandData } from "../../constants";
-import { EmojiType } from "../../constants/types/chat";
 import Commands from "./Commands";
+
 import EmojiButton from "./emoji/EmojiButton";
+import { EmojiType } from "./emoji/types";
 
 type Props = {
   sendChatMessage: (message: string, isGif: boolean) => void;

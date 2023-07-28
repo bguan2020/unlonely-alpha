@@ -1,7 +1,7 @@
 import { Box, Text, Flex, useToast } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
-
 import { useChannel } from "../../hooks/chat/useChannel";
+import { initializeEmojis } from "./types/index";
 import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
@@ -14,7 +14,6 @@ import {
   NULL_ADDRESS,
   RANDOM_CHAT_COLOR,
 } from "../../constants";
-import { initializeEmojis } from "../../constants/types/chat";
 
 const AblyHomeChatComponent = () => {
   const { user, userAddress: address } = useUser();

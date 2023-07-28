@@ -1,4 +1,5 @@
 import { Flex, Text, Tooltip } from "@chakra-ui/react";
+import Link from "next/link";
 
 const HeroBanner = () => {
   return (
@@ -17,6 +18,11 @@ const HeroBanner = () => {
       >
         your cozy space on the internet
       </Text>
+      <Link href={"https://lu.ma/unlonely"} passHref target="_blank">
+        <Text textAlign="center" fontSize="20px" textDecoration="underline">
+          see our upcoming stream schedule
+        </Text>
+      </Link>
       <Text textAlign="center" fontSize={["15px", "18px"]} fontStyle="italic">
         <span
           style={{

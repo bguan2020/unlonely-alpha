@@ -1,24 +1,25 @@
 import "../styles/globals.css";
-import "../styles/fireworks.css";
+import theme from "../styles/theme";
 
 import { ChakraProvider } from "@chakra-ui/react";
+
 import { ApolloProvider } from "@apollo/client";
 import { createConfig, WagmiConfig, configureChains } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
+
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
+
 import { ConnectKitProvider } from "connectkit";
 import { AppProps } from "next/app";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 
-import theme from "../styles/theme";
 import { Mainnet, Goerli } from "../constants/networks";
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/context/useUser";
-import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
 
 interface InitialProps {
   cookies: Cookies;
@@ -86,9 +87,7 @@ function App({ Component, pageProps, cookies }: Props) {
         >
           <ApolloProvider client={apolloClient}>
             <UserProvider>
-              <ScreenAnimationsProvider>
-                <Component {...pageProps} />
-              </ScreenAnimationsProvider>
+              <Component {...pageProps} />
             </UserProvider>
           </ApolloProvider>
         </ConnectKitProvider>
