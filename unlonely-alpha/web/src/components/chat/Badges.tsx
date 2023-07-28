@@ -1,7 +1,6 @@
 import { Tooltip, Image } from "@chakra-ui/react";
-
-import { Message } from "../../constants/types/chat";
 import { User } from "../../generated/graphql";
+import { Message } from "./types/index";
 import { useGetBadges } from "../../hooks/internal/useGetBadges";
 
 type Props = {

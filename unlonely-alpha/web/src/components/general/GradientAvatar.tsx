@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/layout";
 
 const GradientAvatar: React.FC<{ size?: number | string; color?: string }> = ({
   size = 15,
