@@ -1,12 +1,14 @@
 import {
   ApolloClient,
+  ApolloLink,
   HttpLink,
   InMemoryCache,
   NormalizedCacheObject,
 } from "@apollo/client";
-import { setContext } from "@apollo/client/link/context";
 import { useMemo } from "react";
-import { getAccessToken } from "@privy-io/react-auth";
+import cookieCutter from "cookie-cutter";
+import pickBy from "lodash/pickBy";
+
 let apolloClient: ApolloClient<NormalizedCacheObject>;
 
 export type Cookies = Record<string, string | undefined>;
@@ -15,67 +17,75 @@ export interface Context {
   signedMessage?: string;
 }
 
-// const authLink = (cookies: Cookies, isSSR?: boolean) =>
-//   new ApolloLink((operation, forward) => {
-//     /**
-//      * Next.js doesn't make cookies available in the same way that they're available in
-//      * the browser, so we have to attempt to get the cookies in two different ways.
-//      *
-//      * This is due to SSR – when we first fetch the page, Next renders the page
-//      * without a `document` being available (which is how cookies are fetched with
-//      * normal JS).
-//      *
-//      * Instead, when rendering with SSR,  Next.js makes cookies available via the
-//      * context object returned from getInitialProps. We call this and fetch the cookies
-//      * in _app.tsx, and then pass the cookies all the way through to this auth link.
-//      *
-//      * In the browser (i.e. when we make requests as we're navigating the React app, as
-//      * opposed to fetching it), we have to get the latest address via a cookie from the
-//      * the document.
-//      *
-//      * Hence we have this method of getting the relevant cookie in two ways.
-//      */
-//     // const browserAddressCookie = useCookies("unlonelyAddress");
-//     /* eslint-disable no-console */
-//     let address: string | undefined;
-//     const nextAddressCookie = cookies["unlonelyAddress"];
-//     console.log(nextAddressCookie, isSSR);
-//     if (nextAddressCookie) {
-//       address = nextAddressCookie;
-//     } else if (isSSR && isSSR === true && !nextAddressCookie) {
-//       console.log("hitting this");
-//       address = undefined;
-//     } else {
-//       const browserAddressCookie = cookieCutter.get("unlonelyAddress");
-//       address = browserAddressCookie || nextAddressCookie;
-//     }
+// Generate a random string
+function generateRandomId() {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
+}
 
-//     const { signedMessage } = operation.getContext() as Context;
+const authLink = (cookies: Cookies, isSSR?: boolean) =>
+  new ApolloLink((operation, forward) => {
+    /**
+     * Next.js doesn't make cookies available in the same way that they're available in
+     * the browser, so we have to attempt to get the cookies in two different ways.
+     *
+     * This is due to SSR – when we first fetch the page, Next renders the page
+     * without a `document` being available (which is how cookies are fetched with
+     * normal JS).
+     *
+     * Instead, when rendering with SSR,  Next.js makes cookies available via the
+     * context object returned from getInitialProps. We call this and fetch the cookies
+     * in _app.tsx, and then pass the cookies all the way through to this auth link.
+     *
+     * In the browser (i.e. when we make requests as we're navigating the React app, as
+     * opposed to fetching it), we have to get the latest address via a cookie from the
+     * the document.
+     *
+     * Hence we have this method of getting the relevant cookie in two ways.
+     */
+    // const browserAddressCookie = useCookies("unlonelyAddress");
+    /* eslint-disable no-console */
+    let address: string | undefined;
+    const nextAddressCookie = cookies["unlonelyAddress"];
+    console.log(nextAddressCookie, isSSR);
+    if (nextAddressCookie) {
+      address = nextAddressCookie;
+    } else if (isSSR && isSSR === true && !nextAddressCookie) {
+      console.log("hitting this");
+      address = undefined;
+    } else {
+      const browserAddressCookie = cookieCutter.get("unlonelyAddress");
+      address = browserAddressCookie || nextAddressCookie;
+    }
 
-//     const headers = {
-//       "x-auth-address": address || undefined,
-//       "x-auth-signed-message": signedMessage || undefined,
-//     };
+    const { signedMessage } = operation.getContext() as Context;
 
-//     operation.setContext({
-//       // Remove undef values from the headers as weirdly these get sent as "undefined"
-//       headers: pickBy(headers),
-//     });
+    const headers = {
+      "x-auth-address": address || undefined,
+      "x-auth-signed-message": signedMessage || undefined,
+    };
 
-//     return forward(operation);
-//   });
+    operation.setContext({
+      // Remove undef values from the headers as weirdly these get sent as "undefined"
+      headers: pickBy(headers),
+    });
 
-const authLink = setContext(async (_, { headers }) => {
-  // get the authentication token from local storage if it exists
-  const token = await getAccessToken();
-  // return the headers to the context so httpLink can read them
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : "",
-    },
-  };
-});
+    return forward(operation);
+  });
+
+// const authLink = setContext(async (_, { headers }) => {
+//   // get the authentication token from local storage if it exists
+//   const token = await getAccessToken();
+//   // return the headers to the context so httpLink can read them
+//   return {
+//     headers: {
+//       ...headers,
+//       authorization: token ? `Bearer ${token}` : "",
+//     },
+//   };
+// });
 
 function createApolloClient(cookies: Cookies, isSSR?: boolean) {
   // const server = "https://sea-lion-app-j3rts.ondigitalocean.app/graphql";
@@ -87,23 +97,23 @@ function createApolloClient(cookies: Cookies, isSSR?: boolean) {
         errorPolicy: "all",
       },
     },
-    // link: ApolloLink.from([
-    //   authLink(cookies, isSSR),
-    //   new HttpLink({
-    //     uri:
-    //       process.env.NODE_ENV === "production"
-    //         ? server
-    //         : "http://localhost:4000/graphql",
-    //   }),
-    // ]),
-    link: authLink.concat(
+    link: ApolloLink.from([
+      authLink(cookies, isSSR),
       new HttpLink({
         uri:
           process.env.NODE_ENV === "production"
             ? server
             : "http://localhost:4000/graphql",
-      })
-    ),
+      }),
+    ]),
+    // link: authLink.concat(
+    //   new HttpLink({
+    //     uri:
+    //       process.env.NODE_ENV === "production"
+    //         ? server
+    //         : "http://localhost:4000/graphql",
+    //   })
+    // ),
   });
 }
 
