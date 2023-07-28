@@ -47,7 +47,7 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
         zIndex={4}
         right={9}
         bottom={10}
-        bg={"rgba(255, 255, 255, 0.5)"}
+        bg={"#D9D9D9"}
         _focus={{ outline: "none" }}
         borderWidth="0px"
       >

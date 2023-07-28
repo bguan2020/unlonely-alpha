@@ -30,12 +30,7 @@ const EmojiCategory = ({
       >
         {category}
       </Text>
-      <SimpleGrid
-        minChildWidth="20px"
-        spacing="4px"
-        alignContent="center"
-        overflow={"auto"}
-      >
+      <SimpleGrid minChildWidth="20px" spacing="2px" alignContent="center">
         {emojis.map((emoji) => (
           <Emoji
             key={emoji.unicodeString}
