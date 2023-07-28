@@ -11,8 +11,9 @@ const Emoji = ({ emoji, onClick }: Props) => {
       bg={
         "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
       }
-      _hover={{ transform: "scale(1.3)" }}
-      _active={{ transform: "scale(1.5)" }}
+      padding="5px"
+      _hover={{}}
+      _active={{}}
       _focus={{}}
       type="button"
       disabled={emoji.unicodeString === "coming soon" ? true : false}
