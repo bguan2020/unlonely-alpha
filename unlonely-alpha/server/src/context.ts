@@ -3,6 +3,7 @@ import { ContextFunction } from "apollo-server-core";
 import { PrivyClient } from "@privy-io/server-auth";
 
 import { findOrCreateUser } from "./utils/user";
+import { verifyAuth } from "./utils/auth";
 
 const prisma = new PrismaClient();
 const privyClient = new PrivyClient(
@@ -27,13 +28,13 @@ export const getContext: ContextFunction = async ({
   let validated = false;
 
   if (user && signedMessage) {
-    // validated = await verifyAuth({ user, signedMessage });
-    try {
-      await privyClient.verifyAuthToken(authToken);
-      validated = true;
-    } catch (e) {
-      console.log("cannot validate privy token", e);
-    }
+    validated = await verifyAuth({ user, signedMessage });
+    // try {
+    //   await privyClient.verifyAuthToken(authToken);
+    //   validated = true;
+    // } catch (e) {
+    //   console.log("cannot validate privy token", e);
+    // }
   }
 
   return {
