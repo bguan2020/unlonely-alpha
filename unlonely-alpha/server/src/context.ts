@@ -20,7 +20,7 @@ export interface Context {
 export const getContext: ContextFunction = async ({
   req,
 }): Promise<Context> => {
-  const authToken = req.headers.authorization.replace("Bearer ", "");
+  // const authToken = req.headers.authorization.replace("Bearer ", "");
   const address = req.headers["x-auth-address"];
   const signedMessage = req.headers["x-auth-signed-message"];
 
