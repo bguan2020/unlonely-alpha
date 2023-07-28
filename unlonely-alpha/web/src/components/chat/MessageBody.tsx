@@ -11,18 +11,18 @@ import {
   ModalContent,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
+
 import {
   ADD_REACTION_EVENT,
   EMOJIS,
   InteractionType,
   NULL_ADDRESS,
 } from "../../constants";
-
+import { Message } from "../../constants/types/chat";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import Badges from "./Badges";
 import EmojiDisplay from "./emoji/EmojiDisplay";
-import { Message } from "./types";
 
 type Props = {
   index: number;
