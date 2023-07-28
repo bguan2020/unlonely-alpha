@@ -20,11 +20,11 @@ import { useRef, useState } from "react";
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
-import LiveChannelList from "../components/channels/LiveChannelList";
 import HeroBanner from "../components/layout/HeroBanner";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { isIosDevice } from "../components/mobile/Banner";
 import { WavyText } from "../components/general/WavyText";
+import LiveChannelList from "../components/channels/LiveChannelList";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -233,7 +233,7 @@ export default function Page() {
 
           <Flex direction="column" gap={5}>
             <HeroBanner />
-            {!sideBarBreakpoints && (
+            {!sideBarBreakpoints && !loading && (
               <Flex justifyContent={"center"}>
                 <Button
                   ref={btnRef}
@@ -248,10 +248,19 @@ export default function Page() {
                 </Button>
               </Flex>
             )}
-            {!channels || loading ? null : (
-              <>
-                <LiveChannelList channels={channels} />
-              </>
+            {!channels || loading ? (
+              <Flex
+                alignItems={"center"}
+                justifyContent={"center"}
+                width="100%"
+                fontSize={"30px"}
+                gap="15px"
+                my="3rem"
+              >
+                <WavyText text="fetching livestreams..." />
+              </Flex>
+            ) : (
+              <LiveChannelList channels={channels} />
             )}
           </Flex>
           <Flex p="16px">

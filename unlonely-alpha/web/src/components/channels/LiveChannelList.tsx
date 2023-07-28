@@ -1,5 +1,6 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import { useLayoutEffect, useRef, useState } from "react";
+
 import { Channel } from "../../generated/graphql";
 import LiveChannelCard from "./LiveChannelCard";
 
@@ -46,11 +47,21 @@ const LiveChannelList: React.FunctionComponent<Props> = ({ channels }) => {
           justifyContent={isCentered ? "center" : "flex-start"}
           ref={listRef}
         >
-          {channels?.map((channel: Channel) =>
-            channel.isLive ? (
-              <LiveChannelCard key={channel.id} channel={channel} />
-            ) : null
-          )}
+          {liveChannels.map((channel: Channel) => (
+            <LiveChannelCard key={channel.id} channel={channel} />
+          ))}
+        </Flex>
+      )}
+      {liveChannels && liveChannels.length === 0 && (
+        <Flex
+          alignItems={"center"}
+          justifyContent={"center"}
+          width="100%"
+          fontSize={"30px"}
+          gap="15px"
+          my="2rem"
+        >
+          <Text fontFamily={"Neue Pixel Sans"}>no one is live right now</Text>
         </Flex>
       )}
     </>
