@@ -1,15 +1,11 @@
 import { PrismaClient, User } from "@prisma/client";
 import { ContextFunction } from "apollo-server-core";
-import { PrivyClient } from "@privy-io/server-auth";
 
+import { verifyAuth } from "./utils/auth";
 import { findOrCreateUser } from "./utils/user";
 import { verifyAuth } from "./utils/auth";
 
 const prisma = new PrismaClient();
-const privyClient = new PrivyClient(
-  String(process.env.PRIVY_APP_ID),
-  String(process.env.PRIVY_APP_SECRET)
-);
 
 export interface Context {
   prisma: PrismaClient;

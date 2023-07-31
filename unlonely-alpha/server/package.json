@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@prisma/client": "^3.10.0",
-    "@privy-io/server-auth": "^1.4.0",
     "ably": "^1.2.29",
     "apollo-boost": "^0.4.9",
     "apollo-server": "3.6.2",

@@ -1,9 +1,3 @@
-export type EmojiType = {
-  type: "unicode";
-  name: string;
-  unicodeString: string;
-};
-
 export type EmojiTypes = [
   {
     emojiType: "👑";

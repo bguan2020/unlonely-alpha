@@ -1,10 +1,9 @@
 import Ably from "ably/promises";
 import { Types } from "ably";
 import { useEffect, useState } from "react";
-
 import { useChannelContext } from "../context/useChannel";
+import { Message } from "../../components/chat/types";
 import { ADD_REACTION_EVENT } from "../../constants";
-import { Message } from "../../constants/types/chat";
 
 const ably = new Ably.Realtime.Promise({ authUrl: "/api/createTokenRequest" });
 
