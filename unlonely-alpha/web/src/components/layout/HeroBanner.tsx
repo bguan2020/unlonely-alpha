@@ -1,5 +1,4 @@
 import { Flex, Text, Tooltip } from "@chakra-ui/react";
-import Link from "next/link";
 
 const HeroBanner = () => {
   return (

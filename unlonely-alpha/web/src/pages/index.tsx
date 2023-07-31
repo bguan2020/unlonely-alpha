@@ -14,17 +14,17 @@ import {
   useBreakpointValue,
   useDisclosure,
 } from "@chakra-ui/react";
+import Link from "next/link";
+import { useState, useRef } from "react";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import HeroBanner from "../components/layout/HeroBanner";
-import AblyHomeChatComponent from "../components/chat/HomeChatComponent";
+// import AblyHomeChatComponent from "../components/chat/HomeChatComponent";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
-import Link from "next/link";
 import { isIosDevice } from "../components/mobile/Banner";
-import { useState, useRef } from "react";
 import { WavyText } from "../components/general/WavyText";
 
 const CHANNEL_FEED_QUERY = gql`
@@ -218,7 +218,7 @@ export default function Page() {
           gap={"10px"}
           pb="10px"
         >
-                <Drawer
+          <Drawer
             size={"full"}
             isOpen={isOpen}
             placement="right"
