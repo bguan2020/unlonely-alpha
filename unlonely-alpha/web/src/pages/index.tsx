@@ -73,7 +73,6 @@ const FixedComponent = () => {
     <Flex
       borderWidth="1px"
       borderRadius={"10px"}
-      px="12px"
       bg={
         "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
       }
