@@ -15,6 +15,7 @@ import {
 import { GetServerSidePropsContext } from "next";
 import React, { useCallback, useMemo, useState } from "react";
 import { isAddress } from "viem";
+
 import { initializeApollo } from "../../apiClient/client";
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
@@ -401,8 +402,8 @@ const ChannelPage = ({
                   }
                   width="100%"
                   maxW={["768px", "100%", "380px"]}
-                  maxH={["500px", "850px"]}
-                  minH={["500px", "850px"]}
+                  maxH={["500px", "600px", "600px", "700px"]}
+                  minH={["500px", "600px", "600px", "700px"]}
                   boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
                 >
                   <Container
