@@ -1,8 +1,7 @@
-import { Text, Flex } from "@chakra-ui/layout";
-import { Box, Image, Spacer } from "@chakra-ui/react";
+import { Text, Flex, Box, Image, Spacer } from "@chakra-ui/react";
+import Link from "next/link";
 
 import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
-import Link from "next/link";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 

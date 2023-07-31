@@ -75,7 +75,21 @@ const authLink = (cookies: Cookies, isSSR?: boolean) =>
     return forward(operation);
   });
 
+// const authLink = setContext(async (_, { headers }) => {
+//   // get the authentication token from local storage if it exists
+//   const token = await getAccessToken();
+//   // return the headers to the context so httpLink can read them
+//   return {
+//     headers: {
+//       ...headers,
+//       authorization: token ? `Bearer ${token}` : "",
+//     },
+//   };
+// });
+
 function createApolloClient(cookies: Cookies, isSSR?: boolean) {
+  // const server = "https://sea-lion-app-j3rts.ondigitalocean.app/graphql";
+  const server = "https://unlonely-vqeii.ondigitalocean.app/graphql";
   return new ApolloClient({
     cache: new InMemoryCache(),
     defaultOptions: {
@@ -88,10 +102,18 @@ function createApolloClient(cookies: Cookies, isSSR?: boolean) {
       new HttpLink({
         uri:
           process.env.NODE_ENV === "production"
-            ? "https://unlonely-vqeii.ondigitalocean.app/graphql"
+            ? server
             : "http://localhost:4000/graphql",
       }),
     ]),
+    // link: authLink.concat(
+    //   new HttpLink({
+    //     uri:
+    //       process.env.NODE_ENV === "production"
+    //         ? server
+    //         : "http://localhost:4000/graphql",
+    //   })
+    // ),
   });
 }
 

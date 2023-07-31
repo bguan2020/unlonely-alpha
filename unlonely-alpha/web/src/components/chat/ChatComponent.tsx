@@ -21,7 +21,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isAddress } from "viem";
 
 import { useChannel } from "../../hooks/chat/useChannel";
-import { initializeEmojis } from "./types/index";
+import { initializeEmojis } from "../../constants/types/chat";
 import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
@@ -650,14 +650,16 @@ const AblyChatComponent = ({
               <Text fontSize={"36px"} fontWeight="bold" textAlign={"center"}>
                 HIGH SCORES
               </Text>
-              <Text
-                color={"#B6B6B6"}
-                fontSize={"14px"}
-                fontWeight="400"
-                textAlign={"center"}
-              >
-                {`who owns the most $${channelBySlug?.token?.symbol}?`}
-              </Text>
+              {channelBySlug?.token?.symbol && (
+                <Text
+                  color={"#B6B6B6"}
+                  fontSize={"14px"}
+                  fontWeight="400"
+                  textAlign={"center"}
+                >
+                  {`who owns the most $${channelBySlug?.token?.symbol}?`}
+                </Text>
+              )}
               {holdersLoading && (
                 <Flex justifyContent={"center"} p="20px">
                   <Spinner />

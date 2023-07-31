@@ -1,23 +1,30 @@
 import { gql, useQuery } from "@apollo/client";
 import {
   Box,
+  Button,
   Container,
+  Drawer,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
   Flex,
   Stack,
   Text,
   useBreakpointValue,
+  useDisclosure,
 } from "@chakra-ui/react";
+import Link from "next/link";
+import { useState, useRef } from "react";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import HeroBanner from "../components/layout/HeroBanner";
-import AblyHomeChatComponent from "../components/chat/HomeChatComponent";
+// import AblyHomeChatComponent from "../components/chat/HomeChatComponent";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
-import Link from "next/link";
 import { isIosDevice } from "../components/mobile/Banner";
-import { useState } from "react";
 import { WavyText } from "../components/general/WavyText";
 
 const CHANNEL_FEED_QUERY = gql`
@@ -66,7 +73,6 @@ const FixedComponent = () => {
     <Flex
       borderWidth="1px"
       borderRadius={"10px"}
-      px="12px"
       bg={
         "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
       }
@@ -74,7 +80,18 @@ const FixedComponent = () => {
       boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
       background={"#19162F"}
     >
-      <AblyHomeChatComponent />
+      {/* <AblyHomeChatComponent />
+       */}
+      <iframe
+        src="https://lu.ma/embed/calendar/cal-i5SksIDn63DmCXs/events?lt=dark"
+        frameBorder="0"
+        width="100%"
+        aria-hidden="false"
+        style={{
+          borderRadius: "10px",
+          borderWidth: "1px",
+        }}
+      />
     </Flex>
   );
 };
@@ -167,7 +184,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
 };
 
 export default function Page() {
-  const { data, loading, error } = useQuery(CHANNEL_FEED_QUERY, {
+  const { data, loading } = useQuery(CHANNEL_FEED_QUERY, {
     variables: {
       data: {
         limit: 10,
@@ -176,11 +193,14 @@ export default function Page() {
     },
   });
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const btnRef = useRef<HTMLButtonElement>(null);
+
   const [directingToChannel, setDirectingToChannel] = useState<boolean>(false);
 
   const channels = data?.getChannelFeed;
 
-  const chatBoxBreakpoints = useBreakpointValue({
+  const sideBarBreakpoints = useBreakpointValue({
     base: false,
     sm: false,
     md: true,
@@ -197,12 +217,50 @@ export default function Page() {
           gap={"10px"}
           pb="10px"
         >
+          <Drawer
+            size={"full"}
+            isOpen={isOpen}
+            placement="right"
+            onClose={onClose}
+            finalFocusRef={btnRef}
+          >
+            <DrawerOverlay />
+            <DrawerContent bg="#19162F">
+              <DrawerCloseButton />
+              <DrawerHeader bg="#19162F">schedule</DrawerHeader>
+              <FixedComponent />
+            </DrawerContent>
+          </Drawer>
           <Flex direction="column" gap={5}>
             <HeroBanner />
-            {!channels || loading ? null : (
-              <>
-                <LiveChannelList channels={channels} />
-              </>
+            {!sideBarBreakpoints && !loading && (
+              <Flex justifyContent={"center"}>
+                <Button
+                  ref={btnRef}
+                  onClick={onOpen}
+                  bg="#CB520E"
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  borderRadius="25px"
+                >
+                  see schedule
+                </Button>
+              </Flex>
+            )}
+            {!channels || loading ? (
+              <Flex
+                alignItems={"center"}
+                justifyContent={"center"}
+                width="100%"
+                fontSize={"30px"}
+                gap="15px"
+                my="3rem"
+              >
+                <WavyText text="fetching livestreams..." />
+              </Flex>
+            ) : (
+              <LiveChannelList channels={channels} />
             )}
           </Flex>
           <Flex p="16px">
@@ -224,7 +282,7 @@ export default function Page() {
                 />
               </Container>
             </Box>
-            {chatBoxBreakpoints && (
+            {sideBarBreakpoints && (
               <Box
                 width={{
                   base: "0%",
@@ -232,7 +290,7 @@ export default function Page() {
                   xl: "30%",
                 }}
               >
-                <Container height="98vh">
+                <Container height="100vh">
                   <FixedComponent />
                 </Container>
               </Box>

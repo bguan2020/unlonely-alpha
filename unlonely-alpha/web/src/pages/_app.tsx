@@ -1,4 +1,5 @@
 import "../styles/globals.css";
+import "../styles/fireworks.css";
 import theme from "../styles/theme";
 
 import { ChakraProvider } from "@chakra-ui/react";
@@ -20,6 +21,7 @@ import cookies from "next-cookies";
 import { Mainnet, Goerli } from "../constants/networks";
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/context/useUser";
+import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
 
 interface InitialProps {
   cookies: Cookies;
@@ -87,7 +89,9 @@ function App({ Component, pageProps, cookies }: Props) {
         >
           <ApolloProvider client={apolloClient}>
             <UserProvider>
-              <Component {...pageProps} />
+              <ScreenAnimationsProvider>
+                <Component {...pageProps} />
+              </ScreenAnimationsProvider>
             </UserProvider>
           </ApolloProvider>
         </ConnectKitProvider>
