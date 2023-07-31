@@ -21,6 +21,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isAddress } from "viem";
 
 import { useChannel } from "../../hooks/chat/useChannel";
+import { initializeEmojis } from "./types/index";
 import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
@@ -45,7 +46,6 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { ChatCommand } from "../../generated/graphql";
 import CustomButton from "../arcade/CustomButton";
-import { initializeEmojis } from "../../constants/types/chat";
 
 type Props = {
   username: string | null | undefined;

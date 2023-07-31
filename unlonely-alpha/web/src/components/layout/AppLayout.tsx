@@ -10,12 +10,12 @@ import {
   ToastId,
 } from "@chakra-ui/react";
 import { ApolloError } from "@apollo/client";
-import { useNetwork } from "wagmi";
-import { useEffect, useMemo, useRef } from "react";
 
 import NextHead from "./NextHead";
 import Header from "../navigation/Header";
 import MobileBanner from "../mobile/Banner";
+import { useNetwork } from "wagmi";
+import { useEffect, useMemo, useRef } from "react";
 import { NETWORKS } from "../../constants/networks";
 
 type Props = {
