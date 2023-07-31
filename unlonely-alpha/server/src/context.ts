@@ -29,7 +29,7 @@ export const getContext: ContextFunction = async ({
     //   validated = true;
     // } catch (e) {
     //   console.log("cannot validate privy token", e);
-    // }
+    // } ok
   }
 
   return {
