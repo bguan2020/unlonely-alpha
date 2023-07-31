@@ -158,7 +158,7 @@ const ClipDetail = () => {
         duration: 3000,
         isClosable: true,
       });
-      const { res } = await postNFC({
+      const _res = await postNFC({
         videoLink: clipUrl,
         videoThumbnail: clipThumbnail,
         title,
@@ -169,7 +169,7 @@ const ClipDetail = () => {
             )}`
           : null,
       });
-      router.push(`/nfc/${res?.id}`);
+      router.push(`/nfc/${_res?.res?.id}`);
     };
     if (isTxSuccess) {
       _postNFC();
