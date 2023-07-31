@@ -22,7 +22,7 @@ import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import Badges from "./Badges";
 import EmojiDisplay from "./emoji/EmojiDisplay";
-import { Message } from "./types";
+import { Message } from "../../constants/types/chat";
 
 type Props = {
   index: number;

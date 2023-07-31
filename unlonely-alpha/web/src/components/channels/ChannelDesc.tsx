@@ -1,5 +1,4 @@
-import { Text, Flex } from "@chakra-ui/layout";
-import { Avatar } from "@chakra-ui/react";
+import { Avatar, Text, Flex } from "@chakra-ui/react";
 
 import { anonUrl } from "../presence/AnonUrl";
 import { useUser } from "../../hooks/context/useUser";

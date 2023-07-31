@@ -10,7 +10,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import EmojiPicker from "./EmojiPicker";
-import { EmojiType } from "./types";
+import { EmojiType } from "../../../constants/types/chat";
 
 type Props = {
   onSelectEmoji: (emoji: EmojiType) => void;
@@ -32,7 +32,7 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
           width={"40px"}
           height={"40px"}
           size="lg"
-          bg="rgba(255,255,255,0)"
+          bg={"#D9D9D9"}
           _focus={{}}
           _hover={{ transform: "scale(1.15)" }}
           _active={{ transform: "scale(1.3)" }}

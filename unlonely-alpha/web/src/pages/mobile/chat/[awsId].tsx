@@ -18,7 +18,7 @@ import Badges from "../../../components/chat/Badges";
 import {
   Message,
   initializeEmojis,
-} from "../../../components/chat/types/index";
+} from "../../../constants/types/chat";
 import ChatForm from "../../../components/chat/ChatForm";
 import NebulousButton from "../../../components/general/button/NebulousButton";
 import EmojiDisplay from "../../../components/chat/emoji/EmojiDisplay";

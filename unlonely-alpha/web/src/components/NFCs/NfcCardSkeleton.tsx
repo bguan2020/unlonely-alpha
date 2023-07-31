@@ -1,5 +1,4 @@
-import { Flex } from "@chakra-ui/layout";
-import { Skeleton, SkeletonCircle } from "@chakra-ui/react";
+import { Skeleton, SkeletonCircle, Flex } from "@chakra-ui/react";
 
 const NfcCardSkeleton = () => {
   return (

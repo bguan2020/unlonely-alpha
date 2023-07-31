@@ -648,53 +648,6 @@ export type VideoFeedInput = {
   skip?: InputMaybe<Scalars["Int"]>;
 };
 
-export type TaskCard_TaskFragment = {
-  __typename?: "Task";
-  id: string;
-  taskType: string;
-  youtubeId?: string | null;
-  title?: string | null;
-  thumbnail?: string | null;
-  description?: string | null;
-  completed: boolean;
-  createdAt: any;
-  owner: { __typename?: "User"; username?: string | null; address: string };
-};
-
-export type TaskFeedQueryVariables = Exact<{
-  data: TaskFeedInput;
-}>;
-
-export type TaskFeedQuery = {
-  __typename?: "Query";
-  getTaskFeed?: Array<{
-    __typename?: "Task";
-    id: string;
-    taskType: string;
-    youtubeId?: string | null;
-    title?: string | null;
-    thumbnail?: string | null;
-    description?: string | null;
-    link?: string | null;
-    completed: boolean;
-    owner: { __typename?: "User"; username?: string | null; address: string };
-  } | null> | null;
-};
-
-export type VideoCard_VideoFragment = {
-  __typename?: "Video";
-  id: string;
-  youtubeId: string;
-  title: string;
-  thumbnail: string;
-  description: string;
-  score: number;
-  duration: number;
-  createdAt: any;
-  liked?: boolean | null;
-  owner: { __typename?: "User"; username?: string | null; address: string };
-};
-
 export type QueryQueryVariables = Exact<{
   data: GetUserTokenHoldingInput;
 }>;
@@ -817,6 +770,53 @@ export type GetAllUsersWithChannelQuery = {
     __typename?: "User";
     address: string;
     username?: string | null;
+  } | null> | null;
+};
+
+export type TaskCard_TaskFragment = {
+  __typename?: "Task";
+  id: string;
+  taskType: string;
+  youtubeId?: string | null;
+  title?: string | null;
+  thumbnail?: string | null;
+  description?: string | null;
+  completed: boolean;
+  createdAt: any;
+  owner: { __typename?: "User"; username?: string | null; address: string };
+};
+
+export type VideoCard_VideoFragment = {
+  __typename?: "Video";
+  id: string;
+  youtubeId: string;
+  title: string;
+  thumbnail: string;
+  description: string;
+  score: number;
+  duration: number;
+  createdAt: any;
+  liked?: boolean | null;
+  owner: { __typename?: "User"; username?: string | null; address: string };
+};
+
+export type TaskFeedQueryVariables = Exact<{
+  data: TaskFeedInput;
+}>;
+
+export type TaskFeedQuery = {
+  __typename?: "Query";
+  getTaskFeed?: Array<{
+    __typename?: "Task";
+    id: string;
+    taskType: string;
+    youtubeId?: string | null;
+    title?: string | null;
+    thumbnail?: string | null;
+    description?: string | null;
+    link?: string | null;
+    completed: boolean;
+    owner: { __typename?: "User"; username?: string | null; address: string };
   } | null> | null;
 };
 
@@ -1189,70 +1189,6 @@ export const VideoCard_VideoFragmentDoc = gql`
     liked
   }
 `;
-export const TaskFeedDocument = gql`
-  query TaskFeed($data: TaskFeedInput!) {
-    getTaskFeed(data: $data) {
-      id
-      taskType
-      youtubeId
-      title
-      thumbnail
-      description
-      link
-      completed
-      owner {
-        username
-        address
-      }
-    }
-  }
-`;
-
-/**
- * __useTaskFeedQuery__
- *
- * To run a query within a React component, call `useTaskFeedQuery` and pass it any options that fit your needs.
- * When your component renders, `useTaskFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useTaskFeedQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useTaskFeedQuery(
-  baseOptions: Apollo.QueryHookOptions<TaskFeedQuery, TaskFeedQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<TaskFeedQuery, TaskFeedQueryVariables>(
-    TaskFeedDocument,
-    options
-  );
-}
-export function useTaskFeedLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    TaskFeedQuery,
-    TaskFeedQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<TaskFeedQuery, TaskFeedQueryVariables>(
-    TaskFeedDocument,
-    options
-  );
-}
-export type TaskFeedQueryHookResult = ReturnType<typeof useTaskFeedQuery>;
-export type TaskFeedLazyQueryHookResult = ReturnType<
-  typeof useTaskFeedLazyQuery
->;
-export type TaskFeedQueryResult = Apollo.QueryResult<
-  TaskFeedQuery,
-  TaskFeedQueryVariables
->;
 export const QueryDocument = gql`
   query Query($data: GetUserTokenHoldingInput!) {
     getUserTokenHolding(data: $data)
@@ -1697,6 +1633,70 @@ export type GetAllUsersWithChannelLazyQueryHookResult = ReturnType<
 export type GetAllUsersWithChannelQueryResult = Apollo.QueryResult<
   GetAllUsersWithChannelQuery,
   GetAllUsersWithChannelQueryVariables
+>;
+export const TaskFeedDocument = gql`
+  query TaskFeed($data: TaskFeedInput!) {
+    getTaskFeed(data: $data) {
+      id
+      taskType
+      youtubeId
+      title
+      thumbnail
+      description
+      link
+      completed
+      owner {
+        username
+        address
+      }
+    }
+  }
+`;
+
+/**
+ * __useTaskFeedQuery__
+ *
+ * To run a query within a React component, call `useTaskFeedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTaskFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTaskFeedQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useTaskFeedQuery(
+  baseOptions: Apollo.QueryHookOptions<TaskFeedQuery, TaskFeedQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<TaskFeedQuery, TaskFeedQueryVariables>(
+    TaskFeedDocument,
+    options
+  );
+}
+export function useTaskFeedLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    TaskFeedQuery,
+    TaskFeedQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<TaskFeedQuery, TaskFeedQueryVariables>(
+    TaskFeedDocument,
+    options
+  );
+}
+export type TaskFeedQueryHookResult = ReturnType<typeof useTaskFeedQuery>;
+export type TaskFeedLazyQueryHookResult = ReturnType<
+  typeof useTaskFeedLazyQuery
+>;
+export type TaskFeedQueryResult = Apollo.QueryResult<
+  TaskFeedQuery,
+  TaskFeedQueryVariables
 >;
 export const GetUserDocument = gql`
   query getUser($data: GetUserInput!) {

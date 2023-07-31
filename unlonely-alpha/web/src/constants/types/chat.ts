@@ -1,3 +1,9 @@
+export type EmojiType = {
+  type: "unicode";
+  name: string;
+  unicodeString: string;
+};
+
 export type EmojiTypes = [
   {
     emojiType: "👑";
@@ -44,7 +50,6 @@ export type EmojiTypes = [
     count: number;
   }
 ];
-
 export type Message = {
   clientId: string;
   connectionId: string;
@@ -71,7 +76,6 @@ export type Message = {
     timeserial: string;
   };
 };
-
 export const initializeEmojis = [
   {
     emojiType: "👑",

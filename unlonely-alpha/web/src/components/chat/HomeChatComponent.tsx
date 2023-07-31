@@ -1,7 +1,7 @@
 import { Box, Text, Flex, useToast } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useChannel } from "../../hooks/chat/useChannel";
-import { initializeEmojis } from "./types/index";
+import { initializeEmojis } from "../../constants/types/chat";
 import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
