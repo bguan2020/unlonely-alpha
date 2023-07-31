@@ -1,4 +1,11 @@
-import { Flex, Textarea, Stack, IconButton, Image } from "@chakra-ui/react";
+import {
+  Flex,
+  Textarea,
+  Stack,
+  IconButton,
+  Image,
+  Tooltip,
+} from "@chakra-ui/react";
 import React, { useState } from "react";
 
 import { CommandData } from "../../constants";
@@ -124,20 +131,30 @@ const ChatForm = ({
           </Flex>
           <Stack direction="column">
             <Flex justifyContent="right">
-              <IconButton
-                onClick={() =>
-                  window.open(
-                    `/clip?arn=${channelBySlug?.channelArn || ""}`,
-                    "_blank"
-                  )
-                }
-                icon={<Image src="/svg/cut.svg" />}
-                aria-label="clip stream"
-                bg="transparent"
-                _focus={{}}
-                _hover={{ transform: "scale(1.15)" }}
-                _active={{ transform: "scale(1.3)" }}
-              />
+              <Tooltip
+                defaultIsOpen
+                label="clipping is now free!"
+                placement="top"
+                background="#1db57d"
+                fontSize={"15px"}
+                hasArrow
+              >
+                <IconButton
+                  onClick={() =>
+                    window.open(
+                      `/clip?arn=${channelBySlug?.channelArn || ""}`,
+                      "_blank"
+                    )
+                  }
+                  icon={<Image src="/svg/cut.svg" />}
+                  aria-label="clip stream"
+                  className="zooming-text"
+                  bg="transparent"
+                  _focus={{}}
+                  _hover={{ transform: "scale(1.15)" }}
+                  _active={{ transform: "scale(1.3)" }}
+                />
+              </Tooltip>
             </Flex>
             <EmojiButton
               mobile={mobile}

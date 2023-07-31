@@ -28,29 +28,33 @@ const usePostNFC = ({ onError }: Props) => {
 
   const postNFC = useCallback(
     async (data) => {
-      setLoading(true);
-      const mutationResult = await mutate({
-        variables: {
-          data: {
-            title: data.title,
-            videoLink: data.videoLink,
-            videoThumbnail: data.videoThumbnail,
-            openseaLink: data.openseaLink,
+      try {
+        setLoading(true);
+        const mutationResult = await mutate({
+          variables: {
+            data: {
+              title: data.title,
+              videoLink: data.videoLink,
+              videoThumbnail: data.videoThumbnail,
+              openseaLink: data.openseaLink,
+            },
           },
-        },
-      });
+        });
 
-      const res = mutationResult?.data?.postNFC;
-      /* eslint-disable no-console */
-      if (res) {
-        console.log("success");
-      } else {
-        onError && onError();
+        const res = mutationResult?.data?.postNFC;
+        /* eslint-disable no-console */
+        if (res) {
+          console.log("success");
+        } else {
+          onError && onError();
+        }
+        setLoading(false);
+        return {
+          res,
+        };
+      } catch (e) {
+        console.log("postNFC", JSON.stringify(e, null, 2));
       }
-      setLoading(false);
-      return {
-        res,
-      };
     },
     [mutate, onError]
   );

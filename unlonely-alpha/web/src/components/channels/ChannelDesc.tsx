@@ -47,6 +47,7 @@ const ChannelDesc = () => {
             fontSize={["1rem", "1.5rem", "2rem"]}
             fontWeight="bold"
             noOfLines={2}
+            wordBreak={"break-word"}
           >
             {channelBySlug?.name}
           </Text>

@@ -10,7 +10,7 @@ import {
   Spinner,
   Button,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/router";
@@ -86,16 +86,20 @@ const ClipDetail = () => {
     }
   }, [user?.address]);
 
-  const submitClip = useCallback(async () => {
+  const submitClip = async () => {
     const { title } = watch();
-    const { res } = await postNFC({
+    const _res = await postNFC({
       videoLink: clipUrl,
       videoThumbnail: clipThumbnail,
       title,
-      openseaLink: null,
+      openseaLink: "",
     });
-    router.push(`/nfc/${res?.id}`);
-  }, [clipUrl, clipThumbnail]);
+    if (!_res?.res?.id) {
+      setFormError(["An unknown error occurred"]);
+      return;
+    }
+    router.push(`/nfc/${_res?.res?.id}`);
+  };
 
   return (
     <>
@@ -112,29 +116,35 @@ const ClipDetail = () => {
             <>
               {!clipUrl ? (
                 <Flex width="100%" justifyContent="center">
-                  <Flex direction="column" width="60%">
-                    <Progress
-                      size="md"
-                      value={progressBar}
-                      hasStripe
-                      isAnimated
-                    />
-                    {progressBar <= 20 && (
-                      <Text fontSize="16px">generating clip...</Text>
+                  <>
+                    {user ? (
+                      <Flex direction="column" width="60%">
+                        <Progress
+                          size="md"
+                          value={progressBar}
+                          hasStripe
+                          isAnimated
+                        />
+                        {progressBar <= 20 && (
+                          <Text fontSize="16px">generating clip...</Text>
+                        )}
+                        {progressBar <= 40 && progressBar > 20 && (
+                          <Text fontSize="16px">contacting AWS...</Text>
+                        )}
+                        {progressBar <= 60 && progressBar > 40 && (
+                          <Text fontSize="16px">praying to Bezos...</Text>
+                        )}
+                        {progressBar <= 80 && progressBar > 60 && (
+                          <Text fontSize="16px">almost done...</Text>
+                        )}
+                        {progressBar <= 100 && progressBar > 80 && (
+                          <Text fontSize="16px">finalizing clip...</Text>
+                        )}
+                      </Flex>
+                    ) : (
+                      <Text>You are not signed in.</Text>
                     )}
-                    {progressBar <= 40 && progressBar > 20 && (
-                      <Text fontSize="16px">contacting AWS...</Text>
-                    )}
-                    {progressBar <= 60 && progressBar > 40 && (
-                      <Text fontSize="16px">praying to Bezos...</Text>
-                    )}
-                    {progressBar <= 80 && progressBar > 60 && (
-                      <Text fontSize="16px">almost done...</Text>
-                    )}
-                    {progressBar <= 100 && progressBar > 80 && (
-                      <Text fontSize="16px">finalizing clip...</Text>
-                    )}
-                  </Flex>
+                  </>
                 </Flex>
               ) : (
                 <Flex width="100%" justifyContent="center">
@@ -145,16 +155,17 @@ const ClipDetail = () => {
                 <Flex width="80%" justifyContent="center" direction="column">
                   {!clipUrl ? (
                     <Flex width="100%" justifyContent="center">
-                      <Text fontSize="16px">
-                        Do no refresh or close this page! Clip is being
-                        generated! This will take a few minutes, so go back to
-                        the livestream if you want!
-                      </Text>
+                      {user && (
+                        <Text fontSize="16px">
+                          Do not refresh or close this page! Clip is being
+                          generated! This will take a few minutes, so go back to
+                          the livestream if you want!
+                        </Text>
+                      )}
                     </Flex>
                   ) : postingClip ? (
                     <Flex width="100%" justifyContent="center">
                       <Spinner />
-                      <Text></Text>
                     </Flex>
                   ) : (
                     <Flex width="100%" justifyContent="center">
