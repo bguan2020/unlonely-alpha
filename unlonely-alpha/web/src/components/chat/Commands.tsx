@@ -1,5 +1,6 @@
 import { Flex, Text, Button, Stack } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
+
 import { BaseChatCommand, CommandData } from "../../constants";
 interface Command {
   name: string;
@@ -18,7 +19,7 @@ type Props = {
 const commandList: Command[] = [
   {
     name: BaseChatCommand.CLIP.concat(""),
-    description: "Make a clip that becomes a NFT.",
+    description: "Make a clip.",
     value: BaseChatCommand.CLIP.concat(" "),
   },
   {

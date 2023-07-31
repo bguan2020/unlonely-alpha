@@ -23,7 +23,7 @@ export enum BaseChatCommand {
   COMMANDS = "!commands",
   CHATBOT = "!chatbot",
   RULES = "!rules",
-  CLIP = "!nfc",
+  CLIP = "!clip",
 }
 
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -53,3 +53,6 @@ export type CommandData = {
   command: string;
   response: string;
 };
+
+export const IPFS_PROJECT_ID = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
+export const IPFS_PROJECT_SECRET = "7d400aacc9bc6c0f0d6e59b65a83d764";
