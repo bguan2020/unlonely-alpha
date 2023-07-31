@@ -4,8 +4,7 @@ import { CommandData } from "../../constants";
 import Commands from "./Commands";
 
 import EmojiButton from "./emoji/EmojiButton";
-import { EmojiType } from "./emoji/types";
-
+import { EmojiType } from "../../constants/types/chat";
 type Props = {
   sendChatMessage: (message: string, isGif: boolean) => void;
   inputBox: HTMLTextAreaElement | null;

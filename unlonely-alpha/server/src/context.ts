@@ -3,7 +3,6 @@ import { ContextFunction } from "apollo-server-core";
 
 import { verifyAuth } from "./utils/auth";
 import { findOrCreateUser } from "./utils/user";
-import { verifyAuth } from "./utils/auth";
 
 const prisma = new PrismaClient();
 

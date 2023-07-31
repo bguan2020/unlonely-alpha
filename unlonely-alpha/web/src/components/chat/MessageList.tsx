@@ -2,7 +2,7 @@ import { Flex, Text } from "@chakra-ui/react";
 import React from "react";
 
 import MessageBody from "./MessageBody";
-import { Message } from "./types";
+import { Message } from "../../constants/types/chat";
 
 type Props = {
   messages: Message[];
