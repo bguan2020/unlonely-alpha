@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Text, Flex, Spinner } from "@chakra-ui/react";
+
 import IVSPlayer from "./IVSPlayer";
 import useScript from "../../hooks/internal/useScript";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -57,7 +58,7 @@ const StreamComponent: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
       width="100%"
       height={
         isTheatreMode
-          ? { base: "100%", sm: "700px", md: "700px", lg: "700px" }
+          ? { base: "100%", sm: "500px", md: "600px", lg: "700px" }
           : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
       }
     >
