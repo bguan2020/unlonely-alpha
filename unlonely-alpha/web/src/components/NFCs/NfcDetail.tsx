@@ -7,10 +7,12 @@ import {
   useToast,
   Alert,
   AlertIcon,
+  Box,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNetwork } from "wagmi";
 import { create } from "ipfs-http-client";
+import Link from "next/link";
 
 import { LikeObj, NfcDetailQuery } from "../../generated/graphql";
 import useLike from "../../hooks/server/useLike";
@@ -54,7 +56,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
   const [uri, setUri] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   const [isUploadingToIPFS, setIsUploadingToIPFS] = useState<boolean>(false);
-  const submit = async () => {
+  const submitLike = async () => {
     setButtonDisabled(true);
     await like();
 
@@ -77,7 +79,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
     );
   }, [network]);
 
-  const { writeAsync, txData, isTxLoading, isTxSuccess, writeError, txError } =
+  const { writeAsync, isTxLoading, isTxSuccess, writeError, txError } =
     useWrite(
       {
         address: UNLONELYNFCV2_ADDRESS,
@@ -95,15 +97,67 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         },
         onWriteSuccess: (data) => {
           console.log("nfc mint write success", data);
+          toast({
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`https://etherscan.io/tx/${data.hash}`}
+                  passHref
+                >
+                  mint pending, click to view
+                </Link>
+              </Box>
+            ),
+          });
         },
         onWriteError: (error) => {
           console.log("nfc mint write error", error);
+          toast({
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+                mint cancelled
+              </Box>
+            ),
+          });
         },
         onTxSuccess: (data) => {
           console.log("nfc mint tx success", data);
+          toast({
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`https://etherscan.io/tx/${data.transactionHash}`}
+                  passHref
+                >
+                  mint success, click to view
+                </Link>
+              </Box>
+            ),
+          });
         },
         onTxError: (error) => {
           console.log("nfc mint tx error", error);
+          toast({
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+                mint error
+              </Box>
+            ),
+          });
         },
       }
     );
@@ -178,7 +232,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
               <Flex alignItems={"center"} gap={2}>
                 <button
                   margin-top="0.5rem"
-                  onClick={submit}
+                  onClick={submitLike}
                   disabled={buttonDisabled}
                   style={{
                     background: "none",
@@ -201,7 +255,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                   disabled={isTxLoading || isUploadingToIPFS}
                   onClick={() => {
                     if (user) {
-                      if (!uri) {
+                      if (!uri || uri === "") {
                         uploadToIPFS();
                       } else {
                         writeAsync?.();

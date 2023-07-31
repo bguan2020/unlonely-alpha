@@ -1,10 +1,11 @@
 import { Flex, Textarea, Stack, IconButton, Image } from "@chakra-ui/react";
 import React, { useState } from "react";
+
 import { CommandData } from "../../constants";
 import Commands from "./Commands";
-
 import EmojiButton from "./emoji/EmojiButton";
 import { EmojiType } from "../../constants/types/chat";
+import { useChannelContext } from "../../hooks/context/useChannel";
 type Props = {
   sendChatMessage: (message: string, isGif: boolean) => void;
   inputBox: HTMLTextAreaElement | null;
@@ -18,6 +19,8 @@ const ChatForm = ({
   mobile,
   additionalChatCommands,
 }: Props) => {
+  const { channel: channelContext } = useChannelContext();
+  const { channelBySlug } = channelContext;
   const [messageText, setMessageText] = useState<string>("");
   const [commandsOpen, setCommandsOpen] = useState(false);
 
@@ -120,20 +123,22 @@ const ChatForm = ({
             </Flex>
           </Flex>
           <Stack direction="column">
-            {!mobile && (
-              <Flex justifyContent="right">
-                <IconButton
-                  type="submit"
-                  disabled={messageTextIsEmpty}
-                  icon={<Image src="/svg/send.svg" />}
-                  aria-label="send message"
-                  bg="transparent"
-                  _focus={{}}
-                  _hover={{ transform: "scale(1.15)" }}
-                  _active={{ transform: "scale(1.3)" }}
-                />
-              </Flex>
-            )}
+            <Flex justifyContent="right">
+              <IconButton
+                onClick={() =>
+                  window.open(
+                    `/clip?arn=${channelBySlug?.channelArn || ""}`,
+                    "_blank"
+                  )
+                }
+                icon={<Image src="/svg/cut.svg" />}
+                aria-label="clip stream"
+                bg="transparent"
+                _focus={{}}
+                _hover={{ transform: "scale(1.15)" }}
+                _active={{ transform: "scale(1.3)" }}
+              />
+            </Flex>
             <EmojiButton
               mobile={mobile}
               onSelectEmoji={(emoji) => addEmoji(emoji)}
