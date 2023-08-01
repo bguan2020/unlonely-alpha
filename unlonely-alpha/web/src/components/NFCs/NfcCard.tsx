@@ -87,14 +87,16 @@ const NfcCard = ({ nfc }: any) => {
             owner: {nfc.owner.username}
           </Text>
           <Spacer />
-          <Image
-            src="/images/opensea-blue_logo.png"
-            width="1.5rem"
-            height="1.5rem"
-            opacity={"0.4"}
-            onClick={handleOpenSeaLink}
-            _hover={{ cursor: "pointer" }}
-          />
+          {nfc.openseaLink && (
+            <Image
+              src="/images/opensea-blue_logo.png"
+              width="1.5rem"
+              height="1.5rem"
+              opacity={"0.4"}
+              onClick={handleOpenSeaLink}
+              _hover={{ cursor: "pointer" }}
+            />
+          )}
         </Flex>
       </Flex>
     </Link>

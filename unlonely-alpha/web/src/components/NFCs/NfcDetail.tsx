@@ -8,6 +8,7 @@ import {
   Alert,
   AlertIcon,
   Box,
+  Spinner,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNetwork } from "wagmi";
@@ -225,6 +226,16 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                 </Alert>
               </Flex>
             )}
+            {isUploadingToIPFS && (
+              <Flex width="100%" justifyContent="center">
+                <Alert status="info" width="60%">
+                  <AlertIcon />
+                  <Text color="black">
+                    Uploading to IPFS, please wait on this page...
+                  </Text>
+                </Alert>
+              </Flex>
+            )}
             <Flex justifyContent="space-between">
               <Text fontSize={32} fontWeight="bold">
                 {nfc?.title}
@@ -248,32 +259,34 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                     <LikeIcon boxSize={6} />
                   )}
                 </button>
-                <Button
-                  bg="#2977dd"
-                  _hover={{}}
-                  loadingText="Minting..."
-                  disabled={isTxLoading || isUploadingToIPFS}
-                  onClick={() => {
-                    if (user) {
-                      if (!uri || uri === "") {
-                        uploadToIPFS();
+                {isTxLoading || isUploadingToIPFS ? (
+                  <Spinner />
+                ) : (
+                  <Button
+                    bg="#2977dd"
+                    _hover={{}}
+                    onClick={() => {
+                      if (user) {
+                        if (!uri || uri === "") {
+                          uploadToIPFS();
+                        } else {
+                          writeAsync?.();
+                        }
                       } else {
-                        writeAsync?.();
+                        toast({
+                          title: "Sign in first.",
+                          description: "Please sign into your wallet first.",
+                          status: "warning",
+                          duration: 9000,
+                          isClosable: true,
+                          position: "top",
+                        });
                       }
-                    } else {
-                      toast({
-                        title: "Sign in first.",
-                        description: "Please sign into your wallet first.",
-                        status: "warning",
-                        duration: 9000,
-                        isClosable: true,
-                        position: "top",
-                      });
-                    }
-                  }}
-                >
-                  Mint
-                </Button>
+                    }}
+                  >
+                    Mint
+                  </Button>
+                )}
               </Flex>
             </Flex>
             <Flex

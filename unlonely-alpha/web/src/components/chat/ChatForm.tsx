@@ -5,6 +5,7 @@ import {
   IconButton,
   Image,
   Tooltip,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 
@@ -13,6 +14,7 @@ import Commands from "./Commands";
 import EmojiButton from "./emoji/EmojiButton";
 import { EmojiType } from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import { useUser } from "../../hooks/context/useUser";
 type Props = {
   sendChatMessage: (message: string, isGif: boolean) => void;
   inputBox: HTMLTextAreaElement | null;
@@ -26,6 +28,8 @@ const ChatForm = ({
   mobile,
   additionalChatCommands,
 }: Props) => {
+  const { user } = useUser();
+  const toast = useToast();
   const { channel: channelContext } = useChannelContext();
   const { channelBySlug } = channelContext;
   const [messageText, setMessageText] = useState<string>("");
@@ -140,12 +144,23 @@ const ChatForm = ({
                 hasArrow
               >
                 <IconButton
-                  onClick={() =>
-                    window.open(
-                      `/clip?arn=${channelBySlug?.channelArn || ""}`,
-                      "_blank"
-                    )
-                  }
+                  onClick={() => {
+                    if (user) {
+                      window.open(
+                        `/clip?arn=${channelBySlug?.channelArn || ""}`,
+                        "_blank"
+                      );
+                    } else {
+                      toast({
+                        title: "Sign in first.",
+                        description: "Please sign into your wallet first.",
+                        status: "warning",
+                        duration: 9000,
+                        isClosable: true,
+                        position: "top",
+                      });
+                    }
+                  }}
                   icon={<Image src="/svg/cut.svg" />}
                   aria-label="clip stream"
                   className="zooming-text"
