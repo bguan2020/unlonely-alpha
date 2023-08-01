@@ -58,9 +58,10 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
     powerLvl: user?.powerUserLvl,
   });
   const [uri, setUri] = useState<string | undefined>(undefined);
-  const { updateNFC, loading: updatingClip } = useUpdateNFC({});
+  const { updateNFC } = useUpdateNFC({});
   const [error, setError] = useState<string | undefined>(undefined);
   const [isUploadingToIPFS, setIsUploadingToIPFS] = useState<boolean>(false);
+  const [minted, setMinted] = useState<boolean>(false);
   const submitLike = async () => {
     setButtonDisabled(true);
     await like();
@@ -83,8 +84,6 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
       NETWORKS[0]
     );
   }, [network]);
-
-  console.log(user?.address);
 
   const { writeAsync, isTxLoading, isTxSuccess, writeError, txError } =
     useWrite(
@@ -213,6 +212,10 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
     }
   }, [writeError, txError]);
 
+  useEffect(() => {
+    setMinted(true);
+  }, [isTxSuccess]);
+
   return (
     <>
       <Flex
@@ -280,37 +283,42 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                 {isTxLoading || isUploadingToIPFS ? (
                   <Spinner />
                 ) : (
-                  <Tooltip
-                    label="If this is still disabled after logging in, try to refresh"
-                    isDisabled={writeAsync ? true : false}
-                    shouldWrapChildren
-                  >
-                    <Button
-                      bg="#2977dd"
-                      _hover={{}}
-                      disabled={!writeAsync}
-                      onClick={() => {
-                        if (user) {
-                          if (!uri || uri === "") {
-                            uploadToIPFS();
-                          } else {
-                            writeAsync?.();
-                          }
-                        } else {
-                          toast({
-                            title: "Sign in first.",
-                            description: "Please sign into your wallet first.",
-                            status: "warning",
-                            duration: 9000,
-                            isClosable: true,
-                            position: "top",
-                          });
-                        }
-                      }}
-                    >
-                      Mint
-                    </Button>
-                  </Tooltip>
+                  <>
+                    {!minted && !nfc?.openseaLink && (
+                      <Tooltip
+                        label="If this is still disabled after logging in, try to refresh"
+                        isDisabled={writeAsync ? true : false}
+                        shouldWrapChildren
+                      >
+                        <Button
+                          bg="#2977dd"
+                          _hover={{}}
+                          disabled={!writeAsync}
+                          onClick={() => {
+                            if (user) {
+                              if (!uri || uri === "") {
+                                uploadToIPFS();
+                              } else {
+                                writeAsync?.();
+                              }
+                            } else {
+                              toast({
+                                title: "Sign in first.",
+                                description:
+                                  "Please sign into your wallet first.",
+                                status: "warning",
+                                duration: 9000,
+                                isClosable: true,
+                                position: "top",
+                              });
+                            }
+                          }}
+                        >
+                          Mint
+                        </Button>
+                      </Tooltip>
+                    )}
+                  </>
                 )}
               </Flex>
             </Flex>
@@ -334,7 +342,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                 textAlign="center"
               >
                 owner:{" "}
-                {nfc?.owner.username ?? centerEllipses(nfc?.owner.address, 15)}
+                {nfc?.owner.username ?? centerEllipses(nfc?.owner.address, 13)}
               </Text>
               <Spacer />
               {nfc?.openseaLink && (

@@ -1,6 +1,7 @@
 import { Text, Flex, Box, Image, Spacer } from "@chakra-ui/react";
 import Link from "next/link";
 
+import centerEllipses from "../../utils/centerEllipses";
 import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
@@ -84,7 +85,8 @@ const NfcCard = ({ nfc }: any) => {
             fontWeight="light"
             textAlign="center"
           >
-            owner: {nfc.owner.username}
+            owner:{" "}
+            {nfc?.owner.username ?? centerEllipses(nfc?.owner.address, 13)}
           </Text>
           <Spacer />
           {nfc.openseaLink && (
