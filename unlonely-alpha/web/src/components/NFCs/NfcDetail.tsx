@@ -9,6 +9,7 @@ import {
   AlertIcon,
   Box,
   Spinner,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNetwork } from "wagmi";
@@ -27,6 +28,8 @@ import {
 import { NETWORKS } from "../../constants/networks";
 import { useWrite } from "../../hooks/contracts/useWrite";
 import UnlonelyNFCsV2 from "../../utils/UnlonelyNFCsV2.json";
+import useUpdateNFC from "../../hooks/server/useUpdateNFC";
+import centerEllipses from "../../utils/centerEllipses";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
@@ -55,6 +58,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
     powerLvl: user?.powerUserLvl,
   });
   const [uri, setUri] = useState<string | undefined>(undefined);
+  const { updateNFC, loading: updatingClip } = useUpdateNFC({});
   const [error, setError] = useState<string | undefined>(undefined);
   const [isUploadingToIPFS, setIsUploadingToIPFS] = useState<boolean>(false);
   const submitLike = async () => {
@@ -79,6 +83,8 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
       NETWORKS[0]
     );
   }, [network]);
+
+  console.log(user?.address);
 
   const { writeAsync, isTxLoading, isTxSuccess, writeError, txError } =
     useWrite(
@@ -128,8 +134,20 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
             ),
           });
         },
-        onTxSuccess: (data) => {
+        onTxSuccess: async (data) => {
           console.log("nfc mint tx success", data);
+          await updateNFC({
+            id: nfc?.id,
+            videoLink: nfc?.videoLink,
+            videoThumbnail: nfc?.videoThumbnail,
+            title: nfc?.title,
+            openseaLink: data.logs.topics[3]
+              ? `https://opensea.io/assets/ethereum/${UNLONELYNFCV2_ADDRESS}/${parseInt(
+                  data?.logs[0].topics[3],
+                  16
+                )}`
+              : "",
+          });
           toast({
             duration: 9000,
             isClosable: true,
@@ -262,30 +280,37 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                 {isTxLoading || isUploadingToIPFS ? (
                   <Spinner />
                 ) : (
-                  <Button
-                    bg="#2977dd"
-                    _hover={{}}
-                    onClick={() => {
-                      if (user) {
-                        if (!uri || uri === "") {
-                          uploadToIPFS();
-                        } else {
-                          writeAsync?.();
-                        }
-                      } else {
-                        toast({
-                          title: "Sign in first.",
-                          description: "Please sign into your wallet first.",
-                          status: "warning",
-                          duration: 9000,
-                          isClosable: true,
-                          position: "top",
-                        });
-                      }
-                    }}
+                  <Tooltip
+                    label="If this is still disabled after logging in, try to refresh"
+                    isDisabled={writeAsync ? true : false}
+                    shouldWrapChildren
                   >
-                    Mint
-                  </Button>
+                    <Button
+                      bg="#2977dd"
+                      _hover={{}}
+                      disabled={!writeAsync}
+                      onClick={() => {
+                        if (user) {
+                          if (!uri || uri === "") {
+                            uploadToIPFS();
+                          } else {
+                            writeAsync?.();
+                          }
+                        } else {
+                          toast({
+                            title: "Sign in first.",
+                            description: "Please sign into your wallet first.",
+                            status: "warning",
+                            duration: 9000,
+                            isClosable: true,
+                            position: "top",
+                          });
+                        }
+                      }}
+                    >
+                      Mint
+                    </Button>
+                  </Tooltip>
                 )}
               </Flex>
             </Flex>
@@ -308,7 +333,8 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                 fontWeight="light"
                 textAlign="center"
               >
-                owner: {nfc?.owner.username}
+                owner:{" "}
+                {nfc?.owner.username ?? centerEllipses(nfc?.owner.address, 15)}
               </Text>
               <Spacer />
               {nfc?.openseaLink && (

@@ -247,6 +247,7 @@ export type Mutation = {
   updateCreatorTokenPrice: CreatorToken;
   updateDeleteChatCommands?: Maybe<Channel>;
   updateDeviceToken?: Maybe<DeviceToken>;
+  updateNFC?: Maybe<Nfc>;
   updateOpenseaLink?: Maybe<Nfc>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
@@ -318,6 +319,10 @@ export type MutationUpdateDeleteChatCommandsArgs = {
 
 export type MutationUpdateDeviceTokenArgs = {
   data: UpdateDeviceInput;
+};
+
+export type MutationUpdateNfcArgs = {
+  data: UpdateNfcInput;
 };
 
 export type MutationUpdateUserCreatorTokenQuantityArgs = {
@@ -573,6 +578,14 @@ export type UpdateDeviceInput = {
   notificationsLive: Scalars["Boolean"];
   notificationsNFCs: Scalars["Boolean"];
   token: Scalars["String"];
+};
+
+export type UpdateNfcInput = {
+  id: Scalars["ID"];
+  openseaLink: Scalars["String"];
+  title: Scalars["String"];
+  videoLink: Scalars["String"];
+  videoThumbnail: Scalars["String"];
 };
 
 export type UpdateUserCreatorTokenQuantityInput = {
@@ -1154,6 +1167,15 @@ export type FetchCurrentUserQuery = {
     signature?: string | null;
     sigTimestamp?: any | null;
   } | null;
+};
+
+export type UpdateNfcMutationVariables = Exact<{
+  data: UpdateNfcInput;
+}>;
+
+export type UpdateNfcMutation = {
+  __typename?: "Mutation";
+  updateNFC?: { __typename?: "NFC"; id: string } | null;
 };
 
 export const TaskCard_TaskFragmentDoc = gql`
@@ -2956,4 +2978,53 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
+>;
+export const UpdateNfcDocument = gql`
+  mutation UpdateNFC($data: UpdateNFCInput!) {
+    updateNFC(data: $data) {
+      id
+    }
+  }
+`;
+export type UpdateNfcMutationFn = Apollo.MutationFunction<
+  UpdateNfcMutation,
+  UpdateNfcMutationVariables
+>;
+
+/**
+ * __useUpdateNfcMutation__
+ *
+ * To run a mutation, you first call `useUpdateNfcMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateNfcMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateNfcMutation, { data, loading, error }] = useUpdateNfcMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateNfcMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateNfcMutation,
+    UpdateNfcMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateNfcMutation, UpdateNfcMutationVariables>(
+    UpdateNfcDocument,
+    options
+  );
+}
+export type UpdateNfcMutationHookResult = ReturnType<
+  typeof useUpdateNfcMutation
+>;
+export type UpdateNfcMutationResult = Apollo.MutationResult<UpdateNfcMutation>;
+export type UpdateNfcMutationOptions = Apollo.BaseMutationOptions<
+  UpdateNfcMutation,
+  UpdateNfcMutationVariables
 >;

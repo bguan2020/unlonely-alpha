@@ -1,10 +1,10 @@
 import "reflect-metadata";
+import http from "http";
+
 import { ApolloServer } from "apollo-server-express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
-import http from "http";
-import { Server } from "socket.io";
 
 import { getContext } from "./context";
 import graphqlSchema from "./entities/graphqlSchema";
@@ -30,29 +30,6 @@ const startServer = async () => {
   const httpServer = http.createServer(app);
 
   // force redeploy
-
-  // Create a Socket.IO server and attach it to the HTTP server
-  const io = new Server(httpServer, {
-    cors: {
-      origin: "*", // Replace with the actual origin of your frontend application
-      methods: ["GET", "POST"],
-      allowedHeaders: ["Authorization", "Content-Type"],
-    },
-  });
-
-  io.on("connection", (socket) => {
-    console.log("a user connected");
-
-    socket.on("send-message", (message) => {
-      // You can broadcast the message to all connected clients
-      console.log("client count:", io.engine.clientsCount);
-      io.emit("receive-message", message);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("user disconnected");
-    });
-  });
 
   httpServer.listen(process.env.PORT || 4000, () =>
     console.info(`Server started on port ${process.env.PORT || 4000}`)
