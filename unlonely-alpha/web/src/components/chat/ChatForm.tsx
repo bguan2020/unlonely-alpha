@@ -59,14 +59,14 @@ const ChatForm = ({
       setCommandsOpen(false);
     }
     event.preventDefault();
-    sendChatMessage(messageText, isGif);
+    sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), isGif);
     setMessageText("");
   };
 
   const handleFormSubmission = (event: { preventDefault: () => void }) => {
     const isGif = false;
     event.preventDefault();
-    sendChatMessage(messageText, isGif);
+    sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), isGif);
     setMessageText("");
   };
 
