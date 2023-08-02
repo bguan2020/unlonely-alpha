@@ -299,6 +299,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                         shouldWrapChildren
                       >
                         <Button
+                          className="zooming-text"
                           bg="#2977dd"
                           _hover={{}}
                           disabled={!writeAsync}
@@ -339,7 +340,9 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                 height="36px"
                 width="36px"
                 objectFit="cover"
-                src={nfc?.owner.FCImageUrl ?? unlonelyAvatar}
+                src={
+                  nfc?.owner.FCImageUrl ? nfc?.owner.FCImageUrl : unlonelyAvatar
+                }
                 borderRadius="full"
                 mr="0.5rem"
               />
