@@ -85,7 +85,7 @@ export default function NotificationsModal({
   }, [user]);
 
   const [titleNFCs, setTitleNFCs] = useState("new NFCs just dropped");
-  const [bodyLive, setBodyLive] = useState("join the stream and hang out");
+  const [bodyLive, setBodyLive] = useState("");
   const [bodyNFCs, setBodyNFCs] = useState(
     "watch some highlights from recent streams"
   );
@@ -360,6 +360,7 @@ export default function NotificationsModal({
                   </Text>
                   <Input
                     {...inputStyle}
+                    placeholder="Ex. cooking stream"
                     defaultValue={bodyLive}
                     onChange={(event) => setBodyLive(event.target.value)}
                   />
@@ -380,7 +381,12 @@ export default function NotificationsModal({
               borderRadius="10px"
               _focus={{}}
               width="100%"
-              disabled={!data || loading || isSending}
+              disabled={
+                !data ||
+                loading ||
+                isSending ||
+                (bodyLive === "" && selectedType === "live")
+              }
             >
               <Text fontSize="30px">preview send</Text>
             </Button>
