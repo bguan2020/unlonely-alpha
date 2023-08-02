@@ -16,6 +16,7 @@ import {
   GridItem,
   Spinner,
   Tooltip,
+  Image,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isAddress } from "viem";
@@ -46,6 +47,8 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { ChatCommand } from "../../generated/graphql";
 import CustomButton from "../arcade/CustomButton";
+import { base_emojis } from "./emoji/constants";
+import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimations";
 
 type Props = {
   username: string | null | undefined;
@@ -108,6 +111,7 @@ const AblyChatComponent = ({
   } = useChannel();
 
   const { user, userAddress: address } = useUser();
+  const { emojiBlast, fireworks } = useScreenAnimationsContext();
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
   /*eslint-enable prefer-const*/
@@ -195,6 +199,7 @@ const AblyChatComponent = ({
       }
       if (lastMessage.taskType === InteractionType.TIP) {
         messageText = lastMessage.title ?? "Tip";
+        body = `${InteractionType.TIP}:${lastMessage.description ?? ""}`;
       }
       if (lastMessage.taskType === "pvp") {
         messageText = lastMessage.title ?? "Pvp";
@@ -212,6 +217,7 @@ const AblyChatComponent = ({
       }
       if (lastMessage.taskType === InteractionType.BUY) {
         messageText = lastMessage.title ?? "Buy";
+        body = `${InteractionType.BUY}:${lastMessage.description ?? ""}`;
       }
       publishChatBotMessage(messageText, body);
     }
@@ -392,6 +398,23 @@ const AblyChatComponent = ({
             .join();
           if (newTextOverVideo) {
             addToTextOverVideo(newTextOverVideo);
+          }
+        } else if (
+          latestMessage.data.body &&
+          (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
+            latestMessage.data.body.split(":")[0] === InteractionType.TIP)
+        ) {
+          fireworks();
+        } else if (
+          base_emojis.find((e) => latestMessage.data.messageText.includes(e)) ||
+          latestMessage.data.isGif
+        ) {
+          if (latestMessage.data.isGif) {
+            emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
+          } else {
+            emojiBlast(
+              <Text fontSize="40px">{latestMessage.data.messageText}</Text>
+            );
           }
         }
       }

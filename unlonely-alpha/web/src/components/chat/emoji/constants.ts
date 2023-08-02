@@ -2,8 +2,10 @@
 // @ts-ignore
 import unicodeMap from "emoji-unicode-map";
 
+export const base_emojis = ["😂", "💰", "⛽️", "🌝", "📉", "🚀", "🔥"];
+
 const _unicodeEmojis = {
-  crypto: ["😂", "💰", "⛽️", "🌝", "📉", "🚀", "🔥"],
+  crypto: base_emojis,
 };
 
 export const categories = {
