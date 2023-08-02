@@ -46,7 +46,7 @@ export const postNFC = async (
 export const updateNFC = async (data: IUpdateNFCInput, ctx: Context) => {
   return await ctx.prisma.nFC.update({
     where: {
-      id: data.id,
+      id: Number(data.id),
     },
     data: {
       title: data.title,

@@ -85,100 +85,102 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
     );
   }, [network]);
 
-  const { writeAsync, isTxLoading, isTxSuccess, writeError, txError } =
-    useWrite(
-      {
-        address: UNLONELYNFCV2_ADDRESS,
-        abi: UnlonelyNFCsV2.abi,
-        chainId: localNetwork.config.chainId,
+  const { writeAsync, isTxLoading, writeError, txError } = useWrite(
+    {
+      address: UNLONELYNFCV2_ADDRESS,
+      abi: UnlonelyNFCsV2.abi,
+      chainId: localNetwork.config.chainId,
+    },
+    "mint",
+    [user?.address, uri],
+    {
+      onPrepareSuccess: (data) => {
+        console.log("nfc mint prepare success", data);
       },
-      "mint",
-      [user?.address, uri],
-      {
-        onPrepareSuccess: (data) => {
-          console.log("nfc mint prepare success", data);
-        },
-        onPrepareError: (error) => {
-          console.log("nfc mint prepare error", error);
-        },
-        onWriteSuccess: (data) => {
-          console.log("nfc mint write success", data);
-          toast({
-            duration: 9000,
-            isClosable: true,
-            position: "top-right",
-            render: () => (
-              <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-                <Link
-                  target="_blank"
-                  href={`https://etherscan.io/tx/${data.hash}`}
-                  passHref
-                >
-                  mint pending, click to view
-                </Link>
-              </Box>
-            ),
-          });
-        },
-        onWriteError: (error) => {
-          console.log("nfc mint write error", error);
-          toast({
-            duration: 9000,
-            isClosable: true,
-            position: "top-right",
-            render: () => (
-              <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-                mint cancelled
-              </Box>
-            ),
-          });
-        },
-        onTxSuccess: async (data) => {
-          console.log("nfc mint tx success", data);
-          await updateNFC({
-            id: nfc?.id,
-            videoLink: nfc?.videoLink,
-            videoThumbnail: nfc?.videoThumbnail,
-            title: nfc?.title,
-            openseaLink: data.logs.topics[3]
-              ? `https://opensea.io/assets/ethereum/${UNLONELYNFCV2_ADDRESS}/${parseInt(
-                  data?.logs[0].topics[3],
-                  16
-                )}`
-              : "",
-          });
-          toast({
-            duration: 9000,
-            isClosable: true,
-            position: "top-right",
-            render: () => (
-              <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-                <Link
-                  target="_blank"
-                  href={`https://etherscan.io/tx/${data.transactionHash}`}
-                  passHref
-                >
-                  mint success, click to view
-                </Link>
-              </Box>
-            ),
-          });
-        },
-        onTxError: (error) => {
-          console.log("nfc mint tx error", error);
-          toast({
-            duration: 9000,
-            isClosable: true,
-            position: "top-right",
-            render: () => (
-              <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-                mint error
-              </Box>
-            ),
-          });
-        },
-      }
-    );
+      onPrepareError: (error) => {
+        console.log("nfc mint prepare error", error);
+      },
+      onWriteSuccess: (data) => {
+        console.log("nfc mint write success", data);
+        setIsUploadingToIPFS(false);
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                mint pending, click to view
+              </Link>
+            </Box>
+          ),
+        });
+      },
+      onWriteError: (error) => {
+        console.log("nfc mint write error", error);
+        setIsUploadingToIPFS(false);
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              mint cancelled
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: async (data) => {
+        console.log("nfc mint tx success", data);
+        setMinted(true);
+        await updateNFC({
+          id: nfc?.id,
+          videoLink: nfc?.videoLink,
+          videoThumbnail: nfc?.videoThumbnail,
+          title: nfc?.title,
+          openseaLink: data.logs[0].topics[3]
+            ? `https://opensea.io/assets/ethereum/${UNLONELYNFCV2_ADDRESS}/${parseInt(
+                data?.logs[0].topics[3],
+                16
+              )}`
+            : "",
+        });
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                mint success, click to view
+              </Link>
+            </Box>
+          ),
+        });
+      },
+      onTxError: (error) => {
+        console.log("nfc mint tx error", error);
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              mint error
+            </Box>
+          ),
+        });
+      },
+    }
+  );
 
   const uploadToIPFS = useCallback(async () => {
     if (!nfc?.title || !nfc?.videoLink || !nfc?.videoThumbnail) return;
@@ -203,18 +205,13 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
   useEffect(() => {
     if (!uri || !writeAsync || !user?.address) return;
     writeAsync();
-    setIsUploadingToIPFS(false);
-  }, [uri, writeAsync, user?.address]);
+  }, [uri]);
 
   useEffect(() => {
     if (writeError || txError) {
       setError("Error minting");
     }
   }, [writeError, txError]);
-
-  useEffect(() => {
-    setMinted(true);
-  }, [isTxSuccess]);
 
   return (
     <>
@@ -252,7 +249,18 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                 <Alert status="info" width="60%">
                   <AlertIcon />
                   <Text color="black">
-                    Uploading to IPFS, please wait on this page...
+                    Uploading to IPFS, please wait on this page for wallet
+                    prompt...
+                  </Text>
+                </Alert>
+              </Flex>
+            )}
+            {isTxLoading && (
+              <Flex width="100%" justifyContent="center">
+                <Alert status="info" width="60%">
+                  <AlertIcon />
+                  <Text color="black">
+                    Executing transaction, please wait on this page...
                   </Text>
                 </Alert>
               </Flex>
@@ -284,7 +292,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                   <Spinner />
                 ) : (
                   <>
-                    {!minted && !nfc?.openseaLink && (
+                    {!nfc?.openseaLink && !minted && (
                       <Tooltip
                         label="If this is still disabled after logging in, try to refresh"
                         isDisabled={writeAsync ? true : false}
