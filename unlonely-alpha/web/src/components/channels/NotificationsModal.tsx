@@ -185,7 +185,15 @@ export default function NotificationsModal({
         }
       });
     });
-  }, [selectedType, devicesWithLive, devicesWithNFCs]);
+  }, [
+    selectedType,
+    devicesWithLive,
+    devicesWithNFCs,
+    titleLive,
+    titleNFCs,
+    bodyLive,
+    bodyNFCs,
+  ]);
 
   useEffect(() => {
     getAllDeviceTokens();
