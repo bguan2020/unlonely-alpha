@@ -8,7 +8,9 @@ import {
   PopoverCloseButton,
   PopoverBody,
   Text,
+  Tooltip,
 } from "@chakra-ui/react";
+
 import EmojiPicker from "./EmojiPicker";
 import { EmojiType } from "../../../constants/types/chat";
 
@@ -23,7 +25,6 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
     <Popover>
       <PopoverTrigger>
         <Button
-          type="button"
           // size="sm"
           z-index={2}
           // position="absolute"
@@ -37,9 +38,18 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
           _hover={{ transform: "scale(1.15)" }}
           _active={{ transform: "scale(1.3)" }}
         >
-          <Text fontSize="30px" textAlign={"center"}>
-            😃
-          </Text>
+          <Tooltip
+            defaultIsOpen
+            label="try me!"
+            background="#7e10eb"
+            placement="left"
+            fontSize={"15px"}
+            hasArrow
+          >
+            <Text fontSize="30px" textAlign={"center"}>
+              😃
+            </Text>
+          </Tooltip>
         </Button>
       </PopoverTrigger>
       <PopoverContent

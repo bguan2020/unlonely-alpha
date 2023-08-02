@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useRef, useState } from "react";
 
 import { useEmojiBlastAnimation } from "../internal/useEmojiBlastAnimation";
 
@@ -26,14 +26,11 @@ export const ScreenAnimationsProvider = ({
   children: JSX.Element[] | JSX.Element;
 }) => {
   const [isFireworksPlaying, setIsFireworksPlaying] = useState(false);
-  const [fireworksTimer, setFireworksTimer] = useState<ReturnType<
-    typeof setTimeout
-  > | null>(null);
+  const fireworksTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isEmojiBlastPlaying, setIsEmojiBlastPlaying] = useState(false);
-  const [emojiBlastTimer, setEmojiBlastTimer] = useState<ReturnType<
-    typeof setTimeout
-  > | null>(null);
+  const emojiBlastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [emojiBlastEmoji, setEmojiBlastEmoji] = useState<JSX.Element | null>(
     null
   );
@@ -41,20 +38,20 @@ export const ScreenAnimationsProvider = ({
   useEmojiBlastAnimation("emojiRainParent", isEmojiBlastPlaying);
 
   const fireworks = () => {
-    if (fireworksTimer) {
-      clearTimeout(fireworksTimer);
+    if (fireworksTimerRef.current) {
+      clearTimeout(fireworksTimerRef.current);
     }
     setIsFireworksPlaying(true);
     const newTimer = setTimeout(() => {
       setIsFireworksPlaying(false);
     }, 15000);
 
-    setFireworksTimer(newTimer);
+    fireworksTimerRef.current = newTimer;
   };
 
   const emojiBlast = (emoji: JSX.Element) => {
-    if (emojiBlastTimer) {
-      clearTimeout(emojiBlastTimer);
+    if (emojiBlastTimerRef.current) {
+      clearTimeout(emojiBlastTimerRef.current);
     }
     setEmojiBlastEmoji(emoji);
     setIsEmojiBlastPlaying(true);
@@ -62,8 +59,7 @@ export const ScreenAnimationsProvider = ({
       setEmojiBlastEmoji(null);
       setIsEmojiBlastPlaying(false);
     }, 15000);
-
-    setEmojiBlastTimer(newTimer);
+    emojiBlastTimerRef.current = newTimer;
   };
 
   const value = useMemo(

@@ -138,7 +138,7 @@ const ChatForm = ({
               <Tooltip
                 defaultIsOpen
                 label="clipping is now free!"
-                placement="top"
+                placement="left"
                 background="#1db57d"
                 fontSize={"15px"}
                 hasArrow
