@@ -261,7 +261,10 @@ export default function Page() {
                 <WavyText text="fetching livestreams..." />
               </Flex>
             ) : (
-              <LiveChannelList channels={channels} />
+              <LiveChannelList
+                channels={channels}
+                callback={() => setDirectingToChannel(true)}
+              />
             )}
           </Flex>
           <Flex p="16px">
