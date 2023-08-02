@@ -77,7 +77,7 @@ const ChatForm = ({
         className="xeedev-form-i"
         style={{ width: "100%" }}
       >
-        <Stack direction={"row"} spacing={"3px"}>
+        <Stack direction={"row"} spacing={"10px"}>
           <Flex width="100%" position="relative">
             <Textarea
               variant="unstyled"

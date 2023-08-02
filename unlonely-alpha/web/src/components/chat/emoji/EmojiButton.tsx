@@ -1,14 +1,15 @@
 import React from "react";
 import {
-  Button,
   Popover,
   PopoverTrigger,
   PopoverContent,
   PopoverArrow,
   PopoverCloseButton,
   PopoverBody,
-  Text,
+  Image,
+  IconButton,
   Tooltip,
+  Box,
 } from "@chakra-ui/react";
 
 import EmojiPicker from "./EmojiPicker";
@@ -23,35 +24,28 @@ type Props = {
 const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
   return (
     <Popover>
-      <PopoverTrigger>
-        <Button
-          // size="sm"
-          z-index={2}
-          // position="absolute"
-          // bottom="8px"
-          // right={mobile ? "48px" : "36px"}
-          width={"40px"}
-          height={"40px"}
-          size="lg"
-          bg={"#D9D9D9"}
-          _focus={{}}
-          _hover={{ transform: "scale(1.15)" }}
-          _active={{ transform: "scale(1.3)" }}
-        >
-          <Tooltip
-            defaultIsOpen
-            label="try me!"
-            background="#7e10eb"
-            placement="left"
-            fontSize={"15px"}
-            hasArrow
-          >
-            <Text fontSize="30px" textAlign={"center"}>
-              😃
-            </Text>
-          </Tooltip>
-        </Button>
-      </PopoverTrigger>
+      <Tooltip
+        defaultIsOpen
+        label="try me!"
+        background="#7e10eb"
+        placement="left"
+        fontSize={"15px"}
+        hasArrow
+      >
+        <Box display="inline-block">
+          <PopoverTrigger>
+            <IconButton
+              icon={<Image src="/svg/emoji.svg" />}
+              aria-label="clip stream"
+              className="zooming-text"
+              bg="transparent"
+              _focus={{}}
+              _hover={{ transform: "scale(1.15)" }}
+              _active={{ transform: "scale(1.3)" }}
+            />
+          </PopoverTrigger>
+        </Box>
+      </Tooltip>
       <PopoverContent
         zIndex={4}
         right={9}

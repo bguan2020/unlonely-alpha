@@ -4,20 +4,20 @@ import {
   Flex,
   Text,
   Image,
-  Link,
   Button,
   Modal,
   ModalOverlay,
   ModalContent,
+  Link,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+
 import {
   ADD_REACTION_EVENT,
   EMOJIS,
   InteractionType,
   NULL_ADDRESS,
 } from "../../constants";
-
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import Badges from "./Badges";
@@ -28,8 +28,7 @@ type Props = {
   index: number;
   message: Message;
   messageText: string;
-  isLink: boolean;
-  splitURL: string[] | undefined;
+  linkArray: RegExpMatchArray | null;
   channel: any;
 };
 
@@ -37,14 +36,39 @@ const MessageBody = ({
   message,
   index,
   messageText,
-  isLink,
-  splitURL,
+  linkArray,
   channel,
 }: Props) => {
   const { user } = useUser();
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const fragments = useMemo(() => {
+    let lastIndex = 0;
+    const fragments: { message: string; isLink: boolean }[] = [];
+
+    linkArray?.forEach((link) => {
+      const startIndex = messageText.indexOf(link, lastIndex);
+      if (startIndex > lastIndex) {
+        fragments.push({
+          message: messageText.substring(lastIndex, startIndex),
+          isLink: false,
+        });
+      }
+      fragments.push({ message: link, isLink: true });
+      lastIndex = startIndex + link.length;
+    });
+
+    if (lastIndex < messageText.length) {
+      fragments.push({
+        message: messageText.substring(lastIndex),
+        isLink: false,
+      });
+    }
+
+    return fragments;
+  }, [messageText, linkArray]);
 
   const messageBg = () => {
     if (
@@ -144,45 +168,32 @@ const MessageBody = ({
                   </>
                 ) : (
                   <>
-                    {isLink && splitURL ? (
-                      <>
-                        {splitURL.length > 1 ? (
-                          <Flex p={"5px"} direction="column">
-                            <Text
-                              color="white"
-                              fontSize={12}
-                              wordBreak="break-word"
-                              textAlign="left"
-                            >
-                              {splitURL[0]}
-                            </Text>
-                            <Link
-                              href={splitURL[splitURL.length - 1]}
-                              isExternal
-                              color="white"
-                              fontSize={12}
-                              wordBreak="break-word"
-                              textAlign="left"
-                            >
-                              {splitURL[splitURL.length - 1]}
-                              <ExternalLinkIcon mx="2px" />
-                            </Link>
-                          </Flex>
-                        ) : (
-                          <Link
-                            href={messageText}
-                            fontWeight="light"
-                            isExternal
-                            color="white"
-                            fontSize={12}
-                            wordBreak="break-word"
-                            textAlign="left"
-                          >
-                            {messageText}
-                            <ExternalLinkIcon mx="2px" />
-                          </Link>
-                        )}
-                      </>
+                    {linkArray ? (
+                      <Flex direction="column">
+                        <Text
+                          fontSize={
+                            message.data.address === NULL_ADDRESS
+                              ? "12px"
+                              : "14px"
+                          }
+                          wordBreak="break-word"
+                          textAlign="left"
+                          p={"5px"}
+                        >
+                          {fragments.map((fragment) => {
+                            if (fragment.isLink) {
+                              return (
+                                <Link href={fragment.message} isExternal>
+                                  {fragment.message}
+                                  <ExternalLinkIcon mx="2px" />
+                                </Link>
+                              );
+                            } else {
+                              return <span>{fragment.message}</span>;
+                            }
+                          })}
+                        </Text>
+                      </Flex>
                     ) : (
                       <Text
                         color="white"

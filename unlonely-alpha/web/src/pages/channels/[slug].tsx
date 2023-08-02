@@ -15,6 +15,7 @@ import {
 import { GetServerSidePropsContext } from "next";
 import React, { useCallback, useMemo, useState } from "react";
 import { isAddress } from "viem";
+
 import { initializeApollo } from "../../apiClient/client";
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
@@ -410,6 +411,7 @@ const ChannelPage = ({
                     background={"#19162F"}
                     centerContent
                     maxW="100%"
+                    px="10px"
                   >
                     <AblyChatComponent
                       username={username}
