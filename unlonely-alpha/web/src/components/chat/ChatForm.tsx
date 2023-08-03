@@ -354,7 +354,12 @@ const ChatForm = ({
               </Text>
             </Flex>
           ) : (
-            <>
+            <Stack direction="column">
+              {blastMode && (
+                <Text color={"#b82929"} fontSize="12px">
+                  blast mode enabled
+                </Text>
+              )}
               <Flex
                 width="100%"
                 position="relative"
@@ -484,7 +489,7 @@ const ChatForm = ({
                   />
                 </Flex>
               </Stack>
-            </>
+            </Stack>
           )}
         </Stack>
       </form>
