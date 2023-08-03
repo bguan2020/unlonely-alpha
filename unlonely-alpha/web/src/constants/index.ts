@@ -16,7 +16,8 @@ export enum InteractionType {
   CONTROL = "control-text-interaction",
   TIP = "tip-interaction",
   BUY = "buy-tokens-interaction",
-  CUSTOM = "custom-interaction",
+  CUSTOM = "custom-action-interaction",
+  BLAST = "blast-emoji-interaction",
 }
 
 export enum BaseChatCommand {

@@ -180,16 +180,20 @@ const MessageBody = ({
                           textAlign="left"
                           p={"5px"}
                         >
-                          {fragments.map((fragment) => {
+                          {fragments.map((fragment, i) => {
                             if (fragment.isLink) {
                               return (
-                                <Link href={fragment.message} isExternal>
+                                <Link
+                                  href={fragment.message}
+                                  isExternal
+                                  key={i}
+                                >
                                   {fragment.message}
                                   <ExternalLinkIcon mx="2px" />
                                 </Link>
                               );
                             } else {
-                              return <span>{fragment.message}</span>;
+                              return <span key={i}>{fragment.message}</span>;
                             }
                           })}
                         </Text>

@@ -16,7 +16,6 @@ import {
   GridItem,
   Spinner,
   Tooltip,
-  Image,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isAddress } from "viem";
@@ -47,7 +46,6 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { ChatCommand } from "../../generated/graphql";
 import CustomButton from "../arcade/CustomButton";
-import { base_emojis } from "./emoji/constants";
 import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimations";
 
 type Props = {
@@ -223,7 +221,11 @@ const AblyChatComponent = ({
     }
   }, [chatBot]);
 
-  const sendChatMessage = async (messageText: string, isGif: boolean) => {
+  const sendChatMessage = async (
+    messageText: string,
+    isGif: boolean,
+    body?: string
+  ) => {
     if (!user && !address) {
       toast({
         title: "Sign in first.",
@@ -247,6 +249,7 @@ const AblyChatComponent = ({
           tokenHolderRank: userRank,
           isGif,
           reactions: initializeEmojis,
+          body,
         },
       });
     }
@@ -273,6 +276,7 @@ const AblyChatComponent = ({
           tokenHolderRank: userRank,
           isGif,
           reactions: initializeEmojis,
+          body,
         },
       });
       handleChatCommand(messageText);
@@ -406,16 +410,12 @@ const AblyChatComponent = ({
         ) {
           fireworks();
         } else if (
-          base_emojis.find((e) => latestMessage.data.messageText.includes(e)) ||
-          latestMessage.data.isGif
+          latestMessage.data.body &&
+          latestMessage.data.body.split(":")[0] === InteractionType.BLAST
         ) {
-          if (latestMessage.data.isGif) {
-            emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
-          } else {
-            emojiBlast(
-              <Text fontSize="40px">{latestMessage.data.messageText}</Text>
-            );
-          }
+          emojiBlast(
+            <Text fontSize="40px">{latestMessage.data.messageText}</Text>
+          );
         }
       }
     }
