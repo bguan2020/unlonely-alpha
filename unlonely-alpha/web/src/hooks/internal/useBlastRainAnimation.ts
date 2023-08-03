@@ -1,13 +1,17 @@
 import { useEffect } from "react";
 
-export const useEmojiBlastAnimation = (parentId: string, isActive: boolean) => {
+export const useBlastRainAnimation = (
+  parentId: string,
+  childId: string,
+  isActive: boolean
+) => {
   useEffect(() => {
     if (!isActive) return;
 
     const parent = document.getElementById(parentId);
     if (!parent) return;
 
-    const elements = parent.getElementsByClassName("emojiRainChild");
+    const elements = parent.getElementsByClassName(childId);
     const vertSpeed = 3;
     const horiSpeed = 1;
 

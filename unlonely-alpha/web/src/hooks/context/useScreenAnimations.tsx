@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 
-import { EmojiRain } from "../../components/chat/emoji/EmojiRain";
+import { BlastRain } from "../../components/chat/emoji/BlastRain";
 
 export const useScreenAnimationsContext = () => {
   return useContext(ScreenAnimationsContext);
@@ -60,7 +60,7 @@ export const ScreenAnimationsProvider = ({
   const emojiRainComponents = useMemo(
     () =>
       emojiQueue.map(({ emoji, uid }) => (
-        <EmojiRain key={uid} emoji={emoji} uid={uid} remove={removeEmoji} />
+        <BlastRain key={uid} emoji={emoji} uid={uid} remove={removeEmoji} />
       )),
     [emojiQueue, removeEmoji]
   );

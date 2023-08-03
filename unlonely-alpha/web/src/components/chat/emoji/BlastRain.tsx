@@ -1,9 +1,9 @@
 import React from "react";
 import { useEffect, useRef } from "react";
 
-import { useEmojiBlastAnimation } from "../../../hooks/internal/useEmojiBlastAnimation";
+import { useBlastRainAnimation } from "../../../hooks/internal/useBlastRainAnimation";
 
-export const EmojiRain = React.memo(
+export const BlastRain = React.memo(
   ({
     emoji,
     uid,
@@ -13,7 +13,9 @@ export const EmojiRain = React.memo(
     uid: string;
     remove: (uid: string) => void;
   }) => {
-    useEmojiBlastAnimation("emojiRainParent".concat(uid), true);
+    const parentId = "rp".concat(uid);
+    const childId = "rc".concat(uid);
+    useBlastRainAnimation(parentId, childId, true);
     const emojiBlastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
       null
     );
@@ -30,7 +32,7 @@ export const EmojiRain = React.memo(
 
     return (
       <div
-        id={"emojiRainParent".concat(uid)}
+        id={parentId}
         style={{
           position: "fixed",
           top: 0,
@@ -39,11 +41,11 @@ export const EmojiRain = React.memo(
           height: "100vh",
           overflow: "hidden",
           zIndex: 2,
-          pointerEvents: "none", // Add this line
+          pointerEvents: "none",
         }}
       >
         {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} className="emojiRainChild">
+          <div key={i} className={childId}>
             {emoji}
           </div>
         ))}
