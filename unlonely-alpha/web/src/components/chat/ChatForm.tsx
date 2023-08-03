@@ -354,12 +354,7 @@ const ChatForm = ({
               </Text>
             </Flex>
           ) : (
-            <Stack direction="column">
-              {blastMode && (
-                <Text color={"#b82929"} fontSize="12px">
-                  blast mode enabled
-                </Text>
-              )}
+            <>
               <Flex
                 width="100%"
                 position="relative"
@@ -376,6 +371,16 @@ const ChatForm = ({
                     : "rgba(255, 255, 255, 0.35)"
                 }
               >
+                {blastMode && (
+                  <Text
+                    color={"#b82929"}
+                    fontSize="12px"
+                    position="absolute"
+                    top={-5}
+                  >
+                    blast mode enabled
+                  </Text>
+                )}
                 <Textarea
                   variant="unstyled"
                   ref={(element) => {
@@ -489,7 +494,7 @@ const ChatForm = ({
                   />
                 </Flex>
               </Stack>
-            </Stack>
+            </>
           )}
         </Stack>
       </form>
