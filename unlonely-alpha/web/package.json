@@ -46,6 +46,7 @@
     "react-dom": "^18.1.0",
     "react-hook-form": "^7.33.1",
     "react-toastify": "^9.1.1",
+    "react-virtuoso": "^4.4.2",
     "video.js": "^7.20.2",
     "viem": "^1.0.0",
     "wagmi": "^1.1.1",

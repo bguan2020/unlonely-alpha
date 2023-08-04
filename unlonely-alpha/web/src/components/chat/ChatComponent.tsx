@@ -16,9 +16,17 @@ import {
   Spinner,
   Tooltip,
   Box,
+  Image,
 } from "@chakra-ui/react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { isAddress } from "viem";
+import { VirtuosoHandle } from "react-virtuoso";
 
 import { useChannel } from "../../hooks/chat/useChannel";
 import { initializeEmojis } from "../../constants/types/chat";
@@ -48,7 +56,6 @@ import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimati
 import MessageList from "./MessageList";
 
 type Props = {
-  username: string | null | undefined;
   chatBot: ChatBot[];
   handleControlModal?: () => void;
   handleChanceModal?: () => void;
@@ -59,7 +66,6 @@ type Props = {
 };
 
 const AblyChatComponent = ({
-  username,
   chatBot,
   handleControlModal,
   handleChanceModal,
@@ -68,6 +74,7 @@ const AblyChatComponent = ({
   handleBuyModal,
   handleCustomModal,
 }: Props) => {
+  const { username } = useUser();
   const {
     channel: channelContext,
     chat,
@@ -119,7 +126,7 @@ const AblyChatComponent = ({
   const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
     []
   );
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<VirtuosoHandle>(null);
 
   const clickedOutsideLeaderBoard = useRef(false);
   const clickedOutsideArcade = useRef(false);
@@ -179,26 +186,6 @@ const AblyChatComponent = ({
   });
 
   const [isAtBottom, setIsAtBottom] = useState(false);
-
-  const handleScroll = () => {
-    const element = scrollRef.current;
-    if (element) {
-      const atBottom =
-        element.scrollHeight - element.scrollTop === element.clientHeight;
-      setIsAtBottom(atBottom);
-    }
-  };
-
-  useEffect(() => {
-    const element = scrollRef.current;
-    if (element) {
-      element.addEventListener("scroll", handleScroll);
-      return () => {
-        element.removeEventListener("scroll", handleScroll);
-      };
-    }
-  }, []);
-
   const toast = useToast();
 
   useEffect(() => {
@@ -391,12 +378,12 @@ const AblyChatComponent = ({
     const chat = document.getElementById("chat");
     if (!chat) return;
     if (!hasMessagesLoaded && receivedMessages.length) {
-      chat.scrollTop = chat.scrollHeight;
+      handleScrollToPresent();
       setHasMessagesLoaded(true);
       return;
     }
     if (isAtBottom) {
-      chat.scrollTop = chat.scrollHeight;
+      handleScrollToPresent();
     }
   }, [receivedMessages]);
 
@@ -426,20 +413,28 @@ const AblyChatComponent = ({
           latestMessage.data.body &&
           latestMessage.data.body.split(":")[0] === InteractionType.BLAST
         ) {
-          emojiBlast(
-            <Text fontSize="40px">{latestMessage.data.messageText}</Text>
-          );
+          if (latestMessage.data.isGif) {
+            emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
+          } else {
+            emojiBlast(
+              <Text fontSize="40px">{latestMessage.data.messageText}</Text>
+            );
+          }
         }
       }
     }
     mountingMessages.current = false;
   }, [receivedMessages]);
 
-  const handleScrollToPresent = () => {
-    const chat = document.getElementById("chat");
-    if (!chat) return;
-    chat.scrollTop = chat.scrollHeight;
-  };
+  const handleScrollToPresent = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollToIndex(receivedMessages.length - 1);
+    }
+  }, [receivedMessages.length]);
+
+  const handleIsAtBottom = useCallback((value: boolean) => {
+    setIsAtBottom(value);
+  }, []);
 
   return (
     <Flex h="100%" minW="100%">
@@ -781,9 +776,13 @@ const AblyChatComponent = ({
           id="chat"
           position="relative"
           mt="8px"
-          ref={scrollRef}
         >
-          <MessageList messages={receivedMessages} channel={channel} />
+          <MessageList
+            scrollRef={scrollRef}
+            messages={receivedMessages}
+            channel={channel}
+            isAtBottomCallback={handleIsAtBottom}
+          />
         </Flex>
         <Flex justifyContent="center">
           {!isAtBottom && hasMessagesLoaded && (

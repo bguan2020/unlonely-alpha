@@ -1,6 +1,7 @@
 import Ably from "ably/promises";
 import { Types } from "ably";
 import { useEffect, useState } from "react";
+
 import { useChannelContext } from "../context/useChannel";
 import { Message } from "../../constants/types/chat";
 import { ADD_REACTION_EVENT } from "../../constants";
@@ -51,7 +52,7 @@ export function useChannel(fixedChatName?: string) {
 
   const [channel, ably] = useAblyChannel(channelName, (message) => {
     setHasMessagesLoaded(false);
-    const history = receivedMessages.slice(-199);
+    const history = receivedMessages;
     // remove messages where name = add-reaction
     const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
     if (message.name === ADD_REACTION_EVENT) {
@@ -93,7 +94,7 @@ export function useChannel(fixedChatName?: string) {
     async function getMessages() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      await channel.history({ limit: 200 }, (err, result) => {
+      await channel.history((err, result) => {
         const messageHistory: any = result.items.filter(
           (message: any) => message.name === "chat-message"
         );

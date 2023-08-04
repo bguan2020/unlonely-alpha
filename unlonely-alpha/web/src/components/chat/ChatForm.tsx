@@ -62,6 +62,7 @@ const ChatForm = ({
   const [txTransition, setTxTransition] = useState(false);
   const [error, setError] = useState<string>("");
   const [tooltipError, setTooltipError] = useState<string>("");
+  const [gifInTransaction, setGifInTransaction] = useState<string>("");
 
   const [blastMode, setBlastMode] = useState(false);
 
@@ -194,10 +195,13 @@ const ChatForm = ({
           position: "top-right",
         });
         sendChatMessage(
-          messageText.replace(/^\s*\n|\n\s*$/g, ""),
-          false,
+          gifInTransaction !== ""
+            ? gifInTransaction
+            : messageText.replace(/^\s*\n|\n\s*$/g, ""),
+          gifInTransaction !== "",
           `${InteractionType.BLAST}:`
         );
+        setGifInTransaction("");
         setTxTransition(false);
         setBlastMode(false);
         refetchUserTokenBalance?.();
@@ -214,6 +218,8 @@ const ChatForm = ({
           isClosable: true,
           position: "top-right",
         });
+        setBlastMode(false);
+        setGifInTransaction("");
         setTxTransition(false);
         setError(error);
       },
@@ -232,8 +238,18 @@ const ChatForm = ({
   };
 
   const sendGif = (gif: string) => {
-    sendChatMessage(gif, true);
-    setMessageText("");
+    if (!blastMode) {
+      sendChatMessage(gif, true);
+      setMessageText("");
+    } else {
+      setTxTransition(true);
+      setGifInTransaction(gif);
+      if (requiresApproval && writeApproval) {
+        writeApproval();
+      } else {
+        useFeature?.();
+      }
+    }
   };
 
   const handleKeyPress = useCallback(
@@ -252,6 +268,8 @@ const ChatForm = ({
         sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
         setMessageText("");
       } else {
+        setTxTransition(true);
+        setGifInTransaction("");
         if (requiresApproval && writeApproval) {
           writeApproval();
         } else {
@@ -277,6 +295,7 @@ const ChatForm = ({
         setMessageText("");
       } else {
         setTxTransition(true);
+        setGifInTransaction("");
         if (requiresApproval && writeApproval) {
           writeApproval();
         } else {
@@ -359,7 +378,15 @@ const ChatForm = ({
           ) : txLoading ? (
             <Flex direction="column" gap="20px">
               <Flex justifyContent={"center"} p="10px">
-                <Spinner size="xl" />
+                {gifInTransaction !== "" ? (
+                  <Image
+                    src={gifInTransaction}
+                    height="80px"
+                    className="zooming-text"
+                  />
+                ) : (
+                  <Spinner size="xl" />
+                )}
               </Flex>
               <Text textAlign={"center"}>
                 {isApprovalLoading

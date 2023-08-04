@@ -9380,6 +9380,11 @@ react-use-measure@^2.1.1:
   dependencies:
     debounce "^1.2.1"
 
+react-virtuoso@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-4.4.2.tgz#752438e5031a9f72722371a52ae5ac7265f3e1c0"
+  integrity sha512-9uChSRSK5bTbKTxzuta4RqhfrlZSVHI/v8fHwmv3jmImS8FjdZ4Mzgqz9JKUp/yQo3dIHkR2QwidQeqxgYzPhQ==
+
 react@^18.1.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.2.0.tgz#555bd98592883255fa00de14f1151a917b5d77d5"

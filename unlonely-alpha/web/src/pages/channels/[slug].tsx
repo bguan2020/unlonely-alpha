@@ -103,6 +103,30 @@ const ChannelPage = ({
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
 
+  const handleControlModal = useCallback(() => {
+    setShowControlModal(true);
+  }, []);
+
+  const handleBuyModal = useCallback(() => {
+    setShowBuyModal(true);
+  }, []);
+
+  const handleCustomModal = useCallback(() => {
+    setShowCustomModal(true);
+  }, []);
+
+  const handleTipModal = useCallback(() => {
+    setShowTipModal(true);
+  }, []);
+
+  const handleChanceModal = useCallback(() => {
+    setShowChanceModal(true);
+  }, []);
+
+  const handlePvpModal = useCallback(() => {
+    setShowPvpModal(true);
+  }, []);
+
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
 
@@ -414,14 +438,13 @@ const ChannelPage = ({
                     px="10px"
                   >
                     <AblyChatComponent
-                      username={username}
                       chatBot={chatBot}
-                      handleBuyModal={() => setShowBuyModal(true)}
-                      handleTipModal={() => setShowTipModal(true)}
-                      handleChanceModal={() => setShowChanceModal(true)}
-                      handlePvpModal={() => setShowPvpModal(true)}
-                      handleControlModal={() => setShowControlModal(true)}
-                      handleCustomModal={() => setShowCustomModal(true)}
+                      handleBuyModal={handleBuyModal}
+                      handleTipModal={handleTipModal}
+                      handleChanceModal={handleChanceModal}
+                      handlePvpModal={handlePvpModal}
+                      handleControlModal={handleControlModal}
+                      handleCustomModal={handleCustomModal}
                     />
                   </Container>
                 </Flex>

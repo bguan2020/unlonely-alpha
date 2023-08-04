@@ -22,7 +22,6 @@ import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import HeroBanner from "../components/layout/HeroBanner";
-// import AblyHomeChatComponent from "../components/chat/HomeChatComponent";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { isIosDevice } from "../components/mobile/Banner";
 import { WavyText } from "../components/general/WavyText";
@@ -81,8 +80,6 @@ const FixedComponent = () => {
       boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
       background={"#19162F"}
     >
-      {/* <AblyHomeChatComponent />
-       */}
       <iframe
         src="https://lu.ma/embed/calendar/cal-i5SksIDn63DmCXs/events?lt=dark"
         frameBorder="0"
