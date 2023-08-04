@@ -14,7 +14,6 @@ export type { IERC721Receiver } from "./IERC721Receiver";
 export type { ERC165 } from "./ERC165";
 export type { IERC165 } from "./IERC165";
 export type { BrianToken } from "./BrianToken";
-export type { UnlonelyArcadeContract } from "./UnlonelyArcadeContract";
 export type { UnlonelyArcadeContractV1 } from "./UnlonelyArcadeContractV1";
 export type { UnlonelyNFCsV2 } from "./UnlonelyNFCsV2";
 
@@ -31,6 +30,5 @@ export { IERC721Receiver__factory } from "./factories/IERC721Receiver__factory";
 export { ERC165__factory } from "./factories/ERC165__factory";
 export { IERC165__factory } from "./factories/IERC165__factory";
 export { BrianToken__factory } from "./factories/BrianToken__factory";
-export { UnlonelyArcadeContract__factory } from "./factories/UnlonelyArcadeContract__factory";
 export { UnlonelyArcadeContractV1__factory } from "./factories/UnlonelyArcadeContractV1__factory";
 export { UnlonelyNFCsV2__factory } from "./factories/UnlonelyNFCsV2__factory";
