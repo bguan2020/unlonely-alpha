@@ -90,8 +90,8 @@ export const ScreenAnimationsProvider = ({
       )}
       {emojiRainComponents}
       {/* <BlastRain
-        emoji={<span>🎉</span>}
-        uid="fireworks"
+        emoji={<span>testing🎉</span>}
+        uid="test"
         remove={() => undefined}
       /> */}
       {children}

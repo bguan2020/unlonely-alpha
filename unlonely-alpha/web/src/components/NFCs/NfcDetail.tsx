@@ -20,16 +20,12 @@ import { LikeObj, NfcDetailQuery } from "../../generated/graphql";
 import useLike from "../../hooks/server/useLike";
 import { useUser } from "../../hooks/context/useUser";
 import { LikeIcon, LikedIcon } from "../icons/LikeIcon";
-import {
-  IPFS_PROJECT_ID,
-  IPFS_PROJECT_SECRET,
-  UNLONELYNFCV2_ADDRESS,
-} from "../../constants";
+import { IPFS_PROJECT_ID, IPFS_PROJECT_SECRET } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import { useWrite } from "../../hooks/contracts/useWrite";
-import UnlonelyNFCsV2 from "../../utils/UnlonelyNFCsV2.json";
 import useUpdateNFC from "../../hooks/server/useUpdateNFC";
 import centerEllipses from "../../utils/centerEllipses";
+import { getContractFromNetwork } from "../../utils/contract";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
@@ -85,12 +81,10 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
     );
   }, [network]);
 
+  const contract = getContractFromNetwork("unlonelyNfcV2", localNetwork);
+
   const { writeAsync, isTxLoading, writeError, txError } = useWrite(
-    {
-      address: UNLONELYNFCV2_ADDRESS,
-      abi: UnlonelyNFCsV2.abi,
-      chainId: localNetwork.config.chainId,
-    },
+    contract,
     "mint",
     [user?.address, uri],
     {
@@ -143,10 +137,9 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
           videoThumbnail: nfc?.videoThumbnail,
           title: nfc?.title,
           openseaLink: data.logs[0].topics[3]
-            ? `https://opensea.io/assets/ethereum/${UNLONELYNFCV2_ADDRESS}/${parseInt(
-                data?.logs[0].topics[3],
-                16
-              )}`
+            ? `https://opensea.io/assets/ethereum/${
+                contract.address
+              }/${parseInt(data?.logs[0].topics[3], 16)}`
             : "",
         });
         toast({

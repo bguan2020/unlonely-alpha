@@ -34,6 +34,7 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
       </PopoverTrigger>
       <PopoverContent
         zIndex={4}
+        rootProps={{ style: { transform: "scale(0)" } }} // when Popover is not opened yet, PopoverContent causes unwanted scroll, this is a fix
         right={9}
         bottom={10}
         bg={"rgba(255, 255, 255, 0.5)"}
