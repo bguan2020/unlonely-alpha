@@ -45,7 +45,13 @@ export const BlastRain = React.memo(
         }}
       >
         {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} className={childId}>
+          <div
+            key={i}
+            className={childId}
+            style={{
+              willChange: "transform",
+            }}
+          >
             {emoji}
           </div>
         ))}
