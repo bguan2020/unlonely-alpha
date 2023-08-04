@@ -14,8 +14,8 @@ export const BlastRain = React.memo(
     remove: (uid: string) => void;
   }) => {
     const parentId = "rp".concat(uid);
-    const childId = "rc".concat(uid);
-    useBlastRainAnimation(parentId, childId, true);
+    const childClass = "rc".concat(uid);
+    useBlastRainAnimation(parentId, childClass);
     const emojiBlastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
       null
     );
@@ -47,7 +47,7 @@ export const BlastRain = React.memo(
         {Array.from({ length: 12 }).map((_, i) => (
           <div
             key={i}
-            className={childId}
+            className={childClass}
             style={{
               willChange: "transform",
             }}

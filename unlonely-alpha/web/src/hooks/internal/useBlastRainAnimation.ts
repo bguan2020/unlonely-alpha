@@ -1,17 +1,11 @@
 import { useEffect } from "react";
 
-export const useBlastRainAnimation = (
-  parentId: string,
-  childId: string,
-  isActive: boolean
-) => {
+export const useBlastRainAnimation = (parentId: string, childClass: string) => {
   useEffect(() => {
-    if (!isActive) return;
-
     const parent = document.getElementById(parentId);
     if (!parent) return;
 
-    const elements = parent.getElementsByClassName(childId);
+    const elements = parent.getElementsByClassName(childClass);
     const vertSpeed = 3;
     const horiSpeed = 1;
 
@@ -73,5 +67,5 @@ export const useBlastRainAnimation = (
     animationId = requestAnimationFrame(animationStep);
 
     return () => cancelAnimationFrame(animationId); // Cleanup function
-  }, [parentId, isActive]);
+  }, []);
 };

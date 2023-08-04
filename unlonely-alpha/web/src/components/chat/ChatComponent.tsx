@@ -1,5 +1,4 @@
 import {
-  Box,
   Text,
   Flex,
   useToast,
@@ -16,6 +15,7 @@ import {
   GridItem,
   Spinner,
   Tooltip,
+  Box,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isAddress } from "viem";
@@ -26,13 +26,11 @@ import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
 import { useUser } from "../../hooks/context/useUser";
-import MessageList from "./MessageList";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 // import SwordButton from "../arcade/SwordButton";
 import CoinButton from "../arcade/CoinButton";
 import ControlButton from "../arcade/ControlButton";
 // import DiceButton from "../arcade/DiceButton";
-import { useScrollPercentage } from "../../hooks/internal/useScrollPercentage";
 import {
   NULL_ADDRESS,
   InteractionType,
@@ -47,6 +45,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { ChatCommand } from "../../generated/graphql";
 import CustomButton from "../arcade/CustomButton";
 import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimations";
+import MessageList from "./MessageList";
 
 type Props = {
   username: string | null | undefined;
@@ -115,12 +114,12 @@ const AblyChatComponent = ({
   /*eslint-enable prefer-const*/
 
   const [formError, setFormError] = useState<null | string[]>(null);
-  const [chatHeightGrounded, setChatHeightGrounded] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showArcade, setShowArcade] = useState<boolean>(false);
   const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
     []
   );
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const clickedOutsideLeaderBoard = useRef(false);
   const clickedOutsideArcade = useRef(false);
@@ -178,11 +177,27 @@ const AblyChatComponent = ({
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
   });
-  const { scrollRef, scrollPercentage } = useScrollPercentage();
 
-  const hasScrolled = useMemo(() => {
-    return scrollPercentage < 100 && !chatHeightGrounded;
-  }, [scrollPercentage, chatHeightGrounded]);
+  const [isAtBottom, setIsAtBottom] = useState(false);
+
+  const handleScroll = () => {
+    const element = scrollRef.current;
+    if (element) {
+      const atBottom =
+        element.scrollHeight - element.scrollTop === element.clientHeight;
+      setIsAtBottom(atBottom);
+    }
+  };
+
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (element) {
+      element.addEventListener("scroll", handleScroll);
+      return () => {
+        element.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, []);
 
   const toast = useToast();
 
@@ -370,7 +385,6 @@ const AblyChatComponent = ({
       },
     });
   };
-
   // useeffect to scroll to the bottom of the chat
   // explain what the useEffect below is doing
   useEffect(() => {
@@ -381,10 +395,9 @@ const AblyChatComponent = ({
       setHasMessagesLoaded(true);
       return;
     }
-    if (scrollPercentage === 100) {
+    if (isAtBottom) {
       chat.scrollTop = chat.scrollHeight;
     }
-    setChatHeightGrounded(chat.scrollHeight <= chat.clientHeight);
   }, [receivedMessages]);
 
   useEffect(() => {
@@ -773,7 +786,7 @@ const AblyChatComponent = ({
           <MessageList messages={receivedMessages} channel={channel} />
         </Flex>
         <Flex justifyContent="center">
-          {hasScrolled && hasMessagesLoaded ? (
+          {!isAtBottom && hasMessagesLoaded && (
             <Box
               bg="rgba(98, 98, 98, 0.6)"
               p="4px"
@@ -788,7 +801,7 @@ const AblyChatComponent = ({
                 scrolling paused. click to scroll to bottom.
               </Text>
             </Box>
-          ) : null}
+          )}
         </Flex>
         <Flex mt="40px" w="100%" mb="15px">
           <ChatForm

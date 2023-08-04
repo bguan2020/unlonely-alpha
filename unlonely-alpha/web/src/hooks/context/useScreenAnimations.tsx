@@ -89,6 +89,11 @@ export const ScreenAnimationsProvider = ({
         </div>
       )}
       {emojiRainComponents}
+      {/* <BlastRain
+        emoji={<span>🎉</span>}
+        uid="fireworks"
+        remove={() => undefined}
+      /> */}
       {children}
     </ScreenAnimationsContext.Provider>
   );
