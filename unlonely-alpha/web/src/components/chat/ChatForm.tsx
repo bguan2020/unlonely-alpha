@@ -9,12 +9,13 @@ import {
   Spinner,
   Text,
   Button,
+  Tooltip,
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useNetwork } from "wagmi";
 import { parseUnits } from "viem";
-import { useClipboard } from "use-clipboard-copy";
+import copy from "copy-to-clipboard";
 
 import {
   CommandData,
@@ -52,13 +53,15 @@ const ChatForm = ({
   const network = useNetwork();
 
   const toast = useToast();
-  const { channel: channelContext } = useChannelContext();
+  const { channel: channelContext, token } = useChannelContext();
   const { channelBySlug } = channelContext;
+  const { userTokenBalance, refetchUserTokenBalance } = token;
+
   const [messageText, setMessageText] = useState<string>("");
   const [commandsOpen, setCommandsOpen] = useState(false);
   const [txTransition, setTxTransition] = useState(false);
   const [error, setError] = useState<string>("");
-  const clipboard = useClipboard();
+  const [tooltipError, setTooltipError] = useState<string>("");
 
   const [blastMode, setBlastMode] = useState(false);
 
@@ -197,6 +200,8 @@ const ChatForm = ({
         );
         setTxTransition(false);
         setBlastMode(false);
+        refetchUserTokenBalance?.();
+        refetchAllowance();
       },
       onTxError: (error) => {
         toast({
@@ -271,6 +276,7 @@ const ChatForm = ({
         sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
         setMessageText("");
       } else {
+        setTxTransition(true);
         if (requiresApproval && writeApproval) {
           writeApproval();
         } else {
@@ -282,8 +288,22 @@ const ChatForm = ({
   );
 
   useEffect(() => {
+    if (
+      blastMode &&
+      (!userTokenBalance?.value ||
+        (userTokenBalance?.value &&
+          parseUnits(PRICE, 18) > userTokenBalance?.value))
+    ) {
+      setTooltipError(
+        `you don't have enough ${channelBySlug?.token?.symbol} to spend`
+      );
+    } else {
+      setTooltipError("");
+    }
+  }, [channelBySlug, userTokenBalance?.value, blastMode]);
+
+  useEffect(() => {
     if (isApprovalSuccess) {
-      setTxTransition(true);
       useFeature?.();
     }
   }, [isApprovalSuccess]);
@@ -316,7 +336,7 @@ const ChatForm = ({
                 <Button
                   width="100%"
                   bg="#b82929"
-                  onClick={() => clipboard.copy(error)}
+                  onClick={() => copy(error)}
                   _focus={{}}
                   _hover={{ background: "#f25719" }}
                 >
@@ -378,7 +398,7 @@ const ChatForm = ({
                     position="absolute"
                     top={-5}
                   >
-                    blast mode enabled
+                    chat blast mode enabled
                   </Text>
                 )}
                 <Textarea
@@ -476,22 +496,29 @@ const ChatForm = ({
               </Flex>
               <Stack direction="column">
                 <Flex justifyContent="right">
-                  <IconButton
-                    type="submit"
-                    disabled={messageTextIsEmpty}
-                    icon={
-                      blastMode ? (
-                        <Image src="/svg/blast-send.svg" />
-                      ) : (
-                        <Image src="/svg/send.svg" />
-                      )
-                    }
-                    aria-label="clip stream"
-                    bg="transparent"
-                    _focus={{}}
-                    _hover={{ transform: "scale(1.15)" }}
-                    _active={{ transform: "scale(1.3)" }}
-                  />
+                  <Tooltip
+                    isOpen={tooltipError !== ""}
+                    label={tooltipError}
+                    placement="left"
+                    shouldWrapChildren
+                  >
+                    <IconButton
+                      type="submit"
+                      disabled={messageTextIsEmpty || tooltipError !== ""}
+                      icon={
+                        blastMode ? (
+                          <Image src="/svg/blast-send.svg" />
+                        ) : (
+                          <Image src="/svg/send.svg" />
+                        )
+                      }
+                      aria-label="clip stream"
+                      bg="transparent"
+                      _focus={{}}
+                      _hover={{ transform: "scale(1.15)" }}
+                      _active={{ transform: "scale(1.3)" }}
+                    />
+                  </Tooltip>
                 </Flex>
               </Stack>
             </>
