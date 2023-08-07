@@ -11,6 +11,14 @@ export interface IPostNFCInput {
   openseaLink: string;
 }
 
+export interface IUpdateNFCInput {
+  id: number;
+  title: string;
+  videoLink: string;
+  videoThumbnail: string;
+  openseaLink: string;
+}
+
 export interface ICreateClipInput {
   channelArn: string;
 }
@@ -31,6 +39,20 @@ export const postNFC = async (
           address: user.address,
         },
       },
+    },
+  });
+};
+
+export const updateNFC = async (data: IUpdateNFCInput, ctx: Context) => {
+  return await ctx.prisma.nFC.update({
+    where: {
+      id: Number(data.id),
+    },
+    data: {
+      title: data.title,
+      videoLink: data.videoLink,
+      videoThumbnail: data.videoThumbnail,
+      openseaLink: data.openseaLink,
     },
   });
 };

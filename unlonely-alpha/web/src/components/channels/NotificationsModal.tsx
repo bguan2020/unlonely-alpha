@@ -11,14 +11,14 @@ import {
   Input,
   Tab,
   TabList,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogCloseButton,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Progress,
+  // AlertDialog,
+  // AlertDialogBody,
+  // AlertDialogCloseButton,
+  // AlertDialogContent,
+  // AlertDialogFooter,
+  // AlertDialogHeader,
+  // AlertDialogOverlay,
+  // Progress,
 } from "@chakra-ui/react";
 import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import { isAddressEqual } from "viem";
@@ -34,11 +34,12 @@ import { TransactionModalTemplate } from "../transactions/TransactionModalTempla
 const inputStyle = {
   borderWidth: "1px",
   borderRadius: "10px",
-  borderColor: "#4d679b",
+  borderColor: "#51bfe0",
   bg: "rgba(36, 79, 167, 0.05)",
   variant: "unstyled",
   px: "16px",
   py: "10px",
+  boxShadow: "0px 0px 8px #4388b6",
 };
 
 const BRIAN = "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa";
@@ -85,7 +86,7 @@ export default function NotificationsModal({
   }, [user]);
 
   const [titleNFCs, setTitleNFCs] = useState("new NFCs just dropped");
-  const [bodyLive, setBodyLive] = useState("join the stream and hang out");
+  const [bodyLive, setBodyLive] = useState("");
   const [bodyNFCs, setBodyNFCs] = useState(
     "watch some highlights from recent streams"
   );
@@ -170,6 +171,7 @@ export default function NotificationsModal({
 
           if (chunkedTemplates.length === index + 1) {
             setIsSending(false);
+            handleClose();
             onClose();
           }
         }
@@ -185,7 +187,15 @@ export default function NotificationsModal({
         }
       });
     });
-  }, [selectedType, devicesWithLive, devicesWithNFCs]);
+  }, [
+    selectedType,
+    devicesWithLive,
+    devicesWithNFCs,
+    titleLive,
+    titleNFCs,
+    bodyLive,
+    bodyNFCs,
+  ]);
 
   useEffect(() => {
     getAllDeviceTokens();
@@ -199,8 +209,9 @@ export default function NotificationsModal({
       confirmButton={"confirm"}
       hideFooter
       isModalLoading={isSending}
+      loadingText={"sending notifications..."}
     >
-      <AlertDialog
+      {/* <AlertDialog
         motionPreset="slideInBottom"
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -268,7 +279,7 @@ export default function NotificationsModal({
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
       {!loading && data ? (
         <>
           {isBrian && (
@@ -320,7 +331,14 @@ export default function NotificationsModal({
               <Text fontSize={"15px"}>{devicesWithLive?.length}</Text>
             </Flex>
           </Box>
-          <Box borderRadius="10px" padding="16px" bg="#1F2D31" width="100%">
+
+          <Box
+            borderRadius="10px"
+            padding="16px"
+            bg="#1F2D31"
+            width="100%"
+            borderColor="#dadada"
+          >
             <Flex direction="column" mb="15px">
               {selectedType === "nfc" ? (
                 <Flex direction="column" gap="20px">
@@ -347,21 +365,37 @@ export default function NotificationsModal({
                 </Flex>
               ) : (
                 <Flex direction="column" gap="10px">
-                  <Text fontSize="15px" color="#dadada">
-                    description
-                  </Text>
+                  <Text fontSize="15px">enter a description</Text>
                   <Input
                     {...inputStyle}
+                    placeholder="Ex. cooking stream"
+                    _placeholder={{ color: "#bababa" }}
                     defaultValue={bodyLive}
                     onChange={(event) => setBodyLive(event.target.value)}
                   />
                 </Flex>
               )}
             </Flex>
+            <Flex direction="column" gap="10px">
+              <Text fontSize="15px" color="#dadada">
+                preview
+              </Text>
+              <PreviewNotification
+                selectedType={selectedType}
+                titleLive={titleLive}
+                titleNFCs={titleNFCs}
+                bodyLive={bodyLive}
+                bodyNFCs={bodyNFCs}
+              />
+            </Flex>
             <Button
-              onClick={onOpen}
-              isLoading={loading}
-              loadingText="fetching users"
+              mt={"15px"}
+              onClick={() => {
+                setIsSending(true);
+                sendNotifications();
+              }}
+              isLoading={loading || isSending}
+              loadingText="sending..."
               colorScheme={"blue"}
               py={10}
               _hover={{ transform: "scale(1.05)" }}
@@ -372,9 +406,14 @@ export default function NotificationsModal({
               borderRadius="10px"
               _focus={{}}
               width="100%"
-              disabled={!data || loading || isSending}
+              disabled={
+                !data ||
+                loading ||
+                isSending ||
+                (bodyLive === "" && selectedType === "live")
+              }
             >
-              <Text fontSize="30px">preview send</Text>
+              <Text fontSize="30px">send</Text>
             </Button>
           </Box>
         </>

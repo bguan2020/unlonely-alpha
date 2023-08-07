@@ -26,7 +26,6 @@ export const resolvers = {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
-
       return NFCService.postNFC(data, ctx, ctx.user);
     },
     createClip: (
@@ -46,6 +45,16 @@ export const resolvers = {
     // ) => {
     //   return NFCService.updateOpenseaLink(ctx);
     // }
+    updateNFC: (
+      _: any,
+      { data }: { data: NFCService.IUpdateNFCInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      return NFCService.updateNFC(data, ctx);
+    },
   },
   NFC: {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {

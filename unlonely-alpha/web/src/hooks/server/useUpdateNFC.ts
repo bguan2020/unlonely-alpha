@@ -4,35 +4,36 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
-  PostNfcMutation,
-  PostNfcMutationVariables,
+  UpdateNfcMutation,
+  UpdateNfcMutationVariables,
 } from "../../generated/graphql";
-
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
-const POST_NFC_MUTATION = gql`
-  mutation PostNFC($data: PostNFCInput!) {
-    postNFC(data: $data) {
+const UPDATE_NFC_MUTATION = gql`
+  mutation UpdateNFC($data: UpdateNFCInput!) {
+    updateNFC(data: $data) {
       id
     }
   }
 `;
 
-const usePostNFC = ({ onError }: Props) => {
+const useUpdateNFC = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<PostNfcMutation, PostNfcMutationVariables>(
-    POST_NFC_MUTATION
-  );
+  const [mutate] = useAuthedMutation<
+    UpdateNfcMutation,
+    UpdateNfcMutationVariables
+  >(UPDATE_NFC_MUTATION);
 
-  const postNFC = useCallback(
+  const updateNFC = useCallback(
     async (data) => {
       try {
         setLoading(true);
         const mutationResult = await mutate({
           variables: {
             data: {
+              id: data.id,
               title: data.title,
               videoLink: data.videoLink,
               videoThumbnail: data.videoThumbnail,
@@ -41,7 +42,7 @@ const usePostNFC = ({ onError }: Props) => {
           },
         });
 
-        const res = mutationResult?.data?.postNFC;
+        const res = mutationResult?.data?.updateNFC;
         /* eslint-disable no-console */
         if (res) {
           console.log("success");
@@ -53,13 +54,13 @@ const usePostNFC = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("postNFC", JSON.stringify(e, null, 2));
+        console.log("updateNFC", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]
   );
 
-  return { postNFC, loading };
+  return { updateNFC, loading };
 };
 
-export default usePostNFC;
+export default useUpdateNFC;

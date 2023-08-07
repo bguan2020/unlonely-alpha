@@ -1,5 +1,18 @@
 import React from "react";
-import { Avatar, Flex, Tooltip, Text, Image } from "@chakra-ui/react";
+import {
+  Avatar,
+  Flex,
+  Tooltip,
+  Text,
+  Image,
+  Popover,
+  PopoverContent,
+  PopoverArrow,
+  PopoverTrigger,
+} from "@chakra-ui/react";
+import Link from "next/link";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
+
 import { anonUrl } from "./AnonUrl";
 import centerEllipses from "../../utils/centerEllipses";
 import { CustomUser } from "../../constants/types";
@@ -49,13 +62,54 @@ const Participant = ({ user }: Props) => {
     <>
       {user ? (
         <>
-          <Tooltip label={toolTipMessage(user)} hasArrow arrowSize={14}>
+          {/* <Tooltip label={toolTipMessage(user)} hasArrow arrowSize={14}>
             <Avatar
               name={user.username ? user.username : user.address}
               src={ipfsUrl}
               size="sm"
             />
-          </Tooltip>
+          </Tooltip> */}
+          <Popover trigger="hover">
+            <PopoverTrigger>
+              <Avatar
+                name={user.username ? user.username : user.address}
+                src={ipfsUrl}
+                size="sm"
+              />
+            </PopoverTrigger>
+            <PopoverContent bg="gray.800" border="none" width="min" p="5px">
+              <PopoverArrow bg="gray.800" />
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/address/${
+                  user?.address ? user.address : ""
+                }`}
+                passHref
+              >
+                <Flex gap="5px">
+                  <Text fontSize="12px" textAlign={"center"}>
+                    {user.username
+                      ? user.username
+                      : centerEllipses(user.address, 8)}
+                  </Text>
+                  <ExternalLinkIcon />
+                </Flex>
+                <Flex direction="row" justifyContent={"center"}>
+                  {rankUrl && (
+                    <Image src={rankUrl} width="20px" height="20px" mr="5px" />
+                  )}
+                  {user.isFCUser && (
+                    <Image
+                      src="/images/farcaster_logo.png"
+                      width="20px"
+                      height="20px"
+                      mr="5px"
+                    />
+                  )}
+                </Flex>
+              </Link>
+            </PopoverContent>
+          </Popover>
         </>
       ) : (
         <Tooltip label="mysterious anon👀" hasArrow arrowSize={14}>

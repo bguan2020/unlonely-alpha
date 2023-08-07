@@ -62,6 +62,8 @@ export const UserProvider = ({
     address,
   });
 
+  console.log(address, isConnected);
+
   useEffect(() => {
     const fetchEns = async () => {
       if (address) {

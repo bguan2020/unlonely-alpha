@@ -6,9 +6,11 @@ import centerEllipses from "../../utils/centerEllipses";
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 type Props = {
   channel: Channel;
+  callback: () => void;
 };
-const LiveChannelCard = ({ channel }: Props) => {
+const LiveChannelCard = ({ channel, callback }: Props) => {
   const handleRedirect = () => {
+    callback();
     window.location.href = `/channels/${channel.slug}`;
   };
   const [isHovered, setIsHovered] = useState(false);

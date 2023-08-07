@@ -18,7 +18,6 @@ export const PreviewNotification = ({
     backgroundColor="rgba(0,0,0,0.8)"
     padding="16px"
     borderRadius={"26px"}
-    width={["100%", "390px"]}
   >
     <Flex alignItems={"center"}>
       <Image

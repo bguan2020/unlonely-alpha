@@ -8,25 +8,22 @@ import {
   Image,
   Button,
 } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useAccount } from "wagmi";
+import ReactDOM from "react-dom";
+import { useRouter } from "next/router";
 
 import { useAblyChannel } from "../../../hooks/chat/useChannel";
 import { ChatBot } from "../../../constants/types";
 import Badges from "../../../components/chat/Badges";
-import {
-  Message,
-  initializeEmojis,
-} from "../../../constants/types/chat";
+import { Message, initializeEmojis } from "../../../constants/types/chat";
 import ChatForm from "../../../components/chat/ChatForm";
 import NebulousButton from "../../../components/general/button/NebulousButton";
 import EmojiDisplay from "../../../components/chat/emoji/EmojiDisplay";
 import { useUser } from "../../../hooks/context/useUser";
-import ReactDOM from "react-dom";
 import NextHead from "../../../components/layout/NextHead";
 import Participants from "../../../components/presence/Participants";
-import { useRouter } from "next/router";
 import usePostChatByAwsId from "../../../hooks/server/usePostChatByAwsId";
 import centerEllipses from "../../../utils/centerEllipses";
 import { EMOJIS, NULL_ADDRESS, RANDOM_CHAT_COLOR } from "../../../constants";
@@ -344,22 +341,35 @@ export default function Chat() {
   const messages = receivedMessages.map((message, index) => {
     if (message.name !== "chat-message") return null;
     const messageText = message.data.messageText;
-    // regex to check if message is a link
-    const isLink = messageText.match(
+    const linkArray: RegExpMatchArray | null = messageText.match(
       /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
-    )
-      ? true
-      : false;
-    // if isLink true, remove link from message
-    let splitURL: string[] | undefined = undefined;
-    if (isLink) {
-      // detect link at end of message, split into array [message, link].
-      splitURL = messageText.split(/(?:http:\/\/|https:\/\/|www\.)/g);
-      // add https:// to link
-      splitURL[splitURL.length - 1] = `https://${
-        splitURL[splitURL.length - 1]
-      }`;
-    }
+    );
+
+    const fragments = useMemo(() => {
+      let lastIndex = 0;
+      const fragments: { message: string; isLink: boolean }[] = [];
+
+      linkArray?.forEach((link) => {
+        const startIndex = messageText.indexOf(link, lastIndex);
+        if (startIndex > lastIndex) {
+          fragments.push({
+            message: messageText.substring(lastIndex, startIndex),
+            isLink: false,
+          });
+        }
+        fragments.push({ message: link, isLink: true });
+        lastIndex = startIndex + link.length;
+      });
+
+      if (lastIndex < messageText.length) {
+        fragments.push({
+          message: messageText.substring(lastIndex),
+          isLink: false,
+        });
+      }
+
+      return fragments;
+    }, [messageText, linkArray]);
 
     return (
       <Flex direction="column">
@@ -406,45 +416,32 @@ export default function Chat() {
                     </>
                   ) : (
                     <>
-                      {isLink && splitURL ? (
-                        <>
-                          {splitURL.length > 1 ? (
-                            <>
-                              <Text
-                                color="white"
-                                fontSize={12}
-                                wordBreak="break-word"
-                                textAlign="left"
-                              >
-                                {splitURL[0]}
-                              </Text>
-                              <Link
-                                href={splitURL[splitURL.length - 1]}
-                                isExternal
-                                color="white"
-                                fontSize={12}
-                                wordBreak="break-word"
-                                textAlign="left"
-                              >
-                                {splitURL[splitURL.length - 1]}
-                                <ExternalLinkIcon mx="2px" />
-                              </Link>
-                            </>
-                          ) : (
-                            <Link
-                              href={messageText}
-                              fontWeight="light"
-                              isExternal
-                              color="white"
-                              fontSize={12}
-                              wordBreak="break-word"
-                              textAlign="left"
-                            >
-                              {messageText}
-                              <ExternalLinkIcon mx="2px" />
-                            </Link>
-                          )}
-                        </>
+                      {linkArray ? (
+                        <Flex direction="column">
+                          <Text
+                            fontSize={
+                              message.data.address === NULL_ADDRESS
+                                ? "12px"
+                                : "14px"
+                            }
+                            wordBreak="break-word"
+                            textAlign="left"
+                            p={"5px"}
+                          >
+                            {fragments.map((fragment) => {
+                              if (fragment.isLink) {
+                                return (
+                                  <Link href={fragment.message} isExternal>
+                                    {fragment.message}
+                                    <ExternalLinkIcon mx="2px" />
+                                  </Link>
+                                );
+                              } else {
+                                return <span>{fragment.message}</span>;
+                              }
+                            })}
+                          </Text>
+                        </Flex>
                       ) : (
                         <Text
                           color="white"
@@ -455,8 +452,14 @@ export default function Chat() {
                           }
                           wordBreak="break-word"
                           textAlign="left"
+                          p={"5px"}
                         >
-                          {messageText}
+                          {messageText.split("\n").map((line, index) => (
+                            <span key={index}>
+                              {line}
+                              <br />
+                            </span>
+                          ))}
                         </Text>
                       )}
                     </>
@@ -611,45 +614,32 @@ export default function Chat() {
                     </>
                   ) : (
                     <>
-                      {isLink && splitURL ? (
-                        <>
-                          {splitURL.length > 1 ? (
-                            <Flex p={"5px"}>
-                              <Text
-                                color="white"
-                                fontSize={12}
-                                wordBreak="break-word"
-                                textAlign="left"
-                              >
-                                {splitURL[0]}
-                              </Text>
-                              <Link
-                                href={splitURL[splitURL.length - 1]}
-                                isExternal
-                                color="white"
-                                fontSize={12}
-                                wordBreak="break-word"
-                                textAlign="left"
-                              >
-                                {splitURL[splitURL.length - 1]}
-                                <ExternalLinkIcon mx="2px" />
-                              </Link>
-                            </Flex>
-                          ) : (
-                            <Link
-                              href={messageText}
-                              fontWeight="light"
-                              isExternal
-                              color="white"
-                              fontSize={12}
-                              wordBreak="break-word"
-                              textAlign="left"
-                            >
-                              {messageText}
-                              <ExternalLinkIcon mx="2px" />
-                            </Link>
-                          )}
-                        </>
+                      {linkArray ? (
+                        <Flex direction="column">
+                          <Text
+                            fontSize={
+                              message.data.address === NULL_ADDRESS
+                                ? "12px"
+                                : "14px"
+                            }
+                            wordBreak="break-word"
+                            textAlign="left"
+                            p={"5px"}
+                          >
+                            {fragments.map((fragment) => {
+                              if (fragment.isLink) {
+                                return (
+                                  <Link href={fragment.message} isExternal>
+                                    {fragment.message}
+                                    <ExternalLinkIcon mx="2px" />
+                                  </Link>
+                                );
+                              } else {
+                                return <span>{fragment.message}</span>;
+                              }
+                            })}
+                          </Text>
+                        </Flex>
                       ) : (
                         <Text
                           color="white"
@@ -662,7 +652,12 @@ export default function Chat() {
                           textAlign="left"
                           p={"5px"}
                         >
-                          {messageText}
+                          {messageText.split("\n").map((line, index) => (
+                            <span key={index}>
+                              {line}
+                              <br />
+                            </span>
+                          ))}
                         </Text>
                       )}
                     </>

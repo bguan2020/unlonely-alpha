@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { SimpleGrid, Flex, Text } from "@chakra-ui/react";
+
 import Gif from "./Gif";
 
 type Props = {
@@ -23,7 +24,8 @@ const GifCategory = ({
           textShadow: "0 0 0.2em black",
         }}
       >
-        Power User Badge Hodlers
+        {/* Power User Badge Hodlers */}
+        Gifs
       </Text>
       <SimpleGrid minChildWidth="20px" spacing="4px" alignContent="center">
         {gifs.map((gif) => (
