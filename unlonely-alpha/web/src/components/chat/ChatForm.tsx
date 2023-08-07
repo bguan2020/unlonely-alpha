@@ -346,7 +346,13 @@ const ChatForm = ({
 
   useEffect(() => {
     if (isApprovalSuccess) {
-      useFeature?.();
+      if (useFeature) {
+        useFeature();
+      } else {
+        setError(
+          "Something went wrong, please refresh the page and complete the transaction."
+        );
+      }
     }
   }, [isApprovalSuccess]);
 

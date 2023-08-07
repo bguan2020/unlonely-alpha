@@ -1,5 +1,5 @@
 import { Flex, Text } from "@chakra-ui/react";
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 
 import MessageBody from "./MessageBody";
@@ -19,7 +19,6 @@ type MessageItemProps = {
 };
 
 const MessageItem = memo(({ message, channel, index }: MessageItemProps) => {
-  if (message.name !== "chat-message") return null;
   const messageText = message.data.messageText;
   const linkArray: RegExpMatchArray | null = messageText.match(
     /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
@@ -39,16 +38,21 @@ const MessageItem = memo(({ message, channel, index }: MessageItemProps) => {
 });
 const MessageList = memo(
   ({ messages, channel, scrollRef, isAtBottomCallback }: MessageListProps) => {
+    const chatMessages = useMemo(
+      () => messages.filter((message) => message.name === "chat-message"),
+      [messages]
+    );
+
     return (
       <>
-        {messages.length > 0 ? (
+        {chatMessages.length > 0 ? (
           <Virtuoso
             followOutput={"auto"}
             ref={scrollRef}
             style={{ height: "100%" }}
-            data={messages}
+            data={chatMessages}
             atBottomStateChange={(isAtBottom) => isAtBottomCallback(isAtBottom)}
-            initialTopMostItemIndex={messages.length - 1}
+            initialTopMostItemIndex={chatMessages.length - 1}
             itemContent={(index, data) => (
               <MessageItem
                 key={data.id || index}
