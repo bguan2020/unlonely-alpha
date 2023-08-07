@@ -196,6 +196,14 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
   }, [nfc, user?.address]);
 
   useEffect(() => {
+    console.log(
+      "uri",
+      uri,
+      "writeAsync",
+      writeAsync,
+      "user.address",
+      user?.address
+    );
     if (!uri || !writeAsync || !user?.address) return;
     writeAsync();
   }, [uri]);

@@ -41,7 +41,7 @@ type Props = {
   additionalChatCommands?: CommandData[];
 };
 
-const PRICE = "3";
+const PRICE = "2";
 
 const ChatForm = ({
   sendChatMessage,
@@ -242,12 +242,17 @@ const ChatForm = ({
       sendChatMessage(gif, true);
       setMessageText("");
     } else {
-      setTxTransition(true);
-      setGifInTransaction(gif);
-      if (requiresApproval && writeApproval) {
-        writeApproval();
+      if (channelBySlug?.token?.address) {
+        setTxTransition(true);
+        setGifInTransaction(gif);
+        if (requiresApproval && writeApproval) {
+          writeApproval();
+        } else {
+          useFeature?.();
+        }
       } else {
-        useFeature?.();
+        sendChatMessage(gif, true, `${InteractionType.BLAST}:`);
+        setBlastMode(false);
       }
     }
   };
@@ -268,12 +273,21 @@ const ChatForm = ({
         sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
         setMessageText("");
       } else {
-        setTxTransition(true);
-        setGifInTransaction("");
-        if (requiresApproval && writeApproval) {
-          writeApproval();
+        if (channelBySlug?.token?.address) {
+          setTxTransition(true);
+          setGifInTransaction("");
+          if (requiresApproval && writeApproval) {
+            writeApproval();
+          } else {
+            useFeature?.();
+          }
         } else {
-          useFeature?.();
+          sendChatMessage(
+            messageText.replace(/^\s*\n|\n\s*$/g, ""),
+            false,
+            `${InteractionType.BLAST}:`
+          );
+          setBlastMode(false);
         }
       }
     },
@@ -294,12 +308,21 @@ const ChatForm = ({
         sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
         setMessageText("");
       } else {
-        setTxTransition(true);
-        setGifInTransaction("");
-        if (requiresApproval && writeApproval) {
-          writeApproval();
+        if (channelBySlug?.token?.address) {
+          setTxTransition(true);
+          setGifInTransaction("");
+          if (requiresApproval && writeApproval) {
+            writeApproval();
+          } else {
+            useFeature?.();
+          }
         } else {
-          useFeature?.();
+          sendChatMessage(
+            messageText.replace(/^\s*\n|\n\s*$/g, ""),
+            false,
+            `${InteractionType.BLAST}:`
+          );
+          setBlastMode(false);
         }
       }
     },
@@ -425,7 +448,9 @@ const ChatForm = ({
                     position="absolute"
                     top={-5}
                   >
-                    chat blast mode enabled
+                    chat blast mode enabled{" "}
+                    {channelBySlug?.token?.symbol &&
+                      `(cost: ${PRICE} ${channelBySlug?.token?.symbol})`}
                   </Text>
                 )}
                 <Textarea
