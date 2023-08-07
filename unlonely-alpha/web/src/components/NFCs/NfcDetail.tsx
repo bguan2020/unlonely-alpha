@@ -197,6 +197,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
 
   useEffect(() => {
     console.log(
+      "inside useEffect",
       "uri",
       uri,
       "writeAsync",
@@ -214,8 +215,15 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
     }
   }, [writeError, txError]);
 
-  console.log("writeAsync", writeAsync);
-
+  console.log(
+    "outside useEffect",
+    "uri",
+    uri,
+    "writeAsync",
+    writeAsync,
+    "user.address",
+    user?.address
+  );
   return (
     <>
       <Flex
