@@ -11,7 +11,13 @@ import {
   Button,
   Tooltip,
 } from "@chakra-ui/react";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Link from "next/link";
 import { useNetwork } from "wagmi";
 import { parseUnits } from "viem";
@@ -63,6 +69,7 @@ const ChatForm = ({
   const [error, setError] = useState<string>("");
   const [tooltipError, setTooltipError] = useState<string>("");
   const [gifInTransaction, setGifInTransaction] = useState<string>("");
+  const transitioningTxFromApprovalToExec = useRef(false);
 
   const [blastMode, setBlastMode] = useState(false);
 
@@ -206,6 +213,7 @@ const ChatForm = ({
         setBlastMode(false);
         refetchUserTokenBalance?.();
         refetchAllowance();
+        setMessageText("");
       },
       onTxError: (error) => {
         toast({
@@ -345,10 +353,15 @@ const ChatForm = ({
   }, [channelBySlug, userTokenBalance?.value, blastMode]);
 
   useEffect(() => {
-    if (isApprovalSuccess) {
-      useFeature?.();
+    if (
+      isApprovalSuccess &&
+      useFeature &&
+      !transitioningTxFromApprovalToExec.current
+    ) {
+      transitioningTxFromApprovalToExec.current = true;
+      useFeature();
     }
-  }, [isApprovalSuccess]);
+  }, [isApprovalSuccess, useFeature]);
 
   const toastSignIn = () => {
     toast({
