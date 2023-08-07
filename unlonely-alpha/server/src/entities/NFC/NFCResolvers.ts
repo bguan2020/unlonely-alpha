@@ -26,7 +26,6 @@ export const resolvers = {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
-
       return NFCService.postNFC(data, ctx, ctx.user);
     },
     createClip: (
@@ -51,6 +50,9 @@ export const resolvers = {
       { data }: { data: NFCService.IUpdateNFCInput },
       ctx: Context
     ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
       return NFCService.updateNFC(data, ctx);
     },
   },
