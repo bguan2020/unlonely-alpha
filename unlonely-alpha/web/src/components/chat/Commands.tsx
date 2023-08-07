@@ -83,9 +83,10 @@ export default function Commands({
               .filter((command) => {
                 return command.value.includes(chat);
               })
-              .map((command) => {
+              .map((command, i) => {
                 return (
                   <Button
+                    key={i}
                     bg={"#36548f"}
                     _hover={{ bg: "#d16fce" }}
                     _active={{ bg: "#d16fce" }}
