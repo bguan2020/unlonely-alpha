@@ -34,6 +34,14 @@ export const typeDef = gql`
     openseaLink: String!
   }
 
+  input UpdateNFCInput {
+    id: ID!
+    title: String!
+    videoLink: String!
+    videoThumbnail: String!
+    openseaLink: String!
+  }
+
   input CreateClipInput {
     channelArn: String!
   }
@@ -46,6 +54,7 @@ export const typeDef = gql`
   extend type Mutation {
     createClip(data: CreateClipInput): ClipOutput
     postNFC(data: PostNFCInput!): NFC
+    updateNFC(data: UpdateNFCInput!): NFC
     openseaNFCScript: String
     updateOpenseaLink: NFC
   }

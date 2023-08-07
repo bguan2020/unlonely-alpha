@@ -96,7 +96,7 @@ const NfcDetail = ({
         image={nfc?.videoThumbnail}
         isCustomHeader={true}
       >
-        <Flex justifyContent="center" mt="5rem" direction="column">
+        <Flex justifyContent="center" mt="3rem" direction="column">
           {!nfc ? (
             <Flex width="100%" justifyContent="center">
               <Spinner />

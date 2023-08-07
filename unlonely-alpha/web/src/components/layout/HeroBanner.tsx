@@ -26,7 +26,7 @@ const HeroBanner = () => {
           }}
         >
           <Tooltip
-            label="dm @gracewhiteguan or @brianguan on telegram a picture of your OBS setup to get your own channel"
+            label="dm @gracewhiteguan on telegram a picture of your OBS setup to get your own channel"
             fontWeight={"bold"}
           >
             start

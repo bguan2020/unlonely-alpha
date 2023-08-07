@@ -7,15 +7,13 @@ import {
   Textarea,
   FormControl,
   FormErrorMessage,
+  Spinner,
   Button,
-  useToast,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/router";
-import { useNetwork } from "wagmi";
-import { create } from "ipfs-http-client";
 
 import AppLayout from "../components/layout/AppLayout";
 import useCreateClip from "../hooks/server/useCreateClip";
@@ -24,27 +22,6 @@ import { PostNfcInput } from "../generated/graphql";
 import { postNfcSchema } from "../utils/validation/validation";
 import usePostNFC from "../hooks/server/usePostNFC";
 import { useUser } from "../hooks/context/useUser";
-import { UNLONELYNFCV2_ADDRESS } from "../constants";
-import UnlonelyNFCsV2 from "../utils/UnlonelyNFCsV2.json";
-import { NETWORKS } from "../constants/networks";
-
-import { useWrite } from "../hooks/contracts/useWrite";
-
-const projectId = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
-const projectSecret = "7d400aacc9bc6c0f0d6e59b65a83d764";
-const auth = `Basic ${Buffer.from(`${projectId}:${projectSecret}`).toString(
-  "base64"
-)}`;
-
-const client = create({
-  host: "ipfs.infura.io",
-  port: 5001,
-  protocol: "https",
-  apiPath: "api/v0",
-  headers: {
-    authorization: auth,
-  },
-});
 
 const ClipDetail = () => {
   const { user } = useUser();
@@ -52,48 +29,14 @@ const ClipDetail = () => {
   const [clipError, setClipError] = useState<null | string[]>(null);
   const [clipUrl, setClipUrl] = useState<null | any>(null);
   const [clipThumbnail, setClipThumbnail] = useState<null | any>(null);
-  const [uri, setUri] = useState<string | undefined>(undefined);
-  const toast = useToast();
+  // const [clipThumbnail, setClipThumbnail] = useState<null | any>(
+  //   "https://unlonely-clips.s3.us-west-2.amazonaws.com/brian-clips/20230727180940/thumbnail.jpg"
+  // );
+  // const [clipUrl, setClipUrl] = useState<null | any>(
+  //   "https://unlonely-clips.s3.us-west-2.amazonaws.com/brian-clips/20230727180940/clip.mp4"
+  // );
   const router = useRouter();
   const { query } = router;
-
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
-
-  const { writeAsync, txData, isTxLoading, isTxSuccess } = useWrite(
-    {
-      address: UNLONELYNFCV2_ADDRESS,
-      abi: UnlonelyNFCsV2.abi,
-      chainId: localNetwork.config.chainId,
-    },
-    "mint",
-    [user?.address, uri],
-    {
-      onPrepareSuccess: (data) => {
-        console.log("nfc mint prepare success", data);
-      },
-      onPrepareError: (error) => {
-        console.log("nfc mint prepare error", error);
-      },
-      onWriteSuccess: (data) => {
-        console.log("nfc mint write success", data);
-      },
-      onWriteError: (error) => {
-        console.log("nfc mint write error", error);
-      },
-      onTxSuccess: (data) => {
-        console.log("nfc mint tx success", data);
-      },
-      onTxError: (error) => {
-        console.log("nfc mint tx error", error);
-      },
-    }
-  );
 
   const form = useForm<PostNfcInput>({
     defaultValues: {},
@@ -106,7 +49,7 @@ const ClipDetail = () => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
   });
-  const { postNFC, loading } = usePostNFC({
+  const { postNFC, loading: postingClip } = usePostNFC({
     onError: (m) => {
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
@@ -115,6 +58,7 @@ const ClipDetail = () => {
   // useeffect to call createClip
   useEffect(() => {
     const fetchData = async () => {
+      if (clipUrl || clipThumbnail) return;
       const { res } = await createClip({ channelArn: query.arn });
       // if res.errorMessage is not null, then show error message
       if (res.errorMessage) {
@@ -142,74 +86,19 @@ const ClipDetail = () => {
     }
   }, [user?.address]);
 
-  useEffect(() => {
-    const _postNFC = async () => {
-      const { title } = watch();
-      toast({
-        title: "NFT Minted",
-        description: "Your NFT has been minted",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
-      const { res } = await postNFC({
-        videoLink: clipUrl,
-        videoThumbnail: clipThumbnail,
-        title,
-        openseaLink: txData?.logs[0].topics[3]
-          ? `https://opensea.io/assets/ethereum/${UNLONELYNFCV2_ADDRESS}/${parseInt(
-              txData?.logs[0].topics[3],
-              16
-            )}`
-          : null,
-      });
-      router.push(`/nfc/${res?.id}`);
-    };
-    if (isTxSuccess) {
-      _postNFC();
-    }
-  }, [isTxSuccess, txData]);
-
-  const submitNFC = useCallback(async () => {
+  const submitClip = async () => {
     const { title } = watch();
-    // first upload to ipfs
-    // then mint nft
-    const uri = await uploadToIPFS(title, clipUrl);
-    if (!uri) {
-      setFormError(["Error Minting NFT"]);
+    const _res = await postNFC({
+      videoLink: clipUrl,
+      videoThumbnail: clipThumbnail,
+      title,
+      openseaLink: "",
+    });
+    if (!_res?.res?.id) {
+      setFormError(["An unknown error occurred"]);
       return;
     }
-  }, [clipUrl, user?.address]);
-
-  useEffect(() => {
-    if (!uri || !writeAsync || !user?.address) return;
-    writeAsync();
-  }, [uri, writeAsync, user?.address]);
-
-  const uploadToIPFS = async (name: string, clipUrl: string) => {
-    // destructing. getting value of name, desc and price from formInput.
-    if (!name || !clipUrl) return;
-    // if any of the valuable is empty return
-
-    /* first, upload metadata to IPFS */
-    const data = JSON.stringify({
-      name,
-      description:
-        "this is an NFC (non-fungible clip) highlight from an unlonely livestream",
-      image: clipUrl,
-      external_url: "https://www.unlonely.app/",
-      image_url: clipThumbnail,
-    });
-    try {
-      const added = await client.add(data);
-      const url = `https://cloudflare-ipfs.com/ipfs/${added.path}`;
-      setUri(url);
-
-      /* after metadata is uploaded to IPFS, return the URL to use it in the transaction */
-      return url;
-    } catch (error) {
-      setFormError(["Error uploading file to IPFS"]);
-    }
+    router.push(`/nfc/${_res?.res?.id}`);
   };
 
   return (
@@ -227,29 +116,35 @@ const ClipDetail = () => {
             <>
               {!clipUrl ? (
                 <Flex width="100%" justifyContent="center">
-                  <Flex direction="column" width="60%">
-                    <Progress
-                      size="md"
-                      value={progressBar}
-                      hasStripe
-                      isAnimated
-                    />
-                    {progressBar <= 20 && (
-                      <Text fontSize="16px">generating clip...</Text>
+                  <>
+                    {user ? (
+                      <Flex direction="column" width="60%">
+                        <Progress
+                          size="md"
+                          value={progressBar}
+                          hasStripe
+                          isAnimated
+                        />
+                        {progressBar <= 20 && (
+                          <Text fontSize="16px">generating clip...</Text>
+                        )}
+                        {progressBar <= 40 && progressBar > 20 && (
+                          <Text fontSize="16px">contacting AWS...</Text>
+                        )}
+                        {progressBar <= 60 && progressBar > 40 && (
+                          <Text fontSize="16px">praying to Bezos...</Text>
+                        )}
+                        {progressBar <= 80 && progressBar > 60 && (
+                          <Text fontSize="16px">almost done...</Text>
+                        )}
+                        {progressBar <= 100 && progressBar > 80 && (
+                          <Text fontSize="16px">finalizing clip...</Text>
+                        )}
+                      </Flex>
+                    ) : (
+                      <Text>You are not signed in.</Text>
                     )}
-                    {progressBar <= 40 && progressBar > 20 && (
-                      <Text fontSize="16px">contacting AWS...</Text>
-                    )}
-                    {progressBar <= 60 && progressBar > 40 && (
-                      <Text fontSize="16px">praying to Bezos...</Text>
-                    )}
-                    {progressBar <= 80 && progressBar > 60 && (
-                      <Text fontSize="16px">almost done...</Text>
-                    )}
-                    {progressBar <= 100 && progressBar > 80 && (
-                      <Text fontSize="16px">finalizing clip...</Text>
-                    )}
-                  </Flex>
+                  </>
                 </Flex>
               ) : (
                 <Flex width="100%" justifyContent="center">
@@ -260,22 +155,36 @@ const ClipDetail = () => {
                 <Flex width="80%" justifyContent="center" direction="column">
                   {!clipUrl ? (
                     <Flex width="100%" justifyContent="center">
-                      <Text fontSize="16px">
-                        Do no refresh or close this page! Clip is being
-                        generated! This will take a few minutes, so go back to
-                        the livestream if you want!
-                      </Text>
+                      {user && (
+                        <Text fontSize="16px">
+                          Do not refresh or close this page! Clip is being
+                          generated! This will take a few minutes, so go back to
+                          the livestream if you want!
+                        </Text>
+                      )}
+                    </Flex>
+                  ) : postingClip ? (
+                    <Flex width="100%" justifyContent="center">
+                      <Spinner />
                     </Flex>
                   ) : (
                     <Flex width="100%" justifyContent="center">
                       <Flex
                         direction="column"
                         w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
+                        gap="10px"
                       >
-                        <Text fontSize="32px" fontWeight="semibold">
-                          Clip generated! Title and mint your clip to share!
+                        <Text
+                          fontSize="32px"
+                          fontWeight="semibold"
+                          textAlign={"center"}
+                        >
+                          Clip generated!
                         </Text>
-                        <form onSubmit={handleSubmit(submitNFC)}>
+                        <Text fontSize="16px" textAlign={"center"}>
+                          Give it a title before uploading it!
+                        </Text>
+                        <form onSubmit={handleSubmit(submitClip)}>
                           {formError &&
                             formError.length > 0 &&
                             formError.map((err, i) => (
@@ -288,7 +197,6 @@ const ClipDetail = () => {
                             isInvalid={!!formState.errors.title}
                             marginBottom={["20px", "20px"]}
                           >
-                            <Text fontSize="16px">Title</Text>
                             <Textarea
                               id="title"
                               placeholder="brian gets rick rolled"
@@ -308,47 +216,23 @@ const ClipDetail = () => {
                               {formState.errors.title?.message}
                             </FormErrorMessage>
                           </FormControl>
-                          <Flex width="100%" flexDirection="row-reverse">
-                            {user ? (
-                              <>
-                                {isTxSuccess ? (
-                                  <>
-                                    <Button bg="#FFCC15" disabled={true}>
-                                      Successfully Minted!
-                                    </Button>
-                                  </>
-                                ) : (
-                                  <Button
-                                    color="black"
-                                    bg="#FFCC15"
-                                    _hover={{ bg: "white" }}
-                                    type="submit"
-                                    isLoading={isTxLoading || loading}
-                                    loadingText="Minting..."
-                                  >
-                                    Mint
-                                  </Button>
-                                )}
-                              </>
-                            ) : (
-                              <Button
-                                bg="#FFCC15"
-                                _hover={{ bg: "black" }}
-                                onClick={() => {
-                                  toast({
-                                    title: "Sign in first.",
-                                    description:
-                                      "Please sign into your wallet first.",
-                                    status: "warning",
-                                    duration: 9000,
-                                    isClosable: true,
-                                    position: "top",
-                                  });
-                                }}
-                              >
-                                Mint
-                              </Button>
-                            )}
+                          <Flex width="100%" justifyContent={"center"}>
+                            <Button
+                              colorScheme={"blue"}
+                              py={10}
+                              _hover={{ transform: "scale(1.05)" }}
+                              _active={{
+                                transform: "scale(1)",
+                                background: "green",
+                              }}
+                              borderRadius="10px"
+                              _focus={{}}
+                              width="100%"
+                              type="submit"
+                              loadingText="uploading..."
+                            >
+                              <Text fontSize="30px">upload</Text>
+                            </Button>
                           </Flex>
                         </form>
                       </Flex>

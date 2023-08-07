@@ -1,5 +1,4 @@
 import {
-  Box,
   Text,
   Flex,
   useToast,
@@ -16,9 +15,18 @@ import {
   GridItem,
   Spinner,
   Tooltip,
+  Box,
+  Image,
 } from "@chakra-ui/react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { isAddress } from "viem";
+import { VirtuosoHandle } from "react-virtuoso";
 
 import { useChannel } from "../../hooks/chat/useChannel";
 import { initializeEmojis } from "../../constants/types/chat";
@@ -26,13 +34,11 @@ import ChatForm from "./ChatForm";
 import usePostFirstChat from "../../hooks/server/usePostFirstChat";
 import Participants from "../presence/Participants";
 import { useUser } from "../../hooks/context/useUser";
-import MessageList from "./MessageList";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 // import SwordButton from "../arcade/SwordButton";
 import CoinButton from "../arcade/CoinButton";
 import ControlButton from "../arcade/ControlButton";
 // import DiceButton from "../arcade/DiceButton";
-import { useScrollPercentage } from "../../hooks/internal/useScrollPercentage";
 import {
   NULL_ADDRESS,
   InteractionType,
@@ -46,9 +52,10 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { ChatCommand } from "../../generated/graphql";
 import CustomButton from "../arcade/CustomButton";
+import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimations";
+import MessageList from "./MessageList";
 
 type Props = {
-  username: string | null | undefined;
   chatBot: ChatBot[];
   handleControlModal?: () => void;
   handleChanceModal?: () => void;
@@ -59,7 +66,6 @@ type Props = {
 };
 
 const AblyChatComponent = ({
-  username,
   chatBot,
   handleControlModal,
   handleChanceModal,
@@ -68,6 +74,7 @@ const AblyChatComponent = ({
   handleBuyModal,
   handleCustomModal,
 }: Props) => {
+  const { username } = useUser();
   const {
     channel: channelContext,
     chat,
@@ -108,17 +115,18 @@ const AblyChatComponent = ({
   } = useChannel();
 
   const { user, userAddress: address } = useUser();
+  const { emojiBlast, fireworks } = useScreenAnimationsContext();
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
   /*eslint-enable prefer-const*/
 
   const [formError, setFormError] = useState<null | string[]>(null);
-  const [chatHeightGrounded, setChatHeightGrounded] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showArcade, setShowArcade] = useState<boolean>(false);
   const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
     []
   );
+  const scrollRef = useRef<VirtuosoHandle>(null);
 
   const clickedOutsideLeaderBoard = useRef(false);
   const clickedOutsideArcade = useRef(false);
@@ -176,12 +184,8 @@ const AblyChatComponent = ({
       setFormError(m ? m.map((e) => e.message) : ["An unknown error occurred"]);
     },
   });
-  const { scrollRef, scrollPercentage } = useScrollPercentage();
 
-  const hasScrolled = useMemo(() => {
-    return scrollPercentage < 100 && !chatHeightGrounded;
-  }, [scrollPercentage, chatHeightGrounded]);
-
+  const [isAtBottom, setIsAtBottom] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -195,6 +199,7 @@ const AblyChatComponent = ({
       }
       if (lastMessage.taskType === InteractionType.TIP) {
         messageText = lastMessage.title ?? "Tip";
+        body = `${InteractionType.TIP}:${lastMessage.description ?? ""}`;
       }
       if (lastMessage.taskType === "pvp") {
         messageText = lastMessage.title ?? "Pvp";
@@ -212,12 +217,17 @@ const AblyChatComponent = ({
       }
       if (lastMessage.taskType === InteractionType.BUY) {
         messageText = lastMessage.title ?? "Buy";
+        body = `${InteractionType.BUY}:${lastMessage.description ?? ""}`;
       }
       publishChatBotMessage(messageText, body);
     }
   }, [chatBot]);
 
-  const sendChatMessage = async (messageText: string, isGif: boolean) => {
+  const sendChatMessage = async (
+    messageText: string,
+    isGif: boolean,
+    body?: string
+  ) => {
     if (!user && !address) {
       toast({
         title: "Sign in first.",
@@ -241,6 +251,7 @@ const AblyChatComponent = ({
           tokenHolderRank: userRank,
           isGif,
           reactions: initializeEmojis,
+          body,
         },
       });
     }
@@ -267,6 +278,7 @@ const AblyChatComponent = ({
           tokenHolderRank: userRank,
           isGif,
           reactions: initializeEmojis,
+          body,
         },
       });
       handleChatCommand(messageText);
@@ -360,21 +372,19 @@ const AblyChatComponent = ({
       },
     });
   };
-
   // useeffect to scroll to the bottom of the chat
   // explain what the useEffect below is doing
   useEffect(() => {
     const chat = document.getElementById("chat");
     if (!chat) return;
     if (!hasMessagesLoaded && receivedMessages.length) {
-      chat.scrollTop = chat.scrollHeight;
+      handleScrollToPresent();
       setHasMessagesLoaded(true);
       return;
     }
-    if (scrollPercentage === 100) {
-      chat.scrollTop = chat.scrollHeight;
+    if (isAtBottom) {
+      handleScrollToPresent();
     }
-    setChatHeightGrounded(chat.scrollHeight <= chat.clientHeight);
   }, [receivedMessages]);
 
   useEffect(() => {
@@ -393,17 +403,38 @@ const AblyChatComponent = ({
           if (newTextOverVideo) {
             addToTextOverVideo(newTextOverVideo);
           }
+        } else if (
+          latestMessage.data.body &&
+          (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
+            latestMessage.data.body.split(":")[0] === InteractionType.TIP)
+        ) {
+          fireworks();
+        } else if (
+          latestMessage.data.body &&
+          latestMessage.data.body.split(":")[0] === InteractionType.BLAST
+        ) {
+          if (latestMessage.data.isGif) {
+            emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
+          } else {
+            emojiBlast(
+              <Text fontSize="40px">{latestMessage.data.messageText}</Text>
+            );
+          }
         }
       }
     }
     mountingMessages.current = false;
   }, [receivedMessages]);
 
-  const handleScrollToPresent = () => {
-    const chat = document.getElementById("chat");
-    if (!chat) return;
-    chat.scrollTop = chat.scrollHeight;
-  };
+  const handleScrollToPresent = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollToIndex(receivedMessages.length - 1);
+    }
+  }, [receivedMessages.length]);
+
+  const handleIsAtBottom = useCallback((value: boolean) => {
+    setIsAtBottom(value);
+  }, []);
 
   return (
     <Flex h="100%" minW="100%">
@@ -747,12 +778,16 @@ const AblyChatComponent = ({
           id="chat"
           position="relative"
           mt="8px"
-          ref={scrollRef}
         >
-          <MessageList messages={receivedMessages} channel={channel} />
+          <MessageList
+            scrollRef={scrollRef}
+            messages={receivedMessages}
+            channel={channel}
+            isAtBottomCallback={handleIsAtBottom}
+          />
         </Flex>
         <Flex justifyContent="center">
-          {hasScrolled && hasMessagesLoaded ? (
+          {!isAtBottom && hasMessagesLoaded && (
             <Box
               bg="rgba(98, 98, 98, 0.6)"
               p="4px"
@@ -767,7 +802,7 @@ const AblyChatComponent = ({
                 scrolling paused. click to scroll to bottom.
               </Text>
             </Box>
-          ) : null}
+          )}
         </Flex>
         <Flex mt="40px" w="100%" mb="15px">
           <ChatForm

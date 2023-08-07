@@ -9,12 +9,11 @@ const ClipDetailCard = ({ clipUrl }: Prop) => {
     <>
       <Flex
         direction="column"
-        w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
+        w={{ base: "40%", md: "40%", lg: "40%", sm: "100%" }}
         padding="0.3rem"
         borderRadius="1rem"
         minW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
-        mt="8px"
-        mr="1rem"
+        justifyContent="center"
       >
         <video controls loop preload="metadata">
           <source src={clipUrl} type="video/mp4"></source>

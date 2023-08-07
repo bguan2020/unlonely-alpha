@@ -6,8 +6,12 @@ import LiveChannelCard from "./LiveChannelCard";
 
 type Props = {
   channels: Channel[];
+  callback: () => void;
 };
-const LiveChannelList: React.FunctionComponent<Props> = ({ channels }) => {
+const LiveChannelList: React.FunctionComponent<Props> = ({
+  channels,
+  callback,
+}) => {
   const liveChannels = channels?.filter((channel: Channel) => channel.isLive);
   const listRef = useRef<HTMLDivElement>(null);
   const [isCentered, setIsCentered] = useState(true);
@@ -43,7 +47,11 @@ const LiveChannelList: React.FunctionComponent<Props> = ({ channels }) => {
           ref={listRef}
         >
           {liveChannels.map((channel: Channel) => (
-            <LiveChannelCard key={channel.id} channel={channel} />
+            <LiveChannelCard
+              key={channel.id}
+              channel={channel}
+              callback={callback}
+            />
           ))}
         </Flex>
       )}

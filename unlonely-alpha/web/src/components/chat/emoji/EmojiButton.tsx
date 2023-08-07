@@ -1,14 +1,15 @@
 import React from "react";
 import {
-  Button,
   Popover,
   PopoverTrigger,
   PopoverContent,
   PopoverArrow,
   PopoverCloseButton,
   PopoverBody,
-  Text,
+  Image,
+  IconButton,
 } from "@chakra-ui/react";
+
 import EmojiPicker from "./EmojiPicker";
 import { EmojiType } from "../../../constants/types/chat";
 
@@ -22,28 +23,18 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
   return (
     <Popover>
       <PopoverTrigger>
-        <Button
-          type="button"
-          // size="sm"
-          z-index={2}
-          // position="absolute"
-          // bottom="8px"
-          // right={mobile ? "48px" : "36px"}
-          width={"40px"}
-          height={"40px"}
-          size="lg"
-          bg={"#D9D9D9"}
+        <IconButton
+          icon={<Image src="/svg/emoji.svg" />}
+          aria-label="clip stream"
+          bg="transparent"
           _focus={{}}
           _hover={{ transform: "scale(1.15)" }}
           _active={{ transform: "scale(1.3)" }}
-        >
-          <Text fontSize="30px" textAlign={"center"}>
-            😃
-          </Text>
-        </Button>
+        />
       </PopoverTrigger>
       <PopoverContent
         zIndex={4}
+        rootProps={{ style: { transform: "scale(0)" } }} // when Popover is not opened yet, PopoverContent causes unwanted scroll, this is a fix
         right={9}
         bottom={10}
         bg={"rgba(255, 255, 255, 0.5)"}

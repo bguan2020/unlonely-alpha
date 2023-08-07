@@ -2,15 +2,14 @@ import React, { useEffect, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import {
   Flex,
-  SimpleGrid,
   Box,
   Popover,
   PopoverTrigger,
   PopoverContent,
   PopoverArrow,
 } from "@chakra-ui/react";
-
 import { usePresence } from "@ably-labs/react-hooks";
+
 import Participant from "./Participant";
 import { useUser } from "../../hooks/context/useUser";
 import ExcessTooltipAvatar from "./ExcessTooltipAvatar";
@@ -132,25 +131,25 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
                   {`+${participantOrder.slice(6).length}`}
                 </Box>
               </PopoverTrigger>
-              <PopoverContent bg="gray.800" border="none">
+              <PopoverContent
+                bg="gray.800"
+                border="none"
+                height="400px"
+                overflowY="scroll"
+              >
                 <PopoverArrow bg="gray.800" />
-                <SimpleGrid columns={3}>
-                  {participantOrder.map((member, index) => {
-                    if (member.data?.user) {
-                      return (
-                        <Flex key={index} m="auto" p="0.5rem">
-                          <ExcessTooltipAvatar user={member.data.user} />
-                        </Flex>
-                      );
-                    } else {
-                      return (
-                        <Flex key={index} m="auto" p="0.5rem">
-                          <AnonExcessTooltipAvatar />
-                        </Flex>
-                      );
-                    }
-                  })}
-                </SimpleGrid>
+                {participantOrder.map((member, index) => {
+                  if (member.data?.user) {
+                    return (
+                      <ExcessTooltipAvatar
+                        key={index}
+                        user={member.data.user}
+                      />
+                    );
+                  } else {
+                    return <AnonExcessTooltipAvatar key={index} />;
+                  }
+                })}
               </PopoverContent>
             </Popover>
           </Flex>

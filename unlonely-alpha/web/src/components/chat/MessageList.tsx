@@ -1,64 +1,75 @@
 import { Flex, Text } from "@chakra-ui/react";
-import React from "react";
+import React, { memo } from "react";
+import { Virtuoso } from "react-virtuoso";
 
 import MessageBody from "./MessageBody";
 import { Message } from "../../constants/types/chat";
 
-type Props = {
+type MessageListProps = {
   messages: Message[];
   channel: any;
+  scrollRef: any;
+  isAtBottomCallback: (value: boolean) => void;
 };
 
-const MessageList = ({ messages, channel }: Props) => {
-  return (
-    <>
-      {messages.length > 0 ? (
-        <>
-          {messages.map((message, index) => {
-            if (message.name !== "chat-message") return null;
-            const messageText = message.data.messageText;
-            // regex to check if message is a link
-            const isLink = messageText.match(
-              /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
-            )
-              ? true
-              : false;
-            // if isLink true, remove link from message
-            let splitURL: string[] | undefined = undefined;
-            if (isLink) {
-              // detect link at end of message, split into array [message, link].
-              splitURL = messageText.split(/(?:http:\/\/|https:\/\/|www\.)/g);
-              // add https:// to link
-              splitURL[splitURL.length - 1] = `https://${
-                splitURL[splitURL.length - 1]
-              }`;
-            }
+type MessageItemProps = {
+  message: Message;
+  channel: any;
+  index: number;
+};
 
-            return (
-              <div key={index}>
-                <MessageBody
-                  index={index}
-                  message={message}
-                  messageText={messageText}
-                  isLink={isLink}
-                  splitURL={splitURL}
-                  channel={channel}
-                />
-              </div>
-            );
-          })}
-        </>
-      ) : (
-        <>
-          <Flex flexDirection="row">
-            <Text color="white">
-              {"No messages to show. Messages delete every 48 hrs."}
-            </Text>
-          </Flex>
-        </>
-      )}
-    </>
+const MessageItem = memo(({ message, channel, index }: MessageItemProps) => {
+  if (message.name !== "chat-message") return null;
+  const messageText = message.data.messageText;
+  const linkArray: RegExpMatchArray | null = messageText.match(
+    /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
   );
-};
+
+  return (
+    <div key={message.id || index}>
+      <MessageBody
+        index={index}
+        message={message}
+        messageText={messageText}
+        linkArray={linkArray}
+        channel={channel}
+      />
+    </div>
+  );
+});
+const MessageList = memo(
+  ({ messages, channel, scrollRef, isAtBottomCallback }: MessageListProps) => {
+    return (
+      <>
+        {messages.length > 0 ? (
+          <Virtuoso
+            followOutput={"auto"}
+            ref={scrollRef}
+            style={{ height: "100%" }}
+            data={messages}
+            atBottomStateChange={(isAtBottom) => isAtBottomCallback(isAtBottom)}
+            initialTopMostItemIndex={messages.length - 1}
+            itemContent={(index, data) => (
+              <MessageItem
+                key={data.id || index}
+                message={data}
+                channel={channel}
+                index={index}
+              />
+            )}
+          />
+        ) : (
+          <>
+            <Flex flexDirection="row">
+              <Text color="white">
+                {"No messages to show. Messages delete every 48 hrs."}
+              </Text>
+            </Flex>
+          </>
+        )}
+      </>
+    );
+  }
+);
 
 export default MessageList;

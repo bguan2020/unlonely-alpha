@@ -46,6 +46,13 @@ export const resolvers = {
     // ) => {
     //   return NFCService.updateOpenseaLink(ctx);
     // }
+    updateNFC: (
+      _: any,
+      { data }: { data: NFCService.IUpdateNFCInput },
+      ctx: Context
+    ) => {
+      return NFCService.updateNFC(data, ctx);
+    },
   },
   NFC: {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {

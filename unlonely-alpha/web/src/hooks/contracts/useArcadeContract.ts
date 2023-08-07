@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { isAddress } from "viem";
 import { useNetwork, usePublicClient } from "wagmi";
+
 import { NULL_ADDRESS } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import { WriteCallbacks } from "../../constants/types";
@@ -248,6 +249,9 @@ export const useUseFeature = (
     writeData: useFeatureData,
     txData: useFeatureTxData,
     isTxLoading: useFeatureTxLoading,
+    isTxSuccess: useFeatureTxSuccess,
+    writeError: useFeatureWriteError,
+    txError: useFeatureTxError,
   } = useWrite(
     contract,
     "useFeature",
@@ -285,6 +289,9 @@ export const useUseFeature = (
     useFeatureData,
     useFeatureTxData,
     useFeatureTxLoading,
+    useFeatureTxSuccess,
+    useFeatureWriteError,
+    useFeatureTxError,
   };
 };
 

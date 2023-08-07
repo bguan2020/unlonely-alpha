@@ -4,6 +4,7 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
+
 import { WriteCallbacks } from "../../constants/types";
 
 export const useWrite = (
@@ -63,5 +64,7 @@ export const useWrite = (
     txData,
     isTxLoading,
     isTxSuccess,
+    writeError,
+    txError,
   };
 };

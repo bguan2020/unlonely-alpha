@@ -11,7 +11,6 @@ import { useForm } from "react-hook-form";
 
 import { UpdateChannelTextInput } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { useUser } from "../../hooks/context/useUser";
 import useUpdateChannelText from "../../hooks/server/useUpdateChannelText";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
@@ -27,13 +26,10 @@ export default function EditChannelModal({
   callback?: any;
   handleClose: () => void;
 }) {
-  const { user } = useUser();
   const { channel } = useChannelContext();
   const { channelBySlug } = channel;
 
   const [formError, setFormError] = useState<string[]>([]);
-  // const [tokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
-  // const [chatCommandModal, setChatCommandModal] = useState<boolean>(false);
   const form = useForm<UpdateChannelTextInput>({
     defaultValues: {},
     resolver: yupResolver(updateChannelTextSchema),

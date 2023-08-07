@@ -1,4 +1,4 @@
-import { Image, Tooltip } from "@chakra-ui/react";
+import { Image } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 
 import { useUser } from "../../../hooks/context/useUser";
@@ -47,67 +47,19 @@ const Gif = ({
 
   return (
     <>
-      {user ? (
-        <>
-          {user.powerUserLvl > 0 ? (
-            <Button
-              type="button"
-              padding={padding}
-              as={onClick !== null ? "button" : "div"}
-              textAlign="center"
-              isDisabled={buttonDisabled}
-              onClick={() => handleClick()}
-              maxHeight={size}
-              w={size}
-              minW={size}
-            >
-              <Image src={gif} />
-            </Button>
-          ) : (
-            <Tooltip
-              label={
-                "You must have an Unlonely Power User badge to gain access to these gifs."
-              }
-            >
-              <span>
-                <Button
-                  type="button"
-                  padding={padding}
-                  isDisabled={true}
-                  as={onClick !== null ? "button" : "div"}
-                  textAlign="center"
-                  maxHeight={size}
-                  w={size}
-                  minW={size}
-                >
-                  <Image src={gif} />
-                </Button>
-              </span>
-            </Tooltip>
-          )}
-        </>
-      ) : (
-        <Tooltip
-          label={
-            "You must have an Unlonely Power User badge to gain access to these gifs."
-          }
-        >
-          <span>
-            <Button
-              type="button"
-              padding={padding}
-              isDisabled={true}
-              as={onClick !== null ? "button" : "div"}
-              textAlign="center"
-              maxHeight={size}
-              w={size}
-              minW={size}
-            >
-              <Image src={gif} />
-            </Button>
-          </span>
-        </Tooltip>
-      )}
+      <Button
+        type="button"
+        padding={padding}
+        as={onClick !== null ? "button" : "div"}
+        textAlign="center"
+        isDisabled={buttonDisabled}
+        onClick={() => handleClick()}
+        maxHeight={size}
+        w={size}
+        minW={size}
+      >
+        <Image src={gif} />
+      </Button>
     </>
   );
 };
