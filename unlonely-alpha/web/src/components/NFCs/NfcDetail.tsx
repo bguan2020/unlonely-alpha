@@ -214,6 +214,8 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
     }
   }, [writeError, txError]);
 
+  console.log("writeAsync", writeAsync);
+
   return (
     <>
       <Flex

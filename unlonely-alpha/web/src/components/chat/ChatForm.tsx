@@ -447,10 +447,11 @@ const ChatForm = ({
                     fontSize="12px"
                     position="absolute"
                     top={-5}
+                    whiteSpace="nowrap"
                   >
                     chat blast mode enabled{" "}
                     {channelBySlug?.token?.symbol &&
-                      `(cost: ${PRICE} ${channelBySlug?.token?.symbol})`}
+                      `(cost: ${PRICE} $${channelBySlug?.token?.symbol})`}
                   </Text>
                 )}
                 <Textarea
@@ -480,43 +481,58 @@ const ChatForm = ({
                   height={"100%"}
                 />
                 <Flex justifyContent={"flex-end"}>
-                  <IconButton
-                    icon={<Image src="/svg/cut.svg" />}
-                    aria-label="clip stream"
-                    bg="transparent"
-                    _focus={{}}
-                    _hover={{ transform: "scale(1.15)" }}
-                    _active={{ transform: "scale(1.3)" }}
-                    onClick={() => {
-                      if (user) {
-                        window.open(
-                          `/clip?arn=${channelBySlug?.channelArn || ""}`,
-                          "_blank"
-                        );
-                      } else {
-                        toastSignIn();
-                      }
-                    }}
-                  />
-                  <IconButton
-                    icon={<Image src="/svg/blast.svg" />}
-                    aria-label="clip stream"
-                    bg={blastMode ? "red" : "transparent"}
-                    _focus={{}}
-                    _hover={{ transform: "scale(1.15)" }}
-                    _active={{ transform: "scale(1.3)" }}
-                    onClick={() => {
-                      if (blastMode) {
-                        setBlastMode(false);
-                      } else {
+                  <Tooltip
+                    label="clipping is now free!"
+                    background="#1db57d"
+                    placement="left"
+                    defaultIsOpen
+                    hasArrow
+                  >
+                    <IconButton
+                      icon={<Image src="/svg/cut.svg" />}
+                      aria-label="clip stream"
+                      bg="transparent"
+                      _focus={{}}
+                      _hover={{ transform: "scale(1.15)" }}
+                      _active={{ transform: "scale(1.3)" }}
+                      onClick={() => {
                         if (user) {
-                          setBlastMode(true);
+                          window.open(
+                            `/clip?arn=${channelBySlug?.channelArn || ""}`,
+                            "_blank"
+                          );
                         } else {
                           toastSignIn();
                         }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                  </Tooltip>
+                  <Tooltip
+                    label="chat blast!"
+                    background="#ac1c09"
+                    defaultIsOpen
+                    hasArrow
+                  >
+                    <IconButton
+                      icon={<Image src="/svg/blast.svg" />}
+                      aria-label="clip stream"
+                      bg={blastMode ? "red" : "transparent"}
+                      _focus={{}}
+                      _hover={{ transform: "scale(1.15)" }}
+                      _active={{ transform: "scale(1.3)" }}
+                      onClick={() => {
+                        if (blastMode) {
+                          setBlastMode(false);
+                        } else {
+                          if (user) {
+                            setBlastMode(true);
+                          } else {
+                            toastSignIn();
+                          }
+                        }
+                      }}
+                    />
+                  </Tooltip>
                   <EmojiButton
                     mobile={mobile}
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
