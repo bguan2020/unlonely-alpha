@@ -11,7 +11,7 @@ import {
   Spinner,
   Tooltip,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNetwork } from "wagmi";
 import { create } from "ipfs-http-client";
 import Link from "next/link";
@@ -58,6 +58,9 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [isUploadingToIPFS, setIsUploadingToIPFS] = useState<boolean>(false);
   const [minted, setMinted] = useState<boolean>(false);
+
+  const callingWrite = useRef(false);
+
   const submitLike = async () => {
     setButtonDisabled(true);
     await like();
@@ -97,6 +100,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
       onWriteSuccess: (data) => {
         console.log("nfc mint write success", data);
         setIsUploadingToIPFS(false);
+        callingWrite.current = false;
         toast({
           duration: 9000,
           isClosable: true,
@@ -117,6 +121,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
       onWriteError: (error) => {
         console.log("nfc mint write error", error);
         setIsUploadingToIPFS(false);
+        callingWrite.current = false;
         toast({
           duration: 9000,
           isClosable: true,
@@ -205,7 +210,8 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
       "user.address",
       user?.address
     );
-    if (!writeAsync || !uri) return;
+    if (!writeAsync || !uri || callingWrite.current) return;
+    callingWrite.current = true;
     writeAsync();
   }, [writeAsync, uri]);
 
