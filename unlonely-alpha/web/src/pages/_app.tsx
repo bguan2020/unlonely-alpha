@@ -48,7 +48,7 @@ function App({ Component, pageProps, cookies }: Props) {
       <PrivyProvider
         appId={String(process.env.NEXT_PUBLIC_PRIVY_APP_ID)}
         config={{
-          loginMethods: ["email", "wallet", "sms"],
+          loginMethods: ["email", "wallet"],
           walletConnectCloudProjectId: "e16ffa60853050eaa9746f45acd2207a",
           embeddedWallets: {
             createOnLogin: "users-without-wallets",

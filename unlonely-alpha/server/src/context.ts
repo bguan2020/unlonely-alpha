@@ -20,21 +20,25 @@ export const getContext: ContextFunction = async ({
   req,
 }): Promise<Context> => {
   const authToken = req.headers.authorization.replace("Bearer ", "");
-  const address = req.headers["x-auth-address"];
   const signedMessage = req.headers["x-auth-signed-message"];
 
-  const user = address ? await findOrCreateUser({ address }) : null;
-  let validated = false;
+  console.log(signedMessage);
 
-  if (user && signedMessage) {
-    // validated = await verifyAuth({ user, signedMessage });
-    try {
-      await privyClient.verifyAuthToken(authToken);
-      validated = true;
-    } catch (e) {
-      console.log("cannot validate privy token", e);
-    }
+  let validated = false;
+  let address = null;
+  try {
+    const { userId } = await privyClient.verifyAuthToken(authToken);
+    console.log(userId);
+    const user = await privyClient.getUser(userId);
+    address = user.wallet?.address;
+    console.log(address);
+    validated = true;
+  } catch (e) {
+    console.log("cannot validate privy token", e);
   }
+
+  console.log("authToken", authToken, "address", address, "signedMessage", signedMessage);
+  const user = address ? await findOrCreateUser({ address }) : null;
 
   return {
     prisma: prisma,

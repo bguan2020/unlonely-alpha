@@ -109,6 +109,8 @@ export const ChannelProvider = ({
     variables: { slug },
   });
 
+  console.log(channelDataError);
+
   const {
     data: recentStreamInteractionsData,
     loading: recentStreamInteractionsDataLoading,

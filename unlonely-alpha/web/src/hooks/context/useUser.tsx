@@ -61,7 +61,7 @@ export const UserProvider = ({
     () => privyUser?.wallet?.address,
     [privyUser?.wallet?.address]
   );
-
+  
   // console.log(
   //   "ready",
   //   ready,
@@ -80,6 +80,8 @@ export const UserProvider = ({
   const { data } = useQuery(GET_USER_QUERY, {
     variables: { data: { address } },
   });
+
+  console.log(data, "useUser");
 
   const { data: ensData } = useEnsName({
     address: address as `0x${string}`,
