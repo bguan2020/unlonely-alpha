@@ -10,7 +10,6 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AddIcon } from "@chakra-ui/icons";
-import { useAccount } from "wagmi";
 import ReactDOM from "react-dom";
 import { useRouter } from "next/router";
 
@@ -51,8 +50,7 @@ export default function Chat() {
   const username = "brian";
   const ablyChatChannel = `${awsId}-chat-channel`;
   const ablyPresenceChannel = `${awsId}-presence-channel`;
-  const { user } = useUser();
-  const { address } = useAccount();
+  const { user, userAddress: address } = useUser();
   const ADD_REACTION_EVENT = "add-reaction";
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;

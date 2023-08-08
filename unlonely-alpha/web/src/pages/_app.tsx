@@ -1,27 +1,22 @@
 import "../styles/globals.css";
 import "../styles/fireworks.css";
-import theme from "../styles/theme";
 
 import { ChakraProvider } from "@chakra-ui/react";
-
 import { ApolloProvider } from "@apollo/client";
-import { createConfig, WagmiConfig, configureChains } from "wagmi";
+import { configureChains } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
-
-import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
-import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
-import { MetaMaskConnector } from "wagmi/connectors/metaMask";
-
-import { ConnectKitProvider } from "connectkit";
 import { AppProps } from "next/app";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
+import { PrivyProvider } from "@privy-io/react-auth";
+import { PrivyWagmiConnector } from "@privy-io/wagmi-connector";
 
 import { Mainnet, Goerli } from "../constants/networks";
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/context/useUser";
 import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
+import theme from "../styles/theme";
 
 interface InitialProps {
   cookies: Cookies;
@@ -35,7 +30,7 @@ function App({ Component, pageProps, cookies }: Props) {
     cookies
   );
 
-  const { publicClient, webSocketPublicClient, chains } = configureChains(
+  const configureChainsConfig = configureChains(
     [Mainnet, Goerli],
     [
       alchemyProvider({
@@ -48,33 +43,20 @@ function App({ Component, pageProps, cookies }: Props) {
     ]
   );
 
-  const wagmiConfig = createConfig({
-    autoConnect: true,
-    publicClient,
-    webSocketPublicClient,
-    connectors: [
-      new MetaMaskConnector({
-        chains,
-      }),
-      new CoinbaseWalletConnector({
-        chains,
-        options: {
-          appName: "Unlonely",
-        },
-      }),
-      new WalletConnectConnector({
-        chains,
-        options: {
-          projectId: "e16ffa60853050eaa9746f45acd2207a",
-          showQrModal: false,
-        },
-      }),
-    ],
-  });
-
   return (
     <ChakraProvider theme={theme}>
-      <WagmiConfig config={wagmiConfig}>
+      <PrivyProvider
+        appId={String(process.env.NEXT_PUBLIC_PRIVY_APP_ID)}
+        config={{
+          loginMethods: ["email", "wallet", "sms"],
+          walletConnectCloudProjectId: "e16ffa60853050eaa9746f45acd2207a",
+          embeddedWallets: {
+            createOnLogin: "users-without-wallets",
+          },
+        }}
+      >
+        <PrivyWagmiConnector wagmiChainsConfig={configureChainsConfig}>
+          {/* <WagmiConfig config={wagmiConfig}>
         <ConnectKitProvider
           mode={"dark"}
           customTheme={{
@@ -86,7 +68,7 @@ function App({ Component, pageProps, cookies }: Props) {
             hideQuestionMarkCTA: true,
             hideNoWalletCTA: true,
           }}
-        >
+        > */}
           <ApolloProvider client={apolloClient}>
             <UserProvider>
               <ScreenAnimationsProvider>
@@ -94,8 +76,10 @@ function App({ Component, pageProps, cookies }: Props) {
               </ScreenAnimationsProvider>
             </UserProvider>
           </ApolloProvider>
-        </ConnectKitProvider>
-      </WagmiConfig>
+          {/* </ConnectKitProvider>
+      </WagmiConfig> */}
+        </PrivyWagmiConnector>
+      </PrivyProvider>
     </ChakraProvider>
   );
 }

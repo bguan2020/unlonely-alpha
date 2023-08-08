@@ -2,6 +2,8 @@ import { gql } from "@apollo/client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useAccount, useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 
 import { User } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
@@ -52,6 +54,23 @@ export const UserProvider = ({
   const [user, setUser] = useState<User | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>();
   const { address, isConnected } = useAccount();
+  const { ready, authenticated, user: privyUser } = usePrivy();
+  const { wallet: activeWallet } = usePrivyWagmi();
+  const { wallets } = useWallets();
+
+  console.log(
+    "ready",
+    ready,
+    "\nprivyUser",
+    privyUser,
+    "\nauthenticated",
+    authenticated,
+    "\nactiveWallet",
+    activeWallet,
+    "\nwallets",
+    wallets
+  );
+
   // ignore console log build error for now
   //
   const { data, loading, error } = useQuery(GET_USER_QUERY, {
@@ -61,8 +80,6 @@ export const UserProvider = ({
   const { data: ensData } = useEnsName({
     address,
   });
-
-  console.log(address, isConnected);
 
   useEffect(() => {
     const fetchEns = async () => {
