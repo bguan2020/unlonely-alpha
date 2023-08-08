@@ -338,14 +338,18 @@ export default function Chat() {
     getMessages();
   }, []);
 
-  const messages = receivedMessages.map((message, index) => {
-    if (message.name !== "chat-message") return null;
+  const chatMessages = useMemo(
+    () => receivedMessages.filter((message) => message.name === "chat-message"),
+    [receivedMessages]
+  );
+
+  const messages = chatMessages.map((message, index) => {
     const messageText = message.data.messageText;
     const linkArray: RegExpMatchArray | null = messageText.match(
       /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
     );
 
-    const fragments = useMemo(() => {
+    const fragments = () => {
       let lastIndex = 0;
       const fragments: { message: string; isLink: boolean }[] = [];
 
@@ -369,10 +373,10 @@ export default function Chat() {
       }
 
       return fragments;
-    }, [messageText, linkArray]);
+    };
 
     return (
-      <Flex direction="column">
+      <Flex direction="column" key={index}>
         <Flex
           className="showhim"
           justifyContent={
@@ -428,16 +432,20 @@ export default function Chat() {
                             textAlign="left"
                             p={"5px"}
                           >
-                            {fragments.map((fragment) => {
+                            {fragments().map((fragment, i) => {
                               if (fragment.isLink) {
                                 return (
-                                  <Link href={fragment.message} isExternal>
+                                  <Link
+                                    key={i}
+                                    href={fragment.message}
+                                    isExternal
+                                  >
                                     {fragment.message}
                                     <ExternalLinkIcon mx="2px" />
                                   </Link>
                                 );
                               } else {
-                                return <span>{fragment.message}</span>;
+                                return <span key={i}>{fragment.message}</span>;
                               }
                             })}
                           </Text>
@@ -626,16 +634,20 @@ export default function Chat() {
                             textAlign="left"
                             p={"5px"}
                           >
-                            {fragments.map((fragment) => {
+                            {fragments().map((fragment, i) => {
                               if (fragment.isLink) {
                                 return (
-                                  <Link href={fragment.message} isExternal>
+                                  <Link
+                                    key={i}
+                                    href={fragment.message}
+                                    isExternal
+                                  >
                                     {fragment.message}
                                     <ExternalLinkIcon mx="2px" />
                                   </Link>
                                 );
                               } else {
-                                return <span>{fragment.message}</span>;
+                                return <span key={i}>{fragment.message}</span>;
                               }
                             })}
                           </Text>
