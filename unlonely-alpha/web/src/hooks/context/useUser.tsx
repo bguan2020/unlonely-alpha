@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { useAccount, useEnsName } from "wagmi";
+import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
@@ -53,32 +53,36 @@ export const UserProvider = ({
 }) => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>();
-  const { address, isConnected } = useAccount();
   const { ready, authenticated, user: privyUser } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
   const { wallets } = useWallets();
 
-  console.log(
-    "ready",
-    ready,
-    "\nprivyUser",
-    privyUser,
-    "\nauthenticated",
-    authenticated,
-    "\nactiveWallet",
-    activeWallet,
-    "\nwallets",
-    wallets
+  const address = useMemo(
+    () => privyUser?.wallet?.address,
+    [privyUser?.wallet?.address]
   );
+
+  // console.log(
+  //   "ready",
+  //   ready,
+  //   "\nprivyUser",
+  //   privyUser,
+  //   "\nauthenticated",
+  //   authenticated,
+  //   "\nactiveWallet",
+  //   activeWallet,
+  //   "\nwallets",
+  //   wallets
+  // );
 
   // ignore console log build error for now
   //
-  const { data, loading, error } = useQuery(GET_USER_QUERY, {
+  const { data } = useQuery(GET_USER_QUERY, {
     variables: { data: { address } },
   });
 
   const { data: ensData } = useEnsName({
-    address,
+    address: address as `0x${string}`,
   });
 
   useEffect(() => {
@@ -100,10 +104,10 @@ export const UserProvider = ({
     () => ({
       user,
       username,
-      userAddress: address,
-      walletIsConnected: isConnected,
+      userAddress: address as `0x${string}`,
+      walletIsConnected: authenticated,
     }),
-    [user, username, address, isConnected]
+    [user, username, address, authenticated]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
