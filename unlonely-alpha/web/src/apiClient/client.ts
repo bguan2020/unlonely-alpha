@@ -90,8 +90,7 @@ const authLink = setContext(async (_, { headers }) => {
 });
 
 function createApolloClient(cookies: Cookies, isSSR?: boolean) {
-  // const server = "https://sea-lion-app-j3rts.ondigitalocean.app/graphql";
-  const server = "https://unlonely-vqeii.ondigitalocean.app/graphql";
+  const server = String(process.env.NEXT_PUBLIC_DIGITAL_OCEAN_SERVER_URL);
   return new ApolloClient({
     cache: new InMemoryCache(),
     defaultOptions: {
