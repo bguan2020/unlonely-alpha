@@ -55,7 +55,7 @@ const ChatForm = ({
   mobile,
   additionalChatCommands,
 }: Props) => {
-  const { user } = useUser();
+  const { user, walletIsConnected } = useUser();
   const network = useNetwork();
 
   const toast = useToast();
@@ -382,7 +382,11 @@ const ChatForm = ({
         style={{ width: "100%" }}
       >
         <Stack direction={"row"} spacing={"10px"}>
-          {error ? (
+          {!walletIsConnected ? (
+            <Flex justifyContent={"center"} margin="auto">
+              <Text>you must sign in to chat</Text>
+            </Flex>
+          ) : error ? (
             <Flex direction="column" gap="10px">
               <Text textAlign={"center"} color="#fa8a29">
                 There was an error when trying to send your blast message
