@@ -7,7 +7,10 @@ const NextHead: React.FC<{
   pageUrl?: string;
 }> = ({ title, image, description, pageUrl }) => {
   const __title = `Unlonely${title ? ` | ${title}` : ""}`;
-  const __image = image === "" ? "/images/social_banner.png" : image;
+  const __image =
+    image === ""
+      ? "https://unlonely.app/images/social_banner.png"
+      : `https://unlonely.app${image}`;
   const __description =
     description === ""
       ? "Your cozy space on the internet. View live channels & start streaming today."
@@ -33,7 +36,7 @@ const NextHead: React.FC<{
       <title>{__title}</title>
       <meta
         name="viewport"
-        content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"
+        content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"
       />
       <meta name="description" content={__description} />
 
