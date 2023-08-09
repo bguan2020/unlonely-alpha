@@ -62,7 +62,7 @@ export const UserProvider = ({
 }) => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>();
-  const { ready, authenticated, user: privyUser } = usePrivy();
+  const { ready, authenticated, user: privyUser, logout } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
   const { wallets } = useWallets();
 
@@ -87,7 +87,7 @@ export const UserProvider = ({
   });
 
   console.log(
-    "user",
+    "unlonelyUser",
     data,
     "\nprivyAddress",
     address,
@@ -129,21 +129,23 @@ export const UserProvider = ({
     setUser(data?.getUser);
   }, [data]);
 
-  useEffect(() => {
-    const f = async () => {
-      if (
-        activeWallet?.address !== address &&
-        address !== "" &&
-        activeWallet?.address !== "" &&
-        !linkingWallet.current
-      ) {
-        linkingWallet.current = true;
-        await wallets[0]?.loginOrLink();
-        linkingWallet.current = false;
-      }
-    };
-    f();
-  }, [activeWallet, address]);
+  // useEffect(() => {
+  //   const f = async () => {
+  //     if (
+  //       activeWallet?.address !== address &&
+  //       address !== undefined &&
+  //       activeWallet?.address !== undefined &&
+  //       !linkingWallet.current
+  //     ) {
+  //       linkingWallet.current = true;
+  //       console.log("relinking", activeWallet?.address, address);
+  //       await logout();
+  //       await wallets[0]?.loginOrLink();
+  //       linkingWallet.current = false;
+  //     }
+  //   };
+  //   f();
+  // }, [activeWallet, address]);
 
   const value = useMemo(
     () => ({

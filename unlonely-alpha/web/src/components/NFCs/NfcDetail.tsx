@@ -298,7 +298,9 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                     cursor: buttonDisabled ? "not-allowed" : "pointer",
                   }}
                 >
-                  {nfc?.score && nfc?.score > 1 ? nfc?.score : null}
+                  {nfc.score >= 1 ? (
+                    <Text fontSize={12}>{nfc.score}</Text>
+                  ) : null}
                   {nfc?.liked === true ? (
                     <LikedIcon boxSize={6} />
                   ) : (
