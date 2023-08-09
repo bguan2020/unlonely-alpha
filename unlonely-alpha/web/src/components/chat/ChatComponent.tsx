@@ -114,7 +114,7 @@ const AblyChatComponent = ({
     receivedMessages,
   } = useChannel();
 
-  const { user, userAddress: address } = useUser();
+  const { user, userAddress: address, walletIsConnected } = useUser();
   const { emojiBlast, fireworks } = useScreenAnimationsContext();
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
@@ -228,43 +228,7 @@ const AblyChatComponent = ({
     isGif: boolean,
     body?: string
   ) => {
-    if (!user && !address) {
-      toast({
-        title: "Sign in first.",
-        description: "Please sign into your wallet first.",
-        status: "warning",
-        duration: 9000,
-        isClosable: true,
-        position: "top",
-      });
-    }
-    if (!user && address) {
-      channel.publish({
-        name: "chat-message",
-        data: {
-          messageText,
-          username: null,
-          chatColor: RANDOM_CHAT_COLOR,
-          isFC: false,
-          isLens: false,
-          address: address,
-          tokenHolderRank: userRank,
-          isGif,
-          reactions: initializeEmojis,
-          body,
-        },
-      });
-    }
-    if (user) {
-      // postFirstChat comes before channel.publish b/c it will set the signat
-      // subsequent chats do not need to call postFirstChat first
-
-      if (!user.signature) {
-        await postFirstChat(
-          { text: messageText, channelId: channelId },
-          { isFirst: true }
-        );
-      }
+    if (walletIsConnected && user) {
       channel.publish({
         name: "chat-message",
         data: {
@@ -281,14 +245,19 @@ const AblyChatComponent = ({
           body,
         },
       });
-      handleChatCommand(messageText);
-      // postFirstChat comes after to speed up chat
-      if (user.signature) {
-        await postFirstChat(
-          { text: messageText, channelId: channelId },
-          { isFirst: false }
-        );
-      }
+      await postFirstChat(
+        { text: messageText, channelId: channelId }
+        // { isFirst: false }
+      );
+    } else {
+      toast({
+        title: "Sign in first.",
+        description: "Please sign into your wallet first.",
+        status: "warning",
+        duration: 9000,
+        isClosable: true,
+        position: "top",
+      });
     }
 
     if (inputBox) inputBox.focus();

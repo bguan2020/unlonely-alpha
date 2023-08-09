@@ -7,6 +7,9 @@ import {
   useState,
   useCallback,
 } from "react";
+import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
+import { useBalance } from "wagmi";
+
 import {
   CHANNEL_DETAIL_QUERY,
   GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
@@ -18,8 +21,6 @@ import {
   GetRecentStreamInteractionsQuery,
   GetTokenHoldersByChannelQuery,
 } from "../../generated/graphql";
-import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
-import { useBalance } from "wagmi";
 import { FetchBalanceResult } from "../../constants/types";
 import { useUser } from "./useUser";
 import { InteractionType } from "../../constants";
@@ -108,8 +109,6 @@ export const ChannelProvider = ({
   } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
     variables: { slug },
   });
-
-  console.log(channelDataError);
 
   const {
     data: recentStreamInteractionsData,

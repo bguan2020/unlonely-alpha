@@ -129,23 +129,29 @@ export const UserProvider = ({
     setUser(data?.getUser);
   }, [data]);
 
-  // useEffect(() => {
-  //   const f = async () => {
-  //     if (
-  //       activeWallet?.address !== address &&
-  //       address !== undefined &&
-  //       activeWallet?.address !== undefined &&
-  //       !linkingWallet.current
-  //     ) {
-  //       linkingWallet.current = true;
-  //       console.log("relinking", activeWallet?.address, address);
-  //       await logout();
-  //       await wallets[0]?.loginOrLink();
-  //       linkingWallet.current = false;
-  //     }
-  //   };
-  //   f();
-  // }, [activeWallet, address]);
+  useEffect(() => {
+    const f = async () => {
+      if (
+        privyUser?.wallet?.address &&
+        activeWallet?.address &&
+        activeWallet?.address !== privyUser?.wallet?.address &&
+        privyUser?.wallet?.walletClientType !== "privy" &&
+        !linkingWallet.current
+      ) {
+        linkingWallet.current = true;
+        console.log(
+          "relinking",
+          activeWallet?.address,
+          privyUser?.wallet?.address
+        );
+        await logout();
+        if (wallets[0].connectorType !== "embedded")
+          await wallets[0]?.loginOrLink();
+        linkingWallet.current = false;
+      }
+    };
+    f();
+  }, [activeWallet, privyUser]);
 
   const value = useMemo(
     () => ({
@@ -155,7 +161,7 @@ export const UserProvider = ({
       walletIsConnected,
       loginMethod,
     }),
-    [user, username, address, authenticated]
+    [user, username, address, walletIsConnected, loginMethod]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

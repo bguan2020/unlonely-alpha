@@ -276,8 +276,8 @@ const ChatForm = ({
       if (event.charCode === 13) {
         setCommandsOpen(false);
       }
-      if (tooltipError !== "") return;
       event.preventDefault();
+      if (tooltipError !== "") return;
       if (!blastMode) {
         sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
         setMessageText("");
