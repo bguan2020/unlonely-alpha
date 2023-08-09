@@ -1,5 +1,12 @@
 import { gql } from "@apollo/client";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
 import { usePrivy, useWallets, WalletWithMetadata } from "@privy-io/react-auth";
@@ -105,6 +112,8 @@ export const UserProvider = ({
     return auth && matchingWallet;
   }, [authenticated, activeWallet, user, address]);
 
+  const linkingWallet = useRef(false);
+
   useEffect(() => {
     const fetchEns = async () => {
       if (address) {
@@ -119,6 +128,22 @@ export const UserProvider = ({
   useEffect(() => {
     setUser(data?.getUser);
   }, [data]);
+
+  useEffect(() => {
+    const f = async () => {
+      if (
+        activeWallet?.address !== address &&
+        address !== "" &&
+        activeWallet?.address !== "" &&
+        !linkingWallet.current
+      ) {
+        linkingWallet.current = true;
+        await wallets[0]?.loginOrLink();
+        linkingWallet.current = false;
+      }
+    };
+    f();
+  }, [activeWallet, address]);
 
   const value = useMemo(
     () => ({
