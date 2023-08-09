@@ -1,4 +1,5 @@
 import Head from "next/head";
+
 import centerEllipses from "../../utils/centerEllipses";
 
 const ChannelNextHead: React.FC<{
@@ -51,7 +52,10 @@ const ChannelNextHead: React.FC<{
       <meta property="og:locale" content="en_US" />
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content={channel.name} />
-      <meta property="og:image" content={"/images/social_banner.png"} />
+      <meta
+        property="og:image"
+        content={"https://unlonely.app/images/social_banner.png"}
+      />
       <meta property="og:description" content={channel.description} />
 
       <meta name="twitter:card" content="summary_large_image" />
@@ -59,7 +63,10 @@ const ChannelNextHead: React.FC<{
       <meta name="twitter:title" content={channel.name} />
       <meta name="twitter:description" content={channel.description} />
       <meta name="twitter:creator" content="@bdguan" />
-      <meta name="twitter:image" content={"/images/social_banner.png"} />
+      <meta
+        name="twitter:image"
+        content={"https://unlonely.app/images/social_banner.png"}
+      />
     </Head>
   );
 };
