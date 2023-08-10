@@ -57,6 +57,7 @@ import MessageList from "./MessageList";
 
 type Props = {
   chatBot: ChatBot[];
+  addToChatbot: (chatBotMessageToAdd: ChatBot) => void;
   handleControlModal?: () => void;
   handleChanceModal?: () => void;
   handlePvpModal?: () => void;
@@ -67,6 +68,7 @@ type Props = {
 
 const AblyChatComponent = ({
   chatBot,
+  addToChatbot,
   handleControlModal,
   handleChanceModal,
   handlePvpModal,
@@ -117,8 +119,6 @@ const AblyChatComponent = ({
   const { emojiBlast, fireworks } = useScreenAnimationsContext();
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
-  /*eslint-enable prefer-const*/
-
   const [formError, setFormError] = useState<null | string[]>(null);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showArcade, setShowArcade] = useState<boolean>(false);
@@ -212,6 +212,10 @@ const AblyChatComponent = ({
         messageText = lastMessage.title ?? "Buy";
         body = `${InteractionType.BUY}:${lastMessage.description ?? ""}`;
       }
+      if (lastMessage.taskType === InteractionType.CLIP) {
+        messageText = lastMessage.title ?? "Clip";
+        body = `${InteractionType.CLIP}:${lastMessage.description ?? ""}`;
+      }
       publishChatBotMessage(messageText, body);
     }
   }, [chatBot]);
@@ -291,7 +295,10 @@ const AblyChatComponent = ({
           `/clip?arn=${channelQueryData?.channelArn || ""}`,
           "_blank"
         );
-        allowPublish = false;
+        messageToPublish = `${
+          user?.username ?? centerEllipses(address, 15)
+        } has just clipped a highlight from this stream!`;
+        allowPublish = true;
       } else {
         messageToPublish = "NFCs are not allowed on this channel.";
         allowPublish = true;
@@ -775,6 +782,7 @@ const AblyChatComponent = ({
             sendChatMessage={sendChatMessage}
             inputBox={inputBox}
             additionalChatCommands={channelChatCommands}
+            addToChatbot={addToChatbot}
           />
         </Flex>
       </Flex>

@@ -39,12 +39,15 @@ import { NETWORKS } from "../../constants/networks";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { formatIncompleteNumber } from "../../utils/validation/input";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
+import centerEllipses from "../../utils/centerEllipses";
+import { ChatBot } from "../../constants/types";
 
 type Props = {
   sendChatMessage: (message: string, isGif: boolean, body?: string) => void;
   inputBox: HTMLTextAreaElement | null;
   mobile?: boolean;
   additionalChatCommands?: CommandData[];
+  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 };
 
 const PRICE = "2";
@@ -54,8 +57,9 @@ const ChatForm = ({
   inputBox,
   mobile,
   additionalChatCommands,
+  addToChatbot,
 }: Props) => {
-  const { user, walletIsConnected } = useUser();
+  const { user, walletIsConnected, userAddress: address } = useUser();
   const network = useNetwork();
 
   const toast = useToast();
@@ -521,6 +525,15 @@ const ChatForm = ({
                             `/clip?arn=${channelQueryData?.channelArn || ""}`,
                             "_blank"
                           );
+                          addToChatbot?.({
+                            username: user?.username ?? "",
+                            address: user?.address ?? "",
+                            taskType: InteractionType.CLIP,
+                            title: `${
+                              user?.username ?? centerEllipses(address, 15)
+                            } has just clipped a highlight from this stream!`,
+                            description: "",
+                          });
                         } else {
                           toastSignIn();
                         }

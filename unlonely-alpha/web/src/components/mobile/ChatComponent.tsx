@@ -20,6 +20,7 @@ import usePostChatByAwsId from "../../hooks/server/usePostChatByAwsId";
 import ChatForm from "../chat/ChatForm";
 import MessageList from "../chat/MessageList";
 import NextHead from "../layout/NextHead";
+import centerEllipses from "../../utils/centerEllipses";
 
 const CHAT_INPUT_PANEL_HEIGHT = 120;
 
@@ -40,28 +41,16 @@ const styles = `
 
 type Props = {
   chatBot: ChatBot[];
+  addToChatbot: (chatBotMessageToAdd: ChatBot) => void;
 };
 
-const AblyChatComponent = ({ chatBot }: Props) => {
+const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
   const router = useRouter();
   const { awsId } = router.query;
-  const { user, walletIsConnected } = useUser();
-  const { channel: channelContext } = useChannelContext();
+  const { channel: channelContext, holders: holdersContext } =
+    useChannelContext();
+  const { userRank } = holdersContext;
   const { channelQueryData } = channelContext;
-
-  const {
-    ablyChannel: channel,
-    hasMessagesLoaded,
-    setHasMessagesLoaded,
-    receivedMessages,
-  } = useChannel();
-
-  /*eslint-disable prefer-const*/
-  let inputBox: HTMLTextAreaElement | null = null;
-  const [formError, setFormError] = useState<null | string[]>(null);
-  const [isAtBottom, setIsAtBottom] = useState(false);
-
-  const scrollRef = useRef<VirtuosoHandle>(null);
 
   const channelChatCommands = useMemo(
     () =>
@@ -73,7 +62,20 @@ const AblyChatComponent = ({ chatBot }: Props) => {
     [channelQueryData?.chatCommands]
   );
 
-  const { emojiBlast } = useScreenAnimationsContext();
+  const {
+    ablyChannel: channel,
+    hasMessagesLoaded,
+    setHasMessagesLoaded,
+    receivedMessages,
+  } = useChannel();
+
+  const { username, user, userAddress: address, walletIsConnected } = useUser();
+  const { emojiBlast, fireworks } = useScreenAnimationsContext();
+
+  /*eslint-disable prefer-const*/
+  let inputBox: HTMLTextAreaElement | null = null;
+  const [formError, setFormError] = useState<null | string[]>(null);
+  const scrollRef = useRef<VirtuosoHandle>(null);
 
   const mountingMessages = useRef(true);
 
@@ -83,7 +85,47 @@ const AblyChatComponent = ({ chatBot }: Props) => {
     },
   });
 
+  const [isAtBottom, setIsAtBottom] = useState(false);
   const toast = useToast();
+
+  useEffect(() => {
+    if (chatBot.length > 0) {
+      const lastMessage = chatBot[chatBot.length - 1];
+      let body: string | undefined = undefined;
+
+      let messageText = `${username} paid 5 $BRIAN to switch to a random scene!`;
+      if (lastMessage.taskType === "video") {
+        messageText = `${username} added a ${lastMessage.taskType} task: "${lastMessage.title}", "${lastMessage.description}"`;
+      }
+      if (lastMessage.taskType === InteractionType.TIP) {
+        messageText = lastMessage.title ?? "Tip";
+        body = `${InteractionType.TIP}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === "pvp") {
+        messageText = lastMessage.title ?? "Pvp";
+      }
+      if (lastMessage.taskType === "chance") {
+        messageText = lastMessage.title ?? "Chance";
+      }
+      if (lastMessage.taskType === InteractionType.CONTROL) {
+        messageText = lastMessage.title ?? "Control";
+        body = `${InteractionType.CONTROL}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === InteractionType.CUSTOM) {
+        messageText = lastMessage.title ?? "Custom";
+        body = `${InteractionType.CUSTOM}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === InteractionType.BUY) {
+        messageText = lastMessage.title ?? "Buy";
+        body = `${InteractionType.BUY}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === InteractionType.CLIP) {
+        messageText = lastMessage.title ?? "Clip";
+        body = `${InteractionType.CLIP}:${lastMessage.description ?? ""}`;
+      }
+      publishChatBotMessage(messageText, body);
+    }
+  }, [chatBot]);
 
   const sendChatMessage = async (
     messageText: string,
@@ -101,9 +143,7 @@ const AblyChatComponent = ({ chatBot }: Props) => {
           isLens: user.isLensUser,
           lensHandle: user.lensHandle,
           address: user.address,
-          powerUserLvl: user?.powerUserLvl,
-          videoSavantLvl: user?.videoSavantLvl,
-          nfcRank: user?.nfcRank,
+          tokenHolderRank: userRank,
           isGif,
           reactions: initializeEmojis,
           body,
@@ -158,7 +198,10 @@ const AblyChatComponent = ({ chatBot }: Props) => {
           `/clip?arn=${channelQueryData?.channelArn || ""}`,
           "_blank"
         );
-        allowPublish = false;
+        messageToPublish = `${
+          user?.username ?? centerEllipses(address, 15)
+        } has just clipped a highlight from this stream!`;
+        allowPublish = true;
       } else {
         messageToPublish = "NFCs are not allowed on this channel.";
         allowPublish = true;
@@ -205,7 +248,7 @@ const AblyChatComponent = ({ chatBot }: Props) => {
       },
     });
   };
-
+  // useeffect to scroll to the bottom of the chat
   useEffect(() => {
     const chat = document.getElementById("chat");
     if (!chat) return;
@@ -225,6 +268,12 @@ const AblyChatComponent = ({ chatBot }: Props) => {
       const latestMessage = receivedMessages[receivedMessages.length - 1];
       if (latestMessage && latestMessage.name === "chat-message") {
         if (
+          latestMessage.data.body &&
+          (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
+            latestMessage.data.body.split(":")[0] === InteractionType.TIP)
+        ) {
+          fireworks();
+        } else if (
           latestMessage.data.body &&
           latestMessage.data.body.split(":")[0] === InteractionType.BLAST
         ) {
@@ -351,6 +400,7 @@ const AblyChatComponent = ({ chatBot }: Props) => {
           sendChatMessage={sendChatMessage}
           inputBox={inputBox}
           additionalChatCommands={channelChatCommands}
+          addToChatbot={addToChatbot}
           mobile
         />
       </div>

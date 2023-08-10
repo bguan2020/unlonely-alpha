@@ -50,6 +50,8 @@ export function useChannel(fixedChatName?: string) {
   const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
 
+  console.log("chatChannel", chatChannel, receivedMessages);
+
   const [channel, ably] = useAblyChannel(channelName, (message) => {
     setHasMessagesLoaded(false);
     const history = receivedMessages;

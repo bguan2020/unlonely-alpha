@@ -82,20 +82,20 @@ export const UserProvider = ({
     variables: { data: { address } },
   });
 
-  console.log(
-    "unlonelyUser",
-    data,
-    "\nprivyAddress",
-    address,
-    "\nprivyUser",
-    privyUser,
-    "\nauthenticated",
-    authenticated,
-    "\nactiveWallet",
-    activeWallet,
-    "\nwallets",
-    wallets
-  );
+  // console.log(
+  //   "unlonelyUser",
+  //   data,
+  //   "\nprivyAddress",
+  //   address,
+  //   "\nprivyUser",
+  //   privyUser,
+  //   "\nauthenticated",
+  //   authenticated,
+  //   "\nactiveWallet",
+  //   activeWallet,
+  //   "\nwallets",
+  //   wallets
+  // );
 
   const { data: ensData } = useEnsName({
     address: address as `0x${string}`,
