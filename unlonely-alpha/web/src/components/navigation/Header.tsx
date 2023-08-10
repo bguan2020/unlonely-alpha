@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 // import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 
-import ConnectWallet from "./ConnectKit";
+import ConnectWallet from "./ConnectWallet";
 
 const Header: React.FC = () => {
   const router = useRouter();

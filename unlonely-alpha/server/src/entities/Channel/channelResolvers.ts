@@ -18,6 +18,9 @@ export const resolvers = {
     getChannelBySlug(_: any, { slug }: { slug: string }, ctx: Context) {
       return channelService.getChannelBySlug({ slug }, ctx);
     },
+    getChannelByAwsId(_: any, { awsId }: { awsId: string }, ctx: Context) {
+      return channelService.getChannelByAwsId({ awsId }, ctx);
+    },
   },
   Mutation: {
     updateChannelText: (

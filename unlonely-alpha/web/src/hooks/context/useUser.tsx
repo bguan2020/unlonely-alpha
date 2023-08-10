@@ -1,7 +1,16 @@
 import { gql } from "@apollo/client";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { useAccount, useEnsName } from "wagmi";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
+import { usePrivy, useWallets, WalletWithMetadata } from "@privy-io/react-auth";
+import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 
 import { User } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
@@ -37,11 +46,13 @@ const UserContext = createContext<{
   username?: string;
   userAddress?: `0x${string}`;
   walletIsConnected: boolean;
+  loginMethod?: string;
 }>({
   user: undefined,
   username: undefined,
   userAddress: undefined,
   walletIsConnected: false,
+  loginMethod: undefined,
 });
 
 export const UserProvider = ({
@@ -51,18 +62,57 @@ export const UserProvider = ({
 }) => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>();
-  const { address, isConnected } = useAccount();
+  const { ready, authenticated, user: privyUser, logout } = usePrivy();
+  const { wallet: activeWallet } = usePrivyWagmi();
+  const { wallets } = useWallets();
+
+  const loginMethod = useMemo(() => {
+    const wallet = privyUser?.linkedAccounts?.find(
+      (account): account is WalletWithMetadata =>
+        account.type === "wallet" && "walletClientType" in account
+    );
+    if (!wallet) return undefined;
+    return wallet.walletClientType;
+  }, [privyUser]);
+
+  const address = useMemo(
+    () => privyUser?.wallet?.address,
+    [privyUser?.wallet?.address]
+  );
+
   // ignore console log build error for now
   //
-  const { data, loading, error } = useQuery(GET_USER_QUERY, {
+  const { data } = useQuery(GET_USER_QUERY, {
     variables: { data: { address } },
   });
 
-  const { data: ensData } = useEnsName({
+  console.log(
+    "unlonelyUser",
+    data,
+    "\nprivyAddress",
     address,
+    "\nprivyUser",
+    privyUser,
+    "\nauthenticated",
+    authenticated,
+    "\nactiveWallet",
+    activeWallet,
+    "\nwallets",
+    wallets
+  );
+
+  const { data: ensData } = useEnsName({
+    address: address as `0x${string}`,
   });
 
-  console.log(address, isConnected);
+  const walletIsConnected = useMemo(() => {
+    const auth =
+      authenticated && activeWallet !== undefined && user !== undefined;
+    const matchingWallet = activeWallet?.address === address;
+    return auth && matchingWallet;
+  }, [authenticated, activeWallet, user, address]);
+
+  const linkingWallet = useRef(false);
 
   useEffect(() => {
     const fetchEns = async () => {
@@ -79,14 +129,39 @@ export const UserProvider = ({
     setUser(data?.getUser);
   }, [data]);
 
+  useEffect(() => {
+    const f = async () => {
+      if (
+        privyUser?.wallet?.address &&
+        activeWallet?.address &&
+        activeWallet?.address !== privyUser?.wallet?.address &&
+        privyUser?.wallet?.walletClientType !== "privy" &&
+        !linkingWallet.current
+      ) {
+        linkingWallet.current = true;
+        console.log(
+          "relinking",
+          activeWallet?.address,
+          privyUser?.wallet?.address
+        );
+        await logout();
+        if (wallets[0].connectorType !== "embedded")
+          await wallets[0]?.loginOrLink();
+        linkingWallet.current = false;
+      }
+    };
+    f();
+  }, [activeWallet, privyUser]);
+
   const value = useMemo(
     () => ({
       user,
       username,
-      userAddress: address,
-      walletIsConnected: isConnected,
+      userAddress: address as `0x${string}`,
+      walletIsConnected,
+      loginMethod,
     }),
-    [user, username, address, isConnected]
+    [user, username, address, walletIsConnected, loginMethod]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

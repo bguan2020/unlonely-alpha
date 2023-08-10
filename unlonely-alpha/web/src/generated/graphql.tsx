@@ -423,6 +423,7 @@ export type Query = {
   getAllUsers?: Maybe<Array<Maybe<User>>>;
   getAllUsersWithChannel?: Maybe<Array<Maybe<User>>>;
   getAllUsersWithNotificationsToken?: Maybe<Array<Maybe<User>>>;
+  getChannelByAwsId?: Maybe<Channel>;
   getChannelById?: Maybe<Channel>;
   getChannelBySlug?: Maybe<Channel>;
   getChannelFeed?: Maybe<Array<Maybe<Channel>>>;
@@ -442,6 +443,10 @@ export type Query = {
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
   updateAllUsers?: Maybe<Array<Maybe<User>>>;
+};
+
+export type QueryGetChannelByAwsIdArgs = {
+  awsId: Scalars["String"];
 };
 
 export type QueryGetChannelByIdArgs = {
@@ -697,6 +702,46 @@ export type ChannelDetailQueryVariables = Exact<{
 export type ChannelDetailQuery = {
   __typename?: "Query";
   getChannelBySlug?: {
+    __typename?: "Channel";
+    awsId: string;
+    channelArn?: string | null;
+    description?: string | null;
+    customButtonPrice?: number | null;
+    customButtonAction?: string | null;
+    id: string;
+    name?: string | null;
+    slug: string;
+    allowNFCs?: boolean | null;
+    playbackUrl?: string | null;
+    owner: {
+      __typename?: "User";
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+      username?: string | null;
+      address: string;
+    };
+    token?: {
+      __typename?: "CreatorToken";
+      id: string;
+      name: string;
+      symbol: string;
+      address: string;
+    } | null;
+    chatCommands?: Array<{
+      __typename?: "ChatCommand";
+      command: string;
+      response: string;
+    } | null> | null;
+  } | null;
+};
+
+export type ChannelDetailMobileQueryVariables = Exact<{
+  awsId: Scalars["String"];
+}>;
+
+export type ChannelDetailMobileQuery = {
+  __typename?: "Query";
+  getChannelByAwsId?: {
     __typename?: "Channel";
     awsId: string;
     channelArn?: string | null;
@@ -1408,6 +1453,89 @@ export type ChannelDetailLazyQueryHookResult = ReturnType<
 export type ChannelDetailQueryResult = Apollo.QueryResult<
   ChannelDetailQuery,
   ChannelDetailQueryVariables
+>;
+export const ChannelDetailMobileDocument = gql`
+  query ChannelDetailMobile($awsId: String!) {
+    getChannelByAwsId(awsId: $awsId) {
+      awsId
+      channelArn
+      description
+      customButtonPrice
+      customButtonAction
+      id
+      name
+      slug
+      allowNFCs
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+      token {
+        id
+        name
+        symbol
+        address
+      }
+      playbackUrl
+      chatCommands {
+        command
+        response
+      }
+    }
+  }
+`;
+
+/**
+ * __useChannelDetailMobileQuery__
+ *
+ * To run a query within a React component, call `useChannelDetailMobileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChannelDetailMobileQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChannelDetailMobileQuery({
+ *   variables: {
+ *      awsId: // value for 'awsId'
+ *   },
+ * });
+ */
+export function useChannelDetailMobileQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ChannelDetailMobileQuery,
+    ChannelDetailMobileQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    ChannelDetailMobileQuery,
+    ChannelDetailMobileQueryVariables
+  >(ChannelDetailMobileDocument, options);
+}
+export function useChannelDetailMobileLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ChannelDetailMobileQuery,
+    ChannelDetailMobileQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    ChannelDetailMobileQuery,
+    ChannelDetailMobileQueryVariables
+  >(ChannelDetailMobileDocument, options);
+}
+export type ChannelDetailMobileQueryHookResult = ReturnType<
+  typeof useChannelDetailMobileQuery
+>;
+export type ChannelDetailMobileLazyQueryHookResult = ReturnType<
+  typeof useChannelDetailMobileLazyQuery
+>;
+export type ChannelDetailMobileQueryResult = Apollo.QueryResult<
+  ChannelDetailMobileQuery,
+  ChannelDetailMobileQueryVariables
 >;
 export const GetRecentStreamInteractionsDocument = gql`
   query GetRecentStreamInteractions(

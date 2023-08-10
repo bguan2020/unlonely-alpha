@@ -44,7 +44,7 @@ const client = create({
 });
 
 const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
-  const { user } = useUser();
+  const { user, walletIsConnected } = useUser();
   const toast = useToast();
 
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
@@ -298,7 +298,9 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                     cursor: buttonDisabled ? "not-allowed" : "pointer",
                   }}
                 >
-                  {nfc?.score && nfc?.score > 1 ? nfc?.score : null}
+                  {nfc.score >= 1 ? (
+                    <Text fontSize={12}>{nfc.score}</Text>
+                  ) : null}
                   {nfc?.liked === true ? (
                     <LikedIcon boxSize={6} />
                   ) : (
@@ -321,7 +323,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                           _hover={{}}
                           disabled={!writeAsync}
                           onClick={() => {
-                            if (user) {
+                            if (walletIsConnected) {
                               if (!uri || uri === "") {
                                 uploadToIPFS();
                               } else {

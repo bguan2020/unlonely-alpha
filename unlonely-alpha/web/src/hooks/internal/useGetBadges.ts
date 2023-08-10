@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+
 import { useChannelContext } from "../context/useChannel";
 
 export const useGetBadges = (rank?: number) => {
   const { channel } = useChannelContext();
-  const { channelBySlug } = channel;
+  const { channelQueryData } = channel;
   const [rankUrl, setRankUrl] = useState<string | undefined>(undefined);
   const [rankDesc, setRankDesc] = useState<string>("");
 
@@ -13,7 +14,7 @@ export const useGetBadges = (rank?: number) => {
       setRankDesc("");
       return;
     }
-    const channelTokenSymbol = channelBySlug?.token?.symbol;
+    const channelTokenSymbol = channelQueryData?.token?.symbol;
     if (rank < 10) {
       setRankUrl("/svg/holder-1.svg");
       setRankDesc(`Top 10 Holder of ${channelTokenSymbol}`);
@@ -31,7 +32,7 @@ export const useGetBadges = (rank?: number) => {
     }
     setRankUrl("/svg/holder-general.svg");
     setRankDesc(`Holder of ${channelTokenSymbol}`);
-  }, [rank, channelBySlug]);
+  }, [rank, channelQueryData]);
 
   return {
     rankUrl,
