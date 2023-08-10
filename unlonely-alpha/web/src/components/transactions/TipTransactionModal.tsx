@@ -1,5 +1,9 @@
 import { Text, Input, Flex, useToast, Box } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
+import { parseUnits } from "viem";
+import { useNetwork } from "wagmi";
+import Link from "next/link";
+
 import { useUser } from "../../hooks/context/useUser";
 import { ChatBot } from "../../constants/types";
 import {
@@ -10,16 +14,14 @@ import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "./TransactionModalTemplate";
 import { ModalButton } from "../general/button/ModalButton";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
-import { parseUnits } from "viem";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import Link from "next/link";
+
 
 export default function TipTransactionModal({
   title,
@@ -37,7 +39,7 @@ export default function TipTransactionModal({
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
   const { channel, token } = useChannelContext();
-  const { channelBySlug } = channel;
+  const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
 
   const [amount, setAmount] = useState("");
@@ -63,7 +65,7 @@ export default function TipTransactionModal({
     isTxLoading: isApprovalLoading,
     refetchAllowance,
   } = useApproval(
-    channelBySlug?.token?.address as `0x${string}`,
+    channelQueryData?.token?.address as `0x${string}`,
     CreatorTokenAbi,
     userAddress as `0x${string}`,
     contract?.address as `0x${string}`,
@@ -129,7 +131,7 @@ export default function TipTransactionModal({
 
   const { useFeature, useFeatureTxLoading } = useUseFeature(
     {
-      creatorTokenAddress: channelBySlug?.token?.address as `0x${string}`,
+      creatorTokenAddress: channelQueryData?.token?.address as `0x${string}`,
       featurePrice: tokenAmount_bigint,
     },
     {
@@ -176,7 +178,7 @@ export default function TipTransactionModal({
           taskType: InteractionType.TIP,
           title: `${user?.username ?? centerEllipses(userAddress, 15)} tipped ${
             amountOption === "custom" ? amount : amountOption
-          } $${channelBySlug?.token?.symbol}!`,
+          } $${channelQueryData?.token?.symbol}!`,
           description: "Tip",
         });
         handleClose();
@@ -220,12 +222,17 @@ export default function TipTransactionModal({
       (userTokenBalance?.value && tokenAmount_bigint > userTokenBalance?.value)
     ) {
       setErrorMessage(
-        `you don't have enough ${channelBySlug?.token?.symbol} to spend`
+        `you don't have enough ${channelQueryData?.token?.symbol} to spend`
       );
     } else {
       setErrorMessage("");
     }
-  }, [userTokenBalance, tokenAmount_bigint, walletIsConnected, channelBySlug]);
+  }, [
+    userTokenBalance,
+    tokenAmount_bigint,
+    walletIsConnected,
+    channelQueryData,
+  ]);
 
   return (
     <TransactionModalTemplate
@@ -244,7 +251,7 @@ export default function TipTransactionModal({
         <Text textAlign={"center"} fontSize="25px" color="#BABABA">
           you own{" "}
           {`${truncateValue(userTokenBalance?.formatted ?? "0", 3)} $${
-            channelBySlug?.token?.symbol
+            channelQueryData?.token?.symbol
           }`}
         </Text>
         <Flex justifyContent={"space-between"}>
@@ -303,7 +310,7 @@ export default function TipTransactionModal({
         </Flex>
         {amountOption === "custom" && (
           <Input
-            placeholder={`enter amount of $${channelBySlug?.token?.symbol}`}
+            placeholder={`enter amount of $${channelQueryData?.token?.symbol}`}
             value={amount}
             onChange={handleInputChange}
             borderWidth="1px"

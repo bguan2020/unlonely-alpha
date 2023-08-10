@@ -19,10 +19,9 @@ export interface Context {
 export const getContext: ContextFunction = async ({
   req,
 }): Promise<Context> => {
-  const authToken = req.headers.authorization.replace("Bearer ", "");
-  const signedMessage = req.headers["x-auth-signed-message"];
-
-  console.log(signedMessage);
+  const authToken = req.headers.authorization
+    ? req.headers.authorization.replace("Bearer ", "")
+    : null;
 
   let validated = false;
   let address = null;
@@ -37,7 +36,6 @@ export const getContext: ContextFunction = async ({
     console.log("cannot validate privy token", e);
   }
 
-  console.log("authToken", authToken, "address", address, "signedMessage", signedMessage);
   const user = address ? await findOrCreateUser({ address }) : null;
 
   return {

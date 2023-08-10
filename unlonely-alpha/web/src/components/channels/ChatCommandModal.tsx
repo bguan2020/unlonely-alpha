@@ -1,6 +1,7 @@
 import { AddIcon } from "@chakra-ui/icons";
 import { Button, Flex, IconButton, Input, Text, Image } from "@chakra-ui/react";
 import { useState, useEffect, useCallback, useMemo } from "react";
+
 import { BaseChatCommand, CommandData } from "../../constants";
 import { ChatCommand } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -29,7 +30,7 @@ export default function ChatCommandModal({
   handleClose: () => void;
 }) {
   const { channel } = useChannelContext();
-  const { channelBySlug } = channel;
+  const { channelQueryData } = channel;
 
   const [commandsData, setCommandsData] = useState<CommandData[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
@@ -42,29 +43,30 @@ export default function ChatCommandModal({
   const isDeletingAll = useMemo(() => {
     if (
       commandsData.length === 0 &&
-      channelBySlug?.chatCommands &&
-      channelBySlug?.chatCommands.length > 0
+      channelQueryData?.chatCommands &&
+      channelQueryData?.chatCommands.length > 0
     ) {
       return true;
     }
     return false;
-  }, [commandsData, channelBySlug]);
+  }, [commandsData, channelQueryData]);
 
   const callChange = useCallback(() => {
     updateDeleteChatCommands({
-      id: channelBySlug?.id,
+      id: channelQueryData?.id,
       chatCommands: commandsData,
     });
-  }, [channelBySlug, commandsData]);
+  }, [channelQueryData, commandsData]);
 
   useEffect(() => {
-    if (channelBySlug?.chatCommands) {
-      const nonNullCommands: ChatCommand[] = channelBySlug.chatCommands.filter(
-        (c): c is ChatCommand => c !== null
-      );
+    if (channelQueryData?.chatCommands) {
+      const nonNullCommands: ChatCommand[] =
+        channelQueryData.chatCommands.filter(
+          (c): c is ChatCommand => c !== null
+        );
       setCommandsData(nonNullCommands);
     }
-  }, [channelBySlug]);
+  }, [channelQueryData]);
 
   const updateCommands = (c: CommandData, i: number) => {
     const newCommands = [...commandsData];

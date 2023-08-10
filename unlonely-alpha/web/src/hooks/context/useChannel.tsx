@@ -11,12 +11,14 @@ import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
 import { useBalance } from "wagmi";
 
 import {
+  CHANNEL_DETAIL_MOBILE_QUERY,
   CHANNEL_DETAIL_QUERY,
   GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
   GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY,
   GET_USER_TOKEN_HOLDING_QUERY,
 } from "../../constants/queries";
 import {
+  ChannelDetailMobileQuery,
   ChannelDetailQuery,
   GetRecentStreamInteractionsQuery,
   GetTokenHoldersByChannelQuery,
@@ -31,8 +33,11 @@ export const useChannelContext = () => {
 
 const ChannelContext = createContext<{
   channel: {
-    channelBySlug?: ChannelDetailQuery["getChannelBySlug"];
+    channelQueryData?:
+      | ChannelDetailQuery["getChannelBySlug"]
+      | ChannelDetailMobileQuery["getChannelByAwsId"];
     data?: ChannelDetailQuery;
+    mobileData?: ChannelDetailMobileQuery;
     loading: boolean;
     error?: ApolloError;
   };
@@ -62,7 +67,7 @@ const ChannelContext = createContext<{
   };
 }>({
   channel: {
-    channelBySlug: undefined,
+    channelQueryData: undefined,
     data: undefined,
     loading: true,
     error: undefined,
@@ -94,13 +99,15 @@ const ChannelContext = createContext<{
 });
 
 export const ChannelProvider = ({
+  mobile,
   children,
 }: {
+  mobile?: boolean;
   children: React.ReactNode;
 }) => {
   const { user } = useUser();
   const router = useRouter();
-  const { slug } = router.query;
+  const { slug, awsId } = router.query;
 
   const {
     loading: channelDataLoading,
@@ -111,6 +118,22 @@ export const ChannelProvider = ({
   });
 
   const {
+    loading: channelMobileDataLoading,
+    error: channelMobileDataError,
+    data: channelMobileData,
+  } = useQuery<ChannelDetailMobileQuery>(CHANNEL_DETAIL_MOBILE_QUERY, {
+    variables: { awsId },
+  });
+
+  const channelQueryData = useMemo(
+    () =>
+      mobile
+        ? channelMobileData?.getChannelByAwsId
+        : channelData?.getChannelBySlug,
+    [channelData, channelMobileData, mobile]
+  );
+
+  const {
     data: recentStreamInteractionsData,
     loading: recentStreamInteractionsDataLoading,
     error: recentStreamInteractionsDataError,
@@ -119,7 +142,7 @@ export const ChannelProvider = ({
     {
       variables: {
         data: {
-          channelId: channelData?.getChannelBySlug?.id,
+          channelId: channelQueryData?.id,
         },
       },
     }
@@ -128,7 +151,7 @@ export const ChannelProvider = ({
   const { data: userRankData } = useQuery(GET_USER_TOKEN_HOLDING_QUERY, {
     variables: {
       data: {
-        tokenAddress: channelData?.getChannelBySlug?.token?.address,
+        tokenAddress: channelQueryData?.token?.address,
         userAddress: user?.address,
       },
     },
@@ -136,9 +159,7 @@ export const ChannelProvider = ({
 
   const userRank = useMemo(
     () =>
-      channelData?.getChannelBySlug?.token?.address
-        ? userRankData?.getUserTokenHolding
-        : -1,
+      channelQueryData?.token?.address ? userRankData?.getUserTokenHolding : -1,
     [userRankData]
   );
 
@@ -147,21 +168,16 @@ export const ChannelProvider = ({
     { loading: holdersLoading, error: holdersError, data: holdersData },
   ] = useLazyQuery(GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY);
 
-  const channelBySlug = useMemo(
-    () => channelData?.getChannelBySlug,
-    [channelData]
-  );
-
   const { data: userTokenBalance, refetch: refetchUserTokenBalance } =
     useBalance({
       address: user?.address as `0x${string}`,
-      token: channelData?.getChannelBySlug?.token?.address as `0x${string}`,
+      token: channelQueryData?.token?.address as `0x${string}`,
     });
 
   const { data: ownerTokenBalance, refetch: refetchOwnerTokenBalance } =
     useBalance({
-      address: channelData?.getChannelBySlug?.owner?.address as `0x${string}`,
-      token: channelData?.getChannelBySlug?.token?.address as `0x${string}`,
+      address: channelQueryData?.owner?.address as `0x${string}`,
+      token: channelQueryData?.token?.address as `0x${string}`,
     });
 
   const [ablyChatChannel, setAblyChatChannel] = useState<string | undefined>(
@@ -173,23 +189,21 @@ export const ChannelProvider = ({
   const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
 
   useEffect(() => {
-    if (channelData?.getChannelBySlug && channelData?.getChannelBySlug.awsId) {
-      setAblyChatChannel(`${channelData?.getChannelBySlug.awsId}-chat-channel`);
-      setAblyPresenceChannel(
-        `${channelData?.getChannelBySlug.awsId}-presence-channel`
-      );
+    if (channelQueryData && channelQueryData.awsId) {
+      setAblyChatChannel(`${channelQueryData.awsId}-chat-channel`);
+      setAblyPresenceChannel(`${channelQueryData.awsId}-presence-channel`);
     }
-  }, [channelData]);
+  }, [channelQueryData]);
 
   const handleRefetchTokenHolders = useCallback(() => {
     getTokenHolders({
       variables: {
         data: {
-          channelId: channelData?.getChannelBySlug?.id,
+          channelId: channelQueryData?.id,
         },
       },
     });
-  }, [channelData]);
+  }, [channelQueryData]);
 
   useEffect(() => {
     if (textOverVideo.length > 0) {
@@ -219,10 +233,11 @@ export const ChannelProvider = ({
   const value = useMemo(
     () => ({
       channel: {
-        channelBySlug,
+        channelQueryData,
         data: channelData,
-        loading: channelDataLoading,
-        error: channelDataError,
+        mobileData: channelMobileData,
+        loading: mobile ? channelMobileDataLoading : channelDataLoading,
+        error: mobile ? channelMobileDataError : channelDataError,
       },
       recentStreamInteractions: {
         textOverVideo,
@@ -250,7 +265,10 @@ export const ChannelProvider = ({
       },
     }),
     [
-      channelBySlug,
+      channelQueryData,
+      channelMobileData,
+      channelMobileDataLoading,
+      channelMobileDataError,
       channelData,
       channelDataLoading,
       channelDataError,

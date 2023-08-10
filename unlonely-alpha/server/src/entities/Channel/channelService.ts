@@ -1,7 +1,8 @@
 import { Lambda } from "aws-sdk";
-import { Context } from "../../context";
 import { Channel as PrismaChannel } from "@prisma/client";
 import * as AWS from "aws-sdk";
+
+import { Context } from "../../context";
 
 export interface IPostChannelTextInput {
   id: number;
@@ -137,6 +138,15 @@ export const getChannelById = ({ id }: { id: number }, ctx: Context) => {
 export const getChannelBySlug = ({ slug }: { slug: string }, ctx: Context) => {
   return ctx.prisma.channel.findUnique({
     where: { slug: slug },
+  });
+};
+
+export const getChannelByAwsId = (
+  { awsId }: { awsId: string },
+  ctx: Context
+) => {
+  return ctx.prisma.channel.findUnique({
+    where: { awsId: awsId },
   });
 };
 

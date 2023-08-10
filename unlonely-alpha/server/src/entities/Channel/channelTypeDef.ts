@@ -49,6 +49,7 @@ export const typeDef = gql`
     getChannelWithTokenById(id: ID!): Channel
     getChannelById(id: ID!): Channel
     getChannelBySlug(slug: String!): Channel
+    getChannelByAwsId(awsId: String!): Channel
   }
 
   extend type Mutation {

@@ -12,6 +12,10 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNetwork } from "wagmi";
+import { parseUnits } from "viem";
+import Link from "next/link";
+
 import { ChatBot } from "../../constants/types";
 import { ModalButton } from "../general/button/ModalButton";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -26,13 +30,11 @@ import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { NETWORKS } from "../../constants/networks";
-import { useNetwork } from "wagmi";
 import { getContractFromNetwork } from "../../utils/contract";
-import { parseUnits } from "viem";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import Link from "next/link";
+
 
 const CUSTOM = "custom";
 const SAMPLE1 = "pushup";
@@ -65,12 +67,12 @@ export default function CustomTransactionModal({
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
   const { channel, token } = useChannelContext();
-  const { channelBySlug } = channel;
+  const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
 
   const isOwner = useMemo(
-    () => user?.address === channelBySlug?.owner.address,
-    [user, channelBySlug]
+    () => user?.address === channelQueryData?.owner.address,
+    [user, channelQueryData]
   );
 
   const [currentRequest, setCurrentRequest] = useState<string>("");
@@ -80,30 +82,33 @@ export default function CustomTransactionModal({
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const [newPrice, setNewPrice] = useState<string>(
-    String(channelBySlug?.customButtonPrice ?? "0")
+    String(channelQueryData?.customButtonPrice ?? "0")
   );
   const [chosenRequest, setChosenRequest] = useState<string>("");
   const [customRequest, setCustomRequest] = useState<string>(
-    String(channelBySlug?.customButtonAction ?? "")
+    String(channelQueryData?.customButtonAction ?? "")
   );
 
   useEffect(() => {
-    setCurrentPrice(String(channelBySlug?.customButtonPrice ?? "0"));
-    setCurrentRequest(String(channelBySlug?.customButtonAction ?? ""));
-  }, [channelBySlug?.customButtonAction, channelBySlug?.customButtonPrice]);
+    setCurrentPrice(String(channelQueryData?.customButtonPrice ?? "0"));
+    setCurrentRequest(String(channelQueryData?.customButtonAction ?? ""));
+  }, [
+    channelQueryData?.customButtonAction,
+    channelQueryData?.customButtonPrice,
+  ]);
 
   const { updateChannelCustomButton, loading: updateLoading } =
     useUpdateChannelCustomButton({});
 
   const callChange = useCallback(() => {
     updateChannelCustomButton({
-      id: channelBySlug?.id,
+      id: channelQueryData?.id,
       customButtonPrice: Number(newPrice),
       customButtonAction:
         chosenRequest === CUSTOM ? customRequest : chosenRequest,
     });
     setIsEditing(false);
-  }, [channelBySlug, newPrice, chosenRequest, customRequest]);
+  }, [channelQueryData, newPrice, chosenRequest, customRequest]);
 
   const {
     requiresApproval,
@@ -111,7 +116,7 @@ export default function CustomTransactionModal({
     isTxLoading: isApprovalLoading,
     refetchAllowance,
   } = useApproval(
-    channelBySlug?.token?.address as `0x${string}`,
+    channelQueryData?.token?.address as `0x${string}`,
     CreatorTokenAbi,
     user?.address as `0x${string}`,
     contract?.address as `0x${string}`,
@@ -169,7 +174,7 @@ export default function CustomTransactionModal({
 
   const { useFeature, useFeatureTxLoading } = useUseFeature(
     {
-      creatorTokenAddress: channelBySlug?.token?.address as `0x${string}`,
+      creatorTokenAddress: channelQueryData?.token?.address as `0x${string}`,
       featurePrice: tokenAmount_bigint,
     },
     {
@@ -239,12 +244,12 @@ export default function CustomTransactionModal({
     if (chosenRequest === CUSTOM && customRequest.length === 0) return false;
     if (
       chosenRequest === CUSTOM &&
-      channelBySlug?.customButtonAction === customRequest
+      channelQueryData?.customButtonAction === customRequest
     )
       return false;
     if (chosenRequest !== CUSTOM && chosenRequest.length === 0) return false;
     return true;
-  }, [isOwner, newPrice, chosenRequest, customRequest, channelBySlug]);
+  }, [isOwner, newPrice, chosenRequest, customRequest, channelQueryData]);
 
   const canViewerSend = useMemo(() => {
     if (requiresApproval) return false;
@@ -286,7 +291,7 @@ export default function CustomTransactionModal({
         parseUnits(currentPrice as `${number}`, 18) > userTokenBalance?.value)
     ) {
       setErrorMessage(
-        `you don't have enough ${channelBySlug?.token?.symbol} to spend`
+        `you don't have enough ${channelQueryData?.token?.symbol} to spend`
       );
     } else {
       setErrorMessage("");
@@ -294,7 +299,7 @@ export default function CustomTransactionModal({
   }, [
     walletIsConnected,
     userTokenBalance,
-    channelBySlug,
+    channelQueryData,
     currentPrice as `${number}`,
   ]);
 
@@ -337,7 +342,7 @@ export default function CustomTransactionModal({
                       _active={{}}
                     >
                       {chosenRequest ||
-                        channelBySlug?.customButtonAction ||
+                        channelQueryData?.customButtonAction ||
                         "select option"}
                     </MenuButton>
                     <MenuList bg="#000" border="none">
@@ -409,12 +414,12 @@ export default function CustomTransactionModal({
           </>
         ) : (
           <>
-            {channelBySlug?.customButtonAction ? (
+            {channelQueryData?.customButtonAction ? (
               <>
                 <Text textAlign={"center"} fontSize="25px" color="#BABABA">
                   you own{" "}
                   {`${truncateValue(userTokenBalance?.formatted ?? "0", 3)} $${
-                    channelBySlug?.token?.symbol
+                    channelQueryData?.token?.symbol
                   }`}
                 </Text>
                 <Flex gap="10px" alignItems="center" justifyContent={"center"}>

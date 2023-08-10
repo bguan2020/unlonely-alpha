@@ -11,14 +11,14 @@ type Props = {
 
 const StreamComponent: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
   const { channel } = useChannelContext();
-  const { channelBySlug, loading: channelLoading } = channel;
+  const { channelQueryData, loading: channelLoading } = channel;
 
   const playbackUrl = useMemo(
     () =>
-      channelBySlug?.playbackUrl == null
+      channelQueryData?.playbackUrl == null
         ? undefined
-        : channelBySlug?.playbackUrl,
-    [channelBySlug]
+        : channelQueryData?.playbackUrl,
+    [channelQueryData]
   );
 
   const { loading: scriptLoading, error } = useScript({

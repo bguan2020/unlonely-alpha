@@ -74,7 +74,7 @@ const ChannelPage = ({
   const { fireworks } = useScreenAnimationsContext();
   const { channel, recentStreamInteractions } = useChannelContext();
   const {
-    channelBySlug,
+    channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
   } = channel;
@@ -88,7 +88,7 @@ const ChannelPage = ({
   const [width, height] = useWindowSize();
   const { username, userAddress, user } = useUser();
 
-  const isOwner = userAddress === channelBySlug?.owner.address;
+  const isOwner = userAddress === channelQueryData?.owner.address;
   // const isOwner = true;
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
@@ -152,10 +152,15 @@ const ChannelPage = ({
   }, []);
 
   const openChatPopout = () => {
-    if (!channelBySlug) return;
+    if (!channelQueryData) return;
     const windowFeatures = "width=400,height=600,menubar=yes,toolbar=yes";
+    // window.open(
+    //   `https://www.unlonely.app/mobile/chat/${channelQueryData?.awsId}`,
+    //   "_blank",
+    //   windowFeatures
+    // );
     window.open(
-      `https://www.unlonely.app/mobile/chat/${channelBySlug?.awsId}`,
+      `http://localhost:3000/mobile/chat/${channelQueryData?.awsId}`,
       "_blank",
       windowFeatures
     );
@@ -205,7 +210,7 @@ const ChannelPage = ({
               title=""
               icon={
                 <BuyButton
-                  tokenName={`$${channelBySlug?.token?.symbol}`}
+                  tokenName={`$${channelQueryData?.token?.symbol}`}
                   noHover
                 />
               }
@@ -311,7 +316,9 @@ const ChannelPage = ({
                           alignItems="center"
                           gap={5}
                         >
-                          {isAddress(String(channelBySlug?.token?.address)) &&
+                          {isAddress(
+                            String(channelQueryData?.token?.address)
+                          ) &&
                             user &&
                             userAddress && (
                               <>
@@ -349,12 +356,14 @@ const ChannelPage = ({
                                   </Tooltip>
                                 </Grid>
                                 <BuyButton
-                                  tokenName={`$${channelBySlug?.token?.symbol}`}
+                                  tokenName={`$${channelQueryData?.token?.symbol}`}
                                   callback={() => setShowBuyModal(true)}
                                 />
                               </>
                             )}
-                          {(!isAddress(String(channelBySlug?.token?.address)) ||
+                          {(!isAddress(
+                            String(channelQueryData?.token?.address)
+                          ) ||
                             !user) && (
                             <>
                               <Grid

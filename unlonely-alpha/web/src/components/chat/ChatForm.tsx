@@ -60,7 +60,7 @@ const ChatForm = ({
 
   const toast = useToast();
   const { channel: channelContext, token } = useChannelContext();
-  const { channelBySlug } = channelContext;
+  const { channelQueryData } = channelContext;
   const { userTokenBalance, refetchUserTokenBalance } = token;
 
   const [messageText, setMessageText] = useState<string>("");
@@ -88,7 +88,7 @@ const ChatForm = ({
     isTxSuccess: isApprovalSuccess,
     refetchAllowance,
   } = useApproval(
-    channelBySlug?.token?.address as `0x${string}`,
+    channelQueryData?.token?.address as `0x${string}`,
     CreatorTokenAbi,
     user?.address as `0x${string}`,
     contract?.address as `0x${string}`,
@@ -147,7 +147,7 @@ const ChatForm = ({
 
   const { useFeature, useFeatureTxLoading } = useUseFeature(
     {
-      creatorTokenAddress: channelBySlug?.token?.address as `0x${string}`,
+      creatorTokenAddress: channelQueryData?.token?.address as `0x${string}`,
       featurePrice: tokenAmount_bigint,
     },
     {
@@ -250,7 +250,7 @@ const ChatForm = ({
       sendChatMessage(gif, true);
       setMessageText("");
     } else {
-      if (channelBySlug?.token?.address) {
+      if (channelQueryData?.token?.address) {
         setTxTransition(true);
         setGifInTransaction(gif);
         if (requiresApproval && writeApproval) {
@@ -282,7 +282,7 @@ const ChatForm = ({
         sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
         setMessageText("");
       } else {
-        if (channelBySlug?.token?.address) {
+        if (channelQueryData?.token?.address) {
           setTxTransition(true);
           setGifInTransaction("");
           if (requiresApproval && writeApproval) {
@@ -318,7 +318,7 @@ const ChatForm = ({
         sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
         setMessageText("");
       } else {
-        if (channelBySlug?.token?.address) {
+        if (channelQueryData?.token?.address) {
           setTxTransition(true);
           setGifInTransaction("");
           if (requiresApproval && writeApproval) {
@@ -347,12 +347,12 @@ const ChatForm = ({
           parseUnits(PRICE, 18) > userTokenBalance?.value))
     ) {
       setTooltipError(
-        `you don't have enough ${channelBySlug?.token?.symbol} to spend`
+        `you don't have enough ${channelQueryData?.token?.symbol} to spend`
       );
     } else {
       setTooltipError("");
     }
-  }, [channelBySlug, userTokenBalance?.value, blastMode]);
+  }, [channelQueryData, userTokenBalance?.value, blastMode]);
 
   useEffect(() => {
     if (
@@ -469,8 +469,8 @@ const ChatForm = ({
                     whiteSpace="nowrap"
                   >
                     chat blast mode enabled{" "}
-                    {channelBySlug?.token?.symbol &&
-                      `(cost: ${PRICE} $${channelBySlug?.token?.symbol})`}
+                    {channelQueryData?.token?.symbol &&
+                      `(cost: ${PRICE} $${channelQueryData?.token?.symbol})`}
                   </Text>
                 )}
                 <Textarea
@@ -517,7 +517,7 @@ const ChatForm = ({
                       onClick={() => {
                         if (user) {
                           window.open(
-                            `/clip?arn=${channelBySlug?.channelArn || ""}`,
+                            `/clip?arn=${channelQueryData?.channelArn || ""}`,
                             "_blank"
                           );
                         } else {
