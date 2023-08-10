@@ -160,10 +160,15 @@ const ChannelPage = ({
     //   windowFeatures
     // );
     window.open(
-      `http://localhost:3000/mobile/chat/${channelQueryData?.awsId}`,
+      `https://unlonely-alpha-git-staging-unlonely-alpha.vercel.app/mobile/chat/${channelQueryData?.awsId}`,
       "_blank",
       windowFeatures
     );
+    // window.open(
+    //   `http://localhost:3000/mobile/chat/${channelQueryData?.awsId}`,
+    //   "_blank",
+    //   windowFeatures
+    // );
   };
 
   return (
