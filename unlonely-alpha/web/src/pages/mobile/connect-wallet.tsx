@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useAccount, useEnsAvatar, useEnsName } from "wagmi";
 
 import NextHead from "../../components/layout/NextHead";
-import ConnectWallet from "../../components/navigation/ConnectKit";
+import ConnectWallet from "../../components/navigation/ConnectWallet";
 
 export async function getServerSideProps() {
   return {

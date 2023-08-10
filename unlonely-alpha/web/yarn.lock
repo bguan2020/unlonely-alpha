@@ -2673,6 +2673,11 @@
     web3-core-helpers "^1.8.0"
     wicg-inert "^3.1.2"
 
+"@privy-io/wagmi-connector@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@privy-io/wagmi-connector/-/wagmi-connector-0.1.0.tgz#d9cba591dd5e5e1ae15c6696decfbb84a2c189ef"
+  integrity sha512-mw8qmyL1EaKg9wEQ0x0kzLze5N1tvqg6uyCd5/g9tjpf2Rd2oyJa1FvXPBbz4LZKsHWXZ+8dSdp4TbEqUoG20g==
+
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@protobufjs/aspromise/-/aspromise-1.1.2.tgz#9b8b0cc663d669a7d8f6f5d0893a14d348f30fbf"

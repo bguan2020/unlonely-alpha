@@ -45,7 +45,6 @@ import {
   ChannelProvider,
   useChannelContext,
 } from "../../hooks/context/useChannel";
-import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimations";
 import { useUser } from "../../hooks/context/useUser";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 
@@ -71,10 +70,9 @@ const ChannelPage = ({
 }: {
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
-  const { fireworks } = useScreenAnimationsContext();
   const { channel, recentStreamInteractions } = useChannelContext();
   const {
-    channelBySlug,
+    channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
   } = channel;
@@ -88,7 +86,7 @@ const ChannelPage = ({
   const [width, height] = useWindowSize();
   const { username, userAddress, user } = useUser();
 
-  const isOwner = userAddress === channelBySlug?.owner.address;
+  const isOwner = userAddress === channelQueryData?.owner.address;
   // const isOwner = true;
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
@@ -152,10 +150,10 @@ const ChannelPage = ({
   }, []);
 
   const openChatPopout = () => {
-    if (!channelBySlug) return;
+    if (!channelQueryData) return;
     const windowFeatures = "width=400,height=600,menubar=yes,toolbar=yes";
     window.open(
-      `https://www.unlonely.app/mobile/chat/${channelBySlug?.awsId}`,
+      `${window.location.origin}/mobile/chat/${channelQueryData?.awsId}`,
       "_blank",
       windowFeatures
     );
@@ -205,7 +203,7 @@ const ChannelPage = ({
               title=""
               icon={
                 <BuyButton
-                  tokenName={`$${channelBySlug?.token?.symbol}`}
+                  tokenName={`$${channelQueryData?.token?.symbol}`}
                   noHover
                 />
               }
@@ -311,7 +309,9 @@ const ChannelPage = ({
                           alignItems="center"
                           gap={5}
                         >
-                          {isAddress(String(channelBySlug?.token?.address)) &&
+                          {isAddress(
+                            String(channelQueryData?.token?.address)
+                          ) &&
                             user &&
                             userAddress && (
                               <>
@@ -349,12 +349,14 @@ const ChannelPage = ({
                                   </Tooltip>
                                 </Grid>
                                 <BuyButton
-                                  tokenName={`$${channelBySlug?.token?.symbol}`}
+                                  tokenName={`$${channelQueryData?.token?.symbol}`}
                                   callback={() => setShowBuyModal(true)}
                                 />
                               </>
                             )}
-                          {(!isAddress(String(channelBySlug?.token?.address)) ||
+                          {(!isAddress(
+                            String(channelQueryData?.token?.address)
+                          ) ||
                             !user) && (
                             <>
                               <Grid
@@ -439,6 +441,7 @@ const ChannelPage = ({
                   >
                     <AblyChatComponent
                       chatBot={chatBot}
+                      addToChatbot={addToChatbot}
                       handleBuyModal={handleBuyModal}
                       handleTipModal={handleTipModal}
                       handleChanceModal={handleChanceModal}

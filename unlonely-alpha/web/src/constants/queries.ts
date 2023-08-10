@@ -59,6 +59,39 @@ export const CHANNEL_DETAIL_QUERY = gql`
   }
 `;
 
+export const CHANNEL_DETAIL_MOBILE_QUERY = gql`
+  query ChannelDetailMobile($awsId: String!) {
+    getChannelByAwsId(awsId: $awsId) {
+      awsId
+      channelArn
+      description
+      customButtonPrice
+      customButtonAction
+      id
+      name
+      slug
+      allowNFCs
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+      token {
+        id
+        name
+        symbol
+        address
+      }
+      playbackUrl
+      chatCommands {
+        command
+        response
+      }
+    }
+  }
+`;
+
 export const GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY = gql`
   query GetRecentStreamInteractions(
     $data: GetRecentStreamInteractionsByChannelInput

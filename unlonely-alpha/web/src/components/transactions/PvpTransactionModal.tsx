@@ -1,5 +1,6 @@
 import { Text, Input, Flex } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
+
 import { useUser } from "../../hooks/context/useUser";
 import { ChatBot } from "../../constants/types";
 import {
@@ -24,7 +25,7 @@ export default function PvpTransactionModal({
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
   const { channel } = useChannelContext();
-  const { channelBySlug } = channel;
+  const { channelQueryData } = channel;
 
   const [amount, setAmount] = useState("");
   const [amountOption, setAmountOption] = useState<

@@ -57,6 +57,7 @@ import MessageList from "./MessageList";
 
 type Props = {
   chatBot: ChatBot[];
+  addToChatbot: (chatBotMessageToAdd: ChatBot) => void;
   handleControlModal?: () => void;
   handleChanceModal?: () => void;
   handlePvpModal?: () => void;
@@ -67,6 +68,7 @@ type Props = {
 
 const AblyChatComponent = ({
   chatBot,
+  addToChatbot,
   handleControlModal,
   handleChanceModal,
   handlePvpModal,
@@ -74,14 +76,13 @@ const AblyChatComponent = ({
   handleBuyModal,
   handleCustomModal,
 }: Props) => {
-  const { username } = useUser();
   const {
     channel: channelContext,
     chat,
     holders: holdersContext,
     recentStreamInteractions,
   } = useChannelContext();
-  const { channelBySlug } = channelContext;
+  const { channelQueryData } = channelContext;
   const { chatChannel, presenceChannel } = chat;
   const {
     data: holdersData,
@@ -93,18 +94,18 @@ const AblyChatComponent = ({
   const { addToTextOverVideo } = recentStreamInteractions;
 
   const channelId = useMemo(
-    () => (channelBySlug?.id ? Number(channelBySlug?.id) : 3),
-    [channelBySlug?.id]
+    () => (channelQueryData?.id ? Number(channelQueryData?.id) : 3),
+    [channelQueryData?.id]
   );
 
   const channelChatCommands = useMemo(
     () =>
-      channelBySlug?.chatCommands
-        ? channelBySlug?.chatCommands.filter(
+      channelQueryData?.chatCommands
+        ? channelQueryData?.chatCommands.filter(
             (c): c is ChatCommand => c !== null
           )
         : [],
-    [channelBySlug?.chatCommands]
+    [channelQueryData?.chatCommands]
   );
 
   const {
@@ -114,12 +115,10 @@ const AblyChatComponent = ({
     receivedMessages,
   } = useChannel();
 
-  const { user, userAddress: address } = useUser();
+  const { username, user, userAddress: address, walletIsConnected } = useUser();
   const { emojiBlast, fireworks } = useScreenAnimationsContext();
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
-  /*eslint-enable prefer-const*/
-
   const [formError, setFormError] = useState<null | string[]>(null);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showArcade, setShowArcade] = useState<boolean>(false);
@@ -134,12 +133,6 @@ const AblyChatComponent = ({
   const arcadeRef = useRef<HTMLDivElement>(null);
 
   const mountingMessages = useRef(true);
-
-  const chatCommands = useMemo(
-    () =>
-      channelBySlug?.chatCommands?.filter((c): c is ChatCommand => c !== null),
-    [channelBySlug]
-  );
 
   useEffect(() => {
     if (showLeaderboard && !holdersLoading && !holdersData) {
@@ -219,6 +212,10 @@ const AblyChatComponent = ({
         messageText = lastMessage.title ?? "Buy";
         body = `${InteractionType.BUY}:${lastMessage.description ?? ""}`;
       }
+      if (lastMessage.taskType === InteractionType.CLIP) {
+        messageText = lastMessage.title ?? "Clip";
+        body = `${InteractionType.CLIP}:${lastMessage.description ?? ""}`;
+      }
       publishChatBotMessage(messageText, body);
     }
   }, [chatBot]);
@@ -228,43 +225,7 @@ const AblyChatComponent = ({
     isGif: boolean,
     body?: string
   ) => {
-    if (!user && !address) {
-      toast({
-        title: "Sign in first.",
-        description: "Please sign into your wallet first.",
-        status: "warning",
-        duration: 9000,
-        isClosable: true,
-        position: "top",
-      });
-    }
-    if (!user && address) {
-      channel.publish({
-        name: "chat-message",
-        data: {
-          messageText,
-          username: null,
-          chatColor: RANDOM_CHAT_COLOR,
-          isFC: false,
-          isLens: false,
-          address: address,
-          tokenHolderRank: userRank,
-          isGif,
-          reactions: initializeEmojis,
-          body,
-        },
-      });
-    }
-    if (user) {
-      // postFirstChat comes before channel.publish b/c it will set the signat
-      // subsequent chats do not need to call postFirstChat first
-
-      if (!user.signature) {
-        await postFirstChat(
-          { text: messageText, channelId: channelId },
-          { isFirst: true }
-        );
-      }
+    if (walletIsConnected && user) {
       channel.publish({
         name: "chat-message",
         data: {
@@ -282,13 +243,19 @@ const AblyChatComponent = ({
         },
       });
       handleChatCommand(messageText);
-      // postFirstChat comes after to speed up chat
-      if (user.signature) {
-        await postFirstChat(
-          { text: messageText, channelId: channelId },
-          { isFirst: false }
-        );
-      }
+      await postFirstChat(
+        { text: messageText, channelId: channelId }
+        // { isFirst: false }
+      );
+    } else {
+      toast({
+        title: "Sign in first.",
+        description: "Please sign into your wallet first.",
+        status: "warning",
+        duration: 9000,
+        isClosable: true,
+        position: "top",
+      });
     }
 
     if (inputBox) inputBox.focus();
@@ -323,9 +290,15 @@ const AblyChatComponent = ({
       messageToPublish = `${data}`;
       allowPublish = true;
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
-      if (channelBySlug?.allowNFCs || false) {
-        window.open(`/clip?arn=${channelBySlug?.channelArn || ""}`, "_blank");
-        allowPublish = false;
+      if (channelQueryData?.allowNFCs || false) {
+        window.open(
+          `/clip?arn=${channelQueryData?.channelArn || ""}`,
+          "_blank"
+        );
+        messageToPublish = `${
+          user?.username ?? centerEllipses(address, 15)
+        } has just clipped a highlight from this stream!`;
+        allowPublish = true;
       } else {
         messageToPublish = "NFCs are not allowed on this channel.";
         allowPublish = true;
@@ -373,7 +346,6 @@ const AblyChatComponent = ({
     });
   };
   // useeffect to scroll to the bottom of the chat
-  // explain what the useEffect below is doing
   useEffect(() => {
     const chat = document.getElementById("chat");
     if (!chat) return;
@@ -533,12 +505,12 @@ const AblyChatComponent = ({
               width={"100%"}
               padding={"40px"}
             >
-              {isAddress(String(channelBySlug?.token?.address)) &&
+              {isAddress(String(channelQueryData?.token?.address)) &&
                 user &&
                 address && (
                   <>
                     <BuyButton
-                      tokenName={`$${channelBySlug?.token?.symbol}`}
+                      tokenName={`$${channelQueryData?.token?.symbol}`}
                       callback={handleBuyModal}
                     />
                     <Grid
@@ -586,7 +558,8 @@ const AblyChatComponent = ({
                     </Grid>
                   </>
                 )}
-              {(!isAddress(String(channelBySlug?.token?.address)) || !user) && (
+              {(!isAddress(String(channelQueryData?.token?.address)) ||
+                !user) && (
                 <>
                   <Tooltip
                     label={!user ? "connect wallet first" : "not available"}
@@ -681,14 +654,14 @@ const AblyChatComponent = ({
               <Text fontSize={"36px"} fontWeight="bold" textAlign={"center"}>
                 HIGH SCORES
               </Text>
-              {channelBySlug?.token?.symbol && (
+              {channelQueryData?.token?.symbol && (
                 <Text
                   color={"#B6B6B6"}
                   fontSize={"14px"}
                   fontWeight="400"
                   textAlign={"center"}
                 >
-                  {`who owns the most $${channelBySlug?.token?.symbol}?`}
+                  {`who owns the most $${channelQueryData?.token?.symbol}?`}
                 </Text>
               )}
               {holdersLoading && (
@@ -808,7 +781,8 @@ const AblyChatComponent = ({
           <ChatForm
             sendChatMessage={sendChatMessage}
             inputBox={inputBox}
-            additionalChatCommands={chatCommands}
+            additionalChatCommands={channelChatCommands}
+            addToChatbot={addToChatbot}
           />
         </Flex>
       </Flex>

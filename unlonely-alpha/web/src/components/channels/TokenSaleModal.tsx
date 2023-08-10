@@ -1,11 +1,12 @@
 import { useEffect, useMemo } from "react";
 import { useNetwork } from "wagmi";
-import { NETWORKS } from "../../constants/networks";
-import { getContractFromNetwork } from "../../utils/contract";
-import { useApproval } from "../../hooks/contracts/useApproval";
 import { Box, Flex, Text, useToast } from "@chakra-ui/react";
 import Link from "next/link";
 import { parseUnits } from "viem";
+
+import { NETWORKS } from "../../constants/networks";
+import { getContractFromNetwork } from "../../utils/contract";
+import { useApproval } from "../../hooks/contracts/useApproval";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -24,7 +25,7 @@ export default function TokenSaleModal({
 }) {
   const { user } = useUser();
   const { channel } = useChannelContext();
-  const { channelBySlug } = channel;
+  const { channelQueryData } = channel;
   const toast = useToast();
 
   const network = useNetwork();
@@ -41,7 +42,7 @@ export default function TokenSaleModal({
     isTxLoading: isApprovalLoading,
     refetchAllowance,
   } = useApproval(
-    channelBySlug?.token?.address as `0x${string}`,
+    channelQueryData?.token?.address as `0x${string}`,
     CreatorTokenAbi,
     user?.address as `0x${string}`,
     contract?.address as `0x${string}`,
@@ -96,7 +97,7 @@ export default function TokenSaleModal({
   }, [writeApproval]);
 
   useEffect(() => {
-    if (channelBySlug?.token?.address) refetchAllowance();
+    if (channelQueryData?.token?.address) refetchAllowance();
   }, [isApprovalLoading]);
 
   return (

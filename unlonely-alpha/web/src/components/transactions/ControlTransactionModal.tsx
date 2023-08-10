@@ -11,26 +11,28 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { parseUnits } from "viem";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useNetwork } from "wagmi";
+import Link from "next/link";
+
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { useUser } from "../../hooks/context/useUser";
 import { ChatBot } from "../../constants/types";
 import { formatIncompleteNumber } from "../../utils/validation/input";
 import { ModalButton } from "../general/button/ModalButton";
 import { TransactionModalTemplate } from "./TransactionModalTemplate";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { postStreamInteractionTextSchema } from "../../utils/validation/validation";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import { PostStreamInteractionInput } from "../../generated/graphql";
 import { useApproval } from "../../hooks/contracts/useApproval";
-import { useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import centerEllipses from "../../utils/centerEllipses";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import Link from "next/link";
+
 
 export default function ControlTransactionModal({
   title,
@@ -48,7 +50,7 @@ export default function ControlTransactionModal({
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
   const { channel, token } = useChannelContext();
-  const { channelBySlug } = channel;
+  const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
 
   const [amountOption, setAmountOption] = useState<"5">("5");
@@ -80,7 +82,7 @@ export default function ControlTransactionModal({
     isTxLoading: isApprovalLoading,
     refetchAllowance,
   } = useApproval(
-    channelBySlug?.token?.address as `0x${string}`,
+    channelQueryData?.token?.address as `0x${string}`,
     CreatorTokenAbi,
     user?.address as `0x${string}`,
     contract?.address as `0x${string}`,
@@ -138,7 +140,7 @@ export default function ControlTransactionModal({
 
   const { useFeature, useFeatureTxLoading } = useUseFeature(
     {
-      creatorTokenAddress: channelBySlug?.token?.address as `0x${string}`,
+      creatorTokenAddress: channelQueryData?.token?.address as `0x${string}`,
       featurePrice: tokenAmount_bigint,
     },
     {
@@ -186,7 +188,7 @@ export default function ControlTransactionModal({
   const handleBackendSend = useCallback(
     async (text?: string) => {
       postStreamInteraction({
-        channelId: channelBySlug?.id,
+        channelId: channelQueryData?.id,
         text: text ?? localText,
         interactionType: InteractionType.CONTROL,
       });
@@ -235,12 +237,12 @@ export default function ControlTransactionModal({
         parseUnits(amountOption, 18) > userTokenBalance?.value)
     ) {
       setErrorMessage(
-        `you don't have enough ${channelBySlug?.token?.symbol} to spend`
+        `you don't have enough ${channelQueryData?.token?.symbol} to spend`
       );
     } else {
       setErrorMessage("");
     }
-  }, [walletIsConnected, userTokenBalance, channelBySlug, amountOption]);
+  }, [walletIsConnected, userTokenBalance, channelQueryData, amountOption]);
 
   return (
     <TransactionModalTemplate
@@ -256,7 +258,7 @@ export default function ControlTransactionModal({
         <Text textAlign={"center"} fontSize="25px" color="#BABABA">
           you own{" "}
           {`${truncateValue(userTokenBalance?.formatted ?? "0", 3)} $${
-            channelBySlug?.token?.symbol
+            channelQueryData?.token?.symbol
           }`}
         </Text>
         <Flex justifyContent={"space-evenly"} alignItems="center">

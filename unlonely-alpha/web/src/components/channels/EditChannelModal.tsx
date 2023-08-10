@@ -27,7 +27,7 @@ export default function EditChannelModal({
   handleClose: () => void;
 }) {
   const { channel } = useChannelContext();
-  const { channelBySlug } = channel;
+  const { channelQueryData } = channel;
 
   const [formError, setFormError] = useState<string[]>([]);
   const form = useForm<UpdateChannelTextInput>({
@@ -43,7 +43,7 @@ export default function EditChannelModal({
 
   const onSubmit = (data: UpdateChannelTextInput) => {
     updateChannelText({
-      id: channelBySlug?.id,
+      id: channelQueryData?.id,
       name: data.name,
       description: data.description,
     });
@@ -71,8 +71,8 @@ export default function EditChannelModal({
               <Textarea
                 id="name"
                 placeholder={
-                  channelBySlug?.name
-                    ? channelBySlug.name
+                  channelQueryData?.name
+                    ? channelQueryData.name
                     : "Enter a title for your stream."
                 }
                 _placeholder={{ color: "grey" }}
@@ -98,8 +98,8 @@ export default function EditChannelModal({
               <Textarea
                 id="description"
                 placeholder={
-                  channelBySlug?.description
-                    ? channelBySlug.description
+                  channelQueryData?.description
+                    ? channelQueryData.description
                     : "Enter a description for your channel"
                 }
                 _placeholder={{ color: "grey" }}

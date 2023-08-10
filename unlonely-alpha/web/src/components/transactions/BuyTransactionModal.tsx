@@ -1,5 +1,9 @@
 import { Text, Input, Flex, useToast, Box } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
+import { formatUnits, parseUnits } from "viem";
+import { useBalance, useNetwork } from "wagmi";
+import Link from "next/link";
+
 import { useUser } from "../../hooks/context/useUser";
 import { ChatBot } from "../../constants/types";
 import {
@@ -13,17 +17,15 @@ import {
   useBuyCreatorToken,
   useCalculateEthAmount,
 } from "../../hooks/contracts/useArcadeContract";
-import { formatUnits, parseUnits } from "viem";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { InteractionType } from "../../constants";
 import useUpdateUserCreatorTokenQuantity from "../../hooks/server/arcade/useUpdateTokenQuantity";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useApproval } from "../../hooks/contracts/useApproval";
-import { useBalance, useNetwork } from "wagmi";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
-import Link from "next/link";
+
 
 export default function BuyTransactionModal({
   title,
@@ -42,7 +44,7 @@ export default function BuyTransactionModal({
 }) {
   const { user, userAddress, walletIsConnected } = useUser();
   const { channel, token, holders } = useChannelContext();
-  const { channelBySlug } = channel;
+  const { channelQueryData } = channel;
   const {
     userTokenBalance,
     refetchUserTokenBalance,
@@ -83,16 +85,16 @@ export default function BuyTransactionModal({
   );
 
   const { allowance: ownerAllowance, refetchAllowance } = useApproval(
-    channelBySlug?.token?.address as `0x${string}`,
+    channelQueryData?.token?.address as `0x${string}`,
     CreatorTokenAbi,
-    channelBySlug?.owner?.address as `0x${string}`,
+    channelQueryData?.owner?.address as `0x${string}`,
     contract?.address as `0x${string}`,
     contract?.chainId as number,
     BigInt(0)
   );
 
   const { amountIn } = useCalculateEthAmount(
-    channelBySlug?.token?.address as `0x${string}`,
+    channelQueryData?.token?.address as `0x${string}`,
     buyTokenAmount_bigint
   );
 
@@ -104,7 +106,7 @@ export default function BuyTransactionModal({
 
   const { buyCreatorToken, buyCreatorTokenTxLoading } = useBuyCreatorToken(
     {
-      creatorTokenAddress: channelBySlug?.token?.address as `0x${string}`,
+      creatorTokenAddress: channelQueryData?.token?.address as `0x${string}`,
       amountIn,
       amountOut: buyTokenAmount_bigint,
     },
@@ -150,7 +152,7 @@ export default function BuyTransactionModal({
         refetchUserEthBalance?.();
         refetchUserTokenBalance?.();
         await updateUserCreatorTokenQuantity({
-          tokenAddress: channelBySlug?.token?.address as `0x${string}`,
+          tokenAddress: channelQueryData?.token?.address as `0x${string}`,
           purchasedAmount: Number(
             amountOption === "custom" ? amount : amountOption
           ),
@@ -161,7 +163,7 @@ export default function BuyTransactionModal({
           taskType: InteractionType.BUY,
           title: `${user?.username ?? centerEllipses(userAddress, 15)} bought ${
             amountOption === "custom" ? amount : amountOption
-          } $${channelBySlug?.token?.symbol}!`,
+          } $${channelQueryData?.token?.symbol}!`,
           description: "Buy",
         });
         refetchTokenHolders?.();
@@ -225,7 +227,7 @@ export default function BuyTransactionModal({
         <Text textAlign={"center"} fontSize="25px" color="#BABABA">
           you own{" "}
           {`${truncateValue(userTokenBalance?.formatted ?? "0", 3)} $${
-            channelBySlug?.token?.symbol
+            channelQueryData?.token?.symbol
           }`}
         </Text>
         <Flex justifyContent={"space-between"}>
@@ -285,7 +287,7 @@ export default function BuyTransactionModal({
 
         {amountOption === "custom" && (
           <Input
-            placeholder={`enter amount of $${channelBySlug?.token?.symbol}`}
+            placeholder={`enter amount of $${channelQueryData?.token?.symbol}`}
             value={amount}
             onChange={handleInputChange}
             borderWidth="1px"

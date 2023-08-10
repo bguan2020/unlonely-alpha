@@ -28,7 +28,7 @@ const usePostFirstChat = ({
   >(POST_CHAT_MUTATION);
 
   const postFirstChat = useCallback(
-    async (data, { isFirst }) => {
+    async (data) => {
       setLoading(true);
       const mutationResult = await mutate({ variables: { data } });
 
@@ -41,7 +41,6 @@ const usePostFirstChat = ({
         setLoading(false);
         return;
       }
-      if (isFirst) window.location.reload();
       setLoading(false);
     },
     [mutate, onError]
