@@ -7,8 +7,6 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { useMemo } from "react";
-// import cookieCutter from "cookie-cutter";
-// import pickBy from "lodash/pickBy";
 import { getAccessToken } from "@privy-io/react-auth";
 
 let apolloClient: ApolloClient<NormalizedCacheObject>;
@@ -18,64 +16,6 @@ export type Cookies = Record<string, string | undefined>;
 export interface Context {
   signedMessage?: string;
 }
-
-// Generate a random string
-function generateRandomId() {
-  return (
-    Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15)
-  );
-}
-
-// const authLink = (cookies: Cookies, isSSR?: boolean) =>
-//   new ApolloLink((operation, forward) => {
-//     /**
-//      * Next.js doesn't make cookies available in the same way that they're available in
-//      * the browser, so we have to attempt to get the cookies in two different ways.
-//      *
-//      * This is due to SSR – when we first fetch the page, Next renders the page
-//      * without a `document` being available (which is how cookies are fetched with
-//      * normal JS).
-//      *
-//      * Instead, when rendering with SSR,  Next.js makes cookies available via the
-//      * context object returned from getInitialProps. We call this and fetch the cookies
-//      * in _app.tsx, and then pass the cookies all the way through to this auth link.
-//      *
-//      * In the browser (i.e. when we make requests as we're navigating the React app, as
-//      * opposed to fetching it), we have to get the latest address via a cookie from the
-//      * the document.
-//      *
-//      * Hence we have this method of getting the relevant cookie in two ways.
-//      */
-//     // const browserAddressCookie = useCookies("unlonelyAddress");
-//     /* eslint-disable no-console */
-//     let address: string | undefined;
-//     const nextAddressCookie = cookies["unlonelyAddress"];
-//     console.log(nextAddressCookie, isSSR);
-//     if (nextAddressCookie) {
-//       address = nextAddressCookie;
-//     } else if (isSSR && isSSR === true && !nextAddressCookie) {
-//       console.log("hitting this");
-//       address = undefined;
-//     } else {
-//       const browserAddressCookie = cookieCutter.get("unlonelyAddress");
-//       address = browserAddressCookie || nextAddressCookie;
-//     }
-
-//     const { signedMessage } = operation.getContext() as Context;
-
-//     const headers = {
-//       "x-auth-address": address || undefined,
-//       "x-auth-signed-message": signedMessage || undefined,
-//     };
-
-//     operation.setContext({
-//       // Remove undef values from the headers as weirdly these get sent as "undefined"
-//       headers: pickBy(headers),
-//     });
-
-//     return forward(operation);
-//   });
 
 const authLink = setContext(async (_, { headers }) => {
   // get the authentication token from local storage if it exists

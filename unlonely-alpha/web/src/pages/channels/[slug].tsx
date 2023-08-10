@@ -154,21 +154,12 @@ const ChannelPage = ({
   const openChatPopout = () => {
     if (!channelQueryData) return;
     const windowFeatures = "width=400,height=600,menubar=yes,toolbar=yes";
-    // window.open(
-    //   `https://www.unlonely.app/mobile/chat/${channelQueryData?.awsId}`,
-    //   "_blank",
-    //   windowFeatures
-    // );
+    console.log(window.location.origin);
     window.open(
-      `https://unlonely-alpha-git-staging-unlonely-alpha.vercel.app/mobile/chat/${channelQueryData?.awsId}`,
+      `https://www.unlonely.app/mobile/chat/${channelQueryData?.awsId}`,
       "_blank",
       windowFeatures
     );
-    // window.open(
-    //   `http://localhost:3000/mobile/chat/${channelQueryData?.awsId}`,
-    //   "_blank",
-    //   windowFeatures
-    // );
   };
 
   return (

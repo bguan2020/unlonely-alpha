@@ -52,28 +52,8 @@ export const useAuthedMutation = <
     setLoading(true);
     setError(undefined);
 
-    // const authData = await getAuthData();
-
-    // if (!authData || authData.error) {
-    //   setLoading(false);
-    //   const message = authData.error
-    //     ? authData.error.message
-    //     : "No signed nonce";
-    //   setError({
-    //     message,
-    //     graphQLErrors: [],
-    //     clientErrors: [],
-    //     networkError: null,
-    //     extraInfo: {},
-    //     name: "",
-    //   });
-
-    //   return { data: null };
-    // }
-
     return _mutate({
       ...options,
-      // context: { signedMessage: authData.signedMessage },
       context: { signedMessage: "" },
     }).then((x) => {
       setLoading(false);

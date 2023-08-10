@@ -62,19 +62,6 @@ function App({ Component, pageProps, cookies }: Props) {
         }}
       >
         <PrivyWagmiConnector wagmiChainsConfig={configureChainsConfig}>
-          {/* <WagmiConfig config={wagmiConfig}>
-        <ConnectKitProvider
-          mode={"dark"}
-          customTheme={{
-            "--ck-font-family": "Anonymous Pro, sans-serif",
-            "--ck-border-radius": 32,
-          }}
-          options={{
-            hideTooltips: true,
-            hideQuestionMarkCTA: true,
-            hideNoWalletCTA: true,
-          }}
-        > */}
           <ApolloProvider client={apolloClient}>
             <UserProvider>
               <ScreenAnimationsProvider>
@@ -82,8 +69,6 @@ function App({ Component, pageProps, cookies }: Props) {
               </ScreenAnimationsProvider>
             </UserProvider>
           </ApolloProvider>
-          {/* </ConnectKitProvider>
-      </WagmiConfig> */}
         </PrivyWagmiConnector>
       </PrivyProvider>
     </ChakraProvider>
