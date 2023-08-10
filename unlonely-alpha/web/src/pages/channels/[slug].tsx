@@ -45,7 +45,6 @@ import {
   ChannelProvider,
   useChannelContext,
 } from "../../hooks/context/useChannel";
-import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimations";
 import { useUser } from "../../hooks/context/useUser";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 
@@ -71,7 +70,6 @@ const ChannelPage = ({
 }: {
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
-  const { fireworks } = useScreenAnimationsContext();
   const { channel, recentStreamInteractions } = useChannelContext();
   const {
     channelQueryData,
@@ -154,9 +152,8 @@ const ChannelPage = ({
   const openChatPopout = () => {
     if (!channelQueryData) return;
     const windowFeatures = "width=400,height=600,menubar=yes,toolbar=yes";
-    console.log(window.location.origin);
     window.open(
-      `https://www.unlonely.app/mobile/chat/${channelQueryData?.awsId}`,
+      `${window.location.origin}/mobile/chat/${channelQueryData?.awsId}`,
       "_blank",
       windowFeatures
     );
