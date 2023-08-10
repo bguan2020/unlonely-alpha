@@ -1,19 +1,14 @@
 import { gql } from "@apollo/client";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
 import { usePrivy, useWallets, WalletWithMetadata } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
+import { Flex, Text } from "@chakra-ui/react";
 
 import { User } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
+import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 /* eslint-disable */
 const GET_USER_QUERY = gql`
   query getUser($data: GetUserInput!) {
@@ -65,6 +60,7 @@ export const UserProvider = ({
   const { ready, authenticated, user: privyUser, logout } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
   const { wallets } = useWallets();
+  const [differentWallet, setDifferentWallet] = useState(false);
 
   const loginMethod = useMemo(() => {
     const wallet = privyUser?.linkedAccounts?.find(
@@ -112,8 +108,6 @@ export const UserProvider = ({
     return auth && matchingWallet;
   }, [authenticated, activeWallet, user, address]);
 
-  const linkingWallet = useRef(false);
-
   useEffect(() => {
     const fetchEns = async () => {
       if (address) {
@@ -132,26 +126,17 @@ export const UserProvider = ({
   useEffect(() => {
     const f = async () => {
       if (
-        privyUser?.wallet?.address &&
+        user?.address &&
         activeWallet?.address &&
-        activeWallet?.address !== privyUser?.wallet?.address &&
-        privyUser?.wallet?.walletClientType !== "privy" &&
-        !linkingWallet.current
+        activeWallet?.address !== user?.address
       ) {
-        linkingWallet.current = true;
-        console.log(
-          "relinking",
-          activeWallet?.address,
-          privyUser?.wallet?.address
-        );
-        await logout();
-        if (wallets[0].connectorType !== "embedded")
-          await wallets[0]?.loginOrLink();
-        linkingWallet.current = false;
+        setDifferentWallet(true);
+      } else {
+        setDifferentWallet(false);
       }
     };
     f();
-  }, [activeWallet, privyUser]);
+  }, [activeWallet, user]);
 
   const value = useMemo(
     () => ({
@@ -164,5 +149,28 @@ export const UserProvider = ({
     [user, username, address, walletIsConnected, loginMethod]
   );
 
-  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={value}>
+      <TransactionModalTemplate
+        confirmButton="logout"
+        title="did you change wallet accounts?"
+        isOpen={differentWallet}
+        handleClose={() => setDifferentWallet(false)}
+        canSend={true}
+        onSend={logout}
+        isModalLoading={false}
+      >
+        <Flex direction={"column"} gap="16px">
+          <Text textAlign={"center"} fontSize="15px" color="#BABABA">
+            our app thinks you're using two different wallet addresses, this can
+            occur when you change wallet accounts while logged in
+          </Text>
+          <Text textAlign={"center"} fontSize="20px">
+            to resolve, switch back to the original wallet account or logout
+          </Text>
+        </Flex>
+      </TransactionModalTemplate>
+      {children}
+    </UserContext.Provider>
+  );
 };

@@ -250,6 +250,7 @@ const ChatForm = ({
       sendChatMessage(gif, true);
       setMessageText("");
     } else {
+      if (tooltipError !== "") return;
       if (channelQueryData?.token?.address) {
         setTxTransition(true);
         setGifInTransaction(gif);
@@ -277,11 +278,11 @@ const ChatForm = ({
         setCommandsOpen(false);
       }
       event.preventDefault();
-      if (tooltipError !== "") return;
       if (!blastMode) {
         sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
         setMessageText("");
       } else {
+        if (tooltipError !== "") return;
         if (channelQueryData?.token?.address) {
           setTxTransition(true);
           setGifInTransaction("");

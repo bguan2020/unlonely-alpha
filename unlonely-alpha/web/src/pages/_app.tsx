@@ -53,6 +53,12 @@ function App({ Component, pageProps, cookies }: Props) {
           embeddedWallets: {
             createOnLogin: "users-without-wallets",
           },
+          appearance: {
+            theme: "#19162F",
+            accentColor: "#6cff67",
+            logo: "https://i.imgur.com/MNArpwV.png",
+            showWalletLoginFirst: true,
+          },
         }}
       >
         <PrivyWagmiConnector wagmiChainsConfig={configureChainsConfig}>
