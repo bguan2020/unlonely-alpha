@@ -1,4 +1,11 @@
-module.exports = {
+/* eslint-disable @typescript-eslint/no-var-requires */
+const withPWA = require("next-pwa");
+/* eslint-enable @typescript-eslint/no-var-requires */
+
+module.exports = withPWA({
+  pwa: {
+    dest: "public", // this is where the service worker will check for assets to cache
+  },
   async redirects() {
     return [
       {
@@ -13,4 +20,5 @@ module.exports = {
       },
     ];
   },
-};
+  // any other configurations you have...
+});
