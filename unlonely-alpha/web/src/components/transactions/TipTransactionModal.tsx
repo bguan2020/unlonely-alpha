@@ -22,7 +22,6 @@ import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { useChannelContext } from "../../hooks/context/useChannel";
 
-
 export default function TipTransactionModal({
   title,
   isOpen,
