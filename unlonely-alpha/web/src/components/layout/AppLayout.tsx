@@ -18,6 +18,7 @@ import NextHead from "./NextHead";
 import Header from "../navigation/Header";
 import { NETWORKS } from "../../constants/networks";
 import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 type Props = {
   loading?: boolean;
@@ -41,6 +42,7 @@ const AppLayout: React.FC<Props> = ({
 }) => {
   const toast = useToast();
   const toastIdRef = useRef<ToastId | undefined>();
+  const { isStandalone } = useUserAgent();
 
   const smallestDevice = useBreakpointValue({
     base: true,
@@ -80,42 +82,52 @@ const AppLayout: React.FC<Props> = ({
     <Grid
       display={["grid"]}
       gridTemplateColumns={["1px auto"]}
-      // bgGradient="linear(to-r, #e2f979, #b0e5cf, #ba98d7, #d16fce)"
       bgGradient="linear-gradient(90deg, #E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
       background="rgba(0, 0, 0, 0.65)"
     >
-      {isCustomHeader === false ? (
+      {isCustomHeader === false && (
         <NextHead
           title=""
           image={image ? image : ""}
           description={description ? description : ""}
           pageUrl={pageUrl ? pageUrl : ""}
         />
-      ) : null}
-      <Header />
-      <AddToHomeScreen />
-      <Box
-        mt={smallestDevice ? "25px" : "60px"}
-        minW="100%"
-        as="main"
-        minH={smallestDevice ? "calc(100vh - 25px)" : "calc(100vh - 48px)"}
-        gridColumnStart={2}
-      >
-        {error && (
-          <Alert status="error">
-            <AlertIcon />
-            <AlertTitle mr={2}>Network Error</AlertTitle>
-            <AlertDescription>{error.toString()}</AlertDescription>
-          </Alert>
-        )}
-        <Skeleton
-          minHeight="calc(100vh - 64px)"
-          isLoaded={!loading}
-          overflowX="hidden"
-        >
-          {children}
-        </Skeleton>
-      </Box>
+      )}
+      {!isStandalone && (
+        <>
+          <Header />
+          <AddToHomeScreen />
+          <Box
+            mt={smallestDevice ? "25px" : "60px"}
+            minW="100%"
+            as="main"
+            minH={smallestDevice ? "calc(100vh - 25px)" : "calc(100vh - 48px)"}
+            gridColumnStart={2}
+          >
+            {error && (
+              <Alert status="error">
+                <AlertIcon />
+                <AlertTitle mr={2}>Network Error</AlertTitle>
+                <AlertDescription>{error.toString()}</AlertDescription>
+              </Alert>
+            )}
+            <Skeleton
+              minHeight="calc(100vh - 64px)"
+              isLoaded={!loading}
+              overflowX="hidden"
+            >
+              {children}
+            </Skeleton>
+          </Box>
+        </>
+      )}
+      {isStandalone && (
+        <Box minW="100%" as="main" minH="100vh">
+          <Skeleton minHeight="100vh" overflowX="hidden">
+            {children}
+          </Skeleton>
+        </Box>
+      )}
     </Grid>
   );
 };

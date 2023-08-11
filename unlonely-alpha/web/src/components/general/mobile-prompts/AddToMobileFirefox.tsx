@@ -18,28 +18,30 @@ export default function AddToMobileFirefox(props: Props) {
       handleClose={closePrompt}
       hideFooter={true}
     >
-      <Text>
-        For the best experience, we recommend adding the Unlonely app to your
-        home screen!
-      </Text>
-      <Text>
-        Click the <HiDotsVertical /> icon
-      </Text>
-      <Flex direction="column">
-        <Text>Scroll down and then click</Text>
-        <Text>“Add to Home Screen”</Text>
+      <Flex direction="column" alignItems={"center"} gap="10px">
+        <Text textAlign={"center"}>
+          For the best experience, we recommend adding the Unlonely app to your
+          home screen!
+        </Text>
+        <Flex alignItems={"center"} gap="5px">
+          <p>Click the</p> <HiDotsVertical /> <p>icon</p>
+        </Flex>
+        <Flex direction="column">
+          <Text>Scroll down and then click</Text>
+          <Text>“Add to Home Screen”</Text>
+        </Flex>
+        <Button
+          bg="#30b70e"
+          _hover={{}}
+          _focus={{}}
+          _active={{}}
+          onClick={closePrompt}
+          width="100%"
+          borderRadius="25px"
+        >
+          ok
+        </Button>
       </Flex>
-      <Button
-        bg="#30b70e"
-        _hover={{}}
-        _focus={{}}
-        _active={{}}
-        onClick={closePrompt}
-        width="100%"
-        borderRadius="25px"
-      >
-        ok
-      </Button>
     </TransactionModalTemplate>
   );
 }

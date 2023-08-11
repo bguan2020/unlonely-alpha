@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Link, Text } from "@chakra-ui/react";
+import { Button, Link, Text, Flex } from "@chakra-ui/react";
 
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 
@@ -19,28 +19,39 @@ export default function AddToOtherBrowser(props: Props) {
       handleClose={closePrompt}
       hideFooter={true}
     >
-      <Text>
-        For the best experience, we recommend adding the Unlonely app to your
-        home screen!
-      </Text>
-      <Text>
-        Unfortunately, we were unable to determine which browser you are using.
-        Please search for how to install a web app for your browser.
-      </Text>
-      <Link className="text-blue-300" href={searchUrl} target="_blank">
-        Try This Search
-      </Link>
-      <Button
-        bg="#4a5c45"
-        _hover={{}}
-        _focus={{}}
-        _active={{}}
-        onClick={closePrompt}
-        width="100%"
-        borderRadius="25px"
-      >
-        close
-      </Button>
+      <Flex direction="column" alignItems={"center"} gap="10px">
+        <Text textAlign={"center"}>
+          For the best experience, we recommend adding the Unlonely app to your
+          home screen!
+        </Text>
+        <Text textAlign={"center"}>
+          Unfortunately, we were unable to determine which browser you are
+          using. Please search for how to install a web app for your browser.
+        </Text>
+        <Link href={searchUrl} target="_blank">
+          <Button
+            bg="#05b95f"
+            _hover={{}}
+            _focus={{}}
+            _active={{}}
+            width="100%"
+            borderRadius="25px"
+          >
+            Try this link
+          </Button>
+        </Link>
+        <Button
+          bg="#4a5c45"
+          _hover={{}}
+          _focus={{}}
+          _active={{}}
+          onClick={closePrompt}
+          width="100%"
+          borderRadius="25px"
+        >
+          close
+        </Button>
+      </Flex>
     </TransactionModalTemplate>
   );
 }

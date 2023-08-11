@@ -238,14 +238,21 @@ export default function CustomTransactionModal({
   };
 
   const canOwnerSend = useMemo(() => {
+    // if not owner, can't send
     if (!isOwner) return false;
+    // if new price is 0, can't send
     if (Number(formatIncompleteNumber(newPrice)) === 0) return false;
+    // if empty custom request, can't send
     if (chosenRequest === CUSTOM && customRequest.length === 0) return false;
+    // if custom request and custom price are unchanged, can't send
     if (
       chosenRequest === CUSTOM &&
-      channelQueryData?.customButtonAction === customRequest
+      channelQueryData?.customButtonAction === customRequest &&
+      Number(formatIncompleteNumber(newPrice)) ===
+        channelQueryData?.customButtonPrice
     )
       return false;
+    // if non-custom request is empty, can't send
     if (chosenRequest !== CUSTOM && chosenRequest.length === 0) return false;
     return true;
   }, [isOwner, newPrice, chosenRequest, customRequest, channelQueryData]);
