@@ -17,6 +17,7 @@ import { useEffect, useMemo, useRef } from "react";
 import NextHead from "./NextHead";
 import Header from "../navigation/Header";
 import { NETWORKS } from "../../constants/networks";
+import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
 
 type Props = {
   loading?: boolean;
@@ -92,6 +93,7 @@ const AppLayout: React.FC<Props> = ({
         />
       ) : null}
       <Header />
+      <AddToHomeScreen />
       <Box
         mt={smallestDevice ? "25px" : "60px"}
         minW="100%"

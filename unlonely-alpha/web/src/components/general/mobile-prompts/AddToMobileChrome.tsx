@@ -1,4 +1,8 @@
+import { Button, Text, Flex } from "@chakra-ui/react";
 import React from "react";
+import { HiDotsVertical } from "react-icons/hi";
+
+import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 
 interface Props {
   closePrompt: () => void;
@@ -8,22 +12,34 @@ export default function AddToMobileChrome(props: Props) {
   const { closePrompt } = props;
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-[60%] z-50 pt-12 px-4 text-white">
-      <div className="relative bg-primary p-4 h-full rounded-xl flex flex-col justify-around items-center text-center">
-        <button className="absolute top-0 right-0 p-3" onClick={closePrompt}>
-          close
-        </button>
-        <p className="text-lg">
-          For the best experience, we recommend installing the Valley Trader app
-          to your home screen!
-        </p>
-        <div className="flex flex-col gap-2 items-center text-lg w-full px-4">
-          <p>Scroll down and then click:</p>
-          <div className="bg-zinc-50 flex justify-between items-center w-full px-4 py-2 rounded-lg text-zinc-900">
-            <p>Add to Home Screen</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <TransactionModalTemplate
+      isModalLoading={false}
+      isOpen={true}
+      handleClose={closePrompt}
+      hideFooter={true}
+    >
+      <Text>
+        For the best experience, we recommend adding the Unlonely app to your
+        home screen!
+      </Text>
+      <Text>
+        Click the <HiDotsVertical /> icon
+      </Text>
+      <Flex direction="column">
+        <Text>Scroll down and then click</Text>
+        <Text>“Add to Home Screen”</Text>
+      </Flex>
+      <Button
+        bg="#30b70e"
+        _hover={{}}
+        _focus={{}}
+        _active={{}}
+        onClick={closePrompt}
+        width="100%"
+        borderRadius="25px"
+      >
+        ok
+      </Button>
+    </TransactionModalTemplate>
   );
 }
