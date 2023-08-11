@@ -7,7 +7,8 @@ import {
 } from "amazon-ivs-player";
 import { Flex, Text } from "@chakra-ui/react";
 import Link from "next/link";
-import { isIosDevice } from "../mobile/Banner";
+
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 type Props = {
   isTheatreMode: boolean;
@@ -19,6 +20,9 @@ const IVSPlayer: React.FunctionComponent<Props> = ({
   playbackUrl,
 }) => {
   const [offline, setOffline] = useState<boolean>(false);
+
+  const { isIOS } = useUserAgent();
+
   useEffect(() => {
     const PLAYBACK_URL = playbackUrl;
 
@@ -101,7 +105,7 @@ const IVSPlayer: React.FunctionComponent<Props> = ({
             </Link>
             <Link
               href={
-                isIosDevice()
+                isIOS
                   ? "https://testflight.apple.com/join/z4PpYxXz"
                   : "https://dub.sh/unlonely-android"
               }
