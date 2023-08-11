@@ -23,8 +23,8 @@ import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import HeroBanner from "../components/layout/HeroBanner";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
-import { isIosDevice } from "../components/mobile/Banner";
 import { WavyText } from "../components/general/WavyText";
+import useUserAgent from "../hooks/internal/useUserAgent";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -108,6 +108,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
   });
 
   const nfcs = dataNFCs?.getNFCFeed;
+  const { isIOS } = useUserAgent();
 
   return (
     <>
@@ -165,7 +166,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
           </Stack>
           <Link
             href={
-              isIosDevice()
+              isIOS
                 ? "https://testflight.apple.com/join/z4PpYxXz"
                 : "https://dub.sh/unlonely-android"
             }
