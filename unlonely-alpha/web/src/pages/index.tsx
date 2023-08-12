@@ -15,7 +15,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
@@ -25,6 +25,7 @@ import HeroBanner from "../components/layout/HeroBanner";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { isIosDevice } from "../components/mobile/Banner";
 import { WavyText } from "../components/general/WavyText";
+import { useUser } from "../hooks/context/useUser";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -181,6 +182,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
 };
 
 export default function Page() {
+  const { user } = useUser();
   const { data, loading } = useQuery(CHANNEL_FEED_QUERY, {
     variables: {
       data: {
@@ -203,6 +205,38 @@ export default function Page() {
     md: true,
     xl: true,
   });
+
+  useEffect(() => {
+    // Function to register service worker and request notification permission
+    const registerAndRequestPermission = async () => {
+      try {
+        const registration = await navigator.serviceWorker.register("sw.js", {
+          scope: "./",
+        });
+
+        if (Notification.permission === "default") {
+          const result = await Notification.requestPermission();
+
+          if (result === "granted") {
+            await registration.showNotification("Hello World", {
+              body: "My first notification on iOS",
+            });
+          }
+        }
+        // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
+        // If permission is "granted", it means the user has already enabled notifications.
+      } catch (error) {
+        console.error(
+          "Error registering service worker or requesting permission:",
+          error
+        );
+      }
+    };
+
+    if (user && "serviceWorker" in navigator && "Notification" in window) {
+      registerAndRequestPermission();
+    }
+  }, [user]);
 
   return (
     <AppLayout isCustomHeader={false}>

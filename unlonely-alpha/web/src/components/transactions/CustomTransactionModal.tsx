@@ -35,7 +35,6 @@ import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
-
 const CUSTOM = "custom";
 const SAMPLE1 = "pushup";
 const SAMPLE2 = "product review";
