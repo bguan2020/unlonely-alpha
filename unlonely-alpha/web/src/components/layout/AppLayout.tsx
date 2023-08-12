@@ -19,6 +19,7 @@ import Header from "../navigation/Header";
 import { NETWORKS } from "../../constants/networks";
 import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { Navbar } from "../mobile/Navbar";
 
 type Props = {
   loading?: boolean;
@@ -93,7 +94,7 @@ const AppLayout: React.FC<Props> = ({
           pageUrl={pageUrl ? pageUrl : ""}
         />
       )}
-      {!isStandalone && (
+      {isStandalone ? (
         <>
           <Header />
           <AddToHomeScreen />
@@ -120,12 +121,16 @@ const AppLayout: React.FC<Props> = ({
             </Skeleton>
           </Box>
         </>
-      )}
-      {isStandalone && (
-        <Box minW="100%" as="main" minH="100vh">
-          <Skeleton minHeight="100vh" overflowX="hidden">
+      ) : (
+        <Box minW="100%" as="main" minH="100vh" gridColumnStart={2}>
+          <Box
+            background={"#19162F"}
+            h="calc(100vh - 110px)"
+            overflowX="hidden"
+          >
             {children}
-          </Skeleton>
+          </Box>
+          <Navbar />
         </Box>
       )}
     </Grid>

@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const withPWA = require("next-pwa")({
   dest: "public", // this is where the service worker will check for assets to cache
-  mode: "production",
+  disable: process.env.NODE_ENV !== "production",
+  skipWaiting: true,
 });
 /* eslint-enable @typescript-eslint/no-var-requires */
 

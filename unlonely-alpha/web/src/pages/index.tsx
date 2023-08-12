@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState, useRef } from "react";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
@@ -25,6 +26,8 @@ import HeroBanner from "../components/layout/HeroBanner";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
+import { Channel } from "../generated/graphql";
+import { SelectableChannel } from "../components/mobile/SelectableChannel";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -181,22 +184,19 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
   );
 };
 
-export default function Page() {
-  const { data, loading } = useQuery(CHANNEL_FEED_QUERY, {
-    variables: {
-      data: {
-        limit: 10,
-        orderBy: null,
-      },
-    },
-  });
-
+function DesktopPage({
+  dataChannels,
+  loading,
+}: {
+  dataChannels: any;
+  loading: boolean;
+}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const [directingToChannel, setDirectingToChannel] = useState<boolean>(false);
 
-  const channels = data?.getChannelFeed;
+  const channels = dataChannels?.getChannelFeed;
 
   const sideBarBreakpoints = useBreakpointValue({
     base: false,
@@ -310,5 +310,87 @@ export default function Page() {
         </Flex>
       )}
     </AppLayout>
+  );
+}
+
+function MobilePage({
+  dataChannels,
+  loading,
+}: {
+  dataChannels: any;
+  loading: boolean;
+}) {
+  const scrollRef = useRef<VirtuosoHandle>(null);
+
+  const [loadingPage, setLoadingPage] = useState<boolean>(false);
+
+  const channels: Channel[] = dataChannels?.getChannelFeed;
+
+  return (
+    <AppLayout isCustomHeader={false}>
+      {!loadingPage && channels ? (
+        <Flex
+          direction="column"
+          justifyContent="center"
+          width="100vw"
+          position="relative"
+          height="100%"
+        >
+          {channels.length > 0 && (
+            <Virtuoso
+              followOutput={"auto"}
+              ref={scrollRef}
+              data={channels}
+              totalCount={channels.length}
+              initialTopMostItemIndex={0}
+              itemContent={(index, data) => (
+                <SelectableChannel key={data.id || index} channel={data} />
+              )}
+            />
+          )}
+          {/* <Virtuoso
+            style={{ height: "400px" }}
+            totalCount={200}
+            itemContent={(index) => <div>Item {index}</div>}
+          /> */}
+          {/* {channels.map((c: any, i: any) => (
+            <Text key={i}>{c.id}</Text>
+          ))} */}
+        </Flex>
+      ) : (
+        <Flex
+          alignItems={"center"}
+          justifyContent={"center"}
+          width="100%"
+          height="calc(100vh - 98px)"
+          fontSize="50px"
+        >
+          <WavyText text="..." />
+        </Flex>
+      )}
+    </AppLayout>
+  );
+}
+
+export default function Page() {
+  const { data: dataChannels, loading } = useQuery(CHANNEL_FEED_QUERY, {
+    variables: {
+      data: {
+        limit: 10,
+        orderBy: null,
+      },
+    },
+  });
+
+  const { isStandalone } = useUserAgent();
+
+  return (
+    <>
+      {isStandalone ? (
+        <DesktopPage dataChannels={dataChannels} loading={loading} />
+      ) : (
+        <MobilePage dataChannels={dataChannels} loading={loading} />
+      )}
+    </>
   );
 }
