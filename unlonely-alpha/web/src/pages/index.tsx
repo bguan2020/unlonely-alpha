@@ -216,8 +216,12 @@ export default function Page() {
 
         if (Notification.permission === "default") {
           const result = await Notification.requestPermission();
+          // tslint:disable-next-line:no-console
+          console.log(result);
 
           if (result === "granted") {
+            // tslint:disable-next-line:no-console
+            console.log("Notification permission granted")
             await registration.showNotification("Hello World", {
               body: "My first notification on iOS",
             });
