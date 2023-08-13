@@ -219,9 +219,11 @@ export default function Page() {
         });
         setError("hit function + sw and notification found + registered");
 
-  
+        setError(`notification ${Notification.permission}`);
         if (Notification.permission === "default") {
-          setError("hit function + sw and notification found + registered + default");
+          setError(`notification ${Notification.permission}`);
+          // add 2 second delay to make sure service worker is ready
+          await new Promise((resolve) => setTimeout(resolve, 2000));
           const result = await window.Notification.requestPermission();
           // tslint:disable-next-line:no-console
           console.log(result);
