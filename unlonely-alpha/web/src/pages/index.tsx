@@ -230,11 +230,20 @@ export default function Page() {
         }
         // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
         // If permission is "granted", it means the user has already enabled notifications.
+        if (Notification.permission === "denied") {
+          // tslint:disable-next-line:no-console
+          console.log("Notification permission denied")
+        }
+        if (Notification.permission === "granted") {
+          // tslint:disable-next-line:no-console
+          console.log("Notification permission granted")
+        }
       } catch (error) {
         console.error(
           "Error registering service worker or requesting permission:",
           error
         );
+        console.log("error", error);
       }
     }
     console.log(user, "user", "serviceWorker" in navigator, "Notification" in window)
