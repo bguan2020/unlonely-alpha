@@ -15,7 +15,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
