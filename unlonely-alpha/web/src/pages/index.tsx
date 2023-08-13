@@ -183,6 +183,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
 
 export default function Page() {
   const { user } = useUser();
+  const [error, setError] = useState<string>("notify");
   console.log(user);
   const { data, loading } = useQuery(CHANNEL_FEED_QUERY, {
     variables: {
@@ -209,13 +210,18 @@ export default function Page() {
 
   const handleMobileNotifications = async () => {
     console.log("hit this");
+    setError("hit function");
     if (user && "serviceWorker" in navigator && "Notification" in window) {
+      setError("hit function + sw and notification found");
       try {
-        const registration = await navigator.serviceWorker.register("sw.js", {
+        const registration = await navigator.serviceWorker.register("serviceworker.js", {
           scope: "./",
         });
+        setError("hit function + sw and notification found + registered");
+
   
         if (Notification.permission === "default") {
+          setError("hit function + sw and notification found + registered + default");
           const result = await Notification.requestPermission();
           // tslint:disable-next-line:no-console
           console.log(result);
@@ -231,10 +237,12 @@ export default function Page() {
         // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
         // If permission is "granted", it means the user has already enabled notifications.
         if (Notification.permission === "denied") {
+          setError("hit function + sw and notification found + registered + denied");
           // tslint:disable-next-line:no-console
           console.log("Notification permission denied")
         }
         if (Notification.permission === "granted") {
+          setError("hit function + sw and notification found + registered + granted");
           // tslint:disable-next-line:no-console
           console.log("Notification permission granted")
         }
@@ -296,7 +304,7 @@ export default function Page() {
                   _active={{}}
                   borderRadius="25px"
                 >
-                  notifications
+                  {error}
                 </Button>
               </Flex>
             )}
