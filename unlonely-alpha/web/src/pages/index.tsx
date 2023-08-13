@@ -222,7 +222,7 @@ export default function Page() {
   
         if (Notification.permission === "default") {
           setError("hit function + sw and notification found + registered + default");
-          const result = await Notification.requestPermission();
+          const result = await window.Notification.requestPermission();
           // tslint:disable-next-line:no-console
           console.log(result);
           setError("requested permission");
