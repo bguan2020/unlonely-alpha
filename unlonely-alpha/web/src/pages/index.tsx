@@ -183,6 +183,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
 
 export default function Page() {
   const { user } = useUser();
+  console.log(user);
   const { data, loading } = useQuery(CHANNEL_FEED_QUERY, {
     variables: {
       data: {
@@ -206,19 +207,19 @@ export default function Page() {
     xl: true,
   });
 
-  useEffect(() => {
-    // Function to register service worker and request notification permission
-    const registerAndRequestPermission = async () => {
+  const handleMobileNotifications = async () => {
+    console.log("hit this");
+    if (user && "serviceWorker" in navigator && "Notification" in window) {
       try {
         const registration = await navigator.serviceWorker.register("sw.js", {
           scope: "./",
         });
-
+  
         if (Notification.permission === "default") {
           const result = await Notification.requestPermission();
           // tslint:disable-next-line:no-console
           console.log(result);
-
+  
           if (result === "granted") {
             // tslint:disable-next-line:no-console
             console.log("Notification permission granted")
@@ -235,12 +236,8 @@ export default function Page() {
           error
         );
       }
-    };
-
-    if (user && "serviceWorker" in navigator && "Notification" in window) {
-      registerAndRequestPermission();
     }
-  }, [user]);
+  };
 
   return (
     <AppLayout isCustomHeader={false}>
@@ -281,6 +278,16 @@ export default function Page() {
                 >
                   see schedule
                 </Button>
+                <Button
+                  onClick={handleMobileNotifications}
+                  bg="#CB520E"
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  borderRadius="25px"
+                >
+                  notifications
+                </Button>
               </Flex>
             )}
             {!channels || loading ? (
@@ -292,7 +299,7 @@ export default function Page() {
                 gap="15px"
                 my="3rem"
               >
-                <WavyText text="fetching livestreams..." />
+                <WavyText text="loading streams..." />
               </Flex>
             ) : (
               <LiveChannelList
