@@ -225,7 +225,7 @@ export default function Page() {
           const result = await Notification.requestPermission();
           // tslint:disable-next-line:no-console
           console.log(result);
-  
+          setError("requested permission");
           if (result === "granted") {
             // tslint:disable-next-line:no-console
             console.log("Notification permission granted")
