@@ -237,6 +237,7 @@ export default function Page() {
         );
       }
     }
+    console.log(user, "user", "serviceWorker" in navigator, "Notification" in window)
   };
 
   return (
