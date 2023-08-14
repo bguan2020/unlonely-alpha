@@ -74,6 +74,9 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
           zIndex="3"
           fontFamily="Neue Pixel Sans"
           fontSize={30}
+          bg="rgba(0, 0, 0, 0.5)"
+          p="2"
+          borderRadius="md"
         >
           {nfc?.title}
         </Text>

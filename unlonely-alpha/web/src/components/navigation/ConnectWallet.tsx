@@ -72,6 +72,7 @@ const ConnectWallet = () => {
             _active={{}}
             bg={"#131323"}
             borderRadius="10px"
+            width="100%"
           >
             <Text>Login</Text>
           </Button>

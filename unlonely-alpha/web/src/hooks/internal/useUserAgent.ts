@@ -10,6 +10,7 @@ export default function useUserAgent() {
   const [isIOS, setIsIOS] = useState<boolean | null>(null);
   const [isStandalone, setIsStandalone] = useState<boolean | null>(null);
   const [userAgentString, setUserAgentString] = useState<string | null>(null);
+  const [ready, setReady] = useState<boolean>(false);
 
   useEffect(() => {
     if (window) {
@@ -51,8 +52,10 @@ export default function useUserAgent() {
         console.log("display-mode is standalone");
         setIsStandalone(true);
       }
+      setIsStandalone(true);
+      setReady(true);
     }
   }, []);
 
-  return { isMobile, userAgent, isIOS, isStandalone, userAgentString };
+  return { isMobile, userAgent, isIOS, isStandalone, userAgentString, ready };
 }

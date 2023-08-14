@@ -14,6 +14,7 @@ import {
   useBreakpointValue,
   useDisclosure,
   Image,
+  Spinner,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState, useRef, useMemo, useCallback } from "react";
@@ -522,14 +523,22 @@ export default function Page() {
     },
   });
 
-  const { isStandalone } = useUserAgent();
+  const { isStandalone, ready } = useUserAgent();
 
   return (
     <>
-      {!isStandalone ? (
-        <DesktopPage dataChannels={dataChannels} loading={loading} />
+      {ready ? (
+        <>
+          {!isStandalone ? (
+            <DesktopPage dataChannels={dataChannels} loading={loading} />
+          ) : (
+            <MobilePage dataChannels={dataChannels} loading={loading} />
+          )}
+        </>
       ) : (
-        <MobilePage dataChannels={dataChannels} loading={loading} />
+        <AppLayout isCustomHeader={false}>
+          <Spinner />
+        </AppLayout>
       )}
     </>
   );

@@ -43,7 +43,7 @@ const AppLayout: React.FC<Props> = ({
 }) => {
   const toast = useToast();
   const toastIdRef = useRef<ToastId | undefined>();
-  const { isStandalone } = useUserAgent();
+  const { isStandalone, ready } = useUserAgent();
 
   const smallestDevice = useBreakpointValue({
     base: true,
@@ -94,40 +94,50 @@ const AppLayout: React.FC<Props> = ({
           pageUrl={pageUrl ? pageUrl : ""}
         />
       )}
-      {!isStandalone ? (
+      {ready && (
         <>
-          <Header />
-          <AddToHomeScreen />
-          <Box
-            mt={smallestDevice ? "25px" : "60px"}
-            minW="100%"
-            as="main"
-            minH={smallestDevice ? "calc(100vh - 25px)" : "calc(100vh - 48px)"}
-            gridColumnStart={2}
-          >
-            {error && (
-              <Alert status="error">
-                <AlertIcon />
-                <AlertTitle mr={2}>Network Error</AlertTitle>
-                <AlertDescription>{error.toString()}</AlertDescription>
-              </Alert>
-            )}
-            <Skeleton
-              minHeight="calc(100vh - 64px)"
-              isLoaded={!loading}
-              overflowX="hidden"
-            >
-              {children}
-            </Skeleton>
-          </Box>
+          {!isStandalone ? (
+            <>
+              <Header />
+              <AddToHomeScreen />
+              <Box
+                mt={smallestDevice ? "25px" : "60px"}
+                minW="100%"
+                as="main"
+                minH={
+                  smallestDevice ? "calc(100vh - 25px)" : "calc(100vh - 48px)"
+                }
+                gridColumnStart={2}
+              >
+                {error && (
+                  <Alert status="error">
+                    <AlertIcon />
+                    <AlertTitle mr={2}>Network Error</AlertTitle>
+                    <AlertDescription>{error.toString()}</AlertDescription>
+                  </Alert>
+                )}
+                <Skeleton
+                  minHeight="calc(100vh - 64px)"
+                  isLoaded={!loading}
+                  overflowX="hidden"
+                >
+                  {children}
+                </Skeleton>
+              </Box>
+            </>
+          ) : (
+            <Box minW="100%" as="main" minH="100vh" gridColumnStart={2}>
+              <Box
+                background={"#19162F"}
+                h="calc(100vh - 98px)"
+                overflowX="hidden"
+              >
+                {children}
+              </Box>
+              <Navbar />
+            </Box>
+          )}
         </>
-      ) : (
-        <Box minW="100%" as="main" minH="100vh" gridColumnStart={2}>
-          <Box background={"#19162F"} h="calc(100vh - 98px)" overflowX="hidden">
-            {children}
-          </Box>
-          <Navbar />
-        </Box>
       )}
     </Grid>
   );
