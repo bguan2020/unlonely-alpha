@@ -1,7 +1,7 @@
-import { Flex, Image, Text } from "@chakra-ui/react";
+import { Box, Flex, Image, Text } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useRef, useState } from "react";
-import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { VirtuosoHandle } from "react-virtuoso";
 
 import { NFC_FEED_QUERY } from ".";
 import AppLayout from "../components/layout/AppLayout";
@@ -39,8 +39,25 @@ export default function Nfcs() {
           height="100%"
         >
           {nfcs.length > 0 ? (
-            <Virtuoso
-              overscan={4}
+            // <Virtuoso
+            //   overscan={4}
+            //   style={{
+            //     overflowY: "scroll",
+            //     scrollbarWidth: "none",
+            //     msOverflowStyle: "none",
+            //     scrollSnapType: "y mandatory",
+            //   }}
+            //   className="hide-scrollbar"
+            //   followOutput={"auto"}
+            //   ref={scrollRef}
+            //   data={nfcs}
+            //   totalCount={nfcs.length}
+            //   initialTopMostItemIndex={0}
+            //   itemContent={(index, nfc) => (
+            //     <NFCComponent nfc={nfc} key={nfc?.id || index} />
+            //   )}
+            // />
+            <Box
               style={{
                 overflowY: "scroll",
                 scrollbarWidth: "none",
@@ -48,15 +65,11 @@ export default function Nfcs() {
                 scrollSnapType: "y mandatory",
               }}
               className="hide-scrollbar"
-              followOutput={"auto"}
-              ref={scrollRef}
-              data={nfcs}
-              totalCount={nfcs.length}
-              initialTopMostItemIndex={0}
-              itemContent={(index, nfc) => (
+            >
+              {nfcs.map((nfc, index) => (
                 <NFCComponent nfc={nfc} key={nfc?.id || index} />
-              )}
-            />
+              ))}
+            </Box>
           ) : (
             <>
               <Flex justifyContent={"center"}>
