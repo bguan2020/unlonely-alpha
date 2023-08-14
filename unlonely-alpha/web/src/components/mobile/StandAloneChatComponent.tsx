@@ -340,7 +340,7 @@ const StandaloneAblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
           </Box>
         )}
       </Flex>
-      <Flex mt="10px" w="100%">
+      <Flex mt="10px" w="100%" position="absolute" bottom="5px">
         <ChatForm
           sendChatMessage={sendChatMessage}
           inputBox={inputBox}

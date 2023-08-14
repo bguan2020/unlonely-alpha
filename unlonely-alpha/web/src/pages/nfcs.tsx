@@ -1,4 +1,4 @@
-import { Flex, Image } from "@chakra-ui/react";
+import { Flex, Image, Text } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useRef, useState } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
@@ -17,6 +17,7 @@ export default function Nfcs() {
   } = useQuery<NfcFeedQuery>(NFC_FEED_QUERY, {
     variables: {
       data: {
+        limit: 35,
         orderBy: "createdAt",
       },
     },
@@ -37,8 +38,9 @@ export default function Nfcs() {
           position="relative"
           height="100%"
         >
-          {nfcs.length > 0 && (
+          {nfcs.length > 0 ? (
             <Virtuoso
+              overscan={4}
               style={{
                 overflowY: "scroll",
                 scrollbarWidth: "none",
@@ -55,6 +57,14 @@ export default function Nfcs() {
                 <NFCComponent nfc={nfc} key={nfc?.id || index} />
               )}
             />
+          ) : (
+            <>
+              <Flex justifyContent={"center"}>
+                <Text color="white" textAlign={"center"}>
+                  {"No NFCs to show. This may be a server issue."}
+                </Text>
+              </Flex>
+            </>
           )}
         </Flex>
       ) : (
