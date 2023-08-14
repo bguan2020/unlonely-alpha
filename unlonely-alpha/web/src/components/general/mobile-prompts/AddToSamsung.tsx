@@ -33,8 +33,8 @@ export default function AddToSamsung(props: Props) {
           <TfiPlus />
         </Flex>
         <Flex direction="column">
-          <Text>Then click</Text>
-          <Text>“Home Screen”</Text>
+          <Text textAlign={"center"}>Then click</Text>
+          <Text textAlign={"center"}>“Home Screen”</Text>
         </Flex>
       </Flex>
     </TransactionModalTemplate>

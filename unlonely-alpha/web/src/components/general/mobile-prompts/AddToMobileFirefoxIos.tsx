@@ -33,8 +33,8 @@ export default function AddToMobileFirefoxIos(props: Props) {
           <FiShare />
         </Flex>
         <Flex direction="column">
-          <Text>Then click</Text>
-          <Text>“Add to Home Screen”</Text>
+          <Text textAlign={"center"}>Then click</Text>
+          <Text textAlign={"center"}>“Add to Home Screen”</Text>
         </Flex>
       </Flex>
     </TransactionModalTemplate>

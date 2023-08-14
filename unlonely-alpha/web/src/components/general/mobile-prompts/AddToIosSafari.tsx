@@ -28,8 +28,8 @@ export default function AddToIosSafari(props: Props) {
           <p>Click the</p> <TbShare2 /> <p>icon</p>
         </Flex>
         <Flex direction="column" justifyContent={"center"}>
-          <Text>Scroll down and then click</Text>
-          <Text>“Add to Home Screen”</Text>
+          <Text textAlign={"center"}>Scroll down and then click</Text>
+          <Text textAlign={"center"}>“Add to Home Screen”</Text>
         </Flex>
       </Flex>
     </TransactionModalTemplate>
