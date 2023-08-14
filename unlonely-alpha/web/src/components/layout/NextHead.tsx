@@ -32,7 +32,7 @@ const NextHead: React.FC<{
       />
 
       <link rel="icon" href="/images/favicon.ico" />
-      <link rel="apple-touch-icon" href="/images/favicon.ico"></link>
+      <link rel="apple-touch-icon" href="/images/unlonely-mobile-logo.png"></link>
 
       <title>{__title}</title>
       <meta
