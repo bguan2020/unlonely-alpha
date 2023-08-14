@@ -6,17 +6,17 @@ export const Navbar = () => {
       <HStack justifyContent={"space-evenly"}>
         <Button bg="transparent" _hover={{}} _focus={{}} _active={{}}>
           <Flex direction="column">
-            <Image src="/svg/mobile/nfcs-nav-selected.svg" h="60px" />
+            <Image src="/svg/mobile/channels-nav.svg" h="60px" />
             <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
-              NFCs
+              channels
             </Text>
           </Flex>
         </Button>
         <Button bg="transparent" _hover={{}} _focus={{}} _active={{}}>
           <Flex direction="column">
-            <Image src="/svg/mobile/channels-nav.svg" h="60px" />
+            <Image src="/svg/mobile/nfcs-nav.svg" h="60px" />
             <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
-              channels
+              NFCs
             </Text>
           </Flex>
         </Button>

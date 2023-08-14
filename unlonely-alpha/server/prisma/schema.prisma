@@ -46,67 +46,21 @@ model User {
   streamInteractions StreamInteraction[]
   channel Channel[]
   tokens UserCreatorToken[]
+  subscriptions Subscription[]
 }
 
-model Video {
-  id           Int     @id @default(autoincrement())
-  youtubeId String     
-  title String         
-  thumbnail String
-  description String
-  score Int @default(0)
-  skip Int @default(0)
-  pause Int @default(0)
-  duration Int @default(0)
-
-  comments Comment[]
-  likes Like[]
-
-  ownerAddr String
-  owner User @relation(fields: [ownerAddr], references: [address])
+model Subscription {
+  id             Int    @id @default(autoincrement())
+  endpoint       String @unique
+  p256dh         String
+  auth           String
+  expirationTime DateTime?
+  softDelete     Boolean @default(false)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isDeleted Boolean @default(false)
-  currentVideo Boolean @default(false)
-}
 
-model Task {
-  id           Int     @id @default(autoincrement())
-  taskType String
-  youtubeId String?     
-  title String?         
-  thumbnail String?
-  link String?
-  description String
-  completed Boolean @default(false)
-
-  ownerAddr String
-  owner User @relation(fields: [ownerAddr], references: [address])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isDeleted Boolean @default(false)
-}
-
-model Comment {
-  id           Int     @id @default(autoincrement())
-  text String
-  videoTimestamp Decimal
-  score Int @default(0)
-  location_x Int
-  location_y Int
-  color String
-
-  likes Like[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  ownerAddr String
-  owner User @relation(fields: [ownerAddr], references: [address])
-  videoId Int
-  video Video @relation(fields: [videoId], references: [id])
+  userAddr       String
+  user           User   @relation(fields: [userAddr], references: [address])
 }
 
 model Like {
@@ -135,39 +89,6 @@ model Chat {
   owner User @relation(fields: [ownerAddr], references: [address])
   channelId Int @default(3)
   channel   Channel  @relation(fields: [channelId], references: [id])
-}
-
-model Poap {
-  id           Int     @id @default(autoincrement())
-  date String
-  link String
-  isUsed Boolean @default(false)
-
-  ownerAddr String
-  owner User @relation(fields: [ownerAddr], references: [address])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model HostEvent {
-  id           Int     @id @default(autoincrement())
-  hostDate DateTime
-  title String
-  description String?
-  score Int @default(0)
-  likes Like[]
-
-  isChallenger Boolean @default(false)
-
-  challengerId Int? @unique
-  challenger HostEvent? @relation("challenger", fields: [challengerId], references: [id])
-  challenge HostEvent? @relation("challenger")
-
-  ownerAddr String
-  owner User @relation(fields: [ownerAddr], references: [address])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model NFC {
@@ -231,18 +152,6 @@ model Channel {
   customButtonPrice Int?
 }
 
-model DeviceToken {
-  id           Int     @id @default(autoincrement())
-  token String @unique
-  address String?
-
-  notificationsLive Boolean @default(true)
-  notificationsNFCs Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 model CreatorToken {
   id        Int      @id @default(autoincrement())
   address  String   @unique
@@ -274,4 +183,120 @@ model ChatCommand {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   softDelete Boolean @default(false)
+}
+
+
+
+
+
+
+// ------- DEPRECATED MODELS -------
+// DONT DELETE
+
+
+
+model Video {
+  id           Int     @id @default(autoincrement())
+  youtubeId String     
+  title String         
+  thumbnail String
+  description String
+  score Int @default(0)
+  skip Int @default(0)
+  pause Int @default(0)
+  duration Int @default(0)
+
+  comments Comment[]
+  likes Like[]
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean @default(false)
+  currentVideo Boolean @default(false)
+}
+
+model Task {
+  id           Int     @id @default(autoincrement())
+  taskType String
+  youtubeId String?     
+  title String?         
+  thumbnail String?
+  link String?
+  description String
+  completed Boolean @default(false)
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean @default(false)
+}
+
+model Comment {
+  id           Int     @id @default(autoincrement())
+  text String
+  videoTimestamp Decimal
+  score Int @default(0)
+  location_x Int
+  location_y Int
+  color String
+
+  likes Like[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+  videoId Int
+  video Video @relation(fields: [videoId], references: [id])
+}
+
+model Poap {
+  id           Int     @id @default(autoincrement())
+  date String
+  link String
+  isUsed Boolean @default(false)
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HostEvent {
+  id           Int     @id @default(autoincrement())
+  hostDate DateTime
+  title String
+  description String?
+  score Int @default(0)
+  likes Like[]
+
+  isChallenger Boolean @default(false)
+
+  challengerId Int? @unique
+  challenger HostEvent? @relation("challenger", fields: [challengerId], references: [id])
+  challenge HostEvent? @relation("challenger")
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DeviceToken {
+  id           Int     @id @default(autoincrement())
+  token String @unique
+  address String?
+
+  notificationsLive Boolean @default(true)
+  notificationsNFCs Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
