@@ -51,7 +51,7 @@ export const TransactionModalTemplate = ({
 
   return (
     <Modal
-      closeOnOverlayClick={!isModalLoading}
+      closeOnOverlayClick={!isModalLoading && !cannotClose}
       isCentered
       isOpen={isOpen}
       onClose={handleClose}
