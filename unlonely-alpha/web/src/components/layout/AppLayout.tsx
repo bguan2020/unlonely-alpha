@@ -129,7 +129,7 @@ const AppLayout: React.FC<Props> = ({
             <Box minW="100%" as="main" minH="100vh" gridColumnStart={2}>
               <Box
                 background={"#19162F"}
-                h="calc(100vh - 98px)"
+                h="calc(100vh - 115px)"
                 overflowX="hidden"
               >
                 {children}

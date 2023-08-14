@@ -308,7 +308,7 @@ const StandaloneAblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
   return (
     <Flex
       direction="column"
-      height="calc(70vh - 98px)"
+      height="calc(70vh - 115px)"
       p="5px"
       id="chat"
       position={"relative"}

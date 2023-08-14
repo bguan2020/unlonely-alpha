@@ -500,7 +500,7 @@ function MobilePage({
           justifyContent={"center"}
           direction="column"
           width="100%"
-          height="calc(100vh - 98px)"
+          height="calc(100vh - 115px)"
           fontSize="50px"
         >
           <Image src="/icons/icon-192x192.png" borderRadius="10px" />

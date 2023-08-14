@@ -5,7 +5,7 @@ export const Navbar = () => {
   const router = useRouter();
 
   return (
-    <Box position="fixed" bottom="0" left="0" width="100%" height="68px">
+    <Box position="fixed" bottom="0" left="0" width="100%" height="77px">
       <HStack justifyContent={"space-evenly"}>
         <Button
           bg="transparent"
