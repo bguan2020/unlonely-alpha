@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Text, Flex } from "@chakra-ui/react";
+import { Text, Flex } from "@chakra-ui/react";
 import { HiDotsVertical } from "react-icons/hi";
 
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
@@ -31,17 +31,6 @@ export default function AddToMobileFirefox(props: Props) {
           <Text>Scroll down and then click</Text>
           <Text>“Add to Home Screen”</Text>
         </Flex>
-        <Button
-          bg="#30b70e"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={closePrompt}
-          width="100%"
-          borderRadius="25px"
-        >
-          ok
-        </Button>
       </Flex>
     </TransactionModalTemplate>
   );

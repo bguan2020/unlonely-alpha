@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Text, Flex } from "@chakra-ui/react";
+import { Text, Flex } from "@chakra-ui/react";
 import { TbShare2 } from "react-icons/tb";
 
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
@@ -31,17 +31,6 @@ export default function AddToIosSafari(props: Props) {
           <Text>Scroll down and then click</Text>
           <Text>“Add to Home Screen”</Text>
         </Flex>
-        <Button
-          bg="#30b70e"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={closePrompt}
-          width="100%"
-          borderRadius="25px"
-        >
-          ok
-        </Button>
       </Flex>
     </TransactionModalTemplate>
   );

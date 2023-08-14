@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Text, Flex } from "@chakra-ui/react";
+import { Text, Flex } from "@chakra-ui/react";
 import { FaBars } from "react-icons/fa";
 import { FiShare } from "react-icons/fi";
 
@@ -36,17 +36,6 @@ export default function AddToMobileFirefoxIos(props: Props) {
           <Text>Then click</Text>
           <Text>“Add to Home Screen”</Text>
         </Flex>
-        <Button
-          bg="#30b70e"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={closePrompt}
-          width="100%"
-          borderRadius="25px"
-        >
-          ok
-        </Button>
       </Flex>
     </TransactionModalTemplate>
   );

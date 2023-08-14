@@ -41,17 +41,6 @@ export default function AddToOtherBrowser(props: Props) {
             Try this link
           </Button>
         </Link>
-        <Button
-          bg="#4a5c45"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={closePrompt}
-          width="100%"
-          borderRadius="25px"
-        >
-          close
-        </Button>
       </Flex>
     </TransactionModalTemplate>
   );

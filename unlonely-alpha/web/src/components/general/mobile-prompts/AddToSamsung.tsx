@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Text, Flex } from "@chakra-ui/react";
+import { Text, Flex } from "@chakra-ui/react";
 import { FaBars } from "react-icons/fa";
 import { TfiPlus } from "react-icons/tfi";
 
@@ -36,17 +36,6 @@ export default function AddToSamsung(props: Props) {
           <Text>Then click</Text>
           <Text>“Home Screen”</Text>
         </Flex>
-        <Button
-          bg="#30b70e"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={closePrompt}
-          width="100%"
-          borderRadius="25px"
-        >
-          ok
-        </Button>
       </Flex>
     </TransactionModalTemplate>
   );
