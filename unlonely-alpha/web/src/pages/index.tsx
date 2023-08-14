@@ -13,6 +13,7 @@ import {
   Text,
   useBreakpointValue,
   useDisclosure,
+  Image,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState, useRef, useMemo } from "react";
@@ -26,7 +27,7 @@ import HeroBanner from "../components/layout/HeroBanner";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
-import { Channel } from "../generated/graphql";
+import { Channel, NfcFeedQuery } from "../generated/graphql";
 import { SelectableChannel } from "../components/mobile/SelectableChannel";
 import { useUser } from "../hooks/context/useUser";
 import usePostSubscription from "../hooks/server/usePostSubscription";
@@ -50,7 +51,7 @@ const CHANNEL_FEED_QUERY = gql`
   }
 `;
 
-const NFC_FEED_QUERY = gql`
+export const NFC_FEED_QUERY = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
       createdAt
@@ -103,7 +104,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
     data: dataNFCs,
     loading: loadingNFCs,
     error: errorNFCs,
-  } = useQuery(NFC_FEED_QUERY, {
+  } = useQuery<NfcFeedQuery>(NFC_FEED_QUERY, {
     variables: {
       data: {
         limit: 30,
@@ -460,7 +461,7 @@ function MobilePage({
 
   return (
     <AppLayout isCustomHeader={false}>
-      {!loadingPage && channelsWithLiveFirst ? (
+      {!loadingPage && !loading ? (
         <Flex
           direction="column"
           justifyContent="center"
@@ -485,11 +486,15 @@ function MobilePage({
         <Flex
           alignItems={"center"}
           justifyContent={"center"}
+          direction="column"
           width="100%"
           height="calc(100vh - 98px)"
           fontSize="50px"
         >
-          <WavyText text="..." />
+          <Image src="/icons/icon-192x192.png" borderRadius="10px" />
+          <Flex>
+            <WavyText text="..." />
+          </Flex>
         </Flex>
       )}
     </AppLayout>
