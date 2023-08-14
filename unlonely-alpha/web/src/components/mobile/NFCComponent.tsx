@@ -120,6 +120,7 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
             style={{ zIndex: 2, maxHeight: "500px" }}
             controls
             loop
+            playsInline
             preload="metadata"
             poster={nfc?.videoThumbnail}
           >
