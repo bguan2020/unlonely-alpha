@@ -116,7 +116,7 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
         <Flex direction={"column"} position="relative">
           <video
             ref={videoRef}
-            style={{ zIndex: 2 }}
+            style={{ zIndex: 2, maxHeight: "500px" }}
             controls
             loop
             preload="metadata"

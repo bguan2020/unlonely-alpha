@@ -52,7 +52,6 @@ export default function useUserAgent() {
         console.log("display-mode is standalone");
         setIsStandalone(true);
       }
-      setIsStandalone(true);
       setReady(true);
     }
   }, []);
