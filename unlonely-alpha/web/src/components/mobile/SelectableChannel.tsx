@@ -4,7 +4,13 @@ import { Channel } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
 import { anonUrl } from "../presence/AnonUrl";
 
-export const SelectableChannel = ({ channel }: { channel: Channel }) => {
+export const SelectableChannel = ({
+  channel,
+  callback,
+}: {
+  channel: Channel;
+  callback: (slug: string) => void;
+}) => {
   const imageUrl = channel?.owner?.FCImageUrl
     ? channel?.owner.FCImageUrl
     : channel?.owner?.lensImageUrl
@@ -18,7 +24,13 @@ export const SelectableChannel = ({ channel }: { channel: Channel }) => {
 
   return (
     <Box>
-      <Flex p="10px" bg="black" justifyContent={"space-between"}>
+      <Flex
+        p="10px"
+        bg="black"
+        justifyContent={"space-between"}
+        onClick={() => callback(channel.slug)}
+        _hover={{ background: "#615C5C" }}
+      >
         <Flex gap="15px">
           <Avatar
             name={channel?.owner.username ?? channel?.owner.address}

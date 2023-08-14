@@ -17,6 +17,7 @@ export default function AddToMobileChromeIos(props: Props) {
       isOpen={true}
       handleClose={closePrompt}
       hideFooter={true}
+      cannotClose
     >
       <Flex direction="column" alignItems={"center"} gap="10px">
         <Text textAlign={"center"}>

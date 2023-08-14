@@ -30,6 +30,7 @@ export const TransactionModalTemplate = ({
   approve,
   handleClose,
   onSend,
+  cannotClose,
 }: {
   title?: string;
   confirmButton?: string;
@@ -44,6 +45,7 @@ export const TransactionModalTemplate = ({
   approve?: () => void;
   handleClose: () => void;
   onSend?: () => void;
+  cannotClose?: boolean;
 }) => {
   const { user, userAddress } = useUser();
 
@@ -56,19 +58,21 @@ export const TransactionModalTemplate = ({
     >
       <ModalOverlay />
       <ModalContent>
-        <IconButton
-          aria-label="close"
-          _hover={{}}
-          _active={{}}
-          _focus={{}}
-          bg="transparent"
-          icon={<Image alt="close" src="/svg/close.svg" width="20px" />}
-          onClick={handleClose}
-          disabled={isModalLoading}
-          position="absolute"
-          left="5px"
-          top="5px"
-        />
+        {!cannotClose && (
+          <IconButton
+            aria-label="close"
+            _hover={{}}
+            _active={{}}
+            _focus={{}}
+            bg="transparent"
+            icon={<Image alt="close" src="/svg/close.svg" width="20px" />}
+            onClick={handleClose}
+            disabled={isModalLoading}
+            position="absolute"
+            left="5px"
+            top="5px"
+          />
+        )}
         <ModalHeader flex="1" mt="15px">
           <Flex direction="column" gap="10px">
             {icon && <Flex ml="40px">{icon}</Flex>}

@@ -94,7 +94,7 @@ const AppLayout: React.FC<Props> = ({
           pageUrl={pageUrl ? pageUrl : ""}
         />
       )}
-      {isStandalone ? (
+      {!isStandalone ? (
         <>
           <Header />
           <AddToHomeScreen />

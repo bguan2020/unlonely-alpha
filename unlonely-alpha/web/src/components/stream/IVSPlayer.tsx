@@ -11,14 +11,10 @@ import Link from "next/link";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 
 type Props = {
-  isTheatreMode: boolean;
   playbackUrl: string;
 };
 
-const IVSPlayer: React.FunctionComponent<Props> = ({
-  isTheatreMode,
-  playbackUrl,
-}) => {
+const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
   const [offline, setOffline] = useState<boolean>(false);
 
   const { isIOS } = useUserAgent();
@@ -57,11 +53,7 @@ const IVSPlayer: React.FunctionComponent<Props> = ({
 
   return (
     <>
-      <Flex
-        direction="column"
-        width={isTheatreMode ? "100%" : "889px"}
-        position="relative"
-      >
+      <Flex direction="column" width={"100%"} position="relative">
         <video
           id="amazon-ivs-videojs"
           className="video-js vjs-4-3 vjs-big-play-centered"
@@ -70,7 +62,7 @@ const IVSPlayer: React.FunctionComponent<Props> = ({
           playsInline
           style={{
             padding: "0px !important",
-            maxWidth: isTheatreMode ? "100%" : "889px",
+            maxWidth: "100%",
             height: "100% !important",
             width: "100% !important",
             borderRadius: "10px",

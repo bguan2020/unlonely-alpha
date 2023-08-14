@@ -4,12 +4,10 @@ import { Text, Flex, Spinner } from "@chakra-ui/react";
 import IVSPlayer from "./IVSPlayer";
 import useScript from "../../hooks/internal/useScript";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
-type Props = {
-  isTheatreMode: boolean;
-};
-
-const StreamComponent: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
+const StreamComponent = () => {
+  const { isStandalone } = useUserAgent();
   const { channel } = useChannelContext();
   const { channelQueryData, loading: channelLoading } = channel;
 
@@ -57,13 +55,13 @@ const StreamComponent: React.FunctionComponent<Props> = ({ isTheatreMode }) => {
       justifyContent="center"
       width="100%"
       height={
-        isTheatreMode
+        !isStandalone
           ? { base: "100%", sm: "500px", md: "600px", lg: "700px" }
-          : { base: "80%", sm: "300px", md: "400px", lg: "500px" }
+          : "30vh"
       }
     >
       {playbackUrl ? (
-        <IVSPlayer isTheatreMode={isTheatreMode} playbackUrl={playbackUrl} />
+        <IVSPlayer playbackUrl={playbackUrl} />
       ) : (
         <Flex
           direction="column"

@@ -23,6 +23,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import Badges from "./Badges";
 import EmojiDisplay from "./emoji/EmojiDisplay";
 import { Message } from "../../constants/types/chat";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 type Props = {
   index: number;
@@ -40,6 +41,7 @@ const MessageBody = ({
   channel,
 }: Props) => {
   const { user } = useUser();
+  const { isStandalone } = useUserAgent();
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -155,7 +157,7 @@ const MessageBody = ({
               mb="15px"
               pb={showEmojiList === message.id ? "10px" : "0px"}
               position="relative"
-              width={"274px"}
+              width={!isStandalone ? "274px" : "100%"}
             >
               <Flex justifyContent="space-between" flexDirection="column">
                 {message.data.isGif ? (

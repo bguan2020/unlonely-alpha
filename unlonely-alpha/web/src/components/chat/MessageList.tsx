@@ -49,7 +49,8 @@ const MessageList = memo(
           <Virtuoso
             followOutput={"auto"}
             ref={scrollRef}
-            style={{ height: "100%" }}
+            style={{ height: "100%", overflowY: "scroll" }}
+            className="hide-scrollbar"
             data={chatMessages}
             atBottomStateChange={(isAtBottom) => isAtBottomCallback(isAtBottom)}
             initialTopMostItemIndex={chatMessages.length - 1}

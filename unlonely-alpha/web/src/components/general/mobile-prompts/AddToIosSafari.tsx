@@ -17,6 +17,7 @@ export default function AddToIosSafari(props: Props) {
       isOpen={true}
       handleClose={closePrompt}
       hideFooter={true}
+      cannotClose
     >
       <Flex direction="column" alignItems={"center"} gap="10px">
         <Text textAlign={"center"}>

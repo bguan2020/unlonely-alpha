@@ -16,8 +16,9 @@ import {
   Image,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useCallback } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { useRouter } from "next/router";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
@@ -437,11 +438,17 @@ function MobilePage({
   dataChannels: any;
   loading: boolean;
 }) {
+  const router = useRouter();
   const scrollRef = useRef<VirtuosoHandle>(null);
 
   const [loadingPage, setLoadingPage] = useState<boolean>(false);
 
   const channels: Channel[] = dataChannels?.getChannelFeed;
+
+  const handleSelectChannel = useCallback((slug: string) => {
+    setLoadingPage(true);
+    router.push(`/channels/${slug}`);
+  }, []);
 
   const channelsWithLiveFirst = useMemo(
     () =>
@@ -477,7 +484,11 @@ function MobilePage({
               totalCount={channelsWithLiveFirst.length}
               initialTopMostItemIndex={0}
               itemContent={(index, data) => (
-                <SelectableChannel key={data.id || index} channel={data} />
+                <SelectableChannel
+                  key={data.id || index}
+                  channel={data}
+                  callback={handleSelectChannel}
+                />
               )}
             />
           )}
@@ -515,7 +526,7 @@ export default function Page() {
 
   return (
     <>
-      {isStandalone ? (
+      {!isStandalone ? (
         <DesktopPage dataChannels={dataChannels} loading={loading} />
       ) : (
         <MobilePage dataChannels={dataChannels} loading={loading} />

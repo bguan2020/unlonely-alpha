@@ -41,6 +41,7 @@ import { formatIncompleteNumber } from "../../utils/validation/input";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import centerEllipses from "../../utils/centerEllipses";
 import { ChatBot } from "../../constants/types";
+import ConnectWallet from "../navigation/ConnectWallet";
 
 type Props = {
   sendChatMessage: (message: string, isGif: boolean, body?: string) => void;
@@ -390,8 +391,14 @@ const ChatForm = ({
       >
         <Stack direction={"row"} spacing={"10px"}>
           {!walletIsConnected ? (
-            <Flex justifyContent={"center"} margin="auto">
+            <Flex
+              justifyContent={"center"}
+              direction="column"
+              margin="auto"
+              gap="5px"
+            >
               <Text>you must sign in to chat</Text>
+              <ConnectWallet />
             </Flex>
           ) : error ? (
             <Flex direction="column" gap="10px">

@@ -30,6 +30,7 @@ const ConnectWallet = () => {
               _active={{}}
               bg={"#131323"}
               borderRadius="10px"
+              width={"100%"}
               onClick={logout}
             >
               <Text>{centerEllipses(userAddress, 13)}</Text>
@@ -50,6 +51,7 @@ const ConnectWallet = () => {
               _active={{}}
               bg={"#131323"}
               borderRadius="10px"
+              width={"100%"}
             >
               <Text>Connect</Text>
             </Button>
