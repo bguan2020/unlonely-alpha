@@ -26,7 +26,6 @@ import { useApproval } from "../../hooks/contracts/useApproval";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 
-
 export default function BuyTransactionModal({
   title,
   isOpen,
