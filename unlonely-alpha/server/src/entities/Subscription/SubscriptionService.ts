@@ -1,9 +1,9 @@
-import { User } from "@prisma/client";
+import { Subscription, User } from "@prisma/client";
+import webpush from "web-push";
 
 import { Context } from "../../context";
 
 export interface IPostSubscriptionInput {
-  userId: number;
   endpoint: string;
   expirationTime?: Date;
   p256dh: string;
@@ -56,9 +56,42 @@ export const getAllActiveSubscriptions = async (ctx: Context) => {
   });
 };
 
-export const getOwner = (
-  { ownerAddr }: { ownerAddr: string },
-  ctx: Context
-) => {
-  return ctx.prisma.user.findUnique({ where: { address: ownerAddr } });
+export const sendAllNotifications = async (ctx: Context) => {
+  const vapidPublicKey = process.env.VAPID_PUBLIC_KEY!;
+  const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!;
+
+  webpush.setVapidDetails(
+    `mailto:${process.env.VAPID_MAILTO}`,
+    vapidPublicKey,
+    vapidPrivateKey
+  );
+  const subscriptions = await ctx.prisma.subscription.findMany({
+    where: {
+      softDelete: false,
+    },
+  });
+
+  const promises = subscriptions.map((subscription) => {
+    const pushSubscription = toPushSubscription(subscription);
+    return webpush.sendNotification(pushSubscription, "test")
+      .then(() => true) // Successfully sent
+      .catch(error => {
+        console.error("Failed to send notification:", error);
+        return false; // Failed to send
+      });
+  });
+  
+  const results = await Promise.all(promises);
+  return results.every(result => result === true);
 };
+
+function toPushSubscription(subscription: Subscription): any {
+  return {
+    endpoint: subscription.endpoint,
+    expirationTime: subscription.expirationTime,
+    keys: {
+      p256dh: subscription.p256dh,
+      auth: subscription.auth,
+    },
+  };
+}

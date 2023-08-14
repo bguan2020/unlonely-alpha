@@ -32,12 +32,14 @@
     "reflect-metadata": "0.1.13",
     "socket.io": "^4.6.2",
     "ts-node": "10.4.0",
-    "typescript": "4.5.4"
+    "typescript": "4.5.4",
+    "web-push": "^3.6.4"
   },
   "devDependencies": {
     "@types/isomorphic-fetch": "^0.0.36",
     "@types/lodash": "^4.14.178",
     "@types/node": "16.11.21",
+    "@types/web-push": "^3.3.2",
     "apollo": "^2.33.9",
     "depcheck": "^1.4.3",
     "eslint": "^8.8.0",

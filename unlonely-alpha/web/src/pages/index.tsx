@@ -26,6 +26,7 @@ import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { isIosDevice } from "../components/mobile/Banner";
 import { WavyText } from "../components/general/WavyText";
 import { useUser } from "../hooks/context/useUser";
+import usePostSubscription from "../hooks/server/usePostSubscription";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -184,7 +185,11 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
 export default function Page() {
   const { user } = useUser();
   const [error, setError] = useState<string>("notify");
-  console.log(user);
+  const { postSubscription } = usePostSubscription({
+    onError: () => {
+      console.error("Failed to save subscription to server.");
+    },
+  });
   const { data, loading } = useQuery(CHANNEL_FEED_QUERY, {
     variables: {
       data: {
@@ -229,11 +234,28 @@ export default function Page() {
 
           setError("requested permission");
           if (result === "granted") {
-            // tslint:disable-next-line:no-console
-            console.log("Notification permission granted")
-            await registration.showNotification("Hello World", {
-              body: "My first notification on iOS",
+            console.log("Notification permission granted");
+            await registration.showNotification("Welcome to Unlonely", {
+              body: "Excited to have you here!",
             });
+          
+            // Here's where you send the subscription to your server
+            const subscription = await registration.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+            });
+            const subscriptionJSON = subscription.toJSON();
+            console.log("subscription", subscription.toJSON());
+            if (subscriptionJSON) {
+              postSubscription({
+                endpoint: subscriptionJSON.endpoint,
+                expirationTime: null,
+                p256dh: subscriptionJSON.keys?.p256dh,
+                auth: subscriptionJSON.keys?.auth,
+              });
+            } else {
+              console.error("Failed to get subscription from service worker.");
+            }
           }
         }
         // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
@@ -247,6 +269,22 @@ export default function Page() {
           setError("hit function + sw and notification found + registered + granted");
           // tslint:disable-next-line:no-console
           console.log("Notification permission granted")
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+          });
+          console.log("subscription", subscription.toJSON());
+          const subscriptionJSON = subscription.toJSON();
+          if (subscriptionJSON) {
+            postSubscription({
+              endpoint: subscriptionJSON.endpoint,
+              expirationTime: null,
+              p256dh: subscriptionJSON.keys?.p256dh,
+              auth: subscriptionJSON.keys?.auth,
+            });
+          } else {
+            console.error("Failed to get subscription from service worker.");
+          }
         }
       } catch (error) {
         console.error(

@@ -9,10 +9,10 @@ export const typeDef = gql`
     p256dh: String!
     auth: String!
     softDelete: Boolean!
+    createdAt: DateTime!
   }
   
   input PostSubscriptionInput {
-    userId: Int!
     endpoint: String!
     expirationTime: String
     p256dh: String!
@@ -25,6 +25,7 @@ export const typeDef = gql`
 
   extend type Query {
     getAllActiveSubscriptions: [Subscription]
+    sendAllNotifications: Boolean
   }
 
   extend type Mutation {

@@ -57,6 +57,8 @@ model Subscription {
   expirationTime DateTime?
   softDelete     Boolean @default(false)
 
+  createdAt DateTime @default(now())
+
   userAddr       String
   user           User   @relation(fields: [userAddr], references: [address])
 }
