@@ -48,7 +48,7 @@ export default function Nfcs() {
                   overflowY: "scroll",
                   scrollbarWidth: "none",
                   msOverflowStyle: "none",
-                  scrollSnapType: "y proximity",
+                  scrollSnapType: "y mandatory",
                 }}
                 className="hide-scrollbar"
                 followOutput={"auto"}
@@ -66,7 +66,7 @@ export default function Nfcs() {
                   overflowY: "scroll",
                   scrollbarWidth: "none",
                   msOverflowStyle: "none",
-                  scrollSnapType: "y proximity",
+                  scrollSnapType: "y mandatory",
                 }}
                 className="hide-scrollbar"
               >
