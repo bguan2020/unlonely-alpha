@@ -1,15 +1,17 @@
 import { Box, Flex, Image, Text } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useRef, useState } from "react";
-import { VirtuosoHandle } from "react-virtuoso";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 
 import { NFC_FEED_QUERY } from ".";
 import AppLayout from "../components/layout/AppLayout";
 import { WavyText } from "../components/general/WavyText";
 import { NfcFeedQuery } from "../generated/graphql";
 import { NFCComponent } from "../components/mobile/NFCComponent";
+import useUserAgent from "../hooks/internal/useUserAgent";
 
 export default function Nfcs() {
+  const { isIOS } = useUserAgent();
   const {
     data: dataNFCs,
     loading: loadingNFCs,
@@ -39,37 +41,40 @@ export default function Nfcs() {
           height="100%"
         >
           {nfcs.length > 0 ? (
-            // <Virtuoso
-            //   overscan={4}
-            //   style={{
-            //     overflowY: "scroll",
-            //     scrollbarWidth: "none",
-            //     msOverflowStyle: "none",
-            //     scrollSnapType: "y mandatory",
-            //   }}
-            //   className="hide-scrollbar"
-            //   followOutput={"auto"}
-            //   ref={scrollRef}
-            //   data={nfcs}
-            //   totalCount={nfcs.length}
-            //   initialTopMostItemIndex={0}
-            //   itemContent={(index, nfc) => (
-            //     <NFCComponent nfc={nfc} key={nfc?.id || index} />
-            //   )}
-            // />
-            <Box
-              style={{
-                overflowY: "scroll",
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-                scrollSnapType: "y mandatory",
-              }}
-              className="hide-scrollbar"
-            >
-              {nfcs.map((nfc, index) => (
-                <NFCComponent nfc={nfc} key={nfc?.id || index} />
-              ))}
-            </Box>
+            isIOS ? (
+              <Virtuoso
+                overscan={4}
+                style={{
+                  overflowY: "scroll",
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                  scrollSnapType: "y mandatory",
+                }}
+                className="hide-scrollbar"
+                followOutput={"auto"}
+                ref={scrollRef}
+                data={nfcs}
+                totalCount={nfcs.length}
+                initialTopMostItemIndex={0}
+                itemContent={(index, nfc) => (
+                  <NFCComponent nfc={nfc} key={nfc?.id || index} />
+                )}
+              />
+            ) : (
+              <Box
+                style={{
+                  overflowY: "scroll",
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                  scrollSnapType: "y mandatory",
+                }}
+                className="hide-scrollbar"
+              >
+                {nfcs.map((nfc, index) => (
+                  <NFCComponent nfc={nfc} key={nfc?.id || index} />
+                ))}
+              </Box>
+            )
           ) : (
             <>
               <Flex justifyContent={"center"}>
