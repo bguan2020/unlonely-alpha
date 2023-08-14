@@ -63,6 +63,7 @@ export default extendTheme({
         color: "white",
         fontFamily: "Space Mono, monospace",
         fontVariantLigatures: "none",
+        background: "black",
       },
     },
   },
