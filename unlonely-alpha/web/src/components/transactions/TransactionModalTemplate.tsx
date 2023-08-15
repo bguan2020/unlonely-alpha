@@ -13,7 +13,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { isAddress } from "viem";
-
 import { useUser } from "../../hooks/context/useUser";
 
 export const TransactionModalTemplate = ({
@@ -34,7 +33,7 @@ export const TransactionModalTemplate = ({
   title: string;
   confirmButton: string;
   isOpen: boolean;
-  children?: React.ReactNode;
+  children: React.ReactNode;
   isModalLoading: boolean;
   loadingText?: string;
   canSend?: boolean;
@@ -86,7 +85,7 @@ export const TransactionModalTemplate = ({
         </ModalHeader>
         {!isModalLoading && (
           <>
-            {children && <ModalBody>{children}</ModalBody>}
+            <ModalBody>{children}</ModalBody>
             {!hideFooter && (
               <ModalFooter>
                 {needsApproval && (
