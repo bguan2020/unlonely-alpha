@@ -33,7 +33,6 @@ import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useChannelContext } from "../../hooks/context/useChannel";
 
-
 export default function ControlTransactionModal({
   title,
   isOpen,
