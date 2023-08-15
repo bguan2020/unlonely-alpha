@@ -484,7 +484,63 @@ const MobilePage = ({
 }: {
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
+  const { channel, recentStreamInteractions } = useChannelContext();
+  const {
+    channelQueryData,
+    loading: channelDataLoading,
+    error: channelDataError,
+  } = channel;
+  const { loading: recentStreamInteractionsLoading } = recentStreamInteractions;
+
+  const queryLoading = useMemo(
+    () => channelDataLoading || recentStreamInteractionsLoading,
+    [channelDataLoading, recentStreamInteractionsLoading]
+  );
+
+  const { username, userAddress, user } = useUser();
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
+
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
+  const [showTipModal, setShowTipModal] = useState<boolean>(false);
+  const [showChanceModal, setShowChanceModal] = useState<boolean>(false);
+  const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
+  const [showControlModal, setShowControlModal] = useState<boolean>(false);
+  const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
+  const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
+
+  const handleControlModal = useCallback(() => {
+    setShowControlModal(true);
+  }, []);
+
+  const handleBuyModal = useCallback(() => {
+    setShowBuyModal(true);
+  }, []);
+
+  const handleCustomModal = useCallback(() => {
+    setShowCustomModal(true);
+  }, []);
+
+  const handleTipModal = useCallback(() => {
+    setShowTipModal(true);
+  }, []);
+
+  const handleChanceModal = useCallback(() => {
+    setShowChanceModal(true);
+  }, []);
+
+  const handlePvpModal = useCallback(() => {
+    setShowPvpModal(true);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setShowTipModal(false);
+    setShowChanceModal(false);
+    setShowPvpModal(false);
+    setShowControlModal(false);
+    setShowBuyModal(false);
+    setShowCustomModal(false);
+  }, []);
 
   const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
     setChatBot((prev) => [...prev, chatBotMessageToAdd]);
@@ -498,11 +554,115 @@ const MobilePage = ({
       description={channelSSR?.description}
       isCustomHeader={true}
     >
-      <ChannelViewerPerspective />
-      <StandaloneAblyChatComponent
-        chatBot={chatBot}
-        addToChatbot={addToChatbot}
-      />
+      {!queryLoading && !channelDataError ? (
+        <>
+          <CustomTransactionModal
+            icon={
+              <Image
+                alt="custom"
+                src="/svg/arcade/custom.svg"
+                width="60px"
+                height="60px"
+              />
+            }
+            title={isOwner ? "customize your button!" : "make streamer do X"}
+            isOpen={showCustomModal}
+            handleClose={handleClose}
+            addToChatbot={addToChatbot}
+          />
+          <ControlTransactionModal
+            icon={
+              <Image
+                alt="control"
+                src="/svg/arcade/control.svg"
+                width="60px"
+                height="60px"
+              />
+            }
+            title="control the stream!"
+            isOpen={showControlModal}
+            handleClose={handleClose}
+            addToChatbot={addToChatbot}
+          />
+          <BuyTransactionModal
+            title=""
+            icon={
+              <BuyButton
+                tokenName={`$${channelQueryData?.token?.symbol}`}
+                noHover
+              />
+            }
+            isOpen={showBuyModal}
+            handleClose={handleClose}
+            addToChatbot={addToChatbot}
+          />
+          <TipTransactionModal
+            icon={
+              <Image
+                alt="coin"
+                src="/svg/arcade/coin.svg"
+                width="60px"
+                height="60px"
+              />
+            }
+            title="tip on the stream!"
+            isOpen={showTipModal}
+            handleClose={handleClose}
+            addToChatbot={addToChatbot}
+          />
+          <ChanceTransactionModal
+            icon={
+              <Image
+                alt="dice"
+                src="/svg/arcade/dice.svg"
+                width="60px"
+                height="60px"
+              />
+            }
+            title="feeling lucky? roll the die for a surprise!"
+            isOpen={showChanceModal}
+            handleClose={handleClose}
+            addToChatbot={addToChatbot}
+          />
+          <ChannelViewerPerspective />
+          <StandaloneAblyChatComponent
+            chatBot={chatBot}
+            addToChatbot={addToChatbot}
+            handleBuyModal={handleBuyModal}
+            handleTipModal={handleTipModal}
+            handleChanceModal={handleChanceModal}
+            handlePvpModal={handlePvpModal}
+            handleControlModal={handleControlModal}
+            handleCustomModal={handleCustomModal}
+          />
+        </>
+      ) : (
+        <Flex
+          alignItems={"center"}
+          justifyContent={"center"}
+          direction="column"
+          width="100%"
+          height="calc(100vh - 103px)"
+          fontSize="50px"
+        >
+          {!channelDataError ? (
+            <>
+              <Image
+                src="/icons/icon-192x192.png"
+                borderRadius="10px"
+                height="96px"
+              />
+              <Flex>
+                <WavyText text="..." />
+              </Flex>
+            </>
+          ) : (
+            <Text fontFamily="Neue Pixel Sans">
+              server error, please try again later
+            </Text>
+          )}
+        </Flex>
+      )}
     </AppLayout>
   );
 };

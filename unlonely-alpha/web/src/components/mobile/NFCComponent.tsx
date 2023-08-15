@@ -60,7 +60,7 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
       position="relative"
       direction="column"
       justifyContent="center"
-      height="calc(100vh - 115px)"
+      height="calc(100vh - 103px)"
     >
       <Flex
         top="2rem"

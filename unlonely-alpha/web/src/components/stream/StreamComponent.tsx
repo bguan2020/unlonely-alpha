@@ -57,7 +57,7 @@ const StreamComponent = () => {
       height={
         !isStandalone
           ? { base: "100%", sm: "500px", md: "600px", lg: "700px" }
-          : "30vh"
+          : "25vh"
       }
     >
       {playbackUrl ? (

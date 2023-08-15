@@ -24,7 +24,6 @@ const Header: React.FC = () => {
       paddingTop={logo ? "20px" : "5px"}
       px="40px"
       justifyContent="space-between"
-      position="fixed"
       left={["0px", "0px", "0px"]}
       right="0px"
       zIndex="1000"

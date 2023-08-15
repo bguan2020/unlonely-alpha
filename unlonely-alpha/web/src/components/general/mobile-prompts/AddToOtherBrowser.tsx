@@ -14,6 +14,7 @@ export default function AddToOtherBrowser(props: Props) {
 
   return (
     <TransactionModalTemplate
+      size="xs"
       isModalLoading={false}
       isOpen={true}
       handleClose={closePrompt}

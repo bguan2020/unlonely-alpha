@@ -14,6 +14,7 @@ export default function AddToMobileFirefoxIos(props: Props) {
 
   return (
     <TransactionModalTemplate
+      size="xs"
       isModalLoading={false}
       isOpen={true}
       handleClose={closePrompt}
@@ -29,8 +30,9 @@ export default function AddToMobileFirefoxIos(props: Props) {
           <p>Click the</p> <FaBars /> <p>icon</p>
         </Flex>
         <Flex alignItems={"center"} gap="5px">
-          <p>Scroll down and then click</p>
-          <FiShare />
+          <p>
+            Scroll down and then click <FiShare />
+          </p>
         </Flex>
         <Flex direction="column">
           <Text textAlign={"center"}>Then click</Text>

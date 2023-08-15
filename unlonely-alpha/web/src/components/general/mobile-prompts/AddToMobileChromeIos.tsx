@@ -13,6 +13,7 @@ export default function AddToMobileChromeIos(props: Props) {
 
   return (
     <TransactionModalTemplate
+      size="xs"
       isModalLoading={false}
       isOpen={true}
       handleClose={closePrompt}

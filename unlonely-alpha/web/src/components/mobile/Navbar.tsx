@@ -5,7 +5,7 @@ export const Navbar = () => {
   const router = useRouter();
 
   return (
-    <Box position="fixed" bottom="0" left="0" width="100%" height="77px">
+    <Box position="fixed" bottom="0" left="0" width="100%" height="73px">
       <HStack justifyContent={"space-evenly"}>
         <Button
           bg="transparent"
@@ -24,7 +24,7 @@ export const Navbar = () => {
                   ? "-selected"
                   : ""
               }.svg`}
-              h="60px"
+              h="40px"
             />
             <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
               channels
@@ -45,7 +45,7 @@ export const Navbar = () => {
               src={`/svg/mobile/nfcs-nav${
                 router.pathname.startsWith("/nfcs") ? "-selected" : ""
               }.svg`}
-              h="60px"
+              h="40px"
             />
             <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
               NFCs
@@ -66,7 +66,7 @@ export const Navbar = () => {
               src={`/svg/mobile/schedule-nav${
                 router.pathname.startsWith("/schedule") ? "-selected" : ""
               }.svg`}
-              h="60px"
+              h="40px"
             />
             <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
               schedule

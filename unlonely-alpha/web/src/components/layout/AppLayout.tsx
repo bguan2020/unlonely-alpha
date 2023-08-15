@@ -5,7 +5,6 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  Grid,
   useToast,
   ToastId,
   useBreakpointValue,
@@ -80,9 +79,7 @@ const AppLayout: React.FC<Props> = ({
   }, [localNetwork]);
 
   return (
-    <Grid
-      display={["grid"]}
-      gridTemplateColumns={["1px auto"]}
+    <Box
       bgGradient="linear-gradient(90deg, #E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
       background="rgba(0, 0, 0, 0.65)"
     >
@@ -101,13 +98,11 @@ const AppLayout: React.FC<Props> = ({
               <Header />
               <AddToHomeScreen />
               <Box
-                mt={smallestDevice ? "25px" : "60px"}
                 minW="100%"
                 as="main"
                 minH={
                   smallestDevice ? "calc(100vh - 25px)" : "calc(100vh - 48px)"
                 }
-                gridColumnStart={2}
               >
                 {error && (
                   <Alert status="error">
@@ -129,7 +124,7 @@ const AppLayout: React.FC<Props> = ({
             <Box minW="100%" as="main" minH="100vh" gridColumnStart={2}>
               <Box
                 background={"#19162F"}
-                h="calc(100vh - 115px)"
+                h="calc(100vh - 103px)"
                 overflowX="hidden"
               >
                 {children}
@@ -139,7 +134,7 @@ const AppLayout: React.FC<Props> = ({
           )}
         </>
       )}
-    </Grid>
+    </Box>
   );
 };
 

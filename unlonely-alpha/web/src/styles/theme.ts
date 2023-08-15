@@ -258,7 +258,7 @@ export default extendTheme({
       baseStyle: {
         dialog: {
           borderRadius: "md",
-          bg: "#1F2D31",
+          bg: "rgb(26, 50, 56)",
         },
       },
     },

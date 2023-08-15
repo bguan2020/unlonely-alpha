@@ -486,6 +486,7 @@ const ChatForm = ({
                   </Text>
                 )}
                 <Textarea
+                  resize="none"
                   variant="unstyled"
                   ref={(element) => {
                     inputBox = element;

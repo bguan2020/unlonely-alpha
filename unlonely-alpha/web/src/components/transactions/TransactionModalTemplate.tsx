@@ -31,6 +31,7 @@ export const TransactionModalTemplate = ({
   handleClose,
   onSend,
   cannotClose,
+  size,
 }: {
   title?: string;
   confirmButton?: string;
@@ -46,6 +47,18 @@ export const TransactionModalTemplate = ({
   handleClose: () => void;
   onSend?: () => void;
   cannotClose?: boolean;
+  size?:
+    | "xs"
+    | "sm"
+    | "md"
+    | "lg"
+    | "xl"
+    | "2xl"
+    | "3xl"
+    | "4xl"
+    | "5xl"
+    | "6xl"
+    | "full";
 }) => {
   const { user, userAddress } = useUser();
 
@@ -55,6 +68,7 @@ export const TransactionModalTemplate = ({
       isCentered
       isOpen={isOpen}
       onClose={handleClose}
+      size={size ?? "md"}
     >
       <ModalOverlay />
       <ModalContent>
