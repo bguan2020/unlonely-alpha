@@ -254,7 +254,7 @@ export const UserProvider = ({
     <UserContext.Provider value={value}>
       <TransactionModalTemplate
         title="turn on notifications for livestreams?"
-        confirmButton="yes!"
+        confirmButton={error}
         isOpen={showTurnOnNotifications}
         handleClose={() => setShowTurnOnNotificationsModal(false)}
         canSend={true}
