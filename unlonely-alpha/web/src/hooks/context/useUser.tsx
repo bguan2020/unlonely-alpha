@@ -1,5 +1,12 @@
 import { gql } from "@apollo/client";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
 import { usePrivy, useWallets, WalletWithMetadata } from "@privy-io/react-auth";
@@ -105,7 +112,7 @@ export const UserProvider = ({
     return auth && matchingWallet;
   }, [authenticated, activeWallet, user, address]);
 
-  const handleMobileNotifications = async () => {
+  const handleMobileNotifications = useCallback(async () => {
     setError("notif1");
     if (user && "serviceWorker" in navigator && "Notification" in window) {
       setError("notif2");
@@ -190,7 +197,7 @@ export const UserProvider = ({
         console.log("error", error);
       }
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     const fetchEns = async () => {
