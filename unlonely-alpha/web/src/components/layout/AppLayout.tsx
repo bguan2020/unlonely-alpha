@@ -12,6 +12,7 @@ import {
 import { ApolloError } from "@apollo/client";
 import { useNetwork } from "wagmi";
 import { useEffect, useMemo, useRef } from "react";
+import { useRouter } from "next/router";
 
 import NextHead from "./NextHead";
 import Header from "../navigation/Header";
@@ -43,6 +44,7 @@ const AppLayout: React.FC<Props> = ({
   const toast = useToast();
   const toastIdRef = useRef<ToastId | undefined>();
   const { isStandalone, ready } = useUserAgent();
+  const router = useRouter();
 
   const smallestDevice = useBreakpointValue({
     base: true,
@@ -111,11 +113,7 @@ const AppLayout: React.FC<Props> = ({
                     <AlertDescription>{error.toString()}</AlertDescription>
                   </Alert>
                 )}
-                <Skeleton
-                  minHeight="calc(100vh - 64px)"
-                  isLoaded={!loading}
-                  overflowX="hidden"
-                >
+                <Skeleton isLoaded={!loading} overflowX="hidden">
                   {children}
                 </Skeleton>
               </Box>
@@ -124,12 +122,16 @@ const AppLayout: React.FC<Props> = ({
             <Box minW="100%" as="main" minH="100vh" gridColumnStart={2}>
               <Box
                 background={"#19162F"}
-                h="calc(100vh - 103px)"
+                h={
+                  !router.pathname.startsWith("/channels")
+                    ? "calc(100vh - 103px)"
+                    : "100vh"
+                }
                 overflowX="hidden"
               >
                 {children}
               </Box>
-              <Navbar />
+              {!router.pathname.startsWith("/channels") && <Navbar />}
             </Box>
           )}
         </>

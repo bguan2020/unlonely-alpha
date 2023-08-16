@@ -92,6 +92,7 @@ export function useChannel(fixedChatName?: string) {
 
   useEffect(() => {
     async function getMessages() {
+      setHasMessagesLoaded(false);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await channel.history((err, result) => {
@@ -137,6 +138,7 @@ export function useChannel(fixedChatName?: string) {
         });
         // Get index of last sent message from history
       });
+      setHasMessagesLoaded(true);
     }
     if (!channel) return;
     getMessages();

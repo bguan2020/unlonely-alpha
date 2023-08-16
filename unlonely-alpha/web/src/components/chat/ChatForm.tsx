@@ -255,8 +255,8 @@ const ChatForm = ({
       sendChatMessage(gif, true);
       setMessageText("");
     } else {
-      if (tooltipError !== "") return;
       if (channelQueryData?.token?.address) {
+        if (tooltipError !== "") return;
         setTxTransition(true);
         setGifInTransaction(gif);
         if (requiresApproval && writeApproval) {
@@ -287,8 +287,8 @@ const ChatForm = ({
         sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
         setMessageText("");
       } else {
-        if (tooltipError !== "") return;
         if (channelQueryData?.token?.address) {
+          if (tooltipError !== "") return;
           setTxTransition(true);
           setGifInTransaction("");
           if (requiresApproval && writeApproval) {
@@ -347,6 +347,7 @@ const ChatForm = ({
 
   useEffect(() => {
     if (
+      channelQueryData?.token?.address &&
       blastMode &&
       (!userTokenBalance?.value ||
         (userTokenBalance?.value &&
@@ -472,7 +473,7 @@ const ChatForm = ({
                     : "rgba(255, 255, 255, 0.35)"
                 }
               >
-                {blastMode && (
+                {blastMode && tooltipError === "" && (
                   <Text
                     color={"#b82929"}
                     fontSize="12px"
@@ -483,6 +484,17 @@ const ChatForm = ({
                     chat blast mode enabled{" "}
                     {channelQueryData?.token?.symbol &&
                       `(cost: ${PRICE} $${channelQueryData?.token?.symbol})`}
+                  </Text>
+                )}
+                {blastMode && tooltipError !== "" && (
+                  <Text
+                    color={"#b82929"}
+                    fontSize="12px"
+                    position="absolute"
+                    top={-5}
+                    whiteSpace="nowrap"
+                  >
+                    {tooltipError}
                   </Text>
                 )}
                 <Textarea
@@ -579,6 +591,22 @@ const ChatForm = ({
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
                     onSelectGif={(gif) => sendGif(gif)}
                   />
+                  <IconButton
+                    type="submit"
+                    disabled={messageTextIsEmpty || tooltipError !== ""}
+                    icon={
+                      blastMode ? (
+                        <Image src="/svg/blast-send.svg" />
+                      ) : (
+                        <Image src="/svg/send.svg" />
+                      )
+                    }
+                    aria-label="clip stream"
+                    bg="transparent"
+                    _focus={{}}
+                    _hover={{ transform: "scale(1.15)" }}
+                    _active={{ transform: "scale(1.3)" }}
+                  />
                 </Flex>
                 <Flex
                   position="absolute"
@@ -603,33 +631,6 @@ const ChatForm = ({
                   />
                 </Flex>
               </Flex>
-              <Stack direction="column">
-                <Flex justifyContent="right">
-                  <Tooltip
-                    isOpen={tooltipError !== ""}
-                    label={tooltipError}
-                    placement="left"
-                    shouldWrapChildren
-                  >
-                    <IconButton
-                      type="submit"
-                      disabled={messageTextIsEmpty || tooltipError !== ""}
-                      icon={
-                        blastMode ? (
-                          <Image src="/svg/blast-send.svg" />
-                        ) : (
-                          <Image src="/svg/send.svg" />
-                        )
-                      }
-                      aria-label="clip stream"
-                      bg="transparent"
-                      _focus={{}}
-                      _hover={{ transform: "scale(1.15)" }}
-                      _active={{ transform: "scale(1.3)" }}
-                    />
-                  </Tooltip>
-                </Flex>
-              </Stack>
             </>
           )}
         </Stack>

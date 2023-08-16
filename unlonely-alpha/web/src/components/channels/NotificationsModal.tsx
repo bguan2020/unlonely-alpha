@@ -211,75 +211,6 @@ export default function NotificationsModal({
       isModalLoading={isSending}
       loadingText={"sending notifications..."}
     >
-      {/* <AlertDialog
-        motionPreset="slideInBottom"
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-        isOpen={isAlertOpen}
-        isCentered
-      >
-        <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader>preview send</AlertDialogHeader>
-          <AlertDialogCloseButton />
-          <AlertDialogBody>
-            are you sure you wanna blast all these{" "}
-            {selectedType === "live"
-              ? devicesWithLive?.length
-              : devicesWithNFCs?.length}{" "}
-            users with a push notification?
-            <Box h={4}></Box>
-            <PreviewNotification
-              selectedType={selectedType}
-              titleLive={titleLive}
-              titleNFCs={titleNFCs}
-              bodyLive={bodyLive}
-              bodyNFCs={bodyNFCs}
-            />
-            {isSending && (
-              <Box pt={5}>
-                <Progress
-                  size="sm"
-                  isIndeterminate
-                  width="100%"
-                  height="6px"
-                  borderRadius="32px"
-                />
-                <Text fontSize="sm" color="red">
-                  sending. do not close this window!
-                </Text>
-              </Box>
-            )}
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              ref={cancelRef}
-              onClick={onClose}
-              disabled={isSending}
-              colorScheme="blue"
-            >
-              not yet
-            </Button>
-            <Button
-              colorScheme="red"
-              ml={3}
-              onClick={() => {
-                setIsSending(true);
-                sendNotifications();
-              }}
-              disabled={isSending}
-              isLoading={isSending}
-              loadingText="sending..."
-            >
-              fully send it
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog> */}
       {!loading && data ? (
         <>
           {isBrian && (
@@ -422,7 +353,6 @@ export default function NotificationsModal({
           alignItems={"center"}
           justifyContent={"center"}
           width="100%"
-          height="calc(100vh - 64px)"
           fontSize="50px"
         >
           <WavyText text="fetching..." />

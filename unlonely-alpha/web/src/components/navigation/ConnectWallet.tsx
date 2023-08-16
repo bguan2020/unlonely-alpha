@@ -5,7 +5,11 @@ import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 
-const ConnectWallet = () => {
+const ConnectWallet = ({
+  shouldSayDisconnect,
+}: {
+  shouldSayDisconnect?: boolean;
+}) => {
   const { user, loginMethod, userAddress } = useUser();
   const { login, ready, linkWallet, logout } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
@@ -33,7 +37,11 @@ const ConnectWallet = () => {
               width={"100%"}
               onClick={logout}
             >
-              <Text>{centerEllipses(userAddress, 13)}</Text>
+              <Text>
+                {shouldSayDisconnect
+                  ? "logout"
+                  : centerEllipses(userAddress, 13)}
+              </Text>
             </Button>
           </Flex>
         ) : (

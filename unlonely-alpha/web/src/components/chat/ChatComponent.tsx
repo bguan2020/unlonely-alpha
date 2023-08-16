@@ -360,8 +360,8 @@ const AblyChatComponent = ({
   }, [receivedMessages]);
 
   useEffect(() => {
-    if (receivedMessages.length === 0) return;
-    if (!mountingMessages.current) {
+    if (!hasMessagesLoaded) return;
+    if (!mountingMessages.current && receivedMessages.length > 0) {
       const latestMessage = receivedMessages[receivedMessages.length - 1];
       if (latestMessage && latestMessage.name === "chat-message") {
         if (
@@ -396,7 +396,7 @@ const AblyChatComponent = ({
       }
     }
     mountingMessages.current = false;
-  }, [receivedMessages]);
+  }, [receivedMessages, hasMessagesLoaded]);
 
   const handleScrollToPresent = useCallback(() => {
     if (scrollRef.current) {

@@ -17,10 +17,12 @@ import {
   Thead,
   Tooltip,
   Tr,
+  IconButton,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VirtuosoHandle } from "react-virtuoso";
 import { isAddress } from "viem";
+import { useRouter } from "next/router";
 
 import {
   InteractionType,
@@ -46,6 +48,7 @@ import CustomButton from "../arcade/CustomButton";
 import ChatForm from "../chat/ChatForm";
 import MessageList from "../chat/MessageList";
 import Participants from "../presence/Participants";
+import ChannelDesc from "../channels/ChannelDesc";
 
 type Props = {
   chatBot: ChatBot[];
@@ -107,12 +110,14 @@ const StandaloneAblyChatComponent = ({
     setHasMessagesLoaded,
     receivedMessages,
   } = useChannel();
+  const router = useRouter();
 
   const { username, user, userAddress: address, walletIsConnected } = useUser();
   const { emojiBlast, fireworks } = useScreenAnimationsContext();
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
   const [formError, setFormError] = useState<null | string[]>(null);
+  const [showInfo, setShowInfo] = useState<boolean>(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showArcade, setShowArcade] = useState<boolean>(false);
   const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
@@ -120,8 +125,10 @@ const StandaloneAblyChatComponent = ({
   );
   const scrollRef = useRef<VirtuosoHandle>(null);
 
+  const clickedOutsideInfo = useRef(false);
   const clickedOutsideLeaderBoard = useRef(false);
   const clickedOutsideArcade = useRef(false);
+  const infoRef = useRef<HTMLDivElement>(null);
   const leaderboardRef = useRef<HTMLDivElement>(null);
   const arcadeRef = useRef<HTMLDivElement>(null);
 
@@ -150,12 +157,22 @@ const StandaloneAblyChatComponent = ({
     }
   }, [holdersLoading, holdersError, holdersData]);
 
+  useOnClickOutside(infoRef, () => {
+    if (showInfo) {
+      setShowInfo(false);
+      clickedOutsideInfo.current = true;
+    }
+    clickedOutsideLeaderBoard.current = false;
+    clickedOutsideArcade.current = false;
+  });
+
   useOnClickOutside(leaderboardRef, () => {
     if (showLeaderboard) {
       setShowLeaderboard(false);
       clickedOutsideLeaderBoard.current = true;
     }
     clickedOutsideArcade.current = false;
+    clickedOutsideInfo.current = false;
   });
   useOnClickOutside(arcadeRef, () => {
     if (showArcade) {
@@ -163,6 +180,7 @@ const StandaloneAblyChatComponent = ({
       clickedOutsideArcade.current = true;
     }
     clickedOutsideLeaderBoard.current = false;
+    clickedOutsideInfo.current = false;
   });
 
   const { postFirstChat } = usePostFirstChat({
@@ -352,8 +370,8 @@ const StandaloneAblyChatComponent = ({
   }, [receivedMessages]);
 
   useEffect(() => {
-    if (receivedMessages.length === 0) return;
-    if (!mountingMessages.current) {
+    if (!hasMessagesLoaded) return;
+    if (!mountingMessages.current && receivedMessages.length > 0) {
       const latestMessage = receivedMessages[receivedMessages.length - 1];
       if (latestMessage && latestMessage.name === "chat-message") {
         if (
@@ -388,7 +406,7 @@ const StandaloneAblyChatComponent = ({
       }
     }
     mountingMessages.current = false;
-  }, [receivedMessages]);
+  }, [receivedMessages, hasMessagesLoaded]);
 
   const handleScrollToPresent = useCallback(() => {
     if (scrollRef.current) {
@@ -403,7 +421,9 @@ const StandaloneAblyChatComponent = ({
   return (
     <Flex
       direction="column"
-      height="calc(75vh - 103px)"
+      h={
+        !router.pathname.startsWith("/channels") ? "calc(75vh - 103px)" : "75vh"
+      }
       p="5px"
       id="chat"
       position={"relative"}
@@ -411,8 +431,14 @@ const StandaloneAblyChatComponent = ({
       <Flex position="absolute" top="-10px" right="10px" zIndex="2">
         <Participants ablyPresenceChannel={presenceChannel} />
       </Flex>
-      {chatChannel?.includes("channel") && (
+      {chatChannel?.includes("channel") ? (
         <Stack direction={"row"} spacing="10px">
+          <IconButton
+            aria-label="Back"
+            bg="transparent"
+            icon={<Image src="/svg/mobile/back.svg" h="100%" />}
+            onClick={() => router.push("/")}
+          />
           <Flex
             borderRadius={"5px"}
             p="1px"
@@ -423,6 +449,34 @@ const StandaloneAblyChatComponent = ({
             minWidth={0}
           >
             <Button
+              opacity={showInfo ? 0.9 : 1}
+              width="100%"
+              bg={"#131323"}
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              onClick={() => {
+                if (clickedOutsideInfo.current) {
+                  clickedOutsideInfo.current = false;
+                  return;
+                }
+                setShowInfo(!showInfo);
+              }}
+            >
+              <Image src="/svg/mobile/info.svg" h="70%" />
+            </Button>
+          </Flex>
+          <Flex
+            borderRadius={"5px"}
+            p="1px"
+            bg={
+              "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+            }
+            flex={1}
+            minWidth={0}
+          >
+            <Button
+              p="0px"
               opacity={showArcade ? 0.9 : 1}
               width="100%"
               bg={"#131323"}
@@ -437,9 +491,7 @@ const StandaloneAblyChatComponent = ({
                 setShowArcade(!showArcade);
               }}
             >
-              <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
-                arcade
-              </Text>
+              <Image src="/svg/mobile/arcade.svg" h="100%" />
             </Button>
           </Flex>
           <Flex
@@ -452,6 +504,7 @@ const StandaloneAblyChatComponent = ({
             minWidth={0}
           >
             <Button
+              p="0px"
               opacity={showLeaderboard ? 0.9 : 1}
               width="100%"
               bg={"#131323"}
@@ -466,12 +519,48 @@ const StandaloneAblyChatComponent = ({
                 setShowLeaderboard(!showLeaderboard);
               }}
             >
-              <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
-                leaderboard
-              </Text>
+              <Image src="/svg/mobile/leaderboard.svg" h="100%" />
             </Button>
           </Flex>
         </Stack>
+      ) : (
+        <IconButton
+          aria-label="Back"
+          bg="transparent"
+          icon={<Image src="/svg/mobile/back.svg" h="100%" />}
+          onClick={() => router.push("/")}
+        />
+      )}
+      {showInfo && (
+        <Flex
+          ref={arcadeRef}
+          borderRadius={"5px"}
+          p="1px"
+          position="absolute"
+          top="50px"
+          left="0"
+          width={"100%"}
+          zIndex={3}
+          style={{
+            border: "1px solid",
+            borderWidth: "1px",
+            borderImageSource:
+              "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
+            borderImageSlice: 1,
+            borderRadius: "5px",
+          }}
+        >
+          <Flex
+            direction="column"
+            bg={"rgba(19, 19, 35, 0.8)"}
+            style={{ backdropFilter: "blur(6px)" }}
+            borderRadius={"5px"}
+            width={"100%"}
+            padding={"40px"}
+          >
+            <ChannelDesc />
+          </Flex>
+        </Flex>
       )}
       {showArcade && (
         <Flex
@@ -735,7 +824,7 @@ const StandaloneAblyChatComponent = ({
         channel={channel}
         isAtBottomCallback={handleIsAtBottom}
       />
-      <Flex justifyContent="center" pb="115px">
+      <Flex justifyContent="center" flex="1">
         {!isAtBottom && hasMessagesLoaded && (
           <Box
             bg="rgba(98, 98, 98, 0.6)"
@@ -753,14 +842,12 @@ const StandaloneAblyChatComponent = ({
           </Box>
         )}
       </Flex>
-      <Flex mt="10px" w="100%" position="absolute" bottom="5px">
-        <ChatForm
-          sendChatMessage={sendChatMessage}
-          inputBox={inputBox}
-          additionalChatCommands={channelChatCommands}
-          addToChatbot={addToChatbot}
-        />
-      </Flex>
+      <ChatForm
+        sendChatMessage={sendChatMessage}
+        inputBox={inputBox}
+        additionalChatCommands={channelChatCommands}
+        addToChatbot={addToChatbot}
+      />
     </Flex>
   );
 };
