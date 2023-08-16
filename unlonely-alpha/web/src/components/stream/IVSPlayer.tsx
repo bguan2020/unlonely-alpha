@@ -45,11 +45,17 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
     const events: VideoJSEvents = player.getIVSEvents();
     const ivsPlayer = player.getIVSPlayer();
 
-    ivsPlayer.addEventListener(events.PlayerEventType.ERROR, (payload) => {
-      const { type, code, source, message } = payload;
+    const errorHandler = (payload: any) => {
       setOffline(true);
-    });
-  }, []);
+    };
+
+    ivsPlayer.addEventListener(events.PlayerEventType.ERROR, errorHandler);
+
+    return () => {
+      ivsPlayer.removeEventListener(events.PlayerEventType.ERROR, errorHandler);
+      player.dispose();
+    };
+  }, [playbackUrl]);
 
   return (
     <>

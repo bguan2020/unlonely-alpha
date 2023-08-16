@@ -9,6 +9,7 @@ import { Flex, Text } from "@chakra-ui/react";
 import { User } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
+import usePostSubscription from "../server/usePostSubscription";
 /* eslint-disable */
 const GET_USER_QUERY = gql`
   query getUser($data: GetUserInput!) {
@@ -57,10 +58,18 @@ export const UserProvider = ({
 }) => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>();
-  const { ready, authenticated, user: privyUser, logout } = usePrivy();
+  const { ready, authenticated, user: privyUser, logout, login } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
   const { wallets } = useWallets();
   const [differentWallet, setDifferentWallet] = useState(false);
+  const [showTurnOnNotifications, setShowTurnOnNotificationsModal] =
+    useState(false);
+
+  const { postSubscription } = usePostSubscription({
+    onError: () => {
+      console.error("Failed to save subscription to server.");
+    },
+  });
 
   const loginMethod = useMemo(() => {
     const wallet = privyUser?.linkedAccounts?.find(
@@ -92,6 +101,84 @@ export const UserProvider = ({
     const matchingWallet = activeWallet?.address === address;
     return auth && matchingWallet;
   }, [authenticated, activeWallet, user, address]);
+
+  const handleMobileNotifications = async () => {
+    if (user && "serviceWorker" in navigator && "Notification" in window) {
+      try {
+        const registration = await navigator.serviceWorker.register(
+          "serviceworker.js",
+          {
+            scope: "./",
+          }
+        );
+
+        if (Notification.permission === "default") {
+          // add 2 second delay to make sure service worker is ready
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          const result = await window.Notification.requestPermission();
+
+          if (result === "granted") {
+            console.log("Notification permission granted");
+            await registration.showNotification("Welcome to Unlonely", {
+              body: "Excited to have you here!",
+            });
+
+            // Here's where you send the subscription to your server
+            const subscription = await registration.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+            });
+            const subscriptionJSON = subscription.toJSON();
+            console.log("subscription", subscription.toJSON());
+            if (subscriptionJSON) {
+              postSubscription({
+                endpoint: subscriptionJSON.endpoint,
+                expirationTime: null,
+                p256dh: subscriptionJSON.keys?.p256dh,
+                auth: subscriptionJSON.keys?.auth,
+              });
+            } else {
+              console.error("Failed to get subscription from service worker.");
+            }
+          }
+          if (result === "granted" || result === "denied") {
+            setShowTurnOnNotificationsModal(false);
+          }
+        }
+        // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
+        // If permission is "granted", it means the user has already enabled notifications.
+        if (Notification.permission === "denied") {
+          // tslint:disable-next-line:no-console
+          console.log("Notification permission denied");
+        }
+        if (Notification.permission === "granted") {
+          // tslint:disable-next-line:no-console
+          console.log("Notification permission granted");
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+          });
+          const subscriptionJSON = subscription.toJSON();
+          if (subscriptionJSON) {
+            postSubscription({
+              endpoint: subscriptionJSON.endpoint,
+              expirationTime: null,
+              p256dh: subscriptionJSON.keys?.p256dh,
+              auth: subscriptionJSON.keys?.auth,
+            });
+          } else {
+            console.error("Failed to get subscription from service worker.");
+          }
+        }
+      } catch (error) {
+        console.error(
+          "Error registering service worker or requesting permission:",
+          error
+        );
+        console.log("error", error);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchEns = async () => {
@@ -134,8 +221,34 @@ export const UserProvider = ({
     [user, username, address, walletIsConnected, loginMethod]
   );
 
+  useEffect(() => {
+    if (!ready) return;
+    if (!authenticated) login();
+  }, [ready, authenticated]);
+
+  useEffect(() => {
+    if (
+      user &&
+      "Notification" in window &&
+      Notification.permission === "default"
+    ) {
+      // If notification permission is 'default', show the modal
+      console.log("show modal");
+      setShowTurnOnNotificationsModal(true);
+    }
+  }, [user]);
+
   return (
     <UserContext.Provider value={value}>
+      <TransactionModalTemplate
+        title="turn on notifications for livestreams?"
+        confirmButton="yes!"
+        isOpen={showTurnOnNotifications}
+        handleClose={() => setShowTurnOnNotificationsModal(false)}
+        canSend={true}
+        onSend={handleMobileNotifications}
+        isModalLoading={false}
+      />
       <TransactionModalTemplate
         confirmButton="logout"
         title="did you change wallet accounts?"

@@ -36,7 +36,7 @@ export const TransactionModalTemplate = ({
   title?: string;
   confirmButton?: string;
   isOpen: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   isModalLoading: boolean;
   loadingText?: string;
   canSend?: boolean;
@@ -104,7 +104,7 @@ export const TransactionModalTemplate = ({
         </ModalHeader>
         {!isModalLoading && (
           <>
-            <ModalBody>{children}</ModalBody>
+            {children && <ModalBody>{children}</ModalBody>}
             {!hideFooter && (
               <ModalFooter>
                 {needsApproval && (
