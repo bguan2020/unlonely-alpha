@@ -113,7 +113,12 @@ export const UserProvider = ({
   }, [authenticated, activeWallet, user, address]);
 
   const handleMobileNotifications = useCallback(async () => {
-    setError("notif1");
+    setError(
+      "notif1 "
+        .concat(user ? "user" : "no user")
+        .concat(String("serviceWorker" in navigator))
+        .concat(String("Notification" in window))
+    );
     if (user && "serviceWorker" in navigator && "Notification" in window) {
       setError("notif2");
       setError(`notif3 ${Notification.permission}`);
@@ -136,16 +141,19 @@ export const UserProvider = ({
             await registration.showNotification("Welcome to Unlonely", {
               body: "Excited to have you here!",
             });
+            setError("notif4-3");
 
             // Here's where you send the subscription to your server
             const subscription = await registration.pushManager.subscribe({
               userVisibleOnly: true,
               applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
             });
+            setError("notif4-4");
             const subscriptionJSON = subscription.toJSON();
-            setError("notif4-3 ".concat(subscriptionJSON.endpoint ?? ""));
+            setError("notif4-5 ".concat(subscriptionJSON.endpoint ?? ""));
             console.log("subscription", subscription.toJSON());
             if (subscriptionJSON) {
+              setError("notif4-6 ".concat(subscriptionJSON.endpoint ?? ""));
               postSubscription({
                 endpoint: subscriptionJSON.endpoint,
                 expirationTime: null,
@@ -179,6 +187,7 @@ export const UserProvider = ({
           const subscriptionJSON = subscription.toJSON();
           setError("notif6-2 ".concat(subscriptionJSON.endpoint ?? ""));
           if (subscriptionJSON) {
+            setError("notif6-3 ".concat(subscriptionJSON.endpoint ?? ""));
             postSubscription({
               endpoint: subscriptionJSON.endpoint,
               expirationTime: null,
