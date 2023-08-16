@@ -239,15 +239,15 @@ export const UserProvider = ({
   }, [ready, authenticated, isStandalone]);
 
   useEffect(() => {
-    if (
-      user &&
-      "Notification" in window &&
-      Notification.permission === "default"
-    ) {
-      // If notification permission is 'default', show the modal
-      console.log("show modal");
-      setShowTurnOnNotificationsModal(true);
-    }
+    // if (
+    //   user &&
+    //   "Notification" in window &&
+    //   Notification.permission === "default"
+    // ) {
+    // If notification permission is 'default', show the modal
+    console.log("show modal");
+    setShowTurnOnNotificationsModal(true);
+    // }
   }, [user]);
 
   return (
