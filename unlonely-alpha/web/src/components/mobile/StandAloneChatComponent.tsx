@@ -445,13 +445,7 @@ const StandaloneAblyChatComponent = ({
   return (
     <Flex
       direction="column"
-      h={
-        !previewStream && isOwner
-          ? "100vh"
-          : !router.pathname.startsWith("/channels")
-          ? "calc(75vh - 103px)"
-          : "75vh"
-      }
+      h={!previewStream && isOwner ? "100vh" : "75vh"}
       p="5px"
       id="chat"
       position={"relative"}
