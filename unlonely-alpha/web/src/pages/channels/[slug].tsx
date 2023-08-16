@@ -20,9 +20,14 @@ import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
 import ControlButton from "../../components/arcade/ControlButton";
 import CustomButton from "../../components/arcade/CustomButton";
+import CalendarEventModal from "../../components/channels/CalendarEventModal";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
+import ChatCommandModal from "../../components/channels/ChatCommandModal";
+import EditChannelModal from "../../components/channels/EditChannelModal";
+import NotificationsModal from "../../components/channels/NotificationsModal";
+import TokenSaleModal from "../../components/channels/TokenSaleModal";
 import AblyChatComponent from "../../components/chat/ChatComponent";
 import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
@@ -497,7 +502,7 @@ const MobilePage = ({
     [channelDataLoading, recentStreamInteractionsLoading]
   );
 
-  const { username, userAddress, user } = useUser();
+  const { userAddress } = useUser();
 
   const isOwner = userAddress === channelQueryData?.owner.address;
 
@@ -509,29 +514,13 @@ const MobilePage = ({
   const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
   const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
 
-  const handleControlModal = useCallback(() => {
-    setShowControlModal(true);
-  }, []);
+  const [tokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
+  const [chatCommandModal, setChatCommandModal] = useState<boolean>(false);
+  const [editModal, setEditModal] = useState<boolean>(false);
+  const [notificationsModal, setNotificationsModal] = useState<boolean>(false);
+  const [eventModal, setEventModal] = useState<boolean>(false);
 
-  const handleBuyModal = useCallback(() => {
-    setShowBuyModal(true);
-  }, []);
-
-  const handleCustomModal = useCallback(() => {
-    setShowCustomModal(true);
-  }, []);
-
-  const handleTipModal = useCallback(() => {
-    setShowTipModal(true);
-  }, []);
-
-  const handleChanceModal = useCallback(() => {
-    setShowChanceModal(true);
-  }, []);
-
-  const handlePvpModal = useCallback(() => {
-    setShowPvpModal(true);
-  }, []);
+  const [previewStream, setPreviewStream] = useState<boolean>(false);
 
   const handleClose = useCallback(() => {
     setShowTipModal(false);
@@ -546,6 +535,10 @@ const MobilePage = ({
     setChatBot((prev) => [...prev, chatBotMessageToAdd]);
   }, []);
 
+  const handleShowPreviewStream = useCallback(() => {
+    setPreviewStream((prev) => !prev);
+  }, []);
+
   return (
     <AppLayout
       title={channelSSR?.name}
@@ -556,6 +549,31 @@ const MobilePage = ({
     >
       {!queryLoading && !channelDataError ? (
         <>
+          <TokenSaleModal
+            title={"offer tokens for sale"}
+            isOpen={tokenSaleModal}
+            handleClose={() => setTokenSaleModal(false)}
+          />
+          <ChatCommandModal
+            title={"custom commands"}
+            isOpen={chatCommandModal}
+            handleClose={() => setChatCommandModal(false)}
+          />
+          <EditChannelModal
+            title={"edit title / description"}
+            isOpen={editModal}
+            handleClose={() => setEditModal(false)}
+          />
+          <NotificationsModal
+            title={"send notifications"}
+            isOpen={notificationsModal}
+            handleClose={() => setNotificationsModal(false)}
+          />
+          <CalendarEventModal
+            title={"add event"}
+            isOpen={eventModal}
+            handleClose={() => setEventModal(false)}
+          />
           <CustomTransactionModal
             icon={
               <Image
@@ -624,16 +642,23 @@ const MobilePage = ({
             handleClose={handleClose}
             addToChatbot={addToChatbot}
           />
-          <ChannelViewerPerspective />
+          {previewStream || (!isOwner && <ChannelViewerPerspective />)}
           <StandaloneAblyChatComponent
+            previewStream={previewStream}
             chatBot={chatBot}
             addToChatbot={addToChatbot}
-            handleBuyModal={handleBuyModal}
-            handleTipModal={handleTipModal}
-            handleChanceModal={handleChanceModal}
-            handlePvpModal={handlePvpModal}
-            handleControlModal={handleControlModal}
-            handleCustomModal={handleCustomModal}
+            setShowBuyModal={setShowBuyModal}
+            setShowTipModal={setShowTipModal}
+            setShowChanceModal={setShowChanceModal}
+            setShowPvpModal={setShowPvpModal}
+            setShowControlModal={setShowControlModal}
+            setShowCustomModal={setShowCustomModal}
+            setShowEditModal={setEditModal}
+            setShowNotificationsModal={setNotificationsModal}
+            setShowEventModal={setEventModal}
+            setShowTokenSaleModal={setTokenSaleModal}
+            setShowChatCommandModal={setChatCommandModal}
+            handleShowPreviewStream={handleShowPreviewStream}
           />
         </>
       ) : (
@@ -642,7 +667,7 @@ const MobilePage = ({
           justifyContent={"center"}
           direction="column"
           width="100%"
-          height="calc(100vh - 103px)"
+          height="100vh"
           fontSize="50px"
         >
           {!channelDataError ? (

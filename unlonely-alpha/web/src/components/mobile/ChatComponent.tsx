@@ -263,7 +263,7 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
   }, [receivedMessages]);
 
   useEffect(() => {
-    if (!hasMessagesLoaded) return;
+    if (receivedMessages.length === 0) return;
     if (!mountingMessages.current && receivedMessages.length > 0) {
       const latestMessage = receivedMessages[receivedMessages.length - 1];
       if (latestMessage && latestMessage.name === "chat-message") {
@@ -288,7 +288,7 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
       }
     }
     mountingMessages.current = false;
-  }, [receivedMessages, hasMessagesLoaded]);
+  }, [receivedMessages]);
 
   const handleScrollToPresent = useCallback(() => {
     if (scrollRef.current) {

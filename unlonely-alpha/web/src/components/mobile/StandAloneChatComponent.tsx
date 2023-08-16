@@ -18,6 +18,7 @@ import {
   Tooltip,
   Tr,
   IconButton,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VirtuosoHandle } from "react-virtuoso";
@@ -51,25 +52,39 @@ import Participants from "../presence/Participants";
 import ChannelDesc from "../channels/ChannelDesc";
 
 type Props = {
+  previewStream?: boolean;
   chatBot: ChatBot[];
   addToChatbot: (chatBotMessageToAdd: ChatBot) => void;
-  handleControlModal?: () => void;
-  handleChanceModal?: () => void;
-  handlePvpModal?: () => void;
-  handleTipModal?: () => void;
-  handleBuyModal?: () => void;
-  handleCustomModal?: () => void;
+  setShowControlModal?: (value: boolean) => void;
+  setShowChanceModal?: (value: boolean) => void;
+  setShowTipModal?: (value: boolean) => void;
+  setShowPvpModal?: (value: boolean) => void;
+  setShowBuyModal?: (value: boolean) => void;
+  setShowCustomModal?: (value: boolean) => void;
+  setShowNotificationsModal: (value: boolean) => void;
+  setShowTokenSaleModal: (value: boolean) => void;
+  setShowEventModal: (value: boolean) => void;
+  setShowEditModal: (value: boolean) => void;
+  setShowChatCommandModal: (value: boolean) => void;
+  handleShowPreviewStream: () => void;
 };
 
 const StandaloneAblyChatComponent = ({
+  previewStream,
   chatBot,
   addToChatbot,
-  handleControlModal,
-  handleChanceModal,
-  handlePvpModal,
-  handleTipModal,
-  handleBuyModal,
-  handleCustomModal,
+  setShowControlModal,
+  setShowChanceModal,
+  setShowTipModal,
+  setShowPvpModal,
+  setShowBuyModal,
+  setShowCustomModal,
+  setShowNotificationsModal,
+  setShowTokenSaleModal,
+  setShowEventModal,
+  setShowEditModal,
+  setShowChatCommandModal,
+  handleShowPreviewStream,
 }: Props) => {
   const {
     channel: channelContext,
@@ -112,7 +127,13 @@ const StandaloneAblyChatComponent = ({
   } = useChannel();
   const router = useRouter();
 
-  const { username, user, userAddress: address, walletIsConnected } = useUser();
+  const {
+    userAddress,
+    username,
+    user,
+    userAddress: address,
+    walletIsConnected,
+  } = useUser();
   const { emojiBlast, fireworks } = useScreenAnimationsContext();
   /*eslint-disable prefer-const*/
   let inputBox: HTMLTextAreaElement | null = null;
@@ -123,6 +144,7 @@ const StandaloneAblyChatComponent = ({
   const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
     []
   );
+
   const scrollRef = useRef<VirtuosoHandle>(null);
 
   const clickedOutsideInfo = useRef(false);
@@ -190,6 +212,8 @@ const StandaloneAblyChatComponent = ({
   });
   const [isAtBottom, setIsAtBottom] = useState(false);
   const toast = useToast();
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   useEffect(() => {
     if (chatBot.length > 0) {
@@ -370,8 +394,8 @@ const StandaloneAblyChatComponent = ({
   }, [receivedMessages]);
 
   useEffect(() => {
-    if (!hasMessagesLoaded) return;
-    if (!mountingMessages.current && receivedMessages.length > 0) {
+    if (receivedMessages.length === 0) return;
+    if (!mountingMessages.current) {
       const latestMessage = receivedMessages[receivedMessages.length - 1];
       if (latestMessage && latestMessage.name === "chat-message") {
         if (
@@ -406,7 +430,7 @@ const StandaloneAblyChatComponent = ({
       }
     }
     mountingMessages.current = false;
-  }, [receivedMessages, hasMessagesLoaded]);
+  }, [receivedMessages]);
 
   const handleScrollToPresent = useCallback(() => {
     if (scrollRef.current) {
@@ -422,13 +446,17 @@ const StandaloneAblyChatComponent = ({
     <Flex
       direction="column"
       h={
-        !router.pathname.startsWith("/channels") ? "calc(75vh - 103px)" : "75vh"
+        !previewStream && isOwner
+          ? "100vh"
+          : !router.pathname.startsWith("/channels")
+          ? "calc(75vh - 103px)"
+          : "75vh"
       }
       p="5px"
       id="chat"
       position={"relative"}
     >
-      <Flex position="absolute" top="-10px" right="10px" zIndex="2">
+      <Flex position="absolute" top={"45px"} right="10px" zIndex="2">
         <Participants ablyPresenceChannel={presenceChannel} />
       </Flex>
       {chatChannel?.includes("channel") ? (
@@ -533,7 +561,7 @@ const StandaloneAblyChatComponent = ({
       )}
       {showInfo && (
         <Flex
-          ref={arcadeRef}
+          ref={infoRef}
           borderRadius={"5px"}
           p="1px"
           position="absolute"
@@ -556,9 +584,192 @@ const StandaloneAblyChatComponent = ({
             style={{ backdropFilter: "blur(6px)" }}
             borderRadius={"5px"}
             width={"100%"}
-            padding={"40px"}
+            padding="10px"
           >
-            <ChannelDesc />
+            <Flex justifyContent={"space-between"}>
+              <ChannelDesc />
+              {isOwner && (
+                <IconButton
+                  onClick={handleShowPreviewStream}
+                  aria-label="preview"
+                  _hover={{}}
+                  _active={{}}
+                  _focus={{}}
+                  icon={
+                    <Image
+                      src="/svg/preview-video.svg"
+                      height={12}
+                      style={{
+                        filter: previewStream ? "grayscale(100%)" : "none",
+                      }}
+                    />
+                  }
+                />
+              )}
+            </Flex>
+            {isOwner && (
+              <Stack
+                my="5rem"
+                direction="column"
+                width={"100%"}
+                justifyContent="center"
+              >
+                <Flex
+                  width={"100%"}
+                  position="relative"
+                  justifyContent={"center"}
+                >
+                  <SimpleGrid columns={3} spacing={10}>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">send notifications</Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => setShowNotificationsModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/notifications.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">offer tokens for sale</Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => setShowTokenSaleModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/token-sale.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">add event</Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => setShowEventModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/calendar.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">
+                        edit channel title / description
+                      </Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => setShowEditModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/edit.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">custom commands</Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => setShowChatCommandModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/custom-commands.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">paid custom action</Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => setShowCustomModal?.(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/custom-actions.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                  </SimpleGrid>
+                </Flex>
+              </Stack>
+            )}
           </Flex>
         </Flex>
       )}
@@ -595,7 +806,7 @@ const StandaloneAblyChatComponent = ({
                 <>
                   <BuyButton
                     tokenName={`$${channelQueryData?.token?.symbol}`}
-                    callback={handleBuyModal}
+                    callback={() => setShowBuyModal?.(true)}
                   />
                   <Grid
                     mt="50px"
@@ -621,21 +832,27 @@ const StandaloneAblyChatComponent = ({
                     <GridItem>
                       <Tooltip label={"make streamer do X"}>
                         <span>
-                          <CustomButton callback={handleCustomModal} />
+                          <CustomButton
+                            callback={() => setShowCustomModal?.(true)}
+                          />
                         </span>
                       </Tooltip>
                     </GridItem>
                     <GridItem>
                       <Tooltip label={"control text on the stream"}>
                         <span>
-                          <ControlButton callback={handleControlModal} />
+                          <ControlButton
+                            callback={() => setShowControlModal?.(true)}
+                          />
                         </span>
                       </Tooltip>
                     </GridItem>
                     <GridItem>
                       <Tooltip label={"tip the streamer"}>
                         <span>
-                          <CoinButton callback={handleTipModal} />
+                          <CoinButton
+                            callback={() => setShowTipModal?.(true)}
+                          />
                         </span>
                       </Tooltip>
                     </GridItem>
@@ -824,8 +1041,8 @@ const StandaloneAblyChatComponent = ({
         channel={channel}
         isAtBottomCallback={handleIsAtBottom}
       />
-      <Flex justifyContent="center" flex="1">
-        {!isAtBottom && hasMessagesLoaded && (
+      <Flex justifyContent="center">
+        {!isAtBottom && hasMessagesLoaded && receivedMessages.length > 0 && (
           <Box
             bg="rgba(98, 98, 98, 0.6)"
             p="4px"
