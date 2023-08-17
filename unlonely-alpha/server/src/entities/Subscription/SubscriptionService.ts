@@ -16,16 +16,10 @@ export interface ISoftDeleteSubscriptionInput {
 
 export const postSubscription = async (
   data: IPostSubscriptionInput,
-  ctx: Context,
-  user: User
+  ctx: Context
 ) => {
   return await ctx.prisma.subscription.create({
     data: {
-      user: {
-        connect: {
-          address: user.address,
-        },
-      },
       endpoint: data.endpoint,
       expirationTime: data.expirationTime,
       p256dh: data.p256dh,
