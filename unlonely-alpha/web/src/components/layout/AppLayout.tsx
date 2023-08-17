@@ -19,6 +19,7 @@ import Header from "../navigation/Header";
 import { NETWORKS } from "../../constants/networks";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { Navbar } from "../mobile/Navbar";
+import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
 
 type Props = {
   loading?: boolean;
@@ -97,7 +98,7 @@ const AppLayout: React.FC<Props> = ({
           {!isStandalone ? (
             <>
               <Header />
-              {/* <AddToHomeScreen /> */}
+              <AddToHomeScreen />
               <Box
                 minW="100%"
                 as="main"

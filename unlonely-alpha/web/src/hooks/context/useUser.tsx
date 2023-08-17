@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
-import { usePrivy, useWallets, WalletWithMetadata } from "@privy-io/react-auth";
+import { usePrivy, WalletWithMetadata } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { Button, Flex, Text } from "@chakra-ui/react";
 
@@ -62,11 +62,10 @@ export const UserProvider = ({
   const [username, setUsername] = useState<string | undefined>();
   const { ready, authenticated, user: privyUser, logout, login } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
-  const { wallets } = useWallets();
   const [differentWallet, setDifferentWallet] = useState(false);
   const [showTurnOnNotifications, setShowTurnOnNotificationsModal] =
     useState(false);
-  const [error, setError] = useState<string[]>([]);
+  const [notifLoading, setNotifLoading] = useState<boolean>(false);
 
   const { postSubscription } = usePostSubscription({
     onError: () => {
@@ -106,18 +105,9 @@ export const UserProvider = ({
   }, [authenticated, activeWallet, user, address]);
 
   const handleMobileNotifications = async () => {
-    setError((prev) => [
-      ...prev,
-      "notif1 "
-        .concat(user ? "user" : "no user")
-        .concat(String("serviceWorker" in navigator))
-        .concat(String("Notification" in window)),
-    ]);
     if ("serviceWorker" in navigator && "Notification" in window) {
-      setError((prev) => [...prev, "notif2"]);
-      setError((prev) => [...prev, `notif3 ${Notification.permission}`]);
       try {
-        // long pause here
+        setNotifLoading(true);
         const registration = await navigator.serviceWorker.register(
           "/serviceworker.js",
           {
@@ -126,30 +116,21 @@ export const UserProvider = ({
         );
 
         if (Notification.permission === "default") {
-          setError((prev) => [...prev, `notif4`]);
           // add 1 second delay to make sure service worker is ready
           await new Promise((resolve) => setTimeout(resolve, 1000));
           const result = await window.Notification.requestPermission();
-          setError((prev) => [...prev, "notif4-2"]);
           if (result === "granted") {
             console.log("Notification permission granted");
             await registration.showNotification("Welcome to Unlonely", {
               body: "Excited to have you here!",
             });
-            setError((prev) => [...prev, "notif4-3"]);
 
             // Here's where you send the subscription to your server
             const subscription = await registration.pushManager.subscribe({
               userVisibleOnly: true,
               applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
             });
-            setError((prev) => [...prev, "notif4-4"]);
             const subscriptionJSON = subscription.toJSON();
-            setError((prev) => [
-              ...prev,
-              "notif4-5 ".concat(subscriptionJSON.endpoint ?? ""),
-            ]);
-            console.log("subscription", subscription.toJSON());
             if (subscriptionJSON) {
               postSubscription({
                 endpoint: subscriptionJSON.endpoint,
@@ -157,35 +138,28 @@ export const UserProvider = ({
                 p256dh: subscriptionJSON.keys?.p256dh,
                 auth: subscriptionJSON.keys?.auth,
               });
-              setError((prev) => [...prev, "notif4-6 "]);
             } else {
               console.error("Failed to get subscription from service worker.");
             }
+            setNotifLoading(false);
           }
-          // if (result === "granted" || result === "denied") {
-          //   setShowTurnOnNotificationsModal(false);
-          // }
-          setError((prev) => [...prev, "notif4-7 ".concat(result)]);
+          if (result === "granted" || result === "denied") {
+            setShowTurnOnNotificationsModal(false);
+          }
         }
         // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
         // If permission is "granted", it means the user has already enabled notifications.
         else if (Notification.permission === "denied") {
           // tslint:disable-next-line:no-console
           console.log("Notification permission denied");
-          setError((prev) => [...prev, "notif5"]);
         } else if (Notification.permission === "granted") {
           // tslint:disable-next-line:no-console
           console.log("Notification permission granted");
-          setError((prev) => [...prev, "notif6"]);
           const subscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
           });
           const subscriptionJSON = subscription.toJSON();
-          setError((prev) => [
-            ...prev,
-            "notif6-2 ".concat(subscriptionJSON.endpoint ?? ""),
-          ]);
           if (subscriptionJSON) {
             postSubscription({
               endpoint: subscriptionJSON.endpoint,
@@ -198,11 +172,14 @@ export const UserProvider = ({
           }
         }
       } catch (error) {
+        setNotifLoading(false);
         console.error(
           "Error registering service worker or requesting permission:",
           error
         );
         console.log("error", error);
+      } finally {
+        login();
       }
     }
   };
@@ -250,39 +227,40 @@ export const UserProvider = ({
 
   useEffect(() => {
     if (!ready || !isStandalone) return;
-    if (!authenticated) login();
-  }, [ready, authenticated, isStandalone]);
-
-  useEffect(() => {
-    // if (
-    //   user &&
-    //   "Notification" in window &&
-    //   Notification.permission === "default"
-    // ) {
-    // If notification permission is 'default', show the modal
-    console.log("show modal");
-    setShowTurnOnNotificationsModal(true);
-    // }
-  }, [user]);
+    if ("Notification" in window && Notification.permission === "default") {
+      setShowTurnOnNotificationsModal(true);
+    } else {
+      if (!authenticated) login();
+    }
+  }, [isStandalone, ready, authenticated]);
 
   return (
     <UserContext.Provider value={value}>
       <TransactionModalTemplate
-        title="turn on notifications for livestreams?"
-        confirmButton="yes!"
+        title="turning on notifications"
+        confirmButton=""
         isOpen={showTurnOnNotifications}
         handleClose={() => setShowTurnOnNotificationsModal(false)}
         canSend={true}
         onSend={handleMobileNotifications}
-        isModalLoading={false}
+        isModalLoading={notifLoading}
         hideFooter
+        loadingText="setting up notifications on your device"
       >
-        {error.map((e) => (
-          <Text textAlign={"center"} fontSize="15px" color="#BABABA">
-            {e}
-          </Text>
-        ))}
-        <Button onClick={handleMobileNotifications}>click</Button>
+        <Text textAlign={"center"} fontSize="15px" color="#BABABA">
+          We recommend turning on notifications so you know when livestreams
+          start!
+        </Text>
+        <Button
+          bg="#257ce0"
+          _hover={{}}
+          _focus={{}}
+          _active={{}}
+          width="100%"
+          onClick={handleMobileNotifications}
+        >
+          get started
+        </Button>
       </TransactionModalTemplate>
       <TransactionModalTemplate
         confirmButton="logout"
