@@ -59,6 +59,7 @@ export const getAllActiveSubscriptions = async (ctx: Context) => {
 export const sendAllNotifications = async (ctx: Context) => {
   const vapidPublicKey = process.env.VAPID_PUBLIC_KEY!;
   const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!;
+  console.log("vapidPublicKey", vapidPublicKey, "vapidPrivateKey", vapidPrivateKey);
 
   webpush.setVapidDetails(
     `mailto:${process.env.VAPID_MAILTO}`,
@@ -71,18 +72,33 @@ export const sendAllNotifications = async (ctx: Context) => {
     },
   });
 
-  const promises = subscriptions.map((subscription) => {
+  const promises = subscriptions.map(async (subscription) => {
     const pushSubscription = toPushSubscription(subscription);
-    return webpush.sendNotification(pushSubscription, "test")
-      .then(() => true) // Successfully sent
-      .catch(error => {
-        console.error("Failed to send notification:", error);
-        return false; // Failed to send
-      });
+    console.log(pushSubscription);
+    try {
+      const result = await webpush.sendNotification(pushSubscription, "{'notification': {'title': 'my title','body': 'my body',}}");
+      console.log("Successfully sent notification", result);
+      return true; // Successfully sent
+    } catch (error: any) {
+      if (error.statusCode === 410) {
+        // Subscription is no longer valid, remove from database
+        await ctx.prisma.subscription.update({
+          where: {
+            id: subscription.id
+          },
+          data: {
+            softDelete: true
+          }
+        });
+      }
+      console.error("Failed to send notification:", error);
+      return false; // Failed to send
+    }
   });
   
   const results = await Promise.all(promises);
   return results.every(result => result === true);
+  
 };
 
 function toPushSubscription(subscription: Subscription): any {
