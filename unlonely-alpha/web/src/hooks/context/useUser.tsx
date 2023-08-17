@@ -117,6 +117,7 @@ export const UserProvider = ({
       setError((prev) => [...prev, "notif2"]);
       setError((prev) => [...prev, `notif3 ${Notification.permission}`]);
       try {
+        // long pause here
         const registration = await navigator.serviceWorker.register(
           "serviceworker.js",
           {
@@ -156,6 +157,7 @@ export const UserProvider = ({
                 p256dh: subscriptionJSON.keys?.p256dh,
                 auth: subscriptionJSON.keys?.auth,
               });
+              setError((prev) => [...prev, "notif4-6 "]);
             } else {
               console.error("Failed to get subscription from service worker.");
             }
@@ -163,7 +165,7 @@ export const UserProvider = ({
           // if (result === "granted" || result === "denied") {
           //   setShowTurnOnNotificationsModal(false);
           // }
-          setError((prev) => [...prev, "notif4-4 ".concat(result)]);
+          setError((prev) => [...prev, "notif4-7 ".concat(result)]);
         }
         // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
         // If permission is "granted", it means the user has already enabled notifications.
