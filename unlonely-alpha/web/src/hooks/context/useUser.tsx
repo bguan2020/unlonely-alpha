@@ -113,7 +113,7 @@ export const UserProvider = ({
         .concat(String("serviceWorker" in navigator))
         .concat(String("Notification" in window)),
     ]);
-    if ("serviceWorker" in navigator) {
+    if ("serviceWorker" in navigator && "Notification" in window) {
       setError((prev) => [...prev, "notif2"]);
       setError((prev) => [...prev, `notif3 ${Notification.permission}`]);
       try {
