@@ -169,12 +169,11 @@ export const UserProvider = ({
         }
         // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
         // If permission is "granted", it means the user has already enabled notifications.
-        if (Notification.permission === "denied") {
+        else if (Notification.permission === "denied") {
           // tslint:disable-next-line:no-console
           console.log("Notification permission denied");
           setError((prev) => [...prev, "notif5"]);
-        }
-        if (Notification.permission === "granted") {
+        } else if (Notification.permission === "granted") {
           // tslint:disable-next-line:no-console
           console.log("Notification permission granted");
           setError((prev) => [...prev, "notif6"]);
