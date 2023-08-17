@@ -66,7 +66,7 @@ export const UserProvider = ({
   const [differentWallet, setDifferentWallet] = useState(false);
   const [showTurnOnNotifications, setShowTurnOnNotificationsModal] =
     useState(false);
-  const [error, setError] = useState<string>("notify");
+  const [error, setError] = useState<string[]>([]);
 
   const { postSubscription } = usePostSubscription({
     onError: () => {
@@ -106,15 +106,16 @@ export const UserProvider = ({
   }, [authenticated, activeWallet, user, address]);
 
   const handleMobileNotifications = async () => {
-    setError(
+    setError((prev) => [
+      ...prev,
       "notif1 "
         .concat(user ? "user" : "no user")
         .concat(String("serviceWorker" in navigator))
-        .concat(String("Notification" in window))
-    );
-    if (user && "serviceWorker" in navigator && "Notification" in window) {
-      setError("notif2");
-      setError(`notif3 ${Notification.permission}`);
+        .concat(String("Notification" in window)),
+    ]);
+    if (user && "serviceWorker" in navigator) {
+      setError((prev) => [...prev, "notif2"]);
+      setError((prev) => [...prev, `notif3 ${Notification.permission}`]);
       try {
         const registration = await navigator.serviceWorker.register(
           "serviceworker.js",
@@ -124,26 +125,29 @@ export const UserProvider = ({
         );
 
         if (Notification.permission === "default") {
-          setError(`notif4`);
+          setError((prev) => [...prev, `notif4`]);
           // add 1 second delay to make sure service worker is ready
           await new Promise((resolve) => setTimeout(resolve, 1000));
           const result = await window.Notification.requestPermission();
-          setError("notif4-2");
+          setError((prev) => [...prev, "notif4-2"]);
           if (result === "granted") {
             console.log("Notification permission granted");
             await registration.showNotification("Welcome to Unlonely", {
               body: "Excited to have you here!",
             });
-            setError("notif4-3");
+            setError((prev) => [...prev, "notif4-3"]);
 
             // Here's where you send the subscription to your server
             const subscription = await registration.pushManager.subscribe({
               userVisibleOnly: true,
               applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
             });
-            setError("notif4-4");
+            setError((prev) => [...prev, "notif4-4"]);
             const subscriptionJSON = subscription.toJSON();
-            setError("notif4-5 ".concat(subscriptionJSON.endpoint ?? ""));
+            setError((prev) => [
+              ...prev,
+              "notif4-5 ".concat(subscriptionJSON.endpoint ?? ""),
+            ]);
             console.log("subscription", subscription.toJSON());
             if (subscriptionJSON) {
               postSubscription({
@@ -159,27 +163,29 @@ export const UserProvider = ({
           // if (result === "granted" || result === "denied") {
           //   setShowTurnOnNotificationsModal(false);
           // }
-          setError("notif4-4 ".concat(result));
+          setError((prev) => [...prev, "notif4-4 ".concat(result)]);
         }
         // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
         // If permission is "granted", it means the user has already enabled notifications.
         if (Notification.permission === "denied") {
           // tslint:disable-next-line:no-console
           console.log("Notification permission denied");
-          setError("notif5");
+          setError((prev) => [...prev, "notif5"]);
         }
         if (Notification.permission === "granted") {
           // tslint:disable-next-line:no-console
           console.log("Notification permission granted");
-          setError("notif6");
+          setError((prev) => [...prev, "notif6"]);
           const subscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
           });
           const subscriptionJSON = subscription.toJSON();
-          setError("notif6-2 ".concat(subscriptionJSON.endpoint ?? ""));
+          setError((prev) => [
+            ...prev,
+            "notif6-2 ".concat(subscriptionJSON.endpoint ?? ""),
+          ]);
           if (subscriptionJSON) {
-            setError("notif6-3 ".concat(subscriptionJSON.endpoint ?? ""));
             postSubscription({
               endpoint: subscriptionJSON.endpoint,
               expirationTime: null,
@@ -262,13 +268,19 @@ export const UserProvider = ({
     <UserContext.Provider value={value}>
       <TransactionModalTemplate
         title="turn on notifications for livestreams?"
-        confirmButton={error}
+        confirmButton="yes!"
         isOpen={showTurnOnNotifications}
         handleClose={() => setShowTurnOnNotificationsModal(false)}
         canSend={true}
         onSend={handleMobileNotifications}
         isModalLoading={false}
-      />
+      >
+        {error.map((e) => (
+          <Text textAlign={"center"} fontSize="15px" color="#BABABA">
+            {e}
+          </Text>
+        ))}
+      </TransactionModalTemplate>
       <TransactionModalTemplate
         confirmButton="logout"
         title="did you change wallet accounts?"
