@@ -1,12 +1,5 @@
 import { gql } from "@apollo/client";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
 import { usePrivy, useWallets, WalletWithMetadata } from "@privy-io/react-auth";
@@ -112,7 +105,7 @@ export const UserProvider = ({
     return auth && matchingWallet;
   }, [authenticated, activeWallet, user, address]);
 
-  const handleMobileNotifications = useCallback(async () => {
+  const handleMobileNotifications = async () => {
     setError(
       "notif1 "
         .concat(user ? "user" : "no user")
@@ -153,7 +146,6 @@ export const UserProvider = ({
             setError("notif4-5 ".concat(subscriptionJSON.endpoint ?? ""));
             console.log("subscription", subscription.toJSON());
             if (subscriptionJSON) {
-              setError("notif4-6 ".concat(subscriptionJSON.endpoint ?? ""));
               postSubscription({
                 endpoint: subscriptionJSON.endpoint,
                 expirationTime: null,
@@ -206,7 +198,7 @@ export const UserProvider = ({
         console.log("error", error);
       }
     }
-  }, [user]);
+  };
 
   useEffect(() => {
     const fetchEns = async () => {
