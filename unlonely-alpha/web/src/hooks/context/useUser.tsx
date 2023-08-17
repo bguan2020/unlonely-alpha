@@ -245,6 +245,7 @@ export const UserProvider = ({
         onSend={handleMobileNotifications}
         isModalLoading={notifLoading}
         hideFooter
+        cannotClose
         loadingText="setting up notifications on your device"
       >
         <Text textAlign={"center"} fontSize="15px" color="#BABABA">
