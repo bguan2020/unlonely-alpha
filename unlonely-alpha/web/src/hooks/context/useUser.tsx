@@ -4,7 +4,7 @@ import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
 import { usePrivy, useWallets, WalletWithMetadata } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
-import { Flex, Text } from "@chakra-ui/react";
+import { Button, Flex, Text } from "@chakra-ui/react";
 
 import { User } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
@@ -113,7 +113,7 @@ export const UserProvider = ({
         .concat(String("serviceWorker" in navigator))
         .concat(String("Notification" in window)),
     ]);
-    if (user && "serviceWorker" in navigator) {
+    if ("serviceWorker" in navigator) {
       setError((prev) => [...prev, "notif2"]);
       setError((prev) => [...prev, `notif3 ${Notification.permission}`]);
       try {
@@ -274,12 +274,14 @@ export const UserProvider = ({
         canSend={true}
         onSend={handleMobileNotifications}
         isModalLoading={false}
+        hideFooter
       >
         {error.map((e) => (
           <Text textAlign={"center"} fontSize="15px" color="#BABABA">
             {e}
           </Text>
         ))}
+        <Button onClick={handleMobileNotifications}>click</Button>
       </TransactionModalTemplate>
       <TransactionModalTemplate
         confirmButton="logout"
