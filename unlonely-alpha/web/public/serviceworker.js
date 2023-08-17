@@ -1,7 +1,7 @@
-self.addEventListener('push', function(event) {
-
-  var myNotif = event.data.json();
-  const promiseChain = self.registration.showNotification(myNotif.title);
-
-  event.waitUntil(promiseChain);
+self.addEventListener("push", async (event) => {
+  const { notification } = await event.data.json();
+  console.log("Received push", notification);
+  const data = await self.registration.showNotification(notification.title, {
+    body: notification.body,
+  });
 });

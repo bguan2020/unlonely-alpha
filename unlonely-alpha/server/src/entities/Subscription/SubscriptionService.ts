@@ -76,7 +76,8 @@ export const sendAllNotifications = async (ctx: Context) => {
     const pushSubscription = toPushSubscription(subscription);
     console.log(pushSubscription);
     try {
-      const result = await webpush.sendNotification(pushSubscription, "{'notification': {'title': 'my title','body': 'my body',}}");
+      const result = await webpush.sendNotification(pushSubscription, '{"notification": {"title": "my title","body": "my body"}}'
+      );
       console.log("Successfully sent notification", result);
       return true; // Successfully sent
     } catch (error: any) {
