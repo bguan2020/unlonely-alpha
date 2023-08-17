@@ -3,7 +3,6 @@ import { gql } from "apollo-server-express";
 export const typeDef = gql`
   type Subscription {
     id: ID!
-    userId: Int!
     endpoint: String!
     expirationTime: String
     p256dh: String!

@@ -46,7 +46,6 @@ model User {
   streamInteractions StreamInteraction[]
   channel Channel[]
   tokens UserCreatorToken[]
-  subscriptions Subscription[]
 }
 
 model Subscription {
@@ -58,9 +57,6 @@ model Subscription {
   softDelete     Boolean @default(false)
 
   createdAt DateTime @default(now())
-
-  userAddr       String
-  user           User   @relation(fields: [userAddr], references: [address])
 }
 
 model Like {

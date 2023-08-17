@@ -18,10 +18,7 @@ export const resolvers = {
       { data }: { data: SubscriptionService.IPostSubscriptionInput },
       ctx: Context
     ) => {
-      if (!ctx.user || !ctx.userIsAuthed) {
-        throw new AuthenticationError("User is not authenticated");
-      }
-      return SubscriptionService.postSubscription(data, ctx, ctx.user);
+      return SubscriptionService.postSubscription(data, ctx);
     },
     softDeleteSubscription: (
       _: any,
