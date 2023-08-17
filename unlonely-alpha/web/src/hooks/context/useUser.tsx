@@ -119,9 +119,9 @@ export const UserProvider = ({
       try {
         // long pause here
         const registration = await navigator.serviceWorker.register(
-          "serviceworker.js",
+          "/serviceworker.js",
           {
-            scope: "./",
+            scope: "/",
           }
         );
 
