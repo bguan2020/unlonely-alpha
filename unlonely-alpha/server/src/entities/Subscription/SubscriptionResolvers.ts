@@ -7,6 +7,9 @@ export const resolvers = {
   Query: {
     getAllActiveSubscriptions: async (_: any, __: any, ctx: Context) => {
       return SubscriptionService.getAllActiveSubscriptions(ctx);
+    },
+    sendAllNotifications: async (_: any, __: any, ctx: Context) => {
+      return SubscriptionService.sendAllNotifications(ctx);
     }
   },
   Mutation: {
