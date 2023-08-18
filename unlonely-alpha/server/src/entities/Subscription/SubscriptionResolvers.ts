@@ -10,6 +10,13 @@ export const resolvers = {
     },
     sendAllNotifications: async (_: any, __: any, ctx: Context) => {
       return SubscriptionService.sendAllNotifications(ctx);
+    },
+    checkSubscriptionByEndpoint: async (
+      _: any,
+      { data }: { data: SubscriptionService.IToggleSubscriptionInput },
+      ctx: Context
+    ) => {
+      return SubscriptionService.checkSubscriptionByEndpoint(data, ctx);
     }
   },
   Mutation: {
@@ -25,10 +32,14 @@ export const resolvers = {
       { data }: { data: SubscriptionService.ISoftDeleteSubscriptionInput },
       ctx: Context
     ) => {
-      if (!ctx.user || !ctx.userIsAuthed) {
-        throw new AuthenticationError("User is not authenticated");
-      }
       return SubscriptionService.softDeleteSubscription(data, ctx);
+    },
+    toggleSubscription: async (
+      _: any,
+      { data }: { data: SubscriptionService.IToggleSubscriptionInput },
+      ctx: Context
+    ) => {
+      return SubscriptionService.toggleSubscription(data, ctx);
     }
   },
 };
