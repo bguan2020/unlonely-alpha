@@ -74,9 +74,7 @@ export const TransactionModalTemplate = ({
       onClose={handleClose}
       size={size ?? "md"}
     >
-      <ModalOverlay
-        backdropFilter={blur ? "blur(10px) hue-rotate(90deg)" : undefined}
-      />
+      <ModalOverlay backdropFilter={blur ? "blur(10px)" : undefined} />
       <ModalContent bg={bg}>
         {!cannotClose && (
           <IconButton

@@ -63,9 +63,9 @@ export const UserProvider = ({
   const { ready, authenticated, user: privyUser, logout, login } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
   const [differentWallet, setDifferentWallet] = useState(false);
-  const [showTurnOnNotifications, setShowTurnOnNotificationsModal] =
-    useState(false);
-  const [notifLoading, setNotifLoading] = useState<boolean>(false);
+  const [showTurnOnNotifications, setShowTurnOnNotificationsModal] = useState<
+    "off" | "start" | "loading" | "granted" | "denied"
+  >("granted");
 
   const { postSubscription } = usePostSubscription({
     onError: () => {
@@ -107,7 +107,7 @@ export const UserProvider = ({
   const handleMobileNotifications = async () => {
     if ("serviceWorker" in navigator && "Notification" in window) {
       try {
-        setNotifLoading(true);
+        setShowTurnOnNotificationsModal("loading");
         const registration = await navigator.serviceWorker.register(
           "/serviceworker.js",
           {
@@ -141,10 +141,14 @@ export const UserProvider = ({
             } else {
               console.error("Failed to get subscription from service worker.");
             }
-            setNotifLoading(false);
           }
-          if (result === "granted" || result === "denied") {
-            setShowTurnOnNotificationsModal(false);
+          if (result === "granted") {
+            setShowTurnOnNotificationsModal(result);
+            setTimeout(() => {
+              setShowTurnOnNotificationsModal("off");
+            }, 1500);
+          } else {
+            setShowTurnOnNotificationsModal("off");
           }
         }
         // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
@@ -172,7 +176,7 @@ export const UserProvider = ({
           }
         }
       } catch (error) {
-        setNotifLoading(false);
+        setShowTurnOnNotificationsModal("start");
         console.error(
           "Error registering service worker or requesting permission:",
           error
@@ -228,7 +232,7 @@ export const UserProvider = ({
   useEffect(() => {
     if (!ready || !isStandalone) return;
     if ("Notification" in window && Notification.permission === "default") {
-      setShowTurnOnNotificationsModal(true);
+      setShowTurnOnNotificationsModal("start");
     } else {
       if (!authenticated) login();
     }
@@ -237,34 +241,49 @@ export const UserProvider = ({
   return (
     <UserContext.Provider value={value}>
       <TransactionModalTemplate
-        title="turning on notifications"
+        title={
+          showTurnOnNotifications === "start" ||
+          showTurnOnNotifications === "loading"
+            ? "turning on notifications"
+            : ""
+        }
         confirmButton=""
-        isOpen={showTurnOnNotifications}
-        handleClose={() => setShowTurnOnNotificationsModal(false)}
+        isOpen={showTurnOnNotifications !== "off"}
+        handleClose={() => setShowTurnOnNotificationsModal("off")}
         canSend={true}
         onSend={handleMobileNotifications}
-        isModalLoading={notifLoading}
+        isModalLoading={showTurnOnNotifications === "loading"}
         hideFooter
         cannotClose
         loadingText="setting up notifications on your device"
         size="sm"
+        blur
       >
-        <Flex direction="column" gap="16px">
-          <Text textAlign={"center"} fontSize="15px" color="#BABABA">
-            We recommend turning on notifications so you know when livestreams
-            start!
-          </Text>
-          <Button
-            bg="#257ce0"
-            _hover={{}}
-            _focus={{}}
-            _active={{}}
-            width="100%"
-            onClick={handleMobileNotifications}
-          >
-            get started
-          </Button>
-        </Flex>
+        {showTurnOnNotifications === "start" && (
+          <Flex direction="column" gap="16px">
+            <Text textAlign={"center"} fontSize="15px" color="#BABABA">
+              We recommend turning on notifications so you know when livestreams
+              start!
+            </Text>
+            <Button
+              bg="#257ce0"
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              width="100%"
+              onClick={handleMobileNotifications}
+            >
+              get started
+            </Button>
+          </Flex>
+        )}
+        {showTurnOnNotifications === "granted" && (
+          <Flex direction="column" gap="16px">
+            <Text textAlign={"center"} fontSize="15px">
+              You're all set up to receive notifications!
+            </Text>
+          </Flex>
+        )}
       </TransactionModalTemplate>
       <TransactionModalTemplate
         confirmButton="logout"
@@ -275,6 +294,7 @@ export const UserProvider = ({
         onSend={logout}
         isModalLoading={false}
         size="sm"
+        blur
       >
         <Flex direction={"column"} gap="16px">
           <Text textAlign={"center"} fontSize="15px" color="#BABABA">
