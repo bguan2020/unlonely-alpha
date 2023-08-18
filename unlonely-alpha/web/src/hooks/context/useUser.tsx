@@ -248,20 +248,22 @@ export const UserProvider = ({
         cannotClose
         loadingText="setting up notifications on your device"
       >
-        <Text textAlign={"center"} fontSize="15px" color="#BABABA">
-          We recommend turning on notifications so you know when livestreams
-          start!
-        </Text>
-        <Button
-          bg="#257ce0"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          width="100%"
-          onClick={handleMobileNotifications}
-        >
-          get started
-        </Button>
+        <Flex direction="column" gap="16px">
+          <Text textAlign={"center"} fontSize="15px" color="#BABABA">
+            We recommend turning on notifications so you know when livestreams
+            start!
+          </Text>
+          <Button
+            bg="#257ce0"
+            _hover={{}}
+            _focus={{}}
+            _active={{}}
+            width="100%"
+            onClick={handleMobileNotifications}
+          >
+            get started
+          </Button>
+        </Flex>
       </TransactionModalTemplate>
       <TransactionModalTemplate
         confirmButton="logout"
