@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Flex } from "@chakra-ui/react";
+import { Text, Flex, Image } from "@chakra-ui/react";
 import { HiDotsVertical } from "react-icons/hi";
 
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
@@ -19,18 +19,29 @@ export default function AddToMobileFirefox(props: Props) {
       handleClose={closePrompt}
       hideFooter={true}
       cannotClose
+      blur
+      bg="white"
     >
-      <Flex direction="column" alignItems={"center"} gap="10px">
-        <Text textAlign={"center"}>
-          For the best experience, we recommend adding the Unlonely app to your
-          home screen!
+      <Flex direction="column" alignItems={"center"} margin="10px">
+        <Image src="/icons/icon-192x192.png" h="80px" mb="10px" />
+        <Text
+          color="black"
+          fontFamily="Neue Pixel Sans"
+          fontSize="25px"
+          mb="10px"
+        >
+          add to home screen
         </Text>
-        <Flex alignItems={"center"} gap="5px">
-          <p>Click the</p> <HiDotsVertical /> <p>icon</p>
+        <Flex alignItems={"center"} gap="5px" color="black">
+          <p>1. click </p> <HiDotsVertical />
         </Flex>
         <Flex direction="column">
-          <Text textAlign={"center"}>Scroll down and then click</Text>
-          <Text textAlign={"center"}>“Add to Home Screen”</Text>
+          <Text textAlign={"center"} color="black">
+            2. scroll down
+          </Text>
+          <Text textAlign={"center"} color="black">
+            3. “add to home screen”
+          </Text>
         </Flex>
       </Flex>
     </TransactionModalTemplate>

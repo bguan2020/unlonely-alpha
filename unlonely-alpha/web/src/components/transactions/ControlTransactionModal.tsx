@@ -32,6 +32,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 export default function ControlTransactionModal({
   title,
@@ -51,6 +52,7 @@ export default function ControlTransactionModal({
   const { channel, token } = useChannelContext();
   const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
+  const { isStandalone } = useUserAgent();
 
   const [amountOption, setAmountOption] = useState<"5">("5");
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -252,6 +254,7 @@ export default function ControlTransactionModal({
       isModalLoading={masterLoading}
       handleClose={handleClose}
       hideFooter
+      size={isStandalone ? "sm" : "md"}
     >
       <Flex direction="column" gap="16px">
         <Text textAlign={"center"} fontSize="25px" color="#BABABA">

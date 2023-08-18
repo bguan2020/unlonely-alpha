@@ -247,6 +247,7 @@ export const UserProvider = ({
         hideFooter
         cannotClose
         loadingText="setting up notifications on your device"
+        size="sm"
       >
         <Flex direction="column" gap="16px">
           <Text textAlign={"center"} fontSize="15px" color="#BABABA">
@@ -273,6 +274,7 @@ export const UserProvider = ({
         canSend={true}
         onSend={logout}
         isModalLoading={false}
+        size="sm"
       >
         <Flex direction={"column"} gap="16px">
           <Text textAlign={"center"} fontSize="15px" color="#BABABA">

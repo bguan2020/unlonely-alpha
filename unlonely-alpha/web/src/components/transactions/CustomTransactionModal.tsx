@@ -34,6 +34,7 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 const CUSTOM = "custom";
 const SAMPLE1 = "pushup";
@@ -55,6 +56,8 @@ export default function CustomTransactionModal({
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
+  const { isStandalone } = useUserAgent();
+
   const { user, userAddress, walletIsConnected } = useUser();
   const network = useNetwork();
   const toast = useToast();
@@ -327,6 +330,7 @@ export default function CustomTransactionModal({
       hideFooter={!isEditing && isOwner}
       needsApproval={!isOwner && requiresApproval}
       approve={writeApproval}
+      size={isStandalone ? "sm" : "md"}
     >
       <Flex direction={"column"} gap="16px">
         {isOwner ? (

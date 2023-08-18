@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Link, Text, Flex } from "@chakra-ui/react";
+import { Button, Link, Text, Flex, Image } from "@chakra-ui/react";
 
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 
@@ -20,13 +20,20 @@ export default function AddToOtherBrowser(props: Props) {
       handleClose={closePrompt}
       hideFooter={true}
       cannotClose
+      blur
+      bg="white"
     >
-      <Flex direction="column" alignItems={"center"} gap="10px">
-        <Text textAlign={"center"}>
-          For the best experience, we recommend adding the Unlonely app to your
-          home screen!
+      <Flex direction="column" alignItems={"center"} margin="10px">
+        <Image src="/icons/icon-192x192.png" h="80px" mb="10px" />
+        <Text
+          color="black"
+          fontFamily="Neue Pixel Sans"
+          fontSize="25px"
+          mb="10px"
+        >
+          add to home screen
         </Text>
-        <Text textAlign={"center"}>
+        <Text textAlign={"center"} color="black" fontSize="15px" mb={"10px"}>
           Unfortunately, we were unable to determine which browser you are
           using. Please search for how to install a web app for your browser.
         </Text>

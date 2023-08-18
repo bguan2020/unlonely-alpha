@@ -42,6 +42,7 @@ import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import centerEllipses from "../../utils/centerEllipses";
 import { ChatBot } from "../../constants/types";
 import ConnectWallet from "../navigation/ConnectWallet";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 type Props = {
   sendChatMessage: (message: string, isGif: boolean, body?: string) => void;
@@ -61,6 +62,7 @@ const ChatForm = ({
   addToChatbot,
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
+  const { isStandalone } = useUserAgent();
   const network = useNetwork();
 
   const toast = useToast();
@@ -388,7 +390,10 @@ const ChatForm = ({
       <form
         onSubmit={handleFormSubmission}
         className="xeedev-form-i"
-        style={{ width: "100%" }}
+        style={{
+          width: "100%",
+          marginBottom: isStandalone ? "15px" : undefined,
+        }}
       >
         <Stack direction={"row"} spacing={"10px"}>
           {!walletIsConnected ? (

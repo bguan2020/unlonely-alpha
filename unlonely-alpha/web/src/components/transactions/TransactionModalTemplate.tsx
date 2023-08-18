@@ -32,6 +32,8 @@ export const TransactionModalTemplate = ({
   onSend,
   cannotClose,
   size,
+  blur,
+  bg,
 }: {
   title?: string;
   confirmButton?: string;
@@ -47,6 +49,8 @@ export const TransactionModalTemplate = ({
   handleClose: () => void;
   onSend?: () => void;
   cannotClose?: boolean;
+  bg?: string;
+  blur?: boolean;
   size?:
     | "xs"
     | "sm"
@@ -70,8 +74,10 @@ export const TransactionModalTemplate = ({
       onClose={handleClose}
       size={size ?? "md"}
     >
-      <ModalOverlay />
-      <ModalContent>
+      <ModalOverlay
+        backdropFilter={blur ? "blur(10px) hue-rotate(90deg)" : undefined}
+      />
+      <ModalContent bg={bg}>
         {!cannotClose && (
           <IconButton
             aria-label="close"
@@ -87,21 +93,23 @@ export const TransactionModalTemplate = ({
             top="5px"
           />
         )}
-        <ModalHeader flex="1" mt="15px">
-          <Flex direction="column" gap="10px">
-            {icon && <Flex ml="40px">{icon}</Flex>}
-            {title && (
-              <Text
-                fontSize="25px"
-                textAlign={"center"}
-                fontFamily="Neue Pixel Sans"
-                fontWeight="medium"
-              >
-                {title}
-              </Text>
-            )}
-          </Flex>
-        </ModalHeader>
+        {(icon || title) && (
+          <ModalHeader flex="1" mt="15px">
+            <Flex direction="column" gap="10px">
+              {icon && <Flex ml="40px">{icon}</Flex>}
+              {title && (
+                <Text
+                  fontSize="25px"
+                  textAlign={"center"}
+                  fontFamily="Neue Pixel Sans"
+                  fontWeight="medium"
+                >
+                  {title}
+                </Text>
+              )}
+            </Flex>
+          </ModalHeader>
+        )}
         {!isModalLoading && (
           <>
             {children && <ModalBody>{children}</ModalBody>}

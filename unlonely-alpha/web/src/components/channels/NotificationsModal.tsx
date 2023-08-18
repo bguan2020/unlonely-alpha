@@ -1,7 +1,6 @@
 import { useLazyQuery } from "@apollo/client";
 import {
   useToast,
-  useDisclosure,
   Tabs,
   Text,
   Flex,
@@ -11,21 +10,14 @@ import {
   Input,
   Tab,
   TabList,
-  // AlertDialog,
-  // AlertDialogBody,
-  // AlertDialogCloseButton,
-  // AlertDialogContent,
-  // AlertDialogFooter,
-  // AlertDialogHeader,
-  // AlertDialogOverlay,
-  // Progress,
 } from "@chakra-ui/react";
-import { useState, useRef, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { isAddressEqual } from "viem";
 
 import { GET_ALL_DEVICE_TOKENS } from "../../constants/queries";
 import { GetAllDevicesQuery } from "../../generated/graphql";
 import { useUser } from "../../hooks/context/useUser";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 import { splitArray } from "../../utils/splitArray";
 import { WavyText } from "../general/WavyText";
 import { PreviewNotification } from "../mobile/PreviewNotification";
@@ -70,8 +62,7 @@ export default function NotificationsModal({
   const [isSending, setIsSending] = useState(false);
   const [selectedType, setSelectedType] = useState("live");
   const toast = useToast();
-  const { isOpen: isAlertOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = useRef();
+  const { isStandalone } = useUserAgent();
 
   const isBrian = useMemo(
     () =>
@@ -172,7 +163,6 @@ export default function NotificationsModal({
           if (chunkedTemplates.length === index + 1) {
             setIsSending(false);
             handleClose();
-            onClose();
           }
         }
 
@@ -210,6 +200,7 @@ export default function NotificationsModal({
       hideFooter
       isModalLoading={isSending}
       loadingText={"sending notifications..."}
+      size={isStandalone ? "sm" : "md"}
     >
       {!loading && data ? (
         <>
