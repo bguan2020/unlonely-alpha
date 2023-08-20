@@ -237,12 +237,12 @@ export const UserProvider = ({
   );
 
   useEffect(() => {
-    // if (!ready || !isStandalone) return;
-    // if ("Notification" in window && Notification.permission === "default") {
+    if (!ready || !isStandalone) return;
+    if ("Notification" in window && Notification.permission === "default") {
     setShowTurnOnNotificationsModal("start");
-    // } else {
-    //   if (!authenticated) login();
-    // }
+    } else {
+      if (!authenticated) login();
+    }
   }, [isStandalone, ready, authenticated]);
 
   return (
