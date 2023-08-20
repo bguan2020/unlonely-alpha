@@ -156,6 +156,9 @@ export const UserProvider = ({
         else if (Notification.permission === "denied") {
           // tslint:disable-next-line:no-console
           console.log("Notification permission denied");
+          setTimeout(() => {
+            setShowTurnOnNotificationsModal("off");
+          }, 1500);
         } else if (Notification.permission === "granted") {
           // tslint:disable-next-line:no-console
           console.log("Notification permission granted");
@@ -174,14 +177,18 @@ export const UserProvider = ({
           } else {
             console.error("Failed to get subscription from service worker.");
           }
+          setShowTurnOnNotificationsModal("granted");
+          setTimeout(() => {
+            setShowTurnOnNotificationsModal("off");
+          }, 1500);
         }
       } catch (error) {
-        setShowTurnOnNotificationsModal("start");
         console.error(
           "Error registering service worker or requesting permission:",
           error
         );
         console.log("error", error);
+        setShowTurnOnNotificationsModal("off");
       } finally {
         login();
       }
@@ -230,12 +237,12 @@ export const UserProvider = ({
   );
 
   useEffect(() => {
-    if (!ready || !isStandalone) return;
-    if ("Notification" in window && Notification.permission === "default") {
-      setShowTurnOnNotificationsModal("start");
-    } else {
-      if (!authenticated) login();
-    }
+    // if (!ready || !isStandalone) return;
+    // if ("Notification" in window && Notification.permission === "default") {
+    setShowTurnOnNotificationsModal("start");
+    // } else {
+    //   if (!authenticated) login();
+    // }
   }, [isStandalone, ready, authenticated]);
 
   return (
