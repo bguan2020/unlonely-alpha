@@ -140,3 +140,9 @@ export const GET_ALL_USERS_WITH_CHANNEL = gql`
     }
   }
 `;
+
+export const CHECK_SUBSCRIPTION = gql`
+  query CheckSubscription($data: ToggleSubscriptionInput!) {
+    checkSubscriptionByEndpoint(data: $data)
+  }
+`;

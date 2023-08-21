@@ -1,4 +1,4 @@
-import { Subscription, User } from "@prisma/client";
+import { Subscription } from "@prisma/client";
 import webpush from "web-push";
 
 import { Context } from "../../context";
@@ -19,7 +19,7 @@ export const postSubscription = async (
   ctx: Context
 ) => {
   // first check if subscritpion already exists using endpoint
-  // if it does, update it so that it is not soft deleted
+  // if it does, update it so that it is soft deleted
   // if it does not, create it
   const existingSubscription = await ctx.prisma.subscription.findFirst({
     where: {
@@ -101,7 +101,7 @@ export const checkSubscriptionByEndpoint = async (
       endpoint: data.endpoint,
     },
   });
-  
+
   if (!existingSubscription) {
     throw new Error("Subscription does not exist");
   }

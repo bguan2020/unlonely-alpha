@@ -879,6 +879,15 @@ export type GetAllUsersWithChannelQuery = {
   } | null> | null;
 };
 
+export type CheckSubscriptionQueryVariables = Exact<{
+  data: ToggleSubscriptionInput;
+}>;
+
+export type CheckSubscriptionQuery = {
+  __typename?: "Query";
+  checkSubscriptionByEndpoint?: boolean | null;
+};
+
 export type GetUserQueryVariables = Exact<{
   data: GetUserInput;
 }>;
@@ -1769,6 +1778,62 @@ export type GetAllUsersWithChannelLazyQueryHookResult = ReturnType<
 export type GetAllUsersWithChannelQueryResult = Apollo.QueryResult<
   GetAllUsersWithChannelQuery,
   GetAllUsersWithChannelQueryVariables
+>;
+export const CheckSubscriptionDocument = gql`
+  query CheckSubscription($data: ToggleSubscriptionInput!) {
+    checkSubscriptionByEndpoint(data: $data)
+  }
+`;
+
+/**
+ * __useCheckSubscriptionQuery__
+ *
+ * To run a query within a React component, call `useCheckSubscriptionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckSubscriptionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckSubscriptionQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCheckSubscriptionQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    CheckSubscriptionQuery,
+    CheckSubscriptionQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    CheckSubscriptionQuery,
+    CheckSubscriptionQueryVariables
+  >(CheckSubscriptionDocument, options);
+}
+export function useCheckSubscriptionLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    CheckSubscriptionQuery,
+    CheckSubscriptionQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    CheckSubscriptionQuery,
+    CheckSubscriptionQueryVariables
+  >(CheckSubscriptionDocument, options);
+}
+export type CheckSubscriptionQueryHookResult = ReturnType<
+  typeof useCheckSubscriptionQuery
+>;
+export type CheckSubscriptionLazyQueryHookResult = ReturnType<
+  typeof useCheckSubscriptionLazyQuery
+>;
+export type CheckSubscriptionQueryResult = Apollo.QueryResult<
+  CheckSubscriptionQuery,
+  CheckSubscriptionQueryVariables
 >;
 export const GetUserDocument = gql`
   query getUser($data: GetUserInput!) {

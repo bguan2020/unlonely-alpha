@@ -65,7 +65,7 @@ export const UserProvider = ({
   const [differentWallet, setDifferentWallet] = useState(false);
   const [showTurnOnNotifications, setShowTurnOnNotificationsModal] = useState<
     "off" | "start" | "loading" | "granted" | "denied"
-  >("granted");
+  >("off");
 
   const { postSubscription } = usePostSubscription({
     onError: () => {
@@ -225,6 +225,15 @@ export const UserProvider = ({
     f();
   }, [activeWallet, user]);
 
+  useEffect(() => {
+    if (!ready || !isStandalone) return;
+    if ("Notification" in window && Notification.permission === "default") {
+      setShowTurnOnNotificationsModal("start");
+    } else {
+      if (!authenticated) login();
+    }
+  }, [isStandalone, ready, authenticated]);
+
   const value = useMemo(
     () => ({
       user,
@@ -235,15 +244,6 @@ export const UserProvider = ({
     }),
     [user, username, address, walletIsConnected, loginMethod]
   );
-
-  useEffect(() => {
-    if (!ready || !isStandalone) return;
-    if ("Notification" in window && Notification.permission === "default") {
-    setShowTurnOnNotificationsModal("start");
-    } else {
-      if (!authenticated) login();
-    }
-  }, [isStandalone, ready, authenticated]);
 
   return (
     <UserContext.Provider value={value}>

@@ -1,4 +1,6 @@
-import { Spinner, Flex, Text, Avatar } from "@chakra-ui/react";
+import { Spinner, Flex, Text, Avatar, Switch } from "@chakra-ui/react";
+import { useCallback, useEffect, useState } from "react";
+import { useLazyQuery } from "@apollo/client";
 
 import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
@@ -6,10 +8,24 @@ import useUserAgent from "../hooks/internal/useUserAgent";
 import { anonUrl } from "../components/presence/AnonUrl";
 import centerEllipses from "../utils/centerEllipses";
 import ConnectWallet from "../components/navigation/ConnectWallet";
+import useToggleSubscription from "../hooks/server/useToggleSubscription";
+import { CHECK_SUBSCRIPTION } from "../constants/queries";
 
 const Profile = () => {
   const { user } = useUser();
   const { ready } = useUserAgent();
+  const [endpoint, setEndpoint] = useState<string>("");
+
+  const [getSubscription, { loading, data }] = useLazyQuery(
+    CHECK_SUBSCRIPTION,
+    { fetchPolicy: "network-only" }
+  );
+
+  const { toggleSubscription } = useToggleSubscription({
+    onError: () => {
+      console.log("error");
+    },
+  });
 
   const imageUrl = user?.FCImageUrl
     ? user.FCImageUrl
@@ -20,6 +36,55 @@ const Profile = () => {
   const ipfsUrl = imageUrl.startsWith("ipfs://")
     ? `https://ipfs.io/ipfs/${imageUrl.slice(7)}`
     : imageUrl;
+
+  // This function toggles the subscription
+  const handleSwitchChange = useCallback(async () => {
+    try {
+      await toggleSubscription({ endpoint });
+      handleGetSubscription();
+    } catch (err) {
+      console.error("Error toggling subscription:", err);
+    }
+  }, [endpoint]);
+
+  const handleGetSubscription = useCallback(() => {
+    getSubscription({
+      variables: { data: { endpoint } },
+      fetchPolicy: "network-only",
+    });
+  }, [endpoint]);
+
+  useEffect(() => {
+    const init = async () => {
+      if ("serviceWorker" in navigator) {
+        let registration;
+        const registrationExists =
+          await navigator.serviceWorker.getRegistration("/");
+        if (!registrationExists) {
+          registration = await navigator.serviceWorker.register(
+            "/serviceworker.js",
+            {
+              scope: "/",
+            }
+          );
+        } else {
+          registration = registrationExists;
+        }
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          const endpoint = subscription.endpoint;
+          setEndpoint(endpoint);
+        }
+      }
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
+    if (endpoint) {
+      handleGetSubscription();
+    }
+  }, [endpoint]);
 
   return (
     <AppLayout isCustomHeader={false}>
@@ -57,6 +122,17 @@ const Profile = () => {
               )}
             </Flex>
             <ConnectWallet shouldSayDisconnect />
+          </Flex>
+          <Flex justifyContent={"space-between"} alignItems="center" mt="2rem">
+            <Text fontFamily="Neue Pixel Sans" fontSize={"25px"}>
+              notifications
+            </Text>
+            <Switch
+              size="lg"
+              isChecked={data?.checkSubscriptionByEndpoint ?? false}
+              onChange={handleSwitchChange}
+              isDisabled={!endpoint || loading}
+            />
           </Flex>
         </Flex>
       ) : (
