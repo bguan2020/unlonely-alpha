@@ -29,7 +29,7 @@ export const SelectableChannel = ({
         bg={!isLive ? "black" : "#19162F"}
         justifyContent={"space-between"}
         onClick={() => callback(channel.slug)}
-        _hover={{ background: "#615C5C" }}
+        _hover={{ }}
       >
         {!isLive ? (
           <Flex gap="15px" overflow="hidden">
