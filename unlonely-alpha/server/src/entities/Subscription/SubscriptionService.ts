@@ -1,4 +1,4 @@
-import { Subscription, User } from "@prisma/client";
+import { Subscription } from "@prisma/client";
 import webpush from "web-push";
 
 import { Context } from "../../context";
@@ -101,7 +101,7 @@ export const checkSubscriptionByEndpoint = async (
       endpoint: data.endpoint,
     },
   });
-  
+
   if (!existingSubscription) {
     throw new Error("Subscription does not exist");
   }
@@ -122,12 +122,18 @@ export interface ISendAllNotificationsInput {
   body: string;
 }
 
-export const sendAllNotifications = async (ctx: Context, 
-  data: ISendAllNotificationsInput,
-  ) => {
+export const sendAllNotifications = async (
+  ctx: Context,
+  data: ISendAllNotificationsInput
+) => {
   const vapidPublicKey = process.env.VAPID_PUBLIC_KEY!;
   const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!;
-  console.log("vapidPublicKey", vapidPublicKey, "vapidPrivateKey", vapidPrivateKey);
+  console.log(
+    "vapidPublicKey",
+    vapidPublicKey,
+    "vapidPrivateKey",
+    vapidPrivateKey
+  );
 
   webpush.setVapidDetails(
     `mailto:${process.env.VAPID_MAILTO}`,
@@ -144,7 +150,16 @@ export const sendAllNotifications = async (ctx: Context,
     const pushSubscription = toPushSubscription(subscription);
     console.log(pushSubscription);
     try {
-      const result = await webpush.sendNotification(pushSubscription, `{'notification': {'title': '${data.title}','body': '${data.body}',}}`);
+      const notificationPayload = {
+        notification: {
+          title: data.title,
+          body: data.body,
+        },
+      };
+      const result = await webpush.sendNotification(
+        pushSubscription,
+        JSON.stringify(notificationPayload)
+      );
       console.log("Successfully sent notification", result);
       return true; // Successfully sent
     } catch (error: any) {
@@ -152,21 +167,20 @@ export const sendAllNotifications = async (ctx: Context,
         // Subscription is no longer valid, remove from database
         await ctx.prisma.subscription.update({
           where: {
-            id: subscription.id
+            id: subscription.id,
           },
           data: {
-            softDelete: true
-          }
+            softDelete: true,
+          },
         });
       }
       console.error("Failed to send notification:", error);
       return false; // Failed to send
     }
   });
-  
+
   const results = await Promise.all(promises);
-  return results.every(result => result === true);
-  
+  return results.every((result) => result === true);
 };
 
 function toPushSubscription(subscription: Subscription): any {

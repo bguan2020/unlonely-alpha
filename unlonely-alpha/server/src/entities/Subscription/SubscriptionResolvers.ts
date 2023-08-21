@@ -1,4 +1,3 @@
-import { AuthenticationError } from "apollo-server";
 
 import { Context } from "../../context";
 import * as SubscriptionService from "./SubscriptionService";
@@ -8,12 +7,14 @@ export const resolvers = {
     getAllActiveSubscriptions: async (_: any, __: any, ctx: Context) => {
       return SubscriptionService.getAllActiveSubscriptions(ctx);
     },
-    sendAllNotifications: async (_: any, 
+    sendAllNotifications: async (
+      _: any,
       { data }: { data: SubscriptionService.ISendAllNotificationsInput },
-      ctx: Context) => {
-      if (!ctx.user) {
-        throw new AuthenticationError("You must be logged in");
-      }
+      ctx: Context
+    ) => {
+      // if (!ctx.user) {
+      //   throw new AuthenticationError("You must be logged in");
+      // }
       return SubscriptionService.sendAllNotifications(ctx, data);
     },
     checkSubscriptionByEndpoint: async (
@@ -22,7 +23,7 @@ export const resolvers = {
       ctx: Context
     ) => {
       return SubscriptionService.checkSubscriptionByEndpoint(data, ctx);
-    }
+    },
   },
   Mutation: {
     postSubscription: (
@@ -45,6 +46,6 @@ export const resolvers = {
       ctx: Context
     ) => {
       return SubscriptionService.toggleSubscription(data, ctx);
-    }
+    },
   },
 };
