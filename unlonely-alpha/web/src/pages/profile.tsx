@@ -48,9 +48,38 @@ const Profile = () => {
   // This function toggles the subscription
   const handleSwitchChange = useCallback(async () => {
     try {
-      if (!endpoint) return;
-      await toggleSubscription({ endpoint });
-      handleGetSubscription();
+      if (!endpoint) {
+        setSystemNotifLoading(true);
+        const registration = await navigator.serviceWorker.register(
+          "/serviceworker.js",
+          {
+            scope: "/",
+          }
+        );
+        await registration.showNotification("Welcome to Unlonely", {
+          body: "Excited to have you here!",
+        });
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+        });
+        const subscriptionJSON = subscription.toJSON();
+        if (subscriptionJSON) {
+          postSubscription({
+            endpoint: subscriptionJSON.endpoint,
+            expirationTime: null,
+            p256dh: subscriptionJSON.keys?.p256dh,
+            auth: subscriptionJSON.keys?.auth,
+          });
+          setEndpoint(subscriptionJSON.endpoint ?? "");
+        } else {
+          console.error("Failed to get subscription from service worker.");
+        }
+        setSystemNotifLoading(false);
+      } else {
+        await toggleSubscription({ endpoint });
+        handleGetSubscription();
+      }
     } catch (err) {
       console.error("Error toggling subscription:", err);
     }

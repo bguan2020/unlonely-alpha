@@ -1,5 +1,6 @@
-import { Box, Flex, Spacer, Text, Image } from "@chakra-ui/react";
+import { Box, Flex, Spacer, Text, Image, IconButton } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
+import { HiDotsVertical } from "react-icons/hi";
 
 import { LikeObj } from "../../generated/graphql";
 import { useUser } from "../../hooks/context/useUser";
@@ -54,6 +55,23 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
     }, 3000);
   };
 
+  const share = async () => {
+    if (navigator.share) {
+      navigator
+        .share({
+          title: nfc?.title,
+          url: `${window.location.origin}/nfc/${nfc.id}`,
+        })
+        .then(() => {
+          console.log("Thanks for sharing!");
+        })
+        .catch(console.error);
+    } else {
+      // Fallback for browsers that do not support the Web Share API
+      console.log("Your browser does not support the Web Share API.");
+    }
+  };
+
   return (
     <Flex
       scrollSnapAlign={"start"}
@@ -75,8 +93,7 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
           zIndex="3"
           fontFamily="Neue Pixel Sans"
           fontSize={30}
-          bg="rgba(0, 0, 0, 0.5)"
-          p="2"
+          textShadow="0px 0px 10px rgba(0,0,0,0.75)"
           borderRadius="md"
         >
           {nfc?.title}
@@ -126,46 +143,71 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
           >
             <source src={nfc?.videoLink} type="video/mp4"></source>
           </video>
+          <Flex
+            style={{
+              position: "absolute",
+              bottom: "-50px",
+              left: "10px",
+              zIndex: 3,
+            }}
+            gap="10px"
+          >
+            <IconButton
+              aria-label="share"
+              icon={<HiDotsVertical size="20px" />}
+              onClick={share}
+              bg="transparent"
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+            />
+          </Flex>
 
-          <button
-            onClick={submitLike}
-            disabled={buttonDisabled}
+          <Flex
             style={{
               position: "absolute",
               bottom: "-50px",
               right: "10px",
               zIndex: 3,
-              background: "none",
-              border: "none",
-              outline: "none",
-              cursor: buttonDisabled ? "not-allowed" : "pointer",
             }}
+            gap="10px"
           >
-            <Flex alignItems={"center"} gap="10px">
-              {nfc.score >= 1 ? (
-                <Text fontFamily={"Neue Pixel Sans"} fontSize={20}>
-                  {nfc.score}
-                </Text>
-              ) : null}
-              {nfc?.liked === true ? (
-                <LikedIcon boxSize={8} />
-              ) : (
-                <LikeIcon boxSize={8} />
-              )}
-              <Spacer />
-              {nfc?.openseaLink && (
-                <>
-                  <Image
-                    src="/images/opensea-blue_logo.png"
-                    width="1.7rem"
-                    height="1.7rem"
-                    onClick={handleOpenSeaLink}
-                    _hover={{ cursor: "pointer" }}
-                  />
-                </>
-              )}
-            </Flex>
-          </button>
+            <button
+              onClick={submitLike}
+              disabled={buttonDisabled}
+              style={{
+                background: "none",
+                border: "none",
+                outline: "none",
+                cursor: buttonDisabled ? "not-allowed" : "pointer",
+              }}
+            >
+              <Flex alignItems={"center"} gap="2px" px="5px">
+                {nfc.score >= 1 ? (
+                  <Text fontFamily={"Neue Pixel Sans"} fontSize={20}>
+                    {nfc.score}
+                  </Text>
+                ) : null}
+                {nfc?.liked === true ? (
+                  <LikedIcon boxSize={8} />
+                ) : (
+                  <LikeIcon boxSize={8} />
+                )}
+              </Flex>
+            </button>
+            {nfc?.openseaLink && (
+              <>
+                <Spacer />
+                <Image
+                  src="/images/opensea-blue_logo.png"
+                  width="1.7rem"
+                  height="1.7rem"
+                  onClick={handleOpenSeaLink}
+                  _hover={{ cursor: "pointer" }}
+                />
+              </>
+            )}
+          </Flex>
         </Flex>
       ) : (
         <Flex justifyContent={"center"}>
