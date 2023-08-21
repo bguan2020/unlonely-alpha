@@ -10,11 +10,13 @@ import centerEllipses from "../utils/centerEllipses";
 import ConnectWallet from "../components/navigation/ConnectWallet";
 import useToggleSubscription from "../hooks/server/useToggleSubscription";
 import { CHECK_SUBSCRIPTION } from "../constants/queries";
+import usePostSubscription from "../hooks/server/usePostSubscription";
 
 const Profile = () => {
   const { user } = useUser();
   const { ready } = useUserAgent();
   const [endpoint, setEndpoint] = useState<string>("");
+  const [systemNotifLoading, setSystemNotifLoading] = useState<boolean>(false);
 
   const [getSubscription, { loading, data }] = useLazyQuery(
     CHECK_SUBSCRIPTION,
@@ -23,7 +25,13 @@ const Profile = () => {
 
   const { toggleSubscription } = useToggleSubscription({
     onError: () => {
-      console.log("error");
+      console.log("Failed to toggle subscription to server.");
+    },
+  });
+
+  const { postSubscription } = usePostSubscription({
+    onError: () => {
+      console.error("Failed to save subscription to server.");
     },
   });
 
@@ -40,8 +48,45 @@ const Profile = () => {
   // This function toggles the subscription
   const handleSwitchChange = useCallback(async () => {
     try {
-      await toggleSubscription({ endpoint });
-      handleGetSubscription();
+      if (!endpoint) {
+        setSystemNotifLoading(true);
+        const registration = await navigator.serviceWorker.register(
+          "/serviceworker.js",
+          {
+            scope: "/",
+          }
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const result = await window.Notification.requestPermission();
+        if (result === "granted") {
+          console.log("Notification permission granted");
+          await registration.showNotification("Welcome to Unlonely", {
+            body: "Excited to have you here!",
+          });
+
+          // Here's where you send the subscription to your server
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+          });
+          const subscriptionJSON = subscription.toJSON();
+          if (subscriptionJSON) {
+            postSubscription({
+              endpoint: subscriptionJSON.endpoint,
+              expirationTime: null,
+              p256dh: subscriptionJSON.keys?.p256dh,
+              auth: subscriptionJSON.keys?.auth,
+            });
+            setEndpoint(subscriptionJSON.endpoint ?? "");
+          } else {
+            console.error("Failed to get subscription from service worker.");
+          }
+        }
+        setSystemNotifLoading(false);
+      } else {
+        await toggleSubscription({ endpoint });
+        handleGetSubscription();
+      }
     } catch (err) {
       console.error("Error toggling subscription:", err);
     }
@@ -57,23 +102,15 @@ const Profile = () => {
   useEffect(() => {
     const init = async () => {
       if ("serviceWorker" in navigator) {
-        let registration;
         const registrationExists =
           await navigator.serviceWorker.getRegistration("/");
-        if (!registrationExists) {
-          registration = await navigator.serviceWorker.register(
-            "/serviceworker.js",
-            {
-              scope: "/",
-            }
-          );
-        } else {
-          registration = registrationExists;
-        }
-        const subscription = await registration.pushManager.getSubscription();
-        if (subscription) {
-          const endpoint = subscription.endpoint;
-          setEndpoint(endpoint);
+        if (registrationExists) {
+          const subscription =
+            await registrationExists.pushManager.getSubscription();
+          if (subscription) {
+            const endpoint = subscription.endpoint;
+            setEndpoint(endpoint);
+          }
         }
       }
     };
@@ -123,12 +160,9 @@ const Profile = () => {
             </Flex>
             <ConnectWallet shouldSayDisconnect />
           </Flex>
-          <Text color="#e2f979" fontFamily="Neue Pixel Sans" fontSize={"25px"}>
-            notifications
-          </Text>
           <Flex justifyContent={"space-between"} alignItems="center" mt="2rem">
             <Text fontFamily="Neue Pixel Sans" fontSize={"25px"}>
-              determines if you will receive notifications on this device
+              notifications
             </Text>
             {loading ? (
               <Spinner size="lg" />
@@ -137,7 +171,7 @@ const Profile = () => {
                 size="lg"
                 isChecked={data?.checkSubscriptionByEndpoint ?? false}
                 onChange={handleSwitchChange}
-                isDisabled={!endpoint || loading}
+                isDisabled={loading || systemNotifLoading}
               />
             )}
           </Flex>
