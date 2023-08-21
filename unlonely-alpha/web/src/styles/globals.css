@@ -11,9 +11,7 @@
 }
 
 html {
-  height: 100%;
-  /* overflow: hidden; */
-  position: relative;
+  overscroll-behavior: none;
 }
 
 /* For Webkit (Chrome & Safari) */
