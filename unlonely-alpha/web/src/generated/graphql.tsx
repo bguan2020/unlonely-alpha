@@ -542,6 +542,15 @@ export type QueryGetVideoFeedArgs = {
   data?: InputMaybe<VideoFeedInput>;
 };
 
+export type QuerySendAllNotificationsArgs = {
+  data: SendAllNotificationsInput;
+};
+
+export type SendAllNotificationsInput = {
+  body: Scalars["String"];
+  title: Scalars["String"];
+};
+
 export type SoftDeleteSubscriptionInput = {
   id: Scalars["ID"];
 };
@@ -721,6 +730,15 @@ export type QueryQueryVariables = Exact<{
 export type QueryQuery = {
   __typename?: "Query";
   getUserTokenHolding?: number | null;
+};
+
+export type SendAllNotificationsQueryVariables = Exact<{
+  data: SendAllNotificationsInput;
+}>;
+
+export type SendAllNotificationsQuery = {
+  __typename?: "Query";
+  sendAllNotifications?: boolean | null;
 };
 
 export type GetTokenLeaderboardQueryVariables = Exact<{ [key: string]: never }>;
@@ -1296,6 +1314,62 @@ export type QueryLazyQueryHookResult = ReturnType<typeof useQueryLazyQuery>;
 export type QueryQueryResult = Apollo.QueryResult<
   QueryQuery,
   QueryQueryVariables
+>;
+export const SendAllNotificationsDocument = gql`
+  query SendAllNotifications($data: SendAllNotificationsInput!) {
+    sendAllNotifications(data: $data)
+  }
+`;
+
+/**
+ * __useSendAllNotificationsQuery__
+ *
+ * To run a query within a React component, call `useSendAllNotificationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSendAllNotificationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSendAllNotificationsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useSendAllNotificationsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    SendAllNotificationsQuery,
+    SendAllNotificationsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    SendAllNotificationsQuery,
+    SendAllNotificationsQueryVariables
+  >(SendAllNotificationsDocument, options);
+}
+export function useSendAllNotificationsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    SendAllNotificationsQuery,
+    SendAllNotificationsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    SendAllNotificationsQuery,
+    SendAllNotificationsQueryVariables
+  >(SendAllNotificationsDocument, options);
+}
+export type SendAllNotificationsQueryHookResult = ReturnType<
+  typeof useSendAllNotificationsQuery
+>;
+export type SendAllNotificationsLazyQueryHookResult = ReturnType<
+  typeof useSendAllNotificationsLazyQuery
+>;
+export type SendAllNotificationsQueryResult = Apollo.QueryResult<
+  SendAllNotificationsQuery,
+  SendAllNotificationsQueryVariables
 >;
 export const GetTokenLeaderboardDocument = gql`
   query GetTokenLeaderboard {

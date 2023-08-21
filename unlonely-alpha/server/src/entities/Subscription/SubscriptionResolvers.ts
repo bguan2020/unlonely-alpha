@@ -8,9 +8,11 @@ export const resolvers = {
     getAllActiveSubscriptions: async (_: any, __: any, ctx: Context) => {
       return SubscriptionService.getAllActiveSubscriptions(ctx);
     },
-    sendAllNotifications: async (_: any, 
+    sendAllNotifications: async (
+      _: any,
       { data }: { data: SubscriptionService.ISendAllNotificationsInput },
-      ctx: Context) => {
+      ctx: Context
+    ) => {
       if (!ctx.user) {
         throw new AuthenticationError("You must be logged in");
       }
@@ -22,7 +24,7 @@ export const resolvers = {
       ctx: Context
     ) => {
       return SubscriptionService.checkSubscriptionByEndpoint(data, ctx);
-    }
+    },
   },
   Mutation: {
     postSubscription: (
@@ -45,6 +47,6 @@ export const resolvers = {
       ctx: Context
     ) => {
       return SubscriptionService.toggleSubscription(data, ctx);
-    }
+    },
   },
 };

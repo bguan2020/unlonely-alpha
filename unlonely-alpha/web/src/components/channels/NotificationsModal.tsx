@@ -14,11 +14,16 @@ import {
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { isAddressEqual } from "viem";
 
-import { GET_ALL_DEVICE_TOKENS } from "../../constants/queries";
-import { GetAllDevicesQuery } from "../../generated/graphql";
+import {
+  GET_ALL_DEVICE_TOKENS,
+  SEND_ALL_NOTIFICATIONS_QUERY,
+} from "../../constants/queries";
+import {
+  GetAllDevicesQuery,
+  QuerySendAllNotificationsArgs,
+} from "../../generated/graphql";
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import { splitArray } from "../../utils/splitArray";
 import { WavyText } from "../general/WavyText";
 import { PreviewNotification } from "../mobile/PreviewNotification";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
@@ -58,6 +63,11 @@ export default function NotificationsModal({
     useLazyQuery<GetAllDevicesQuery>(GET_ALL_DEVICE_TOKENS, {
       fetchPolicy: "no-cache",
     });
+  const [call, { loading: sendLoading, data: sendData }] =
+    useLazyQuery<QuerySendAllNotificationsArgs>(SEND_ALL_NOTIFICATIONS_QUERY);
+
+  console.log("sendData", sendData);
+
   const { user } = useUser();
   const [isSending, setIsSending] = useState(false);
   const [selectedType, setSelectedType] = useState("live");
@@ -103,79 +113,87 @@ export default function NotificationsModal({
 
   const sendNotifications = useCallback(async () => {
     if (isSending) return;
-    const devices = selectedType === "live" ? devicesWithLive : devicesWithNFCs;
+    // const devices = selectedType === "live" ? devicesWithLive : devicesWithNFCs;
 
-    const deviceChunks = splitArray<DeviceNotificationsType>(devices, 20);
-    deviceChunks.forEach(async (chunk) => {
-      const tokens: string[] = [];
-      const templates: {
-        to: string;
-        title: string;
-        body: string;
-        sound: string;
-        data: any;
-        channelId: string;
-      }[] = [];
+    // const deviceChunks = splitArray<DeviceNotificationsType>(devices, 20);
+    // deviceChunks.forEach(async (chunk) => {
+    //   const tokens: string[] = [];
+    //   const templates: {
+    //     to: string;
+    //     title: string;
+    //     body: string;
+    //     sound: string;
+    //     data: any;
+    //     channelId: string;
+    //   }[] = [];
 
-      // looping through each device in the array of 20
-      chunk.forEach((d: DeviceNotificationsType) => {
-        tokens.push(d.token);
-      });
+    //   // looping through each device in the array of 20
+    //   chunk.forEach((d: DeviceNotificationsType) => {
+    //     tokens.push(d.token);
+    //   });
 
-      // preparing notification templates for every token from a single chunk
-      // sending requests to all tokens of 20 users at once from a single chunk
-      tokens.forEach((token) => {
-        templates.push({
-          to: token,
+    //   // preparing notification templates for every token from a single chunk
+    //   // sending requests to all tokens of 20 users at once from a single chunk
+    //   tokens.forEach((token) => {
+    //     templates.push({
+    //       to: token,
+    //       title: selectedType === "live" ? titleLive : titleNFCs,
+    //       body: selectedType === "live" ? bodyLive : bodyNFCs,
+    //       sound: "default",
+    //       data: {
+    //         redirect: selectedType === "live" ? "live" : "nfc",
+    //       },
+    //       channelId: selectedType === "live" ? "Live" : "NFC",
+    //     });
+    //   });
+
+    //   const chunkedTemplates = splitArray(templates, 100);
+
+    //   chunkedTemplates.forEach(async (template, index) => {
+    //     const req = await fetch(
+    //       "https://mysterious-stream-82183.herokuapp.com/https://exp.host/--/api/v2/push/send",
+    //       {
+    //         method: "POST",
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify(template),
+    //       }
+    //     );
+
+    //     if (req.ok) {
+    //       toast({
+    //         id: new Date().getMilliseconds(),
+    //         title: `batch notification sent to ${template.length} devices`,
+    //         status: "success",
+    //         duration: 6000,
+    //         isClosable: true,
+    //       });
+
+    //       if (chunkedTemplates.length === index + 1) {
+    //         setIsSending(false);
+    //         handleClose();
+    //       }
+    //     }
+
+    //     if (!req.ok) {
+    //       toast({
+    //         id: new Date().getMilliseconds(),
+    //         title: `failed to send notifications to ${template.length} devices`,
+    //         status: "error",
+    //         duration: 6000,
+    //         isClosable: true,
+    //       });
+    //     }
+    //   });
+    // });
+    call({
+      variables: {
+        data: {
           title: selectedType === "live" ? titleLive : titleNFCs,
           body: selectedType === "live" ? bodyLive : bodyNFCs,
-          sound: "default",
-          data: {
-            redirect: selectedType === "live" ? "live" : "nfc",
-          },
-          channelId: selectedType === "live" ? "Live" : "NFC",
-        });
-      });
-
-      const chunkedTemplates = splitArray(templates, 100);
-
-      chunkedTemplates.forEach(async (template, index) => {
-        const req = await fetch(
-          "https://mysterious-stream-82183.herokuapp.com/https://exp.host/--/api/v2/push/send",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(template),
-          }
-        );
-
-        if (req.ok) {
-          toast({
-            id: new Date().getMilliseconds(),
-            title: `batch notification sent to ${template.length} devices`,
-            status: "success",
-            duration: 6000,
-            isClosable: true,
-          });
-
-          if (chunkedTemplates.length === index + 1) {
-            setIsSending(false);
-            handleClose();
-          }
-        }
-
-        if (!req.ok) {
-          toast({
-            id: new Date().getMilliseconds(),
-            title: `failed to send notifications to ${template.length} devices`,
-            status: "error",
-            duration: 6000,
-            isClosable: true,
-          });
-        }
-      });
+        },
+      },
     });
   }, [
     selectedType,
