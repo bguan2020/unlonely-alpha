@@ -72,6 +72,7 @@ const Profile = () => {
             auth: subscriptionJSON.keys?.auth,
           });
           setEndpoint(subscriptionJSON.endpoint ?? "");
+          handleGetSubscription();
         } else {
           console.error("Failed to get subscription from service worker.");
         }
