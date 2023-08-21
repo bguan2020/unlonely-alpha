@@ -17,7 +17,6 @@ import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/context/useUser";
 import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
 import theme from "../styles/theme";
-import usePreventIOSBounce from "../hooks/internal/usePreventIOSBounce";
 
 interface InitialProps {
   cookies: Cookies;
@@ -30,7 +29,6 @@ function App({ Component, pageProps, cookies }: Props) {
     pageProps ? pageProps.initialApolloState : null,
     cookies
   );
-  usePreventIOSBounce();
 
   const configureChainsConfig = configureChains(
     [Mainnet, Goerli],
