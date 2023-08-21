@@ -78,16 +78,6 @@ body {
   color: #333;
   background-color: #fff;
   overscroll-behavior: none;
-}
-
-h1 {
-  font-family: "Neue Pixel Sans", sans-serif;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-body {
   background-image: linear-gradient(
     to right,
     #e2f979,
@@ -95,6 +85,13 @@ body {
     #ba98d7,
     #d16fce
   ) !important;
+}
+
+h1 {
+  font-family: "Neue Pixel Sans", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
 }
 
 @keyframes gradientBackgroundAnimation {
