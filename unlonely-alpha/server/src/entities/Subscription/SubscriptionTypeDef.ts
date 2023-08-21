@@ -26,9 +26,14 @@ export const typeDef = gql`
     endpoint: String!
   }
 
+  input SendAllNotificationsInput {
+    title: String!
+    body: String!
+  }
+
   extend type Query {
     getAllActiveSubscriptions: [Subscription]
-    sendAllNotifications: Boolean
+    sendAllNotifications(data: SendAllNotificationsInput!): Boolean
     checkSubscriptionByEndpoint(data: ToggleSubscriptionInput!): Boolean
   }
 

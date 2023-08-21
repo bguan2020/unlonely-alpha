@@ -117,7 +117,14 @@ export const getAllActiveSubscriptions = async (ctx: Context) => {
   });
 };
 
-export const sendAllNotifications = async (ctx: Context) => {
+export interface ISendAllNotificationsInput {
+  title: string;
+  body: string;
+}
+
+export const sendAllNotifications = async (ctx: Context, 
+  data: ISendAllNotificationsInput,
+  ) => {
   const vapidPublicKey = process.env.VAPID_PUBLIC_KEY!;
   const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!;
   console.log("vapidPublicKey", vapidPublicKey, "vapidPrivateKey", vapidPrivateKey);
@@ -137,7 +144,7 @@ export const sendAllNotifications = async (ctx: Context) => {
     const pushSubscription = toPushSubscription(subscription);
     console.log(pushSubscription);
     try {
-      const result = await webpush.sendNotification(pushSubscription, "{'notification': {'title': 'my title','body': 'my body',}}");
+      const result = await webpush.sendNotification(pushSubscription, `{'notification': {'title': '${data.title}','body': '${data.body}',}}`);
       console.log("Successfully sent notification", result);
       return true; // Successfully sent
     } catch (error: any) {

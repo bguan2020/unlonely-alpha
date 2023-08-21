@@ -8,8 +8,13 @@ export const resolvers = {
     getAllActiveSubscriptions: async (_: any, __: any, ctx: Context) => {
       return SubscriptionService.getAllActiveSubscriptions(ctx);
     },
-    sendAllNotifications: async (_: any, __: any, ctx: Context) => {
-      return SubscriptionService.sendAllNotifications(ctx);
+    sendAllNotifications: async (_: any, 
+      { data }: { data: SubscriptionService.ISendAllNotificationsInput },
+      ctx: Context) => {
+      if (!ctx.user) {
+        throw new AuthenticationError("You must be logged in");
+      }
+      return SubscriptionService.sendAllNotifications(ctx, data);
     },
     checkSubscriptionByEndpoint: async (
       _: any,
