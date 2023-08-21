@@ -183,7 +183,7 @@ export const UserProvider = ({
         setTimeout(() => {
           setShowTurnOnNotificationsModal("off");
           login();
-        }, 1500);
+        }, 2000);
       }
     }
   };
@@ -287,8 +287,7 @@ export const UserProvider = ({
         {showTurnOnNotifications === "denied" && (
           <Flex direction="column" gap="16px">
             <Text textAlign={"center"} fontSize="15px">
-              If you change your mind, you can turn on notifications in your
-              profile!
+              Ok! You can enable notifications in your profile later!
             </Text>
           </Flex>
         )}
