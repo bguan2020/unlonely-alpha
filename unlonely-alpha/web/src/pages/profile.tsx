@@ -123,16 +123,23 @@ const Profile = () => {
             </Flex>
             <ConnectWallet shouldSayDisconnect />
           </Flex>
+          <Text color="#e2f979" fontFamily="Neue Pixel Sans" fontSize={"25px"}>
+            notifications
+          </Text>
           <Flex justifyContent={"space-between"} alignItems="center" mt="2rem">
             <Text fontFamily="Neue Pixel Sans" fontSize={"25px"}>
-              notifications
+              determines if you will receive notifications on this device
             </Text>
-            <Switch
-              size="lg"
-              isChecked={data?.checkSubscriptionByEndpoint ?? false}
-              onChange={handleSwitchChange}
-              isDisabled={!endpoint || loading}
-            />
+            {loading ? (
+              <Spinner size="lg" />
+            ) : (
+              <Switch
+                size="lg"
+                isChecked={data?.checkSubscriptionByEndpoint ?? false}
+                onChange={handleSwitchChange}
+                isDisabled={!endpoint || loading}
+              />
+            )}
           </Flex>
         </Flex>
       ) : (

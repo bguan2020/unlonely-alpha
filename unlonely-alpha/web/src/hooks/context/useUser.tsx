@@ -142,13 +142,8 @@ export const UserProvider = ({
               console.error("Failed to get subscription from service worker.");
             }
           }
-          if (result === "granted") {
+          if (result === "granted" || result === "denied") {
             setShowTurnOnNotificationsModal(result);
-            setTimeout(() => {
-              setShowTurnOnNotificationsModal("off");
-            }, 1500);
-          } else {
-            setShowTurnOnNotificationsModal("off");
           }
         }
         // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
@@ -157,9 +152,6 @@ export const UserProvider = ({
           // tslint:disable-next-line:no-console
           console.log("Notification permission denied");
           setShowTurnOnNotificationsModal("denied");
-          setTimeout(() => {
-            setShowTurnOnNotificationsModal("off");
-          }, 1500);
         } else if (Notification.permission === "granted") {
           // tslint:disable-next-line:no-console
           console.log("Notification permission granted");
@@ -179,9 +171,6 @@ export const UserProvider = ({
             console.error("Failed to get subscription from service worker.");
           }
           setShowTurnOnNotificationsModal("granted");
-          setTimeout(() => {
-            setShowTurnOnNotificationsModal("off");
-          }, 1500);
         }
       } catch (error) {
         console.error(
@@ -191,7 +180,10 @@ export const UserProvider = ({
         console.log("error", error);
         setShowTurnOnNotificationsModal("off");
       } finally {
-        login();
+        setTimeout(() => {
+          setShowTurnOnNotificationsModal("off");
+          login();
+        }, 1500);
       }
     }
   };
