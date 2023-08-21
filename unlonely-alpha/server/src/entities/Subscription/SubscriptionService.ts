@@ -19,7 +19,7 @@ export const postSubscription = async (
   ctx: Context
 ) => {
   // first check if subscritpion already exists using endpoint
-  // if it does, update it so that it is soft deleted
+  // if it does, update it so that it is not soft deleted
   // if it does not, create it
   const existingSubscription = await ctx.prisma.subscription.findFirst({
     where: {
@@ -128,6 +128,12 @@ export const sendAllNotifications = async (
 ) => {
   const vapidPublicKey = process.env.VAPID_PUBLIC_KEY!;
   const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!;
+  console.log(
+    "vapidPublicKey",
+    vapidPublicKey,
+    "vapidPrivateKey",
+    vapidPrivateKey
+  );
 
   webpush.setVapidDetails(
     `mailto:${process.env.VAPID_MAILTO}`,
@@ -144,9 +150,15 @@ export const sendAllNotifications = async (
     const pushSubscription = toPushSubscription(subscription);
     console.log(pushSubscription);
     try {
+      const notificationPayload = {
+        notification: {
+          title: data.title,
+          body: data.body,
+        },
+      };
       const result = await webpush.sendNotification(
         pushSubscription,
-        `{'notification': {'title': '${data.title}','body': '${data.body}',}}`
+        JSON.stringify(notificationPayload)
       );
       console.log("Successfully sent notification", result);
       return true; // Successfully sent
