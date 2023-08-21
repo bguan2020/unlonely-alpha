@@ -23,13 +23,13 @@ const Profile = () => {
     { fetchPolicy: "network-only" }
   );
 
-  const { toggleSubscription } = useToggleSubscription({
+  const { toggleSubscription, loading: toggleLoading } = useToggleSubscription({
     onError: () => {
       console.log("Failed to toggle subscription to server.");
     },
   });
 
-  const { postSubscription } = usePostSubscription({
+  const { postSubscription, loading: postLoading } = usePostSubscription({
     onError: () => {
       console.error("Failed to save subscription to server.");
     },
@@ -163,21 +163,25 @@ const Profile = () => {
             <Text fontFamily="Neue Pixel Sans" fontSize={"25px"}>
               notifications
             </Text>
-            {loading ? (
-              <Spinner size="lg" />
-            ) : (
+            <Flex alignItems="center" gap="4px">
               <Switch
                 size="lg"
                 isChecked={data?.checkSubscriptionByEndpoint ?? false}
                 onChange={handleSwitchChange}
                 isDisabled={
                   loading ||
+                  toggleLoading ||
+                  postLoading ||
                   systemNotifLoading ||
                   ("Notification" in window &&
                     Notification.permission === "denied")
                 }
               />
-            )}
+              {(loading ||
+                toggleLoading ||
+                postLoading ||
+                systemNotifLoading) && <Spinner />}
+            </Flex>
           </Flex>
           {"Notification" in window && Notification.permission === "denied" && (
             <Text color="#f6ee04">
