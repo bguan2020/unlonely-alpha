@@ -156,6 +156,7 @@ export const UserProvider = ({
         else if (Notification.permission === "denied") {
           // tslint:disable-next-line:no-console
           console.log("Notification permission denied");
+          setShowTurnOnNotificationsModal("denied");
           setTimeout(() => {
             setShowTurnOnNotificationsModal("off");
           }, 1500);
@@ -288,6 +289,14 @@ export const UserProvider = ({
           <Flex direction="column" gap="16px">
             <Text textAlign={"center"} fontSize="15px">
               You're all set up to receive notifications!
+            </Text>
+          </Flex>
+        )}
+        {showTurnOnNotifications === "denied" && (
+          <Flex direction="column" gap="16px">
+            <Text textAlign={"center"} fontSize="15px">
+              If you change your mind, you can turn on notifications in your
+              profile!
             </Text>
           </Flex>
         )}
