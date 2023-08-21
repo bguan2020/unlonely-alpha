@@ -244,6 +244,7 @@ export type Mutation = {
   softDeleteSubscription?: Maybe<Subscription>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
+  toggleSubscription?: Maybe<Subscription>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelText?: Maybe<Channel>;
   updateCreatorTokenPrice: CreatorToken;
@@ -309,6 +310,10 @@ export type MutationSoftDeleteTaskArgs = {
 
 export type MutationSoftDeleteVideoArgs = {
   id: Scalars["ID"];
+};
+
+export type MutationToggleSubscriptionArgs = {
+  data: ToggleSubscriptionInput;
 };
 
 export type MutationUpdateChannelCustomButtonArgs = {
@@ -433,6 +438,7 @@ export type Query = {
   __typename?: "Query";
   _empty?: Maybe<Scalars["String"]>;
   chatBot?: Maybe<Array<Maybe<Chat>>>;
+  checkSubscriptionByEndpoint?: Maybe<Scalars["Boolean"]>;
   currentUser?: Maybe<User>;
   currentUserAuthMessage?: Maybe<Scalars["String"]>;
   firstChatExists?: Maybe<Scalars["Boolean"]>;
@@ -460,7 +466,12 @@ export type Query = {
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
+  sendAllNotifications?: Maybe<Scalars["Boolean"]>;
   updateAllUsers?: Maybe<Array<Maybe<User>>>;
+};
+
+export type QueryCheckSubscriptionByEndpointArgs = {
+  data: ToggleSubscriptionInput;
 };
 
 export type QueryGetChannelByAwsIdArgs = {
@@ -559,12 +570,12 @@ export type StreamInteraction = {
 export type Subscription = {
   __typename?: "Subscription";
   auth: Scalars["String"];
+  createdAt: Scalars["DateTime"];
   endpoint: Scalars["String"];
   expirationTime?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
   p256dh: Scalars["String"];
   softDelete: Scalars["Boolean"];
-  userId: Scalars["Int"];
 };
 
 export type Task = {
@@ -588,6 +599,10 @@ export type TaskFeedInput = {
   orderBy?: InputMaybe<SortOrder>;
   searchString?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;
+};
+
+export type ToggleSubscriptionInput = {
+  endpoint: Scalars["String"];
 };
 
 export type UpdateChannelCustomButtonInput = {
@@ -1032,6 +1047,15 @@ export type PostVideoMutationVariables = Exact<{
 export type PostVideoMutation = {
   __typename?: "Mutation";
   postVideo?: { __typename?: "Video"; id: string } | null;
+};
+
+export type ToggleSubscriptionMutationVariables = Exact<{
+  data: ToggleSubscriptionInput;
+}>;
+
+export type ToggleSubscriptionMutation = {
+  __typename?: "Mutation";
+  toggleSubscription?: { __typename?: "Subscription"; id: string } | null;
 };
 
 export type UpdateChannelCustomButtonMutationVariables = Exact<{
@@ -2458,6 +2482,56 @@ export type PostVideoMutationResult = Apollo.MutationResult<PostVideoMutation>;
 export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
   PostVideoMutation,
   PostVideoMutationVariables
+>;
+export const ToggleSubscriptionDocument = gql`
+  mutation ToggleSubscription($data: ToggleSubscriptionInput!) {
+    toggleSubscription(data: $data) {
+      id
+    }
+  }
+`;
+export type ToggleSubscriptionMutationFn = Apollo.MutationFunction<
+  ToggleSubscriptionMutation,
+  ToggleSubscriptionMutationVariables
+>;
+
+/**
+ * __useToggleSubscriptionMutation__
+ *
+ * To run a mutation, you first call `useToggleSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleSubscriptionMutation, { data, loading, error }] = useToggleSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useToggleSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ToggleSubscriptionMutation,
+    ToggleSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    ToggleSubscriptionMutation,
+    ToggleSubscriptionMutationVariables
+  >(ToggleSubscriptionDocument, options);
+}
+export type ToggleSubscriptionMutationHookResult = ReturnType<
+  typeof useToggleSubscriptionMutation
+>;
+export type ToggleSubscriptionMutationResult =
+  Apollo.MutationResult<ToggleSubscriptionMutation>;
+export type ToggleSubscriptionMutationOptions = Apollo.BaseMutationOptions<
+  ToggleSubscriptionMutation,
+  ToggleSubscriptionMutationVariables
 >;
 export const UpdateChannelCustomButtonDocument = gql`
   mutation UpdateChannelCustomButton($data: UpdateChannelCustomButtonInput!) {

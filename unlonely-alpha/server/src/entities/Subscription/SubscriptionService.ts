@@ -18,6 +18,26 @@ export const postSubscription = async (
   data: IPostSubscriptionInput,
   ctx: Context
 ) => {
+  // first check if subscritpion already exists using endpoint
+  // if it does, update it so that it is not soft deleted
+  // if it does not, create it
+  const existingSubscription = await ctx.prisma.subscription.findFirst({
+    where: {
+      endpoint: data.endpoint,
+    },
+  });
+
+  if (existingSubscription) {
+    return await ctx.prisma.subscription.update({
+      where: {
+        id: existingSubscription.id,
+      },
+      data: {
+        softDelete: false,
+      },
+    });
+  }
+
   return await ctx.prisma.subscription.create({
     data: {
       endpoint: data.endpoint,
@@ -40,6 +60,53 @@ export const softDeleteSubscription = async (
       softDelete: true,
     },
   });
+};
+export interface IToggleSubscriptionInput {
+  endpoint: string;
+}
+
+export const toggleSubscription = async (
+  data: IToggleSubscriptionInput,
+  ctx: Context
+) => {
+  // toggle subscription.softDelete
+  const existingSubscription = await ctx.prisma.subscription.findFirst({
+    where: {
+      endpoint: data.endpoint,
+    },
+  });
+
+  if (!existingSubscription) {
+    throw new Error("Subscription does not exist");
+  }
+
+  return await ctx.prisma.subscription.update({
+    where: {
+      id: existingSubscription.id,
+    },
+    data: {
+      softDelete: !existingSubscription.softDelete,
+    },
+  });
+};
+
+export const checkSubscriptionByEndpoint = async (
+  data: IToggleSubscriptionInput,
+  ctx: Context
+) => {
+  // if subscription.softDelete is true, return false
+  // if subscription.softDelete is false, return true
+  const existingSubscription = await ctx.prisma.subscription.findFirst({
+    where: {
+      endpoint: data.endpoint,
+    },
+  });
+  
+  if (!existingSubscription) {
+    throw new Error("Subscription does not exist");
+  }
+
+  return !existingSubscription.softDelete;
 };
 
 export const getAllActiveSubscriptions = async (ctx: Context) => {

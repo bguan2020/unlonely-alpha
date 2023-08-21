@@ -22,13 +22,19 @@ export const typeDef = gql`
     id: ID!
   }
 
+  input ToggleSubscriptionInput {
+    endpoint: String!
+  }
+
   extend type Query {
     getAllActiveSubscriptions: [Subscription]
     sendAllNotifications: Boolean
+    checkSubscriptionByEndpoint(data: ToggleSubscriptionInput!): Boolean
   }
 
   extend type Mutation {
     postSubscription(data: PostSubscriptionInput!): Subscription
     softDeleteSubscription(data: SoftDeleteSubscriptionInput!): Subscription
+    toggleSubscription(data: ToggleSubscriptionInput!): Subscription
   }
 `;
