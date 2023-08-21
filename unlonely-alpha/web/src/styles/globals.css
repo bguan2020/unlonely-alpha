@@ -10,12 +10,6 @@
   src: url("/fonts/SpaceMono-Regular.ttf");
 }
 
-html {
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
 /* For Webkit (Chrome & Safari) */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
