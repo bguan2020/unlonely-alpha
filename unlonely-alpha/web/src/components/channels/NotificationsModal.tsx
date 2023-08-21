@@ -6,25 +6,17 @@ import {
   Flex,
   Box,
   Button,
-  Divider,
   Input,
   Tab,
   TabList,
 } from "@chakra-ui/react";
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { isAddressEqual } from "viem";
 
-import {
-  GET_ALL_DEVICE_TOKENS,
-  SEND_ALL_NOTIFICATIONS_QUERY,
-} from "../../constants/queries";
-import {
-  GetAllDevicesQuery,
-  QuerySendAllNotificationsArgs,
-} from "../../generated/graphql";
+import { SEND_ALL_NOTIFICATIONS_QUERY } from "../../constants/queries";
+import { QuerySendAllNotificationsArgs } from "../../generated/graphql";
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import { WavyText } from "../general/WavyText";
 import { PreviewNotification } from "../mobile/PreviewNotification";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
@@ -59,14 +51,10 @@ export default function NotificationsModal({
   callback?: any;
   handleClose: () => void;
 }) {
-  const [getAllDeviceTokens, { loading, data }] =
-    useLazyQuery<GetAllDevicesQuery>(GET_ALL_DEVICE_TOKENS, {
-      fetchPolicy: "no-cache",
-    });
   const [call, { loading: sendLoading, data: sendData }] =
-    useLazyQuery<QuerySendAllNotificationsArgs>(SEND_ALL_NOTIFICATIONS_QUERY);
-
-  console.log("sendData", sendData);
+    useLazyQuery<QuerySendAllNotificationsArgs>(SEND_ALL_NOTIFICATIONS_QUERY, {
+      fetchPolicy: "network-only",
+    });
 
   const { user } = useUser();
   const [isSending, setIsSending] = useState(false);
@@ -92,122 +80,36 @@ export default function NotificationsModal({
     "watch some highlights from recent streams"
   );
 
-  const devices = useMemo(() => {
-    if (!data?.getAllDevices) return [];
-    return data?.getAllDevices.filter(
-      (device): device is DeviceNotificationsType => device !== null
-    );
-  }, [data]);
-
-  const devicesWithLive = useMemo(() => {
-    return devices?.filter((device) => {
-      if (device?.notificationsLive) return device;
-    });
-  }, [devices]);
-
-  const devicesWithNFCs = useMemo(() => {
-    return devices?.filter((device) => {
-      if (device?.notificationsNFCs) return device;
-    });
-  }, [devices]);
-
   const sendNotifications = useCallback(async () => {
-    if (isSending) return;
-    // const devices = selectedType === "live" ? devicesWithLive : devicesWithNFCs;
-
-    // const deviceChunks = splitArray<DeviceNotificationsType>(devices, 20);
-    // deviceChunks.forEach(async (chunk) => {
-    //   const tokens: string[] = [];
-    //   const templates: {
-    //     to: string;
-    //     title: string;
-    //     body: string;
-    //     sound: string;
-    //     data: any;
-    //     channelId: string;
-    //   }[] = [];
-
-    //   // looping through each device in the array of 20
-    //   chunk.forEach((d: DeviceNotificationsType) => {
-    //     tokens.push(d.token);
-    //   });
-
-    //   // preparing notification templates for every token from a single chunk
-    //   // sending requests to all tokens of 20 users at once from a single chunk
-    //   tokens.forEach((token) => {
-    //     templates.push({
-    //       to: token,
-    //       title: selectedType === "live" ? titleLive : titleNFCs,
-    //       body: selectedType === "live" ? bodyLive : bodyNFCs,
-    //       sound: "default",
-    //       data: {
-    //         redirect: selectedType === "live" ? "live" : "nfc",
-    //       },
-    //       channelId: selectedType === "live" ? "Live" : "NFC",
-    //     });
-    //   });
-
-    //   const chunkedTemplates = splitArray(templates, 100);
-
-    //   chunkedTemplates.forEach(async (template, index) => {
-    //     const req = await fetch(
-    //       "https://mysterious-stream-82183.herokuapp.com/https://exp.host/--/api/v2/push/send",
-    //       {
-    //         method: "POST",
-    //         headers: {
-    //           "Content-Type": "application/json",
-    //         },
-    //         body: JSON.stringify(template),
-    //       }
-    //     );
-
-    //     if (req.ok) {
-    //       toast({
-    //         id: new Date().getMilliseconds(),
-    //         title: `batch notification sent to ${template.length} devices`,
-    //         status: "success",
-    //         duration: 6000,
-    //         isClosable: true,
-    //       });
-
-    //       if (chunkedTemplates.length === index + 1) {
-    //         setIsSending(false);
-    //         handleClose();
-    //       }
-    //     }
-
-    //     if (!req.ok) {
-    //       toast({
-    //         id: new Date().getMilliseconds(),
-    //         title: `failed to send notifications to ${template.length} devices`,
-    //         status: "error",
-    //         duration: 6000,
-    //         isClosable: true,
-    //       });
-    //     }
-    //   });
-    // });
-    call({
-      variables: {
-        data: {
-          title: selectedType === "live" ? titleLive : titleNFCs,
-          body: selectedType === "live" ? bodyLive : bodyNFCs,
+    setIsSending(true);
+    try {
+      await call({
+        variables: {
+          data: {
+            title: selectedType === "live" ? titleLive : titleNFCs,
+            body: selectedType === "live" ? bodyLive : bodyNFCs,
+          },
         },
-      },
-    });
-  }, [
-    selectedType,
-    devicesWithLive,
-    devicesWithNFCs,
-    titleLive,
-    titleNFCs,
-    bodyLive,
-    bodyNFCs,
-  ]);
-
-  useEffect(() => {
-    getAllDeviceTokens();
-  }, []);
+      });
+      toast({
+        id: new Date().getMilliseconds(),
+        title: "notification pushed!",
+        status: "success",
+        duration: 6000,
+        isClosable: true,
+      });
+    } catch (e) {
+      console.log("error", e);
+      toast({
+        id: new Date().getMilliseconds(),
+        title: "notification failed",
+        status: "error",
+        duration: 6000,
+        isClosable: true,
+      });
+    }
+    setIsSending(false);
+  }, [selectedType, titleLive, titleNFCs, bodyLive, bodyNFCs]);
 
   return (
     <TransactionModalTemplate
@@ -220,153 +122,104 @@ export default function NotificationsModal({
       loadingText={"sending notifications..."}
       size={isStandalone ? "sm" : "md"}
     >
-      {!loading && data ? (
-        <>
-          {isBrian && (
-            <Tabs
-              variant="soft-rounded"
-              colorScheme="green"
-              defaultIndex={0}
-              onChange={(index) => {
-                if (index === 0) {
-                  setSelectedType("live");
-                } else {
-                  setSelectedType("nfc");
-                }
-              }}
-            >
-              <TabList>
-                <Tab>going live</Tab>
-                <Tab>new NFCs</Tab>
-              </TabList>
-            </Tabs>
-          )}
-          <Box
-            borderWidth="1px"
-            borderRadius="10px"
-            padding="16px"
-            borderColor="#dadada"
+      <>
+        {isBrian && (
+          <Tabs
+            variant="soft-rounded"
+            colorScheme="green"
+            defaultIndex={0}
+            onChange={(index) => {
+              if (index === 0) {
+                setSelectedType("live");
+              } else {
+                setSelectedType("nfc");
+              }
+            }}
           >
-            <Flex
-              direction="row"
-              justifyContent="space-between"
-              pb="4px"
-              gap="12px"
-            >
-              <Text color="#dadada" fontSize={"15px"}>
-                # of users with notifications on
-              </Text>
-              <Text fontSize={"15px"}>{devices?.length}</Text>
-            </Flex>
-            <Divider />
-            <Flex
-              direction="row"
-              justifyContent="space-between"
-              pb="4px"
-              gap="12px"
-            >
-              <Text color="#dadada" fontSize={"15px"}>
-                going live
-              </Text>
-              <Text fontSize={"15px"}>{devicesWithLive?.length}</Text>
-            </Flex>
-          </Box>
+            <TabList>
+              <Tab>going live</Tab>
+              <Tab>new NFCs</Tab>
+            </TabList>
+          </Tabs>
+        )}
 
-          <Box
-            borderRadius="10px"
-            padding="16px"
-            bg="#1F2D31"
-            width="100%"
-            borderColor="#dadada"
-          >
-            <Flex direction="column" mb="15px">
-              {selectedType === "nfc" ? (
-                <Flex direction="column" gap="20px">
-                  <Flex direction="column" gap="10px">
-                    <Text fontSize="15px" color="#bababa">
-                      title
-                    </Text>
-                    <Input
-                      {...inputStyle}
-                      defaultValue={titleNFCs}
-                      onChange={(event) => setTitleNFCs(event.target.value)}
-                    />
-                  </Flex>
-                  <Flex direction="column" gap="10px">
-                    <Text fontSize="15px" color="#bababa">
-                      description
-                    </Text>
-                    <Input
-                      {...inputStyle}
-                      defaultValue={bodyNFCs}
-                      onChange={(event) => setBodyNFCs(event.target.value)}
-                    />
-                  </Flex>
-                </Flex>
-              ) : (
+        <Box
+          borderRadius="10px"
+          padding="16px"
+          bg="#1F2D31"
+          width="100%"
+          borderColor="#dadada"
+        >
+          <Flex direction="column" mb="15px">
+            {selectedType === "nfc" ? (
+              <Flex direction="column" gap="20px">
                 <Flex direction="column" gap="10px">
-                  <Text fontSize="15px">enter a description</Text>
+                  <Text fontSize="15px" color="#bababa">
+                    title
+                  </Text>
                   <Input
                     {...inputStyle}
-                    placeholder="Ex. cooking stream"
-                    _placeholder={{ color: "#bababa" }}
-                    defaultValue={bodyLive}
-                    onChange={(event) => setBodyLive(event.target.value)}
+                    defaultValue={titleNFCs}
+                    onChange={(event) => setTitleNFCs(event.target.value)}
                   />
                 </Flex>
-              )}
-            </Flex>
-            <Flex direction="column" gap="10px">
-              <Text fontSize="15px" color="#dadada">
-                preview
-              </Text>
-              <PreviewNotification
-                selectedType={selectedType}
-                titleLive={titleLive}
-                titleNFCs={titleNFCs}
-                bodyLive={bodyLive}
-                bodyNFCs={bodyNFCs}
-              />
-            </Flex>
-            <Button
-              mt={"15px"}
-              onClick={() => {
-                setIsSending(true);
-                sendNotifications();
-              }}
-              isLoading={loading || isSending}
-              loadingText="sending..."
-              colorScheme={"blue"}
-              py={10}
-              _hover={{ transform: "scale(1.05)" }}
-              _active={{
-                transform: "scale(1)",
-                background: "green",
-              }}
-              borderRadius="10px"
-              _focus={{}}
-              width="100%"
-              disabled={
-                !data ||
-                loading ||
-                isSending ||
-                (bodyLive === "" && selectedType === "live")
-              }
-            >
-              <Text fontSize="30px">send</Text>
-            </Button>
-          </Box>
-        </>
-      ) : (
-        <Flex
-          alignItems={"center"}
-          justifyContent={"center"}
-          width="100%"
-          fontSize="50px"
-        >
-          <WavyText text="fetching..." />
-        </Flex>
-      )}
+                <Flex direction="column" gap="10px">
+                  <Text fontSize="15px" color="#bababa">
+                    description
+                  </Text>
+                  <Input
+                    {...inputStyle}
+                    defaultValue={bodyNFCs}
+                    onChange={(event) => setBodyNFCs(event.target.value)}
+                  />
+                </Flex>
+              </Flex>
+            ) : (
+              <Flex direction="column" gap="10px">
+                <Text fontSize="15px">enter a description</Text>
+                <Input
+                  {...inputStyle}
+                  placeholder="Ex. cooking stream"
+                  _placeholder={{ color: "#bababa" }}
+                  defaultValue={bodyLive}
+                  onChange={(event) => setBodyLive(event.target.value)}
+                />
+              </Flex>
+            )}
+          </Flex>
+          <Flex direction="column" gap="10px">
+            <Text fontSize="15px" color="#dadada">
+              preview
+            </Text>
+            <PreviewNotification
+              selectedType={selectedType}
+              titleLive={titleLive}
+              titleNFCs={titleNFCs}
+              bodyLive={bodyLive}
+              bodyNFCs={bodyNFCs}
+            />
+          </Flex>
+          <Button
+            mt={"15px"}
+            onClick={sendNotifications}
+            isLoading={isSending}
+            loadingText="sending..."
+            colorScheme={"blue"}
+            py={10}
+            _hover={{ transform: "scale(1.05)" }}
+            _active={{
+              transform: "scale(1)",
+              background: "green",
+            }}
+            borderRadius="10px"
+            _focus={{}}
+            width="100%"
+            disabled={isSending || (bodyLive === "" && selectedType === "live")}
+          >
+            <Text fontSize="30px">send</Text>
+          </Button>
+        </Box>
+      </>
     </TransactionModalTemplate>
   );
 }
