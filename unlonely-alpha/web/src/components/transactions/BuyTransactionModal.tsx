@@ -25,7 +25,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
-
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 export default function BuyTransactionModal({
   title,
@@ -42,6 +42,8 @@ export default function BuyTransactionModal({
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
+  const { isStandalone } = useUserAgent();
+
   const { user, userAddress, walletIsConnected } = useUser();
   const { channel, token, holders } = useChannelContext();
   const { channelQueryData } = channel;
@@ -222,6 +224,7 @@ export default function BuyTransactionModal({
       canSend={canSend}
       onSend={handleSend}
       handleClose={handleClose}
+      size={isStandalone ? "sm" : "md"}
     >
       <Flex direction={"column"} gap="16px">
         <Text textAlign={"center"} fontSize="25px" color="#BABABA">

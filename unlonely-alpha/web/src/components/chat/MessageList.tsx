@@ -49,7 +49,8 @@ const MessageList = memo(
           <Virtuoso
             followOutput={"auto"}
             ref={scrollRef}
-            style={{ height: "100%" }}
+            style={{ height: "100%", overflowY: "scroll" }}
+            className="hide-scrollbar"
             data={chatMessages}
             atBottomStateChange={(isAtBottom) => isAtBottomCallback(isAtBottom)}
             initialTopMostItemIndex={chatMessages.length - 1}
@@ -64,8 +65,8 @@ const MessageList = memo(
           />
         ) : (
           <>
-            <Flex flexDirection="row">
-              <Text color="white">
+            <Flex flexDirection="row" flex="1">
+              <Text color="white" textAlign={"center"}>
                 {"No messages to show. Messages delete every 48 hrs."}
               </Text>
             </Flex>

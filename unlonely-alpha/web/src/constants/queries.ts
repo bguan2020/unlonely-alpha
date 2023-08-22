@@ -6,6 +6,12 @@ export const GET_USER_TOKEN_HOLDING_QUERY = gql`
   }
 `;
 
+export const SEND_ALL_NOTIFICATIONS_QUERY = gql`
+  query SendAllNotifications($data: SendAllNotificationsInput!) {
+    sendAllNotifications(data: $data)
+  }
+`;
+
 export const GET_TOKEN_LEADERBOARD_QUERY = gql`
   query GetTokenLeaderboard {
     getTokenLeaderboard {
@@ -138,5 +144,11 @@ export const GET_ALL_USERS_WITH_CHANNEL = gql`
       address
       username
     }
+  }
+`;
+
+export const CHECK_SUBSCRIPTION = gql`
+  query CheckSubscription($data: ToggleSubscriptionInput!) {
+    checkSubscriptionByEndpoint(data: $data)
   }
 `;

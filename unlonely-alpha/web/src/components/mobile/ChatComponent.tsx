@@ -264,7 +264,7 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
 
   useEffect(() => {
     if (receivedMessages.length === 0) return;
-    if (!mountingMessages.current) {
+    if (!mountingMessages.current && receivedMessages.length > 0) {
       const latestMessage = receivedMessages[receivedMessages.length - 1];
       if (latestMessage && latestMessage.name === "chat-message") {
         if (

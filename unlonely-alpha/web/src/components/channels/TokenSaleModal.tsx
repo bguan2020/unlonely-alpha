@@ -11,6 +11,7 @@ import { TransactionModalTemplate } from "../transactions/TransactionModalTempla
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 export default function TokenSaleModal({
   title,
@@ -27,6 +28,7 @@ export default function TokenSaleModal({
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
   const toast = useToast();
+  const { isStandalone } = useUserAgent();
 
   const network = useNetwork();
   const localNetwork = useMemo(() => {
@@ -109,6 +111,7 @@ export default function TokenSaleModal({
       canSend={canSend}
       onSend={writeApproval}
       handleClose={handleClose}
+      size={isStandalone ? "sm" : "md"}
     >
       <Flex direction="column" gap="16px">
         <Text textAlign="center">

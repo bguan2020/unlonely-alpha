@@ -30,7 +30,7 @@ const ChannelViewerPerspective = () => {
             </Flex>
           ))}
         </Box>
-        <StreamComponent isTheatreMode />
+        <StreamComponent />
       </Flex>
     </Stack>
   );

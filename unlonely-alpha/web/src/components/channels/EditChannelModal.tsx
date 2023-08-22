@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 
 import { UpdateChannelTextInput } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 import useUpdateChannelText from "../../hooks/server/useUpdateChannelText";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
@@ -28,6 +29,7 @@ export default function EditChannelModal({
 }) {
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
+  const { isStandalone } = useUserAgent();
 
   const [formError, setFormError] = useState<string[]>([]);
   const form = useForm<UpdateChannelTextInput>({
@@ -58,6 +60,7 @@ export default function EditChannelModal({
       isModalLoading={loading}
       handleClose={handleClose}
       hideFooter
+      size={isStandalone ? "sm" : "md"}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <Flex direction="column" gap="16px">

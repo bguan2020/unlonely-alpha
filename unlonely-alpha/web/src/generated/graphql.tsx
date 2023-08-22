@@ -238,10 +238,13 @@ export type Mutation = {
   postFirstChat?: Maybe<Chat>;
   postNFC?: Maybe<Nfc>;
   postStreamInteraction?: Maybe<StreamInteraction>;
+  postSubscription?: Maybe<Subscription>;
   postTask?: Maybe<Task>;
   postVideo?: Maybe<Video>;
+  softDeleteSubscription?: Maybe<Subscription>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
+  toggleSubscription?: Maybe<Subscription>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelText?: Maybe<Channel>;
   updateCreatorTokenPrice: CreatorToken;
@@ -285,6 +288,10 @@ export type MutationPostStreamInteractionArgs = {
   data: PostStreamInteractionInput;
 };
 
+export type MutationPostSubscriptionArgs = {
+  data: PostSubscriptionInput;
+};
+
 export type MutationPostTaskArgs = {
   data: PostTaskInput;
 };
@@ -293,12 +300,20 @@ export type MutationPostVideoArgs = {
   data: PostVideoInput;
 };
 
+export type MutationSoftDeleteSubscriptionArgs = {
+  data: SoftDeleteSubscriptionInput;
+};
+
 export type MutationSoftDeleteTaskArgs = {
   id: Scalars["ID"];
 };
 
 export type MutationSoftDeleteVideoArgs = {
   id: Scalars["ID"];
+};
+
+export type MutationToggleSubscriptionArgs = {
+  data: ToggleSubscriptionInput;
 };
 
 export type MutationUpdateChannelCustomButtonArgs = {
@@ -395,6 +410,13 @@ export type PostStreamInteractionInput = {
   text?: InputMaybe<Scalars["String"]>;
 };
 
+export type PostSubscriptionInput = {
+  auth: Scalars["String"];
+  endpoint: Scalars["String"];
+  expirationTime?: InputMaybe<Scalars["String"]>;
+  p256dh: Scalars["String"];
+};
+
 export type PostTaskInput = {
   description?: InputMaybe<Scalars["String"]>;
   link?: InputMaybe<Scalars["String"]>;
@@ -416,9 +438,11 @@ export type Query = {
   __typename?: "Query";
   _empty?: Maybe<Scalars["String"]>;
   chatBot?: Maybe<Array<Maybe<Chat>>>;
+  checkSubscriptionByEndpoint?: Maybe<Scalars["Boolean"]>;
   currentUser?: Maybe<User>;
   currentUserAuthMessage?: Maybe<Scalars["String"]>;
   firstChatExists?: Maybe<Scalars["Boolean"]>;
+  getAllActiveSubscriptions?: Maybe<Array<Maybe<Subscription>>>;
   getAllDevices?: Maybe<Array<Maybe<DeviceToken>>>;
   getAllUsers?: Maybe<Array<Maybe<User>>>;
   getAllUsersWithChannel?: Maybe<Array<Maybe<User>>>;
@@ -442,7 +466,12 @@ export type Query = {
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
+  sendAllNotifications?: Maybe<Scalars["Boolean"]>;
   updateAllUsers?: Maybe<Array<Maybe<User>>>;
+};
+
+export type QueryCheckSubscriptionByEndpointArgs = {
+  data: ToggleSubscriptionInput;
 };
 
 export type QueryGetChannelByAwsIdArgs = {
@@ -513,6 +542,19 @@ export type QueryGetVideoFeedArgs = {
   data?: InputMaybe<VideoFeedInput>;
 };
 
+export type QuerySendAllNotificationsArgs = {
+  data: SendAllNotificationsInput;
+};
+
+export type SendAllNotificationsInput = {
+  body: Scalars["String"];
+  title: Scalars["String"];
+};
+
+export type SoftDeleteSubscriptionInput = {
+  id: Scalars["ID"];
+};
+
 export enum SortBy {
   CreatedAt = "createdAt",
   Score = "score",
@@ -532,6 +574,17 @@ export type StreamInteraction = {
   owner: User;
   text?: Maybe<Scalars["String"]>;
   updatedAt: Scalars["DateTime"];
+};
+
+export type Subscription = {
+  __typename?: "Subscription";
+  auth: Scalars["String"];
+  createdAt: Scalars["DateTime"];
+  endpoint: Scalars["String"];
+  expirationTime?: Maybe<Scalars["String"]>;
+  id: Scalars["ID"];
+  p256dh: Scalars["String"];
+  softDelete: Scalars["Boolean"];
 };
 
 export type Task = {
@@ -555,6 +608,10 @@ export type TaskFeedInput = {
   orderBy?: InputMaybe<SortOrder>;
   searchString?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;
+};
+
+export type ToggleSubscriptionInput = {
+  endpoint: Scalars["String"];
 };
 
 export type UpdateChannelCustomButtonInput = {
@@ -673,6 +730,15 @@ export type QueryQueryVariables = Exact<{
 export type QueryQuery = {
   __typename?: "Query";
   getUserTokenHolding?: number | null;
+};
+
+export type SendAllNotificationsQueryVariables = Exact<{
+  data: SendAllNotificationsInput;
+}>;
+
+export type SendAllNotificationsQuery = {
+  __typename?: "Query";
+  sendAllNotifications?: boolean | null;
 };
 
 export type GetTokenLeaderboardQueryVariables = Exact<{ [key: string]: never }>;
@@ -831,51 +897,13 @@ export type GetAllUsersWithChannelQuery = {
   } | null> | null;
 };
 
-export type TaskCard_TaskFragment = {
-  __typename?: "Task";
-  id: string;
-  taskType: string;
-  youtubeId?: string | null;
-  title?: string | null;
-  thumbnail?: string | null;
-  description?: string | null;
-  completed: boolean;
-  createdAt: any;
-  owner: { __typename?: "User"; username?: string | null; address: string };
-};
-
-export type VideoCard_VideoFragment = {
-  __typename?: "Video";
-  id: string;
-  youtubeId: string;
-  title: string;
-  thumbnail: string;
-  description: string;
-  score: number;
-  duration: number;
-  createdAt: any;
-  liked?: boolean | null;
-  owner: { __typename?: "User"; username?: string | null; address: string };
-};
-
-export type TaskFeedQueryVariables = Exact<{
-  data: TaskFeedInput;
+export type CheckSubscriptionQueryVariables = Exact<{
+  data: ToggleSubscriptionInput;
 }>;
 
-export type TaskFeedQuery = {
+export type CheckSubscriptionQuery = {
   __typename?: "Query";
-  getTaskFeed?: Array<{
-    __typename?: "Task";
-    id: string;
-    taskType: string;
-    youtubeId?: string | null;
-    title?: string | null;
-    thumbnail?: string | null;
-    description?: string | null;
-    link?: string | null;
-    completed: boolean;
-    owner: { __typename?: "User"; username?: string | null; address: string };
-  } | null> | null;
+  checkSubscriptionByEndpoint?: boolean | null;
 };
 
 export type GetUserQueryVariables = Exact<{
@@ -1021,6 +1049,15 @@ export type PostStreamInteractionMutation = {
   } | null;
 };
 
+export type PostSubscriptionMutationVariables = Exact<{
+  data: PostSubscriptionInput;
+}>;
+
+export type PostSubscriptionMutation = {
+  __typename?: "Mutation";
+  postSubscription?: { __typename?: "Subscription"; id: string } | null;
+};
+
 export type PostTaskMutationVariables = Exact<{
   data: PostTaskInput;
 }>;
@@ -1037,6 +1074,15 @@ export type PostVideoMutationVariables = Exact<{
 export type PostVideoMutation = {
   __typename?: "Mutation";
   postVideo?: { __typename?: "Video"; id: string } | null;
+};
+
+export type ToggleSubscriptionMutationVariables = Exact<{
+  data: ToggleSubscriptionInput;
+}>;
+
+export type ToggleSubscriptionMutation = {
+  __typename?: "Mutation";
+  toggleSubscription?: { __typename?: "Subscription"; id: string } | null;
 };
 
 export type UpdateChannelCustomButtonMutationVariables = Exact<{
@@ -1065,6 +1111,15 @@ export type UpdateChannelTextMutation = {
     name?: string | null;
     description?: string | null;
   } | null;
+};
+
+export type UpdateNfcMutationVariables = Exact<{
+  data: UpdateNfcInput;
+}>;
+
+export type UpdateNfcMutation = {
+  __typename?: "Mutation";
+  updateNFC?: { __typename?: "NFC"; id: string } | null;
 };
 
 export type UpdateUserNotificationsMutationVariables = Exact<{
@@ -1214,48 +1269,6 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
-export type UpdateNfcMutationVariables = Exact<{
-  data: UpdateNfcInput;
-}>;
-
-export type UpdateNfcMutation = {
-  __typename?: "Mutation";
-  updateNFC?: { __typename?: "NFC"; id: string } | null;
-};
-
-export const TaskCard_TaskFragmentDoc = gql`
-  fragment TaskCard_task on Task {
-    id
-    taskType
-    youtubeId
-    title
-    thumbnail
-    description
-    completed
-    createdAt
-    owner {
-      username
-      address
-    }
-  }
-`;
-export const VideoCard_VideoFragmentDoc = gql`
-  fragment VideoCard_video on Video {
-    id
-    youtubeId
-    title
-    thumbnail
-    description
-    score
-    duration
-    createdAt
-    owner {
-      username
-      address
-    }
-    liked
-  }
-`;
 export const QueryDocument = gql`
   query Query($data: GetUserTokenHoldingInput!) {
     getUserTokenHolding(data: $data)
@@ -1301,6 +1314,62 @@ export type QueryLazyQueryHookResult = ReturnType<typeof useQueryLazyQuery>;
 export type QueryQueryResult = Apollo.QueryResult<
   QueryQuery,
   QueryQueryVariables
+>;
+export const SendAllNotificationsDocument = gql`
+  query SendAllNotifications($data: SendAllNotificationsInput!) {
+    sendAllNotifications(data: $data)
+  }
+`;
+
+/**
+ * __useSendAllNotificationsQuery__
+ *
+ * To run a query within a React component, call `useSendAllNotificationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSendAllNotificationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSendAllNotificationsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useSendAllNotificationsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    SendAllNotificationsQuery,
+    SendAllNotificationsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    SendAllNotificationsQuery,
+    SendAllNotificationsQueryVariables
+  >(SendAllNotificationsDocument, options);
+}
+export function useSendAllNotificationsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    SendAllNotificationsQuery,
+    SendAllNotificationsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    SendAllNotificationsQuery,
+    SendAllNotificationsQueryVariables
+  >(SendAllNotificationsDocument, options);
+}
+export type SendAllNotificationsQueryHookResult = ReturnType<
+  typeof useSendAllNotificationsQuery
+>;
+export type SendAllNotificationsLazyQueryHookResult = ReturnType<
+  typeof useSendAllNotificationsLazyQuery
+>;
+export type SendAllNotificationsQueryResult = Apollo.QueryResult<
+  SendAllNotificationsQuery,
+  SendAllNotificationsQueryVariables
 >;
 export const GetTokenLeaderboardDocument = gql`
   query GetTokenLeaderboard {
@@ -1784,69 +1853,61 @@ export type GetAllUsersWithChannelQueryResult = Apollo.QueryResult<
   GetAllUsersWithChannelQuery,
   GetAllUsersWithChannelQueryVariables
 >;
-export const TaskFeedDocument = gql`
-  query TaskFeed($data: TaskFeedInput!) {
-    getTaskFeed(data: $data) {
-      id
-      taskType
-      youtubeId
-      title
-      thumbnail
-      description
-      link
-      completed
-      owner {
-        username
-        address
-      }
-    }
+export const CheckSubscriptionDocument = gql`
+  query CheckSubscription($data: ToggleSubscriptionInput!) {
+    checkSubscriptionByEndpoint(data: $data)
   }
 `;
 
 /**
- * __useTaskFeedQuery__
+ * __useCheckSubscriptionQuery__
  *
- * To run a query within a React component, call `useTaskFeedQuery` and pass it any options that fit your needs.
- * When your component renders, `useTaskFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useCheckSubscriptionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckSubscriptionQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useTaskFeedQuery({
+ * const { data, loading, error } = useCheckSubscriptionQuery({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useTaskFeedQuery(
-  baseOptions: Apollo.QueryHookOptions<TaskFeedQuery, TaskFeedQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<TaskFeedQuery, TaskFeedQueryVariables>(
-    TaskFeedDocument,
-    options
-  );
-}
-export function useTaskFeedLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    TaskFeedQuery,
-    TaskFeedQueryVariables
+export function useCheckSubscriptionQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    CheckSubscriptionQuery,
+    CheckSubscriptionQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<TaskFeedQuery, TaskFeedQueryVariables>(
-    TaskFeedDocument,
-    options
-  );
+  return Apollo.useQuery<
+    CheckSubscriptionQuery,
+    CheckSubscriptionQueryVariables
+  >(CheckSubscriptionDocument, options);
 }
-export type TaskFeedQueryHookResult = ReturnType<typeof useTaskFeedQuery>;
-export type TaskFeedLazyQueryHookResult = ReturnType<
-  typeof useTaskFeedLazyQuery
+export function useCheckSubscriptionLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    CheckSubscriptionQuery,
+    CheckSubscriptionQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    CheckSubscriptionQuery,
+    CheckSubscriptionQueryVariables
+  >(CheckSubscriptionDocument, options);
+}
+export type CheckSubscriptionQueryHookResult = ReturnType<
+  typeof useCheckSubscriptionQuery
 >;
-export type TaskFeedQueryResult = Apollo.QueryResult<
-  TaskFeedQuery,
-  TaskFeedQueryVariables
+export type CheckSubscriptionLazyQueryHookResult = ReturnType<
+  typeof useCheckSubscriptionLazyQuery
+>;
+export type CheckSubscriptionQueryResult = Apollo.QueryResult<
+  CheckSubscriptionQuery,
+  CheckSubscriptionQueryVariables
 >;
 export const GetUserDocument = gql`
   query getUser($data: GetUserInput!) {
@@ -2415,6 +2476,56 @@ export type PostStreamInteractionMutationOptions = Apollo.BaseMutationOptions<
   PostStreamInteractionMutation,
   PostStreamInteractionMutationVariables
 >;
+export const PostSubscriptionDocument = gql`
+  mutation PostSubscription($data: PostSubscriptionInput!) {
+    postSubscription(data: $data) {
+      id
+    }
+  }
+`;
+export type PostSubscriptionMutationFn = Apollo.MutationFunction<
+  PostSubscriptionMutation,
+  PostSubscriptionMutationVariables
+>;
+
+/**
+ * __usePostSubscriptionMutation__
+ *
+ * To run a mutation, you first call `usePostSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postSubscriptionMutation, { data, loading, error }] = usePostSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostSubscriptionMutation,
+    PostSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostSubscriptionMutation,
+    PostSubscriptionMutationVariables
+  >(PostSubscriptionDocument, options);
+}
+export type PostSubscriptionMutationHookResult = ReturnType<
+  typeof usePostSubscriptionMutation
+>;
+export type PostSubscriptionMutationResult =
+  Apollo.MutationResult<PostSubscriptionMutation>;
+export type PostSubscriptionMutationOptions = Apollo.BaseMutationOptions<
+  PostSubscriptionMutation,
+  PostSubscriptionMutationVariables
+>;
 export const PostTaskDocument = gql`
   mutation PostTask($data: PostTaskInput!) {
     postTask(data: $data) {
@@ -2510,6 +2621,56 @@ export type PostVideoMutationResult = Apollo.MutationResult<PostVideoMutation>;
 export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
   PostVideoMutation,
   PostVideoMutationVariables
+>;
+export const ToggleSubscriptionDocument = gql`
+  mutation ToggleSubscription($data: ToggleSubscriptionInput!) {
+    toggleSubscription(data: $data) {
+      id
+    }
+  }
+`;
+export type ToggleSubscriptionMutationFn = Apollo.MutationFunction<
+  ToggleSubscriptionMutation,
+  ToggleSubscriptionMutationVariables
+>;
+
+/**
+ * __useToggleSubscriptionMutation__
+ *
+ * To run a mutation, you first call `useToggleSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleSubscriptionMutation, { data, loading, error }] = useToggleSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useToggleSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ToggleSubscriptionMutation,
+    ToggleSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    ToggleSubscriptionMutation,
+    ToggleSubscriptionMutationVariables
+  >(ToggleSubscriptionDocument, options);
+}
+export type ToggleSubscriptionMutationHookResult = ReturnType<
+  typeof useToggleSubscriptionMutation
+>;
+export type ToggleSubscriptionMutationResult =
+  Apollo.MutationResult<ToggleSubscriptionMutation>;
+export type ToggleSubscriptionMutationOptions = Apollo.BaseMutationOptions<
+  ToggleSubscriptionMutation,
+  ToggleSubscriptionMutationVariables
 >;
 export const UpdateChannelCustomButtonDocument = gql`
   mutation UpdateChannelCustomButton($data: UpdateChannelCustomButtonInput!) {
@@ -2615,6 +2776,55 @@ export type UpdateChannelTextMutationResult =
 export type UpdateChannelTextMutationOptions = Apollo.BaseMutationOptions<
   UpdateChannelTextMutation,
   UpdateChannelTextMutationVariables
+>;
+export const UpdateNfcDocument = gql`
+  mutation UpdateNFC($data: UpdateNFCInput!) {
+    updateNFC(data: $data) {
+      id
+    }
+  }
+`;
+export type UpdateNfcMutationFn = Apollo.MutationFunction<
+  UpdateNfcMutation,
+  UpdateNfcMutationVariables
+>;
+
+/**
+ * __useUpdateNfcMutation__
+ *
+ * To run a mutation, you first call `useUpdateNfcMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateNfcMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateNfcMutation, { data, loading, error }] = useUpdateNfcMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateNfcMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateNfcMutation,
+    UpdateNfcMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateNfcMutation, UpdateNfcMutationVariables>(
+    UpdateNfcDocument,
+    options
+  );
+}
+export type UpdateNfcMutationHookResult = ReturnType<
+  typeof useUpdateNfcMutation
+>;
+export type UpdateNfcMutationResult = Apollo.MutationResult<UpdateNfcMutation>;
+export type UpdateNfcMutationOptions = Apollo.BaseMutationOptions<
+  UpdateNfcMutation,
+  UpdateNfcMutationVariables
 >;
 export const UpdateUserNotificationsDocument = gql`
   mutation updateUserNotifications($data: UpdateUserNotificationsInput!) {
@@ -3106,53 +3316,4 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
->;
-export const UpdateNfcDocument = gql`
-  mutation UpdateNFC($data: UpdateNFCInput!) {
-    updateNFC(data: $data) {
-      id
-    }
-  }
-`;
-export type UpdateNfcMutationFn = Apollo.MutationFunction<
-  UpdateNfcMutation,
-  UpdateNfcMutationVariables
->;
-
-/**
- * __useUpdateNfcMutation__
- *
- * To run a mutation, you first call `useUpdateNfcMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateNfcMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateNfcMutation, { data, loading, error }] = useUpdateNfcMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useUpdateNfcMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateNfcMutation,
-    UpdateNfcMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<UpdateNfcMutation, UpdateNfcMutationVariables>(
-    UpdateNfcDocument,
-    options
-  );
-}
-export type UpdateNfcMutationHookResult = ReturnType<
-  typeof useUpdateNfcMutation
->;
-export type UpdateNfcMutationResult = Apollo.MutationResult<UpdateNfcMutation>;
-export type UpdateNfcMutationOptions = Apollo.BaseMutationOptions<
-  UpdateNfcMutation,
-  UpdateNfcMutationVariables
 >;

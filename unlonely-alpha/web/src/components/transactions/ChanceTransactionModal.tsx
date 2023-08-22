@@ -9,7 +9,7 @@ import {
 } from "../../utils/validation/input";
 import { TransactionModalTemplate } from "./TransactionModalTemplate";
 import { ModalButton } from "../general/button/ModalButton";
-import { useChannelContext } from "../../hooks/context/useChannel";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 export default function ChanceTransactionModal({
   title,
@@ -24,8 +24,7 @@ export default function ChanceTransactionModal({
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
-  const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
+  const { isStandalone } = useUserAgent();
 
   const [amount, setAmount] = useState("");
   const [amountOption, setAmountOption] = useState<
@@ -74,6 +73,7 @@ export default function ChanceTransactionModal({
       canSend={canSend}
       onSend={handleSend}
       handleClose={handleClose}
+      size={isStandalone ? "sm" : "md"}
     >
       <Flex direction={"column"} gap="16px">
         <Flex justifyContent={"space-between"}>

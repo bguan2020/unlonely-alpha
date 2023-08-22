@@ -20,8 +20,9 @@ import { useGetBadges } from "../../hooks/internal/useGetBadges";
 
 type Props = {
   user?: CustomUser;
+  mobile?: boolean;
 };
-const Participant = ({ user }: Props) => {
+const Participant = ({ user, mobile }: Props) => {
   const imageUrl = user?.FCImageUrl
     ? user.FCImageUrl
     : user?.lensImageUrl
@@ -74,7 +75,7 @@ const Participant = ({ user }: Props) => {
               <Avatar
                 name={user.username ? user.username : user.address}
                 src={ipfsUrl}
-                size="sm"
+                size={mobile ? "2xs" : "sm"}
               />
             </PopoverTrigger>
             <PopoverContent bg="gray.800" border="none" width="min" p="5px">
@@ -113,7 +114,12 @@ const Participant = ({ user }: Props) => {
         </>
       ) : (
         <Tooltip label="mysterious anon👀" hasArrow arrowSize={14}>
-          <Avatar name="anon" src={anonUrl} bg="grey" size="sm" />
+          <Avatar
+            name="anon"
+            src={anonUrl}
+            bg="grey"
+            size={mobile ? "2xs" : "sm"}
+          />
         </Tooltip>
       )}
     </>

@@ -13,9 +13,13 @@ import {
   Text,
   useBreakpointValue,
   useDisclosure,
+  Image,
+  Spinner,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo, useCallback } from "react";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { useRouter } from "next/router";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
@@ -23,8 +27,10 @@ import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import HeroBanner from "../components/layout/HeroBanner";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
-import { isIosDevice } from "../components/mobile/Banner";
 import { WavyText } from "../components/general/WavyText";
+import useUserAgent from "../hooks/internal/useUserAgent";
+import { Channel, NfcFeedQuery } from "../generated/graphql";
+import { SelectableChannel } from "../components/mobile/SelectableChannel";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -45,7 +51,7 @@ const CHANNEL_FEED_QUERY = gql`
   }
 `;
 
-const NFC_FEED_QUERY = gql`
+export const NFC_FEED_QUERY = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
       createdAt
@@ -98,7 +104,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
     data: dataNFCs,
     loading: loadingNFCs,
     error: errorNFCs,
-  } = useQuery(NFC_FEED_QUERY, {
+  } = useQuery<NfcFeedQuery>(NFC_FEED_QUERY, {
     variables: {
       data: {
         limit: 30,
@@ -108,6 +114,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
   });
 
   const nfcs = dataNFCs?.getNFCFeed;
+  const { isIOS } = useUserAgent();
 
   return (
     <>
@@ -165,7 +172,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
           </Stack>
           <Link
             href={
-              isIosDevice()
+              isIOS
                 ? "https://testflight.apple.com/join/z4PpYxXz"
                 : "https://dub.sh/unlonely-android"
             }
@@ -180,22 +187,19 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
   );
 };
 
-export default function Page() {
-  const { data, loading } = useQuery(CHANNEL_FEED_QUERY, {
-    variables: {
-      data: {
-        limit: 10,
-        orderBy: null,
-      },
-    },
-  });
-
+function DesktopPage({
+  dataChannels,
+  loading,
+}: {
+  dataChannels: any;
+  loading: boolean;
+}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const [directingToChannel, setDirectingToChannel] = useState<boolean>(false);
 
-  const channels = data?.getChannelFeed;
+  const channels = dataChannels?.getChannelFeed;
 
   const sideBarBreakpoints = useBreakpointValue({
     base: false,
@@ -254,7 +258,7 @@ export default function Page() {
                 gap="15px"
                 my="3rem"
               >
-                <WavyText text="fetching livestreams..." />
+                <WavyText text="loading streams..." />
               </Flex>
             ) : (
               <LiveChannelList
@@ -309,5 +313,121 @@ export default function Page() {
         </Flex>
       )}
     </AppLayout>
+  );
+}
+
+function MobilePage({
+  dataChannels,
+  loading,
+}: {
+  dataChannels: any;
+  loading: boolean;
+}) {
+  const router = useRouter();
+  const scrollRef = useRef<VirtuosoHandle>(null);
+
+  const [loadingPage, setLoadingPage] = useState<boolean>(false);
+
+  const channels: Channel[] = dataChannels?.getChannelFeed;
+
+  const handleSelectChannel = useCallback((slug: string) => {
+    setLoadingPage(true);
+    router.push(`/channels/${slug}`);
+  }, []);
+
+  const channelsWithLiveFirst = useMemo(
+    () =>
+      channels && channels.length > 0
+        ? [...channels].sort((a, b) => {
+            if (a.isLive && !b.isLive) {
+              return -1;
+            } else if (!a.isLive && b.isLive) {
+              return 1;
+            } else {
+              return 0;
+            }
+          })
+        : [],
+    [channels]
+  );
+
+  return (
+    <AppLayout isCustomHeader={false}>
+      {!loadingPage && !loading ? (
+        <Flex
+          direction="column"
+          justifyContent="center"
+          width="100vw"
+          position="relative"
+          height="100%"
+        >
+          {channelsWithLiveFirst.length > 0 && (
+            <Virtuoso
+              followOutput={"auto"}
+              ref={scrollRef}
+              data={channelsWithLiveFirst}
+              totalCount={channelsWithLiveFirst.length}
+              initialTopMostItemIndex={0}
+              itemContent={(index, data) => (
+                <SelectableChannel
+                  key={data.id || index}
+                  channel={data}
+                  callback={handleSelectChannel}
+                />
+              )}
+            />
+          )}
+        </Flex>
+      ) : (
+        <Flex
+          alignItems={"center"}
+          justifyContent={"center"}
+          direction="column"
+          width="100%"
+          height="calc(100vh - 103px)"
+          fontSize="50px"
+        >
+          <Image
+            src="/icons/icon-192x192.png"
+            borderRadius="10px"
+            height="96px"
+          />
+          <Flex>
+            <WavyText text="..." />
+          </Flex>
+        </Flex>
+      )}
+    </AppLayout>
+  );
+}
+
+export default function Page() {
+  const { data: dataChannels, loading } = useQuery(CHANNEL_FEED_QUERY, {
+    variables: {
+      data: {
+        limit: 10,
+        orderBy: null,
+      },
+    },
+  });
+
+  const { isStandalone, ready } = useUserAgent();
+
+  return (
+    <>
+      {ready ? (
+        <>
+          {!isStandalone ? (
+            <DesktopPage dataChannels={dataChannels} loading={loading} />
+          ) : (
+            <MobilePage dataChannels={dataChannels} loading={loading} />
+          )}
+        </>
+      ) : (
+        <AppLayout isCustomHeader={false}>
+          <Spinner />
+        </AppLayout>
+      )}
+    </>
   );
 }

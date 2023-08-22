@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { BaseChatCommand, CommandData } from "../../constants";
 import { ChatCommand } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 import useUpdateDeleteChatCommands from "../../hooks/server/updateDeleteChatCommands";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
@@ -31,6 +32,7 @@ export default function ChatCommandModal({
 }) {
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
+  const { isStandalone } = useUserAgent();
 
   const [commandsData, setCommandsData] = useState<CommandData[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
@@ -122,6 +124,7 @@ export default function ChatCommandModal({
       onSend={callChange}
       canSend={canSend && !errorMessage}
       hideFooter={commandsData.length === 0 && !isDeletingAll}
+      size={isStandalone ? "sm" : "md"}
     >
       <Flex direction={"column"} gap="16px">
         <Text textAlign={"center"} fontSize="20px" color="#BABABA">
