@@ -6,7 +6,6 @@ import {
   VideoJSEvents,
 } from "amazon-ivs-player";
 import { Flex, Text } from "@chakra-ui/react";
-import Link from "next/link";
 
 import useUserAgent from "../../hooks/internal/useUserAgent";
 
@@ -92,34 +91,6 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             >
               stream offline
             </Text>
-            <Link target="_blank" href={"https://lu.ma/unlonely"} passHref>
-              <Text
-                fontFamily="Neue Pixel Sans"
-                textAlign="center"
-                fontSize="20px"
-                textDecoration="underline"
-              >
-                see upcoming streams here
-              </Text>
-            </Link>
-            <Link
-              href={
-                isIOS
-                  ? "https://testflight.apple.com/join/z4PpYxXz"
-                  : "https://dub.sh/unlonely-android"
-              }
-              passHref
-              target="_blank"
-            >
-              <Text
-                fontFamily="Neue Pixel Sans"
-                textAlign="center"
-                fontSize="20px"
-                textDecoration="underline"
-              >
-                or download the mobile app to sign up for future notifications
-              </Text>
-            </Link>
           </Flex>
         )}
       </Flex>

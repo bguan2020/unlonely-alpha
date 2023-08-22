@@ -532,7 +532,11 @@ const StandaloneAblyChatComponent = ({
             bg="transparent"
             icon={
               <BuyButton
-                tokenName={`$${channelQueryData?.token?.symbol}`}
+                tokenName={
+                  channelQueryData?.token?.symbol
+                    ? `$${channelQueryData?.token?.symbol}`
+                    : ""
+                }
                 small
               />
             }
@@ -799,7 +803,11 @@ const StandaloneAblyChatComponent = ({
               address && (
                 <>
                   <BuyButton
-                    tokenName={`$${channelQueryData?.token?.symbol}`}
+                    tokenName={
+                      channelQueryData?.token?.symbol
+                        ? `$${channelQueryData?.token?.symbol}`
+                        : ""
+                    }
                     callback={() => setShowBuyModal?.(true)}
                   />
                   <Grid
