@@ -38,6 +38,10 @@ export default function AddToSamsung(props: Props) {
           <Text textAlign={"center"}>Then click</Text>
           <Text textAlign={"center"}>“Home Screen”</Text>
         </Flex>
+        <Text textAlign={"center"} color="black" fontSize="12px" mt="10px">
+          (Can't find the "add to home screen" button? make sure you're in an
+          in-app browser!)
+        </Text>
       </Flex>
     </TransactionModalTemplate>
   );

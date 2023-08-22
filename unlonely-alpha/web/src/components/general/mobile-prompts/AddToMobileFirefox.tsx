@@ -43,6 +43,10 @@ export default function AddToMobileFirefox(props: Props) {
             3. “add to home screen”
           </Text>
         </Flex>
+        <Text textAlign={"center"} color="black" fontSize="12px" mt="10px">
+          (Can't find the "add to home screen" button? make sure you're in an
+          in-app browser!)
+        </Text>
       </Flex>
     </TransactionModalTemplate>
   );
