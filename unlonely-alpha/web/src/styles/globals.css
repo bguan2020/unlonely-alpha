@@ -10,7 +10,14 @@
   src: url("/fonts/SpaceMono-Regular.ttf");
 }
 
+html {
+  overscroll-behavior: none;
+}
+
 /* For Webkit (Chrome & Safari) */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -74,16 +81,6 @@ body {
   line-height: 1.5;
   color: #333;
   background-color: #fff;
-}
-
-h1 {
-  font-family: "Neue Pixel Sans", sans-serif;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-body {
   background-image: linear-gradient(
     to right,
     #e2f979,
@@ -91,6 +88,14 @@ body {
     #ba98d7,
     #d16fce
   ) !important;
+  position: relative;
+}
+
+h1 {
+  font-family: "Neue Pixel Sans", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
 }
 
 @keyframes gradientBackgroundAnimation {

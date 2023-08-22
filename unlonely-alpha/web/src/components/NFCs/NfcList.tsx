@@ -1,5 +1,6 @@
 import { Flex } from "@chakra-ui/react";
 import { useRef, useEffect } from "react";
+
 import NfcCard from "./NfcCard";
 
 type Props = {

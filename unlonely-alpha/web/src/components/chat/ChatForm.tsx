@@ -41,6 +41,8 @@ import { formatIncompleteNumber } from "../../utils/validation/input";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import centerEllipses from "../../utils/centerEllipses";
 import { ChatBot } from "../../constants/types";
+import ConnectWallet from "../navigation/ConnectWallet";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 type Props = {
   sendChatMessage: (message: string, isGif: boolean, body?: string) => void;
@@ -60,6 +62,7 @@ const ChatForm = ({
   addToChatbot,
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
+  const { isStandalone } = useUserAgent();
   const network = useNetwork();
 
   const toast = useToast();
@@ -254,8 +257,8 @@ const ChatForm = ({
       sendChatMessage(gif, true);
       setMessageText("");
     } else {
-      if (tooltipError !== "") return;
       if (channelQueryData?.token?.address) {
+        if (tooltipError !== "") return;
         setTxTransition(true);
         setGifInTransaction(gif);
         if (requiresApproval && writeApproval) {
@@ -286,8 +289,8 @@ const ChatForm = ({
         sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
         setMessageText("");
       } else {
-        if (tooltipError !== "") return;
         if (channelQueryData?.token?.address) {
+          if (tooltipError !== "") return;
           setTxTransition(true);
           setGifInTransaction("");
           if (requiresApproval && writeApproval) {
@@ -346,6 +349,7 @@ const ChatForm = ({
 
   useEffect(() => {
     if (
+      channelQueryData?.token?.address &&
       blastMode &&
       (!userTokenBalance?.value ||
         (userTokenBalance?.value &&
@@ -386,12 +390,21 @@ const ChatForm = ({
       <form
         onSubmit={handleFormSubmission}
         className="xeedev-form-i"
-        style={{ width: "100%" }}
+        style={{
+          width: "100%",
+          marginBottom: isStandalone ? "15px" : undefined,
+        }}
       >
         <Stack direction={"row"} spacing={"10px"}>
           {!walletIsConnected ? (
-            <Flex justifyContent={"center"} margin="auto">
+            <Flex
+              justifyContent={"center"}
+              direction="column"
+              margin="auto"
+              gap="5px"
+            >
               <Text>you must sign in to chat</Text>
+              <ConnectWallet />
             </Flex>
           ) : error ? (
             <Flex direction="column" gap="10px">
@@ -465,7 +478,7 @@ const ChatForm = ({
                     : "rgba(255, 255, 255, 0.35)"
                 }
               >
-                {blastMode && (
+                {blastMode && tooltipError === "" && (
                   <Text
                     color={"#b82929"}
                     fontSize="12px"
@@ -478,7 +491,19 @@ const ChatForm = ({
                       `(cost: ${PRICE} $${channelQueryData?.token?.symbol})`}
                   </Text>
                 )}
+                {blastMode && tooltipError !== "" && (
+                  <Text
+                    color={"#b82929"}
+                    fontSize="12px"
+                    position="absolute"
+                    top={-5}
+                    whiteSpace="nowrap"
+                  >
+                    {tooltipError}
+                  </Text>
+                )}
                 <Textarea
+                  resize="none"
                   variant="unstyled"
                   ref={(element) => {
                     inputBox = element;
@@ -571,6 +596,22 @@ const ChatForm = ({
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
                     onSelectGif={(gif) => sendGif(gif)}
                   />
+                  <IconButton
+                    type="submit"
+                    disabled={messageTextIsEmpty || tooltipError !== ""}
+                    icon={
+                      blastMode ? (
+                        <Image src="/svg/blast-send.svg" />
+                      ) : (
+                        <Image src="/svg/send.svg" />
+                      )
+                    }
+                    aria-label="clip stream"
+                    bg="transparent"
+                    _focus={{}}
+                    _hover={{ transform: "scale(1.15)" }}
+                    _active={{ transform: "scale(1.3)" }}
+                  />
                 </Flex>
                 <Flex
                   position="absolute"
@@ -595,33 +636,6 @@ const ChatForm = ({
                   />
                 </Flex>
               </Flex>
-              <Stack direction="column">
-                <Flex justifyContent="right">
-                  <Tooltip
-                    isOpen={tooltipError !== ""}
-                    label={tooltipError}
-                    placement="left"
-                    shouldWrapChildren
-                  >
-                    <IconButton
-                      type="submit"
-                      disabled={messageTextIsEmpty || tooltipError !== ""}
-                      icon={
-                        blastMode ? (
-                          <Image src="/svg/blast-send.svg" />
-                        ) : (
-                          <Image src="/svg/send.svg" />
-                        )
-                      }
-                      aria-label="clip stream"
-                      bg="transparent"
-                      _focus={{}}
-                      _hover={{ transform: "scale(1.15)" }}
-                      _active={{ transform: "scale(1.3)" }}
-                    />
-                  </Tooltip>
-                </Flex>
-              </Stack>
             </>
           )}
         </Stack>

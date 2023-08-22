@@ -49,6 +49,7 @@ export function useChannel(fixedChatName?: string) {
 
   const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const [channel, ably] = useAblyChannel(channelName, (message) => {
     setHasMessagesLoaded(false);
@@ -137,6 +138,7 @@ export function useChannel(fixedChatName?: string) {
         });
         // Get index of last sent message from history
       });
+      setMounted(true);
     }
     if (!channel) return;
     getMessages();
@@ -147,6 +149,7 @@ export function useChannel(fixedChatName?: string) {
     ablyChannel: channel,
     receivedMessages,
     hasMessagesLoaded,
+    mounted,
     setReceivedMessages,
     setHasMessagesLoaded,
   };

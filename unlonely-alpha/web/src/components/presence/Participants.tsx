@@ -16,6 +16,7 @@ import ExcessTooltipAvatar from "./ExcessTooltipAvatar";
 import AnonExcessTooltipAvatar from "./AnonExcessTooltipAvatar";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { CustomUser } from "../../constants/types";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 configureAbly({
   authUrl: "/api/createTokenRequest",
@@ -37,6 +38,7 @@ type Presence = {
 
 const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
   const { user } = useUser();
+  const { isStandalone } = useUserAgent();
   const { holders } = useChannelContext();
   const { userRank } = holders;
   const [presenceData, updateStatus] = usePresence(
@@ -108,15 +110,13 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
     }
   }, [presenceData]);
 
-  if (mobile) return <></>;
-
   // make Participant overlap each other a bit and show a max of 6, with the last one being a count of the rest
   return (
     <Flex direction="row" maxW="100%" justifyContent="center" pl="1rem">
       <Flex flexDirection="row-reverse">
         {!!participantOrder.slice(6).length && (
           <Flex ml={-2}>
-            <Popover trigger="hover">
+            <Popover trigger={!isStandalone ? "hover" : "click"}>
               <PopoverTrigger>
                 <Box
                   display="flex"
@@ -159,7 +159,7 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
           .reverse()
           .map((member, index) => (
             <Flex key={index} ml={-4}>
-              <Participant user={member.data?.user} />
+              <Participant mobile={mobile} user={member.data?.user} />
             </Flex>
           ))}
       </Flex>

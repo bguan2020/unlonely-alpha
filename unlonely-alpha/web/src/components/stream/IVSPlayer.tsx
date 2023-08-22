@@ -6,19 +6,18 @@ import {
   VideoJSEvents,
 } from "amazon-ivs-player";
 import { Flex, Text } from "@chakra-ui/react";
-import Link from "next/link";
-import { isIosDevice } from "../mobile/Banner";
+
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 type Props = {
-  isTheatreMode: boolean;
   playbackUrl: string;
 };
 
-const IVSPlayer: React.FunctionComponent<Props> = ({
-  isTheatreMode,
-  playbackUrl,
-}) => {
+const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
   const [offline, setOffline] = useState<boolean>(false);
+
+  const { isIOS } = useUserAgent();
+
   useEffect(() => {
     const PLAYBACK_URL = playbackUrl;
 
@@ -45,19 +44,21 @@ const IVSPlayer: React.FunctionComponent<Props> = ({
     const events: VideoJSEvents = player.getIVSEvents();
     const ivsPlayer = player.getIVSPlayer();
 
-    ivsPlayer.addEventListener(events.PlayerEventType.ERROR, (payload) => {
-      const { type, code, source, message } = payload;
+    const errorHandler = (payload: any) => {
       setOffline(true);
-    });
-  }, []);
+    };
+
+    ivsPlayer.addEventListener(events.PlayerEventType.ERROR, errorHandler);
+
+    return () => {
+      ivsPlayer.removeEventListener(events.PlayerEventType.ERROR, errorHandler);
+      player.dispose();
+    };
+  }, [playbackUrl]);
 
   return (
     <>
-      <Flex
-        direction="column"
-        width={isTheatreMode ? "100%" : "889px"}
-        position="relative"
-      >
+      <Flex direction="column" width={"100%"} position="relative">
         <video
           id="amazon-ivs-videojs"
           className="video-js vjs-4-3 vjs-big-play-centered"
@@ -66,10 +67,11 @@ const IVSPlayer: React.FunctionComponent<Props> = ({
           playsInline
           style={{
             padding: "0px !important",
-            maxWidth: isTheatreMode ? "100%" : "889px",
+            maxWidth: "100%",
             height: "100% !important",
             width: "100% !important",
             borderRadius: "10px",
+            minHeight: "100%",
           }}
         />
         {offline && (
@@ -89,34 +91,6 @@ const IVSPlayer: React.FunctionComponent<Props> = ({
             >
               stream offline
             </Text>
-            <Link target="_blank" href={"https://lu.ma/unlonely"} passHref>
-              <Text
-                fontFamily="Neue Pixel Sans"
-                textAlign="center"
-                fontSize="20px"
-                textDecoration="underline"
-              >
-                see upcoming streams here
-              </Text>
-            </Link>
-            <Link
-              href={
-                isIosDevice()
-                  ? "https://testflight.apple.com/join/z4PpYxXz"
-                  : "https://dub.sh/unlonely-android"
-              }
-              passHref
-              target="_blank"
-            >
-              <Text
-                fontFamily="Neue Pixel Sans"
-                textAlign="center"
-                fontSize="20px"
-                textDecoration="underline"
-              >
-                or download the mobile app to sign up for future notifications
-              </Text>
-            </Link>
           </Flex>
         )}
       </Flex>

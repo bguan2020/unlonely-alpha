@@ -3,7 +3,6 @@ import { AuthenticationError } from "apollo-server";
 import { Context } from "../../context";
 import * as SubscriptionService from "./SubscriptionService";
 
-
 export const resolvers = {
   Query: {
     getAllActiveSubscriptions: async (_: any, __: any, ctx: Context) => {
