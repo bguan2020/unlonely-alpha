@@ -72,6 +72,7 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             height: "100% !important",
             width: "100% !important",
             borderRadius: "10px",
+            minHeight: "100%",
           }}
         />
         {offline && (

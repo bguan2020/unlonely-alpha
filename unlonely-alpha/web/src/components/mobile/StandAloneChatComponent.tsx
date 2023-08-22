@@ -4,7 +4,6 @@ import {
   Image,
   Flex,
   Box,
-  Button,
   Grid,
   GridItem,
   Spinner,
@@ -442,6 +441,23 @@ const StandaloneAblyChatComponent = ({
     setIsAtBottom(value);
   }, []);
 
+  const share = async () => {
+    if (navigator.share && channelQueryData) {
+      navigator
+        .share({
+          title: channelQueryData?.name ?? "Unlonely Stream",
+          url: `${window.location.origin}/channels/${channelQueryData.slug}`,
+        })
+        .then(() => {
+          console.log("Thanks for sharing!");
+        })
+        .catch(console.error);
+    } else {
+      // Fallback for browsers that do not support the Web Share API
+      console.log("Your browser does not support the Web Share API.");
+    }
+  };
+
   return (
     <Flex
       direction="column"
@@ -450,33 +466,53 @@ const StandaloneAblyChatComponent = ({
       id="chat"
       position={"relative"}
     >
-      <Flex position="absolute" top={"45px"} right="10px" zIndex="2">
-        <Participants ablyPresenceChannel={presenceChannel} />
+      <Flex position="absolute" top={"-10px"} left="10px" zIndex="2">
+        <Participants ablyPresenceChannel={presenceChannel} mobile />
       </Flex>
       {chatChannel?.includes("channel") ? (
-        <Stack direction={"row"} spacing="10px">
-          <IconButton
-            aria-label="Back"
-            bg="transparent"
-            icon={<Image src="/svg/mobile/back.svg" h="100%" />}
-            onClick={() => router.push("/")}
-          />
-          <Flex
-            borderRadius={"5px"}
-            p="1px"
-            bg={
-              "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-            }
-            flex={1}
-            minWidth={0}
-          >
-            <Button
-              opacity={showInfo ? 0.9 : 1}
-              width="100%"
-              bg={"#131323"}
+        <Flex justifyContent={"space-between"}>
+          <Flex alignItems="center">
+            <IconButton
               _hover={{}}
               _focus={{}}
               _active={{}}
+              minWidth="6"
+              aria-label="Back"
+              bg="transparent"
+              icon={<Image src="/svg/mobile/back.svg" h="50%" />}
+              onClick={() => router.push("/")}
+            />
+            <IconButton
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              minWidth="6"
+              aria-label="Back"
+              bg="transparent"
+              icon={<Image src="/svg/mobile/share.svg" h="50%" />}
+              onClick={share}
+            />
+            <IconButton
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              minWidth="6"
+              aria-label="leaderboard"
+              bg="transparent"
+              icon={<Image src="/svg/mobile/leaderboard.svg" h="50%" />}
+              onClick={() => {
+                if (clickedOutsideLeaderBoard.current) {
+                  clickedOutsideLeaderBoard.current = false;
+                  return;
+                }
+                setShowLeaderboard(!showLeaderboard);
+              }}
+            />
+            <Text
+              pl="5px"
+              fontSize="20px"
+              cursor={"pointer"}
+              color="#8793FF"
               onClick={() => {
                 if (clickedOutsideInfo.current) {
                   clickedOutsideInfo.current = false;
@@ -485,71 +521,35 @@ const StandaloneAblyChatComponent = ({
                 setShowInfo(!showInfo);
               }}
             >
-              <Image src="/svg/mobile/info.svg" h="70%" />
-            </Button>
+              /{channelQueryData?.slug}
+            </Text>
           </Flex>
-          <Flex
-            borderRadius={"5px"}
-            p="1px"
-            bg={
-              "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+          <IconButton
+            _hover={{}}
+            _focus={{}}
+            _active={{}}
+            aria-label="arcade"
+            bg="transparent"
+            icon={
+              <BuyButton
+                tokenName={`$${channelQueryData?.token?.symbol}`}
+                small
+              />
             }
-            flex={1}
-            minWidth={0}
-          >
-            <Button
-              p="0px"
-              opacity={showArcade ? 0.9 : 1}
-              width="100%"
-              bg={"#131323"}
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              onClick={() => {
-                if (clickedOutsideArcade.current) {
-                  clickedOutsideArcade.current = false;
-                  return;
-                }
-                setShowArcade(!showArcade);
-              }}
-            >
-              <Image src="/svg/mobile/arcade.svg" h="100%" />
-            </Button>
-          </Flex>
-          <Flex
-            borderRadius={"5px"}
-            p="1px"
-            bg={
-              "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-            }
-            flex={1}
-            minWidth={0}
-          >
-            <Button
-              p="0px"
-              opacity={showLeaderboard ? 0.9 : 1}
-              width="100%"
-              bg={"#131323"}
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              onClick={() => {
-                if (clickedOutsideLeaderBoard.current) {
-                  clickedOutsideLeaderBoard.current = false;
-                  return;
-                }
-                setShowLeaderboard(!showLeaderboard);
-              }}
-            >
-              <Image src="/svg/mobile/leaderboard.svg" h="100%" />
-            </Button>
-          </Flex>
-        </Stack>
+            onClick={() => {
+              if (clickedOutsideArcade.current) {
+                clickedOutsideArcade.current = false;
+                return;
+              }
+              setShowArcade(!showArcade);
+            }}
+          />
+        </Flex>
       ) : (
         <IconButton
           aria-label="Back"
           bg="transparent"
-          icon={<Image src="/svg/mobile/back.svg" h="100%" />}
+          icon={<Image src="/svg/mobile/back.svg" />}
           onClick={() => router.push("/")}
         />
       )}

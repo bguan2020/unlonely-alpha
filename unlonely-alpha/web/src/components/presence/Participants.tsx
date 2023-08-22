@@ -110,8 +110,6 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
     }
   }, [presenceData]);
 
-  if (mobile) return <></>;
-
   // make Participant overlap each other a bit and show a max of 6, with the last one being a count of the rest
   return (
     <Flex direction="row" maxW="100%" justifyContent="center" pl="1rem">
@@ -161,7 +159,7 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
           .reverse()
           .map((member, index) => (
             <Flex key={index} ml={-4}>
-              <Participant user={member.data?.user} />
+              <Participant mobile={mobile} user={member.data?.user} />
             </Flex>
           ))}
       </Flex>
