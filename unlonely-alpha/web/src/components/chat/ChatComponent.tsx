@@ -83,7 +83,8 @@ const AblyChatComponent = ({
     recentStreamInteractions,
   } = useChannelContext();
   const { channelQueryData } = channelContext;
-  const { chatChannel, presenceChannel } = chat;
+  const { chatChannel, presenceChannel, clipping } = chat;
+  const { fetchData } = clipping;
   const {
     data: holdersData,
     loading: holdersLoading,
@@ -291,10 +292,11 @@ const AblyChatComponent = ({
       allowPublish = true;
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
       if (channelQueryData?.allowNFCs || false) {
-        window.open(
-          `/clip?arn=${channelQueryData?.channelArn || ""}`,
-          "_blank"
-        );
+        // window.open(
+        //   `/clip?arn=${channelQueryData?.channelArn || ""}`,
+        //   "_blank"
+        // );
+        fetchData();
         messageToPublish = `${
           user?.username ?? centerEllipses(address, 15)
         } has just clipped a highlight from this stream!`;

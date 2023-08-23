@@ -47,8 +47,14 @@ type Props = {
 const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
   const router = useRouter();
   const { awsId } = router.query;
-  const { channel: channelContext, holders: holdersContext } =
-    useChannelContext();
+  const {
+    channel: channelContext,
+    holders: holdersContext,
+    chat,
+  } = useChannelContext();
+  const { clipping } = chat;
+  const { fetchData } = clipping;
+
   const { userRank } = holdersContext;
   const { channelQueryData } = channelContext;
 
@@ -194,10 +200,11 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
       allowPublish = true;
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
       if (channelQueryData?.allowNFCs || false) {
-        window.open(
-          `/clip?arn=${channelQueryData?.channelArn || ""}`,
-          "_blank"
-        );
+        // window.open(
+        //   `/clip?arn=${channelQueryData?.channelArn || ""}`,
+        //   "_blank"
+        // );
+        fetchData();
         messageToPublish = `${
           user?.username ?? centerEllipses(address, 15)
         } has just clipped a highlight from this stream!`;
