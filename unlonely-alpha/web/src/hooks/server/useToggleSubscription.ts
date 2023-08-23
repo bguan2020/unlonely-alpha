@@ -22,9 +22,10 @@ const TOGGLE_SUBSCRIPTION_MUTATION = gql`
 
 const useToggleSubscription = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<ToggleSubscriptionMutation, ToggleSubscriptionMutationVariables>(
-    TOGGLE_SUBSCRIPTION_MUTATION
-  );
+  const [mutate] = useAuthedMutation<
+    ToggleSubscriptionMutation,
+    ToggleSubscriptionMutationVariables
+  >(TOGGLE_SUBSCRIPTION_MUTATION);
 
   const toggleSubscription = useCallback(
     async (data) => {

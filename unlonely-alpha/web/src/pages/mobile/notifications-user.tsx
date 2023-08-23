@@ -1,38 +1,18 @@
+import { useLazyQuery, useQuery } from "@apollo/client";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Flex, Text, useDisclosure, useToast } from "@chakra-ui/react";
+import { isAddressEqual } from "viem";
+
 import {
   GET_ALL_DEVICE_TOKENS,
   GET_ALL_USERS_WITH_CHANNEL,
 } from "../../constants/queries";
 import { useUser } from "../../hooks/context/useUser";
-import { useLazyQuery, useQuery } from "@apollo/client";
 import { GetAllDevicesQuery, User } from "../../generated/graphql";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AppLayout from "../../components/layout/AppLayout";
-import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogCloseButton,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Box,
-  Button,
-  Divider,
-  Flex,
-  Input,
-  Progress,
-  Tab,
-  TabList,
-  Tabs,
-  Text,
-  useDisclosure,
-  useToast,
-} from "@chakra-ui/react";
 import NextHead from "../../components/layout/NextHead";
 import { WavyText } from "../../components/general/WavyText";
 import { splitArray } from "../../utils/splitArray";
-import { isAddressEqual } from "viem";
-import { PreviewNotification } from "../../components/mobile/PreviewNotification";
 
 const inputStyle = {
   borderWidth: "1px",
@@ -244,196 +224,21 @@ function MainContent() {
       direction="column"
       gap="40px"
     >
-      <AlertDialog
-        motionPreset="slideInBottom"
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-        isOpen={isOpen}
-        isCentered
+      <Flex
+        alignItems={"center"}
+        justifyContent={"center"}
+        width="100%"
+        height="calc(100vh - 64px)"
+        gap="20px"
+        px="1rem"
+        direction="column"
       >
-        <AlertDialogOverlay />
-
-        <AlertDialogContent>
-          <AlertDialogHeader>preview send</AlertDialogHeader>
-          <AlertDialogCloseButton />
-          <AlertDialogBody>
-            are you sure you wanna blast all these{" "}
-            {selectedType === "live"
-              ? devicesWithLive?.length
-              : devicesWithNFCs?.length}{" "}
-            users with a push notification?
-            <Box h={4}></Box>
-            <PreviewNotification
-              selectedType={selectedType}
-              titleLive={titleLive}
-              titleNFCs={titleNFCs}
-              bodyLive={bodyLive}
-              bodyNFCs={bodyNFCs}
-            />
-            {isSending && (
-              <Box pt={5}>
-                <Progress
-                  size="sm"
-                  isIndeterminate
-                  width="100%"
-                  height="6px"
-                  borderRadius="32px"
-                />
-                <Text fontSize="sm" color="red">
-                  sending. do not close this window!
-                </Text>
-              </Box>
-            )}
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              ref={cancelRef}
-              onClick={onClose}
-              disabled={isSending}
-              colorScheme="blue"
-            >
-              not yet
-            </Button>
-            <Button
-              colorScheme="red"
-              ml={3}
-              onClick={() => {
-                setIsSending(true);
-                sendNotifications();
-              }}
-              disabled={isSending}
-              isLoading={isSending}
-              loadingText="sending..."
-            >
-              fully send it
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      {!loading && data ? (
-        <>
-          {isBrian && (
-            <Tabs
-              variant="soft-rounded"
-              colorScheme="green"
-              defaultIndex={0}
-              onChange={(index) => {
-                if (index === 0) {
-                  setSelectedType("live");
-                } else {
-                  setSelectedType("nfc");
-                }
-              }}
-            >
-              <TabList>
-                <Tab>going live</Tab>
-                <Tab>new NFCs</Tab>
-              </TabList>
-            </Tabs>
-          )}
-          <Box
-            borderWidth="1px"
-            borderRadius="10px"
-            padding="16px"
-            borderColor="#dadada"
-          >
-            <Flex
-              direction="row"
-              justifyContent="space-between"
-              pb="4px"
-              gap="12px"
-            >
-              <Text color="#dadada" fontSize={"15px"}>
-                # of users with notifications on
-              </Text>
-              <Text fontSize={"15px"}>{devices?.length}</Text>
-            </Flex>
-            <Divider />
-            <Flex
-              direction="row"
-              justifyContent="space-between"
-              pb="4px"
-              gap="12px"
-            >
-              <Text color="#dadada" fontSize={"15px"}>
-                going live
-              </Text>
-              <Text fontSize={"15px"}>{devicesWithLive?.length}</Text>
-            </Flex>
-          </Box>
-          <Box borderRadius="10px" padding="16px" bg="#1F2D31" width="100%">
-            <Flex direction="column" mb="15px">
-              {selectedType === "nfc" ? (
-                <Flex direction="column" gap="20px">
-                  <Flex direction="column" gap="10px">
-                    <Text fontSize="15px" color="#bababa">
-                      title
-                    </Text>
-                    <Input
-                      {...inputStyle}
-                      defaultValue={titleNFCs}
-                      onChange={(event) => setTitleNFCs(event.target.value)}
-                    />
-                  </Flex>
-                  <Flex direction="column" gap="10px">
-                    <Text fontSize="15px" color="#bababa">
-                      description
-                    </Text>
-                    <Input
-                      {...inputStyle}
-                      defaultValue={bodyNFCs}
-                      onChange={(event) => setBodyNFCs(event.target.value)}
-                    />
-                  </Flex>
-                </Flex>
-              ) : (
-                <Flex direction="column" gap="10px">
-                  <Text fontSize="15px" color="#dadada">
-                    description
-                  </Text>
-                  <Input
-                    {...inputStyle}
-                    defaultValue={bodyLive}
-                    onChange={(event) => setBodyLive(event.target.value)}
-                  />
-                </Flex>
-              )}
-            </Flex>
-            <Button
-              onClick={onOpen}
-              isLoading={loading}
-              loadingText="fetching users"
-              colorScheme={"blue"}
-              py={10}
-              _hover={{ transform: "scale(1.05)" }}
-              _active={{
-                transform: "scale(1)",
-                background: "green",
-              }}
-              borderRadius="10px"
-              _focus={{}}
-              width="100%"
-              disabled={!data || loading || isSending}
-            >
-              <Text fontSize="30px">preview send</Text>
-            </Button>
-          </Box>
-        </>
-      ) : (
-        <Flex
-          alignItems={"center"}
-          justifyContent={"center"}
-          width="100%"
-          height="calc(100vh - 64px)"
-          fontSize="50px"
-        >
-          <WavyText text="fetching..." />
-        </Flex>
-      )}
+        <Text fontFamily={"Neue Pixel Sans"}>Why am I seeing this?</Text>
+        <Text fontSize="20px">
+          Hi! We've deprecated this page and moved the notification pushing
+          feature to your channel page for better streamer experience
+        </Text>
+      </Flex>
     </Flex>
   );
 }

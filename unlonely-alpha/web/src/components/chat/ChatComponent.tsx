@@ -512,7 +512,11 @@ const AblyChatComponent = ({
                 address && (
                   <>
                     <BuyButton
-                      tokenName={`$${channelQueryData?.token?.symbol}`}
+                      tokenName={
+                        channelQueryData?.token?.symbol
+                          ? `$${channelQueryData?.token?.symbol}`
+                          : "token"
+                      }
                       callback={handleBuyModal}
                     />
                     <Grid

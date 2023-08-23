@@ -211,7 +211,11 @@ const DesktopPage = ({
               title=""
               icon={
                 <BuyButton
-                  tokenName={`$${channelQueryData?.token?.symbol}`}
+                  tokenName={
+                    channelQueryData?.token?.symbol
+                      ? `$${channelQueryData?.token?.symbol}`
+                      : "token"
+                  }
                   noHover
                 />
               }
@@ -357,7 +361,11 @@ const DesktopPage = ({
                                   </Tooltip>
                                 </Grid>
                                 <BuyButton
-                                  tokenName={`$${channelQueryData?.token?.symbol}`}
+                                  tokenName={
+                                    channelQueryData?.token?.symbol
+                                      ? `$${channelQueryData?.token?.symbol}`
+                                      : "token"
+                                  }
                                   callback={() => setShowBuyModal(true)}
                                 />
                               </>

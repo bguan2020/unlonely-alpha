@@ -63,13 +63,6 @@ const Participant = ({ user, mobile }: Props) => {
     <>
       {user ? (
         <>
-          {/* <Tooltip label={toolTipMessage(user)} hasArrow arrowSize={14}>
-            <Avatar
-              name={user.username ? user.username : user.address}
-              src={ipfsUrl}
-              size="sm"
-            />
-          </Tooltip> */}
           <Popover trigger="hover">
             <PopoverTrigger>
               <Avatar

@@ -16,7 +16,7 @@ type Props = {
 const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
   const [offline, setOffline] = useState<boolean>(false);
 
-  const { isIOS } = useUserAgent();
+  const { isStandalone } = useUserAgent();
 
   useEffect(() => {
     const PLAYBACK_URL = playbackUrl;
@@ -91,6 +91,16 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             >
               stream offline
             </Text>
+            {!isStandalone && (
+              <Text
+                fontFamily="Neue Pixel Sans"
+                textAlign="center"
+                fontSize="18px"
+              >
+                or install the app on your mobile device to sign up for future
+                notifications
+              </Text>
+            )}
           </Flex>
         )}
       </Flex>
