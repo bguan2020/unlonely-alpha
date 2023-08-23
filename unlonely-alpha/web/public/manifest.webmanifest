@@ -4,6 +4,7 @@
   "description": "Livestreaming powered by tokens",
   "display": "standalone",
   "start_url": "/",
+  "scope": "/",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "icons": [

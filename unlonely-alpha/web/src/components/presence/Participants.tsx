@@ -46,6 +46,8 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
   );
   const [participantOrder, setParticipantOrder] = useState<Presence[]>([]);
 
+  const limit = mobile ? 9 : 6;
+
   useEffect(() => {
     if (presenceData) {
       // update my presence data to include my user data
@@ -114,7 +116,7 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
   return (
     <Flex direction="row" maxW="100%" justifyContent="center">
       <Flex flexDirection="row-reverse">
-        {!!participantOrder.slice(6).length && (
+        {!!participantOrder.slice(limit).length && (
           <Flex ml={"-2px"}>
             <Popover trigger={!isStandalone ? "hover" : "click"}>
               <PopoverTrigger>
@@ -128,7 +130,7 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
                   width={mobile ? "4" : "8"}
                   height={mobile ? "4" : "8"}
                 >
-                  {`+${participantOrder.slice(6).length}`}
+                  {`+${participantOrder.slice(limit).length}`}
                 </Box>
               </PopoverTrigger>
               <PopoverContent
@@ -155,7 +157,7 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
           </Flex>
         )}
         {participantOrder
-          .slice(0, 6)
+          .slice(0, limit)
           .reverse()
           .map((member, index) => (
             <Flex key={index} ml={"-4px"}>

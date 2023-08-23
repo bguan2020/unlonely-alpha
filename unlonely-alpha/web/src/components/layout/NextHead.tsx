@@ -32,7 +32,10 @@ const NextHead: React.FC<{
       />
 
       <link rel="icon" href="/images/favicon.ico" />
-      <link rel="apple-touch-icon" href="/images/unlonely-mobile-logo.png"></link>
+      <link
+        rel="apple-touch-icon"
+        href="/images/unlonely-mobile-logo.png"
+      ></link>
 
       <title>{__title}</title>
       <meta
@@ -40,8 +43,11 @@ const NextHead: React.FC<{
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,"
       />
       <meta name="description" content={__description} />
-      <meta name="apple-mobile-web-app-capable" content="yes"/>
-      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent"
+      />
 
       <meta property="og:title" content={__title} />
       <meta property="og:url" content={`https://unlonely.app${__pageUrl}`} />

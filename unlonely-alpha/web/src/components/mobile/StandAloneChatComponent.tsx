@@ -466,7 +466,12 @@ const StandaloneAblyChatComponent = ({
       id="chat"
       position={"relative"}
     >
-      <Flex position="absolute" top={"-10px"} left="10px" zIndex="2">
+      <Flex
+        position="absolute"
+        top={!previewStream && isOwner ? "40px" : "-10px"}
+        left="10px"
+        zIndex="2"
+      >
         <Participants ablyPresenceChannel={presenceChannel} mobile />
       </Flex>
       {chatChannel?.includes("channel") ? (
@@ -524,23 +529,14 @@ const StandaloneAblyChatComponent = ({
               /{channelQueryData?.slug}
             </Text>
           </Flex>
-          <IconButton
-            _hover={{}}
-            _focus={{}}
-            _active={{}}
-            aria-label="arcade"
-            bg="transparent"
-            icon={
-              <BuyButton
-                tokenName={
-                  channelQueryData?.token?.symbol
-                    ? `$${channelQueryData?.token?.symbol}`
-                    : ""
-                }
-                small
-              />
+          <BuyButton
+            tokenName={
+              channelQueryData?.token?.symbol
+                ? `$${channelQueryData?.token?.symbol}`
+                : "token"
             }
-            onClick={() => {
+            small
+            callback={() => {
               if (clickedOutsideArcade.current) {
                 clickedOutsideArcade.current = false;
                 return;
@@ -578,8 +574,7 @@ const StandaloneAblyChatComponent = ({
         >
           <Flex
             direction="column"
-            bg={"rgba(19, 19, 35, 0.8)"}
-            style={{ backdropFilter: "blur(6px)" }}
+            bg={"rgba(19, 19, 35, 1)"}
             borderRadius={"5px"}
             width={"100%"}
             padding="10px"
@@ -792,8 +787,7 @@ const StandaloneAblyChatComponent = ({
         >
           <Flex
             direction="column"
-            bg={"rgba(19, 19, 35, 0.8)"}
-            style={{ backdropFilter: "blur(6px)" }}
+            bg={"rgba(19, 19, 35, 1)"}
             borderRadius={"5px"}
             width={"100%"}
             padding={"40px"}
@@ -806,7 +800,7 @@ const StandaloneAblyChatComponent = ({
                     tokenName={
                       channelQueryData?.token?.symbol
                         ? `$${channelQueryData?.token?.symbol}`
-                        : ""
+                        : "token"
                     }
                     callback={() => setShowBuyModal?.(true)}
                   />
@@ -951,8 +945,7 @@ const StandaloneAblyChatComponent = ({
         >
           <Flex
             direction="column"
-            bg={"rgba(19, 19, 35, 0.8)"}
-            style={{ backdropFilter: "blur(6px)" }}
+            bg={"rgba(19, 19, 35, 1)"}
             borderRadius={"5px"}
             width={"100%"}
           >
