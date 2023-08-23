@@ -90,6 +90,6 @@ export default makeExecutableSchema({
     deviceTokenResolvers,
     creatorTokenResolvers,
     chatCommandResolvers,
-    subscriptionResolvers,
+    subscriptionResolvers
   ),
 });

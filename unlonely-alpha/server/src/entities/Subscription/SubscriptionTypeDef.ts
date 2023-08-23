@@ -10,7 +10,7 @@ export const typeDef = gql`
     softDelete: Boolean!
     createdAt: DateTime!
   }
-  
+
   input PostSubscriptionInput {
     endpoint: String!
     expirationTime: String
