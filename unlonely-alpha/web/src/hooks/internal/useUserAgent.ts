@@ -53,7 +53,7 @@ export default function useUserAgent() {
         setIsStandalone(true);
       }
       setReady(true);
-      // setIsStandalone(true);
+      setIsStandalone(true);
     }
   }, []);
 

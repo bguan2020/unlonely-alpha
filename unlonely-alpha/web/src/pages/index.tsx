@@ -15,11 +15,13 @@ import {
   useDisclosure,
   Image,
   Spinner,
+  IconButton,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState, useRef, useMemo, useCallback } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useRouter } from "next/router";
+import { BiRefresh } from "react-icons/bi";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
@@ -31,7 +33,6 @@ import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
 import { Channel, NfcFeedQuery } from "../generated/graphql";
 import { SelectableChannel } from "../components/mobile/SelectableChannel";
-import PullToRefresh from "../components/general/PullToRefresh";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -356,7 +357,6 @@ function MobilePage({
     <AppLayout isCustomHeader={false}>
       {!loadingPage && !loading ? (
         <>
-          <PullToRefresh />
           <Flex
             direction="column"
             justifyContent="center"
@@ -364,6 +364,21 @@ function MobilePage({
             position="relative"
             height="100%"
           >
+            <IconButton
+              position="absolute"
+              aria-label="refresh"
+              icon={<BiRefresh size="20px" />}
+              bg="rgb(0, 0, 0, 0.5)"
+              onClick={() => window?.location?.reload()}
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              borderWidth="1px"
+              zIndex="1"
+              borderRadius={"50%"}
+              right="1rem"
+              bottom="1rem"
+            />
             {channelsWithLiveFirst.length > 0 && (
               <Virtuoso
                 followOutput={"auto"}
