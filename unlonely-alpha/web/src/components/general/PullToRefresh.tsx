@@ -1,19 +1,28 @@
-import { useEffect, useState } from "react";
+import { Flex, Text } from "@chakra-ui/react";
+import React, { useState, useEffect } from "react";
 
-function PullToRefresh() {
+const PullToRefresh = () => {
   const [pullDownDistance, setPullDownDistance] = useState(0);
+  const [isPullingDown, setIsPullingDown] = useState(false);
+  let startY = 0;
 
   useEffect(() => {
-    let startY = 0;
-
     function handleTouchStart(e: any) {
-      startY = e.touches[0].clientY;
+      if (window.pageYOffset === 0) {
+        startY = e.touches[0].clientY;
+        setIsPullingDown(true);
+      }
     }
 
     function handleTouchMove(e: any) {
+      if (!isPullingDown) return;
+
       const pullDistance = e.touches[0].clientY - startY;
       if (pullDistance > 0) {
         setPullDownDistance(pullDistance);
+      } else {
+        setIsPullingDown(false);
+        setPullDownDistance(0);
       }
     }
 
@@ -21,6 +30,7 @@ function PullToRefresh() {
       if (pullDownDistance > 300) {
         location.reload();
       }
+      setIsPullingDown(false);
       setPullDownDistance(0);
     }
 
@@ -33,13 +43,15 @@ function PullToRefresh() {
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [pullDownDistance]);
+  }, [isPullingDown, pullDownDistance]);
 
   return (
-    <div style={{ height: `${pullDownDistance}px` }}>
-      {pullDownDistance > 60 && <span>release to refresh...</span>}
-    </div>
+    <Flex style={{ height: `${pullDownDistance}px` }}>
+      {pullDownDistance > 60 && (
+        <Text textAlign={"center"}>Release to refresh...</Text>
+      )}
+    </Flex>
   );
-}
+};
 
 export default PullToRefresh;
