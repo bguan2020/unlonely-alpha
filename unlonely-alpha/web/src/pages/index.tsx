@@ -31,6 +31,7 @@ import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
 import { Channel, NfcFeedQuery } from "../generated/graphql";
 import { SelectableChannel } from "../components/mobile/SelectableChannel";
+import PullToRefresh from "../components/general/PullToRefresh";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -354,30 +355,33 @@ function MobilePage({
   return (
     <AppLayout isCustomHeader={false}>
       {!loadingPage && !loading ? (
-        <Flex
-          direction="column"
-          justifyContent="center"
-          width="100vw"
-          position="relative"
-          height="100%"
-        >
-          {channelsWithLiveFirst.length > 0 && (
-            <Virtuoso
-              followOutput={"auto"}
-              ref={scrollRef}
-              data={channelsWithLiveFirst}
-              totalCount={channelsWithLiveFirst.length}
-              initialTopMostItemIndex={0}
-              itemContent={(index, data) => (
-                <SelectableChannel
-                  key={data.id || index}
-                  channel={data}
-                  callback={handleSelectChannel}
-                />
-              )}
-            />
-          )}
-        </Flex>
+        <>
+          <PullToRefresh />
+          <Flex
+            direction="column"
+            justifyContent="center"
+            width="100vw"
+            position="relative"
+            height="100%"
+          >
+            {channelsWithLiveFirst.length > 0 && (
+              <Virtuoso
+                followOutput={"auto"}
+                ref={scrollRef}
+                data={channelsWithLiveFirst}
+                totalCount={channelsWithLiveFirst.length}
+                initialTopMostItemIndex={0}
+                itemContent={(index, data) => (
+                  <SelectableChannel
+                    key={data.id || index}
+                    channel={data}
+                    callback={handleSelectChannel}
+                  />
+                )}
+              />
+            )}
+          </Flex>
+        </>
       ) : (
         <Flex
           alignItems={"center"}
