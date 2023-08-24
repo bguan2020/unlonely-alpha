@@ -470,7 +470,7 @@ const StandaloneAblyChatComponent = ({
     >
       <Flex
         position="absolute"
-        top={!previewStream && isOwner ? "40px" : "-10px"}
+        top={!previewStream && isOwner ? "40px" : "-20px"}
         left="10px"
         zIndex="2"
       >

@@ -36,6 +36,8 @@ type Presence = {
   timestamp: number;
 };
 
+const limit = 6;
+
 const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
   const { user } = useUser();
   const { isStandalone } = useUserAgent();
@@ -45,8 +47,6 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
     ablyPresenceChannel ? ablyPresenceChannel : "presence"
   );
   const [participantOrder, setParticipantOrder] = useState<Presence[]>([]);
-
-  const limit = mobile ? 9 : 6;
 
   useEffect(() => {
     if (presenceData) {
@@ -160,7 +160,7 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
           .slice(0, limit)
           .reverse()
           .map((member, index) => (
-            <Flex key={index} ml={"-4px"}>
+            <Flex key={index} ml={-4}>
               <Participant mobile={mobile} user={member.data?.user} />
             </Flex>
           ))}
