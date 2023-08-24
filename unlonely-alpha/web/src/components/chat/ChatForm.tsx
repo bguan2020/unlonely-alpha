@@ -44,6 +44,7 @@ import { ChatBot } from "../../constants/types";
 import ConnectWallet from "../navigation/ConnectWallet";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { ChatClip } from "./ChatClip";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 type Props = {
   sendChatMessage: (message: string, isGif: boolean, body?: string) => void;
@@ -65,6 +66,8 @@ const ChatForm = ({
   const { user, walletIsConnected, userAddress: address } = useUser();
   const { isStandalone } = useUserAgent();
   const network = useNetwork();
+  const { network: net } = useNetworkContext();
+  const { matchingChain } = net;
 
   const toast = useToast();
   const { channel: channelContext, token, chat } = useChannelContext();
@@ -352,7 +355,9 @@ const ChatForm = ({
   );
 
   useEffect(() => {
-    if (
+    if (!matchingChain) {
+      setTooltipError("wrong network");
+    } else if (
       channelQueryData?.token?.address &&
       blastMode &&
       (!userTokenBalance?.value ||
@@ -365,7 +370,7 @@ const ChatForm = ({
     } else {
       setTooltipError("");
     }
-  }, [channelQueryData, userTokenBalance?.value, blastMode]);
+  }, [channelQueryData, userTokenBalance?.value, blastMode, matchingChain]);
 
   useEffect(() => {
     if (
@@ -540,7 +545,7 @@ const ChatForm = ({
                     <Tooltip
                       isOpen
                       placement="left"
-                      label="clipping, please wait"
+                      label="clipping, please stay here and wait"
                       background="#15a6c0"
                       hasArrow
                     >

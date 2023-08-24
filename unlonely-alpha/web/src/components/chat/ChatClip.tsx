@@ -6,6 +6,8 @@ import {
   Text,
   Input,
   Spinner,
+  IconButton,
+  Image,
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
@@ -139,6 +141,26 @@ export const ChatClip = () => {
             ) : clipUrl ? (
               <>
                 <Flex justifyContent={"center"}>
+                  <Flex justifyContent={"flex-end"}>
+                    <IconButton
+                      aria-label="close"
+                      _hover={{}}
+                      _active={{}}
+                      _focus={{}}
+                      bg="transparent"
+                      icon={
+                        <Image alt="close" src="/svg/close.svg" width="15px" />
+                      }
+                      onClick={() => {
+                        handleIsClipUiOpen(false);
+                        setFinalUrl("");
+                        setTitle("");
+                      }}
+                      position="absolute"
+                      right="-14px"
+                      top="-10px"
+                    />
+                  </Flex>
                   <video controls loop preload="metadata">
                     <source src={clipUrl} type="video/mp4"></source>
                   </video>

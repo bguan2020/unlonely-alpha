@@ -124,6 +124,7 @@ const StandaloneAblyChatComponent = ({
     hasMessagesLoaded,
     setHasMessagesLoaded,
     receivedMessages,
+    mounted,
   } = useChannel();
   const router = useRouter();
 
@@ -395,42 +396,44 @@ const StandaloneAblyChatComponent = ({
   }, [receivedMessages]);
 
   useEffect(() => {
-    if (receivedMessages.length === 0) return;
-    if (!mountingMessages.current) {
-      const latestMessage = receivedMessages[receivedMessages.length - 1];
-      if (latestMessage && latestMessage.name === "chat-message") {
-        if (
-          latestMessage.data.body &&
-          latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
-        ) {
-          const newTextOverVideo = latestMessage.data.body
-            .split(":")
-            .slice(1)
-            .join();
-          if (newTextOverVideo) {
-            addToTextOverVideo(newTextOverVideo);
-          }
-        } else if (
-          latestMessage.data.body &&
-          (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
-            latestMessage.data.body.split(":")[0] === InteractionType.TIP)
-        ) {
-          fireworks();
-        } else if (
-          latestMessage.data.body &&
-          latestMessage.data.body.split(":")[0] === InteractionType.BLAST
-        ) {
-          if (latestMessage.data.isGif) {
-            emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
-          } else {
-            emojiBlast(
-              <Text fontSize="40px">{latestMessage.data.messageText}</Text>
-            );
-          }
+    if (mounted) mountingMessages.current = false;
+  }, [mounted]);
+
+  useEffect(() => {
+    if (mountingMessages.current || receivedMessages.length === 0) return;
+
+    const latestMessage = receivedMessages[receivedMessages.length - 1];
+    if (latestMessage && latestMessage.name === "chat-message") {
+      if (
+        latestMessage.data.body &&
+        latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
+      ) {
+        const newTextOverVideo = latestMessage.data.body
+          .split(":")
+          .slice(1)
+          .join();
+        if (newTextOverVideo) {
+          addToTextOverVideo(newTextOverVideo);
+        }
+      } else if (
+        latestMessage.data.body &&
+        (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
+          latestMessage.data.body.split(":")[0] === InteractionType.TIP)
+      ) {
+        fireworks();
+      } else if (
+        latestMessage.data.body &&
+        latestMessage.data.body.split(":")[0] === InteractionType.BLAST
+      ) {
+        if (latestMessage.data.isGif) {
+          emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
+        } else {
+          emojiBlast(
+            <Text fontSize="40px">{latestMessage.data.messageText}</Text>
+          );
         }
       }
     }
-    mountingMessages.current = false;
   }, [receivedMessages]);
 
   const handleScrollToPresent = useCallback(() => {

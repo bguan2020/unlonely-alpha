@@ -22,6 +22,7 @@ import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 export default function TipTransactionModal({
   title,
@@ -39,6 +40,9 @@ export default function TipTransactionModal({
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
   const { channel, token } = useChannelContext();
+  const { network: net } = useNetworkContext();
+  const { matchingChain } = net;
+
   const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
   const { isStandalone } = useUserAgent();
@@ -218,6 +222,8 @@ export default function TipTransactionModal({
   useEffect(() => {
     if (!walletIsConnected) {
       setErrorMessage("connect wallet first");
+    } else if (!matchingChain) {
+      setErrorMessage("wrong network");
     } else if (
       !userTokenBalance?.value ||
       (userTokenBalance?.value && tokenAmount_bigint > userTokenBalance?.value)
@@ -233,6 +239,7 @@ export default function TipTransactionModal({
     tokenAmount_bigint,
     walletIsConnected,
     channelQueryData,
+    matchingChain,
   ]);
 
   return (

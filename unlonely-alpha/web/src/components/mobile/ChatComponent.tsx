@@ -73,6 +73,7 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
     hasMessagesLoaded,
     setHasMessagesLoaded,
     receivedMessages,
+    mounted,
   } = useChannel();
 
   const { username, user, userAddress: address, walletIsConnected } = useUser();
@@ -270,31 +271,33 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
   }, [receivedMessages]);
 
   useEffect(() => {
-    if (receivedMessages.length === 0) return;
-    if (!mountingMessages.current && receivedMessages.length > 0) {
-      const latestMessage = receivedMessages[receivedMessages.length - 1];
-      if (latestMessage && latestMessage.name === "chat-message") {
-        if (
-          latestMessage.data.body &&
-          (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
-            latestMessage.data.body.split(":")[0] === InteractionType.TIP)
-        ) {
-          fireworks();
-        } else if (
-          latestMessage.data.body &&
-          latestMessage.data.body.split(":")[0] === InteractionType.BLAST
-        ) {
-          if (latestMessage.data.isGif) {
-            emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
-          } else {
-            emojiBlast(
-              <Text fontSize="40px">{latestMessage.data.messageText}</Text>
-            );
-          }
+    if (mounted) mountingMessages.current = false;
+  }, [mounted]);
+
+  useEffect(() => {
+    if (mountingMessages.current || receivedMessages.length === 0) return;
+    const latestMessage = receivedMessages[receivedMessages.length - 1];
+    if (latestMessage && latestMessage.name === "chat-message") {
+      if (
+        latestMessage.data.body &&
+        (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
+          latestMessage.data.body.split(":")[0] === InteractionType.TIP)
+      ) {
+        fireworks();
+      } else if (
+        latestMessage.data.body &&
+        latestMessage.data.body.split(":")[0] === InteractionType.BLAST &&
+        Date.now() - latestMessage.timestamp < 6000
+      ) {
+        if (latestMessage.data.isGif) {
+          emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
+        } else {
+          emojiBlast(
+            <Text fontSize="40px">{latestMessage.data.messageText}</Text>
+          );
         }
       }
     }
-    mountingMessages.current = false;
   }, [receivedMessages]);
 
   const handleScrollToPresent = useCallback(() => {
