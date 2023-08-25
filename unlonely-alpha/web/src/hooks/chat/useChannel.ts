@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useChannelContext } from "../context/useChannel";
 import { Message } from "../../constants/types/chat";
 import { ADD_REACTION_EVENT } from "../../constants";
+import { useUser } from "../context/useUser";
 
 const ably = new Ably.Realtime.Promise({ authUrl: "/api/createTokenRequest" });
 
@@ -38,6 +39,7 @@ export function useAblyChannel(
 }
 
 export function useChannel(fixedChatName?: string) {
+  const { userAddress } = useUser();
   const { chat } = useChannelContext();
   const { chatChannel } = chat;
 
@@ -53,41 +55,22 @@ export function useChannel(fixedChatName?: string) {
 
   const [channel, ably] = useAblyChannel(channelName, (message) => {
     setHasMessagesLoaded(false);
-    const history = receivedMessages;
     // remove messages where name = add-reaction
-    const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
+    let messageHistory = receivedMessages.filter(
+      (m) => m.name !== ADD_REACTION_EVENT
+    );
     if (message.name === ADD_REACTION_EVENT) {
-      const reaction = message;
-      const timeserial = reaction.data.extras.reference.timeserial;
-      const emojiType = reaction.data.body;
-
-      // get index of message in filteredHistory array where timeserial matches
-      const index = messageHistory.findIndex(
-        (m) => m.extras.timeserial === timeserial
-      );
-
-      // if index is found, update the message object with the reaction count
-      const messageToUpdate = messageHistory[index];
-      const emojisToUpdate = messageToUpdate.data.reactions;
-      const emojiIndex = emojisToUpdate.findIndex(
-        (e) => e.emojiType === emojiType
-      );
-
-      if (emojiIndex !== -1) {
-        emojisToUpdate[emojiIndex].count += 1;
-      }
-      const updatedMessage = {
-        ...messageToUpdate,
-        data: {
-          ...messageToUpdate.data,
-          reactions: emojisToUpdate,
-        },
-      };
-      messageHistory[index] = updatedMessage;
+      messageHistory = updateMessageHistoryReactions(message, messageHistory);
 
       setReceivedMessages([...messageHistory]);
     }
-    setReceivedMessages([...messageHistory, message]);
+    // If the message is not banned OR (if it's banned and the current user's address matches the message's address)
+    if (
+      !message.data.isBanned ||
+      (message.data.isBanned && message.data.address === userAddress)
+    ) {
+      setReceivedMessages([...messageHistory, message]);
+    }
     setHasMessagesLoaded(true);
   });
 
@@ -96,8 +79,11 @@ export function useChannel(fixedChatName?: string) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await channel.history((err, result) => {
-        const messageHistory: any = result.items.filter(
-          (message: any) => message.name === "chat-message"
+        let messageHistory = result.items.filter(
+          (message: any) =>
+            message.name === "chat-message" &&
+            (!message.data.isBanned ||
+              (message.data.isBanned && message.data.address === userAddress))
         );
         const reverse = [...messageHistory].reverse();
         setReceivedMessages(reverse);
@@ -105,33 +91,10 @@ export function useChannel(fixedChatName?: string) {
         // iterate through result
         result.items.forEach((message: any) => {
           if (message.name === ADD_REACTION_EVENT) {
-            const reaction = message;
-            const timeserial = reaction.data.extras.reference.timeserial;
-            const emojiType = reaction.data.body;
-
-            // get index of message in filteredHistory array where timeserial matches
-            const index = messageHistory.findIndex(
-              (m: any) => m.extras.timeserial === timeserial
+            messageHistory = updateMessageHistoryReactions(
+              message,
+              messageHistory
             );
-
-            // if index is found, update the message object with the reaction count
-            const messageToUpdate = messageHistory[index];
-            const emojisToUpdate = messageToUpdate.data.reactions;
-            const emojiIndex = emojisToUpdate.findIndex(
-              (e: any) => e.emojiType === emojiType
-            );
-
-            if (emojiIndex !== -1) {
-              emojisToUpdate[emojiIndex].count += 1;
-            }
-            const updatedMessage = {
-              ...messageToUpdate,
-              data: {
-                ...messageToUpdate.data,
-                reactions: emojisToUpdate,
-              },
-            };
-            messageHistory[index] = updatedMessage;
             const reverse = [...messageHistory, message].reverse();
             setReceivedMessages(reverse);
           }
@@ -142,7 +105,7 @@ export function useChannel(fixedChatName?: string) {
     }
     if (!channel) return;
     getMessages();
-  }, [channel]);
+  }, [channel, userAddress]);
 
   return {
     ably,
@@ -154,3 +117,35 @@ export function useChannel(fixedChatName?: string) {
     setHasMessagesLoaded,
   };
 }
+
+const updateMessageHistoryReactions = (
+  message: Ably.Types.Message,
+  messageHistory: Message[]
+) => {
+  const reaction = message;
+  const timeserial = reaction.data.extras.reference.timeserial;
+  const emojiType = reaction.data.body;
+
+  // get index of message in filteredHistory array where timeserial matches
+  const index = messageHistory.findIndex(
+    (m) => m.extras.timeserial === timeserial
+  );
+
+  const messageToUpdate = messageHistory[index];
+  const emojisToUpdate = messageToUpdate.data.reactions;
+  const emojiIndex = emojisToUpdate.findIndex((e) => e.emojiType === emojiType);
+
+  if (emojiIndex !== -1) {
+    emojisToUpdate[emojiIndex].count += 1;
+  }
+  const updatedMessage = {
+    ...messageToUpdate,
+    data: {
+      ...messageToUpdate.data,
+      reactions: emojisToUpdate,
+    },
+  };
+  messageHistory[index] = updatedMessage;
+
+  return messageHistory;
+};
