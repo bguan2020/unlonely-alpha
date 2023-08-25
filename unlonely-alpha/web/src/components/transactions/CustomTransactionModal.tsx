@@ -97,6 +97,11 @@ export default function CustomTransactionModal({
   useEffect(() => {
     setCurrentPrice(String(channelQueryData?.customButtonPrice ?? "0"));
     setCurrentRequest(String(channelQueryData?.customButtonAction ?? ""));
+    setChosenRequest(
+      sampleArray.find(
+        (s) => s === String(channelQueryData?.customButtonAction ?? "")
+      ) ?? CUSTOM
+    );
   }, [
     channelQueryData?.customButtonAction,
     channelQueryData?.customButtonPrice,
