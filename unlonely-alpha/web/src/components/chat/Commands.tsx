@@ -1,5 +1,5 @@
 import { Flex, Text, Button, Stack } from "@chakra-ui/react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { BaseChatCommand, CommandData } from "../../constants";
 interface Command {
@@ -63,13 +63,6 @@ export default function Commands({
   const aggregatedCommandList = [...commandList, ...channelChatComands];
 
   const [currentOpen, setCurrentOpen] = useState(open);
-
-  const matchingList = useMemo(() => {
-    return aggregatedCommandList.filter((command) => {
-      return command.value.includes(chat);
-    });
-  }, [aggregatedCommandList, chat]);
-
   const wrapperRef = useRef(null);
   useOutsideAlerter(wrapperRef, onClose);
 
@@ -79,33 +72,37 @@ export default function Commands({
 
   return (
     <>
-      {currentOpen && matchingList.length > 0 && (
+      {currentOpen && (
         <Flex ref={wrapperRef} zIndex={1} mb="20" w="75%">
           <Stack
             style={{ background: "rgb(47, 47, 100)" }}
             borderRadius="10px"
             p="5px"
           >
-            {matchingList.map((command, i) => {
-              return (
-                <Button
-                  key={i}
-                  bg={"#36548f"}
-                  _hover={{ bg: "#d16fce" }}
-                  _active={{ bg: "#d16fce" }}
-                  onClick={() => {
-                    onCommandClick(command.value);
-                  }}
-                >
-                  <Stack>
-                    <Text fontSize="xs">{command.name}</Text>
-                    {command.description && (
-                      <Text fontSize="xs">{command.description}</Text>
-                    )}
-                  </Stack>
-                </Button>
-              );
-            })}
+            {aggregatedCommandList
+              .filter((command) => {
+                return command.value.includes(chat);
+              })
+              .map((command, i) => {
+                return (
+                  <Button
+                    key={i}
+                    bg={"#36548f"}
+                    _hover={{ bg: "#d16fce" }}
+                    _active={{ bg: "#d16fce" }}
+                    onClick={() => {
+                      onCommandClick(command.value);
+                    }}
+                  >
+                    <Stack>
+                      <Text fontSize="xs">{command.name}</Text>
+                      {command.description && (
+                        <Text fontSize="xs">{command.description}</Text>
+                      )}
+                    </Stack>
+                  </Button>
+                );
+              })}
           </Stack>
         </Flex>
       )}
