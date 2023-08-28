@@ -24,6 +24,7 @@ import Badges from "./Badges";
 import EmojiDisplay from "./emoji/EmojiDisplay";
 import { Message } from "../../constants/types/chat";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 type Props = {
   index: number;
@@ -40,11 +41,20 @@ const MessageBody = ({
   linkArray,
   channel,
 }: Props) => {
+  const { channel: c } = useChannelContext();
+  const { channelQueryData } = c;
   const { user } = useUser();
   const { isStandalone } = useUserAgent();
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const [isBanning, setIsBanning] = useState<boolean>(false);
+
+  const userIsChannelOwner = useMemo(
+    () => user?.address === channelQueryData?.owner.address,
+    [user, channelQueryData]
+  );
 
   const fragments = useMemo(() => {
     let lastIndex = 0;
@@ -105,6 +115,11 @@ const MessageBody = ({
     setShowEmojiList(null);
   };
 
+  const ban = async () => {
+    setIsBanning(false);
+    setIsOpen(false);
+  };
+
   return (
     <>
       <Flex direction="column">
@@ -121,18 +136,66 @@ const MessageBody = ({
                 isOpen={isOpen}
                 handleClose={() => setIsOpen(false)}
               >
-                <Text
-                  _hover={{ cursor: "pointer" }}
-                  fontSize="16px"
-                  color={message.data.chatColor}
-                  fontWeight="bold"
-                >
-                  {message.data.username
-                    ? message.data.username
-                    : centerEllipses(message.data.address, 10)}
-                  :
-                </Text>
-                {message.data.address}
+                {!isBanning && (
+                  <>
+                    <Text
+                      _hover={{ cursor: "pointer" }}
+                      fontSize="16px"
+                      color={message.data.chatColor}
+                      fontWeight="bold"
+                    >
+                      {message.data.username
+                        ? message.data.username
+                        : centerEllipses(message.data.address, 10)}
+                      :
+                    </Text>
+                    {message.data.address}
+                    {userIsChannelOwner &&
+                      message.data.address !== user?.address &&
+                      !isBanning && (
+                        <Button
+                          mt="20px"
+                          bg="#842007"
+                          _hover={{}}
+                          _focus={{}}
+                          _active={{}}
+                          onClick={() => setIsBanning(true)}
+                        >
+                          ban user from chat
+                        </Button>
+                      )}
+                  </>
+                )}
+                {isBanning && (
+                  <Flex direction="column" gap="10px">
+                    <Text textAlign="center">
+                      are you sure you want to ban this user from chatting on
+                      your channel?
+                    </Text>
+                    <Flex justifyContent={"space-evenly"}>
+                      <Button
+                        bg="#b12805"
+                        _hover={{}}
+                        _focus={{}}
+                        _active={{}}
+                        onClick={ban}
+                      >
+                        yes, do it
+                      </Button>
+                      <Button
+                        opacity={"0.5"}
+                        border={"1px solid white"}
+                        bg={"transparent"}
+                        _hover={{}}
+                        _focus={{}}
+                        _active={{}}
+                        onClick={() => setIsBanning(false)}
+                      >
+                        maybe not...
+                      </Button>
+                    </Flex>
+                  </Flex>
+                )}
               </ChatUserModal>
               <Text
                 onClick={() => setIsOpen(true)}

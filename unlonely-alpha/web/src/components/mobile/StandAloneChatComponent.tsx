@@ -275,6 +275,7 @@ const StandaloneAblyChatComponent = ({
           isGif,
           reactions: initializeEmojis,
           body,
+          isBanned: false,
         },
       });
       handleChatCommand(messageText);

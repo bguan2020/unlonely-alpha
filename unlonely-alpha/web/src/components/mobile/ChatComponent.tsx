@@ -154,6 +154,7 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
           isGif,
           reactions: initializeEmojis,
           body,
+          isBanned: false,
         },
       });
       handleChatCommand(messageText);

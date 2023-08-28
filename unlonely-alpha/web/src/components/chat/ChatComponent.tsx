@@ -242,6 +242,7 @@ const AblyChatComponent = ({
           isGif,
           reactions: initializeEmojis,
           body,
+          isBanned: false,
         },
       });
       handleChatCommand(messageText);
