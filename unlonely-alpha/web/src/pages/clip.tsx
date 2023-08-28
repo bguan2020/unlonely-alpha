@@ -102,149 +102,147 @@ const ClipDetail = () => {
   };
 
   return (
-    <>
-      <AppLayout isCustomHeader={false}>
-        <Flex justifyContent="center" mt="5rem" direction="column">
-          {clipError ? (
-            <Flex width="100%" justifyContent="center">
-              <Alert status="error" width="60%">
-                <AlertIcon />
-                {clipError && <Text color="black">{clipError}</Text>}
-              </Alert>
-            </Flex>
-          ) : (
-            <>
-              {!clipUrl ? (
-                <Flex width="100%" justifyContent="center">
-                  <>
-                    {user ? (
-                      <Flex direction="column" width="60%">
-                        <Progress
-                          size="md"
-                          value={progressBar}
-                          hasStripe
-                          isAnimated
-                        />
-                        {progressBar <= 20 && (
-                          <Text fontSize="16px">generating clip...</Text>
-                        )}
-                        {progressBar <= 40 && progressBar > 20 && (
-                          <Text fontSize="16px">contacting AWS...</Text>
-                        )}
-                        {progressBar <= 60 && progressBar > 40 && (
-                          <Text fontSize="16px">praying to Bezos...</Text>
-                        )}
-                        {progressBar <= 80 && progressBar > 60 && (
-                          <Text fontSize="16px">almost done...</Text>
-                        )}
-                        {progressBar <= 100 && progressBar > 80 && (
-                          <Text fontSize="16px">finalizing clip...</Text>
-                        )}
-                      </Flex>
-                    ) : (
-                      <Text>You are not signed in.</Text>
-                    )}
-                  </>
-                </Flex>
-              ) : (
-                <Flex width="100%" justifyContent="center">
-                  <ClipDetailCard clipUrl={clipUrl} />
-                </Flex>
-              )}
-              <Flex width="100%" justifyContent="center" mt="2rem">
-                <Flex width="80%" justifyContent="center" direction="column">
-                  {!clipUrl ? (
-                    <Flex width="100%" justifyContent="center">
-                      {user && (
-                        <Text fontSize="16px">
-                          Do not refresh or close this page! Clip is being
-                          generated! This will take a few minutes, so go back to
-                          the livestream if you want!
-                        </Text>
+    <AppLayout isCustomHeader={false}>
+      <Flex justifyContent="center" mt="5rem" direction="column">
+        {clipError ? (
+          <Flex width="100%" justifyContent="center">
+            <Alert status="error" width="60%">
+              <AlertIcon />
+              {clipError && <Text color="black">{clipError}</Text>}
+            </Alert>
+          </Flex>
+        ) : (
+          <>
+            {!clipUrl ? (
+              <Flex width="100%" justifyContent="center">
+                <>
+                  {user ? (
+                    <Flex direction="column" width="60%">
+                      <Progress
+                        size="md"
+                        value={progressBar}
+                        hasStripe
+                        isAnimated
+                      />
+                      {progressBar <= 20 && (
+                        <Text fontSize="16px">generating clip...</Text>
+                      )}
+                      {progressBar <= 40 && progressBar > 20 && (
+                        <Text fontSize="16px">contacting AWS...</Text>
+                      )}
+                      {progressBar <= 60 && progressBar > 40 && (
+                        <Text fontSize="16px">praying to Bezos...</Text>
+                      )}
+                      {progressBar <= 80 && progressBar > 60 && (
+                        <Text fontSize="16px">almost done...</Text>
+                      )}
+                      {progressBar <= 100 && progressBar > 80 && (
+                        <Text fontSize="16px">finalizing clip...</Text>
                       )}
                     </Flex>
-                  ) : postingClip ? (
-                    <Flex width="100%" justifyContent="center">
-                      <Spinner />
-                    </Flex>
                   ) : (
-                    <Flex width="100%" justifyContent="center">
-                      <Flex
-                        direction="column"
-                        w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
-                        gap="10px"
-                      >
-                        <Text
-                          fontSize="32px"
-                          fontWeight="semibold"
-                          textAlign={"center"}
-                        >
-                          Clip generated!
-                        </Text>
-                        <Text fontSize="16px" textAlign={"center"}>
-                          Give it a title before uploading it!
-                        </Text>
-                        <form onSubmit={handleSubmit(submitClip)}>
-                          {formError &&
-                            formError.length > 0 &&
-                            formError.map((err, i) => (
-                              <Alert status="error" key={i} mb="8px">
-                                <AlertIcon />
-                                {err}
-                              </Alert>
-                            ))}
-                          <FormControl
-                            isInvalid={!!formState.errors.title}
-                            marginBottom={["20px", "20px"]}
-                          >
-                            <Textarea
-                              id="title"
-                              placeholder="brian gets rick rolled"
-                              _placeholder={{ color: "#767676" }}
-                              lineHeight="1.5"
-                              background="#D9D9D9"
-                              borderRadius="10px"
-                              boxShadow="black"
-                              minHeight="2rem"
-                              fontWeight="medium"
-                              w="100%"
-                              padding="auto"
-                              color="black"
-                              {...register("title")}
-                            />
-                            <FormErrorMessage>
-                              {formState.errors.title?.message}
-                            </FormErrorMessage>
-                          </FormControl>
-                          <Flex width="100%" justifyContent={"center"}>
-                            <Button
-                              colorScheme={"blue"}
-                              py={10}
-                              _hover={{ transform: "scale(1.05)" }}
-                              _active={{
-                                transform: "scale(1)",
-                                background: "green",
-                              }}
-                              borderRadius="10px"
-                              _focus={{}}
-                              width="100%"
-                              type="submit"
-                              loadingText="uploading..."
-                            >
-                              <Text fontSize="30px">upload</Text>
-                            </Button>
-                          </Flex>
-                        </form>
-                      </Flex>
-                    </Flex>
+                    <Text>You are not signed in.</Text>
                   )}
-                </Flex>
+                </>
               </Flex>
-            </>
-          )}
-        </Flex>
-      </AppLayout>
-    </>
+            ) : (
+              <Flex width="100%" justifyContent="center">
+                <ClipDetailCard clipUrl={clipUrl} />
+              </Flex>
+            )}
+            <Flex width="100%" justifyContent="center" mt="2rem">
+              <Flex width="80%" justifyContent="center" direction="column">
+                {!clipUrl ? (
+                  <Flex width="100%" justifyContent="center">
+                    {user && (
+                      <Text fontSize="16px">
+                        Do not refresh or close this page! Clip is being
+                        generated! This will take a few minutes, so go back to
+                        the livestream if you want!
+                      </Text>
+                    )}
+                  </Flex>
+                ) : postingClip ? (
+                  <Flex width="100%" justifyContent="center">
+                    <Spinner />
+                  </Flex>
+                ) : (
+                  <Flex width="100%" justifyContent="center">
+                    <Flex
+                      direction="column"
+                      w={{ base: "100%", md: "60%", lg: "60%", sm: "100%" }}
+                      gap="10px"
+                    >
+                      <Text
+                        fontSize="32px"
+                        fontWeight="semibold"
+                        textAlign={"center"}
+                      >
+                        Clip generated!
+                      </Text>
+                      <Text fontSize="16px" textAlign={"center"}>
+                        Give it a title before uploading it!
+                      </Text>
+                      <form onSubmit={handleSubmit(submitClip)}>
+                        {formError &&
+                          formError.length > 0 &&
+                          formError.map((err, i) => (
+                            <Alert status="error" key={i} mb="8px">
+                              <AlertIcon />
+                              {err}
+                            </Alert>
+                          ))}
+                        <FormControl
+                          isInvalid={!!formState.errors.title}
+                          marginBottom={["20px", "20px"]}
+                        >
+                          <Textarea
+                            id="title"
+                            placeholder="brian gets rick rolled"
+                            _placeholder={{ color: "#767676" }}
+                            lineHeight="1.5"
+                            background="#D9D9D9"
+                            borderRadius="10px"
+                            boxShadow="black"
+                            minHeight="2rem"
+                            fontWeight="medium"
+                            w="100%"
+                            padding="auto"
+                            color="black"
+                            {...register("title")}
+                          />
+                          <FormErrorMessage>
+                            {formState.errors.title?.message}
+                          </FormErrorMessage>
+                        </FormControl>
+                        <Flex width="100%" justifyContent={"center"}>
+                          <Button
+                            colorScheme={"blue"}
+                            py={10}
+                            _hover={{ transform: "scale(1.05)" }}
+                            _active={{
+                              transform: "scale(1)",
+                              background: "green",
+                            }}
+                            borderRadius="10px"
+                            _focus={{}}
+                            width="100%"
+                            type="submit"
+                            loadingText="uploading..."
+                          >
+                            <Text fontSize="30px">upload</Text>
+                          </Button>
+                        </Flex>
+                      </form>
+                    </Flex>
+                  </Flex>
+                )}
+              </Flex>
+            </Flex>
+          </>
+        )}
+      </Flex>
+    </AppLayout>
   );
 };
 

@@ -1,6 +1,7 @@
 import { Flex, Text } from "@chakra-ui/react";
 import Link from "next/link";
 
+import useUserAgent from "../../hooks/internal/useUserAgent";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
 export default function CalendarEventModal({
@@ -14,6 +15,8 @@ export default function CalendarEventModal({
   callback?: any;
   handleClose: () => void;
 }) {
+  const { isStandalone } = useUserAgent();
+
   return (
     <TransactionModalTemplate
       confirmButton=""
@@ -22,6 +25,7 @@ export default function CalendarEventModal({
       isOpen={isOpen}
       handleClose={handleClose}
       isModalLoading={false}
+      size={isStandalone ? "sm" : "md"}
     >
       <Flex direction="column" gap="16px">
         <Text textAlign="center">

@@ -3,13 +3,17 @@ import { Flex, Text, Box, Stack } from "@chakra-ui/react";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import StreamComponent from "../stream/StreamComponent";
 
-const ChannelViewerPerspective = () => {
+const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
   const { recentStreamInteractions } = useChannelContext();
 
   const { textOverVideo } = recentStreamInteractions;
 
   return (
-    <Stack direction="column" width={"100%"}>
+    <Stack
+      direction="column"
+      width={"100%"}
+      position={mobile ? "fixed" : "unset"}
+    >
       <Flex width={"100%"} position="relative">
         <Box
           position="absolute"
@@ -30,7 +34,7 @@ const ChannelViewerPerspective = () => {
             </Flex>
           ))}
         </Box>
-        <StreamComponent isTheatreMode />
+        <StreamComponent />
       </Flex>
     </Stack>
   );

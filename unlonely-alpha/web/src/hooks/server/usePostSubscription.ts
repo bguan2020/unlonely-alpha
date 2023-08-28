@@ -22,9 +22,10 @@ const POST_SUBSCRIPTION_MUTATION = gql`
 
 const usePostSubscription = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<PostSubscriptionMutation, PostSubscriptionMutationVariables>(
-    POST_SUBSCRIPTION_MUTATION
-  );
+  const [mutate] = useAuthedMutation<
+    PostSubscriptionMutation,
+    PostSubscriptionMutationVariables
+  >(POST_SUBSCRIPTION_MUTATION);
 
   const postSubscription = useCallback(
     async (data) => {
@@ -53,7 +54,7 @@ const usePostSubscription = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("postNFC", JSON.stringify(e, null, 2));
+        console.log("postSubscription", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]

@@ -34,6 +34,8 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 const CUSTOM = "custom";
 const SAMPLE1 = "pushup";
@@ -55,6 +57,10 @@ export default function CustomTransactionModal({
   handleClose: () => void;
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
+  const { isStandalone } = useUserAgent();
+  const { network: net } = useNetworkContext();
+  const { matchingChain } = net;
+
   const { user, userAddress, walletIsConnected } = useUser();
   const network = useNetwork();
   const toast = useToast();
@@ -91,6 +97,11 @@ export default function CustomTransactionModal({
   useEffect(() => {
     setCurrentPrice(String(channelQueryData?.customButtonPrice ?? "0"));
     setCurrentRequest(String(channelQueryData?.customButtonAction ?? ""));
+    setChosenRequest(
+      sampleArray.find(
+        (s) => s === String(channelQueryData?.customButtonAction ?? "")
+      ) ?? CUSTOM
+    );
   }, [
     channelQueryData?.customButtonAction,
     channelQueryData?.customButtonPrice,
@@ -238,14 +249,21 @@ export default function CustomTransactionModal({
   };
 
   const canOwnerSend = useMemo(() => {
+    // if not owner, can't send
     if (!isOwner) return false;
+    // if new price is 0, can't send
     if (Number(formatIncompleteNumber(newPrice)) === 0) return false;
+    // if empty custom request, can't send
     if (chosenRequest === CUSTOM && customRequest.length === 0) return false;
+    // if custom request and custom price are unchanged, can't send
     if (
       chosenRequest === CUSTOM &&
-      channelQueryData?.customButtonAction === customRequest
+      channelQueryData?.customButtonAction === customRequest &&
+      Number(formatIncompleteNumber(newPrice)) ===
+        channelQueryData?.customButtonPrice
     )
       return false;
+    // if non-custom request is empty, can't send
     if (chosenRequest !== CUSTOM && chosenRequest.length === 0) return false;
     return true;
   }, [isOwner, newPrice, chosenRequest, customRequest, channelQueryData]);
@@ -284,6 +302,8 @@ export default function CustomTransactionModal({
   useEffect(() => {
     if (!walletIsConnected) {
       setErrorMessage("connect wallet first");
+    } else if (!matchingChain) {
+      setErrorMessage("wrong network");
     } else if (
       !userTokenBalance?.value ||
       (userTokenBalance?.value &&
@@ -300,6 +320,7 @@ export default function CustomTransactionModal({
     userTokenBalance,
     channelQueryData,
     currentPrice as `${number}`,
+    matchingChain,
   ]);
 
   const txnLoading = useMemo(() => {
@@ -320,6 +341,7 @@ export default function CustomTransactionModal({
       hideFooter={!isEditing && isOwner}
       needsApproval={!isOwner && requiresApproval}
       approve={writeApproval}
+      size={isStandalone ? "sm" : "md"}
     >
       <Flex direction={"column"} gap="16px">
         {isOwner ? (

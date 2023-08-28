@@ -41,6 +41,10 @@ import { formatIncompleteNumber } from "../../utils/validation/input";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import centerEllipses from "../../utils/centerEllipses";
 import { ChatBot } from "../../constants/types";
+import ConnectWallet from "../navigation/ConnectWallet";
+import useUserAgent from "../../hooks/internal/useUserAgent";
+import { ChatClip } from "./ChatClip";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 type Props = {
   sendChatMessage: (message: string, isGif: boolean, body?: string) => void;
@@ -60,10 +64,16 @@ const ChatForm = ({
   addToChatbot,
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
+  const { isStandalone } = useUserAgent();
   const network = useNetwork();
+  const { network: net } = useNetworkContext();
+  const { matchingChain } = net;
 
   const toast = useToast();
-  const { channel: channelContext, token } = useChannelContext();
+  const { channel: channelContext, token, chat } = useChannelContext();
+  const { clipping } = chat;
+  const { fetchData, loading: clipLoading } = clipping;
+
   const { channelQueryData } = channelContext;
   const { userTokenBalance, refetchUserTokenBalance } = token;
 
@@ -254,8 +264,8 @@ const ChatForm = ({
       sendChatMessage(gif, true);
       setMessageText("");
     } else {
-      if (tooltipError !== "") return;
       if (channelQueryData?.token?.address) {
+        if (tooltipError !== "") return;
         setTxTransition(true);
         setGifInTransaction(gif);
         if (requiresApproval && writeApproval) {
@@ -286,8 +296,8 @@ const ChatForm = ({
         sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
         setMessageText("");
       } else {
-        if (tooltipError !== "") return;
         if (channelQueryData?.token?.address) {
+          if (tooltipError !== "") return;
           setTxTransition(true);
           setGifInTransaction("");
           if (requiresApproval && writeApproval) {
@@ -345,7 +355,10 @@ const ChatForm = ({
   );
 
   useEffect(() => {
-    if (
+    if (!matchingChain) {
+      setTooltipError("wrong network");
+    } else if (
+      channelQueryData?.token?.address &&
       blastMode &&
       (!userTokenBalance?.value ||
         (userTokenBalance?.value &&
@@ -357,7 +370,7 @@ const ChatForm = ({
     } else {
       setTooltipError("");
     }
-  }, [channelQueryData, userTokenBalance?.value, blastMode]);
+  }, [channelQueryData, userTokenBalance?.value, blastMode, matchingChain]);
 
   useEffect(() => {
     if (
@@ -383,15 +396,26 @@ const ChatForm = ({
 
   return (
     <>
+      <ChatClip />
       <form
         onSubmit={handleFormSubmission}
         className="xeedev-form-i"
-        style={{ width: "100%" }}
+        style={{
+          position: "relative",
+          width: "100%",
+          marginBottom: isStandalone ? "15px" : undefined,
+        }}
       >
         <Stack direction={"row"} spacing={"10px"}>
           {!walletIsConnected ? (
-            <Flex justifyContent={"center"} margin="auto">
+            <Flex
+              justifyContent={"center"}
+              direction="column"
+              margin="auto"
+              gap="5px"
+            >
               <Text>you must sign in to chat</Text>
+              <ConnectWallet />
             </Flex>
           ) : error ? (
             <Flex direction="column" gap="10px">
@@ -465,7 +489,7 @@ const ChatForm = ({
                     : "rgba(255, 255, 255, 0.35)"
                 }
               >
-                {blastMode && (
+                {blastMode && tooltipError === "" && (
                   <Text
                     color={"#b82929"}
                     fontSize="12px"
@@ -478,7 +502,19 @@ const ChatForm = ({
                       `(cost: ${PRICE} $${channelQueryData?.token?.symbol})`}
                   </Text>
                 )}
+                {blastMode && tooltipError !== "" && (
+                  <Text
+                    color={"#b82929"}
+                    fontSize="12px"
+                    position="absolute"
+                    top={-5}
+                    whiteSpace="nowrap"
+                  >
+                    {tooltipError}
+                  </Text>
+                )}
                 <Textarea
+                  resize="none"
                   variant="unstyled"
                   ref={(element) => {
                     inputBox = element;
@@ -504,14 +540,18 @@ const ChatForm = ({
                   style={{ zIndex: 0, minHeight: mobile ? "68px" : "50px" }}
                   height={"100%"}
                 />
-                <Flex justifyContent={"flex-end"}>
-                  <Tooltip
-                    label="clipping is now free!"
-                    background="#1db57d"
-                    placement="left"
-                    defaultIsOpen
-                    hasArrow
-                  >
+                <Flex justifyContent={"flex-end"} alignItems="center">
+                  {clipLoading ? (
+                    <Tooltip
+                      isOpen
+                      placement="left"
+                      label="clipping, please stay here and wait"
+                      background="#15a6c0"
+                      hasArrow
+                    >
+                      <Spinner />
+                    </Tooltip>
+                  ) : (
                     <IconButton
                       icon={<Image src="/svg/cut.svg" />}
                       aria-label="clip stream"
@@ -521,10 +561,11 @@ const ChatForm = ({
                       _active={{ transform: "scale(1.3)" }}
                       onClick={() => {
                         if (user) {
-                          window.open(
-                            `/clip?arn=${channelQueryData?.channelArn || ""}`,
-                            "_blank"
-                          );
+                          // window.open(
+                          //   `/clip?arn=${channelQueryData?.channelArn || ""}`,
+                          //   "_blank"
+                          // );
+                          fetchData();
                           addToChatbot?.({
                             username: user?.username ?? "",
                             address: user?.address ?? "",
@@ -539,37 +580,47 @@ const ChatForm = ({
                         }
                       }}
                     />
-                  </Tooltip>
-                  <Tooltip
-                    label="chat blast!"
-                    background="#ac1c09"
-                    defaultIsOpen
-                    hasArrow
-                  >
-                    <IconButton
-                      icon={<Image src="/svg/blast.svg" />}
-                      aria-label="clip stream"
-                      bg={blastMode ? "red" : "transparent"}
-                      _focus={{}}
-                      _hover={{ transform: "scale(1.15)" }}
-                      _active={{ transform: "scale(1.3)" }}
-                      onClick={() => {
-                        if (blastMode) {
-                          setBlastMode(false);
+                  )}
+
+                  <IconButton
+                    icon={<Image src="/svg/blast.svg" />}
+                    aria-label="clip stream"
+                    bg={blastMode ? "red" : "transparent"}
+                    _focus={{}}
+                    _hover={{ transform: "scale(1.15)" }}
+                    _active={{ transform: "scale(1.3)" }}
+                    onClick={() => {
+                      if (blastMode) {
+                        setBlastMode(false);
+                      } else {
+                        if (user) {
+                          setBlastMode(true);
                         } else {
-                          if (user) {
-                            setBlastMode(true);
-                          } else {
-                            toastSignIn();
-                          }
+                          toastSignIn();
                         }
-                      }}
-                    />
-                  </Tooltip>
+                      }
+                    }}
+                  />
                   <EmojiButton
                     mobile={mobile}
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
                     onSelectGif={(gif) => sendGif(gif)}
+                  />
+                  <IconButton
+                    type="submit"
+                    disabled={messageTextIsEmpty || tooltipError !== ""}
+                    icon={
+                      blastMode ? (
+                        <Image src="/svg/blast-send.svg" />
+                      ) : (
+                        <Image src="/svg/send.svg" />
+                      )
+                    }
+                    aria-label="clip stream"
+                    bg="transparent"
+                    _focus={{}}
+                    _hover={{ transform: "scale(1.15)" }}
+                    _active={{ transform: "scale(1.3)" }}
                   />
                 </Flex>
                 <Flex
@@ -595,33 +646,6 @@ const ChatForm = ({
                   />
                 </Flex>
               </Flex>
-              <Stack direction="column">
-                <Flex justifyContent="right">
-                  <Tooltip
-                    isOpen={tooltipError !== ""}
-                    label={tooltipError}
-                    placement="left"
-                    shouldWrapChildren
-                  >
-                    <IconButton
-                      type="submit"
-                      disabled={messageTextIsEmpty || tooltipError !== ""}
-                      icon={
-                        blastMode ? (
-                          <Image src="/svg/blast-send.svg" />
-                        ) : (
-                          <Image src="/svg/send.svg" />
-                        )
-                      }
-                      aria-label="clip stream"
-                      bg="transparent"
-                      _focus={{}}
-                      _hover={{ transform: "scale(1.15)" }}
-                      _active={{ transform: "scale(1.3)" }}
-                    />
-                  </Tooltip>
-                </Flex>
-              </Stack>
             </>
           )}
         </Stack>

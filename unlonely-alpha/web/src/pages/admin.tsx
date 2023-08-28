@@ -11,6 +11,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { formatUnits, isAddress, parseUnits } from "viem";
 import { useNetwork } from "wagmi";
+import Link from "next/link";
+
 import AppLayout from "../components/layout/AppLayout";
 import { NULL_ADDRESS } from "../constants";
 import { NETWORKS } from "../constants/networks";
@@ -34,7 +36,6 @@ import {
 import useUpdateCreatorTokenPrice from "../hooks/server/arcade/useUpdateTokenPrice";
 import useUpdateUserCreatorTokenQuantity from "../hooks/server/arcade/useUpdateTokenQuantity";
 import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
-import Link from "next/link";
 
 const inputStyle = {
   borderWidth: "1px",
@@ -62,7 +63,6 @@ export default function AdminPage() {
     <AppLayout isCustomHeader={false}>
       {isAdmin && <AdminContent />}
       {!isAdmin && <Text>You're not supposed to be here.</Text>}
-      {/* <AdminContent /> */}
     </AppLayout>
   );
 }

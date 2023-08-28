@@ -13,6 +13,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { isAddress } from "viem";
+
 import { useUser } from "../../hooks/context/useUser";
 
 export const TransactionModalTemplate = ({
@@ -29,11 +30,15 @@ export const TransactionModalTemplate = ({
   approve,
   handleClose,
   onSend,
+  cannotClose,
+  size,
+  blur,
+  bg,
 }: {
-  title: string;
-  confirmButton: string;
+  title?: string;
+  confirmButton?: string;
   isOpen: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   isModalLoading: boolean;
   loadingText?: string;
   canSend?: boolean;
@@ -43,49 +48,69 @@ export const TransactionModalTemplate = ({
   approve?: () => void;
   handleClose: () => void;
   onSend?: () => void;
+  cannotClose?: boolean;
+  bg?: string;
+  blur?: boolean;
+  size?:
+    | "xs"
+    | "sm"
+    | "md"
+    | "lg"
+    | "xl"
+    | "2xl"
+    | "3xl"
+    | "4xl"
+    | "5xl"
+    | "6xl"
+    | "full";
 }) => {
   const { user, userAddress } = useUser();
 
   return (
     <Modal
-      closeOnOverlayClick={!isModalLoading}
+      closeOnOverlayClick={!isModalLoading && !cannotClose}
       isCentered
       isOpen={isOpen}
       onClose={handleClose}
+      size={size ?? "md"}
     >
-      <ModalOverlay />
-      <ModalContent>
-        <IconButton
-          aria-label="close"
-          _hover={{}}
-          _active={{}}
-          _focus={{}}
-          bg="transparent"
-          icon={<Image alt="close" src="/svg/close.svg" width="20px" />}
-          onClick={handleClose}
-          disabled={isModalLoading}
-          position="absolute"
-          left="5px"
-          top="5px"
-        />
-        <ModalHeader flex="1" mt="15px">
-          <Flex direction="column" gap="10px">
-            {icon && <Flex ml="40px">{icon}</Flex>}
-            {title && (
-              <Text
-                fontSize="25px"
-                textAlign={"center"}
-                fontFamily="Neue Pixel Sans"
-                fontWeight="medium"
-              >
-                {title}
-              </Text>
-            )}
-          </Flex>
-        </ModalHeader>
+      <ModalOverlay backdropFilter={blur ? "blur(10px)" : undefined} />
+      <ModalContent bg={bg}>
+        {!cannotClose && (
+          <IconButton
+            aria-label="close"
+            _hover={{}}
+            _active={{}}
+            _focus={{}}
+            bg="transparent"
+            icon={<Image alt="close" src="/svg/close.svg" width="20px" />}
+            onClick={handleClose}
+            disabled={isModalLoading}
+            position="absolute"
+            left="5px"
+            top="5px"
+          />
+        )}
+        {(icon || title) && (
+          <ModalHeader flex="1" mt="15px">
+            <Flex direction="column" gap="10px">
+              {icon && <Flex ml="40px">{icon}</Flex>}
+              {title && (
+                <Text
+                  fontSize="25px"
+                  textAlign={"center"}
+                  fontFamily="Neue Pixel Sans"
+                  fontWeight="medium"
+                >
+                  {title}
+                </Text>
+              )}
+            </Flex>
+          </ModalHeader>
+        )}
         {!isModalLoading && (
           <>
-            <ModalBody>{children}</ModalBody>
+            {children && <ModalBody>{children}</ModalBody>}
             {!hideFooter && (
               <ModalFooter>
                 {needsApproval && (
@@ -118,7 +143,7 @@ export const TransactionModalTemplate = ({
                     }
                     borderRadius="25px"
                   >
-                    {confirmButton}
+                    {confirmButton ?? ""}
                   </Button>
                 )}
               </ModalFooter>

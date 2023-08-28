@@ -26,6 +26,7 @@ import {
 import { FetchBalanceResult } from "../../constants/types";
 import { useUser } from "./useUser";
 import { InteractionType } from "../../constants";
+import { useClip } from "../chat/useClip";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -51,6 +52,17 @@ const ChannelContext = createContext<{
   chat: {
     chatChannel?: string;
     presenceChannel?: string;
+    clipping: {
+      isClipUiOpen: boolean;
+      handleIsClipUiOpen: (value: boolean) => void;
+      fetchData: () => void;
+      submitClip: (title: string) => Promise<string | undefined>;
+      setClipError: (value: string) => void;
+      clipError?: string;
+      clipUrl?: string;
+      clipThumbnail?: string;
+      loading: boolean;
+    };
   };
   token: {
     userTokenBalance?: FetchBalanceResult;
@@ -82,6 +94,17 @@ const ChannelContext = createContext<{
   chat: {
     chatChannel: undefined,
     presenceChannel: undefined,
+    clipping: {
+      isClipUiOpen: false,
+      handleIsClipUiOpen: () => undefined,
+      fetchData: () => undefined,
+      submitClip: () => Promise.resolve(undefined),
+      setClipError: () => undefined,
+      clipError: undefined,
+      clipUrl: undefined,
+      clipThumbnail: undefined,
+      loading: false,
+    },
   },
   token: {
     userTokenBalance: undefined,
@@ -187,6 +210,21 @@ export const ChannelProvider = ({
     string | undefined
   >(undefined);
   const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
+  const [isClipUiOpen, setIsClipUiOpen] = useState<boolean>(false);
+
+  const handleIsClipUiOpen = useCallback((isClipUiOpen: boolean) => {
+    setIsClipUiOpen(isClipUiOpen);
+  }, []);
+
+  const {
+    fetchData,
+    submitClip,
+    setClipError,
+    clipError,
+    clipUrl,
+    clipThumbnail,
+    loading,
+  } = useClip(channelQueryData, handleIsClipUiOpen);
 
   useEffect(() => {
     if (channelQueryData && channelQueryData.awsId) {
@@ -249,6 +287,17 @@ export const ChannelProvider = ({
       chat: {
         chatChannel: ablyChatChannel,
         presenceChannel: ablyPresenceChannel,
+        clipping: {
+          isClipUiOpen,
+          handleIsClipUiOpen,
+          fetchData,
+          submitClip,
+          setClipError,
+          clipError: clipError ?? undefined,
+          clipUrl,
+          clipThumbnail,
+          loading,
+        },
       },
       token: {
         userTokenBalance,
@@ -288,6 +337,15 @@ export const ChannelProvider = ({
       holdersError,
       handleRefetchTokenHolders,
       userRank,
+      isClipUiOpen,
+      handleIsClipUiOpen,
+      fetchData,
+      submitClip,
+      setClipError,
+      clipError,
+      clipUrl,
+      clipThumbnail,
+      loading,
     ]
   );
 

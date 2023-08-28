@@ -5,12 +5,14 @@ type Props = {
   tokenName: string;
   callback?: () => void;
   noHover?: boolean;
+  small?: boolean;
 };
 
 const BuyButton: React.FunctionComponent<Props> = ({
   tokenName,
   callback,
   noHover,
+  small,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -20,12 +22,20 @@ const BuyButton: React.FunctionComponent<Props> = ({
         aria-label={`${tokenName}-buy`}
         icon={
           isHovered && !noHover ? (
-            <Image src="/svg/arcade/buy-hover.svg" width="100%" />
+            <Image
+              src="/svg/arcade/buy-hover.svg"
+              width="100%"
+              h={small ? "100%" : undefined}
+            />
           ) : (
-            <Image src="/svg/arcade/buy.svg" width="100%" />
+            <Image
+              src="/svg/arcade/buy.svg"
+              width="100%"
+              h={small ? "100%" : undefined}
+            />
           )
         }
-        width="300px"
+        width={small ? undefined : "300px"}
         bg="transparent"
         _hover={{}}
         _active={{}}
@@ -37,20 +47,17 @@ const BuyButton: React.FunctionComponent<Props> = ({
       />
       <Flex
         direction="column"
-        // align="left"
-        // top="7px"
-        // left="55px"
         top="50%"
         left="50%"
         transform="translate(-50%, -50%)"
         position="absolute"
-        width={"250px"}
-        ml={"20px"}
+        width={small ? "100px" : "250px"}
+        ml={small ? "5px" : "20px"}
         pointerEvents="none"
       >
         <Text
           lineHeight={1}
-          fontSize="30px"
+          fontSize={small ? "1rem" : "30px"}
           fontWeight={"bold"}
           textAlign="center"
         >
