@@ -176,10 +176,7 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
     let messageToPublish = "";
     let allowPublish = false;
 
-    if (messageText.startsWith("@")) {
-      messageToPublish = "seems you're trying to use commands. try !commands";
-      allowPublish = true;
-    } else if (messageText.startsWith(BaseChatCommand.COMMANDS)) {
+    if (messageText.startsWith(BaseChatCommand.COMMANDS)) {
       messageToPublish = `${BaseChatCommand.CHATBOT}\n${
         BaseChatCommand.CLIP
       }\n${BaseChatCommand.RULES}\n${channelChatCommands

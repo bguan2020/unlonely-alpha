@@ -650,7 +650,7 @@ const MobilePage = ({
             handleClose={handleClose}
             addToChatbot={addToChatbot}
           />
-          {(previewStream || !isOwner) && <ChannelViewerPerspective />}
+          {(previewStream || !isOwner) && <ChannelViewerPerspective mobile />}
           <StandaloneAblyChatComponent
             previewStream={previewStream}
             chatBot={chatBot}

@@ -134,6 +134,8 @@ model Channel {
   isLive Boolean @default(false)
   allowNFCs Boolean @default(true)
 
+  bannedUsers String[]
+
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
 

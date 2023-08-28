@@ -78,6 +78,7 @@ export type Channel = {
   __typename?: "Channel";
   allowNFCs?: Maybe<Scalars["Boolean"]>;
   awsId: Scalars["String"];
+  bannedUsers?: Maybe<Array<Maybe<Scalars["String"]>>>;
   channel: Channel;
   channelArn?: Maybe<Scalars["String"]>;
   chatCommands?: Maybe<Array<Maybe<ChatCommand>>>;
@@ -244,6 +245,7 @@ export type Mutation = {
   softDeleteSubscription?: Maybe<Subscription>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
+  toggleBannedUserToChannel?: Maybe<Channel>;
   toggleSubscription?: Maybe<Subscription>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelText?: Maybe<Channel>;
@@ -310,6 +312,10 @@ export type MutationSoftDeleteTaskArgs = {
 
 export type MutationSoftDeleteVideoArgs = {
   id: Scalars["ID"];
+};
+
+export type MutationToggleBannedUserToChannelArgs = {
+  data?: InputMaybe<ToggleBannedUserToChannelInput>;
 };
 
 export type MutationToggleSubscriptionArgs = {
@@ -608,6 +614,11 @@ export type TaskFeedInput = {
   orderBy?: InputMaybe<SortOrder>;
   searchString?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;
+};
+
+export type ToggleBannedUserToChannelInput = {
+  channelId: Scalars["ID"];
+  userAddress: Scalars["String"];
 };
 
 export type ToggleSubscriptionInput = {
@@ -1074,6 +1085,15 @@ export type PostVideoMutationVariables = Exact<{
 export type PostVideoMutation = {
   __typename?: "Mutation";
   postVideo?: { __typename?: "Video"; id: string } | null;
+};
+
+export type ToggleBannedUserToChannelMutationVariables = Exact<{
+  data: ToggleBannedUserToChannelInput;
+}>;
+
+export type ToggleBannedUserToChannelMutation = {
+  __typename?: "Mutation";
+  toggleBannedUserToChannel?: { __typename?: "Channel"; id: string } | null;
 };
 
 export type ToggleSubscriptionMutationVariables = Exact<{
@@ -2622,6 +2642,57 @@ export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
   PostVideoMutation,
   PostVideoMutationVariables
 >;
+export const ToggleBannedUserToChannelDocument = gql`
+  mutation toggleBannedUserToChannel($data: ToggleBannedUserToChannelInput!) {
+    toggleBannedUserToChannel(data: $data) {
+      id
+    }
+  }
+`;
+export type ToggleBannedUserToChannelMutationFn = Apollo.MutationFunction<
+  ToggleBannedUserToChannelMutation,
+  ToggleBannedUserToChannelMutationVariables
+>;
+
+/**
+ * __useToggleBannedUserToChannelMutation__
+ *
+ * To run a mutation, you first call `useToggleBannedUserToChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleBannedUserToChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleBannedUserToChannelMutation, { data, loading, error }] = useToggleBannedUserToChannelMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useToggleBannedUserToChannelMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ToggleBannedUserToChannelMutation,
+    ToggleBannedUserToChannelMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    ToggleBannedUserToChannelMutation,
+    ToggleBannedUserToChannelMutationVariables
+  >(ToggleBannedUserToChannelDocument, options);
+}
+export type ToggleBannedUserToChannelMutationHookResult = ReturnType<
+  typeof useToggleBannedUserToChannelMutation
+>;
+export type ToggleBannedUserToChannelMutationResult =
+  Apollo.MutationResult<ToggleBannedUserToChannelMutation>;
+export type ToggleBannedUserToChannelMutationOptions =
+  Apollo.BaseMutationOptions<
+    ToggleBannedUserToChannelMutation,
+    ToggleBannedUserToChannelMutationVariables
+  >;
 export const ToggleSubscriptionDocument = gql`
   mutation ToggleSubscription($data: ToggleSubscriptionInput!) {
     toggleSubscription(data: $data) {

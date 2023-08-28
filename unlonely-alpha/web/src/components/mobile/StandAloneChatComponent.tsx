@@ -301,10 +301,7 @@ const StandaloneAblyChatComponent = ({
     let messageToPublish = "";
     let allowPublish = false;
 
-    if (messageText.startsWith("@")) {
-      messageToPublish = "seems you're trying to use commands. try !commands";
-      allowPublish = true;
-    } else if (messageText.startsWith(BaseChatCommand.COMMANDS)) {
+    if (messageText.startsWith(BaseChatCommand.COMMANDS)) {
       messageToPublish = `${BaseChatCommand.CHATBOT}\n${
         BaseChatCommand.CLIP
       }\n${BaseChatCommand.RULES}\n${channelChatCommands
@@ -471,6 +468,7 @@ const StandaloneAblyChatComponent = ({
       p="5px"
       id="chat"
       position={"relative"}
+      marginTop={!previewStream && isOwner ? "0" : "25vh"}
     >
       <Flex
         position="absolute"
