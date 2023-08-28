@@ -204,6 +204,43 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
   }
 };
 
+export interface IToggleBannedUserToChannelInput {
+  channelId: number;
+  userAddress: string;
+}
+
+export const toggleBannedUserToChannel = async (
+  data: IToggleBannedUserToChannelInput,
+  ctx: Context
+) => {
+  // get bannedUSer arrray from channel, check if userAddress is in array
+  const channel = await ctx.prisma.channel.findUnique({
+    where: { id: Number(data.channelId) },
+  });
+
+  if (!channel) {
+    throw new Error("Channel not found");
+  }
+
+  const bannedUsers = channel.bannedUsers || [];
+
+  const userIndex = bannedUsers.indexOf(data.userAddress);
+
+  if (userIndex === -1) {
+    // user is not banned, add to bannedUsers array
+    bannedUsers.push(data.userAddress);
+  } else {
+    // user is banned, remove from bannedUsers array
+    bannedUsers.splice(userIndex, 1);
+  }
+
+  return ctx.prisma.channel.update({
+    where: { id: Number(data.channelId) },
+    data: { bannedUsers },
+  });
+};
+
+
 export const getChannelChatCommands = async (
   { id }: { id: number },
   ctx: Context
