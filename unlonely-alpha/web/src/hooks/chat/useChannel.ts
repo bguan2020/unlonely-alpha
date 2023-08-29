@@ -124,6 +124,7 @@ export function useChannel(fixedChatName?: string) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await channel.history((err, result) => {
+        console.log("banList", localBanList);
         let messageHistory = result.items.filter((message: any) => {
           if (message.name !== CHAT_MESSAGE_EVENT) return false;
 
