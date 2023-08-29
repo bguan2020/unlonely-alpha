@@ -57,11 +57,13 @@ export function useChannel(fixedChatName?: string) {
   const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [localBanList, setLocalBanList] = useState<string[]>([]);
-  const [isBanListLoaded, setIsBanListLoaded] = useState(false);
+  const [localBanList, setLocalBanList] = useState<string[] | undefined>(
+    undefined
+  );
 
   const [channel, ably] = useAblyChannel(channelName, (message) => {
     setHasMessagesLoaded(false);
+    if (localBanList === undefined) return;
     let messageHistory = receivedMessages.filter(
       (m) => m.name === CHAT_MESSAGE_EVENT
     );
@@ -106,7 +108,7 @@ export function useChannel(fixedChatName?: string) {
 
   useEffect(() => {
     if (!channelQueryData) {
-      setLocalBanList([]);
+      setLocalBanList(undefined);
       return;
     }
     const filteredUsers = (channelQueryData.bannedUsers ?? []).filter(
@@ -117,12 +119,12 @@ export function useChannel(fixedChatName?: string) {
       filteredUsers
     );
     setLocalBanList(filteredUsers);
-    setIsBanListLoaded(true);
   }, [channelQueryData]);
 
   useEffect(() => {
     async function getMessages() {
       console.log("fetching messages");
+      if (!channel || localBanList === undefined) return;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await channel.history((err, result) => {
@@ -158,9 +160,8 @@ export function useChannel(fixedChatName?: string) {
       });
       setMounted(true);
     }
-    if (!channel || !isBanListLoaded) return;
     getMessages();
-  }, [channel, userAddress, localBanList, isBanListLoaded]);
+  }, [channel, userAddress, localBanList]);
 
   return {
     ably,
