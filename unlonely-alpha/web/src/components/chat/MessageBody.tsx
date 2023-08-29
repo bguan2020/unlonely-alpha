@@ -9,11 +9,13 @@ import {
   ModalOverlay,
   ModalContent,
   Link,
+  Spinner,
 } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
 
 import {
   ADD_REACTION_EVENT,
+  BAN_USER_EVENT,
   EMOJIS,
   InteractionType,
   NULL_ADDRESS,
@@ -25,6 +27,7 @@ import EmojiDisplay from "./emoji/EmojiDisplay";
 import { Message } from "../../constants/types/chat";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import useToggleBannedUserToChannel from "../../hooks/server/useToggleBannedUser";
 
 type Props = {
   index: number;
@@ -48,6 +51,12 @@ const MessageBody = ({
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const { toggleBannedUserToChannel, loading } = useToggleBannedUserToChannel({
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   const [isBanning, setIsBanning] = useState<boolean>(false);
 
@@ -116,6 +125,14 @@ const MessageBody = ({
   };
 
   const ban = async () => {
+    await toggleBannedUserToChannel({
+      channelId: channelQueryData?.id,
+      userAddress: message.data.address,
+    });
+    channel.publish({
+      name: BAN_USER_EVENT,
+      data: { body: message.data.address },
+    });
     setIsBanning(false);
     setIsOpen(false);
   };
@@ -167,34 +184,42 @@ const MessageBody = ({
                   </>
                 )}
                 {isBanning && (
-                  <Flex direction="column" gap="10px">
-                    <Text textAlign="center">
-                      are you sure you want to ban this user from chatting on
-                      your channel?
-                    </Text>
-                    <Flex justifyContent={"space-evenly"}>
-                      <Button
-                        bg="#b12805"
-                        _hover={{}}
-                        _focus={{}}
-                        _active={{}}
-                        onClick={ban}
-                      >
-                        yes, do it
-                      </Button>
-                      <Button
-                        opacity={"0.5"}
-                        border={"1px solid white"}
-                        bg={"transparent"}
-                        _hover={{}}
-                        _focus={{}}
-                        _active={{}}
-                        onClick={() => setIsBanning(false)}
-                      >
-                        maybe not...
-                      </Button>
-                    </Flex>
-                  </Flex>
+                  <>
+                    {!loading ? (
+                      <Flex direction="column" gap="10px">
+                        <Text textAlign="center">
+                          are you sure you want to ban this user from chatting
+                          on your channel and all their chat messages?
+                        </Text>
+                        <Flex justifyContent={"space-evenly"}>
+                          <Button
+                            bg="#b12805"
+                            _hover={{}}
+                            _focus={{}}
+                            _active={{}}
+                            onClick={ban}
+                          >
+                            yes, do it
+                          </Button>
+                          <Button
+                            opacity={"0.5"}
+                            border={"1px solid white"}
+                            bg={"transparent"}
+                            _hover={{}}
+                            _focus={{}}
+                            _active={{}}
+                            onClick={() => setIsBanning(false)}
+                          >
+                            maybe not...
+                          </Button>
+                        </Flex>
+                      </Flex>
+                    ) : (
+                      <Flex justifyContent={"center"}>
+                        <Spinner size="xl" />
+                      </Flex>
+                    )}
+                  </>
                 )}
               </ChatUserModal>
               <Text

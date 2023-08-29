@@ -71,7 +71,7 @@ export default function NotificationsModal({
   );
 
   const titleLive = useMemo(() => {
-    return `🔴 ${user?.channel?.[0]?.slug} is live on unlonely!`;
+    return `🔴 ${user?.channel?.[0]?.slug} is live!`;
   }, [user]);
 
   const [titleNFCs, setTitleNFCs] = useState("new NFCs just dropped");

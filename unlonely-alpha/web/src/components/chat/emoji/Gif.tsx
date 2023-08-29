@@ -1,7 +1,7 @@
 import { Image } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 
-import { useUser } from "../../../hooks/context/useUser";
+import { ADD_REACTION_EVENT } from "../../../constants";
 
 type Props = {
   gif: string;
@@ -24,14 +24,12 @@ const Gif = ({
   channel,
   timeserial,
 }: Props) => {
-  const { user } = useUser();
-
   const handleClick = () => {
     setButtonDisabled(true);
     if (timeserial) {
-      channel.publish("add-reaction", {
+      channel.publish(ADD_REACTION_EVENT, {
         body: gif,
-        name: "add-reaction",
+        name: ADD_REACTION_EVENT,
         extras: {
           reference: { type: "com.ably.reaction", timeserial },
         },

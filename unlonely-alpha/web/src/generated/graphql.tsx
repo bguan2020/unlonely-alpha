@@ -789,6 +789,7 @@ export type ChannelDetailQuery = {
     name?: string | null;
     slug: string;
     allowNFCs?: boolean | null;
+    bannedUsers?: Array<string | null> | null;
     playbackUrl?: string | null;
     owner: {
       __typename?: "User";
@@ -829,6 +830,7 @@ export type ChannelDetailMobileQuery = {
     name?: string | null;
     slug: string;
     allowNFCs?: boolean | null;
+    bannedUsers?: Array<string | null> | null;
     playbackUrl?: string | null;
     owner: {
       __typename?: "User";
@@ -1472,6 +1474,7 @@ export const ChannelDetailDocument = gql`
       name
       slug
       allowNFCs
+      bannedUsers
       owner {
         FCImageUrl
         lensImageUrl
@@ -1555,6 +1558,7 @@ export const ChannelDetailMobileDocument = gql`
       name
       slug
       allowNFCs
+      bannedUsers
       owner {
         FCImageUrl
         lensImageUrl

@@ -29,6 +29,7 @@ import {
   RANDOM_CHAT_COLOR,
   BaseChatCommand,
   NULL_ADDRESS,
+  CHAT_MESSAGE_EVENT,
 } from "../../constants";
 import { ChatBot } from "../../constants/types";
 import { initializeEmojis } from "../../constants/types/chat";
@@ -262,7 +263,7 @@ const StandaloneAblyChatComponent = ({
   ) => {
     if (walletIsConnected && user) {
       channel.publish({
-        name: "chat-message",
+        name: CHAT_MESSAGE_EVENT,
         data: {
           messageText,
           username: user.username,
@@ -275,7 +276,6 @@ const StandaloneAblyChatComponent = ({
           isGif,
           reactions: initializeEmojis,
           body,
-          isBanned: false,
         },
       });
       handleChatCommand(messageText);
@@ -366,7 +366,7 @@ const StandaloneAblyChatComponent = ({
 
   const publishChatBotMessage = (messageText: string, body?: string) => {
     channel.publish({
-      name: "chat-message",
+      name: CHAT_MESSAGE_EVENT,
       data: {
         messageText: messageText,
         username: "chatbot🤖",
@@ -401,7 +401,7 @@ const StandaloneAblyChatComponent = ({
     if (mountingMessages.current || receivedMessages.length === 0) return;
 
     const latestMessage = receivedMessages[receivedMessages.length - 1];
-    if (latestMessage && latestMessage.name === "chat-message") {
+    if (latestMessage && latestMessage.name === CHAT_MESSAGE_EVENT) {
       if (
         latestMessage.data.body &&
         latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
