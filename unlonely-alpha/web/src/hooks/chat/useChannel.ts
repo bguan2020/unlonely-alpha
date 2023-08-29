@@ -70,15 +70,20 @@ export function useChannel(fixedChatName?: string) {
       setReceivedMessages([...messageHistory]);
     }
     if (message.name === BAN_USER_EVENT) {
+      console.log("ban user event received, adding to local ban list", message);
       const userAddressToBan = message.data.body;
       setLocalBanList([...localBanList, userAddressToBan]);
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (localBanList.length === 0) {
+        console.log("no local ban list, adding message to history");
         setReceivedMessages([...messageHistory, message]);
       } else {
         if (userAddress && localBanList.includes(userAddress)) {
+          console.log("you are banned, adding message to history");
           setReceivedMessages([...messageHistory, message]);
+        } else {
+          console.log("you are not banned, not adding message to history");
         }
       }
     }
@@ -93,11 +98,16 @@ export function useChannel(fixedChatName?: string) {
     const filteredUsers = (channelQueryData.bannedUsers ?? []).filter(
       (user) => user !== null
     ) as string[];
+    console.log(
+      "new channel, setting local ban list to bannedUsers",
+      filteredUsers
+    );
     setLocalBanList(filteredUsers);
   }, [channelQueryData]);
 
   useEffect(() => {
     async function getMessages() {
+      console.log("fetching messages");
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await channel.history((err, result) => {
