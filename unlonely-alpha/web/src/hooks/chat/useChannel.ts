@@ -76,14 +76,27 @@ export function useChannel(fixedChatName?: string) {
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (localBanList.length === 0) {
-        console.log("no local ban list, adding message to history");
+        console.log(
+          "no local ban list, everyone sees every message, adding message to your history"
+        );
         setReceivedMessages([...messageHistory, message]);
       } else {
         if (userAddress && localBanList.includes(userAddress)) {
-          console.log("you are banned, adding message to history");
+          // Current user is banned, they see all messages
+          console.log("you are banned, adding message to your history");
           setReceivedMessages([...messageHistory, message]);
         } else {
-          console.log("you are not banned, not adding message to history");
+          // Current user is not banned, they only see messages from non-banned users
+          if (!localBanList.includes(message.data.address)) {
+            console.log(
+              "you are not banned and the sender of this message is not banned, adding their message to your history"
+            );
+            setReceivedMessages([...messageHistory, message]);
+          } else {
+            console.log(
+              "you are not banned and the sender of this message is banned, not adding their message to your history"
+            );
+          }
         }
       }
     }
@@ -113,15 +126,16 @@ export function useChannel(fixedChatName?: string) {
       await channel.history((err, result) => {
         let messageHistory = result.items.filter((message: any) => {
           if (message.name !== CHAT_MESSAGE_EVENT) return false;
-          // For users without a userAddress or non-banned users
+
+          const senderIsBanned = localBanList.includes(message.data.address);
+
+          // For non-banned users or users without a userAddress
           if (!userAddress || !localBanList.includes(userAddress)) {
-            return !localBanList.includes(message.data.address);
+            return !senderIsBanned;
           }
+
           // For banned users
-          return (
-            message.data.address === userAddress ||
-            !localBanList.includes(message.data.address)
-          );
+          return true; // See all messages
         });
         const reverse = [...messageHistory].reverse();
         setReceivedMessages(reverse);
