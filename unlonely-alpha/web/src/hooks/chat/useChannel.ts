@@ -58,6 +58,7 @@ export function useChannel(fixedChatName?: string) {
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [localBanList, setLocalBanList] = useState<string[]>([]);
+  const [isBanListLoaded, setIsBanListLoaded] = useState(false);
 
   const [channel, ably] = useAblyChannel(channelName, (message) => {
     setHasMessagesLoaded(false);
@@ -116,6 +117,7 @@ export function useChannel(fixedChatName?: string) {
       filteredUsers
     );
     setLocalBanList(filteredUsers);
+    setIsBanListLoaded(true);
   }, [channelQueryData]);
 
   useEffect(() => {
@@ -156,9 +158,9 @@ export function useChannel(fixedChatName?: string) {
       });
       setMounted(true);
     }
-    if (!channel) return;
+    if (!channel || !isBanListLoaded) return;
     getMessages();
-  }, [channel, userAddress, localBanList]);
+  }, [channel, userAddress, localBanList, isBanListLoaded]);
 
   return {
     ably,
