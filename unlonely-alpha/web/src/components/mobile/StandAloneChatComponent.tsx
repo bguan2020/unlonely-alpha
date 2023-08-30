@@ -470,12 +470,7 @@ const StandaloneAblyChatComponent = ({
       position={"relative"}
       marginTop={!previewStream && isOwner ? "0" : "25vh"}
     >
-      <Flex
-        position="absolute"
-        top={!previewStream && isOwner ? "40px" : "-20px"}
-        left="10px"
-        zIndex="2"
-      >
+      <Flex position="absolute" top={"49px"} right="10px" zIndex="2">
         <Participants ablyPresenceChannel={presenceChannel} mobile />
       </Flex>
       {chatChannel?.includes("channel") ? (

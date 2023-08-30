@@ -115,7 +115,7 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
   // make Participant overlap each other a bit and show a max of 6, with the last one being a count of the rest
   return (
     <Flex direction="row" maxW="100%" justifyContent="center">
-      <Flex flexDirection="row-reverse">
+      <Flex flexDirection="row-reverse" alignItems="center">
         {!!participantOrder.slice(limit).length && (
           <Flex ml={"-2px"}>
             <Popover trigger={!isStandalone ? "hover" : "click"}>
