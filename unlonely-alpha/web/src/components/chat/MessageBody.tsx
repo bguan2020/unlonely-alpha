@@ -9,11 +9,13 @@ import {
   ModalOverlay,
   ModalContent,
   Link,
+  Spinner,
 } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
 
 import {
   ADD_REACTION_EVENT,
+  BAN_USER_EVENT,
   EMOJIS,
   InteractionType,
   NULL_ADDRESS,
@@ -24,6 +26,8 @@ import Badges from "./Badges";
 import EmojiDisplay from "./emoji/EmojiDisplay";
 import { Message } from "../../constants/types/chat";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useChannelContext } from "../../hooks/context/useChannel";
+import useToggleBannedUserToChannel from "../../hooks/server/useToggleBannedUser";
 
 type Props = {
   index: number;
@@ -40,11 +44,26 @@ const MessageBody = ({
   linkArray,
   channel,
 }: Props) => {
+  const { channel: c } = useChannelContext();
+  const { channelQueryData } = c;
   const { user } = useUser();
   const { isStandalone } = useUserAgent();
   const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const { toggleBannedUserToChannel, loading } = useToggleBannedUserToChannel({
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const [isBanning, setIsBanning] = useState<boolean>(false);
+
+  const userIsChannelOwner = useMemo(
+    () => user?.address === channelQueryData?.owner.address,
+    [user, channelQueryData]
+  );
 
   const fragments = useMemo(() => {
     let lastIndex = 0;
@@ -105,6 +124,19 @@ const MessageBody = ({
     setShowEmojiList(null);
   };
 
+  const ban = async () => {
+    await toggleBannedUserToChannel({
+      channelId: channelQueryData?.id,
+      userAddress: message.data.address,
+    });
+    channel.publish({
+      name: BAN_USER_EVENT,
+      data: { body: message.data.address },
+    });
+    setIsBanning(false);
+    setIsOpen(false);
+  };
+
   return (
     <>
       <Flex direction="column">
@@ -121,18 +153,74 @@ const MessageBody = ({
                 isOpen={isOpen}
                 handleClose={() => setIsOpen(false)}
               >
-                <Text
-                  _hover={{ cursor: "pointer" }}
-                  fontSize="16px"
-                  color={message.data.chatColor}
-                  fontWeight="bold"
-                >
-                  {message.data.username
-                    ? message.data.username
-                    : centerEllipses(message.data.address, 10)}
-                  :
-                </Text>
-                {message.data.address}
+                {!isBanning && (
+                  <>
+                    <Text
+                      _hover={{ cursor: "pointer" }}
+                      fontSize="16px"
+                      color={message.data.chatColor}
+                      fontWeight="bold"
+                    >
+                      {message.data.username
+                        ? message.data.username
+                        : centerEllipses(message.data.address, 10)}
+                      :
+                    </Text>
+                    {message.data.address}
+                    {userIsChannelOwner &&
+                      message.data.address !== user?.address &&
+                      !isBanning && (
+                        <Button
+                          mt="20px"
+                          bg="#842007"
+                          _hover={{}}
+                          _focus={{}}
+                          _active={{}}
+                          onClick={() => setIsBanning(true)}
+                        >
+                          ban user from chat
+                        </Button>
+                      )}
+                  </>
+                )}
+                {isBanning && (
+                  <>
+                    {!loading ? (
+                      <Flex direction="column" gap="10px">
+                        <Text textAlign="center">
+                          are you sure you want to ban this user from chatting
+                          on your channel and all their chat messages?
+                        </Text>
+                        <Flex justifyContent={"space-evenly"}>
+                          <Button
+                            bg="#b12805"
+                            _hover={{}}
+                            _focus={{}}
+                            _active={{}}
+                            onClick={ban}
+                          >
+                            yes, do it
+                          </Button>
+                          <Button
+                            opacity={"0.5"}
+                            border={"1px solid white"}
+                            bg={"transparent"}
+                            _hover={{}}
+                            _focus={{}}
+                            _active={{}}
+                            onClick={() => setIsBanning(false)}
+                          >
+                            maybe not...
+                          </Button>
+                        </Flex>
+                      </Flex>
+                    ) : (
+                      <Flex justifyContent={"center"}>
+                        <Spinner size="xl" />
+                      </Flex>
+                    )}
+                  </>
+                )}
               </ChatUserModal>
               <Text
                 onClick={() => setIsOpen(true)}
@@ -222,41 +310,39 @@ const MessageBody = ({
                     )}
                   </>
                 )}
-                {message.data.address !== user?.address && (
-                  <div
-                    className="showme"
-                    style={{
-                      position: "absolute",
-                      left: "5px",
-                      bottom: "-10px",
-                    }}
+                <div
+                  className="showme"
+                  style={{
+                    position: "absolute",
+                    left: "5px",
+                    bottom: "-10px",
+                  }}
+                >
+                  <Flex
+                    borderRadius={"5px"}
+                    p="1px"
+                    bg={
+                      "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                    }
                   >
-                    <Flex
-                      borderRadius={"5px"}
-                      p="1px"
-                      bg={
-                        "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                    <Button
+                      aria-label="Chat-Reaction"
+                      onClick={() =>
+                        setShowEmojiList(showEmojiList ? null : message.id)
                       }
+                      height="12px"
+                      width="12px"
+                      padding={"10px"}
+                      minWidth={"0px"}
+                      bg={"#C6C0C0"}
+                      _hover={{}}
+                      _active={{}}
+                      _focus={{}}
                     >
-                      <Button
-                        aria-label="Chat-Reaction"
-                        onClick={() =>
-                          setShowEmojiList(showEmojiList ? null : message.id)
-                        }
-                        height="12px"
-                        width="12px"
-                        padding={"10px"}
-                        minWidth={"0px"}
-                        bg={"#C6C0C0"}
-                        _hover={{}}
-                        _active={{}}
-                        _focus={{}}
-                      >
-                        <AddIcon height="12px" width="12px" color={"white"} />
-                      </Button>
-                    </Flex>
-                  </div>
-                )}
+                      <AddIcon height="12px" width="12px" color={"white"} />
+                    </Button>
+                  </Flex>
+                </div>
                 <Flex flexDirection="row">
                   {message.data.reactions?.map((reaction) => (
                     <div

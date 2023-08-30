@@ -4,6 +4,7 @@ import { Virtuoso } from "react-virtuoso";
 
 import MessageBody from "./MessageBody";
 import { Message } from "../../constants/types/chat";
+import { CHAT_MESSAGE_EVENT } from "../../constants";
 
 type MessageListProps = {
   messages: Message[];
@@ -39,7 +40,7 @@ const MessageItem = memo(({ message, channel, index }: MessageItemProps) => {
 const MessageList = memo(
   ({ messages, channel, scrollRef, isAtBottomCallback }: MessageListProps) => {
     const chatMessages = useMemo(
-      () => messages.filter((message) => message.name === "chat-message"),
+      () => messages.filter((message) => message.name === CHAT_MESSAGE_EVENT),
       [messages]
     );
 

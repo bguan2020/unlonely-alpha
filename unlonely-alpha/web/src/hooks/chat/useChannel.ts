@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 
 import { useChannelContext } from "../context/useChannel";
 import { Message } from "../../constants/types/chat";
-import { ADD_REACTION_EVENT } from "../../constants";
+import {
+  ADD_REACTION_EVENT,
+  BAN_USER_EVENT,
+  CHAT_MESSAGE_EVENT,
+} from "../../constants";
+import { useUser } from "../context/useUser";
 
 const ably = new Ably.Realtime.Promise({ authUrl: "/api/createTokenRequest" });
 
@@ -38,7 +43,9 @@ export function useAblyChannel(
 }
 
 export function useChannel(fixedChatName?: string) {
-  const { chat } = useChannelContext();
+  const { userAddress } = useUser();
+  const { channel: c, chat } = useChannelContext();
+  const { channelQueryData } = c;
   const { chatChannel } = chat;
 
   const channelName =
@@ -50,88 +57,83 @@ export function useChannel(fixedChatName?: string) {
   const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [localBanList, setLocalBanList] = useState<string[] | undefined>(
+    undefined
+  );
 
   const [channel, ably] = useAblyChannel(channelName, (message) => {
     setHasMessagesLoaded(false);
-    const history = receivedMessages;
-    // remove messages where name = add-reaction
-    const messageHistory = history.filter((m) => m.name !== ADD_REACTION_EVENT);
+    if (localBanList === undefined) return;
+    let messageHistory = receivedMessages.filter(
+      (m) => m.name === CHAT_MESSAGE_EVENT
+    );
     if (message.name === ADD_REACTION_EVENT) {
-      const reaction = message;
-      const timeserial = reaction.data.extras.reference.timeserial;
-      const emojiType = reaction.data.body;
-
-      // get index of message in filteredHistory array where timeserial matches
-      const index = messageHistory.findIndex(
-        (m) => m.extras.timeserial === timeserial
-      );
-
-      // if index is found, update the message object with the reaction count
-      const messageToUpdate = messageHistory[index];
-      const emojisToUpdate = messageToUpdate.data.reactions;
-      const emojiIndex = emojisToUpdate.findIndex(
-        (e) => e.emojiType === emojiType
-      );
-
-      if (emojiIndex !== -1) {
-        emojisToUpdate[emojiIndex].count += 1;
-      }
-      const updatedMessage = {
-        ...messageToUpdate,
-        data: {
-          ...messageToUpdate.data,
-          reactions: emojisToUpdate,
-        },
-      };
-      messageHistory[index] = updatedMessage;
+      messageHistory = updateMessageHistoryReactions(message, messageHistory);
 
       setReceivedMessages([...messageHistory]);
     }
-    setReceivedMessages([...messageHistory, message]);
+    if (message.name === BAN_USER_EVENT) {
+      const userAddressToBan = message.data.body;
+      setLocalBanList([...localBanList, userAddressToBan]);
+    }
+    if (message.name === CHAT_MESSAGE_EVENT) {
+      if (localBanList.length === 0) {
+        setReceivedMessages([...messageHistory, message]);
+      } else {
+        if (userAddress && localBanList.includes(userAddress)) {
+          // Current user is banned, they see all messages
+          setReceivedMessages([...messageHistory, message]);
+        } else {
+          // Current user is not banned, they only see messages from non-banned users
+          if (!localBanList.includes(message.data.address)) {
+            setReceivedMessages([...messageHistory, message]);
+          }
+        }
+      }
+    }
     setHasMessagesLoaded(true);
   });
 
   useEffect(() => {
+    if (!channelQueryData) {
+      setLocalBanList(undefined);
+      return;
+    }
+    const filteredUsers = (channelQueryData.bannedUsers ?? []).filter(
+      (user) => user !== null
+    ) as string[];
+    setLocalBanList(filteredUsers);
+  }, [channelQueryData]);
+
+  useEffect(() => {
     async function getMessages() {
+      if (!channel || localBanList === undefined) return;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await channel.history((err, result) => {
-        const messageHistory: any = result.items.filter(
-          (message: any) => message.name === "chat-message"
-        );
+        let messageHistory = result.items.filter((message: any) => {
+          if (message.name !== CHAT_MESSAGE_EVENT) return false;
+
+          const senderIsBanned = localBanList.includes(message.data.address);
+
+          // For non-banned users or users without a userAddress
+          if (!userAddress || !localBanList.includes(userAddress)) {
+            return !senderIsBanned;
+          }
+
+          // For banned users
+          return true; // See all messages
+        });
         const reverse = [...messageHistory].reverse();
         setReceivedMessages(reverse);
 
         // iterate through result
         result.items.forEach((message: any) => {
           if (message.name === ADD_REACTION_EVENT) {
-            const reaction = message;
-            const timeserial = reaction.data.extras.reference.timeserial;
-            const emojiType = reaction.data.body;
-
-            // get index of message in filteredHistory array where timeserial matches
-            const index = messageHistory.findIndex(
-              (m: any) => m.extras.timeserial === timeserial
+            messageHistory = updateMessageHistoryReactions(
+              message,
+              messageHistory
             );
-
-            // if index is found, update the message object with the reaction count
-            const messageToUpdate = messageHistory[index];
-            const emojisToUpdate = messageToUpdate.data.reactions;
-            const emojiIndex = emojisToUpdate.findIndex(
-              (e: any) => e.emojiType === emojiType
-            );
-
-            if (emojiIndex !== -1) {
-              emojisToUpdate[emojiIndex].count += 1;
-            }
-            const updatedMessage = {
-              ...messageToUpdate,
-              data: {
-                ...messageToUpdate.data,
-                reactions: emojisToUpdate,
-              },
-            };
-            messageHistory[index] = updatedMessage;
             const reverse = [...messageHistory, message].reverse();
             setReceivedMessages(reverse);
           }
@@ -140,9 +142,8 @@ export function useChannel(fixedChatName?: string) {
       });
       setMounted(true);
     }
-    if (!channel) return;
     getMessages();
-  }, [channel]);
+  }, [channel, userAddress, localBanList]);
 
   return {
     ably,
@@ -154,3 +155,35 @@ export function useChannel(fixedChatName?: string) {
     setHasMessagesLoaded,
   };
 }
+
+const updateMessageHistoryReactions = (
+  message: Ably.Types.Message,
+  messageHistory: Message[]
+) => {
+  const reaction = message;
+  const timeserial = reaction.data.extras.reference.timeserial;
+  const emojiType = reaction.data.body;
+
+  // get index of message in filteredHistory array where timeserial matches
+  const index = messageHistory.findIndex(
+    (m) => m.extras.timeserial === timeserial
+  );
+
+  const messageToUpdate = messageHistory[index];
+  const emojisToUpdate = messageToUpdate.data.reactions;
+  const emojiIndex = emojisToUpdate.findIndex((e) => e.emojiType === emojiType);
+
+  if (emojiIndex !== -1) {
+    emojisToUpdate[emojiIndex].count += 1;
+  }
+  const updatedMessage = {
+    ...messageToUpdate,
+    data: {
+      ...messageToUpdate.data,
+      reactions: emojisToUpdate,
+    },
+  };
+  messageHistory[index] = updatedMessage;
+
+  return messageHistory;
+};

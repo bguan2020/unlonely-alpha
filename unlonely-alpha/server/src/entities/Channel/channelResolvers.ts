@@ -55,7 +55,7 @@ export const resolvers = {
       }
 
       return channelService.toggleBannedUserToChannel(data, ctx);
-    }
+    },
   },
   Channel: {
     // add getChannelCreatorToken
