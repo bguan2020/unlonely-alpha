@@ -121,6 +121,7 @@ export function useChannel(fixedChatName?: string) {
               (e: any) => e.emojiType === emojiType
             );
 
+            // if found
             if (emojiIndex !== -1) {
               emojisToUpdate[emojiIndex].count += 1;
             }
