@@ -310,41 +310,39 @@ const MessageBody = ({
                     )}
                   </>
                 )}
-                {message.data.address !== user?.address && (
-                  <div
-                    className="showme"
-                    style={{
-                      position: "absolute",
-                      left: "5px",
-                      bottom: "-10px",
-                    }}
+                <div
+                  className="showme"
+                  style={{
+                    position: "absolute",
+                    left: "5px",
+                    bottom: "-10px",
+                  }}
+                >
+                  <Flex
+                    borderRadius={"5px"}
+                    p="1px"
+                    bg={
+                      "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                    }
                   >
-                    <Flex
-                      borderRadius={"5px"}
-                      p="1px"
-                      bg={
-                        "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                    <Button
+                      aria-label="Chat-Reaction"
+                      onClick={() =>
+                        setShowEmojiList(showEmojiList ? null : message.id)
                       }
+                      height="12px"
+                      width="12px"
+                      padding={"10px"}
+                      minWidth={"0px"}
+                      bg={"#C6C0C0"}
+                      _hover={{}}
+                      _active={{}}
+                      _focus={{}}
                     >
-                      <Button
-                        aria-label="Chat-Reaction"
-                        onClick={() =>
-                          setShowEmojiList(showEmojiList ? null : message.id)
-                        }
-                        height="12px"
-                        width="12px"
-                        padding={"10px"}
-                        minWidth={"0px"}
-                        bg={"#C6C0C0"}
-                        _hover={{}}
-                        _active={{}}
-                        _focus={{}}
-                      >
-                        <AddIcon height="12px" width="12px" color={"white"} />
-                      </Button>
-                    </Flex>
-                  </div>
-                )}
+                      <AddIcon height="12px" width="12px" color={"white"} />
+                    </Button>
+                  </Flex>
+                </div>
                 <Flex flexDirection="row">
                   {message.data.reactions?.map((reaction) => (
                     <div

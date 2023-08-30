@@ -73,32 +73,20 @@ export function useChannel(fixedChatName?: string) {
       setReceivedMessages([...messageHistory]);
     }
     if (message.name === BAN_USER_EVENT) {
-      console.log("ban user event received, adding to local ban list", message);
       const userAddressToBan = message.data.body;
       setLocalBanList([...localBanList, userAddressToBan]);
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (localBanList.length === 0) {
-        console.log(
-          "no local ban list, everyone sees every message, adding message to your history"
-        );
         setReceivedMessages([...messageHistory, message]);
       } else {
         if (userAddress && localBanList.includes(userAddress)) {
           // Current user is banned, they see all messages
-          console.log("you are banned, adding message to your history");
           setReceivedMessages([...messageHistory, message]);
         } else {
           // Current user is not banned, they only see messages from non-banned users
           if (!localBanList.includes(message.data.address)) {
-            console.log(
-              "you are not banned and the sender of this message is not banned, adding their message to your history"
-            );
             setReceivedMessages([...messageHistory, message]);
-          } else {
-            console.log(
-              "you are not banned and the sender of this message is banned, not adding their message to your history"
-            );
           }
         }
       }
@@ -114,21 +102,15 @@ export function useChannel(fixedChatName?: string) {
     const filteredUsers = (channelQueryData.bannedUsers ?? []).filter(
       (user) => user !== null
     ) as string[];
-    console.log(
-      "new channel, setting local ban list to bannedUsers",
-      filteredUsers
-    );
     setLocalBanList(filteredUsers);
   }, [channelQueryData]);
 
   useEffect(() => {
     async function getMessages() {
-      console.log("fetching messages");
       if (!channel || localBanList === undefined) return;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await channel.history((err, result) => {
-        console.log("banList", localBanList);
         let messageHistory = result.items.filter((message: any) => {
           if (message.name !== CHAT_MESSAGE_EVENT) return false;
 
