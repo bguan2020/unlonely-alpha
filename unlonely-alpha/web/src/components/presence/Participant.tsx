@@ -68,7 +68,7 @@ const Participant = ({ user, mobile }: Props) => {
               <Avatar
                 name={user.username ? user.username : user.address}
                 src={ipfsUrl}
-                size={mobile ? "2xs" : "sm"}
+                size={"sm"}
               />
             </PopoverTrigger>
             <PopoverContent bg="gray.800" border="none" width="min" p="5px">
@@ -107,12 +107,7 @@ const Participant = ({ user, mobile }: Props) => {
         </>
       ) : (
         <Tooltip label="mysterious anon👀" hasArrow arrowSize={14}>
-          <Avatar
-            name="anon"
-            src={anonUrl}
-            bg="grey"
-            size={mobile ? "2xs" : "sm"}
-          />
+          <Avatar name="anon" src={anonUrl} bg="grey" size={"sm"} />
         </Tooltip>
       )}
     </>

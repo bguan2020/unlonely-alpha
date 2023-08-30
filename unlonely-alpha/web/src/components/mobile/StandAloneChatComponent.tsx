@@ -29,6 +29,7 @@ import {
   RANDOM_CHAT_COLOR,
   BaseChatCommand,
   NULL_ADDRESS,
+  CHAT_MESSAGE_EVENT,
 } from "../../constants";
 import { ChatBot } from "../../constants/types";
 import { initializeEmojis } from "../../constants/types/chat";
@@ -98,7 +99,8 @@ const StandaloneAblyChatComponent = ({
     refetchTokenHolders,
     userRank,
   } = holdersContext;
-  const { chatChannel, presenceChannel } = chat;
+  const { chatChannel, presenceChannel, clipping } = chat;
+  const { fetchData } = clipping;
 
   const { channelQueryData } = channelContext;
   const { addToTextOverVideo } = recentStreamInteractions;
@@ -123,6 +125,7 @@ const StandaloneAblyChatComponent = ({
     hasMessagesLoaded,
     setHasMessagesLoaded,
     receivedMessages,
+    mounted,
   } = useChannel();
   const router = useRouter();
 
@@ -260,7 +263,7 @@ const StandaloneAblyChatComponent = ({
   ) => {
     if (walletIsConnected && user) {
       channel.publish({
-        name: "chat-message",
+        name: CHAT_MESSAGE_EVENT,
         data: {
           messageText,
           username: user.username,
@@ -298,10 +301,7 @@ const StandaloneAblyChatComponent = ({
     let messageToPublish = "";
     let allowPublish = false;
 
-    if (messageText.startsWith("@")) {
-      messageToPublish = "seems you're trying to use commands. try !commands";
-      allowPublish = true;
-    } else if (messageText.startsWith(BaseChatCommand.COMMANDS)) {
+    if (messageText.startsWith(BaseChatCommand.COMMANDS)) {
       messageToPublish = `${BaseChatCommand.CHATBOT}\n${
         BaseChatCommand.CLIP
       }\n${BaseChatCommand.RULES}\n${channelChatCommands
@@ -324,10 +324,11 @@ const StandaloneAblyChatComponent = ({
       allowPublish = true;
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
       if (channelQueryData?.allowNFCs || false) {
-        window.open(
-          `/clip?arn=${channelQueryData?.channelArn || ""}`,
-          "_blank"
-        );
+        // window.open(
+        //   `/clip?arn=${channelQueryData?.channelArn || ""}`,
+        //   "_blank"
+        // );
+        fetchData();
         messageToPublish = `${
           user?.username ?? centerEllipses(address, 15)
         } has just clipped a highlight from this stream!`;
@@ -365,7 +366,7 @@ const StandaloneAblyChatComponent = ({
 
   const publishChatBotMessage = (messageText: string, body?: string) => {
     channel.publish({
-      name: "chat-message",
+      name: CHAT_MESSAGE_EVENT,
       data: {
         messageText: messageText,
         username: "chatbot🤖",
@@ -393,42 +394,44 @@ const StandaloneAblyChatComponent = ({
   }, [receivedMessages]);
 
   useEffect(() => {
-    if (receivedMessages.length === 0) return;
-    if (!mountingMessages.current) {
-      const latestMessage = receivedMessages[receivedMessages.length - 1];
-      if (latestMessage && latestMessage.name === "chat-message") {
-        if (
-          latestMessage.data.body &&
-          latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
-        ) {
-          const newTextOverVideo = latestMessage.data.body
-            .split(":")
-            .slice(1)
-            .join();
-          if (newTextOverVideo) {
-            addToTextOverVideo(newTextOverVideo);
-          }
-        } else if (
-          latestMessage.data.body &&
-          (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
-            latestMessage.data.body.split(":")[0] === InteractionType.TIP)
-        ) {
-          fireworks();
-        } else if (
-          latestMessage.data.body &&
-          latestMessage.data.body.split(":")[0] === InteractionType.BLAST
-        ) {
-          if (latestMessage.data.isGif) {
-            emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
-          } else {
-            emojiBlast(
-              <Text fontSize="40px">{latestMessage.data.messageText}</Text>
-            );
-          }
+    if (mounted) mountingMessages.current = false;
+  }, [mounted]);
+
+  useEffect(() => {
+    if (mountingMessages.current || receivedMessages.length === 0) return;
+
+    const latestMessage = receivedMessages[receivedMessages.length - 1];
+    if (latestMessage && latestMessage.name === CHAT_MESSAGE_EVENT) {
+      if (
+        latestMessage.data.body &&
+        latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
+      ) {
+        const newTextOverVideo = latestMessage.data.body
+          .split(":")
+          .slice(1)
+          .join();
+        if (newTextOverVideo) {
+          addToTextOverVideo(newTextOverVideo);
+        }
+      } else if (
+        latestMessage.data.body &&
+        (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
+          latestMessage.data.body.split(":")[0] === InteractionType.TIP)
+      ) {
+        fireworks();
+      } else if (
+        latestMessage.data.body &&
+        latestMessage.data.body.split(":")[0] === InteractionType.BLAST
+      ) {
+        if (latestMessage.data.isGif) {
+          emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
+        } else {
+          emojiBlast(
+            <Text fontSize="40px">{latestMessage.data.messageText}</Text>
+          );
         }
       }
     }
-    mountingMessages.current = false;
   }, [receivedMessages]);
 
   const handleScrollToPresent = useCallback(() => {
@@ -465,10 +468,11 @@ const StandaloneAblyChatComponent = ({
       p="5px"
       id="chat"
       position={"relative"}
+      marginTop={!previewStream && isOwner ? "0" : "25vh"}
     >
       <Flex
         position="absolute"
-        top={!previewStream && isOwner ? "40px" : "-10px"}
+        top={!previewStream && isOwner ? "40px" : "-20px"}
         left="10px"
         zIndex="2"
       >

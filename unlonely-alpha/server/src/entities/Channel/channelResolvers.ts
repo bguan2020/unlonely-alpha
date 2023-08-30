@@ -45,6 +45,17 @@ export const resolvers = {
 
       return channelService.updateChannelCustomButton(data, ctx);
     },
+    toggleBannedUserToChannel: (
+      _: any,
+      { data }: { data: channelService.IToggleBannedUserToChannelInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+
+      return channelService.toggleBannedUserToChannel(data, ctx);
+    },
   },
   Channel: {
     // add getChannelCreatorToken

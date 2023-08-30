@@ -43,6 +43,8 @@ import centerEllipses from "../../utils/centerEllipses";
 import { ChatBot } from "../../constants/types";
 import ConnectWallet from "../navigation/ConnectWallet";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { ChatClip } from "./ChatClip";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 type Props = {
   sendChatMessage: (message: string, isGif: boolean, body?: string) => void;
@@ -64,9 +66,14 @@ const ChatForm = ({
   const { user, walletIsConnected, userAddress: address } = useUser();
   const { isStandalone } = useUserAgent();
   const network = useNetwork();
+  const { network: net } = useNetworkContext();
+  const { matchingChain } = net;
 
   const toast = useToast();
-  const { channel: channelContext, token } = useChannelContext();
+  const { channel: channelContext, token, chat } = useChannelContext();
+  const { clipping } = chat;
+  const { fetchData, loading: clipLoading } = clipping;
+
   const { channelQueryData } = channelContext;
   const { userTokenBalance, refetchUserTokenBalance } = token;
 
@@ -348,7 +355,9 @@ const ChatForm = ({
   );
 
   useEffect(() => {
-    if (
+    if (!matchingChain) {
+      setTooltipError("wrong network");
+    } else if (
       channelQueryData?.token?.address &&
       blastMode &&
       (!userTokenBalance?.value ||
@@ -361,7 +370,7 @@ const ChatForm = ({
     } else {
       setTooltipError("");
     }
-  }, [channelQueryData, userTokenBalance?.value, blastMode]);
+  }, [channelQueryData, userTokenBalance?.value, blastMode, matchingChain]);
 
   useEffect(() => {
     if (
@@ -387,10 +396,12 @@ const ChatForm = ({
 
   return (
     <>
+      <ChatClip />
       <form
         onSubmit={handleFormSubmission}
         className="xeedev-form-i"
         style={{
+          position: "relative",
           width: "100%",
           marginBottom: isStandalone ? "15px" : undefined,
         }}
@@ -529,14 +540,18 @@ const ChatForm = ({
                   style={{ zIndex: 0, minHeight: mobile ? "68px" : "50px" }}
                   height={"100%"}
                 />
-                <Flex justifyContent={"flex-end"}>
-                  <Tooltip
-                    label="clipping is now free!"
-                    background="#1db57d"
-                    placement="left"
-                    defaultIsOpen
-                    hasArrow
-                  >
+                <Flex justifyContent={"flex-end"} alignItems="center">
+                  {clipLoading ? (
+                    <Tooltip
+                      isOpen
+                      placement="left"
+                      label="clipping, please stay here and wait"
+                      background="#15a6c0"
+                      hasArrow
+                    >
+                      <Spinner />
+                    </Tooltip>
+                  ) : (
                     <IconButton
                       icon={<Image src="/svg/cut.svg" />}
                       aria-label="clip stream"
@@ -546,10 +561,11 @@ const ChatForm = ({
                       _active={{ transform: "scale(1.3)" }}
                       onClick={() => {
                         if (user) {
-                          window.open(
-                            `/clip?arn=${channelQueryData?.channelArn || ""}`,
-                            "_blank"
-                          );
+                          // window.open(
+                          //   `/clip?arn=${channelQueryData?.channelArn || ""}`,
+                          //   "_blank"
+                          // );
+                          fetchData();
                           addToChatbot?.({
                             username: user?.username ?? "",
                             address: user?.address ?? "",
@@ -564,33 +580,27 @@ const ChatForm = ({
                         }
                       }}
                     />
-                  </Tooltip>
-                  <Tooltip
-                    label="chat blast!"
-                    background="#ac1c09"
-                    defaultIsOpen
-                    hasArrow
-                  >
-                    <IconButton
-                      icon={<Image src="/svg/blast.svg" />}
-                      aria-label="clip stream"
-                      bg={blastMode ? "red" : "transparent"}
-                      _focus={{}}
-                      _hover={{ transform: "scale(1.15)" }}
-                      _active={{ transform: "scale(1.3)" }}
-                      onClick={() => {
-                        if (blastMode) {
-                          setBlastMode(false);
+                  )}
+
+                  <IconButton
+                    icon={<Image src="/svg/blast.svg" />}
+                    aria-label="clip stream"
+                    bg={blastMode ? "red" : "transparent"}
+                    _focus={{}}
+                    _hover={{ transform: "scale(1.15)" }}
+                    _active={{ transform: "scale(1.3)" }}
+                    onClick={() => {
+                      if (blastMode) {
+                        setBlastMode(false);
+                      } else {
+                        if (user) {
+                          setBlastMode(true);
                         } else {
-                          if (user) {
-                            setBlastMode(true);
-                          } else {
-                            toastSignIn();
-                          }
+                          toastSignIn();
                         }
-                      }}
-                    />
-                  </Tooltip>
+                      }
+                    }}
+                  />
                   <EmojiButton
                     mobile={mobile}
                     onSelectEmoji={(emoji) => addEmoji(emoji)}

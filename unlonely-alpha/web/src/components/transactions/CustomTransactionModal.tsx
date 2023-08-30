@@ -35,6 +35,7 @@ import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 const CUSTOM = "custom";
 const SAMPLE1 = "pushup";
@@ -57,6 +58,8 @@ export default function CustomTransactionModal({
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
   const { isStandalone } = useUserAgent();
+  const { network: net } = useNetworkContext();
+  const { matchingChain } = net;
 
   const { user, userAddress, walletIsConnected } = useUser();
   const network = useNetwork();
@@ -94,6 +97,11 @@ export default function CustomTransactionModal({
   useEffect(() => {
     setCurrentPrice(String(channelQueryData?.customButtonPrice ?? "0"));
     setCurrentRequest(String(channelQueryData?.customButtonAction ?? ""));
+    setChosenRequest(
+      sampleArray.find(
+        (s) => s === String(channelQueryData?.customButtonAction ?? "")
+      ) ?? CUSTOM
+    );
   }, [
     channelQueryData?.customButtonAction,
     channelQueryData?.customButtonPrice,
@@ -294,6 +302,8 @@ export default function CustomTransactionModal({
   useEffect(() => {
     if (!walletIsConnected) {
       setErrorMessage("connect wallet first");
+    } else if (!matchingChain) {
+      setErrorMessage("wrong network");
     } else if (
       !userTokenBalance?.value ||
       (userTokenBalance?.value &&
@@ -310,6 +320,7 @@ export default function CustomTransactionModal({
     userTokenBalance,
     channelQueryData,
     currentPrice as `${number}`,
+    matchingChain,
   ]);
 
   const txnLoading = useMemo(() => {

@@ -44,6 +44,7 @@ import {
   InteractionType,
   RANDOM_CHAT_COLOR,
   BaseChatCommand,
+  CHAT_MESSAGE_EVENT,
 } from "../../constants";
 import BuyButton from "../arcade/BuyButton";
 import { ChatBot } from "../../constants/types";
@@ -83,7 +84,8 @@ const AblyChatComponent = ({
     recentStreamInteractions,
   } = useChannelContext();
   const { channelQueryData } = channelContext;
-  const { chatChannel, presenceChannel } = chat;
+  const { chatChannel, presenceChannel, clipping } = chat;
+  const { fetchData } = clipping;
   const {
     data: holdersData,
     loading: holdersLoading,
@@ -113,6 +115,7 @@ const AblyChatComponent = ({
     hasMessagesLoaded,
     setHasMessagesLoaded,
     receivedMessages,
+    mounted,
   } = useChannel();
 
   const { username, user, userAddress: address, walletIsConnected } = useUser();
@@ -227,7 +230,7 @@ const AblyChatComponent = ({
   ) => {
     if (walletIsConnected && user) {
       channel.publish({
-        name: "chat-message",
+        name: CHAT_MESSAGE_EVENT,
         data: {
           messageText,
           username: user.username,
@@ -265,10 +268,7 @@ const AblyChatComponent = ({
     let messageToPublish = "";
     let allowPublish = false;
 
-    if (messageText.startsWith("@")) {
-      messageToPublish = "seems you're trying to use commands. try !commands";
-      allowPublish = true;
-    } else if (messageText.startsWith(BaseChatCommand.COMMANDS)) {
+    if (messageText.startsWith(BaseChatCommand.COMMANDS)) {
       messageToPublish = `${BaseChatCommand.CHATBOT}\n${
         BaseChatCommand.CLIP
       }\n${BaseChatCommand.RULES}\n${channelChatCommands
@@ -291,10 +291,11 @@ const AblyChatComponent = ({
       allowPublish = true;
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
       if (channelQueryData?.allowNFCs || false) {
-        window.open(
-          `/clip?arn=${channelQueryData?.channelArn || ""}`,
-          "_blank"
-        );
+        // window.open(
+        //   `/clip?arn=${channelQueryData?.channelArn || ""}`,
+        //   "_blank"
+        // );
+        fetchData();
         messageToPublish = `${
           user?.username ?? centerEllipses(address, 15)
         } has just clipped a highlight from this stream!`;
@@ -332,7 +333,7 @@ const AblyChatComponent = ({
 
   const publishChatBotMessage = (messageText: string, body?: string) => {
     channel.publish({
-      name: "chat-message",
+      name: CHAT_MESSAGE_EVENT,
       data: {
         messageText: messageText,
         username: "chatbot🤖",
@@ -360,42 +361,44 @@ const AblyChatComponent = ({
   }, [receivedMessages]);
 
   useEffect(() => {
-    if (receivedMessages.length === 0) return;
-    if (!mountingMessages.current) {
-      const latestMessage = receivedMessages[receivedMessages.length - 1];
-      if (latestMessage && latestMessage.name === "chat-message") {
-        if (
-          latestMessage.data.body &&
-          latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
-        ) {
-          const newTextOverVideo = latestMessage.data.body
-            .split(":")
-            .slice(1)
-            .join();
-          if (newTextOverVideo) {
-            addToTextOverVideo(newTextOverVideo);
-          }
-        } else if (
-          latestMessage.data.body &&
-          (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
-            latestMessage.data.body.split(":")[0] === InteractionType.TIP)
-        ) {
-          fireworks();
-        } else if (
-          latestMessage.data.body &&
-          latestMessage.data.body.split(":")[0] === InteractionType.BLAST
-        ) {
-          if (latestMessage.data.isGif) {
-            emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
-          } else {
-            emojiBlast(
-              <Text fontSize="40px">{latestMessage.data.messageText}</Text>
-            );
-          }
+    if (mounted) mountingMessages.current = false;
+  }, [mounted]);
+
+  useEffect(() => {
+    if (mountingMessages.current || receivedMessages.length === 0) return;
+    const latestMessage = receivedMessages[receivedMessages.length - 1];
+    if (latestMessage && latestMessage.name === CHAT_MESSAGE_EVENT) {
+      if (
+        latestMessage.data.body &&
+        latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
+      ) {
+        const newTextOverVideo = latestMessage.data.body
+          .split(":")
+          .slice(1)
+          .join();
+        if (newTextOverVideo) {
+          addToTextOverVideo(newTextOverVideo);
+        }
+      } else if (
+        latestMessage.data.body &&
+        (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
+          latestMessage.data.body.split(":")[0] === InteractionType.TIP)
+      ) {
+        fireworks();
+      } else if (
+        latestMessage.data.body &&
+        latestMessage.data.body.split(":")[0] === InteractionType.BLAST &&
+        Date.now() - latestMessage.timestamp < 6000
+      ) {
+        if (latestMessage.data.isGif) {
+          emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
+        } else {
+          emojiBlast(
+            <Text fontSize="40px">{latestMessage.data.messageText}</Text>
+          );
         }
       }
     }
-    mountingMessages.current = false;
   }, [receivedMessages]);
 
   const handleScrollToPresent = useCallback(() => {

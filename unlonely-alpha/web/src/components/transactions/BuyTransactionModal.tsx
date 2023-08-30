@@ -26,6 +26,7 @@ import { useApproval } from "../../hooks/contracts/useApproval";
 import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 export default function BuyTransactionModal({
   title,
@@ -46,6 +47,8 @@ export default function BuyTransactionModal({
 
   const { user, userAddress, walletIsConnected } = useUser();
   const { channel, token, holders } = useChannelContext();
+  const { network: net } = useNetworkContext();
+  const { matchingChain } = net;
   const { channelQueryData } = channel;
   const {
     userTokenBalance,
@@ -195,6 +198,8 @@ export default function BuyTransactionModal({
   useEffect(() => {
     if (!walletIsConnected) {
       setErrorMessage("connect wallet first");
+    } else if (!matchingChain) {
+      setErrorMessage("wrong network");
     } else if (
       ownerAllowance < buyTokenAmount_bigint ||
       (ownerTokenBalance?.value &&
@@ -212,6 +217,7 @@ export default function BuyTransactionModal({
     userEthBalance?.value,
     amountIn,
     walletIsConnected,
+    matchingChain,
   ]);
 
   return (

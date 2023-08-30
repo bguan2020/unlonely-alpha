@@ -44,6 +44,7 @@ export const CHANNEL_DETAIL_QUERY = gql`
       name
       slug
       allowNFCs
+      bannedUsers
       owner {
         FCImageUrl
         lensImageUrl
@@ -77,6 +78,7 @@ export const CHANNEL_DETAIL_MOBILE_QUERY = gql`
       name
       slug
       allowNFCs
+      bannedUsers
       owner {
         FCImageUrl
         lensImageUrl

@@ -15,6 +15,7 @@ export const typeDef = gql`
     playbackUrl: String
     isLive: Boolean
     allowNFCs: Boolean
+    bannedUsers: [String]
     thumbnailUrl: String
     owner: User!
     token: CreatorToken
@@ -44,6 +45,11 @@ export const typeDef = gql`
     customButtonPrice: Int!
   }
 
+  input ToggleBannedUserToChannelInput {
+    channelId: ID!
+    userAddress: String!
+  }
+
   extend type Query {
     getChannelFeed(data: ChannelFeedInput): [Channel]
     getChannelWithTokenById(id: ID!): Channel
@@ -55,5 +61,6 @@ export const typeDef = gql`
   extend type Mutation {
     updateChannelText(data: UpdateChannelTextInput!): Channel
     updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
+    toggleBannedUserToChannel(data: ToggleBannedUserToChannelInput): Channel
   }
 `;

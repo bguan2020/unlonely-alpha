@@ -15,11 +15,13 @@ import {
   useDisclosure,
   Image,
   Spinner,
+  IconButton,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState, useRef, useMemo, useCallback } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useRouter } from "next/router";
+import { BiRefresh } from "react-icons/bi";
 
 import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
@@ -354,30 +356,47 @@ function MobilePage({
   return (
     <AppLayout isCustomHeader={false}>
       {!loadingPage && !loading ? (
-        <Flex
-          direction="column"
-          justifyContent="center"
-          width="100vw"
-          position="relative"
-          height="100%"
-        >
-          {channelsWithLiveFirst.length > 0 && (
-            <Virtuoso
-              followOutput={"auto"}
-              ref={scrollRef}
-              data={channelsWithLiveFirst}
-              totalCount={channelsWithLiveFirst.length}
-              initialTopMostItemIndex={0}
-              itemContent={(index, data) => (
-                <SelectableChannel
-                  key={data.id || index}
-                  channel={data}
-                  callback={handleSelectChannel}
-                />
-              )}
+        <>
+          <Flex
+            direction="column"
+            justifyContent="center"
+            width="100vw"
+            position="relative"
+            height="100%"
+          >
+            <IconButton
+              position="absolute"
+              aria-label="refresh"
+              icon={<BiRefresh size="20px" />}
+              bg="rgb(0, 0, 0, 0.5)"
+              onClick={() => window?.location?.reload()}
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              borderWidth="1px"
+              zIndex="1"
+              borderRadius={"50%"}
+              right="1rem"
+              bottom="1rem"
             />
-          )}
-        </Flex>
+            {channelsWithLiveFirst.length > 0 && (
+              <Virtuoso
+                followOutput={"auto"}
+                ref={scrollRef}
+                data={channelsWithLiveFirst}
+                totalCount={channelsWithLiveFirst.length}
+                initialTopMostItemIndex={0}
+                itemContent={(index, data) => (
+                  <SelectableChannel
+                    key={data.id || index}
+                    channel={data}
+                    callback={handleSelectChannel}
+                  />
+                )}
+              />
+            )}
+          </Flex>
+        </>
       ) : (
         <Flex
           alignItems={"center"}
