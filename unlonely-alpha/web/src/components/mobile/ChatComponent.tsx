@@ -5,6 +5,7 @@ import { VirtuosoHandle } from "react-virtuoso";
 
 import {
   BaseChatCommand,
+  CHAT_MESSAGE_EVENT,
   InteractionType,
   NULL_ADDRESS,
   RANDOM_CHAT_COLOR,
@@ -141,7 +142,7 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
   ) => {
     if (walletIsConnected && user) {
       channel.publish({
-        name: "chat-message",
+        name: CHAT_MESSAGE_EVENT,
         data: {
           messageText,
           username: user.username,
@@ -240,7 +241,7 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
 
   const publishChatBotMessage = (messageText: string, body?: string) => {
     channel.publish({
-      name: "chat-message",
+      name: CHAT_MESSAGE_EVENT,
       data: {
         messageText: messageText,
         username: "chatbot🤖",
@@ -274,7 +275,7 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
   useEffect(() => {
     if (mountingMessages.current || receivedMessages.length === 0) return;
     const latestMessage = receivedMessages[receivedMessages.length - 1];
-    if (latestMessage && latestMessage.name === "chat-message") {
+    if (latestMessage && latestMessage.name === CHAT_MESSAGE_EVENT) {
       if (
         latestMessage.data.body &&
         (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||

@@ -68,7 +68,6 @@ export type Message = {
     reactions: EmojiTypes;
     tokenHolderRank?: number;
     isGif: boolean;
-    isBanned?: boolean;
     body?: string;
   };
   id: string;

@@ -44,6 +44,7 @@ import {
   InteractionType,
   RANDOM_CHAT_COLOR,
   BaseChatCommand,
+  CHAT_MESSAGE_EVENT,
 } from "../../constants";
 import BuyButton from "../arcade/BuyButton";
 import { ChatBot } from "../../constants/types";
@@ -229,7 +230,7 @@ const AblyChatComponent = ({
   ) => {
     if (walletIsConnected && user) {
       channel.publish({
-        name: "chat-message",
+        name: CHAT_MESSAGE_EVENT,
         data: {
           messageText,
           username: user.username,
@@ -332,7 +333,7 @@ const AblyChatComponent = ({
 
   const publishChatBotMessage = (messageText: string, body?: string) => {
     channel.publish({
-      name: "chat-message",
+      name: CHAT_MESSAGE_EVENT,
       data: {
         messageText: messageText,
         username: "chatbot🤖",
@@ -366,7 +367,7 @@ const AblyChatComponent = ({
   useEffect(() => {
     if (mountingMessages.current || receivedMessages.length === 0) return;
     const latestMessage = receivedMessages[receivedMessages.length - 1];
-    if (latestMessage && latestMessage.name === "chat-message") {
+    if (latestMessage && latestMessage.name === CHAT_MESSAGE_EVENT) {
       if (
         latestMessage.data.body &&
         latestMessage.data.body.split(":")[0] === InteractionType.CONTROL

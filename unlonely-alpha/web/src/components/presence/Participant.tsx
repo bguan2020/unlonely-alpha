@@ -107,12 +107,7 @@ const Participant = ({ user, mobile }: Props) => {
         </>
       ) : (
         <Tooltip label="mysterious anon👀" hasArrow arrowSize={14}>
-          <Avatar
-            name="anon"
-            src={anonUrl}
-            bg="grey"
-            size={"sm"}
-          />
+          <Avatar name="anon" src={anonUrl} bg="grey" size={"sm"} />
         </Tooltip>
       )}
     </>
