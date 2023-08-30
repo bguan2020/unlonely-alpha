@@ -240,7 +240,6 @@ export const toggleBannedUserToChannel = async (
   });
 };
 
-
 export const getChannelChatCommands = async (
   { id }: { id: number },
   ctx: Context
