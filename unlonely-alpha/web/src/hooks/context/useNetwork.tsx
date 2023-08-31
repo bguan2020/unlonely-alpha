@@ -68,5 +68,3 @@ export const NetworkProvider = ({
     <NetworkContext.Provider value={value}>{children}</NetworkContext.Provider>
   );
 };
-
-export default NetworkContext;
