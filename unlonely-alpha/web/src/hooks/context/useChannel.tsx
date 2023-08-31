@@ -27,6 +27,7 @@ import { FetchBalanceResult } from "../../constants/types";
 import { useUser } from "./useUser";
 import { InteractionType } from "../../constants";
 import { useClip } from "../chat/useClip";
+import { useMiniVideo } from "./useMiniVideo";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -130,6 +131,7 @@ export const ChannelProvider = ({
 }) => {
   const { user } = useUser();
   const router = useRouter();
+  const { updateMiniVideo } = useMiniVideo();
   const { slug, awsId } = router.query;
 
   const {
@@ -226,13 +228,6 @@ export const ChannelProvider = ({
     loading,
   } = useClip(channelQueryData, handleIsClipUiOpen);
 
-  useEffect(() => {
-    if (channelQueryData && channelQueryData.awsId) {
-      setAblyChatChannel(`${channelQueryData.awsId}-chat-channel`);
-      setAblyPresenceChannel(`${channelQueryData.awsId}-presence-channel`);
-    }
-  }, [channelQueryData]);
-
   const handleRefetchTokenHolders = useCallback(() => {
     getTokenHolders({
       variables: {
@@ -241,6 +236,17 @@ export const ChannelProvider = ({
         },
       },
     });
+  }, [channelQueryData]);
+
+  useEffect(() => {
+    updateMiniVideo(channelQueryData);
+  }, [channelQueryData]);
+
+  useEffect(() => {
+    if (channelQueryData && channelQueryData.awsId) {
+      setAblyChatChannel(`${channelQueryData.awsId}-chat-channel`);
+      setAblyPresenceChannel(`${channelQueryData.awsId}-presence-channel`);
+    }
   }, [channelQueryData]);
 
   useEffect(() => {

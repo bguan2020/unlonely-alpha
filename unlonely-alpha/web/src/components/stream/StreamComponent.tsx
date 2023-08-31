@@ -1,12 +1,16 @@
 import { useMemo } from "react";
 import { Text, Flex, Spinner } from "@chakra-ui/react";
+import { VideoJSIVSTech, VideoJSQualityPlugin } from "amazon-ivs-player";
+import videojs from "video.js";
 
 import IVSPlayer from "./IVSPlayer";
 import useScript from "../../hooks/internal/useScript";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useMiniVideo } from "../../hooks/context/useMiniVideo";
 
 const StreamComponent = () => {
+  const { trigger } = useMiniVideo();
   const { isStandalone } = useUserAgent();
   const { channel } = useChannelContext();
   const { channelQueryData, loading: channelLoading } = channel;
@@ -61,7 +65,15 @@ const StreamComponent = () => {
       }
     >
       {playbackUrl ? (
-        <IVSPlayer playbackUrl={playbackUrl} />
+        <IVSPlayer
+          playbackUrl={playbackUrl}
+          uniqueId={"original"}
+          ref={(
+            player: videojs.Player & VideoJSIVSTech & VideoJSQualityPlugin
+          ) => {
+            trigger(player);
+          }}
+        />
       ) : (
         <Flex
           direction="column"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import videojs from "video.js";
 import {
   VideoJSQualityPlugin,
@@ -8,18 +8,22 @@ import {
 import { Flex, Text } from "@chakra-ui/react";
 
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useMiniVideo } from "../../hooks/context/useMiniVideo";
 
 type Props = {
   playbackUrl: string;
+  uniqueId: string;
+  isMini?: boolean;
 };
 
-const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
+const IVSPlayer = forwardRef((props: Props, ref: any) => {
   const [offline, setOffline] = useState<boolean>(false);
+  const { handlePlay, handlePause } = useMiniVideo();
 
   const { isStandalone } = useUserAgent();
 
   useEffect(() => {
-    const PLAYBACK_URL = playbackUrl;
+    const PLAYBACK_URL = props.playbackUrl;
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -29,10 +33,12 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
     window.registerIVSQualityPlugin(videojs);
 
     const player = videojs(
-      "amazon-ivs-videojs",
+      `amazon-ivs-videojs-${props.uniqueId}`,
       {
         techOrder: ["AmazonIVS"],
-        autoplay: true,
+        controlBar: {
+          pictureInPictureToggle: true,
+        },
       },
       () => {
         player.src(PLAYBACK_URL);
@@ -40,6 +46,19 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
     ) as videojs.Player & VideoJSIVSTech & VideoJSQualityPlugin;
 
     player.enableIVSQualityPlugin();
+
+    if (ref && typeof ref === "function") {
+      ref(player);
+    }
+
+    player.on("play", () => {
+      console.log("hello");
+      handlePlay(props.isMini);
+    });
+
+    player.on("pause", () => {
+      handlePause(props.isMini);
+    });
 
     const events: VideoJSEvents = player.getIVSEvents();
     const ivsPlayer = player.getIVSPlayer();
@@ -54,13 +73,13 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
       ivsPlayer.removeEventListener(events.PlayerEventType.ERROR, errorHandler);
       player.dispose();
     };
-  }, [playbackUrl]);
+  }, [props.playbackUrl, props.uniqueId, props.isMini]);
 
   return (
     <>
       <Flex direction="column" width={"100%"} position="relative">
         <video
-          id="amazon-ivs-videojs"
+          id={`amazon-ivs-videojs-${props.uniqueId}`}
           className="video-js vjs-4-3 vjs-big-play-centered"
           controls
           autoPlay
@@ -106,6 +125,6 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
       </Flex>
     </>
   );
-};
+});
 
 export default IVSPlayer;
