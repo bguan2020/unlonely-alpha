@@ -44,7 +44,6 @@ import centerEllipses from "../../utils/centerEllipses";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import BuyButton from "../arcade/BuyButton";
 import CoinButton from "../arcade/CoinButton";
-import ControlButton from "../arcade/ControlButton";
 import CustomButton from "../arcade/CustomButton";
 import ChatForm from "../chat/ChatForm";
 import MessageList from "../chat/MessageList";
@@ -833,7 +832,7 @@ const StandaloneAblyChatComponent = ({
                         </span>
                       </Tooltip>
                     </GridItem>
-                    <GridItem>
+                    {/* <GridItem>
                       <Tooltip label={"control text on the stream"}>
                         <span>
                           <ControlButton
@@ -841,7 +840,7 @@ const StandaloneAblyChatComponent = ({
                           />
                         </span>
                       </Tooltip>
-                    </GridItem>
+                    </GridItem> */}
                     <GridItem>
                       <Tooltip label={"tip the streamer"}>
                         <span>
@@ -880,7 +879,7 @@ const StandaloneAblyChatComponent = ({
                       </span>
                     </Tooltip>
                   </GridItem>
-                  <GridItem>
+                  {/* <GridItem>
                     <Tooltip
                       label={!user ? "connect wallet first" : "not available"}
                     >
@@ -888,7 +887,7 @@ const StandaloneAblyChatComponent = ({
                         <ControlButton />
                       </span>
                     </Tooltip>
-                  </GridItem>
+                  </GridItem> */}
                   <GridItem>
                     <Tooltip
                       label={!user ? "connect wallet first" : "not available"}
