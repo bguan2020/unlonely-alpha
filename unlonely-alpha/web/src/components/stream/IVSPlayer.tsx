@@ -20,16 +20,23 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
   const { isStandalone } = useUserAgent();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [logs, setLogs] = useState<string[]>([]);
 
   const togglePiP = () => {
+    setLogs([...logs, "toggling pip"]);
     if (document.pictureInPictureElement) {
+      setLogs([...logs, "pip element exists"]);
       document.exitPictureInPicture().catch((err) => {
         console.error("PiP Error:", err);
+        setLogs([...logs, err.message]);
       });
     } else {
+      setLogs([...logs, "pip element doesn't exist"]);
       if (videoRef.current) {
+        setLogs([...logs, "videoRef exists"]);
         videoRef.current.requestPictureInPicture().catch((err) => {
           console.error("PiP Error:", err);
+          setLogs([...logs, err.message]);
         });
       }
     }
@@ -146,6 +153,9 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             />
           </Flex>
         )}
+        {logs.map((log, index) => (
+          <Text key={index}>{log}</Text>
+        ))}
         {offline && (
           <Flex
             direction="column"
