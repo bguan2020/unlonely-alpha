@@ -4,7 +4,7 @@ import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
 import { usePrivy, WalletWithMetadata } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
-import { Button, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 
 import { User } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
@@ -308,6 +308,20 @@ export const UserProvider = ({
             our app thinks you're using two different wallet addresses, this can
             occur when you change wallet accounts while logged in
           </Text>
+          <Box
+            borderColor="#909090"
+            borderWidth="1px"
+            borderStyle="solid"
+            p="5px"
+            borderRadius="5px"
+          >
+            <Text textAlign={"center"} fontSize={"12px"} color="#22b66e">
+              logged in as {user?.address}
+            </Text>
+            <Text textAlign={"center"} fontSize={"12px"} color="#85c71b">
+              connected {activeWallet?.address}
+            </Text>
+          </Box>
           <Text textAlign={"center"} fontSize="20px">
             to resolve, switch back to the original wallet account or logout
           </Text>

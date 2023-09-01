@@ -40,6 +40,7 @@ export const CHANNEL_DETAIL_QUERY = gql`
       description
       customButtonPrice
       customButtonAction
+      isLive
       id
       name
       slug
@@ -74,6 +75,7 @@ export const CHANNEL_DETAIL_MOBILE_QUERY = gql`
       description
       customButtonPrice
       customButtonAction
+      isLive
       id
       name
       slug

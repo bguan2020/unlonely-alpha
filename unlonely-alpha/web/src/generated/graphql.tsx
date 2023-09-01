@@ -785,6 +785,7 @@ export type ChannelDetailQuery = {
     description?: string | null;
     customButtonPrice?: number | null;
     customButtonAction?: string | null;
+    isLive?: boolean | null;
     id: string;
     name?: string | null;
     slug: string;
@@ -826,6 +827,7 @@ export type ChannelDetailMobileQuery = {
     description?: string | null;
     customButtonPrice?: number | null;
     customButtonAction?: string | null;
+    isLive?: boolean | null;
     id: string;
     name?: string | null;
     slug: string;
@@ -1470,6 +1472,7 @@ export const ChannelDetailDocument = gql`
       description
       customButtonPrice
       customButtonAction
+      isLive
       id
       name
       slug
@@ -1554,6 +1557,7 @@ export const ChannelDetailMobileDocument = gql`
       description
       customButtonPrice
       customButtonAction
+      isLive
       id
       name
       slug

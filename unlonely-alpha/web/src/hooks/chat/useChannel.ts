@@ -173,6 +173,7 @@ const updateMessageHistoryReactions = (
   const emojisToUpdate = messageToUpdate.data.reactions;
   const emojiIndex = emojisToUpdate.findIndex((e) => e.emojiType === emojiType);
 
+  // if found, increment count
   if (emojiIndex !== -1) {
     emojisToUpdate[emojiIndex].count += 1;
   }
