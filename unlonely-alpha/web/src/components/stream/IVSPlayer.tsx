@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import {
   VideoJSQualityPlugin,
   VideoJSIVSTech,
   VideoJSEvents,
 } from "amazon-ivs-player";
-import { Flex, Text } from "@chakra-ui/react";
+import { Flex, IconButton, Text } from "@chakra-ui/react";
+import { RiPictureInPicture2Fill } from "react-icons/ri";
 
 import useUserAgent from "../../hooks/internal/useUserAgent";
 
@@ -17,6 +18,36 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
   const [offline, setOffline] = useState<boolean>(false);
 
   const { isStandalone } = useUserAgent();
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const togglePiP = () => {
+    if (document.pictureInPictureElement) {
+      document.exitPictureInPicture().catch((err) => {
+        console.error("PiP Error:", err);
+      });
+    } else {
+      if (videoRef.current) {
+        videoRef.current.requestPictureInPicture().catch((err) => {
+          console.error("PiP Error:", err);
+        });
+      }
+    }
+  };
+
+  const showOverlay = () => {
+    const overlay = document.getElementById("video-overlay");
+
+    if (overlay) {
+      overlay.style.animationName = "none";
+
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          overlay.style.animationName = "";
+        }, 0);
+      });
+    }
+  };
 
   useEffect(() => {
     const PLAYBACK_URL = playbackUrl;
@@ -39,6 +70,8 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
       }
     ) as videojs.Player & VideoJSIVSTech & VideoJSQualityPlugin;
 
+    videoRef.current = player.el().getElementsByTagName("video")[0];
+
     player.enableIVSQualityPlugin();
 
     const events: VideoJSEvents = player.getIVSEvents();
@@ -58,8 +91,15 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
 
   return (
     <>
-      <Flex direction="column" width={"100%"} position="relative">
+      <Flex
+        direction="column"
+        width={"100%"}
+        position="relative"
+        onMouseMove={showOverlay}
+        onTouchStart={showOverlay}
+      >
         <video
+          ref={videoRef}
           id="amazon-ivs-videojs"
           className="video-js vjs-4-3 vjs-big-play-centered"
           controls
@@ -74,6 +114,38 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             minHeight: "100%",
           }}
         />
+        {!offline && (
+          <Flex
+            direction="column"
+            bg="rgba(0, 0, 0, 0)"
+            position="absolute"
+            top={0}
+            right={0}
+            bottom={0}
+            left={0}
+            justifyContent="center"
+            alignItems="center"
+            className="show-then-hide"
+            id="video-overlay"
+          >
+            <IconButton
+              position="absolute"
+              aria-label="picture-in-picture"
+              icon={<RiPictureInPicture2Fill size="20px" />}
+              bg="rgb(0, 0, 0, 0.5)"
+              onClick={togglePiP}
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              borderWidth="1px"
+              zIndex="20"
+              borderRadius={"50%"}
+              top="1rem"
+              left="1rem"
+              pointerEvents="auto"
+            />
+          </Flex>
+        )}
         {offline && (
           <Flex
             direction="column"
