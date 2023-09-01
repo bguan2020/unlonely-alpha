@@ -20,22 +20,17 @@ const HeroBanner = () => {
       <Text textAlign="center" fontSize={["15px", "18px"]} fontStyle="italic">
         <span
           style={{
-            fontWeight: "bold",
             cursor: "pointer",
             textDecoration: "underline",
           }}
         >
-          <Tooltip
-            label="dm @gracewhiteguan on telegram a picture of your OBS setup to get your own channel"
-            fontWeight={"bold"}
-          >
+          <Tooltip label="dm @gracewhiteguan on telegram a picture of your OBS setup to get your own channel">
             start
           </Tooltip>
         </span>{" "}
         your own channel and{" "}
         <span
           style={{
-            fontWeight: "bold",
             cursor: "pointer",
             textDecoration: "underline",
           }}

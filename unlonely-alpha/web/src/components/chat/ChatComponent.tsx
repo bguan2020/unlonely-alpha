@@ -37,7 +37,6 @@ import { useUser } from "../../hooks/context/useUser";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 // import SwordButton from "../arcade/SwordButton";
 import CoinButton from "../arcade/CoinButton";
-import ControlButton from "../arcade/ControlButton";
 // import DiceButton from "../arcade/DiceButton";
 import {
   NULL_ADDRESS,
@@ -548,13 +547,13 @@ const AblyChatComponent = ({
                           </span>
                         </Tooltip>
                       </GridItem>
-                      <GridItem>
+                      {/* <GridItem>
                         <Tooltip label={"control text on the stream"}>
                           <span>
                             <ControlButton callback={handleControlModal} />
                           </span>
                         </Tooltip>
-                      </GridItem>
+                      </GridItem> */}
                       <GridItem>
                         <Tooltip label={"tip the streamer"}>
                           <span>
@@ -591,7 +590,7 @@ const AblyChatComponent = ({
                         </span>
                       </Tooltip>
                     </GridItem>
-                    <GridItem>
+                    {/* <GridItem>
                       <Tooltip
                         label={!user ? "connect wallet first" : "not available"}
                       >
@@ -599,7 +598,7 @@ const AblyChatComponent = ({
                           <ControlButton />
                         </span>
                       </Tooltip>
-                    </GridItem>
+                    </GridItem> */}
                     <GridItem>
                       <Tooltip
                         label={!user ? "connect wallet first" : "not available"}

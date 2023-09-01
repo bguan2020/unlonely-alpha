@@ -18,7 +18,6 @@ import { isAddress } from "viem";
 import { initializeApollo } from "../../apiClient/client";
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
-import ControlButton from "../../components/arcade/ControlButton";
 import CustomButton from "../../components/arcade/CustomButton";
 import CalendarEventModal from "../../components/channels/CalendarEventModal";
 import ChannelDesc from "../../components/channels/ChannelDesc";
@@ -267,7 +266,12 @@ const DesktopPage = ({
                   ) : (
                     <ChannelViewerPerspective />
                   )}
-                  <Grid templateColumns="repeat(3, 1fr)" gap={4} mt="20px">
+                  <Grid
+                    templateColumns="repeat(3, 1fr)"
+                    gap={4}
+                    mt="20px"
+                    alignItems="center"
+                  >
                     <GridItem colSpan={showArcadeButtons ? 2 : 3}>
                       <ChannelDesc />
                     </GridItem>
@@ -329,7 +333,7 @@ const DesktopPage = ({
                               <>
                                 <Grid
                                   templateColumns="repeat(2, 1fr)"
-                                  templateRows="repeat(2, 1fr)"
+                                  templateRows="repeat(1, 1fr)"
                                   gridGap={4}
                                   alignItems="flex-start"
                                   justifyItems="flex-start"
@@ -350,7 +354,7 @@ const DesktopPage = ({
                                       />
                                     </span>
                                   </Tooltip>
-                                  <Tooltip label={"control text on the stream"}>
+                                  {/* <Tooltip label={"control text on the stream"}>
                                     <span>
                                       <ControlButton
                                         callback={() =>
@@ -358,7 +362,7 @@ const DesktopPage = ({
                                         }
                                       />
                                     </span>
-                                  </Tooltip>
+                                  </Tooltip> */}
                                 </Grid>
                                 <BuyButton
                                   tokenName={
@@ -377,7 +381,7 @@ const DesktopPage = ({
                             <>
                               <Grid
                                 templateColumns="repeat(2, 1fr)"
-                                templateRows="repeat(2, 1fr)"
+                                templateRows="repeat(1, 1fr)"
                                 gridGap={4}
                                 alignItems="flex-start"
                                 justifyItems="flex-start"
@@ -404,7 +408,7 @@ const DesktopPage = ({
                                     <CoinButton />
                                   </span>
                                 </Tooltip>
-                                <Tooltip
+                                {/* <Tooltip
                                   label={
                                     !user
                                       ? "connect wallet first"
@@ -414,7 +418,7 @@ const DesktopPage = ({
                                   <span>
                                     <ControlButton />
                                   </span>
-                                </Tooltip>
+                                </Tooltip> */}
                               </Grid>
                               <Tooltip
                                 label={

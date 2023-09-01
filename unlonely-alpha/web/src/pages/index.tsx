@@ -172,17 +172,6 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
               <Text fontFamily="Neue Pixel Sans">telegram</Text>
             </Link>
           </Stack>
-          <Link
-            href={
-              isIOS
-                ? "https://testflight.apple.com/join/z4PpYxXz"
-                : "https://dub.sh/unlonely-android"
-            }
-            passHref
-            target="_blank"
-          >
-            <Text fontFamily="Neue Pixel Sans">download for mobile</Text>
-          </Link>
         </Flex>
       </Flex>
     </>
@@ -296,7 +285,7 @@ function DesktopPage({
                   xl: "30%",
                 }}
               >
-                <Container height="100vh">
+                <Container height="100%">
                   <FixedComponent />
                 </Container>
               </Box>
