@@ -2,8 +2,10 @@ import { Avatar, Text, Flex } from "@chakra-ui/react";
 
 import { anonUrl } from "../presence/AnonUrl";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 const ChannelDesc = () => {
+  const { isStandalone } = useUserAgent();
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
 
@@ -30,7 +32,6 @@ const ChannelDesc = () => {
       <Flex direction="column" gap={["0px", "16px"]} width="100%">
         <Flex
           maxH="400px"
-          margin="auto"
           ml="32px"
           justifyContent="left"
           pr="32px"
@@ -44,11 +45,16 @@ const ChannelDesc = () => {
             fontWeight="bold"
             noOfLines={2}
             wordBreak={"break-word"}
+            width={isStandalone ? "70%" : "unset"}
           >
             {channelQueryData?.name}
           </Text>
         </Flex>
-        <Text px="30px" fontSize={["0.8rem", "1.2rem"]}>
+        <Text
+          px="30px"
+          fontSize={["0.8rem", "1.2rem"]}
+          width={isStandalone ? "70%" : "unset"}
+        >
           {channelQueryData?.description}
         </Text>
       </Flex>
