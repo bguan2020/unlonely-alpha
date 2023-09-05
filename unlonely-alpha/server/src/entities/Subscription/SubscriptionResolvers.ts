@@ -25,6 +25,13 @@ export const resolvers = {
     ) => {
       return SubscriptionService.checkSubscriptionByEndpoint(data, ctx);
     },
+    getSubscriptionByEndpoint: async (
+      _: any,
+      { data }: { data: SubscriptionService.IToggleSubscriptionInput },
+      ctx: Context
+    ) => {
+      return SubscriptionService.getSubscriptionByEndpoint(data, ctx);
+    },
   },
   Mutation: {
     addChannelToSubscription: (

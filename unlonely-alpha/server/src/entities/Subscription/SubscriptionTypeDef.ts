@@ -42,6 +42,7 @@ export const typeDef = gql`
     getAllActiveSubscriptions: [Subscription]
     sendAllNotifications(data: SendAllNotificationsInput!): Boolean
     checkSubscriptionByEndpoint(data: ToggleSubscriptionInput!): Boolean
+    getSubscriptionByEndpoint(data: ToggleSubscriptionInput!): Subscription
   }
 
   extend type Mutation {
