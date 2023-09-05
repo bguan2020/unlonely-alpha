@@ -351,6 +351,30 @@ const StandaloneAblyChatComponent = ({
     if (inputBox) inputBox.focus();
   };
 
+  const handleAddChannelToSubscription = async () => {
+    addChannelToSubscription({
+      variables: {
+        data: {
+          endpoint,
+          channelId,
+        },
+      },
+    });
+    handleGetSubscription();
+  };
+
+  const handleRemoveChannelFromSubscription = async () => {
+    removeChannelFromSubscription({
+      variables: {
+        data: {
+          endpoint,
+          channelId,
+        },
+      },
+    });
+    handleGetSubscription();
+  };
+
   const handleChatCommand = async (messageText: string) => {
     let messageToPublish = "";
     let allowPublish = false;
@@ -600,25 +624,9 @@ const StandaloneAblyChatComponent = ({
                     channelId
                   )
                 ) {
-                  removeChannelFromSubscription({
-                    variables: {
-                      data: {
-                        endpoint,
-                        channelId,
-                      },
-                    },
-                  });
-                  handleGetSubscription();
+                  handleRemoveChannelFromSubscription();
                 } else {
-                  addChannelToSubscription({
-                    variables: {
-                      data: {
-                        endpoint,
-                        channelId,
-                      },
-                    },
-                  });
-                  handleGetSubscription();
+                  handleAddChannelToSubscription();
                 }
               }}
             />
