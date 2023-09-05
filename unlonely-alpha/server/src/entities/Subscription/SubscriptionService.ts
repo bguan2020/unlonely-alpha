@@ -94,6 +94,16 @@ export const toggleSubscription = async (
     },
   });
 };
+export const getSubscriptionByEndpoint = async (
+  data: IToggleSubscriptionInput,
+  ctx: Context
+) => {
+  return await ctx.prisma.subscription.findFirst({
+    where: {
+      endpoint: data.endpoint,
+    },
+  });
+};
 
 export const addChannelToSubscription = async (
   data: IMoveChannelAlongSubscriptionInput,
