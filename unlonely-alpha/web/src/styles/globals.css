@@ -14,11 +14,6 @@ html {
   overscroll-behavior: none;
 }
 
-.show-then-hide {
-  animation: showThenHide 3s forwards;
-  pointer-events: none;
-}
-
 @keyframes showThenHide {
   0% {
     opacity: 1;
