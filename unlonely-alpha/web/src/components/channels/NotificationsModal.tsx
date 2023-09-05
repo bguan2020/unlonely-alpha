@@ -15,6 +15,7 @@ import { isAddressEqual } from "viem";
 
 import { SEND_ALL_NOTIFICATIONS_QUERY } from "../../constants/queries";
 import { QuerySendAllNotificationsArgs } from "../../generated/graphql";
+import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { PreviewNotification } from "../mobile/PreviewNotification";
@@ -51,12 +52,16 @@ export default function NotificationsModal({
   callback?: any;
   handleClose: () => void;
 }) {
-  const [call, { loading: sendLoading, data: sendData }] =
-    useLazyQuery<QuerySendAllNotificationsArgs>(SEND_ALL_NOTIFICATIONS_QUERY, {
+  const [call] = useLazyQuery<QuerySendAllNotificationsArgs>(
+    SEND_ALL_NOTIFICATIONS_QUERY,
+    {
       fetchPolicy: "network-only",
-    });
+    }
+  );
 
   const { user } = useUser();
+  const { channel } = useChannelContext();
+  const { channelQueryData } = channel;
   const [isSending, setIsSending] = useState(false);
   const [selectedType, setSelectedType] = useState("live");
   const toast = useToast();
@@ -88,6 +93,7 @@ export default function NotificationsModal({
           data: {
             title: selectedType === "live" ? titleLive : titleNFCs,
             body: selectedType === "live" ? bodyLive : bodyNFCs,
+            channelId: channelQueryData?.id,
           },
         },
       });
@@ -109,7 +115,14 @@ export default function NotificationsModal({
       });
     }
     setIsSending(false);
-  }, [selectedType, titleLive, titleNFCs, bodyLive, bodyNFCs]);
+  }, [
+    selectedType,
+    titleLive,
+    titleNFCs,
+    bodyLive,
+    bodyNFCs,
+    channelQueryData,
+  ]);
 
   return (
     <TransactionModalTemplate

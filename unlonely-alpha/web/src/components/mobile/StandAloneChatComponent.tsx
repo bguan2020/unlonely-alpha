@@ -18,12 +18,13 @@ import {
   Tr,
   IconButton,
   SimpleGrid,
-  Button,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VirtuosoHandle } from "react-virtuoso";
 import { isAddress } from "viem";
 import { useRouter } from "next/router";
+import { BiSolidBell, BiSolidBellRing } from "react-icons/bi";
+import { useLazyQuery } from "@apollo/client";
 
 import {
   InteractionType,
@@ -50,6 +51,9 @@ import ChatForm from "../chat/ChatForm";
 import MessageList from "../chat/MessageList";
 import Participants from "../presence/Participants";
 import ChannelDesc from "../channels/ChannelDesc";
+import { GET_SUBSCRIPTION } from "../../constants/queries";
+import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubscription";
+import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChannelFromSubscription";
 
 type Props = {
   previewStream?: boolean;
@@ -143,6 +147,7 @@ const StandaloneAblyChatComponent = ({
   const [showInfo, setShowInfo] = useState<boolean>(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showArcade, setShowArcade] = useState<boolean>(false);
+  const [endpoint, setEndpoint] = useState<string>("");
   const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
     []
   );
@@ -157,6 +162,37 @@ const StandaloneAblyChatComponent = ({
   const arcadeRef = useRef<HTMLDivElement>(null);
 
   const mountingMessages = useRef(true);
+
+  const [getSubscription, { loading, data }] = useLazyQuery(GET_SUBSCRIPTION, {
+    fetchPolicy: "network-only",
+  });
+
+  const { addChannelToSubscription, loading: addLoading } =
+    useAddChannelToSubscription({
+      onError: () => {
+        console.error("Failed to add channel to subscription.");
+      },
+    });
+
+  const { removeChannelFromSubscription, loading: removeLoading } =
+    useRemoveChannelFromSubscription({
+      onError: () => {
+        console.error("Failed to remove channel from subscription.");
+      },
+    });
+
+  const handleGetSubscription = useCallback(() => {
+    getSubscription({
+      variables: { data: { endpoint } },
+      fetchPolicy: "network-only",
+    });
+  }, [endpoint]);
+
+  useEffect(() => {
+    if (endpoint) {
+      handleGetSubscription();
+    }
+  }, [endpoint]);
 
   useEffect(() => {
     if (showLeaderboard && !holdersLoading && !holdersData) {
@@ -216,6 +252,24 @@ const StandaloneAblyChatComponent = ({
   const toast = useToast();
 
   const isOwner = userAddress === channelQueryData?.owner.address;
+
+  useEffect(() => {
+    const init = async () => {
+      if ("serviceWorker" in navigator) {
+        const registrationExists =
+          await navigator.serviceWorker.getRegistration("/");
+        if (registrationExists) {
+          const subscription =
+            await registrationExists.pushManager.getSubscription();
+          if (subscription) {
+            const endpoint = subscription.endpoint;
+            setEndpoint(endpoint);
+          }
+        }
+      }
+    };
+    init();
+  }, []);
 
   useEffect(() => {
     if (chatBot.length > 0) {
@@ -529,7 +583,45 @@ const StandaloneAblyChatComponent = ({
             </Text>
           </Flex>
           <Flex gap="10px">
-            <Button>notify</Button>
+            <IconButton
+              aria-label="notify"
+              icon={
+                data?.getSubscriptionByEndpoint.allowedChannels.includes(
+                  channelId
+                ) ? (
+                  <BiSolidBellRing />
+                ) : (
+                  <BiSolidBell />
+                )
+              }
+              onClick={() => {
+                if (
+                  data?.getSubscriptionByEndpoint.allowedChannels.includes(
+                    channelId
+                  )
+                ) {
+                  removeChannelFromSubscription({
+                    variables: {
+                      data: {
+                        endpoint,
+                        channelId,
+                      },
+                    },
+                  });
+                  handleGetSubscription();
+                } else {
+                  addChannelToSubscription({
+                    variables: {
+                      data: {
+                        endpoint,
+                        channelId,
+                      },
+                    },
+                  });
+                  handleGetSubscription();
+                }
+              }}
+            />
             <BuyButton
               tokenName={
                 channelQueryData?.token?.symbol

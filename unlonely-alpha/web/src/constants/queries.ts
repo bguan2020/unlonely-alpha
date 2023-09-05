@@ -156,3 +156,12 @@ export const CHECK_SUBSCRIPTION = gql`
     checkSubscriptionByEndpoint(data: $data)
   }
 `;
+
+export const GET_SUBSCRIPTION = gql`
+  query GetSubscription($data: ToggleSubscriptionInput!) {
+    getSubscriptionByEndpoint(data: $data) {
+      allowedChannels
+      softDelete
+    }
+  }
+`;
