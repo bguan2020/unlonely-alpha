@@ -119,7 +119,7 @@ export const addChannelToSubscription = async (
     throw new Error("Subscription does not exist");
   }
 
-  if (existingSubscription.allowedChannels.includes(data.channelId)) {
+  if (existingSubscription.allowedChannels.includes(Number(data.channelId))) {
     return existingSubscription;
   } else {
     const updatedChannels = [
@@ -151,11 +151,11 @@ export const removeChannelFromSubscription = async (
     throw new Error("Subscription does not exist");
   }
 
-  if (!existingSubscription.allowedChannels.includes(data.channelId)) {
+  if (!existingSubscription.allowedChannels.includes(Number(data.channelId))) {
     return existingSubscription;
   } else {
     const updatedChannels = existingSubscription.allowedChannels.filter(
-      (id) => id !== data.channelId
+      (id) => Number(id) !== Number(data.channelId)
     );
 
     return await ctx.prisma.subscription.update({
@@ -214,11 +214,17 @@ export const sendAllNotifications = async (
     vapidPublicKey,
     vapidPrivateKey
   );
+
+  const channelId =
+    typeof data.channelId === "string"
+      ? Number(data.channelId)
+      : data.channelId;
+
   const subscriptions = await ctx.prisma.subscription.findMany({
     where: {
       softDelete: false,
       allowedChannels: {
-        has: data.channelId,
+        has: channelId,
       },
     },
   });
