@@ -27,6 +27,16 @@ export const typeDef = gql`
     endpoint: String!
   }
 
+  input AddChannelToSubscriptionInput {
+    channelId: ID!
+    endpoint: String!
+  }
+
+  input RemoveChannelFromSubscriptionInput {
+    channelId: ID!
+    endpoint: String!
+  }
+
   input SendAllNotificationsInput {
     title: String!
     body: String!
@@ -40,6 +50,10 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
+    addChannelToSubscription(data: AddChannelToSubscriptionInput!): Subscription
+    removeChannelFromSubscription(
+      data: RemoveChannelFromSubscriptionInput!
+    ): Subscription
     postSubscription(data: PostSubscriptionInput!): Subscription
     softDeleteSubscription(data: SoftDeleteSubscriptionInput!): Subscription
     toggleSubscription(data: ToggleSubscriptionInput!): Subscription
