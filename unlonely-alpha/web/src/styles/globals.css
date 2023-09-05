@@ -14,18 +14,6 @@ html {
   overscroll-behavior: none;
 }
 
-@keyframes showThenHide {
-  0% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
 /* For Webkit (Chrome & Safari) */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
