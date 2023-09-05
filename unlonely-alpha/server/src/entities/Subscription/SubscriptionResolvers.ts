@@ -34,7 +34,7 @@ export const resolvers = {
     ) => {
       return SubscriptionService.addChannelToSubscription(data, ctx);
     },
-    removeChannelToSubscription: (
+    removeChannelFromSubscription: (
       _: any,
       {
         data,
