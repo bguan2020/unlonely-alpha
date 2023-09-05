@@ -353,24 +353,16 @@ const StandaloneAblyChatComponent = ({
 
   const handleAddChannelToSubscription = async () => {
     addChannelToSubscription({
-      variables: {
-        data: {
-          endpoint,
-          channelId,
-        },
-      },
+      endpoint,
+      channelId,
     });
     handleGetSubscription();
   };
 
   const handleRemoveChannelFromSubscription = async () => {
     removeChannelFromSubscription({
-      variables: {
-        data: {
-          endpoint,
-          channelId,
-        },
-      },
+      endpoint,
+      channelId,
     });
     handleGetSubscription();
   };
@@ -608,10 +600,14 @@ const StandaloneAblyChatComponent = ({
           </Flex>
           <Flex gap="10px">
             <IconButton
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg="transparent"
               aria-label="notify"
               icon={
                 data?.getSubscriptionByEndpoint.allowedChannels.includes(
-                  channelId
+                  String(channelId)
                 ) ? (
                   <BiSolidBellRing />
                 ) : (
@@ -621,7 +617,7 @@ const StandaloneAblyChatComponent = ({
               onClick={() => {
                 if (
                   data?.getSubscriptionByEndpoint.allowedChannels.includes(
-                    channelId
+                    String(channelId)
                   )
                 ) {
                   handleRemoveChannelFromSubscription();
