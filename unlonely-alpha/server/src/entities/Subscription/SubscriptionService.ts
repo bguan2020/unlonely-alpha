@@ -122,14 +122,16 @@ export const addChannelToSubscription = async (
   if (existingSubscription.allowedChannels.includes(data.channelId)) {
     return existingSubscription;
   } else {
+    const updatedChannels = [
+      ...existingSubscription.allowedChannels,
+      Number(data.channelId),
+    ];
     return await ctx.prisma.subscription.update({
       where: {
         id: existingSubscription.id,
       },
       data: {
-        allowedChannels: {
-          push: data.channelId,
-        },
+        allowedChannels: updatedChannels,
       },
     });
   }
