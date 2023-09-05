@@ -27,6 +27,22 @@ export const resolvers = {
     },
   },
   Mutation: {
+    addChannelToSubscription: (
+      _: any,
+      { data }: { data: SubscriptionService.IAddChannelToSubscriptionInput },
+      ctx: Context
+    ) => {
+      return SubscriptionService.addChannelToSubscription(data, ctx);
+    },
+    removeChannelToSubscription: (
+      _: any,
+      {
+        data,
+      }: { data: SubscriptionService.IRemoveChannelFromSubscriptionInput },
+      ctx: Context
+    ) => {
+      return SubscriptionService.removeChannelFromSubscription(data, ctx);
+    },
     postSubscription: (
       _: any,
       { data }: { data: SubscriptionService.IPostSubscriptionInput },

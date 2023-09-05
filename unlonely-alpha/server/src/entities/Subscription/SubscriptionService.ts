@@ -65,6 +65,16 @@ export interface IToggleSubscriptionInput {
   endpoint: string;
 }
 
+export interface IAddChannelToSubscriptionInput {
+  channelId: number;
+  endpoint: string;
+}
+
+export interface IRemoveChannelFromSubscriptionInput {
+  channelId: number;
+  endpoint: string;
+}
+
 export const toggleSubscription = async (
   data: IToggleSubscriptionInput,
   ctx: Context
@@ -91,7 +101,7 @@ export const toggleSubscription = async (
 };
 
 export const addChannelToSubscription = async (
-  data: { channelId: number; endpoint: string },
+  data: IAddChannelToSubscriptionInput,
   ctx: Context
 ) => {
   const existingSubscription = await ctx.prisma.subscription.findFirst({
@@ -121,7 +131,7 @@ export const addChannelToSubscription = async (
 };
 
 export const removeChannelFromSubscription = async (
-  data: { channelId: number; endpoint: string },
+  data: IRemoveChannelFromSubscriptionInput,
   ctx: Context
 ) => {
   const existingSubscription = await ctx.prisma.subscription.findFirst({
