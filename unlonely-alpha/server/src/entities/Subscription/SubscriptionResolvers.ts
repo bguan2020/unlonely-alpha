@@ -29,7 +29,9 @@ export const resolvers = {
   Mutation: {
     addChannelToSubscription: (
       _: any,
-      { data }: { data: SubscriptionService.IAddChannelToSubscriptionInput },
+      {
+        data,
+      }: { data: SubscriptionService.IMoveChannelAlongSubscriptionInput },
       ctx: Context
     ) => {
       return SubscriptionService.addChannelToSubscription(data, ctx);
@@ -38,7 +40,7 @@ export const resolvers = {
       _: any,
       {
         data,
-      }: { data: SubscriptionService.IRemoveChannelFromSubscriptionInput },
+      }: { data: SubscriptionService.IMoveChannelAlongSubscriptionInput },
       ctx: Context
     ) => {
       return SubscriptionService.removeChannelFromSubscription(data, ctx);

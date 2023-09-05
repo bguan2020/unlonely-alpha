@@ -27,12 +27,7 @@ export const typeDef = gql`
     endpoint: String!
   }
 
-  input AddChannelToSubscriptionInput {
-    channelId: ID!
-    endpoint: String!
-  }
-
-  input RemoveChannelFromSubscriptionInput {
+  input MoveChannelAlongSubscriptionInput {
     channelId: ID!
     endpoint: String!
   }
@@ -50,9 +45,11 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    addChannelToSubscription(data: AddChannelToSubscriptionInput!): Subscription
+    addChannelToSubscription(
+      data: MoveChannelAlongSubscriptionInput!
+    ): Subscription
     removeChannelFromSubscription(
-      data: RemoveChannelFromSubscriptionInput!
+      data: MoveChannelAlongSubscriptionInput!
     ): Subscription
     postSubscription(data: PostSubscriptionInput!): Subscription
     softDeleteSubscription(data: SoftDeleteSubscriptionInput!): Subscription
