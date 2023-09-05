@@ -23,7 +23,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VirtuosoHandle } from "react-virtuoso";
 import { isAddress } from "viem";
 import { useRouter } from "next/router";
-import { BiSolidBell, BiSolidBellRing } from "react-icons/bi";
+import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
 import { useLazyQuery } from "@apollo/client";
 
 import {
@@ -151,6 +151,7 @@ const StandaloneAblyChatComponent = ({
   const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
     []
   );
+  const [isBellAnimating, setIsBellAnimating] = useState(false);
 
   const scrollRef = useRef<VirtuosoHandle>(null);
 
@@ -181,12 +182,20 @@ const StandaloneAblyChatComponent = ({
       },
     });
 
-  const handleGetSubscription = useCallback(() => {
-    getSubscription({
+  const handleGetSubscription = useCallback(async () => {
+    await getSubscription({
       variables: { data: { endpoint } },
       fetchPolicy: "network-only",
     });
   }, [endpoint]);
+
+  const channelCanNotify = useMemo(
+    () =>
+      data?.getSubscriptionByEndpoint.allowedChannels.includes(
+        String(channelId)
+      ),
+    [channelId, data]
+  );
 
   useEffect(() => {
     if (endpoint) {
@@ -352,19 +361,20 @@ const StandaloneAblyChatComponent = ({
   };
 
   const handleAddChannelToSubscription = async () => {
-    addChannelToSubscription({
+    await addChannelToSubscription({
       endpoint,
       channelId,
     });
-    handleGetSubscription();
+    await handleGetSubscription();
+    setIsBellAnimating(true);
   };
 
   const handleRemoveChannelFromSubscription = async () => {
-    removeChannelFromSubscription({
+    await removeChannelFromSubscription({
       endpoint,
       channelId,
     });
-    handleGetSubscription();
+    await handleGetSubscription();
   };
 
   const handleChatCommand = async (messageText: string) => {
@@ -531,6 +541,23 @@ const StandaloneAblyChatComponent = ({
     }
   };
 
+  useEffect(() => {
+    if (isBellAnimating) {
+      const button = document.getElementById("bellring");
+
+      const handleAnimationEnd = () => {
+        setIsBellAnimating(false);
+      };
+
+      button?.addEventListener("animationend", handleAnimationEnd);
+
+      // Cleanup function
+      return () => {
+        button?.removeEventListener("animationend", handleAnimationEnd);
+      };
+    }
+  }, [isBellAnimating]);
+
   return (
     <Flex
       direction="column"
@@ -604,22 +631,19 @@ const StandaloneAblyChatComponent = ({
               _focus={{}}
               _active={{}}
               bg="transparent"
+              opacity={channelCanNotify ? 1 : 0.5}
               aria-label="notify"
+              id="bellring"
+              className={isBellAnimating ? "bell" : ""}
               icon={
-                data?.getSubscriptionByEndpoint.allowedChannels.includes(
-                  String(channelId)
-                ) ? (
-                  <BiSolidBellRing />
+                channelCanNotify ? (
+                  <BiSolidBellRing size="100%" />
                 ) : (
-                  <BiSolidBell />
+                  <BiSolidBellOff size="100%" />
                 )
               }
               onClick={() => {
-                if (
-                  data?.getSubscriptionByEndpoint.allowedChannels.includes(
-                    String(channelId)
-                  )
-                ) {
+                if (channelCanNotify) {
                   handleRemoveChannelFromSubscription();
                 } else {
                   handleAddChannelToSubscription();
