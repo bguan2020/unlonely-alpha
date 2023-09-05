@@ -18,6 +18,7 @@ import {
   Tr,
   IconButton,
   SimpleGrid,
+  Button,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VirtuosoHandle } from "react-virtuoso";
@@ -527,21 +528,24 @@ const StandaloneAblyChatComponent = ({
               /{channelQueryData?.slug}
             </Text>
           </Flex>
-          <BuyButton
-            tokenName={
-              channelQueryData?.token?.symbol
-                ? `$${channelQueryData?.token?.symbol}`
-                : "token"
-            }
-            small
-            callback={() => {
-              if (clickedOutsideArcade.current) {
-                clickedOutsideArcade.current = false;
-                return;
+          <Flex gap="10px">
+            <Button>notify</Button>
+            <BuyButton
+              tokenName={
+                channelQueryData?.token?.symbol
+                  ? `$${channelQueryData?.token?.symbol}`
+                  : "token"
               }
-              setShowArcade(!showArcade);
-            }}
-          />
+              small
+              callback={() => {
+                if (clickedOutsideArcade.current) {
+                  clickedOutsideArcade.current = false;
+                  return;
+                }
+                setShowArcade(!showArcade);
+              }}
+            />
+          </Flex>
         </Flex>
       ) : (
         <IconButton

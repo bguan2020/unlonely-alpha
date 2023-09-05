@@ -65,6 +65,11 @@ export interface IToggleSubscriptionInput {
   endpoint: string;
 }
 
+export interface IMoveChannelAlongSubscriptionInput {
+  endpoint: string;
+  channelId: number;
+}
+
 export const toggleSubscription = async (
   data: IToggleSubscriptionInput,
   ctx: Context
@@ -88,6 +93,68 @@ export const toggleSubscription = async (
       softDelete: !existingSubscription.softDelete,
     },
   });
+};
+
+export const addChannelToSubscription = async (
+  data: IMoveChannelAlongSubscriptionInput,
+  ctx: Context
+) => {
+  const existingSubscription = await ctx.prisma.subscription.findFirst({
+    where: {
+      endpoint: data.endpoint,
+    },
+  });
+
+  if (!existingSubscription) {
+    throw new Error("Subscription does not exist");
+  }
+
+  if (existingSubscription.allowedChannels.includes(data.channelId)) {
+    return existingSubscription;
+  } else {
+    return await ctx.prisma.subscription.update({
+      where: {
+        id: existingSubscription.id,
+      },
+      data: {
+        allowedChannels: {
+          push: data.channelId,
+        },
+      },
+    });
+  }
+};
+
+export const removeChannelFromSubscription = async (
+  data: IMoveChannelAlongSubscriptionInput,
+  ctx: Context
+) => {
+  const existingSubscription = await ctx.prisma.subscription.findFirst({
+    where: {
+      endpoint: data.endpoint,
+    },
+  });
+
+  if (!existingSubscription) {
+    throw new Error("Subscription does not exist");
+  }
+
+  if (!existingSubscription.allowedChannels.includes(data.channelId)) {
+    return existingSubscription;
+  } else {
+    const updatedChannels = existingSubscription.allowedChannels.filter(
+      (id) => id !== data.channelId
+    );
+
+    return await ctx.prisma.subscription.update({
+      where: {
+        id: existingSubscription.id,
+      },
+      data: {
+        allowedChannels: updatedChannels,
+      },
+    });
+  }
 };
 
 export const checkSubscriptionByEndpoint = async (
@@ -120,6 +187,7 @@ export const getAllActiveSubscriptions = async (ctx: Context) => {
 export interface ISendAllNotificationsInput {
   title: string;
   body: string;
+  channelId: number;
 }
 
 export const sendAllNotifications = async (
@@ -128,12 +196,6 @@ export const sendAllNotifications = async (
 ) => {
   const vapidPublicKey = process.env.VAPID_PUBLIC_KEY!;
   const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!;
-  console.log(
-    "vapidPublicKey",
-    vapidPublicKey,
-    "vapidPrivateKey",
-    vapidPrivateKey
-  );
 
   webpush.setVapidDetails(
     `mailto:${process.env.VAPID_MAILTO}`,
@@ -143,6 +205,9 @@ export const sendAllNotifications = async (
   const subscriptions = await ctx.prisma.subscription.findMany({
     where: {
       softDelete: false,
+      allowedChannels: {
+        has: data.channelId,
+      },
     },
   });
 
