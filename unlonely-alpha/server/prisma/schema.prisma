@@ -49,12 +49,13 @@ model User {
 }
 
 model Subscription {
-  id             Int    @id @default(autoincrement())
-  endpoint       String @unique
-  p256dh         String
-  auth           String
-  expirationTime DateTime?
-  softDelete     Boolean @default(false)
+  id              Int    @id @default(autoincrement())
+  endpoint        String @unique
+  p256dh          String
+  auth            String
+  expirationTime  DateTime?
+  softDelete      Boolean @default(false)
+  allowedChannels Int[]
 
   createdAt DateTime @default(now())
 }

@@ -9,6 +9,7 @@ export const typeDef = gql`
     auth: String!
     softDelete: Boolean!
     createdAt: DateTime!
+    allowedChannels: [ID!]
   }
 
   input PostSubscriptionInput {
@@ -29,6 +30,7 @@ export const typeDef = gql`
   input SendAllNotificationsInput {
     title: String!
     body: String!
+    channelId: ID!
   }
 
   extend type Query {
