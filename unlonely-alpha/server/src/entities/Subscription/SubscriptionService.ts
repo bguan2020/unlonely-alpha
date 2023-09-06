@@ -70,6 +70,10 @@ export interface IMoveChannelAlongSubscriptionInput {
   channelId: number;
 }
 
+export interface IGetSubscriptionsByChannelIdInput {
+  channelId: number;
+}
+
 export const toggleSubscription = async (
   data: IToggleSubscriptionInput,
   ctx: Context
@@ -196,10 +200,22 @@ export const getAllActiveSubscriptions = async (ctx: Context) => {
   });
 };
 
+export const getSubscriptionsByChannelId = async (
+  ctx: Context,
+  data: IGetSubscriptionsByChannelIdInput
+) => {
+  const channelId =
+    typeof data.channelId === "string"
+      ? Number(data.channelId)
+      : data.channelId;
+
+  return await findSubscriptionsByChannelId(ctx, channelId);
+};
+
 export interface ISendAllNotificationsInput {
   title: string;
   body: string;
-  channelId: number;
+  channelId?: number;
 }
 
 export const sendAllNotifications = async (
@@ -215,19 +231,19 @@ export const sendAllNotifications = async (
     vapidPrivateKey
   );
 
-  const channelId =
-    typeof data.channelId === "string"
-      ? Number(data.channelId)
-      : data.channelId;
-
-  const subscriptions = await ctx.prisma.subscription.findMany({
-    where: {
-      softDelete: false,
-      allowedChannels: {
-        has: channelId,
-      },
-    },
-  });
+  const subscriptions =
+    data.channelId === undefined
+      ? await ctx.prisma.subscription.findMany({
+          where: {
+            softDelete: false,
+          },
+        })
+      : await findSubscriptionsByChannelId(
+          ctx,
+          typeof data.channelId === "string"
+            ? Number(data.channelId)
+            : data.channelId
+        );
 
   const promises = subscriptions.map(async (subscription) => {
     const pushSubscription = toPushSubscription(subscription);
@@ -275,4 +291,19 @@ function toPushSubscription(subscription: Subscription): any {
       auth: subscription.auth,
     },
   };
+}
+
+async function findSubscriptionsByChannelId(
+  ctx: Context,
+  channelId: number
+): Promise<Subscription[]> {
+  const subscriptions = await ctx.prisma.subscription.findMany({
+    where: {
+      softDelete: false,
+      allowedChannels: {
+        has: channelId,
+      },
+    },
+  });
+  return subscriptions;
 }

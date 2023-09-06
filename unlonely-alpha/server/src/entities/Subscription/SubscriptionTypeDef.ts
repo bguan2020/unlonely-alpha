@@ -35,11 +35,18 @@ export const typeDef = gql`
   input SendAllNotificationsInput {
     title: String!
     body: String!
+    channelId: ID
+  }
+
+  input GetSubscriptionsByChannelIdInput {
     channelId: ID!
   }
 
   extend type Query {
     getAllActiveSubscriptions: [Subscription]
+    getSubscriptionsByChannelId(
+      data: GetSubscriptionsByChannelIdInput!
+    ): [Subscription]
     sendAllNotifications(data: SendAllNotificationsInput!): Boolean
     checkSubscriptionByEndpoint(data: ToggleSubscriptionInput!): Boolean
     getSubscriptionByEndpoint(data: ToggleSubscriptionInput!): Subscription

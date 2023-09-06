@@ -5,6 +5,13 @@ import * as SubscriptionService from "./SubscriptionService";
 
 export const resolvers = {
   Query: {
+    getSubscriptionsByChannelId: async (
+      _: any,
+      { data }: { data: SubscriptionService.IGetSubscriptionsByChannelIdInput },
+      ctx: Context
+    ) => {
+      return SubscriptionService.getSubscriptionsByChannelId(ctx, data);
+    },
     getAllActiveSubscriptions: async (_: any, __: any, ctx: Context) => {
       return SubscriptionService.getAllActiveSubscriptions(ctx);
     },
