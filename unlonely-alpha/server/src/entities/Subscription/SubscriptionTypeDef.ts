@@ -42,6 +42,10 @@ export const typeDef = gql`
     channelId: ID!
   }
 
+  input AddSuggestedChannelsToSubscriptionsInput {
+    channelIds: [ID!]!
+  }
+
   extend type Query {
     getAllActiveSubscriptions: [Subscription]
     getSubscriptionsByChannelId(
@@ -53,6 +57,9 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
+    addSuggestedChannelsToSubscriptions(
+      data: AddSuggestedChannelsToSubscriptionsInput!
+    ): [Subscription]
     addChannelToSubscription(
       data: MoveChannelAlongSubscriptionInput!
     ): Subscription

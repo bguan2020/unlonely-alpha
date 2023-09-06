@@ -14,6 +14,10 @@ export interface ISoftDeleteSubscriptionInput {
   id: number;
 }
 
+export interface IAddSuggestedChannelsToSubscriptionsInput {
+  channelIds: number[];
+}
+
 export const postSubscription = async (
   data: IPostSubscriptionInput,
   ctx: Context
@@ -217,6 +221,44 @@ export interface ISendAllNotificationsInput {
   body: string;
   channelId?: number;
 }
+
+export const addSuggestedChannelsToSubscriptions = async (
+  ctx: Context,
+  data: IAddSuggestedChannelsToSubscriptionsInput
+): Promise<Subscription[]> => {
+  const subscriptions = await ctx.prisma.subscription.findMany({
+    where: {
+      softDelete: false,
+    },
+  });
+
+  // Collect all the promises for updating subscriptions
+  const updatePromises: Promise<Subscription>[] = [];
+
+  const channelIds = data.channelIds.map((channelId) => Number(channelId));
+
+  subscriptions.forEach((subscription) => {
+    const updatedChannels: number[] = [...subscription.allowedChannels];
+
+    // Add each channelId from the input, if it's not already in the allowedChannels
+    channelIds.forEach((channelId) => {
+      if (!updatedChannels.includes(Number(channelId))) {
+        updatedChannels.push(Number(channelId));
+      }
+    });
+
+    // Update the subscription with the new set of allowed channels
+    const updatePromise = ctx.prisma.subscription.update({
+      where: { id: subscription.id },
+      data: { allowedChannels: updatedChannels },
+    });
+
+    updatePromises.push(updatePromise);
+  });
+
+  // Run all the update promises in parallel and wait for them to complete
+  return await Promise.all(updatePromises);
+};
 
 export const sendAllNotifications = async (
   ctx: Context,

@@ -41,6 +41,17 @@ export const resolvers = {
     },
   },
   Mutation: {
+    addSuggestedChannelsToSubscriptions: (
+      _: any,
+      {
+        data,
+      }: {
+        data: SubscriptionService.IAddSuggestedChannelsToSubscriptionsInput;
+      },
+      ctx: Context
+    ) => {
+      return SubscriptionService.addSuggestedChannelsToSubscriptions(ctx, data);
+    },
     addChannelToSubscription: (
       _: any,
       {
