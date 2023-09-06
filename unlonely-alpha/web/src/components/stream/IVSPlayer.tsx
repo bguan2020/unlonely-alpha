@@ -8,6 +8,8 @@ import {
 import { Flex, Text } from "@chakra-ui/react";
 
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import Participants from "../presence/Participants";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 type Props = {
   playbackUrl: string;
@@ -15,6 +17,8 @@ type Props = {
 
 const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
   const [offline, setOffline] = useState<boolean>(false);
+  const { chat } = useChannelContext();
+  const { presenceChannel } = chat;
 
   const { isStandalone } = useUserAgent();
 
@@ -56,9 +60,29 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
     };
   }, [playbackUrl]);
 
+  const showOverlay = () => {
+    const overlay = document.getElementById("video-overlay");
+
+    if (overlay) {
+      overlay.style.animationName = "none";
+
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          overlay.style.animationName = "";
+        }, 0);
+      });
+    }
+  };
+
   return (
     <>
-      <Flex direction="column" width={"100%"} position="relative">
+      <Flex
+        direction="column"
+        width={"100%"}
+        position="relative"
+        onMouseMove={showOverlay}
+        onTouchStart={showOverlay}
+      >
         <video
           id="amazon-ivs-videojs"
           className="video-js vjs-4-3 vjs-big-play-centered"
@@ -74,6 +98,25 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             minHeight: "100%",
           }}
         />
+        {!offline && isStandalone && (
+          <Flex
+            direction="column"
+            bg="rgba(0, 0, 0, 0)"
+            position="absolute"
+            top={0}
+            right={0}
+            bottom={0}
+            left={0}
+            justifyContent="center"
+            alignItems="center"
+            className="show-then-hide"
+            id="video-overlay"
+          >
+            <Flex position="absolute" left="20px" top="10px">
+              <Participants ablyPresenceChannel={presenceChannel} mobile />
+            </Flex>
+          </Flex>
+        )}
         {offline && (
           <Flex
             direction="column"

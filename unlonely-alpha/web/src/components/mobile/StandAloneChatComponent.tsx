@@ -49,7 +49,6 @@ import CoinButton from "../arcade/CoinButton";
 import CustomButton from "../arcade/CustomButton";
 import ChatForm from "../chat/ChatForm";
 import MessageList from "../chat/MessageList";
-import Participants from "../presence/Participants";
 import ChannelDesc from "../channels/ChannelDesc";
 import { GET_SUBSCRIPTION } from "../../constants/queries";
 import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubscription";
@@ -567,9 +566,6 @@ const StandaloneAblyChatComponent = ({
       position={"relative"}
       marginTop={!previewStream && isOwner ? "0" : "25vh"}
     >
-      <Flex position="absolute" top={"49px"} right="10px" zIndex="2">
-        <Participants ablyPresenceChannel={presenceChannel} mobile />
-      </Flex>
       {chatChannel?.includes("channel") ? (
         <Flex justifyContent={"space-between"}>
           <Flex alignItems="center">
