@@ -127,8 +127,9 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
                   fontSize="14px"
                   bg="black"
                   borderRadius="50%"
-                  width={mobile ? "4" : "8"}
-                  height={mobile ? "4" : "8"}
+                  width={"8"}
+                  height={"8"}
+                  ml={-2}
                 >
                   {`+${participantOrder.slice(limit).length}`}
                 </Box>

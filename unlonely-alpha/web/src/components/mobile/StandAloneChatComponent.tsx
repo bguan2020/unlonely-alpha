@@ -18,12 +18,13 @@ import {
   Tr,
   IconButton,
   SimpleGrid,
-  Button,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VirtuosoHandle } from "react-virtuoso";
 import { isAddress } from "viem";
 import { useRouter } from "next/router";
+import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
+import { useLazyQuery } from "@apollo/client";
 
 import {
   InteractionType,
@@ -48,8 +49,10 @@ import CoinButton from "../arcade/CoinButton";
 import CustomButton from "../arcade/CustomButton";
 import ChatForm from "../chat/ChatForm";
 import MessageList from "../chat/MessageList";
-import Participants from "../presence/Participants";
 import ChannelDesc from "../channels/ChannelDesc";
+import { GET_SUBSCRIPTION } from "../../constants/queries";
+import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubscription";
+import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChannelFromSubscription";
 
 type Props = {
   previewStream?: boolean;
@@ -143,9 +146,11 @@ const StandaloneAblyChatComponent = ({
   const [showInfo, setShowInfo] = useState<boolean>(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showArcade, setShowArcade] = useState<boolean>(false);
+  const [endpoint, setEndpoint] = useState<string>("");
   const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
     []
   );
+  const [isBellAnimating, setIsBellAnimating] = useState(false);
 
   const scrollRef = useRef<VirtuosoHandle>(null);
 
@@ -157,6 +162,45 @@ const StandaloneAblyChatComponent = ({
   const arcadeRef = useRef<HTMLDivElement>(null);
 
   const mountingMessages = useRef(true);
+
+  const [getSubscription, { loading, data }] = useLazyQuery(GET_SUBSCRIPTION, {
+    fetchPolicy: "network-only",
+  });
+
+  const { addChannelToSubscription, loading: addLoading } =
+    useAddChannelToSubscription({
+      onError: () => {
+        console.error("Failed to add channel to subscription.");
+      },
+    });
+
+  const { removeChannelFromSubscription, loading: removeLoading } =
+    useRemoveChannelFromSubscription({
+      onError: () => {
+        console.error("Failed to remove channel from subscription.");
+      },
+    });
+
+  const handleGetSubscription = useCallback(async () => {
+    await getSubscription({
+      variables: { data: { endpoint } },
+      fetchPolicy: "network-only",
+    });
+  }, [endpoint]);
+
+  const channelCanNotify = useMemo(
+    () =>
+      data?.getSubscriptionByEndpoint.allowedChannels.includes(
+        String(channelId)
+      ),
+    [channelId, data]
+  );
+
+  useEffect(() => {
+    if (endpoint) {
+      handleGetSubscription();
+    }
+  }, [endpoint]);
 
   useEffect(() => {
     if (showLeaderboard && !holdersLoading && !holdersData) {
@@ -216,6 +260,24 @@ const StandaloneAblyChatComponent = ({
   const toast = useToast();
 
   const isOwner = userAddress === channelQueryData?.owner.address;
+
+  useEffect(() => {
+    const init = async () => {
+      if ("serviceWorker" in navigator) {
+        const registrationExists =
+          await navigator.serviceWorker.getRegistration("/");
+        if (registrationExists) {
+          const subscription =
+            await registrationExists.pushManager.getSubscription();
+          if (subscription) {
+            const endpoint = subscription.endpoint;
+            setEndpoint(endpoint);
+          }
+        }
+      }
+    };
+    init();
+  }, []);
 
   useEffect(() => {
     if (chatBot.length > 0) {
@@ -295,6 +357,23 @@ const StandaloneAblyChatComponent = ({
     }
 
     if (inputBox) inputBox.focus();
+  };
+
+  const handleAddChannelToSubscription = async () => {
+    await addChannelToSubscription({
+      endpoint,
+      channelId,
+    });
+    await handleGetSubscription();
+    setIsBellAnimating(true);
+  };
+
+  const handleRemoveChannelFromSubscription = async () => {
+    await removeChannelFromSubscription({
+      endpoint,
+      channelId,
+    });
+    await handleGetSubscription();
   };
 
   const handleChatCommand = async (messageText: string) => {
@@ -461,6 +540,23 @@ const StandaloneAblyChatComponent = ({
     }
   };
 
+  useEffect(() => {
+    if (isBellAnimating) {
+      const button = document.getElementById("bellring");
+
+      const handleAnimationEnd = () => {
+        setIsBellAnimating(false);
+      };
+
+      button?.addEventListener("animationend", handleAnimationEnd);
+
+      // Cleanup function
+      return () => {
+        button?.removeEventListener("animationend", handleAnimationEnd);
+      };
+    }
+  }, [isBellAnimating]);
+
   return (
     <Flex
       direction="column"
@@ -470,9 +566,6 @@ const StandaloneAblyChatComponent = ({
       position={"relative"}
       marginTop={!previewStream && isOwner ? "0" : "25vh"}
     >
-      <Flex position="absolute" top={"49px"} right="10px" zIndex="2">
-        <Participants ablyPresenceChannel={presenceChannel} mobile />
-      </Flex>
       {chatChannel?.includes("channel") ? (
         <Flex justifyContent={"space-between"}>
           <Flex alignItems="center">
@@ -529,7 +622,30 @@ const StandaloneAblyChatComponent = ({
             </Text>
           </Flex>
           <Flex gap="10px">
-            <Button>notify</Button>
+            <IconButton
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg="transparent"
+              opacity={channelCanNotify ? 1 : 0.5}
+              aria-label="notify"
+              id="bellring"
+              className={isBellAnimating ? "bell" : ""}
+              icon={
+                channelCanNotify ? (
+                  <BiSolidBellRing size="100%" />
+                ) : (
+                  <BiSolidBellOff size="100%" />
+                )
+              }
+              onClick={() => {
+                if (channelCanNotify) {
+                  handleRemoveChannelFromSubscription();
+                } else {
+                  handleAddChannelToSubscription();
+                }
+              }}
+            />
             <BuyButton
               tokenName={
                 channelQueryData?.token?.symbol
