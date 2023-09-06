@@ -2,6 +2,7 @@ import { Subscription } from "@prisma/client";
 import webpush from "web-push";
 
 import { Context } from "../../context";
+import { suggestedChannels } from "../../utils/suggestedChannels";
 
 export interface IPostSubscriptionInput {
   endpoint: string;
@@ -48,6 +49,7 @@ export const postSubscription = async (
       expirationTime: data.expirationTime,
       p256dh: data.p256dh,
       auth: data.auth,
+      allowedChannels: suggestedChannels,
     },
   });
 };
