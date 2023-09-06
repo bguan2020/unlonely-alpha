@@ -1,13 +1,16 @@
 import { Avatar, Box, Flex, Text, Image } from "@chakra-ui/react";
+import { BiSolidBellRing } from "react-icons/bi";
 
 import { Channel } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
 import { anonUrl } from "../presence/AnonUrl";
 
 export const SelectableChannel = ({
+  subscribed,
   channel,
   callback,
 }: {
+  subscribed?: boolean;
   channel: Channel;
   callback: (slug: string) => void;
 }) => {
@@ -45,6 +48,7 @@ export const SelectableChannel = ({
                   centerEllipses(channel?.owner.address, 13)}
               </Text>
             </Flex>
+            {subscribed && <BiSolidBellRing />}
           </Flex>
         ) : (
           <Flex
@@ -77,6 +81,7 @@ export const SelectableChannel = ({
                     centerEllipses(channel?.owner.address, 13)}
                 </Text>
               </Flex>
+              {subscribed && <BiSolidBellRing />}
             </Flex>
 
             <Flex

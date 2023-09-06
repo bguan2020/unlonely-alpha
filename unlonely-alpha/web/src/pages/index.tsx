@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import {
   Box,
   Button,
@@ -18,7 +18,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useRouter } from "next/router";
 import { BiRefresh } from "react-icons/bi";
@@ -31,8 +31,13 @@ import HeroBanner from "../components/layout/HeroBanner";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
-import { Channel, NfcFeedQuery } from "../generated/graphql";
+import {
+  Channel,
+  GetSubscriptionQuery,
+  NfcFeedQuery,
+} from "../generated/graphql";
 import { SelectableChannel } from "../components/mobile/SelectableChannel";
+import { GET_SUBSCRIPTION } from "../constants/queries";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -318,12 +323,49 @@ function MobilePage({
   const scrollRef = useRef<VirtuosoHandle>(null);
 
   const [loadingPage, setLoadingPage] = useState<boolean>(false);
+  const [endpoint, setEndpoint] = useState<string>("");
+
+  const [getSubscription, { data: subscriptionData }] =
+    useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
+      fetchPolicy: "network-only",
+    });
 
   const channels: Channel[] = dataChannels?.getChannelFeed;
 
   const handleSelectChannel = useCallback((slug: string) => {
     setLoadingPage(true);
     router.push(`/channels/${slug}`);
+  }, []);
+
+  const handleGetSubscription = useCallback(async () => {
+    await getSubscription({
+      variables: { data: { endpoint } },
+      fetchPolicy: "network-only",
+    });
+  }, [endpoint]);
+
+  useEffect(() => {
+    if (endpoint) {
+      handleGetSubscription();
+    }
+  }, [endpoint]);
+
+  useEffect(() => {
+    const init = async () => {
+      if ("serviceWorker" in navigator) {
+        const registrationExists =
+          await navigator.serviceWorker.getRegistration("/");
+        if (registrationExists) {
+          const subscription =
+            await registrationExists.pushManager.getSubscription();
+          if (subscription) {
+            const endpoint = subscription.endpoint;
+            setEndpoint(endpoint);
+          }
+        }
+      }
+    };
+    init();
   }, []);
 
   const channelsWithLiveFirst = useMemo(
@@ -378,6 +420,9 @@ function MobilePage({
                 itemContent={(index, data) => (
                   <SelectableChannel
                     key={data.id || index}
+                    subscribed={subscriptionData?.getSubscriptionByEndpoint?.allowedChannels?.includes(
+                      String(data.id)
+                    )}
                     channel={data}
                     callback={handleSelectChannel}
                   />
