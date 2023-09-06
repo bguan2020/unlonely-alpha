@@ -36,6 +36,7 @@ import {
 import useUpdateCreatorTokenPrice from "../hooks/server/arcade/useUpdateTokenPrice";
 import useUpdateUserCreatorTokenQuantity from "../hooks/server/arcade/useUpdateTokenQuantity";
 import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
+import AdminNotifications from "../components/general/AdminNotifications";
 
 const inputStyle = {
   borderWidth: "1px",
@@ -758,6 +759,10 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
+        admin notifications
+      </Text>
+      <AdminNotifications />
     </Flex>
   );
 };

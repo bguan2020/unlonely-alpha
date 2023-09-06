@@ -1,5 +1,6 @@
 import "../styles/globals.css";
 import "../styles/fireworks.css";
+import "../styles/bell.css";
 
 import { ChakraProvider } from "@chakra-ui/react";
 import { ApolloProvider } from "@apollo/client";
