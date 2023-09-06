@@ -74,6 +74,10 @@ export type Scalars = {
   Void: any;
 };
 
+export type AddSuggestedChannelsToSubscriptionsInput = {
+  channelIds: Array<Scalars["ID"]>;
+};
+
 export type Channel = {
   __typename?: "Channel";
   allowNFCs?: Maybe<Scalars["Boolean"]>;
@@ -240,6 +244,7 @@ export type Mutation = {
   __typename?: "Mutation";
   _empty?: Maybe<Scalars["String"]>;
   addChannelToSubscription?: Maybe<Subscription>;
+  addSuggestedChannelsToSubscriptions?: Maybe<Array<Maybe<Subscription>>>;
   createClip?: Maybe<ClipOutput>;
   createCreatorToken: CreatorToken;
   handleLike?: Maybe<Likable>;
@@ -271,6 +276,10 @@ export type Mutation = {
 
 export type MutationAddChannelToSubscriptionArgs = {
   data: MoveChannelAlongSubscriptionInput;
+};
+
+export type MutationAddSuggestedChannelsToSubscriptionsArgs = {
+  data: AddSuggestedChannelsToSubscriptionsInput;
 };
 
 export type MutationCreateClipArgs = {

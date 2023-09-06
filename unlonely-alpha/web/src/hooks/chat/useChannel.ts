@@ -169,6 +169,8 @@ const updateMessageHistoryReactions = (
     (m) => m.extras.timeserial === timeserial
   );
 
+  if (index === -1) return messageHistory;
+
   const messageToUpdate = messageHistory[index];
   const emojisToUpdate = messageToUpdate.data.reactions;
   const emojiIndex = emojisToUpdate.findIndex((e) => e.emojiType === emojiType);
