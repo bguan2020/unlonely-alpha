@@ -15,10 +15,6 @@ export interface ISoftDeleteSubscriptionInput {
   id: number;
 }
 
-export interface IAddSuggestedChannelsToSubscriptionsInput {
-  channelIds: number[];
-}
-
 export const postSubscription = async (
   data: IPostSubscriptionInput,
   ctx: Context
@@ -224,15 +220,15 @@ export interface ISendAllNotificationsInput {
   channelId?: number;
 }
 
+export interface IAddSuggestedChannelsToSubscriptionsInput {
+  channelIds: number[];
+}
+
 export const addSuggestedChannelsToSubscriptions = async (
   ctx: Context,
   data: IAddSuggestedChannelsToSubscriptionsInput
 ): Promise<Subscription[]> => {
-  const subscriptions = await ctx.prisma.subscription.findMany({
-    where: {
-      softDelete: false,
-    },
-  });
+  const subscriptions = await ctx.prisma.subscription.findMany();
 
   // Collect all the promises for updating subscriptions
   const updatePromises: Promise<Subscription>[] = [];
