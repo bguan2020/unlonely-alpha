@@ -196,11 +196,11 @@ const StandaloneAblyChatComponent = ({
     [channelId, data]
   );
 
-  useEffect(() => {
-    if (endpoint) {
-      handleGetSubscription();
-    }
-  }, [endpoint]);
+  // useEffect(() => {
+  //   if (endpoint) {
+  //     handleGetSubscription();
+  //   }
+  // }, [endpoint]);
 
   useEffect(() => {
     if (showLeaderboard && !holdersLoading && !holdersData) {
