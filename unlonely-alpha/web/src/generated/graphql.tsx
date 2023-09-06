@@ -185,6 +185,10 @@ export type GetRecentStreamInteractionsByChannelInput = {
   channelId: Scalars["ID"];
 };
 
+export type GetSubscriptionsByChannelIdInput = {
+  channelId: Scalars["ID"];
+};
+
 export type GetTokenHoldersInput = {
   channelId: Scalars["ID"];
   limit?: InputMaybe<Scalars["Int"]>;
@@ -481,6 +485,7 @@ export type Query = {
   getRecentChats?: Maybe<Array<Maybe<Chat>>>;
   getRecentStreamInteractionsByChannel?: Maybe<Array<Maybe<StreamInteraction>>>;
   getSubscriptionByEndpoint?: Maybe<Subscription>;
+  getSubscriptionsByChannelId?: Maybe<Array<Maybe<Subscription>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getTokenHoldersByChannel: Array<UserCreatorToken>;
   getTokenLeaderboard: Array<CreatorToken>;
@@ -544,6 +549,10 @@ export type QueryGetSubscriptionByEndpointArgs = {
   data: ToggleSubscriptionInput;
 };
 
+export type QueryGetSubscriptionsByChannelIdArgs = {
+  data: GetSubscriptionsByChannelIdInput;
+};
+
 export type QueryGetTaskFeedArgs = {
   data?: InputMaybe<TaskFeedInput>;
 };
@@ -574,7 +583,7 @@ export type QuerySendAllNotificationsArgs = {
 
 export type SendAllNotificationsInput = {
   body: Scalars["String"];
-  channelId: Scalars["ID"];
+  channelId?: InputMaybe<Scalars["ID"]>;
   title: Scalars["String"];
 };
 

@@ -86,6 +86,7 @@ export default function NotificationsModal({
   );
 
   const sendNotifications = useCallback(async () => {
+    if (channelQueryData?.id === undefined) return;
     setIsSending(true);
     try {
       await call({
