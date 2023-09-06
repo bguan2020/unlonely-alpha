@@ -35,7 +35,7 @@ import {
 } from "../../constants";
 import { ChatBot } from "../../constants/types";
 import { initializeEmojis } from "../../constants/types/chat";
-import { ChatCommand } from "../../generated/graphql";
+import { ChatCommand, GetSubscriptionQuery } from "../../generated/graphql";
 import { useChannel } from "../../hooks/chat/useChannel";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimations";
@@ -163,9 +163,10 @@ const StandaloneAblyChatComponent = ({
 
   const mountingMessages = useRef(true);
 
-  const [getSubscription, { loading, data }] = useLazyQuery(GET_SUBSCRIPTION, {
-    fetchPolicy: "network-only",
-  });
+  const [getSubscription, { loading, data }] =
+    useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
+      fetchPolicy: "network-only",
+    });
 
   const { addChannelToSubscription, loading: addLoading } =
     useAddChannelToSubscription({
@@ -190,17 +191,17 @@ const StandaloneAblyChatComponent = ({
 
   const channelCanNotify = useMemo(
     () =>
-      data?.getSubscriptionByEndpoint.allowedChannels.includes(
+      data?.getSubscriptionByEndpoint?.allowedChannels?.includes(
         String(channelId)
       ),
     [channelId, data]
   );
 
-  // useEffect(() => {
-  //   if (endpoint) {
-  //     handleGetSubscription();
-  //   }
-  // }, [endpoint]);
+  useEffect(() => {
+    if (endpoint) {
+      handleGetSubscription();
+    }
+  }, [endpoint]);
 
   useEffect(() => {
     if (showLeaderboard && !holdersLoading && !holdersData) {
@@ -631,8 +632,11 @@ const StandaloneAblyChatComponent = ({
               aria-label="notify"
               id="bellring"
               className={isBellAnimating ? "bell" : ""}
+              width="unset"
               icon={
-                channelCanNotify ? (
+                addLoading || removeLoading ? (
+                  <Spinner />
+                ) : channelCanNotify ? (
                   <BiSolidBellRing size="100%" />
                 ) : (
                   <BiSolidBellOff size="100%" />

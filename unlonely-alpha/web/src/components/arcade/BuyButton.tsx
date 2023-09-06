@@ -61,12 +61,11 @@ const BuyButton: React.FunctionComponent<Props> = ({
       ) : (
         <IconButton
           aria-label="buy"
-          icon={<Image src="/svg/arcade/buy-mobile.svg" />}
+          icon={<Image src="/svg/arcade/buy-mobile.svg" h="100%" />}
           bg="transparent"
           _hover={{}}
           _active={{}}
           _focus={{}}
-          h="100%"
           onClick={callback}
         />
       )}
