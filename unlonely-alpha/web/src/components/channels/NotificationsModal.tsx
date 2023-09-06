@@ -34,13 +34,6 @@ const inputStyle = {
 
 const BRIAN = "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa";
 
-type DeviceNotificationsType = {
-  address?: string | null;
-  token: string;
-  notificationsLive: boolean;
-  notificationsNFCs: boolean;
-};
-
 export default function NotificationsModal({
   title,
   isOpen,
@@ -156,7 +149,6 @@ export default function NotificationsModal({
             </TabList>
           </Tabs>
         )}
-
         <Box
           borderRadius="10px"
           padding="16px"
