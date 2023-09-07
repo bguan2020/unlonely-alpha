@@ -163,8 +163,10 @@ export const UserProvider = ({
             userVisibleOnly: true,
             applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
           });
+          console.log("subscription", subscription);
           const subscriptionJSON = subscription.toJSON();
           if (subscriptionJSON) {
+            console.log("subscriptionJSON", subscriptionJSON);
             postSubscription({
               endpoint: subscriptionJSON.endpoint,
               expirationTime: null,
