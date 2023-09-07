@@ -40,6 +40,7 @@
     "@types/lodash": "^4.14.178",
     "@types/node": "16.11.21",
     "@types/web-push": "^3.3.2",
+    "alchemy-sdk": "^2.10.0",
     "apollo": "^2.33.9",
     "depcheck": "^1.4.3",
     "eslint": "^8.8.0",
