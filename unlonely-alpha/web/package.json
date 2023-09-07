@@ -25,7 +25,7 @@
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
     "@hookform/resolvers": "^2.9.5",
-    "@privy-io/react-auth": "^1.30.4",
+    "@privy-io/react-auth": "1.36.1",
     "@privy-io/wagmi-connector": "0.1.0",
     "@reduxjs/toolkit": "^1.8.5",
     "ably": "^1.2.39",
