@@ -371,6 +371,7 @@ function MobilePage({
   useEffect(() => {
     const init = async () => {
       console.log("initialNotificationsGranted", initialNotificationsGranted);
+      console.log("endpoint", endpoint);
       if ("serviceWorker" in navigator) {
         const registrationExists =
           await navigator.serviceWorker.getRegistration("/");

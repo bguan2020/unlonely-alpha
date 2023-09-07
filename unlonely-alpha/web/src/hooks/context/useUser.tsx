@@ -175,6 +175,7 @@ export const UserProvider = ({
             console.error("Failed to get subscription from service worker.");
           }
           setShowTurnOnNotificationsModal("granted");
+          console.log("calling setInitialNotificationsGranted(true)");
           setInitialNotificationsGranted(true);
         }
       } catch (error) {
