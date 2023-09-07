@@ -44,7 +44,7 @@ export const ScreenAnimationsProvider = ({
     setIsFireworksPlaying(true);
     const newTimer = setTimeout(() => {
       setIsFireworksPlaying(false);
-    }, 7000);
+    }, 14000);
 
     fireworksTimerRef.current = newTimer;
   };

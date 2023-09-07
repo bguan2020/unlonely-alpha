@@ -356,11 +356,14 @@ function MobilePage({
   });
 
   const handleGetSubscription = useCallback(async () => {
+    console.log("handleGetsubscription", endpoint);
     await getSubscription({
       variables: { data: { endpoint } },
       fetchPolicy: "network-only",
     });
   }, [endpoint]);
+
+  console.log("subscription data", subscriptionData);
 
   useEffect(() => {
     if (endpoint) {
