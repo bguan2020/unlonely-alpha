@@ -434,9 +434,11 @@ function MobilePage({
                 itemContent={(index, data) => (
                   <SelectableChannel
                     key={data.id || index}
-                    subscribed={subscriptionData?.getSubscriptionByEndpoint?.allowedChannels?.includes(
-                      String(data.id)
-                    )}
+                    subscribed={
+                      subscriptionData?.getSubscriptionByEndpoint?.allowedChannels?.includes(
+                        String(data.id)
+                      ) ?? false
+                    }
                     channel={data}
                     addChannelToSubscription={addChannelToSubscription}
                     removeChannelFromSubscription={
