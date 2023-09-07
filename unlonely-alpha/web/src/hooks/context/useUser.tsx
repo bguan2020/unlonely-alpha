@@ -248,6 +248,7 @@ export const UserProvider = ({
       walletIsConnected,
       loginMethod,
       showTurnOnNotifications,
+      initialNotificationsGranted,
     ]
   );
 
