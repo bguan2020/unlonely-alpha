@@ -1,4 +1,12 @@
-import { Avatar, Box, Flex, Text, Image, IconButton } from "@chakra-ui/react";
+import {
+  Avatar,
+  Box,
+  Flex,
+  Text,
+  Image,
+  IconButton,
+  Spinner,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
 
@@ -35,26 +43,31 @@ export const SelectableChannel = ({
   const isLive = channel?.isLive ?? false;
 
   const [isBellAnimating, setIsBellAnimating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleAddChannelToSubscription = async (e: any) => {
     if (!endpoint) return;
     e.stopPropagation();
+    setIsLoading(true);
     await addChannelToSubscription?.({
       endpoint,
       channelId: channel.id,
     });
     await handleGetSubscription?.();
+    setIsLoading(false);
     setIsBellAnimating(true);
   };
 
   const handleRemoveChannelFromSubscription = async (e: any) => {
     e.stopPropagation();
     if (!endpoint) return;
+    setIsLoading(true);
     await removeChannelFromSubscription?.({
       endpoint,
       channelId: channel.id,
     });
     await handleGetSubscription?.();
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -84,8 +97,8 @@ export const SelectableChannel = ({
         _hover={{}}
       >
         {!isLive ? (
-          <Flex gap="15px" overflow="hidden" justifyContent={"space-between"}>
-            <Flex>
+          <Flex width="100%" overflow="hidden" justifyContent={"space-between"}>
+            <Flex gap="15px">
               <Avatar
                 name={channel?.owner.username ?? channel?.owner.address}
                 src={ipfsUrl}
@@ -104,13 +117,15 @@ export const SelectableChannel = ({
               _focus={{}}
               _active={{}}
               bg="transparent"
-              opacity={subscribed ? 1 : 0.5}
+              opacity={subscribed || isLoading ? 1 : 0.2}
               aria-label="notify"
               id={"bellring".concat(channel.id)}
               className={isBellAnimating ? "bell" : ""}
               width="unset"
               icon={
-                subscribed ? (
+                isLoading ? (
+                  <Spinner />
+                ) : subscribed ? (
                   <BiSolidBellRing height={"100%"} />
                 ) : (
                   <BiSolidBellOff height={"100%"} />
@@ -145,11 +160,11 @@ export const SelectableChannel = ({
               position="absolute"
               bottom="10px"
               left="10px"
-              gap="10px"
               overflow="hidden"
+              width={"100%"}
               justifyContent={"space-between"}
             >
-              <Flex>
+              <Flex gap="10px">
                 <Avatar
                   name={channel?.owner.username ?? channel?.owner.address}
                   src={ipfsUrl}
@@ -170,13 +185,15 @@ export const SelectableChannel = ({
                 _focus={{}}
                 _active={{}}
                 bg="transparent"
-                opacity={subscribed ? 1 : 0.5}
+                opacity={subscribed || isLoading ? 1 : 0.2}
                 aria-label="notify"
                 id={"bellring".concat(channel.id)}
                 className={isBellAnimating ? "bell" : ""}
                 width="unset"
                 icon={
-                  subscribed ? (
+                  isLoading ? (
+                    <Spinner />
+                  ) : subscribed ? (
                     <BiSolidBellRing height={"100%"} />
                   ) : (
                     <BiSolidBellOff height={"100%"} />
