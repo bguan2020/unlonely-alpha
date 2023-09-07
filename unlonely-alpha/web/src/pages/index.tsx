@@ -40,6 +40,7 @@ import { SelectableChannel } from "../components/mobile/SelectableChannel";
 import { GET_SUBSCRIPTION } from "../constants/queries";
 import useAddChannelToSubscription from "../hooks/server/useAddChannelToSubscription";
 import useRemoveChannelFromSubscription from "../hooks/server/useRemoveChannelFromSubscription";
+import { useUser } from "../hooks/context/useUser";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -123,7 +124,6 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
   });
 
   const nfcs = dataNFCs?.getNFCFeed;
-  const { isIOS } = useUserAgent();
 
   return (
     <>
@@ -321,6 +321,7 @@ function MobilePage({
   dataChannels: any;
   loading: boolean;
 }) {
+  const { initialNotificationsGranted } = useUser();
   const router = useRouter();
   const scrollRef = useRef<VirtuosoHandle>(null);
 
@@ -333,6 +334,9 @@ function MobilePage({
     });
 
   const channels: Channel[] = dataChannels?.getChannelFeed;
+
+  const suggestedChannels =
+    subscriptionData?.getSubscriptionByEndpoint?.allowedChannels;
 
   const handleSelectChannel = useCallback((slug: string) => {
     setLoadingPage(true);
@@ -380,12 +384,34 @@ function MobilePage({
       }
     };
     init();
-  }, []);
+  }, [initialNotificationsGranted]);
 
-  const channelsWithLiveFirst = useMemo(
+  const suggestedChannelsFirst = useMemo(
     () =>
       channels && channels.length > 0
         ? [...channels].sort((a, b) => {
+            if (
+              suggestedChannels?.includes(String(a.id)) &&
+              !suggestedChannels?.includes(String(b.id))
+            ) {
+              return -1;
+            } else if (
+              !suggestedChannels?.includes(String(a.id)) &&
+              suggestedChannels?.includes(String(b.id))
+            ) {
+              return 1;
+            } else {
+              return 0;
+            }
+          })
+        : [],
+    [channels, suggestedChannels]
+  );
+
+  const channelsWithLiveFirst = useMemo(
+    () =>
+      suggestedChannelsFirst && suggestedChannelsFirst.length > 0
+        ? [...suggestedChannelsFirst].sort((a, b) => {
             if (a.isLive && !b.isLive) {
               return -1;
             } else if (!a.isLive && b.isLive) {
@@ -395,7 +421,7 @@ function MobilePage({
             }
           })
         : [],
-    [channels]
+    [suggestedChannelsFirst]
   );
 
   return (
@@ -435,9 +461,7 @@ function MobilePage({
                   <SelectableChannel
                     key={data.id || index}
                     subscribed={
-                      subscriptionData?.getSubscriptionByEndpoint?.allowedChannels?.includes(
-                        String(data.id)
-                      ) ?? false
+                      suggestedChannels?.includes(String(data.id)) ?? false
                     }
                     channel={data}
                     addChannelToSubscription={addChannelToSubscription}

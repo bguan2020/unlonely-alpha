@@ -39,17 +39,19 @@ export const useUser = () => {
 };
 
 const UserContext = createContext<{
-  user: User | undefined;
+  user?: User;
   username?: string;
   userAddress?: `0x${string}`;
   walletIsConnected: boolean;
   loginMethod?: string;
+  initialNotificationsGranted: boolean;
 }>({
   user: undefined,
   username: undefined,
   userAddress: undefined,
   walletIsConnected: false,
   loginMethod: undefined,
+  initialNotificationsGranted: false,
 });
 
 export const UserProvider = ({
@@ -66,6 +68,8 @@ export const UserProvider = ({
   const [showTurnOnNotifications, setShowTurnOnNotificationsModal] = useState<
     "off" | "start" | "loading" | "granted" | "denied"
   >("off");
+  const [initialNotificationsGranted, setInitialNotificationsGranted] =
+    useState(false);
 
   const { postSubscription } = usePostSubscription({
     onError: () => {
@@ -171,6 +175,7 @@ export const UserProvider = ({
             console.error("Failed to get subscription from service worker.");
           }
           setShowTurnOnNotificationsModal("granted");
+          setInitialNotificationsGranted(true);
         }
       } catch (error) {
         console.error(
@@ -234,8 +239,16 @@ export const UserProvider = ({
       userAddress: address as `0x${string}`,
       walletIsConnected,
       loginMethod,
+      initialNotificationsGranted,
     }),
-    [user, username, address, walletIsConnected, loginMethod]
+    [
+      user,
+      username,
+      address,
+      walletIsConnected,
+      loginMethod,
+      showTurnOnNotifications,
+    ]
   );
 
   return (
