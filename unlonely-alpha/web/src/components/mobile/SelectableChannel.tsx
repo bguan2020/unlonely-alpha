@@ -159,7 +159,6 @@ export const SelectableChannel = ({
             <Flex
               position="absolute"
               bottom="10px"
-              left="10px"
               overflow="hidden"
               width={"100%"}
               justifyContent={"space-between"}
