@@ -356,14 +356,11 @@ function MobilePage({
   });
 
   const handleGetSubscription = useCallback(async () => {
-    console.log("handleGetsubscription", endpoint);
     await getSubscription({
       variables: { data: { endpoint } },
       fetchPolicy: "network-only",
     });
   }, [endpoint]);
-
-  console.log("subscription data", subscriptionData, endpoint);
 
   useEffect(() => {
     if (endpoint) {
@@ -373,16 +370,12 @@ function MobilePage({
 
   useEffect(() => {
     const init = async () => {
-      console.log("initialNotificationsGranted", initialNotificationsGranted);
-      console.log("endpoint", endpoint);
       if ("serviceWorker" in navigator) {
         const registrationExists =
           await navigator.serviceWorker.getRegistration("/");
-        console.log("registrationExists", registrationExists);
         if (registrationExists) {
           const subscription =
             await registrationExists.pushManager.getSubscription();
-          console.log("subscription", subscription);
           if (subscription) {
             const endpoint = subscription.endpoint;
             setEndpoint(endpoint);
