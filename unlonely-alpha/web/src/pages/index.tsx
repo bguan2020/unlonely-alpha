@@ -370,12 +370,15 @@ function MobilePage({
 
   useEffect(() => {
     const init = async () => {
+      console.log("initialNotificationsGranted", initialNotificationsGranted);
       if ("serviceWorker" in navigator) {
         const registrationExists =
           await navigator.serviceWorker.getRegistration("/");
+        console.log("registrationExists", registrationExists);
         if (registrationExists) {
           const subscription =
             await registrationExists.pushManager.getSubscription();
+          console.log("subscription", subscription);
           if (subscription) {
             const endpoint = subscription.endpoint;
             setEndpoint(endpoint);
