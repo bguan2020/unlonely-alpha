@@ -38,6 +38,8 @@ import {
 } from "../generated/graphql";
 import { SelectableChannel } from "../components/mobile/SelectableChannel";
 import { GET_SUBSCRIPTION } from "../constants/queries";
+import useAddChannelToSubscription from "../hooks/server/useAddChannelToSubscription";
+import useRemoveChannelFromSubscription from "../hooks/server/useRemoveChannelFromSubscription";
 
 const CHANNEL_FEED_QUERY = gql`
   query GetChannelFeed {
@@ -337,6 +339,18 @@ function MobilePage({
     router.push(`/channels/${slug}`);
   }, []);
 
+  const { addChannelToSubscription } = useAddChannelToSubscription({
+    onError: () => {
+      console.error("Failed to add channel to subscription.");
+    },
+  });
+
+  const { removeChannelFromSubscription } = useRemoveChannelFromSubscription({
+    onError: () => {
+      console.error("Failed to remove channel from subscription.");
+    },
+  });
+
   const handleGetSubscription = useCallback(async () => {
     await getSubscription({
       variables: { data: { endpoint } },
@@ -424,6 +438,12 @@ function MobilePage({
                       String(data.id)
                     )}
                     channel={data}
+                    addChannelToSubscription={addChannelToSubscription}
+                    removeChannelFromSubscription={
+                      removeChannelFromSubscription
+                    }
+                    handleGetSubscription={handleGetSubscription}
+                    endpoint={endpoint}
                     callback={handleSelectChannel}
                   />
                 )}

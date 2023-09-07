@@ -1,5 +1,6 @@
-import { Avatar, Box, Flex, Text, Image } from "@chakra-ui/react";
-import { BiSolidBellRing } from "react-icons/bi";
+import { Avatar, Box, Flex, Text, Image, IconButton } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
 
 import { Channel } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
@@ -9,10 +10,18 @@ export const SelectableChannel = ({
   subscribed,
   channel,
   callback,
+  addChannelToSubscription,
+  removeChannelFromSubscription,
+  handleGetSubscription,
+  endpoint,
 }: {
-  subscribed?: boolean;
+  subscribed: boolean;
   channel: Channel;
   callback: (slug: string) => void;
+  addChannelToSubscription?: (channel: any) => Promise<any>;
+  removeChannelFromSubscription?: (channel: any) => Promise<any>;
+  handleGetSubscription?: () => Promise<void>;
+  endpoint: string;
 }) => {
   const imageUrl = channel?.owner?.FCImageUrl
     ? channel?.owner.FCImageUrl
@@ -25,6 +34,46 @@ export const SelectableChannel = ({
 
   const isLive = channel?.isLive ?? false;
 
+  const [isBellAnimating, setIsBellAnimating] = useState(false);
+
+  const handleAddChannelToSubscription = async (e: any) => {
+    if (!endpoint) return;
+    e.stopPropagation();
+    await addChannelToSubscription?.({
+      endpoint,
+      channelId: channel.id,
+    });
+    await handleGetSubscription?.();
+    setIsBellAnimating(true);
+  };
+
+  const handleRemoveChannelFromSubscription = async (e: any) => {
+    e.stopPropagation();
+    if (!endpoint) return;
+    await removeChannelFromSubscription?.({
+      endpoint,
+      channelId: channel.id,
+    });
+    await handleGetSubscription?.();
+  };
+
+  useEffect(() => {
+    if (isBellAnimating) {
+      const button = document.getElementById("bellring".concat(channel.id));
+
+      const handleAnimationEnd = () => {
+        setIsBellAnimating(false);
+      };
+
+      button?.addEventListener("animationend", handleAnimationEnd);
+
+      // Cleanup function
+      return () => {
+        button?.removeEventListener("animationend", handleAnimationEnd);
+      };
+    }
+  }, [isBellAnimating, channel]);
+
   return (
     <Box>
       <Flex
@@ -35,20 +84,46 @@ export const SelectableChannel = ({
         _hover={{}}
       >
         {!isLive ? (
-          <Flex gap="15px" overflow="hidden">
-            <Avatar
-              name={channel?.owner.username ?? channel?.owner.address}
-              src={ipfsUrl}
-              size="md"
-            />
-            <Flex direction="column">
-              <Text fontFamily="Neue Pixel Sans">{channel.name}</Text>
-              <Text fontFamily="Neue Pixel Sans" color="#9d9d9d">
-                {channel?.owner.username ??
-                  centerEllipses(channel?.owner.address, 13)}
-              </Text>
+          <Flex gap="15px" overflow="hidden" justifyContent={"space-between"}>
+            <Flex>
+              <Avatar
+                name={channel?.owner.username ?? channel?.owner.address}
+                src={ipfsUrl}
+                size="md"
+              />
+              <Flex direction="column">
+                <Text fontFamily="Neue Pixel Sans">{channel.name}</Text>
+                <Text fontFamily="Neue Pixel Sans" color="#9d9d9d">
+                  {channel?.owner.username ??
+                    centerEllipses(channel?.owner.address, 13)}
+                </Text>
+              </Flex>
             </Flex>
-            {subscribed && <BiSolidBellRing />}
+            <IconButton
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg="transparent"
+              opacity={subscribed ? 1 : 0.5}
+              aria-label="notify"
+              id={"bellring".concat(channel.id)}
+              className={isBellAnimating ? "bell" : ""}
+              width="unset"
+              icon={
+                subscribed ? (
+                  <BiSolidBellRing height={"100%"} />
+                ) : (
+                  <BiSolidBellOff height={"100%"} />
+                )
+              }
+              onClick={(e) => {
+                if (subscribed) {
+                  handleRemoveChannelFromSubscription(e);
+                } else {
+                  handleAddChannelToSubscription(e);
+                }
+              }}
+            />
           </Flex>
         ) : (
           <Flex
@@ -66,22 +141,55 @@ export const SelectableChannel = ({
               width="100%"
               height="100%"
             />
-            <Flex position="absolute" bottom="10px" left="10px" gap="10px">
-              <Avatar
-                name={channel?.owner.username ?? channel?.owner.address}
-                src={ipfsUrl}
-                size="md"
-              />
-              <Flex direction="column">
-                <Text noOfLines={2} fontFamily="Neue Pixel Sans">
-                  {channel.name}
-                </Text>
-                <Text fontFamily="Neue Pixel Sans" color="#9d9d9d">
-                  {channel?.owner.username ??
-                    centerEllipses(channel?.owner.address, 13)}
-                </Text>
+            <Flex
+              position="absolute"
+              bottom="10px"
+              left="10px"
+              gap="10px"
+              overflow="hidden"
+              justifyContent={"space-between"}
+            >
+              <Flex>
+                <Avatar
+                  name={channel?.owner.username ?? channel?.owner.address}
+                  src={ipfsUrl}
+                  size="md"
+                />
+                <Flex direction="column">
+                  <Text noOfLines={2} fontFamily="Neue Pixel Sans">
+                    {channel.name}
+                  </Text>
+                  <Text fontFamily="Neue Pixel Sans" color="#9d9d9d">
+                    {channel?.owner.username ??
+                      centerEllipses(channel?.owner.address, 13)}
+                  </Text>
+                </Flex>
               </Flex>
-              {subscribed && <BiSolidBellRing />}
+              <IconButton
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                bg="transparent"
+                opacity={subscribed ? 1 : 0.5}
+                aria-label="notify"
+                id={"bellring".concat(channel.id)}
+                className={isBellAnimating ? "bell" : ""}
+                width="unset"
+                icon={
+                  subscribed ? (
+                    <BiSolidBellRing height={"100%"} />
+                  ) : (
+                    <BiSolidBellOff height={"100%"} />
+                  )
+                }
+                onClick={(e) => {
+                  if (subscribed) {
+                    handleRemoveChannelFromSubscription(e);
+                  } else {
+                    handleAddChannelToSubscription(e);
+                  }
+                }}
+              />{" "}
             </Flex>
 
             <Flex

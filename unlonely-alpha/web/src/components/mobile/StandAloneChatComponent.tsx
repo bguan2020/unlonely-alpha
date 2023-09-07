@@ -637,9 +637,9 @@ const StandaloneAblyChatComponent = ({
                 addLoading || removeLoading ? (
                   <Spinner />
                 ) : channelCanNotify ? (
-                  <BiSolidBellRing size={"100%"} />
+                  <BiSolidBellRing height={"100%"} />
                 ) : (
-                  <BiSolidBellOff size={"100%"} />
+                  <BiSolidBellOff height={"100%"} />
                 )
               }
               onClick={() => {
