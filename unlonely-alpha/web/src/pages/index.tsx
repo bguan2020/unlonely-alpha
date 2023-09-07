@@ -363,7 +363,7 @@ function MobilePage({
     });
   }, [endpoint]);
 
-  console.log("subscription data", subscriptionData);
+  console.log("subscription data", subscriptionData, endpoint);
 
   useEffect(() => {
     if (endpoint) {
