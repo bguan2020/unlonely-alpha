@@ -136,7 +136,7 @@ export const UserProvider = ({
             });
             const subscriptionJSON = subscription.toJSON();
             if (subscriptionJSON) {
-              postSubscription({
+              await postSubscription({
                 endpoint: subscriptionJSON.endpoint,
                 expirationTime: null,
                 p256dh: subscriptionJSON.keys?.p256dh,
@@ -166,7 +166,7 @@ export const UserProvider = ({
           });
           const subscriptionJSON = subscription.toJSON();
           if (subscriptionJSON) {
-            postSubscription({
+            await postSubscription({
               endpoint: subscriptionJSON.endpoint,
               expirationTime: null,
               p256dh: subscriptionJSON.keys?.p256dh,
