@@ -148,6 +148,7 @@ export const UserProvider = ({
           }
           if (result === "granted" || result === "denied") {
             setShowTurnOnNotificationsModal(result);
+            if (result === "granted") setInitialNotificationsGranted(true);
           }
         }
         // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
@@ -163,10 +164,8 @@ export const UserProvider = ({
             userVisibleOnly: true,
             applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
           });
-          console.log("subscription", subscription);
           const subscriptionJSON = subscription.toJSON();
           if (subscriptionJSON) {
-            console.log("subscriptionJSON", subscriptionJSON);
             postSubscription({
               endpoint: subscriptionJSON.endpoint,
               expirationTime: null,
@@ -177,8 +176,6 @@ export const UserProvider = ({
             console.error("Failed to get subscription from service worker.");
           }
           setShowTurnOnNotificationsModal("granted");
-          console.log("calling setInitialNotificationsGranted(true)");
-          setInitialNotificationsGranted(true);
         }
       } catch (error) {
         console.error(
