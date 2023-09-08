@@ -17,6 +17,17 @@ const inputSelectOutlineStyle = {
   padding: "15px 18px",
 };
 
+const inputGlow = {
+  borderWidth: "1px",
+  borderRadius: "10px",
+  borderColor: "#51bfe0",
+  bg: "rgba(36, 79, 167, 0.05)",
+  variant: "unstyled",
+  px: "16px",
+  py: "10px",
+  boxShadow: "0px 0px 8px #4388b6",
+};
+
 export default extendTheme({
   breakpoints,
   initialColorMode: "dark",
@@ -250,6 +261,11 @@ export default extendTheme({
             bg: "#EBE8F2BF",
             borderRadius: 20,
             color: "#291E4BA8",
+          },
+        },
+        glow: {
+          field: {
+            ...inputGlow,
           },
         },
       },

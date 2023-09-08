@@ -1,4 +1,4 @@
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import {
   Box,
   Button,
@@ -37,51 +37,14 @@ import {
   NfcFeedQuery,
 } from "../generated/graphql";
 import { SelectableChannel } from "../components/mobile/SelectableChannel";
-import { GET_SUBSCRIPTION } from "../constants/queries";
+import {
+  CHANNEL_FEED_QUERY,
+  GET_SUBSCRIPTION,
+  NFC_FEED_QUERY,
+} from "../constants/queries";
 import useAddChannelToSubscription from "../hooks/server/useAddChannelToSubscription";
 import useRemoveChannelFromSubscription from "../hooks/server/useRemoveChannelFromSubscription";
 import { useUser } from "../hooks/context/useUser";
-
-const CHANNEL_FEED_QUERY = gql`
-  query GetChannelFeed {
-    getChannelFeed {
-      id
-      isLive
-      name
-      description
-      slug
-      owner {
-        username
-        address
-        FCImageUrl
-        lensImageUrl
-      }
-      thumbnailUrl
-    }
-  }
-`;
-
-export const NFC_FEED_QUERY = gql`
-  query NFCFeed($data: NFCFeedInput!) {
-    getNFCFeed(data: $data) {
-      createdAt
-      id
-      videoLink
-      videoThumbnail
-      openseaLink
-      score
-      liked
-      owner {
-        username
-        address
-        FCImageUrl
-        powerUserLvl
-        videoSavantLvl
-      }
-      title
-    }
-  }
-`;
 
 const FixedComponent = () => {
   return (

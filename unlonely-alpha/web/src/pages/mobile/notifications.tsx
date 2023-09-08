@@ -33,6 +33,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
+
 import NextHead from "../../components/layout/NextHead";
 import { splitArray } from "../../utils/splitArray";
 import { useUser } from "../../hooks/context/useUser";

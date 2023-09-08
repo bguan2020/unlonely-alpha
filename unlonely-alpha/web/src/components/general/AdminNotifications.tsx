@@ -6,17 +6,6 @@ import { SEND_ALL_NOTIFICATIONS_QUERY } from "../../constants/queries";
 import { QuerySendAllNotificationsArgs } from "../../generated/graphql";
 import { PreviewNotification } from "../mobile/PreviewNotification";
 
-const inputStyle = {
-  borderWidth: "1px",
-  borderRadius: "10px",
-  borderColor: "#51bfe0",
-  bg: "rgba(36, 79, 167, 0.05)",
-  variant: "unstyled",
-  px: "16px",
-  py: "10px",
-  boxShadow: "0px 0px 8px #4388b6",
-};
-
 function AdminNotifications() {
   const [call] = useLazyQuery<QuerySendAllNotificationsArgs>(
     SEND_ALL_NOTIFICATIONS_QUERY,
@@ -78,7 +67,7 @@ function AdminNotifications() {
             title
           </Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             defaultValue={title}
             onChange={(event) => setTitle(event.target.value)}
           />
@@ -88,7 +77,7 @@ function AdminNotifications() {
             description
           </Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             defaultValue={body}
             onChange={(event) => setBody(event.target.value)}
           />

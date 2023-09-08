@@ -974,6 +974,55 @@ export type GetSubscriptionQuery = {
   } | null;
 };
 
+export type GetChannelFeedQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetChannelFeedQuery = {
+  __typename?: "Query";
+  getChannelFeed?: Array<{
+    __typename?: "Channel";
+    id: string;
+    isLive?: boolean | null;
+    name?: string | null;
+    description?: string | null;
+    slug: string;
+    thumbnailUrl?: string | null;
+    owner: {
+      __typename?: "User";
+      username?: string | null;
+      address: string;
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+    };
+  } | null> | null;
+};
+
+export type NfcFeedQueryVariables = Exact<{
+  data: NfcFeedInput;
+}>;
+
+export type NfcFeedQuery = {
+  __typename?: "Query";
+  getNFCFeed?: Array<{
+    __typename?: "NFC";
+    createdAt: any;
+    id: string;
+    videoLink?: string | null;
+    videoThumbnail?: string | null;
+    openseaLink?: string | null;
+    score: number;
+    liked?: boolean | null;
+    title?: string | null;
+    owner: {
+      __typename?: "User";
+      username?: string | null;
+      address: string;
+      FCImageUrl?: string | null;
+      powerUserLvl: number;
+      videoSavantLvl: number;
+    };
+  } | null> | null;
+};
+
 export type GetUserQueryVariables = Exact<{
   data: GetUserInput;
 }>;
@@ -1211,55 +1260,6 @@ export type UpdateUserNotificationsMutation = {
     notificationsLive?: boolean | null;
     notificationsNFCs?: boolean | null;
   } | null;
-};
-
-export type GetChannelFeedQueryVariables = Exact<{ [key: string]: never }>;
-
-export type GetChannelFeedQuery = {
-  __typename?: "Query";
-  getChannelFeed?: Array<{
-    __typename?: "Channel";
-    id: string;
-    isLive?: boolean | null;
-    name?: string | null;
-    description?: string | null;
-    slug: string;
-    thumbnailUrl?: string | null;
-    owner: {
-      __typename?: "User";
-      username?: string | null;
-      address: string;
-      FCImageUrl?: string | null;
-      lensImageUrl?: string | null;
-    };
-  } | null> | null;
-};
-
-export type NfcFeedQueryVariables = Exact<{
-  data: NfcFeedInput;
-}>;
-
-export type NfcFeedQuery = {
-  __typename?: "Query";
-  getNFCFeed?: Array<{
-    __typename?: "NFC";
-    createdAt: any;
-    id: string;
-    videoLink?: string | null;
-    videoThumbnail?: string | null;
-    openseaLink?: string | null;
-    score: number;
-    liked?: boolean | null;
-    title?: string | null;
-    owner: {
-      __typename?: "User";
-      username?: string | null;
-      address: string;
-      FCImageUrl?: string | null;
-      powerUserLvl: number;
-      videoSavantLvl: number;
-    };
-  } | null> | null;
 };
 
 export type GetAllUsersQueryVariables = Exact<{ [key: string]: never }>;
@@ -2069,6 +2069,136 @@ export type GetSubscriptionLazyQueryHookResult = ReturnType<
 export type GetSubscriptionQueryResult = Apollo.QueryResult<
   GetSubscriptionQuery,
   GetSubscriptionQueryVariables
+>;
+export const GetChannelFeedDocument = gql`
+  query GetChannelFeed {
+    getChannelFeed {
+      id
+      isLive
+      name
+      description
+      slug
+      owner {
+        username
+        address
+        FCImageUrl
+        lensImageUrl
+      }
+      thumbnailUrl
+    }
+  }
+`;
+
+/**
+ * __useGetChannelFeedQuery__
+ *
+ * To run a query within a React component, call `useGetChannelFeedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelFeedQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetChannelFeedQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetChannelFeedQuery,
+    GetChannelFeedQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
+    GetChannelFeedDocument,
+    options
+  );
+}
+export function useGetChannelFeedLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetChannelFeedQuery,
+    GetChannelFeedQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
+    GetChannelFeedDocument,
+    options
+  );
+}
+export type GetChannelFeedQueryHookResult = ReturnType<
+  typeof useGetChannelFeedQuery
+>;
+export type GetChannelFeedLazyQueryHookResult = ReturnType<
+  typeof useGetChannelFeedLazyQuery
+>;
+export type GetChannelFeedQueryResult = Apollo.QueryResult<
+  GetChannelFeedQuery,
+  GetChannelFeedQueryVariables
+>;
+export const NfcFeedDocument = gql`
+  query NFCFeed($data: NFCFeedInput!) {
+    getNFCFeed(data: $data) {
+      createdAt
+      id
+      videoLink
+      videoThumbnail
+      openseaLink
+      score
+      liked
+      owner {
+        username
+        address
+        FCImageUrl
+        powerUserLvl
+        videoSavantLvl
+      }
+      title
+    }
+  }
+`;
+
+/**
+ * __useNfcFeedQuery__
+ *
+ * To run a query within a React component, call `useNfcFeedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useNfcFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNfcFeedQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useNfcFeedQuery(
+  baseOptions: Apollo.QueryHookOptions<NfcFeedQuery, NfcFeedQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<NfcFeedQuery, NfcFeedQueryVariables>(
+    NfcFeedDocument,
+    options
+  );
+}
+export function useNfcFeedLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<NfcFeedQuery, NfcFeedQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<NfcFeedQuery, NfcFeedQueryVariables>(
+    NfcFeedDocument,
+    options
+  );
+}
+export type NfcFeedQueryHookResult = ReturnType<typeof useNfcFeedQuery>;
+export type NfcFeedLazyQueryHookResult = ReturnType<typeof useNfcFeedLazyQuery>;
+export type NfcFeedQueryResult = Apollo.QueryResult<
+  NfcFeedQuery,
+  NfcFeedQueryVariables
 >;
 export const GetUserDocument = gql`
   query getUser($data: GetUserInput!) {
@@ -3089,136 +3219,6 @@ export type UpdateUserNotificationsMutationResult =
 export type UpdateUserNotificationsMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserNotificationsMutation,
   UpdateUserNotificationsMutationVariables
->;
-export const GetChannelFeedDocument = gql`
-  query GetChannelFeed {
-    getChannelFeed {
-      id
-      isLive
-      name
-      description
-      slug
-      owner {
-        username
-        address
-        FCImageUrl
-        lensImageUrl
-      }
-      thumbnailUrl
-    }
-  }
-`;
-
-/**
- * __useGetChannelFeedQuery__
- *
- * To run a query within a React component, call `useGetChannelFeedQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetChannelFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetChannelFeedQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetChannelFeedQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetChannelFeedQuery,
-    GetChannelFeedQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
-    GetChannelFeedDocument,
-    options
-  );
-}
-export function useGetChannelFeedLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetChannelFeedQuery,
-    GetChannelFeedQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
-    GetChannelFeedDocument,
-    options
-  );
-}
-export type GetChannelFeedQueryHookResult = ReturnType<
-  typeof useGetChannelFeedQuery
->;
-export type GetChannelFeedLazyQueryHookResult = ReturnType<
-  typeof useGetChannelFeedLazyQuery
->;
-export type GetChannelFeedQueryResult = Apollo.QueryResult<
-  GetChannelFeedQuery,
-  GetChannelFeedQueryVariables
->;
-export const NfcFeedDocument = gql`
-  query NFCFeed($data: NFCFeedInput!) {
-    getNFCFeed(data: $data) {
-      createdAt
-      id
-      videoLink
-      videoThumbnail
-      openseaLink
-      score
-      liked
-      owner {
-        username
-        address
-        FCImageUrl
-        powerUserLvl
-        videoSavantLvl
-      }
-      title
-    }
-  }
-`;
-
-/**
- * __useNfcFeedQuery__
- *
- * To run a query within a React component, call `useNfcFeedQuery` and pass it any options that fit your needs.
- * When your component renders, `useNfcFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useNfcFeedQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useNfcFeedQuery(
-  baseOptions: Apollo.QueryHookOptions<NfcFeedQuery, NfcFeedQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<NfcFeedQuery, NfcFeedQueryVariables>(
-    NfcFeedDocument,
-    options
-  );
-}
-export function useNfcFeedLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<NfcFeedQuery, NfcFeedQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<NfcFeedQuery, NfcFeedQueryVariables>(
-    NfcFeedDocument,
-    options
-  );
-}
-export type NfcFeedQueryHookResult = ReturnType<typeof useNfcFeedQuery>;
-export type NfcFeedLazyQueryHookResult = ReturnType<typeof useNfcFeedLazyQuery>;
-export type NfcFeedQueryResult = Apollo.QueryResult<
-  NfcFeedQuery,
-  NfcFeedQueryVariables
 >;
 export const GetAllUsersDocument = gql`
   query GetAllUsers {

@@ -18,17 +18,6 @@ import { PostNfcInput } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { postNfcSchema } from "../../utils/validation/validation";
 
-const inputStyle = {
-  borderWidth: "1px",
-  borderRadius: "10px",
-  borderColor: "#51bfe0",
-  bg: "rgba(36, 79, 167, 0.05)",
-  variant: "unstyled",
-  px: "16px",
-  py: "10px",
-  boxShadow: "0px 0px 8px #4388b6",
-};
-
 export const ChatClip = () => {
   const { chat } = useChannelContext();
   const { clipping } = chat;
@@ -122,6 +111,15 @@ export const ChatClip = () => {
                   share link
                 </Button>
                 <Button
+                  width="100%"
+                  bg="#0ca2b6"
+                  onClick={() => copy(finalUrl)}
+                  _focus={{}}
+                  _hover={{ background: "#02db4a" }}
+                >
+                  copy link
+                </Button>
+                <Button
                   opacity={"0.5"}
                   border={"1px solid white"}
                   bg={"transparent"}
@@ -174,7 +172,7 @@ export const ChatClip = () => {
                       id="title"
                       placeholder="title your clip!"
                       lineHeight="1.5"
-                      {...inputStyle}
+                      variant="glow"
                       color={"white"}
                       borderRadius="10px"
                       minHeight="2rem"

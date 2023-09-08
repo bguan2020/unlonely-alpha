@@ -21,17 +21,6 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { PreviewNotification } from "../mobile/PreviewNotification";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
-const inputStyle = {
-  borderWidth: "1px",
-  borderRadius: "10px",
-  borderColor: "#51bfe0",
-  bg: "rgba(36, 79, 167, 0.05)",
-  variant: "unstyled",
-  px: "16px",
-  py: "10px",
-  boxShadow: "0px 0px 8px #4388b6",
-};
-
 const BRIAN = "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa";
 
 export default function NotificationsModal({
@@ -164,7 +153,7 @@ export default function NotificationsModal({
                     title
                   </Text>
                   <Input
-                    {...inputStyle}
+                    variant="glow"
                     defaultValue={titleNFCs}
                     onChange={(event) => setTitleNFCs(event.target.value)}
                   />
@@ -174,7 +163,7 @@ export default function NotificationsModal({
                     description
                   </Text>
                   <Input
-                    {...inputStyle}
+                    variant="glow"
                     defaultValue={bodyNFCs}
                     onChange={(event) => setBodyNFCs(event.target.value)}
                   />
@@ -184,7 +173,7 @@ export default function NotificationsModal({
               <Flex direction="column" gap="10px">
                 <Text fontSize="15px">enter a description</Text>
                 <Input
-                  {...inputStyle}
+                  variant="glow"
                   placeholder="Ex. cooking stream"
                   _placeholder={{ color: "#bababa" }}
                   defaultValue={bodyLive}

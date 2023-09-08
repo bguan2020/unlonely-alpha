@@ -14,16 +14,6 @@ import NextHead from "../../components/layout/NextHead";
 import { WavyText } from "../../components/general/WavyText";
 import { splitArray } from "../../utils/splitArray";
 
-const inputStyle = {
-  borderWidth: "1px",
-  borderRadius: "10px",
-  borderColor: "#4d679b",
-  bg: "rgba(36, 79, 167, 0.05)",
-  variant: "unstyled",
-  px: "16px",
-  py: "10px",
-};
-
 const BRIAN = "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa";
 
 type DeviceNotificationsType = {

@@ -1,14 +1,14 @@
 import { Box, Flex, Image, Text } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 
-import { NFC_FEED_QUERY } from ".";
 import AppLayout from "../components/layout/AppLayout";
 import { WavyText } from "../components/general/WavyText";
 import { NfcFeedQuery } from "../generated/graphql";
 import { NFCComponent } from "../components/mobile/NFCComponent";
 import useUserAgent from "../hooks/internal/useUserAgent";
+import { NFC_FEED_QUERY } from "../constants/queries";
 
 export default function Nfcs() {
   const { isIOS } = useUserAgent();
@@ -27,12 +27,11 @@ export default function Nfcs() {
 
   const nfcs = dataNFCs?.getNFCFeed ?? [];
 
-  const [loadingPage, setLoadingPage] = useState<boolean>(false);
   const scrollRef = useRef<VirtuosoHandle>(null);
 
   return (
     <AppLayout isCustomHeader={false}>
-      {!loadingPage && !loadingNFCs ? (
+      {!loadingNFCs ? (
         <Flex
           direction="column"
           justifyContent="center"
