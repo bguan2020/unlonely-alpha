@@ -115,7 +115,7 @@ export const ChatClip = () => {
                   bg="#0ca2b6"
                   onClick={() => copy(finalUrl)}
                   _focus={{}}
-                  _hover={{ background: "#02db4a" }}
+                  _hover={{ background: "#0ab643" }}
                 >
                   copy link
                 </Button>
