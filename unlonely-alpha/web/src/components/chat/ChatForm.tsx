@@ -312,6 +312,7 @@ const ChatForm = ({
             `${InteractionType.BLAST}:`
           );
           setBlastMode(false);
+          setMessageText("");
         }
       }
     },
@@ -348,6 +349,7 @@ const ChatForm = ({
             `${InteractionType.BLAST}:`
           );
           setBlastMode(false);
+          setMessageText("");
         }
       }
     },
