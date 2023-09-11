@@ -74,6 +74,10 @@ export type Scalars = {
   Void: any;
 };
 
+export type AddSuggestedChannelsToSubscriptionsInput = {
+  channelIds: Array<Scalars["ID"]>;
+};
+
 export type Channel = {
   __typename?: "Channel";
   allowNFCs?: Maybe<Scalars["Boolean"]>;
@@ -185,6 +189,10 @@ export type GetRecentStreamInteractionsByChannelInput = {
   channelId: Scalars["ID"];
 };
 
+export type GetSubscriptionsByChannelIdInput = {
+  channelId: Scalars["ID"];
+};
+
 export type GetTokenHoldersInput = {
   channelId: Scalars["ID"];
   limit?: InputMaybe<Scalars["Int"]>;
@@ -227,9 +235,16 @@ export enum LikeObj {
   Nfc = "NFC",
 }
 
+export type MoveChannelAlongSubscriptionInput = {
+  channelId: Scalars["ID"];
+  endpoint: Scalars["String"];
+};
+
 export type Mutation = {
   __typename?: "Mutation";
   _empty?: Maybe<Scalars["String"]>;
+  addChannelToSubscription?: Maybe<Subscription>;
+  addSuggestedChannelsToSubscriptions?: Maybe<Array<Maybe<Subscription>>>;
   createClip?: Maybe<ClipOutput>;
   createCreatorToken: CreatorToken;
   handleLike?: Maybe<Likable>;
@@ -242,6 +257,7 @@ export type Mutation = {
   postSubscription?: Maybe<Subscription>;
   postTask?: Maybe<Task>;
   postVideo?: Maybe<Video>;
+  removeChannelFromSubscription?: Maybe<Subscription>;
   softDeleteSubscription?: Maybe<Subscription>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
@@ -256,6 +272,14 @@ export type Mutation = {
   updateOpenseaLink?: Maybe<Nfc>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
+};
+
+export type MutationAddChannelToSubscriptionArgs = {
+  data: MoveChannelAlongSubscriptionInput;
+};
+
+export type MutationAddSuggestedChannelsToSubscriptionsArgs = {
+  data: AddSuggestedChannelsToSubscriptionsInput;
 };
 
 export type MutationCreateClipArgs = {
@@ -300,6 +324,10 @@ export type MutationPostTaskArgs = {
 
 export type MutationPostVideoArgs = {
   data: PostVideoInput;
+};
+
+export type MutationRemoveChannelFromSubscriptionArgs = {
+  data: MoveChannelAlongSubscriptionInput;
 };
 
 export type MutationSoftDeleteSubscriptionArgs = {
@@ -465,6 +493,8 @@ export type Query = {
   getPoap?: Maybe<Poap>;
   getRecentChats?: Maybe<Array<Maybe<Chat>>>;
   getRecentStreamInteractionsByChannel?: Maybe<Array<Maybe<StreamInteraction>>>;
+  getSubscriptionByEndpoint?: Maybe<Subscription>;
+  getSubscriptionsByChannelId?: Maybe<Array<Maybe<Subscription>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getTokenHoldersByChannel: Array<UserCreatorToken>;
   getTokenLeaderboard: Array<CreatorToken>;
@@ -524,6 +554,14 @@ export type QueryGetRecentStreamInteractionsByChannelArgs = {
   data?: InputMaybe<GetRecentStreamInteractionsByChannelInput>;
 };
 
+export type QueryGetSubscriptionByEndpointArgs = {
+  data: ToggleSubscriptionInput;
+};
+
+export type QueryGetSubscriptionsByChannelIdArgs = {
+  data: GetSubscriptionsByChannelIdInput;
+};
+
 export type QueryGetTaskFeedArgs = {
   data?: InputMaybe<TaskFeedInput>;
 };
@@ -554,6 +592,7 @@ export type QuerySendAllNotificationsArgs = {
 
 export type SendAllNotificationsInput = {
   body: Scalars["String"];
+  channelId?: InputMaybe<Scalars["ID"]>;
   title: Scalars["String"];
 };
 
@@ -584,6 +623,7 @@ export type StreamInteraction = {
 
 export type Subscription = {
   __typename?: "Subscription";
+  allowedChannels?: Maybe<Array<Scalars["ID"]>>;
   auth: Scalars["String"];
   createdAt: Scalars["DateTime"];
   endpoint: Scalars["String"];
@@ -921,6 +961,68 @@ export type CheckSubscriptionQuery = {
   checkSubscriptionByEndpoint?: boolean | null;
 };
 
+export type GetSubscriptionQueryVariables = Exact<{
+  data: ToggleSubscriptionInput;
+}>;
+
+export type GetSubscriptionQuery = {
+  __typename?: "Query";
+  getSubscriptionByEndpoint?: {
+    __typename?: "Subscription";
+    allowedChannels?: Array<string> | null;
+    softDelete: boolean;
+  } | null;
+};
+
+export type GetChannelFeedQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetChannelFeedQuery = {
+  __typename?: "Query";
+  getChannelFeed?: Array<{
+    __typename?: "Channel";
+    id: string;
+    isLive?: boolean | null;
+    name?: string | null;
+    description?: string | null;
+    slug: string;
+    thumbnailUrl?: string | null;
+    owner: {
+      __typename?: "User";
+      username?: string | null;
+      address: string;
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+    };
+  } | null> | null;
+};
+
+export type NfcFeedQueryVariables = Exact<{
+  data: NfcFeedInput;
+}>;
+
+export type NfcFeedQuery = {
+  __typename?: "Query";
+  getNFCFeed?: Array<{
+    __typename?: "NFC";
+    createdAt: any;
+    id: string;
+    videoLink?: string | null;
+    videoThumbnail?: string | null;
+    openseaLink?: string | null;
+    score: number;
+    liked?: boolean | null;
+    title?: string | null;
+    owner: {
+      __typename?: "User";
+      username?: string | null;
+      address: string;
+      FCImageUrl?: string | null;
+      powerUserLvl: number;
+      videoSavantLvl: number;
+    };
+  } | null> | null;
+};
+
 export type GetUserQueryVariables = Exact<{
   data: GetUserInput;
 }>;
@@ -1160,55 +1262,6 @@ export type UpdateUserNotificationsMutation = {
   } | null;
 };
 
-export type GetChannelFeedQueryVariables = Exact<{ [key: string]: never }>;
-
-export type GetChannelFeedQuery = {
-  __typename?: "Query";
-  getChannelFeed?: Array<{
-    __typename?: "Channel";
-    id: string;
-    isLive?: boolean | null;
-    name?: string | null;
-    description?: string | null;
-    slug: string;
-    thumbnailUrl?: string | null;
-    owner: {
-      __typename?: "User";
-      username?: string | null;
-      address: string;
-      FCImageUrl?: string | null;
-      lensImageUrl?: string | null;
-    };
-  } | null> | null;
-};
-
-export type NfcFeedQueryVariables = Exact<{
-  data: NfcFeedInput;
-}>;
-
-export type NfcFeedQuery = {
-  __typename?: "Query";
-  getNFCFeed?: Array<{
-    __typename?: "NFC";
-    createdAt: any;
-    id: string;
-    videoLink?: string | null;
-    videoThumbnail?: string | null;
-    openseaLink?: string | null;
-    score: number;
-    liked?: boolean | null;
-    title?: string | null;
-    owner: {
-      __typename?: "User";
-      username?: string | null;
-      address: string;
-      FCImageUrl?: string | null;
-      powerUserLvl: number;
-      videoSavantLvl: number;
-    };
-  } | null> | null;
-};
-
 export type GetAllUsersQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetAllUsersQuery = {
@@ -1290,6 +1343,27 @@ export type FetchCurrentUserQuery = {
     __typename?: "User";
     signature?: string | null;
     sigTimestamp?: any | null;
+  } | null;
+};
+
+export type AddChannelToSubscriptionMutationVariables = Exact<{
+  data: MoveChannelAlongSubscriptionInput;
+}>;
+
+export type AddChannelToSubscriptionMutation = {
+  __typename?: "Mutation";
+  addChannelToSubscription?: { __typename?: "Subscription"; id: string } | null;
+};
+
+export type RemoveChannelFromSubscriptionMutationVariables = Exact<{
+  data: MoveChannelAlongSubscriptionInput;
+}>;
+
+export type RemoveChannelFromSubscriptionMutation = {
+  __typename?: "Mutation";
+  removeChannelFromSubscription?: {
+    __typename?: "Subscription";
+    id: string;
   } | null;
 };
 
@@ -1936,6 +2010,195 @@ export type CheckSubscriptionLazyQueryHookResult = ReturnType<
 export type CheckSubscriptionQueryResult = Apollo.QueryResult<
   CheckSubscriptionQuery,
   CheckSubscriptionQueryVariables
+>;
+export const GetSubscriptionDocument = gql`
+  query GetSubscription($data: ToggleSubscriptionInput!) {
+    getSubscriptionByEndpoint(data: $data) {
+      allowedChannels
+      softDelete
+    }
+  }
+`;
+
+/**
+ * __useGetSubscriptionQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetSubscriptionQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetSubscriptionQuery,
+    GetSubscriptionQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetSubscriptionQuery, GetSubscriptionQueryVariables>(
+    GetSubscriptionDocument,
+    options
+  );
+}
+export function useGetSubscriptionLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetSubscriptionQuery,
+    GetSubscriptionQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetSubscriptionQuery,
+    GetSubscriptionQueryVariables
+  >(GetSubscriptionDocument, options);
+}
+export type GetSubscriptionQueryHookResult = ReturnType<
+  typeof useGetSubscriptionQuery
+>;
+export type GetSubscriptionLazyQueryHookResult = ReturnType<
+  typeof useGetSubscriptionLazyQuery
+>;
+export type GetSubscriptionQueryResult = Apollo.QueryResult<
+  GetSubscriptionQuery,
+  GetSubscriptionQueryVariables
+>;
+export const GetChannelFeedDocument = gql`
+  query GetChannelFeed {
+    getChannelFeed {
+      id
+      isLive
+      name
+      description
+      slug
+      owner {
+        username
+        address
+        FCImageUrl
+        lensImageUrl
+      }
+      thumbnailUrl
+    }
+  }
+`;
+
+/**
+ * __useGetChannelFeedQuery__
+ *
+ * To run a query within a React component, call `useGetChannelFeedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelFeedQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetChannelFeedQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetChannelFeedQuery,
+    GetChannelFeedQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
+    GetChannelFeedDocument,
+    options
+  );
+}
+export function useGetChannelFeedLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetChannelFeedQuery,
+    GetChannelFeedQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
+    GetChannelFeedDocument,
+    options
+  );
+}
+export type GetChannelFeedQueryHookResult = ReturnType<
+  typeof useGetChannelFeedQuery
+>;
+export type GetChannelFeedLazyQueryHookResult = ReturnType<
+  typeof useGetChannelFeedLazyQuery
+>;
+export type GetChannelFeedQueryResult = Apollo.QueryResult<
+  GetChannelFeedQuery,
+  GetChannelFeedQueryVariables
+>;
+export const NfcFeedDocument = gql`
+  query NFCFeed($data: NFCFeedInput!) {
+    getNFCFeed(data: $data) {
+      createdAt
+      id
+      videoLink
+      videoThumbnail
+      openseaLink
+      score
+      liked
+      owner {
+        username
+        address
+        FCImageUrl
+        powerUserLvl
+        videoSavantLvl
+      }
+      title
+    }
+  }
+`;
+
+/**
+ * __useNfcFeedQuery__
+ *
+ * To run a query within a React component, call `useNfcFeedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useNfcFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNfcFeedQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useNfcFeedQuery(
+  baseOptions: Apollo.QueryHookOptions<NfcFeedQuery, NfcFeedQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<NfcFeedQuery, NfcFeedQueryVariables>(
+    NfcFeedDocument,
+    options
+  );
+}
+export function useNfcFeedLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<NfcFeedQuery, NfcFeedQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<NfcFeedQuery, NfcFeedQueryVariables>(
+    NfcFeedDocument,
+    options
+  );
+}
+export type NfcFeedQueryHookResult = ReturnType<typeof useNfcFeedQuery>;
+export type NfcFeedLazyQueryHookResult = ReturnType<typeof useNfcFeedLazyQuery>;
+export type NfcFeedQueryResult = Apollo.QueryResult<
+  NfcFeedQuery,
+  NfcFeedQueryVariables
 >;
 export const GetUserDocument = gql`
   query getUser($data: GetUserInput!) {
@@ -2957,136 +3220,6 @@ export type UpdateUserNotificationsMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserNotificationsMutation,
   UpdateUserNotificationsMutationVariables
 >;
-export const GetChannelFeedDocument = gql`
-  query GetChannelFeed {
-    getChannelFeed {
-      id
-      isLive
-      name
-      description
-      slug
-      owner {
-        username
-        address
-        FCImageUrl
-        lensImageUrl
-      }
-      thumbnailUrl
-    }
-  }
-`;
-
-/**
- * __useGetChannelFeedQuery__
- *
- * To run a query within a React component, call `useGetChannelFeedQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetChannelFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetChannelFeedQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetChannelFeedQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetChannelFeedQuery,
-    GetChannelFeedQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
-    GetChannelFeedDocument,
-    options
-  );
-}
-export function useGetChannelFeedLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetChannelFeedQuery,
-    GetChannelFeedQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<GetChannelFeedQuery, GetChannelFeedQueryVariables>(
-    GetChannelFeedDocument,
-    options
-  );
-}
-export type GetChannelFeedQueryHookResult = ReturnType<
-  typeof useGetChannelFeedQuery
->;
-export type GetChannelFeedLazyQueryHookResult = ReturnType<
-  typeof useGetChannelFeedLazyQuery
->;
-export type GetChannelFeedQueryResult = Apollo.QueryResult<
-  GetChannelFeedQuery,
-  GetChannelFeedQueryVariables
->;
-export const NfcFeedDocument = gql`
-  query NFCFeed($data: NFCFeedInput!) {
-    getNFCFeed(data: $data) {
-      createdAt
-      id
-      videoLink
-      videoThumbnail
-      openseaLink
-      score
-      liked
-      owner {
-        username
-        address
-        FCImageUrl
-        powerUserLvl
-        videoSavantLvl
-      }
-      title
-    }
-  }
-`;
-
-/**
- * __useNfcFeedQuery__
- *
- * To run a query within a React component, call `useNfcFeedQuery` and pass it any options that fit your needs.
- * When your component renders, `useNfcFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useNfcFeedQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useNfcFeedQuery(
-  baseOptions: Apollo.QueryHookOptions<NfcFeedQuery, NfcFeedQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<NfcFeedQuery, NfcFeedQueryVariables>(
-    NfcFeedDocument,
-    options
-  );
-}
-export function useNfcFeedLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<NfcFeedQuery, NfcFeedQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<NfcFeedQuery, NfcFeedQueryVariables>(
-    NfcFeedDocument,
-    options
-  );
-}
-export type NfcFeedQueryHookResult = ReturnType<typeof useNfcFeedQuery>;
-export type NfcFeedLazyQueryHookResult = ReturnType<typeof useNfcFeedLazyQuery>;
-export type NfcFeedQueryResult = Apollo.QueryResult<
-  NfcFeedQuery,
-  NfcFeedQueryVariables
->;
 export const GetAllUsersDocument = gql`
   query GetAllUsers {
     getAllUsers {
@@ -3396,3 +3529,107 @@ export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
 >;
+export const AddChannelToSubscriptionDocument = gql`
+  mutation AddChannelToSubscription($data: MoveChannelAlongSubscriptionInput!) {
+    addChannelToSubscription(data: $data) {
+      id
+    }
+  }
+`;
+export type AddChannelToSubscriptionMutationFn = Apollo.MutationFunction<
+  AddChannelToSubscriptionMutation,
+  AddChannelToSubscriptionMutationVariables
+>;
+
+/**
+ * __useAddChannelToSubscriptionMutation__
+ *
+ * To run a mutation, you first call `useAddChannelToSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddChannelToSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addChannelToSubscriptionMutation, { data, loading, error }] = useAddChannelToSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useAddChannelToSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddChannelToSubscriptionMutation,
+    AddChannelToSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    AddChannelToSubscriptionMutation,
+    AddChannelToSubscriptionMutationVariables
+  >(AddChannelToSubscriptionDocument, options);
+}
+export type AddChannelToSubscriptionMutationHookResult = ReturnType<
+  typeof useAddChannelToSubscriptionMutation
+>;
+export type AddChannelToSubscriptionMutationResult =
+  Apollo.MutationResult<AddChannelToSubscriptionMutation>;
+export type AddChannelToSubscriptionMutationOptions =
+  Apollo.BaseMutationOptions<
+    AddChannelToSubscriptionMutation,
+    AddChannelToSubscriptionMutationVariables
+  >;
+export const RemoveChannelFromSubscriptionDocument = gql`
+  mutation RemoveChannelFromSubscription(
+    $data: MoveChannelAlongSubscriptionInput!
+  ) {
+    removeChannelFromSubscription(data: $data) {
+      id
+    }
+  }
+`;
+export type RemoveChannelFromSubscriptionMutationFn = Apollo.MutationFunction<
+  RemoveChannelFromSubscriptionMutation,
+  RemoveChannelFromSubscriptionMutationVariables
+>;
+
+/**
+ * __useRemoveChannelFromSubscriptionMutation__
+ *
+ * To run a mutation, you first call `useRemoveChannelFromSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveChannelFromSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeChannelFromSubscriptionMutation, { data, loading, error }] = useRemoveChannelFromSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useRemoveChannelFromSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    RemoveChannelFromSubscriptionMutation,
+    RemoveChannelFromSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    RemoveChannelFromSubscriptionMutation,
+    RemoveChannelFromSubscriptionMutationVariables
+  >(RemoveChannelFromSubscriptionDocument, options);
+}
+export type RemoveChannelFromSubscriptionMutationHookResult = ReturnType<
+  typeof useRemoveChannelFromSubscriptionMutation
+>;
+export type RemoveChannelFromSubscriptionMutationResult =
+  Apollo.MutationResult<RemoveChannelFromSubscriptionMutation>;
+export type RemoveChannelFromSubscriptionMutationOptions =
+  Apollo.BaseMutationOptions<
+    RemoveChannelFromSubscriptionMutation,
+    RemoveChannelFromSubscriptionMutationVariables
+  >;

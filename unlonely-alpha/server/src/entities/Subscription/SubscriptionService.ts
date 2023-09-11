@@ -2,6 +2,7 @@ import { Subscription } from "@prisma/client";
 import webpush from "web-push";
 
 import { Context } from "../../context";
+import { suggestedChannels } from "../../utils/suggestedChannels";
 
 export interface IPostSubscriptionInput {
   endpoint: string;
@@ -44,6 +45,7 @@ export const postSubscription = async (
       expirationTime: data.expirationTime,
       p256dh: data.p256dh,
       auth: data.auth,
+      allowedChannels: suggestedChannels,
     },
   });
 };
@@ -63,6 +65,15 @@ export const softDeleteSubscription = async (
 };
 export interface IToggleSubscriptionInput {
   endpoint: string;
+}
+
+export interface IMoveChannelAlongSubscriptionInput {
+  endpoint: string;
+  channelId: number;
+}
+
+export interface IGetSubscriptionsByChannelIdInput {
+  channelId: number;
 }
 
 export const toggleSubscription = async (
@@ -88,6 +99,80 @@ export const toggleSubscription = async (
       softDelete: !existingSubscription.softDelete,
     },
   });
+};
+export const getSubscriptionByEndpoint = async (
+  data: IToggleSubscriptionInput,
+  ctx: Context
+) => {
+  return await ctx.prisma.subscription.findFirst({
+    where: {
+      endpoint: data.endpoint,
+    },
+  });
+};
+
+export const addChannelToSubscription = async (
+  data: IMoveChannelAlongSubscriptionInput,
+  ctx: Context
+) => {
+  const existingSubscription = await ctx.prisma.subscription.findFirst({
+    where: {
+      endpoint: data.endpoint,
+    },
+  });
+
+  if (!existingSubscription) {
+    throw new Error("Subscription does not exist");
+  }
+
+  if (existingSubscription.allowedChannels.includes(Number(data.channelId))) {
+    return existingSubscription;
+  } else {
+    const updatedChannels = [
+      ...existingSubscription.allowedChannels,
+      Number(data.channelId),
+    ];
+    return await ctx.prisma.subscription.update({
+      where: {
+        id: existingSubscription.id,
+      },
+      data: {
+        allowedChannels: updatedChannels,
+      },
+    });
+  }
+};
+
+export const removeChannelFromSubscription = async (
+  data: IMoveChannelAlongSubscriptionInput,
+  ctx: Context
+) => {
+  const existingSubscription = await ctx.prisma.subscription.findFirst({
+    where: {
+      endpoint: data.endpoint,
+    },
+  });
+
+  if (!existingSubscription) {
+    throw new Error("Subscription does not exist");
+  }
+
+  if (!existingSubscription.allowedChannels.includes(Number(data.channelId))) {
+    return existingSubscription;
+  } else {
+    const updatedChannels = existingSubscription.allowedChannels.filter(
+      (id) => Number(id) !== Number(data.channelId)
+    );
+
+    return await ctx.prisma.subscription.update({
+      where: {
+        id: existingSubscription.id,
+      },
+      data: {
+        allowedChannels: updatedChannels,
+      },
+    });
+  }
 };
 
 export const checkSubscriptionByEndpoint = async (
@@ -117,10 +202,61 @@ export const getAllActiveSubscriptions = async (ctx: Context) => {
   });
 };
 
+export const getSubscriptionsByChannelId = async (
+  ctx: Context,
+  data: IGetSubscriptionsByChannelIdInput
+) => {
+  const channelId =
+    typeof data.channelId === "string"
+      ? Number(data.channelId)
+      : data.channelId;
+
+  return await findSubscriptionsByChannelId(ctx, channelId);
+};
+
 export interface ISendAllNotificationsInput {
   title: string;
   body: string;
+  channelId?: number;
 }
+
+export interface IAddSuggestedChannelsToSubscriptionsInput {
+  channelIds: number[];
+}
+
+export const addSuggestedChannelsToSubscriptions = async (
+  ctx: Context,
+  data: IAddSuggestedChannelsToSubscriptionsInput
+): Promise<Subscription[]> => {
+  const subscriptions = await ctx.prisma.subscription.findMany();
+
+  // Collect all the promises for updating subscriptions
+  const updatePromises: Promise<Subscription>[] = [];
+
+  const channelIds = data.channelIds.map((channelId) => Number(channelId));
+
+  subscriptions.forEach((subscription) => {
+    const updatedChannels: number[] = [...subscription.allowedChannels];
+
+    // Add each channelId from the input, if it's not already in the allowedChannels
+    channelIds.forEach((channelId) => {
+      if (!updatedChannels.includes(Number(channelId))) {
+        updatedChannels.push(Number(channelId));
+      }
+    });
+
+    // Update the subscription with the new set of allowed channels
+    const updatePromise = ctx.prisma.subscription.update({
+      where: { id: subscription.id },
+      data: { allowedChannels: updatedChannels },
+    });
+
+    updatePromises.push(updatePromise);
+  });
+
+  // Run all the update promises in parallel and wait for them to complete
+  return await Promise.all(updatePromises);
+};
 
 export const sendAllNotifications = async (
   ctx: Context,
@@ -128,23 +264,26 @@ export const sendAllNotifications = async (
 ) => {
   const vapidPublicKey = process.env.VAPID_PUBLIC_KEY!;
   const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!;
-  console.log(
-    "vapidPublicKey",
-    vapidPublicKey,
-    "vapidPrivateKey",
-    vapidPrivateKey
-  );
 
   webpush.setVapidDetails(
     `mailto:${process.env.VAPID_MAILTO}`,
     vapidPublicKey,
     vapidPrivateKey
   );
-  const subscriptions = await ctx.prisma.subscription.findMany({
-    where: {
-      softDelete: false,
-    },
-  });
+
+  const subscriptions =
+    data.channelId === undefined
+      ? await ctx.prisma.subscription.findMany({
+          where: {
+            softDelete: false,
+          },
+        })
+      : await findSubscriptionsByChannelId(
+          ctx,
+          typeof data.channelId === "string"
+            ? Number(data.channelId)
+            : data.channelId
+        );
 
   const promises = subscriptions.map(async (subscription) => {
     const pushSubscription = toPushSubscription(subscription);
@@ -192,4 +331,19 @@ function toPushSubscription(subscription: Subscription): any {
       auth: subscription.auth,
     },
   };
+}
+
+async function findSubscriptionsByChannelId(
+  ctx: Context,
+  channelId: number
+): Promise<Subscription[]> {
+  const subscriptions = await ctx.prisma.subscription.findMany({
+    where: {
+      softDelete: false,
+      allowedChannels: {
+        has: channelId,
+      },
+    },
+  });
+  return subscriptions;
 }

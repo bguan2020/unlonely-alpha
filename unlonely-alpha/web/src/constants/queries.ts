@@ -156,3 +156,53 @@ export const CHECK_SUBSCRIPTION = gql`
     checkSubscriptionByEndpoint(data: $data)
   }
 `;
+
+export const GET_SUBSCRIPTION = gql`
+  query GetSubscription($data: ToggleSubscriptionInput!) {
+    getSubscriptionByEndpoint(data: $data) {
+      allowedChannels
+      softDelete
+    }
+  }
+`;
+
+export const CHANNEL_FEED_QUERY = gql`
+  query GetChannelFeed {
+    getChannelFeed {
+      id
+      isLive
+      name
+      description
+      slug
+      owner {
+        username
+        address
+        FCImageUrl
+        lensImageUrl
+      }
+      thumbnailUrl
+    }
+  }
+`;
+
+export const NFC_FEED_QUERY = gql`
+  query NFCFeed($data: NFCFeedInput!) {
+    getNFCFeed(data: $data) {
+      createdAt
+      id
+      videoLink
+      videoThumbnail
+      openseaLink
+      score
+      liked
+      owner {
+        username
+        address
+        FCImageUrl
+        powerUserLvl
+        videoSavantLvl
+      }
+      title
+    }
+  }
+`;

@@ -9,16 +9,6 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import useUpdateDeleteChatCommands from "../../hooks/server/updateDeleteChatCommands";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
-const inputStyle = {
-  borderWidth: "1px",
-  borderRadius: "10px",
-  borderColor: "#244FA7",
-  bg: "rgba(36, 79, 167, 0.05)",
-  variant: "unstyled",
-  px: "16px",
-  py: "10px",
-};
-
 export default function ChatCommandModal({
   title,
   isOpen,
@@ -154,7 +144,7 @@ export default function ChatCommandModal({
         {commandsData.map((c, i) => (
           <Flex justifyContent={"space-around"} gap="10px" key={i}>
             <Input
-              {...inputStyle}
+              variant="glow"
               placeholder={"command"}
               value={`!${c.command}`}
               isInvalid={Object.values(BaseChatCommand).includes(
@@ -165,7 +155,7 @@ export default function ChatCommandModal({
               }
             />
             <Input
-              {...inputStyle}
+              variant="glow"
               placeholder={"response"}
               value={c.response}
               onChange={(e) =>

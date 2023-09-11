@@ -255,6 +255,7 @@ const DesktopPage = ({
                 mx={[0, 8, 4]}
                 alignItems={["center", "initial"]}
                 mt="10px"
+                mb="25px"
                 spacing={[4, 8]}
                 direction={["column", "column", "row", "row"]}
               >

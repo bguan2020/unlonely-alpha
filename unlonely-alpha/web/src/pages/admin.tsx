@@ -36,16 +36,7 @@ import {
 import useUpdateCreatorTokenPrice from "../hooks/server/arcade/useUpdateTokenPrice";
 import useUpdateUserCreatorTokenQuantity from "../hooks/server/arcade/useUpdateTokenQuantity";
 import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
-
-const inputStyle = {
-  borderWidth: "1px",
-  borderRadius: "10px",
-  borderColor: "#244FA7",
-  bg: "rgba(36, 79, 167, 0.05)",
-  variant: "unstyled",
-  px: "16px",
-  py: "10px",
-};
+import AdminNotifications from "../components/general/AdminNotifications";
 
 export default function AdminPage() {
   const { user } = useUser();
@@ -463,7 +454,7 @@ const AdminContent = () => {
         <VStack>
           <Text>new creator token address</Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             readOnly={addCreatorTokenTxLoading}
             width="300px"
             isInvalid={!isAddress(newCreatorTokenAddress)}
@@ -474,7 +465,7 @@ const AdminContent = () => {
         <VStack>
           <Text>symbol</Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             readOnly={addCreatorTokenTxLoading}
             width="96px"
             value={creatorTokenSymbol}
@@ -484,7 +475,7 @@ const AdminContent = () => {
         <VStack>
           <Text>name</Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             readOnly={addCreatorTokenTxLoading}
             width="128px"
             value={creatorTokenName}
@@ -494,7 +485,7 @@ const AdminContent = () => {
         <VStack>
           <Text>channelId</Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             readOnly={addCreatorTokenTxLoading}
             width="64px"
             value={channelId}
@@ -505,7 +496,7 @@ const AdminContent = () => {
           <Text>how much eth will this new token cost?</Text>
           <Input
             width="128px"
-            {...inputStyle}
+            variant="glow"
             readOnly={addCreatorTokenTxLoading}
             value={initialPrice}
             onChange={(e) => handleInputChange(e, setInitialPrice, true)}
@@ -515,7 +506,7 @@ const AdminContent = () => {
           <Text>what is the address of the token owner?</Text>
           <Input
             width="400px"
-            {...inputStyle}
+            variant="glow"
             readOnly={addCreatorTokenTxLoading}
             value={tokenOwnerAddress}
             onChange={(e) => setTokenOwnerAddress(e.target.value)}
@@ -543,7 +534,7 @@ const AdminContent = () => {
         <VStack>
           <Text>existing creator token address</Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             readOnly={useFeatureTxLoading}
             width="400px"
             isInvalid={!isAddress(creatorTokenAddress)}
@@ -554,7 +545,7 @@ const AdminContent = () => {
         <VStack>
           <Text>owner</Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             width="300px"
             isReadOnly
             value={tokenOwner !== NULL_ADDRESS ? tokenOwner : ""}
@@ -563,7 +554,7 @@ const AdminContent = () => {
         <VStack>
           <Text>how much of this token does this feature cost?</Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             readOnly={useFeatureTxLoading}
             width="250px"
             value={featurePrice}
@@ -593,7 +584,7 @@ const AdminContent = () => {
           <Text>existing creator token address</Text>
           <Input
             width="400px"
-            {...inputStyle}
+            variant="glow"
             readOnly={buyCreatorTokenTxLoading}
             isInvalid={!isAddress(creatorTokenAddress)}
             value={creatorTokenAddress}
@@ -603,7 +594,7 @@ const AdminContent = () => {
         <VStack>
           <Text>owner</Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             width="300px"
             isReadOnly
             value={tokenOwner !== NULL_ADDRESS ? tokenOwner : ""}
@@ -613,7 +604,7 @@ const AdminContent = () => {
           <Text>how much of this creator token do you want to buy?</Text>
           <Input
             width="500px"
-            {...inputStyle}
+            variant="glow"
             readOnly={buyCreatorTokenTxLoading}
             value={buyTokenAmount}
             onChange={(e) => handleInputChange(e, setBuyTokenAmount)}
@@ -623,7 +614,7 @@ const AdminContent = () => {
           <Text>{tokenPrice ? "price found" : "price not found"}</Text>
           <Input
             width="200px"
-            {...inputStyle}
+            variant="glow"
             isReadOnly
             value={
               tokenPrice
@@ -655,7 +646,7 @@ const AdminContent = () => {
           <Text>existing creator tokens</Text>
           <Input
             placeholder="0x1234...,0x5678..."
-            {...inputStyle}
+            variant="glow"
             readOnly={setTokenPricesTxLoading}
             width="400px"
             isInvalid={
@@ -671,7 +662,7 @@ const AdminContent = () => {
           <Text>how much ETH will these tokens cost?</Text>
           <Input
             placeholder="0.0005,0.0015,1200,..."
-            {...inputStyle}
+            variant="glow"
             readOnly={setTokenPricesTxLoading}
             width="500px"
             value={newTokenPricesStr}
@@ -704,7 +695,7 @@ const AdminContent = () => {
         <VStack>
           <Text>existing creator token address</Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             readOnly={isApprovalLoading}
             width="400px"
             isInvalid={!isAddress(creatorTokenAddress)}
@@ -715,7 +706,7 @@ const AdminContent = () => {
         <VStack>
           <Text>owner</Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             width="300px"
             isReadOnly
             value={tokenOwner !== NULL_ADDRESS ? tokenOwner : ""}
@@ -726,7 +717,7 @@ const AdminContent = () => {
             {"(owners only) how much of this token should go on sale?"}
           </Text>
           <Input
-            {...inputStyle}
+            variant="glow"
             readOnly={isApprovalLoading}
             width="500px"
             value={buyTokenAmount}
@@ -737,7 +728,7 @@ const AdminContent = () => {
           <Text>needs approval?</Text>
           <Input
             width="200px"
-            {...inputStyle}
+            variant="glow"
             isReadOnly
             value={requiresApproval ? "yes" : "no"}
             bg={requiresApproval ? "red" : "inherit"}
@@ -758,6 +749,10 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
+        admin notifications
+      </Text>
+      <AdminNotifications />
     </Flex>
   );
 };

@@ -5,6 +5,13 @@ import * as SubscriptionService from "./SubscriptionService";
 
 export const resolvers = {
   Query: {
+    getSubscriptionsByChannelId: async (
+      _: any,
+      { data }: { data: SubscriptionService.IGetSubscriptionsByChannelIdInput },
+      ctx: Context
+    ) => {
+      return SubscriptionService.getSubscriptionsByChannelId(ctx, data);
+    },
     getAllActiveSubscriptions: async (_: any, __: any, ctx: Context) => {
       return SubscriptionService.getAllActiveSubscriptions(ctx);
     },
@@ -25,8 +32,44 @@ export const resolvers = {
     ) => {
       return SubscriptionService.checkSubscriptionByEndpoint(data, ctx);
     },
+    getSubscriptionByEndpoint: async (
+      _: any,
+      { data }: { data: SubscriptionService.IToggleSubscriptionInput },
+      ctx: Context
+    ) => {
+      return SubscriptionService.getSubscriptionByEndpoint(data, ctx);
+    },
   },
   Mutation: {
+    addSuggestedChannelsToSubscriptions: (
+      _: any,
+      {
+        data,
+      }: {
+        data: SubscriptionService.IAddSuggestedChannelsToSubscriptionsInput;
+      },
+      ctx: Context
+    ) => {
+      return SubscriptionService.addSuggestedChannelsToSubscriptions(ctx, data);
+    },
+    addChannelToSubscription: (
+      _: any,
+      {
+        data,
+      }: { data: SubscriptionService.IMoveChannelAlongSubscriptionInput },
+      ctx: Context
+    ) => {
+      return SubscriptionService.addChannelToSubscription(data, ctx);
+    },
+    removeChannelFromSubscription: (
+      _: any,
+      {
+        data,
+      }: { data: SubscriptionService.IMoveChannelAlongSubscriptionInput },
+      ctx: Context
+    ) => {
+      return SubscriptionService.removeChannelFromSubscription(data, ctx);
+    },
     postSubscription: (
       _: any,
       { data }: { data: SubscriptionService.IPostSubscriptionInput },

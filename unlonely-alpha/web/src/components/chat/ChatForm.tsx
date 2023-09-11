@@ -312,6 +312,7 @@ const ChatForm = ({
             `${InteractionType.BLAST}:`
           );
           setBlastMode(false);
+          setMessageText("");
         }
       }
     },
@@ -348,6 +349,7 @@ const ChatForm = ({
             `${InteractionType.BLAST}:`
           );
           setBlastMode(false);
+          setMessageText("");
         }
       }
     },
@@ -561,10 +563,6 @@ const ChatForm = ({
                       _active={{ transform: "scale(1.3)" }}
                       onClick={() => {
                         if (user) {
-                          // window.open(
-                          //   `/clip?arn=${channelQueryData?.channelArn || ""}`,
-                          //   "_blank"
-                          // );
                           fetchData();
                           addToChatbot?.({
                             username: user?.username ?? "",

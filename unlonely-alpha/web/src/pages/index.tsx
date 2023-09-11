@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import {
   Box,
   Button,
@@ -18,7 +18,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useRouter } from "next/router";
 import { BiRefresh } from "react-icons/bi";
@@ -31,49 +31,21 @@ import HeroBanner from "../components/layout/HeroBanner";
 import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
 import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
-import { Channel, NfcFeedQuery } from "../generated/graphql";
+import {
+  Channel,
+  GetSubscriptionQuery,
+  NfcFeedQuery,
+} from "../generated/graphql";
 import { SelectableChannel } from "../components/mobile/SelectableChannel";
-
-const CHANNEL_FEED_QUERY = gql`
-  query GetChannelFeed {
-    getChannelFeed {
-      id
-      isLive
-      name
-      description
-      slug
-      owner {
-        username
-        address
-        FCImageUrl
-        lensImageUrl
-      }
-      thumbnailUrl
-    }
-  }
-`;
-
-export const NFC_FEED_QUERY = gql`
-  query NFCFeed($data: NFCFeedInput!) {
-    getNFCFeed(data: $data) {
-      createdAt
-      id
-      videoLink
-      videoThumbnail
-      openseaLink
-      score
-      liked
-      owner {
-        username
-        address
-        FCImageUrl
-        powerUserLvl
-        videoSavantLvl
-      }
-      title
-    }
-  }
-`;
+import {
+  CHANNEL_FEED_QUERY,
+  GET_SUBSCRIPTION,
+  NFC_FEED_QUERY,
+} from "../constants/queries";
+import useAddChannelToSubscription from "../hooks/server/useAddChannelToSubscription";
+import useRemoveChannelFromSubscription from "../hooks/server/useRemoveChannelFromSubscription";
+import { useUser } from "../hooks/context/useUser";
+import { sortChannels } from "../utils/channelSort";
 
 const FixedComponent = () => {
   return (
@@ -116,7 +88,6 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
   });
 
   const nfcs = dataNFCs?.getNFCFeed;
-  const { isIOS } = useUserAgent();
 
   return (
     <>
@@ -314,33 +285,97 @@ function MobilePage({
   dataChannels: any;
   loading: boolean;
 }) {
+  const { initialNotificationsGranted } = useUser();
   const router = useRouter();
   const scrollRef = useRef<VirtuosoHandle>(null);
 
   const [loadingPage, setLoadingPage] = useState<boolean>(false);
+  const [endpoint, setEndpoint] = useState<string>("");
+  const [sortedChannels, setSortedChannels] = useState<Channel[]>([]);
+  const [isSorted, setIsSorted] = useState<boolean>(false);
+
+  const [getSubscription, { data: subscriptionData }] =
+    useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
+      fetchPolicy: "network-only",
+    });
 
   const channels: Channel[] = dataChannels?.getChannelFeed;
+
+  const suggestedChannels =
+    subscriptionData?.getSubscriptionByEndpoint?.allowedChannels;
 
   const handleSelectChannel = useCallback((slug: string) => {
     setLoadingPage(true);
     router.push(`/channels/${slug}`);
   }, []);
 
-  const channelsWithLiveFirst = useMemo(
-    () =>
-      channels && channels.length > 0
-        ? [...channels].sort((a, b) => {
-            if (a.isLive && !b.isLive) {
-              return -1;
-            } else if (!a.isLive && b.isLive) {
-              return 1;
-            } else {
-              return 0;
-            }
-          })
-        : [],
-    [channels]
-  );
+  const { addChannelToSubscription } = useAddChannelToSubscription({
+    onError: () => {
+      console.error("Failed to add channel to subscription.");
+    },
+  });
+
+  const { removeChannelFromSubscription } = useRemoveChannelFromSubscription({
+    onError: () => {
+      console.error("Failed to remove channel from subscription.");
+    },
+  });
+
+  const handleGetSubscription = useCallback(async () => {
+    await getSubscription({
+      variables: { data: { endpoint } },
+      fetchPolicy: "network-only",
+    });
+  }, [endpoint]);
+
+  useEffect(() => {
+    if (endpoint) {
+      handleGetSubscription();
+    }
+  }, [endpoint]);
+
+  useEffect(() => {
+    const init = async () => {
+      if ("serviceWorker" in navigator) {
+        const registrationExists =
+          await navigator.serviceWorker.getRegistration("/");
+        if (registrationExists) {
+          const subscription =
+            await registrationExists.pushManager.getSubscription();
+          if (subscription) {
+            const endpoint = subscription.endpoint;
+            setEndpoint(endpoint);
+          }
+        }
+      }
+    };
+    init();
+  }, [initialNotificationsGranted]);
+
+  useEffect(() => {
+    if (isSorted || !suggestedChannels || !channels) return;
+    const liveChannels = channels.filter((channel) => channel.isLive);
+    const _suggestedNonLiveChannels = channels.filter(
+      (channel) =>
+        suggestedChannels.includes(String(channel.id)) && !channel.isLive
+    );
+    const otherChannels = channels.filter(
+      (channel) =>
+        !suggestedChannels.includes(String(channel.id)) && !channel.isLive
+    );
+
+    const sortedLiveChannels = sortChannels(liveChannels);
+    const sortedSuggestedNonLiveChannels = sortChannels(
+      _suggestedNonLiveChannels
+    );
+    const sortedOtherChannels = sortChannels(otherChannels);
+    setSortedChannels([
+      ...sortedLiveChannels,
+      ...sortedSuggestedNonLiveChannels,
+      ...sortedOtherChannels,
+    ]);
+    setIsSorted(true);
+  }, [channels, isSorted, suggestedChannels]);
 
   return (
     <AppLayout isCustomHeader={false}>
@@ -368,17 +403,26 @@ function MobilePage({
               right="1rem"
               bottom="1rem"
             />
-            {channelsWithLiveFirst.length > 0 && (
+            {sortedChannels.length > 0 && (
               <Virtuoso
                 followOutput={"auto"}
                 ref={scrollRef}
-                data={channelsWithLiveFirst}
-                totalCount={channelsWithLiveFirst.length}
+                data={sortedChannels}
+                totalCount={sortedChannels.length}
                 initialTopMostItemIndex={0}
                 itemContent={(index, data) => (
                   <SelectableChannel
                     key={data.id || index}
+                    subscribed={
+                      suggestedChannels?.includes(String(data.id)) ?? false
+                    }
                     channel={data}
+                    addChannelToSubscription={addChannelToSubscription}
+                    removeChannelFromSubscription={
+                      removeChannelFromSubscription
+                    }
+                    handleGetSubscription={handleGetSubscription}
+                    endpoint={endpoint}
                     callback={handleSelectChannel}
                   />
                 )}

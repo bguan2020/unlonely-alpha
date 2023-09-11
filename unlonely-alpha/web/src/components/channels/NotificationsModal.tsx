@@ -15,30 +15,13 @@ import { isAddressEqual } from "viem";
 
 import { SEND_ALL_NOTIFICATIONS_QUERY } from "../../constants/queries";
 import { QuerySendAllNotificationsArgs } from "../../generated/graphql";
+import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { PreviewNotification } from "../mobile/PreviewNotification";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
-const inputStyle = {
-  borderWidth: "1px",
-  borderRadius: "10px",
-  borderColor: "#51bfe0",
-  bg: "rgba(36, 79, 167, 0.05)",
-  variant: "unstyled",
-  px: "16px",
-  py: "10px",
-  boxShadow: "0px 0px 8px #4388b6",
-};
-
 const BRIAN = "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa";
-
-type DeviceNotificationsType = {
-  address?: string | null;
-  token: string;
-  notificationsLive: boolean;
-  notificationsNFCs: boolean;
-};
 
 export default function NotificationsModal({
   title,
@@ -51,12 +34,16 @@ export default function NotificationsModal({
   callback?: any;
   handleClose: () => void;
 }) {
-  const [call, { loading: sendLoading, data: sendData }] =
-    useLazyQuery<QuerySendAllNotificationsArgs>(SEND_ALL_NOTIFICATIONS_QUERY, {
+  const [call] = useLazyQuery<QuerySendAllNotificationsArgs>(
+    SEND_ALL_NOTIFICATIONS_QUERY,
+    {
       fetchPolicy: "network-only",
-    });
+    }
+  );
 
   const { user } = useUser();
+  const { channel } = useChannelContext();
+  const { channelQueryData } = channel;
   const [isSending, setIsSending] = useState(false);
   const [selectedType, setSelectedType] = useState("live");
   const toast = useToast();
@@ -81,6 +68,7 @@ export default function NotificationsModal({
   );
 
   const sendNotifications = useCallback(async () => {
+    if (channelQueryData?.id === undefined) return;
     setIsSending(true);
     try {
       await call({
@@ -88,6 +76,7 @@ export default function NotificationsModal({
           data: {
             title: selectedType === "live" ? titleLive : titleNFCs,
             body: selectedType === "live" ? bodyLive : bodyNFCs,
+            channelId: channelQueryData?.id,
           },
         },
       });
@@ -109,7 +98,14 @@ export default function NotificationsModal({
       });
     }
     setIsSending(false);
-  }, [selectedType, titleLive, titleNFCs, bodyLive, bodyNFCs]);
+  }, [
+    selectedType,
+    titleLive,
+    titleNFCs,
+    bodyLive,
+    bodyNFCs,
+    channelQueryData,
+  ]);
 
   return (
     <TransactionModalTemplate
@@ -142,7 +138,6 @@ export default function NotificationsModal({
             </TabList>
           </Tabs>
         )}
-
         <Box
           borderRadius="10px"
           padding="16px"
@@ -158,7 +153,7 @@ export default function NotificationsModal({
                     title
                   </Text>
                   <Input
-                    {...inputStyle}
+                    variant="glow"
                     defaultValue={titleNFCs}
                     onChange={(event) => setTitleNFCs(event.target.value)}
                   />
@@ -168,7 +163,7 @@ export default function NotificationsModal({
                     description
                   </Text>
                   <Input
-                    {...inputStyle}
+                    variant="glow"
                     defaultValue={bodyNFCs}
                     onChange={(event) => setBodyNFCs(event.target.value)}
                   />
@@ -178,7 +173,7 @@ export default function NotificationsModal({
               <Flex direction="column" gap="10px">
                 <Text fontSize="15px">enter a description</Text>
                 <Input
-                  {...inputStyle}
+                  variant="glow"
                   placeholder="Ex. cooking stream"
                   _placeholder={{ color: "#bababa" }}
                   defaultValue={bodyLive}

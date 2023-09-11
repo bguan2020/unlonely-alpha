@@ -39,17 +39,19 @@ export const useUser = () => {
 };
 
 const UserContext = createContext<{
-  user: User | undefined;
+  user?: User;
   username?: string;
   userAddress?: `0x${string}`;
   walletIsConnected: boolean;
   loginMethod?: string;
+  initialNotificationsGranted: boolean;
 }>({
   user: undefined,
   username: undefined,
   userAddress: undefined,
   walletIsConnected: false,
   loginMethod: undefined,
+  initialNotificationsGranted: false,
 });
 
 export const UserProvider = ({
@@ -66,6 +68,8 @@ export const UserProvider = ({
   const [showTurnOnNotifications, setShowTurnOnNotificationsModal] = useState<
     "off" | "start" | "loading" | "granted" | "denied"
   >("off");
+  const [initialNotificationsGranted, setInitialNotificationsGranted] =
+    useState(false);
 
   const { postSubscription } = usePostSubscription({
     onError: () => {
@@ -132,7 +136,7 @@ export const UserProvider = ({
             });
             const subscriptionJSON = subscription.toJSON();
             if (subscriptionJSON) {
-              postSubscription({
+              await postSubscription({
                 endpoint: subscriptionJSON.endpoint,
                 expirationTime: null,
                 p256dh: subscriptionJSON.keys?.p256dh,
@@ -144,6 +148,7 @@ export const UserProvider = ({
           }
           if (result === "granted" || result === "denied") {
             setShowTurnOnNotificationsModal(result);
+            if (result === "granted") setInitialNotificationsGranted(true);
           }
         }
         // If permission is "denied", you can handle it as needed. For example, showing some UI/UX elements guiding the user on how to enable notifications from browser settings.
@@ -161,7 +166,7 @@ export const UserProvider = ({
           });
           const subscriptionJSON = subscription.toJSON();
           if (subscriptionJSON) {
-            postSubscription({
+            await postSubscription({
               endpoint: subscriptionJSON.endpoint,
               expirationTime: null,
               p256dh: subscriptionJSON.keys?.p256dh,
@@ -234,8 +239,17 @@ export const UserProvider = ({
       userAddress: address as `0x${string}`,
       walletIsConnected,
       loginMethod,
+      initialNotificationsGranted,
     }),
-    [user, username, address, walletIsConnected, loginMethod]
+    [
+      user,
+      username,
+      address,
+      walletIsConnected,
+      loginMethod,
+      showTurnOnNotifications,
+      initialNotificationsGranted,
+    ]
   );
 
   return (

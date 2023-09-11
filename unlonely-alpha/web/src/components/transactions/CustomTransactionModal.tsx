@@ -238,16 +238,6 @@ export default function CustomTransactionModal({
     }
   );
 
-  const inputStyle = {
-    borderWidth: "1px",
-    borderRadius: "10px",
-    borderColor: "#244FA7",
-    bg: "rgba(36, 79, 167, 0.05)",
-    variant: "unstyled",
-    px: "16px",
-    py: "10px",
-  };
-
   const canOwnerSend = useMemo(() => {
     // if not owner, can't send
     if (!isOwner) return false;
@@ -394,7 +384,7 @@ export default function CustomTransactionModal({
                 </Flex>
                 {chosenRequest === CUSTOM && (
                   <Input
-                    {...inputStyle}
+                    variant="glow"
                     placeholder='e.g. "do 10 situps"'
                     value={customRequest}
                     onChange={(e) => setCustomRequest(e.target.value)}
@@ -404,7 +394,7 @@ export default function CustomTransactionModal({
                   <Text>price</Text>
                   <Input
                     width="100px"
-                    {...inputStyle}
+                    variant="glow"
                     value={newPrice}
                     onChange={(e) =>
                       setNewPrice(filteredInput(e.target.value, false))

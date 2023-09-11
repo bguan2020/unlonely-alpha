@@ -56,7 +56,7 @@ const StreamComponent = () => {
       width="100%"
       height={
         !isStandalone
-          ? { base: "100%", sm: "500px", md: "600px", lg: "700px" }
+          ? { base: "250px", sm: "500px", md: "600px", lg: "700px" }
           : "25vh"
       }
     >
