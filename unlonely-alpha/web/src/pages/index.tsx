@@ -18,7 +18,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState, useRef, useMemo, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useRouter } from "next/router";
 import { BiRefresh } from "react-icons/bi";
@@ -45,6 +45,7 @@ import {
 import useAddChannelToSubscription from "../hooks/server/useAddChannelToSubscription";
 import useRemoveChannelFromSubscription from "../hooks/server/useRemoveChannelFromSubscription";
 import { useUser } from "../hooks/context/useUser";
+import { sortChannels } from "../utils/channelSort";
 
 const FixedComponent = () => {
   return (
@@ -290,6 +291,8 @@ function MobilePage({
 
   const [loadingPage, setLoadingPage] = useState<boolean>(false);
   const [endpoint, setEndpoint] = useState<string>("");
+  const [sortedChannels, setSortedChannels] = useState<Channel[]>([]);
+  const [isSorted, setIsSorted] = useState<boolean>(false);
 
   const [getSubscription, { data: subscriptionData }] =
     useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
@@ -349,43 +352,30 @@ function MobilePage({
     init();
   }, [initialNotificationsGranted]);
 
-  const suggestedChannelsFirst = useMemo(
-    () =>
-      channels && channels.length > 0
-        ? [...channels].sort((a, b) => {
-            if (
-              suggestedChannels?.includes(String(a.id)) &&
-              !suggestedChannels?.includes(String(b.id))
-            ) {
-              return -1;
-            } else if (
-              !suggestedChannels?.includes(String(a.id)) &&
-              suggestedChannels?.includes(String(b.id))
-            ) {
-              return 1;
-            } else {
-              return 0;
-            }
-          })
-        : [],
-    [channels, suggestedChannels]
-  );
+  useEffect(() => {
+    if (isSorted || !suggestedChannels || !channels) return;
+    const liveChannels = channels.filter((channel) => channel.isLive);
+    const _suggestedNonLiveChannels = channels.filter(
+      (channel) =>
+        suggestedChannels.includes(String(channel.id)) && !channel.isLive
+    );
+    const otherChannels = channels.filter(
+      (channel) =>
+        !suggestedChannels.includes(String(channel.id)) && !channel.isLive
+    );
 
-  const channelsWithLiveFirst = useMemo(
-    () =>
-      suggestedChannelsFirst && suggestedChannelsFirst.length > 0
-        ? [...suggestedChannelsFirst].sort((a, b) => {
-            if (a.isLive && !b.isLive) {
-              return -1;
-            } else if (!a.isLive && b.isLive) {
-              return 1;
-            } else {
-              return 0;
-            }
-          })
-        : [],
-    [suggestedChannelsFirst]
-  );
+    const sortedLiveChannels = sortChannels(liveChannels);
+    const sortedSuggestedNonLiveChannels = sortChannels(
+      _suggestedNonLiveChannels
+    );
+    const sortedOtherChannels = sortChannels(otherChannels);
+    setSortedChannels([
+      ...sortedLiveChannels,
+      ...sortedSuggestedNonLiveChannels,
+      ...sortedOtherChannels,
+    ]);
+    setIsSorted(true);
+  }, [channels, isSorted, suggestedChannels]);
 
   return (
     <AppLayout isCustomHeader={false}>
@@ -413,12 +403,12 @@ function MobilePage({
               right="1rem"
               bottom="1rem"
             />
-            {channelsWithLiveFirst.length > 0 && (
+            {sortedChannels.length > 0 && (
               <Virtuoso
                 followOutput={"auto"}
                 ref={scrollRef}
-                data={channelsWithLiveFirst}
-                totalCount={channelsWithLiveFirst.length}
+                data={sortedChannels}
+                totalCount={sortedChannels.length}
                 initialTopMostItemIndex={0}
                 itemContent={(index, data) => (
                   <SelectableChannel
