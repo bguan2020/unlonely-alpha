@@ -23,6 +23,7 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { isAddress } from "viem";
 import { GoPin } from "react-icons/go";
+import { useBalance } from "wagmi";
 
 import ChatForm from "./ChatForm";
 import Participants from "../presence/Participants";
@@ -39,6 +40,7 @@ import CustomButton from "../arcade/CustomButton";
 import MessageList from "./MessageList";
 import { useChat } from "../../hooks/chat/useChat";
 import { getHolders } from "../../utils/getHolders";
+import { filteredInput } from "../../utils/validation/input";
 
 type Props = {
   chatBot: ChatBot[];
@@ -99,11 +101,22 @@ const AblyChatComponent = ({
     string | undefined
   >(undefined);
   const [isBuying, setIsBuying] = useState<boolean>(true);
+  const [amount, setAmount] = useState("");
 
   const clickedOutsideLeaderBoard = useRef(false);
   const clickedOutsideArcade = useRef(false);
   const leaderboardRef = useRef<HTMLDivElement>(null);
   const arcadeRef = useRef<HTMLDivElement>(null);
+
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
+    address: address as `0x${string}`,
+  });
+
+  const handleInputChange = (event: any) => {
+    const input = event.target.value;
+    const filtered = filteredInput(input);
+    setAmount(filtered);
+  };
 
   useEffect(() => {
     if (showLeaderboard && !holdersLoading && !holdersData) {
@@ -560,7 +573,9 @@ const AblyChatComponent = ({
                     borderBottomRightRadius={"0"}
                     variant="glow"
                     boxShadow={"unset"}
-                    placeholder={"0"}
+                    placeholder={"enter amount of shares"}
+                    value={amount}
+                    onChange={handleInputChange}
                   />
                   <Button
                     _hover={{ bg: "rgba(54, 170, 212, 1)" }}
