@@ -656,20 +656,6 @@ const StandaloneAblyChatComponent = ({
                     alignItems="center"
                     justifyItems="center"
                   >
-                    {/* <GridItem>
-                        <Tooltip label={"coming soon"}>
-                          <span>
-                            <DiceButton noHover />
-                          </span>
-                        </Tooltip>
-                      </GridItem> */}
-                    {/* <GridItem>
-                        <Tooltip label={"coming soon"}>
-                          <span>
-                            <SwordButton noHover />
-                          </span>
-                        </Tooltip>
-                      </GridItem> */}
                     <GridItem>
                       <Tooltip label={"make streamer do X"}>
                         <span>
@@ -679,15 +665,6 @@ const StandaloneAblyChatComponent = ({
                         </span>
                       </Tooltip>
                     </GridItem>
-                    {/* <GridItem>
-                      <Tooltip label={"control text on the stream"}>
-                        <span>
-                          <ControlButton
-                            callback={() => setShowControlModal?.(true)}
-                          />
-                        </span>
-                      </Tooltip>
-                    </GridItem> */}
                     <GridItem>
                       <Tooltip label={"tip the streamer"}>
                         <span>
@@ -726,15 +703,6 @@ const StandaloneAblyChatComponent = ({
                       </span>
                     </Tooltip>
                   </GridItem>
-                  {/* <GridItem>
-                    <Tooltip
-                      label={!user ? "connect wallet first" : "not available"}
-                    >
-                      <span>
-                        <ControlButton />
-                      </span>
-                    </Tooltip>
-                  </GridItem> */}
                   <GridItem>
                     <Tooltip
                       label={!user ? "connect wallet first" : "not available"}
@@ -744,24 +712,6 @@ const StandaloneAblyChatComponent = ({
                       </span>
                     </Tooltip>
                   </GridItem>
-                  {/* <GridItem>
-                      <Tooltip
-                        label={!user ? "connect wallet first" : "not available"}
-                      >
-                        <span>
-                          <DiceButton />
-                        </span>
-                      </Tooltip>
-                    </GridItem> */}
-                  {/* <GridItem>
-                      <Tooltip
-                        label={!user ? "connect wallet first" : "not available"}
-                      >
-                        <span>
-                          <SwordButton />
-                        </span>
-                      </Tooltip>
-                    </GridItem> */}
                 </Grid>
               </>
             )}
