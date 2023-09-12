@@ -167,11 +167,6 @@ h1 {
   animation: zoomAnim 2s 1.2s linear infinite;
 }
 
-.zooming-text-2 {
-  letter-spacing: normal;
-  animation: zoomAnim2 2s 1.2s linear infinite;
-}
-
 .bouncing-text {
   letter-spacing: normal;
   animation: waveAnim 1s 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;

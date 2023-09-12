@@ -57,12 +57,7 @@ export const SharesInterface = () => {
         pointerEvents={"none"}
       />
       <Flex direction="column" p="0.5rem">
-        <Flex
-          position="absolute"
-          left="5px"
-          top="5px"
-          className="zooming-text-2"
-        >
+        <Flex position="absolute" left="5px" top="5px">
           <GoPin />
         </Flex>
         <Flex justifyContent="center">
@@ -133,7 +128,7 @@ export const SharesInterface = () => {
         {selectedSharesOption === undefined ? null : (
           <Flex direction="column" mt="10px" gap="5px">
             <Flex justifyContent={"space-between"} zIndex="1">
-              <Text fontWeight="light">amount</Text>
+              <Text fontWeight="light">enter amount of shares</Text>
               <Text fontWeight="light">(your shares: 0.2)</Text>
             </Flex>
             <Flex>
@@ -161,7 +156,7 @@ export const SharesInterface = () => {
                 borderBottomRightRadius={"0"}
                 variant="glow"
                 boxShadow={"unset"}
-                placeholder={"enter amount of shares"}
+                placeholder={"0"}
                 value={amount}
                 onChange={handleInputChange}
               />
