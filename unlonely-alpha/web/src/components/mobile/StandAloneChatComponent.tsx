@@ -41,6 +41,7 @@ import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubsc
 import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChannelFromSubscription";
 import { useChat } from "../../hooks/chat/useChat";
 import { getHolders } from "../../utils/getHolders";
+import { SharesInterface } from "../chat/SharesInterface";
 
 type Props = {
   previewStream?: boolean;
@@ -825,6 +826,7 @@ const StandaloneAblyChatComponent = ({
           </Flex>
         </Flex>
       )}
+      <SharesInterface />
       <MessageList
         scrollRef={scrollRef}
         messages={receivedMessages}
