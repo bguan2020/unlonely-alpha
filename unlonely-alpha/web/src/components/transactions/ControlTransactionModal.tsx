@@ -149,6 +149,7 @@ export default function ControlTransactionModal({
     },
     {
       onWriteSuccess: (data) => {
+        handleClose();
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
@@ -184,7 +185,6 @@ export default function ControlTransactionModal({
           position: "top-right",
         });
         handleBackendSend();
-        handleClose();
       },
     }
   );

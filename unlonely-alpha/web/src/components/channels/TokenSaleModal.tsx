@@ -53,6 +53,7 @@ export default function TokenSaleModal({
     undefined,
     {
       onWriteSuccess: (data) => {
+        handleClose();
         toast({
           duration: 9000,
           isClosable: true,
@@ -88,7 +89,6 @@ export default function TokenSaleModal({
           ),
         });
         callback?.();
-        handleClose();
       },
     }
   );

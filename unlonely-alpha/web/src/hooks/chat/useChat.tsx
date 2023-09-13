@@ -234,7 +234,8 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
       } else if (
         latestMessage.data.body &&
         (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
-          latestMessage.data.body.split(":")[0] === InteractionType.TIP)
+          latestMessage.data.body.split(":")[0] === InteractionType.TIP) &&
+        Date.now() - latestMessage.timestamp < 6000
       ) {
         fireworks();
       } else if (

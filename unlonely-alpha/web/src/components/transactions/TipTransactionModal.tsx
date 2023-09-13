@@ -141,6 +141,7 @@ export default function TipTransactionModal({
     },
     {
       onWriteSuccess: (data) => {
+        handleClose();
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
@@ -186,7 +187,6 @@ export default function TipTransactionModal({
           } $${channelQueryData?.token?.symbol}!`,
           description: "Tip",
         });
-        handleClose();
       },
     }
   );

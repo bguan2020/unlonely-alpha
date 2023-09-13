@@ -189,6 +189,7 @@ export default function CustomTransactionModal({
     },
     {
       onWriteSuccess: (data) => {
+        handleClose();
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
@@ -233,7 +234,6 @@ export default function CustomTransactionModal({
           description: "",
         });
         refetchUserTokenBalance?.();
-        handleClose();
       },
     }
   );

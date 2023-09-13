@@ -75,7 +75,7 @@ const ChannelContext = createContext<{
     data?: GetTokenHoldersByChannelQuery;
     loading: boolean;
     error?: ApolloError;
-    refetchTokenHolders?: () => void;
+    refetchTokenHolders?: () => Promise<void>;
   };
 }>({
   channel: {
@@ -117,7 +117,7 @@ const ChannelContext = createContext<{
     data: undefined,
     loading: true,
     error: undefined,
-    refetchTokenHolders: () => undefined,
+    refetchTokenHolders: undefined,
   },
 });
 
@@ -233,8 +233,8 @@ export const ChannelProvider = ({
     }
   }, [channelQueryData]);
 
-  const handleRefetchTokenHolders = useCallback(() => {
-    getTokenHolders({
+  const handleRefetchTokenHolders = useCallback(async () => {
+    await getTokenHolders({
       variables: {
         data: {
           channelId: channelQueryData?.id,

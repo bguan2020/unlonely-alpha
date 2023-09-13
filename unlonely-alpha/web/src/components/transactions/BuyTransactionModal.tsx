@@ -117,6 +117,7 @@ export default function BuyTransactionModal({
     },
     {
       onWriteSuccess: (data) => {
+        handleClose();
         toast({
           duration: 9000,
           isClosable: true,
@@ -172,7 +173,6 @@ export default function BuyTransactionModal({
           description: "Buy",
         });
         refetchTokenHolders?.();
-        handleClose();
       },
     }
   );
