@@ -592,7 +592,13 @@ const ChatForm = ({
                     />
                   )}
                   {allowPopout && (
-                    <Tooltip label={"chat popout"} defaultIsOpen>
+                    <Tooltip
+                      label={"chat popout"}
+                      background="#1557c0"
+                      hasArrow
+                      defaultIsOpen
+                      placement="top"
+                    >
                       <IconButton
                         onClick={openChatPopout}
                         aria-label="chat-popout"

@@ -1,12 +1,10 @@
 import { Box, Flex } from "@chakra-ui/react";
 
-import { ChatBot } from "../../constants/types";
 import ChatForm from "../chat/ChatForm";
 import MessageList from "../chat/MessageList";
 import NextHead from "../layout/NextHead";
 import { useChat } from "../../hooks/chat/useChat";
-
-const CHAT_INPUT_PANEL_HEIGHT = 120;
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 const styles = `
   html, body {
@@ -23,12 +21,9 @@ const styles = `
   }
 `;
 
-type Props = {
-  chatBot: ChatBot[];
-  addToChatbot: (chatBotMessageToAdd: ChatBot) => void;
-};
-
-const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
+const MobileAblyChatComponent = () => {
+  const { arcade } = useChannelContext();
+  const { chatBot, addToChatbot } = arcade;
   const {
     handleScrollToPresent,
     handleIsAtBottom,
@@ -138,4 +133,4 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
   );
 };
 
-export default AblyChatComponent;
+export default MobileAblyChatComponent;

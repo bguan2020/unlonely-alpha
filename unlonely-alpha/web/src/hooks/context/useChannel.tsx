@@ -9,6 +9,7 @@ import {
 } from "react";
 import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
 import { useBalance } from "wagmi";
+import { Image } from "@chakra-ui/react";
 
 import {
   CHANNEL_DETAIL_MOBILE_QUERY,
@@ -23,10 +24,21 @@ import {
   GetRecentStreamInteractionsQuery,
   GetTokenHoldersByChannelQuery,
 } from "../../generated/graphql";
-import { FetchBalanceResult } from "../../constants/types";
+import { ChatBot, FetchBalanceResult } from "../../constants/types";
 import { useUser } from "./useUser";
 import { InteractionType } from "../../constants";
 import { useClip } from "../chat/useClip";
+import BuyButton from "../../components/arcade/BuyButton";
+import CalendarEventModal from "../../components/channels/CalendarEventModal";
+import ChatCommandModal from "../../components/channels/ChatCommandModal";
+import EditChannelModal from "../../components/channels/EditChannelModal";
+import NotificationsModal from "../../components/channels/NotificationsModal";
+import TokenSaleModal from "../../components/channels/TokenSaleModal";
+import BuyTransactionModal from "../../components/transactions/BuyTransactionModal";
+import ChanceTransactionModal from "../../components/transactions/ChanceTransactionModal";
+import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
+import CustomTransactionModal from "../../components/transactions/CustomTransactionModal";
+import TipTransactionModal from "../../components/transactions/TipTransactionModal";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -77,6 +89,32 @@ const ChannelContext = createContext<{
     error?: ApolloError;
     refetchTokenHolders?: () => Promise<void>;
   };
+  arcade: {
+    addToChatbot: (chatBotMessageToAdd: ChatBot) => void;
+    handleBuyModal: (value: boolean) => void;
+    handleTipModal: (value: boolean) => void;
+    handleCustomModal: (value: boolean) => void;
+    handleChanceModal: (value: boolean) => void;
+    handlePvpModal: (value: boolean) => void;
+    handleControlModal: (value: boolean) => void;
+    handleEditModal: (value: boolean) => void;
+    handleNotificationsModal: (value: boolean) => void;
+    handleTokenSaleModal: (value: boolean) => void;
+    handleEventModal: (value: boolean) => void;
+    handleChatCommandModal: (value: boolean) => void;
+    showBuyModal: boolean;
+    showTipModal: boolean;
+    showCustomModal: boolean;
+    showChanceModal: boolean;
+    showPvpModal: boolean;
+    showControlModal: boolean;
+    showEditModal: boolean;
+    showNotificationsModal: boolean;
+    showTokenSaleModal: boolean;
+    showEventModal: boolean;
+    showChatCommandModal: boolean;
+    chatBot: ChatBot[];
+  };
 }>({
   channel: {
     channelQueryData: undefined,
@@ -119,6 +157,32 @@ const ChannelContext = createContext<{
     error: undefined,
     refetchTokenHolders: undefined,
   },
+  arcade: {
+    addToChatbot: () => undefined,
+    handleBuyModal: () => undefined,
+    handleTipModal: () => undefined,
+    handleCustomModal: () => undefined,
+    handleChanceModal: () => undefined,
+    handlePvpModal: () => undefined,
+    handleControlModal: () => undefined,
+    handleEditModal: () => undefined,
+    handleNotificationsModal: () => undefined,
+    handleTokenSaleModal: () => undefined,
+    handleEventModal: () => undefined,
+    handleChatCommandModal: () => undefined,
+    showBuyModal: false,
+    showTipModal: false,
+    showCustomModal: false,
+    showChanceModal: false,
+    showPvpModal: false,
+    showControlModal: false,
+    showEditModal: false,
+    showNotificationsModal: false,
+    showTokenSaleModal: false,
+    showEventModal: false,
+    showChatCommandModal: false,
+    chatBot: [],
+  },
 });
 
 export const ChannelProvider = ({
@@ -128,7 +192,7 @@ export const ChannelProvider = ({
   mobile?: boolean;
   children: React.ReactNode;
 }) => {
-  const { user } = useUser();
+  const { user, userAddress } = useUser();
   const router = useRouter();
   const { slug, awsId } = router.query;
 
@@ -155,6 +219,8 @@ export const ChannelProvider = ({
         : channelData?.getChannelBySlug,
     [channelData, channelMobileData, mobile]
   );
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   const {
     data: recentStreamInteractionsData,
@@ -216,6 +282,22 @@ export const ChannelProvider = ({
     setIsClipUiOpen(isClipUiOpen);
   }, []);
 
+  const [chatBot, setChatBot] = useState<ChatBot[]>([]);
+
+  const [showTipModal, setShowTipModal] = useState<boolean>(false);
+  const [showChanceModal, setShowChanceModal] = useState<boolean>(false);
+  const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
+  const [showControlModal, setShowControlModal] = useState<boolean>(false);
+  const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
+  const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
+
+  const [showTokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
+  const [showChatCommandModal, setChatCommandModal] = useState<boolean>(false);
+  const [showEditModal, setEditModal] = useState<boolean>(false);
+  const [showNotificationsModal, setNotificationsModal] =
+    useState<boolean>(false);
+  const [showEventModal, setEventModal] = useState<boolean>(false);
+
   const {
     fetchData,
     submitClip,
@@ -268,6 +350,63 @@ export const ChannelProvider = ({
     setTextOverVideo((prev) => [...prev, message]);
   }, []);
 
+  const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
+    setChatBot((prev) => [...prev, chatBotMessageToAdd]);
+  }, []);
+
+  const handleBuyModal = useCallback((value: boolean) => {
+    setShowBuyModal(value);
+  }, []);
+
+  const handleTipModal = useCallback((value: boolean) => {
+    setShowTipModal(value);
+  }, []);
+
+  const handleCustomModal = useCallback((value: boolean) => {
+    setShowCustomModal(value);
+  }, []);
+
+  const handleChanceModal = useCallback((value: boolean) => {
+    setShowChanceModal(value);
+  }, []);
+
+  const handlePvpModal = useCallback((value: boolean) => {
+    setShowPvpModal(value);
+  }, []);
+
+  const handleControlModal = useCallback((value: boolean) => {
+    setShowControlModal(value);
+  }, []);
+
+  const handleEditModal = useCallback((value: boolean) => {
+    setEditModal(value);
+  }, []);
+
+  const handleNotificationsModal = useCallback((value: boolean) => {
+    setNotificationsModal(value);
+  }, []);
+
+  const handleTokenSaleModal = useCallback((value: boolean) => {
+    setTokenSaleModal(value);
+  }, []);
+
+  const handleEventModal = useCallback((value: boolean) => {
+    setEventModal(value);
+  }, []);
+
+  const handleChatCommandModal = useCallback((value: boolean) => {
+    setChatCommandModal(value);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setShowTipModal(false);
+    setShowChanceModal(false);
+    setShowPvpModal(false);
+    setShowControlModal(false);
+    setShowBuyModal(false);
+    setShowCustomModal(false);
+  }, []);
+
   const value = useMemo(
     () => ({
       channel: {
@@ -312,6 +451,32 @@ export const ChannelProvider = ({
         error: holdersError,
         refetchTokenHolders: handleRefetchTokenHolders,
       },
+      arcade: {
+        addToChatbot,
+        handleBuyModal,
+        handleTipModal,
+        handleCustomModal,
+        handleChanceModal,
+        handlePvpModal,
+        handleControlModal,
+        handleEditModal,
+        handleNotificationsModal,
+        handleTokenSaleModal,
+        handleEventModal,
+        handleChatCommandModal,
+        showBuyModal,
+        showTipModal,
+        showCustomModal,
+        showChanceModal,
+        showPvpModal,
+        showControlModal,
+        showEditModal,
+        showNotificationsModal,
+        showTokenSaleModal,
+        showEventModal,
+        showChatCommandModal,
+        chatBot,
+      },
     }),
     [
       channelQueryData,
@@ -350,6 +515,105 @@ export const ChannelProvider = ({
   );
 
   return (
-    <ChannelContext.Provider value={value}>{children}</ChannelContext.Provider>
+    <ChannelContext.Provider value={value}>
+      <TokenSaleModal
+        title={"offer tokens for sale"}
+        isOpen={showTokenSaleModal}
+        handleClose={() => setTokenSaleModal(false)}
+      />
+      <ChatCommandModal
+        title={"custom commands"}
+        isOpen={showChatCommandModal}
+        handleClose={() => setChatCommandModal(false)}
+      />
+      <EditChannelModal
+        title={"edit title / description"}
+        isOpen={showEditModal}
+        handleClose={() => setEditModal(false)}
+      />
+      <NotificationsModal
+        title={"send notifications"}
+        isOpen={showNotificationsModal}
+        handleClose={() => setNotificationsModal(false)}
+      />
+      <CalendarEventModal
+        title={"add event"}
+        isOpen={showEventModal}
+        handleClose={() => setEventModal(false)}
+      />
+      <CustomTransactionModal
+        icon={
+          <Image
+            alt="custom"
+            src="/svg/arcade/custom.svg"
+            width="60px"
+            height="60px"
+          />
+        }
+        title={isOwner ? "customize your button!" : "make streamer do X"}
+        isOpen={showCustomModal}
+        handleClose={handleClose}
+        addToChatbot={addToChatbot}
+      />
+      <ControlTransactionModal
+        icon={
+          <Image
+            alt="control"
+            src="/svg/arcade/control.svg"
+            width="60px"
+            height="60px"
+          />
+        }
+        title="control the stream!"
+        isOpen={showControlModal}
+        handleClose={handleClose}
+        addToChatbot={addToChatbot}
+      />
+      <BuyTransactionModal
+        title=""
+        icon={
+          <BuyButton
+            tokenName={
+              channelQueryData?.token?.symbol
+                ? `$${channelQueryData?.token?.symbol}`
+                : "token"
+            }
+            noHover
+          />
+        }
+        isOpen={showBuyModal}
+        handleClose={handleClose}
+        addToChatbot={addToChatbot}
+      />
+      <TipTransactionModal
+        icon={
+          <Image
+            alt="coin"
+            src="/svg/arcade/coin.svg"
+            width="60px"
+            height="60px"
+          />
+        }
+        title="tip on the stream!"
+        isOpen={showTipModal}
+        handleClose={handleClose}
+        addToChatbot={addToChatbot}
+      />
+      <ChanceTransactionModal
+        icon={
+          <Image
+            alt="dice"
+            src="/svg/arcade/dice.svg"
+            width="60px"
+            height="60px"
+          />
+        }
+        title="feeling lucky? roll the die for a surprise!"
+        isOpen={showChanceModal}
+        handleClose={handleClose}
+        addToChatbot={addToChatbot}
+      />
+      {children}
+    </ChannelContext.Provider>
   );
 };

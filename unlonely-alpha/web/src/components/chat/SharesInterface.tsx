@@ -160,7 +160,7 @@ export const SharesInterface = () => {
                 onChange={handleInputChange}
               />
               <Button
-                _hover={{ bg: "rgba(54, 170, 212, 1)" }}
+                _hover={{ bg: "rgba(54, 170, 212, 0.2)" }}
                 _focus={{}}
                 _active={{}}
                 borderTopLeftRadius={"0"}

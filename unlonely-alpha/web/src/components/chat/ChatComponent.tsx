@@ -27,7 +27,6 @@ import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import CoinButton from "../arcade/CoinButton";
 // import DiceButton from "../arcade/DiceButton";
 import BuyButton from "../arcade/BuyButton";
-import { ChatBot } from "../../constants/types";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import CustomButton from "../arcade/CustomButton";
@@ -36,32 +35,20 @@ import { useChat } from "../../hooks/chat/useChat";
 import { getHolders } from "../../utils/getHolders";
 import { SharesInterface } from "./SharesInterface";
 
-type Props = {
-  chatBot: ChatBot[];
-  addToChatbot: (chatBotMessageToAdd: ChatBot) => void;
-  handleControlModal?: () => void;
-  handleChanceModal?: () => void;
-  handlePvpModal?: () => void;
-  handleTipModal?: () => void;
-  handleBuyModal?: () => void;
-  handleCustomModal?: () => void;
-};
-
-const AblyChatComponent = ({
-  chatBot,
-  addToChatbot,
-  handleControlModal,
-  handleChanceModal,
-  handlePvpModal,
-  handleTipModal,
-  handleBuyModal,
-  handleCustomModal,
-}: Props) => {
+const AblyChatComponent = () => {
   const {
     channel: channelContext,
     chat,
     holders: holdersContext,
+    arcade,
   } = useChannelContext();
+  const {
+    chatBot,
+    addToChatbot,
+    handleBuyModal,
+    handleTipModal,
+    handleCustomModal,
+  } = arcade;
   const { channelQueryData } = channelContext;
   const { chatChannel, presenceChannel } = chat;
   const {
@@ -237,7 +224,7 @@ const AblyChatComponent = ({
                           ? `$${channelQueryData?.token?.symbol}`
                           : "token"
                       }
-                      callback={handleBuyModal}
+                      callback={() => handleBuyModal(true)}
                     />
                     <Grid
                       mt="50px"
@@ -249,14 +236,16 @@ const AblyChatComponent = ({
                       <GridItem>
                         <Tooltip label={"make streamer do X"}>
                           <span>
-                            <CustomButton callback={handleCustomModal} />
+                            <CustomButton
+                              callback={() => handleCustomModal(true)}
+                            />
                           </span>
                         </Tooltip>
                       </GridItem>
                       <GridItem>
                         <Tooltip label={"tip the streamer"}>
                           <span>
-                            <CoinButton callback={handleTipModal} />
+                            <CoinButton callback={() => handleTipModal(true)} />
                           </span>
                         </Tooltip>
                       </GridItem>
