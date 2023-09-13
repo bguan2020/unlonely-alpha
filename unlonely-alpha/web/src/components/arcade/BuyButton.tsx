@@ -37,6 +37,7 @@ const BuyButton: React.FunctionComponent<Props> = ({
             onMouseLeave={() => setIsHovered(false)}
             onClick={callback}
             position="relative"
+            width="300px"
           />
           <Flex
             direction="column"
