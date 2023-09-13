@@ -355,15 +355,6 @@ const DesktopPage = ({
                                       />
                                     </span>
                                   </Tooltip>
-                                  {/* <Tooltip label={"control text on the stream"}>
-                                    <span>
-                                      <ControlButton
-                                        callback={() =>
-                                          setShowControlModal(true)
-                                        }
-                                      />
-                                    </span>
-                                  </Tooltip> */}
                                 </Grid>
                                 <BuyButton
                                   tokenName={
@@ -409,17 +400,6 @@ const DesktopPage = ({
                                     <CoinButton />
                                   </span>
                                 </Tooltip>
-                                {/* <Tooltip
-                                  label={
-                                    !user
-                                      ? "connect wallet first"
-                                      : "not available"
-                                  }
-                                >
-                                  <span>
-                                    <ControlButton />
-                                  </span>
-                                </Tooltip> */}
                               </Grid>
                               <Tooltip
                                 label={
@@ -619,7 +599,11 @@ const MobilePage = ({
             title=""
             icon={
               <BuyButton
-                tokenName={`$${channelQueryData?.token?.symbol}`}
+                tokenName={
+                  channelQueryData?.token?.symbol
+                    ? `$${channelQueryData?.token?.symbol}`
+                    : "token"
+                }
                 noHover
               />
             }

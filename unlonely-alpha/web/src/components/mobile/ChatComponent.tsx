@@ -63,7 +63,6 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
           style={{
             // backgroundColor: "yellow",
             height: "100%",
-            paddingBottom: CHAT_INPUT_PANEL_HEIGHT,
             overflowY: "scroll",
             overscrollBehavior: "contain",
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -71,8 +70,6 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
             "-webkit-overflow-scrolling": "touch",
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            "-webkit-mask-image":
-              "linear-gradient(180deg, rgba(0,0,0,1) 92%, rgba(0,0,0,0) 100%)",
           }}
         >
           <Flex
@@ -82,6 +79,7 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
             id="chat"
             position="relative"
             padding="8px"
+            background={"#19162F"}
           >
             <MessageList
               scrollRef={scrollRef}
@@ -89,6 +87,14 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
               channel={channel}
               isAtBottomCallback={handleIsAtBottom}
             />
+            <Flex mt="20px" w="100%">
+              <ChatForm
+                sendChatMessage={sendChatMessage}
+                inputBox={inputBox}
+                additionalChatCommands={channelChatCommands}
+                addToChatbot={addToChatbot}
+              />
+            </Flex>
           </Flex>
           <button
             style={{
@@ -127,23 +133,6 @@ const AblyChatComponent = ({ chatBot, addToChatbot }: Props) => {
             </span>
           </button>
         </div>
-      </div>
-      <div
-        style={{
-          width: "100%",
-          position: "fixed",
-          bottom: 0,
-          padding: 8,
-          paddingBottom: 0,
-        }}
-      >
-        <ChatForm
-          sendChatMessage={sendChatMessage}
-          inputBox={inputBox}
-          additionalChatCommands={channelChatCommands}
-          addToChatbot={addToChatbot}
-          mobile
-        />
       </div>
     </Box>
   );

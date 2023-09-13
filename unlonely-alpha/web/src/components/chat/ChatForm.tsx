@@ -52,6 +52,7 @@ type Props = {
   mobile?: boolean;
   additionalChatCommands?: CommandData[];
   addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
+  allowPopout?: boolean;
 };
 
 const PRICE = "2";
@@ -62,6 +63,7 @@ const ChatForm = ({
   mobile,
   additionalChatCommands,
   addToChatbot,
+  allowPopout,
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
   const { isStandalone } = useUserAgent();
@@ -396,6 +398,16 @@ const ChatForm = ({
     });
   };
 
+  const openChatPopout = () => {
+    if (!channelQueryData) return;
+    const windowFeatures = "width=400,height=600,menubar=yes,toolbar=yes";
+    window.open(
+      `${window.location.origin}/mobile/chat/${channelQueryData?.awsId}`,
+      "_blank",
+      windowFeatures
+    );
+  };
+
   return (
     <>
       <ChatClip />
@@ -579,7 +591,19 @@ const ChatForm = ({
                       }}
                     />
                   )}
-
+                  {allowPopout && (
+                    <Tooltip label={"chat popout"} defaultIsOpen>
+                      <IconButton
+                        onClick={openChatPopout}
+                        aria-label="chat-popout"
+                        _focus={{}}
+                        _hover={{ transform: "scale(1.15)" }}
+                        _active={{ transform: "scale(1.3)" }}
+                        icon={<Image src="/svg/pop-out.svg" />}
+                        bg="transparent"
+                      />
+                    </Tooltip>
+                  )}
                   <IconButton
                     icon={<Image src="/svg/blast.svg" />}
                     aria-label="clip stream"

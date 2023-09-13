@@ -450,6 +450,7 @@ const AblyChatComponent = ({
             inputBox={inputBox}
             additionalChatCommands={channelChatCommands}
             addToChatbot={addToChatbot}
+            allowPopout
           />
         </Flex>
       </Flex>
