@@ -30,38 +30,23 @@ export const SharesInterface = () => {
     <Box
       mt="10px"
       transition="all 0.5s ease"
-      bg={"#282461"}
+      bg={"#1b183f"}
       borderRadius={"10px"}
       border="1px solid #ffffff"
       boxShadow={"0px 0px 10px #ffffff"}
       position="relative"
     >
-      <Box
-        borderRadius={"10px"}
-        position="absolute"
-        w="100%"
-        height="100%"
-        bgGradient="linear(to-t, #006400, transparent 100%)"
-        opacity={selectedSharesOption === "yes" ? 1 : 0}
-        transition="opacity 0.3s"
-        pointerEvents={"none"}
-      />
-      <Box
-        borderRadius={"10px"}
-        position="absolute"
-        w="100%"
-        height="100%"
-        bgGradient="linear(to-t, #aa1902, transparent 100%)"
-        opacity={selectedSharesOption === "no" ? 1 : 0}
-        transition="opacity 0.3s"
-        pointerEvents={"none"}
-      />
-      <Flex direction="column" p="0.5rem">
+      <Flex direction="column">
         <Flex position="absolute" left="5px" top="5px">
           <GoPin />
         </Flex>
         <Flex justifyContent="center">
-          <Text textAlign={"center"} width="90%">
+          <Text
+            textAlign={"center"}
+            width="90%"
+            fontSize={"20px"}
+            fontWeight={"bold"}
+          >
             there is gonna be a question over here
           </Text>
         </Flex>
@@ -81,54 +66,67 @@ export const SharesInterface = () => {
             top="-5px"
           />
         )}
-        <Flex justifyContent={"center"} gap={"10px"}>
+        <Flex justifyContent={"center"} gap={"10px"} my="10px">
           <Button
-            _hover={{ bg: "#7ce603" }}
+            _hover={{}}
             _focus={{}}
             _active={{}}
             transform={
               selectedSharesOption === "no" ? "scale(0.95)" : undefined
             }
-            opacity={selectedSharesOption === "no" ? 0.3 : 1}
-            bg="#75d606"
+            opacity={selectedSharesOption === "no" ? 0.9 : 1}
+            bg={selectedSharesOption === "no" ? "#909090" : "#009d2a"}
             onClick={() => setSelectedSharesOption("yes")}
           >
             <Flex direction="column">
-              <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
+              <Text
+                fontFamily="Neue Pixel Sans"
+                fontWeight={"light"}
+                fontSize="15px"
+              >
                 YES
               </Text>
-              <Text fontWeight={"light"} fontSize="14px">
+              <Text fontWeight={"light"} fontSize="12px">
                 (0.001)
               </Text>
             </Flex>
           </Button>
           <Button
-            _hover={{
-              bg: "#e75309",
-            }}
+            _hover={{}}
             _focus={{}}
             _active={{}}
             transform={
               selectedSharesOption === "yes" ? "scale(0.95)" : undefined
             }
-            bg="#da3b14"
-            opacity={selectedSharesOption === "yes" ? 0.25 : 1}
+            opacity={selectedSharesOption === "yes" ? 0.9 : 1}
+            bg={selectedSharesOption === "yes" ? "#909090" : "#da3b14"}
             onClick={() => setSelectedSharesOption("no")}
           >
             <Flex direction="column">
-              <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
+              <Text
+                fontFamily="Neue Pixel Sans"
+                fontWeight={"light"}
+                fontSize="15px"
+              >
                 NO
               </Text>
-              <Text fontWeight={"light"} fontSize="14px">
+              <Text fontWeight={"light"} fontSize="12px">
                 (0.003)
               </Text>
             </Flex>
           </Button>
         </Flex>
         {selectedSharesOption === undefined ? null : (
-          <Flex direction="column" mt="10px" gap="5px">
+          <Flex
+            direction="column"
+            gap="5px"
+            bg={"rgba(0, 0, 0, 0.258)"}
+            p="0.5rem"
+          >
             <Flex justifyContent={"space-between"} zIndex="1">
-              <Text fontWeight="light">enter amount of shares</Text>
+              <Text fontWeight="light" opacity="0.75">
+                enter amount of shares
+              </Text>
               <Text fontWeight="light">(your shares: 0.2)</Text>
             </Flex>
             <Flex>
@@ -136,7 +134,8 @@ export const SharesInterface = () => {
                 width="60%"
                 borderTopRightRadius={"0"}
                 borderBottomRightRadius={"0"}
-                bg={isBuying ? "#75d606" : "#ec6a00"}
+                bg={isBuying ? "#009d2a" : "#da3b14"}
+                value={isBuying ? "buy" : "sell"}
                 onChange={(e) => {
                   const buyState = e.target.value === "buy";
                   setIsBuying(buyState);
@@ -179,8 +178,14 @@ export const SharesInterface = () => {
               </Text>
               <Text fontWeight="light">0.001 ETH</Text>
             </Flex>
-            <Button _hover={{}} _focus={{}} _active={{}} bg={"#00bbff"} py={6}>
-              <Text fontSize="23px">confirm {isBuying ? "buy" : "sell"}</Text>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={"#E09025"}
+              borderRadius="25px"
+            >
+              <Text fontSize="20px">confirm {isBuying ? "buy" : "sell"}</Text>
             </Button>
           </Flex>
         )}

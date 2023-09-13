@@ -606,7 +606,9 @@ const ChatForm = ({
                   />
                   <IconButton
                     type="submit"
-                    disabled={messageTextIsEmpty || tooltipError !== ""}
+                    disabled={
+                      messageTextIsEmpty || (tooltipError !== "" && blastMode)
+                    }
                     icon={
                       blastMode ? (
                         <Image src="/svg/blast-send.svg" />
