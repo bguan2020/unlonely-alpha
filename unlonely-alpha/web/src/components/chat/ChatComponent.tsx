@@ -42,13 +42,7 @@ const AblyChatComponent = () => {
     holders: holdersContext,
     arcade,
   } = useChannelContext();
-  const {
-    chatBot,
-    addToChatbot,
-    handleBuyModal,
-    handleTipModal,
-    handleCustomModal,
-  } = arcade;
+  const { chatBot, handleBuyModal, handleTipModal, handleCustomModal } = arcade;
   const { channelQueryData } = channelContext;
   const { chatChannel, presenceChannel } = chat;
   const {
@@ -438,7 +432,6 @@ const AblyChatComponent = () => {
             sendChatMessage={sendChatMessage}
             inputBox={inputBox}
             additionalChatCommands={channelChatCommands}
-            addToChatbot={addToChatbot}
             allowPopout
           />
         </Flex>

@@ -73,7 +73,6 @@ const StandaloneAblyChatComponent = ({
     handleCustomModal,
     handleBuyModal,
     handleTipModal,
-    addToChatbot,
   } = arcade;
   const { chatChannel } = chat;
 
@@ -839,7 +838,6 @@ const StandaloneAblyChatComponent = ({
         sendChatMessage={sendChatMessage}
         inputBox={inputBox}
         additionalChatCommands={channelChatCommands}
-        addToChatbot={addToChatbot}
       />
     </Flex>
   );

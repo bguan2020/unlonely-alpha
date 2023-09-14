@@ -5,7 +5,6 @@ import { useBalance, useNetwork } from "wagmi";
 import Link from "next/link";
 
 import { useUser } from "../../hooks/context/useUser";
-import { ChatBot } from "../../constants/types";
 import {
   filteredInput,
   formatIncompleteNumber,
@@ -34,19 +33,18 @@ export default function BuyTransactionModal({
   icon,
   callback,
   handleClose,
-  addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
   icon?: JSX.Element;
   callback?: () => void;
   handleClose: () => void;
-  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
   const { isStandalone } = useUserAgent();
 
   const { user, userAddress, walletIsConnected } = useUser();
-  const { channel, token, holders } = useChannelContext();
+  const { channel, token, holders, arcade } = useChannelContext();
+  const { addToChatbot } = arcade;
   const { network: net } = useNetworkContext();
   const { matchingChain } = net;
   const { channelQueryData } = channel;
@@ -163,7 +161,7 @@ export default function BuyTransactionModal({
             amountOption === "custom" ? amount : amountOption
           ),
         });
-        addToChatbot?.({
+        addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.BUY,
@@ -178,7 +176,7 @@ export default function BuyTransactionModal({
   );
 
   const handleSend = async () => {
-    if (!buyCreatorToken || !addToChatbot) return;
+    if (!buyCreatorToken) return;
     await buyCreatorToken();
   };
 

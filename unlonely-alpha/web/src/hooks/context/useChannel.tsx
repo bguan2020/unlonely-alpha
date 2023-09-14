@@ -220,8 +220,6 @@ export const ChannelProvider = ({
     [channelData, channelMobileData, mobile]
   );
 
-  const isOwner = userAddress === channelQueryData?.owner.address;
-
   const {
     data: recentStreamInteractionsData,
     loading: recentStreamInteractionsDataLoading,
@@ -516,30 +514,79 @@ export const ChannelProvider = ({
 
   return (
     <ChannelContext.Provider value={value}>
+      <TransactionModals />
+      {children}
+    </ChannelContext.Provider>
+  );
+};
+
+const TransactionModals = () => {
+  const { arcade, channel } = useChannelContext();
+  const { channelQueryData } = channel;
+
+  const { userAddress } = useUser();
+
+  const {
+    handleEditModal,
+    handleNotificationsModal,
+    handleTokenSaleModal,
+    handleEventModal,
+    handleChatCommandModal,
+    handleBuyModal,
+    handleTipModal,
+    handleCustomModal,
+    handleChanceModal,
+    handlePvpModal,
+    handleControlModal,
+    showEditModal,
+    showNotificationsModal,
+    showTokenSaleModal,
+    showEventModal,
+    showChatCommandModal,
+    showCustomModal,
+    showControlModal,
+    showChanceModal,
+    showTipModal,
+    showBuyModal,
+  } = arcade;
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
+
+  const handleClose = useCallback(() => {
+    handleTipModal(false);
+    handleChanceModal(false);
+    handlePvpModal(false);
+    handleControlModal(false);
+    handleBuyModal(false);
+    handleCustomModal(false);
+  }, []);
+
+  return (
+    <>
       <TokenSaleModal
         title={"offer tokens for sale"}
         isOpen={showTokenSaleModal}
-        handleClose={() => setTokenSaleModal(false)}
+        handleClose={() => handleTokenSaleModal(false)}
       />
       <ChatCommandModal
         title={"custom commands"}
         isOpen={showChatCommandModal}
-        handleClose={() => setChatCommandModal(false)}
+        handleClose={() => handleChatCommandModal(false)}
       />
       <EditChannelModal
         title={"edit title / description"}
         isOpen={showEditModal}
-        handleClose={() => setEditModal(false)}
+        handleClose={() => handleEditModal(false)}
       />
       <NotificationsModal
         title={"send notifications"}
         isOpen={showNotificationsModal}
-        handleClose={() => setNotificationsModal(false)}
+        handleClose={() => handleNotificationsModal(false)}
       />
       <CalendarEventModal
         title={"add event"}
         isOpen={showEventModal}
-        handleClose={() => setEventModal(false)}
+        handleClose={() => handleEventModal(false)}
       />
       <CustomTransactionModal
         icon={
@@ -553,7 +600,6 @@ export const ChannelProvider = ({
         title={isOwner ? "customize your button!" : "make streamer do X"}
         isOpen={showCustomModal}
         handleClose={handleClose}
-        addToChatbot={addToChatbot}
       />
       <ControlTransactionModal
         icon={
@@ -567,7 +613,6 @@ export const ChannelProvider = ({
         title="control the stream!"
         isOpen={showControlModal}
         handleClose={handleClose}
-        addToChatbot={addToChatbot}
       />
       <BuyTransactionModal
         title=""
@@ -583,7 +628,6 @@ export const ChannelProvider = ({
         }
         isOpen={showBuyModal}
         handleClose={handleClose}
-        addToChatbot={addToChatbot}
       />
       <TipTransactionModal
         icon={
@@ -597,7 +641,6 @@ export const ChannelProvider = ({
         title="tip on the stream!"
         isOpen={showTipModal}
         handleClose={handleClose}
-        addToChatbot={addToChatbot}
       />
       <ChanceTransactionModal
         icon={
@@ -611,9 +654,7 @@ export const ChannelProvider = ({
         title="feeling lucky? roll the die for a surprise!"
         isOpen={showChanceModal}
         handleClose={handleClose}
-        addToChatbot={addToChatbot}
       />
-      {children}
-    </ChannelContext.Provider>
+    </>
   );
 };

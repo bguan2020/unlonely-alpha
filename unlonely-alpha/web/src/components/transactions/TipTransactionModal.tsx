@@ -5,7 +5,6 @@ import { useNetwork } from "wagmi";
 import Link from "next/link";
 
 import { useUser } from "../../hooks/context/useUser";
-import { ChatBot } from "../../constants/types";
 import {
   filteredInput,
   formatIncompleteNumber,
@@ -30,17 +29,16 @@ export default function TipTransactionModal({
   icon,
   callback,
   handleClose,
-  addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
   icon?: JSX.Element;
   callback?: () => void;
   handleClose: () => void;
-  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
-  const { channel, token } = useChannelContext();
+  const { channel, token, arcade } = useChannelContext();
   const { network: net } = useNetworkContext();
+  const { addToChatbot } = arcade;
   const { matchingChain } = net;
 
   const { channelQueryData } = channel;
@@ -178,7 +176,7 @@ export default function TipTransactionModal({
         });
         callback?.();
         refetchUserTokenBalance?.();
-        addToChatbot?.({
+        addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.TIP,
@@ -192,7 +190,7 @@ export default function TipTransactionModal({
   );
 
   const handleSend = async () => {
-    if (!useFeature || !addToChatbot) return;
+    if (!useFeature) return;
     await useFeature();
   };
 

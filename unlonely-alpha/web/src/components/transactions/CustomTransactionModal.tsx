@@ -16,7 +16,6 @@ import { useNetwork } from "wagmi";
 import { parseUnits } from "viem";
 import Link from "next/link";
 
-import { ChatBot } from "../../constants/types";
 import { ModalButton } from "../general/button/ModalButton";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
@@ -49,13 +48,11 @@ export default function CustomTransactionModal({
   isOpen,
   icon,
   handleClose,
-  addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
   icon?: JSX.Element;
   handleClose: () => void;
-  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
   const { isStandalone } = useUserAgent();
   const { network: net } = useNetworkContext();
@@ -71,8 +68,11 @@ export default function CustomTransactionModal({
     );
   }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-  const { channel, token } = useChannelContext();
+  const { channel, token, arcade } = useChannelContext();
+  const { addToChatbot } = arcade;
+
   const { channelQueryData } = channel;
+  console.log("channelQueryData", channelQueryData);
   const { userTokenBalance, refetchUserTokenBalance } = token;
 
   const isOwner = useMemo(
@@ -86,26 +86,21 @@ export default function CustomTransactionModal({
   const [isEditing, setIsEditing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const [newPrice, setNewPrice] = useState<string>(
-    String(channelQueryData?.customButtonPrice ?? "0")
-  );
+  const [newPrice, setNewPrice] = useState<string>("0");
   const [chosenRequest, setChosenRequest] = useState<string>("");
-  const [customRequest, setCustomRequest] = useState<string>(
-    String(channelQueryData?.customButtonAction ?? "")
-  );
+  const [customRequest, setCustomRequest] = useState<string>("");
 
   useEffect(() => {
     setCurrentPrice(String(channelQueryData?.customButtonPrice ?? "0"));
     setCurrentRequest(String(channelQueryData?.customButtonAction ?? ""));
+    setNewPrice(String(channelQueryData?.customButtonPrice ?? "0"));
+    setCustomRequest(String(channelQueryData?.customButtonAction ?? ""));
     setChosenRequest(
       sampleArray.find(
         (s) => s === String(channelQueryData?.customButtonAction ?? "")
       ) ?? CUSTOM
     );
-  }, [
-    channelQueryData?.customButtonAction,
-    channelQueryData?.customButtonPrice,
-  ]);
+  }, [channelQueryData]);
 
   const { updateChannelCustomButton, loading: updateLoading } =
     useUpdateChannelCustomButton({});
@@ -224,7 +219,7 @@ export default function CustomTransactionModal({
           isClosable: true,
           position: "top-right",
         });
-        addToChatbot?.({
+        addToChatbot({
           username: user?.username ?? "",
           address: user?.address ?? "",
           taskType: InteractionType.CUSTOM,

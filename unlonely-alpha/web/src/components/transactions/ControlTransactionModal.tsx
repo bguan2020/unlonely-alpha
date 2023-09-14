@@ -17,7 +17,6 @@ import Link from "next/link";
 
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { useUser } from "../../hooks/context/useUser";
-import { ChatBot } from "../../constants/types";
 import { formatIncompleteNumber } from "../../utils/validation/input";
 import { ModalButton } from "../general/button/ModalButton";
 import { TransactionModalTemplate } from "./TransactionModalTemplate";
@@ -41,16 +40,15 @@ export default function ControlTransactionModal({
   icon,
   callback,
   handleClose,
-  addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
   icon?: JSX.Element;
   callback?: any;
   handleClose: () => void;
-  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
-  const { channel, token } = useChannelContext();
+  const { channel, token, arcade } = useChannelContext();
+  const { addToChatbot } = arcade;
   const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
   const { isStandalone } = useUserAgent();
@@ -197,7 +195,7 @@ export default function ControlTransactionModal({
         interactionType: InteractionType.CONTROL,
       });
       callback?.(text ?? localText);
-      addToChatbot?.({
+      addToChatbot({
         username: user?.username ?? "",
         address: user?.address ?? "",
         taskType: InteractionType.CONTROL,
@@ -223,7 +221,7 @@ export default function ControlTransactionModal({
   }, [loading, useFeatureTxLoading, isApprovalLoading]);
 
   const handleSend = async () => {
-    if (!useFeature || !addToChatbot) return;
+    if (!useFeature) return;
     await useFeature();
   };
 

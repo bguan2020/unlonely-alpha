@@ -23,7 +23,7 @@ const styles = `
 
 const MobileAblyChatComponent = () => {
   const { arcade } = useChannelContext();
-  const { chatBot, addToChatbot } = arcade;
+  const { chatBot } = arcade;
   const {
     handleScrollToPresent,
     handleIsAtBottom,
@@ -87,7 +87,6 @@ const MobileAblyChatComponent = () => {
                 sendChatMessage={sendChatMessage}
                 inputBox={inputBox}
                 additionalChatCommands={channelChatCommands}
-                addToChatbot={addToChatbot}
               />
             </Flex>
           </Flex>

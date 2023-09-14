@@ -40,7 +40,6 @@ import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { formatIncompleteNumber } from "../../utils/validation/input";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import centerEllipses from "../../utils/centerEllipses";
-import { ChatBot } from "../../constants/types";
 import ConnectWallet from "../navigation/ConnectWallet";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { ChatClip } from "./ChatClip";
@@ -51,7 +50,6 @@ type Props = {
   inputBox: HTMLTextAreaElement | null;
   mobile?: boolean;
   additionalChatCommands?: CommandData[];
-  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
   allowPopout?: boolean;
 };
 
@@ -62,7 +60,6 @@ const ChatForm = ({
   inputBox,
   mobile,
   additionalChatCommands,
-  addToChatbot,
   allowPopout,
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
@@ -72,8 +69,9 @@ const ChatForm = ({
   const { matchingChain } = net;
 
   const toast = useToast();
-  const { channel: channelContext, token, chat } = useChannelContext();
+  const { channel: channelContext, token, chat, arcade } = useChannelContext();
   const { clipping } = chat;
+  const { addToChatbot } = arcade;
   const { fetchData, loading: clipLoading } = clipping;
 
   const { channelQueryData } = channelContext;
@@ -576,7 +574,7 @@ const ChatForm = ({
                       onClick={() => {
                         if (user) {
                           fetchData();
-                          addToChatbot?.({
+                          addToChatbot({
                             username: user?.username ?? "",
                             address: user?.address ?? "",
                             taskType: InteractionType.CLIP,
