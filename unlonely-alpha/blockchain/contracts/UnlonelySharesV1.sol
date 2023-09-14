@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
 pragma solidity ^0.8.0;
 
 /**
@@ -116,8 +114,6 @@ abstract contract Ownable is Context {
 pragma solidity >=0.8.2 <0.9.0;
 
 contract UnlonelySharesV1 is Ownable {
-    using SafeMath for uint256;
-
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
     uint256 public subjectFeePercent;
@@ -179,19 +175,24 @@ contract UnlonelySharesV1 is Ownable {
         subjectFeePercent = _feePercent;
     }
 
-    function getPrice(uint256 supply, uint256 amount) public pure returns (uint256) {
-        uint256 sum1 = supply == 0 ? 0 : (supply - 1) * supply * (2 * (supply - 1) + 1) / 6;
-        uint256 sum2 = (supply == 0 && amount == 1) ? 0 : (supply - 1 + amount) * (supply + amount) * (2 * (supply - 1 + amount) + 1) / 6;
+    function getPrice(address sharesSubject, uint256 amount, bool isYay, bool isBuying) public view returns (uint256) {
+        uint256 supply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
+        uint256 adjustedSupply = isBuying ? supply : amount > supply ? 0 : supply - amount;
+        uint256 sum1 = adjustedSupply == 0 ? 0 : (adjustedSupply - 1) * adjustedSupply * (2 * (adjustedSupply - 1) + 1) / 6;
+        uint256 sum2 = (adjustedSupply == 0 && amount == 1) ? 0 : (adjustedSupply - 1 + amount) * (adjustedSupply + amount) * (2 * (adjustedSupply - 1 + amount) + 1) / 6;
         uint256 summation = sum2 - sum1;
         return summation * 1 ether / 16000;
     }
 
+    function getHolderSharesBalance(address sharesSubject, address holder, bool isYay) public view returns (uint256) {
+        return isYay ? yaySharesBalance[sharesSubject][holder] : naySharesBalance[sharesSubject][holder];
+    }
 
     // def: buyShares takes in streamer address (ex: 0xTed), amount of shares purchased, and if its yay or nay
     function buyShares(address sharesSubject, uint256 amount, bool isYay) public payable {
         uint256 supply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
         require(supply > 0 || sharesSubject == msg.sender, "Only the shares owner subject can buy the first share");
-        uint256 price = getPrice(supply, amount);
+        uint256 price = getPrice(sharesSubject, amount, isYay, true);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         require(msg.value >= price + protocolFee + subjectFee, "Insufficient payment");
@@ -221,7 +222,7 @@ contract UnlonelySharesV1 is Ownable {
         uint256 userShares = isYay ? yaySharesBalance[sharesSubject][msg.sender] : naySharesBalance[sharesSubject][msg.sender];
         require(userShares >= amount, "You don't have enough shares to sell");
 
-        uint256 price = getPrice(supply - amount, amount);
+        uint256 price = getPrice(sharesSubject, amount, isYay, false);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         uint256 netAmount = price - protocolFee - subjectFee;
@@ -261,7 +262,7 @@ contract UnlonelySharesV1 is Ownable {
 
         uint256 totalPool = pooledEth[sharesSubject];
         uint256 totalWinningShares = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        uint256 userPayout = totalPool.mul(userShares).div(totalWinningShares);
+        uint256 userPayout = totalPool * userShares / totalWinningShares;
 
         // Reset user's shares after distributing
         if (result) {
