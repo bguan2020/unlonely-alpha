@@ -65,18 +65,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BrianToken__factory>;
     getContractFactory(
-      name: "Ownable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Ownable__factory>;
-    getContractFactory(
-      name: "UnlonelySharesV1",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.UnlonelySharesV1__factory>;
-    getContractFactory(
-      name: "UnlonelyArcadeContract",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.UnlonelyArcadeContract__factory>;
-    getContractFactory(
       name: "UnlonelyArcadeContractV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UnlonelyArcadeContractV1__factory>;
@@ -84,6 +72,14 @@ declare module "hardhat/types/runtime" {
       name: "UnlonelyNFCsV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UnlonelyNFCsV2__factory>;
+    getContractFactory(
+      name: "Ownable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Ownable__factory>;
+    getContractFactory(
+      name: "UnlonelySharesV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.UnlonelySharesV1__factory>;
     getContractFactory(
       name: "Ownable",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -159,21 +155,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.BrianToken>;
     getContractAt(
-      name: "Ownable",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Ownable>;
-    getContractAt(
-      name: "UnlonelySharesV1",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.UnlonelySharesV1>;
-    getContractAt(
-      name: "UnlonelyArcadeContract",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.UnlonelyArcadeContract>;
-    getContractAt(
       name: "UnlonelyArcadeContractV1",
       address: string,
       signer?: ethers.Signer
@@ -183,6 +164,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.UnlonelyNFCsV2>;
+    getContractAt(
+      name: "Ownable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Ownable>;
+    getContractAt(
+      name: "UnlonelySharesV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.UnlonelySharesV1>;
     getContractAt(
       name: "Ownable",
       address: string,

@@ -1,7 +1,6 @@
-// File: contracts/Context.sol
+// SPDX-License-Identifier: MIT
 
-
-// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 pragma solidity ^0.8.0;
 
@@ -116,25 +115,57 @@ abstract contract Ownable is Context {
 
 pragma solidity >=0.8.2 <0.9.0;
 
-
-// TODO: Events, final pricing model, 
-
 contract UnlonelySharesV1 is Ownable {
+    using SafeMath for uint256;
+
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
     uint256 public subjectFeePercent;
 
     event Trade(address trader, address subject, bool isBuy, bool isYay, uint256 shareAmount, uint256 ethAmount, uint256 protocolEthAmount, uint256 subjectEthAmount, uint256 supply);
+    event EventVerified(address indexed sharesSubject, bool result);
+    event Payout(address indexed voter, uint256 amount);
+    
 
-    // SharesSubject => (Holder => Balance)
-    // DEF: to get the number of shares that a specific holder has for a specific SharesSubject
+    // this is a mapping between streamer and their holders which each own an amount of yay/nay shares
     mapping(address => mapping(address => uint256)) public yaySharesBalance;
     mapping(address => mapping(address => uint256)) public naySharesBalance;
 
-    // SharesSubject => Supply
-    // DEF: to get the total number of shares that have been issued for a specific SharesSubject
+    // this is a mapping between streamer and how many shares have been purchased
     mapping(address => uint256) public yaySharesSupply;
     mapping(address => uint256) public naySharesSupply;
+
+    mapping(address => bool) public eventVerified;
+    mapping(address => bool) public eventResult;
+    mapping(address => bool) public isVerifier;
+
+    // this is a mapping between streamer and total amount of ETH in the pool
+    mapping(address => uint256) public pooledEth;
+
+    modifier onlyVerifier() {
+        require(isVerifier[msg.sender], "Caller is not a verifier");
+        _;
+    }
+
+    constructor() {
+        // Set the contract deployer as the initial verifier
+        isVerifier[msg.sender] = true;
+    }
+
+    function addVerifier(address verifier) public onlyOwner {
+        isVerifier[verifier] = true;
+    }
+
+    function removeVerifier(address verifier) public onlyOwner {
+        isVerifier[verifier] = false;
+    }
+
+    function verifyEvent(address sharesSubject, bool result) public onlyVerifier {
+        require(!eventVerified[sharesSubject], "Event already verified");
+        eventVerified[sharesSubject] = true;
+        eventResult[sharesSubject] = result;
+        emit EventVerified(sharesSubject, result);
+    }
 
     function setFeeDestination(address _feeDestination) public onlyOwner {
         protocolFeeDestination = _feeDestination;
@@ -149,44 +180,26 @@ contract UnlonelySharesV1 is Ownable {
     }
 
     function getPrice(uint256 supply, uint256 amount) public pure returns (uint256) {
-        uint256 sum1 = supply == 0 ? 0 : (supply - 1 )* (supply) * (2 * (supply - 1) + 1) / 6;
-        uint256 sum2 = supply == 0 && amount == 1 ? 0 : (supply - 1 + amount) * (supply + amount) * (2 * (supply - 1 + amount) + 1) / 6;
+        uint256 sum1 = supply == 0 ? 0 : (supply - 1) * supply * (2 * (supply - 1) + 1) / 6;
+        uint256 sum2 = (supply == 0 && amount == 1) ? 0 : (supply - 1 + amount) * (supply + amount) * (2 * (supply - 1 + amount) + 1) / 6;
         uint256 summation = sum2 - sum1;
         return summation * 1 ether / 16000;
     }
 
-    function getBuyPrice(address sharesSubject, uint256 amount, bool isYay) public view returns (uint256) {
-        uint256 supply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        return getPrice(supply, amount);
-    }
 
-    function getSellPrice(address sharesSubject, uint256 amount, bool isYay) public view returns (uint256) {
-        uint256 supply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        return getPrice(supply - amount, amount);
-    }
-
-    function getBuyPriceAfterFee(address sharesSubject, uint256 amount, bool isYay) public view returns (uint256) {
-        uint256 price = getBuyPrice(sharesSubject, amount, isYay);
-        uint256 protocolFee = price * protocolFeePercent / 1 ether;
-        uint256 subjectFee = price * subjectFeePercent / 1 ether;
-        return price + protocolFee + subjectFee;
-    }
-
-    function getSellPriceAfterFee(address sharesSubject, uint256 amount, bool isYay) public view returns (uint256) {
-        uint256 price = getSellPrice(sharesSubject, amount, isYay);
-        uint256 protocolFee = price * protocolFeePercent / 1 ether;
-        uint256 subjectFee = price * subjectFeePercent / 1 ether;
-        return price - protocolFee - subjectFee;
-    }
-
+    // def: buyShares takes in streamer address (ex: 0xTed), amount of shares purchased, and if its yay or nay
     function buyShares(address sharesSubject, uint256 amount, bool isYay) public payable {
         uint256 supply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        require(supply > 0 || sharesSubject == msg.sender, "Only the shares' subject can buy the first share");
+        require(supply > 0 || sharesSubject == msg.sender, "Only the shares owner subject can buy the first share");
         uint256 price = getPrice(supply, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         require(msg.value >= price + protocolFee + subjectFee, "Insufficient payment");
         
+        // Add the sent ETH (minus fees) to the sharesSubject's pool
+        uint256 netEthCost = msg.value - protocolFee - subjectFee;
+        pooledEth[sharesSubject] += netEthCost;
+
         if (isYay) {
             yaySharesBalance[sharesSubject][msg.sender] += amount;
             yaySharesSupply[sharesSubject] += amount;
@@ -201,27 +214,70 @@ contract UnlonelySharesV1 is Ownable {
         require(success1 && success2, "Unable to send funds");
     }
 
-    function sellShares(address sharesSubject, uint256 amount, bool isYay) public payable {
+    function sellShares(address sharesSubject, uint256 amount, bool isYay) public {
         uint256 supply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        require(supply > amount, "Cannot sell the last share");
+        require(supply > amount, "Cannot sell more shares than the current supply");
+        
+        uint256 userShares = isYay ? yaySharesBalance[sharesSubject][msg.sender] : naySharesBalance[sharesSubject][msg.sender];
+        require(userShares >= amount, "You don't have enough shares to sell");
+
         uint256 price = getPrice(supply - amount, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
-        
+        uint256 netAmount = price - protocolFee - subjectFee;
+
+        // Deduct the sold shares from the user's balance and reduce the total supply
         if (isYay) {
-            require(yaySharesBalance[sharesSubject][msg.sender] >= amount, "Insufficient shares");
             yaySharesBalance[sharesSubject][msg.sender] -= amount;
             yaySharesSupply[sharesSubject] -= amount;
         } else {
-            require(naySharesBalance[sharesSubject][msg.sender] >= amount, "Insufficient shares");
             naySharesBalance[sharesSubject][msg.sender] -= amount;
             naySharesSupply[sharesSubject] -= amount;
         }
 
-        emit Trade(msg.sender, sharesSubject, false, isYay, amount, price, protocolFee, subjectFee, supply - amount);
-        (bool success1, ) = msg.sender.call{value: price - protocolFee - subjectFee}("");
-        (bool success2, ) = protocolFeeDestination.call{value: protocolFee}("");
-        (bool success3, ) = sharesSubject.call{value: subjectFee}("");
-        require(success1 && success2 && success3, "Unable to send funds");
+        // Deduct the corresponding ETH from the sharesSubject's pool
+        pooledEth[sharesSubject] -= netAmount;
+
+        uint256 newSupply = supply - amount;
+        emit Trade(msg.sender, sharesSubject, false, isYay, amount, price, protocolFee, subjectFee, newSupply);
+        
+        // Transfer the net amount to the seller
+        payable(msg.sender).transfer(netAmount);
+        
+        // Transfer the protocol and subject fees
+        (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
+        (bool success2, ) = sharesSubject.call{value: subjectFee}("");
+        require(success1 && success2, "Unable to send funds");
     }
+
+
+    function claimPayout(address sharesSubject) public {
+        require(eventVerified[sharesSubject], "Event not yet verified");
+
+        bool result = eventResult[sharesSubject];
+        uint256 userShares = result ? yaySharesBalance[sharesSubject][msg.sender] : naySharesBalance[sharesSubject][msg.sender];
+
+        require(userShares > 0, "No shares to claim for");
+
+        uint256 totalPool = pooledEth[sharesSubject];
+        uint256 totalWinningShares = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
+        uint256 userPayout = totalPool.mul(userShares).div(totalWinningShares);
+
+        // Reset user's shares after distributing
+        if (result) {
+            yaySharesBalance[sharesSubject][msg.sender] = 0;
+            yaySharesSupply[sharesSubject] -= userShares;
+        } else {
+            naySharesBalance[sharesSubject][msg.sender] = 0;
+            naySharesSupply[sharesSubject] -= userShares;
+        }
+
+        // Deduct the user's payout from the sharesSubject's pool
+        pooledEth[sharesSubject] -= userPayout;
+
+        payable(msg.sender).transfer(userPayout);
+        emit Payout(msg.sender, userPayout);
+    }
+
 }
+
