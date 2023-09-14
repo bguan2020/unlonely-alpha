@@ -1,9 +1,9 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\BrianTokenContract.sol": {
-      "lastModificationDate": 1687373916224,
-      "contentHash": "2105773c07a6c00f2bc7335c6b802c3c",
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/contracts/BrianTokenContract.sol": {
+      "lastModificationDate": 1694461749569,
+      "contentHash": "fb86b0567a7f8ca1448966fe19ddaa92",
       "sourceName": "contracts/BrianTokenContract.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -41,8 +41,8 @@
         "BrianToken"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\hardhat\\console.sol": {
-      "lastModificationDate": 1686180600975,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/hardhat/console.sol": {
+      "lastModificationDate": 1672696478641,
       "contentHash": "cc4777addd464ea56fa35b1c45df0591",
       "sourceName": "hardhat/console.sol",
       "solcConfig": {
@@ -77,8 +77,8 @@
         "console"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol": {
-      "lastModificationDate": 1686180568042,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
+      "lastModificationDate": 1675153998648,
       "contentHash": "834a0dde221759af42b030253315b086",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
@@ -117,8 +117,8 @@
         "ERC20"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\access\\Ownable.sol": {
-      "lastModificationDate": 1686180568953,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
+      "lastModificationDate": 1675153998622,
       "contentHash": "e436cea06129be2c73cda4b1acc848b5",
       "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
       "solcConfig": {
@@ -155,8 +155,8 @@
         "Ownable"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\IERC20.sol": {
-      "lastModificationDate": 1686180568604,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+      "lastModificationDate": 1675153998674,
       "contentHash": "ad7c2d0af148c8f9f097d65deeb4da6b",
       "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
       "solcConfig": {
@@ -191,8 +191,8 @@
         "IERC20"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\extensions\\IERC20Metadata.sol": {
-      "lastModificationDate": 1686180568625,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol": {
+      "lastModificationDate": 1675153998675,
       "contentHash": "909ab67fc5c25033fe6cd364f8c056f9",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
       "solcConfig": {
@@ -229,8 +229,8 @@
         "IERC20Metadata"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\Context.sol": {
-      "lastModificationDate": 1686180567663,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/utils/Context.sol": {
+      "lastModificationDate": 1675153998622,
       "contentHash": "5f2c5c4b6af2dd4551027144797bc8be",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
@@ -265,8 +265,8 @@
         "Context"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol": {
-      "lastModificationDate": 1691179368763,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol": {
+      "lastModificationDate": 1675153998674,
       "contentHash": "190f627b9302b9602d3a313e28205cc5",
       "sourceName": "@openzeppelin/contracts/token/ERC721/ERC721.sol",
       "solcConfig": {
@@ -309,8 +309,8 @@
         "ERC721"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\IERC721.sol": {
-      "lastModificationDate": 1691179370651,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol": {
+      "lastModificationDate": 1675153998674,
       "contentHash": "eb7e61db29f31d88b3c1cef1b063d338",
       "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721.sol",
       "solcConfig": {
@@ -347,8 +347,8 @@
         "IERC721"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\IERC721Receiver.sol": {
-      "lastModificationDate": 1691179370863,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol": {
+      "lastModificationDate": 1675153998674,
       "contentHash": "c22d4395e33763de693fd440c6fd10e1",
       "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
       "solcConfig": {
@@ -383,8 +383,8 @@
         "IERC721Receiver"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\extensions\\IERC721Metadata.sol": {
-      "lastModificationDate": 1691179370792,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol": {
+      "lastModificationDate": 1675153998675,
       "contentHash": "efbc0d15b80a74e34dbe8da0f3e879bb",
       "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol",
       "solcConfig": {
@@ -421,8 +421,8 @@
         "IERC721Metadata"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\Address.sol": {
-      "lastModificationDate": 1691179367103,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/utils/Address.sol": {
+      "lastModificationDate": 1675153998622,
       "contentHash": "f31ad6fc4bbf9c06203987220156a6ba",
       "sourceName": "@openzeppelin/contracts/utils/Address.sol",
       "solcConfig": {
@@ -457,8 +457,8 @@
         "Address"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\Strings.sol": {
-      "lastModificationDate": 1691179371979,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/utils/Strings.sol": {
+      "lastModificationDate": 1675153998622,
       "contentHash": "396031251978f8febfd90cb62cb240ec",
       "sourceName": "@openzeppelin/contracts/utils/Strings.sol",
       "solcConfig": {
@@ -495,8 +495,8 @@
         "Strings"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\introspection\\ERC165.sol": {
-      "lastModificationDate": 1691179368135,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol": {
+      "lastModificationDate": 1675153998674,
       "contentHash": "0e7db055ce108f9da7bb6686a00287c0",
       "sourceName": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
       "solcConfig": {
@@ -533,8 +533,8 @@
         "ERC165"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\introspection\\IERC165.sol": {
-      "lastModificationDate": 1691179370167,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol": {
+      "lastModificationDate": 1675153998674,
       "contentHash": "03e6768535ac4da0e9756f1d8a4a018a",
       "sourceName": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
       "solcConfig": {
@@ -569,8 +569,8 @@
         "IERC165"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\math\\Math.sol": {
-      "lastModificationDate": 1691179371605,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/utils/math/Math.sol": {
+      "lastModificationDate": 1675153998674,
       "contentHash": "b9c58920ce74d6dc819161786112e7ee",
       "sourceName": "@openzeppelin/contracts/utils/math/Math.sol",
       "solcConfig": {
@@ -605,8 +605,8 @@
         "Math"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\extensions\\ERC721URIStorage.sol": {
-      "lastModificationDate": 1691179368991,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol": {
+      "lastModificationDate": 1675153998675,
       "contentHash": "8af32effd0536e2971ff8496812a5016",
       "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
       "solcConfig": {
@@ -643,9 +643,9 @@
         "ERC721URIStorage"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelyNFCsV2.sol": {
-      "lastModificationDate": 1691177856362,
-      "contentHash": "897795c0d91336b9005c5ff3f208ab18",
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/contracts/UnlonelyNFCsV2.sol": {
+      "lastModificationDate": 1689611843521,
+      "contentHash": "7753717c815a33560df14e474e8d6a91",
       "sourceName": "contracts/UnlonelyNFCsV2.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -683,8 +683,8 @@
         "UnlonelyNFCsV2"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\Counters.sol": {
-      "lastModificationDate": 1691179367362,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/utils/Counters.sol": {
+      "lastModificationDate": 1675153998622,
       "contentHash": "74654e3ae5d7f39555055dfe244dab7a",
       "sourceName": "@openzeppelin/contracts/utils/Counters.sol",
       "solcConfig": {
@@ -719,8 +719,8 @@
         "Counters"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\utils\\SafeERC20.sol": {
-      "lastModificationDate": 1691179371902,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol": {
+      "lastModificationDate": 1675153998675,
       "contentHash": "0320a90f714843ca19373ed143fc4466",
       "sourceName": "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
       "solcConfig": {
@@ -759,8 +759,8 @@
         "SafeERC20"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\extensions\\draft-IERC20Permit.sol": {
-      "lastModificationDate": 1691179367788,
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol": {
+      "lastModificationDate": 1675153998675,
       "contentHash": "fb77f144244b9ab12533aa6ce85ef8c5",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
       "solcConfig": {
@@ -795,9 +795,9 @@
         "IERC20Permit"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelyArcadeContractV2.sol": {
-      "lastModificationDate": 1690821737961,
-      "contentHash": "fb1fafab556ecde1638305b63fdb3437",
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/contracts/UnlonelyArcadeContractV2.sol": {
+      "lastModificationDate": 1694461749570,
+      "contentHash": "791b46d1b44e676267c4bae0e90f2172",
       "sourceName": "contracts/UnlonelyArcadeContractV2.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -833,6 +833,84 @@
       ],
       "artifacts": [
         "UnlonelyArcadeContractV1"
+      ]
+    },
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol": {
+      "lastModificationDate": 1675153998674,
+      "contentHash": "2337f0279507b5edf14a07067adf0d05",
+      "sourceName": "@openzeppelin/contracts/utils/math/SafeMath.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "SafeMath"
+      ]
+    },
+    "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/contracts/UnlonelySharesV1.sol": {
+      "lastModificationDate": 1694652653527,
+      "contentHash": "c1fade0a9b62de5902dc755bbc33ee23",
+      "sourceName": "contracts/UnlonelySharesV1.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/utils/math/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0",
+        "^0.8.0",
+        ">=0.8.2 <0.9.0"
+      ],
+      "artifacts": [
+        "Context",
+        "Ownable",
+        "UnlonelySharesV1"
       ]
     }
   }
