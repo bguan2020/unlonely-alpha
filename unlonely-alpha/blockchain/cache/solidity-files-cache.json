@@ -872,8 +872,8 @@
       ]
     },
     "/Users/brianguan/Desktop/projects/unlonely/unlonely-alpha/blockchain/contracts/UnlonelySharesV1.sol": {
-      "lastModificationDate": 1694652653527,
-      "contentHash": "c1fade0a9b62de5902dc755bbc33ee23",
+      "lastModificationDate": 1694724587425,
+      "contentHash": "0310fca2a938a52c53d1a64134b631c6",
       "sourceName": "contracts/UnlonelySharesV1.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -899,13 +899,9 @@
           }
         }
       },
-      "imports": [
-        "@openzeppelin/contracts/utils/math/SafeMath.sol"
-      ],
+      "imports": [],
       "versionPragmas": [
-        "^0.8.0",
-        "^0.8.0",
-        ">=0.8.2 <0.9.0"
+        "^0.8.0"
       ],
       "artifacts": [
         "Context",

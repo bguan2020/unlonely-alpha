@@ -1,19 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
 pragma solidity ^0.8.0;
 
-/**
- * @dev Provides information about the current execution context, including the
- * sender of the transaction and its data. While these are generally available
- * via msg.sender and msg.data, they should not be accessed in such a direct
- * manner, since when dealing with meta-transactions the account sending and
- * paying for execution may not be the actual sender (as far as an application
- * is concerned).
- *
- * This contract is only required for intermediate, library-like contracts.
- */
 abstract contract Context {
     function _msgSender() internal view virtual returns (address) {
         return msg.sender;
@@ -24,26 +12,6 @@ abstract contract Context {
     }
 }
 
-// File: contracts/Ownable.sol
-
-
-// OpenZeppelin Contracts (last updated v4.7.0) (access/Ownable.sol)
-
-pragma solidity ^0.8.0;
-
-
-/**
- * @dev Contract module which provides a basic access control mechanism, where
- * there is an account (an owner) that can be granted exclusive access to
- * specific functions.
- *
- * By default, the owner account will be the one that deploys the contract. This
- * can later be changed with {transferOwnership}.
- *
- * This module is used through inheritance. It will make available the modifier
- * `onlyOwner`, which can be applied to your functions to restrict their use to
- * the owner.
- */
 abstract contract Ownable is Context {
     address private _owner;
 
@@ -109,15 +77,8 @@ abstract contract Ownable is Context {
     }
 }
 
-// File: contracts/FriendtechShares.sol
-
-
-
-pragma solidity >=0.8.2 <0.9.0;
 
 contract UnlonelySharesV1 is Ownable {
-    using SafeMath for uint256;
-
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
     uint256 public subjectFeePercent;
@@ -179,6 +140,10 @@ contract UnlonelySharesV1 is Ownable {
         subjectFeePercent = _feePercent;
     }
 
+    function getHolderSharesBalance(address sharesSubject, address holder, bool isYay) public view returns (uint256) {
+        return isYay ? yaySharesBalance[sharesSubject][holder] : naySharesBalance[sharesSubject][holder];
+    }
+
     function getPrice(uint256 supply, uint256 amount) public pure returns (uint256) {
         uint256 sum1 = supply == 0 ? 0 : (supply - 1) * supply * (2 * (supply - 1) + 1) / 6;
         uint256 sum2 = (supply == 0 && amount == 1) ? 0 : (supply - 1 + amount) * (supply + amount) * (2 * (supply - 1 + amount) + 1) / 6;
@@ -186,6 +151,29 @@ contract UnlonelySharesV1 is Ownable {
         return summation * 1 ether / 16000;
     }
 
+    function getBuyPrice(address sharesSubject, uint256 amount, bool isYay) public view returns (uint256) {
+        uint256 sharesSupply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
+        return getPrice(sharesSupply, amount);
+    }
+
+    function getSellPrice(address sharesSubject, uint256 amount, bool isYay) public view returns (uint256) {
+        uint256 sharesSupply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
+        return getPrice(sharesSupply - amount, amount);
+    }
+
+    function getBuyPriceAfterFee(address sharesSubject, uint256 amount, bool isYay) public view returns (uint256) {
+        uint256 price = getBuyPrice(sharesSubject, amount, isYay);
+        uint256 protocolFee = price * protocolFeePercent / 1 ether;
+        uint256 subjectFee = price * subjectFeePercent / 1 ether;
+        return price + protocolFee + subjectFee;
+    }
+
+    function getSellPriceAfterFee(address sharesSubject, uint256 amount, bool isYay) public view returns (uint256) {
+        uint256 price = getSellPrice(sharesSubject, amount, isYay);
+        uint256 protocolFee = price * protocolFeePercent / 1 ether;
+        uint256 subjectFee = price * subjectFeePercent / 1 ether;
+        return price - protocolFee - subjectFee;
+    }
 
     // def: buyShares takes in streamer address (ex: 0xTed), amount of shares purchased, and if its yay or nay
     function buyShares(address sharesSubject, uint256 amount, bool isYay) public payable {
@@ -261,7 +249,7 @@ contract UnlonelySharesV1 is Ownable {
 
         uint256 totalPool = pooledEth[sharesSubject];
         uint256 totalWinningShares = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        uint256 userPayout = totalPool.mul(userShares).div(totalWinningShares);
+        uint256 userPayout = totalPool * userShares / totalWinningShares;
 
         // Reset user's shares after distributing
         if (result) {
