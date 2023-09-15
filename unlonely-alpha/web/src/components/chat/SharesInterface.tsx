@@ -12,7 +12,7 @@ import {
 import { useMemo, useState } from "react";
 import { GoPin } from "react-icons/go";
 import Link from "next/link";
-import { formatUnits, parseUnits } from "viem";
+import { formatUnits } from "viem";
 import { useNetwork } from "wagmi";
 
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -29,7 +29,6 @@ import {
 } from "../../hooks/contracts/useSharesContract";
 import {
   filteredInput,
-  formatIncompleteNumber,
 } from "../../utils/validation/input";
 import { getContractFromNetwork } from "../../utils/contract";
 import { NETWORKS } from "../../constants/networks";
@@ -47,7 +46,7 @@ export const SharesInterface = () => {
   const [amount, setAmount] = useState("");
 
   const amount_bigint = useMemo(
-    () => parseUnits(formatIncompleteNumber(amount) as `${number}`, 18),
+    () => BigInt(filteredInput(amount) as `${number}`),
     [amount]
   );
 
