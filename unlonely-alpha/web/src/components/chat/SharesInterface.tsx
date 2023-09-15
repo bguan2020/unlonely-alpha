@@ -8,6 +8,7 @@ import {
   Text,
   Image,
   useToast,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { GoPin } from "react-icons/go";
@@ -27,9 +28,7 @@ import {
   useReadSharesSubject,
   useSellShares,
 } from "../../hooks/contracts/useSharesContract";
-import {
-  filteredInput,
-} from "../../utils/validation/input";
+import { filteredInput } from "../../utils/validation/input";
 import { getContractFromNetwork } from "../../utils/contract";
 import { NETWORKS } from "../../constants/networks";
 
@@ -39,11 +38,15 @@ export const SharesInterface = () => {
   const { channelQueryData } = channel;
   const toast = useToast();
 
+  const isOwner = userAddress === channelQueryData?.owner.address;
+
   const [selectedSharesOption, setSelectedSharesOption] = useState<
     string | undefined
   >(undefined);
   const [isBuying, setIsBuying] = useState<boolean>(true);
   const [amount, setAmount] = useState("");
+
+  const isYay = selectedSharesOption === "yes";
 
   const amount_bigint = useMemo(
     () => BigInt(filteredInput(amount) as `${number}`),
@@ -240,7 +243,7 @@ export const SharesInterface = () => {
       {
         sharesSubject: channelQueryData?.owner?.address as `0x${string}`,
         amount: amount_bigint,
-        isYay: selectedSharesOption === "yes",
+        isYay: isYay,
       },
       contract,
       {
@@ -313,7 +316,7 @@ export const SharesInterface = () => {
       {
         sharesSubject: channelQueryData?.owner?.address as `0x${string}`,
         amount: amount_bigint,
-        isYay: selectedSharesOption === "yes",
+        isYay: isYay,
       },
       contract,
       {
@@ -456,11 +459,9 @@ export const SharesInterface = () => {
             _hover={{}}
             _focus={{}}
             _active={{}}
-            transform={
-              selectedSharesOption === "yes" ? "scale(0.95)" : undefined
-            }
-            opacity={selectedSharesOption === "yes" ? 0.9 : 1}
-            bg={selectedSharesOption === "yes" ? "#909090" : "#da3b14"}
+            transform={isYay ? "scale(0.95)" : undefined}
+            opacity={isYay ? 0.9 : 1}
+            bg={isYay ? "#909090" : "#da3b14"}
             onClick={() => setSelectedSharesOption("no")}
           >
             <Flex direction="column">
@@ -489,12 +490,7 @@ export const SharesInterface = () => {
                 enter amount of shares
               </Text>
               <Text fontWeight="light">
-                {formatUnits(
-                  selectedSharesOption === "yes"
-                    ? yaySharesBalance
-                    : naySharesBalance,
-                  18
-                )}
+                {formatUnits(isYay ? yaySharesBalance : naySharesBalance, 18)}
               </Text>
             </Flex>
             <Flex>
@@ -578,37 +574,55 @@ export const SharesInterface = () => {
               <Text opacity="0.75" fontWeight="light">
                 {isBuying ? "price" : "return"}
               </Text>
-              {isBuying && selectedSharesOption === "yes" && (
+              {isBuying && isYay && (
                 <Text fontWeight="light">
                   {formatUnits(yayBuyPriceAfterFee, 18)} ETH
                 </Text>
               )}
-              {isBuying && selectedSharesOption !== "yes" && (
+              {isBuying && !isYay && (
                 <Text fontWeight="light">
                   {formatUnits(nayBuyPriceAfterFee, 18)} ETH
                 </Text>
               )}
-              {!isBuying && selectedSharesOption === "yes" && (
+              {!isBuying && isYay && (
                 <Text fontWeight="light">
                   {formatUnits(yaySellPriceAfterFee, 18)} ETH
                 </Text>
               )}
-              {!isBuying && selectedSharesOption !== "yes" && (
+              {!isBuying && !isYay && (
                 <Text fontWeight="light">
                   {formatUnits(naySellPriceAfterFee, 18)} ETH
                 </Text>
               )}
             </Flex>
-            <Button
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              bg={"#E09025"}
-              borderRadius="25px"
-              onClick={isBuying ? buyShares : sellShares}
+            <Tooltip
+              label={`streamer must buy the first ${
+                isYay ? "yay" : "nay"
+              } share`}
+              placement="top"
+              background={isYay ? "#0f8e22" : "#ea4008"}
+              hasArrow
+              isOpen={
+                (yaySharesSupply === BigInt(0) && !isOwner && isYay) ||
+                (naySharesSupply === BigInt(0) && !isOwner && !isYay)
+              }
             >
-              <Text fontSize="20px">confirm {isBuying ? "buy" : "sell"}</Text>
-            </Button>
+              <Button
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                bg={"#E09025"}
+                borderRadius="25px"
+                onClick={isBuying ? buyShares : sellShares}
+                isDisabled={
+                  (yaySharesSupply === BigInt(0) && !isOwner && isYay) ||
+                  (naySharesSupply === BigInt(0) && !isOwner && !isYay) ||
+                  amount_bigint === BigInt(0)
+                }
+              >
+                <Text fontSize="20px">confirm {isBuying ? "buy" : "sell"}</Text>
+              </Button>
+            </Tooltip>
           </Flex>
         )}
       </Flex>

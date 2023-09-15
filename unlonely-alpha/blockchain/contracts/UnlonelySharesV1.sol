@@ -268,4 +268,11 @@ contract UnlonelySharesV1 is Ownable {
         emit Payout(msg.sender, userPayout);
     }
 
+    function initializeShares(address sharesSubject) public {
+        require(yaySharesSupply[sharesSubject] == 0 && naySharesSupply[sharesSubject] == 0, "Shares already initialized");
+        yaySharesBalance[sharesSubject][msg.sender] += 1;
+        yaySharesSupply[sharesSubject] += 1;
+        naySharesBalance[sharesSubject][msg.sender] += 1;
+        naySharesSupply[sharesSubject] += 1;
+    }
 }
