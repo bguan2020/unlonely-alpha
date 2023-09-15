@@ -174,18 +174,6 @@ const DesktopPage = ({
                               }
                             />
                           </Tooltip>
-                          <Tooltip label={"chat popout"}>
-                            <IconButton
-                              onClick={openChatPopout}
-                              aria-label="chat-popout"
-                              _hover={{}}
-                              _active={{}}
-                              _focus={{}}
-                              icon={
-                                <Image src="/svg/pop-out.svg" height={12} />
-                              }
-                            />
-                          </Tooltip>
                         </Flex>
                       </GridItem>
                     )}

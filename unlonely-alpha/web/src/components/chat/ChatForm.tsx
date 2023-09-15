@@ -10,6 +10,10 @@ import {
   Text,
   Button,
   Tooltip,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
 } from "@chakra-ui/react";
 import React, {
   useCallback,
@@ -564,69 +568,106 @@ const ChatForm = ({
                       <Spinner />
                     </Tooltip>
                   ) : (
-                    <IconButton
-                      icon={<Image src="/svg/cut.svg" />}
-                      aria-label="clip stream"
-                      bg="transparent"
-                      _focus={{}}
-                      _hover={{ transform: "scale(1.15)" }}
-                      _active={{ transform: "scale(1.3)" }}
-                      onClick={() => {
-                        if (user) {
-                          fetchData();
-                          addToChatbot({
-                            username: user?.username ?? "",
-                            address: user?.address ?? "",
-                            taskType: InteractionType.CLIP,
-                            title: `${
-                              user?.username ?? centerEllipses(address, 15)
-                            } has just clipped a highlight from this stream!`,
-                            description: "",
-                          });
-                        } else {
-                          toastSignIn();
-                        }
-                      }}
-                    />
+                    <Popover trigger="hover" placement="top" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          icon={<Image src="/svg/cut.svg" />}
+                          aria-label="clip stream"
+                          bg="transparent"
+                          _focus={{}}
+                          _hover={{ transform: "scale(1.15)" }}
+                          _active={{ transform: "scale(1.3)" }}
+                          onClick={() => {
+                            if (user) {
+                              fetchData();
+                              addToChatbot({
+                                username: user?.username ?? "",
+                                address: user?.address ?? "",
+                                taskType: InteractionType.CLIP,
+                                title: `${
+                                  user?.username ?? centerEllipses(address, 15)
+                                } has just clipped a highlight from this stream!`,
+                                description: "",
+                              });
+                            } else {
+                              toastSignIn();
+                            }
+                          }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#1557c0"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#1557c0" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          clip the last 30 secs as an NFC!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
                   )}
                   {allowPopout && (
-                    <Tooltip
-                      label={"chat popout"}
-                      background="#1557c0"
-                      hasArrow
-                      defaultIsOpen
-                      placement="top"
-                    >
+                    <Popover trigger="hover" placement="top" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          onClick={openChatPopout}
+                          aria-label="chat-popout"
+                          _focus={{}}
+                          _hover={{ transform: "scale(1.15)" }}
+                          _active={{ transform: "scale(1.3)" }}
+                          icon={<Image src="/svg/pop-out.svg" />}
+                          bg="transparent"
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#5d12c6"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#5d12c6" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          pop out chat in a new window!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                  <Popover trigger="hover" placement="top" openDelay={500}>
+                    <PopoverTrigger>
                       <IconButton
-                        onClick={openChatPopout}
-                        aria-label="chat-popout"
+                        icon={<Image src="/svg/blast.svg" />}
+                        aria-label="clip stream"
+                        bg={blastMode ? "red" : "transparent"}
                         _focus={{}}
                         _hover={{ transform: "scale(1.15)" }}
                         _active={{ transform: "scale(1.3)" }}
-                        icon={<Image src="/svg/pop-out.svg" />}
-                        bg="transparent"
+                        onClick={() => {
+                          if (blastMode) {
+                            setBlastMode(false);
+                          } else {
+                            if (user) {
+                              setBlastMode(true);
+                            } else {
+                              toastSignIn();
+                            }
+                          }
+                        }}
                       />
-                    </Tooltip>
-                  )}
-                  <IconButton
-                    icon={<Image src="/svg/blast.svg" />}
-                    aria-label="clip stream"
-                    bg={blastMode ? "red" : "transparent"}
-                    _focus={{}}
-                    _hover={{ transform: "scale(1.15)" }}
-                    _active={{ transform: "scale(1.3)" }}
-                    onClick={() => {
-                      if (blastMode) {
-                        setBlastMode(false);
-                      } else {
-                        if (user) {
-                          setBlastMode(true);
-                        } else {
-                          toastSignIn();
-                        }
-                      }
-                    }}
-                  />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      bg="#c82606"
+                      border="none"
+                      width="100%"
+                      p="2px"
+                    >
+                      <PopoverArrow bg="#c82606" />
+                      <Text fontSize="12px" textAlign={"center"}>
+                        blast ur chat across the screen!
+                      </Text>
+                    </PopoverContent>
+                  </Popover>
                   <EmojiButton
                     mobile={mobile}
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
