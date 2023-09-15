@@ -3,7 +3,6 @@ import {
   Flex,
   IconButton,
   Button,
-  Select,
   Input,
   Text,
   Image,
@@ -31,6 +30,7 @@ import {
 import { filteredInput } from "../../utils/validation/input";
 import { getContractFromNetwork } from "../../utils/contract";
 import { NETWORKS } from "../../constants/networks";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
 export const SharesInterface = () => {
   const { userAddress } = useUser();
@@ -242,7 +242,8 @@ export const SharesInterface = () => {
     useBuyShares(
       {
         sharesSubject: channelQueryData?.owner?.address as `0x${string}`,
-        amount: amount_bigint,
+        amountOfShares: amount_bigint,
+        value: isYay ? yayBuyPriceAfterFee : nayBuyPriceAfterFee,
         isYay: isYay,
       },
       contract,
@@ -411,9 +412,12 @@ export const SharesInterface = () => {
             fontSize={"20px"}
             fontWeight={"bold"}
           >
-            there is gonna be a question over here
+            will there be a second date?
           </Text>
         </Flex>
+        <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
+          {truncateValue(formatUnits(pooledEth, 18), 4)} ETH in the pool
+        </Text>
         {selectedSharesOption !== undefined && (
           <IconButton
             aria-label="close"
@@ -431,6 +435,9 @@ export const SharesInterface = () => {
           />
         )}
         <Flex justifyContent={"center"} gap={"10px"} my="10px">
+          <Text color="#35b657" fontWeight="bold" fontSize="25px">
+            {truncateValue(String(yaySharesSupply), 0, true)}
+          </Text>
           <Button
             _hover={{}}
             _focus={{}}
@@ -477,82 +484,68 @@ export const SharesInterface = () => {
               </Text>
             </Flex>
           </Button>
+          <Text color="#ff623b" fontWeight="bold" fontSize="25px">
+            {truncateValue(String(naySharesSupply), 0, true)}
+          </Text>
         </Flex>
         {selectedSharesOption === undefined ? null : (
-          <Flex
-            direction="column"
-            gap="5px"
-            bg={"rgba(0, 0, 0, 0.258)"}
-            p="0.5rem"
-          >
+          <Flex direction="column" bg={"rgba(0, 0, 0, 0.258)"} p="0.5rem">
             <Flex justifyContent={"space-between"}>
               <Text fontWeight="light" opacity="0.75">
                 enter amount of shares
               </Text>
               <Text fontWeight="light">
-                {formatUnits(isYay ? yaySharesBalance : naySharesBalance, 18)}
+                {isYay ? yaySharesBalance : naySharesBalance}
               </Text>
             </Flex>
             <Flex>
-              <Select
+              <Button
                 width="60%"
                 borderTopRightRadius={"0"}
                 borderBottomRightRadius={"0"}
                 bg={isBuying ? "#009d2a" : "#da3b14"}
-                value={isBuying ? "buy" : "sell"}
-                onChange={(e) => {
-                  const buyState = e.target.value === "buy";
-                  setIsBuying(buyState);
+                onClick={() => {
+                  isBuying ? setIsBuying(false) : setIsBuying(true);
                 }}
+                _hover={{ bg: isBuying ? "#00ba32" : "#ff4e22" }}
+                _focus={{}}
+                _active={{}}
               >
-                <option value="buy" style={{ background: "#504b8d" }}>
-                  <Text>buy</Text>
-                </option>
-                <option value="sell" style={{ background: "#504b8d" }}>
-                  <Text>sell</Text>
-                </option>
-              </Select>
+                <Text>{isBuying ? "buy" : "sell"}</Text>
+              </Button>
               <Input
                 borderTopLeftRadius={"0"}
                 borderBottomLeftRadius={"0"}
-                borderTopRightRadius={"0"}
-                borderBottomRightRadius={"0"}
+                borderTopRightRadius={isBuying ? "10px" : "0"}
+                borderBottomRightRadius={isBuying ? "10px" : "0"}
                 variant="glow"
                 boxShadow={"unset"}
                 placeholder={"0"}
                 value={amount}
                 onChange={handleInputChange}
               />
-              <Button
-                _hover={{ bg: "rgba(54, 170, 212, 0.2)" }}
-                _focus={{}}
-                _active={{}}
-                borderTopLeftRadius={"0"}
-                borderBottomLeftRadius={"0"}
-                bg="transparent"
-                border="1px solid #3097bd"
-                boxShadow={"inset 0px 0px 5px #2f92b6"}
-              >
-                <Text fontWeight="light">MAX</Text>
-              </Button>
-            </Flex>
-            <Flex justifyContent={"space-between"}>
-              <Text opacity="0.75" fontWeight="light">
-                yay shares supply
-              </Text>
-              <Text fontWeight="light">{formatUnits(yaySharesSupply, 18)}</Text>
-            </Flex>
-            <Flex justifyContent={"space-between"}>
-              <Text opacity="0.75" fontWeight="light">
-                nay shares supply
-              </Text>
-              <Text fontWeight="light">{formatUnits(naySharesSupply, 18)}</Text>
-            </Flex>
-            <Flex justifyContent={"space-between"}>
-              <Text opacity="0.75" fontWeight="light">
-                pooled eth
-              </Text>
-              <Text fontWeight="light">{formatUnits(pooledEth, 18)}</Text>
+              {!isBuying && (
+                <Button
+                  _hover={{ bg: "rgba(54, 170, 212, 0.2)" }}
+                  _focus={{}}
+                  _active={{}}
+                  borderTopLeftRadius={"0"}
+                  borderBottomLeftRadius={"0"}
+                  bg="transparent"
+                  border="1px solid #3097bd"
+                  boxShadow={"inset 0px 0px 5px #2f92b6"}
+                  onClick={() => {
+                    if (isBuying) return;
+                    if (isYay) {
+                      setAmount(String(yaySharesBalance));
+                    } else {
+                      setAmount(String(naySharesBalance));
+                    }
+                  }}
+                >
+                  <Text fontWeight="light">MAX</Text>
+                </Button>
+              )}
             </Flex>
             <Flex justifyContent={"space-between"}>
               <Text opacity="0.75" fontWeight="light">

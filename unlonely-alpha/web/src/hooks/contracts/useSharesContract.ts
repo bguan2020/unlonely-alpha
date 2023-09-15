@@ -155,13 +155,13 @@ export const useGetHolderSharesBalances = (
 ) => {
   const publicClient = usePublicClient();
 
-  const [yaySharesBalance, setYaySharesBalance] = useState<bigint>(BigInt(0));
-  const [naySharesBalance, setNaySharesBalance] = useState<bigint>(BigInt(0));
+  const [yaySharesBalance, setYaySharesBalance] = useState<string>("0");
+  const [naySharesBalance, setNaySharesBalance] = useState<string>("0");
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
-      setYaySharesBalance(BigInt(0));
-      setNaySharesBalance(BigInt(0));
+      setYaySharesBalance("0");
+      setNaySharesBalance("0");
       return;
     }
     const [yaySharesBalance, naySharesBalance] = await Promise.all([
@@ -178,8 +178,8 @@ export const useGetHolderSharesBalances = (
         args: [sharesSubject, holder, false],
       }),
     ]);
-    setYaySharesBalance(BigInt(String(yaySharesBalance)));
-    setNaySharesBalance(BigInt(String(naySharesBalance)));
+    setYaySharesBalance(String(yaySharesBalance));
+    setNaySharesBalance(String(naySharesBalance));
   }, [contract, publicClient]);
 
   useEffect(() => {
@@ -454,7 +454,8 @@ export const useSetSubjectFeePercent = (
 export const useBuyShares = (
   args: {
     sharesSubject: `0x${string}`;
-    amount: bigint;
+    amountOfShares: bigint;
+    value: bigint;
     isYay: boolean;
   },
   contract: ContractData,
@@ -468,8 +469,9 @@ export const useBuyShares = (
   } = useWrite(
     contract,
     "buyShares",
-    [args.sharesSubject, args.amount, args.isYay],
-    createCallbackHandler("useBuyShares buyShares", callbacks)
+    [args.sharesSubject, args.amountOfShares, args.isYay],
+    createCallbackHandler("useBuyShares buyShares", callbacks),
+    { value: args.value }
   );
 
   return {

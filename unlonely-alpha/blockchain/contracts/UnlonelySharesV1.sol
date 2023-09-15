@@ -111,6 +111,9 @@ contract UnlonelySharesV1 is Ownable {
     constructor() {
         // Set the contract deployer as the initial verifier
         isVerifier[msg.sender] = true;
+
+        protocolFeePercent = 5 * 10**16; // 5%
+        subjectFeePercent = 5 * 10**16;  // 5%
     }
 
     function addVerifier(address verifier) public onlyOwner {
@@ -179,7 +182,6 @@ contract UnlonelySharesV1 is Ownable {
     // def: buyShares takes in streamer address (ex: 0xTed), amount of shares purchased, and if its yay or nay
     function buyShares(address sharesSubject, uint256 amount, bool isYay) public payable {
         uint256 supply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        require(supply > 0 || sharesSubject == msg.sender, "Only the shares owner subject can buy the first share");
         uint256 price = getPrice(supply, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
@@ -266,13 +268,5 @@ contract UnlonelySharesV1 is Ownable {
 
         payable(msg.sender).transfer(userPayout);
         emit Payout(msg.sender, userPayout);
-    }
-
-    function initializeShares(address sharesSubject) public {
-        require(yaySharesSupply[sharesSubject] == 0 && naySharesSupply[sharesSubject] == 0, "Shares already initialized");
-        yaySharesBalance[sharesSubject][msg.sender] += 1;
-        yaySharesSupply[sharesSubject] += 1;
-        naySharesBalance[sharesSubject][msg.sender] += 1;
-        naySharesSupply[sharesSubject] += 1;
     }
 }
