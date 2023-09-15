@@ -1,21 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNetwork, usePublicClient } from "wagmi";
+import { useCallback, useEffect, useState } from "react";
+import { usePublicClient } from "wagmi";
 
 import { NULL_ADDRESS } from "../../constants";
-import { NETWORKS } from "../../constants/networks";
-import { WriteCallbacks } from "../../constants/types";
-import {
-  createCallbackHandler,
-  getContractFromNetwork,
-} from "../../utils/contract";
+import { ContractData, WriteCallbacks } from "../../constants/types";
+import { createCallbackHandler } from "../../utils/contract";
 import { useWrite } from "./useWrite";
 
-export const useReadPublic = () => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
+export const useReadPublic = (contract: ContractData) => {
   const publicClient = usePublicClient();
 
   const [protocolFeeDestination, setProtocolFeeDestination] =
@@ -70,12 +61,142 @@ export const useReadPublic = () => {
   };
 };
 
-export const useReadSharesSubject = (sharesSubject: `0x${string}`) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
+export const useGetPrice = (
+  sharesSubject: `0x${string}`,
+  amount: bigint,
+  isYay: boolean,
+  isBuying: boolean,
+  contract: ContractData
+) => {
+  const publicClient = usePublicClient();
+
+  const [price, setPrice] = useState<bigint>(BigInt(0));
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setPrice(BigInt(0));
+      return;
+    }
+    const price = isBuying
+      ? await publicClient.readContract({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: "getBuyPrice",
+          args: [sharesSubject, amount, isYay],
+        })
+      : await publicClient.readContract({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: "getSellPrice",
+          args: [sharesSubject, amount, isYay],
+        });
+    setPrice(BigInt(String(price)));
+  }, [contract, publicClient]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
+    price,
+  };
+};
+
+export const useGetPriceAfterFee = (
+  sharesSubject: `0x${string}`,
+  amount: bigint,
+  isYay: boolean,
+  isBuying: boolean,
+  contract: ContractData
+) => {
+  const publicClient = usePublicClient();
+
+  const [priceAfterFee, setPriceAfterFee] = useState<bigint>(BigInt(0));
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setPriceAfterFee(BigInt(0));
+      return;
+    }
+    const price =
+      amount === BigInt(0)
+        ? 0
+        : isBuying
+        ? await publicClient.readContract({
+            address: contract.address,
+            abi: contract.abi,
+            functionName: "getBuyPriceAfterFee",
+            args: [sharesSubject, amount, isYay],
+          })
+        : await publicClient.readContract({
+            address: contract.address,
+            abi: contract.abi,
+            functionName: "getSellPriceAfterFee",
+            args: [sharesSubject, amount, isYay],
+          });
+    setPriceAfterFee(BigInt(String(price)));
+  }, [contract, publicClient]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
+    priceAfterFee,
+  };
+};
+
+export const useGetHolderSharesBalances = (
+  sharesSubject: `0x${string}`,
+  holder: `0x${string}`,
+  contract: ContractData
+) => {
+  const publicClient = usePublicClient();
+
+  const [yaySharesBalance, setYaySharesBalance] = useState<bigint>(BigInt(0));
+  const [naySharesBalance, setNaySharesBalance] = useState<bigint>(BigInt(0));
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setYaySharesBalance(BigInt(0));
+      setNaySharesBalance(BigInt(0));
+      return;
+    }
+    const [yaySharesBalance, naySharesBalance] = await Promise.all([
+      publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "getHolderSharesBalance",
+        args: [sharesSubject, holder, true],
+      }),
+      publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "getHolderSharesBalance",
+        args: [sharesSubject, holder, false],
+      }),
+    ]);
+    setYaySharesBalance(BigInt(String(yaySharesBalance)));
+    setNaySharesBalance(BigInt(String(naySharesBalance)));
+  }, [contract, publicClient]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
+    yaySharesBalance,
+    naySharesBalance,
+  };
+};
+
+export const useReadSharesSubject = (
+  sharesSubject: `0x${string}`,
+  contract: ContractData
+) => {
   const publicClient = usePublicClient();
 
   const [yaySharesSupply, setYaySharesSupply] = useState<bigint>(BigInt(0));
@@ -167,23 +288,20 @@ export const useReadSharesSubject = (sharesSubject: `0x${string}`) => {
 
 export const useAddVerifier = (
   args: { verifier: `0x${string}` },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
-  const callbackHandlers = createCallbackHandler(
-    "useAddVerifier addVerifier",
-    callbacks
-  );
   const {
     writeAsync: addVerifier,
     writeData: addVerifierData,
     txData: addVerifierTxData,
     isTxLoading: addVerifierTxLoading,
-  } = useWrite(contract, "addVerifier", [args.verifier], callbackHandlers);
+  } = useWrite(
+    contract,
+    "addVerifier",
+    [args.verifier],
+    createCallbackHandler("useAddVerifier addVerifier", callbacks)
+  );
 
   return {
     addVerifier,
@@ -195,23 +313,20 @@ export const useAddVerifier = (
 
 export const useRemoveVerifier = (
   args: { verifier: `0x${string}` },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
-  const callbackHandlers = createCallbackHandler(
-    "useRemoveVerifier removeVerifier",
-    callbacks
-  );
   const {
     writeAsync: removeVerifier,
     writeData: removeVerifierData,
     txData: removeVerifierTxData,
     isTxLoading: removeVerifierTxLoading,
-  } = useWrite(contract, "removeVerifier", [args.verifier], callbackHandlers);
+  } = useWrite(
+    contract,
+    "removeVerifier",
+    [args.verifier],
+    createCallbackHandler("useRemoveVerifier removeVerifier", callbacks)
+  );
 
   return {
     removeVerifier,
@@ -226,17 +341,9 @@ export const useVerifyEvent = (
     sharesSubject: `0x${string}`;
     result: boolean;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
-  const callbackHandlers = createCallbackHandler(
-    "useVerifyEvent verifyEvent",
-    callbacks
-  );
   const {
     writeAsync: verifyEvent,
     writeData: verifyEventData,
@@ -246,7 +353,7 @@ export const useVerifyEvent = (
     contract,
     "verifyEvent",
     [args.sharesSubject, args.result],
-    callbackHandlers
+    createCallbackHandler("useVerifyEvent verifyEvent", callbacks)
   );
 
   return {
@@ -261,17 +368,9 @@ export const useSetFeeDestination = (
   args: {
     feeDestination: `0x${string}`;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
-  const callbackHandlers = createCallbackHandler(
-    "useSetFeeDestination setFeeDestination",
-    callbacks
-  );
   const {
     writeAsync: setFeeDestination,
     writeData: setFeeDestinationData,
@@ -281,7 +380,7 @@ export const useSetFeeDestination = (
     contract,
     "setFeeDestination",
     [args.feeDestination],
-    callbackHandlers
+    createCallbackHandler("useSetFeeDestination setFeeDestination", callbacks)
   );
 
   return {
@@ -296,17 +395,9 @@ export const useSetProtocolFeePercent = (
   args: {
     feePercent: bigint;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
-  const callbackHandlers = createCallbackHandler(
-    "useSetProtocolFeePercent setProtocolFeePercent",
-    callbacks
-  );
   const {
     writeAsync: setProtocolFeePercent,
     writeData: setProtocolFeePercentData,
@@ -316,7 +407,10 @@ export const useSetProtocolFeePercent = (
     contract,
     "setProtocolFeePercent",
     [args.feePercent],
-    callbackHandlers
+    createCallbackHandler(
+      "useSetProtocolFeePercent setProtocolFeePercent",
+      callbacks
+    )
   );
 
   return {
@@ -331,17 +425,9 @@ export const useSetSubjectFeePercent = (
   args: {
     feePercent: bigint;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
-  const callbackHandlers = createCallbackHandler(
-    "useSetSubjectFeePercent setSubjectFeePercent",
-    callbacks
-  );
   const {
     writeAsync: setSubjectFeePercent,
     writeData: setSubjectFeePercentData,
@@ -351,7 +437,10 @@ export const useSetSubjectFeePercent = (
     contract,
     "setSubjectFeePercent",
     [args.feePercent],
-    callbackHandlers
+    createCallbackHandler(
+      "useSetSubjectFeePercent setSubjectFeePercent",
+      callbacks
+    )
   );
 
   return {
@@ -368,18 +457,9 @@ export const useBuyShares = (
     amount: bigint;
     isYay: boolean;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
-  const callbackHandlers = createCallbackHandler(
-    "useBuyShares buyShares",
-    callbacks
-  );
-
   const {
     writeAsync: buyShares,
     writeData: buySharesData,
@@ -389,7 +469,7 @@ export const useBuyShares = (
     contract,
     "buyShares",
     [args.sharesSubject, args.amount, args.isYay],
-    callbackHandlers
+    createCallbackHandler("useBuyShares buyShares", callbacks)
   );
 
   return {
@@ -406,19 +486,9 @@ export const useSellShares = (
     amount: bigint;
     isYay: boolean;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
-
-  const callbackHandlers = createCallbackHandler(
-    "useSellShares sellShares",
-    callbacks
-  );
-
   const {
     writeAsync: sellShares,
     writeData: sellSharesData,
@@ -428,7 +498,7 @@ export const useSellShares = (
     contract,
     "sellShares",
     [args.sharesSubject, args.amount, args.isYay],
-    callbackHandlers
+    createCallbackHandler("useSellShares sellShares", callbacks)
   );
 
   return {
@@ -441,25 +511,20 @@ export const useSellShares = (
 
 export const useClaimPayout = (
   args: { sharesSubject: `0x${string}` },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
-
-  const callbackHandlers = createCallbackHandler(
-    "useClaimPayout claimPayout",
-    callbacks
-  );
-
   const {
     writeAsync: claimPayout,
     writeData: claimPayoutData,
     txData: claimPayoutTxData,
     isTxLoading: claimPayoutTxLoading,
-  } = useWrite(contract, "claimPayout", [args.sharesSubject], callbackHandlers);
+  } = useWrite(
+    contract,
+    "claimPayout",
+    [args.sharesSubject],
+    createCallbackHandler("useClaimPayout claimPayout", callbacks)
+  );
 
   return {
     claimPayout,

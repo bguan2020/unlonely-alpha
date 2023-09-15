@@ -1,9 +1,9 @@
-import { Network, WriteCallbacks } from "../constants/types";
+import { ContractData, Network, WriteCallbacks } from "../constants/types";
 
 export const getContractFromNetwork = (
   contractName: string,
   network?: Network
-) => {
+): ContractData => {
   if (
     !network ||
     !network.config.contracts[contractName] ||

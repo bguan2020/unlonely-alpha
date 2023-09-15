@@ -217,9 +217,9 @@
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "holder",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       },
       {
         "internalType": "bool",
@@ -227,7 +227,7 @@
         "type": "bool"
       }
     ],
-    "name": "getHolderSharesBalance",
+    "name": "getBuyPrice",
     "outputs": [
       {
         "internalType": "uint256",
@@ -254,14 +254,120 @@
         "internalType": "bool",
         "name": "isYay",
         "type": "bool"
+      }
+    ],
+    "name": "getBuyPriceAfterFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sharesSubject",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "holder",
+        "type": "address"
       },
       {
         "internalType": "bool",
-        "name": "isBuying",
+        "name": "isYay",
         "type": "bool"
       }
     ],
+    "name": "getHolderSharesBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "supply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
     "name": "getPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sharesSubject",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isYay",
+        "type": "bool"
+      }
+    ],
+    "name": "getSellPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sharesSubject",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isYay",
+        "type": "bool"
+      }
+    ],
+    "name": "getSellPriceAfterFee",
     "outputs": [
       {
         "internalType": "uint256",

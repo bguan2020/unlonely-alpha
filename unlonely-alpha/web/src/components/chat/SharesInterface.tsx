@@ -7,18 +7,380 @@ import {
   Input,
   Text,
   Image,
+  useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { GoPin } from "react-icons/go";
+import Link from "next/link";
+import { formatUnits, parseUnits } from "viem";
+import { useNetwork } from "wagmi";
 
-import { filteredInput } from "../../utils/validation/input";
+import { useChannelContext } from "../../hooks/context/useChannel";
+import { useUser } from "../../hooks/context/useUser";
+import {
+  useBuyShares,
+  useClaimPayout,
+  useGetHolderSharesBalances,
+  useGetPrice,
+  useGetPriceAfterFee,
+  useReadPublic,
+  useReadSharesSubject,
+  useSellShares,
+} from "../../hooks/contracts/useSharesContract";
+import {
+  filteredInput,
+  formatIncompleteNumber,
+} from "../../utils/validation/input";
+import { getContractFromNetwork } from "../../utils/contract";
+import { NETWORKS } from "../../constants/networks";
 
 export const SharesInterface = () => {
+  const { userAddress } = useUser();
+  const { channel } = useChannelContext();
+  const { channelQueryData } = channel;
+  const toast = useToast();
+
   const [selectedSharesOption, setSelectedSharesOption] = useState<
     string | undefined
   >(undefined);
   const [isBuying, setIsBuying] = useState<boolean>(true);
   const [amount, setAmount] = useState("");
+
+  const amount_bigint = useMemo(
+    () => parseUnits(formatIncompleteNumber(amount) as `${number}`, 18),
+    [amount]
+  );
+
+  const network = useNetwork();
+  const localNetwork = useMemo(() => {
+    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
+  }, [network]);
+  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
+
+  const {
+    protocolFeePercent,
+    subjectFeePercent,
+    refetch: refetchPublic,
+  } = useReadPublic(contract);
+
+  const { price: yayBuyPrice, refetch: refetchYayBuyPrice } = useGetPrice(
+    channelQueryData?.owner?.address as `0x${string}`,
+    BigInt(1),
+    true,
+    true,
+    contract
+  );
+
+  const { price: yaySellPrice, refetch: refetchYaySellPrice } = useGetPrice(
+    channelQueryData?.owner?.address as `0x${string}`,
+    BigInt(1),
+    true,
+    false,
+    contract
+  );
+
+  const { price: nayBuyPrice, refetch: refetchNayBuyPrice } = useGetPrice(
+    channelQueryData?.owner?.address as `0x${string}`,
+    BigInt(1),
+    false,
+    true,
+    contract
+  );
+
+  const { price: naySellPrice, refetch: refetchNaySellPrice } = useGetPrice(
+    channelQueryData?.owner?.address as `0x${string}`,
+    BigInt(1),
+    false,
+    false,
+    contract
+  );
+
+  const {
+    priceAfterFee: yayBuyPriceAfterFee,
+    refetch: refetchYayBuyPriceAfterFee,
+  } = useGetPriceAfterFee(
+    channelQueryData?.owner?.address as `0x${string}`,
+    amount_bigint,
+    true,
+    true,
+    contract
+  );
+
+  const {
+    priceAfterFee: yaySellPriceAfterFee,
+    refetch: refetchYaySellPriceAfterFee,
+  } = useGetPriceAfterFee(
+    channelQueryData?.owner?.address as `0x${string}`,
+    amount_bigint,
+    true,
+    false,
+    contract
+  );
+
+  const {
+    priceAfterFee: nayBuyPriceAfterFee,
+    refetch: refetchNayBuyPriceAfterFee,
+  } = useGetPriceAfterFee(
+    channelQueryData?.owner?.address as `0x${string}`,
+    amount_bigint,
+    false,
+    true,
+    contract
+  );
+
+  const {
+    priceAfterFee: naySellPriceAfterFee,
+    refetch: refetchNaySellPriceAfterFee,
+  } = useGetPriceAfterFee(
+    channelQueryData?.owner?.address as `0x${string}`,
+    amount_bigint,
+    false,
+    false,
+    contract
+  );
+
+  const {
+    yaySharesBalance,
+    naySharesBalance,
+    refetch: refetchBalances,
+  } = useGetHolderSharesBalances(
+    channelQueryData?.owner?.address as `0x${string}`,
+    userAddress as `0x${string}`,
+    contract
+  );
+
+  const {
+    yaySharesSupply,
+    naySharesSupply,
+    eventVerified,
+    eventResult,
+    isVerifier,
+    pooledEth,
+  } = useReadSharesSubject(
+    channelQueryData?.owner?.address as `0x${string}`,
+    contract
+  );
+
+  const {
+    claimPayout,
+    claimPayoutData,
+    claimPayoutTxData,
+    claimPayoutTxLoading,
+  } = useClaimPayout(
+    {
+      sharesSubject: channelQueryData?.owner?.address as `0x${string}`,
+    },
+    contract,
+    {
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                claimPayout pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+      onWriteError: (error) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              claimPayout cancelled
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                claimPayout success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchBalances();
+      },
+      onTxError: (error) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              claimPayout error
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+    }
+  );
+
+  const { buyShares, buySharesData, buySharesTxData, buySharesTxLoading } =
+    useBuyShares(
+      {
+        sharesSubject: channelQueryData?.owner?.address as `0x${string}`,
+        amount: amount_bigint,
+        isYay: selectedSharesOption === "yes",
+      },
+      contract,
+      {
+        onWriteSuccess: (data) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`https://etherscan.io/tx/${data.hash}`}
+                  passHref
+                >
+                  buyShares pending, click to view
+                </Link>
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
+        onWriteError: (error) => {
+          toast({
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+                buyShares cancelled
+              </Box>
+            ),
+          });
+        },
+        onTxSuccess: (data) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`https://etherscan.io/tx/${data.transactionHash}`}
+                  passHref
+                >
+                  buyShares success, click to view
+                </Link>
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+          refetchBalances();
+        },
+        onTxError: (error) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+                buyShares error
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
+      }
+    );
+
+  const { sellShares, sellSharesData, sellSharesTxData, sellSharesTxLoading } =
+    useSellShares(
+      {
+        sharesSubject: channelQueryData?.owner?.address as `0x${string}`,
+        amount: amount_bigint,
+        isYay: selectedSharesOption === "yes",
+      },
+      contract,
+      {
+        onWriteSuccess: (data) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`https://etherscan.io/tx/${data.hash}`}
+                  passHref
+                >
+                  sellShares pending, click to view
+                </Link>
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
+        onWriteError: (error) => {
+          toast({
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+                sellShares cancelled
+              </Box>
+            ),
+          });
+        },
+        onTxSuccess: (data) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`https://etherscan.io/tx/${data.transactionHash}`}
+                  passHref
+                >
+                  sellShares success, click to view
+                </Link>
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+          refetchBalances();
+        },
+        onTxError: (error) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+                sellShares error
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
+      }
+    );
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
@@ -87,7 +449,7 @@ export const SharesInterface = () => {
                 YES
               </Text>
               <Text fontWeight={"light"} fontSize="12px">
-                (0.001)
+                {formatUnits(yayBuyPrice ?? BigInt(0), 18)}
               </Text>
             </Flex>
           </Button>
@@ -111,7 +473,7 @@ export const SharesInterface = () => {
                 NO
               </Text>
               <Text fontWeight={"light"} fontSize="12px">
-                (0.003)
+                {formatUnits(nayBuyPrice ?? BigInt(0), 18)}
               </Text>
             </Flex>
           </Button>
@@ -123,11 +485,18 @@ export const SharesInterface = () => {
             bg={"rgba(0, 0, 0, 0.258)"}
             p="0.5rem"
           >
-            <Flex justifyContent={"space-between"} zIndex="1">
+            <Flex justifyContent={"space-between"}>
               <Text fontWeight="light" opacity="0.75">
                 enter amount of shares
               </Text>
-              <Text fontWeight="light">(your shares: 0.2)</Text>
+              <Text fontWeight="light">
+                {formatUnits(
+                  selectedSharesOption === "yes"
+                    ? yaySharesBalance
+                    : naySharesBalance,
+                  18
+                )}
+              </Text>
             </Flex>
             <Flex>
               <Select
@@ -172,11 +541,64 @@ export const SharesInterface = () => {
                 <Text fontWeight="light">MAX</Text>
               </Button>
             </Flex>
-            <Flex justifyContent={"space-between"} zIndex="1">
+            <Flex justifyContent={"space-between"}>
               <Text opacity="0.75" fontWeight="light">
-                price
+                yay shares supply
               </Text>
-              <Text fontWeight="light">0.001 ETH</Text>
+              <Text fontWeight="light">{formatUnits(yaySharesSupply, 18)}</Text>
+            </Flex>
+            <Flex justifyContent={"space-between"}>
+              <Text opacity="0.75" fontWeight="light">
+                nay shares supply
+              </Text>
+              <Text fontWeight="light">{formatUnits(naySharesSupply, 18)}</Text>
+            </Flex>
+            <Flex justifyContent={"space-between"}>
+              <Text opacity="0.75" fontWeight="light">
+                pooled eth
+              </Text>
+              <Text fontWeight="light">{formatUnits(pooledEth, 18)}</Text>
+            </Flex>
+            <Flex justifyContent={"space-between"}>
+              <Text opacity="0.75" fontWeight="light">
+                streamer fee
+              </Text>
+              <Text fontWeight="light">
+                {formatUnits(subjectFeePercent, 18)}%
+              </Text>
+            </Flex>
+            <Flex justifyContent={"space-between"}>
+              <Text opacity="0.75" fontWeight="light">
+                unlonely fee
+              </Text>
+              <Text fontWeight="light">
+                {formatUnits(protocolFeePercent, 18)}%
+              </Text>
+            </Flex>
+            <Flex justifyContent={"space-between"}>
+              <Text opacity="0.75" fontWeight="light">
+                {isBuying ? "price" : "return"}
+              </Text>
+              {isBuying && selectedSharesOption === "yes" && (
+                <Text fontWeight="light">
+                  {formatUnits(yayBuyPriceAfterFee, 18)} ETH
+                </Text>
+              )}
+              {isBuying && selectedSharesOption !== "yes" && (
+                <Text fontWeight="light">
+                  {formatUnits(nayBuyPriceAfterFee, 18)} ETH
+                </Text>
+              )}
+              {!isBuying && selectedSharesOption === "yes" && (
+                <Text fontWeight="light">
+                  {formatUnits(yaySellPriceAfterFee, 18)} ETH
+                </Text>
+              )}
+              {!isBuying && selectedSharesOption !== "yes" && (
+                <Text fontWeight="light">
+                  {formatUnits(naySellPriceAfterFee, 18)} ETH
+                </Text>
+              )}
             </Flex>
             <Button
               _hover={{}}
@@ -184,6 +606,7 @@ export const SharesInterface = () => {
               _active={{}}
               bg={"#E09025"}
               borderRadius="25px"
+              onClick={isBuying ? buyShares : sellShares}
             >
               <Text fontSize="20px">confirm {isBuying ? "buy" : "sell"}</Text>
             </Button>

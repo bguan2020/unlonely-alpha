@@ -29,3 +29,15 @@ export type ChatBot = {
 export type CustomUser = User & {
   tokenHolderRank: number;
 };
+
+export type ContractData =
+  | {
+      address: `0x${string}`;
+      abi: any;
+      chainId: number;
+    }
+  | {
+      address: undefined;
+      abi: undefined;
+      chainId: undefined;
+    };
