@@ -148,6 +148,8 @@ contract UnlonelySharesV1 is Ownable {
     }
 
     function getPrice(uint256 supply, uint256 amount) public pure returns (uint256) {
+        if (supply == 0 && amount == 0) return 0;
+        
         uint256 sum1 = supply == 0 ? 0 : (supply - 1) * supply * (2 * (supply - 1) + 1) / 6;
         uint256 sum2 = (supply == 0 && amount == 1) ? 0 : (amount + supply - 1) * (supply + amount) * (2 * (amount + supply - 1) + 1) / 6;
         uint256 summation = sum2 - sum1;
@@ -179,9 +181,21 @@ contract UnlonelySharesV1 is Ownable {
         return price - protocolFee - subjectFee;
     }
 
+    function getPayout(address sharesSubject) public view returns (uint256) {
+        if (!eventVerified[sharesSubject]) return 0;
+        bool result = eventResult[sharesSubject];
+        uint256 userShares = result ? yaySharesBalance[sharesSubject][msg.sender] : naySharesBalance[sharesSubject][msg.sender];
+        uint256 totalPool = pooledEth[sharesSubject];
+        uint256 totalWinningShares = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
+        uint256 userPayout = totalWinningShares == 0 ? 0 : totalPool * userShares / totalWinningShares;
+        return userPayout;
+    }
+
     // def: buyShares takes in streamer address (ex: 0xTed), amount of shares purchased, and if its yay or nay
     function buyShares(address sharesSubject, uint256 amount, bool isYay) public payable {
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
+        require(!eventVerified[sharesSubject], "Event already verified");
+        require(amount > 0, "Cannot buy zero shares");
         uint256 supply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
         uint256 price = getPrice(supply, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
@@ -208,6 +222,8 @@ contract UnlonelySharesV1 is Ownable {
 
     function sellShares(address sharesSubject, uint256 amount, bool isYay) public {
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
+        require(!eventVerified[sharesSubject], "Event already verified");
+        require(amount > 0, "Cannot sell zero shares");
         uint256 supply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
         require(supply >= amount, "Cannot sell more shares than the current supply");
         
@@ -254,7 +270,7 @@ contract UnlonelySharesV1 is Ownable {
 
         uint256 totalPool = pooledEth[sharesSubject];
         uint256 totalWinningShares = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        uint256 userPayout = totalPool * userShares / totalWinningShares;
+        uint256 userPayout = totalWinningShares == 0 ? 0 : totalPool * userShares / totalWinningShares;
 
         // Reset user's shares after distributing
         if (result) {

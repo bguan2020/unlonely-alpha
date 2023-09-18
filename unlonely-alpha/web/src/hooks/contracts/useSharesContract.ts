@@ -207,6 +207,7 @@ export const useReadSharesSubject = (
   const [isVerifier, setIsVerifier] = useState<boolean>(false);
 
   const [pooledEth, setPooledEth] = useState<bigint>(BigInt(0));
+  const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
@@ -216,6 +217,7 @@ export const useReadSharesSubject = (
       setEventVerified(false);
       setEventResult(false);
       setIsVerifier(false);
+      setUserPayout(BigInt(0));
       return;
     }
     const [
@@ -225,6 +227,7 @@ export const useReadSharesSubject = (
       eventResult,
       isVerifier,
       pooledEth,
+      userPayout,
     ] = await Promise.all([
       publicClient.readContract({
         address: contract.address,
@@ -262,6 +265,12 @@ export const useReadSharesSubject = (
         functionName: "pooledEth",
         args: [sharesSubject],
       }),
+      publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "getPayout",
+        args: [sharesSubject],
+      }),
     ]);
     setPooledEth(BigInt(String(pooledEth)));
     setYaySharesSupply(BigInt(String(yaySharesSupply)));
@@ -269,6 +278,7 @@ export const useReadSharesSubject = (
     setEventVerified(Boolean(eventVerified));
     setEventResult(Boolean(eventResult));
     setIsVerifier(Boolean(isVerifier));
+    setUserPayout(BigInt(String(userPayout)));
   }, [contract, publicClient]);
 
   useEffect(() => {
@@ -283,6 +293,7 @@ export const useReadSharesSubject = (
     eventResult,
     isVerifier,
     pooledEth,
+    userPayout,
   };
 };
 
