@@ -4,6 +4,7 @@ import { usePublicClient } from "wagmi";
 import { NULL_ADDRESS } from "../../constants";
 import { ContractData, WriteCallbacks } from "../../constants/types";
 import { createCallbackHandler } from "../../utils/contract";
+import { useUser } from "../context/useUser";
 import { useWrite } from "./useWrite";
 
 export const useReadPublic = (contract: ContractData) => {
@@ -15,38 +16,51 @@ export const useReadPublic = (contract: ContractData) => {
     BigInt(0)
   );
   const [subjectFeePercent, setSubjectFeePercent] = useState<bigint>(BigInt(0));
+  const [isPaused, setIsPaused] = useState<boolean>(false);
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
       setProtocolFeeDestination(NULL_ADDRESS);
       setProtocolFeePercent(BigInt(0));
       setSubjectFeePercent(BigInt(0));
+      setIsPaused(false);
       return;
     }
-    const [protocolFeeDestination, protocolFeePercent, subjectFeePercent] =
-      await Promise.all([
-        publicClient.readContract({
-          address: contract.address,
-          abi: contract.abi,
-          functionName: "protocolFeeDestination",
-          args: [],
-        }),
-        publicClient.readContract({
-          address: contract.address,
-          abi: contract.abi,
-          functionName: "protocolFeePercent",
-          args: [],
-        }),
-        publicClient.readContract({
-          address: contract.address,
-          abi: contract.abi,
-          functionName: "subjectFeePercent",
-          args: [],
-        }),
-      ]);
+    const [
+      protocolFeeDestination,
+      protocolFeePercent,
+      subjectFeePercent,
+      isPaused,
+    ] = await Promise.all([
+      publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "protocolFeeDestination",
+        args: [],
+      }),
+      publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "protocolFeePercent",
+        args: [],
+      }),
+      publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "subjectFeePercent",
+        args: [],
+      }),
+      publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "isPaused",
+        args: [],
+      }),
+    ]);
     setProtocolFeeDestination(String(protocolFeeDestination));
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
+    setIsPaused(Boolean(isPaused));
   }, [contract, publicClient]);
 
   useEffect(() => {
@@ -58,6 +72,7 @@ export const useReadPublic = (contract: ContractData) => {
     protocolFeeDestination,
     protocolFeePercent,
     subjectFeePercent,
+    isPaused,
   };
 };
 
@@ -90,6 +105,7 @@ export const useGetPrice = (
           functionName: "getSellPrice",
           args: [sharesSubject, amount, isYay],
         });
+    console.log(isBuying, price, amount, isYay);
     setPrice(BigInt(String(price)));
   }, [contract, publicClient]);
 
@@ -197,6 +213,7 @@ export const useReadSharesSubject = (
   sharesSubject: `0x${string}`,
   contract: ContractData
 ) => {
+  const { userAddress } = useUser();
   const publicClient = usePublicClient();
 
   const [yaySharesSupply, setYaySharesSupply] = useState<bigint>(BigInt(0));
@@ -269,7 +286,7 @@ export const useReadSharesSubject = (
         address: contract.address,
         abi: contract.abi,
         functionName: "getPayout",
-        args: [sharesSubject],
+        args: [sharesSubject, userAddress],
       }),
     ]);
     setPooledEth(BigInt(String(pooledEth)));
@@ -279,7 +296,7 @@ export const useReadSharesSubject = (
     setEventResult(Boolean(eventResult));
     setIsVerifier(Boolean(isVerifier));
     setUserPayout(BigInt(String(userPayout)));
-  }, [contract, publicClient]);
+  }, [contract, publicClient, userAddress]);
 
   useEffect(() => {
     getData();

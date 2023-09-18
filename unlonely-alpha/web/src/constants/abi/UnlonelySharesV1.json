@@ -302,6 +302,11 @@
         "internalType": "address",
         "name": "sharesSubject",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       }
     ],
     "name": "getPayout",
@@ -392,6 +397,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isPaused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -569,6 +587,19 @@
       }
     ],
     "name": "setFeeDestination",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_isPaused",
+        "type": "bool"
+      }
+    ],
+    "name": "setIsPaused",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

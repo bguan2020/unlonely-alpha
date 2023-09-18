@@ -64,6 +64,7 @@ export const SharesInterface = () => {
     protocolFeeDestination,
     protocolFeePercent,
     subjectFeePercent,
+    isPaused,
     refetch: refetchPublic,
   } = useReadPublic(contract);
 
@@ -475,7 +476,7 @@ export const SharesInterface = () => {
               event is over, claim your payout
             </Text>
             <Text textAlign={"center"} fontSize="20px">
-              {userPayout}
+              {formatUnits(userPayout, 18)}
             </Text>
             <Button
               _hover={{}}
@@ -483,6 +484,8 @@ export const SharesInterface = () => {
               _active={{}}
               bg={"#E09025"}
               borderRadius="25px"
+              isDisabled={!claimPayout}
+              onClick={claimPayout}
             >
               <Text fontSize="20px">get payout</Text>
             </Button>

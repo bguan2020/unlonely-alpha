@@ -82,11 +82,11 @@ contract UnlonelySharesV1 is Ownable {
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
     uint256 public subjectFeePercent;
+    bool public isPaused;
 
     event Trade(address trader, address subject, bool isBuy, bool isYay, uint256 shareAmount, uint256 ethAmount, uint256 protocolEthAmount, uint256 subjectEthAmount, uint256 supply);
     event EventVerified(address indexed sharesSubject, bool result);
     event Payout(address indexed voter, uint256 amount);
-    
 
     // this is a mapping between streamer and their holders which each own an amount of yay/nay shares
     mapping(address => mapping(address => uint256)) public yaySharesBalance;
@@ -143,6 +143,10 @@ contract UnlonelySharesV1 is Ownable {
         subjectFeePercent = _feePercent;
     }
 
+    function setIsPaused(bool _isPaused) public onlyOwner {
+        isPaused = _isPaused;
+    }
+
     function getHolderSharesBalance(address sharesSubject, address holder, bool isYay) public view returns (uint256) {
         return isYay ? yaySharesBalance[sharesSubject][holder] : naySharesBalance[sharesSubject][holder];
     }
@@ -181,18 +185,19 @@ contract UnlonelySharesV1 is Ownable {
         return price - protocolFee - subjectFee;
     }
 
-    function getPayout(address sharesSubject) public view returns (uint256) {
+    function getPayout(address sharesSubject, address user) public view returns (uint256) {
         if (!eventVerified[sharesSubject]) return 0;
         bool result = eventResult[sharesSubject];
-        uint256 userShares = result ? yaySharesBalance[sharesSubject][msg.sender] : naySharesBalance[sharesSubject][msg.sender];
+        uint256 userShares = result ? yaySharesBalance[sharesSubject][user] : naySharesBalance[sharesSubject][user];
         uint256 totalPool = pooledEth[sharesSubject];
         uint256 totalWinningShares = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        uint256 userPayout = totalWinningShares == 0 ? 0 : totalPool * userShares / totalWinningShares;
+        uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * userShares / totalWinningShares);
         return userPayout;
     }
 
     // def: buyShares takes in streamer address (ex: 0xTed), amount of shares purchased, and if its yay or nay
     function buyShares(address sharesSubject, uint256 amount, bool isYay) public payable {
+        require(!isPaused, "Contract is paused");
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[sharesSubject], "Event already verified");
         require(amount > 0, "Cannot buy zero shares");
@@ -270,7 +275,7 @@ contract UnlonelySharesV1 is Ownable {
 
         uint256 totalPool = pooledEth[sharesSubject];
         uint256 totalWinningShares = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        uint256 userPayout = totalWinningShares == 0 ? 0 : totalPool * userShares / totalWinningShares;
+        uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * userShares / totalWinningShares);
 
         // Reset user's shares after distributing
         if (result) {
