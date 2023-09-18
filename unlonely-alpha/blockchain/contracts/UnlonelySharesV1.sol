@@ -181,6 +181,7 @@ contract UnlonelySharesV1 is Ownable {
 
     // def: buyShares takes in streamer address (ex: 0xTed), amount of shares purchased, and if its yay or nay
     function buyShares(address sharesSubject, uint256 amount, bool isYay) public payable {
+        require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         uint256 supply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
         uint256 price = getPrice(supply, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
@@ -206,8 +207,9 @@ contract UnlonelySharesV1 is Ownable {
     }
 
     function sellShares(address sharesSubject, uint256 amount, bool isYay) public {
+        require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         uint256 supply = isYay ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        require(supply > amount, "Cannot sell more shares than the current supply");
+        require(supply >= amount, "Cannot sell more shares than the current supply");
         
         uint256 userShares = isYay ? yaySharesBalance[sharesSubject][msg.sender] : naySharesBalance[sharesSubject][msg.sender];
         require(userShares >= amount, "You don't have enough shares to sell");
