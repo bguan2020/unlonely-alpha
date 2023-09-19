@@ -297,9 +297,25 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
         messageText = lastMessage.title ?? "Clip";
         body = `${InteractionType.CLIP}:${lastMessage.description ?? ""}`;
       }
-      if (lastMessage.taskType === InteractionType.SHARES) {
+      if (lastMessage.taskType === InteractionType.BUY_SHARES) {
         messageText = lastMessage.title ?? "Shares";
-        body = `${InteractionType.SHARES}:${lastMessage.description ?? ""}`;
+        body = `${InteractionType.BUY_SHARES}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === InteractionType.SELL_SHARES) {
+        messageText = lastMessage.title ?? "Shares";
+        body = `${InteractionType.SELL_SHARES}:${
+          lastMessage.description ?? ""
+        }`;
+      }
+      if (lastMessage.taskType === InteractionType.EVENT_START) {
+        messageText = lastMessage.title ?? "Event start";
+        body = `${InteractionType.EVENT_START}:${
+          lastMessage.description ?? ""
+        }`;
+      }
+      if (lastMessage.taskType === InteractionType.EVENT_END) {
+        messageText = lastMessage.title ?? "Event end";
+        body = `${InteractionType.EVENT_END}:${lastMessage.description ?? ""}`;
       }
       publishChatBotMessage(messageText, body);
     }

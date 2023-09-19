@@ -292,7 +292,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
-          taskType: InteractionType.SHARES,
+          taskType: InteractionType.BUY_SHARES,
           title,
           description: "shares",
         });
@@ -380,7 +380,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
-          taskType: InteractionType.SHARES,
+          taskType: InteractionType.SELL_SHARES,
           title,
           description: "shares",
         });
@@ -405,7 +405,9 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
       const latestMessage = messages[messages.length - 1];
       if (
         latestMessage.data.body &&
-        latestMessage.data.body.split(":")[0] === InteractionType.SHARES &&
+        (latestMessage.data.body.split(":")[0] === InteractionType.BUY_SHARES ||
+          latestMessage.data.body.split(":")[0] ===
+            InteractionType.SELL_SHARES) &&
         Date.now() - latestMessage.timestamp < 6000
       ) {
         refetchPublic();
