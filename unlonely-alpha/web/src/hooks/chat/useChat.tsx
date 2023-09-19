@@ -219,7 +219,11 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
   useEffect(() => {
     if (mountingMessages.current || receivedMessages.length === 0) return;
     const latestMessage = receivedMessages[receivedMessages.length - 1];
-    if (latestMessage && latestMessage.name === CHAT_MESSAGE_EVENT) {
+    if (
+      latestMessage &&
+      latestMessage.name === CHAT_MESSAGE_EVENT &&
+      Date.now() - latestMessage.timestamp < 6000
+    ) {
       if (
         latestMessage.data.body &&
         latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
@@ -292,6 +296,10 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
       if (lastMessage.taskType === InteractionType.CLIP) {
         messageText = lastMessage.title ?? "Clip";
         body = `${InteractionType.CLIP}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === InteractionType.SHARES) {
+        messageText = lastMessage.title ?? "Shares";
+        body = `${InteractionType.SHARES}:${lastMessage.description ?? ""}`;
       }
       publishChatBotMessage(messageText, body);
     }

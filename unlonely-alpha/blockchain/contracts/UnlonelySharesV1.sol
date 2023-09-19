@@ -277,7 +277,9 @@ contract UnlonelySharesV1 is Ownable {
         uint256 totalWinningShares = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
         uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * userShares / totalWinningShares);
 
-        // Reset user's shares after distributing
+        payable(msg.sender).transfer(userPayout);
+
+                // Reset user's shares after distributing
         if (result) {
             yaySharesBalance[sharesSubject][msg.sender] = 0;
             yaySharesSupply[sharesSubject] -= userShares;
@@ -289,7 +291,6 @@ contract UnlonelySharesV1 is Ownable {
         // Deduct the user's payout from the sharesSubject's pool
         pooledEth[sharesSubject] -= userPayout;
 
-        payable(msg.sender).transfer(userPayout);
         emit Payout(msg.sender, userPayout);
     }
 }

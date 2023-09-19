@@ -809,7 +809,7 @@ const StandaloneAblyChatComponent = ({
           </Flex>
         </Flex>
       )}
-      <SharesInterface />
+      <SharesInterface messages={receivedMessages} />
       <MessageList
         scrollRef={scrollRef}
         messages={receivedMessages}

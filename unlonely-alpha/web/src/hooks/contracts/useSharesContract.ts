@@ -105,7 +105,6 @@ export const useGetPrice = (
           functionName: "getSellPrice",
           args: [sharesSubject, amount, isYay],
         });
-    console.log(isBuying, price, amount, isYay);
     setPrice(BigInt(String(price)));
   }, [contract, publicClient]);
 

@@ -393,7 +393,7 @@ const AblyChatComponent = () => {
             </Flex>
           </Flex>
         )}
-        <SharesInterface />
+        <SharesInterface messages={receivedMessages} />
         <Flex
           direction="column"
           overflowX="auto"
