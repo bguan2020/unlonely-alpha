@@ -27,6 +27,7 @@ import {
   useReadPublic,
   useReadSharesSubject,
   useSellShares,
+  useVerifyEvent,
 } from "../../hooks/contracts/useSharesContract";
 import { filteredInput } from "../../utils/validation/input";
 import { getContractFromNetwork } from "../../utils/contract";
@@ -53,6 +54,10 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   >(undefined);
   const [isBuying, setIsBuying] = useState<boolean>(true);
   const [amount, setAmount] = useState("");
+  const [isEndingEvent, setIsEndingEvent] = useState<boolean>(false);
+  const [endDecision, setEndDecision] = useState<boolean | undefined>(
+    undefined
+  );
 
   const isYay = selectedSharesOption === "yes";
 
@@ -294,7 +299,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
           address: userAddress ?? "",
           taskType: InteractionType.BUY_SHARES,
           title,
-          description: "shares",
+          description: args.isYay,
         });
       },
       onTxError: (error) => {
@@ -382,7 +387,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
           address: userAddress ?? "",
           taskType: InteractionType.SELL_SHARES,
           title,
-          description: "shares",
+          description: args.isYay,
         });
       },
       onTxError: (error) => {
@@ -400,31 +405,122 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
     }
   );
 
-  useEffect(() => {
-    if (messages.length > 0) {
-      const latestMessage = messages[messages.length - 1];
-      if (
-        latestMessage.data.body &&
-        (latestMessage.data.body.split(":")[0] === InteractionType.BUY_SHARES ||
-          latestMessage.data.body.split(":")[0] ===
-            InteractionType.SELL_SHARES) &&
-        Date.now() - latestMessage.timestamp < 6000
-      ) {
-        refetchPublic();
-        refetchYayBuyPriceForOne();
-        refetchNayBuyPriceForOne();
-        refetchYayBuyPrice();
-        refetchYaySellPrice();
-        refetchNayBuyPrice();
-        refetchNaySellPrice();
-        refetchYayBuyPriceAfterFee();
-        refetchYaySellPriceAfterFee();
-        refetchNayBuyPriceAfterFee();
-        refetchNaySellPriceAfterFee();
-        refetchBalances();
-        refetchSharesSubject();
-      }
+  const { verifyEvent, verifyEventTxLoading } = useVerifyEvent(
+    {
+      sharesSubject: sharesSubject,
+      result: endDecision ?? false,
+    },
+    contract,
+    {
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.hash}`}
+                passHref
+              >
+                verifyEvent pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+      onWriteError: (error) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              verifyEvent cancelled
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                passHref
+              >
+                verifyEvent success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        setEndDecision(undefined);
+        setIsEndingEvent(false);
+        const topics = decodeEventLog({
+          abi: contract.abi,
+          data: data.logs[0].data,
+          topics: data.logs[0].topics,
+        });
+        const args: any = topics.args;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.EVENT_END,
+          title: `Event has ended, ${args.result ? "yay" : "nay"} shares win!`,
+          description: "event-end",
+        });
+      },
+      onTxError: (error) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              verifyEvent error
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
     }
+  );
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (messages.length > 0) {
+        const latestMessage = messages[messages.length - 1];
+        if (
+          latestMessage.data.body &&
+          (latestMessage.data.body.split(":")[0] ===
+            InteractionType.BUY_SHARES ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.SELL_SHARES ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_END) &&
+          Date.now() - latestMessage.timestamp < 6000
+        ) {
+          await refetchPublic();
+          await refetchYayBuyPriceForOne();
+          await refetchNayBuyPriceForOne();
+          await refetchYayBuyPrice();
+          await refetchYaySellPrice();
+          await refetchNayBuyPrice();
+          await refetchNaySellPrice();
+          await refetchYayBuyPriceAfterFee();
+          await refetchYaySellPriceAfterFee();
+          await refetchNayBuyPriceAfterFee();
+          await refetchNaySellPriceAfterFee();
+          await refetchBalances();
+          await refetchSharesSubject();
+        }
+      }
+    };
+    fetch();
   }, [messages]);
 
   const handleInputChange = (event: any) => {
@@ -458,7 +554,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
           </Text>
         </Flex>
 
-        {selectedSharesOption !== undefined && (
+        {(isEndingEvent || selectedSharesOption !== undefined) && (
           <IconButton
             aria-label="close"
             _hover={{}}
@@ -468,13 +564,67 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
             icon={<Image alt="close" src="/svg/close.svg" width="15px" />}
             onClick={() => {
               setSelectedSharesOption(undefined);
+              setIsEndingEvent(false);
+              setEndDecision(undefined);
             }}
             position="absolute"
             right="-5px"
             top="-5px"
           />
         )}
-        {protocolFeeDestination === NULL_ADDRESS ? (
+        {isEndingEvent ? (
+          <>
+            <Text textAlign="center" fontSize="14px" color="#01bdec">
+              decide event outcome to end it
+            </Text>
+            {!verifyEventTxLoading ? (
+              <>
+                <Flex justifyContent={"space-evenly"} p="0.5rem">
+                  <Button
+                    _hover={{}}
+                    _focus={{}}
+                    _active={{}}
+                    transform={endDecision === true ? undefined : "scale(0.95)"}
+                    bg={endDecision === true ? "#009d2a" : "#909090"}
+                    onClick={() => setEndDecision(true)}
+                  >
+                    YES
+                  </Button>
+                  <Button
+                    _hover={{}}
+                    _focus={{}}
+                    _active={{}}
+                    transform={
+                      endDecision === false ? undefined : "scale(0.95)"
+                    }
+                    bg={endDecision === false ? "#da3b14" : "#909090"}
+                    onClick={() => setEndDecision(false)}
+                  >
+                    NO
+                  </Button>
+                </Flex>
+                {endDecision !== undefined && (
+                  <Flex justifyContent={"center"} pb="0.5rem">
+                    <Button
+                      _hover={{}}
+                      _focus={{}}
+                      _active={{}}
+                      bg="#0057bb"
+                      isDisabled={!verifyEvent}
+                      onClick={verifyEvent}
+                    >
+                      confirm {endDecision ? "yes" : "no"}
+                    </Button>
+                  </Flex>
+                )}
+              </>
+            ) : (
+              <Flex justifyContent={"center"} p="0.5rem">
+                <Spinner />
+              </Flex>
+            )}
+          </>
+        ) : protocolFeeDestination === NULL_ADDRESS ? (
           <Tooltip>
             <Text textAlign={"center"} color="#d5d5d5" fontSize="15px">
               contract not ready
@@ -482,21 +632,20 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
           </Tooltip>
         ) : eventVerified ? (
           <Flex direction="column" p="0.5rem">
-            <Text
-              textAlign={"center"}
-              color={eventResult === true ? "#02f042" : "#ee6204"}
-              fontSize="25px"
-              fontWeight="bold"
-            >
-              {eventResult ? "Yes" : "No"}
-            </Text>
             {!claimPayoutTxLoading ? (
               <>
-                <Text textAlign={"center"} color="#01a6ec" fontSize="15px">
-                  event is over, claim your payout
-                </Text>
                 <Flex justifyContent="space-between">
-                  <Text fontSize="18px">Your winnings</Text>
+                  <Text fontSize="18px">event outcome</Text>
+                  <Text
+                    fontSize="18px"
+                    fontWeight="bold"
+                    color={eventResult === true ? "#02f042" : "#ee6204"}
+                  >
+                    {eventResult ? "Yes" : "No"}
+                  </Text>
+                </Flex>
+                <Flex justifyContent="space-between">
+                  <Text fontSize="18px">your winnings</Text>
                   <Text fontSize="18px">
                     {truncateValue(formatUnits(userPayout, 18))}
                   </Text>
@@ -582,20 +731,34 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                 {truncateValue(String(naySharesSupply), 0, true)}
               </Text>
             </Flex>
+            {isOwner && (
+              <Flex justifyContent={"center"}>
+                <Text
+                  textAlign="center"
+                  fontSize="12px"
+                  textDecoration={"underline"}
+                  color="#ec6d04"
+                  cursor={"pointer"}
+                  onClick={() => setIsEndingEvent(true)}
+                >
+                  end event
+                </Text>
+              </Flex>
+            )}
           </>
         )}
-        {selectedSharesOption === undefined ? null : (
+        {isEndingEvent || selectedSharesOption === undefined ? null : (
           <Flex direction="column" bg={"rgba(0, 0, 0, 0.258)"} p="0.5rem">
-            <Flex justifyContent={"space-between"}>
-              <Text fontWeight="light" opacity="0.75">
-                enter amount of shares
-              </Text>
-              <Text fontWeight="light">
-                {isYay ? yaySharesBalance : naySharesBalance}
-              </Text>
-            </Flex>
             {!buySharesTxLoading && !sellSharesTxLoading ? (
               <>
+                <Flex justifyContent={"space-between"}>
+                  <Text fontWeight="light" opacity="0.75">
+                    enter amount of shares
+                  </Text>
+                  <Text fontWeight="light">
+                    {isYay ? yaySharesBalance : naySharesBalance}
+                  </Text>
+                </Flex>
                 <Flex>
                   <Button
                     width="60%"

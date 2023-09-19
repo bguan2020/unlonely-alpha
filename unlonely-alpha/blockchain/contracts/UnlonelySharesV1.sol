@@ -125,9 +125,21 @@ contract UnlonelySharesV1 is Ownable {
     }
 
     function verifyEvent(address sharesSubject, bool result) public onlyVerifier {
+        require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[sharesSubject], "Event already verified");
         eventVerified[sharesSubject] = true;
         eventResult[sharesSubject] = result;
+
+        uint256 sharesSupply = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
+
+        // if there are no winners, simply split the money between the protocol and the shares subject
+        if (sharesSupply == 0) {
+            uint256 splitPoolValue = pooledEth[sharesSubject] / 2;
+            (bool success1, ) = protocolFeeDestination.call{value: splitPoolValue}("");
+            (bool success2, ) = sharesSubject.call{value: splitPoolValue}("");
+            require(success1 && success2, "Unable to send funds");
+        }
+
         emit EventVerified(sharesSubject, result);
     }
 

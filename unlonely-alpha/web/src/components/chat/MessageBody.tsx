@@ -99,16 +99,6 @@ const MessageBody = ({
       return {
         bgGradient: "linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)",
       };
-    } else if (
-      message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.BUY_SHARES
-    ) {
-      return { bg: "#007c0a" };
-    } else if (
-      message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.SELL_SHARES
-    ) {
-      return { bg: "#c04701" };
     } else {
       return {
         bg: "#3c3548",
