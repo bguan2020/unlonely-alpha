@@ -3,7 +3,7 @@ import { Flex, Stack, SimpleGrid, Box, Text, Image } from "@chakra-ui/react";
 import { useChannelContext } from "../../hooks/context/useChannel";
 
 const ChannelStreamerPerspective = () => {
-  const { arcade } = useChannelContext();
+  const { arcade, channel } = useChannelContext();
   const {
     handleNotificationsModal,
     handleTokenSaleModal,
@@ -11,7 +11,14 @@ const ChannelStreamerPerspective = () => {
     handleEditModal,
     handleChatCommandModal,
     handleCustomModal,
+    handleBetModal,
   } = arcade;
+  const { channelQueryData } = channel;
+
+  const isSharesEventLive =
+    channelQueryData?.sharesEvent?.eventState === "LIVE";
+  const isSharesEventPayout =
+    channelQueryData?.sharesEvent?.eventState === "PAYOUT";
 
   return (
     <Flex direction="column" width={"100%"}>
@@ -22,7 +29,7 @@ const ChannelStreamerPerspective = () => {
         justifyContent="center"
       >
         <Flex width={"100%"} position="relative" justifyContent={"center"}>
-          <SimpleGrid columns={3} spacing={10}>
+          <SimpleGrid columns={4} spacing={10}>
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">send notifications</Text>
               <Box
@@ -131,6 +138,30 @@ const ChannelStreamerPerspective = () => {
                 justifyContent="center"
                 borderRadius="10px"
                 onClick={() => handleCustomModal(true)}
+                _hover={{
+                  cursor: "pointer",
+                  transform: "scale(1.1)",
+                  transitionDuration: "0.3s",
+                }}
+                _active={{
+                  transform: "scale(1)",
+                }}
+              >
+                <Image src="/svg/custom-actions.svg" width="100%" />
+              </Box>
+            </Flex>
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+              <Text textAlign="center">
+                {isSharesEventPayout && "stop payout"}
+                {isSharesEventLive && "stop bet, start payout"}
+                {!isSharesEventLive && !isSharesEventPayout && "create a bet"}
+              </Text>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="10px"
+                onClick={() => handleBetModal(true)}
                 _hover={{
                   cursor: "pointer",
                   transform: "scale(1.1)",

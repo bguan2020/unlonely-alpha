@@ -393,7 +393,9 @@ const AblyChatComponent = () => {
             </Flex>
           </Flex>
         )}
-        <SharesInterface messages={receivedMessages} />
+        {channelQueryData?.sharesEvent && (
+          <SharesInterface messages={receivedMessages} />
+        )}
         <Flex
           direction="column"
           overflowX="auto"

@@ -809,7 +809,9 @@ const StandaloneAblyChatComponent = ({
           </Flex>
         </Flex>
       )}
-      <SharesInterface messages={receivedMessages} />
+      {channelQueryData?.sharesEvent && (
+        <SharesInterface messages={receivedMessages} />
+      )}
       <MessageList
         scrollRef={scrollRef}
         messages={receivedMessages}

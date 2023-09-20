@@ -39,6 +39,7 @@ import ChanceTransactionModal from "../../components/transactions/ChanceTransact
 import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
 import CustomTransactionModal from "../../components/transactions/CustomTransactionModal";
 import TipTransactionModal from "../../components/transactions/TipTransactionModal";
+import BetModal from "../../components/channels/BetModal";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -53,6 +54,7 @@ const ChannelContext = createContext<{
     mobileData?: ChannelDetailMobileQuery;
     loading: boolean;
     error?: ApolloError;
+    refetch: () => Promise<any>;
   };
   recentStreamInteractions: {
     textOverVideo: string[];
@@ -102,7 +104,9 @@ const ChannelContext = createContext<{
     handleTokenSaleModal: (value: boolean) => void;
     handleEventModal: (value: boolean) => void;
     handleChatCommandModal: (value: boolean) => void;
+    handleBetModal: (value: boolean) => void;
     showBuyModal: boolean;
+    showBetModal: boolean;
     showTipModal: boolean;
     showCustomModal: boolean;
     showChanceModal: boolean;
@@ -121,6 +125,7 @@ const ChannelContext = createContext<{
     data: undefined,
     loading: true,
     error: undefined,
+    refetch: () => Promise.resolve(undefined),
   },
   recentStreamInteractions: {
     textOverVideo: [],
@@ -170,7 +175,9 @@ const ChannelContext = createContext<{
     handleTokenSaleModal: () => undefined,
     handleEventModal: () => undefined,
     handleChatCommandModal: () => undefined,
+    handleBetModal: () => undefined,
     showBuyModal: false,
+    showBetModal: false,
     showTipModal: false,
     showCustomModal: false,
     showChanceModal: false,
@@ -200,6 +207,7 @@ export const ChannelProvider = ({
     loading: channelDataLoading,
     error: channelDataError,
     data: channelData,
+    refetch: refetchChannelData,
   } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
     variables: { slug },
   });
@@ -208,6 +216,7 @@ export const ChannelProvider = ({
     loading: channelMobileDataLoading,
     error: channelMobileDataError,
     data: channelMobileData,
+    refetch: refetchChannelMobileData,
   } = useQuery<ChannelDetailMobileQuery>(CHANNEL_DETAIL_MOBILE_QUERY, {
     variables: { awsId },
   });
@@ -295,6 +304,7 @@ export const ChannelProvider = ({
   const [showNotificationsModal, setNotificationsModal] =
     useState<boolean>(false);
   const [showEventModal, setEventModal] = useState<boolean>(false);
+  const [showBetModal, setBetModal] = useState<boolean>(false);
 
   const {
     fetchData,
@@ -396,6 +406,10 @@ export const ChannelProvider = ({
     setChatCommandModal(value);
   }, []);
 
+  const handleBetModal = useCallback((value: boolean) => {
+    setBetModal(value);
+  }, []);
+
   const handleClose = useCallback(() => {
     setShowTipModal(false);
     setShowChanceModal(false);
@@ -413,6 +427,7 @@ export const ChannelProvider = ({
         mobileData: channelMobileData,
         loading: mobile ? channelMobileDataLoading : channelDataLoading,
         error: mobile ? channelMobileDataError : channelDataError,
+        refetch: mobile ? refetchChannelMobileData : refetchChannelData,
       },
       recentStreamInteractions: {
         textOverVideo,
@@ -462,6 +477,7 @@ export const ChannelProvider = ({
         handleTokenSaleModal,
         handleEventModal,
         handleChatCommandModal,
+        handleBetModal,
         showBuyModal,
         showTipModal,
         showCustomModal,
@@ -472,6 +488,7 @@ export const ChannelProvider = ({
         showNotificationsModal,
         showTokenSaleModal,
         showEventModal,
+        showBetModal,
         showChatCommandModal,
         chatBot,
       },
@@ -509,6 +526,32 @@ export const ChannelProvider = ({
       clipUrl,
       clipThumbnail,
       loading,
+      addToChatbot,
+      handleBuyModal,
+      handleTipModal,
+      handleCustomModal,
+      handleChanceModal,
+      handlePvpModal,
+      handleControlModal,
+      handleEditModal,
+      handleNotificationsModal,
+      handleTokenSaleModal,
+      handleEventModal,
+      handleBetModal,
+      handleChatCommandModal,
+      showBuyModal,
+      showTipModal,
+      showCustomModal,
+      showChanceModal,
+      showPvpModal,
+      showControlModal,
+      showEditModal,
+      showNotificationsModal,
+      showTokenSaleModal,
+      showEventModal,
+      showBetModal,
+      showChatCommandModal,
+      chatBot,
     ]
   );
 
@@ -538,6 +581,7 @@ const TransactionModals = () => {
     handleChanceModal,
     handlePvpModal,
     handleControlModal,
+    handleBetModal,
     showEditModal,
     showNotificationsModal,
     showTokenSaleModal,
@@ -548,6 +592,7 @@ const TransactionModals = () => {
     showChanceModal,
     showTipModal,
     showBuyModal,
+    showBetModal,
   } = arcade;
 
   const isOwner = userAddress === channelQueryData?.owner.address;
@@ -563,6 +608,11 @@ const TransactionModals = () => {
 
   return (
     <>
+      <BetModal
+        title={"create a bet"}
+        isOpen={showBetModal}
+        handleClose={() => handleBetModal(false)}
+      />
       <TokenSaleModal
         title={"offer tokens for sale"}
         isOpen={showTokenSaleModal}

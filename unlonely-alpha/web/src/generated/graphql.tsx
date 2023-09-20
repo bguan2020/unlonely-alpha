@@ -97,6 +97,7 @@ export type Channel = {
   owner: User;
   playbackUrl?: Maybe<Scalars["String"]>;
   response: Scalars["String"];
+  sharesEvent?: Maybe<SharesEvent>;
   slug: Scalars["String"];
   thumbnailUrl?: Maybe<Scalars["String"]>;
   token?: Maybe<CreatorToken>;
@@ -245,6 +246,7 @@ export type Mutation = {
   _empty?: Maybe<Scalars["String"]>;
   addChannelToSubscription?: Maybe<Subscription>;
   addSuggestedChannelsToSubscriptions?: Maybe<Array<Maybe<Subscription>>>;
+  closeSharesEvent?: Maybe<Channel>;
   createClip?: Maybe<ClipOutput>;
   createCreatorToken: CreatorToken;
   handleLike?: Maybe<Likable>;
@@ -253,6 +255,7 @@ export type Mutation = {
   postDeviceToken?: Maybe<DeviceToken>;
   postFirstChat?: Maybe<Chat>;
   postNFC?: Maybe<Nfc>;
+  postSharesEvent?: Maybe<Channel>;
   postStreamInteraction?: Maybe<StreamInteraction>;
   postSubscription?: Maybe<Subscription>;
   postTask?: Maybe<Task>;
@@ -282,6 +285,10 @@ export type MutationAddSuggestedChannelsToSubscriptionsArgs = {
   data: AddSuggestedChannelsToSubscriptionsInput;
 };
 
+export type MutationCloseSharesEventArgs = {
+  data: PostCloseSharesEventInput;
+};
+
 export type MutationCreateClipArgs = {
   data?: InputMaybe<CreateClipInput>;
 };
@@ -308,6 +315,10 @@ export type MutationPostFirstChatArgs = {
 
 export type MutationPostNfcArgs = {
   data: PostNfcInput;
+};
+
+export type MutationPostSharesEventArgs = {
+  data: PostSharesEventInput;
 };
 
 export type MutationPostStreamInteractionArgs = {
@@ -424,6 +435,10 @@ export type PostChatInput = {
   text: Scalars["String"];
 };
 
+export type PostCloseSharesEventInput = {
+  id: Scalars["ID"];
+};
+
 export type PostDeviceTokenInput = {
   address?: InputMaybe<Scalars["String"]>;
   notificationsLive?: InputMaybe<Scalars["Boolean"]>;
@@ -436,6 +451,13 @@ export type PostNfcInput = {
   title: Scalars["String"];
   videoLink: Scalars["String"];
   videoThumbnail: Scalars["String"];
+};
+
+export type PostSharesEventInput = {
+  eventState?: InputMaybe<SharesEventState>;
+  id: Scalars["ID"];
+  sharesSubjectAddress?: InputMaybe<Scalars["String"]>;
+  sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;
 };
 
 export type PostStreamInteractionInput = {
@@ -595,6 +617,19 @@ export type SendAllNotificationsInput = {
   channelId?: InputMaybe<Scalars["ID"]>;
   title: Scalars["String"];
 };
+
+export type SharesEvent = {
+  __typename?: "SharesEvent";
+  eventState?: Maybe<SharesEventState>;
+  sharesSubjectAddress?: Maybe<Scalars["String"]>;
+  sharesSubjectQuestion?: Maybe<Scalars["String"]>;
+  softDelete?: Maybe<Scalars["Boolean"]>;
+};
+
+export enum SharesEventState {
+  Live = "LIVE",
+  Payout = "PAYOUT",
+}
 
 export type SoftDeleteSubscriptionInput = {
   id: Scalars["ID"];
@@ -832,6 +867,12 @@ export type ChannelDetailQuery = {
     allowNFCs?: boolean | null;
     bannedUsers?: Array<string | null> | null;
     playbackUrl?: string | null;
+    sharesEvent?: {
+      __typename?: "SharesEvent";
+      sharesSubjectQuestion?: string | null;
+      sharesSubjectAddress?: string | null;
+      eventState?: SharesEventState | null;
+    } | null;
     owner: {
       __typename?: "User";
       FCImageUrl?: string | null;
@@ -874,6 +915,12 @@ export type ChannelDetailMobileQuery = {
     allowNFCs?: boolean | null;
     bannedUsers?: Array<string | null> | null;
     playbackUrl?: string | null;
+    sharesEvent?: {
+      __typename?: "SharesEvent";
+      sharesSubjectQuestion?: string | null;
+      sharesSubjectAddress?: string | null;
+      eventState?: SharesEventState | null;
+    } | null;
     owner: {
       __typename?: "User";
       FCImageUrl?: string | null;
@@ -1098,6 +1145,24 @@ export type UpdateDeleteChatCommandsMutation = {
   } | null;
 };
 
+export type AddChannelToSubscriptionMutationVariables = Exact<{
+  data: MoveChannelAlongSubscriptionInput;
+}>;
+
+export type AddChannelToSubscriptionMutation = {
+  __typename?: "Mutation";
+  addChannelToSubscription?: { __typename?: "Subscription"; id: string } | null;
+};
+
+export type CloseSharesEventMutationVariables = Exact<{
+  data: PostCloseSharesEventInput;
+}>;
+
+export type CloseSharesEventMutation = {
+  __typename?: "Mutation";
+  closeSharesEvent?: { __typename?: "Channel"; id: string } | null;
+};
+
 export type CreateClipMutationVariables = Exact<{
   data: CreateClipInput;
 }>;
@@ -1154,6 +1219,15 @@ export type PostNfcMutation = {
   postNFC?: { __typename?: "NFC"; id: string } | null;
 };
 
+export type PostSharesEventMutationVariables = Exact<{
+  data: PostSharesEventInput;
+}>;
+
+export type PostSharesEventMutation = {
+  __typename?: "Mutation";
+  postSharesEvent?: { __typename?: "Channel"; id: string } | null;
+};
+
 export type PostStreamInteractionMutationVariables = Exact<{
   data: PostStreamInteractionInput;
 }>;
@@ -1191,6 +1265,18 @@ export type PostVideoMutationVariables = Exact<{
 export type PostVideoMutation = {
   __typename?: "Mutation";
   postVideo?: { __typename?: "Video"; id: string } | null;
+};
+
+export type RemoveChannelFromSubscriptionMutationVariables = Exact<{
+  data: MoveChannelAlongSubscriptionInput;
+}>;
+
+export type RemoveChannelFromSubscriptionMutation = {
+  __typename?: "Mutation";
+  removeChannelFromSubscription?: {
+    __typename?: "Subscription";
+    id: string;
+  } | null;
 };
 
 export type ToggleBannedUserToChannelMutationVariables = Exact<{
@@ -1343,27 +1429,6 @@ export type FetchCurrentUserQuery = {
     __typename?: "User";
     signature?: string | null;
     sigTimestamp?: any | null;
-  } | null;
-};
-
-export type AddChannelToSubscriptionMutationVariables = Exact<{
-  data: MoveChannelAlongSubscriptionInput;
-}>;
-
-export type AddChannelToSubscriptionMutation = {
-  __typename?: "Mutation";
-  addChannelToSubscription?: { __typename?: "Subscription"; id: string } | null;
-};
-
-export type RemoveChannelFromSubscriptionMutationVariables = Exact<{
-  data: MoveChannelAlongSubscriptionInput;
-}>;
-
-export type RemoveChannelFromSubscriptionMutation = {
-  __typename?: "Mutation";
-  removeChannelFromSubscription?: {
-    __typename?: "Subscription";
-    id: string;
   } | null;
 };
 
@@ -1552,6 +1617,11 @@ export const ChannelDetailDocument = gql`
       slug
       allowNFCs
       bannedUsers
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        eventState
+      }
       owner {
         FCImageUrl
         lensImageUrl
@@ -1637,6 +1707,11 @@ export const ChannelDetailMobileDocument = gql`
       slug
       allowNFCs
       bannedUsers
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        eventState
+      }
       owner {
         FCImageUrl
         lensImageUrl
@@ -2471,6 +2546,107 @@ export type UpdateDeleteChatCommandsMutationOptions =
     UpdateDeleteChatCommandsMutation,
     UpdateDeleteChatCommandsMutationVariables
   >;
+export const AddChannelToSubscriptionDocument = gql`
+  mutation AddChannelToSubscription($data: MoveChannelAlongSubscriptionInput!) {
+    addChannelToSubscription(data: $data) {
+      id
+    }
+  }
+`;
+export type AddChannelToSubscriptionMutationFn = Apollo.MutationFunction<
+  AddChannelToSubscriptionMutation,
+  AddChannelToSubscriptionMutationVariables
+>;
+
+/**
+ * __useAddChannelToSubscriptionMutation__
+ *
+ * To run a mutation, you first call `useAddChannelToSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddChannelToSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addChannelToSubscriptionMutation, { data, loading, error }] = useAddChannelToSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useAddChannelToSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddChannelToSubscriptionMutation,
+    AddChannelToSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    AddChannelToSubscriptionMutation,
+    AddChannelToSubscriptionMutationVariables
+  >(AddChannelToSubscriptionDocument, options);
+}
+export type AddChannelToSubscriptionMutationHookResult = ReturnType<
+  typeof useAddChannelToSubscriptionMutation
+>;
+export type AddChannelToSubscriptionMutationResult =
+  Apollo.MutationResult<AddChannelToSubscriptionMutation>;
+export type AddChannelToSubscriptionMutationOptions =
+  Apollo.BaseMutationOptions<
+    AddChannelToSubscriptionMutation,
+    AddChannelToSubscriptionMutationVariables
+  >;
+export const CloseSharesEventDocument = gql`
+  mutation CloseSharesEvent($data: PostCloseSharesEventInput!) {
+    closeSharesEvent(data: $data) {
+      id
+    }
+  }
+`;
+export type CloseSharesEventMutationFn = Apollo.MutationFunction<
+  CloseSharesEventMutation,
+  CloseSharesEventMutationVariables
+>;
+
+/**
+ * __useCloseSharesEventMutation__
+ *
+ * To run a mutation, you first call `useCloseSharesEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCloseSharesEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [closeSharesEventMutation, { data, loading, error }] = useCloseSharesEventMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCloseSharesEventMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CloseSharesEventMutation,
+    CloseSharesEventMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    CloseSharesEventMutation,
+    CloseSharesEventMutationVariables
+  >(CloseSharesEventDocument, options);
+}
+export type CloseSharesEventMutationHookResult = ReturnType<
+  typeof useCloseSharesEventMutation
+>;
+export type CloseSharesEventMutationResult =
+  Apollo.MutationResult<CloseSharesEventMutation>;
+export type CloseSharesEventMutationOptions = Apollo.BaseMutationOptions<
+  CloseSharesEventMutation,
+  CloseSharesEventMutationVariables
+>;
 export const CreateClipDocument = gql`
   mutation CreateClip($data: CreateClipInput!) {
     createClip(data: $data) {
@@ -2717,6 +2893,56 @@ export type PostNfcMutationOptions = Apollo.BaseMutationOptions<
   PostNfcMutation,
   PostNfcMutationVariables
 >;
+export const PostSharesEventDocument = gql`
+  mutation PostSharesEvent($data: PostSharesEventInput!) {
+    postSharesEvent(data: $data) {
+      id
+    }
+  }
+`;
+export type PostSharesEventMutationFn = Apollo.MutationFunction<
+  PostSharesEventMutation,
+  PostSharesEventMutationVariables
+>;
+
+/**
+ * __usePostSharesEventMutation__
+ *
+ * To run a mutation, you first call `usePostSharesEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostSharesEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postSharesEventMutation, { data, loading, error }] = usePostSharesEventMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostSharesEventMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostSharesEventMutation,
+    PostSharesEventMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostSharesEventMutation,
+    PostSharesEventMutationVariables
+  >(PostSharesEventDocument, options);
+}
+export type PostSharesEventMutationHookResult = ReturnType<
+  typeof usePostSharesEventMutation
+>;
+export type PostSharesEventMutationResult =
+  Apollo.MutationResult<PostSharesEventMutation>;
+export type PostSharesEventMutationOptions = Apollo.BaseMutationOptions<
+  PostSharesEventMutation,
+  PostSharesEventMutationVariables
+>;
 export const PostStreamInteractionDocument = gql`
   mutation PostStreamInteraction($data: PostStreamInteractionInput!) {
     postStreamInteraction(data: $data) {
@@ -2913,6 +3139,59 @@ export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
   PostVideoMutation,
   PostVideoMutationVariables
 >;
+export const RemoveChannelFromSubscriptionDocument = gql`
+  mutation RemoveChannelFromSubscription(
+    $data: MoveChannelAlongSubscriptionInput!
+  ) {
+    removeChannelFromSubscription(data: $data) {
+      id
+    }
+  }
+`;
+export type RemoveChannelFromSubscriptionMutationFn = Apollo.MutationFunction<
+  RemoveChannelFromSubscriptionMutation,
+  RemoveChannelFromSubscriptionMutationVariables
+>;
+
+/**
+ * __useRemoveChannelFromSubscriptionMutation__
+ *
+ * To run a mutation, you first call `useRemoveChannelFromSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveChannelFromSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeChannelFromSubscriptionMutation, { data, loading, error }] = useRemoveChannelFromSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useRemoveChannelFromSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    RemoveChannelFromSubscriptionMutation,
+    RemoveChannelFromSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    RemoveChannelFromSubscriptionMutation,
+    RemoveChannelFromSubscriptionMutationVariables
+  >(RemoveChannelFromSubscriptionDocument, options);
+}
+export type RemoveChannelFromSubscriptionMutationHookResult = ReturnType<
+  typeof useRemoveChannelFromSubscriptionMutation
+>;
+export type RemoveChannelFromSubscriptionMutationResult =
+  Apollo.MutationResult<RemoveChannelFromSubscriptionMutation>;
+export type RemoveChannelFromSubscriptionMutationOptions =
+  Apollo.BaseMutationOptions<
+    RemoveChannelFromSubscriptionMutation,
+    RemoveChannelFromSubscriptionMutationVariables
+  >;
 export const ToggleBannedUserToChannelDocument = gql`
   mutation toggleBannedUserToChannel($data: ToggleBannedUserToChannelInput!) {
     toggleBannedUserToChannel(data: $data) {
@@ -3529,107 +3808,3 @@ export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
 >;
-export const AddChannelToSubscriptionDocument = gql`
-  mutation AddChannelToSubscription($data: MoveChannelAlongSubscriptionInput!) {
-    addChannelToSubscription(data: $data) {
-      id
-    }
-  }
-`;
-export type AddChannelToSubscriptionMutationFn = Apollo.MutationFunction<
-  AddChannelToSubscriptionMutation,
-  AddChannelToSubscriptionMutationVariables
->;
-
-/**
- * __useAddChannelToSubscriptionMutation__
- *
- * To run a mutation, you first call `useAddChannelToSubscriptionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddChannelToSubscriptionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addChannelToSubscriptionMutation, { data, loading, error }] = useAddChannelToSubscriptionMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useAddChannelToSubscriptionMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddChannelToSubscriptionMutation,
-    AddChannelToSubscriptionMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    AddChannelToSubscriptionMutation,
-    AddChannelToSubscriptionMutationVariables
-  >(AddChannelToSubscriptionDocument, options);
-}
-export type AddChannelToSubscriptionMutationHookResult = ReturnType<
-  typeof useAddChannelToSubscriptionMutation
->;
-export type AddChannelToSubscriptionMutationResult =
-  Apollo.MutationResult<AddChannelToSubscriptionMutation>;
-export type AddChannelToSubscriptionMutationOptions =
-  Apollo.BaseMutationOptions<
-    AddChannelToSubscriptionMutation,
-    AddChannelToSubscriptionMutationVariables
-  >;
-export const RemoveChannelFromSubscriptionDocument = gql`
-  mutation RemoveChannelFromSubscription(
-    $data: MoveChannelAlongSubscriptionInput!
-  ) {
-    removeChannelFromSubscription(data: $data) {
-      id
-    }
-  }
-`;
-export type RemoveChannelFromSubscriptionMutationFn = Apollo.MutationFunction<
-  RemoveChannelFromSubscriptionMutation,
-  RemoveChannelFromSubscriptionMutationVariables
->;
-
-/**
- * __useRemoveChannelFromSubscriptionMutation__
- *
- * To run a mutation, you first call `useRemoveChannelFromSubscriptionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRemoveChannelFromSubscriptionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [removeChannelFromSubscriptionMutation, { data, loading, error }] = useRemoveChannelFromSubscriptionMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useRemoveChannelFromSubscriptionMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    RemoveChannelFromSubscriptionMutation,
-    RemoveChannelFromSubscriptionMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    RemoveChannelFromSubscriptionMutation,
-    RemoveChannelFromSubscriptionMutationVariables
-  >(RemoveChannelFromSubscriptionDocument, options);
-}
-export type RemoveChannelFromSubscriptionMutationHookResult = ReturnType<
-  typeof useRemoveChannelFromSubscriptionMutation
->;
-export type RemoveChannelFromSubscriptionMutationResult =
-  Apollo.MutationResult<RemoveChannelFromSubscriptionMutation>;
-export type RemoveChannelFromSubscriptionMutationOptions =
-  Apollo.BaseMutationOptions<
-    RemoveChannelFromSubscriptionMutation,
-    RemoveChannelFromSubscriptionMutationVariables
-  >;
