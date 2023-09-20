@@ -65,7 +65,7 @@ export const typeDef = gql`
     eventState: SharesEventState
   }
 
-  inport PostCloseSharesEventInput {
+  input PostCloseSharesEventInput {
     id: ID!
   }
 
