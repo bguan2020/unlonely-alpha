@@ -14,6 +14,11 @@ interface Channel extends PrismaChannel {
   thumbnailUrl?: string | null;
 }
 
+enum SharesEventState {
+  LIVE = "LIVE",
+  PAYOUT = "PAYOUT",
+}
+
 export const updateChannelText = (
   data: IPostChannelTextInput,
   ctx: Context
@@ -44,6 +49,45 @@ export const updateChannelCustomButton = (
       customButtonPrice: data.customButtonPrice,
     },
   });
+};
+
+export interface IUpdateSharesEventInput {
+  id: number;
+  sharesSubjectQuestion: string;
+  sharesSubjectAddress: string;
+  eventState?: SharesEventState;
+}
+
+export const updateSharesEvent = async (
+  data: IUpdateSharesEventInput,
+  ctx: Context
+) => {
+  // First, find the SharesEvent based on channelId
+  const sharesEvent = await ctx.prisma.sharesEvent.findUnique({
+    where: { channelId: Number(data.id) },
+  });
+
+  // If a SharesEvent exists, update it
+  if (sharesEvent) {
+    return await ctx.prisma.sharesEvent.update({
+      where: { id: sharesEvent.id },
+      data: {
+        sharesSubjectQuestion: data.sharesSubjectQuestion,
+        sharesSubjectAddress: data.sharesSubjectAddress,
+        eventState: data.eventState,
+      },
+    });
+  } else {
+    // If not, create a new SharesEvent associated with the given Channel
+    return await ctx.prisma.sharesEvent.create({
+      data: {
+        sharesSubjectQuestion: data.sharesSubjectQuestion,
+        sharesSubjectAddress: data.sharesSubjectAddress,
+        eventState: data.eventState,
+        channelId: Number(data.id),
+      },
+    });
+  }
 };
 
 export interface IGetChannelFeedInput {

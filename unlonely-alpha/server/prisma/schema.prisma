@@ -149,6 +149,7 @@ model Channel {
   token CreatorToken?
   customButtonAction String?
   customButtonPrice Int?
+  sharesEvent SharesEvent?
 }
 
 model CreatorToken {
@@ -184,10 +185,20 @@ model ChatCommand {
   softDelete Boolean @default(false)
 }
 
+enum SharesEventState {
+  LIVE
+  PAYOUT
+}
 
+model SharesEvent {
+  id        Int      @id @default(autoincrement())
+  sharesSubjectQuestion String
+  sharesSubjectAddress String
+  eventState SharesEventState?
 
-
-
+  channel Channel @relation(fields: [channelId], references: [id])
+  channelId Int       @unique
+}
 
 // ------- DEPRECATED MODELS -------
 // DONT DELETE

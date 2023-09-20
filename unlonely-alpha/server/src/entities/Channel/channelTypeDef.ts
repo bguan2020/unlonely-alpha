@@ -1,9 +1,20 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
+  enum SharesEventState {
+    LIVE
+    PAYOUT
+  }
+
   type ChatCommand {
     command: String!
     response: String!
+  }
+
+  type SharesEvent {
+    sharesSubjectQuestion: String
+    sharesSubjectAddress: String
+    eventState: SharesEventState
   }
 
   type Channel {
@@ -25,6 +36,7 @@ export const typeDef = gql`
     createdAt: DateTime!
     updatedAt: DateTime!
     chatCommands: [ChatCommand]
+    sharesEvent: SharesEvent
   }
 
   input ChannelFeedInput {
@@ -45,6 +57,13 @@ export const typeDef = gql`
     customButtonPrice: Int!
   }
 
+  input UpdateSharesEventInput {
+    id: ID!
+    sharesSubjectQuestion: String
+    sharesSubjectAddress: String
+    eventState: SharesEventState
+  }
+
   input ToggleBannedUserToChannelInput {
     channelId: ID!
     userAddress: String!
@@ -59,6 +78,7 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
+    updateSharesEvent(data: UpdateSharesEventInput!): Channel
     updateChannelText(data: UpdateChannelTextInput!): Channel
     updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
     toggleBannedUserToChannel(data: ToggleBannedUserToChannelInput): Channel
