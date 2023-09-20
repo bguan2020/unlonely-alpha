@@ -195,6 +195,7 @@ model SharesEvent {
   sharesSubjectQuestion String
   sharesSubjectAddress String
   eventState SharesEventState?
+  softDelete Boolean @default(false)
 
   channel Channel @relation(fields: [channelId], references: [id])
   channelId Int       @unique

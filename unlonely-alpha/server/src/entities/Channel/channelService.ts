@@ -293,3 +293,13 @@ export const getChannelChatCommands = async (
     where: { channelId: Number(id), softDelete: false },
   });
 };
+
+export const getChannelSharesEvent = async (
+  { id }: { id: number },
+  ctx: Context
+) => {
+  return ctx.prisma.sharesEvent.findFirst({
+    // where softDelete is false
+    where: { channelId: Number(id), softDelete: false },
+  });
+};

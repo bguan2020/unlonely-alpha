@@ -15,6 +15,7 @@ export const typeDef = gql`
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
     eventState: SharesEventState
+    softDelete: Boolean
   }
 
   type Channel {
