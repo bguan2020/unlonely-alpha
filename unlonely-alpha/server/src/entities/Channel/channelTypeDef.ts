@@ -58,11 +58,15 @@ export const typeDef = gql`
     customButtonPrice: Int!
   }
 
-  input UpdateSharesEventInput {
+  input PostSharesEventInput {
     id: ID!
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
     eventState: SharesEventState
+  }
+
+  inport PostCloseSharesEventInput {
+    id: ID!
   }
 
   input ToggleBannedUserToChannelInput {
@@ -79,7 +83,8 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    updateSharesEvent(data: UpdateSharesEventInput!): Channel
+    closeSharesEvent(data: PostCloseSharesEventInput!): Channel
+    postSharesEvent(data: PostSharesEventInput!): Channel
     updateChannelText(data: UpdateChannelTextInput!): Channel
     updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
     toggleBannedUserToChannel(data: ToggleBannedUserToChannelInput): Channel

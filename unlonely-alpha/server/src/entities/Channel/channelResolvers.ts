@@ -23,15 +23,25 @@ export const resolvers = {
     },
   },
   Mutation: {
-    updateSharesEvent: (
+    closeSharesEvent: (
       _: any,
-      { data }: { data: channelService.IUpdateSharesEventInput },
+      { data }: { data: channelService.IPostCloseSharesEventInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
-      return channelService.updateSharesEvent(data, ctx);
+      return channelService.closeSharesEvent(data, ctx);
+    },
+    postSharesEvent: (
+      _: any,
+      { data }: { data: channelService.IPostSharesEventInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      return channelService.postSharesEvent(data, ctx);
     },
     updateChannelText: (
       _: any,

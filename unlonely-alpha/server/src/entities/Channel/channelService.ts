@@ -51,20 +51,20 @@ export const updateChannelCustomButton = (
   });
 };
 
-export interface IUpdateSharesEventInput {
+export interface IPostSharesEventInput {
   id: number;
   sharesSubjectQuestion: string;
   sharesSubjectAddress: string;
   eventState?: SharesEventState;
 }
 
-export const updateSharesEvent = async (
-  data: IUpdateSharesEventInput,
+export const postSharesEvent = async (
+  data: IPostSharesEventInput,
   ctx: Context
 ) => {
   // First, find the SharesEvent based on channelId
-  const sharesEvent = await ctx.prisma.sharesEvent.findUnique({
-    where: { channelId: Number(data.id) },
+  const sharesEvent = await ctx.prisma.sharesEvent.findFirst({
+    where: { channelId: Number(data.id), softDelete: false },
   });
 
   // If a SharesEvent exists, update it
@@ -88,6 +88,30 @@ export const updateSharesEvent = async (
       },
     });
   }
+};
+
+export interface IPostCloseSharesEventInput {
+  id: number;
+}
+
+export const closeSharesEvent = async (
+  data: IPostCloseSharesEventInput,
+  ctx: Context
+) => {
+  const sharesEvent = await ctx.prisma.sharesEvent.findFirst({
+    where: { channelId: Number(data.id), softDelete: false },
+  });
+
+  if (!sharesEvent) {
+    throw new Error("Shares event not found");
+  }
+
+  return await ctx.prisma.sharesEvent.update({
+    where: { id: sharesEvent.id },
+    data: {
+      softDelete: true,
+    },
+  });
 };
 
 export interface IGetChannelFeedInput {
