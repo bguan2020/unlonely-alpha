@@ -38,7 +38,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { Message } from "../../constants/types/chat";
 
 const sharesSubject: `0x${string}` =
-  "0x84Fc70E796E0339001a027202e1dDe7d01BA347b";
+  "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa";
 
 export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   const { userAddress, user } = useUser();
