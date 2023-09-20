@@ -23,6 +23,16 @@ export const resolvers = {
     },
   },
   Mutation: {
+    updateSharesEvent: (
+      _: any,
+      { data }: { data: channelService.IUpdateSharesEventInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      return channelService.updateSharesEvent(data, ctx);
+    },
     updateChannelText: (
       _: any,
       { data }: { data: channelService.IPostChannelTextInput },
