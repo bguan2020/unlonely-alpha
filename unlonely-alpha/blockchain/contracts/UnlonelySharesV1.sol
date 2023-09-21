@@ -88,11 +88,11 @@ contract UnlonelySharesV1 is Ownable {
     event EventVerified(address indexed sharesSubject, bool result);
     event Payout(address indexed voter, uint256 amount);
 
-    // this is a mapping between streamer and their holders which each own an amount of yay/nay shares
+    // this is a mapping between sharesSubject and their holders which each own an amount of yay/nay shares
     mapping(address => mapping(address => uint256)) public yaySharesBalance;
     mapping(address => mapping(address => uint256)) public naySharesBalance;
 
-    // this is a mapping between streamer and how many shares have been purchased
+    // this is a mapping between sharesSubject and how many shares have been purchased
     mapping(address => uint256) public yaySharesSupply;
     mapping(address => uint256) public naySharesSupply;
 
@@ -100,7 +100,7 @@ contract UnlonelySharesV1 is Ownable {
     mapping(address => bool) public eventResult;
     mapping(address => bool) public isVerifier;
 
-    // this is a mapping between streamer and total amount of ETH in the pool
+    // this is a mapping between sharesSubject and total amount of ETH in the pool
     mapping(address => uint256) public pooledEth;
 
     modifier onlyVerifier() {
@@ -130,17 +130,20 @@ contract UnlonelySharesV1 is Ownable {
         eventVerified[sharesSubject] = true;
         eventResult[sharesSubject] = result;
 
-        uint256 sharesSupply = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-
-        // if there are no winners, simply split the pool between the protocol and the shares subject
-        if (sharesSupply == 0 && pooledEth[sharesSubject] > 0) {
-            uint256 splitPoolValue = pooledEth[sharesSubject] / 2;
-            (bool success1, ) = protocolFeeDestination.call{value: splitPoolValue}("");
-            (bool success2, ) = sharesSubject.call{value: splitPoolValue}("");
-            require(success1 && success2, "Unable to send funds");
-        }
-
         emit EventVerified(sharesSubject, result);
+    }
+
+    function closeVerifiedPool(address sharesSubject) public onlyVerifier {
+        require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
+        require(eventVerified[sharesSubject], "Event is not verified");
+        require(pooledEth[sharesSubject] > 0, "Pool is already empty");
+        uint256 sharesSupply = eventResult[sharesSubject] ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
+        require(sharesSupply == 0, "There are still shares");
+
+        uint256 splitPoolValue = pooledEth[sharesSubject] / 2;
+        (bool success1, ) = protocolFeeDestination.call{value: splitPoolValue}("");
+        (bool success2, ) = sharesSubject.call{value: splitPoolValue}("");
+        require(success1 && success2, "Unable to send funds");
     }
 
     function setFeeDestination(address _feeDestination) public onlyOwner {
@@ -267,13 +270,11 @@ contract UnlonelySharesV1 is Ownable {
         uint256 newSupply = supply - amount;
         emit Trade(msg.sender, sharesSubject, false, isYay, amount, price, protocolFee, subjectFee, newSupply);
         
-        // Transfer the net amount to the seller
-        payable(msg.sender).transfer(netAmount);
-        
-        // Transfer the protocol and subject fees
+        // Transfer the net amount to the seller, and fees to the protocol and subject
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
         (bool success2, ) = sharesSubject.call{value: subjectFee}("");
-        require(success1 && success2, "Unable to send funds");
+        (bool success3, ) = msg.sender.call{value: netAmount}("");
+        require(success1 && success2 && success3, "Unable to send funds");
     }
 
 
@@ -291,8 +292,7 @@ contract UnlonelySharesV1 is Ownable {
 
         require(userPayout > 0, "No payout for user");
 
-        payable(msg.sender).transfer(userPayout);
-
+        
         // Reset user's shares after distributing
         if (result) {
             yaySharesBalance[sharesSubject][msg.sender] = 0;
@@ -306,5 +306,7 @@ contract UnlonelySharesV1 is Ownable {
         pooledEth[sharesSubject] -= userPayout;
 
         emit Payout(msg.sender, userPayout);
+        (bool success, ) = msg.sender.call{value: userPayout}("");
+        require(success, "Unable to send funds");
     }
 }

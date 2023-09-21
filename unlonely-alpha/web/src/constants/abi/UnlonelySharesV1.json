@@ -175,6 +175,19 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "sharesSubject",
+        "type": "address"
+      }
+    ],
+    "name": "closeVerifiedPool",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "",
         "type": "address"
       }

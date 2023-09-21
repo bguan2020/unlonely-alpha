@@ -602,7 +602,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                         enter amount of shares
                       </Text>
                       <Text fontWeight="light">
-                        {isYay ? yaySharesBalance : naySharesBalance}
+                        own: {isYay ? yaySharesBalance : naySharesBalance}
                       </Text>
                     </Flex>
                     <Flex>
@@ -656,43 +656,14 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                     </Flex>
                     <Flex justifyContent={"space-between"}>
                       <Text opacity="0.75" fontWeight="light">
-                        {isBuying ? "price" : "return"}
-                      </Text>
-                      {isBuying && isYay && (
-                        <Text fontWeight="light">
-                          {formatUnits(yayBuyPrice, 18)} ETH
-                        </Text>
-                      )}
-                      {isBuying && !isYay && (
-                        <Text fontWeight="light">
-                          {formatUnits(nayBuyPrice, 18)} ETH
-                        </Text>
-                      )}
-                      {!isBuying && isYay && (
-                        <Text fontWeight="light">
-                          {formatUnits(yaySellPrice, 18)} ETH
-                        </Text>
-                      )}
-                      {!isBuying && !isYay && (
-                        <Text fontWeight="light">
-                          {formatUnits(naySellPrice, 18)} ETH
-                        </Text>
-                      )}
-                    </Flex>
-                    <Flex justifyContent={"space-between"}>
-                      <Text opacity="0.75" fontWeight="light">
-                        streamer fee
+                        fees
                       </Text>
                       <Text fontWeight="light">
-                        {formatUnits(subjectFeePercent, 16)}%
-                      </Text>
-                    </Flex>
-                    <Flex justifyContent={"space-between"}>
-                      <Text opacity="0.75" fontWeight="light">
-                        unlonely fee
-                      </Text>
-                      <Text fontWeight="light">
-                        {formatUnits(protocolFeePercent, 16)}%
+                        {formatUnits(
+                          subjectFeePercent + protocolFeePercent,
+                          16
+                        )}
+                        %
                       </Text>
                     </Flex>
                     <Flex justifyContent={"space-between"}>

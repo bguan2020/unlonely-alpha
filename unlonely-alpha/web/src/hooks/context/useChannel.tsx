@@ -621,7 +621,7 @@ const TransactionModals = () => {
           !isSharesEventLive && !isSharesEventPayout
             ? "create a bet"
             : isSharesEventLive
-            ? "stop bet, start payout"
+            ? "decide outcome"
             : "stop payout"
         }
         isOpen={showBetModal}

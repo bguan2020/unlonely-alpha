@@ -67,19 +67,15 @@ export default function BetModal({
     channelQueryData?.sharesEvent?.eventState === "PAYOUT";
 
   const _postSharesEvent = useCallback(
-    async (event: "LIVE" | "PAYOUT", sharesSubject?: `0x${string}`) => {
-      console.log(
-        question,
-        channelQueryData?.sharesEvent?.sharesSubjectQuestion
-      );
-      console.log(
-        sharesSubject,
-        channelQueryData?.sharesEvent?.sharesSubjectAddress
-      );
+    async (
+      event: "LIVE" | "PAYOUT",
+      sharesSubject?: `0x${string}`,
+      sharesSubjectQuestion?: string
+    ) => {
       await postSharesEvent({
         id: channelQueryData?.id ?? "",
         sharesSubjectQuestion:
-          question ??
+          sharesSubjectQuestion ??
           channelQueryData?.sharesEvent?.sharesSubjectQuestion ??
           "",
         sharesSubjectAddress:
@@ -240,8 +236,7 @@ export default function BetModal({
       {isSharesEventLive && (
         <Flex direction="column" gap="10px">
           <Text textAlign={"center"} fontSize="13px">
-            By deciding the outcome of the event, betting will be disabled and
-            payout can be claimed.
+            Betting will be over and winnings can start being claimed.
           </Text>
           {!verifyEventTxLoading ? (
             <>
@@ -277,7 +272,7 @@ export default function BetModal({
                     isDisabled={!verifyEvent}
                     onClick={verifyEvent}
                   >
-                    confirm {endDecision ? "yes" : "no"}
+                    confirm outcome {endDecision ? "yes" : "no"}
                   </Button>
                 </Flex>
               )}
@@ -334,7 +329,11 @@ export default function BetModal({
             width="100%"
             disabled={question.length === 0 || eventVerified}
             onClick={async () =>
-              await _postSharesEvent("LIVE", sharesSubject as `0x${string}`)
+              await _postSharesEvent(
+                "LIVE",
+                sharesSubject as `0x${string}`,
+                question
+              )
             }
           >
             confirm

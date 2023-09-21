@@ -153,7 +153,7 @@ const ChannelStreamerPerspective = () => {
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">
                 {isSharesEventPayout && "stop payout"}
-                {isSharesEventLive && "stop bet, start payout"}
+                {isSharesEventLive && "decide outcome"}
                 {!isSharesEventLive && !isSharesEventPayout && "create a bet"}
               </Text>
               <Box
