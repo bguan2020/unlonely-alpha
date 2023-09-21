@@ -84,7 +84,11 @@ export const postSharesEvent = async (
         sharesSubjectQuestion: data.sharesSubjectQuestion,
         sharesSubjectAddress: data.sharesSubjectAddress,
         eventState: data.eventState,
-        channelId: Number(data.id),
+        channel: {
+          connect: {
+            id: Number(data.id),
+          },
+        },
       },
     });
   }
