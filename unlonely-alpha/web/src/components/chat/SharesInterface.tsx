@@ -409,6 +409,10 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
             latestMessage.data.body.split(":")[0] ===
               InteractionType.SELL_SHARES ||
             latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_LIVE ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_PAYOUT ||
+            latestMessage.data.body.split(":")[0] ===
               InteractionType.EVENT_END) &&
           Date.now() - latestMessage.timestamp < 6000
         ) {

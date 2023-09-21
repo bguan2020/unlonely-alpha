@@ -80,6 +80,15 @@ export default function BetModal({
         "",
       eventState: event,
     });
+    if (event === "LIVE") {
+      addToChatbot({
+        username: user?.username ?? "",
+        address: userAddress ?? "",
+        taskType: InteractionType.EVENT_LIVE,
+        title: "New event has started!",
+        description: "event-start",
+      });
+    }
   };
 
   const _closeSharesEvent = async () => {
@@ -154,7 +163,7 @@ export default function BetModal({
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
-          taskType: InteractionType.EVENT_END,
+          taskType: InteractionType.EVENT_PAYOUT,
           title: `Event has ended, ${args.result ? "yay" : "nay"} shares win!`,
           description: "event-end",
         });

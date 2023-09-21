@@ -19,7 +19,8 @@ export enum InteractionType {
   CLIP = "clip-interaction",
   BUY_SHARES = "buy-shares-interaction",
   SELL_SHARES = "sell-shares-interaction",
-  EVENT_START = "event-start-interaction",
+  EVENT_LIVE = "event-live-interaction",
+  EVENT_PAYOUT = "event-payout-interaction",
   EVENT_END = "event-end-interaction",
 }
 

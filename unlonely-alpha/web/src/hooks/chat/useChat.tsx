@@ -307,9 +307,13 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
           lastMessage.description ?? ""
         }`;
       }
-      if (lastMessage.taskType === InteractionType.EVENT_START) {
+      if (lastMessage.taskType === InteractionType.EVENT_LIVE) {
         messageText = lastMessage.title ?? "Event start";
-        body = `${InteractionType.EVENT_START}:${
+        body = `${InteractionType.EVENT_LIVE}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === InteractionType.EVENT_PAYOUT) {
+        messageText = lastMessage.title ?? "Event payout";
+        body = `${InteractionType.EVENT_PAYOUT}:${
           lastMessage.description ?? ""
         }`;
       }
