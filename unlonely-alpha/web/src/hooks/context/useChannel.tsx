@@ -596,6 +596,10 @@ const TransactionModals = () => {
   } = arcade;
 
   const isOwner = userAddress === channelQueryData?.owner.address;
+  const isSharesEventLive =
+    channelQueryData?.sharesEvent?.eventState === "LIVE";
+  const isSharesEventPayout =
+    channelQueryData?.sharesEvent?.eventState === "PAYOUT";
 
   const handleClose = useCallback(() => {
     handleTipModal(false);
@@ -609,7 +613,13 @@ const TransactionModals = () => {
   return (
     <>
       <BetModal
-        title={"create a bet"}
+        title={
+          !isSharesEventLive && !isSharesEventPayout
+            ? "create a bet"
+            : isSharesEventLive
+            ? "stop bet, start payout"
+            : "stop payout"
+        }
         isOpen={showBetModal}
         handleClose={() => handleBetModal(false)}
       />

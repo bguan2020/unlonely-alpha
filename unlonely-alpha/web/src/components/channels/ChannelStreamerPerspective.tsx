@@ -171,7 +171,7 @@ const ChannelStreamerPerspective = () => {
                   transform: "scale(1)",
                 }}
               >
-                <Image src="/svg/custom-actions.svg" width="100%" />
+                <Image src="/svg/bet.svg" width="100%" />
               </Box>
             </Flex>
           </SimpleGrid>
