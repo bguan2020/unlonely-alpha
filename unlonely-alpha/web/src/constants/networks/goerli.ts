@@ -21,7 +21,7 @@ export const Goerli: Network = {
         abi: UnlonelyNFCsV2,
       },
       unlonelySharesV1: {
-        address: "0x68b17dd3b8faf8c6e2926625d634ca28dd887bc9",
+        address: "0xcb7cc48c4f7daf5a3998f8b4adbcaf5a59d2936a",
         abi: UnlonelySharesV1,
       },
     },

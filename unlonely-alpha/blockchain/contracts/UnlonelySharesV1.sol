@@ -141,6 +141,7 @@ contract UnlonelySharesV1 is Ownable {
         require(sharesSupply == 0, "There are still shares");
 
         uint256 splitPoolValue = pooledEth[sharesSubject] / 2;
+        pooledEth[sharesSubject] = 0;
         (bool success1, ) = protocolFeeDestination.call{value: splitPoolValue}("");
         (bool success2, ) = sharesSubject.call{value: splitPoolValue}("");
         require(success1 && success2, "Unable to send funds");

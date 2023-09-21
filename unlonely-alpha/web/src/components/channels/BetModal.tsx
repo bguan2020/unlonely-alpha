@@ -272,7 +272,7 @@ export default function BetModal({
                     isDisabled={!verifyEvent}
                     onClick={verifyEvent}
                   >
-                    confirm outcome {endDecision ? "yes" : "no"}
+                    confirm {endDecision ? "yes" : "no"}
                   </Button>
                 </Flex>
               )}
