@@ -89,7 +89,6 @@ const Profile = () => {
   const handleGetSubscription = useCallback(() => {
     getSubscription({
       variables: { data: { endpoint } },
-      fetchPolicy: "network-only",
     });
   }, [endpoint]);
 

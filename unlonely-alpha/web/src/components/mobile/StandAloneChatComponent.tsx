@@ -137,7 +137,6 @@ const StandaloneAblyChatComponent = ({
   const handleGetSubscription = useCallback(async () => {
     await getSubscription({
       variables: { data: { endpoint } },
-      fetchPolicy: "network-only",
     });
   }, [endpoint]);
 
@@ -809,9 +808,7 @@ const StandaloneAblyChatComponent = ({
           </Flex>
         </Flex>
       )}
-      {channelQueryData?.sharesEvent && (
-        <SharesInterface messages={receivedMessages} />
-      )}
+      <SharesInterface messages={receivedMessages} />
       <MessageList
         scrollRef={scrollRef}
         messages={receivedMessages}

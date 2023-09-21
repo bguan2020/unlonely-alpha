@@ -72,7 +72,6 @@ export default function CustomTransactionModal({
   const { addToChatbot } = arcade;
 
   const { channelQueryData } = channel;
-  console.log("channelQueryData", channelQueryData);
   const { userTokenBalance, refetchUserTokenBalance } = token;
 
   const isOwner = useMemo(

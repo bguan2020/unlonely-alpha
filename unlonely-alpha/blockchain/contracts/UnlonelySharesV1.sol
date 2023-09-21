@@ -132,8 +132,8 @@ contract UnlonelySharesV1 is Ownable {
 
         uint256 sharesSupply = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
 
-        // if there are no winners, simply split the money between the protocol and the shares subject
-        if (sharesSupply == 0) {
+        // if there are no winners, simply split the pool between the protocol and the shares subject
+        if (sharesSupply == 0 && pooledEth[sharesSubject] > 0) {
             uint256 splitPoolValue = pooledEth[sharesSubject] / 2;
             (bool success1, ) = protocolFeeDestination.call{value: splitPoolValue}("");
             (bool success2, ) = sharesSubject.call{value: splitPoolValue}("");
@@ -289,9 +289,11 @@ contract UnlonelySharesV1 is Ownable {
         uint256 totalWinningShares = result ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
         uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * userShares / totalWinningShares);
 
+        require(userPayout > 0, "No payout for user");
+
         payable(msg.sender).transfer(userPayout);
 
-                // Reset user's shares after distributing
+        // Reset user's shares after distributing
         if (result) {
             yaySharesBalance[sharesSubject][msg.sender] = 0;
             yaySharesSupply[sharesSubject] -= userShares;

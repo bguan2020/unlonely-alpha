@@ -552,7 +552,8 @@ export const useClaimPayout = (
     contract,
     "claimPayout",
     [args.sharesSubject],
-    createCallbackHandler("useClaimPayout claimPayout", callbacks)
+    createCallbackHandler("useClaimPayout claimPayout", callbacks),
+    { gas: BigInt(800000) }
   );
 
   return {

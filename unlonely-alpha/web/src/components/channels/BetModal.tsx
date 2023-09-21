@@ -7,7 +7,7 @@ import {
   useToast,
   Spinner,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { decodeEventLog } from "viem";
 import { useNetwork, usePublicClient } from "wagmi";
 import Link from "next/link";
@@ -66,35 +66,54 @@ export default function BetModal({
   const isSharesEventPayout =
     channelQueryData?.sharesEvent?.eventState === "PAYOUT";
 
-  const _postSharesEvent = async (
-    event: "LIVE" | "PAYOUT",
-    sharesSubject?: `0x${string}`
-  ) => {
-    await postSharesEvent({
-      id: channelQueryData?.id ?? "",
-      sharesSubjectQuestion:
-        channelQueryData?.sharesEvent?.sharesSubjectQuestion ?? "",
-      sharesSubject:
-        sharesSubject ??
-        channelQueryData?.sharesEvent?.sharesSubjectAddress ??
-        "",
-      eventState: event,
-    });
-    if (event === "LIVE") {
-      addToChatbot({
-        username: user?.username ?? "",
-        address: userAddress ?? "",
-        taskType: InteractionType.EVENT_LIVE,
-        title: "New event has started!",
-        description: "event-start",
+  const _postSharesEvent = useCallback(
+    async (event: "LIVE" | "PAYOUT", sharesSubject?: `0x${string}`) => {
+      console.log(
+        question,
+        channelQueryData?.sharesEvent?.sharesSubjectQuestion
+      );
+      console.log(
+        sharesSubject,
+        channelQueryData?.sharesEvent?.sharesSubjectAddress
+      );
+      await postSharesEvent({
+        id: channelQueryData?.id ?? "",
+        sharesSubjectQuestion:
+          question ??
+          channelQueryData?.sharesEvent?.sharesSubjectQuestion ??
+          "",
+        sharesSubjectAddress:
+          sharesSubject ??
+          channelQueryData?.sharesEvent?.sharesSubjectAddress ??
+          "",
+        eventState: event,
       });
-    }
-  };
+      if (event === "LIVE") {
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.EVENT_LIVE,
+          title: "New event has started!",
+          description: "event-start",
+        });
+      }
+      setQuestion("");
+    },
+    [channelQueryData, question, user, userAddress]
+  );
 
   const _closeSharesEvent = async () => {
     await closeSharesEvent({
       id: channelQueryData?.id ?? "",
     });
+    addToChatbot({
+      username: user?.username ?? "",
+      address: userAddress ?? "",
+      taskType: InteractionType.EVENT_END,
+      title: "Event has been closed",
+      description: "event-end",
+    });
+    handleClose();
   };
 
   const { verifyEvent, verifyEventTxLoading } = useVerifyEvent(
@@ -167,6 +186,7 @@ export default function BetModal({
           title: `Event has ended, ${args.result ? "yay" : "nay"} shares win!`,
           description: "event-end",
         });
+        handleClose();
       },
       onTxError: (error) => {
         toast({
@@ -208,11 +228,14 @@ export default function BetModal({
       title={title}
       confirmButton={"confirm"}
       isOpen={isOpen}
-      handleClose={handleClose}
+      handleClose={() => {
+        handleClose();
+        setEndDecision(undefined);
+      }}
       size={isStandalone ? "sm" : "md"}
       hideFooter
       isModalLoading={postSharesEventLoading || closeSharesEventLoading}
-      loadingText={"creating bet..."}
+      loadingText={"loading, please wait..."}
     >
       {isSharesEventLive && (
         <Flex direction="column" gap="10px">

@@ -12,7 +12,7 @@ export const useWrite = (
   functionName: string,
   args: any[],
   callbacks?: WriteCallbacks,
-  overrides?: { value?: bigint }
+  overrides?: { value?: bigint; gas?: bigint }
 ) => {
   const { config } = usePrepareContractWrite({
     address: contract.address,
@@ -21,6 +21,7 @@ export const useWrite = (
     args,
     chainId: contract.chainId,
     value: overrides?.value,
+    gas: overrides?.gas,
     onSuccess(data) {
       if (callbacks?.onPrepareSuccess) callbacks?.onPrepareSuccess(data);
     },

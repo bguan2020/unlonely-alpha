@@ -222,7 +222,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
     if (
       latestMessage &&
       latestMessage.name === CHAT_MESSAGE_EVENT &&
-      Date.now() - latestMessage.timestamp < 6000
+      Date.now() - latestMessage.timestamp < 12000
     ) {
       if (
         latestMessage.data.body &&
@@ -239,13 +239,13 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
         latestMessage.data.body &&
         (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
           latestMessage.data.body.split(":")[0] === InteractionType.TIP) &&
-        Date.now() - latestMessage.timestamp < 6000
+        Date.now() - latestMessage.timestamp < 12000
       ) {
         fireworks();
       } else if (
         latestMessage.data.body &&
         latestMessage.data.body.split(":")[0] === InteractionType.BLAST &&
-        Date.now() - latestMessage.timestamp < 6000
+        Date.now() - latestMessage.timestamp < 12000
       ) {
         if (latestMessage.data.isGif) {
           emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);

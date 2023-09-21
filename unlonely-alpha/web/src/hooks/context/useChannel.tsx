@@ -210,6 +210,8 @@ export const ChannelProvider = ({
     refetch: refetchChannelData,
   } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
     variables: { slug },
+    // fetchPolicy: "cache-first",
+    nextFetchPolicy: "network-only",
   });
 
   const {
@@ -219,6 +221,8 @@ export const ChannelProvider = ({
     refetch: refetchChannelMobileData,
   } = useQuery<ChannelDetailMobileQuery>(CHANNEL_DETAIL_MOBILE_QUERY, {
     variables: { awsId },
+    // fetchPolicy: "cache-first",
+    nextFetchPolicy: "network-only",
   });
 
   const channelQueryData = useMemo(
