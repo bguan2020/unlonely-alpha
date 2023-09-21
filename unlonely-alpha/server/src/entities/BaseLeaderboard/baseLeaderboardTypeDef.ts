@@ -3,12 +3,12 @@ import { gql } from "apollo-server-express";
 export const typeDef = gql`
   type BaseLeaderboard {
     id: ID!
-    amount: Int!
-    user: User
+    amount: Float!
+    owner: User
   }
 
   input PostBaseLeaderboardInput {
-    amount: Int!
+    amount: Float!
   }
 
   extend type Query {

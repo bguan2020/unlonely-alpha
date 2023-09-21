@@ -206,3 +206,18 @@ export const NFC_FEED_QUERY = gql`
     }
   }
 `;
+
+export const GET_BASE_LEADERBOARD_QUERY = gql`
+  query GetBaseLeaderboard {
+    getBaseLeaderboard {
+      id
+      amount
+      owner {
+        address
+        username
+        FCImageUrl
+        lensImageUrl
+      }
+    }
+  }
+`;

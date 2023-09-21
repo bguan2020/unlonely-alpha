@@ -204,10 +204,10 @@ model SharesEvent {
 
 model BaseLeaderboard {
   id        Int      @id @default(autoincrement())
-  amount Int
+  amount    Float
 
-  userAddress String      
-  user   User  @relation(fields: [userAddress], references: [address])
+  ownerAddr String      
+  owner   User  @relation(fields: [ownerAddr], references: [address])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
