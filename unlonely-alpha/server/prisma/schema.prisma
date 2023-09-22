@@ -149,7 +149,7 @@ model Channel {
   token CreatorToken?
   customButtonAction String?
   customButtonPrice Int?
-  sharesEvent SharesEvent?
+  sharesEvent SharesEvent[]
 }
 
 model CreatorToken {
