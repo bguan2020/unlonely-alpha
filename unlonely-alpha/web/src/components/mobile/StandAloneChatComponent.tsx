@@ -73,6 +73,7 @@ const StandaloneAblyChatComponent = ({
     handleCustomModal,
     handleBuyModal,
     handleTipModal,
+    handleBetModal,
   } = arcade;
   const { chatChannel } = chat;
 
@@ -82,6 +83,11 @@ const StandaloneAblyChatComponent = ({
     () => (channelQueryData?.id ? Number(channelQueryData?.id) : 3),
     [channelQueryData?.id]
   );
+
+  const isSharesEventLive =
+    channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
+  const isSharesEventPayout =
+    channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
 
   const {
     handleScrollToPresent,
@@ -587,6 +593,36 @@ const StandaloneAblyChatComponent = ({
                         }}
                       >
                         <Image src="/svg/custom-actions.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">
+                        {isSharesEventPayout && "stop payout"}
+                        {isSharesEventLive && "decide outcome"}
+                        {!isSharesEventLive &&
+                          !isSharesEventPayout &&
+                          "create a bet"}
+                      </Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => handleBetModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/bet.svg" width="100%" />
                       </Box>
                     </Flex>
                   </SimpleGrid>
