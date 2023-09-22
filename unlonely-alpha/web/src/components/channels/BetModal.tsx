@@ -62,9 +62,9 @@ export default function BetModal({
   const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
 
   const isSharesEventLive =
-    channelQueryData?.sharesEvent?.eventState === "LIVE";
+    channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
   const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.eventState === "PAYOUT";
+    channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
 
   const _postSharesEvent = useCallback(
     async (
@@ -76,11 +76,11 @@ export default function BetModal({
         id: channelQueryData?.id ?? "",
         sharesSubjectQuestion:
           sharesSubjectQuestion ??
-          channelQueryData?.sharesEvent?.sharesSubjectQuestion ??
+          channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion ??
           "",
         sharesSubjectAddress:
           sharesSubject ??
-          channelQueryData?.sharesEvent?.sharesSubjectAddress ??
+          channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress ??
           "",
         eventState: event,
       });
@@ -114,7 +114,7 @@ export default function BetModal({
 
   const { verifyEvent, verifyEventTxLoading } = useVerifyEvent(
     {
-      sharesSubject: channelQueryData?.sharesEvent
+      sharesSubject: channelQueryData?.sharesEvent?.[0]
         ?.sharesSubjectAddress as `0x${string}`,
       result: endDecision ?? false,
     },
@@ -202,7 +202,7 @@ export default function BetModal({
   useEffect(() => {
     const init = async () => {
       if (
-        !channelQueryData?.sharesEvent?.sharesSubjectAddress ||
+        !channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress ||
         !contract.address
       )
         return;
@@ -211,7 +211,8 @@ export default function BetModal({
         abi: contract.abi,
         functionName: "eventVerified",
         args: [
-          channelQueryData?.sharesEvent?.sharesSubjectAddress as `0x${string}`,
+          channelQueryData?.sharesEvent?.[0]
+            ?.sharesSubjectAddress as `0x${string}`,
         ],
       });
       setEventVerified(Boolean(res));

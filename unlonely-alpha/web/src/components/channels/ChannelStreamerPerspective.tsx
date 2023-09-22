@@ -16,9 +16,9 @@ const ChannelStreamerPerspective = () => {
   const { channelQueryData } = channel;
 
   const isSharesEventLive =
-    channelQueryData?.sharesEvent?.eventState === "LIVE";
+    channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
   const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.eventState === "PAYOUT";
+    channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
 
   return (
     <Flex direction="column" width={"100%"}>

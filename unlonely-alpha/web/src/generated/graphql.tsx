@@ -637,6 +637,7 @@ export type SendAllNotificationsInput = {
 
 export type SharesEvent = {
   __typename?: "SharesEvent";
+  createdAt: Scalars["DateTime"];
   eventState?: Maybe<SharesEventState>;
   sharesSubjectAddress?: Maybe<Scalars["String"]>;
   sharesSubjectQuestion?: Maybe<Scalars["String"]>;

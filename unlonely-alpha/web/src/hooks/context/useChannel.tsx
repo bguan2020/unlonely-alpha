@@ -601,9 +601,9 @@ const TransactionModals = () => {
 
   const isOwner = userAddress === channelQueryData?.owner.address;
   const isSharesEventLive =
-    channelQueryData?.sharesEvent?.eventState === "LIVE";
+    channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
   const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.eventState === "PAYOUT";
+    channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
 
   const handleClose = useCallback(() => {
     handleTipModal(false);

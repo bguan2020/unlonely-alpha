@@ -42,7 +42,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   const { channelQueryData, refetch } = channel;
   const toast = useToast();
 
-  const sharesSubject = channelQueryData?.sharesEvent
+  const sharesSubject = channelQueryData?.sharesEvent?.[0]
     ?.sharesSubjectAddress as `0x${string}`;
 
   const [selectedSharesOption, setSelectedSharesOption] = useState<
@@ -464,7 +464,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                 fontSize={"20px"}
                 fontWeight={"bold"}
               >
-                {channelQueryData?.sharesEvent?.sharesSubjectQuestion}
+                {channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion}
               </Text>
             </Flex>
 
