@@ -82,7 +82,6 @@ contract UnlonelySharesV1 is Ownable {
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
     uint256 public subjectFeePercent;
-    bool public isPaused;
 
     event Trade(address trader, address subject, bool isBuy, bool isYay, uint256 shareAmount, uint256 ethAmount, uint256 protocolEthAmount, uint256 subjectEthAmount, uint256 supply);
     event EventVerified(address indexed sharesSubject, bool result);
@@ -125,7 +124,6 @@ contract UnlonelySharesV1 is Ownable {
     }
 
     function verifyEvent(address sharesSubject, bool result) public onlyVerifier {
-        require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[sharesSubject], "Event already verified");
         eventVerified[sharesSubject] = true;
         eventResult[sharesSubject] = result;
@@ -133,7 +131,13 @@ contract UnlonelySharesV1 is Ownable {
         emit EventVerified(sharesSubject, result);
     }
 
-    function closeVerifiedPool(address sharesSubject) public onlyVerifier {
+/*
+    this is for the unlikely edge-case that there are no winners 
+    if yay wins but everyone is holding nay shares and no one is holding yay shares, 
+    split the pool w creator and protocol
+
+*/
+    function closePoolIfNoWinners(address sharesSubject) public onlyVerifier {
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(eventVerified[sharesSubject], "Event is not verified");
         require(pooledEth[sharesSubject] > 0, "Pool is already empty");
@@ -157,10 +161,6 @@ contract UnlonelySharesV1 is Ownable {
 
     function setSubjectFeePercent(uint256 _feePercent) public onlyOwner {
         subjectFeePercent = _feePercent;
-    }
-
-    function setIsPaused(bool _isPaused) public onlyOwner {
-        isPaused = _isPaused;
     }
 
     function getHolderSharesBalance(address sharesSubject, address holder, bool isYay) public view returns (uint256) {
@@ -213,7 +213,6 @@ contract UnlonelySharesV1 is Ownable {
 
     // def: buyShares takes in streamer address (ex: 0xTed), amount of shares purchased, and if its yay or nay
     function buyShares(address sharesSubject, uint256 amount, bool isYay) public payable {
-        require(!isPaused, "Contract is paused");
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[sharesSubject], "Event already verified");
         require(amount > 0, "Cannot buy zero shares");
@@ -241,7 +240,7 @@ contract UnlonelySharesV1 is Ownable {
         require(success1 && success2, "Unable to send funds");
     }
 
-    function sellShares(address sharesSubject, uint256 amount, bool isYay) public {
+    function sellShares(address sharesSubject, uint256 amount, bool isYay) public payable {
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[sharesSubject], "Event already verified");
         require(amount > 0, "Cannot sell zero shares");
@@ -266,7 +265,7 @@ contract UnlonelySharesV1 is Ownable {
         }
 
         // Deduct the corresponding ETH from the sharesSubject's pool
-        pooledEth[sharesSubject] -= netAmount;
+        pooledEth[sharesSubject] -= price;
 
         uint256 newSupply = supply - amount;
         emit Trade(msg.sender, sharesSubject, false, isYay, amount, price, protocolFee, subjectFee, newSupply);

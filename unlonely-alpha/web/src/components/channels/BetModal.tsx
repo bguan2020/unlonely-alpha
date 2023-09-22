@@ -179,7 +179,7 @@ export default function BetModal({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.EVENT_PAYOUT,
-          title: `Event has ended, ${args.result ? "yay" : "nay"} shares win!`,
+          title: `Event has ended, ${args.result ? "yes" : "no"} shares win!`,
           description: "event-end",
         });
         handleClose();
@@ -305,9 +305,8 @@ export default function BetModal({
       {!isSharesEventLive && !isSharesEventPayout && (
         <Flex direction="column" gap="10px">
           <Text textAlign={"center"} fontSize="13px">
-            Note: We currently use a unique payout address to track each bet.
-            Let us know when you'd like to create another bet so we can give it
-            a new address.
+            Note: enter a new wallet address when you want to make another bet,
+            we can also make it for you.
           </Text>
           <Input
             variant="glow"

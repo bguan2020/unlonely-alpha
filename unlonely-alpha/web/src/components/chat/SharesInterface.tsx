@@ -7,7 +7,6 @@ import {
   Text,
   Image,
   useToast,
-  Tooltip,
   Spinner,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
@@ -254,7 +253,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
           ),
         });
       },
-      onTxSuccess: (data) => {
+      onTxSuccess: async (data) => {
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -280,7 +279,8 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         const args: any = topics.args;
         const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
           args.isBuy ? "bought" : "sold"
-        } ${args.shareAmount} ${args.isYay ? "yay" : "nay"} shares!`;
+        } ${args.shareAmount} ${args.isYay ? "yes" : "no"} shares!`;
+        await refetchBalances();
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -342,7 +342,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
           ),
         });
       },
-      onTxSuccess: (data) => {
+      onTxSuccess: async (data) => {
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -368,7 +368,8 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         const args: any = topics.args;
         const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
           args.isBuy ? "bought" : "sold"
-        } ${args.shareAmount} ${args.isYay ? "yay" : "nay"} shares!`;
+        } ${args.shareAmount} ${args.isYay ? "yes" : "no"} shares!`;
+        await refetchBalances();
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -413,9 +414,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
             latestMessage.data.body.split(":")[0] ===
               InteractionType.SELL_SHARES ||
             latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_PAYOUT ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_END) &&
+              InteractionType.EVENT_PAYOUT) &&
           Date.now() - latestMessage.timestamp < 12000
         ) {
           await Promise.all([
@@ -428,7 +427,6 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
             refetchYaySellPriceAfterFee(),
             refetchNayBuyPriceAfterFee(),
             refetchNaySellPriceAfterFee(),
-            refetchBalances(),
             refetchSharesSubject(),
           ]);
         }
@@ -485,11 +483,22 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
               />
             )}
             {protocolFeeDestination === NULL_ADDRESS ? (
-              <Tooltip>
+              <>
                 <Text textAlign={"center"} color="#d5d5d5" fontSize="15px">
-                  contract not ready
+                  contract not ready yet
                 </Text>
-              </Tooltip>
+                {/* <Flex justifyContent={"center"}>
+                  <Button
+                    _hover={{}}
+                    _focus={{}}
+                    _active={{}}
+                    onClick={refetchPublic}
+                    bg={"#434343"}
+                  >
+                    check again
+                  </Button>
+                </Flex> */}
+              </>
             ) : eventVerified ? (
               <Flex direction="column" p="0.5rem">
                 {!claimPayoutTxLoading ? (

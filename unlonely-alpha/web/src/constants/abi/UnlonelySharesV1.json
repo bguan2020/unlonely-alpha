@@ -179,7 +179,7 @@
         "type": "address"
       }
     ],
-    "name": "closeVerifiedPool",
+    "name": "closePoolIfNoWinners",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -416,19 +416,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "isPaused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -588,7 +575,7 @@
     ],
     "name": "sellShares",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -600,19 +587,6 @@
       }
     ],
     "name": "setFeeDestination",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "_isPaused",
-        "type": "bool"
-      }
-    ],
-    "name": "setIsPaused",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
