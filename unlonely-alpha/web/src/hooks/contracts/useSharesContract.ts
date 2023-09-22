@@ -16,51 +16,38 @@ export const useReadPublic = (contract: ContractData) => {
     BigInt(0)
   );
   const [subjectFeePercent, setSubjectFeePercent] = useState<bigint>(BigInt(0));
-  const [isPaused, setIsPaused] = useState<boolean>(false);
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
       setProtocolFeeDestination(NULL_ADDRESS);
       setProtocolFeePercent(BigInt(0));
       setSubjectFeePercent(BigInt(0));
-      setIsPaused(false);
       return;
     }
-    const [
-      protocolFeeDestination,
-      protocolFeePercent,
-      subjectFeePercent,
-      isPaused,
-    ] = await Promise.all([
-      publicClient.readContract({
-        address: contract.address,
-        abi: contract.abi,
-        functionName: "protocolFeeDestination",
-        args: [],
-      }),
-      publicClient.readContract({
-        address: contract.address,
-        abi: contract.abi,
-        functionName: "protocolFeePercent",
-        args: [],
-      }),
-      publicClient.readContract({
-        address: contract.address,
-        abi: contract.abi,
-        functionName: "subjectFeePercent",
-        args: [],
-      }),
-      publicClient.readContract({
-        address: contract.address,
-        abi: contract.abi,
-        functionName: "isPaused",
-        args: [],
-      }),
-    ]);
+    const [protocolFeeDestination, protocolFeePercent, subjectFeePercent] =
+      await Promise.all([
+        publicClient.readContract({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: "protocolFeeDestination",
+          args: [],
+        }),
+        publicClient.readContract({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: "protocolFeePercent",
+          args: [],
+        }),
+        publicClient.readContract({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: "subjectFeePercent",
+          args: [],
+        }),
+      ]);
     setProtocolFeeDestination(String(protocolFeeDestination));
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
-    setIsPaused(Boolean(isPaused));
   }, [contract, publicClient]);
 
   useEffect(() => {
@@ -72,7 +59,6 @@ export const useReadPublic = (contract: ContractData) => {
     protocolFeeDestination,
     protocolFeePercent,
     subjectFeePercent,
-    isPaused,
   };
 };
 

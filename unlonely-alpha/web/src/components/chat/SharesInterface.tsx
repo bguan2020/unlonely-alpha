@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 import { GoPin } from "react-icons/go";
 import Link from "next/link";
 import { decodeEventLog, formatUnits } from "viem";
-import { useNetwork } from "wagmi";
+import { useNetwork, useBlockNumber } from "wagmi";
 
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
@@ -68,9 +68,12 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
     protocolFeeDestination,
     protocolFeePercent,
     subjectFeePercent,
-    isPaused,
     refetch: refetchPublic,
   } = useReadPublic(contract);
+
+  const blockNumber = useBlockNumber({
+    watch: true,
+  });
 
   const { price: yayBuyPriceForOne, refetch: refetchYayBuyPriceForOne } =
     useGetPrice(sharesSubject, BigInt(1), true, true, contract);
@@ -78,31 +81,31 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   const { price: nayBuyPriceForOne, refetch: refetchNayBuyPriceForOne } =
     useGetPrice(sharesSubject, BigInt(1), false, true, contract);
 
-  const yayBuyPrice = useMemo(
-    () => yayBuyPriceForOne * amount_bigint,
-    [amount_bigint, yayBuyPriceForOne]
-  );
+  // const yayBuyPrice = useMemo(
+  //   () => yayBuyPriceForOne * amount_bigint,
+  //   [amount_bigint, yayBuyPriceForOne]
+  // );
 
-  const nayBuyPrice = useMemo(
-    () => nayBuyPriceForOne * amount_bigint,
-    [amount_bigint, nayBuyPriceForOne]
-  );
+  // const nayBuyPrice = useMemo(
+  //   () => nayBuyPriceForOne * amount_bigint,
+  //   [amount_bigint, nayBuyPriceForOne]
+  // );
 
-  const { price: yaySellPrice, refetch: refetchYaySellPrice } = useGetPrice(
-    sharesSubject,
-    amount_bigint,
-    true,
-    false,
-    contract
-  );
+  // const { price: yaySellPrice, refetch: refetchYaySellPrice } = useGetPrice(
+  //   sharesSubject,
+  //   amount_bigint,
+  //   true,
+  //   false,
+  //   contract
+  // );
 
-  const { price: naySellPrice, refetch: refetchNaySellPrice } = useGetPrice(
-    sharesSubject,
-    amount_bigint,
-    false,
-    false,
-    contract
-  );
+  // const { price: naySellPrice, refetch: refetchNaySellPrice } = useGetPrice(
+  //   sharesSubject,
+  //   amount_bigint,
+  //   false,
+  //   false,
+  //   contract
+  // );
 
   const {
     priceAfterFee: yayBuyPriceAfterFee,
@@ -280,7 +283,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
           args.isBuy ? "bought" : "sold"
         } ${args.shareAmount} ${args.isYay ? "yes" : "no"} shares!`;
-        await refetchBalances();
+        // await refetchBalances();
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -369,7 +372,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
           args.isBuy ? "bought" : "sold"
         } ${args.shareAmount} ${args.isYay ? "yes" : "no"} shares!`;
-        await refetchBalances();
+        // await refetchBalances();
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -407,33 +410,53 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         ) {
           await refetch();
         }
-        if (
-          latestMessage.data.body &&
-          (latestMessage.data.body.split(":")[0] ===
-            InteractionType.BUY_SHARES ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.SELL_SHARES ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_PAYOUT) &&
-          Date.now() - latestMessage.timestamp < 12000
-        ) {
-          await Promise.all([
-            refetchPublic(),
-            refetchYayBuyPriceForOne(),
-            refetchNayBuyPriceForOne(),
-            refetchYaySellPrice(),
-            refetchNaySellPrice(),
-            refetchYayBuyPriceAfterFee(),
-            refetchYaySellPriceAfterFee(),
-            refetchNayBuyPriceAfterFee(),
-            refetchNaySellPriceAfterFee(),
-            refetchSharesSubject(),
-          ]);
-        }
+        // if (
+        //   latestMessage.data.body &&
+        //   (latestMessage.data.body.split(":")[0] ===
+        //     InteractionType.BUY_SHARES ||
+        //     latestMessage.data.body.split(":")[0] ===
+        //       InteractionType.SELL_SHARES ||
+        //     latestMessage.data.body.split(":")[0] ===
+        //       InteractionType.EVENT_PAYOUT) &&
+        //   Date.now() - latestMessage.timestamp < 12000
+        // ) {
+        //   await Promise.all([
+        //     refetchPublic(),
+        //     refetchYayBuyPriceForOne(),
+        //     refetchNayBuyPriceForOne(),
+        //     refetchYaySellPrice(),
+        //     refetchNaySellPrice(),
+        //     refetchYayBuyPriceAfterFee(),
+        //     refetchYaySellPriceAfterFee(),
+        //     refetchNayBuyPriceAfterFee(),
+        //     refetchNaySellPriceAfterFee(),
+        //     refetchSharesSubject(),
+        //   ]);
+        // }
       }
     };
     fetch();
   }, [messages]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (!blockNumber.data) return;
+      await Promise.all([
+        refetchPublic(),
+        refetchYayBuyPriceForOne(),
+        refetchNayBuyPriceForOne(),
+        // refetchYaySellPrice(),
+        // refetchNaySellPrice(),
+        refetchYayBuyPriceAfterFee(),
+        refetchYaySellPriceAfterFee(),
+        refetchNayBuyPriceAfterFee(),
+        refetchNaySellPriceAfterFee(),
+        refetchSharesSubject(),
+        refetchBalances(),
+      ]);
+    };
+    fetch();
+  }, [blockNumber.data]);
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
