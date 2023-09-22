@@ -1,23 +1,18 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { isAddress } from "viem";
-import { useNetwork, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 
 import { NULL_ADDRESS } from "../../constants";
-import { NETWORKS } from "../../constants/networks";
-import { WriteCallbacks } from "../../constants/types";
+import { ContractData, WriteCallbacks } from "../../constants/types";
 import {
   createCallbackHandler,
-  getContractFromNetwork,
 } from "../../utils/contract";
 import { useWrite } from "./useWrite";
 
-export const useReadPublic = (creatorTokenAddress: `0x${string}`) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-
+export const useReadPublic = (
+  contract: ContractData,
+  creatorTokenAddress: `0x${string}`
+) => {
   const publicClient = usePublicClient();
   const [creatorToken, setCreatorToken] = useState<string>(NULL_ADDRESS);
   const [tokenPrice, setTokenPrice] = useState<bigint>(BigInt(0));
@@ -80,14 +75,9 @@ export const useReadPublic = (creatorTokenAddress: `0x${string}`) => {
 
 export const useCalculateEthAmount = (
   creatorTokenAddress: `0x${string}`,
+  contract: ContractData,
   amountOut: bigint
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-
   const publicClient = usePublicClient();
 
   const [amountIn, setAmountIn] = useState<bigint>(BigInt(0));
@@ -126,12 +116,7 @@ export const useCalculateEthAmount = (
   };
 };
 
-export const useAdmins = () => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+export const useAdmins = (contract: ContractData) => {
   const publicClient = usePublicClient();
 
   const [admins, setAdmins] = useState<string[]>([]);
@@ -180,13 +165,9 @@ export const useBuyCreatorToken = (
     amountIn: bigint;
     amountOut: bigint;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
   const callbackHandlers = createCallbackHandler(
     "useBuyCreatorToken buyCreatorToken",
     callbacks
@@ -218,13 +199,9 @@ export const useUseFeature = (
     creatorTokenAddress: `0x${string}`;
     featurePrice: bigint;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
   const callbackHandlers = createCallbackHandler(
     "useUseFeature useFeature",
     callbacks
@@ -261,13 +238,9 @@ export const useAddCreatorToken = (
     initialPrice: bigint;
     tokenOwner: `0x${string}`;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
   const callbackHandlers = createCallbackHandler(
     "useAddCreatorToken addCreatorToken",
     callbacks
@@ -298,13 +271,9 @@ export const useSetTokenPrices = (
     creatorTokens: `0x${string}`[];
     newPrices: bigint[];
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
   const callbackHandlers = createCallbackHandler(
     "useSetTokenPrices setTokenPrices",
     callbacks

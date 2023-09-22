@@ -137,6 +137,7 @@ export default function TipTransactionModal({
       creatorTokenAddress: channelQueryData?.token?.address as `0x${string}`,
       featurePrice: tokenAmount_bigint,
     },
+    contract,
     {
       onWriteSuccess: (data) => {
         handleClose();

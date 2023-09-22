@@ -98,6 +98,7 @@ export default function BuyTransactionModal({
 
   const { amountIn } = useCalculateEthAmount(
     channelQueryData?.token?.address as `0x${string}`,
+    contract,
     buyTokenAmount_bigint
   );
 
@@ -113,6 +114,7 @@ export default function BuyTransactionModal({
       amountIn,
       amountOut: buyTokenAmount_bigint,
     },
+    contract,
     {
       onWriteSuccess: (data) => {
         handleClose();

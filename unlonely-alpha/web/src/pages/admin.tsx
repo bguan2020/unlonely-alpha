@@ -37,10 +37,19 @@ import useUpdateCreatorTokenPrice from "../hooks/server/arcade/useUpdateTokenPri
 import useUpdateUserCreatorTokenQuantity from "../hooks/server/arcade/useUpdateTokenQuantity";
 import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
 import AdminNotifications from "../components/general/AdminNotifications";
+import { Network } from "../constants/types";
 
 export default function AdminPage() {
   const { user } = useUser();
-  const { admins } = useAdmins();
+  const network = useNetwork();
+  const localNetwork = useMemo(() => {
+    return (
+      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
+      NETWORKS[0]
+    );
+  }, [network]);
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+  const { admins } = useAdmins(contract);
 
   const isAdmin = useMemo(() => {
     if (admins !== undefined && user?.address) {
@@ -52,21 +61,14 @@ export default function AdminPage() {
 
   return (
     <AppLayout isCustomHeader={false}>
-      {isAdmin && <AdminContent />}
+      {isAdmin && <AdminContent localNetwork={localNetwork} />}
       {!isAdmin && <Text>You're not supposed to be here.</Text>}
     </AppLayout>
   );
 }
 
-const AdminContent = () => {
+const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
   const toast = useToast();
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const [creatorTokenAddress, setCreatorTokenAddress] = useState<string>("");
@@ -94,10 +96,11 @@ const AdminContent = () => {
     creatorToken,
     tokenPrice,
     tokenOwner,
-  } = useReadPublic(creatorTokenAddress as `0x${string}`);
+  } = useReadPublic(contract, creatorTokenAddress as `0x${string}`);
 
   const { amountIn } = useCalculateEthAmount(
     creatorTokenAddress as `0x${string}`,
+    contract,
     buyTokenAmount_bigint
   );
 
@@ -169,6 +172,7 @@ const AdminContent = () => {
       ),
       tokenOwner: tokenOwnerAddress as `0x${string}`,
     },
+    contract,
     {
       onWriteSuccess: (data) => {
         toast({
@@ -239,6 +243,7 @@ const AdminContent = () => {
           18
         ),
       },
+      contract,
       {
         onWriteSuccess: (data) => {
           toast({
@@ -291,6 +296,7 @@ const AdminContent = () => {
       amountIn,
       amountOut: buyTokenAmount_bigint,
     },
+    contract,
     {
       onWriteSuccess: (data) => {
         toast({
@@ -361,6 +367,7 @@ const AdminContent = () => {
         .split(",")
         .map((p) => parseUnits(formatIncompleteNumber(p) as `${number}`, 18)),
     },
+    contract,
     {
       onWriteSuccess: async (data) => {
         toast({
