@@ -308,7 +308,7 @@ export const getChannelSharesEvent = async (
   { id }: { id: number },
   ctx: Context
 ) => {
-  return ctx.prisma.sharesEvent.findFirst({
+  return ctx.prisma.sharesEvent.findMany({
     // where softDelete is false
     where: { channelId: Number(id), softDelete: false },
   });
