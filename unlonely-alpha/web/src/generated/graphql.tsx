@@ -78,6 +78,13 @@ export type AddSuggestedChannelsToSubscriptionsInput = {
   channelIds: Array<Scalars["ID"]>;
 };
 
+export type BaseLeaderboard = {
+  __typename?: "BaseLeaderboard";
+  amount: Scalars["Float"];
+  id: Scalars["ID"];
+  owner?: Maybe<User>;
+};
+
 export type Channel = {
   __typename?: "Channel";
   allowNFCs?: Maybe<Scalars["Boolean"]>;
@@ -97,7 +104,7 @@ export type Channel = {
   owner: User;
   playbackUrl?: Maybe<Scalars["String"]>;
   response: Scalars["String"];
-  sharesEvent?: Maybe<SharesEvent>;
+  sharesEvent?: Maybe<Array<Maybe<SharesEvent>>>;
   slug: Scalars["String"];
   thumbnailUrl?: Maybe<Scalars["String"]>;
   token?: Maybe<CreatorToken>;
@@ -251,6 +258,7 @@ export type Mutation = {
   createCreatorToken: CreatorToken;
   handleLike?: Maybe<Likable>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
+  postBaseLeaderboard: BaseLeaderboard;
   postChatByAwsId?: Maybe<Chat>;
   postDeviceToken?: Maybe<DeviceToken>;
   postFirstChat?: Maybe<Chat>;
@@ -299,6 +307,10 @@ export type MutationCreateCreatorTokenArgs = {
 
 export type MutationHandleLikeArgs = {
   data: HandleLikeInput;
+};
+
+export type MutationPostBaseLeaderboardArgs = {
+  data: PostBaseLeaderboardInput;
 };
 
 export type MutationPostChatByAwsIdArgs = {
@@ -425,6 +437,10 @@ export type Poap = {
   updatedAt: Scalars["DateTime"];
 };
 
+export type PostBaseLeaderboardInput = {
+  amount: Scalars["Float"];
+};
+
 export type PostChatByAwsIdInput = {
   awsId: Scalars["String"];
   text: Scalars["String"];
@@ -503,6 +519,7 @@ export type Query = {
   getAllUsers?: Maybe<Array<Maybe<User>>>;
   getAllUsersWithChannel?: Maybe<Array<Maybe<User>>>;
   getAllUsersWithNotificationsToken?: Maybe<Array<Maybe<User>>>;
+  getBaseLeaderboard: Array<BaseLeaderboard>;
   getChannelByAwsId?: Maybe<Channel>;
   getChannelById?: Maybe<Channel>;
   getChannelBySlug?: Maybe<Channel>;
@@ -867,12 +884,12 @@ export type ChannelDetailQuery = {
     allowNFCs?: boolean | null;
     bannedUsers?: Array<string | null> | null;
     playbackUrl?: string | null;
-    sharesEvent?: {
+    sharesEvent?: Array<{
       __typename?: "SharesEvent";
       sharesSubjectQuestion?: string | null;
       sharesSubjectAddress?: string | null;
       eventState?: SharesEventState | null;
-    } | null;
+    } | null> | null;
     owner: {
       __typename?: "User";
       FCImageUrl?: string | null;
@@ -915,12 +932,12 @@ export type ChannelDetailMobileQuery = {
     allowNFCs?: boolean | null;
     bannedUsers?: Array<string | null> | null;
     playbackUrl?: string | null;
-    sharesEvent?: {
+    sharesEvent?: Array<{
       __typename?: "SharesEvent";
       sharesSubjectQuestion?: string | null;
       sharesSubjectAddress?: string | null;
       eventState?: SharesEventState | null;
-    } | null;
+    } | null> | null;
     owner: {
       __typename?: "User";
       FCImageUrl?: string | null;
@@ -1070,6 +1087,24 @@ export type NfcFeedQuery = {
   } | null> | null;
 };
 
+export type GetBaseLeaderboardQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetBaseLeaderboardQuery = {
+  __typename?: "Query";
+  getBaseLeaderboard: Array<{
+    __typename?: "BaseLeaderboard";
+    id: string;
+    amount: number;
+    owner?: {
+      __typename?: "User";
+      address: string;
+      username?: string | null;
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+    } | null;
+  }>;
+};
+
 export type GetUserQueryVariables = Exact<{
   data: GetUserInput;
 }>;
@@ -1190,6 +1225,15 @@ export type LikeMutation = {
     liked?: boolean | null;
     disliked?: boolean | null;
   } | null;
+};
+
+export type PostBaseLeaderboardMutationVariables = Exact<{
+  data: PostBaseLeaderboardInput;
+}>;
+
+export type PostBaseLeaderboardMutation = {
+  __typename?: "Mutation";
+  postBaseLeaderboard: { __typename?: "BaseLeaderboard"; id: string };
 };
 
 export type PostChatByAwsIdMutationVariables = Exact<{
@@ -2275,6 +2319,70 @@ export type NfcFeedQueryResult = Apollo.QueryResult<
   NfcFeedQuery,
   NfcFeedQueryVariables
 >;
+export const GetBaseLeaderboardDocument = gql`
+  query GetBaseLeaderboard {
+    getBaseLeaderboard {
+      id
+      amount
+      owner {
+        address
+        username
+        FCImageUrl
+        lensImageUrl
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetBaseLeaderboardQuery__
+ *
+ * To run a query within a React component, call `useGetBaseLeaderboardQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBaseLeaderboardQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBaseLeaderboardQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetBaseLeaderboardQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetBaseLeaderboardQuery,
+    GetBaseLeaderboardQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetBaseLeaderboardQuery,
+    GetBaseLeaderboardQueryVariables
+  >(GetBaseLeaderboardDocument, options);
+}
+export function useGetBaseLeaderboardLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetBaseLeaderboardQuery,
+    GetBaseLeaderboardQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetBaseLeaderboardQuery,
+    GetBaseLeaderboardQueryVariables
+  >(GetBaseLeaderboardDocument, options);
+}
+export type GetBaseLeaderboardQueryHookResult = ReturnType<
+  typeof useGetBaseLeaderboardQuery
+>;
+export type GetBaseLeaderboardLazyQueryHookResult = ReturnType<
+  typeof useGetBaseLeaderboardLazyQuery
+>;
+export type GetBaseLeaderboardQueryResult = Apollo.QueryResult<
+  GetBaseLeaderboardQuery,
+  GetBaseLeaderboardQueryVariables
+>;
 export const GetUserDocument = gql`
   query getUser($data: GetUserInput!) {
     getUser(data: $data) {
@@ -2745,6 +2853,56 @@ export type LikeMutationResult = Apollo.MutationResult<LikeMutation>;
 export type LikeMutationOptions = Apollo.BaseMutationOptions<
   LikeMutation,
   LikeMutationVariables
+>;
+export const PostBaseLeaderboardDocument = gql`
+  mutation PostBaseLeaderboard($data: PostBaseLeaderboardInput!) {
+    postBaseLeaderboard(data: $data) {
+      id
+    }
+  }
+`;
+export type PostBaseLeaderboardMutationFn = Apollo.MutationFunction<
+  PostBaseLeaderboardMutation,
+  PostBaseLeaderboardMutationVariables
+>;
+
+/**
+ * __usePostBaseLeaderboardMutation__
+ *
+ * To run a mutation, you first call `usePostBaseLeaderboardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostBaseLeaderboardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postBaseLeaderboardMutation, { data, loading, error }] = usePostBaseLeaderboardMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostBaseLeaderboardMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostBaseLeaderboardMutation,
+    PostBaseLeaderboardMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostBaseLeaderboardMutation,
+    PostBaseLeaderboardMutationVariables
+  >(PostBaseLeaderboardDocument, options);
+}
+export type PostBaseLeaderboardMutationHookResult = ReturnType<
+  typeof usePostBaseLeaderboardMutation
+>;
+export type PostBaseLeaderboardMutationResult =
+  Apollo.MutationResult<PostBaseLeaderboardMutation>;
+export type PostBaseLeaderboardMutationOptions = Apollo.BaseMutationOptions<
+  PostBaseLeaderboardMutation,
+  PostBaseLeaderboardMutationVariables
 >;
 export const PostChatByAwsIdDocument = gql`
   mutation PostChatByAwsId($data: PostChatByAwsIdInput!) {

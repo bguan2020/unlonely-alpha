@@ -58,40 +58,22 @@ export interface IPostSharesEventInput {
   eventState?: SharesEventState;
 }
 
-export const postSharesEvent = async (
+export const postSharesEvent = (
   data: IPostSharesEventInput,
   ctx: Context
 ) => {
-  // First, find the SharesEvent based on channelId
-  const sharesEvent = await ctx.prisma.sharesEvent.findFirst({
-    where: { channelId: Number(data.id), softDelete: false },
-  });
-
-  // If a SharesEvent exists, update it
-  if (sharesEvent) {
-    return await ctx.prisma.sharesEvent.update({
-      where: { id: sharesEvent.id },
-      data: {
-        sharesSubjectQuestion: data.sharesSubjectQuestion,
-        sharesSubjectAddress: data.sharesSubjectAddress,
-        eventState: data.eventState,
-      },
-    });
-  } else {
-    // If not, create a new SharesEvent associated with the given Channel
-    return await ctx.prisma.sharesEvent.create({
-      data: {
-        sharesSubjectQuestion: data.sharesSubjectQuestion,
-        sharesSubjectAddress: data.sharesSubjectAddress,
-        eventState: data.eventState,
-        channel: {
-          connect: {
-            id: Number(data.id),
-          },
+  return ctx.prisma.sharesEvent.create({
+    data: {
+      sharesSubjectQuestion: data.sharesSubjectQuestion,
+      sharesSubjectAddress: data.sharesSubjectAddress,
+      eventState: data.eventState,
+      channel: {
+        connect: {
+          id: Number(data.id),
         },
       },
-    });
-  }
+    },
+  });
 };
 
 export interface IPostCloseSharesEventInput {

@@ -37,7 +37,7 @@ export const typeDef = gql`
     createdAt: DateTime!
     updatedAt: DateTime!
     chatCommands: [ChatCommand]
-    sharesEvent: SharesEvent
+    sharesEvent: [SharesEvent]
   }
 
   input ChannelFeedInput {

@@ -46,6 +46,7 @@ model User {
   streamInteractions StreamInteraction[]
   channel Channel[]
   tokens UserCreatorToken[]
+  leaderboardEntries BaseLeaderboard[]
 }
 
 model Subscription {
@@ -149,7 +150,7 @@ model Channel {
   token CreatorToken?
   customButtonAction String?
   customButtonPrice Int?
-  sharesEvent SharesEvent?
+  sharesEvent SharesEvent[]
 }
 
 model CreatorToken {
@@ -199,6 +200,17 @@ model SharesEvent {
 
   channel Channel @relation(fields: [channelId], references: [id])
   channelId Int       @unique
+}
+
+model BaseLeaderboard {
+  id        Int      @id @default(autoincrement())
+  amount    Float
+
+  ownerAddr String      
+  owner   User  @relation(fields: [ownerAddr], references: [address])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ------- DEPRECATED MODELS -------
