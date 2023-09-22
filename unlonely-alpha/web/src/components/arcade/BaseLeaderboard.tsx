@@ -15,6 +15,7 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
+
 import { GET_BASE_LEADERBOARD_QUERY } from "../../constants/queries";
 import { GetBaseLeaderboardQuery } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
