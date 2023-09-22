@@ -479,6 +479,7 @@ export const useBuyShares = (
     writeData: buySharesData,
     txData: buySharesTxData,
     isTxLoading: buySharesTxLoading,
+    refetch,
   } = useWrite(
     contract,
     "buyShares",
@@ -488,6 +489,7 @@ export const useBuyShares = (
   );
 
   return {
+    refetch,
     buyShares,
     buySharesData,
     buySharesTxData,
@@ -509,6 +511,7 @@ export const useSellShares = (
     writeData: sellSharesData,
     txData: sellSharesTxData,
     isTxLoading: sellSharesTxLoading,
+    refetch,
   } = useWrite(
     contract,
     "sellShares",
@@ -517,6 +520,7 @@ export const useSellShares = (
   );
 
   return {
+    refetch,
     sellShares,
     sellSharesData,
     sellSharesTxData,
@@ -534,6 +538,7 @@ export const useClaimPayout = (
     writeData: claimPayoutData,
     txData: claimPayoutTxData,
     isTxLoading: claimPayoutTxLoading,
+    refetch,
   } = useWrite(
     contract,
     "claimPayout",
@@ -546,5 +551,6 @@ export const useClaimPayout = (
     claimPayoutData,
     claimPayoutTxData,
     claimPayoutTxLoading,
+    refetch,
   };
 };

@@ -81,32 +81,6 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   const { price: nayBuyPriceForOne, refetch: refetchNayBuyPriceForOne } =
     useGetPrice(sharesSubject, BigInt(1), false, true, contract);
 
-  // const yayBuyPrice = useMemo(
-  //   () => yayBuyPriceForOne * amount_bigint,
-  //   [amount_bigint, yayBuyPriceForOne]
-  // );
-
-  // const nayBuyPrice = useMemo(
-  //   () => nayBuyPriceForOne * amount_bigint,
-  //   [amount_bigint, nayBuyPriceForOne]
-  // );
-
-  // const { price: yaySellPrice, refetch: refetchYaySellPrice } = useGetPrice(
-  //   sharesSubject,
-  //   amount_bigint,
-  //   true,
-  //   false,
-  //   contract
-  // );
-
-  // const { price: naySellPrice, refetch: refetchNaySellPrice } = useGetPrice(
-  //   sharesSubject,
-  //   amount_bigint,
-  //   false,
-  //   false,
-  //   contract
-  // );
-
   const {
     priceAfterFee: yayBuyPriceAfterFee,
     refetch: refetchYayBuyPriceAfterFee,
@@ -142,13 +116,16 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
     naySharesSupply,
     eventVerified,
     eventResult,
-    isVerifier,
     pooledEth,
     userPayout,
     refetch: refetchSharesSubject,
   } = useReadSharesSubject(sharesSubject, contract);
 
-  const { claimPayout, claimPayoutTxLoading } = useClaimPayout(
+  const {
+    claimPayout,
+    claimPayoutTxLoading,
+    refetch: refetchClaimPayout,
+  } = useClaimPayout(
     {
       sharesSubject: sharesSubject,
     },
@@ -217,7 +194,11 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
     }
   );
 
-  const { buyShares, buySharesTxLoading } = useBuyShares(
+  const {
+    buyShares,
+    buySharesTxLoading,
+    refetch: refetchBuyShares,
+  } = useBuyShares(
     {
       sharesSubject: sharesSubject,
       amountOfShares: amount_bigint,
@@ -307,7 +288,11 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
     }
   );
 
-  const { sellShares, sellSharesTxLoading } = useSellShares(
+  const {
+    sellShares,
+    sellSharesTxLoading,
+    refetch: refetchSellShares,
+  } = useSellShares(
     {
       sharesSubject: sharesSubject,
       amount: amount_bigint,
@@ -405,34 +390,13 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
           (latestMessage.data.body.split(":")[0] ===
             InteractionType.EVENT_LIVE ||
             latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_PAYOUT ||
+            latestMessage.data.body.split(":")[0] ===
               InteractionType.EVENT_END) &&
           Date.now() - latestMessage.timestamp < 12000
         ) {
           await refetch();
         }
-        // if (
-        //   latestMessage.data.body &&
-        //   (latestMessage.data.body.split(":")[0] ===
-        //     InteractionType.BUY_SHARES ||
-        //     latestMessage.data.body.split(":")[0] ===
-        //       InteractionType.SELL_SHARES ||
-        //     latestMessage.data.body.split(":")[0] ===
-        //       InteractionType.EVENT_PAYOUT) &&
-        //   Date.now() - latestMessage.timestamp < 12000
-        // ) {
-        //   await Promise.all([
-        //     refetchPublic(),
-        //     refetchYayBuyPriceForOne(),
-        //     refetchNayBuyPriceForOne(),
-        //     refetchYaySellPrice(),
-        //     refetchNaySellPrice(),
-        //     refetchYayBuyPriceAfterFee(),
-        //     refetchYaySellPriceAfterFee(),
-        //     refetchNayBuyPriceAfterFee(),
-        //     refetchNaySellPriceAfterFee(),
-        //     refetchSharesSubject(),
-        //   ]);
-        // }
       }
     };
     fetch();
@@ -445,14 +409,15 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         refetchPublic(),
         refetchYayBuyPriceForOne(),
         refetchNayBuyPriceForOne(),
-        // refetchYaySellPrice(),
-        // refetchNaySellPrice(),
         refetchYayBuyPriceAfterFee(),
         refetchYaySellPriceAfterFee(),
         refetchNayBuyPriceAfterFee(),
         refetchNaySellPriceAfterFee(),
         refetchSharesSubject(),
         refetchBalances(),
+        refetchClaimPayout(),
+        refetchBuyShares(),
+        refetchSellShares(),
       ]);
     };
     fetch();
@@ -510,17 +475,6 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                 <Text textAlign={"center"} color="#d5d5d5" fontSize="15px">
                   contract not ready yet
                 </Text>
-                {/* <Flex justifyContent={"center"}>
-                  <Button
-                    _hover={{}}
-                    _focus={{}}
-                    _active={{}}
-                    onClick={refetchPublic}
-                    bg={"#434343"}
-                  >
-                    check again
-                  </Button>
-                </Flex> */}
               </>
             ) : eventVerified ? (
               <Flex direction="column" p="0.5rem">
@@ -548,7 +502,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                       _active={{}}
                       bg={"#E09025"}
                       borderRadius="25px"
-                      isDisabled={!claimPayout || userPayout === BigInt(0)}
+                      isDisabled={!claimPayout}
                       onClick={claimPayout}
                     >
                       <Text fontSize="20px">get payout</Text>
