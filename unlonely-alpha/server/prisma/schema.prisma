@@ -196,6 +196,8 @@ model SharesEvent {
   sharesSubjectQuestion String
   sharesSubjectAddress String
   eventState SharesEventState?
+
+  createdAt DateTime @default(now())
   softDelete Boolean @default(false)
 
   channel Channel @relation(fields: [channelId], references: [id])

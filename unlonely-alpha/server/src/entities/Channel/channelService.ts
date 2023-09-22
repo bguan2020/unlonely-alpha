@@ -311,5 +311,7 @@ export const getChannelSharesEvent = async (
   return ctx.prisma.sharesEvent.findMany({
     // where softDelete is false
     where: { channelId: Number(id), softDelete: false },
+    // order by createdAt w latest first
+    orderBy: { createdAt: "desc" },
   });
 };

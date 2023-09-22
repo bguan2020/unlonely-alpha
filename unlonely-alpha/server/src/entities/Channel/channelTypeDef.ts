@@ -16,6 +16,7 @@ export const typeDef = gql`
     sharesSubjectAddress: String
     eventState: SharesEventState
     softDelete: Boolean
+    createdAt: DateTime!
   }
 
   type Channel {
