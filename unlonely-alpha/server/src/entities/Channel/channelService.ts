@@ -58,15 +58,32 @@ export interface IPostSharesEventInput {
   eventState?: SharesEventState;
 }
 
-export const postSharesEvent = (
+export const postSharesEvent = async (
   data: IPostSharesEventInput,
   ctx: Context
 ) => {
+  const existingSharesEvent = await ctx.prisma.sharesEvent.findMany({
+    // where softDelete is false
+    where: { channelId: Number(data.id), softDelete: false },
+    // order by createdAt w latest first
+    orderBy: { createdAt: "desc" },
+  });
+  if (existingSharesEvent.length > 0) {
+    return ctx.prisma.sharesEvent.update({
+      where: { id: existingSharesEvent[0].id },
+      data: {
+        sharesSubjectQuestion: data.sharesSubjectQuestion,
+        sharesSubjectAddress: data.sharesSubjectAddress,
+        eventState: data.eventState,
+      },
+    });
+  }
   return ctx.prisma.sharesEvent.create({
     data: {
       sharesSubjectQuestion: data.sharesSubjectQuestion,
       sharesSubjectAddress: data.sharesSubjectAddress,
       eventState: data.eventState,
+      softDelete: false,
       channel: {
         connect: {
           id: Number(data.id),
