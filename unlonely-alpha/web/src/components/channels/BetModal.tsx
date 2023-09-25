@@ -51,6 +51,8 @@ export default function BetModal({
 
   const [question, setQuestion] = useState("");
   const [eventVerified, setEventVerified] = useState(false);
+  const [isSharesSubjectUsedBefore, setIsSharesSubjectUsedBefore] =
+    useState(false);
   const [endDecision, setEndDecision] = useState<boolean | undefined>(
     undefined
   );
@@ -230,6 +232,20 @@ export default function BetModal({
     init();
   }, [channelQueryData, contract]);
 
+  useEffect(() => {
+    const init = async () => {
+      if (!contract.address || !isAddress(sharesSubject)) return;
+      const res = await publicClient.readContract({
+        address: contract.address as `0x${string}`,
+        abi: contract.abi,
+        functionName: "eventVerified",
+        args: [sharesSubject as `0x${string}`],
+      });
+      setIsSharesSubjectUsedBefore(Boolean(res));
+    };
+    init();
+  }, [sharesSubject, contract]);
+
   return (
     <TransactionModalTemplate
       title={title}
@@ -352,7 +368,11 @@ export default function BetModal({
             _focus={{}}
             _active={{}}
             width="100%"
-            disabled={question.length === 0 || eventVerified}
+            disabled={
+              question.length === 0 ||
+              isSharesSubjectUsedBefore ||
+              !isAddress(sharesSubject)
+            }
             onClick={async () =>
               await _postSharesEvent(
                 "LIVE",
