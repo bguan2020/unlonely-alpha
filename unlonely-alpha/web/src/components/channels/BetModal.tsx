@@ -8,7 +8,7 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { decodeEventLog } from "viem";
+import { decodeEventLog, isAddress } from "viem";
 import { useNetwork, usePublicClient } from "wagmi";
 import Link from "next/link";
 
@@ -22,6 +22,7 @@ import { useVerifyEvent } from "../../hooks/contracts/useSharesContract";
 import { InteractionType } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import useCloseSharesEvent from "../../hooks/server/useCloseSharesEvent";
+import { useReadSharesSubject } from "../../hooks/contracts/useSharesContract";
 
 export default function BetModal({
   title,
@@ -60,6 +61,11 @@ export default function BetModal({
     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
   }, [network]);
   const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
+
+  const { isVerifier } = useReadSharesSubject(
+    channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress as `0x${string}`,
+    contract
+  );
 
   const isSharesEventLive =
     channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
@@ -239,6 +245,16 @@ export default function BetModal({
           <Text textAlign={"center"} fontSize="13px">
             Betting will be over and winnings can start being claimed.
           </Text>
+          {!isVerifier &&
+            isAddress(
+              channelQueryData?.sharesEvent?.[0]
+                ?.sharesSubjectAddress as `0x${string}`
+            ) && (
+              <Text textAlign={"center"} fontSize="13px">
+                This address is not allowed to verify events, please ask Brian
+                for permission.
+              </Text>
+            )}
           {!verifyEventTxLoading ? (
             <>
               <Flex justifyContent={"space-evenly"} p="0.5rem">
@@ -249,6 +265,7 @@ export default function BetModal({
                   transform={endDecision === true ? undefined : "scale(0.95)"}
                   bg={endDecision === true ? "#009d2a" : "#909090"}
                   onClick={() => setEndDecision(true)}
+                  disabled={!isVerifier}
                 >
                   YES
                 </Button>
@@ -259,6 +276,7 @@ export default function BetModal({
                   transform={endDecision === false ? undefined : "scale(0.95)"}
                   bg={endDecision === false ? "#da3b14" : "#909090"}
                   onClick={() => setEndDecision(false)}
+                  disabled={!isVerifier}
                 >
                   NO
                 </Button>
@@ -317,7 +335,7 @@ export default function BetModal({
           />
           <Input
             variant="glow"
-            placeholder={"(admins only) sharesSubject address"}
+            placeholder={"your fee address"}
             value={sharesSubject}
             onChange={(e) => setSharesSubject(e.target.value)}
           />
