@@ -524,17 +524,19 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                           {truncateValue(formatUnits(userPayout, 18))}
                         </Text>
                       </Flex>
-                      <Button
-                        _hover={{}}
-                        _focus={{}}
-                        _active={{}}
-                        bg={"#E09025"}
-                        borderRadius="25px"
-                        isDisabled={!claimPayout || userPayout === BigInt(0)}
-                        onClick={claimPayout}
-                      >
-                        <Text fontSize="20px">get payout</Text>
-                      </Button>
+                      {userPayout > BigInt(0) && (
+                        <Button
+                          _hover={{}}
+                          _focus={{}}
+                          _active={{}}
+                          bg={"#E09025"}
+                          borderRadius="25px"
+                          isDisabled={!claimPayout}
+                          onClick={claimPayout}
+                        >
+                          <Text fontSize="20px">get payout</Text>
+                        </Button>
+                      )}
                     </>
                   ) : (
                     <Flex justifyContent="center">
