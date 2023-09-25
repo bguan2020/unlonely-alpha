@@ -58,7 +58,10 @@ export default function BetModal({
 
   const network = useNetwork();
   const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
+    return (
+      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
+      NETWORKS[0]
+    );
   }, [network]);
   const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
 
@@ -90,6 +93,7 @@ export default function BetModal({
           "",
         eventState: event,
       });
+      setQuestion("");
       if (event === "LIVE") {
         addToChatbot({
           username: user?.username ?? "",
@@ -98,8 +102,8 @@ export default function BetModal({
           title: "New event has started!",
           description: "event-start",
         });
+        handleClose();
       }
-      setQuestion("");
     },
     [channelQueryData, question, user, userAddress]
   );
@@ -238,7 +242,9 @@ export default function BetModal({
       size={isStandalone ? "sm" : "md"}
       hideFooter
       isModalLoading={postSharesEventLoading || closeSharesEventLoading}
-      loadingText={"loading, please wait..."}
+      loadingText={`${
+        closeSharesEventLoading ? "closing event" : "loading"
+      }, please wait...`}
     >
       {isSharesEventLive && (
         <Flex direction="column" gap="10px">
@@ -306,7 +312,8 @@ export default function BetModal({
       {isSharesEventPayout && (
         <Flex direction="column" gap="10px">
           <Text textAlign={"center"} fontSize="13px">
-            By stopping the event, the payout phase will be over.
+            By stopping the event, the payout phase will be over and you will be
+            able to make a new event.
           </Text>
           <Button
             bg="#E09025"
