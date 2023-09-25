@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 import { GoPin } from "react-icons/go";
 import Link from "next/link";
 import { decodeEventLog, formatUnits } from "viem";
-import { useNetwork, useBalance } from "wagmi";
+import { useNetwork, useBalance, useBlockNumber } from "wagmi";
 
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
@@ -73,6 +73,10 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
     );
   }, [network]);
   const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
+
+  const blockNumber = useBlockNumber({
+    watch: true,
+  });
 
   const {
     protocolFeeDestination,
@@ -407,7 +411,8 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   }, [messages]);
 
   useEffect(() => {
-    const intervalId = setInterval(async () => {
+    if (!blockNumber.data) return;
+    const fetch = async () => {
       await Promise.all([
         refetchUserEthBalance(),
         refetchPublic(),
@@ -423,9 +428,9 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         refetchBuyShares(),
         refetchSellShares(),
       ]);
-    }, 7000);
-    return () => clearInterval(intervalId);
-  }, []);
+    };
+    fetch();
+  }, [blockNumber.data]);
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
