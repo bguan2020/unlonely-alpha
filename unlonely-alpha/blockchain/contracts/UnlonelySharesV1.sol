@@ -95,9 +95,6 @@ contract UnlonelySharesV1 is Ownable {
     mapping(address => uint256) public yaySharesSupply;
     mapping(address => uint256) public naySharesSupply;
 
-    mapping(address => address[]) public yayShareHolders;
-    mapping(address => address[]) public nayShareHolders;
-
     mapping(address => bool) public eventVerified;
     mapping(address => bool) public eventResult;
     mapping(address => bool) public isVerifier;
@@ -134,42 +131,23 @@ contract UnlonelySharesV1 is Ownable {
         emit EventVerified(sharesSubject, result);
     }
 
-/*
-    this is for the unlikely edge-case that there are no winners 
-    if yay wins but everyone is holding nay shares and no one is holding yay shares, 
-    split the pool w creator and protocol
+    /*
+        this is for the unlikely edge-case that there are no winners 
+        if yay wins but everyone is holding nay shares and no one is holding yay shares, 
+        split the pool w creator and protocol
 
-*/
-    function closeEvent(address sharesSubject) public onlyVerifier {
+    */
+    function closeEventIfNoWinners(address sharesSubject) public onlyVerifier {
         require(eventVerified[sharesSubject], "Event is not verified");
         require(pooledEth[sharesSubject] > 0, "Pool is already empty");
         uint256 sharesSupply = eventResult[sharesSubject] ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-
-        if (sharesSupply == 0) {
-            require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
-            uint256 splitPoolValue = pooledEth[sharesSubject] / 2;
-            pooledEth[sharesSubject] = 0;
-            (bool success1, ) = protocolFeeDestination.call{value: splitPoolValue}("");
-            (bool success2, ) = sharesSubject.call{value: splitPoolValue}("");
-            require(success1 && success2, "Unable to send funds");
-        } else {
-            // Reset yay shares
-            for (uint i = 0; i < yayShareHolders[sharesSubject].length; i++) {
-                address holder = yayShareHolders[sharesSubject][i];
-                yaySharesBalance[sharesSubject][holder] = 0;
-            }
-            delete yayShareHolders[sharesSubject];  // Reset the array
-            yaySharesSupply[sharesSubject] = 0;  // Reset the total supply
-
-            // Reset nay shares
-            for (uint i = 0; i < nayShareHolders[sharesSubject].length; i++) {
-                address holder = nayShareHolders[sharesSubject][i];
-                naySharesBalance[sharesSubject][holder] = 0;
-            }
-            delete nayShareHolders[sharesSubject];  // Reset the array
-            naySharesSupply[sharesSubject] = 0;  // Reset the total supply
-        }
-        eventVerified[sharesSubject] = false;
+        require(sharesSupply == 0, "There are still shares");
+        require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
+        uint256 splitPoolValue = pooledEth[sharesSubject] / 2;
+        pooledEth[sharesSubject] = 0;
+        (bool success1, ) = protocolFeeDestination.call{value: splitPoolValue}("");
+        (bool success2, ) = sharesSubject.call{value: splitPoolValue}("");
+        require(success1 && success2, "Unable to send funds");
     }
 
 
@@ -251,17 +229,9 @@ contract UnlonelySharesV1 is Ownable {
         if (isYay) {
             yaySharesBalance[sharesSubject][msg.sender] += amount;
             yaySharesSupply[sharesSubject] += amount;
-            // handle duplicate sender
-            if (yaySharesBalance[sharesSubject][msg.sender] == 0) {
-                yayShareHolders[sharesSubject].push(msg.sender);
-            }
         } else {
             naySharesBalance[sharesSubject][msg.sender] += amount;
             naySharesSupply[sharesSubject] += amount;
-            // handle duplicate sender
-            if (naySharesBalance[sharesSubject][msg.sender] == 0) {
-                nayShareHolders[sharesSubject].push(msg.sender);
-            }
         }
 
         emit Trade(msg.sender, sharesSubject, true, isYay, amount, price, protocolFee, subjectFee, supply + amount);
