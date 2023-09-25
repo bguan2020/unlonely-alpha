@@ -95,6 +95,9 @@ contract UnlonelySharesV1 is Ownable {
     mapping(address => uint256) public yaySharesSupply;
     mapping(address => uint256) public naySharesSupply;
 
+    mapping(address => address[]) public yayShareHolders;
+    mapping(address => address[]) public nayShareHolders;
+
     mapping(address => bool) public eventVerified;
     mapping(address => bool) public eventResult;
     mapping(address => bool) public isVerifier;
@@ -137,19 +140,38 @@ contract UnlonelySharesV1 is Ownable {
     split the pool w creator and protocol
 
 */
-    function closePoolIfNoWinners(address sharesSubject) public onlyVerifier {
+    function closeEvent(address sharesSubject) public onlyVerifier {
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(eventVerified[sharesSubject], "Event is not verified");
         require(pooledEth[sharesSubject] > 0, "Pool is already empty");
         uint256 sharesSupply = eventResult[sharesSubject] ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        require(sharesSupply == 0, "There are still shares");
+        // require(sharesSupply == 0, "There are still shares");
 
-        uint256 splitPoolValue = pooledEth[sharesSubject] / 2;
-        pooledEth[sharesSubject] = 0;
-        (bool success1, ) = protocolFeeDestination.call{value: splitPoolValue}("");
-        (bool success2, ) = sharesSubject.call{value: splitPoolValue}("");
-        require(success1 && success2, "Unable to send funds");
+        if (sharesSupply == 0) {
+            uint256 splitPoolValue = pooledEth[sharesSubject] / 2;
+            pooledEth[sharesSubject] = 0;
+            (bool success1, ) = protocolFeeDestination.call{value: splitPoolValue}("");
+            (bool success2, ) = sharesSubject.call{value: splitPoolValue}("");
+            require(success1 && success2, "Unable to send funds");
+        } else {
+            // Reset yay shares
+            for (uint i = 0; i < yayShareHolders[sharesSubject].length; i++) {
+                address holder = yayShareHolders[sharesSubject][i];
+                yaySharesBalance[sharesSubject][holder] = 0;
+            }
+            delete yayShareHolders[sharesSubject];  // Reset the array
+            yaySharesSupply[sharesSubject] = 0;  // Reset the total supply
+
+            // Reset nay shares
+            for (uint i = 0; i < nayShareHolders[sharesSubject].length; i++) {
+                address holder = nayShareHolders[sharesSubject][i];
+                naySharesBalance[sharesSubject][holder] = 0;
+            }
+            delete nayShareHolders[sharesSubject];  // Reset the array
+            naySharesSupply[sharesSubject] = 0;  // Reset the total supply
+        }
     }
+
 
     function setFeeDestination(address _feeDestination) public onlyOwner {
         protocolFeeDestination = _feeDestination;
@@ -229,9 +251,17 @@ contract UnlonelySharesV1 is Ownable {
         if (isYay) {
             yaySharesBalance[sharesSubject][msg.sender] += amount;
             yaySharesSupply[sharesSubject] += amount;
+            // handle duplicate sender
+            if (yaySharesBalance[sharesSubject][msg.sender] == 0) {
+                yayShareHolders[sharesSubject].push(msg.sender);
+            }
         } else {
             naySharesBalance[sharesSubject][msg.sender] += amount;
             naySharesSupply[sharesSubject] += amount;
+            // handle duplicate sender
+            if (naySharesBalance[sharesSubject][msg.sender] == 0) {
+                nayShareHolders[sharesSubject].push(msg.sender);
+            }
         }
 
         emit Trade(msg.sender, sharesSubject, true, isYay, amount, price, protocolFee, subjectFee, supply + amount);
