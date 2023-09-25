@@ -141,13 +141,12 @@ contract UnlonelySharesV1 is Ownable {
 
 */
     function closeEvent(address sharesSubject) public onlyVerifier {
-        require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(eventVerified[sharesSubject], "Event is not verified");
         require(pooledEth[sharesSubject] > 0, "Pool is already empty");
         uint256 sharesSupply = eventResult[sharesSubject] ? yaySharesSupply[sharesSubject] : naySharesSupply[sharesSubject];
-        // require(sharesSupply == 0, "There are still shares");
 
         if (sharesSupply == 0) {
+            require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
             uint256 splitPoolValue = pooledEth[sharesSubject] / 2;
             pooledEth[sharesSubject] = 0;
             (bool success1, ) = protocolFeeDestination.call{value: splitPoolValue}("");
@@ -170,6 +169,7 @@ contract UnlonelySharesV1 is Ownable {
             delete nayShareHolders[sharesSubject];  // Reset the array
             naySharesSupply[sharesSubject] = 0;  // Reset the total supply
         }
+        eventVerified[sharesSubject] = false;
     }
 
 
