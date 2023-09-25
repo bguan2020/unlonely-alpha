@@ -267,16 +267,11 @@ export default function BetModal({
           <Text textAlign={"center"} fontSize="13px">
             Betting will be over and winnings can start being claimed.
           </Text>
-          {!isVerifier &&
-            isAddress(
-              channelQueryData?.sharesEvent?.[0]
-                ?.sharesSubjectAddress as `0x${string}`
-            ) && (
-              <Text textAlign={"center"} fontSize="13px">
-                This address is not allowed to verify events, please ask Brian
-                for permission.
-              </Text>
-            )}
+          {!isVerifier && (
+            <Text textAlign={"center"} fontSize="13px">
+              You cannot verify events, please ask Brian for permission.
+            </Text>
+          )}
           {!verifyEventTxLoading ? (
             <>
               <Flex justifyContent={"space-evenly"} p="0.5rem">
@@ -284,8 +279,8 @@ export default function BetModal({
                   _hover={{}}
                   _focus={{}}
                   _active={{}}
-                  transform={endDecision === true ? undefined : "scale(0.95)"}
-                  bg={endDecision === true ? "#009d2a" : "#909090"}
+                  transform={endDecision !== false ? undefined : "scale(0.95)"}
+                  bg={endDecision !== false ? "#009d2a" : "#909090"}
                   onClick={() => setEndDecision(true)}
                   disabled={!isVerifier}
                 >
@@ -295,8 +290,8 @@ export default function BetModal({
                   _hover={{}}
                   _focus={{}}
                   _active={{}}
-                  transform={endDecision === false ? undefined : "scale(0.95)"}
-                  bg={endDecision === false ? "#da3b14" : "#909090"}
+                  transform={endDecision !== true ? undefined : "scale(0.95)"}
+                  bg={endDecision !== true ? "#da3b14" : "#909090"}
                   onClick={() => setEndDecision(false)}
                   disabled={!isVerifier}
                 >
@@ -362,6 +357,11 @@ export default function BetModal({
             value={sharesSubject}
             onChange={(e) => setSharesSubject(e.target.value)}
           />
+          {isSharesSubjectUsedBefore && (
+            <Text textAlign={"center"} fontSize="13px">
+              This address has been used before, please enter a new one.
+            </Text>
+          )}
           <Button
             bg="#E09025"
             _hover={{}}

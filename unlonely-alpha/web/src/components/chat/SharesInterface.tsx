@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 import { GoPin } from "react-icons/go";
 import Link from "next/link";
 import { decodeEventLog, formatUnits } from "viem";
-import { useNetwork, useBlockNumber } from "wagmi";
+import { useNetwork, useBalance } from "wagmi";
 
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
@@ -34,14 +34,16 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { InteractionType, NULL_ADDRESS } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { Message } from "../../constants/types/chat";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 export const SharesInterface = ({ messages }: { messages: Message[] }) => {
-  const { userAddress, user } = useUser();
+  const { userAddress, user, walletIsConnected } = useUser();
   const { channel, arcade } = useChannelContext();
   const { addToChatbot } = arcade;
   const { channelQueryData, refetch } = channel;
   const toast = useToast();
-
+  const { network: net } = useNetworkContext();
+  const { matchingChain } = net;
   const sharesSubject = channelQueryData?.sharesEvent?.[0]
     ?.sharesSubjectAddress as `0x${string}`;
 
@@ -50,8 +52,13 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   >(undefined);
   const [isBuying, setIsBuying] = useState<boolean>(true);
   const [amount, setAmount] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const isYay = selectedSharesOption === "yes";
+
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
+    address: userAddress as `0x${string}`,
+  });
 
   const amount_bigint = useMemo(
     () => BigInt(filteredInput(amount) as `${number}`),
@@ -73,10 +80,6 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
     subjectFeePercent,
     refetch: refetchPublic,
   } = useReadPublic(contract);
-
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
 
   const { price: yayBuyPriceForOne, refetch: refetchYayBuyPriceForOne } =
     useGetPrice(sharesSubject, BigInt(1), true, true, contract);
@@ -267,7 +270,6 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
           args.isBuy ? "bought" : "sold"
         } ${args.shareAmount} ${args.isYay ? "yes" : "no"} shares!`;
-        // await refetchBalances();
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -360,7 +362,6 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
           args.isBuy ? "bought" : "sold"
         } ${args.shareAmount} ${args.isYay ? "yes" : "no"} shares!`;
-        // await refetchBalances();
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -406,9 +407,9 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   }, [messages]);
 
   useEffect(() => {
-    const fetch = async () => {
-      if (!blockNumber.data) return;
+    const intervalId = setInterval(async () => {
       await Promise.all([
+        refetchUserEthBalance(),
         refetchPublic(),
         refetchYayBuyPriceForOne(),
         refetchNayBuyPriceForOne(),
@@ -422,15 +423,38 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         refetchBuyShares(),
         refetchSellShares(),
       ]);
-    };
-    fetch();
-  }, [blockNumber.data]);
+    }, 7000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
     const filtered = filteredInput(input);
     setAmount(filtered);
   };
+
+  useEffect(() => {
+    if (!walletIsConnected) {
+      setErrorMessage("connect wallet first");
+    } else if (!matchingChain) {
+      setErrorMessage("wrong network");
+    } else if (
+      userEthBalance?.value &&
+      (isYay ? yayBuyPriceAfterFee : nayBuyPriceAfterFee) >
+        userEthBalance?.value
+    ) {
+      setErrorMessage("you don't have enough ETH to spend");
+    } else {
+      setErrorMessage("");
+    }
+  }, [
+    walletIsConnected,
+    matchingChain,
+    userEthBalance,
+    isYay,
+    yayBuyPriceAfterFee,
+    nayBuyPriceAfterFee,
+  ]);
 
   return (
     <>
@@ -647,18 +671,6 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                           </Button>
                         )}
                       </Flex>
-                      {/* <Flex justifyContent={"space-between"}>
-                        <Text opacity="0.75" fontWeight="light">
-                          fees
-                        </Text>
-                        <Text fontWeight="light">
-                          {formatUnits(
-                            subjectFeePercent + protocolFeePercent,
-                            16
-                          )}
-                          %
-                        </Text>
-                      </Flex> */}
                       <Flex justifyContent={"space-between"}>
                         <Text opacity="0.75" fontWeight="light">
                           {isBuying
@@ -692,21 +704,29 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                           </Text>
                         )}
                       </Flex>
-                      <Button
-                        _hover={{}}
-                        _focus={{}}
-                        _active={{}}
-                        bg={"#E09025"}
-                        borderRadius="25px"
-                        onClick={isBuying ? buyShares : sellShares}
-                        isDisabled={
-                          (isBuying && !buyShares) || (!isBuying && !sellShares)
-                        }
-                      >
-                        <Text fontSize="20px">
-                          confirm {isBuying ? "buy" : "sell"}
+                      {errorMessage && (
+                        <Text textAlign={"center"} color="red.400">
+                          {errorMessage}
                         </Text>
-                      </Button>
+                      )}
+                      {amount_bigint > 0 && (
+                        <Button
+                          _hover={{}}
+                          _focus={{}}
+                          _active={{}}
+                          bg={"#E09025"}
+                          borderRadius="25px"
+                          onClick={isBuying ? buyShares : sellShares}
+                          isDisabled={
+                            (isBuying && !buyShares) ||
+                            (!isBuying && !sellShares)
+                          }
+                        >
+                          <Text fontSize="20px">
+                            confirm {isBuying ? "buy" : "sell"}
+                          </Text>
+                        </Button>
+                      )}
                     </>
                   ) : (
                     <Flex justifyContent="center">

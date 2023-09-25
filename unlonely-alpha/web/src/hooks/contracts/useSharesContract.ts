@@ -259,7 +259,7 @@ export const useReadSharesSubject = (
         address: contract.address,
         abi: contract.abi,
         functionName: "isVerifier",
-        args: [sharesSubject],
+        args: [userAddress],
       }),
       publicClient.readContract({
         address: contract.address,
