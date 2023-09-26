@@ -9,7 +9,6 @@ import {
   NULL_ADDRESS,
   RANDOM_CHAT_COLOR,
 } from "../../constants";
-import { initializeEmojis } from "../../constants/types/chat";
 import { ChatCommand } from "../../generated/graphql";
 import { useChannelContext } from "../context/useChannel";
 import { useUser } from "../context/useUser";
@@ -18,6 +17,12 @@ import { useChannel } from "./useChannel";
 import centerEllipses from "../../utils/centerEllipses";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
 import { ChatBot } from "../../constants/types";
+import { REACTION_EMOJIS } from "../../components/chat/emoji/constants";
+
+const initializeEmojis = REACTION_EMOJIS.map((emoji) => ({
+  emoji,
+  count: 0,
+}));
 
 export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
   const [isAtBottom, setIsAtBottom] = useState(false);

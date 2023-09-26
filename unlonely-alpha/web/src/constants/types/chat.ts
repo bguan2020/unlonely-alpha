@@ -4,52 +4,8 @@ export type EmojiType = {
   unicodeString: string;
 };
 
-export type EmojiTypes = [
-  {
-    emojiType: "👑";
-    count: number;
-  },
-  {
-    emojiType: "❤️";
-    count: number;
-  },
-  {
-    emojiType: "👎";
-    count: number;
-  },
-  {
-    emojiType: "👍";
-    count: number;
-  },
-  {
-    emojiType: "👀";
-    count: number;
-  },
-  {
-    emojiType: "⛽️";
-    count: number;
-  },
-  {
-    emojiType: "🚀";
-    count: number;
-  },
-  {
-    emojiType: "😂";
-    count: number;
-  },
-  {
-    emojiType: "https://i.imgur.com/wbUNcyS.gif";
-    count: number;
-  },
-  {
-    emojiType: "https://i.imgur.com/zTfFgtZ.gif";
-    count: number;
-  },
-  {
-    emojiType: "https://i.imgur.com/NurjwAK.gif";
-    count: number;
-  }
-];
+export type EmojiTypes = { emojiType: "unicode" | string; count: number }[];
+
 export type Message = {
   clientId: string;
   connectionId: string;
@@ -76,49 +32,3 @@ export type Message = {
     timeserial: string;
   };
 };
-export const initializeEmojis = [
-  {
-    emojiType: "👑",
-    count: 0,
-  },
-  {
-    emojiType: "❤️",
-    count: 0,
-  },
-  {
-    emojiType: "👍",
-    count: 0,
-  },
-  {
-    emojiType: "👎",
-    count: 0,
-  },
-  {
-    emojiType: "👀",
-    count: 0,
-  },
-  {
-    emojiType: "⛽️",
-    count: 0,
-  },
-  {
-    emojiType: "🚀",
-    count: 0,
-  },
-  {
-    emojiType: "😂",
-    count: 0,
-  },
-  {
-    emojiType: "https://i.imgur.com/wbUNcyS.gif",
-    count: 0,
-  },
-  {
-    emojiType: "https://i.imgur.com/zTfFgtZ.gif",
-    count: 0,
-  },
-  {
-    emojiType: "https://i.imgur.com/NurjwAK.gif",
-    count: 0,
-  },
-];

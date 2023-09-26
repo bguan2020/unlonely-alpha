@@ -53,7 +53,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   const [isBuying, setIsBuying] = useState<boolean>(true);
   const [amount, setAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState<string>("");
-
+  const [showUi, setShowUi] = useState<boolean>(true);
   const isYay = selectedSharesOption === "yes";
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
@@ -464,7 +464,27 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   return (
     <>
       {channelQueryData?.sharesEvent &&
-        channelQueryData?.sharesEvent.length > 0 && (
+        channelQueryData?.sharesEvent.length > 0 &&
+        !showUi && (
+          <Flex
+            onClick={() => setShowUi(true)}
+            mt="10px"
+            bg="#c220c2"
+            p="5px"
+            borderRadius={"10px"}
+            gap="5px"
+            cursor={"pointer"}
+            _hover={{ bg: "#d22fd2", transform: "scale(1.03)" }}
+          >
+            <GoPin />
+            <Text noOfLines={1} fontSize="12px">
+              {channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion}
+            </Text>
+          </Flex>
+        )}
+      {channelQueryData?.sharesEvent &&
+        channelQueryData?.sharesEvent.length > 0 &&
+        showUi && (
           <Box
             mt="10px"
             transition="all 0.5s ease"
@@ -475,9 +495,6 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
             position="relative"
           >
             <Flex direction="column">
-              <Flex position="absolute" left="5px" top="5px">
-                <GoPin />
-              </Flex>
               <Flex justifyContent="center">
                 <Text
                   textAlign={"center"}
@@ -488,8 +505,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                   {channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion}
                 </Text>
               </Flex>
-
-              {selectedSharesOption !== undefined && (
+              {(selectedSharesOption !== undefined || showUi) && (
                 <IconButton
                   aria-label="close"
                   _hover={{}}
@@ -497,7 +513,11 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                   _focus={{}}
                   bg="transparent"
                   icon={<Image alt="close" src="/svg/close.svg" width="15px" />}
-                  onClick={() => setSelectedSharesOption(undefined)}
+                  onClick={() =>
+                    selectedSharesOption !== undefined
+                      ? setSelectedSharesOption(undefined)
+                      : setShowUi(false)
+                  }
                   position="absolute"
                   right="-5px"
                   top="-5px"
