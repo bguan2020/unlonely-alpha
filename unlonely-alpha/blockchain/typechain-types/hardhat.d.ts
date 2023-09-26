@@ -77,6 +77,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Ownable__factory>;
     getContractFactory(
+      name: "UnlonelyArcadeContractV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.UnlonelyArcadeContractV1__factory>;
+    getContractFactory(
       name: "UnlonelySharesV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UnlonelySharesV1__factory>;
@@ -161,6 +165,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Ownable>;
+    getContractAt(
+      name: "UnlonelyArcadeContractV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.UnlonelyArcadeContractV1>;
     getContractAt(
       name: "UnlonelySharesV1",
       address: string,

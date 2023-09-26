@@ -836,8 +836,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelySharesV1.sol": {
-      "lastModificationDate": 1695668312826,
-      "contentHash": "bdb51df978842b55ef7c40a0ae37cc01",
+      "lastModificationDate": 1695766377714,
+      "contentHash": "af539bb63e390d5b76afc3f4b29cb809",
       "sourceName": "contracts/UnlonelySharesV1.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -863,14 +863,16 @@
           }
         }
       },
-      "imports": [],
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      ],
       "versionPragmas": [
-        "^0.8.0"
+        "^0.8.2"
       ],
       "artifacts": [
-        "Context",
-        "Ownable",
-        "UnlonelySharesV1"
+        "UnlonelyArcadeContractV1"
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\@openzeppelin\\contracts\\utils\\math\\SafeMath.sol": {

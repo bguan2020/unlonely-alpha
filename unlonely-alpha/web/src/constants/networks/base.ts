@@ -2,6 +2,7 @@ import { Chain } from "wagmi";
 
 import { Network } from "../types";
 import unlonelyArcadeAbi from "../abi/UnlonelyArcadeContract.json";
+import UnlonelySharesV1 from "../abi/UnlonelySharesV1.json";
 
 const base = {
   id: 8453,
@@ -50,8 +51,12 @@ export const Base: Network = {
     isTestnet: false,
     contracts: {
       unlonelyArcade: {
-        address: "0xd309BeaC15231875B817419f940b157Abf3Df6F6",
+        address: "0x91a70926f307C389BBF9e8Bd3506f3Cf1361B6B1",
         abi: unlonelyArcadeAbi,
+      },
+      unlonelySharesV1: {
+        address: "0x8cB4B20EbeF41941d210D1f1c65296027F127EA6",
+        abi: UnlonelySharesV1,
       },
     },
   },
