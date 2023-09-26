@@ -7,12 +7,11 @@ import {
   useToast,
   Spinner,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { decodeEventLog, isAddress } from "viem";
-import { useNetwork, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 import Link from "next/link";
 
-import { NETWORKS } from "../../constants/networks";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import usePostSharesEvent from "../../hooks/server/usePostSharesEvent";
@@ -23,6 +22,7 @@ import { InteractionType } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import useCloseSharesEvent from "../../hooks/server/useCloseSharesEvent";
 import { useReadSharesSubject } from "../../hooks/contracts/useSharesContract";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 export default function BetModal({
   title,
@@ -36,7 +36,8 @@ export default function BetModal({
   handleClose: () => void;
 }) {
   const { userAddress, user } = useUser();
-
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
   const { channel, arcade } = useChannelContext();
   const { addToChatbot } = arcade;
   const { channelQueryData } = channel;
@@ -58,13 +59,6 @@ export default function BetModal({
   );
   const [sharesSubject, setSharesSubject] = useState<string>("");
 
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
 
   const { isVerifier } = useReadSharesSubject(

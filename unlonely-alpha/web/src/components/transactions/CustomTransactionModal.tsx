@@ -12,7 +12,6 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNetwork } from "wagmi";
 import { parseUnits } from "viem";
 import Link from "next/link";
 
@@ -28,7 +27,6 @@ import { TransactionModalTemplate } from "./TransactionModalTemplate";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
-import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
@@ -55,18 +53,11 @@ export default function CustomTransactionModal({
   handleClose: () => void;
 }) {
   const { isStandalone } = useUserAgent();
-  const { network: net } = useNetworkContext();
-  const { matchingChain } = net;
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork } = network;
 
   const { user, userAddress, walletIsConnected } = useUser();
-  const network = useNetwork();
   const toast = useToast();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
   const { channel, token, arcade } = useChannelContext();
   const { addToChatbot } = arcade;

@@ -12,7 +12,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { parseUnits } from "viem";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useNetwork } from "wagmi";
 import Link from "next/link";
 
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
@@ -25,7 +24,6 @@ import usePostStreamInteraction from "../../hooks/server/usePostStreamInteractio
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import { PostStreamInteractionInput } from "../../generated/graphql";
 import { useApproval } from "../../hooks/contracts/useApproval";
-import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import centerEllipses from "../../utils/centerEllipses";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
@@ -52,8 +50,8 @@ export default function ControlTransactionModal({
   const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
   const { isStandalone } = useUserAgent();
-  const { network: net } = useNetworkContext();
-  const { matchingChain } = net;
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork } = network;
 
   const [amountOption, setAmountOption] = useState<"5">("5");
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -61,13 +59,6 @@ export default function ControlTransactionModal({
 
   const { user, userAddress, walletIsConnected } = useUser();
   const toast = useToast();
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const form = useForm<PostStreamInteractionInput>({

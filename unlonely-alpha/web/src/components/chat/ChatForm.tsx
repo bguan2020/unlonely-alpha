@@ -23,7 +23,6 @@ import React, {
   useState,
 } from "react";
 import Link from "next/link";
-import { useNetwork } from "wagmi";
 import { parseUnits } from "viem";
 import copy from "copy-to-clipboard";
 
@@ -39,7 +38,6 @@ import { useUser } from "../../hooks/context/useUser";
 import EmojiButton from "./emoji/EmojiButton";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
-import { NETWORKS } from "../../constants/networks";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { formatIncompleteNumber } from "../../utils/validation/input";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
@@ -68,9 +66,8 @@ const ChatForm = ({
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
   const { isStandalone } = useUserAgent();
-  const network = useNetwork();
-  const { network: net } = useNetworkContext();
-  const { matchingChain } = net;
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork } = network;
 
   const toast = useToast();
   const { channel: channelContext, token, chat, arcade } = useChannelContext();
@@ -91,12 +88,6 @@ const ChatForm = ({
 
   const [blastMode, setBlastMode] = useState(false);
 
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const {

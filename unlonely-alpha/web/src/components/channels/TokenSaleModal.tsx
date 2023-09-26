@@ -1,10 +1,8 @@
 import { useEffect, useMemo } from "react";
-import { useNetwork } from "wagmi";
 import { Box, Flex, Text, useToast } from "@chakra-ui/react";
 import Link from "next/link";
 import { parseUnits } from "viem";
 
-import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
@@ -12,6 +10,7 @@ import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 export default function TokenSaleModal({
   title,
@@ -29,14 +28,8 @@ export default function TokenSaleModal({
   const { channelQueryData } = channel;
   const toast = useToast();
   const { isStandalone } = useUserAgent();
-
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const {

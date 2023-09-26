@@ -11,8 +11,7 @@ import {
   Spinner,
   Tooltip,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNetwork } from "wagmi";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { create } from "ipfs-http-client";
 import Link from "next/link";
 
@@ -21,11 +20,11 @@ import useLike from "../../hooks/server/useLike";
 import { useUser } from "../../hooks/context/useUser";
 import { LikeIcon, LikedIcon } from "../icons/LikeIcon";
 import { IPFS_PROJECT_ID, IPFS_PROJECT_SECRET } from "../../constants";
-import { NETWORKS } from "../../constants/networks";
 import { useWrite } from "../../hooks/contracts/useWrite";
 import useUpdateNFC from "../../hooks/server/useUpdateNFC";
 import centerEllipses from "../../utils/centerEllipses";
 import { getContractFromNetwork } from "../../utils/contract";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
 
@@ -46,7 +45,8 @@ const client = create({
 const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
   const { user, walletIsConnected } = useUser();
   const toast = useToast();
-
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const { like } = useLike({
     likedObj: LikeObj.Nfc,
@@ -75,14 +75,6 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
       window.open(nfc?.openseaLink, "_blank");
     }
   };
-
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
 
   const contract = getContractFromNetwork("unlonelyNfcV2", localNetwork);
 

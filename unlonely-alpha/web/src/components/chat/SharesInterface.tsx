@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 import { GoPin } from "react-icons/go";
 import Link from "next/link";
 import { decodeEventLog, formatUnits } from "viem";
-import { useNetwork, useBalance, useBlockNumber } from "wagmi";
+import { useBalance, useBlockNumber } from "wagmi";
 
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
@@ -29,7 +29,6 @@ import {
 } from "../../hooks/contracts/useSharesContract";
 import { filteredInput } from "../../utils/validation/input";
 import { getContractFromNetwork } from "../../utils/contract";
-import { NETWORKS } from "../../constants/networks";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { InteractionType, NULL_ADDRESS } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
@@ -42,8 +41,8 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   const { addToChatbot } = arcade;
   const { channelQueryData, refetch } = channel;
   const toast = useToast();
-  const { network: net } = useNetworkContext();
-  const { matchingChain } = net;
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork } = network;
   const sharesSubject = channelQueryData?.sharesEvent?.[0]
     ?.sharesSubjectAddress as `0x${string}`;
 
@@ -64,14 +63,6 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
     () => BigInt(filteredInput(amount) as `${number}`),
     [amount]
   );
-
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
 
   const blockNumber = useBlockNumber({

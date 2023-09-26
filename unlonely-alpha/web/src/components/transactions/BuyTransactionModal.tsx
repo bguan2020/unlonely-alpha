@@ -1,7 +1,7 @@
 import { Text, Input, Flex, useToast, Box } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
-import { useBalance, useNetwork } from "wagmi";
+import { useBalance } from "wagmi";
 import Link from "next/link";
 
 import { useUser } from "../../hooks/context/useUser";
@@ -22,7 +22,6 @@ import useUpdateUserCreatorTokenQuantity from "../../hooks/server/arcade/useUpda
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useApproval } from "../../hooks/contracts/useApproval";
-import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
@@ -45,8 +44,8 @@ export default function BuyTransactionModal({
   const { user, userAddress, walletIsConnected } = useUser();
   const { channel, token, holders, arcade } = useChannelContext();
   const { addToChatbot } = arcade;
-  const { network: net } = useNetworkContext();
-  const { matchingChain } = net;
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork } = network;
   const { channelQueryData } = channel;
   const {
     userTokenBalance,
@@ -59,13 +58,6 @@ export default function BuyTransactionModal({
     address: userAddress as `0x${string}`,
   });
 
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const [amount, setAmount] = useState("");

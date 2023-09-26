@@ -9,6 +9,9 @@ import {
 import { useNetwork } from "wagmi";
 import { useToast, ToastId } from "@chakra-ui/react";
 
+import { NETWORKS } from "../../constants/networks";
+import { Network } from "../../constants/types";
+
 export const useNetworkContext = () => {
   return useContext(NetworkContext);
 };
@@ -17,11 +20,13 @@ const NetworkContext = createContext<{
   network: {
     chainId: number;
     matchingChain: boolean;
+    localNetwork: Network;
   };
 }>({
   network: {
     chainId: 0,
     matchingChain: true,
+    localNetwork: NETWORKS[0],
   },
 });
 
@@ -35,9 +40,12 @@ export const NetworkProvider = ({
   const { chain } = useNetwork();
 
   const [matchingChain, setMatchingChain] = useState<boolean>(true);
+  const localNetwork = useMemo(() => {
+    return NETWORKS.find((n) => n.config.chainId === chain?.id) ?? NETWORKS[0];
+  }, [chain]);
 
   useEffect(() => {
-    if (chain?.id && chain?.id !== 1) {
+    if (chain?.id && chain?.id !== NETWORKS[0].config.chainId) {
       toastIdRef.current = toast({
         title: "wrong network",
         description: "please connect to the ethereum mainnet",
@@ -58,11 +66,12 @@ export const NetworkProvider = ({
   const value = useMemo(() => {
     return {
       network: {
-        chainId: chain?.id ?? 0,
+        chainId: chain?.id ?? NETWORKS[0].config.chainId,
         matchingChain,
+        localNetwork,
       },
     };
-  }, [chain, matchingChain]);
+  }, [chain, matchingChain, localNetwork]);
 
   return (
     <NetworkContext.Provider value={value}>{children}</NetworkContext.Provider>

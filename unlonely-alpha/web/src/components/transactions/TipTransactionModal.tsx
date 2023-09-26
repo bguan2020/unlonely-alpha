@@ -1,7 +1,6 @@
 import { Text, Input, Flex, useToast, Box } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { parseUnits } from "viem";
-import { useNetwork } from "wagmi";
 import Link from "next/link";
 
 import { useUser } from "../../hooks/context/useUser";
@@ -14,7 +13,6 @@ import { TransactionModalTemplate } from "./TransactionModalTemplate";
 import { ModalButton } from "../general/button/ModalButton";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { NETWORKS } from "../../constants/networks";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
@@ -37,9 +35,9 @@ export default function TipTransactionModal({
   handleClose: () => void;
 }) {
   const { channel, token, arcade } = useChannelContext();
-  const { network: net } = useNetworkContext();
+  const { network } = useNetworkContext();
   const { addToChatbot } = arcade;
-  const { matchingChain } = net;
+  const { matchingChain, localNetwork } = network;
 
   const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
@@ -53,13 +51,6 @@ export default function TipTransactionModal({
 
   const { user, userAddress, walletIsConnected } = useUser();
   const toast = useToast();
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const {
