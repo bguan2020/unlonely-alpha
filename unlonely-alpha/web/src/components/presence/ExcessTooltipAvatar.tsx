@@ -6,10 +6,13 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import centerEllipses from "../../utils/centerEllipses";
 import { CustomUser } from "../../constants/types";
 import { useGetBadges } from "../../hooks/internal/useGetBadges";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 const ExcessTooltipAvatar = ({ user }: { user: CustomUser }) => {
   const { rankUrl } = useGetBadges(user.tokenHolderRank);
   const [isHovered, setIsHovered] = useState(false);
+  const { network } = useNetworkContext();
+  const { explorerUrl } = network;
 
   return (
     <Flex
@@ -20,9 +23,7 @@ const ExcessTooltipAvatar = ({ user }: { user: CustomUser }) => {
     >
       <Link
         target="_blank"
-        href={`https://etherscan.io/address/${
-          user?.address ? user.address : ""
-        }`}
+        href={`${explorerUrl}/address/${user?.address ? user.address : ""}`}
         passHref
       >
         <Flex

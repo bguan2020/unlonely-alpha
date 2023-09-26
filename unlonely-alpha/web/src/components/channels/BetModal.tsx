@@ -37,7 +37,7 @@ export default function BetModal({
 }) {
   const { userAddress, user } = useUser();
   const { network } = useNetworkContext();
-  const { localNetwork } = network;
+  const { localNetwork, explorerUrl } = network;
   const { channel, arcade } = useChannelContext();
   const { addToChatbot } = arcade;
   const { channelQueryData } = channel;
@@ -132,7 +132,7 @@ export default function BetModal({
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 verifyEvent pending, click to view
@@ -162,7 +162,7 @@ export default function BetModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 verifyEvent success, click to view

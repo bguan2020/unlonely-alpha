@@ -45,7 +45,7 @@ export default function BuyTransactionModal({
   const { channel, token, holders, arcade } = useChannelContext();
   const { addToChatbot } = arcade;
   const { network } = useNetworkContext();
-  const { matchingChain, localNetwork } = network;
+  const { matchingChain, localNetwork, explorerUrl } = network;
   const { channelQueryData } = channel;
   const {
     userTokenBalance,
@@ -118,7 +118,7 @@ export default function BuyTransactionModal({
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 buyCreatorToken pending, click to view
@@ -136,7 +136,7 @@ export default function BuyTransactionModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 buyCreatorToken success, click to view

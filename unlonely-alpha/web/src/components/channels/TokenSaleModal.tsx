@@ -29,7 +29,7 @@ export default function TokenSaleModal({
   const toast = useToast();
   const { isStandalone } = useUserAgent();
   const { network } = useNetworkContext();
-  const { localNetwork } = network;
+  const { localNetwork, explorerUrl } = network;
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const {
@@ -55,7 +55,7 @@ export default function TokenSaleModal({
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 approve pending, click to view
@@ -73,7 +73,7 @@ export default function TokenSaleModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 approve success, click to view

@@ -42,7 +42,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   const { channelQueryData, refetch } = channel;
   const toast = useToast();
   const { network } = useNetworkContext();
-  const { matchingChain, localNetwork } = network;
+  const { matchingChain, localNetwork, explorerUrl } = network;
   const sharesSubject = channelQueryData?.sharesEvent?.[0]
     ?.sharesSubjectAddress as `0x${string}`;
 
@@ -138,7 +138,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 claimPayout pending, click to view
@@ -168,7 +168,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 claimPayout success, click to view
@@ -214,7 +214,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 buyShares pending, click to view
@@ -244,7 +244,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 buyShares success, click to view
@@ -306,7 +306,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 sellShares pending, click to view
@@ -336,7 +336,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 sellShares success, click to view

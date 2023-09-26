@@ -38,6 +38,7 @@ import useUpdateUserCreatorTokenQuantity from "../hooks/server/arcade/useUpdateT
 import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
 import AdminNotifications from "../components/general/AdminNotifications";
 import { Network } from "../constants/types";
+import { useNetworkContext } from "../hooks/context/useNetwork";
 
 export default function AdminPage() {
   const { user } = useUser();
@@ -70,7 +71,8 @@ export default function AdminPage() {
 const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
   const toast = useToast();
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-
+  const { network } = useNetworkContext()
+  const { explorerUrl } = network
   const [creatorTokenAddress, setCreatorTokenAddress] = useState<string>("");
   const [creatorTokenSymbol, setCreatorTokenSymbol] = useState<string>("");
   const [creatorTokenName, setCreatorTokenName] = useState<string>("");
@@ -124,7 +126,7 @@ const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 approve pending, click to view
@@ -142,7 +144,7 @@ const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 approve success, click to view
@@ -183,7 +185,7 @@ const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 addCreatorToken pending, click to view
@@ -201,7 +203,7 @@ const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 addCreatorToken success, click to view
@@ -251,7 +253,7 @@ const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
               <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
                 <Link
                   target="_blank"
-                  href={`https://etherscan.io/tx/${data.hash}`}
+                  href={`${explorerUrl}/tx/${data.hash}`}
                   passHref
                 >
                   useFeature pending, click to view
@@ -269,7 +271,7 @@ const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
               <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
                 <Link
                   target="_blank"
-                  href={`https://etherscan.io/tx/${data.transactionHash}`}
+                  href={`${explorerUrl}/tx/${data.transactionHash}`}
                   passHref
                 >
                   useFeature success, click to view
@@ -304,7 +306,7 @@ const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 buyCreatorToken pending, click to view
@@ -322,7 +324,7 @@ const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 buyCreatorToken success, click to view
@@ -375,7 +377,7 @@ const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 setTokenPrices pending, click to view
@@ -404,7 +406,7 @@ const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 setTokenPrices success, click to view

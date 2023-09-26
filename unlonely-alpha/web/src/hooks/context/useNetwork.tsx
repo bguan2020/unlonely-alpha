@@ -22,12 +22,14 @@ const NetworkContext = createContext<{
     chainId: number;
     matchingChain: boolean;
     localNetwork: Network;
+    explorerUrl: string;
   };
 }>({
   network: {
     chainId: 0,
     matchingChain: true,
     localNetwork: NETWORKS[0],
+    explorerUrl: "",
   },
 });
 
@@ -45,6 +47,11 @@ export const NetworkProvider = ({
   const localNetwork = useMemo(() => {
     return NETWORKS.find((n) => n.config.chainId === chain?.id) ?? NETWORKS[0];
   }, [chain]);
+
+  const explorerUrl = useMemo(
+    () => localNetwork.blockExplorers?.default.url,
+    [localNetwork]
+  );
 
   useEffect(() => {
     if (
@@ -75,9 +82,10 @@ export const NetworkProvider = ({
         chainId: chain?.id ?? NETWORKS[0].config.chainId,
         matchingChain,
         localNetwork,
+        explorerUrl: explorerUrl ?? "",
       },
     };
-  }, [chain, matchingChain, localNetwork]);
+  }, [chain, matchingChain, localNetwork, explorerUrl]);
 
   return (
     <NetworkContext.Provider value={value}>{children}</NetworkContext.Provider>

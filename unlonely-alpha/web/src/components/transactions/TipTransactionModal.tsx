@@ -37,7 +37,7 @@ export default function TipTransactionModal({
   const { channel, token, arcade } = useChannelContext();
   const { network } = useNetworkContext();
   const { addToChatbot } = arcade;
-  const { matchingChain, localNetwork } = network;
+  const { matchingChain, localNetwork, explorerUrl } = network;
 
   const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
@@ -76,7 +76,7 @@ export default function TipTransactionModal({
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 approve pending, click to view
@@ -94,7 +94,7 @@ export default function TipTransactionModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 approve success, click to view
@@ -137,7 +137,7 @@ export default function TipTransactionModal({
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 useFeature pending, click to view
@@ -155,7 +155,7 @@ export default function TipTransactionModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 useFeature success, click to view
