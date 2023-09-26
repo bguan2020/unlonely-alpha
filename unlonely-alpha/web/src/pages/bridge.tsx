@@ -27,11 +27,11 @@ enum TxStatus {
   Confirmed,
 }
 
-const STARTING_CHAIN_ID = 5;
+const STARTING_CHAIN_ID = 1;
 
-const L1_EXPLORER_URL = "https://goerli.etherscan.io/";
-const L2_EXPLORER_URL = "https://goerli.basescan.org";
-const TARGET_RPC_URL = "https://goerli.base.org";
+const L1_EXPLORER_URL = "https://etherscan.io/";
+const L2_EXPLORER_URL = "https://basescan.org";
+const TARGET_RPC_URL = "https://mainnet.base.org";
 
 const BridgePage = () => {
   const { register, handleSubmit, formState } = useForm({
@@ -63,6 +63,7 @@ const BridgePage = () => {
   const [l1Signer, setL1Signer] = useState<ethers.Signer | undefined>(
     undefined
   );
+  const [matchingChain, setMatchingChain] = useState<boolean>(true);
   const toast = useToast();
 
   const messenger = useMemo(() => {
@@ -166,6 +167,12 @@ const BridgePage = () => {
     getSigner();
   }, [wallet]);
 
+  useEffect(() => {
+    if (chain?.id) {
+      setMatchingChain(chain.id === STARTING_CHAIN_ID);
+    }
+  }, [chain]);
+
   return (
     <>
       <AppLayout isCustomHeader={false}>
@@ -192,6 +199,18 @@ const BridgePage = () => {
                     p="20px"
                     borderRadius="10px"
                   >
+                    {!matchingChain && (
+                      <Flex justifyContent={"center"}>
+                        <Text
+                          textAlign={"center"}
+                          color="#ff9142"
+                          width="325px"
+                        >
+                          This is a bridge from Ethereum mainnet to Base
+                          mainnet, please switch to Ethereum mainnet first.
+                        </Text>
+                      </Flex>
+                    )}
                     <Input
                       id="amount"
                       placeholder="Enter ETH amount"
@@ -216,7 +235,7 @@ const BridgePage = () => {
                       </Flex>
                     ) : (
                       <Button
-                        disabled={chain?.id !== STARTING_CHAIN_ID}
+                        disabled={!matchingChain}
                         type="submit"
                         _hover={{
                           bg: "#13b14f",

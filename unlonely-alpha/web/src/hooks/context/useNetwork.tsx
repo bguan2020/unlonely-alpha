@@ -8,6 +8,7 @@ import {
 } from "react";
 import { useNetwork } from "wagmi";
 import { useToast, ToastId } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 
 import { NETWORKS } from "../../constants/networks";
 import { Network } from "../../constants/types";
@@ -38,6 +39,7 @@ export const NetworkProvider = ({
   const toast = useToast();
   const toastIdRef = useRef<ToastId | undefined>();
   const { chain } = useNetwork();
+  const router = useRouter();
 
   const [matchingChain, setMatchingChain] = useState<boolean>(true);
   const localNetwork = useMemo(() => {
@@ -45,10 +47,14 @@ export const NetworkProvider = ({
   }, [chain]);
 
   useEffect(() => {
-    if (chain?.id && chain?.id !== NETWORKS[0].config.chainId) {
+    if (
+      chain?.id &&
+      chain?.id !== NETWORKS[0].config.chainId &&
+      !router.pathname.startsWith("/bridge")
+    ) {
       toastIdRef.current = toast({
         title: "wrong network",
-        description: "please connect to the ethereum mainnet",
+        description: "please connect to the base mainnet",
         status: "error",
         duration: 9000,
         isClosable: true,

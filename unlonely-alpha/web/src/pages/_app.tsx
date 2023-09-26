@@ -13,7 +13,7 @@ import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { PrivyWagmiConnector } from "@privy-io/wagmi-connector";
 
-import { Mainnet, Goerli, BaseGoerli } from "../constants/networks";
+import { Base, Mainnet, Goerli, BaseGoerli } from "../constants/networks";
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/context/useUser";
 import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
@@ -32,8 +32,11 @@ function App({ Component, pageProps, cookies }: Props) {
   );
 
   const configureChainsConfig = configureChains(
-    [Mainnet, Goerli, BaseGoerli],
+    [Base, Mainnet, Goerli, BaseGoerli],
     [
+      alchemyProvider({
+        apiKey: "aR93M6MdEC4lgh4VjPXLaMnfBveve1fC",
+      }),
       alchemyProvider({
         apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F",
       }),
