@@ -75,5 +75,17 @@ module.exports = {
         "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
       ],
     },
+    baseGoerli: {
+      url: "https://base-goerli.g.alchemy.com/v2/deehmFS2ptkwC3DD_vo3wSBCDyHwHM5x",
+      accounts: [
+        "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
+      ],
+    },
+    baseMainnet: {
+      url: "https://base-mainnet.g.alchemy.com/v2/aR93M6MdEC4lgh4VjPXLaMnfBveve1fC",
+      accounts: [
+        "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
+      ],
+    }
   },
 };

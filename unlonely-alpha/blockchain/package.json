@@ -16,6 +16,8 @@
     "deploy-nfc:goerli": "hardhat run --network goerli scripts/deploy_nfc_contract.js",
     "deploy-shares:goerli": "hardhat run --network goerli scripts/deploy_shares_contract.js",
     "deploy-token-migration:goerli": "hardhat run --network goerli scripts/deploy_token_migration_contract.js",
+    "deploy-token-migration:base-goerli": "hardhat run --network baseGoerli scripts/deploy_token_migration_contract.js",
+    "deploy-token-migration:base-mainnet": "hardhat run --network baseMainnet scripts/deploy_token_migration_contract.js",
     "test": "hardhat run scripts/run.js",
     "test:watch": "hardhat watch test"
   },
