@@ -226,30 +226,24 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
     const latestMessage = receivedMessages[receivedMessages.length - 1];
     if (
       latestMessage &&
+      latestMessage.data.body &&
       latestMessage.name === CHAT_MESSAGE_EVENT &&
       Date.now() - latestMessage.timestamp < 12000
     ) {
-      if (
-        latestMessage.data.body &&
-        latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
-      ) {
-        const newTextOverVideo = latestMessage.data.body
-          .split(":")
-          .slice(1)
-          .join();
+      const body = latestMessage.data.body;
+      if (body.split(":")[0] === InteractionType.CONTROL) {
+        const newTextOverVideo = body.split(":").slice(1).join();
         if (newTextOverVideo) {
           addToTextOverVideo(newTextOverVideo);
         }
       } else if (
-        latestMessage.data.body &&
-        (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
-          latestMessage.data.body.split(":")[0] === InteractionType.TIP) &&
+        (body.split(":")[0] === InteractionType.BUY ||
+          body.split(":")[0] === InteractionType.TIP) &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
         fireworks();
       } else if (
-        latestMessage.data.body &&
-        latestMessage.data.body.split(":")[0] === InteractionType.BLAST &&
+        body.split(":")[0] === InteractionType.BLAST &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
         if (latestMessage.data.isGif) {
@@ -259,6 +253,30 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
             <Text fontSize="40px">{latestMessage.data.messageText}</Text>
           );
         }
+      } else if (
+        body.split(":")[0] === InteractionType.BUY_SHARES &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        const isYay = body.split(":")[2] === "yay";
+        const amount = body.split(":")[1];
+        emojiBlast(
+          <Text fontSize="40px">
+            {isYay ? "📈" : "📉"}
+            {amount}
+          </Text>
+        );
+      } else if (
+        body.split(":")[0] === InteractionType.SELL_SHARES &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        const isYay = body.split(":")[2] === "yay";
+        const amount = body.split(":")[1];
+        emojiBlast(
+          <Text fontSize="40px">
+            {!isYay ? "📈" : "📉"}
+            {amount}
+          </Text>
+        );
       }
     }
   }, [receivedMessages]);

@@ -279,7 +279,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
           address: userAddress ?? "",
           taskType: InteractionType.BUY_SHARES,
           title,
-          description: args.isYay,
+          description: `${args.shareAmount}:${args.isYay ? "yay" : "nay"}`,
         });
       },
       onTxError: (error) => {
@@ -371,7 +371,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
           address: userAddress ?? "",
           taskType: InteractionType.SELL_SHARES,
           title,
-          description: args.isYay,
+          description: `${args.shareAmount}:${args.isYay ? "yay" : "nay"}`,
         });
       },
       onTxError: (error) => {
