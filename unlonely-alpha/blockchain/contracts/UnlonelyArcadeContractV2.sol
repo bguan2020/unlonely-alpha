@@ -4,14 +4,14 @@ pragma solidity ^0.8.2;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
-
 contract UnlonelyArcadeContractV1 {
     using SafeERC20 for IERC20;
 
     address public brian;
     address public danny;
     address public grace;
+    address public protocolFeeDestination;
+    uint256 public protocolFeePercent;
 
     mapping(address => IERC20) public creatorTokens;
     mapping(address => uint256) public tokenPrices;
@@ -26,6 +26,14 @@ contract UnlonelyArcadeContractV1 {
     modifier onlyAdmin() {
         require(msg.sender == brian ||  msg.sender == danny ||  msg.sender == grace, "Only an admin can call this function.");
         _;
+    }
+
+    function setFeeDestination(address _feeDestination) public onlyAdmin {
+        protocolFeeDestination = _feeDestination;
+    }
+
+    function setProtocolFeePercent(uint256 _feePercent) public onlyAdmin {
+        protocolFeePercent = _feePercent;
     }
 
     function calculateEthAmount(address _creatorToken, uint256 tokenAmount) public view returns (uint256) {
@@ -70,14 +78,22 @@ contract UnlonelyArcadeContractV1 {
         require(creatorTokens[_creatorToken] != IERC20(address(0)), "Token does not exist.");
         require(tokenOwners[_creatorToken] != address(0), "Token does not have an owner.");
         require(tokenAmount > 0, "Token amount must be greater than zero.");
+        require(protocolFeePercent <= 1 ether, "Invalid protocol fee percent");
+        require(protocolFeeDestination != address(0), "Invalid protocol fee destination");
 
         // Calculate required ETH amount
         uint256 ethAmount = calculateEthAmount(_creatorToken, tokenAmount);
+        uint256 protocolFee = ethAmount * protocolFeePercent / 1 ether;
+        uint256 totalAmount = ethAmount + protocolFee;
 
-        require(msg.value >= ethAmount, "Insufficient Ether sent.");
+        require(msg.value >= totalAmount, "Insufficient Ether sent.");
 
         // Transfer Ether to the token owner
-        payable(tokenOwners[_creatorToken]).transfer(msg.value);
+        payable(tokenOwners[_creatorToken]).transfer(ethAmount);
+
+        // Transfer protocol fee
+        (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
+        require(success1, "Unable to send funds");
         
         // Transfer CreatorToken to the buyer
         IERC20 token = creatorTokens[_creatorToken];
