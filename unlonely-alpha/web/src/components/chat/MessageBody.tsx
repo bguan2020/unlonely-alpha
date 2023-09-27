@@ -16,7 +16,6 @@ import React, { useMemo, useState } from "react";
 import {
   ADD_REACTION_EVENT,
   BAN_USER_EVENT,
-  EMOJIS,
   InteractionType,
   NULL_ADDRESS,
 } from "../../constants";
@@ -28,6 +27,7 @@ import { Message } from "../../constants/types/chat";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useToggleBannedUserToChannel from "../../hooks/server/useToggleBannedUser";
+import { REACTION_EMOJIS } from "./emoji/constants";
 
 type Props = {
   index: number;
@@ -402,7 +402,7 @@ const MessageBody = ({
                   background={"rgba(255, 255, 255, 0.5)"}
                   borderRadius={"10px"}
                 >
-                  {EMOJIS.map((emoji) => (
+                  {REACTION_EMOJIS.map((emoji) => (
                     <Box
                       minH="40px"
                       background="transparent"

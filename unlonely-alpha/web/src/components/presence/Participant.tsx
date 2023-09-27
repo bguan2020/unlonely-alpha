@@ -17,6 +17,7 @@ import { anonUrl } from "./AnonUrl";
 import centerEllipses from "../../utils/centerEllipses";
 import { CustomUser } from "../../constants/types";
 import { useGetBadges } from "../../hooks/internal/useGetBadges";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 type Props = {
   user?: CustomUser;
@@ -34,6 +35,8 @@ const Participant = ({ user, mobile }: Props) => {
     : imageUrl;
 
   const { rankUrl } = useGetBadges(user?.tokenHolderRank);
+  const { network } = useNetworkContext();
+  const { explorerUrl } = network;
 
   const toolTipMessage = (user: CustomUser) => {
     return (
@@ -75,7 +78,7 @@ const Participant = ({ user, mobile }: Props) => {
               <PopoverArrow bg="gray.800" />
               <Link
                 target="_blank"
-                href={`https://etherscan.io/address/${
+                href={`${explorerUrl}/address/${
                   user?.address ? user.address : ""
                 }`}
                 passHref

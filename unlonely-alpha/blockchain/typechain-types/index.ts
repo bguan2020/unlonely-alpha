@@ -16,6 +16,7 @@ export type { IERC165 } from "./IERC165";
 export type { BrianToken } from "./BrianToken";
 export type { UnlonelyArcadeContractV1 } from "./UnlonelyArcadeContractV1";
 export type { UnlonelyNFCsV2 } from "./UnlonelyNFCsV2";
+export type { UnlonelySharesV1 } from "./UnlonelySharesV1";
 
 export { Ownable__factory } from "./factories/Ownable__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
@@ -32,3 +33,4 @@ export { IERC165__factory } from "./factories/IERC165__factory";
 export { BrianToken__factory } from "./factories/BrianToken__factory";
 export { UnlonelyArcadeContractV1__factory } from "./factories/UnlonelyArcadeContractV1__factory";
 export { UnlonelyNFCsV2__factory } from "./factories/UnlonelyNFCsV2__factory";
+export { UnlonelySharesV1__factory } from "./factories/UnlonelySharesV1__factory";

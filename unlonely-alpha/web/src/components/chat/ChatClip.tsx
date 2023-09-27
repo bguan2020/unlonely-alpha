@@ -89,9 +89,7 @@ export const ChatClip = () => {
           >
             {loading ? (
               <>
-                <Text textAlign="center">
-                  Clipping, please stay here and wait!
-                </Text>
+                <Text textAlign="center">Clipping, please wait!</Text>
                 <Flex justifyContent={"center"}>
                   <Spinner size="lg" />
                 </Flex>
@@ -112,10 +110,10 @@ export const ChatClip = () => {
                 </Button>
                 <Button
                   width="100%"
-                  bg="#0ca2b6"
+                  bg="#0ab643"
                   onClick={() => copy(finalUrl)}
                   _focus={{}}
-                  _hover={{ background: "#0ab643" }}
+                  _hover={{ background: "#08c346" }}
                 >
                   copy link
                 </Button>

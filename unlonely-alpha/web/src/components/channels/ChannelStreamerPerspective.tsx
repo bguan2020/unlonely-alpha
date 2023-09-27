@@ -1,50 +1,27 @@
 import { Flex, Stack, SimpleGrid, Box, Text, Image } from "@chakra-ui/react";
-import { useState } from "react";
 
-import CalendarEventModal from "./CalendarEventModal";
-import ChatCommandModal from "./ChatCommandModal";
-import EditChannelModal from "./EditChannelModal";
-import NotificationsModal from "./NotificationsModal";
-import TokenSaleModal from "./TokenSaleModal";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
-const ChannelStreamerPerspective = ({
-  setCustomActionModal,
-}: {
-  setCustomActionModal: (value: boolean) => void;
-}) => {
-  const [tokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
-  const [chatCommandModal, setChatCommandModal] = useState<boolean>(false);
-  const [editModal, setEditModal] = useState<boolean>(false);
-  const [notificationsModal, setNotificationsModal] = useState<boolean>(false);
-  const [eventModal, setEventModal] = useState<boolean>(false);
+const ChannelStreamerPerspective = () => {
+  const { arcade, channel } = useChannelContext();
+  const {
+    handleNotificationsModal,
+    handleTokenSaleModal,
+    handleEventModal,
+    handleEditModal,
+    handleChatCommandModal,
+    handleCustomModal,
+    handleBetModal,
+  } = arcade;
+  const { channelQueryData } = channel;
+
+  const isSharesEventLive =
+    channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
+  const isSharesEventPayout =
+    channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
 
   return (
     <Flex direction="column" width={"100%"}>
-      <TokenSaleModal
-        title={"offer tokens for sale"}
-        isOpen={tokenSaleModal}
-        handleClose={() => setTokenSaleModal(false)}
-      />
-      <ChatCommandModal
-        title={"custom commands"}
-        isOpen={chatCommandModal}
-        handleClose={() => setChatCommandModal(false)}
-      />
-      <EditChannelModal
-        title={"edit title / description"}
-        isOpen={editModal}
-        handleClose={() => setEditModal(false)}
-      />
-      <NotificationsModal
-        title={"send notifications"}
-        isOpen={notificationsModal}
-        handleClose={() => setNotificationsModal(false)}
-      />
-      <CalendarEventModal
-        title={"add event"}
-        isOpen={eventModal}
-        handleClose={() => setEventModal(false)}
-      />
       <Stack
         my="5rem"
         direction="column"
@@ -52,7 +29,7 @@ const ChannelStreamerPerspective = ({
         justifyContent="center"
       >
         <Flex width={"100%"} position="relative" justifyContent={"center"}>
-          <SimpleGrid columns={3} spacing={10}>
+          <SimpleGrid columns={4} spacing={10}>
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">send notifications</Text>
               <Box
@@ -60,7 +37,7 @@ const ChannelStreamerPerspective = ({
                 alignItems="center"
                 justifyContent="center"
                 borderRadius="10px"
-                onClick={() => setNotificationsModal(true)}
+                onClick={() => handleNotificationsModal(true)}
                 _hover={{
                   cursor: "pointer",
                   transform: "scale(1.1)",
@@ -80,7 +57,7 @@ const ChannelStreamerPerspective = ({
                 alignItems="center"
                 justifyContent="center"
                 borderRadius="10px"
-                onClick={() => setTokenSaleModal(true)}
+                onClick={() => handleTokenSaleModal(true)}
                 _hover={{
                   cursor: "pointer",
                   transform: "scale(1.1)",
@@ -100,7 +77,7 @@ const ChannelStreamerPerspective = ({
                 alignItems="center"
                 justifyContent="center"
                 borderRadius="10px"
-                onClick={() => setEventModal(true)}
+                onClick={() => handleEventModal(true)}
                 _hover={{
                   cursor: "pointer",
                   transform: "scale(1.1)",
@@ -120,7 +97,7 @@ const ChannelStreamerPerspective = ({
                 alignItems="center"
                 justifyContent="center"
                 borderRadius="10px"
-                onClick={() => setEditModal(true)}
+                onClick={() => handleEditModal(true)}
                 _hover={{
                   cursor: "pointer",
                   transform: "scale(1.1)",
@@ -140,7 +117,7 @@ const ChannelStreamerPerspective = ({
                 alignItems="center"
                 justifyContent="center"
                 borderRadius="10px"
-                onClick={() => setChatCommandModal(true)}
+                onClick={() => handleChatCommandModal(true)}
                 _hover={{
                   cursor: "pointer",
                   transform: "scale(1.1)",
@@ -160,7 +137,7 @@ const ChannelStreamerPerspective = ({
                 alignItems="center"
                 justifyContent="center"
                 borderRadius="10px"
-                onClick={() => setCustomActionModal(true)}
+                onClick={() => handleCustomModal(true)}
                 _hover={{
                   cursor: "pointer",
                   transform: "scale(1.1)",
@@ -171,6 +148,30 @@ const ChannelStreamerPerspective = ({
                 }}
               >
                 <Image src="/svg/custom-actions.svg" width="100%" />
+              </Box>
+            </Flex>
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+              <Text textAlign="center">
+                {isSharesEventPayout && "stop payout"}
+                {isSharesEventLive && "decide outcome"}
+                {!isSharesEventLive && !isSharesEventPayout && "create a bet"}
+              </Text>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="10px"
+                onClick={() => handleBetModal(true)}
+                _hover={{
+                  cursor: "pointer",
+                  transform: "scale(1.1)",
+                  transitionDuration: "0.3s",
+                }}
+                _active={{
+                  transform: "scale(1)",
+                }}
+              >
+                <Image src="/svg/bet.svg" width="100%" />
               </Box>
             </Flex>
           </SimpleGrid>

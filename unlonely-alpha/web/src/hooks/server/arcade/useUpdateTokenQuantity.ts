@@ -32,7 +32,6 @@ const useUpdateUserCreatorTokenQuantity = ({
   const updateUserCreatorTokenQuantity = useCallback(
     async (data) => {
       setLoading(true);
-      // console.log(data, "hook");
 
       const mutationResult = await mutate({ variables: { data } });
 

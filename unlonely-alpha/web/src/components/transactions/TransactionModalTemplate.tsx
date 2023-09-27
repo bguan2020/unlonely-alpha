@@ -39,7 +39,7 @@ export const TransactionModalTemplate = ({
   confirmButton?: string;
   isOpen: boolean;
   children?: React.ReactNode;
-  isModalLoading: boolean;
+  isModalLoading?: boolean;
   loadingText?: string;
   canSend?: boolean;
   icon?: JSX.Element;

@@ -17,6 +17,11 @@ export enum InteractionType {
   CUSTOM = "custom-action-interaction",
   BLAST = "blast-emoji-interaction",
   CLIP = "clip-interaction",
+  BUY_SHARES = "buy-shares-interaction",
+  SELL_SHARES = "sell-shares-interaction",
+  EVENT_LIVE = "event-live-interaction",
+  EVENT_PAYOUT = "event-payout-interaction",
+  EVENT_END = "event-end-interaction",
 }
 
 export enum BaseChatCommand {
@@ -32,20 +37,6 @@ export const USER_APPROVAL_AMOUNT = "10000";
 
 export const RANDOM_CHAT_COLOR =
   COLORS[Math.floor(Math.random() * COLORS.length)];
-
-export const EMOJIS = [
-  "https://i.imgur.com/wbUNcyS.gif",
-  "https://i.imgur.com/zTfFgtZ.gif",
-  "https://i.imgur.com/NurjwAK.gif",
-  "⛽️",
-  "😂",
-  "❤️",
-  "👑",
-  "👀",
-  "👍",
-  "👎",
-  "🚀",
-];
 
 export const ADD_REACTION_EVENT = "add-reaction";
 export const CHAT_MESSAGE_EVENT = "chat-message";

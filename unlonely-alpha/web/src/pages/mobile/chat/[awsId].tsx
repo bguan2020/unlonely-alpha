@@ -1,13 +1,12 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import { Container, Flex } from "@chakra-ui/react";
 
 import {
   ChannelProvider,
   useChannelContext,
 } from "../../../hooks/context/useChannel";
-import AblyChatComponent from "../../../components/mobile/ChatComponent";
-import { ChatBot } from "../../../constants/types";
 import { WavyText } from "../../../components/general/WavyText";
+import MobileAblyChatComponent from "../../../components/mobile/MobileAblyChatComponent";
 
 export default function Chat() {
   return (
@@ -20,16 +19,11 @@ export default function Chat() {
 const ChatComponent = () => {
   const { chat } = useChannelContext();
   const { chatChannel } = chat;
-  const [chatBot, setChatBot] = useState<ChatBot[]>([]);
-
-  const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
-    setChatBot((prev) => [...prev, chatBotMessageToAdd]);
-  }, []);
 
   return (
     <>
       {chatChannel ? (
-        <AblyChatComponent chatBot={chatBot} addToChatbot={addToChatbot} />
+        <MobileAblyChatComponent />
       ) : (
         <Container>
           <Flex

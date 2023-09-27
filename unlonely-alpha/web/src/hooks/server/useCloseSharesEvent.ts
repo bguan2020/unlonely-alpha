@@ -4,45 +4,45 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
-  PostBaseLeaderboardMutation,
-  PostBaseLeaderboardMutationVariables,
+  CloseSharesEventMutation,
+  CloseSharesEventMutationVariables,
 } from "../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
-const POST_BASELEADERBOARD_MUTATION = gql`
-  mutation PostBaseLeaderboard($data: PostBaseLeaderboardInput!) {
-    postBaseLeaderboard(data: $data) {
+const CLOSE_SHARES_EVENT_MUTATION = gql`
+  mutation CloseSharesEvent($data: PostCloseSharesEventInput!) {
+    closeSharesEvent(data: $data) {
       id
     }
   }
 `;
 
-const usePostBaseLeaderboard = ({ onError }: Props) => {
+const useCloseSharesEvent = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    PostBaseLeaderboardMutation,
-    PostBaseLeaderboardMutationVariables
-  >(POST_BASELEADERBOARD_MUTATION);
+    CloseSharesEventMutation,
+    CloseSharesEventMutationVariables
+  >(CLOSE_SHARES_EVENT_MUTATION);
 
-  const postBaseLeaderboard = useCallback(
+  const closeSharesEvent = useCallback(
     async (data) => {
       try {
         setLoading(true);
         const mutationResult = await mutate({
           variables: {
             data: {
-              amount: Number(data.amount),
+              id: data.id,
             },
           },
         });
 
-        const res = mutationResult?.data?.postBaseLeaderboard;
-        /* eslint-disable no-console */
+        const res = mutationResult?.data?.closeSharesEvent;
+
         if (res) {
-          console.log("postBaseLeaderboard success");
+          console.log("closeSharesEvent success");
         } else {
           onError && onError();
         }
@@ -51,13 +51,13 @@ const usePostBaseLeaderboard = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("postBaseLeaderboard", JSON.stringify(e, null, 2));
+        console.log("closeSharesEvent", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]
   );
 
-  return { postBaseLeaderboard, loading };
+  return { closeSharesEvent, loading };
 };
 
-export default usePostBaseLeaderboard;
+export default useCloseSharesEvent;

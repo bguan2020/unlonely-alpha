@@ -104,7 +104,7 @@ export type Channel = {
   owner: User;
   playbackUrl?: Maybe<Scalars["String"]>;
   response: Scalars["String"];
-  sharesEvent?: Maybe<SharesEvent>;
+  sharesEvent?: Maybe<Array<Maybe<SharesEvent>>>;
   slug: Scalars["String"];
   thumbnailUrl?: Maybe<Scalars["String"]>;
   token?: Maybe<CreatorToken>;
@@ -637,6 +637,7 @@ export type SendAllNotificationsInput = {
 
 export type SharesEvent = {
   __typename?: "SharesEvent";
+  createdAt: Scalars["DateTime"];
   eventState?: Maybe<SharesEventState>;
   sharesSubjectAddress?: Maybe<Scalars["String"]>;
   sharesSubjectQuestion?: Maybe<Scalars["String"]>;
@@ -884,6 +885,12 @@ export type ChannelDetailQuery = {
     allowNFCs?: boolean | null;
     bannedUsers?: Array<string | null> | null;
     playbackUrl?: string | null;
+    sharesEvent?: Array<{
+      __typename?: "SharesEvent";
+      sharesSubjectQuestion?: string | null;
+      sharesSubjectAddress?: string | null;
+      eventState?: SharesEventState | null;
+    } | null> | null;
     owner: {
       __typename?: "User";
       FCImageUrl?: string | null;
@@ -926,6 +933,12 @@ export type ChannelDetailMobileQuery = {
     allowNFCs?: boolean | null;
     bannedUsers?: Array<string | null> | null;
     playbackUrl?: string | null;
+    sharesEvent?: Array<{
+      __typename?: "SharesEvent";
+      sharesSubjectQuestion?: string | null;
+      sharesSubjectAddress?: string | null;
+      eventState?: SharesEventState | null;
+    } | null> | null;
     owner: {
       __typename?: "User";
       FCImageUrl?: string | null;
@@ -1177,6 +1190,15 @@ export type AddChannelToSubscriptionMutation = {
   addChannelToSubscription?: { __typename?: "Subscription"; id: string } | null;
 };
 
+export type CloseSharesEventMutationVariables = Exact<{
+  data: PostCloseSharesEventInput;
+}>;
+
+export type CloseSharesEventMutation = {
+  __typename?: "Mutation";
+  closeSharesEvent?: { __typename?: "Channel"; id: string } | null;
+};
+
 export type CreateClipMutationVariables = Exact<{
   data: CreateClipInput;
 }>;
@@ -1240,6 +1262,15 @@ export type PostNfcMutationVariables = Exact<{
 export type PostNfcMutation = {
   __typename?: "Mutation";
   postNFC?: { __typename?: "NFC"; id: string } | null;
+};
+
+export type PostSharesEventMutationVariables = Exact<{
+  data: PostSharesEventInput;
+}>;
+
+export type PostSharesEventMutation = {
+  __typename?: "Mutation";
+  postSharesEvent?: { __typename?: "Channel"; id: string } | null;
 };
 
 export type PostStreamInteractionMutationVariables = Exact<{
@@ -1631,6 +1662,11 @@ export const ChannelDetailDocument = gql`
       slug
       allowNFCs
       bannedUsers
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        eventState
+      }
       owner {
         FCImageUrl
         lensImageUrl
@@ -1716,6 +1752,11 @@ export const ChannelDetailMobileDocument = gql`
       slug
       allowNFCs
       bannedUsers
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        eventState
+      }
       owner {
         FCImageUrl
         lensImageUrl
@@ -2665,6 +2706,56 @@ export type AddChannelToSubscriptionMutationOptions =
     AddChannelToSubscriptionMutation,
     AddChannelToSubscriptionMutationVariables
   >;
+export const CloseSharesEventDocument = gql`
+  mutation CloseSharesEvent($data: PostCloseSharesEventInput!) {
+    closeSharesEvent(data: $data) {
+      id
+    }
+  }
+`;
+export type CloseSharesEventMutationFn = Apollo.MutationFunction<
+  CloseSharesEventMutation,
+  CloseSharesEventMutationVariables
+>;
+
+/**
+ * __useCloseSharesEventMutation__
+ *
+ * To run a mutation, you first call `useCloseSharesEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCloseSharesEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [closeSharesEventMutation, { data, loading, error }] = useCloseSharesEventMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCloseSharesEventMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CloseSharesEventMutation,
+    CloseSharesEventMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    CloseSharesEventMutation,
+    CloseSharesEventMutationVariables
+  >(CloseSharesEventDocument, options);
+}
+export type CloseSharesEventMutationHookResult = ReturnType<
+  typeof useCloseSharesEventMutation
+>;
+export type CloseSharesEventMutationResult =
+  Apollo.MutationResult<CloseSharesEventMutation>;
+export type CloseSharesEventMutationOptions = Apollo.BaseMutationOptions<
+  CloseSharesEventMutation,
+  CloseSharesEventMutationVariables
+>;
 export const CreateClipDocument = gql`
   mutation CreateClip($data: CreateClipInput!) {
     createClip(data: $data) {
@@ -2960,6 +3051,56 @@ export type PostNfcMutationResult = Apollo.MutationResult<PostNfcMutation>;
 export type PostNfcMutationOptions = Apollo.BaseMutationOptions<
   PostNfcMutation,
   PostNfcMutationVariables
+>;
+export const PostSharesEventDocument = gql`
+  mutation PostSharesEvent($data: PostSharesEventInput!) {
+    postSharesEvent(data: $data) {
+      id
+    }
+  }
+`;
+export type PostSharesEventMutationFn = Apollo.MutationFunction<
+  PostSharesEventMutation,
+  PostSharesEventMutationVariables
+>;
+
+/**
+ * __usePostSharesEventMutation__
+ *
+ * To run a mutation, you first call `usePostSharesEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostSharesEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postSharesEventMutation, { data, loading, error }] = usePostSharesEventMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostSharesEventMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostSharesEventMutation,
+    PostSharesEventMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostSharesEventMutation,
+    PostSharesEventMutationVariables
+  >(PostSharesEventDocument, options);
+}
+export type PostSharesEventMutationHookResult = ReturnType<
+  typeof usePostSharesEventMutation
+>;
+export type PostSharesEventMutationResult =
+  Apollo.MutationResult<PostSharesEventMutation>;
+export type PostSharesEventMutationOptions = Apollo.BaseMutationOptions<
+  PostSharesEventMutation,
+  PostSharesEventMutationVariables
 >;
 export const PostStreamInteractionDocument = gql`
   mutation PostStreamInteraction($data: PostStreamInteractionInput!) {
