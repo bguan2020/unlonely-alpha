@@ -64,7 +64,7 @@ const AppLayout: React.FC<Props> = ({
           {!isStandalone ? (
             <>
               <Header />
-              <AddToHomeScreen />
+              {!router.pathname.startsWith("/nfc") && <AddToHomeScreen />}
               <Box
                 minW="100%"
                 as="main"
