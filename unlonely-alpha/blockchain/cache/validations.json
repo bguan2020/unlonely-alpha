@@ -2,6 +2,224 @@
   "version": "3.2",
   "log": [
     {
+      "Context": {
+        "src": "contracts\\UnlonelySharesV1.sol:5",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "Ownable": {
+        "src": "contracts\\UnlonelySharesV1.sol:15",
+        "inherit": [
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "owner()",
+          "renounceOwnership()",
+          "transferOwnership(address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "Ownable",
+            "src": "contracts\\UnlonelySharesV1.sol:23"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelySharesV1.sol:16"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "UnlonelySharesV1": {
+        "src": "contracts\\UnlonelySharesV1.sol:81",
+        "version": {
+          "withMetadata": "9a5730956c4cb8012de86e3a8b744d0083b716b2576ada862f5b28c07ff56089",
+          "withoutMetadata": "8b971cea53bb1a022be0c11c534ce8641e88a2d2ca72fccb94848187adf1232a",
+          "linkedWithoutMetadata": "8b971cea53bb1a022be0c11c534ce8641e88a2d2ca72fccb94848187adf1232a"
+        },
+        "inherit": [
+          "Ownable",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "()",
+          "addVerifier(address)",
+          "removeVerifier(address)",
+          "verifyEvent(address,bool)",
+          "closeEventIfNoWinners(address)",
+          "setFeeDestination(address)",
+          "setProtocolFeePercent(uint256)",
+          "setSubjectFeePercent(uint256)",
+          "getHolderSharesBalance(address,address,bool)",
+          "getPrice(uint256,uint256)",
+          "getBuyPrice(address,uint256,bool)",
+          "getSellPrice(address,uint256,bool)",
+          "getBuyPriceAfterFee(address,uint256,bool)",
+          "getSellPriceAfterFee(address,uint256,bool)",
+          "getPayout(address,address)",
+          "buyShares(address,uint256,bool)",
+          "sellShares(address,uint256,bool)",
+          "claimPayout(address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "UnlonelySharesV1",
+            "src": "contracts\\UnlonelySharesV1.sol:110"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelySharesV1.sol:16"
+            },
+            {
+              "label": "protocolFeeDestination",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:82"
+            },
+            {
+              "label": "protocolFeePercent",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_uint256",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:83"
+            },
+            {
+              "label": "subjectFeePercent",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_uint256",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:84"
+            },
+            {
+              "label": "yaySharesBalance",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:91"
+            },
+            {
+              "label": "naySharesBalance",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:92"
+            },
+            {
+              "label": "yaySharesSupply",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:95"
+            },
+            {
+              "label": "naySharesSupply",
+              "offset": 0,
+              "slot": "7",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:96"
+            },
+            {
+              "label": "eventVerified",
+              "offset": 0,
+              "slot": "8",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:98"
+            },
+            {
+              "label": "eventResult",
+              "offset": 0,
+              "slot": "9",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:99"
+            },
+            {
+              "label": "isVerifier",
+              "offset": 0,
+              "slot": "10",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:100"
+            },
+            {
+              "label": "pooledEth",
+              "offset": 0,
+              "slot": "11",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:103"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+              "label": "mapping(address => mapping(address => uint256))"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      }
+    },
+    {
       "ERC20": {
         "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:35",
         "version": {

@@ -173,7 +173,7 @@ contract UnlonelySharesV1 is Ownable {
         uint256 sum1 = supply == 0 ? 0 : (supply - 1) * supply * (2 * (supply - 1) + 1) / 6;
         uint256 sum2 = (supply == 0 && amount == 1) ? 0 : (amount + supply - 1) * (supply + amount) * (2 * (amount + supply - 1) + 1) / 6;
         uint256 summation = sum2 - sum1;
-        return summation * 1 ether / 16000;
+        return summation * 1 ether / 32000;
     }
 
     function getBuyPrice(address sharesSubject, uint256 amount, bool isYay) public view returns (uint256) {
