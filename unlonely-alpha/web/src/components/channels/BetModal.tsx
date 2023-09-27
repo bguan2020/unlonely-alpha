@@ -185,7 +185,7 @@ export default function BetModal({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.EVENT_PAYOUT,
-          title: `Event has ended, ${args.result ? "yes" : "no"} shares win!`,
+          title: `Event has ended, ${args.result ? "yes" : "no"} votes win!`,
           description: "event-end",
         });
         handleClose();

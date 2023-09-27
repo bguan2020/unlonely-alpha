@@ -264,7 +264,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         const args: any = topics.args;
         const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
           args.isBuy ? "bought" : "sold"
-        } ${args.shareAmount} ${args.isYay ? "yes" : "no"} shares!`;
+        } ${args.shareAmount} ${args.isYay ? "yes" : "no"} votes!`;
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -356,7 +356,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
         const args: any = topics.args;
         const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
           args.isBuy ? "bought" : "sold"
-        } ${args.shareAmount} ${args.isYay ? "yes" : "no"} shares!`;
+        } ${args.shareAmount} ${args.isYay ? "yes" : "no"} votes!`;
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -634,7 +634,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                     <>
                       <Flex justifyContent={"space-between"}>
                         <Text fontWeight="light" opacity="0.75">
-                          enter amount of shares
+                          enter amount of votes
                         </Text>
                         <Text fontWeight="light">
                           own: {isYay ? yaySharesBalance : naySharesBalance}
