@@ -18,6 +18,7 @@ import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/context/useUser";
 import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
 import theme from "../styles/theme";
+import { NetworkProvider } from "../hooks/context/useNetwork";
 
 interface InitialProps {
   cookies: Cookies;
@@ -72,7 +73,9 @@ function App({ Component, pageProps, cookies }: Props) {
           <ApolloProvider client={apolloClient}>
             <UserProvider>
               <ScreenAnimationsProvider>
-                <Component {...pageProps} />
+                <NetworkProvider>
+                  <Component {...pageProps} />
+                </NetworkProvider>
               </ScreenAnimationsProvider>
             </UserProvider>
           </ApolloProvider>

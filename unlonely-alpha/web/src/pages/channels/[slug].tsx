@@ -74,7 +74,6 @@ const DesktopPage = ({
   } = channel;
   const { handleCustomModal, handleBuyModal, handleTipModal } = arcade;
   const { loading: recentStreamInteractionsLoading } = recentStreamInteractions;
-
   const queryLoading = useMemo(
     () => channelDataLoading || recentStreamInteractionsLoading,
     [channelDataLoading, recentStreamInteractionsLoading]

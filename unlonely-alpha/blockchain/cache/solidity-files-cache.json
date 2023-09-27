@@ -796,8 +796,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelyArcadeContractV2.sol": {
-      "lastModificationDate": 1695773084458,
-      "contentHash": "af539bb63e390d5b76afc3f4b29cb809",
+      "lastModificationDate": 1695776791373,
+      "contentHash": "fb1fafab556ecde1638305b63fdb3437",
       "sourceName": "contracts/UnlonelyArcadeContractV2.sol",
       "solcConfig": {
         "version": "0.8.4",
