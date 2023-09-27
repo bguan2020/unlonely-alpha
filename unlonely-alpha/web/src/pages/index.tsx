@@ -402,7 +402,7 @@ function MobilePage({
               right="1rem"
               bottom="1rem"
             />
-            {sortedChannels.length > 0 ? (
+            {sortedChannels && sortedChannels.length > 0 ? (
               <Virtuoso
                 followOutput={"auto"}
                 ref={scrollRef}
