@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useToast, ToastId } from "@chakra-ui/react";
+import { useToast, ToastId, Box, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 
@@ -64,12 +64,22 @@ export const NetworkProvider = ({
       !router.pathname.startsWith("/bridge")
     ) {
       toastIdRef.current = toast({
-        title: "wrong network",
-        description: "please connect to the base mainnet",
-        status: "error",
         duration: 9000,
         isClosable: true,
         position: "top",
+        render: () => (
+          <Box as="button" borderRadius="md" bg="#c21c1c" p="10px">
+            <Text>please connect to the base mainnet</Text>
+            <Text
+              textDecoration={"underline"}
+              onClick={async () => {
+                await wallet.switchChain(NETWORKS[0].config.chainId);
+              }}
+            >
+              click here to add or switch to base mainnet
+            </Text>
+          </Box>
+        ),
       });
       setMatchingChain(false);
     } else {

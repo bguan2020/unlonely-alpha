@@ -696,7 +696,7 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
                                 subjectFeePercent + protocolFeePercent,
                                 16
                               )}% fees`
-                            : `return + ${formatUnits(
+                            : `return - ${formatUnits(
                                 subjectFeePercent + protocolFeePercent,
                                 16
                               )}% fees`}
