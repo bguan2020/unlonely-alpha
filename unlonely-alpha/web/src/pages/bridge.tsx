@@ -14,7 +14,6 @@ import { useForm } from "react-hook-form";
 import * as OP from "@eth-optimism/sdk";
 import { ethers } from "ethers";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
-import { useNetwork } from "wagmi";
 import Link from "next/link";
 
 import AppLayout from "../components/layout/AppLayout";
@@ -27,7 +26,7 @@ enum TxStatus {
   Confirmed,
 }
 
-const STARTING_CHAIN_ID = 1;
+const STARTING_CHAIN_ID = "1";
 
 const L1_EXPLORER_URL = "https://etherscan.io/";
 const L2_EXPLORER_URL = "https://basescan.org";
@@ -38,7 +37,6 @@ const BridgePage = () => {
     defaultValues: { amount: "0.01" }, // you can set a default value here
   });
   const { wallet } = usePrivyWagmi();
-  const { chain } = useNetwork();
   const { postBaseLeaderboard } = usePostBaseLeaderboard({
     onError: (m: any) => {
       console.log(m);
@@ -168,10 +166,9 @@ const BridgePage = () => {
   }, [wallet]);
 
   useEffect(() => {
-    if (chain?.id) {
-      setMatchingChain(chain.id === STARTING_CHAIN_ID);
-    }
-  }, [chain]);
+    const chain = wallet?.chainId;
+    setMatchingChain(chain?.split(":")[1] === STARTING_CHAIN_ID);
+  }, [wallet]);
 
   return (
     <>

@@ -10,8 +10,8 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { formatUnits, isAddress, parseUnits } from "viem";
-import { useNetwork } from "wagmi";
 import Link from "next/link";
+import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 
 import AppLayout from "../components/layout/AppLayout";
 import { NULL_ADDRESS } from "../constants";
@@ -42,13 +42,14 @@ import { useNetworkContext } from "../hooks/context/useNetwork";
 
 export default function AdminPage() {
   const { user } = useUser();
-  const network = useNetwork();
+  const { wallet } = usePrivyWagmi();
+
   const localNetwork = useMemo(() => {
+    const chain = wallet?.chainId?.split(":")[1];
     return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
+      NETWORKS.find((n) => String(n.config.chainId) === chain) ?? NETWORKS[0]
     );
-  }, [network]);
+  }, [wallet]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
   const { admins } = useAdmins(contract);
 
@@ -71,8 +72,8 @@ export default function AdminPage() {
 const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
   const toast = useToast();
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-  const { network } = useNetworkContext()
-  const { explorerUrl } = network
+  const { network } = useNetworkContext();
+  const { explorerUrl } = network;
   const [creatorTokenAddress, setCreatorTokenAddress] = useState<string>("");
   const [creatorTokenSymbol, setCreatorTokenSymbol] = useState<string>("");
   const [creatorTokenName, setCreatorTokenName] = useState<string>("");
