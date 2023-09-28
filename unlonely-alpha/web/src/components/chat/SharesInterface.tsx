@@ -9,7 +9,7 @@ import {
   useToast,
   Spinner,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { GoPin } from "react-icons/go";
 import Link from "next/link";
 import { decodeEventLog, formatUnits } from "viem";
@@ -36,10 +36,74 @@ import { Message } from "../../constants/types/chat";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 export const SharesInterface = ({ messages }: { messages: Message[] }) => {
+  const { channel } = useChannelContext();
+  const { channelQueryData, refetch } = channel;
+  const [showUi, setShowUi] = useState<boolean>(true);
+
+  const handleShowUi = useCallback((value: boolean) => {
+    setShowUi(value);
+  }, []);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (messages.length > 0) {
+        const latestMessage = messages[messages.length - 1];
+        if (
+          latestMessage.data.body &&
+          (latestMessage.data.body.split(":")[0] ===
+            InteractionType.EVENT_LIVE ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_PAYOUT ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_END) &&
+          Date.now() - latestMessage.timestamp < 12000
+        ) {
+          await refetch();
+        }
+      }
+    };
+    fetch();
+  }, [messages]);
+
+  return (
+    <>
+      {channelQueryData?.sharesEvent &&
+        channelQueryData?.sharesEvent.length > 0 &&
+        !showUi && (
+          <Flex
+            onClick={() => setShowUi(true)}
+            mt="10px"
+            bg="#c220c2"
+            p="5px"
+            borderRadius={"10px"}
+            gap="5px"
+            cursor={"pointer"}
+            _hover={{ bg: "#d22fd2", transform: "scale(1.03)" }}
+          >
+            <GoPin />
+            <Text noOfLines={1} fontSize="12px">
+              {channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion}
+            </Text>
+          </Flex>
+        )}
+      {channelQueryData?.sharesEvent &&
+        channelQueryData?.sharesEvent.length > 0 &&
+        showUi && <SharesUi showUi={showUi} handleShowUi={handleShowUi} />}
+    </>
+  );
+};
+
+const SharesUi = ({
+  showUi,
+  handleShowUi,
+}: {
+  showUi: boolean;
+  handleShowUi: (value: boolean) => void;
+}) => {
   const { userAddress, user, walletIsConnected } = useUser();
   const { channel, arcade } = useChannelContext();
   const { addToChatbot } = arcade;
-  const { channelQueryData, refetch } = channel;
+  const { channelQueryData } = channel;
   const toast = useToast();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
@@ -52,7 +116,6 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   const [isBuying, setIsBuying] = useState<boolean>(true);
   const [amount, setAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [showUi, setShowUi] = useState<boolean>(true);
   const isYay = selectedSharesOption === "yes";
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
@@ -381,27 +444,6 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   );
 
   useEffect(() => {
-    const fetch = async () => {
-      if (messages.length > 0) {
-        const latestMessage = messages[messages.length - 1];
-        if (
-          latestMessage.data.body &&
-          (latestMessage.data.body.split(":")[0] ===
-            InteractionType.EVENT_LIVE ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_PAYOUT ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_END) &&
-          Date.now() - latestMessage.timestamp < 12000
-        ) {
-          await refetch();
-        }
-      }
-    };
-    fetch();
-  }, [messages]);
-
-  useEffect(() => {
     if (!blockNumber.data) return;
     const fetch = async () => {
       await Promise.all([
@@ -453,309 +495,280 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
   ]);
 
   return (
-    <>
-      {channelQueryData?.sharesEvent &&
-        channelQueryData?.sharesEvent.length > 0 &&
-        !showUi && (
-          <Flex
-            onClick={() => setShowUi(true)}
-            mt="10px"
-            bg="#c220c2"
-            p="5px"
-            borderRadius={"10px"}
-            gap="5px"
-            cursor={"pointer"}
-            _hover={{ bg: "#d22fd2", transform: "scale(1.03)" }}
+    <Box
+      mt="10px"
+      transition="all 0.5s ease"
+      bg={"#1b183f"}
+      borderRadius={"10px"}
+      border="1px solid #ffffff"
+      boxShadow={"0px 0px 10px #ffffff"}
+      position="relative"
+    >
+      <Flex direction="column">
+        <Flex justifyContent="center">
+          <Text
+            textAlign={"center"}
+            width="90%"
+            fontSize={"20px"}
+            fontWeight={"bold"}
           >
-            <GoPin />
-            <Text noOfLines={1} fontSize="12px">
-              {channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion}
+            {channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion}
+          </Text>
+        </Flex>
+        {(selectedSharesOption !== undefined || showUi) && (
+          <IconButton
+            aria-label="close"
+            _hover={{}}
+            _active={{}}
+            _focus={{}}
+            bg="transparent"
+            icon={<Image alt="close" src="/svg/close.svg" width="15px" />}
+            onClick={() =>
+              selectedSharesOption !== undefined
+                ? setSelectedSharesOption(undefined)
+                : handleShowUi(false)
+            }
+            position="absolute"
+            right="-5px"
+            top="-5px"
+          />
+        )}
+        {protocolFeeDestination === NULL_ADDRESS ? (
+          <>
+            <Text textAlign={"center"} color="#d5d5d5" fontSize="15px">
+              contract not ready yet
             </Text>
+          </>
+        ) : eventVerified ? (
+          <Flex direction="column" p="0.5rem">
+            {!claimPayoutTxLoading ? (
+              <>
+                <Flex justifyContent="space-between">
+                  <Text fontSize="18px">event outcome</Text>
+                  <Text
+                    fontSize="18px"
+                    fontWeight="bold"
+                    color={eventResult === true ? "#02f042" : "#ee6204"}
+                  >
+                    {eventResult ? "Yes" : "No"}
+                  </Text>
+                </Flex>
+                <Flex justifyContent="space-between">
+                  <Text fontSize="18px">your winnings</Text>
+                  <Text fontSize="18px">
+                    {truncateValue(formatUnits(userPayout, 18))}
+                  </Text>
+                </Flex>
+                {userPayout > BigInt(0) && (
+                  <Button
+                    _hover={{}}
+                    _focus={{}}
+                    _active={{}}
+                    bg={"#E09025"}
+                    borderRadius="25px"
+                    isDisabled={!claimPayout}
+                    onClick={claimPayout}
+                  >
+                    <Text fontSize="20px">get payout</Text>
+                  </Button>
+                )}
+              </>
+            ) : (
+              <Flex justifyContent="center">
+                <Spinner />
+              </Flex>
+            )}
+          </Flex>
+        ) : (
+          <>
+            <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
+              {truncateValue(formatUnits(pooledEth, 18), 4)} ETH in the pool
+            </Text>
+            <Flex justifyContent={"center"} gap={"10px"} my="10px">
+              <Text color="#35b657" fontWeight="bold" fontSize="25px">
+                {truncateValue(String(yaySharesSupply), 0, true)}
+              </Text>
+              <Button
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                transform={
+                  selectedSharesOption === "no" ? "scale(0.95)" : undefined
+                }
+                opacity={selectedSharesOption === "no" ? 0.9 : 1}
+                bg={selectedSharesOption === "no" ? "#909090" : "#009d2a"}
+                onClick={() => setSelectedSharesOption("yes")}
+              >
+                <Flex direction="column">
+                  <Text
+                    fontFamily="Neue Pixel Sans"
+                    fontWeight={"light"}
+                    fontSize="15px"
+                  >
+                    YES
+                  </Text>
+                  <Text fontWeight={"light"} fontSize="12px">
+                    {truncateValue(
+                      formatUnits(yayBuyPriceForOne ?? BigInt(0), 18)
+                    )}
+                  </Text>
+                </Flex>
+              </Button>
+              <Button
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                transform={isYay ? "scale(0.95)" : undefined}
+                opacity={isYay ? 0.9 : 1}
+                bg={isYay ? "#909090" : "#da3b14"}
+                onClick={() => setSelectedSharesOption("no")}
+              >
+                <Flex direction="column">
+                  <Text
+                    fontFamily="Neue Pixel Sans"
+                    fontWeight={"light"}
+                    fontSize="15px"
+                  >
+                    NO
+                  </Text>
+                  <Text fontWeight={"light"} fontSize="12px">
+                    {truncateValue(
+                      formatUnits(nayBuyPriceForOne ?? BigInt(0), 18)
+                    )}
+                  </Text>
+                </Flex>
+              </Button>
+              <Text color="#ff623b" fontWeight="bold" fontSize="25px">
+                {truncateValue(String(naySharesSupply), 0, true)}
+              </Text>
+            </Flex>
+          </>
+        )}
+        {selectedSharesOption === undefined || eventVerified ? null : (
+          <Flex direction="column" bg={"rgba(0, 0, 0, 0.258)"} p="0.5rem">
+            {!buySharesTxLoading && !sellSharesTxLoading ? (
+              <>
+                <Flex justifyContent={"space-between"}>
+                  <Text fontWeight="light" opacity="0.75">
+                    enter amount of votes
+                  </Text>
+                  <Text fontWeight="light">
+                    own: {isYay ? yaySharesBalance : naySharesBalance}
+                  </Text>
+                </Flex>
+                <Flex>
+                  <Button
+                    width="60%"
+                    borderTopRightRadius={"0"}
+                    borderBottomRightRadius={"0"}
+                    bg={isBuying ? "#009d2a" : "#da3b14"}
+                    onClick={() => {
+                      isBuying ? setIsBuying(false) : setIsBuying(true);
+                    }}
+                    _hover={{ bg: isBuying ? "#00ba32" : "#ff4e22" }}
+                    _focus={{}}
+                    _active={{}}
+                  >
+                    <Text>{isBuying ? "buy" : "sell"}</Text>
+                  </Button>
+                  <Input
+                    borderTopLeftRadius={"0"}
+                    borderBottomLeftRadius={"0"}
+                    borderTopRightRadius={isBuying ? "10px" : "0"}
+                    borderBottomRightRadius={isBuying ? "10px" : "0"}
+                    variant="glow"
+                    boxShadow={"unset"}
+                    placeholder={"0"}
+                    value={amount}
+                    onChange={handleInputChange}
+                  />
+                  {!isBuying && (
+                    <Button
+                      _hover={{ bg: "rgba(54, 170, 212, 0.2)" }}
+                      _focus={{}}
+                      _active={{}}
+                      borderTopLeftRadius={"0"}
+                      borderBottomLeftRadius={"0"}
+                      bg="transparent"
+                      border="1px solid #3097bd"
+                      boxShadow={"inset 0px 0px 5px #2f92b6"}
+                      onClick={() => {
+                        if (isBuying) return;
+                        if (isYay) {
+                          setAmount(String(yaySharesBalance));
+                        } else {
+                          setAmount(String(naySharesBalance));
+                        }
+                      }}
+                    >
+                      <Text fontWeight="light">MAX</Text>
+                    </Button>
+                  )}
+                </Flex>
+                <Flex justifyContent={"space-between"}>
+                  <Text opacity="0.75" fontWeight="light">
+                    {isBuying
+                      ? `price + ${formatUnits(
+                          subjectFeePercent + protocolFeePercent,
+                          16
+                        )}% fees`
+                      : `return - ${formatUnits(
+                          subjectFeePercent + protocolFeePercent,
+                          16
+                        )}% fees`}
+                  </Text>
+                  {isBuying && isYay && (
+                    <Text fontWeight="light">
+                      {formatUnits(yayBuyPriceAfterFee, 18)} ETH
+                    </Text>
+                  )}
+                  {isBuying && !isYay && (
+                    <Text fontWeight="light">
+                      {formatUnits(nayBuyPriceAfterFee, 18)} ETH
+                    </Text>
+                  )}
+                  {!isBuying && isYay && (
+                    <Text fontWeight="light">
+                      {formatUnits(yaySellPriceAfterFee, 18)} ETH
+                    </Text>
+                  )}
+                  {!isBuying && !isYay && (
+                    <Text fontWeight="light">
+                      {formatUnits(naySellPriceAfterFee, 18)} ETH
+                    </Text>
+                  )}
+                </Flex>
+                {errorMessage && (
+                  <Text textAlign={"center"} color="red.400">
+                    {errorMessage}
+                  </Text>
+                )}
+                {amount_bigint > 0 && (
+                  <Button
+                    _hover={{}}
+                    _focus={{}}
+                    _active={{}}
+                    bg={"#E09025"}
+                    borderRadius="25px"
+                    onClick={isBuying ? buyShares : sellShares}
+                    isDisabled={
+                      (isBuying && !buyShares) || (!isBuying && !sellShares)
+                    }
+                  >
+                    <Text fontSize="20px">
+                      confirm {isBuying ? "buy" : "sell"}
+                    </Text>
+                  </Button>
+                )}
+              </>
+            ) : (
+              <Flex justifyContent="center">
+                <Spinner />
+              </Flex>
+            )}
           </Flex>
         )}
-      {channelQueryData?.sharesEvent &&
-        channelQueryData?.sharesEvent.length > 0 &&
-        showUi && (
-          <Box
-            mt="10px"
-            transition="all 0.5s ease"
-            bg={"#1b183f"}
-            borderRadius={"10px"}
-            border="1px solid #ffffff"
-            boxShadow={"0px 0px 10px #ffffff"}
-            position="relative"
-          >
-            <Flex direction="column">
-              <Flex justifyContent="center">
-                <Text
-                  textAlign={"center"}
-                  width="90%"
-                  fontSize={"20px"}
-                  fontWeight={"bold"}
-                >
-                  {channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion}
-                </Text>
-              </Flex>
-              {(selectedSharesOption !== undefined || showUi) && (
-                <IconButton
-                  aria-label="close"
-                  _hover={{}}
-                  _active={{}}
-                  _focus={{}}
-                  bg="transparent"
-                  icon={<Image alt="close" src="/svg/close.svg" width="15px" />}
-                  onClick={() =>
-                    selectedSharesOption !== undefined
-                      ? setSelectedSharesOption(undefined)
-                      : setShowUi(false)
-                  }
-                  position="absolute"
-                  right="-5px"
-                  top="-5px"
-                />
-              )}
-              {protocolFeeDestination === NULL_ADDRESS ? (
-                <>
-                  <Text textAlign={"center"} color="#d5d5d5" fontSize="15px">
-                    contract not ready yet
-                  </Text>
-                </>
-              ) : eventVerified ? (
-                <Flex direction="column" p="0.5rem">
-                  {!claimPayoutTxLoading ? (
-                    <>
-                      <Flex justifyContent="space-between">
-                        <Text fontSize="18px">event outcome</Text>
-                        <Text
-                          fontSize="18px"
-                          fontWeight="bold"
-                          color={eventResult === true ? "#02f042" : "#ee6204"}
-                        >
-                          {eventResult ? "Yes" : "No"}
-                        </Text>
-                      </Flex>
-                      <Flex justifyContent="space-between">
-                        <Text fontSize="18px">your winnings</Text>
-                        <Text fontSize="18px">
-                          {truncateValue(formatUnits(userPayout, 18))}
-                        </Text>
-                      </Flex>
-                      {userPayout > BigInt(0) && (
-                        <Button
-                          _hover={{}}
-                          _focus={{}}
-                          _active={{}}
-                          bg={"#E09025"}
-                          borderRadius="25px"
-                          isDisabled={!claimPayout}
-                          onClick={claimPayout}
-                        >
-                          <Text fontSize="20px">get payout</Text>
-                        </Button>
-                      )}
-                    </>
-                  ) : (
-                    <Flex justifyContent="center">
-                      <Spinner />
-                    </Flex>
-                  )}
-                </Flex>
-              ) : (
-                <>
-                  <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
-                    {truncateValue(formatUnits(pooledEth, 18), 4)} ETH in the
-                    pool
-                  </Text>
-                  <Flex justifyContent={"center"} gap={"10px"} my="10px">
-                    <Text color="#35b657" fontWeight="bold" fontSize="25px">
-                      {truncateValue(String(yaySharesSupply), 0, true)}
-                    </Text>
-                    <Button
-                      _hover={{}}
-                      _focus={{}}
-                      _active={{}}
-                      transform={
-                        selectedSharesOption === "no"
-                          ? "scale(0.95)"
-                          : undefined
-                      }
-                      opacity={selectedSharesOption === "no" ? 0.9 : 1}
-                      bg={selectedSharesOption === "no" ? "#909090" : "#009d2a"}
-                      onClick={() => setSelectedSharesOption("yes")}
-                    >
-                      <Flex direction="column">
-                        <Text
-                          fontFamily="Neue Pixel Sans"
-                          fontWeight={"light"}
-                          fontSize="15px"
-                        >
-                          YES
-                        </Text>
-                        <Text fontWeight={"light"} fontSize="12px">
-                          {truncateValue(
-                            formatUnits(yayBuyPriceForOne ?? BigInt(0), 18)
-                          )}
-                        </Text>
-                      </Flex>
-                    </Button>
-                    <Button
-                      _hover={{}}
-                      _focus={{}}
-                      _active={{}}
-                      transform={isYay ? "scale(0.95)" : undefined}
-                      opacity={isYay ? 0.9 : 1}
-                      bg={isYay ? "#909090" : "#da3b14"}
-                      onClick={() => setSelectedSharesOption("no")}
-                    >
-                      <Flex direction="column">
-                        <Text
-                          fontFamily="Neue Pixel Sans"
-                          fontWeight={"light"}
-                          fontSize="15px"
-                        >
-                          NO
-                        </Text>
-                        <Text fontWeight={"light"} fontSize="12px">
-                          {truncateValue(
-                            formatUnits(nayBuyPriceForOne ?? BigInt(0), 18)
-                          )}
-                        </Text>
-                      </Flex>
-                    </Button>
-                    <Text color="#ff623b" fontWeight="bold" fontSize="25px">
-                      {truncateValue(String(naySharesSupply), 0, true)}
-                    </Text>
-                  </Flex>
-                </>
-              )}
-              {selectedSharesOption === undefined || eventVerified ? null : (
-                <Flex direction="column" bg={"rgba(0, 0, 0, 0.258)"} p="0.5rem">
-                  {!buySharesTxLoading && !sellSharesTxLoading ? (
-                    <>
-                      <Flex justifyContent={"space-between"}>
-                        <Text fontWeight="light" opacity="0.75">
-                          enter amount of votes
-                        </Text>
-                        <Text fontWeight="light">
-                          own: {isYay ? yaySharesBalance : naySharesBalance}
-                        </Text>
-                      </Flex>
-                      <Flex>
-                        <Button
-                          width="60%"
-                          borderTopRightRadius={"0"}
-                          borderBottomRightRadius={"0"}
-                          bg={isBuying ? "#009d2a" : "#da3b14"}
-                          onClick={() => {
-                            isBuying ? setIsBuying(false) : setIsBuying(true);
-                          }}
-                          _hover={{ bg: isBuying ? "#00ba32" : "#ff4e22" }}
-                          _focus={{}}
-                          _active={{}}
-                        >
-                          <Text>{isBuying ? "buy" : "sell"}</Text>
-                        </Button>
-                        <Input
-                          borderTopLeftRadius={"0"}
-                          borderBottomLeftRadius={"0"}
-                          borderTopRightRadius={isBuying ? "10px" : "0"}
-                          borderBottomRightRadius={isBuying ? "10px" : "0"}
-                          variant="glow"
-                          boxShadow={"unset"}
-                          placeholder={"0"}
-                          value={amount}
-                          onChange={handleInputChange}
-                        />
-                        {!isBuying && (
-                          <Button
-                            _hover={{ bg: "rgba(54, 170, 212, 0.2)" }}
-                            _focus={{}}
-                            _active={{}}
-                            borderTopLeftRadius={"0"}
-                            borderBottomLeftRadius={"0"}
-                            bg="transparent"
-                            border="1px solid #3097bd"
-                            boxShadow={"inset 0px 0px 5px #2f92b6"}
-                            onClick={() => {
-                              if (isBuying) return;
-                              if (isYay) {
-                                setAmount(String(yaySharesBalance));
-                              } else {
-                                setAmount(String(naySharesBalance));
-                              }
-                            }}
-                          >
-                            <Text fontWeight="light">MAX</Text>
-                          </Button>
-                        )}
-                      </Flex>
-                      <Flex justifyContent={"space-between"}>
-                        <Text opacity="0.75" fontWeight="light">
-                          {isBuying
-                            ? `price + ${formatUnits(
-                                subjectFeePercent + protocolFeePercent,
-                                16
-                              )}% fees`
-                            : `return - ${formatUnits(
-                                subjectFeePercent + protocolFeePercent,
-                                16
-                              )}% fees`}
-                        </Text>
-                        {isBuying && isYay && (
-                          <Text fontWeight="light">
-                            {formatUnits(yayBuyPriceAfterFee, 18)} ETH
-                          </Text>
-                        )}
-                        {isBuying && !isYay && (
-                          <Text fontWeight="light">
-                            {formatUnits(nayBuyPriceAfterFee, 18)} ETH
-                          </Text>
-                        )}
-                        {!isBuying && isYay && (
-                          <Text fontWeight="light">
-                            {formatUnits(yaySellPriceAfterFee, 18)} ETH
-                          </Text>
-                        )}
-                        {!isBuying && !isYay && (
-                          <Text fontWeight="light">
-                            {formatUnits(naySellPriceAfterFee, 18)} ETH
-                          </Text>
-                        )}
-                      </Flex>
-                      {errorMessage && (
-                        <Text textAlign={"center"} color="red.400">
-                          {errorMessage}
-                        </Text>
-                      )}
-                      {amount_bigint > 0 && (
-                        <Button
-                          _hover={{}}
-                          _focus={{}}
-                          _active={{}}
-                          bg={"#E09025"}
-                          borderRadius="25px"
-                          onClick={isBuying ? buyShares : sellShares}
-                          isDisabled={
-                            (isBuying && !buyShares) ||
-                            (!isBuying && !sellShares)
-                          }
-                        >
-                          <Text fontSize="20px">
-                            confirm {isBuying ? "buy" : "sell"}
-                          </Text>
-                        </Button>
-                      )}
-                    </>
-                  ) : (
-                    <Flex justifyContent="center">
-                      <Spinner />
-                    </Flex>
-                  )}
-                </Flex>
-              )}
-            </Flex>
-          </Box>
-        )}
-    </>
+      </Flex>
+    </Box>
   );
 };
