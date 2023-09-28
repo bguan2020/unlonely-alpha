@@ -141,7 +141,7 @@ const DesktopPage = ({
                     templateColumns="repeat(3, 1fr)"
                     gap={4}
                     mt="20px"
-                    alignItems="center"
+                    alignItems="baseline"
                   >
                     <GridItem colSpan={showArcadeButtons ? 2 : 3}>
                       <ChannelDesc />

@@ -280,7 +280,7 @@ const SharesUi = ({
                 href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
-                buyShares pending, click to view
+                buyVotes pending, click to view
               </Link>
             </Box>
           ),
@@ -296,7 +296,7 @@ const SharesUi = ({
           position: "top-right",
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-              buyShares cancelled
+              buyVotes cancelled
             </Box>
           ),
         });
@@ -310,7 +310,7 @@ const SharesUi = ({
                 href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
-                buyShares success, click to view
+                buyVotes success, click to view
               </Link>
             </Box>
           ),
@@ -340,7 +340,7 @@ const SharesUi = ({
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              buyShares error
+              buyVotes error
             </Box>
           ),
           duration: 9000,
@@ -372,7 +372,7 @@ const SharesUi = ({
                 href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
-                sellShares pending, click to view
+                sellVotes pending, click to view
               </Link>
             </Box>
           ),
@@ -388,7 +388,7 @@ const SharesUi = ({
           position: "top-right",
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-              sellShares cancelled
+              sellVotes cancelled
             </Box>
           ),
         });
@@ -402,7 +402,7 @@ const SharesUi = ({
                 href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
-                sellShares success, click to view
+                sellVotes success, click to view
               </Link>
             </Box>
           ),
@@ -432,7 +432,7 @@ const SharesUi = ({
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              sellShares error
+              sellVotes error
             </Box>
           ),
           duration: 9000,
@@ -669,7 +669,12 @@ const SharesUi = ({
                     _focus={{}}
                     _active={{}}
                   >
-                    <Text>{isBuying ? "buy" : "sell"}</Text>
+                    <Flex direction="column" gap="5px">
+                      <Text>{isBuying ? "buying" : "selling"}</Text>
+                      <Text fontSize="10px" color="#bebebe">
+                        click to {isBuying ? "sell" : "buy"}
+                      </Text>
+                    </Flex>
                   </Button>
                   <Input
                     borderTopLeftRadius={"0"}
