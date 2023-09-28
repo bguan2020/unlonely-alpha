@@ -10,6 +10,10 @@ import {
   Text,
   Button,
   Tooltip,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
 } from "@chakra-ui/react";
 import React, {
   useCallback,
@@ -19,7 +23,6 @@ import React, {
   useState,
 } from "react";
 import Link from "next/link";
-import { useNetwork } from "wagmi";
 import { parseUnits } from "viem";
 import copy from "copy-to-clipboard";
 
@@ -35,12 +38,10 @@ import { useUser } from "../../hooks/context/useUser";
 import EmojiButton from "./emoji/EmojiButton";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
-import { NETWORKS } from "../../constants/networks";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { formatIncompleteNumber } from "../../utils/validation/input";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import centerEllipses from "../../utils/centerEllipses";
-import { ChatBot } from "../../constants/types";
 import ConnectWallet from "../navigation/ConnectWallet";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { ChatClip } from "./ChatClip";
@@ -51,7 +52,7 @@ type Props = {
   inputBox: HTMLTextAreaElement | null;
   mobile?: boolean;
   additionalChatCommands?: CommandData[];
-  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
+  allowPopout?: boolean;
 };
 
 const PRICE = "2";
@@ -61,17 +62,17 @@ const ChatForm = ({
   inputBox,
   mobile,
   additionalChatCommands,
-  addToChatbot,
+  allowPopout,
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
   const { isStandalone } = useUserAgent();
-  const network = useNetwork();
-  const { network: net } = useNetworkContext();
-  const { matchingChain } = net;
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork, explorerUrl } = network;
 
   const toast = useToast();
-  const { channel: channelContext, token, chat } = useChannelContext();
+  const { channel: channelContext, token, chat, arcade } = useChannelContext();
   const { clipping } = chat;
+  const { addToChatbot } = arcade;
   const { fetchData, loading: clipLoading } = clipping;
 
   const { channelQueryData } = channelContext;
@@ -87,12 +88,6 @@ const ChatForm = ({
 
   const [blastMode, setBlastMode] = useState(false);
 
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const {
@@ -116,7 +111,7 @@ const ChatForm = ({
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 approve pending, click to view
@@ -134,7 +129,7 @@ const ChatForm = ({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 approve success, click to view
@@ -164,6 +159,7 @@ const ChatForm = ({
       creatorTokenAddress: channelQueryData?.token?.address as `0x${string}`,
       featurePrice: tokenAmount_bigint,
     },
+    contract,
     {
       onWriteSuccess: (data) => {
         toast({
@@ -171,7 +167,7 @@ const ChatForm = ({
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 useFeature pending, click to view
@@ -204,7 +200,7 @@ const ChatForm = ({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 useFeature success, click to view
@@ -396,6 +392,16 @@ const ChatForm = ({
     });
   };
 
+  const openChatPopout = () => {
+    if (!channelQueryData) return;
+    const windowFeatures = "width=400,height=600,menubar=yes,toolbar=yes";
+    window.open(
+      `${window.location.origin}/mobile/chat/${channelQueryData?.awsId}`,
+      "_blank",
+      windowFeatures
+    );
+  };
+
   return (
     <>
       <ChatClip />
@@ -554,51 +560,106 @@ const ChatForm = ({
                       <Spinner />
                     </Tooltip>
                   ) : (
-                    <IconButton
-                      icon={<Image src="/svg/cut.svg" />}
-                      aria-label="clip stream"
-                      bg="transparent"
-                      _focus={{}}
-                      _hover={{ transform: "scale(1.15)" }}
-                      _active={{ transform: "scale(1.3)" }}
-                      onClick={() => {
-                        if (user) {
-                          fetchData();
-                          addToChatbot?.({
-                            username: user?.username ?? "",
-                            address: user?.address ?? "",
-                            taskType: InteractionType.CLIP,
-                            title: `${
-                              user?.username ?? centerEllipses(address, 15)
-                            } has just clipped a highlight from this stream!`,
-                            description: "",
-                          });
-                        } else {
-                          toastSignIn();
-                        }
-                      }}
-                    />
+                    <Popover trigger="hover" placement="top" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          icon={<Image src="/svg/cut.svg" />}
+                          aria-label="clip stream"
+                          bg="transparent"
+                          _focus={{}}
+                          _hover={{ transform: "scale(1.15)" }}
+                          _active={{ transform: "scale(1.3)" }}
+                          onClick={() => {
+                            if (user) {
+                              fetchData();
+                              addToChatbot({
+                                username: user?.username ?? "",
+                                address: user?.address ?? "",
+                                taskType: InteractionType.CLIP,
+                                title: `${
+                                  user?.username ?? centerEllipses(address, 15)
+                                } has just clipped a highlight from this stream!`,
+                                description: "",
+                              });
+                            } else {
+                              toastSignIn();
+                            }
+                          }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#1557c0"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#1557c0" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          clip the last 30 secs as an NFC!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
                   )}
-
-                  <IconButton
-                    icon={<Image src="/svg/blast.svg" />}
-                    aria-label="clip stream"
-                    bg={blastMode ? "red" : "transparent"}
-                    _focus={{}}
-                    _hover={{ transform: "scale(1.15)" }}
-                    _active={{ transform: "scale(1.3)" }}
-                    onClick={() => {
-                      if (blastMode) {
-                        setBlastMode(false);
-                      } else {
-                        if (user) {
-                          setBlastMode(true);
-                        } else {
-                          toastSignIn();
-                        }
-                      }
-                    }}
-                  />
+                  {allowPopout && (
+                    <Popover trigger="hover" placement="top" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          onClick={openChatPopout}
+                          aria-label="chat-popout"
+                          _focus={{}}
+                          _hover={{ transform: "scale(1.15)" }}
+                          _active={{ transform: "scale(1.3)" }}
+                          icon={<Image src="/svg/pop-out.svg" />}
+                          bg="transparent"
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#5d12c6"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#5d12c6" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          pop out chat in a new window!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                  <Popover trigger="hover" placement="top" openDelay={500}>
+                    <PopoverTrigger>
+                      <IconButton
+                        icon={<Image src="/svg/blast.svg" />}
+                        aria-label="clip stream"
+                        bg={blastMode ? "red" : "transparent"}
+                        _focus={{}}
+                        _hover={{ transform: "scale(1.15)" }}
+                        _active={{ transform: "scale(1.3)" }}
+                        onClick={() => {
+                          if (blastMode) {
+                            setBlastMode(false);
+                          } else {
+                            if (user) {
+                              setBlastMode(true);
+                            } else {
+                              toastSignIn();
+                            }
+                          }
+                        }}
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      bg="#c82606"
+                      border="none"
+                      width="100%"
+                      p="2px"
+                    >
+                      <PopoverArrow bg="#c82606" />
+                      <Text fontSize="12px" textAlign={"center"}>
+                        blast ur chat across the screen!
+                      </Text>
+                    </PopoverContent>
+                  </Popover>
                   <EmojiButton
                     mobile={mobile}
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
@@ -606,7 +667,9 @@ const ChatForm = ({
                   />
                   <IconButton
                     type="submit"
-                    disabled={messageTextIsEmpty || tooltipError !== ""}
+                    disabled={
+                      messageTextIsEmpty || (tooltipError !== "" && blastMode)
+                    }
                     icon={
                       blastMode ? (
                         <Image src="/svg/blast-send.svg" />

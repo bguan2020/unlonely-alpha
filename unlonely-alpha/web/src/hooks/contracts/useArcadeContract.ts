@@ -1,20 +1,18 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { isAddress } from "viem";
-import { useNetwork, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 
 import { NULL_ADDRESS } from "../../constants";
-import { NETWORKS } from "../../constants/networks";
-import { WriteCallbacks } from "../../constants/types";
-import { getContractFromNetwork } from "../../utils/contract";
+import { ContractData, WriteCallbacks } from "../../constants/types";
+import {
+  createCallbackHandler,
+} from "../../utils/contract";
 import { useWrite } from "./useWrite";
 
-export const useReadPublic = (creatorTokenAddress: `0x${string}`) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-
+export const useReadPublic = (
+  contract: ContractData,
+  creatorTokenAddress: `0x${string}`
+) => {
   const publicClient = usePublicClient();
   const [creatorToken, setCreatorToken] = useState<string>(NULL_ADDRESS);
   const [tokenPrice, setTokenPrice] = useState<bigint>(BigInt(0));
@@ -77,14 +75,9 @@ export const useReadPublic = (creatorTokenAddress: `0x${string}`) => {
 
 export const useCalculateEthAmount = (
   creatorTokenAddress: `0x${string}`,
+  contract: ContractData,
   amountOut: bigint
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-
   const publicClient = usePublicClient();
 
   const [amountIn, setAmountIn] = useState<bigint>(BigInt(0));
@@ -123,12 +116,7 @@ export const useCalculateEthAmount = (
   };
 };
 
-export const useAdmins = () => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+export const useAdmins = (contract: ContractData) => {
   const publicClient = usePublicClient();
 
   const [admins, setAdmins] = useState<string[]>([]);
@@ -177,13 +165,13 @@ export const useBuyCreatorToken = (
     amountIn: bigint;
     amountOut: bigint;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+  const callbackHandlers = createCallbackHandler(
+    "useBuyCreatorToken buyCreatorToken",
+    callbacks
+  );
 
   const {
     writeAsync: buyCreatorToken,
@@ -194,32 +182,7 @@ export const useBuyCreatorToken = (
     contract,
     "buyCreatorToken",
     [args.creatorTokenAddress, args.amountOut],
-    {
-      onPrepareSuccess: (data) => {
-        console.log("useBuyCreatorToken buyCreatorToken prepare success", data);
-        callbacks?.onPrepareSuccess?.(data);
-      },
-      onPrepareError: (error) => {
-        console.log("useBuyCreatorToken buyCreatorToken prepare error", error);
-        callbacks?.onPrepareError?.(error);
-      },
-      onWriteSuccess: (data) => {
-        console.log("useBuyCreatorToken buyCreatorToken write success", data);
-        callbacks?.onWriteSuccess?.(data);
-      },
-      onWriteError: (error) => {
-        console.log("useBuyCreatorToken buyCreatorToken write error", error);
-        callbacks?.onWriteError?.(error);
-      },
-      onTxSuccess: (data) => {
-        console.log("useBuyCreatorToken buyCreatorToken tx success", data);
-        callbacks?.onTxSuccess?.(data);
-      },
-      onTxError: (error) => {
-        console.log("useBuyCreatorToken buyCreatorToken tx error", error);
-        callbacks?.onTxError?.(error);
-      },
-    },
+    callbackHandlers,
     { value: args.amountIn }
   );
 
@@ -236,14 +199,13 @@ export const useUseFeature = (
     creatorTokenAddress: `0x${string}`;
     featurePrice: bigint;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-
+  const callbackHandlers = createCallbackHandler(
+    "useUseFeature useFeature",
+    callbacks
+  );
   const {
     writeAsync: useFeature,
     writeData: useFeatureData,
@@ -256,32 +218,7 @@ export const useUseFeature = (
     contract,
     "useFeature",
     [args.creatorTokenAddress, args.featurePrice],
-    {
-      onPrepareSuccess: (data) => {
-        console.log("useUseFeature useFeature prepare success", data);
-        callbacks?.onPrepareSuccess?.(data);
-      },
-      onPrepareError: (error) => {
-        console.log("useUseFeature useFeature prepare error", error);
-        callbacks?.onPrepareError?.(error);
-      },
-      onWriteSuccess: (data) => {
-        console.log("useUseFeature useFeature write success", data);
-        callbacks?.onWriteSuccess?.(data);
-      },
-      onWriteError: (error) => {
-        console.log("useUseFeature useFeature write error", error);
-        callbacks?.onWriteError?.(error);
-      },
-      onTxSuccess: (data) => {
-        console.log("useUseFeature useFeature tx success", data);
-        callbacks?.onTxSuccess?.(data);
-      },
-      onTxError: (error) => {
-        console.log("useUseFeature useFeature tx error", error);
-        callbacks?.onTxError?.(error);
-      },
-    }
+    callbackHandlers
   );
 
   return {
@@ -301,13 +238,13 @@ export const useAddCreatorToken = (
     initialPrice: bigint;
     tokenOwner: `0x${string}`;
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+  const callbackHandlers = createCallbackHandler(
+    "useAddCreatorToken addCreatorToken",
+    callbacks
+  );
 
   const {
     writeAsync: addCreatorToken,
@@ -318,32 +255,7 @@ export const useAddCreatorToken = (
     contract,
     "addCreatorToken",
     [args.creatorTokenAddress, args.initialPrice, args.tokenOwner],
-    {
-      onPrepareSuccess: (data) => {
-        console.log("useAddCreatorToken addCreatorToken prepare success", data);
-        callbacks?.onPrepareSuccess?.(data);
-      },
-      onPrepareError: (error) => {
-        console.log("useAddCreatorToken addCreatorToken prepare error", error);
-        callbacks?.onPrepareError?.(error);
-      },
-      onWriteSuccess: (data) => {
-        console.log("useAddCreatorToken addCreatorToken write success", data);
-        callbacks?.onWriteSuccess?.(data);
-      },
-      onWriteError: (error) => {
-        console.log("useAddCreatorToken addCreatorToken write error", error);
-        callbacks?.onWriteError?.(error);
-      },
-      onTxSuccess: (data) => {
-        console.log("useAddCreatorToken addCreatorToken tx success", data);
-        callbacks?.onTxSuccess?.(data);
-      },
-      onTxError: (error) => {
-        console.log("useAddCreatorToken addCreatorToken tx error", error);
-        callbacks?.onTxError?.(error);
-      },
-    }
+    callbackHandlers
   );
 
   return {
@@ -359,13 +271,13 @@ export const useSetTokenPrices = (
     creatorTokens: `0x${string}`[];
     newPrices: bigint[];
   },
+  contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-  }, [network]);
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+  const callbackHandlers = createCallbackHandler(
+    "useSetTokenPrices setTokenPrices",
+    callbacks
+  );
 
   const {
     writeAsync: setTokenPrices,
@@ -376,32 +288,7 @@ export const useSetTokenPrices = (
     contract,
     "setTokenPrices",
     [args.creatorTokens, args.newPrices],
-    {
-      onPrepareSuccess: (data) => {
-        console.log("useSetTokenPrices setTokenPrices prepare success", data);
-        callbacks?.onPrepareSuccess?.(data);
-      },
-      onPrepareError: (error) => {
-        console.log("useSetTokenPrices setTokenPrices prepare error", error);
-        callbacks?.onPrepareError?.(error);
-      },
-      onWriteSuccess: (data) => {
-        console.log("useSetTokenPrices setTokenPrices write success", data);
-        callbacks?.onWriteSuccess?.(data);
-      },
-      onWriteError: (error) => {
-        console.log("useSetTokenPrices setTokenPrices write error", error);
-        callbacks?.onWriteError?.(error);
-      },
-      onTxSuccess: (data) => {
-        console.log("useSetTokenPrices setTokenPrices tx success", data);
-        callbacks?.onTxSuccess?.(data);
-      },
-      onTxError: (error) => {
-        console.log("useSetTokenPrices setTokenPrices tx error", error);
-        callbacks?.onTxError?.(error);
-      },
-    }
+    callbackHandlers
   );
 
   return {
@@ -411,36 +298,3 @@ export const useSetTokenPrices = (
     setTokenPricesTxLoading,
   };
 };
-
-// export const useSetTokenPrice = (
-//   args: {
-//     creatorTokenAddress: `0x${string}`;
-//     price: bigint;
-//   },
-//   callbacks?: WriteCallbacks
-// ) => {
-//   const network = useNetwork();
-//   const localNetwork = useMemo(() => {
-//     return NETWORKS.find((n) => n.config.chainId === network.chain?.id);
-//   }, [network]);
-//   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-
-//   const {
-//     writeAsync: setTokenPrice,
-//     writeData: setTokenPriceData,
-//     txData: setTokenPriceTxData,
-//     isTxLoading: setTokenPriceTxLoading,
-//   } = useWrite(
-//     contract,
-//     "setTokenPrice",
-//     [args.creatorTokenAddress, args.price],
-//     callbacks
-//   );
-
-//   return {
-//     setTokenPrice,
-//     setTokenPriceData,
-//     setTokenPriceTxData,
-//     setTokenPriceTxLoading,
-//   };
-// };

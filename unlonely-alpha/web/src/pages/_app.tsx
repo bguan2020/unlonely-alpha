@@ -13,11 +13,12 @@ import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { PrivyWagmiConnector } from "@privy-io/wagmi-connector";
 
-import { Mainnet, Goerli } from "../constants/networks";
+import { Base, Mainnet, Goerli, BaseGoerli } from "../constants/networks";
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/context/useUser";
 import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
 import theme from "../styles/theme";
+import { NetworkProvider } from "../hooks/context/useNetwork";
 
 interface InitialProps {
   cookies: Cookies;
@@ -32,13 +33,19 @@ function App({ Component, pageProps, cookies }: Props) {
   );
 
   const configureChainsConfig = configureChains(
-    [Mainnet, Goerli],
+    [Base, Mainnet, Goerli, BaseGoerli],
     [
+      alchemyProvider({
+        apiKey: "aR93M6MdEC4lgh4VjPXLaMnfBveve1fC",
+      }),
       alchemyProvider({
         apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F",
       }),
       alchemyProvider({
         apiKey: "Yv5gKmch-fSlMcOygB5jgDbNd3PL5fSv",
+      }),
+      alchemyProvider({
+        apiKey: "deehmFS2ptkwC3DD_vo3wSBCDyHwHM5x",
       }),
       publicProvider(),
     ]
@@ -66,7 +73,9 @@ function App({ Component, pageProps, cookies }: Props) {
           <ApolloProvider client={apolloClient}>
             <UserProvider>
               <ScreenAnimationsProvider>
-                <Component {...pageProps} />
+                <NetworkProvider>
+                  <Component {...pageProps} />
+                </NetworkProvider>
               </ScreenAnimationsProvider>
             </UserProvider>
           </ApolloProvider>

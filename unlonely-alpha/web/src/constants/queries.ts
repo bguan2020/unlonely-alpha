@@ -46,6 +46,11 @@ export const CHANNEL_DETAIL_QUERY = gql`
       slug
       allowNFCs
       bannedUsers
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        eventState
+      }
       owner {
         FCImageUrl
         lensImageUrl
@@ -81,6 +86,11 @@ export const CHANNEL_DETAIL_MOBILE_QUERY = gql`
       slug
       allowNFCs
       bannedUsers
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        eventState
+      }
       owner {
         FCImageUrl
         lensImageUrl
@@ -203,6 +213,21 @@ export const NFC_FEED_QUERY = gql`
         videoSavantLvl
       }
       title
+    }
+  }
+`;
+
+export const GET_BASE_LEADERBOARD_QUERY = gql`
+  query GetBaseLeaderboard {
+    getBaseLeaderboard {
+      id
+      amount
+      owner {
+        address
+        username
+        FCImageUrl
+        lensImageUrl
+      }
     }
   }
 `;

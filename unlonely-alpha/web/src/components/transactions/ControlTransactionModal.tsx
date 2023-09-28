@@ -12,12 +12,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { parseUnits } from "viem";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useNetwork } from "wagmi";
 import Link from "next/link";
 
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { useUser } from "../../hooks/context/useUser";
-import { ChatBot } from "../../constants/types";
 import { formatIncompleteNumber } from "../../utils/validation/input";
 import { ModalButton } from "../general/button/ModalButton";
 import { TransactionModalTemplate } from "./TransactionModalTemplate";
@@ -26,7 +24,6 @@ import usePostStreamInteraction from "../../hooks/server/usePostStreamInteractio
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import { PostStreamInteractionInput } from "../../generated/graphql";
 import { useApproval } from "../../hooks/contracts/useApproval";
-import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import centerEllipses from "../../utils/centerEllipses";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
@@ -41,21 +38,20 @@ export default function ControlTransactionModal({
   icon,
   callback,
   handleClose,
-  addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
   icon?: JSX.Element;
   callback?: any;
   handleClose: () => void;
-  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
-  const { channel, token } = useChannelContext();
+  const { channel, token, arcade } = useChannelContext();
+  const { addToChatbot } = arcade;
   const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
   const { isStandalone } = useUserAgent();
-  const { network: net } = useNetworkContext();
-  const { matchingChain } = net;
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork, explorerUrl } = network;
 
   const [amountOption, setAmountOption] = useState<"5">("5");
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -63,13 +59,6 @@ export default function ControlTransactionModal({
 
   const { user, userAddress, walletIsConnected } = useUser();
   const toast = useToast();
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const form = useForm<PostStreamInteractionInput>({
@@ -100,7 +89,7 @@ export default function ControlTransactionModal({
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 approve pending, click to view
@@ -118,7 +107,7 @@ export default function ControlTransactionModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 approve success, click to view
@@ -147,14 +136,16 @@ export default function ControlTransactionModal({
       creatorTokenAddress: channelQueryData?.token?.address as `0x${string}`,
       featurePrice: tokenAmount_bigint,
     },
+    contract,
     {
       onWriteSuccess: (data) => {
+        handleClose();
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 useFeature pending, click to view
@@ -172,7 +163,7 @@ export default function ControlTransactionModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 useFeature success, click to view
@@ -184,7 +175,6 @@ export default function ControlTransactionModal({
           position: "top-right",
         });
         handleBackendSend();
-        handleClose();
       },
     }
   );
@@ -197,7 +187,7 @@ export default function ControlTransactionModal({
         interactionType: InteractionType.CONTROL,
       });
       callback?.(text ?? localText);
-      addToChatbot?.({
+      addToChatbot({
         username: user?.username ?? "",
         address: user?.address ?? "",
         taskType: InteractionType.CONTROL,
@@ -223,7 +213,7 @@ export default function ControlTransactionModal({
   }, [loading, useFeatureTxLoading, isApprovalLoading]);
 
   const handleSend = async () => {
-    if (!useFeature || !addToChatbot) return;
+    if (!useFeature) return;
     await useFeature();
   };
 

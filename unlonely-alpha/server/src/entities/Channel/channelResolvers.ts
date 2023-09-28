@@ -23,6 +23,26 @@ export const resolvers = {
     },
   },
   Mutation: {
+    closeSharesEvent: (
+      _: any,
+      { data }: { data: channelService.IPostCloseSharesEventInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      return channelService.closeSharesEvent(data, ctx);
+    },
+    postSharesEvent: (
+      _: any,
+      { data }: { data: channelService.IPostSharesEventInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      return channelService.postSharesEvent(data, ctx);
+    },
     updateChannelText: (
       _: any,
       { data }: { data: channelService.IPostChannelTextInput },
@@ -67,6 +87,9 @@ export const resolvers = {
     },
     chatCommands: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelChatCommands({ id }, ctx);
+    },
+    sharesEvent: ({ id }: { id: number }, _: any, ctx: Context) => {
+      return channelService.getChannelSharesEvent({ id }, ctx);
     },
   },
 };

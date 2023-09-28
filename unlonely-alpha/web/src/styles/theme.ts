@@ -26,6 +26,9 @@ const inputGlow = {
   px: "16px",
   py: "10px",
   boxShadow: "0px 0px 8px #4388b6",
+  _placeholder: {
+    color: "gray.600",
+  },
 };
 
 export default extendTheme({

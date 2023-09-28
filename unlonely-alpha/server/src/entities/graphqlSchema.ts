@@ -19,6 +19,7 @@ import { typeDef as deviceTokenTypeDef } from "./DeviceToken/deviceTokenTypeDef"
 import { typeDef as creatorTokenTypeDef } from "./CreatorToken/creatorTokenTypeDef";
 import { typeDef as chatCommandTypeDef } from "./ChatCommand/chatCommandTypeDef";
 import { typeDef as subscriptionTypeDef } from "./Subscription/SubscriptionTypeDef";
+import { typeDef as baseLeaderboardTypeDef } from "./BaseLeaderboard/baseLeaderboardTypeDef";
 
 import { resolvers as likeResolvers } from "./Like/likeResolvers";
 import { resolvers as userResolvers } from "./User/userResolvers";
@@ -33,6 +34,7 @@ import { resolvers as deviceTokenResolvers } from "./DeviceToken/deviceTokenReso
 import { resolvers as creatorTokenResolvers } from "./CreatorToken/creatorTokenResolvers";
 import { resolvers as chatCommandResolvers } from "./ChatCommand/chatCommandResolvers";
 import { resolvers as subscriptionResolvers } from "./Subscription/SubscriptionResolvers";
+import { resolvers as baseLeaderboardResolvers } from "./BaseLeaderboard/baseLeaderboardResolvers";
 
 const Query = gql`
   enum SortOrder {
@@ -75,6 +77,7 @@ export default makeExecutableSchema({
     creatorTokenTypeDef,
     chatCommandTypeDef,
     subscriptionTypeDef,
+    baseLeaderboardTypeDef,
   ],
   resolvers: merge(
     resolvers,
@@ -90,6 +93,7 @@ export default makeExecutableSchema({
     deviceTokenResolvers,
     creatorTokenResolvers,
     chatCommandResolvers,
-    subscriptionResolvers
+    subscriptionResolvers,
+    baseLeaderboardResolvers
   ),
 });

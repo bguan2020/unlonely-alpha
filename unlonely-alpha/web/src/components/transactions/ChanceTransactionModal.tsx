@@ -2,7 +2,6 @@ import { Text, Input, Flex } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 
 import { useUser } from "../../hooks/context/useUser";
-import { ChatBot } from "../../constants/types";
 import {
   filteredInput,
   formatIncompleteNumber,
@@ -10,20 +9,22 @@ import {
 import { TransactionModalTemplate } from "./TransactionModalTemplate";
 import { ModalButton } from "../general/button/ModalButton";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 export default function ChanceTransactionModal({
   title,
   isOpen,
   icon,
   handleClose,
-  addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
   icon?: JSX.Element;
   handleClose: () => void;
-  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
+  const { arcade } = useChannelContext();
+  const { addToChatbot } = arcade;
+
   const { isStandalone } = useUserAgent();
 
   const [amount, setAmount] = useState("");
@@ -34,7 +35,6 @@ export default function ChanceTransactionModal({
   const { user } = useUser();
 
   const handleSend = async () => {
-    if (!addToChatbot) return;
     addToChatbot({
       username: user?.username ?? "",
       address: user?.address ?? "",
@@ -56,9 +56,6 @@ export default function ChanceTransactionModal({
   );
 
   const canSend = useMemo(() => {
-    // if (!balanceOfData) return false;
-    // if (Number(formatEther(balanceOfData.value)) < Number(formattedAmount))
-    //   return false;
     if (amountOption === "custom" && Number(formattedAmount) < 5) return false;
     return true;
   }, [formattedAmount, amountOption]);

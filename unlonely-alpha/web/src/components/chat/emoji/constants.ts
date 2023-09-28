@@ -2,14 +2,9 @@
 // @ts-ignore
 import unicodeMap from "emoji-unicode-map";
 
-export const base_emojis = ["😂", "💰", "⛽️", "🌝", "📉", "🚀", "🔥"];
-
 const _unicodeEmojis = {
-  crypto: base_emojis,
-};
-
-export const categories = {
-  crypto: "🪙",
+  crypto: ["😂", "💰", "⛽️", "🌝", "📉", "🚀", "🔥"],
+  "love on leverage": ["👀", "🥵", "💀", "💘", "📈", "🫣", "💔", "🙈"],
 };
 
 export const gifsList = [
@@ -18,12 +13,26 @@ export const gifsList = [
   "https://i.imgur.com/VyPH0Az.gif", // the metaverse
   "https://i.imgur.com/wbUNcyS.gif", // salute
   "https://i.imgur.com/ynQN8Ct.gif", // jeff bezos
-  // "https://i.imgur.com/NurjwAK.gif", // bong hit
+  "https://i.imgur.com/NurjwAK.gif", // bong hit
   "https://i.imgur.com/zTfFgtZ.gif", // dancing
   // "https://i.imgur.com/IW1whk4.gif", // tofu
+  // "https://media.tenor.com/nxh5YC7o1YYAAAAM/jack-nicholson-yes.gif", // jack nicholson yes
 ];
 
-export const categoriesList = Object.keys(categories);
+export const categoriesList = ["crypto", "love on leverage"];
+
+export const REACTION_EMOJIS = [
+  "⛽️",
+  "😂",
+  "❤️",
+  "👑",
+  "👀",
+  "👍",
+  "👎",
+  "🚀",
+  "🙈",
+  "🫶",
+];
 
 export const unicodeEmojis = categoriesList.reduce(
   (prevVal: any, category: string) => {

@@ -27,40 +27,22 @@ import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import CoinButton from "../arcade/CoinButton";
 // import DiceButton from "../arcade/DiceButton";
 import BuyButton from "../arcade/BuyButton";
-import { ChatBot } from "../../constants/types";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import CustomButton from "../arcade/CustomButton";
 import MessageList from "./MessageList";
 import { useChat } from "../../hooks/chat/useChat";
 import { getHolders } from "../../utils/getHolders";
+import { SharesInterface } from "./SharesInterface";
 
-type Props = {
-  chatBot: ChatBot[];
-  addToChatbot: (chatBotMessageToAdd: ChatBot) => void;
-  handleControlModal?: () => void;
-  handleChanceModal?: () => void;
-  handlePvpModal?: () => void;
-  handleTipModal?: () => void;
-  handleBuyModal?: () => void;
-  handleCustomModal?: () => void;
-};
-
-const AblyChatComponent = ({
-  chatBot,
-  addToChatbot,
-  handleControlModal,
-  handleChanceModal,
-  handlePvpModal,
-  handleTipModal,
-  handleBuyModal,
-  handleCustomModal,
-}: Props) => {
+const AblyChatComponent = () => {
   const {
     channel: channelContext,
     chat,
     holders: holdersContext,
+    arcade,
   } = useChannelContext();
+  const { chatBot, handleBuyModal, handleTipModal, handleCustomModal } = arcade;
   const { channelQueryData } = channelContext;
   const { chatChannel, presenceChannel } = chat;
   const {
@@ -127,7 +109,10 @@ const AblyChatComponent = ({
   });
 
   return (
-    <Flex h="100%" minW="100%">
+    <Flex h="100%" minW="100%" position={"relative"}>
+      <Flex position="absolute" zIndex="1" top={"-15px"} left="10px">
+        <Participants ablyPresenceChannel={presenceChannel} />
+      </Flex>
       <Flex
         mt="10px"
         direction="column"
@@ -233,7 +218,7 @@ const AblyChatComponent = ({
                           ? `$${channelQueryData?.token?.symbol}`
                           : "token"
                       }
-                      callback={handleBuyModal}
+                      callback={() => handleBuyModal(true)}
                     />
                     <Grid
                       mt="50px"
@@ -242,38 +227,19 @@ const AblyChatComponent = ({
                       alignItems="center"
                       justifyItems="center"
                     >
-                      {/* <GridItem>
-                        <Tooltip label={"coming soon"}>
-                          <span>
-                            <DiceButton noHover />
-                          </span>
-                        </Tooltip>
-                      </GridItem> */}
-                      {/* <GridItem>
-                        <Tooltip label={"coming soon"}>
-                          <span>
-                            <SwordButton noHover />
-                          </span>
-                        </Tooltip>
-                      </GridItem> */}
                       <GridItem>
                         <Tooltip label={"make streamer do X"}>
                           <span>
-                            <CustomButton callback={handleCustomModal} />
+                            <CustomButton
+                              callback={() => handleCustomModal(true)}
+                            />
                           </span>
                         </Tooltip>
                       </GridItem>
-                      {/* <GridItem>
-                        <Tooltip label={"control text on the stream"}>
-                          <span>
-                            <ControlButton callback={handleControlModal} />
-                          </span>
-                        </Tooltip>
-                      </GridItem> */}
                       <GridItem>
                         <Tooltip label={"tip the streamer"}>
                           <span>
-                            <CoinButton callback={handleTipModal} />
+                            <CoinButton callback={() => handleTipModal(true)} />
                           </span>
                         </Tooltip>
                       </GridItem>
@@ -306,15 +272,6 @@ const AblyChatComponent = ({
                         </span>
                       </Tooltip>
                     </GridItem>
-                    {/* <GridItem>
-                      <Tooltip
-                        label={!user ? "connect wallet first" : "not available"}
-                      >
-                        <span>
-                          <ControlButton />
-                        </span>
-                      </Tooltip>
-                    </GridItem> */}
                     <GridItem>
                       <Tooltip
                         label={!user ? "connect wallet first" : "not available"}
@@ -324,24 +281,6 @@ const AblyChatComponent = ({
                         </span>
                       </Tooltip>
                     </GridItem>
-                    {/* <GridItem>
-                      <Tooltip
-                        label={!user ? "connect wallet first" : "not available"}
-                      >
-                        <span>
-                          <DiceButton />
-                        </span>
-                      </Tooltip>
-                    </GridItem> */}
-                    {/* <GridItem>
-                      <Tooltip
-                        label={!user ? "connect wallet first" : "not available"}
-                      >
-                        <span>
-                          <SwordButton />
-                        </span>
-                      </Tooltip>
-                    </GridItem> */}
                   </Grid>
                 </>
               )}
@@ -454,18 +393,7 @@ const AblyChatComponent = ({
             </Flex>
           </Flex>
         )}
-        <Flex my="10px" direction={"column"}>
-          <Text
-            lineHeight={5}
-            fontWeight="light"
-            fontSize={13}
-            textAlign="center"
-            color="#A9ADCC"
-          >
-            who's here?
-          </Text>
-          <Participants ablyPresenceChannel={presenceChannel} />
-        </Flex>
+        <SharesInterface messages={receivedMessages} />
         <Flex
           direction="column"
           overflowX="auto"
@@ -504,7 +432,7 @@ const AblyChatComponent = ({
             sendChatMessage={sendChatMessage}
             inputBox={inputBox}
             additionalChatCommands={channelChatCommands}
-            addToChatbot={addToChatbot}
+            allowPopout
           />
         </Flex>
       </Flex>
