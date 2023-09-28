@@ -1,5 +1,6 @@
 import React from "react";
 import { SimpleGrid, Flex, Text } from "@chakra-ui/react";
+
 import { unicodeEmojis, categoriesList, gifsList } from "./constants";
 import { EmojiType } from "../../../constants/types/chat";
 import Emoji from "./Emoji";
@@ -29,7 +30,7 @@ const EmojiCategory = ({
       >
         {category}
       </Text>
-      <SimpleGrid minChildWidth="20px" spacing="2px" alignContent="center">
+      <SimpleGrid minChildWidth="34px" spacing="5px" alignContent="center">
         {emojis.map((emoji) => (
           <Emoji
             key={emoji.unicodeString}

@@ -27,7 +27,7 @@ const GifCategory = ({
         {/* Power User Badge Hodlers */}
         Gifs
       </Text>
-      <SimpleGrid minChildWidth="20px" spacing="4px" alignContent="center">
+      <SimpleGrid minChildWidth="40px" spacing="5px" alignContent="center">
         {gifs.map((gif) => (
           <Gif
             key={gif}
