@@ -100,16 +100,6 @@ const DesktopPage = ({
     [width, hideChat]
   );
 
-  const openChatPopout = () => {
-    if (!channelQueryData) return;
-    const windowFeatures = "width=400,height=600,menubar=yes,toolbar=yes";
-    window.open(
-      `${window.location.origin}/mobile/chat/${channelQueryData?.awsId}`,
-      "_blank",
-      windowFeatures
-    );
-  };
-
   return (
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}

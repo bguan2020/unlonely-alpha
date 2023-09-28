@@ -1,5 +1,14 @@
-import { Flex, Heading, Spacer, useBreakpointValue } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  Heading,
+  Spacer,
+  useBreakpointValue,
+  Image,
+  Text,
+} from "@chakra-ui/react";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 // import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 
 import ConnectWallet from "./ConnectWallet";
@@ -11,6 +20,12 @@ const Header: React.FC = () => {
     md: true,
     xl: true,
   });
+  const router = useRouter();
+
+  const openChatPopout = () => {
+    const windowFeatures = "width=400,height=600,menubar=yes,toolbar=yes";
+    window.open(`${window.location.origin}//bridge`, "_blank", windowFeatures);
+  };
 
   return (
     <Flex
@@ -56,6 +71,21 @@ const Header: React.FC = () => {
             margin="auto"
             width="100%"
           >
+            {!router.pathname.startsWith("/bridge") && (
+              <Button
+                _hover={{ transform: "scale(1.1)" }}
+                _focus={{}}
+                _active={{}}
+                bg="#1724d7"
+                p="0"
+                onClick={openChatPopout}
+              >
+                <Flex gap="0.5rem" height={"100%"} p="5px">
+                  <Image src="/svg/Base_Network_Logo.svg" />
+                  <Text alignSelf={"center"}>Bridge</Text>
+                </Flex>
+              </Button>
+            )}
             <ConnectWallet />
           </Flex>
         </Spacer>
