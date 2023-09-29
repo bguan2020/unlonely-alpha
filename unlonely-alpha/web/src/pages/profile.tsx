@@ -176,30 +176,32 @@ const Profile = () => {
             </Text>
             <Flex justifyContent={"space-between"} alignItems="center">
               <Text fontSize={"20px"}>{localNetwork.name}</Text>
-              {wallet?.chainId?.split(":")[1] !==
-                String(NETWORKS[0].config.chainId) && (
-                <Flex
-                  p="1px"
-                  bg={
-                    "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-                  }
-                  borderRadius="10px"
-                >
-                  <Button
-                    _hover={{}}
-                    _focus={{}}
-                    _active={{}}
-                    bg={"#131323"}
+              {user &&
+                wallet &&
+                wallet?.chainId?.split(":")[1] !==
+                  String(NETWORKS[0].config.chainId) && (
+                  <Flex
+                    p="1px"
+                    bg={
+                      "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                    }
                     borderRadius="10px"
-                    width={"100%"}
-                    onClick={async () => {
-                      await wallet?.switchChain(NETWORKS[0].config.chainId);
-                    }}
                   >
-                    <Text>switch to Base</Text>
-                  </Button>
-                </Flex>
-              )}
+                    <Button
+                      _hover={{}}
+                      _focus={{}}
+                      _active={{}}
+                      bg={"#131323"}
+                      borderRadius="10px"
+                      width={"100%"}
+                      onClick={async () => {
+                        await wallet?.switchChain(NETWORKS[0].config.chainId);
+                      }}
+                    >
+                      <Text>switch to Base</Text>
+                    </Button>
+                  </Flex>
+                )}
             </Flex>
           </Flex>
           <Flex justifyContent={"space-between"} alignItems="center" gap="10px">
