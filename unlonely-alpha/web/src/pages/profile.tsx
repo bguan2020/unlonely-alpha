@@ -176,8 +176,8 @@ const Profile = () => {
             </Text>
             <Flex justifyContent={"space-between"} alignItems="center">
               <Text fontSize={"20px"}>{localNetwork.name}</Text>
-              {wallet &&
-                user &&
+              {user &&
+                wallet &&
                 wallet?.chainId?.split(":")[1] !==
                   String(NETWORKS[0].config.chainId) && (
                   <Flex
@@ -198,7 +198,7 @@ const Profile = () => {
                         await wallet?.switchChain(NETWORKS[0].config.chainId);
                       }}
                     >
-                      <Text>switch network</Text>
+                      <Text>switch to Base</Text>
                     </Button>
                   </Flex>
                 )}
