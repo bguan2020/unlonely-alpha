@@ -1,6 +1,7 @@
-import { Spinner, Flex, Text, Avatar, Switch } from "@chakra-ui/react";
+import { Spinner, Flex, Text, Avatar, Switch, Button } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
+import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 
 import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
@@ -11,10 +12,15 @@ import ConnectWallet from "../components/navigation/ConnectWallet";
 import useToggleSubscription from "../hooks/server/useToggleSubscription";
 import { CHECK_SUBSCRIPTION } from "../constants/queries";
 import usePostSubscription from "../hooks/server/usePostSubscription";
+import { useNetworkContext } from "../hooks/context/useNetwork";
+import { NETWORKS } from "../constants/networks";
 
 const Profile = () => {
   const { user } = useUser();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
   const { ready } = useUserAgent();
+  const { wallet } = usePrivyWagmi();
   const [endpoint, setEndpoint] = useState<string>("");
   const [systemNotifLoading, setSystemNotifLoading] = useState<boolean>(false);
 
@@ -125,40 +131,80 @@ const Profile = () => {
           position="relative"
           height="100%"
           p="15px"
+          gap="1rem"
         >
-          <Text color="#e2f979" fontFamily="Neue Pixel Sans" fontSize={"25px"}>
-            connected as
-          </Text>
-          <Flex justifyContent={"space-between"} alignItems="center" gap="10px">
-            <Flex gap="10px">
-              <Avatar
-                name={user?.username ?? user?.address}
-                src={ipfsUrl}
-                size="md"
-              />
-              {user?.username ? (
-                <Flex direction="column">
-                  <Text>{user?.username}</Text>
-                  <Text color="#9d9d9d">
-                    {centerEllipses(user?.address, 13)}
-                  </Text>
-                </Flex>
-              ) : (
-                <Flex direction="column" justifyContent="center">
-                  <Text color="#9d9d9d">
-                    {centerEllipses(user?.address, 13)}
-                  </Text>
-                </Flex>
-              )}
+          <Flex direction="column">
+            <Text
+              color="#e2f979"
+              fontFamily="Neue Pixel Sans"
+              fontSize={"25px"}
+            >
+              connected as
+            </Text>
+            <Flex justifyContent={"space-between"} alignItems="center">
+              <Flex gap="10px">
+                <Avatar
+                  name={user?.username ?? user?.address}
+                  src={ipfsUrl}
+                  size="md"
+                />
+                {user?.username ? (
+                  <Flex direction="column">
+                    <Text>{user?.username}</Text>
+                    <Text color="#9d9d9d">
+                      {centerEllipses(user?.address, 13)}
+                    </Text>
+                  </Flex>
+                ) : (
+                  <Flex direction="column" justifyContent="center">
+                    <Text color="#9d9d9d">
+                      {centerEllipses(user?.address, 13)}
+                    </Text>
+                  </Flex>
+                )}
+              </Flex>
+              <ConnectWallet shouldSayDisconnect />
             </Flex>
-            <ConnectWallet shouldSayDisconnect />
           </Flex>
-          <Flex
-            justifyContent={"space-between"}
-            alignItems="center"
-            mt="2rem"
-            gap="10px"
-          >
+          <Flex direction="column">
+            <Text
+              fontFamily="Neue Pixel Sans"
+              fontSize={"25px"}
+              color="#e2f979"
+            >
+              network
+            </Text>
+            <Flex justifyContent={"space-between"} alignItems="center">
+              <Text fontSize={"20px"}>{localNetwork.name}</Text>
+              {wallet &&
+                user &&
+                wallet?.chainId?.split(":")[1] !==
+                  String(NETWORKS[0].config.chainId) && (
+                  <Flex
+                    p="1px"
+                    bg={
+                      "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                    }
+                    borderRadius="10px"
+                  >
+                    <Button
+                      _hover={{}}
+                      _focus={{}}
+                      _active={{}}
+                      bg={"#131323"}
+                      borderRadius="10px"
+                      width={"100%"}
+                      onClick={async () => {
+                        await wallet?.switchChain(NETWORKS[0].config.chainId);
+                      }}
+                    >
+                      <Text>switch network</Text>
+                    </Button>
+                  </Flex>
+                )}
+            </Flex>
+          </Flex>
+          <Flex justifyContent={"space-between"} alignItems="center" gap="10px">
             <Text fontFamily="Neue Pixel Sans" fontSize={"25px"}>
               notifications
             </Text>
