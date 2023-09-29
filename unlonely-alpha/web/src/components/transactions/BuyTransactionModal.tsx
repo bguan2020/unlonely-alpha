@@ -192,12 +192,13 @@ export default function BuyTransactionModal({
       setErrorMessage("connect wallet first");
     } else if (!matchingChain) {
       setErrorMessage("wrong network");
+    } else if (ownerAllowance < buyTokenAmount_bigint) {
+      setErrorMessage("there are not enough tokens offered for sale");
     } else if (
-      ownerAllowance < buyTokenAmount_bigint ||
-      (ownerTokenBalance?.value &&
-        ownerTokenBalance?.value < buyTokenAmount_bigint)
+      ownerTokenBalance?.value &&
+      ownerTokenBalance?.value < buyTokenAmount_bigint
     ) {
-      setErrorMessage("there are not enough tokens on sale");
+      setErrorMessage("owner does not have enough tokens to sell");
     } else if (userEthBalance?.value && amountIn > userEthBalance?.value) {
       setErrorMessage("you don't have enough ETH to spend");
     } else {

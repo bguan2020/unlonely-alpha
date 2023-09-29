@@ -23,8 +23,7 @@ const Header: React.FC = () => {
   const router = useRouter();
 
   const openChatPopout = () => {
-    const windowFeatures = "width=500,height=500,menubar=yes,toolbar=yes";
-    window.open(`${window.location.origin}//bridge`, "_blank", windowFeatures);
+    window.open(`${window.location.origin}/bridge`, "_blank");
   };
 
   return (
