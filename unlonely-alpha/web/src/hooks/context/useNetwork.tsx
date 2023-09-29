@@ -12,6 +12,7 @@ import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 
 import { NETWORKS } from "../../constants/networks";
 import { Network } from "../../constants/types";
+import { useUser } from "./useUser";
 
 export const useNetworkContext = () => {
   return useContext(NetworkContext);
@@ -44,7 +45,7 @@ export const NetworkProvider = ({
 
   const [matchingChain, setMatchingChain] = useState<boolean>(true);
   const { wallet } = usePrivyWagmi();
-
+  const { user } = useUser();
   const localNetwork = useMemo(() => {
     const chain = wallet?.chainId?.split(":")[1];
     return (
@@ -59,6 +60,8 @@ export const NetworkProvider = ({
 
   useEffect(() => {
     if (
+      wallet &&
+      user &&
       wallet?.chainId?.split(":")[1] &&
       wallet?.chainId?.split(":")[1] !== String(NETWORKS[0].config.chainId) &&
       !router.pathname.startsWith("/bridge")
