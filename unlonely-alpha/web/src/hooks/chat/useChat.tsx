@@ -20,7 +20,7 @@ import { ChatBot } from "../../constants/types";
 import { REACTION_EMOJIS } from "../../components/chat/emoji/constants";
 
 const initializeEmojis = REACTION_EMOJIS.map((emoji) => ({
-  emoji,
+  emojiType: emoji,
   count: 0,
 }));
 

@@ -63,6 +63,7 @@ const BridgePage = () => {
   );
   const [matchingChain, setMatchingChain] = useState<boolean>(true);
   const toast = useToast();
+  const [count, setCount] = useState<number>(0);
 
   const messenger = useMemo(() => {
     if (!user || !l1Signer) return;
@@ -127,6 +128,7 @@ const BridgePage = () => {
           await postBaseLeaderboard({
             amount: data.amount,
           });
+          setCount((prev) => prev + 1);
         } else {
           setL1TxStatus(null);
           toast({
@@ -227,9 +229,16 @@ const BridgePage = () => {
                       _active={{}}
                     />
                     {bridgeInProgress ? (
-                      <Flex justifyContent={"center"}>
-                        <Spinner size="xl" />
-                      </Flex>
+                      <>
+                        <Flex justifyContent={"center"}>
+                          <Spinner size="xl" />
+                        </Flex>
+                        <Flex justifyContent={"center"}>
+                          <Text textAlign={"center"}>
+                            Working, give me a few seconds
+                          </Text>
+                        </Flex>
+                      </>
                     ) : (
                       <Button
                         disabled={!matchingChain}
@@ -255,23 +264,36 @@ const BridgePage = () => {
                         >
                           Transaction Successful!
                         </Text>
-                        <Text textAlign="center" fontSize={"14px"}>
-                          Keep an eye out for your ETH in the other chain. It
-                          will take a few minutes for it to arrive.
+                        <Text
+                          textAlign="center"
+                          fontSize={"14px"}
+                          width="400px"
+                        >
+                          Keep an eye out for your ETH in the other chain - It
+                          will take a few minutes for it to arrive in your
+                          wallet.
                         </Text>
                         <Flex justifyContent={"center"}>
                           <Link
                             style={{
                               textDecoration: "underline",
-                              color: "#09b5e5",
+                              color: "#09dee5",
                             }}
                             target="_blank"
                             href={`${L2_EXPLORER_URL}/address/${user?.address}#internaltx`}
                             passHref
                           >
-                            Take me to the explorer of the other chain
+                            track here
                           </Link>
                         </Flex>
+                        <Text
+                          textAlign="center"
+                          fontSize={"14px"}
+                          width="400px"
+                        >
+                          You’re ready to start using all paid features once
+                          that hits your wallet, so head back to the stream now!
+                        </Text>
                       </>
                     )}
                   </Flex>
@@ -280,7 +302,7 @@ const BridgePage = () => {
                   </FormErrorMessage>
                 </FormControl>
               </form>
-              <BaseLeaderboard />
+              <BaseLeaderboard count={count} />
             </Flex>
           </Flex>
         </Flex>
