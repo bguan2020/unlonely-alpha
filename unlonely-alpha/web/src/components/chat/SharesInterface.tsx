@@ -145,6 +145,38 @@ const SharesUi = ({
   const { price: nayBuyPriceForOne, refetch: refetchNayBuyPriceForOne } =
     useGetPrice(sharesSubject, BigInt(1), false, true, contract);
 
+  const { price: yayBuyPrice, refetch: refetchYayBuyPrice } = useGetPrice(
+    sharesSubject,
+    amount_bigint,
+    true,
+    true,
+    contract
+  );
+
+  const { price: nayBuyPrice, refetch: refetchNayBuyPrice } = useGetPrice(
+    sharesSubject,
+    amount_bigint,
+    false,
+    true,
+    contract
+  );
+
+  const { price: yaySellPrice, refetch: refetchYaySellPrice } = useGetPrice(
+    sharesSubject,
+    amount_bigint,
+    true,
+    false,
+    contract
+  );
+
+  const { price: naySellPrice, refetch: refetchNaySellPrice } = useGetPrice(
+    sharesSubject,
+    amount_bigint,
+    false,
+    false,
+    contract
+  );
+
   const {
     priceAfterFee: yayBuyPriceAfterFee,
     refetch: refetchYayBuyPriceAfterFee,
@@ -184,6 +216,54 @@ const SharesUi = ({
     userPayout,
     refetch: refetchSharesSubject,
   } = useReadSharesSubject(sharesSubject, contract);
+
+  const projectedWinnings = useMemo(() => {
+    if (isBuying) {
+      const newBalance = isYay
+        ? BigInt(yaySharesBalance) + amount_bigint
+        : BigInt(naySharesBalance) + amount_bigint;
+      const newSupply = isYay
+        ? yaySharesSupply + amount_bigint
+        : naySharesSupply + amount_bigint;
+      const newPool = pooledEth + (isYay ? yayBuyPrice : nayBuyPrice);
+      const winnings =
+        newSupply === BigInt(0)
+          ? BigInt(0)
+          : (newBalance * newPool) / newSupply;
+      return winnings < BigInt(0) ? BigInt(0) : winnings;
+    } else {
+      const newBalance = isYay
+        ? BigInt(yaySharesBalance) - amount_bigint
+        : BigInt(naySharesBalance) - amount_bigint;
+      const newSupply = isYay
+        ? yaySharesSupply - amount_bigint
+        : naySharesSupply - amount_bigint;
+      const newPool = pooledEth - (isYay ? yaySellPrice : naySellPrice);
+      const winnings =
+        newSupply === BigInt(0)
+          ? BigInt(0)
+          : (newBalance * newPool) / newSupply;
+      return winnings < BigInt(0) ? BigInt(0) : winnings;
+    }
+  }, [
+    isBuying,
+    isYay,
+    yaySharesBalance,
+    naySharesBalance,
+    amount_bigint,
+    yayBuyPrice,
+    nayBuyPrice,
+    yaySharesSupply,
+    naySharesSupply,
+    yaySellPrice,
+    naySellPrice,
+    pooledEth,
+  ]);
+
+  const isBuyLoss = useMemo(() => {
+    const priceToBuy = isYay ? yayBuyPriceAfterFee : nayBuyPriceAfterFee;
+    return projectedWinnings < priceToBuy;
+  }, [isYay, yayBuyPriceAfterFee, nayBuyPriceAfterFee, projectedWinnings]);
 
   const {
     claimPayout,
@@ -449,6 +529,10 @@ const SharesUi = ({
       await Promise.all([
         refetchUserEthBalance(),
         refetchPublic(),
+        refetchYayBuyPrice(),
+        refetchNayBuyPrice(),
+        refetchYaySellPrice(),
+        refetchNaySellPrice(),
         refetchYayBuyPriceForOne(),
         refetchNayBuyPriceForOne(),
         refetchYayBuyPriceAfterFee(),
@@ -724,24 +808,39 @@ const SharesUi = ({
                   </Text>
                   {isBuying && isYay && (
                     <Text fontWeight="light">
-                      {formatUnits(yayBuyPriceAfterFee, 18)} ETH
+                      {truncateValue(formatUnits(yayBuyPriceAfterFee, 18), 6)}{" "}
+                      ETH
                     </Text>
                   )}
                   {isBuying && !isYay && (
                     <Text fontWeight="light">
-                      {formatUnits(nayBuyPriceAfterFee, 18)} ETH
+                      {truncateValue(formatUnits(nayBuyPriceAfterFee, 18), 6)}{" "}
+                      ETH
                     </Text>
                   )}
                   {!isBuying && isYay && (
                     <Text fontWeight="light">
-                      {formatUnits(yaySellPriceAfterFee, 18)} ETH
+                      {truncateValue(formatUnits(yaySellPriceAfterFee, 18), 6)}{" "}
+                      ETH
                     </Text>
                   )}
                   {!isBuying && !isYay && (
                     <Text fontWeight="light">
-                      {formatUnits(naySellPriceAfterFee, 18)} ETH
+                      {truncateValue(formatUnits(naySellPriceAfterFee, 18), 6)}{" "}
+                      ETH
                     </Text>
                   )}
+                </Flex>
+                <Flex justifyContent="space-between">
+                  <Text opacity="0.75" fontWeight="light">
+                    projected winnings
+                  </Text>
+                  <Text
+                    fontWeight="light"
+                    color={isBuying && isBuyLoss ? "#d21c1c" : undefined}
+                  >
+                    {truncateValue(formatUnits(projectedWinnings, 18), 6)} ETH
+                  </Text>
                 </Flex>
                 {errorMessage && (
                   <Text textAlign={"center"} color="red.400">
