@@ -11,11 +11,9 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { formatUnits, isAddress, parseUnits } from "viem";
 import Link from "next/link";
-import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 
 import AppLayout from "../components/layout/AppLayout";
 import { NULL_ADDRESS } from "../constants";
-import { NETWORKS } from "../constants/networks";
 import {
   useAddCreatorToken,
   useAdmins,
@@ -37,19 +35,12 @@ import useUpdateCreatorTokenPrice from "../hooks/server/arcade/useUpdateTokenPri
 import useUpdateUserCreatorTokenQuantity from "../hooks/server/arcade/useUpdateTokenQuantity";
 import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
 import AdminNotifications from "../components/general/AdminNotifications";
-import { Network } from "../constants/types";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 
 export default function AdminPage() {
   const { user } = useUser();
-  const { wallet } = usePrivyWagmi();
-
-  const localNetwork = useMemo(() => {
-    const chain = wallet?.chainId?.split(":")[1];
-    return (
-      NETWORKS.find((n) => String(n.config.chainId) === chain) ?? NETWORKS[0]
-    );
-  }, [wallet]);
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
   const { admins } = useAdmins(contract);
 
@@ -63,16 +54,17 @@ export default function AdminPage() {
 
   return (
     <AppLayout isCustomHeader={false}>
-      {isAdmin && <AdminContent localNetwork={localNetwork} />}
+      {isAdmin && <AdminContent />}
       {!isAdmin && <Text>You're not supposed to be here.</Text>}
     </AppLayout>
   );
 }
 
-const AdminContent = ({ localNetwork }: { localNetwork: Network }) => {
+const AdminContent = () => {
   const toast = useToast();
-  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
   const { network } = useNetworkContext();
+  const { localNetwork } = network;
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
   const { explorerUrl } = network;
   const [creatorTokenAddress, setCreatorTokenAddress] = useState<string>("");
   const [creatorTokenSymbol, setCreatorTokenSymbol] = useState<string>("");
