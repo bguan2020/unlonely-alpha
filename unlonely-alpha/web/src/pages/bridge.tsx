@@ -72,8 +72,8 @@ const BridgePage = () => {
     ).getSigner(user.address);
 
     return new OP.CrossChainMessenger({
-      l1ChainId: OP.L1ChainID.GOERLI,
-      l2ChainId: OP.L2ChainID.BASE_GOERLI,
+      l1ChainId: OP.L1ChainID.MAINNET,
+      l2ChainId: OP.L2ChainID.BASE_MAINNET,
       l1SignerOrProvider: l1Signer,
       l2SignerOrProvider: l2Provider,
     });
