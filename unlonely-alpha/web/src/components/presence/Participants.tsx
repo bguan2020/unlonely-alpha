@@ -17,6 +17,7 @@ import AnonExcessTooltipAvatar from "./AnonExcessTooltipAvatar";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { CustomUser } from "../../constants/types";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
 configureAbly({
   authUrl: "/api/createTokenRequest",
@@ -117,7 +118,7 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
     <Flex direction="row" maxW="100%" justifyContent="center">
       <Flex flexDirection="row-reverse" alignItems="center">
         {!!participantOrder.slice(limit).length && (
-          <Flex ml={"-2px"}>
+          <Flex>
             <Popover trigger={!isStandalone ? "hover" : "click"}>
               <PopoverTrigger>
                 <Box
@@ -126,12 +127,16 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
                   justifyContent="center"
                   fontSize="14px"
                   bg="black"
-                  borderRadius="50%"
-                  width={"8"}
+                  borderRadius="10px"
+                  width={"10"}
                   height={"8"}
-                  ml={-2}
                 >
-                  {`+${participantOrder.slice(limit).length}`}
+                  {`+${truncateValue(
+                    participantOrder.slice(limit).length,
+                    0,
+                    true,
+                    0
+                  )}`}
                 </Box>
               </PopoverTrigger>
               <PopoverContent
