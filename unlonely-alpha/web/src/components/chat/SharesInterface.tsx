@@ -9,7 +9,7 @@ import {
   useToast,
   Spinner,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GoPin } from "react-icons/go";
 import Link from "next/link";
 import { decodeEventLog, formatUnits } from "viem";
@@ -119,6 +119,7 @@ const SharesUi = ({
   const [amount, setAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const isYay = selectedSharesOption === "yes";
+  const isFetching = useRef(false);
 
   const isEventLocked = useMemo(
     () => channelQueryData?.sharesEvent?.[0]?.eventState === "LOCK",
@@ -531,10 +532,12 @@ const SharesUi = ({
   );
 
   useEffect(() => {
-    if (!blockNumber.data) return;
+    if (!blockNumber.data || isFetching.current || !showUi) return;
     const fetch = async () => {
+      isFetching.current = true;
       await Promise.all([
         refetchUserEthBalance(),
+        refetchBalances(),
         refetchPublic(),
         refetchYayBuyPrice(),
         refetchNayBuyPrice(),
@@ -547,14 +550,14 @@ const SharesUi = ({
         refetchNayBuyPriceAfterFee(),
         refetchNaySellPriceAfterFee(),
         refetchSharesSubject(),
-        refetchBalances(),
         refetchClaimPayout(),
         refetchBuyShares(),
         refetchSellShares(),
       ]);
+      isFetching.current = false;
     };
     fetch();
-  }, [blockNumber.data]);
+  }, [blockNumber.data, showUi]);
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
