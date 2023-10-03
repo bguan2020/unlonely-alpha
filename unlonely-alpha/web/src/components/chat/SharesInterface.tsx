@@ -617,13 +617,7 @@ const SharesUi = ({
             top="-5px"
           />
         )}
-        {protocolFeeDestination === NULL_ADDRESS ? (
-          <>
-            <Text textAlign={"center"} color="#d5d5d5" fontSize="15px">
-              contract not ready yet
-            </Text>
-          </>
-        ) : eventVerified ? (
+        {eventVerified ? (
           <Flex direction="column" p="0.5rem">
             {!claimPayoutTxLoading ? (
               <>
@@ -856,12 +850,24 @@ const SharesUi = ({
                     borderRadius="25px"
                     onClick={isBuying ? buyShares : sellShares}
                     isDisabled={
-                      (isBuying && !buyShares) || (!isBuying && !sellShares)
+                      (isBuying && !buyShares) ||
+                      (!isBuying && !sellShares) ||
+                      protocolFeeDestination === NULL_ADDRESS
                     }
                   >
-                    <Text fontSize="20px">
-                      confirm {isBuying ? "buy" : "sell"}
-                    </Text>
+                    {protocolFeeDestination === NULL_ADDRESS ? (
+                      <Text
+                        textAlign={"center"}
+                        color="#d5d5d5"
+                        fontSize="15px"
+                      >
+                        contract not ready yet
+                      </Text>
+                    ) : (
+                      <Text fontSize="20px">
+                        confirm {isBuying ? "buy" : "sell"}
+                      </Text>
+                    )}
                   </Button>
                 )}
               </>
