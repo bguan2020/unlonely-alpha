@@ -33,8 +33,10 @@ export const getContext: ContextFunction = async ({
     console.log(address);
     validated = true;
   } catch (e) {
-    console.log(authToken);
-    console.log("cannot validate privy token, user not authed");
+    console.log(
+      "cannot validate privy token, user not authed, authToken:",
+      authToken
+    );
   }
 
   const user = address ? await findOrCreateUser({ address }) : null;

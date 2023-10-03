@@ -646,6 +646,7 @@ export type SharesEvent = {
 
 export enum SharesEventState {
   Live = "LIVE",
+  Lock = "LOCK",
   Payout = "PAYOUT",
 }
 

@@ -10,6 +10,7 @@ export enum InteractionType {
   BUY_SHARES = "buy-shares-interaction",
   SELL_SHARES = "sell-shares-interaction",
   EVENT_LIVE = "event-live-interaction",
+  EVENT_LOCK = "event-lock-interaction",
   EVENT_PAYOUT = "event-payout-interaction",
   EVENT_END = "event-end-interaction",
 }

@@ -334,6 +334,10 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
         messageText = lastMessage.title ?? "Event start";
         body = `${InteractionType.EVENT_LIVE}:${lastMessage.description ?? ""}`;
       }
+      if (lastMessage.taskType === InteractionType.EVENT_LOCK) {
+        messageText = lastMessage.title ?? "Event locked";
+        body = `${InteractionType.EVENT_LOCK}:${lastMessage.description ?? ""}`;
+      }
       if (lastMessage.taskType === InteractionType.EVENT_PAYOUT) {
         messageText = lastMessage.title ?? "Event payout";
         body = `${InteractionType.EVENT_PAYOUT}:${

@@ -16,6 +16,7 @@ interface Channel extends PrismaChannel {
 
 enum SharesEventState {
   LIVE = "LIVE",
+  LOCK = "LOCK",
   PAYOUT = "PAYOUT",
 }
 

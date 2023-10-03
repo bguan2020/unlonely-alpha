@@ -17,6 +17,8 @@ const ChannelStreamerPerspective = () => {
 
   const isSharesEventLive =
     channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
+  const isSharesEventLock =
+    channelQueryData?.sharesEvent?.[0]?.eventState === "LOCK";
   const isSharesEventPayout =
     channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
 
@@ -152,9 +154,13 @@ const ChannelStreamerPerspective = () => {
             </Flex>
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">
-                {isSharesEventPayout && "stop payout"}
-                {isSharesEventLive && "decide outcome"}
-                {!isSharesEventLive && !isSharesEventPayout && "create a bet"}
+                {isSharesEventPayout
+                  ? "stop payout"
+                  : isSharesEventLive
+                  ? "lock bets"
+                  : isSharesEventLock
+                  ? "decide outcome"
+                  : "create a bet"}
               </Text>
               <Box
                 display="flex"

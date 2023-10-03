@@ -106,7 +106,7 @@ export const createClip = async (data: ICreateClipInput) => {
   let lambdaResponse: any;
   try {
     lambdaResponse = await lambda.invoke(params).promise();
-    console.log(lambdaResponse);
+    console.log("createClip", lambdaResponse);
     const response = JSON.parse(lambdaResponse.Payload);
     // if response contains "errorMessage" field, then there was an error and return message
     if (response.errorMessage) {

@@ -68,12 +68,14 @@ export default function BetModal({
 
   const isSharesEventLive =
     channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
+  const isSharesEventLock =
+    channelQueryData?.sharesEvent?.[0]?.eventState === "LOCK";
   const isSharesEventPayout =
     channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
 
   const _postSharesEvent = useCallback(
     async (
-      event: "LIVE" | "PAYOUT",
+      event: "LIVE" | "LOCK" | "PAYOUT",
       sharesSubject?: `0x${string}`,
       sharesSubjectQuestion?: string
     ) => {
@@ -97,6 +99,16 @@ export default function BetModal({
           taskType: InteractionType.EVENT_LIVE,
           title: "New event has started!",
           description: "event-start",
+        });
+        handleClose();
+      }
+      if (event === "LOCK") {
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.EVENT_LOCK,
+          title: "Event is locked!",
+          description: "event-lock",
         });
         handleClose();
       }
@@ -259,7 +271,26 @@ export default function BetModal({
       {isSharesEventLive && (
         <Flex direction="column" gap="10px">
           <Text textAlign={"center"} fontSize="13px">
-            Betting will be over and winnings can start being claimed.
+            Betting will be locked and you can take the time to make your
+            decision.
+          </Text>
+          <Button
+            bg="#e35b16"
+            _hover={{}}
+            _focus={{}}
+            _active={{}}
+            width="100%"
+            onClick={async () => await _postSharesEvent("LOCK")}
+          >
+            lock bets
+          </Button>
+        </Flex>
+      )}
+      {isSharesEventLock && (
+        <Flex direction="column" gap="10px">
+          <Text textAlign={"center"} fontSize="13px">
+            The outcome of the event will be decided and winnings can start
+            being claimed.
           </Text>
           {!isVerifier && (
             <Text textAlign={"center"} fontSize="13px">
@@ -329,7 +360,7 @@ export default function BetModal({
             disabled={!eventVerified}
             onClick={_closeSharesEvent}
           >
-            stop bet
+            stop event
           </Button>
         </Flex>
       )}

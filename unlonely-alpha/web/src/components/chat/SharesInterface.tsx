@@ -53,6 +53,8 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
           (latestMessage.data.body.split(":")[0] ===
             InteractionType.EVENT_LIVE ||
             latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_LOCK ||
+            latestMessage.data.body.split(":")[0] ===
               InteractionType.EVENT_PAYOUT ||
             latestMessage.data.body.split(":")[0] ===
               InteractionType.EVENT_END) &&
@@ -117,6 +119,11 @@ const SharesUi = ({
   const [amount, setAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const isYay = selectedSharesOption === "yes";
+
+  const isEventLocked = useMemo(
+    () => channelQueryData?.sharesEvent?.[0]?.eventState === "LOCK",
+    [channelQueryData]
+  );
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
@@ -720,9 +727,16 @@ const SharesUi = ({
                 {truncateValue(String(naySharesSupply), 0, true)}
               </Text>
             </Flex>
+            {isEventLocked && (
+              <Text textAlign={"center"} fontSize="14px" color="#f86a3b">
+                event is locked, voting disabled
+              </Text>
+            )}
           </>
         )}
-        {selectedSharesOption === undefined || eventVerified ? null : (
+        {selectedSharesOption === undefined ||
+        eventVerified ||
+        isEventLocked ? null : (
           <Flex direction="column" bg={"rgba(0, 0, 0, 0.258)"} p="0.5rem">
             {!buySharesTxLoading && !sellSharesTxLoading ? (
               <>
@@ -852,7 +866,8 @@ const SharesUi = ({
                     isDisabled={
                       (isBuying && !buyShares) ||
                       (!isBuying && !sellShares) ||
-                      protocolFeeDestination === NULL_ADDRESS
+                      protocolFeeDestination === NULL_ADDRESS ||
+                      isEventLocked
                     }
                   >
                     {protocolFeeDestination === NULL_ADDRESS ? (
