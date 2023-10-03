@@ -23,6 +23,7 @@ import { useUser } from "../../hooks/context/useUser";
 import useCloseSharesEvent from "../../hooks/server/useCloseSharesEvent";
 import { useReadSharesSubject } from "../../hooks/contracts/useSharesContract";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
+import { SharesEventState } from "../../generated/graphql";
 
 export default function BetModal({
   title,
@@ -67,15 +68,15 @@ export default function BetModal({
   );
 
   const isSharesEventLive =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
   const isSharesEventLock =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "LOCK";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Lock;
   const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
 
   const _postSharesEvent = useCallback(
     async (
-      event: "LIVE" | "LOCK" | "PAYOUT",
+      event: SharesEventState,
       sharesSubject?: `0x${string}`,
       sharesSubjectQuestion?: string
     ) => {
@@ -192,7 +193,7 @@ export default function BetModal({
           topics: data.logs[0].topics,
         });
         const args: any = topics.args;
-        await _postSharesEvent("PAYOUT");
+        await _postSharesEvent(SharesEventState.Payout);
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -280,7 +281,7 @@ export default function BetModal({
             _focus={{}}
             _active={{}}
             width="100%"
-            onClick={async () => await _postSharesEvent("LOCK")}
+            onClick={async () => await _postSharesEvent(SharesEventState.Lock)}
           >
             lock bets
           </Button>
@@ -400,7 +401,7 @@ export default function BetModal({
             }
             onClick={async () =>
               await _postSharesEvent(
-                "LIVE",
+                SharesEventState.Live,
                 sharesSubject as `0x${string}`,
                 question
               )

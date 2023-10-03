@@ -24,7 +24,10 @@ import { useRouter } from "next/router";
 import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
 import { useLazyQuery } from "@apollo/client";
 
-import { GetSubscriptionQuery } from "../../generated/graphql";
+import {
+  GetSubscriptionQuery,
+  SharesEventState,
+} from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
@@ -85,11 +88,11 @@ const StandaloneAblyChatComponent = ({
   );
 
   const isSharesEventLive =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
   const isSharesEventLock =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "LOCK";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Lock;
   const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
 
   const {
     handleScrollToPresent,
