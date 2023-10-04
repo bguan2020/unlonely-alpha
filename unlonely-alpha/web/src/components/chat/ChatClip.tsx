@@ -39,6 +39,7 @@ export const ChatClip = () => {
 
   const _submitClip = async (data: { title: string }) => {
     const url = await submitClip(data.title);
+    setTitle("");
     if (url) setFinalUrl(url);
   };
 

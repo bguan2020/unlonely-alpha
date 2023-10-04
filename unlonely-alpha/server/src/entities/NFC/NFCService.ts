@@ -113,6 +113,7 @@ export const createClip = async (data: ICreateClipInput) => {
     lambdaResponse = await lambda.invoke(params).promise();
     console.log(
       `createClip lambda response at time, id:${id}`,
+      `${(Date.now() - id) / 1000}s`,
       new Date(Date.now()).toISOString(),
       lambdaResponse
     );
