@@ -98,8 +98,8 @@ export default function BetModal({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.EVENT_LIVE,
-          title: "New event has started!",
-          description: "event-start",
+          title: "Event is live!",
+          description: "event-live",
         });
         handleClose();
       }
@@ -293,6 +293,16 @@ export default function BetModal({
             The outcome of the event will be decided and winnings can start
             being claimed.
           </Text>
+          <Text
+            textAlign={"center"}
+            fontSize="11px"
+            color={"#8f81b6"}
+            textDecoration="underline"
+            cursor={"pointer"}
+            onClick={async () => await _postSharesEvent(SharesEventState.Live)}
+          >
+            or allow voting again
+          </Text>
           {!isVerifier && (
             <Text textAlign={"center"} fontSize="13px">
               You cannot verify events, please ask Brian for permission.
@@ -349,8 +359,8 @@ export default function BetModal({
       {isSharesEventPayout && (
         <Flex direction="column" gap="10px">
           <Text textAlign={"center"} fontSize="13px">
-            By stopping the event, the payout phase will be over and you will be
-            able to make a new event.
+            By stopping the event, winnings can no longer be claimed and you
+            will be able to make a new event.
           </Text>
           <Button
             bg="#E09025"
@@ -365,7 +375,7 @@ export default function BetModal({
           </Button>
         </Flex>
       )}
-      {!isSharesEventLive && !isSharesEventPayout && (
+      {!isSharesEventLive && !isSharesEventPayout && !isSharesEventLock && (
         <Flex direction="column" gap="10px">
           <Text textAlign={"center"} fontSize="13px">
             Note: enter a new wallet address when you want to make another bet,

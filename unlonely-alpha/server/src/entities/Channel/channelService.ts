@@ -196,7 +196,7 @@ export const getChannelFeed = async (
 
     return sortedChannels;
   } catch (error: any) {
-    console.log(`Error: ${error.message}`);
+    console.log(`getChannelFeed Error: ${error.message}`);
     throw error;
   }
 };
@@ -271,7 +271,9 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
     const responseBody = JSON.parse(response.Payload as string);
     return responseBody.body.thumbnail;
   } catch (error: any) {
-    console.log(`Error invoking Lambda function: ${error.message}`);
+    console.log(
+      `getThumbnailUrl Error invoking Lambda function: ${error.message}`
+    );
     return null;
   }
 };

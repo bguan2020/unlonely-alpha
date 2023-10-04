@@ -618,7 +618,9 @@ const SharesUi = ({
             bg="transparent"
             icon={<Image alt="close" src="/svg/close.svg" width="15px" />}
             onClick={() =>
-              selectedSharesOption !== undefined
+              isEventLocked
+                ? handleShowUi(false)
+                : selectedSharesOption !== undefined
                 ? setSelectedSharesOption(undefined)
                 : handleShowUi(false)
             }
@@ -672,68 +674,80 @@ const SharesUi = ({
             <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
               {truncateValue(formatUnits(pooledEth, 18), 4)} ETH in the pool
             </Text>
-            <Flex justifyContent={"center"} gap={"10px"} my="10px">
-              <Text color="#35b657" fontWeight="bold" fontSize="25px">
-                {truncateValue(String(yaySharesSupply), 0, true)}
-              </Text>
-              <Button
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                transform={
-                  selectedSharesOption === "no" ? "scale(0.95)" : undefined
-                }
-                opacity={selectedSharesOption === "no" ? 0.9 : 1}
-                bg={selectedSharesOption === "no" ? "#909090" : "#009d2a"}
-                onClick={() => setSelectedSharesOption("yes")}
-              >
-                <Flex direction="column">
-                  <Text
-                    fontFamily="Neue Pixel Sans"
-                    fontWeight={"light"}
-                    fontSize="15px"
-                  >
-                    YES
-                  </Text>
-                  <Text fontWeight={"light"} fontSize="12px">
-                    {truncateValue(
-                      formatUnits(yayBuyPriceForOne ?? BigInt(0), 18)
-                    )}
-                  </Text>
-                </Flex>
-              </Button>
-              <Button
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                transform={isYay ? "scale(0.95)" : undefined}
-                opacity={isYay ? 0.9 : 1}
-                bg={isYay ? "#909090" : "#da3b14"}
-                onClick={() => setSelectedSharesOption("no")}
-              >
-                <Flex direction="column">
-                  <Text
-                    fontFamily="Neue Pixel Sans"
-                    fontWeight={"light"}
-                    fontSize="15px"
-                  >
-                    NO
-                  </Text>
-                  <Text fontWeight={"light"} fontSize="12px">
-                    {truncateValue(
-                      formatUnits(nayBuyPriceForOne ?? BigInt(0), 18)
-                    )}
-                  </Text>
-                </Flex>
-              </Button>
-              <Text color="#ff623b" fontWeight="bold" fontSize="25px">
-                {truncateValue(String(naySharesSupply), 0, true)}
-              </Text>
-            </Flex>
+            {!isEventLocked && (
+              <Flex justifyContent={"center"} gap={"10px"} my="10px">
+                <Text color="#35b657" fontWeight="bold" fontSize="25px">
+                  {truncateValue(String(yaySharesSupply), 0, true)}
+                </Text>
+                <Button
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  transform={
+                    selectedSharesOption === "no" ? "scale(0.95)" : undefined
+                  }
+                  opacity={selectedSharesOption === "no" ? 0.9 : 1}
+                  bg={selectedSharesOption === "no" ? "#909090" : "#009d2a"}
+                  onClick={() => setSelectedSharesOption("yes")}
+                >
+                  <Flex direction="column">
+                    <Text
+                      fontFamily="Neue Pixel Sans"
+                      fontWeight={"light"}
+                      fontSize="15px"
+                    >
+                      YES
+                    </Text>
+                    <Text fontWeight={"light"} fontSize="12px">
+                      {truncateValue(
+                        formatUnits(yayBuyPriceForOne ?? BigInt(0), 18)
+                      )}
+                    </Text>
+                  </Flex>
+                </Button>
+                <Button
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  transform={isYay ? "scale(0.95)" : undefined}
+                  opacity={isYay ? 0.9 : 1}
+                  bg={isYay ? "#909090" : "#da3b14"}
+                  onClick={() => setSelectedSharesOption("no")}
+                >
+                  <Flex direction="column">
+                    <Text
+                      fontFamily="Neue Pixel Sans"
+                      fontWeight={"light"}
+                      fontSize="15px"
+                    >
+                      NO
+                    </Text>
+                    <Text fontWeight={"light"} fontSize="12px">
+                      {truncateValue(
+                        formatUnits(nayBuyPriceForOne ?? BigInt(0), 18)
+                      )}
+                    </Text>
+                  </Flex>
+                </Button>
+                <Text color="#ff623b" fontWeight="bold" fontSize="25px">
+                  {truncateValue(String(naySharesSupply), 0, true)}
+                </Text>
+              </Flex>
+            )}
             {isEventLocked && (
-              <Text textAlign={"center"} fontSize="14px" color="#f86a3b">
-                event is locked, voting disabled
-              </Text>
+              <>
+                <Flex justifyContent={"space-evenly"} my="10px">
+                  <Text color="#35b657" fontWeight="bold" fontSize="25px">
+                    {truncateValue(String(yaySharesSupply), 0, true)} YES
+                  </Text>
+                  <Text color="#ff623b" fontWeight="bold" fontSize="25px">
+                    {truncateValue(String(naySharesSupply), 0, true)} NO
+                  </Text>
+                </Flex>
+                <Text textAlign={"center"} fontSize="14px" color="#e49c16">
+                  voting disabled
+                </Text>
+              </>
             )}
           </>
         )}
