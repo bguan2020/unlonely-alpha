@@ -27,7 +27,7 @@ export const useClip = (
 
   const fetchData = async () => {
     if (!user?.address || !channelQueryData?.channelArn || loading) return;
-    setLoading(true);
+    // setLoading(true);
     const { res } = await createClip({
       channelArn: channelQueryData.channelArn,
     });
@@ -39,7 +39,7 @@ export const useClip = (
       setClipUrl(res.url);
       setClipThumbnail(res.thumbnail);
     }
-    setLoading(false);
+    // setLoading(false);
     handleIsClipUiOpen(true);
   };
 
