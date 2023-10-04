@@ -31,11 +31,11 @@ export const useClip = (
     const { res } = await createClip({
       channelArn: channelQueryData.channelArn,
     });
+    console.log("useClip fetchData", res);
     // if res.errorMessage is not null, then show error message
     if (res.errorMessage) {
       setClipError(res.errorMessage);
     } else {
-      console.log(res);
       setClipUrl(res.url);
       setClipThumbnail(res.thumbnail);
     }
