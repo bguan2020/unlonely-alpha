@@ -37,7 +37,6 @@ const useCreateClip = ({ onError }: Props) => {
       } else {
         onError && onError();
       }
-
       return {
         res,
       };
