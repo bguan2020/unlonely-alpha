@@ -8,6 +8,7 @@ import {
   Box,
   Spinner,
   Text,
+  Tooltip,
   Button,
   Popover,
   PopoverTrigger,
@@ -548,45 +549,57 @@ const ChatForm = ({
                   height={"100%"}
                 />
                 <Flex justifyContent={"flex-end"} alignItems="center">
-                  <Popover trigger="hover" placement="top" openDelay={500}>
-                    <PopoverTrigger>
-                      <IconButton
-                        icon={<Image src="/svg/cut.svg" />}
-                        aria-label="clip stream"
-                        bg="transparent"
-                        _focus={{}}
-                        _hover={{ transform: "scale(1.15)" }}
-                        _active={{ transform: "scale(1.3)" }}
-                        onClick={() => {
-                          if (user) {
-                            fetchData();
-                            addToChatbot({
-                              username: user?.username ?? "",
-                              address: user?.address ?? "",
-                              taskType: InteractionType.CLIP,
-                              title: `${
-                                user?.username ?? centerEllipses(address, 15)
-                              } has just clipped a highlight from this stream!`,
-                              description: "",
-                            });
-                          } else {
-                            toastSignIn();
-                          }
-                        }}
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent
-                      bg="#1557c0"
-                      border="none"
-                      width="100%"
-                      p="2px"
+                  {clipLoading ? (
+                    <Tooltip
+                      isOpen
+                      placement="left"
+                      label="clipping, please stay here and wait"
+                      background="#15a6c0"
+                      hasArrow
                     >
-                      <PopoverArrow bg="#1557c0" />
-                      <Text fontSize="12px" textAlign={"center"}>
-                        clip the last 30 secs as an NFC!
-                      </Text>
-                    </PopoverContent>
-                  </Popover>
+                      <Spinner />
+                    </Tooltip>
+                  ) : (
+                    <Popover trigger="hover" placement="top" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          icon={<Image src="/svg/cut.svg" />}
+                          aria-label="clip stream"
+                          bg="transparent"
+                          _focus={{}}
+                          _hover={{ transform: "scale(1.15)" }}
+                          _active={{ transform: "scale(1.3)" }}
+                          onClick={() => {
+                            if (user) {
+                              fetchData();
+                              addToChatbot({
+                                username: user?.username ?? "",
+                                address: user?.address ?? "",
+                                taskType: InteractionType.CLIP,
+                                title: `${
+                                  user?.username ?? centerEllipses(address, 15)
+                                } has just clipped a highlight from this stream!`,
+                                description: "",
+                              });
+                            } else {
+                              toastSignIn();
+                            }
+                          }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#1557c0"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#1557c0" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          clip the last 30 secs as an NFC!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                  )}
                   {allowPopout && (
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
