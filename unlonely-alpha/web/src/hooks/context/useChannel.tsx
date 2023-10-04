@@ -23,6 +23,7 @@ import {
   ChannelDetailQuery,
   GetRecentStreamInteractionsQuery,
   GetTokenHoldersByChannelQuery,
+  SharesEventState,
 } from "../../generated/graphql";
 import { ChatBot, FetchBalanceResult } from "../../constants/types";
 import { useUser } from "./useUser";
@@ -601,9 +602,11 @@ const TransactionModals = () => {
 
   const isOwner = userAddress === channelQueryData?.owner.address;
   const isSharesEventLive =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
+  const isSharesEventLock =
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Lock;
   const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
 
   const handleClose = useCallback(() => {
     handleTipModal(false);
@@ -618,11 +621,13 @@ const TransactionModals = () => {
     <>
       <BetModal
         title={
-          !isSharesEventLive && !isSharesEventPayout
-            ? "create a bet"
+          isSharesEventPayout
+            ? "stop payout"
             : isSharesEventLive
+            ? "lock bets"
+            : isSharesEventLock
             ? "decide outcome"
-            : "stop payout"
+            : "create a bet"
         }
         isOpen={showBetModal}
         handleClose={() => handleBetModal(false)}

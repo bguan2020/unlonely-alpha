@@ -103,24 +103,39 @@ export const createClip = async (data: ICreateClipInput) => {
     }),
   };
 
+  const lambdaInvoke = lambda.invoke(params).promise();
+
+  const timeout: Promise<string> = new Promise((_, reject) =>
+    setTimeout(() => reject("createClip: Lambda invocation timed out"), 150000)
+  );
   let lambdaResponse: any;
+  console.log("createClip calling lambda at time", Date.now());
   try {
-    lambdaResponse = await lambda.invoke(params).promise();
-    console.log(lambdaResponse);
+    lambdaResponse = await Promise.race([lambdaInvoke, timeout]);
+    console.log(
+      "createClip lambda completion at time",
+      Date.now(),
+      lambdaResponse
+    );
     const response = JSON.parse(lambdaResponse.Payload);
     // if response contains "errorMessage" field, then there was an error and return message
     if (response.errorMessage) {
+      console.log(
+        "createClip: Error message from payload",
+        response.errorMessage
+      );
       return { errorMessage: response.errorMessage };
     }
     const url = response.body.url;
     const thumbnail = response.body.thumbnail;
     return { url, thumbnail };
   } catch (e) {
-    console.log(e);
-    lambdaResponse = "Error invoking lambda";
-  }
-  if (lambdaResponse === "Error invoking lambda") {
-    return "Error invoking lambda";
+    console.log("createClip: Error invoking lambda", e);
+    if (typeof e == "string") {
+      return e;
+    } else {
+      return "createClip: Error invoking lambda";
+    }
   }
 };
 

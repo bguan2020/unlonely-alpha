@@ -188,6 +188,7 @@ model ChatCommand {
 
 enum SharesEventState {
   LIVE
+  LOCK
   PAYOUT
 }
 

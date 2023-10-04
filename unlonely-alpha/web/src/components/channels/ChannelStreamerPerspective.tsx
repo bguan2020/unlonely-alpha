@@ -1,5 +1,6 @@
 import { Flex, Stack, SimpleGrid, Box, Text, Image } from "@chakra-ui/react";
 
+import { SharesEventState } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 
 const ChannelStreamerPerspective = () => {
@@ -16,9 +17,11 @@ const ChannelStreamerPerspective = () => {
   const { channelQueryData } = channel;
 
   const isSharesEventLive =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
+  const isSharesEventLock =
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Lock;
   const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
 
   return (
     <Flex direction="column" width={"100%"}>
@@ -152,9 +155,13 @@ const ChannelStreamerPerspective = () => {
             </Flex>
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">
-                {isSharesEventPayout && "stop payout"}
-                {isSharesEventLive && "decide outcome"}
-                {!isSharesEventLive && !isSharesEventPayout && "create a bet"}
+                {isSharesEventPayout
+                  ? "stop payout"
+                  : isSharesEventLive
+                  ? "lock bets"
+                  : isSharesEventLock
+                  ? "decide outcome"
+                  : "create a bet"}
               </Text>
               <Box
                 display="flex"

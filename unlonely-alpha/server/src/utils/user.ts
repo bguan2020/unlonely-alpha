@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
 import { getEnsName } from "./ens";
-import { lensClient, LENS_GET_DEFAULT_PROFILE } from "./lens/client";
 
 const prisma = new PrismaClient();
 

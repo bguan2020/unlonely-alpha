@@ -9,7 +9,7 @@ import {
   useToast,
   Spinner,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GoPin } from "react-icons/go";
 import Link from "next/link";
 import { decodeEventLog, formatUnits } from "viem";
@@ -52,6 +52,8 @@ export const SharesInterface = ({ messages }: { messages: Message[] }) => {
           latestMessage.data.body &&
           (latestMessage.data.body.split(":")[0] ===
             InteractionType.EVENT_LIVE ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_LOCK ||
             latestMessage.data.body.split(":")[0] ===
               InteractionType.EVENT_PAYOUT ||
             latestMessage.data.body.split(":")[0] ===
@@ -117,6 +119,12 @@ const SharesUi = ({
   const [amount, setAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const isYay = selectedSharesOption === "yes";
+  const isFetching = useRef(false);
+
+  const isEventLocked = useMemo(
+    () => channelQueryData?.sharesEvent?.[0]?.eventState === "LOCK",
+    [channelQueryData]
+  );
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
@@ -524,10 +532,12 @@ const SharesUi = ({
   );
 
   useEffect(() => {
-    if (!blockNumber.data) return;
+    if (!blockNumber.data || isFetching.current || !showUi) return;
     const fetch = async () => {
+      isFetching.current = true;
       await Promise.all([
         refetchUserEthBalance(),
+        refetchBalances(),
         refetchPublic(),
         refetchYayBuyPrice(),
         refetchNayBuyPrice(),
@@ -540,14 +550,14 @@ const SharesUi = ({
         refetchNayBuyPriceAfterFee(),
         refetchNaySellPriceAfterFee(),
         refetchSharesSubject(),
-        refetchBalances(),
         refetchClaimPayout(),
         refetchBuyShares(),
         refetchSellShares(),
       ]);
+      isFetching.current = false;
     };
     fetch();
-  }, [blockNumber.data]);
+  }, [blockNumber.data, showUi]);
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
@@ -608,7 +618,9 @@ const SharesUi = ({
             bg="transparent"
             icon={<Image alt="close" src="/svg/close.svg" width="15px" />}
             onClick={() =>
-              selectedSharesOption !== undefined
+              isEventLocked
+                ? handleShowUi(false)
+                : selectedSharesOption !== undefined
                 ? setSelectedSharesOption(undefined)
                 : handleShowUi(false)
             }
@@ -662,67 +674,86 @@ const SharesUi = ({
             <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
               {truncateValue(formatUnits(pooledEth, 18), 4)} ETH in the pool
             </Text>
-            <Flex justifyContent={"center"} gap={"10px"} my="10px">
-              <Text color="#35b657" fontWeight="bold" fontSize="25px">
-                {truncateValue(String(yaySharesSupply), 0, true)}
-              </Text>
-              <Button
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                transform={
-                  selectedSharesOption === "no" ? "scale(0.95)" : undefined
-                }
-                opacity={selectedSharesOption === "no" ? 0.9 : 1}
-                bg={selectedSharesOption === "no" ? "#909090" : "#009d2a"}
-                onClick={() => setSelectedSharesOption("yes")}
-              >
-                <Flex direction="column">
-                  <Text
-                    fontFamily="Neue Pixel Sans"
-                    fontWeight={"light"}
-                    fontSize="15px"
-                  >
-                    YES
+            {!isEventLocked && (
+              <Flex justifyContent={"center"} gap={"10px"} my="10px">
+                <Text color="#35b657" fontWeight="bold" fontSize="25px">
+                  {truncateValue(String(yaySharesSupply), 0, true)}
+                </Text>
+                <Button
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  transform={
+                    selectedSharesOption === "no" ? "scale(0.95)" : undefined
+                  }
+                  opacity={selectedSharesOption === "no" ? 0.9 : 1}
+                  bg={selectedSharesOption === "no" ? "#909090" : "#009d2a"}
+                  onClick={() => setSelectedSharesOption("yes")}
+                >
+                  <Flex direction="column">
+                    <Text
+                      fontFamily="Neue Pixel Sans"
+                      fontWeight={"light"}
+                      fontSize="15px"
+                    >
+                      YES
+                    </Text>
+                    <Text fontWeight={"light"} fontSize="12px">
+                      {truncateValue(
+                        formatUnits(yayBuyPriceForOne ?? BigInt(0), 18)
+                      )}
+                    </Text>
+                  </Flex>
+                </Button>
+                <Button
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  transform={isYay ? "scale(0.95)" : undefined}
+                  opacity={isYay ? 0.9 : 1}
+                  bg={isYay ? "#909090" : "#da3b14"}
+                  onClick={() => setSelectedSharesOption("no")}
+                >
+                  <Flex direction="column">
+                    <Text
+                      fontFamily="Neue Pixel Sans"
+                      fontWeight={"light"}
+                      fontSize="15px"
+                    >
+                      NO
+                    </Text>
+                    <Text fontWeight={"light"} fontSize="12px">
+                      {truncateValue(
+                        formatUnits(nayBuyPriceForOne ?? BigInt(0), 18)
+                      )}
+                    </Text>
+                  </Flex>
+                </Button>
+                <Text color="#ff623b" fontWeight="bold" fontSize="25px">
+                  {truncateValue(String(naySharesSupply), 0, true)}
+                </Text>
+              </Flex>
+            )}
+            {isEventLocked && (
+              <>
+                <Flex justifyContent={"space-evenly"} my="10px">
+                  <Text color="#35b657" fontWeight="bold" fontSize="25px">
+                    {truncateValue(String(yaySharesSupply), 0, true)} YES
                   </Text>
-                  <Text fontWeight={"light"} fontSize="12px">
-                    {truncateValue(
-                      formatUnits(yayBuyPriceForOne ?? BigInt(0), 18)
-                    )}
+                  <Text color="#ff623b" fontWeight="bold" fontSize="25px">
+                    {truncateValue(String(naySharesSupply), 0, true)} NO
                   </Text>
                 </Flex>
-              </Button>
-              <Button
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                transform={isYay ? "scale(0.95)" : undefined}
-                opacity={isYay ? 0.9 : 1}
-                bg={isYay ? "#909090" : "#da3b14"}
-                onClick={() => setSelectedSharesOption("no")}
-              >
-                <Flex direction="column">
-                  <Text
-                    fontFamily="Neue Pixel Sans"
-                    fontWeight={"light"}
-                    fontSize="15px"
-                  >
-                    NO
-                  </Text>
-                  <Text fontWeight={"light"} fontSize="12px">
-                    {truncateValue(
-                      formatUnits(nayBuyPriceForOne ?? BigInt(0), 18)
-                    )}
-                  </Text>
-                </Flex>
-              </Button>
-              <Text color="#ff623b" fontWeight="bold" fontSize="25px">
-                {truncateValue(String(naySharesSupply), 0, true)}
-              </Text>
-            </Flex>
+                <Text textAlign={"center"} fontSize="14px" color="#e49c16">
+                  voting disabled
+                </Text>
+              </>
+            )}
           </>
         )}
-        {selectedSharesOption === undefined || eventVerified ? null : (
+        {selectedSharesOption === undefined ||
+        eventVerified ||
+        isEventLocked ? null : (
           <Flex direction="column" bg={"rgba(0, 0, 0, 0.258)"} p="0.5rem">
             {!buySharesTxLoading && !sellSharesTxLoading ? (
               <>
@@ -852,7 +883,8 @@ const SharesUi = ({
                     isDisabled={
                       (isBuying && !buyShares) ||
                       (!isBuying && !sellShares) ||
-                      protocolFeeDestination === NULL_ADDRESS
+                      protocolFeeDestination === NULL_ADDRESS ||
+                      isEventLocked
                     }
                   >
                     {protocolFeeDestination === NULL_ADDRESS ? (

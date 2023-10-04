@@ -23,6 +23,7 @@ import { useUser } from "../../hooks/context/useUser";
 import useCloseSharesEvent from "../../hooks/server/useCloseSharesEvent";
 import { useReadSharesSubject } from "../../hooks/contracts/useSharesContract";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
+import { SharesEventState } from "../../generated/graphql";
 
 export default function BetModal({
   title,
@@ -67,13 +68,15 @@ export default function BetModal({
   );
 
   const isSharesEventLive =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
+  const isSharesEventLock =
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Lock;
   const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT";
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
 
   const _postSharesEvent = useCallback(
     async (
-      event: "LIVE" | "PAYOUT",
+      event: SharesEventState,
       sharesSubject?: `0x${string}`,
       sharesSubjectQuestion?: string
     ) => {
@@ -95,8 +98,18 @@ export default function BetModal({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.EVENT_LIVE,
-          title: "New event has started!",
-          description: "event-start",
+          title: "Event is live!",
+          description: "event-live",
+        });
+        handleClose();
+      }
+      if (event === "LOCK") {
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.EVENT_LOCK,
+          title: "Event is locked!",
+          description: "event-lock",
         });
         handleClose();
       }
@@ -180,7 +193,7 @@ export default function BetModal({
           topics: data.logs[0].topics,
         });
         const args: any = topics.args;
-        await _postSharesEvent("PAYOUT");
+        await _postSharesEvent(SharesEventState.Payout);
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -259,7 +272,36 @@ export default function BetModal({
       {isSharesEventLive && (
         <Flex direction="column" gap="10px">
           <Text textAlign={"center"} fontSize="13px">
-            Betting will be over and winnings can start being claimed.
+            Betting will be locked and you can take the time to make your
+            decision.
+          </Text>
+          <Button
+            bg="#e35b16"
+            _hover={{}}
+            _focus={{}}
+            _active={{}}
+            width="100%"
+            onClick={async () => await _postSharesEvent(SharesEventState.Lock)}
+          >
+            lock bets
+          </Button>
+        </Flex>
+      )}
+      {isSharesEventLock && (
+        <Flex direction="column" gap="10px">
+          <Text textAlign={"center"} fontSize="13px">
+            The outcome of the event will be decided and winnings can start
+            being claimed.
+          </Text>
+          <Text
+            textAlign={"center"}
+            fontSize="11px"
+            color={"#8f81b6"}
+            textDecoration="underline"
+            cursor={"pointer"}
+            onClick={async () => await _postSharesEvent(SharesEventState.Live)}
+          >
+            or allow voting again
           </Text>
           {!isVerifier && (
             <Text textAlign={"center"} fontSize="13px">
@@ -317,8 +359,8 @@ export default function BetModal({
       {isSharesEventPayout && (
         <Flex direction="column" gap="10px">
           <Text textAlign={"center"} fontSize="13px">
-            By stopping the event, the payout phase will be over and you will be
-            able to make a new event.
+            By stopping the event, winnings can no longer be claimed and you
+            will be able to make a new event.
           </Text>
           <Button
             bg="#E09025"
@@ -329,11 +371,11 @@ export default function BetModal({
             disabled={!eventVerified}
             onClick={_closeSharesEvent}
           >
-            stop bet
+            stop event
           </Button>
         </Flex>
       )}
-      {!isSharesEventLive && !isSharesEventPayout && (
+      {!isSharesEventLive && !isSharesEventPayout && !isSharesEventLock && (
         <Flex direction="column" gap="10px">
           <Text textAlign={"center"} fontSize="13px">
             Note: enter a new wallet address when you want to make another bet,
@@ -369,7 +411,7 @@ export default function BetModal({
             }
             onClick={async () =>
               await _postSharesEvent(
-                "LIVE",
+                SharesEventState.Live,
                 sharesSubject as `0x${string}`,
                 question
               )
