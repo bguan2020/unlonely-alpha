@@ -21,6 +21,23 @@ export const typeDef = gql`
     errorMessage: String
   }
 
+  type ClipNFCOutput implements Likable {
+    id: ID!
+    title: String
+    videoLink: String
+    videoThumbnail: String
+    openseaLink: String
+    score: Int!
+    liked: Boolean
+    disliked: Boolean
+    owner: User!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    url: String
+    thumbnail: String
+    errorMessage: String
+  }
+
   input NFCFeedInput {
     limit: Int
     offset: Int
@@ -43,6 +60,7 @@ export const typeDef = gql`
   }
 
   input CreateClipInput {
+    title: String!
     channelArn: String!
   }
 
@@ -52,7 +70,7 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    createClip(data: CreateClipInput): ClipOutput
+    createClip(data: CreateClipInput): ClipNFCOutput
     postNFC(data: PostNFCInput!): NFC
     updateNFC(data: UpdateNFCInput!): NFC
     openseaNFCScript: String

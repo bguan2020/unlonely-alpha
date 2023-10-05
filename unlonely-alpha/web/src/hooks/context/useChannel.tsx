@@ -70,7 +70,7 @@ const ChannelContext = createContext<{
     clipping: {
       isClipUiOpen: boolean;
       handleIsClipUiOpen: (value: boolean) => void;
-      fetchData: () => void;
+      handleCreateClip: (title: string) => Promise<string | undefined>;
       submitClip: (title: string) => Promise<string | undefined>;
       setClipError: (value: string) => void;
       clipError?: string;
@@ -141,7 +141,7 @@ const ChannelContext = createContext<{
     clipping: {
       isClipUiOpen: false,
       handleIsClipUiOpen: () => undefined,
-      fetchData: () => undefined,
+      handleCreateClip: () => Promise.resolve(undefined),
       submitClip: () => Promise.resolve(undefined),
       setClipError: () => undefined,
       clipError: undefined,
@@ -312,7 +312,7 @@ export const ChannelProvider = ({
   const [showBetModal, setBetModal] = useState<boolean>(false);
 
   const {
-    fetchData,
+    handleCreateClip,
     submitClip,
     setClipError,
     clipError,
@@ -447,7 +447,7 @@ export const ChannelProvider = ({
         clipping: {
           isClipUiOpen,
           handleIsClipUiOpen,
-          fetchData,
+          handleCreateClip,
           submitClip,
           setClipError,
           clipError: clipError ?? undefined,
@@ -524,7 +524,7 @@ export const ChannelProvider = ({
       userRank,
       isClipUiOpen,
       handleIsClipUiOpen,
-      fetchData,
+      handleCreateClip,
       submitClip,
       setClipError,
       clipError,

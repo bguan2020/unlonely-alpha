@@ -20,6 +20,7 @@ export interface IUpdateNFCInput {
 }
 
 export interface ICreateClipInput {
+  title: string;
   channelArn: string;
 }
 
@@ -83,7 +84,11 @@ export const updateOpenseaLink = async (ctx: Context) => {
   }
 };
 
-export const createClip = async (data: ICreateClipInput) => {
+export const createClip = async (
+  data: ICreateClipInput,
+  ctx: Context,
+  user: User
+) => {
   const recordingConfigArn =
     "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
   // first call lambda
@@ -106,16 +111,18 @@ export const createClip = async (data: ICreateClipInput) => {
   let lambdaResponse: any;
   const id = Date.now();
   console.log(
-    `createClip calling lambda at time, id:${id}`,
-    new Date(Date.now()).toISOString()
+    "createClip calling lambda at time",
+    new Date(Date.now()).toISOString(),
+    `id:${id}`
   );
   try {
     lambdaResponse = await lambda.invoke(params).promise();
     console.log(
-      `createClip lambda response at time, id:${id}`,
-      `${(Date.now() - id) / 1000}s`,
+      "createClip lambda response at time,",
       new Date(Date.now()).toISOString(),
-      lambdaResponse
+      `id:${id}`,
+      `${(Date.now() - id) / 1000}s`,
+      lambdaResponse.Payload
     );
     const response = JSON.parse(lambdaResponse.Payload);
     // if response contains "errorMessage" field, then there was an error and return message
@@ -128,7 +135,17 @@ export const createClip = async (data: ICreateClipInput) => {
     }
     const url = response.body.url;
     const thumbnail = response.body.thumbnail;
-    return { url, thumbnail };
+    const res = await postNFC(
+      {
+        title: data.title,
+        videoLink: url,
+        videoThumbnail: thumbnail,
+        openseaLink: "",
+      },
+      ctx,
+      user
+    );
+    return { url, thumbnail, ...res };
   } catch (e) {
     console.log(`createClip Error invoking lambda, id:${id}`, e);
     return { errorMessage: "Error invoking lambda" };

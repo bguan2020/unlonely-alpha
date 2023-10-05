@@ -8,7 +8,6 @@ import {
   Box,
   Spinner,
   Text,
-  Tooltip,
   Button,
   Popover,
   PopoverTrigger,
@@ -73,7 +72,7 @@ const ChatForm = ({
   const { channel: channelContext, token, chat, arcade } = useChannelContext();
   const { clipping } = chat;
   const { addToChatbot } = arcade;
-  const { fetchData, loading: clipLoading } = clipping;
+  const { handleIsClipUiOpen, loading: clipLoading } = clipping;
 
   const { channelQueryData } = channelContext;
   const { userTokenBalance, refetchUserTokenBalance } = token;
@@ -550,15 +549,7 @@ const ChatForm = ({
                 />
                 <Flex justifyContent={"flex-end"} alignItems="center">
                   {clipLoading ? (
-                    <Tooltip
-                      isOpen
-                      placement="left"
-                      label="clipping, please stay here and wait"
-                      background="#15a6c0"
-                      hasArrow
-                    >
-                      <Spinner />
-                    </Tooltip>
+                    <Spinner />
                   ) : (
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
@@ -571,7 +562,7 @@ const ChatForm = ({
                           _active={{ transform: "scale(1.3)" }}
                           onClick={() => {
                             if (user) {
-                              fetchData();
+                              handleIsClipUiOpen(true);
                               addToChatbot({
                                 username: user?.username ?? "",
                                 address: user?.address ?? "",

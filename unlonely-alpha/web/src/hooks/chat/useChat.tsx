@@ -45,7 +45,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
   const { channelQueryData } = channelContext;
   const { userRank } = holdersContext;
   const { clipping } = chat;
-  const { fetchData } = clipping;
+  const { handleIsClipUiOpen } = clipping;
   const { addToTextOverVideo } = recentStreamInteractions;
 
   const mountingMessages = useRef(true);
@@ -114,7 +114,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
       allowPublish = true;
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
       if (channelQueryData?.allowNFCs || false) {
-        fetchData();
+        handleIsClipUiOpen(true);
         messageToPublish = `${
           user?.username ?? centerEllipses(address, 15)
         } has just clipped a highlight from this stream!`;

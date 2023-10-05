@@ -53,11 +53,11 @@ export const getUser = async (data: IGetUserInput, ctx: Context) => {
     include: { channel: { take: 1 } },
   });
 
-  if (!user) {
-    console.log("getUser: user not found");
-    return;
-  }
-  console.log("getUser: ", user.address);
+  // if (!user) {
+  //   console.log("getUser: user not found");
+  //   return;
+  // }
+  // console.log("getUser: ", user.address);
   return user;
 };
 
