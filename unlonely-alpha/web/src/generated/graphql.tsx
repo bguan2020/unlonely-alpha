@@ -138,6 +138,24 @@ export type ChatCommandInput = {
   response: Scalars["String"];
 };
 
+export type ClipNfcOutput = Likable & {
+  __typename?: "ClipNFCOutput";
+  createdAt: Scalars["DateTime"];
+  disliked?: Maybe<Scalars["Boolean"]>;
+  errorMessage?: Maybe<Scalars["String"]>;
+  id: Scalars["ID"];
+  liked?: Maybe<Scalars["Boolean"]>;
+  openseaLink?: Maybe<Scalars["String"]>;
+  owner: User;
+  score: Scalars["Int"];
+  thumbnail?: Maybe<Scalars["String"]>;
+  title?: Maybe<Scalars["String"]>;
+  updatedAt: Scalars["DateTime"];
+  url?: Maybe<Scalars["String"]>;
+  videoLink?: Maybe<Scalars["String"]>;
+  videoThumbnail?: Maybe<Scalars["String"]>;
+};
+
 export type ClipOutput = {
   __typename?: "ClipOutput";
   errorMessage?: Maybe<Scalars["String"]>;
@@ -147,6 +165,7 @@ export type ClipOutput = {
 
 export type CreateClipInput = {
   channelArn: Scalars["String"];
+  title: Scalars["String"];
 };
 
 export type CreateCreatorTokenInput = {
@@ -254,7 +273,7 @@ export type Mutation = {
   addChannelToSubscription?: Maybe<Subscription>;
   addSuggestedChannelsToSubscriptions?: Maybe<Array<Maybe<Subscription>>>;
   closeSharesEvent?: Maybe<Channel>;
-  createClip?: Maybe<ClipOutput>;
+  createClip?: Maybe<ClipNfcOutput>;
   createCreatorToken: CreatorToken;
   handleLike?: Maybe<Likable>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
@@ -1207,10 +1226,11 @@ export type CreateClipMutationVariables = Exact<{
 export type CreateClipMutation = {
   __typename?: "Mutation";
   createClip?: {
-    __typename?: "ClipOutput";
+    __typename?: "ClipNFCOutput";
     url?: string | null;
     thumbnail?: string | null;
     errorMessage?: string | null;
+    id: string;
   } | null;
 };
 
@@ -1220,13 +1240,22 @@ export type LikeMutationVariables = Exact<{
 
 export type LikeMutation = {
   __typename?: "Mutation";
-  handleLike?: {
-    __typename?: "NFC";
-    id: string;
-    score: number;
-    liked?: boolean | null;
-    disliked?: boolean | null;
-  } | null;
+  handleLike?:
+    | {
+        __typename?: "ClipNFCOutput";
+        id: string;
+        score: number;
+        liked?: boolean | null;
+        disliked?: boolean | null;
+      }
+    | {
+        __typename?: "NFC";
+        id: string;
+        score: number;
+        liked?: boolean | null;
+        disliked?: boolean | null;
+      }
+    | null;
 };
 
 export type PostBaseLeaderboardMutationVariables = Exact<{
@@ -2763,6 +2792,7 @@ export const CreateClipDocument = gql`
       url
       thumbnail
       errorMessage
+      id
     }
   }
 `;

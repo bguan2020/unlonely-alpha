@@ -25,22 +25,25 @@ export const useClip = (
     },
   });
 
-  const fetchData = async () => {
+  const handleCreateClip = async (title: string) => {
     if (!user?.address || !channelQueryData?.channelArn || loading) return;
     setLoading(true);
+    handleIsClipUiOpen(false);
     const { res } = await createClip({
+      title,
       channelArn: channelQueryData.channelArn,
     });
-    console.log("useClip fetchData", res);
     // if res.errorMessage is not null, then show error message
-    if (res.errorMessage) {
-      setClipError(res.errorMessage);
+    if (res?.errorMessage) {
+      setClipError(res?.errorMessage);
     } else {
-      setClipUrl(res.url);
-      setClipThumbnail(res.thumbnail);
+      setClipUrl(res?.url);
+      setClipThumbnail(res?.thumbnail);
     }
     setLoading(false);
     handleIsClipUiOpen(true);
+    if (!res?.id) return;
+    return `${window.location.origin}/nfc/${res?.id}`;
   };
 
   const submitClip = async (title: string) => {
@@ -64,7 +67,7 @@ export const useClip = (
   };
 
   return {
-    fetchData,
+    handleCreateClip,
     submitClip,
     setClipError,
     clipError,
