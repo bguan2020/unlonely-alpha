@@ -43,7 +43,7 @@ import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import centerEllipses from "../../utils/centerEllipses";
 import ConnectWallet from "../navigation/ConnectWallet";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import { ChatClip } from "./ChatClip copy";
+import { ChatClip } from "./ChatClip";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 type Props = {
