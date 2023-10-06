@@ -46,6 +46,11 @@ export const CHANNEL_DETAIL_QUERY = gql`
       slug
       allowNFCs
       bannedUsers
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        eventState
+      }
       owner {
         FCImageUrl
         lensImageUrl
@@ -81,6 +86,11 @@ export const CHANNEL_DETAIL_MOBILE_QUERY = gql`
       slug
       allowNFCs
       bannedUsers
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        eventState
+      }
       owner {
         FCImageUrl
         lensImageUrl

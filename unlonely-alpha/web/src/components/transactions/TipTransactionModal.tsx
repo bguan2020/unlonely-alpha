@@ -1,11 +1,9 @@
 import { Text, Input, Flex, useToast, Box } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { parseUnits } from "viem";
-import { useNetwork } from "wagmi";
 import Link from "next/link";
 
 import { useUser } from "../../hooks/context/useUser";
-import { ChatBot } from "../../constants/types";
 import {
   filteredInput,
   formatIncompleteNumber,
@@ -15,7 +13,6 @@ import { TransactionModalTemplate } from "./TransactionModalTemplate";
 import { ModalButton } from "../general/button/ModalButton";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { NETWORKS } from "../../constants/networks";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
@@ -30,18 +27,17 @@ export default function TipTransactionModal({
   icon,
   callback,
   handleClose,
-  addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
   icon?: JSX.Element;
   callback?: () => void;
   handleClose: () => void;
-  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
-  const { channel, token } = useChannelContext();
-  const { network: net } = useNetworkContext();
-  const { matchingChain } = net;
+  const { channel, token, arcade } = useChannelContext();
+  const { network } = useNetworkContext();
+  const { addToChatbot } = arcade;
+  const { matchingChain, localNetwork, explorerUrl } = network;
 
   const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
@@ -55,13 +51,6 @@ export default function TipTransactionModal({
 
   const { user, userAddress, walletIsConnected } = useUser();
   const toast = useToast();
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const {
@@ -87,7 +76,7 @@ export default function TipTransactionModal({
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 approve pending, click to view
@@ -105,7 +94,7 @@ export default function TipTransactionModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 approve success, click to view
@@ -139,14 +128,16 @@ export default function TipTransactionModal({
       creatorTokenAddress: channelQueryData?.token?.address as `0x${string}`,
       featurePrice: tokenAmount_bigint,
     },
+    contract,
     {
       onWriteSuccess: (data) => {
+        handleClose();
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 useFeature pending, click to view
@@ -164,7 +155,7 @@ export default function TipTransactionModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 useFeature success, click to view
@@ -177,7 +168,7 @@ export default function TipTransactionModal({
         });
         callback?.();
         refetchUserTokenBalance?.();
-        addToChatbot?.({
+        addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.TIP,
@@ -186,13 +177,12 @@ export default function TipTransactionModal({
           } $${channelQueryData?.token?.symbol}!`,
           description: "Tip",
         });
-        handleClose();
       },
     }
   );
 
   const handleSend = async () => {
-    if (!useFeature || !addToChatbot) return;
+    if (!useFeature) return;
     await useFeature();
   };
 

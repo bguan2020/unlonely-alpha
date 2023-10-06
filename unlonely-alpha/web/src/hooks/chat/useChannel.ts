@@ -168,7 +168,6 @@ const updateMessageHistoryReactions = (
   const index = messageHistory.findIndex(
     (m) => m.extras.timeserial === timeserial
   );
-
   if (index === -1) return messageHistory;
 
   const messageToUpdate = messageHistory[index];

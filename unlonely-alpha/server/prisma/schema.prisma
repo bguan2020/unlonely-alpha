@@ -188,6 +188,7 @@ model ChatCommand {
 
 enum SharesEventState {
   LIVE
+  LOCK
   PAYOUT
 }
 
@@ -201,7 +202,7 @@ model SharesEvent {
   softDelete Boolean @default(false)
 
   channel Channel @relation(fields: [channelId], references: [id])
-  channelId Int       @unique
+  channelId Int
 }
 
 model BaseLeaderboard {

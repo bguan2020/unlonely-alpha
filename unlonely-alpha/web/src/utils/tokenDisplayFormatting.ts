@@ -1,7 +1,8 @@
 export const truncateValue = (
   value: number | string,
   decimals = 6,
-  abbrev = true
+  abbrev = true,
+  abbrevDecimals = 2
 ): string => {
   if (typeof value === "number" && value === 0) return "0";
   if (typeof value === "string") {
@@ -16,7 +17,7 @@ export const truncateValue = (
 
   // if is nonzero whole number
   if (decimalIndex === -1) {
-    if (abbrev) return numberAbbreviate(str);
+    if (abbrev) return numberAbbreviate(str, abbrevDecimals);
     return str;
   }
 
@@ -25,7 +26,7 @@ export const truncateValue = (
   const truncatedStr = str.substring(0, cutoffIndex + 1);
   if (parseFloat(truncatedStr) === 0)
     return "< ".concat(`${truncatedStr.slice(0, -1)}1`);
-  if (abbrev) return numberAbbreviate(truncatedStr);
+  if (abbrev) return numberAbbreviate(truncatedStr, abbrevDecimals);
   return truncatedStr;
 };
 
@@ -98,6 +99,10 @@ const numberAbbreviate = (value: number | string, decimals = 2): string => {
   const cutoff = wholeNumber.length % 3 === 0 ? 3 : wholeNumber.length % 3;
   const a = wholeNumber.substring(0, cutoff);
   const b = wholeNumber.substring(cutoff, cutoff + decimals);
+
+  if (decimals === 0) {
+    return `${a}${abbrev}`;
+  }
   if (!abbrev) {
     return `${a}.${b}e${wholeNumber.length - cutoff}`;
   }

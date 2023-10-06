@@ -10,12 +10,10 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { formatUnits, isAddress, parseUnits } from "viem";
-import { useNetwork } from "wagmi";
 import Link from "next/link";
 
 import AppLayout from "../components/layout/AppLayout";
 import { NULL_ADDRESS } from "../constants";
-import { NETWORKS } from "../constants/networks";
 import {
   useAddCreatorToken,
   useAdmins,
@@ -37,10 +35,14 @@ import useUpdateCreatorTokenPrice from "../hooks/server/arcade/useUpdateTokenPri
 import useUpdateUserCreatorTokenQuantity from "../hooks/server/arcade/useUpdateTokenQuantity";
 import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
 import AdminNotifications from "../components/general/AdminNotifications";
+import { useNetworkContext } from "../hooks/context/useNetwork";
 
 export default function AdminPage() {
   const { user } = useUser();
-  const { admins } = useAdmins();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+  const { admins } = useAdmins(contract);
 
   const isAdmin = useMemo(() => {
     if (admins !== undefined && user?.address) {
@@ -60,15 +62,10 @@ export default function AdminPage() {
 
 const AdminContent = () => {
   const toast = useToast();
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-
+  const { explorerUrl } = network;
   const [creatorTokenAddress, setCreatorTokenAddress] = useState<string>("");
   const [creatorTokenSymbol, setCreatorTokenSymbol] = useState<string>("");
   const [creatorTokenName, setCreatorTokenName] = useState<string>("");
@@ -94,10 +91,11 @@ const AdminContent = () => {
     creatorToken,
     tokenPrice,
     tokenOwner,
-  } = useReadPublic(creatorTokenAddress as `0x${string}`);
+  } = useReadPublic(contract, creatorTokenAddress as `0x${string}`);
 
   const { amountIn } = useCalculateEthAmount(
     creatorTokenAddress as `0x${string}`,
+    contract,
     buyTokenAmount_bigint
   );
 
@@ -121,7 +119,7 @@ const AdminContent = () => {
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 approve pending, click to view
@@ -139,7 +137,7 @@ const AdminContent = () => {
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 approve success, click to view
@@ -169,6 +167,7 @@ const AdminContent = () => {
       ),
       tokenOwner: tokenOwnerAddress as `0x${string}`,
     },
+    contract,
     {
       onWriteSuccess: (data) => {
         toast({
@@ -179,7 +178,7 @@ const AdminContent = () => {
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 addCreatorToken pending, click to view
@@ -197,7 +196,7 @@ const AdminContent = () => {
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 addCreatorToken success, click to view
@@ -239,6 +238,7 @@ const AdminContent = () => {
           18
         ),
       },
+      contract,
       {
         onWriteSuccess: (data) => {
           toast({
@@ -246,7 +246,7 @@ const AdminContent = () => {
               <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
                 <Link
                   target="_blank"
-                  href={`https://etherscan.io/tx/${data.hash}`}
+                  href={`${explorerUrl}/tx/${data.hash}`}
                   passHref
                 >
                   useFeature pending, click to view
@@ -264,7 +264,7 @@ const AdminContent = () => {
               <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
                 <Link
                   target="_blank"
-                  href={`https://etherscan.io/tx/${data.transactionHash}`}
+                  href={`${explorerUrl}/tx/${data.transactionHash}`}
                   passHref
                 >
                   useFeature success, click to view
@@ -291,6 +291,7 @@ const AdminContent = () => {
       amountIn,
       amountOut: buyTokenAmount_bigint,
     },
+    contract,
     {
       onWriteSuccess: (data) => {
         toast({
@@ -298,7 +299,7 @@ const AdminContent = () => {
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 buyCreatorToken pending, click to view
@@ -316,7 +317,7 @@ const AdminContent = () => {
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 buyCreatorToken success, click to view
@@ -361,6 +362,7 @@ const AdminContent = () => {
         .split(",")
         .map((p) => parseUnits(formatIncompleteNumber(p) as `${number}`, 18)),
     },
+    contract,
     {
       onWriteSuccess: async (data) => {
         toast({
@@ -368,7 +370,7 @@ const AdminContent = () => {
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 setTokenPrices pending, click to view
@@ -397,7 +399,7 @@ const AdminContent = () => {
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 setTokenPrices success, click to view

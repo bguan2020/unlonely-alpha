@@ -1,7 +1,7 @@
 import axios from "axios";
+import { User } from "@prisma/client";
 
 import { Context } from "../../context";
-import { User } from "@prisma/client";
 import { lensClient, LENS_GET_DEFAULT_PROFILE } from "../../utils/lens/client";
 
 export const getLeaderboard = (ctx: Context) => {
@@ -53,11 +53,11 @@ export const getUser = async (data: IGetUserInput, ctx: Context) => {
     include: { channel: { take: 1 } },
   });
 
-  if (!user) {
-    console.log("getUser: user not found");
-    return;
-  }
-  console.log(user);
+  // if (!user) {
+  //   console.log("getUser: user not found");
+  //   return;
+  // }
+  // console.log("getUser: ", user.address);
   return user;
 };
 

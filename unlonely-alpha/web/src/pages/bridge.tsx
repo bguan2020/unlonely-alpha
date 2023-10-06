@@ -14,7 +14,6 @@ import { useForm } from "react-hook-form";
 import * as OP from "@eth-optimism/sdk";
 import { ethers } from "ethers";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
-import { useNetwork } from "wagmi";
 import Link from "next/link";
 
 import AppLayout from "../components/layout/AppLayout";
@@ -27,18 +26,17 @@ enum TxStatus {
   Confirmed,
 }
 
-const STARTING_CHAIN_ID = 5;
+const STARTING_CHAIN_ID = "1";
 
-const L1_EXPLORER_URL = "https://goerli.etherscan.io/";
-const L2_EXPLORER_URL = "https://goerli.basescan.org";
-const TARGET_RPC_URL = "https://goerli.base.org";
+const L1_EXPLORER_URL = "https://etherscan.io/";
+const L2_EXPLORER_URL = "https://basescan.org";
+const TARGET_RPC_URL = "https://mainnet.base.org";
 
 const BridgePage = () => {
   const { register, handleSubmit, formState } = useForm({
     defaultValues: { amount: "0.01" }, // you can set a default value here
   });
   const { wallet } = usePrivyWagmi();
-  const { chain } = useNetwork();
   const { postBaseLeaderboard } = usePostBaseLeaderboard({
     onError: (m: any) => {
       console.log(m);
@@ -63,7 +61,9 @@ const BridgePage = () => {
   const [l1Signer, setL1Signer] = useState<ethers.Signer | undefined>(
     undefined
   );
+  const [matchingChain, setMatchingChain] = useState<boolean>(true);
   const toast = useToast();
+  const [count, setCount] = useState<number>(0);
 
   const messenger = useMemo(() => {
     if (!user || !l1Signer) return;
@@ -72,8 +72,8 @@ const BridgePage = () => {
     ).getSigner(user.address);
 
     return new OP.CrossChainMessenger({
-      l1ChainId: OP.L1ChainID.GOERLI,
-      l2ChainId: OP.L2ChainID.BASE_GOERLI,
+      l1ChainId: OP.L1ChainID.MAINNET,
+      l2ChainId: OP.L2ChainID.BASE_MAINNET,
       l1SignerOrProvider: l1Signer,
       l2SignerOrProvider: l2Provider,
     });
@@ -128,6 +128,7 @@ const BridgePage = () => {
           await postBaseLeaderboard({
             amount: data.amount,
           });
+          setCount((prev) => prev + 1);
         } else {
           setL1TxStatus(null);
           toast({
@@ -166,6 +167,11 @@ const BridgePage = () => {
     getSigner();
   }, [wallet]);
 
+  useEffect(() => {
+    const chain = wallet?.chainId;
+    setMatchingChain(chain?.split(":")[1] === STARTING_CHAIN_ID);
+  }, [wallet]);
+
   return (
     <>
       <AppLayout isCustomHeader={false}>
@@ -192,6 +198,18 @@ const BridgePage = () => {
                     p="20px"
                     borderRadius="10px"
                   >
+                    {!matchingChain && (
+                      <Flex justifyContent={"center"}>
+                        <Text
+                          textAlign={"center"}
+                          color="#ff9142"
+                          width="325px"
+                        >
+                          This is a bridge from Ethereum mainnet to Base
+                          mainnet, please switch to Ethereum mainnet first.
+                        </Text>
+                      </Flex>
+                    )}
                     <Input
                       id="amount"
                       placeholder="Enter ETH amount"
@@ -211,12 +229,19 @@ const BridgePage = () => {
                       _active={{}}
                     />
                     {bridgeInProgress ? (
-                      <Flex justifyContent={"center"}>
-                        <Spinner size="xl" />
-                      </Flex>
+                      <>
+                        <Flex justifyContent={"center"}>
+                          <Spinner size="xl" />
+                        </Flex>
+                        <Flex justifyContent={"center"}>
+                          <Text textAlign={"center"}>
+                            Working, give me a few seconds
+                          </Text>
+                        </Flex>
+                      </>
                     ) : (
                       <Button
-                        disabled={chain?.id !== STARTING_CHAIN_ID}
+                        disabled={!matchingChain}
                         type="submit"
                         _hover={{
                           bg: "#13b14f",
@@ -239,23 +264,36 @@ const BridgePage = () => {
                         >
                           Transaction Successful!
                         </Text>
-                        <Text textAlign="center" fontSize={"14px"}>
-                          Keep an eye out for your ETH in the other chain. It
-                          will take a few minutes for it to arrive.
+                        <Text
+                          textAlign="center"
+                          fontSize={"14px"}
+                          width="400px"
+                        >
+                          Keep an eye out for your ETH in the other chain - It
+                          will take a few minutes for it to arrive in your
+                          wallet.
                         </Text>
                         <Flex justifyContent={"center"}>
                           <Link
                             style={{
                               textDecoration: "underline",
-                              color: "#09b5e5",
+                              color: "#09dee5",
                             }}
                             target="_blank"
                             href={`${L2_EXPLORER_URL}/address/${user?.address}#internaltx`}
                             passHref
                           >
-                            Take me to the explorer of the other chain
+                            track here
                           </Link>
                         </Flex>
+                        <Text
+                          textAlign="center"
+                          fontSize={"14px"}
+                          width="400px"
+                        >
+                          You’re ready to start using all paid features once
+                          that hits your wallet, so head back to the stream now!
+                        </Text>
                       </>
                     )}
                   </Flex>
@@ -264,7 +302,7 @@ const BridgePage = () => {
                   </FormErrorMessage>
                 </FormControl>
               </form>
-              <BaseLeaderboard />
+              <BaseLeaderboard count={count} />
             </Flex>
           </Flex>
         </Flex>

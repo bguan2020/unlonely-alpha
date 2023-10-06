@@ -1,11 +1,10 @@
 import { Text, Input, Flex, useToast, Box } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
-import { useBalance, useNetwork } from "wagmi";
+import { useBalance } from "wagmi";
 import Link from "next/link";
 
 import { useUser } from "../../hooks/context/useUser";
-import { ChatBot } from "../../constants/types";
 import {
   filteredInput,
   formatIncompleteNumber,
@@ -23,7 +22,6 @@ import useUpdateUserCreatorTokenQuantity from "../../hooks/server/arcade/useUpda
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useApproval } from "../../hooks/contracts/useApproval";
-import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
@@ -34,21 +32,20 @@ export default function BuyTransactionModal({
   icon,
   callback,
   handleClose,
-  addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
   icon?: JSX.Element;
   callback?: () => void;
   handleClose: () => void;
-  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
   const { isStandalone } = useUserAgent();
 
   const { user, userAddress, walletIsConnected } = useUser();
-  const { channel, token, holders } = useChannelContext();
-  const { network: net } = useNetworkContext();
-  const { matchingChain } = net;
+  const { channel, token, holders, arcade } = useChannelContext();
+  const { addToChatbot } = arcade;
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork, explorerUrl } = network;
   const { channelQueryData } = channel;
   const {
     userTokenBalance,
@@ -61,13 +58,6 @@ export default function BuyTransactionModal({
     address: userAddress as `0x${string}`,
   });
 
-  const network = useNetwork();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
 
   const [amount, setAmount] = useState("");
@@ -100,6 +90,7 @@ export default function BuyTransactionModal({
 
   const { amountIn } = useCalculateEthAmount(
     channelQueryData?.token?.address as `0x${string}`,
+    contract,
     buyTokenAmount_bigint
   );
 
@@ -115,8 +106,10 @@ export default function BuyTransactionModal({
       amountIn,
       amountOut: buyTokenAmount_bigint,
     },
+    contract,
     {
       onWriteSuccess: (data) => {
+        handleClose();
         toast({
           duration: 9000,
           isClosable: true,
@@ -125,7 +118,7 @@ export default function BuyTransactionModal({
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 buyCreatorToken pending, click to view
@@ -143,7 +136,7 @@ export default function BuyTransactionModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 buyCreatorToken success, click to view
@@ -162,7 +155,7 @@ export default function BuyTransactionModal({
             amountOption === "custom" ? amount : amountOption
           ),
         });
-        addToChatbot?.({
+        addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.BUY,
@@ -172,13 +165,12 @@ export default function BuyTransactionModal({
           description: "Buy",
         });
         refetchTokenHolders?.();
-        handleClose();
       },
     }
   );
 
   const handleSend = async () => {
-    if (!buyCreatorToken || !addToChatbot) return;
+    if (!buyCreatorToken) return;
     await buyCreatorToken();
   };
 
@@ -200,12 +192,13 @@ export default function BuyTransactionModal({
       setErrorMessage("connect wallet first");
     } else if (!matchingChain) {
       setErrorMessage("wrong network");
+    } else if (ownerAllowance < buyTokenAmount_bigint) {
+      setErrorMessage("there are not enough tokens offered for sale");
     } else if (
-      ownerAllowance < buyTokenAmount_bigint ||
-      (ownerTokenBalance?.value &&
-        ownerTokenBalance?.value < buyTokenAmount_bigint)
+      ownerTokenBalance?.value &&
+      ownerTokenBalance?.value < buyTokenAmount_bigint
     ) {
-      setErrorMessage("there are not enough tokens on sale");
+      setErrorMessage("owner does not have enough tokens to sell");
     } else if (userEthBalance?.value && amountIn > userEthBalance?.value) {
       setErrorMessage("you don't have enough ETH to spend");
     } else {

@@ -29,7 +29,6 @@ const usePostBaseLeaderboard = ({ onError }: Props) => {
 
   const postBaseLeaderboard = useCallback(
     async (data) => {
-      console.log(data);
       try {
         setLoading(true);
         const mutationResult = await mutate({
@@ -43,7 +42,7 @@ const usePostBaseLeaderboard = ({ onError }: Props) => {
         const res = mutationResult?.data?.postBaseLeaderboard;
         /* eslint-disable no-console */
         if (res) {
-          console.log("success");
+          console.log("postBaseLeaderboard success");
         } else {
           onError && onError();
         }

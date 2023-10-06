@@ -11,7 +11,6 @@ import {
 import { useState } from "react";
 
 import { Context } from "./client";
-import { useAuthData } from "../state/auth";
 
 /**
  * Wrapper hook for mutations that require full authentication.
@@ -41,7 +40,7 @@ export const useAuthedMutation = <
     variables: options?.variables,
     context: { signedMessage: "" },
   });
-  const { getAuthData } = useAuthData();
+  // const { getAuthData } = useAuthData();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<undefined | ApolloError>();

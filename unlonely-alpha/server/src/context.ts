@@ -27,14 +27,16 @@ export const getContext: ContextFunction = async ({
   let address = null;
   try {
     const { userId } = await privyClient.verifyAuthToken(authToken);
-    console.log(userId);
+    // console.log("context, privyId:", userId);
     const user = await privyClient.getUser(userId);
     address = user.wallet?.address;
-    console.log(address);
+    // console.log("context, address:", address);
     validated = true;
   } catch (e) {
-    console.log(authToken);
-    console.log("cannot validate privy token, user not authed");
+    // console.log(
+    //   "context, cannot validate privy token, user not authed",
+    //   authToken
+    // );
   }
 
   const user = address ? await findOrCreateUser({ address }) : null;

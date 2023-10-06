@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import {
   Flex,
   Table,
@@ -14,7 +14,7 @@ import {
   Button,
   Spinner,
 } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { GET_BASE_LEADERBOARD_QUERY } from "../../constants/queries";
 import { GetBaseLeaderboardQuery } from "../../generated/graphql";
@@ -22,10 +22,11 @@ import centerEllipses from "../../utils/centerEllipses";
 
 const headers = ["rank", "amount", "user"];
 
-const BaseLeaderboard = ({ callback }: { callback?: () => void }) => {
-  const { loading, error, data } = useQuery<GetBaseLeaderboardQuery>(
-    GET_BASE_LEADERBOARD_QUERY
-  );
+const BaseLeaderboard = ({ count }: { count: number }) => {
+  const [getBaseLeaderboard, { loading, data, error }] =
+    useLazyQuery<GetBaseLeaderboardQuery>(GET_BASE_LEADERBOARD_QUERY, {
+      fetchPolicy: "network-only",
+    });
 
   const dataset = useMemo(() => data?.getBaseLeaderboard ?? [], [data]);
 
@@ -37,6 +38,10 @@ const BaseLeaderboard = ({ callback }: { callback?: () => void }) => {
   });
 
   const [itemsShown, setItemsShown] = useState(10);
+
+  useEffect(() => {
+    getBaseLeaderboard();
+  }, [count]);
 
   const datasetCapped = useMemo(
     () =>

@@ -324,7 +324,6 @@ function MobilePage({
   const handleGetSubscription = useCallback(async () => {
     await getSubscription({
       variables: { data: { endpoint } },
-      fetchPolicy: "network-only",
     });
   }, [endpoint]);
 
@@ -403,7 +402,7 @@ function MobilePage({
               right="1rem"
               bottom="1rem"
             />
-            {sortedChannels.length > 0 && (
+            {sortedChannels && sortedChannels.length > 0 ? (
               <Virtuoso
                 followOutput={"auto"}
                 ref={scrollRef}
@@ -427,6 +426,14 @@ function MobilePage({
                   />
                 )}
               />
+            ) : (
+              <Text
+                textAlign={"center"}
+                fontFamily={"Neue Pixel Sans"}
+                fontSize={"25px"}
+              >
+                Could not fetch channels, please try again later
+              </Text>
             )}
           </Flex>
         </>

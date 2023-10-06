@@ -18,22 +18,25 @@ export const resolvers = {
     },
   },
   Mutation: {
-    postNFC: (
+    postNFC(
       _: any,
       { data }: { data: NFCService.IPostNFCInput },
       ctx: Context
-    ) => {
+    ) {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
       return NFCService.postNFC(data, ctx, ctx.user);
     },
-    createClip: (
+    createClip(
       _: any,
       { data }: { data: NFCService.ICreateClipInput },
       ctx: Context
-    ) => {
-      return NFCService.createClip(data);
+    ) {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      return NFCService.createClip(data, ctx, ctx.user);
     },
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {
       return NFCService.openseaNFCScript(ctx);
@@ -45,11 +48,11 @@ export const resolvers = {
     // ) => {
     //   return NFCService.updateOpenseaLink(ctx);
     // }
-    updateNFC: (
+    updateNFC(
       _: any,
       { data }: { data: NFCService.IUpdateNFCInput },
       ctx: Context
-    ) => {
+    ) {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }

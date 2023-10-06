@@ -12,11 +12,9 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNetwork } from "wagmi";
 import { parseUnits } from "viem";
 import Link from "next/link";
 
-import { ChatBot } from "../../constants/types";
 import { ModalButton } from "../general/button/ModalButton";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
@@ -29,7 +27,6 @@ import { TransactionModalTemplate } from "./TransactionModalTemplate";
 import { useUseFeature } from "../../hooks/contracts/useArcadeContract";
 import { useApproval } from "../../hooks/contracts/useApproval";
 import CreatorTokenAbi from "../../constants/abi/CreatorToken.json";
-import { NETWORKS } from "../../constants/networks";
 import { getContractFromNetwork } from "../../utils/contract";
 import { InteractionType, USER_APPROVAL_AMOUNT } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
@@ -49,29 +46,22 @@ export default function CustomTransactionModal({
   isOpen,
   icon,
   handleClose,
-  addToChatbot,
 }: {
   title: string;
   isOpen: boolean;
   icon?: JSX.Element;
   handleClose: () => void;
-  addToChatbot?: (chatBotMessageToAdd: ChatBot) => void;
 }) {
   const { isStandalone } = useUserAgent();
-  const { network: net } = useNetworkContext();
-  const { matchingChain } = net;
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork, explorerUrl } = network;
 
   const { user, userAddress, walletIsConnected } = useUser();
-  const network = useNetwork();
   const toast = useToast();
-  const localNetwork = useMemo(() => {
-    return (
-      NETWORKS.find((n) => n.config.chainId === network.chain?.id) ??
-      NETWORKS[0]
-    );
-  }, [network]);
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-  const { channel, token } = useChannelContext();
+  const { channel, token, arcade } = useChannelContext();
+  const { addToChatbot } = arcade;
+
   const { channelQueryData } = channel;
   const { userTokenBalance, refetchUserTokenBalance } = token;
 
@@ -86,26 +76,21 @@ export default function CustomTransactionModal({
   const [isEditing, setIsEditing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const [newPrice, setNewPrice] = useState<string>(
-    String(channelQueryData?.customButtonPrice ?? "0")
-  );
+  const [newPrice, setNewPrice] = useState<string>("0");
   const [chosenRequest, setChosenRequest] = useState<string>("");
-  const [customRequest, setCustomRequest] = useState<string>(
-    String(channelQueryData?.customButtonAction ?? "")
-  );
+  const [customRequest, setCustomRequest] = useState<string>("");
 
   useEffect(() => {
     setCurrentPrice(String(channelQueryData?.customButtonPrice ?? "0"));
     setCurrentRequest(String(channelQueryData?.customButtonAction ?? ""));
+    setNewPrice(String(channelQueryData?.customButtonPrice ?? "0"));
+    setCustomRequest(String(channelQueryData?.customButtonAction ?? ""));
     setChosenRequest(
       sampleArray.find(
         (s) => s === String(channelQueryData?.customButtonAction ?? "")
       ) ?? CUSTOM
     );
-  }, [
-    channelQueryData?.customButtonAction,
-    channelQueryData?.customButtonPrice,
-  ]);
+  }, [channelQueryData]);
 
   const { updateChannelCustomButton, loading: updateLoading } =
     useUpdateChannelCustomButton({});
@@ -140,7 +125,7 @@ export default function CustomTransactionModal({
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 approve pending, click to view
@@ -158,7 +143,7 @@ export default function CustomTransactionModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 approve success, click to view
@@ -187,14 +172,16 @@ export default function CustomTransactionModal({
       creatorTokenAddress: channelQueryData?.token?.address as `0x${string}`,
       featurePrice: tokenAmount_bigint,
     },
+    contract,
     {
       onWriteSuccess: (data) => {
+        handleClose();
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.hash}`}
+                href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
                 useFeature pending, click to view
@@ -212,7 +199,7 @@ export default function CustomTransactionModal({
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
                 target="_blank"
-                href={`https://etherscan.io/tx/${data.transactionHash}`}
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
                 useFeature success, click to view
@@ -223,7 +210,7 @@ export default function CustomTransactionModal({
           isClosable: true,
           position: "top-right",
         });
-        addToChatbot?.({
+        addToChatbot({
           username: user?.username ?? "",
           address: user?.address ?? "",
           taskType: InteractionType.CUSTOM,
@@ -233,7 +220,6 @@ export default function CustomTransactionModal({
           description: "",
         });
         refetchUserTokenBalance?.();
-        handleClose();
       },
     }
   );

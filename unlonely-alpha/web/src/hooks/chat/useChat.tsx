@@ -9,7 +9,6 @@ import {
   NULL_ADDRESS,
   RANDOM_CHAT_COLOR,
 } from "../../constants";
-import { initializeEmojis } from "../../constants/types/chat";
 import { ChatCommand } from "../../generated/graphql";
 import { useChannelContext } from "../context/useChannel";
 import { useUser } from "../context/useUser";
@@ -18,6 +17,12 @@ import { useChannel } from "./useChannel";
 import centerEllipses from "../../utils/centerEllipses";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
 import { ChatBot } from "../../constants/types";
+import { REACTION_EMOJIS } from "../../components/chat/emoji/constants";
+
+const initializeEmojis = REACTION_EMOJIS.map((emoji) => ({
+  emojiType: emoji,
+  count: 0,
+}));
 
 export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
   const [isAtBottom, setIsAtBottom] = useState(false);
@@ -40,7 +45,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
   const { channelQueryData } = channelContext;
   const { userRank } = holdersContext;
   const { clipping } = chat;
-  const { fetchData } = clipping;
+  const { handleIsClipUiOpen } = clipping;
   const { addToTextOverVideo } = recentStreamInteractions;
 
   const mountingMessages = useRef(true);
@@ -109,7 +114,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
       allowPublish = true;
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
       if (channelQueryData?.allowNFCs || false) {
-        fetchData();
+        handleIsClipUiOpen(true);
         messageToPublish = `${
           user?.username ?? centerEllipses(address, 15)
         } has just clipped a highlight from this stream!`;
@@ -219,28 +224,27 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
   useEffect(() => {
     if (mountingMessages.current || receivedMessages.length === 0) return;
     const latestMessage = receivedMessages[receivedMessages.length - 1];
-    if (latestMessage && latestMessage.name === CHAT_MESSAGE_EVENT) {
-      if (
-        latestMessage.data.body &&
-        latestMessage.data.body.split(":")[0] === InteractionType.CONTROL
-      ) {
-        const newTextOverVideo = latestMessage.data.body
-          .split(":")
-          .slice(1)
-          .join();
+    if (
+      latestMessage &&
+      latestMessage.data.body &&
+      latestMessage.name === CHAT_MESSAGE_EVENT &&
+      Date.now() - latestMessage.timestamp < 12000
+    ) {
+      const body = latestMessage.data.body;
+      if (body.split(":")[0] === InteractionType.CONTROL) {
+        const newTextOverVideo = body.split(":").slice(1).join();
         if (newTextOverVideo) {
           addToTextOverVideo(newTextOverVideo);
         }
       } else if (
-        latestMessage.data.body &&
-        (latestMessage.data.body.split(":")[0] === InteractionType.BUY ||
-          latestMessage.data.body.split(":")[0] === InteractionType.TIP)
+        (body.split(":")[0] === InteractionType.BUY ||
+          body.split(":")[0] === InteractionType.TIP) &&
+        Date.now() - latestMessage.timestamp < 12000
       ) {
         fireworks();
       } else if (
-        latestMessage.data.body &&
-        latestMessage.data.body.split(":")[0] === InteractionType.BLAST &&
-        Date.now() - latestMessage.timestamp < 6000
+        body.split(":")[0] === InteractionType.BLAST &&
+        Date.now() - latestMessage.timestamp < 12000
       ) {
         if (latestMessage.data.isGif) {
           emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
@@ -249,6 +253,30 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
             <Text fontSize="40px">{latestMessage.data.messageText}</Text>
           );
         }
+      } else if (
+        body.split(":")[0] === InteractionType.BUY_SHARES &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        const isYay = body.split(":")[2] === "yay";
+        const amount = body.split(":")[1];
+        emojiBlast(
+          <Text fontSize="40px">
+            {isYay ? "📈" : "📉"}
+            {amount}
+          </Text>
+        );
+      } else if (
+        body.split(":")[0] === InteractionType.SELL_SHARES &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        const isYay = body.split(":")[2] === "yay";
+        const amount = body.split(":")[1];
+        emojiBlast(
+          <Text fontSize="40px">
+            {!isYay ? "📈" : "📉"}
+            {amount}
+          </Text>
+        );
       }
     }
   }, [receivedMessages]);
@@ -291,6 +319,34 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
       if (lastMessage.taskType === InteractionType.CLIP) {
         messageText = lastMessage.title ?? "Clip";
         body = `${InteractionType.CLIP}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === InteractionType.BUY_SHARES) {
+        messageText = lastMessage.title ?? "Shares";
+        body = `${InteractionType.BUY_SHARES}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === InteractionType.SELL_SHARES) {
+        messageText = lastMessage.title ?? "Shares";
+        body = `${InteractionType.SELL_SHARES}:${
+          lastMessage.description ?? ""
+        }`;
+      }
+      if (lastMessage.taskType === InteractionType.EVENT_LIVE) {
+        messageText = lastMessage.title ?? "Event start";
+        body = `${InteractionType.EVENT_LIVE}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === InteractionType.EVENT_LOCK) {
+        messageText = lastMessage.title ?? "Event locked";
+        body = `${InteractionType.EVENT_LOCK}:${lastMessage.description ?? ""}`;
+      }
+      if (lastMessage.taskType === InteractionType.EVENT_PAYOUT) {
+        messageText = lastMessage.title ?? "Event payout";
+        body = `${InteractionType.EVENT_PAYOUT}:${
+          lastMessage.description ?? ""
+        }`;
+      }
+      if (lastMessage.taskType === InteractionType.EVENT_END) {
+        messageText = lastMessage.title ?? "Event end";
+        body = `${InteractionType.EVENT_END}:${lastMessage.description ?? ""}`;
       }
       publishChatBotMessage(messageText, body);
     }

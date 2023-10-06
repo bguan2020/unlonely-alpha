@@ -5,7 +5,6 @@ import {
   FormErrorMessage,
   Text,
   Input,
-  Spinner,
   IconButton,
   Image,
 } from "@chakra-ui/react";
@@ -25,10 +24,10 @@ export const ChatClip = () => {
     isClipUiOpen,
     handleIsClipUiOpen,
     submitClip,
+    handleCreateClip,
     setClipError,
     clipError,
     clipUrl,
-    loading,
   } = clipping;
 
   const form = useForm<PostNfcInput>({
@@ -36,11 +35,6 @@ export const ChatClip = () => {
     resolver: yupResolver(postNfcSchema),
   });
   const { register, formState, handleSubmit, watch } = form;
-
-  const _submitClip = async (data: { title: string }) => {
-    const url = await submitClip(data.title);
-    if (url) setFinalUrl(url);
-  };
 
   const [title, setTitle] = useState<string>("");
   const [finalUrl, setFinalUrl] = useState<string>("");
@@ -60,6 +54,13 @@ export const ChatClip = () => {
       // Fallback for browsers that do not support the Web Share API
       console.log("Your browser does not support the Web Share API.");
     }
+  };
+
+  const _submitClip = async (data: { title: string }) => {
+    const url = await handleCreateClip(data.title);
+    console.log("final", url);
+    setTitle("");
+    if (url) setFinalUrl(url);
   };
 
   return (
@@ -87,20 +88,14 @@ export const ChatClip = () => {
             p="15px"
             gap="5px"
           >
-            {loading ? (
-              <>
-                <Text textAlign="center">
-                  Clipping, please stay here and wait!
-                </Text>
-                <Flex justifyContent={"center"}>
-                  <Spinner size="lg" />
-                </Flex>
-              </>
-            ) : finalUrl ? (
+            {finalUrl ? (
               <>
                 <Text textAlign="center" color="#d0ff00">
                   Clipping finished!
                 </Text>
+                <video controls loop preload="metadata">
+                  <source src={clipUrl} type="video/mp4"></source>
+                </video>
                 <Button
                   width="100%"
                   bg="#0ca2b6"
@@ -112,10 +107,10 @@ export const ChatClip = () => {
                 </Button>
                 <Button
                   width="100%"
-                  bg="#0ca2b6"
+                  bg="#0ab643"
                   onClick={() => copy(finalUrl)}
                   _focus={{}}
-                  _hover={{ background: "#0ab643" }}
+                  _hover={{ background: "#08c346" }}
                 >
                   copy link
                 </Button>
@@ -135,77 +130,6 @@ export const ChatClip = () => {
                 >
                   close
                 </Button>
-              </>
-            ) : clipUrl ? (
-              <>
-                <Flex justifyContent={"center"}>
-                  <Flex justifyContent={"flex-end"}>
-                    <IconButton
-                      aria-label="close"
-                      _hover={{}}
-                      _active={{}}
-                      _focus={{}}
-                      bg="transparent"
-                      icon={
-                        <Image alt="close" src="/svg/close.svg" width="15px" />
-                      }
-                      onClick={() => {
-                        handleIsClipUiOpen(false);
-                        setFinalUrl("");
-                        setTitle("");
-                      }}
-                      position="absolute"
-                      right="-14px"
-                      top="-10px"
-                    />
-                  </Flex>
-                  <video controls loop preload="metadata">
-                    <source src={clipUrl} type="video/mp4"></source>
-                  </video>
-                </Flex>
-                <form onSubmit={handleSubmit(_submitClip)}>
-                  <FormControl
-                    isInvalid={!!formState.errors.title}
-                    marginBottom={["20px", "20px"]}
-                  >
-                    <Input
-                      id="title"
-                      placeholder="title your clip!"
-                      lineHeight="1.5"
-                      variant="glow"
-                      color={"white"}
-                      borderRadius="10px"
-                      minHeight="2rem"
-                      fontWeight="medium"
-                      w="100%"
-                      padding="auto"
-                      {...register("title")}
-                      onChange={(e) => setTitle(e.target.value)}
-                    />
-                    <FormErrorMessage>
-                      {formState.errors.title?.message}
-                    </FormErrorMessage>
-                  </FormControl>
-                  <Flex width="100%" justifyContent={"center"}>
-                    <Button
-                      bg="#2262d8"
-                      py={6}
-                      _hover={{ transform: "scale(1.05)" }}
-                      _active={{
-                        transform: "scale(1)",
-                        background: "green",
-                      }}
-                      borderRadius="10px"
-                      _focus={{}}
-                      width="100%"
-                      type="submit"
-                      loadingText="uploading..."
-                      disabled={title.length === 0}
-                    >
-                      <Text fontSize="20px">upload</Text>
-                    </Button>
-                  </Flex>
-                </form>
               </>
             ) : clipError ? (
               <>
@@ -240,7 +164,85 @@ export const ChatClip = () => {
                 </Flex>
               </>
             ) : (
-              <></>
+              <>
+                <Flex justifyContent={"center"}>
+                  <Flex justifyContent={"flex-end"}>
+                    <IconButton
+                      aria-label="close"
+                      _hover={{}}
+                      _active={{}}
+                      _focus={{}}
+                      bg="transparent"
+                      icon={
+                        <Image alt="close" src="/svg/close.svg" width="15px" />
+                      }
+                      onClick={() => {
+                        handleIsClipUiOpen(false);
+                        setFinalUrl("");
+                        setTitle("");
+                      }}
+                      position="absolute"
+                      right="-14px"
+                      top="-10px"
+                    />
+                  </Flex>
+                </Flex>
+                <form onSubmit={handleSubmit(_submitClip)}>
+                  <Text
+                    textAlign="center"
+                    fontSize="16px"
+                    mb="10px"
+                    color="#d0ff00"
+                  >
+                    create a 30-second highlight from this stream!
+                  </Text>
+                  <FormControl
+                    isInvalid={!!formState.errors.title}
+                    marginBottom={["20px", "20px"]}
+                  >
+                    <Input
+                      id="title"
+                      placeholder="title your clip"
+                      lineHeight="1.5"
+                      variant="glow"
+                      color={"white"}
+                      borderRadius="10px"
+                      minHeight="2rem"
+                      fontWeight="medium"
+                      w="100%"
+                      padding="auto"
+                      {...register("title")}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                    <FormErrorMessage>
+                      {formState.errors.title?.message}
+                    </FormErrorMessage>
+                  </FormControl>
+                  <Text textAlign="center" fontSize="13px" mb="5px">
+                    if you stay and wait, you'll have the option to share the
+                    clip link later
+                  </Text>
+                  <Flex width="100%" justifyContent={"center"}>
+                    <Button
+                      bg="#2262d8"
+                      py={6}
+                      _hover={{ transform: "scale(1.05)" }}
+                      _active={{
+                        transform: "scale(1)",
+                        background: "green",
+                      }}
+                      borderRadius="10px"
+                      _focus={{}}
+                      width="100%"
+                      type="submit"
+                      loadingText="uploading..."
+                      disabled={title.length === 0}
+                    >
+                      <Text fontSize="20px">clip</Text>
+                    </Button>
+                  </Flex>
+                </form>
+              </>
             )}
           </Flex>
         </Flex>

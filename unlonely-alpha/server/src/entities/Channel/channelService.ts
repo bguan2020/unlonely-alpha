@@ -16,6 +16,7 @@ interface Channel extends PrismaChannel {
 
 enum SharesEventState {
   LIVE = "LIVE",
+  LOCK = "LOCK",
   PAYOUT = "PAYOUT",
 }
 
@@ -58,15 +59,32 @@ export interface IPostSharesEventInput {
   eventState?: SharesEventState;
 }
 
-export const postSharesEvent = (
+export const postSharesEvent = async (
   data: IPostSharesEventInput,
   ctx: Context
 ) => {
+  const existingSharesEvent = await ctx.prisma.sharesEvent.findMany({
+    // where softDelete is false
+    where: { channelId: Number(data.id), softDelete: false },
+    // order by createdAt w latest first
+    orderBy: { createdAt: "desc" },
+  });
+  if (existingSharesEvent.length > 0) {
+    return ctx.prisma.sharesEvent.update({
+      where: { id: existingSharesEvent[0].id },
+      data: {
+        sharesSubjectQuestion: data.sharesSubjectQuestion,
+        sharesSubjectAddress: data.sharesSubjectAddress,
+        eventState: data.eventState,
+      },
+    });
+  }
   return ctx.prisma.sharesEvent.create({
     data: {
       sharesSubjectQuestion: data.sharesSubjectQuestion,
       sharesSubjectAddress: data.sharesSubjectAddress,
       eventState: data.eventState,
+      softDelete: false,
       channel: {
         connect: {
           id: Number(data.id),
@@ -178,7 +196,7 @@ export const getChannelFeed = async (
 
     return sortedChannels;
   } catch (error: any) {
-    console.log(`Error: ${error.message}`);
+    console.log(`getChannelFeed Error: ${error.message}`);
     throw error;
   }
 };
@@ -253,7 +271,9 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
     const responseBody = JSON.parse(response.Payload as string);
     return responseBody.body.thumbnail;
   } catch (error: any) {
-    console.log(`Error invoking Lambda function: ${error.message}`);
+    console.log(
+      `getThumbnailUrl Error invoking Lambda function: ${error.message}`
+    );
     return null;
   }
 };

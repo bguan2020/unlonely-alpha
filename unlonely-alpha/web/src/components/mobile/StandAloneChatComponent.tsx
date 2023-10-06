@@ -24,8 +24,10 @@ import { useRouter } from "next/router";
 import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
 import { useLazyQuery } from "@apollo/client";
 
-import { ChatBot } from "../../constants/types";
-import { GetSubscriptionQuery } from "../../generated/graphql";
+import {
+  GetSubscriptionQuery,
+  SharesEventState,
+} from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
@@ -41,46 +43,22 @@ import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubsc
 import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChannelFromSubscription";
 import { useChat } from "../../hooks/chat/useChat";
 import { getHolders } from "../../utils/getHolders";
+import { SharesInterface } from "../chat/SharesInterface";
 
 type Props = {
   previewStream?: boolean;
-  chatBot: ChatBot[];
-  addToChatbot: (chatBotMessageToAdd: ChatBot) => void;
-  setShowControlModal?: (value: boolean) => void;
-  setShowChanceModal?: (value: boolean) => void;
-  setShowTipModal?: (value: boolean) => void;
-  setShowPvpModal?: (value: boolean) => void;
-  setShowBuyModal?: (value: boolean) => void;
-  setShowCustomModal?: (value: boolean) => void;
-  setShowNotificationsModal: (value: boolean) => void;
-  setShowTokenSaleModal: (value: boolean) => void;
-  setShowEventModal: (value: boolean) => void;
-  setShowEditModal: (value: boolean) => void;
-  setShowChatCommandModal: (value: boolean) => void;
   handleShowPreviewStream: () => void;
 };
 
 const StandaloneAblyChatComponent = ({
   previewStream,
-  chatBot,
-  addToChatbot,
-  setShowControlModal,
-  setShowChanceModal,
-  setShowTipModal,
-  setShowPvpModal,
-  setShowBuyModal,
-  setShowCustomModal,
-  setShowNotificationsModal,
-  setShowTokenSaleModal,
-  setShowEventModal,
-  setShowEditModal,
-  setShowChatCommandModal,
   handleShowPreviewStream,
 }: Props) => {
   const {
     channel: channelContext,
     chat,
     holders: holdersContext,
+    arcade,
   } = useChannelContext();
   const {
     data: holdersData,
@@ -88,6 +66,18 @@ const StandaloneAblyChatComponent = ({
     error: holdersError,
     refetchTokenHolders,
   } = holdersContext;
+  const {
+    chatBot,
+    handleNotificationsModal,
+    handleTokenSaleModal,
+    handleEventModal,
+    handleEditModal,
+    handleChatCommandModal,
+    handleCustomModal,
+    handleBuyModal,
+    handleTipModal,
+    handleBetModal,
+  } = arcade;
   const { chatChannel } = chat;
 
   const { channelQueryData } = channelContext;
@@ -96,6 +86,13 @@ const StandaloneAblyChatComponent = ({
     () => (channelQueryData?.id ? Number(channelQueryData?.id) : 3),
     [channelQueryData?.id]
   );
+
+  const isSharesEventLive =
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
+  const isSharesEventLock =
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Lock;
+  const isSharesEventPayout =
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
 
   const {
     handleScrollToPresent,
@@ -151,7 +148,6 @@ const StandaloneAblyChatComponent = ({
   const handleGetSubscription = useCallback(async () => {
     await getSubscription({
       variables: { data: { endpoint } },
-      fetchPolicy: "network-only",
     });
   }, [endpoint]);
 
@@ -469,7 +465,7 @@ const StandaloneAblyChatComponent = ({
                         alignItems="center"
                         justifyContent="center"
                         borderRadius="10px"
-                        onClick={() => setShowNotificationsModal(true)}
+                        onClick={() => handleNotificationsModal(true)}
                         _hover={{
                           cursor: "pointer",
                           transform: "scale(1.1)",
@@ -493,7 +489,7 @@ const StandaloneAblyChatComponent = ({
                         alignItems="center"
                         justifyContent="center"
                         borderRadius="10px"
-                        onClick={() => setShowTokenSaleModal(true)}
+                        onClick={() => handleTokenSaleModal(true)}
                         _hover={{
                           cursor: "pointer",
                           transform: "scale(1.1)",
@@ -517,7 +513,7 @@ const StandaloneAblyChatComponent = ({
                         alignItems="center"
                         justifyContent="center"
                         borderRadius="10px"
-                        onClick={() => setShowEventModal(true)}
+                        onClick={() => handleEventModal(true)}
                         _hover={{
                           cursor: "pointer",
                           transform: "scale(1.1)",
@@ -543,7 +539,7 @@ const StandaloneAblyChatComponent = ({
                         alignItems="center"
                         justifyContent="center"
                         borderRadius="10px"
-                        onClick={() => setShowEditModal(true)}
+                        onClick={() => handleEditModal(true)}
                         _hover={{
                           cursor: "pointer",
                           transform: "scale(1.1)",
@@ -567,7 +563,7 @@ const StandaloneAblyChatComponent = ({
                         alignItems="center"
                         justifyContent="center"
                         borderRadius="10px"
-                        onClick={() => setShowChatCommandModal(true)}
+                        onClick={() => handleChatCommandModal(true)}
                         _hover={{
                           cursor: "pointer",
                           transform: "scale(1.1)",
@@ -591,7 +587,7 @@ const StandaloneAblyChatComponent = ({
                         alignItems="center"
                         justifyContent="center"
                         borderRadius="10px"
-                        onClick={() => setShowCustomModal?.(true)}
+                        onClick={() => handleCustomModal?.(true)}
                         _hover={{
                           cursor: "pointer",
                           transform: "scale(1.1)",
@@ -602,6 +598,38 @@ const StandaloneAblyChatComponent = ({
                         }}
                       >
                         <Image src="/svg/custom-actions.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">
+                        {isSharesEventPayout
+                          ? "stop payout"
+                          : isSharesEventLive
+                          ? "lock bets"
+                          : isSharesEventLock
+                          ? "decide outcome"
+                          : "create a bet"}
+                      </Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => handleBetModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/bet.svg" width="100%" />
                       </Box>
                     </Flex>
                   </SimpleGrid>
@@ -647,7 +675,7 @@ const StandaloneAblyChatComponent = ({
                         ? `$${channelQueryData?.token?.symbol}`
                         : "token"
                     }
-                    callback={() => setShowBuyModal?.(true)}
+                    callback={() => handleBuyModal?.(true)}
                   />
                   <Grid
                     mt="50px"
@@ -656,44 +684,19 @@ const StandaloneAblyChatComponent = ({
                     alignItems="center"
                     justifyItems="center"
                   >
-                    {/* <GridItem>
-                        <Tooltip label={"coming soon"}>
-                          <span>
-                            <DiceButton noHover />
-                          </span>
-                        </Tooltip>
-                      </GridItem> */}
-                    {/* <GridItem>
-                        <Tooltip label={"coming soon"}>
-                          <span>
-                            <SwordButton noHover />
-                          </span>
-                        </Tooltip>
-                      </GridItem> */}
                     <GridItem>
                       <Tooltip label={"make streamer do X"}>
                         <span>
                           <CustomButton
-                            callback={() => setShowCustomModal?.(true)}
+                            callback={() => handleCustomModal?.(true)}
                           />
                         </span>
                       </Tooltip>
                     </GridItem>
-                    {/* <GridItem>
-                      <Tooltip label={"control text on the stream"}>
-                        <span>
-                          <ControlButton
-                            callback={() => setShowControlModal?.(true)}
-                          />
-                        </span>
-                      </Tooltip>
-                    </GridItem> */}
                     <GridItem>
                       <Tooltip label={"tip the streamer"}>
                         <span>
-                          <CoinButton
-                            callback={() => setShowTipModal?.(true)}
-                          />
+                          <CoinButton callback={() => handleTipModal?.(true)} />
                         </span>
                       </Tooltip>
                     </GridItem>
@@ -726,15 +729,6 @@ const StandaloneAblyChatComponent = ({
                       </span>
                     </Tooltip>
                   </GridItem>
-                  {/* <GridItem>
-                    <Tooltip
-                      label={!user ? "connect wallet first" : "not available"}
-                    >
-                      <span>
-                        <ControlButton />
-                      </span>
-                    </Tooltip>
-                  </GridItem> */}
                   <GridItem>
                     <Tooltip
                       label={!user ? "connect wallet first" : "not available"}
@@ -744,24 +738,6 @@ const StandaloneAblyChatComponent = ({
                       </span>
                     </Tooltip>
                   </GridItem>
-                  {/* <GridItem>
-                      <Tooltip
-                        label={!user ? "connect wallet first" : "not available"}
-                      >
-                        <span>
-                          <DiceButton />
-                        </span>
-                      </Tooltip>
-                    </GridItem> */}
-                  {/* <GridItem>
-                      <Tooltip
-                        label={!user ? "connect wallet first" : "not available"}
-                      >
-                        <span>
-                          <SwordButton />
-                        </span>
-                      </Tooltip>
-                    </GridItem> */}
                 </Grid>
               </>
             )}
@@ -875,6 +851,7 @@ const StandaloneAblyChatComponent = ({
           </Flex>
         </Flex>
       )}
+      <SharesInterface messages={receivedMessages} />
       <MessageList
         scrollRef={scrollRef}
         messages={receivedMessages}
@@ -903,7 +880,6 @@ const StandaloneAblyChatComponent = ({
         sendChatMessage={sendChatMessage}
         inputBox={inputBox}
         additionalChatCommands={channelChatCommands}
-        addToChatbot={addToChatbot}
       />
     </Flex>
   );

@@ -19,27 +19,16 @@ import { initializeApollo } from "../../apiClient/client";
 import BuyButton from "../../components/arcade/BuyButton";
 import CoinButton from "../../components/arcade/CoinButton";
 import CustomButton from "../../components/arcade/CustomButton";
-import CalendarEventModal from "../../components/channels/CalendarEventModal";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
-import ChatCommandModal from "../../components/channels/ChatCommandModal";
-import EditChannelModal from "../../components/channels/EditChannelModal";
-import NotificationsModal from "../../components/channels/NotificationsModal";
-import TokenSaleModal from "../../components/channels/TokenSaleModal";
 import AblyChatComponent from "../../components/chat/ChatComponent";
 import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
-import BuyTransactionModal from "../../components/transactions/BuyTransactionModal";
-import ChanceTransactionModal from "../../components/transactions/ChanceTransactionModal";
-import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
-import CustomTransactionModal from "../../components/transactions/CustomTransactionModal";
 // import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
-import TipTransactionModal from "../../components/transactions/TipTransactionModal";
 import { CHANNEL_DETAIL_QUERY } from "../../constants/queries";
-import { ChatBot } from "../../constants/types";
 import { ChannelDetailQuery } from "../../generated/graphql";
 import {
   ChannelProvider,
@@ -77,60 +66,28 @@ const DesktopPage = ({
 }: {
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
-  const { channel, recentStreamInteractions } = useChannelContext();
+  const { channel, recentStreamInteractions, arcade } = useChannelContext();
   const {
     channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
   } = channel;
+  const { handleCustomModal, handleBuyModal, handleTipModal } = arcade;
   const { loading: recentStreamInteractionsLoading } = recentStreamInteractions;
-
   const queryLoading = useMemo(
     () => channelDataLoading || recentStreamInteractionsLoading,
     [channelDataLoading, recentStreamInteractionsLoading]
   );
 
-  const [width, height] = useWindowSize();
-  const { username, userAddress, user } = useUser();
+  const [width] = useWindowSize();
+  const { userAddress, user } = useUser();
 
   const isOwner = userAddress === channelQueryData?.owner.address;
   // const isOwner = true;
 
-  const [chatBot, setChatBot] = useState<ChatBot[]>([]);
-  const [showTipModal, setShowTipModal] = useState<boolean>(false);
-  const [showChanceModal, setShowChanceModal] = useState<boolean>(false);
-  const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
-  const [showControlModal, setShowControlModal] = useState<boolean>(false);
-  const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
-  const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
-
   const [previewStream, setPreviewStream] = useState<boolean>(false);
 
   const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
-
-  const handleControlModal = useCallback(() => {
-    setShowControlModal(true);
-  }, []);
-
-  const handleBuyModal = useCallback(() => {
-    setShowBuyModal(true);
-  }, []);
-
-  const handleCustomModal = useCallback(() => {
-    setShowCustomModal(true);
-  }, []);
-
-  const handleTipModal = useCallback(() => {
-    setShowTipModal(true);
-  }, []);
-
-  const handleChanceModal = useCallback(() => {
-    setShowChanceModal(true);
-  }, []);
-
-  const handlePvpModal = useCallback(() => {
-    setShowPvpModal(true);
-  }, []);
 
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
@@ -142,29 +99,6 @@ const DesktopPage = ({
     },
     [width, hideChat]
   );
-
-  const handleClose = useCallback(() => {
-    setShowTipModal(false);
-    setShowChanceModal(false);
-    setShowPvpModal(false);
-    setShowControlModal(false);
-    setShowBuyModal(false);
-    setShowCustomModal(false);
-  }, []);
-
-  const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
-    setChatBot((prev) => [...prev, chatBotMessageToAdd]);
-  }, []);
-
-  const openChatPopout = () => {
-    if (!channelQueryData) return;
-    const windowFeatures = "width=400,height=600,menubar=yes,toolbar=yes";
-    window.open(
-      `${window.location.origin}/mobile/chat/${channelQueryData?.awsId}`,
-      "_blank",
-      windowFeatures
-    );
-  };
 
   return (
     <>
@@ -178,78 +112,6 @@ const DesktopPage = ({
       >
         {!queryLoading && !channelDataError ? (
           <>
-            <CustomTransactionModal
-              icon={
-                <Image
-                  alt="custom"
-                  src="/svg/arcade/custom.svg"
-                  width="60px"
-                  height="60px"
-                />
-              }
-              title={isOwner ? "customize your button!" : "make streamer do X"}
-              isOpen={showCustomModal}
-              handleClose={handleClose}
-              addToChatbot={addToChatbot}
-            />
-            <ControlTransactionModal
-              icon={
-                <Image
-                  alt="control"
-                  src="/svg/arcade/control.svg"
-                  width="60px"
-                  height="60px"
-                />
-              }
-              title="control the stream!"
-              isOpen={showControlModal}
-              handleClose={handleClose}
-              addToChatbot={addToChatbot}
-            />
-            <BuyTransactionModal
-              title=""
-              icon={
-                <BuyButton
-                  tokenName={
-                    channelQueryData?.token?.symbol
-                      ? `$${channelQueryData?.token?.symbol}`
-                      : "token"
-                  }
-                  noHover
-                />
-              }
-              isOpen={showBuyModal}
-              handleClose={handleClose}
-              addToChatbot={addToChatbot}
-            />
-            <TipTransactionModal
-              icon={
-                <Image
-                  alt="coin"
-                  src="/svg/arcade/coin.svg"
-                  width="60px"
-                  height="60px"
-                />
-              }
-              title="tip on the stream!"
-              isOpen={showTipModal}
-              handleClose={handleClose}
-              addToChatbot={addToChatbot}
-            />
-            <ChanceTransactionModal
-              icon={
-                <Image
-                  alt="dice"
-                  src="/svg/arcade/dice.svg"
-                  width="60px"
-                  height="60px"
-                />
-              }
-              title="feeling lucky? roll the die for a surprise!"
-              isOpen={showChanceModal}
-              handleClose={handleClose}
-              addToChatbot={addToChatbot}
-            />
             <Stack direction="column" mt={"1rem"}>
               <Stack
                 mx={[0, 8, 4]}
@@ -261,9 +123,7 @@ const DesktopPage = ({
               >
                 <Stack direction="column" width={"100%"}>
                   {isOwner && !previewStream ? (
-                    <ChannelStreamerPerspective
-                      setCustomActionModal={setShowCustomModal}
-                    />
+                    <ChannelStreamerPerspective />
                   ) : (
                     <ChannelViewerPerspective />
                   )}
@@ -271,7 +131,7 @@ const DesktopPage = ({
                     templateColumns="repeat(3, 1fr)"
                     gap={4}
                     mt="20px"
-                    alignItems="center"
+                    alignItems="baseline"
                   >
                     <GridItem colSpan={showArcadeButtons ? 2 : 3}>
                       <ChannelDesc />
@@ -303,18 +163,6 @@ const DesktopPage = ({
                               }
                             />
                           </Tooltip>
-                          <Tooltip label={"chat popout"}>
-                            <IconButton
-                              onClick={openChatPopout}
-                              aria-label="chat-popout"
-                              _hover={{}}
-                              _active={{}}
-                              _focus={{}}
-                              icon={
-                                <Image src="/svg/pop-out.svg" height={12} />
-                              }
-                            />
-                          </Tooltip>
                         </Flex>
                       </GridItem>
                     )}
@@ -342,28 +190,17 @@ const DesktopPage = ({
                                   <Tooltip label={"make streamer do X"}>
                                     <span>
                                       <CustomButton
-                                        callback={() =>
-                                          setShowCustomModal(true)
-                                        }
+                                        callback={() => handleCustomModal(true)}
                                       />
                                     </span>
                                   </Tooltip>
                                   <Tooltip label={"tip the streamer"}>
                                     <span>
                                       <CoinButton
-                                        callback={() => setShowTipModal(true)}
+                                        callback={() => handleTipModal(true)}
                                       />
                                     </span>
                                   </Tooltip>
-                                  {/* <Tooltip label={"control text on the stream"}>
-                                    <span>
-                                      <ControlButton
-                                        callback={() =>
-                                          setShowControlModal(true)
-                                        }
-                                      />
-                                    </span>
-                                  </Tooltip> */}
                                 </Grid>
                                 <BuyButton
                                   tokenName={
@@ -371,7 +208,7 @@ const DesktopPage = ({
                                       ? `$${channelQueryData?.token?.symbol}`
                                       : "token"
                                   }
-                                  callback={() => setShowBuyModal(true)}
+                                  callback={() => handleBuyModal(true)}
                                 />
                               </>
                             )}
@@ -409,17 +246,6 @@ const DesktopPage = ({
                                     <CoinButton />
                                   </span>
                                 </Tooltip>
-                                {/* <Tooltip
-                                  label={
-                                    !user
-                                      ? "connect wallet first"
-                                      : "not available"
-                                  }
-                                >
-                                  <span>
-                                    <ControlButton />
-                                  </span>
-                                </Tooltip> */}
                               </Grid>
                               <Tooltip
                                 label={
@@ -460,16 +286,7 @@ const DesktopPage = ({
                     maxW="100%"
                     px="10px"
                   >
-                    <AblyChatComponent
-                      chatBot={chatBot}
-                      addToChatbot={addToChatbot}
-                      handleBuyModal={handleBuyModal}
-                      handleTipModal={handleTipModal}
-                      handleChanceModal={handleChanceModal}
-                      handlePvpModal={handlePvpModal}
-                      handleControlModal={handleControlModal}
-                      handleCustomModal={handleCustomModal}
-                    />
+                    <AblyChatComponent />
                   </Container>
                 </Flex>
               </Stack>
@@ -519,34 +336,7 @@ const MobilePage = ({
 
   const isOwner = userAddress === channelQueryData?.owner.address;
 
-  const [chatBot, setChatBot] = useState<ChatBot[]>([]);
-  const [showTipModal, setShowTipModal] = useState<boolean>(false);
-  const [showChanceModal, setShowChanceModal] = useState<boolean>(false);
-  const [showPvpModal, setShowPvpModal] = useState<boolean>(false);
-  const [showControlModal, setShowControlModal] = useState<boolean>(false);
-  const [showBuyModal, setShowBuyModal] = useState<boolean>(false);
-  const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
-
-  const [tokenSaleModal, setTokenSaleModal] = useState<boolean>(false);
-  const [chatCommandModal, setChatCommandModal] = useState<boolean>(false);
-  const [editModal, setEditModal] = useState<boolean>(false);
-  const [notificationsModal, setNotificationsModal] = useState<boolean>(false);
-  const [eventModal, setEventModal] = useState<boolean>(false);
-
   const [previewStream, setPreviewStream] = useState<boolean>(false);
-
-  const handleClose = useCallback(() => {
-    setShowTipModal(false);
-    setShowChanceModal(false);
-    setShowPvpModal(false);
-    setShowControlModal(false);
-    setShowBuyModal(false);
-    setShowCustomModal(false);
-  }, []);
-
-  const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
-    setChatBot((prev) => [...prev, chatBotMessageToAdd]);
-  }, []);
 
   const handleShowPreviewStream = useCallback(() => {
     setPreviewStream((prev) => !prev);
@@ -562,115 +352,9 @@ const MobilePage = ({
     >
       {!queryLoading && !channelDataError ? (
         <>
-          <TokenSaleModal
-            title={"offer tokens for sale"}
-            isOpen={tokenSaleModal}
-            handleClose={() => setTokenSaleModal(false)}
-          />
-          <ChatCommandModal
-            title={"custom commands"}
-            isOpen={chatCommandModal}
-            handleClose={() => setChatCommandModal(false)}
-          />
-          <EditChannelModal
-            title={"edit title / description"}
-            isOpen={editModal}
-            handleClose={() => setEditModal(false)}
-          />
-          <NotificationsModal
-            title={"send notifications"}
-            isOpen={notificationsModal}
-            handleClose={() => setNotificationsModal(false)}
-          />
-          <CalendarEventModal
-            title={"add event"}
-            isOpen={eventModal}
-            handleClose={() => setEventModal(false)}
-          />
-          <CustomTransactionModal
-            icon={
-              <Image
-                alt="custom"
-                src="/svg/arcade/custom.svg"
-                width="60px"
-                height="60px"
-              />
-            }
-            title={isOwner ? "customize your button!" : "make streamer do X"}
-            isOpen={showCustomModal}
-            handleClose={handleClose}
-            addToChatbot={addToChatbot}
-          />
-          <ControlTransactionModal
-            icon={
-              <Image
-                alt="control"
-                src="/svg/arcade/control.svg"
-                width="60px"
-                height="60px"
-              />
-            }
-            title="control the stream!"
-            isOpen={showControlModal}
-            handleClose={handleClose}
-            addToChatbot={addToChatbot}
-          />
-          <BuyTransactionModal
-            title=""
-            icon={
-              <BuyButton
-                tokenName={`$${channelQueryData?.token?.symbol}`}
-                noHover
-              />
-            }
-            isOpen={showBuyModal}
-            handleClose={handleClose}
-            addToChatbot={addToChatbot}
-          />
-          <TipTransactionModal
-            icon={
-              <Image
-                alt="coin"
-                src="/svg/arcade/coin.svg"
-                width="60px"
-                height="60px"
-              />
-            }
-            title="tip on the stream!"
-            isOpen={showTipModal}
-            handleClose={handleClose}
-            addToChatbot={addToChatbot}
-          />
-          <ChanceTransactionModal
-            icon={
-              <Image
-                alt="dice"
-                src="/svg/arcade/dice.svg"
-                width="60px"
-                height="60px"
-              />
-            }
-            title="feeling lucky? roll the die for a surprise!"
-            isOpen={showChanceModal}
-            handleClose={handleClose}
-            addToChatbot={addToChatbot}
-          />
           {(previewStream || !isOwner) && <ChannelViewerPerspective mobile />}
           <StandaloneAblyChatComponent
             previewStream={previewStream}
-            chatBot={chatBot}
-            addToChatbot={addToChatbot}
-            setShowBuyModal={setShowBuyModal}
-            setShowTipModal={setShowTipModal}
-            setShowChanceModal={setShowChanceModal}
-            setShowPvpModal={setShowPvpModal}
-            setShowControlModal={setShowControlModal}
-            setShowCustomModal={setShowCustomModal}
-            setShowEditModal={setEditModal}
-            setShowNotificationsModal={setNotificationsModal}
-            setShowEventModal={setEventModal}
-            setShowTokenSaleModal={setTokenSaleModal}
-            setShowChatCommandModal={setChatCommandModal}
             handleShowPreviewStream={handleShowPreviewStream}
           />
         </>
