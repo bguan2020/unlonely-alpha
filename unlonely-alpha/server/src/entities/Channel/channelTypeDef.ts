@@ -46,6 +46,7 @@ export const typeDef = gql`
     limit: Int
     offset: Int
     orderBy: SortBy
+    isLive: Boolean
   }
 
   input UpdateChannelTextInput {
