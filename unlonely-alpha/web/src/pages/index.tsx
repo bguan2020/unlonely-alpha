@@ -467,8 +467,6 @@ export default function Page() {
     },
   });
 
-  console.log("channels", dataChannels);
-
   const { isStandalone, ready } = useUserAgent();
 
   return (
