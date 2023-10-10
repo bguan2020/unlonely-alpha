@@ -177,8 +177,8 @@ export const GET_SUBSCRIPTION = gql`
 `;
 
 export const CHANNEL_FEED_QUERY = gql`
-  query GetChannelFeed {
-    getChannelFeed {
+  query GetChannelFeed($data: ChannelFeedInput!) {
+    getChannelFeed(data: $data) {
       id
       isLive
       name

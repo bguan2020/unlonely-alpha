@@ -150,7 +150,7 @@ export const getChannelFeed = async (
 
       // Update the allChannels array with the updated isLive values
       const updatedChannels = await ctx.prisma.channel.findMany();
-      return data.isLive !== null
+      return typeof data.isLive === "boolean"
         ? updatedChannels.filter((channel) => channel.isLive === data.isLive)
         : updatedChannels;
     }
@@ -197,7 +197,7 @@ export const getChannelFeed = async (
       })
     );
 
-    return data.isLive !== null
+    return typeof data.isLive === "boolean"
       ? sortedChannels.filter((channel) => channel.isLive === data.isLive)
       : sortedChannels;
   } catch (error: any) {
