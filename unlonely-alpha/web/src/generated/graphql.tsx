@@ -112,6 +112,7 @@ export type Channel = {
 };
 
 export type ChannelFeedInput = {
+  isLive?: InputMaybe<Scalars["Boolean"]>;
   limit?: InputMaybe<Scalars["Int"]>;
   offset?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<SortBy>;
@@ -1059,7 +1060,9 @@ export type GetSubscriptionQuery = {
   } | null;
 };
 
-export type GetChannelFeedQueryVariables = Exact<{ [key: string]: never }>;
+export type GetChannelFeedQueryVariables = Exact<{
+  data: ChannelFeedInput;
+}>;
 
 export type GetChannelFeedQuery = {
   __typename?: "Query";
@@ -2221,8 +2224,8 @@ export type GetSubscriptionQueryResult = Apollo.QueryResult<
   GetSubscriptionQueryVariables
 >;
 export const GetChannelFeedDocument = gql`
-  query GetChannelFeed {
-    getChannelFeed {
+  query GetChannelFeed($data: ChannelFeedInput!) {
+    getChannelFeed(data: $data) {
       id
       isLive
       name
@@ -2251,11 +2254,12 @@ export const GetChannelFeedDocument = gql`
  * @example
  * const { data, loading, error } = useGetChannelFeedQuery({
  *   variables: {
+ *      data: // value for 'data'
  *   },
  * });
  */
 export function useGetChannelFeedQuery(
-  baseOptions?: Apollo.QueryHookOptions<
+  baseOptions: Apollo.QueryHookOptions<
     GetChannelFeedQuery,
     GetChannelFeedQueryVariables
   >

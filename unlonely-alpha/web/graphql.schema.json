@@ -460,6 +460,18 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "isLive",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "limit",
             "description": null,
             "type": {

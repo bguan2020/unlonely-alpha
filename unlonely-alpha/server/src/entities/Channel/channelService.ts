@@ -122,6 +122,7 @@ export interface IGetChannelFeedInput {
   offset: number;
   limit: number;
   orderBy: "createdAt";
+  isLive?: boolean;
 }
 
 export const getChannelFeed = async (
@@ -149,7 +150,9 @@ export const getChannelFeed = async (
 
       // Update the allChannels array with the updated isLive values
       const updatedChannels = await ctx.prisma.channel.findMany();
-      return updatedChannels;
+      return typeof data.isLive === "boolean"
+        ? updatedChannels.filter((channel) => channel.isLive === data.isLive)
+        : updatedChannels;
     }
 
     const liveChannelArns = liveStreams.streams.map(
@@ -194,7 +197,9 @@ export const getChannelFeed = async (
       })
     );
 
-    return sortedChannels;
+    return typeof data.isLive === "boolean"
+      ? sortedChannels.filter((channel) => channel.isLive === data.isLive)
+      : sortedChannels;
   } catch (error: any) {
     console.log(`getChannelFeed Error: ${error.message}`);
     throw error;

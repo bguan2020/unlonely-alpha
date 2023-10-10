@@ -463,10 +463,7 @@ function MobilePage({
 export default function Page() {
   const { data: dataChannels, loading } = useQuery(CHANNEL_FEED_QUERY, {
     variables: {
-      data: {
-        limit: 10,
-        orderBy: null,
-      },
+      data: {},
     },
   });
 
