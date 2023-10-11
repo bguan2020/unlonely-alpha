@@ -10,7 +10,7 @@ import MobileAblyChatComponent from "../../../components/mobile/MobileAblyChatCo
 
 export default function Chat() {
   return (
-    <ChannelProvider mobile>
+    <ChannelProvider>
       <ChatComponent />
     </ChannelProvider>
   );
