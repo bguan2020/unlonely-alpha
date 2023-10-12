@@ -18,10 +18,11 @@ export default function AddToMobileFirefoxIos(props: Props) {
       isModalLoading={false}
       isOpen={true}
       handleClose={closePrompt}
-      hideFooter={true}
-      cannotClose
+      confirmButton={"close"}
+      onSend={closePrompt}
+      canSend={true}
       blur
-      bg="white"
+      bg="#e7e7e7"
     >
       <Flex direction="column" alignItems={"center"} margin="10px">
         <Image src="/icons/icon-192x192.png" h="80px" mb="10px" />
