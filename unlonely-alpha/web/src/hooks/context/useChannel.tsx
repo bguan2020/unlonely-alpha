@@ -12,14 +12,12 @@ import { useBalance } from "wagmi";
 import { Image } from "@chakra-ui/react";
 
 import {
-  CHANNEL_DETAIL_MOBILE_QUERY,
   CHANNEL_DETAIL_QUERY,
   GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
   GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY,
   GET_USER_TOKEN_HOLDING_QUERY,
 } from "../../constants/queries";
 import {
-  ChannelDetailMobileQuery,
   ChannelDetailQuery,
   GetRecentStreamInteractionsQuery,
   GetTokenHoldersByChannelQuery,
@@ -48,11 +46,9 @@ export const useChannelContext = () => {
 
 const ChannelContext = createContext<{
   channel: {
-    channelQueryData?:
-      | ChannelDetailQuery["getChannelBySlug"]
-      | ChannelDetailMobileQuery["getChannelByAwsId"];
+    channelQueryData?: ChannelDetailQuery["getChannelBySlug"];
     data?: ChannelDetailQuery;
-    mobileData?: ChannelDetailMobileQuery;
+    // mobileData?: ChannelDetailMobileQuery;
     loading: boolean;
     error?: ApolloError;
     refetch: () => Promise<any>;
@@ -202,7 +198,7 @@ export const ChannelProvider = ({
 }) => {
   const { user, userAddress } = useUser();
   const router = useRouter();
-  const { slug, awsId } = router.query;
+  const { slug } = router.query;
 
   const {
     loading: channelDataLoading,
@@ -215,23 +211,20 @@ export const ChannelProvider = ({
     nextFetchPolicy: "network-only",
   });
 
-  const {
-    loading: channelMobileDataLoading,
-    error: channelMobileDataError,
-    data: channelMobileData,
-    refetch: refetchChannelMobileData,
-  } = useQuery<ChannelDetailMobileQuery>(CHANNEL_DETAIL_MOBILE_QUERY, {
-    variables: { awsId },
-    // fetchPolicy: "cache-first",
-    nextFetchPolicy: "network-only",
-  });
+  // const {
+  //   loading: channelMobileDataLoading,
+  //   error: channelMobileDataError,
+  //   data: channelMobileData,
+  //   refetch: refetchChannelMobileData,
+  // } = useQuery<ChannelDetailMobileQuery>(CHANNEL_DETAIL_MOBILE_QUERY, {
+  //   variables: { awsId },
+  //   // fetchPolicy: "cache-first",
+  //   nextFetchPolicy: "network-only",
+  // });
 
   const channelQueryData = useMemo(
-    () =>
-      mobile
-        ? channelMobileData?.getChannelByAwsId
-        : channelData?.getChannelBySlug,
-    [channelData, channelMobileData, mobile]
+    () => channelData?.getChannelBySlug,
+    [channelData, mobile]
   );
 
   const {
@@ -429,10 +422,10 @@ export const ChannelProvider = ({
       channel: {
         channelQueryData,
         data: channelData,
-        mobileData: channelMobileData,
-        loading: mobile ? channelMobileDataLoading : channelDataLoading,
-        error: mobile ? channelMobileDataError : channelDataError,
-        refetch: mobile ? refetchChannelMobileData : refetchChannelData,
+        // mobileData: channelMobileData,
+        loading: channelDataLoading,
+        error: channelDataError,
+        refetch: refetchChannelData,
       },
       recentStreamInteractions: {
         textOverVideo,
@@ -500,13 +493,14 @@ export const ChannelProvider = ({
     }),
     [
       channelQueryData,
-      channelMobileData,
-      channelMobileDataLoading,
-      channelMobileDataError,
+      // channelMobileData,
+      // channelMobileDataLoading,
+      // channelMobileDataError,
       channelData,
       channelDataLoading,
       channelDataError,
       textOverVideo,
+      refetchChannelData,
       addToTextOverVideo,
       recentStreamInteractionsData,
       recentStreamInteractionsDataLoading,
