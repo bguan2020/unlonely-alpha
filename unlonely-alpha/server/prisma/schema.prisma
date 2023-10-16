@@ -44,10 +44,9 @@ model User {
   host HostEvent[]
   NFCs NFC[]
   streamInteractions StreamInteraction[]
-  channel Channel[] @relation("OwnedBy")
+  channel Channel[]
   tokens UserCreatorToken[]
   leaderboardEntries BaseLeaderboard[]
-  moderatingChannels Channel[] @relation("ModeratedBy")
 }
 
 model Subscription {
@@ -137,10 +136,8 @@ model Channel {
   isLive Boolean @default(false)
   allowNFCs Boolean @default(true)
 
-  bannedUsers String[]
-  moderators User[] @relation("ModeratedBy")
   ownerAddr String
-  owner User @relation("OwnedBy", fields: [ownerAddr], references: [address])
+  owner User @relation(fields: [ownerAddr], references: [address])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -152,6 +149,19 @@ model Channel {
   customButtonAction String?
   customButtonPrice Int?
   sharesEvent SharesEvent[]
+  roles ChannelUserRole[]
+}
+
+model ChannelUserRole {
+  id        Int      @id @default(autoincrement())
+  userAddress  String
+  role      Int     @default(0)
+
+  channelId Int 
+  channel   Channel  @relation(fields: [channelId], references: [id])
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }
 
 model CreatorToken {
