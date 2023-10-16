@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
+
 import { GET_TOKEN_LEADERBOARD_QUERY } from "../../constants/queries";
 import { GetTokenLeaderboardQuery } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";

@@ -67,6 +67,7 @@ export const NetworkProvider = ({
       !router.pathname.startsWith("/bridge")
     ) {
       toastIdRef.current = toast({
+        id: "network-warning",
         duration: 9000,
         isClosable: true,
         position: "top",
