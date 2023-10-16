@@ -30,6 +30,7 @@ export const typeDef = gql`
     isLive: Boolean
     allowNFCs: Boolean
     bannedUsers: [String]
+    moderators: [User]
     thumbnailUrl: String
     owner: User!
     token: CreatorToken
@@ -72,7 +73,7 @@ export const typeDef = gql`
     id: ID!
   }
 
-  input ToggleBannedUserToChannelInput {
+  input ToggleUserAddressToChannelInput {
     channelId: ID!
     userAddress: String!
   }
@@ -90,6 +91,7 @@ export const typeDef = gql`
     postSharesEvent(data: PostSharesEventInput!): Channel
     updateChannelText(data: UpdateChannelTextInput!): Channel
     updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
-    toggleBannedUserToChannel(data: ToggleBannedUserToChannelInput): Channel
+    toggleBannedUserToChannel(data: ToggleUserAddressToChannelInput): Channel
+    toggleModeratorToChannel(data: ToggleUserAddressToChannelInput): Channel
   }
 `;

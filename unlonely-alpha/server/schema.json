@@ -1471,7 +1471,32 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "ToggleBannedUserToChannelInput",
+                  "name": "ToggleUserAddressToChannelInput",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "Channel",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "toggleModeratorToChannel",
+            "description": null,
+            "args": [
+              {
+                "name": "data",
+                "description": null,
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "ToggleUserAddressToChannelInput",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -2773,6 +2798,22 @@
           },
           {
             "name": "channel",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Channel",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "moderatingChannels",
             "description": null,
             "args": [],
             "type": {
@@ -5417,6 +5458,22 @@
             "deprecationReason": null
           },
           {
+            "name": "moderators",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "thumbnailUrl",
             "description": null,
             "args": [],
@@ -5888,7 +5945,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "ToggleBannedUserToChannelInput",
+        "name": "ToggleUserAddressToChannelInput",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,

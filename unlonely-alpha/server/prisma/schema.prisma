@@ -44,9 +44,10 @@ model User {
   host HostEvent[]
   NFCs NFC[]
   streamInteractions StreamInteraction[]
-  channel Channel[]
+  channel Channel[] @relation("OwnedBy")
   tokens UserCreatorToken[]
   leaderboardEntries BaseLeaderboard[]
+  moderatingChannels Channel[] @relation("ModeratedBy")
 }
 
 model Subscription {
@@ -137,9 +138,9 @@ model Channel {
   allowNFCs Boolean @default(true)
 
   bannedUsers String[]
-
+  moderators User[] @relation("ModeratedBy")
   ownerAddr String
-  owner User @relation(fields: [ownerAddr], references: [address])
+  owner User @relation("OwnedBy", fields: [ownerAddr], references: [address])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

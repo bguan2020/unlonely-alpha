@@ -67,7 +67,7 @@ export const resolvers = {
     },
     toggleBannedUserToChannel: (
       _: any,
-      { data }: { data: channelService.IToggleBannedUserToChannelInput },
+      { data }: { data: channelService.IToggleUserAddressToChannelInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
@@ -76,9 +76,19 @@ export const resolvers = {
 
       return channelService.toggleBannedUserToChannel(data, ctx);
     },
+    toggleModeratorToChannel: (
+      _: any,
+      { data }: { data: channelService.IToggleUserAddressToChannelInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+
+      return channelService.toggleModeratorToChannel(data, ctx);
+    },
   },
   Channel: {
-    // add getChannelCreatorToken
     token: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelCreatorToken({ id }, ctx);
     },

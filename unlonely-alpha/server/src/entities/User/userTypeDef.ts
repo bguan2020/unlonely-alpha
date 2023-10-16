@@ -24,6 +24,7 @@ export const typeDef = gql`
     notificationsLive: Boolean
     notificationsNFCs: Boolean
     channel: [Channel]
+    moderatingChannels: [Channel]
   }
 
   input GetUserInput {

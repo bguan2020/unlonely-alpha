@@ -129,8 +129,6 @@ export const getChannelFeed = async (
   data: IGetChannelFeedInput,
   ctx: Context
 ) => {
-  const allChannels: Channel[] = await ctx.prisma.channel.findMany();
-
   // aws-sdk to find out whos currently live
   AWS.config.update({
     region: "us-west-2",
@@ -159,6 +157,8 @@ export const getChannelFeed = async (
       (stream) => stream.channelArn
     );
 
+    const allChannels: Channel[] = await ctx.prisma.channel.findMany();
+
     // Update isLive field for all channels
     await Promise.all(
       allChannels.map(async (channel) => {
@@ -173,7 +173,9 @@ export const getChannelFeed = async (
     );
 
     // Refetch all channels after updating isLive field
-    const updatedChannels: Channel[] = await ctx.prisma.channel.findMany();
+    const updatedChannels: Channel[] = await ctx.prisma.channel.findMany({
+      include: { moderators: true },
+    });
 
     const sortedChannels = updatedChannels.sort((a, b) => {
       if (
@@ -209,12 +211,14 @@ export const getChannelFeed = async (
 export const getChannelById = ({ id }: { id: number }, ctx: Context) => {
   return ctx.prisma.channel.findUnique({
     where: { id: Number(id) },
+    include: { moderators: true },
   });
 };
 
 export const getChannelBySlug = ({ slug }: { slug: string }, ctx: Context) => {
   return ctx.prisma.channel.findUnique({
     where: { slug: slug },
+    include: { moderators: true },
   });
 };
 
@@ -283,13 +287,54 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
   }
 };
 
-export interface IToggleBannedUserToChannelInput {
+export interface IToggleUserAddressToChannelInput {
   channelId: number;
   userAddress: string;
 }
 
+export const toggleModeratorToChannel = async (
+  data: IToggleUserAddressToChannelInput,
+  ctx: Context
+) => {
+  // get moderator arrray from channel, check if userAddress is in array
+  const channel = await ctx.prisma.channel.findUnique({
+    where: { id: Number(data.channelId) },
+    include: { moderators: true },
+  });
+
+  if (!channel) {
+    throw new Error("Channel not found");
+  }
+
+  const isModerator = channel.moderators.some(
+    (moderator) => moderator.address === data.userAddress
+  );
+
+  if (!isModerator) {
+    // If user is not already a moderator, add them
+    return ctx.prisma.channel.update({
+      where: { id: Number(data.channelId) },
+      data: {
+        moderators: {
+          connect: { address: data.userAddress },
+        },
+      },
+    });
+  } else {
+    // If user is already a moderator, remove them
+    return ctx.prisma.channel.update({
+      where: { id: Number(data.channelId) },
+      data: {
+        moderators: {
+          disconnect: { address: data.userAddress },
+        },
+      },
+    });
+  }
+};
+
 export const toggleBannedUserToChannel = async (
-  data: IToggleBannedUserToChannelInput,
+  data: IToggleUserAddressToChannelInput,
   ctx: Context
 ) => {
   // get bannedUSer arrray from channel, check if userAddress is in array
