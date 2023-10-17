@@ -141,8 +141,6 @@ model Channel {
   isLive Boolean @default(false)
   allowNFCs Boolean @default(true)
 
-  bannedUsers String[]
-
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
 
@@ -156,6 +154,17 @@ model Channel {
   customButtonAction String?
   customButtonPrice Int?
   sharesEvent SharesEvent[]
+  roles ChannelUserRole[]
+}
+
+model ChannelUserRole {
+  id        Int      @id @default(autoincrement())
+  userAddress  String
+  role      Int     @default(0)
+  channelId Int 
+  channel   Channel  @relation(fields: [channelId], references: [id])
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }
 
 model CreatorToken {
