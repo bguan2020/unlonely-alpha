@@ -4,30 +4,30 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
-  ToggleBannedUserToChannelMutation,
-  ToggleBannedUserToChannelMutationVariables,
+  ToggleModeratorToChannelMutation,
+  ToggleModeratorToChannelMutationVariables,
 } from "../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
-const TOGGLE_BANNED_USER_TO_CHANNEL_MUTATION = gql`
-  mutation toggleBannedUserToChannel($data: ToggleUserAddressToChannelInput!) {
-    toggleBannedUserToChannel(data: $data) {
+const TOGGLE_MODERATOR_TO_CHANNEL_MUTATION = gql`
+  mutation toggleModeratorToChannel($data: ToggleUserAddressToChannelInput!) {
+    toggleModeratorToChannel(data: $data) {
       id
     }
   }
 `;
 
-const useToggleBannedUserToChannel = ({ onError }: Props) => {
+const useToggleModeratorToChannel = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    ToggleBannedUserToChannelMutation,
-    ToggleBannedUserToChannelMutationVariables
-  >(TOGGLE_BANNED_USER_TO_CHANNEL_MUTATION);
+    ToggleModeratorToChannelMutation,
+    ToggleModeratorToChannelMutationVariables
+  >(TOGGLE_MODERATOR_TO_CHANNEL_MUTATION);
 
-  const toggleBannedUserToChannel = useCallback(
+  const toggleModeratorToChannel = useCallback(
     async (data) => {
       try {
         setLoading(true);
@@ -40,10 +40,10 @@ const useToggleBannedUserToChannel = ({ onError }: Props) => {
           },
         });
 
-        const res = mutationResult?.data?.toggleBannedUserToChannel;
+        const res = mutationResult?.data?.toggleModeratorToChannel;
         /* eslint-disable no-console */
         if (res) {
-          console.log("toggleBannedUser success");
+          console.log("toggleModerator success", res);
         } else {
           onError && onError();
         }
@@ -52,13 +52,13 @@ const useToggleBannedUserToChannel = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("toggleBannedUser", JSON.stringify(e, null, 2));
+        console.log("toggleModerator", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]
   );
 
-  return { toggleBannedUserToChannel, loading };
+  return { toggleModeratorToChannel, loading };
 };
 
-export default useToggleBannedUserToChannel;
+export default useToggleModeratorToChannel;

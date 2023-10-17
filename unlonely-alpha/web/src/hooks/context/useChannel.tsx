@@ -39,6 +39,7 @@ import ControlTransactionModal from "../../components/transactions/ControlTransa
 import CustomTransactionModal from "../../components/transactions/CustomTransactionModal";
 import TipTransactionModal from "../../components/transactions/TipTransactionModal";
 import BetModal from "../../components/channels/BetModal";
+import ModeratorModal from "../../components/channels/ModeratorModal";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -102,6 +103,7 @@ const ChannelContext = createContext<{
     handleEventModal: (value: boolean) => void;
     handleChatCommandModal: (value: boolean) => void;
     handleBetModal: (value: boolean) => void;
+    handleModeratorModal: (value: boolean) => void;
     showBuyModal: boolean;
     showBetModal: boolean;
     showTipModal: boolean;
@@ -114,6 +116,7 @@ const ChannelContext = createContext<{
     showTokenSaleModal: boolean;
     showEventModal: boolean;
     showChatCommandModal: boolean;
+    showModeratorModal: boolean;
     chatBot: ChatBot[];
   };
 }>({
@@ -173,6 +176,7 @@ const ChannelContext = createContext<{
     handleEventModal: () => undefined,
     handleChatCommandModal: () => undefined,
     handleBetModal: () => undefined,
+    handleModeratorModal: () => undefined,
     showBuyModal: false,
     showBetModal: false,
     showTipModal: false,
@@ -185,6 +189,7 @@ const ChannelContext = createContext<{
     showTokenSaleModal: false,
     showEventModal: false,
     showChatCommandModal: false,
+    showModeratorModal: false,
     chatBot: [],
   },
 });
@@ -303,6 +308,7 @@ export const ChannelProvider = ({
     useState<boolean>(false);
   const [showEventModal, setEventModal] = useState<boolean>(false);
   const [showBetModal, setBetModal] = useState<boolean>(false);
+  const [showModeratorModal, setModeratorModal] = useState<boolean>(false);
 
   const {
     handleCreateClip,
@@ -408,13 +414,8 @@ export const ChannelProvider = ({
     setBetModal(value);
   }, []);
 
-  const handleClose = useCallback(() => {
-    setShowTipModal(false);
-    setShowChanceModal(false);
-    setShowPvpModal(false);
-    setShowControlModal(false);
-    setShowBuyModal(false);
-    setShowCustomModal(false);
+  const handleModeratorModal = useCallback((value: boolean) => {
+    setModeratorModal(value);
   }, []);
 
   const value = useMemo(
@@ -476,6 +477,7 @@ export const ChannelProvider = ({
         handleEventModal,
         handleChatCommandModal,
         handleBetModal,
+        handleModeratorModal,
         showBuyModal,
         showTipModal,
         showCustomModal,
@@ -488,6 +490,7 @@ export const ChannelProvider = ({
         showEventModal,
         showBetModal,
         showChatCommandModal,
+        showModeratorModal,
         chatBot,
       },
     }),
@@ -537,6 +540,7 @@ export const ChannelProvider = ({
       handleTokenSaleModal,
       handleEventModal,
       handleBetModal,
+      handleModeratorModal,
       handleChatCommandModal,
       showBuyModal,
       showTipModal,
@@ -550,6 +554,7 @@ export const ChannelProvider = ({
       showEventModal,
       showBetModal,
       showChatCommandModal,
+      showModeratorModal,
       chatBot,
     ]
   );
@@ -581,6 +586,7 @@ const TransactionModals = () => {
     handlePvpModal,
     handleControlModal,
     handleBetModal,
+    handleModeratorModal,
     showEditModal,
     showNotificationsModal,
     showTokenSaleModal,
@@ -592,6 +598,7 @@ const TransactionModals = () => {
     showTipModal,
     showBuyModal,
     showBetModal,
+    showModeratorModal,
   } = arcade;
 
   const isOwner = userAddress === channelQueryData?.owner.address;
@@ -613,6 +620,11 @@ const TransactionModals = () => {
 
   return (
     <>
+      <ModeratorModal
+        title={"manage moderators"}
+        isOpen={showModeratorModal}
+        handleClose={() => handleModeratorModal(false)}
+      />
       <BetModal
         title={
           isSharesEventPayout

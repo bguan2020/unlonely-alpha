@@ -320,6 +320,22 @@
             "deprecationReason": null
           },
           {
+            "name": "moderators",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "name",
             "description": null,
             "args": [],
@@ -2819,7 +2835,32 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "ToggleBannedUserToChannelInput",
+                  "name": "ToggleUserAddressToChannelInput",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "Channel",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "toggleModeratorToChannel",
+            "description": null,
+            "args": [
+              {
+                "name": "data",
+                "description": null,
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "ToggleUserAddressToChannelInput",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -5858,28 +5899,12 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "ToggleBannedUserToChannelInput",
+        "name": "ToggleSubscriptionInput",
         "description": null,
         "fields": null,
         "inputFields": [
           {
-            "name": "channelId",
-            "description": null,
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "userAddress",
+            "name": "endpoint",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -5901,12 +5926,28 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "ToggleSubscriptionInput",
+        "name": "ToggleUserAddressToChannelInput",
         "description": null,
         "fields": null,
         "inputFields": [
           {
-            "name": "endpoint",
+            "name": "channelId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "userAddress",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -6585,6 +6626,22 @@
               "kind": "SCALAR",
               "name": "String",
               "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "moderatingChannels",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Channel",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null

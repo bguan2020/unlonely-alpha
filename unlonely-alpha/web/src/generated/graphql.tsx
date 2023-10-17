@@ -100,6 +100,7 @@ export type Channel = {
   description?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
   isLive?: Maybe<Scalars["Boolean"]>;
+  moderators?: Maybe<Array<Maybe<User>>>;
   name?: Maybe<Scalars["String"]>;
   owner: User;
   playbackUrl?: Maybe<Scalars["String"]>;
@@ -293,6 +294,7 @@ export type Mutation = {
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   toggleBannedUserToChannel?: Maybe<Channel>;
+  toggleModeratorToChannel?: Maybe<Channel>;
   toggleSubscription?: Maybe<Subscription>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelText?: Maybe<Channel>;
@@ -386,7 +388,11 @@ export type MutationSoftDeleteVideoArgs = {
 };
 
 export type MutationToggleBannedUserToChannelArgs = {
-  data?: InputMaybe<ToggleBannedUserToChannelInput>;
+  data?: InputMaybe<ToggleUserAddressToChannelInput>;
+};
+
+export type MutationToggleModeratorToChannelArgs = {
+  data?: InputMaybe<ToggleUserAddressToChannelInput>;
 };
 
 export type MutationToggleSubscriptionArgs = {
@@ -730,13 +736,13 @@ export type TaskFeedInput = {
   skip?: InputMaybe<Scalars["Int"]>;
 };
 
-export type ToggleBannedUserToChannelInput = {
-  channelId: Scalars["ID"];
-  userAddress: Scalars["String"];
-};
-
 export type ToggleSubscriptionInput = {
   endpoint: Scalars["String"];
+};
+
+export type ToggleUserAddressToChannelInput = {
+  channelId: Scalars["ID"];
+  userAddress: Scalars["String"];
 };
 
 export type UpdateChannelCustomButtonInput = {
@@ -799,6 +805,7 @@ export type User = {
   isLensUser: Scalars["Boolean"];
   lensHandle?: Maybe<Scalars["String"]>;
   lensImageUrl?: Maybe<Scalars["String"]>;
+  moderatingChannels?: Maybe<Array<Maybe<Channel>>>;
   nfcRank: Scalars["Int"];
   notificationsLive?: Maybe<Scalars["Boolean"]>;
   notificationsNFCs?: Maybe<Scalars["Boolean"]>;
@@ -906,6 +913,13 @@ export type ChannelDetailQuery = {
     allowNFCs?: boolean | null;
     bannedUsers?: Array<string | null> | null;
     playbackUrl?: string | null;
+    moderators?: Array<{
+      __typename?: "User";
+      address: string;
+      username?: string | null;
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+    } | null> | null;
     sharesEvent?: Array<{
       __typename?: "SharesEvent";
       sharesSubjectQuestion?: string | null;
@@ -1358,12 +1372,21 @@ export type RemoveChannelFromSubscriptionMutation = {
 };
 
 export type ToggleBannedUserToChannelMutationVariables = Exact<{
-  data: ToggleBannedUserToChannelInput;
+  data: ToggleUserAddressToChannelInput;
 }>;
 
 export type ToggleBannedUserToChannelMutation = {
   __typename?: "Mutation";
   toggleBannedUserToChannel?: { __typename?: "Channel"; id: string } | null;
+};
+
+export type ToggleModeratorToChannelMutationVariables = Exact<{
+  data: ToggleUserAddressToChannelInput;
+}>;
+
+export type ToggleModeratorToChannelMutation = {
+  __typename?: "Mutation";
+  toggleModeratorToChannel?: { __typename?: "Channel"; id: string } | null;
 };
 
 export type ToggleSubscriptionMutationVariables = Exact<{
@@ -1695,6 +1718,12 @@ export const ChannelDetailDocument = gql`
       slug
       allowNFCs
       bannedUsers
+      moderators {
+        address
+        username
+        FCImageUrl
+        lensImageUrl
+      }
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
@@ -3387,7 +3416,7 @@ export type RemoveChannelFromSubscriptionMutationOptions =
     RemoveChannelFromSubscriptionMutationVariables
   >;
 export const ToggleBannedUserToChannelDocument = gql`
-  mutation toggleBannedUserToChannel($data: ToggleBannedUserToChannelInput!) {
+  mutation toggleBannedUserToChannel($data: ToggleUserAddressToChannelInput!) {
     toggleBannedUserToChannel(data: $data) {
       id
     }
@@ -3436,6 +3465,57 @@ export type ToggleBannedUserToChannelMutationOptions =
   Apollo.BaseMutationOptions<
     ToggleBannedUserToChannelMutation,
     ToggleBannedUserToChannelMutationVariables
+  >;
+export const ToggleModeratorToChannelDocument = gql`
+  mutation toggleModeratorToChannel($data: ToggleUserAddressToChannelInput!) {
+    toggleModeratorToChannel(data: $data) {
+      id
+    }
+  }
+`;
+export type ToggleModeratorToChannelMutationFn = Apollo.MutationFunction<
+  ToggleModeratorToChannelMutation,
+  ToggleModeratorToChannelMutationVariables
+>;
+
+/**
+ * __useToggleModeratorToChannelMutation__
+ *
+ * To run a mutation, you first call `useToggleModeratorToChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleModeratorToChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleModeratorToChannelMutation, { data, loading, error }] = useToggleModeratorToChannelMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useToggleModeratorToChannelMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ToggleModeratorToChannelMutation,
+    ToggleModeratorToChannelMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    ToggleModeratorToChannelMutation,
+    ToggleModeratorToChannelMutationVariables
+  >(ToggleModeratorToChannelDocument, options);
+}
+export type ToggleModeratorToChannelMutationHookResult = ReturnType<
+  typeof useToggleModeratorToChannelMutation
+>;
+export type ToggleModeratorToChannelMutationResult =
+  Apollo.MutationResult<ToggleModeratorToChannelMutation>;
+export type ToggleModeratorToChannelMutationOptions =
+  Apollo.BaseMutationOptions<
+    ToggleModeratorToChannelMutation,
+    ToggleModeratorToChannelMutationVariables
   >;
 export const ToggleSubscriptionDocument = gql`
   mutation ToggleSubscription($data: ToggleSubscriptionInput!) {

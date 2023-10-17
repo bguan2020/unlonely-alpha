@@ -17,6 +17,7 @@ import {
   Tr,
   IconButton,
   SimpleGrid,
+  Button,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isAddress } from "viem";
@@ -77,6 +78,7 @@ const StandaloneAblyChatComponent = ({
     handleBuyModal,
     handleTipModal,
     handleBetModal,
+    handleModeratorModal,
   } = arcade;
   const { chatChannel } = chat;
 
@@ -631,6 +633,16 @@ const StandaloneAblyChatComponent = ({
                       >
                         <Image src="/svg/bet.svg" width="100%" />
                       </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign={"center"}>moderators</Text>
+                      <Button onClick={() => handleModeratorModal(true)}>
+                        open
+                      </Button>
                     </Flex>
                   </SimpleGrid>
                 </Flex>

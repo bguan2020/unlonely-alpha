@@ -46,6 +46,12 @@ export const CHANNEL_DETAIL_QUERY = gql`
       slug
       allowNFCs
       bannedUsers
+      moderators {
+        address
+        username
+        FCImageUrl
+        lensImageUrl
+      }
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress

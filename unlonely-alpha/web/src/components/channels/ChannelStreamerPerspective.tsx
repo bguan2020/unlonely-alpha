@@ -1,4 +1,12 @@
-import { Flex, Stack, SimpleGrid, Box, Text, Image } from "@chakra-ui/react";
+import {
+  Flex,
+  Stack,
+  SimpleGrid,
+  Box,
+  Text,
+  Image,
+  Button,
+} from "@chakra-ui/react";
 
 import { SharesEventState } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -13,6 +21,7 @@ const ChannelStreamerPerspective = () => {
     handleChatCommandModal,
     handleCustomModal,
     handleBetModal,
+    handleModeratorModal,
   } = arcade;
   const { channelQueryData } = channel;
 
@@ -180,6 +189,10 @@ const ChannelStreamerPerspective = () => {
               >
                 <Image src="/svg/bet.svg" width="100%" />
               </Box>
+            </Flex>
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+              <Text textAlign={"center"}>moderators</Text>
+              <Button onClick={() => handleModeratorModal(true)}>open</Button>
             </Flex>
           </SimpleGrid>
         </Flex>

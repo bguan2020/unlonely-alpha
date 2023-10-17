@@ -15,6 +15,7 @@ import React, { useMemo, useState } from "react";
 
 import {
   ADD_REACTION_EVENT,
+  APPOINT_USER_EVENT,
   BAN_USER_EVENT,
   InteractionType,
   NULL_ADDRESS,
@@ -28,6 +29,7 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useToggleBannedUserToChannel from "../../hooks/server/useToggleBannedUser";
 import { REACTION_EMOJIS } from "./emoji/constants";
+import useToggleModeratorToChannel from "../../hooks/server/useToggleModerator";
 
 type Props = {
   index: number;
@@ -52,16 +54,31 @@ const MessageBody = ({
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const { toggleBannedUserToChannel, loading } = useToggleBannedUserToChannel({
-    onError: (error) => {
-      console.log(error);
-    },
-  });
+  const { toggleBannedUserToChannel, loading: banLoading } =
+    useToggleBannedUserToChannel({
+      onError: (error) => {
+        console.log(error);
+      },
+    });
+
+  const { toggleModeratorToChannel, loading: appointLoading } =
+    useToggleModeratorToChannel({
+      onError: (error) => {
+        console.log(error);
+      },
+    });
 
   const [isBanning, setIsBanning] = useState<boolean>(false);
+  const [isAppointing, setIsAppointing] = useState<boolean>(false);
 
   const userIsChannelOwner = useMemo(
     () => user?.address === channelQueryData?.owner.address,
+    [user, channelQueryData]
+  );
+
+  const userIsModerator = useMemo(
+    () =>
+      channelQueryData?.moderators?.some((m) => m?.address === user?.address),
     [user, channelQueryData]
   );
 
@@ -137,6 +154,19 @@ const MessageBody = ({
     setIsOpen(false);
   };
 
+  const appoint = async () => {
+    await toggleModeratorToChannel({
+      channelId: channelQueryData?.id,
+      userAddress: message.data.address,
+    });
+    channel.publish({
+      name: APPOINT_USER_EVENT,
+      data: { body: message.data.address },
+    });
+    setIsAppointing(false);
+    setIsOpen(false);
+  };
+
   return (
     <>
       <Flex direction="column">
@@ -151,9 +181,13 @@ const MessageBody = ({
               <Badges user={user} message={message} />
               <ChatUserModal
                 isOpen={isOpen}
-                handleClose={() => setIsOpen(false)}
+                handleClose={() => {
+                  setIsBanning(false);
+                  setIsAppointing(false);
+                  setIsOpen(false);
+                }}
               >
-                {!isBanning && (
+                {!isBanning && !isAppointing && (
                   <>
                     <Text
                       _hover={{ cursor: "pointer" }}
@@ -167,25 +201,59 @@ const MessageBody = ({
                       :
                     </Text>
                     {message.data.address}
-                    {userIsChannelOwner &&
+                    {(userIsChannelOwner || userIsModerator) &&
+                      message.data.address !==
+                        channelQueryData?.owner.address &&
                       message.data.address !== user?.address &&
                       !isBanning && (
+                        <>
+                          {!channelQueryData?.moderators?.some(
+                            (m) => m?.address === message.data.address
+                          ) ? (
+                            <Button
+                              mt="20px"
+                              bg="#842007"
+                              _hover={{}}
+                              _focus={{}}
+                              _active={{}}
+                              onClick={() => setIsBanning(true)}
+                            >
+                              ban user from chat
+                            </Button>
+                          ) : (
+                            <Text
+                              textAlign={"center"}
+                              fontSize="14px"
+                              color="#db9719"
+                            >
+                              Cannot ban this user because they are a moderator,
+                              remove their status on your dashboard first
+                            </Text>
+                          )}
+                        </>
+                      )}
+                    {userIsChannelOwner &&
+                      message.data.address !== user?.address &&
+                      !channelQueryData?.moderators?.some(
+                        (m) => m?.address === message.data.address
+                      ) &&
+                      !isAppointing && (
                         <Button
                           mt="20px"
-                          bg="#842007"
+                          bg="#074a84"
                           _hover={{}}
                           _focus={{}}
                           _active={{}}
-                          onClick={() => setIsBanning(true)}
+                          onClick={() => setIsAppointing(true)}
                         >
-                          ban user from chat
+                          appoint user as chat moderator
                         </Button>
                       )}
                   </>
                 )}
                 {isBanning && (
                   <>
-                    {!loading ? (
+                    {!banLoading ? (
                       <Flex direction="column" gap="10px">
                         <Text textAlign="center">
                           are you sure you want to ban this user from chatting
@@ -209,6 +277,48 @@ const MessageBody = ({
                             _focus={{}}
                             _active={{}}
                             onClick={() => setIsBanning(false)}
+                          >
+                            maybe not...
+                          </Button>
+                        </Flex>
+                      </Flex>
+                    ) : (
+                      <Flex justifyContent={"center"}>
+                        <Spinner size="xl" />
+                      </Flex>
+                    )}
+                  </>
+                )}
+                {isAppointing && (
+                  <>
+                    {!appointLoading ? (
+                      <Flex direction="column" gap="10px">
+                        <Text textAlign="center">
+                          are you sure you want to make this user a chat
+                          moderator?
+                        </Text>
+                        <Text textAlign="center" color="#8ced15">
+                          you can always remove their status through your
+                          dashboard
+                        </Text>
+                        <Flex justifyContent={"space-evenly"}>
+                          <Button
+                            bg="#054db1"
+                            _hover={{}}
+                            _focus={{}}
+                            _active={{}}
+                            onClick={appoint}
+                          >
+                            yes, do it
+                          </Button>
+                          <Button
+                            opacity={"0.5"}
+                            border={"1px solid white"}
+                            bg={"transparent"}
+                            _hover={{}}
+                            _focus={{}}
+                            _active={{}}
+                            onClick={() => setIsAppointing(false)}
                           >
                             maybe not...
                           </Button>
