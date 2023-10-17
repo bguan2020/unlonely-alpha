@@ -288,35 +288,38 @@ export interface IToggleBannedUserToChannelInput {
   userAddress: string;
 }
 
-export const toggleBannedUserToChannel = async (
-  data: IToggleBannedUserToChannelInput,
+export interface ISetUserRoleForChannelInput
+  extends IToggleBannedUserToChannelInput {
+  role: number;
+}
+
+export const setUserRoleForChannel = async (
+  data: ISetUserRoleForChannelInput,
   ctx: Context
 ) => {
-  // get bannedUSer arrray from channel, check if userAddress is in array
-  const channel = await ctx.prisma.channel.findUnique({
-    where: { id: Number(data.channelId) },
+  const existingRole = await ctx.prisma.channelUserRole.findFirst({
+    where: {
+      channelId: data.channelId,
+      userAddress: data.userAddress,
+    },
   });
 
-  if (!channel) {
-    throw new Error("Channel not found");
-  }
-
-  const bannedUsers = channel.bannedUsers || [];
-
-  const userIndex = bannedUsers.indexOf(data.userAddress);
-
-  if (userIndex === -1) {
-    // user is not banned, add to bannedUsers array
-    bannedUsers.push(data.userAddress);
+  if (!existingRole) {
+    // If the role doesn't exist, create a new one.
+    return ctx.prisma.channelUserRole.create({
+      data: {
+        userAddress: data.userAddress,
+        role: data.role,
+        channelId: data.channelId,
+      },
+    });
   } else {
-    // user is banned, remove from bannedUsers array
-    bannedUsers.splice(userIndex, 1);
+    // If the role exists, update it.
+    return ctx.prisma.channelUserRole.update({
+      where: { id: existingRole.id },
+      data: { role: data.role },
+    });
   }
-
-  return ctx.prisma.channel.update({
-    where: { id: Number(data.channelId) },
-    data: { bannedUsers },
-  });
 };
 
 export const getChannelChatCommands = async (
@@ -337,6 +340,16 @@ export const getChannelSharesEvent = async (
     // where softDelete is false
     where: { channelId: Number(id), softDelete: false },
     // order by createdAt w latest first
+    orderBy: { createdAt: "desc" },
+  });
+};
+
+export const getChannelUsersByRole = async (
+  { role }: { role: number },
+  ctx: Context
+) => {
+  return ctx.prisma.channelUserRole.findMany({
+    where: { role },
     orderBy: { createdAt: "desc" },
   });
 };

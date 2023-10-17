@@ -20,6 +20,15 @@ export const typeDef = gql`
     createdAt: DateTime!
   }
 
+  type ChannelUserRole {
+    id: Int!
+    userAddress: String!
+    role: Int!
+    channelId: Int!
+    updatedAt: String!
+    createdAt: String!
+  }
+
   type Channel {
     id: ID!
     awsId: String!
@@ -40,6 +49,7 @@ export const typeDef = gql`
     updatedAt: DateTime!
     chatCommands: [ChatCommand]
     sharesEvent: [SharesEvent]
+    roles: [ChannelUserRole]
   }
 
   input ChannelFeedInput {
@@ -72,9 +82,10 @@ export const typeDef = gql`
     id: ID!
   }
 
-  input ToggleBannedUserToChannelInput {
+  input ISetUserRoleForChannelInput {
     channelId: ID!
     userAddress: String!
+    role: Int!
   }
 
   extend type Query {
@@ -90,6 +101,6 @@ export const typeDef = gql`
     postSharesEvent(data: PostSharesEventInput!): Channel
     updateChannelText(data: UpdateChannelTextInput!): Channel
     updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
-    toggleBannedUserToChannel(data: ToggleBannedUserToChannelInput): Channel
+    setUserRoleForChannel(data: ISetUserRoleForChannelInput): ChannelUserRole
   }
 `;

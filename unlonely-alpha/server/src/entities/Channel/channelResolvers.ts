@@ -65,20 +65,19 @@ export const resolvers = {
 
       return channelService.updateChannelCustomButton(data, ctx);
     },
-    toggleBannedUserToChannel: (
+    setUserRoleForChannel: (
       _: any,
-      { data }: { data: channelService.IToggleBannedUserToChannelInput },
+      { data }: { data: channelService.ISetUserRoleForChannelInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
 
-      return channelService.toggleBannedUserToChannel(data, ctx);
+      return channelService.setUserRoleForChannel(data, ctx);
     },
   },
   Channel: {
-    // add getChannelCreatorToken
     token: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelCreatorToken({ id }, ctx);
     },
@@ -90,6 +89,9 @@ export const resolvers = {
     },
     sharesEvent: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelSharesEvent({ id }, ctx);
+    },
+    roles: ({ role }: { role: number }, _: any, ctx: Context) => {
+      return channelService.getChannelUsersByRole({ role }, ctx);
     },
   },
 };
