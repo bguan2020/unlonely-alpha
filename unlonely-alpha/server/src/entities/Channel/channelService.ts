@@ -283,13 +283,9 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
   }
 };
 
-export interface IToggleBannedUserToChannelInput {
+export interface ISetUserRoleForChannelInput {
   channelId: number;
   userAddress: string;
-}
-
-export interface ISetUserRoleForChannelInput
-  extends IToggleBannedUserToChannelInput {
   role: number;
 }
 
@@ -299,7 +295,7 @@ export const setUserRoleForChannel = async (
 ) => {
   const existingRole = await ctx.prisma.channelUserRole.findFirst({
     where: {
-      channelId: data.channelId,
+      channelId: Number(data.channelId),
       userAddress: data.userAddress,
     },
   });
@@ -310,7 +306,7 @@ export const setUserRoleForChannel = async (
       data: {
         userAddress: data.userAddress,
         role: data.role,
-        channelId: data.channelId,
+        channelId: Number(data.channelId),
       },
     });
   } else {

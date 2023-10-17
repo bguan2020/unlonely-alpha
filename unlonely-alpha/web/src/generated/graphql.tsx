@@ -89,7 +89,6 @@ export type Channel = {
   __typename?: "Channel";
   allowNFCs?: Maybe<Scalars["Boolean"]>;
   awsId: Scalars["String"];
-  bannedUsers?: Maybe<Array<Maybe<Scalars["String"]>>>;
   channel: Channel;
   channelArn?: Maybe<Scalars["String"]>;
   chatCommands?: Maybe<Array<Maybe<ChatCommand>>>;
@@ -104,6 +103,7 @@ export type Channel = {
   owner: User;
   playbackUrl?: Maybe<Scalars["String"]>;
   response: Scalars["String"];
+  roles?: Maybe<Array<Maybe<ChannelUserRole>>>;
   sharesEvent?: Maybe<Array<Maybe<SharesEvent>>>;
   slug: Scalars["String"];
   thumbnailUrl?: Maybe<Scalars["String"]>;
@@ -116,6 +116,16 @@ export type ChannelFeedInput = {
   limit?: InputMaybe<Scalars["Int"]>;
   offset?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<SortBy>;
+};
+
+export type ChannelUserRole = {
+  __typename?: "ChannelUserRole";
+  channelId: Scalars["Int"];
+  createdAt: Scalars["String"];
+  id: Scalars["Int"];
+  role: Scalars["Int"];
+  updatedAt: Scalars["String"];
+  userAddress: Scalars["String"];
 };
 
 export type Chat = {
@@ -289,10 +299,10 @@ export type Mutation = {
   postTask?: Maybe<Task>;
   postVideo?: Maybe<Video>;
   removeChannelFromSubscription?: Maybe<Subscription>;
+  setUserRoleForChannel?: Maybe<ChannelUserRole>;
   softDeleteSubscription?: Maybe<Subscription>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
-  toggleBannedUserToChannel?: Maybe<Channel>;
   toggleSubscription?: Maybe<Subscription>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelText?: Maybe<Channel>;
@@ -373,6 +383,10 @@ export type MutationRemoveChannelFromSubscriptionArgs = {
   data: MoveChannelAlongSubscriptionInput;
 };
 
+export type MutationSetUserRoleForChannelArgs = {
+  data?: InputMaybe<SetUserRoleForChannelInput>;
+};
+
 export type MutationSoftDeleteSubscriptionArgs = {
   data: SoftDeleteSubscriptionInput;
 };
@@ -383,10 +397,6 @@ export type MutationSoftDeleteTaskArgs = {
 
 export type MutationSoftDeleteVideoArgs = {
   id: Scalars["ID"];
-};
-
-export type MutationToggleBannedUserToChannelArgs = {
-  data?: InputMaybe<ToggleBannedUserToChannelInput>;
 };
 
 export type MutationToggleSubscriptionArgs = {
@@ -655,6 +665,12 @@ export type SendAllNotificationsInput = {
   title: Scalars["String"];
 };
 
+export type SetUserRoleForChannelInput = {
+  channelId: Scalars["ID"];
+  role: Scalars["Int"];
+  userAddress: Scalars["String"];
+};
+
 export type SharesEvent = {
   __typename?: "SharesEvent";
   createdAt: Scalars["DateTime"];
@@ -728,11 +744,6 @@ export type TaskFeedInput = {
   orderBy?: InputMaybe<SortOrder>;
   searchString?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;
-};
-
-export type ToggleBannedUserToChannelInput = {
-  channelId: Scalars["ID"];
-  userAddress: Scalars["String"];
 };
 
 export type ToggleSubscriptionInput = {
@@ -904,7 +915,6 @@ export type ChannelDetailQuery = {
     name?: string | null;
     slug: string;
     allowNFCs?: boolean | null;
-    bannedUsers?: Array<string | null> | null;
     playbackUrl?: string | null;
     sharesEvent?: Array<{
       __typename?: "SharesEvent";
@@ -926,6 +936,12 @@ export type ChannelDetailQuery = {
       symbol: string;
       address: string;
     } | null;
+    roles?: Array<{
+      __typename?: "ChannelUserRole";
+      id: number;
+      userAddress: string;
+      role: number;
+    } | null> | null;
     chatCommands?: Array<{
       __typename?: "ChatCommand";
       command: string;
@@ -952,7 +968,6 @@ export type ChannelDetailMobileQuery = {
     name?: string | null;
     slug: string;
     allowNFCs?: boolean | null;
-    bannedUsers?: Array<string | null> | null;
     playbackUrl?: string | null;
     sharesEvent?: Array<{
       __typename?: "SharesEvent";
@@ -1357,13 +1372,19 @@ export type RemoveChannelFromSubscriptionMutation = {
   } | null;
 };
 
-export type ToggleBannedUserToChannelMutationVariables = Exact<{
-  data: ToggleBannedUserToChannelInput;
+export type SetUserRoleForChannelMutationVariables = Exact<{
+  data: SetUserRoleForChannelInput;
 }>;
 
-export type ToggleBannedUserToChannelMutation = {
+export type SetUserRoleForChannelMutation = {
   __typename?: "Mutation";
-  toggleBannedUserToChannel?: { __typename?: "Channel"; id: string } | null;
+  setUserRoleForChannel?: {
+    __typename?: "ChannelUserRole";
+    id: number;
+    channelId: number;
+    userAddress: string;
+    role: number;
+  } | null;
 };
 
 export type ToggleSubscriptionMutationVariables = Exact<{
@@ -1694,7 +1715,6 @@ export const ChannelDetailDocument = gql`
       name
       slug
       allowNFCs
-      bannedUsers
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
@@ -1711,6 +1731,11 @@ export const ChannelDetailDocument = gql`
         name
         symbol
         address
+      }
+      roles {
+        id
+        userAddress
+        role
       }
       playbackUrl
       chatCommands {
@@ -1784,7 +1809,6 @@ export const ChannelDetailMobileDocument = gql`
       name
       slug
       allowNFCs
-      bannedUsers
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
@@ -3386,57 +3410,59 @@ export type RemoveChannelFromSubscriptionMutationOptions =
     RemoveChannelFromSubscriptionMutation,
     RemoveChannelFromSubscriptionMutationVariables
   >;
-export const ToggleBannedUserToChannelDocument = gql`
-  mutation toggleBannedUserToChannel($data: ToggleBannedUserToChannelInput!) {
-    toggleBannedUserToChannel(data: $data) {
+export const SetUserRoleForChannelDocument = gql`
+  mutation setUserRoleForChannel($data: SetUserRoleForChannelInput!) {
+    setUserRoleForChannel(data: $data) {
       id
+      channelId
+      userAddress
+      role
     }
   }
 `;
-export type ToggleBannedUserToChannelMutationFn = Apollo.MutationFunction<
-  ToggleBannedUserToChannelMutation,
-  ToggleBannedUserToChannelMutationVariables
+export type SetUserRoleForChannelMutationFn = Apollo.MutationFunction<
+  SetUserRoleForChannelMutation,
+  SetUserRoleForChannelMutationVariables
 >;
 
 /**
- * __useToggleBannedUserToChannelMutation__
+ * __useSetUserRoleForChannelMutation__
  *
- * To run a mutation, you first call `useToggleBannedUserToChannelMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useToggleBannedUserToChannelMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useSetUserRoleForChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetUserRoleForChannelMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [toggleBannedUserToChannelMutation, { data, loading, error }] = useToggleBannedUserToChannelMutation({
+ * const [setUserRoleForChannelMutation, { data, loading, error }] = useSetUserRoleForChannelMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useToggleBannedUserToChannelMutation(
+export function useSetUserRoleForChannelMutation(
   baseOptions?: Apollo.MutationHookOptions<
-    ToggleBannedUserToChannelMutation,
-    ToggleBannedUserToChannelMutationVariables
+    SetUserRoleForChannelMutation,
+    SetUserRoleForChannelMutationVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
-    ToggleBannedUserToChannelMutation,
-    ToggleBannedUserToChannelMutationVariables
-  >(ToggleBannedUserToChannelDocument, options);
+    SetUserRoleForChannelMutation,
+    SetUserRoleForChannelMutationVariables
+  >(SetUserRoleForChannelDocument, options);
 }
-export type ToggleBannedUserToChannelMutationHookResult = ReturnType<
-  typeof useToggleBannedUserToChannelMutation
+export type SetUserRoleForChannelMutationHookResult = ReturnType<
+  typeof useSetUserRoleForChannelMutation
 >;
-export type ToggleBannedUserToChannelMutationResult =
-  Apollo.MutationResult<ToggleBannedUserToChannelMutation>;
-export type ToggleBannedUserToChannelMutationOptions =
-  Apollo.BaseMutationOptions<
-    ToggleBannedUserToChannelMutation,
-    ToggleBannedUserToChannelMutationVariables
-  >;
+export type SetUserRoleForChannelMutationResult =
+  Apollo.MutationResult<SetUserRoleForChannelMutation>;
+export type SetUserRoleForChannelMutationOptions = Apollo.BaseMutationOptions<
+  SetUserRoleForChannelMutation,
+  SetUserRoleForChannelMutationVariables
+>;
 export const ToggleSubscriptionDocument = gql`
   mutation ToggleSubscription($data: ToggleSubscriptionInput!) {
     toggleSubscription(data: $data) {

@@ -32,6 +32,7 @@ export const RANDOM_CHAT_COLOR =
 export const ADD_REACTION_EVENT = "add-reaction";
 export const CHAT_MESSAGE_EVENT = "chat-message";
 export const BAN_USER_EVENT = "ban-user";
+export const APPOINT_USER_EVENT = "appoint-user";
 
 export type CommandData = {
   command: string;

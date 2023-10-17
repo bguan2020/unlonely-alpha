@@ -408,15 +408,6 @@ export const ChannelProvider = ({
     setBetModal(value);
   }, []);
 
-  const handleClose = useCallback(() => {
-    setShowTipModal(false);
-    setShowChanceModal(false);
-    setShowPvpModal(false);
-    setShowControlModal(false);
-    setShowBuyModal(false);
-    setShowCustomModal(false);
-  }, []);
-
   const value = useMemo(
     () => ({
       channel: {

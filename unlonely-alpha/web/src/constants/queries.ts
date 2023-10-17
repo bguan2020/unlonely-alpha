@@ -45,7 +45,6 @@ export const CHANNEL_DETAIL_QUERY = gql`
       name
       slug
       allowNFCs
-      bannedUsers
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
@@ -62,6 +61,11 @@ export const CHANNEL_DETAIL_QUERY = gql`
         name
         symbol
         address
+      }
+      roles {
+        id
+        userAddress
+        role
       }
       playbackUrl
       chatCommands {
@@ -85,7 +89,6 @@ export const CHANNEL_DETAIL_MOBILE_QUERY = gql`
       name
       slug
       allowNFCs
-      bannedUsers
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress

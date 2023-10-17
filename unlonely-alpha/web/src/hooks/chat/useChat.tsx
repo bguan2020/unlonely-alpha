@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VirtuosoHandle } from "react-virtuoso";
 
 import {
+  APPOINT_USER_EVENT,
   BaseChatCommand,
   CHAT_MESSAGE_EVENT,
   InteractionType,
@@ -166,6 +167,13 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
     });
   };
 
+  const publishEvent = (eventName: string, body?: string) => {
+    channel.publish({
+      name: eventName,
+      data: { body },
+    });
+  };
+
   const sendChatMessage = async (
     messageText: string,
     isGif: boolean,
@@ -294,61 +302,15 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
           lastMessage.taskType
         } task: "${lastMessage.title}", "${lastMessage.description}"`;
       }
-      if (lastMessage.taskType === InteractionType.TIP) {
-        messageText = lastMessage.title ?? "Tip";
-        body = `${InteractionType.TIP}:${lastMessage.description ?? ""}`;
+      if (lastMessage.taskType in InteractionType) {
+        messageText = lastMessage.title ?? lastMessage.taskType;
+        body = `${lastMessage.taskType}:${lastMessage.description ?? ""}`;
+        publishChatBotMessage(messageText, body);
       }
-      if (lastMessage.taskType === "pvp") {
-        messageText = lastMessage.title ?? "Pvp";
+      if (lastMessage.taskType === APPOINT_USER_EVENT) {
+        body = lastMessage.description ?? "";
+        publishEvent(lastMessage.taskType, body);
       }
-      if (lastMessage.taskType === "chance") {
-        messageText = lastMessage.title ?? "Chance";
-      }
-      if (lastMessage.taskType === InteractionType.CONTROL) {
-        messageText = lastMessage.title ?? "Control";
-        body = `${InteractionType.CONTROL}:${lastMessage.description ?? ""}`;
-      }
-      if (lastMessage.taskType === InteractionType.CUSTOM) {
-        messageText = lastMessage.title ?? "Custom";
-        body = `${InteractionType.CUSTOM}:${lastMessage.description ?? ""}`;
-      }
-      if (lastMessage.taskType === InteractionType.BUY) {
-        messageText = lastMessage.title ?? "Buy";
-        body = `${InteractionType.BUY}:${lastMessage.description ?? ""}`;
-      }
-      if (lastMessage.taskType === InteractionType.CLIP) {
-        messageText = lastMessage.title ?? "Clip";
-        body = `${InteractionType.CLIP}:${lastMessage.description ?? ""}`;
-      }
-      if (lastMessage.taskType === InteractionType.BUY_SHARES) {
-        messageText = lastMessage.title ?? "Shares";
-        body = `${InteractionType.BUY_SHARES}:${lastMessage.description ?? ""}`;
-      }
-      if (lastMessage.taskType === InteractionType.SELL_SHARES) {
-        messageText = lastMessage.title ?? "Shares";
-        body = `${InteractionType.SELL_SHARES}:${
-          lastMessage.description ?? ""
-        }`;
-      }
-      if (lastMessage.taskType === InteractionType.EVENT_LIVE) {
-        messageText = lastMessage.title ?? "Event start";
-        body = `${InteractionType.EVENT_LIVE}:${lastMessage.description ?? ""}`;
-      }
-      if (lastMessage.taskType === InteractionType.EVENT_LOCK) {
-        messageText = lastMessage.title ?? "Event locked";
-        body = `${InteractionType.EVENT_LOCK}:${lastMessage.description ?? ""}`;
-      }
-      if (lastMessage.taskType === InteractionType.EVENT_PAYOUT) {
-        messageText = lastMessage.title ?? "Event payout";
-        body = `${InteractionType.EVENT_PAYOUT}:${
-          lastMessage.description ?? ""
-        }`;
-      }
-      if (lastMessage.taskType === InteractionType.EVENT_END) {
-        messageText = lastMessage.title ?? "Event end";
-        body = `${InteractionType.EVENT_END}:${lastMessage.description ?? ""}`;
-      }
-      publishChatBotMessage(messageText, body);
     }
   }, [chatBot]);
 

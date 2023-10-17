@@ -1471,7 +1471,7 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "ISetUserRoleForChannelInput",
+                  "name": "SetUserRoleForChannelInput",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -5509,22 +5509,6 @@
             "deprecationReason": null
           },
           {
-            "name": "bannedUsers",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "thumbnailUrl",
             "description": null,
             "args": [],
@@ -6012,7 +5996,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "ISetUserRoleForChannelInput",
+        "name": "SetUserRoleForChannelInput",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,

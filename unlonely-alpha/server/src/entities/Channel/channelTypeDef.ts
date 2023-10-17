@@ -38,7 +38,6 @@ export const typeDef = gql`
     playbackUrl: String
     isLive: Boolean
     allowNFCs: Boolean
-    bannedUsers: [String]
     thumbnailUrl: String
     owner: User!
     token: CreatorToken
@@ -82,7 +81,7 @@ export const typeDef = gql`
     id: ID!
   }
 
-  input ISetUserRoleForChannelInput {
+  input SetUserRoleForChannelInput {
     channelId: ID!
     userAddress: String!
     role: Int!
@@ -101,6 +100,6 @@ export const typeDef = gql`
     postSharesEvent(data: PostSharesEventInput!): Channel
     updateChannelText(data: UpdateChannelTextInput!): Channel
     updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
-    setUserRoleForChannel(data: ISetUserRoleForChannelInput): ChannelUserRole
+    setUserRoleForChannel(data: SetUserRoleForChannelInput): ChannelUserRole
   }
 `;

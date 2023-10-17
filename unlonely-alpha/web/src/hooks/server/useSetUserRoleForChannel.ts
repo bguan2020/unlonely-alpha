@@ -4,30 +4,33 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
-  ToggleBannedUserToChannelMutation,
-  ToggleBannedUserToChannelMutationVariables,
+  SetUserRoleForChannelMutation,
+  SetUserRoleForChannelMutationVariables,
 } from "../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
-const TOGGLE_BANNED_USER_TO_CHANNEL_MUTATION = gql`
-  mutation toggleBannedUserToChannel($data: ToggleBannedUserToChannelInput!) {
-    toggleBannedUserToChannel(data: $data) {
+const SET_USER_ROLE_FOR_CHANNEL_MUTATION = gql`
+  mutation setUserRoleForChannel($data: SetUserRoleForChannelInput!) {
+    setUserRoleForChannel(data: $data) {
       id
+      channelId
+      userAddress
+      role
     }
   }
 `;
 
-const useToggleBannedUserToChannel = ({ onError }: Props) => {
+const useSetUserRoleForChannel = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    ToggleBannedUserToChannelMutation,
-    ToggleBannedUserToChannelMutationVariables
-  >(TOGGLE_BANNED_USER_TO_CHANNEL_MUTATION);
+    SetUserRoleForChannelMutation,
+    SetUserRoleForChannelMutationVariables
+  >(SET_USER_ROLE_FOR_CHANNEL_MUTATION);
 
-  const toggleBannedUserToChannel = useCallback(
+  const setUserRoleForChannel = useCallback(
     async (data) => {
       try {
         setLoading(true);
@@ -36,11 +39,12 @@ const useToggleBannedUserToChannel = ({ onError }: Props) => {
             data: {
               channelId: data.channelId,
               userAddress: data.userAddress,
+              role: data.role,
             },
           },
         });
 
-        const res = mutationResult?.data?.toggleBannedUserToChannel;
+        const res = mutationResult?.data?.setUserRoleForChannel;
         /* eslint-disable no-console */
         if (res) {
           console.log("success");
@@ -52,13 +56,13 @@ const useToggleBannedUserToChannel = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("toggleBannedUser", JSON.stringify(e, null, 2));
+        console.log("setUserRoleForChannel", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]
   );
 
-  return { toggleBannedUserToChannel, loading };
+  return { setUserRoleForChannel, loading };
 };
 
-export default useToggleBannedUserToChannel;
+export default useSetUserRoleForChannel;

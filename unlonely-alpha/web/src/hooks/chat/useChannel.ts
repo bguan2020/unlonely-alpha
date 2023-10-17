@@ -6,6 +6,7 @@ import { useChannelContext } from "../context/useChannel";
 import { Message } from "../../constants/types/chat";
 import {
   ADD_REACTION_EVENT,
+  APPOINT_USER_EVENT,
   BAN_USER_EVENT,
   CHAT_MESSAGE_EVENT,
 } from "../../constants";
@@ -45,7 +46,7 @@ export function useAblyChannel(
 export function useChannel(fixedChatName?: string) {
   const { userAddress } = useUser();
   const { channel: c, chat } = useChannelContext();
-  const { channelQueryData } = c;
+  const { channelQueryData, refetch } = c;
   const { chatChannel } = chat;
 
   const channelName =
@@ -61,7 +62,7 @@ export function useChannel(fixedChatName?: string) {
     undefined
   );
 
-  const [channel, ably] = useAblyChannel(channelName, (message) => {
+  const [channel, ably] = useAblyChannel(channelName, async (message) => {
     setHasMessagesLoaded(false);
     if (localBanList === undefined) return;
     let messageHistory = receivedMessages.filter(
@@ -75,6 +76,9 @@ export function useChannel(fixedChatName?: string) {
     if (message.name === BAN_USER_EVENT) {
       const userAddressToBan = message.data.body;
       setLocalBanList([...localBanList, userAddressToBan]);
+    }
+    if (message.name === APPOINT_USER_EVENT) {
+      await refetch();
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (localBanList.length === 0) {
@@ -99,10 +103,10 @@ export function useChannel(fixedChatName?: string) {
       setLocalBanList(undefined);
       return;
     }
-    const filteredUsers = (channelQueryData.bannedUsers ?? []).filter(
-      (user) => user !== null
-    ) as string[];
-    setLocalBanList(filteredUsers);
+    const filteredUsersToBan = (channelQueryData.roles ?? [])
+      .filter((user) => user?.role === 1)
+      .map((user) => user?.userAddress) as string[];
+    setLocalBanList(filteredUsersToBan);
   }, [channelQueryData]);
 
   useEffect(() => {

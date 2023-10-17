@@ -26,7 +26,7 @@ import EmojiDisplay from "./emoji/EmojiDisplay";
 import { Message } from "../../constants/types/chat";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import useToggleBannedUserToChannel from "../../hooks/server/useToggleBannedUser";
+import useSetUserRoleForChannel from "../../hooks/server/useSetUserRoleForChannel";
 import { REACTION_EMOJIS } from "./emoji/constants";
 
 type Props = {
@@ -52,7 +52,7 @@ const MessageBody = ({
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const { toggleBannedUserToChannel, loading } = useToggleBannedUserToChannel({
+  const { setUserRoleForChannel, loading } = useSetUserRoleForChannel({
     onError: (error) => {
       console.log(error);
     },
@@ -125,9 +125,10 @@ const MessageBody = ({
   };
 
   const ban = async () => {
-    await toggleBannedUserToChannel({
+    await setUserRoleForChannel({
       channelId: channelQueryData?.id,
       userAddress: message.data.address,
+      role: 1,
     });
     channel.publish({
       name: BAN_USER_EVENT,
