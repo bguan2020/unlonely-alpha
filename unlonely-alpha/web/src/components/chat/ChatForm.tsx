@@ -523,7 +523,7 @@ const ChatForm = ({
                 <Textarea
                   resize="none"
                   variant="unstyled"
-                  maxLength={280}
+                  maxLength={500}
                   ref={(element) => {
                     inputBox = element;
                   }}
