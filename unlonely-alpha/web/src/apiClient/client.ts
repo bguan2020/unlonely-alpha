@@ -38,15 +38,6 @@ function createApolloClient(cookies: Cookies, isSSR?: boolean) {
         errorPolicy: "all",
       },
     },
-    // link: ApolloLink.from([
-    //   authLink(cookies, isSSR),
-    //   new HttpLink({
-    //     uri:
-    //       process.env.NODE_ENV === "production"
-    //         ? server
-    //         : "http://localhost:4000/graphql",
-    //   }),
-    // ]),
     link: authLink.concat(
       new HttpLink({
         uri:

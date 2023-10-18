@@ -340,12 +340,14 @@ export const getChannelSharesEvent = async (
   });
 };
 
-export const getChannelUsersByRole = async (
-  { role }: { role: number },
+export const getChannelUserRolesByChannel = async (
+  { id }: { id: number },
   ctx: Context
 ) => {
-  return ctx.prisma.channelUserRole.findMany({
-    where: { role },
-    orderBy: { createdAt: "desc" },
+  // Fetch all roles for the given channelId
+  return await ctx.prisma.channelUserRole.findMany({
+    where: {
+      channelId: Number(id),
+    },
   });
 };

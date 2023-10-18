@@ -90,8 +90,8 @@ export const resolvers = {
     sharesEvent: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelSharesEvent({ id }, ctx);
     },
-    roles: ({ role }: { role: number }, _: any, ctx: Context) => {
-      return channelService.getChannelUsersByRole({ role }, ctx);
+    roles: ({ id }: { id: number }, _: any, ctx: Context) => {
+      return channelService.getChannelUserRolesByChannel({ id }, ctx);
     },
   },
 };

@@ -216,17 +216,6 @@ export const ChannelProvider = ({
     nextFetchPolicy: "network-only",
   });
 
-  // const {
-  //   loading: channelMobileDataLoading,
-  //   error: channelMobileDataError,
-  //   data: channelMobileData,
-  //   refetch: refetchChannelMobileData,
-  // } = useQuery<ChannelDetailMobileQuery>(CHANNEL_DETAIL_MOBILE_QUERY, {
-  //   variables: { awsId },
-  //   // fetchPolicy: "cache-first",
-  //   nextFetchPolicy: "network-only",
-  // });
-
   const channelQueryData = useMemo(
     () => channelData?.getChannelBySlug,
     [channelData, mobile]
