@@ -77,6 +77,7 @@ const StandaloneAblyChatComponent = ({
     handleBuyModal,
     handleTipModal,
     handleBetModal,
+    handleModeratorModal,
   } = arcade;
   const { chatChannel } = chat;
 
@@ -630,6 +631,30 @@ const StandaloneAblyChatComponent = ({
                         }}
                       >
                         <Image src="/svg/bet.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign={"center"}>moderators</Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => handleModeratorModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/mods.svg" width="100%" />
                       </Box>
                     </Flex>
                   </SimpleGrid>
