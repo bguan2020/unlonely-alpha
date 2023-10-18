@@ -126,12 +126,10 @@ export const getBadgeHoldersByChannel = async (
   data: IGetBadgeHoldersByChannelInput,
   ctx: Context
 ) => {
-  const badgeTrades = await ctx.prisma.gamblableInteraction.findMany({
+  const badgeBuys = await ctx.prisma.gamblableInteraction.findMany({
     where: {
       channelId: Number(data.channelId),
-      type: {
-        in: [GamblableEvent.BADGE_BUY, GamblableEvent.BADGE_SELL],
-      },
+      type: GamblableEvent.BADGE_BUY,
       softDelete: false,
     },
     include: {
@@ -139,13 +137,13 @@ export const getBadgeHoldersByChannel = async (
     },
   });
 
-  const uniqueMap = new Map();
-  badgeTrades.forEach((item) => {
-    if (!uniqueMap.has(item.userAddress)) {
-      uniqueMap.set(item.userAddress, item);
+  const uniqueUserAddressesMap = new Map();
+  badgeBuys.forEach((item) => {
+    if (!uniqueUserAddressesMap.has(item.userAddress)) {
+      uniqueUserAddressesMap.set(item.userAddress, item);
     }
   });
-  const uniqueHolders = [...uniqueMap.values()];
+  const uniqueHolders = [...uniqueUserAddressesMap.keys()];
   return uniqueHolders;
 };
 
@@ -153,11 +151,9 @@ export const getChannelsByNumberOfBadgeHolders = async (
   ctx: Context
 ): Promise<NumberOfHolders[]> => {
   // return array of { channelId, number of holders } in descending order
-  const badgeTrades = await ctx.prisma.gamblableInteraction.findMany({
+  const badgeBuys = await ctx.prisma.gamblableInteraction.findMany({
     where: {
-      type: {
-        in: [GamblableEvent.BADGE_BUY, GamblableEvent.BADGE_SELL],
-      },
+      type: GamblableEvent.BADGE_BUY,
       softDelete: false,
     },
     include: {
@@ -165,8 +161,14 @@ export const getChannelsByNumberOfBadgeHolders = async (
     },
   });
 
+  /*
+
+    channel1: [...]
+    channel2: [...]
+    ...
+  */
   const uniqueChannelTradesMap = new Map();
-  badgeTrades.forEach((item) => {
+  badgeBuys.forEach((item) => {
     if (!uniqueChannelTradesMap.has(item.channelId)) {
       uniqueChannelTradesMap.set(item.channelId, [item]);
     } else {
