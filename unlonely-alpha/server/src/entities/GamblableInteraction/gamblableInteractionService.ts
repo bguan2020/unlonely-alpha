@@ -74,13 +74,20 @@ export const recordBadgeTrade = async (
   data: IRecordBadgeTradeInput,
   ctx: Context
 ) => {
-  const existingBadgeTrade = await ctx.prisma.gamblableInteraction.findUnique({
+  // Find an existing trade with a matching channelId, userAddress, and the type being either BADGE_BUY or BADGE_SELL
+  const existingBadgeTrade = await ctx.prisma.gamblableInteraction.findFirst({
     where: {
       channelId: Number(data.channelId),
+      userAddress: data.userAddress,
+      type: {
+        in: [GamblableEvent.BADGE_BUY, GamblableEvent.BADGE_SELL],
+      },
     },
   });
 
   if (existingBadgeTrade) {
+    // If found, update the existing trade while retaining the same channelId and userAddress
+    // and update the type based on the input
     return ctx.prisma.gamblableInteraction.update({
       where: {
         id: existingBadgeTrade.id,
@@ -93,6 +100,7 @@ export const recordBadgeTrade = async (
       },
     });
   } else {
+    // If not found, create a new record with the given details
     return ctx.prisma.gamblableInteraction.create({
       data: {
         channel: {
