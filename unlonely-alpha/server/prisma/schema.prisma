@@ -52,6 +52,7 @@ model User {
   channel Channel[]
   tokens UserCreatorToken[]
   leaderboardEntries BaseLeaderboard[]
+  gamblableInteractions GamblableInteraction[]
 }
 
 model Subscription {
@@ -155,6 +156,8 @@ model Channel {
   customButtonPrice Int?
   sharesEvent SharesEvent[]
   roles ChannelUserRole[]
+
+  gamblableInteractions GamblableInteraction[]
 }
 
 model ChannelUserRole {
@@ -176,6 +179,25 @@ model CreatorToken {
   channel   Channel  @relation(fields: [channelId], references: [id])
   channelId Int      @unique
   users     UserCreatorToken[]
+}
+
+enum GamblableEvent {
+  BET_CREATE
+  BET_YES
+  BET_NO
+  BADGE_BUY
+  BADGE_SELL
+}
+
+model GamblableInteraction {
+  id        Int      @id @default(autoincrement())
+  channel   Channel  @relation(fields: [channelId], references: [id])
+  channelId Int      @unique
+  user    User     @relation(fields: [userAddress], references: [address])
+  userAddress  String
+  type GamblableEvent
+  createdAt DateTime @default(now())
+  softDelete Boolean @default(false)
 }
 
 model UserCreatorToken {
