@@ -1,3 +1,4 @@
+import { useQuery } from "@apollo/client";
 import {
   Box,
   Button,
@@ -30,8 +31,16 @@ import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
 // import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
-import { CHANNEL_DETAIL_QUERY } from "../../constants/queries";
-import { ChannelDetailQuery } from "../../generated/graphql";
+import {
+  CHANNEL_DETAIL_QUERY,
+  GET_BADGE_HOLDERS_BY_CHANNEL_QUERY,
+  GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY,
+} from "../../constants/queries";
+import {
+  ChannelDetailQuery,
+  GetBadgeHoldersByChannelQuery,
+  GetChannelsByNumberOfBadgeHoldersQuery,
+} from "../../generated/graphql";
 import {
   ChannelProvider,
   useChannelContext,
@@ -83,6 +92,21 @@ const DesktopPage = ({
     () => channelDataLoading || recentStreamInteractionsLoading,
     [channelDataLoading, recentStreamInteractionsLoading]
   );
+
+  const { data } = useQuery<GetBadgeHoldersByChannelQuery>(
+    GET_BADGE_HOLDERS_BY_CHANNEL_QUERY,
+    {
+      variables: { data: { channelId: channelQueryData?.id } },
+    }
+  );
+
+  const { data: _data } = useQuery<GetChannelsByNumberOfBadgeHoldersQuery>(
+    GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY
+  );
+
+  console.log(_data?.getChannelsByNumberOfBadgeHolders);
+
+  console.log(data?.getBadgeHoldersByChannel);
 
   const [width] = useWindowSize();
   const { userAddress, user } = useUser();
