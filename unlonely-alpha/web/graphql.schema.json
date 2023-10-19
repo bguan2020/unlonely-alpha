@@ -3791,15 +3791,15 @@
         "description": null,
         "fields": [
           {
-            "name": "channelId",
+            "name": "channel",
             "description": null,
             "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
+                "kind": "OBJECT",
+                "name": "Channel",
                 "ofType": null
               }
             },

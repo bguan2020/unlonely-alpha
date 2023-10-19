@@ -19,7 +19,7 @@ export const typeDef = gql`
   }
 
   type NumberOfHolders {
-    channelId: ID!
+    channel: Channel!
     holders: Int!
   }
 

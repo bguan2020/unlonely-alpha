@@ -15,7 +15,6 @@ import {
 } from "@chakra-ui/react";
 import { GetServerSidePropsContext } from "next";
 import React, { useCallback, useMemo, useState } from "react";
-import { FaGalacticSenate } from "react-icons/fa";
 import { isAddress } from "viem";
 
 import { initializeApollo } from "../../apiClient/client";
@@ -196,7 +195,7 @@ const DesktopPage = ({
                     postBadgeTrade({
                       channelId: channelQueryData?.id,
                       userAddress: user?.address,
-                      isBuying: FaGalacticSenate,
+                      isBuying: false,
                     })
                   }
                 >

@@ -495,7 +495,7 @@ export type NfcFeedInput = {
 
 export type NumberOfHolders = {
   __typename?: "NumberOfHolders";
-  channelId: Scalars["ID"];
+  channel: Channel;
   holders: Scalars["Int"];
 };
 
@@ -1227,8 +1227,40 @@ export type GetChannelsByNumberOfBadgeHoldersQuery = {
   __typename?: "Query";
   getChannelsByNumberOfBadgeHolders: Array<{
     __typename?: "NumberOfHolders";
-    channelId: string;
     holders: number;
+    channel: {
+      __typename?: "Channel";
+      awsId: string;
+      channelArn?: string | null;
+      description?: string | null;
+      customButtonPrice?: number | null;
+      customButtonAction?: string | null;
+      isLive?: boolean | null;
+      id: string;
+      name?: string | null;
+      slug: string;
+      allowNFCs?: boolean | null;
+      sharesEvent?: Array<{
+        __typename?: "SharesEvent";
+        sharesSubjectQuestion?: string | null;
+        sharesSubjectAddress?: string | null;
+        eventState?: SharesEventState | null;
+      } | null> | null;
+      owner: {
+        __typename?: "User";
+        FCImageUrl?: string | null;
+        lensImageUrl?: string | null;
+        username?: string | null;
+        address: string;
+      };
+      token?: {
+        __typename?: "CreatorToken";
+        id: string;
+        name: string;
+        symbol: string;
+        address: string;
+      } | null;
+    };
   } | null>;
 };
 
@@ -1466,6 +1498,21 @@ export type PostTaskMutation = {
   postTask?: { __typename?: "Task"; id: string } | null;
 };
 
+export type PostUserRoleForChannelMutationVariables = Exact<{
+  data: PostUserRoleForChannelInput;
+}>;
+
+export type PostUserRoleForChannelMutation = {
+  __typename?: "Mutation";
+  postUserRoleForChannel?: {
+    __typename?: "ChannelUserRole";
+    id: number;
+    channelId: number;
+    userAddress: string;
+    role: number;
+  } | null;
+};
+
 export type PostVideoMutationVariables = Exact<{
   data: PostVideoInput;
 }>;
@@ -1484,21 +1531,6 @@ export type RemoveChannelFromSubscriptionMutation = {
   removeChannelFromSubscription?: {
     __typename?: "Subscription";
     id: string;
-  } | null;
-};
-
-export type PostUserRoleForChannelMutationVariables = Exact<{
-  data: PostUserRoleForChannelInput;
-}>;
-
-export type PostUserRoleForChannelMutation = {
-  __typename?: "Mutation";
-  postUserRoleForChannel?: {
-    __typename?: "ChannelUserRole";
-    id: number;
-    channelId: number;
-    userAddress: string;
-    role: number;
   } | null;
 };
 
@@ -2616,7 +2648,35 @@ export type GetBadgeHoldersByChannelQueryResult = Apollo.QueryResult<
 export const GetChannelsByNumberOfBadgeHoldersDocument = gql`
   query GetChannelsByNumberOfBadgeHolders {
     getChannelsByNumberOfBadgeHolders {
-      channelId
+      channel {
+        awsId
+        channelArn
+        description
+        customButtonPrice
+        customButtonAction
+        isLive
+        id
+        name
+        slug
+        allowNFCs
+        sharesEvent {
+          sharesSubjectQuestion
+          sharesSubjectAddress
+          eventState
+        }
+        owner {
+          FCImageUrl
+          lensImageUrl
+          username
+          address
+        }
+        token {
+          id
+          name
+          symbol
+          address
+        }
+      }
       holders
     }
   }
@@ -3684,6 +3744,59 @@ export type PostTaskMutationOptions = Apollo.BaseMutationOptions<
   PostTaskMutation,
   PostTaskMutationVariables
 >;
+export const PostUserRoleForChannelDocument = gql`
+  mutation PostUserRoleForChannel($data: PostUserRoleForChannelInput!) {
+    postUserRoleForChannel(data: $data) {
+      id
+      channelId
+      userAddress
+      role
+    }
+  }
+`;
+export type PostUserRoleForChannelMutationFn = Apollo.MutationFunction<
+  PostUserRoleForChannelMutation,
+  PostUserRoleForChannelMutationVariables
+>;
+
+/**
+ * __usePostUserRoleForChannelMutation__
+ *
+ * To run a mutation, you first call `usePostUserRoleForChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostUserRoleForChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postUserRoleForChannelMutation, { data, loading, error }] = usePostUserRoleForChannelMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostUserRoleForChannelMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostUserRoleForChannelMutation,
+    PostUserRoleForChannelMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostUserRoleForChannelMutation,
+    PostUserRoleForChannelMutationVariables
+  >(PostUserRoleForChannelDocument, options);
+}
+export type PostUserRoleForChannelMutationHookResult = ReturnType<
+  typeof usePostUserRoleForChannelMutation
+>;
+export type PostUserRoleForChannelMutationResult =
+  Apollo.MutationResult<PostUserRoleForChannelMutation>;
+export type PostUserRoleForChannelMutationOptions = Apollo.BaseMutationOptions<
+  PostUserRoleForChannelMutation,
+  PostUserRoleForChannelMutationVariables
+>;
 export const PostVideoDocument = gql`
   mutation PostVideo($data: PostVideoInput!) {
     postVideo(data: $data) {
@@ -3786,59 +3899,6 @@ export type RemoveChannelFromSubscriptionMutationOptions =
     RemoveChannelFromSubscriptionMutation,
     RemoveChannelFromSubscriptionMutationVariables
   >;
-export const PostUserRoleForChannelDocument = gql`
-  mutation PostUserRoleForChannel($data: PostUserRoleForChannelInput!) {
-    postUserRoleForChannel(data: $data) {
-      id
-      channelId
-      userAddress
-      role
-    }
-  }
-`;
-export type PostUserRoleForChannelMutationFn = Apollo.MutationFunction<
-  PostUserRoleForChannelMutation,
-  PostUserRoleForChannelMutationVariables
->;
-
-/**
- * __usePostUserRoleForChannelMutation__
- *
- * To run a mutation, you first call `usePostUserRoleForChannelMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostUserRoleForChannelMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postUserRoleForChannelMutation, { data, loading, error }] = usePostUserRoleForChannelMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostUserRoleForChannelMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostUserRoleForChannelMutation,
-    PostUserRoleForChannelMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    PostUserRoleForChannelMutation,
-    PostUserRoleForChannelMutationVariables
-  >(PostUserRoleForChannelDocument, options);
-}
-export type PostUserRoleForChannelMutationHookResult = ReturnType<
-  typeof usePostUserRoleForChannelMutation
->;
-export type PostUserRoleForChannelMutationResult =
-  Apollo.MutationResult<PostUserRoleForChannelMutation>;
-export type PostUserRoleForChannelMutationOptions = Apollo.BaseMutationOptions<
-  PostUserRoleForChannelMutation,
-  PostUserRoleForChannelMutationVariables
->;
 export const ToggleSubscriptionDocument = gql`
   mutation ToggleSubscription($data: ToggleSubscriptionInput!) {
     toggleSubscription(data: $data) {

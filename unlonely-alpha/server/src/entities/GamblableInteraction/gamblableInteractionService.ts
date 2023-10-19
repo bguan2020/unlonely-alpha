@@ -1,3 +1,4 @@
+import { Channel } from "@prisma/client";
 
 import { Context } from "../../context";
 
@@ -10,7 +11,7 @@ enum GamblableEvent {
 }
 
 type NumberOfHolders = {
-  channelId: string;
+  channel: Channel;
   holders: number;
 };
 
@@ -159,22 +160,26 @@ export const getChannelsByNumberOfBadgeHolders = async (
     },
     include: {
       user: true,
+      channel: true,
     },
   });
 
   const uniqueChannelTradesMap = new Map();
   badgeBuys.forEach((item) => {
-    if (!uniqueChannelTradesMap.has(item.channelId)) {
-      uniqueChannelTradesMap.set(item.channelId, [item]);
+    if (!uniqueChannelTradesMap.has(item.channel.id)) {
+      uniqueChannelTradesMap.set(item.channel.id, [item]);
     } else {
-      const existingTrades = uniqueChannelTradesMap.get(item.channelId);
-      uniqueChannelTradesMap.set(item.channelId, [...existingTrades, item]);
+      const existingTrades = uniqueChannelTradesMap.get(item.channel.id);
+      uniqueChannelTradesMap.set(item.channel.id, [...existingTrades, item]);
     }
   });
 
-  const result = Array.from(uniqueChannelTradesMap.entries())
-    .map(([key, arr]) => ({ channelId: key, holders: arr.length }))
-    .sort((a, b) => b.holders - a.holders);
+  const result = Array.from(uniqueChannelTradesMap.entries()).map(
+    ([channelId, interactions]) => ({
+      channel: interactions[0].channel,
+      holders: interactions.length,
+    })
+  );
 
   return result;
 };

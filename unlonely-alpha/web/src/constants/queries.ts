@@ -244,7 +244,35 @@ export const GET_BADGE_HOLDERS_BY_CHANNEL_QUERY = gql`
 export const GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY = gql`
   query GetChannelsByNumberOfBadgeHolders {
     getChannelsByNumberOfBadgeHolders {
-      channelId
+      channel {
+        awsId
+        channelArn
+        description
+        customButtonPrice
+        customButtonAction
+        isLive
+        id
+        name
+        slug
+        allowNFCs
+        sharesEvent {
+          sharesSubjectQuestion
+          sharesSubjectAddress
+          eventState
+        }
+        owner {
+          FCImageUrl
+          lensImageUrl
+          username
+          address
+        }
+        token {
+          id
+          name
+          symbol
+          address
+        }
+      }
       holders
     }
   }
