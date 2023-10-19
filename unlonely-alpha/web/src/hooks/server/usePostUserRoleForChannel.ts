@@ -4,8 +4,8 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
-  SetUserRoleForChannelMutation,
-  SetUserRoleForChannelMutationVariables,
+  PostUserRoleForChannelMutation,
+  PostUserRoleForChannelMutationVariables,
 } from "../../generated/graphql";
 
 type Props = {
@@ -13,8 +13,8 @@ type Props = {
 };
 
 const SET_USER_ROLE_FOR_CHANNEL_MUTATION = gql`
-  mutation setUserRoleForChannel($data: SetUserRoleForChannelInput!) {
-    setUserRoleForChannel(data: $data) {
+  mutation PostUserRoleForChannel($data: PostUserRoleForChannelInput!) {
+    postUserRoleForChannel(data: $data) {
       id
       channelId
       userAddress
@@ -23,14 +23,14 @@ const SET_USER_ROLE_FOR_CHANNEL_MUTATION = gql`
   }
 `;
 
-const useSetUserRoleForChannel = ({ onError }: Props) => {
+const usePostUserRoleForChannel = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    SetUserRoleForChannelMutation,
-    SetUserRoleForChannelMutationVariables
+    PostUserRoleForChannelMutation,
+    PostUserRoleForChannelMutationVariables
   >(SET_USER_ROLE_FOR_CHANNEL_MUTATION);
 
-  const setUserRoleForChannel = useCallback(
+  const postUserRoleForChannel = useCallback(
     async (data) => {
       try {
         setLoading(true);
@@ -44,7 +44,7 @@ const useSetUserRoleForChannel = ({ onError }: Props) => {
           },
         });
 
-        const res = mutationResult?.data?.setUserRoleForChannel;
+        const res = mutationResult?.data?.postUserRoleForChannel;
         /* eslint-disable no-console */
         if (res) {
           console.log("success");
@@ -56,13 +56,13 @@ const useSetUserRoleForChannel = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("setUserRoleForChannel", JSON.stringify(e, null, 2));
+        console.log("postUserRoleForChannel", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]
   );
 
-  return { setUserRoleForChannel, loading };
+  return { postUserRoleForChannel, loading };
 };
 
-export default useSetUserRoleForChannel;
+export default usePostUserRoleForChannel;

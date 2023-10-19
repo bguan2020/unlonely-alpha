@@ -1,3 +1,4 @@
+
 import { Context } from "../../context";
 
 enum GamblableEvent {
@@ -17,24 +18,24 @@ export interface IGetBadgeHoldersByChannelInput {
   channelId: string;
 }
 
-export interface ICreateBetInput {
+export interface IPostBetInput {
   channelId: string;
   userAddress: string;
 }
 
-export interface IRecordBetBuyInput {
+export interface IPostBetBuyInput {
   channelId: string;
   userAddress: string;
   isYay: boolean;
 }
 
-export interface IRecordBadgeTradeInput {
+export interface IPostBadgeTradeInput {
   channelId: string;
   userAddress: string;
   isBuying: boolean;
 }
 
-export const createBet = (data: ICreateBetInput, ctx: Context) => {
+export const postBet = (data: IPostBetInput, ctx: Context) => {
   return ctx.prisma.gamblableInteraction.create({
     data: {
       channel: {
@@ -52,7 +53,7 @@ export const createBet = (data: ICreateBetInput, ctx: Context) => {
   });
 };
 
-export const recordBetBuy = (data: IRecordBetBuyInput, ctx: Context) => {
+export const postBetBuy = (data: IPostBetBuyInput, ctx: Context) => {
   return ctx.prisma.gamblableInteraction.create({
     data: {
       channel: {
@@ -70,8 +71,8 @@ export const recordBetBuy = (data: IRecordBetBuyInput, ctx: Context) => {
   });
 };
 
-export const recordBadgeTrade = async (
-  data: IRecordBadgeTradeInput,
+export const postBadgeTrade = async (
+  data: IPostBadgeTradeInput,
   ctx: Context
 ) => {
   // Find an existing trade with a matching channelId, userAddress, and the type being either BADGE_BUY or BADGE_SELL
@@ -96,7 +97,7 @@ export const recordBadgeTrade = async (
         type: data.isBuying
           ? GamblableEvent.BADGE_BUY
           : GamblableEvent.BADGE_SELL,
-        softDelete: data.isBuying,
+        softDelete: !data.isBuying,
       },
     });
   } else {
@@ -111,7 +112,7 @@ export const recordBadgeTrade = async (
         type: data.isBuying
           ? GamblableEvent.BADGE_BUY
           : GamblableEvent.BADGE_SELL,
-        softDelete: data.isBuying,
+        softDelete: !data.isBuying,
         user: {
           connect: {
             address: data.userAddress,
@@ -143,7 +144,7 @@ export const getBadgeHoldersByChannel = async (
       uniqueUserAddressesMap.set(item.userAddress, item);
     }
   });
-  const uniqueHolders = [...uniqueUserAddressesMap.keys()];
+  const uniqueHolders: string[] = [...uniqueUserAddressesMap.keys()];
   return uniqueHolders;
 };
 
@@ -161,12 +162,6 @@ export const getChannelsByNumberOfBadgeHolders = async (
     },
   });
 
-  /*
-
-    channel1: [...]
-    channel2: [...]
-    ...
-  */
   const uniqueChannelTradesMap = new Map();
   badgeBuys.forEach((item) => {
     if (!uniqueChannelTradesMap.has(item.channelId)) {

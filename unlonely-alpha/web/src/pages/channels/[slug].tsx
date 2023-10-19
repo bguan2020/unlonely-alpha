@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Container,
   Flex,
   Grid,
@@ -13,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { GetServerSidePropsContext } from "next";
 import React, { useCallback, useMemo, useState } from "react";
+import { FaGalacticSenate } from "react-icons/fa";
 import { isAddress } from "viem";
 
 import { initializeApollo } from "../../apiClient/client";
@@ -37,6 +39,9 @@ import {
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
+import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
+import usePostBet from "../../hooks/server/gamblable/usePostBet";
+import usePostBetBuy from "../../hooks/server/gamblable/usePostBetBuy";
 
 const ChannelDetail = ({
   channelData,
@@ -100,6 +105,23 @@ const DesktopPage = ({
     [width, hideChat]
   );
 
+  const { postBet, loading: postBetLoading } = usePostBet({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { postBetBuy, loading: postBetBuyLoading } = usePostBetBuy({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+  const { postBadgeTrade, loading: postBadgeTradeLoading } = usePostBadgeTrade({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
   return (
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}
@@ -121,6 +143,41 @@ const DesktopPage = ({
                 spacing={[4, 8]}
                 direction={["column", "column", "row", "row"]}
               >
+                <Button
+                  bg="#000000"
+                  onClick={() =>
+                    postBet({
+                      channelId: channelQueryData?.id,
+                      userAddress: user?.address,
+                    })
+                  }
+                >
+                  create bet
+                </Button>
+                <Button
+                  bg="#000000"
+                  onClick={() =>
+                    postBetBuy({
+                      channelId: channelQueryData?.id,
+                      userAddress: user?.address,
+                      isYay: true,
+                    })
+                  }
+                >
+                  buy bet
+                </Button>
+                <Button
+                  bg="#000000"
+                  onClick={() =>
+                    postBadgeTrade({
+                      channelId: channelQueryData?.id,
+                      userAddress: user?.address,
+                      isBuying: FaGalacticSenate,
+                    })
+                  }
+                >
+                  trade badge
+                </Button>
                 <Stack direction="column" width={"100%"}>
                   {isOwner && !previewStream ? (
                     <ChannelStreamerPerspective />

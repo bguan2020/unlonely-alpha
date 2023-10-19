@@ -5,7 +5,7 @@ import { APPOINT_USER_EVENT } from "../../constants";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import useSetUserRoleForChannel from "../../hooks/server/useSetUserRoleForChannel";
+import usePostUserRoleForChannel from "../../hooks/server/usePostUserRoleForChannel";
 import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
@@ -26,7 +26,7 @@ export default function ModeratorModal({
   const { channelQueryData } = channel;
   const { isStandalone } = useUserAgent();
 
-  const { setUserRoleForChannel, loading } = useSetUserRoleForChannel({
+  const { postUserRoleForChannel, loading } = usePostUserRoleForChannel({
     onError: (error) => {
       console.log(error);
     },
@@ -38,7 +38,7 @@ export default function ModeratorModal({
   );
 
   const undoAppointment = async (address: string) => {
-    await setUserRoleForChannel({
+    await postUserRoleForChannel({
       channelId: channelQueryData?.id,
       role: 0,
       userAddress: address,

@@ -27,33 +27,31 @@ export const typeDef = gql`
     channelId: ID!
   }
 
-  input CreateBetInput {
+  input PostBetInput {
     channelId: ID!
     userAddress: String!
   }
 
-  input RecordBetBuyInput {
+  input PostBetBuyInput {
     channelId: ID!
     userAddress: String!
     isYay: Boolean!
   }
 
-  input RecordBadgeTradeInput {
+  input PostBadgeTradeInput {
     channelId: ID!
     userAddress: String!
     isBuying: Boolean!
   }
 
   extend type Query {
-    getBadgeHoldersByChannel(
-      data: GetBadgeHoldersByChannelInput
-    ): [GamblableInteraction!]!
+    getBadgeHoldersByChannel(data: GetBadgeHoldersByChannelInput): [String]!
     getChannelsByNumberOfBadgeHolders: [NumberOfHolders]!
   }
 
   extend type Mutation {
-    createBet(data: CreateBetInput!): GamblableInteraction!
-    recordBetBuy(data: RecordBetBuyInput!): GamblableInteraction!
-    recordBadgeTrade(data: RecordBadgeTradeInput!): GamblableInteraction!
+    postBet(data: PostBetInput!): GamblableInteraction!
+    postBetBuy(data: PostBetBuyInput!): GamblableInteraction!
+    postBadgeTrade(data: PostBadgeTradeInput!): GamblableInteraction!
   }
 `;

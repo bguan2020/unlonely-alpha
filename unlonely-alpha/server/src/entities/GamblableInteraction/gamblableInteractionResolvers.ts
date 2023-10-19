@@ -14,40 +14,40 @@ export const resolvers = {
     ) => {
       return gamblableInteractionService.getBadgeHoldersByChannel(data, ctx);
     },
-    getChannelsByNumberOfBadgeHolders: (_: any, ctx: Context) => {
+    getChannelsByNumberOfBadgeHolders: (_: any, _args: any, ctx: Context) => {
       return gamblableInteractionService.getChannelsByNumberOfBadgeHolders(ctx);
     },
   },
   Mutation: {
-    createBet: (
+    postBet: (
       _: any,
-      { data }: { data: gamblableInteractionService.ICreateBetInput },
+      { data }: { data: gamblableInteractionService.IPostBetInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
-      return gamblableInteractionService.createBet(data, ctx);
+      return gamblableInteractionService.postBet(data, ctx);
     },
-    recordBetBuy: (
+    postBetBuy: (
       _: any,
-      { data }: { data: gamblableInteractionService.IRecordBetBuyInput },
+      { data }: { data: gamblableInteractionService.IPostBetBuyInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
-      return gamblableInteractionService.recordBetBuy(data, ctx);
+      return gamblableInteractionService.postBetBuy(data, ctx);
     },
-    recordBadgeTrade: (
+    postBadgeTrade: (
       _: any,
-      { data }: { data: gamblableInteractionService.IRecordBadgeTradeInput },
+      { data }: { data: gamblableInteractionService.IPostBadgeTradeInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
-      return gamblableInteractionService.recordBadgeTrade(data, ctx);
+      return gamblableInteractionService.postBadgeTrade(data, ctx);
     },
   },
 };

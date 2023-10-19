@@ -283,14 +283,14 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
   }
 };
 
-export interface ISetUserRoleForChannelInput {
+export interface IPostUserRoleForChannelInput {
   channelId: number;
   userAddress: string;
   role: number;
 }
 
-export const setUserRoleForChannel = async (
-  data: ISetUserRoleForChannelInput,
+export const postUserRoleForChannel = async (
+  data: IPostUserRoleForChannelInput,
   ctx: Context
 ) => {
   const existingRole = await ctx.prisma.channelUserRole.findFirst({

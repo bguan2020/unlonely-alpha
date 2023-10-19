@@ -27,7 +27,7 @@ import EmojiDisplay from "./emoji/EmojiDisplay";
 import { Message } from "../../constants/types/chat";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import useSetUserRoleForChannel from "../../hooks/server/useSetUserRoleForChannel";
+import usePostUserRoleForChannel from "../../hooks/server/usePostUserRoleForChannel";
 import { REACTION_EMOJIS } from "./emoji/constants";
 
 type Props = {
@@ -53,7 +53,7 @@ const MessageBody = ({
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const { setUserRoleForChannel, loading } = useSetUserRoleForChannel({
+  const { postUserRoleForChannel, loading } = usePostUserRoleForChannel({
     onError: (error) => {
       console.log(error);
     },
@@ -135,7 +135,7 @@ const MessageBody = ({
   };
 
   const ban = async () => {
-    await setUserRoleForChannel({
+    await postUserRoleForChannel({
       channelId: channelQueryData?.id,
       userAddress: message.data.address,
       role: 1,
@@ -149,7 +149,7 @@ const MessageBody = ({
   };
 
   const appoint = async () => {
-    await setUserRoleForChannel({
+    await postUserRoleForChannel({
       channelId: channelQueryData?.id,
       userAddress: message.data.address,
       role: 2,

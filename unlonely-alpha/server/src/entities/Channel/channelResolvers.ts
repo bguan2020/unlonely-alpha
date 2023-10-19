@@ -65,16 +65,16 @@ export const resolvers = {
 
       return channelService.updateChannelCustomButton(data, ctx);
     },
-    setUserRoleForChannel: (
+    postUserRoleForChannel: (
       _: any,
-      { data }: { data: channelService.ISetUserRoleForChannelInput },
+      { data }: { data: channelService.IPostUserRoleForChannelInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
 
-      return channelService.setUserRoleForChannel(data, ctx);
+      return channelService.postUserRoleForChannel(data, ctx);
     },
   },
   Channel: {
