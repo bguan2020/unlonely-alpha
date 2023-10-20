@@ -36,6 +36,14 @@ export interface IPostBadgeTradeInput {
   isBuying: boolean;
 }
 
+export interface IGetBetsByChannelInput {
+  channelId: string;
+}
+
+export interface IGetBetsByUserInput {
+  userAddress: string;
+}
+
 export const postBet = (data: IPostBetInput, ctx: Context) => {
   return ctx.prisma.gamblableInteraction.create({
     data: {
@@ -182,4 +190,42 @@ export const getChannelsByNumberOfBadgeHolders = async (
   );
 
   return result;
+};
+
+export const getBetsByChannel = async (
+  data: IGetBetsByChannelInput,
+  ctx: Context
+) => {
+  const bets = await ctx.prisma.gamblableInteraction.findMany({
+    where: {
+      channelId: Number(data.channelId),
+      type: {
+        in: [GamblableEvent.BET_YES, GamblableEvent.BET_NO],
+      },
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  return bets;
+};
+
+export const getBetsByUser = async (
+  data: IGetBetsByUserInput,
+  ctx: Context
+) => {
+  const bets = await ctx.prisma.gamblableInteraction.findMany({
+    where: {
+      userAddress: data.userAddress,
+      type: {
+        in: [GamblableEvent.BET_YES, GamblableEvent.BET_NO],
+      },
+    },
+    include: {
+      channel: true,
+    },
+  });
+
+  return bets;
 };

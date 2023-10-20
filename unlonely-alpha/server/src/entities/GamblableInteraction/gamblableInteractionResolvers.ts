@@ -17,6 +17,20 @@ export const resolvers = {
     getChannelsByNumberOfBadgeHolders: (_: any, _args: any, ctx: Context) => {
       return gamblableInteractionService.getChannelsByNumberOfBadgeHolders(ctx);
     },
+    getBetsByChannel: (
+      _: any,
+      { data }: { data: gamblableInteractionService.IGetBetsByChannelInput },
+      ctx: Context
+    ) => {
+      return gamblableInteractionService.getBetsByChannel(data, ctx);
+    },
+    getBetsByUser: (
+      _: any,
+      { data }: { data: gamblableInteractionService.IGetBetsByUserInput },
+      ctx: Context
+    ) => {
+      return gamblableInteractionService.getBetsByUser(data, ctx);
+    },
   },
   Mutation: {
     postBet: (

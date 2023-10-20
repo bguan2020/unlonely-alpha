@@ -44,9 +44,19 @@ export const typeDef = gql`
     isBuying: Boolean!
   }
 
+  input GetBetsByChannelInput {
+    channelId: ID!
+  }
+
+  input GetBetsByUserInput {
+    userAddress: String!
+  }
+
   extend type Query {
     getBadgeHoldersByChannel(data: GetBadgeHoldersByChannelInput): [String]!
     getChannelsByNumberOfBadgeHolders: [NumberOfHolders]!
+    getBetsByChannel(data: GetBetsByChannelInput): [GamblableInteraction]!
+    getBetsByUser(data: GetBetsByUserInput): [GamblableInteraction]!
   }
 
   extend type Mutation {
