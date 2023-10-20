@@ -153,7 +153,7 @@ const ChannelStreamerPerspective = () => {
                 <Image src="/svg/custom-actions.svg" width="100%" />
               </Box>
             </Flex>
-            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+            {/* <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">
                 {isSharesEventPayout
                   ? "stop payout"
@@ -180,7 +180,7 @@ const ChannelStreamerPerspective = () => {
               >
                 <Image src="/svg/bet.svg" width="100%" />
               </Box>
-            </Flex>
+            </Flex> */}
           </SimpleGrid>
         </Flex>
       </Stack>

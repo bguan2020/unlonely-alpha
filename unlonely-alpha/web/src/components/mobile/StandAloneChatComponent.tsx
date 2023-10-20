@@ -600,7 +600,7 @@ const StandaloneAblyChatComponent = ({
                         <Image src="/svg/custom-actions.svg" width="100%" />
                       </Box>
                     </Flex>
-                    <Flex
+                    {/* <Flex
                       direction="column"
                       gap="10px"
                       justifyContent={"flex-end"}
@@ -631,7 +631,7 @@ const StandaloneAblyChatComponent = ({
                       >
                         <Image src="/svg/bet.svg" width="100%" />
                       </Box>
-                    </Flex>
+                    </Flex> */}
                   </SimpleGrid>
                 </Flex>
               </Stack>
