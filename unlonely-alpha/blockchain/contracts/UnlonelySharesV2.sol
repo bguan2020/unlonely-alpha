@@ -79,7 +79,11 @@ abstract contract Ownable is Context {
 
 
 contract UnlonelySharesV2 is Ownable {
-    // EventByte is a unique identifier for each event that takes in eventAddress, an eventId, and an eventType, and combines into one byte32
+    // EventByte is a unique identifier for each event that takes in:
+    // eventAddress: this is the address of the event owner, so channel owner (previously was sharesSubject)
+    // eventId: this is numerical and unique ID on our backend to differentiate between events for one channel
+    // eventType: this is the type of event, which can be YayVote, NayVote, or VIPBadge
+    // and combines all three into one bytes32 key
     type EventByte is bytes32;
 
     enum EventType {
@@ -97,7 +101,7 @@ contract UnlonelySharesV2 is Ownable {
     event EventVerified(EventByte eventByte, bool result);
     event Payout(address indexed voter, uint256 amount);
 
-    // this is a mapping between sharesSubject and their holders which each own an amount of yay/nay shares
+    // this is a mapping between events and their holders which each own an amount of yay/nay votes
     mapping(EventByte => mapping(address => uint256)) public yayVotesBalance;
     mapping(EventByte => mapping(address => uint256)) public nayVotesBalance;
 
@@ -106,7 +110,6 @@ contract UnlonelySharesV2 is Ownable {
 
     // this is a mapping between channels and VIP badges
     mapping(EventByte => uint256) public vipBadgeSupply;
-
     mapping(EventByte => mapping(address => uint256)) public vipBadgeBalance;
 
     mapping(EventByte => bool) public eventVerified;
@@ -153,7 +156,6 @@ contract UnlonelySharesV2 is Ownable {
         subjectFeePercent = _feePercent;
     }
 
-
     function addVerifier(address verifier) public onlyOwner {
         isVerifier[verifier] = true;
     }
@@ -163,7 +165,7 @@ contract UnlonelySharesV2 is Ownable {
     }
 
 	function generateKey(address eventAddress, uint256 eventId, EventType eventType) public pure validEventType(eventType) returns (EventByte) {
-        require(eventId < 100000, "ID must be a 5-digit number");
+        require(eventId < 1000000, "ID must be less than 1 million");
         return EventByte.wrap(keccak256(abi.encodePacked(eventAddress, eventId, eventType)));
     }
 
@@ -344,6 +346,8 @@ contract UnlonelySharesV2 is Ownable {
         (bool success, ) = msg.sender.call{value: userPayout}("");
         require(success, "Unable to send funds");
     }
+
+    // TODO: buy/sell badges, getVIPBadgePrice, claimVIPBadgePayout, changeBondingCurve, maybe isPaused
 
     function getPayout(address eventAddress, uint256 eventId, EventType eventType, address userAddress) public view validEventType(eventType) returns (uint256) {
         EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
