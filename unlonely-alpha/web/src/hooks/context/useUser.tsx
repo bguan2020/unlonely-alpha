@@ -72,6 +72,13 @@ export const UserProvider = ({
   const [initialNotificationsGranted, setInitialNotificationsGranted] =
     useState(false);
 
+  const tosPopupCookie = useMemo(() => {
+    if (typeof window !== "undefined") {
+      const value = localStorage.getItem("unlonely-tos-popup");
+      return value ? JSON.parse(value) : null;
+    }
+    return null;
+  }, []);
   const [tosPopup, setTosPopup] = useState(true);
 
   const { postSubscription } = usePostSubscription({
@@ -344,7 +351,7 @@ export const UserProvider = ({
           </Text>
         </Flex>
       </TransactionModalTemplate>
-      {tosPopup && (
+      {tosPopup && !isStandalone && !tosPopupCookie && (
         <Flex
           position="fixed"
           bottom="0"
@@ -395,7 +402,15 @@ export const UserProvider = ({
             _focus={{}}
             bg="transparent"
             icon={<Image alt="close" src="/svg/close.svg" width="20px" />}
-            onClick={() => setTosPopup(false)}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.setItem(
+                  "unlonely-tos-popup",
+                  JSON.stringify(true)
+                );
+              }
+              setTosPopup(false);
+            }}
             height="30px"
           />
         </Flex>
