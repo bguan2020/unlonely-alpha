@@ -347,7 +347,7 @@ contract UnlonelySharesV2 is Ownable {
         require(success, "Unable to send funds");
     }
 
-    // TODO: buy/sell badges, getVIPBadgePrice, claimVIPBadgePayout, changeBondingCurve, maybe isPaused
+    // TODO: buy/sell badges, getVIPBadgePrice, claimVIPBadgePayout, changeBondingCurve, maybe isPaused, reentry
 
     function getPayout(address eventAddress, uint256 eventId, EventType eventType, address userAddress) public view validEventType(eventType) returns (uint256) {
         EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
