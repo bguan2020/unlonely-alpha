@@ -62,40 +62,49 @@ export const useReadPublic = (contract: ContractData) => {
   };
 };
 
-export const getGetHolderBalance = (
+export const useGetHolderBalance = (
   eventAddress: `0x${string}`,
   eventId: number,
-  eventType: EventType,
   holder: `0x${string}`,
   contract: ContractData
 ) => {
   const publicClient = usePublicClient();
 
-  const [yaySharesBalance, setYaySharesBalance] = useState<string>("0");
-  const [naySharesBalance, setNaySharesBalance] = useState<string>("0");
+  const [yayVotesBalance, setYayVotesBalance] = useState<string>("0");
+  const [nayVotesBalance, setNayVotesBalance] = useState<string>("0");
+  const [vipBadgeBalance, setVipBadgeBalance] = useState<string>("0");
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
-      setYaySharesBalance("0");
-      setNaySharesBalance("0");
+      setYayVotesBalance("0");
+      setNayVotesBalance("0");
+      setVipBadgeBalance("0");
       return;
     }
-    const [yaySharesBalance, naySharesBalance] = await Promise.all([
-      publicClient.readContract({
-        address: contract.address,
-        abi: contract.abi,
-        functionName: "getHolderSharesBalance",
-        args: [eventAddress, eventId, eventType, holder],
-      }),
-      publicClient.readContract({
-        address: contract.address,
-        abi: contract.abi,
-        functionName: "getHolderSharesBalance",
-        args: [eventAddress, eventId, eventType, holder],
-      }),
-    ]);
-    setYaySharesBalance(String(yaySharesBalance));
-    setNaySharesBalance(String(naySharesBalance));
+    const [yayVotesBalance, nayVotesBalance, vipBadgeBalance] =
+      await Promise.all([
+        publicClient.readContract({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: "getHolderBalance",
+          args: [eventAddress, eventId, EventType.YAY_VOTE, holder],
+        }),
+        publicClient.readContract({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: "getHolderBalance",
+          args: [eventAddress, eventId, EventType.NAY_VOTE, holder],
+        }),
+        publicClient.readContract({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: "getHolderBalance",
+          args: [eventAddress, eventId, EventType.VIP_BADGE, holder],
+        }),
+      ]);
+    setYayVotesBalance(String(yayVotesBalance));
+    setNayVotesBalance(String(nayVotesBalance));
+    setVipBadgeBalance(String(vipBadgeBalance));
   }, [contract, publicClient]);
 
   useEffect(() => {
@@ -104,8 +113,9 @@ export const getGetHolderBalance = (
 
   return {
     refetch: getData,
-    yaySharesBalance,
-    naySharesBalance,
+    yayVotesBalance,
+    nayVotesBalance,
+    vipBadgeBalance,
   };
 };
 
@@ -126,19 +136,22 @@ export const useGetPrice = (
       setPrice(BigInt(0));
       return;
     }
-    const price = isBuying
-      ? await publicClient.readContract({
-          address: contract.address,
-          abi: contract.abi,
-          functionName: "getBuyPrice",
-          args: [eventAddress, eventId, eventType, amount],
-        })
-      : await publicClient.readContract({
-          address: contract.address,
-          abi: contract.abi,
-          functionName: "getSellPrice",
-          args: [eventAddress, eventId, eventType, amount],
-        });
+    const price =
+      amount === BigInt(0)
+        ? 0
+        : isBuying
+        ? await publicClient.readContract({
+            address: contract.address,
+            abi: contract.abi,
+            functionName: "getBuyPrice",
+            args: [eventAddress, eventId, eventType, amount],
+          })
+        : await publicClient.readContract({
+            address: contract.address,
+            abi: contract.abi,
+            functionName: "getSellPrice",
+            args: [eventAddress, eventId, eventType, amount],
+          });
     setPrice(BigInt(String(price)));
   }, [contract, publicClient]);
 
@@ -207,8 +220,8 @@ export const useReadMappings = (
   const { userAddress } = useUser();
   const publicClient = usePublicClient();
 
-  const [yaySharesSupply, setYaySharesSupply] = useState<bigint>(BigInt(0));
-  const [naySharesSupply, setNaySharesSupply] = useState<bigint>(BigInt(0));
+  const [yayVotesSupply, setYayVotesSupply] = useState<bigint>(BigInt(0));
+  const [nayVotesSupply, setNayVotesSupply] = useState<bigint>(BigInt(0));
 
   const [eventVerified, setEventVerified] = useState<boolean>(false);
   const [eventResult, setEventResult] = useState<boolean>(false);
@@ -220,8 +233,8 @@ export const useReadMappings = (
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
       setPooledEth(BigInt(0));
-      setYaySharesSupply(BigInt(0));
-      setNaySharesSupply(BigInt(0));
+      setYayVotesSupply(BigInt(0));
+      setNayVotesSupply(BigInt(0));
       setEventVerified(false);
       setEventResult(false);
       setIsVerifier(false);
@@ -235,8 +248,8 @@ export const useReadMappings = (
       args: [eventAddress, eventId, eventType],
     });
     const [
-      yaySharesSupply,
-      naySharesSupply,
+      yayVotesSupply,
+      nayVotesSupply,
       eventVerified,
       eventResult,
       isVerifier,
@@ -246,13 +259,13 @@ export const useReadMappings = (
       publicClient.readContract({
         address: contract.address,
         abi: contract.abi,
-        functionName: "yaySharesSupply",
+        functionName: "yayVotesSupply",
         args: [key],
       }),
       publicClient.readContract({
         address: contract.address,
         abi: contract.abi,
-        functionName: "naySharesSupply",
+        functionName: "nayVotesSupply",
         args: [key],
       }),
       publicClient.readContract({
@@ -287,8 +300,8 @@ export const useReadMappings = (
       }),
     ]);
     setPooledEth(BigInt(String(pooledEth)));
-    setYaySharesSupply(BigInt(String(yaySharesSupply)));
-    setNaySharesSupply(BigInt(String(naySharesSupply)));
+    setYayVotesSupply(BigInt(String(yayVotesSupply)));
+    setNayVotesSupply(BigInt(String(nayVotesSupply)));
     setEventVerified(Boolean(eventVerified));
     setEventResult(Boolean(eventResult));
     setIsVerifier(Boolean(isVerifier));
@@ -301,8 +314,8 @@ export const useReadMappings = (
 
   return {
     refetch: getData,
-    yaySharesSupply,
-    naySharesSupply,
+    yayVotesSupply,
+    nayVotesSupply,
     eventVerified,
     eventResult,
     isVerifier,
@@ -388,5 +401,186 @@ export const useVerifyEvent = (
     verifyEventData,
     verifyEventTxData,
     verifyEventTxLoading,
+  };
+};
+
+export const useSetFeeDestination = (
+  args: {
+    feeDestination: `0x${string}`;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: setFeeDestination,
+    writeData: setFeeDestinationData,
+    txData: setFeeDestinationTxData,
+    isTxLoading: setFeeDestinationTxLoading,
+  } = useWrite(
+    contract,
+    "setFeeDestination",
+    [args.feeDestination],
+    createCallbackHandler("useSetFeeDestination setFeeDestination", callbacks)
+  );
+
+  return {
+    setFeeDestination,
+    setFeeDestinationData,
+    setFeeDestinationTxData,
+    setFeeDestinationTxLoading,
+  };
+};
+
+export const useSetProtocolFeePercent = (
+  args: {
+    feePercent: bigint;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: setProtocolFeePercent,
+    writeData: setProtocolFeePercentData,
+    txData: setProtocolFeePercentTxData,
+    isTxLoading: setProtocolFeePercentTxLoading,
+  } = useWrite(
+    contract,
+    "setProtocolFeePercent",
+    [args.feePercent],
+    createCallbackHandler(
+      "useSetProtocolFeePercent setProtocolFeePercent",
+      callbacks
+    )
+  );
+
+  return {
+    setProtocolFeePercent,
+    setProtocolFeePercentData,
+    setProtocolFeePercentTxData,
+    setProtocolFeePercentTxLoading,
+  };
+};
+
+export const useSetSubjectFeePercent = (
+  args: {
+    feePercent: bigint;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: setSubjectFeePercent,
+    writeData: setSubjectFeePercentData,
+    txData: setSubjectFeePercentTxData,
+    isTxLoading: setSubjectFeePercentTxLoading,
+  } = useWrite(
+    contract,
+    "setSubjectFeePercent",
+    [args.feePercent],
+    createCallbackHandler(
+      "useSetSubjectFeePercent setSubjectFeePercent",
+      callbacks
+    )
+  );
+
+  return {
+    setSubjectFeePercent,
+    setSubjectFeePercentData,
+    setSubjectFeePercentTxData,
+    setSubjectFeePercentTxLoading,
+  };
+};
+
+export const useBuyVotes = (
+  args: {
+    eventAddress: `0x${string}`;
+    eventId: number;
+    eventType: EventType;
+    amountOfVotes: bigint;
+    value: bigint;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: buyVotes,
+    writeData: buyVotesData,
+    txData: buyVotesTxData,
+    isTxLoading: buyVotesTxLoading,
+    refetch,
+  } = useWrite(
+    contract,
+    "buyVotes",
+    [args.eventAddress, args.eventId, args.eventType, args.amountOfVotes],
+    createCallbackHandler("useBuyVotes buyVotes", callbacks),
+    { value: args.value }
+  );
+
+  return {
+    refetch,
+    buyVotes,
+    buyVotesData,
+    buyVotesTxData,
+    buyVotesTxLoading,
+  };
+};
+
+export const useSellVotes = (
+  args: {
+    eventAddress: `0x${string}`;
+    eventId: number;
+    eventType: EventType;
+    amountOfVotes: bigint;
+    value: bigint;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: sellVotes,
+    writeData: sellVotesData,
+    txData: sellVotesTxData,
+    isTxLoading: sellVotesTxLoading,
+    refetch,
+  } = useWrite(
+    contract,
+    "sellVotes",
+    [args.eventAddress, args.eventId, args.eventType, args.amountOfVotes],
+    createCallbackHandler("useSellVotes sellVotes", callbacks)
+  );
+
+  return {
+    refetch,
+    sellVotes,
+    sellVotesData,
+    sellVotesTxData,
+    sellVotesTxLoading,
+  };
+};
+
+export const useClaimPayout = (
+  args: { eventAddress: `0x${string}`; eventId: number; eventType: EventType },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: claimPayout,
+    writeData: claimPayoutData,
+    txData: claimPayoutTxData,
+    isTxLoading: claimPayoutTxLoading,
+    refetch,
+  } = useWrite(
+    contract,
+    "claimPayout",
+    [args.eventAddress, args.eventId, args.eventType],
+    createCallbackHandler("useClaimPayout claimPayout", callbacks)
+  );
+
+  return {
+    claimPayout,
+    claimPayoutData,
+    claimPayoutTxData,
+    claimPayoutTxLoading,
+    refetch,
   };
 };
