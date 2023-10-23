@@ -96,8 +96,20 @@ contract UnlonelySharesV2 is Ownable {
     uint256 public protocolFeePercent;
     uint256 public subjectFeePercent;
 
+    struct TradeInfo {
+        address trader;
+        EventByte eventByte;
+        bool isBuy;
+        bool isYay;
+        uint256 shareAmount;
+        uint256 ethAmount;
+        uint256 protocolEthAmount;
+        uint256 subjectEthAmount;
+        uint256 supply;
+    }
+
     // ~~~~~~~~~~~~~~~~~~~TODO: edit events to include all types of trades~~~~~~~~~~~~~~~~~~
-    event Trade(address trader, EventByte eventByte, bool isBuy, bool isYay, uint256 shareAmount, uint256 ethAmount, uint256 protocolEthAmount, uint256 subjectEthAmount, uint256 supply);
+    event Trade(TradeInfo trade);
     event EventVerified(EventByte eventByte, bool result);
     event Payout(address indexed voter, uint256 amount);
 
@@ -119,7 +131,6 @@ contract UnlonelySharesV2 is Ownable {
     mapping(EventByte => uint256) public pooledEth;
 
     mapping(address => bool) public isVerifier;
-
 
     modifier onlyVerifier() {
         require(isVerifier[msg.sender], "Caller is not a verifier");
@@ -178,7 +189,7 @@ contract UnlonelySharesV2 is Ownable {
         emit EventVerified(eventBytes, result);
     }
 
-    function getHolderBalance(address eventAddress, uint256 eventId, EventType eventType, address holder) public view validEventType(eventType) returns (uint256) {
+    function getHolderBalance(address eventAddress, uint256 eventId, EventType eventType, address holder) public view validEventType(eventType) returns (uint256 balance) {
         EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
         if (eventType == EventType.YayVote) {
             return yayVotesBalance[eventBytes][holder];
@@ -191,14 +202,14 @@ contract UnlonelySharesV2 is Ownable {
 
     function getPrice(uint256 supply, uint256 amount) public pure returns (uint256) {
         if (supply == 0 && amount == 0) return 0;
-        
+
         uint256 sum1 = supply == 0 ? 0 : (supply - 1) * supply * (2 * (supply - 1) + 1) / 6;
         uint256 sum2 = (supply == 0 && amount == 1) ? 0 : (amount + supply - 1) * (supply + amount) * (2 * (amount + supply - 1) + 1) / 6;
         uint256 summation = sum2 - sum1;
         return summation * 1 ether / 32000;
     }
 
-    function getBuyPrice(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256) {
+    function getBuyPrice(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
         EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
         if (eventType == EventType.YayVote) {
             uint256 supply = yayVotesSupply[eventBytes];
@@ -212,7 +223,7 @@ contract UnlonelySharesV2 is Ownable {
         }
     }
 
-    function getSellPrice(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256) {
+    function getSellPrice(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
         EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
         if (eventType == EventType.YayVote) {
             uint256 supply = yayVotesSupply[eventBytes];
@@ -255,10 +266,9 @@ contract UnlonelySharesV2 is Ownable {
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         require(msg.value >= price + protocolFee + subjectFee, "Insufficient payment");
-        
+
         // Add the sent ETH (minus fees) to the sharesSubject's pool
-        uint256 netEthCost = msg.value - protocolFee - subjectFee;
-        pooledEth[eventBytes] += netEthCost;
+        pooledEth[eventBytes] += (msg.value - protocolFee - subjectFee);
 
         if (isYay) {
             yayVotesBalance[eventBytes][msg.sender] += amount;
@@ -268,7 +278,19 @@ contract UnlonelySharesV2 is Ownable {
             nayVotesSupply[eventBytes] += amount;
         }
 
-        emit Trade(msg.sender, eventBytes, true, isYay, amount, price, protocolFee, subjectFee, supply + amount);
+        TradeInfo memory tradeInfo = TradeInfo({
+            trader: msg.sender,
+            eventByte: eventBytes,
+            isBuy: true,
+            isYay: isYay,
+            shareAmount: amount,
+            ethAmount: price,
+            protocolEthAmount: protocolFee,
+            subjectEthAmount: subjectFee,
+            supply: supply + amount
+        });
+
+        emit Trade(tradeInfo);
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
         (bool success2, ) = eventAddress.call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
@@ -282,15 +304,12 @@ contract UnlonelySharesV2 is Ownable {
         bool isYay = eventType == EventType.YayVote;
         uint256 supply = isYay ? yayVotesSupply[eventBytes] : nayVotesSupply[eventBytes];
         require(supply >= amount, "Cannot sell more shares than the current supply");
-        
+
         uint256 userVotes = isYay ? yayVotesBalance[eventBytes][msg.sender] : nayVotesBalance[eventBytes][msg.sender];
         require(userVotes >= amount, "You don't have enough shares to sell");
-
         uint256 price = getPrice(supply - amount, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
-        uint256 netAmount = price - protocolFee - subjectFee;
-
         // Deduct the sold shares from the user's balance and reduce the total supply
         if (isYay) {
             yayVotesBalance[eventBytes][msg.sender] -= amount;
@@ -304,12 +323,25 @@ contract UnlonelySharesV2 is Ownable {
         pooledEth[eventBytes] -= price;
 
         uint256 newSupply = supply - amount;
-        emit Trade(msg.sender, eventBytes, false, isYay, amount, price, protocolFee, subjectFee, newSupply);
-        
+
+        TradeInfo memory tradeInfo = TradeInfo({
+            trader: msg.sender,
+            eventByte: eventBytes,
+            isBuy: false,
+            isYay: isYay,
+            shareAmount: amount,
+            ethAmount: price,
+            protocolEthAmount: protocolFee,
+            subjectEthAmount: subjectFee,
+            supply: newSupply
+        });
+
+        emit Trade(tradeInfo);
+
         // Transfer the net amount to the seller, and fees to the protocol and subject
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
         (bool success2, ) = eventAddress.call{value: subjectFee}("");
-        (bool success3, ) = msg.sender.call{value: netAmount}("");
+        (bool success3, ) = msg.sender.call{value: price - protocolFee - subjectFee}("");
         require(success1 && success2 && success3, "Unable to send funds");
     }
 
@@ -329,7 +361,7 @@ contract UnlonelySharesV2 is Ownable {
 
         require(userPayout > 0, "No payout for user");
 
-        
+
         // Reset user's shares after distributing
         if (result) {
             yayVotesBalance[eventBytes][msg.sender] = 0;
@@ -364,7 +396,6 @@ contract UnlonelySharesV2 is Ownable {
         this is for the unlikely edge-case that there are no winners 
         if yay wins but everyone is holding nay shares and no one is holding yay shares, 
         split the pool w creator and protocol
-
     */
     function closeEventIfNoWinners(address eventAddress, uint256 eventId, EventType eventType) public onlyVerifier validEventType(eventType) {
         EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
