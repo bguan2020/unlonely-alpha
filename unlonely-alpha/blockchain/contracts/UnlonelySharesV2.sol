@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.8;
 
 abstract contract Context {
     function _msgSender() internal view virtual returns (address) {
@@ -78,7 +79,7 @@ abstract contract Ownable is Context {
 }
 
 
-contract UnlonelySharesV2 is Ownable {
+contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     // EventByte is a unique identifier for each event that takes in:
     // eventAddress: this is the address of the event owner, so channel owner (previously was sharesSubject)
     // eventId: this is numerical and unique ID on our backend to differentiate between events for one channel
@@ -92,15 +93,25 @@ contract UnlonelySharesV2 is Ownable {
         VIPBadge
     }
 
+    // Tournament is a struct that holds the state of a tournament, eventByte key pointing to the winning VIPBadge as well as the vip pooled ETH. Only one tournament is allowed at a time. This is intentional.
+    struct Tournament {
+        bool isActive;
+        bool isWinnerSelected;
+        EventByte winningBadge;
+        uint256 vipPooledEth;
+    }
+
+    Tournament public activeTournament;
+
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
     uint256 public subjectFeePercent;
+    uint256 public tournamentFeePercent;
 
     struct TradeInfo {
         address trader;
         EventByte eventByte;
         bool isBuy;
-        bool isYay;
         uint256 shareAmount;
         uint256 ethAmount;
         uint256 protocolEthAmount;
@@ -128,12 +139,19 @@ contract UnlonelySharesV2 is Ownable {
     mapping(EventByte => bool) public eventResult;
 
     // this is a mapping between sharesSubject and total amount of ETH in the pool
-    mapping(EventByte => uint256) public pooledEth;
+    mapping(EventByte => uint256) public votingPooledEth;
 
+    // user roles
     mapping(address => bool) public isVerifier;
+    mapping(address => bool) public isTournamentCreator;
 
     modifier onlyVerifier() {
         require(isVerifier[msg.sender], "Caller is not a verifier");
+        _;
+    }
+
+    modifier onlyTournamentCreator() {
+        require(isTournamentCreator[msg.sender], "Caller is not a tournament creator");
         _;
     }
 
@@ -153,6 +171,7 @@ contract UnlonelySharesV2 is Ownable {
 
         protocolFeePercent = 5 * 10**16; // 5%
         subjectFeePercent = 5 * 10**16;  // 5%
+        tournamentFeePercent = 5 * 10**16;  // 5%
     }
 
     function setFeeDestination(address _feeDestination) public onlyOwner {
@@ -167,6 +186,10 @@ contract UnlonelySharesV2 is Ownable {
         subjectFeePercent = _feePercent;
     }
 
+    function setTournamentFeePercent(uint256 _feePercent) public onlyOwner {
+        tournamentFeePercent = _feePercent;
+    }
+
     function addVerifier(address verifier) public onlyOwner {
         isVerifier[verifier] = true;
     }
@@ -178,6 +201,51 @@ contract UnlonelySharesV2 is Ownable {
 	function generateKey(address eventAddress, uint256 eventId, EventType eventType) public pure validEventType(eventType) returns (EventByte) {
         require(eventId < 1000000, "ID must be less than 1 million");
         return EventByte.wrap(keccak256(abi.encodePacked(eventAddress, eventId, eventType)));
+    }
+
+    function createTournament() public onlyTournamentCreator {
+        require(!activeTournament.isActive, "A tournament is already active.");
+        activeTournament = Tournament({
+            isActive: true,
+            isWinnerSelected: false,
+            winningBadge: EventByte.wrap(bytes32(0)),
+            vipPooledEth: 0
+        });
+    }
+
+    function selectTournamentWinner(address eventAddress, uint256 eventId, EventType eventType) public onlyTournamentCreator {
+        require(activeTournament.isActive, "No active tournament currently.");
+        require(!activeTournament.isWinnerSelected, "Winner already selected.");
+        EventByte winningBadge = generateKey(eventAddress, eventId, eventType);
+        activeTournament.winningBadge = winningBadge;
+        activeTournament.isWinnerSelected = true;
+    }
+
+    function claimTournamentPayout() public nonReentrant {
+        require(activeTournament.isActive, "No active tournament currently.");
+        require(activeTournament.isWinnerSelected, "Winner not selected.");
+        require(vipBadgeBalance[activeTournament.winningBadge][msg.sender] > 0, "No VIP badges to claim payout for.");
+        uint256 totalPool = activeTournament.vipPooledEth;
+        uint256 totalWinningShares = vipBadgeSupply[activeTournament.winningBadge];
+        uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * vipBadgeBalance[activeTournament.winningBadge][msg.sender] / totalWinningShares);
+        require(userPayout > 0, "No payout for user");
+
+        // Reset user's shares after distributing
+        vipBadgeBalance[activeTournament.winningBadge][msg.sender] = 0;
+        vipBadgeSupply[activeTournament.winningBadge] -= vipBadgeBalance[activeTournament.winningBadge][msg.sender];
+
+        // Deduct the user's payout from the sharesSubject's pool
+        activeTournament.vipPooledEth -= userPayout;
+
+        emit Payout(msg.sender, userPayout);
+        (bool success, ) = msg.sender.call{value: userPayout}("");
+        require(success, "Unable to send funds");
+    }
+
+    function endTournament(EventByte winningBadge) public onlyTournamentCreator {
+        require(activeTournament.isActive, "No active tournament currently.");
+        require(!activeTournament.isWinnerSelected, "Winner already selected.");
+        activeTournament.isActive = false;
     }
 
     function verifyEvent(address eventAddress, uint256 eventId, EventType eventType, bool result) public onlyVerifier validEventType(eventType) {
@@ -256,6 +324,7 @@ contract UnlonelySharesV2 is Ownable {
 
     // def: buyShares takes in streamer address (ex: 0xTed), amount of shares purchased, and if its yay or nay
     function buyVotes(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) {
+        require(eventType == EventType.YayVote || eventType == EventType.NayVote, "invalid event type");
         EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[eventBytes], "Event already verified");
@@ -268,7 +337,7 @@ contract UnlonelySharesV2 is Ownable {
         require(msg.value >= price + protocolFee + subjectFee, "Insufficient payment");
 
         // Add the sent ETH (minus fees) to the sharesSubject's pool
-        pooledEth[eventBytes] += (msg.value - protocolFee - subjectFee);
+        votingPooledEth[eventBytes] += (msg.value - protocolFee - subjectFee);
 
         if (isYay) {
             yayVotesBalance[eventBytes][msg.sender] += amount;
@@ -282,7 +351,6 @@ contract UnlonelySharesV2 is Ownable {
             trader: msg.sender,
             eventByte: eventBytes,
             isBuy: true,
-            isYay: isYay,
             shareAmount: amount,
             ethAmount: price,
             protocolEthAmount: protocolFee,
@@ -296,7 +364,8 @@ contract UnlonelySharesV2 is Ownable {
         require(success1 && success2, "Unable to send funds");
     }
 
-    function sellVotes(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) {
+    function sellVotes(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) nonReentrant {
+        require(eventType == EventType.YayVote || eventType == EventType.NayVote, "invalid event type");
         EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[eventBytes], "Event already verified");
@@ -320,7 +389,7 @@ contract UnlonelySharesV2 is Ownable {
         }
 
         // Deduct the corresponding ETH from the sharesSubject's pool
-        pooledEth[eventBytes] -= price;
+        votingPooledEth[eventBytes] -= price;
 
         uint256 newSupply = supply - amount;
 
@@ -328,7 +397,6 @@ contract UnlonelySharesV2 is Ownable {
             trader: msg.sender,
             eventByte: eventBytes,
             isBuy: false,
-            isYay: isYay,
             shareAmount: amount,
             ethAmount: price,
             protocolEthAmount: protocolFee,
@@ -346,7 +414,7 @@ contract UnlonelySharesV2 is Ownable {
     }
 
 
-    function claimPayout(address eventAddress, uint256 eventId, EventType eventType) public validEventType(eventType) {
+    function claimVotePayout(address eventAddress, uint256 eventId, EventType eventType) public validEventType(eventType) nonReentrant {
         EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
         require(eventVerified[eventBytes], "Event not yet verified");
 
@@ -355,7 +423,7 @@ contract UnlonelySharesV2 is Ownable {
 
         require(userShares > 0, "No shares to claim for");
 
-        uint256 totalPool = pooledEth[eventBytes];
+        uint256 totalPool = votingPooledEth[eventBytes];
         uint256 totalWinningShares = result ? yayVotesSupply[eventBytes] : nayVotesSupply[eventBytes];
         uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * userShares / totalWinningShares);
 
@@ -372,21 +440,64 @@ contract UnlonelySharesV2 is Ownable {
         }
 
         // Deduct the user's payout from the sharesSubject's pool
-        pooledEth[eventBytes] -= userPayout;
+        votingPooledEth[eventBytes] -= userPayout;
 
         emit Payout(msg.sender, userPayout);
         (bool success, ) = msg.sender.call{value: userPayout}("");
         require(success, "Unable to send funds");
     }
 
-    // TODO: buy/sell badges, getVIPBadgePrice, claimVIPBadgePayout, changeBondingCurve, maybe isPaused, reentry
+    function buyVIPBadge(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable {
+        require(activeTournament.isActive, "No active tournament currently.");
+        EventByte eventByte = generateKey(eventAddress, eventId, eventType);
+        uint256 price = getPrice(vipBadgeSupply[eventByte], amount);
+        uint256 protocolFee = price * protocolFeePercent / 1 ether;
+        uint256 subjectFee = price * subjectFeePercent / 1 ether;
+        uint256 tournamentFee = price * tournamentFeePercent / 1 ether;  // Assume tournamentFeePercent is defined
+        require(msg.value >= price + protocolFee + subjectFee + tournamentFee, "Insufficient payment");
 
-    function getPayout(address eventAddress, uint256 eventId, EventType eventType, address userAddress) public view validEventType(eventType) returns (uint256) {
+        // Update the contract state
+        vipBadgeSupply[eventByte] += amount;
+        vipBadgeBalance[eventByte][msg.sender] += amount;
+        activeTournament.vipPooledEth += tournamentFee;
+
+        // Send protocol and subject fees
+        (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
+        (bool success2, ) = eventAddress.call{value: subjectFee}("");
+        require(success1 && success2, "Unable to send funds");
+    }
+
+    function sellVIPBadge(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public nonReentrant{
+        require(activeTournament.isActive, "No active tournament");
+        EventByte eventByte = generateKey(eventAddress, eventId, eventType);
+        require(vipBadgeBalance[eventByte][msg.sender] >= amount, "Insufficient badges");
+        uint256 price = getPrice(vipBadgeSupply[eventByte] - amount, amount);
+        uint256 protocolFee = price * protocolFeePercent / 1 ether;
+        uint256 subjectFee = price * subjectFeePercent / 1 ether;
+        uint256 tournamentFee = price * tournamentFeePercent / 1 ether;  // Assume tournamentFeePercent is defined
+
+        // Update the contract state
+        vipBadgeSupply[eventByte] -= amount;
+        vipBadgeBalance[eventByte][msg.sender] -= amount;
+        activeTournament.vipPooledEth += tournamentFee;
+
+        // Send protocol and subject fees
+        (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
+        (bool success2, ) = eventAddress.call{value: subjectFee}("");
+        require(success1 && success2, "Unable to send funds");
+
+        // Send the remaining amount to the seller
+        uint256 netAmount = price - protocolFee - subjectFee - tournamentFee;
+        (bool success3, ) = msg.sender.call{value: netAmount}("");
+        require(success3, "Unable to send funds");
+    }
+
+    function getVotePayout(address eventAddress, uint256 eventId, EventType eventType, address userAddress) public view validEventType(eventType) returns (uint256) {
         EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
         if (!eventVerified[eventBytes]) return 0;
         bool result = eventResult[eventBytes];
         uint256 userVotes = result ? yayVotesBalance[eventBytes][userAddress] : nayVotesBalance[eventBytes][userAddress];
-        uint256 totalPool = pooledEth[eventBytes];
+        uint256 totalPool = votingPooledEth[eventBytes];
         uint256 totalWinningShares = result ? yayVotesSupply[eventBytes] : nayVotesSupply[eventBytes];
         uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * userVotes / totalWinningShares);
         return userPayout;
@@ -401,11 +512,11 @@ contract UnlonelySharesV2 is Ownable {
         EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(eventVerified[eventBytes], "Event is not verified");
-        require(pooledEth[eventBytes] > 0, "Pool is already empty");
+        require(votingPooledEth[eventBytes] > 0, "Pool is already empty");
         uint256 sharesSupply = eventResult[eventBytes] ? yayVotesSupply[eventBytes] : nayVotesSupply[eventBytes];
         require(sharesSupply == 0, "There are still shares");
-        uint256 splitPoolValue = pooledEth[eventBytes] / 2;
-        pooledEth[eventBytes] = 0;
+        uint256 splitPoolValue = votingPooledEth[eventBytes] / 2;
+        votingPooledEth[eventBytes] = 0;
         (bool success1, ) = protocolFeeDestination.call{value: splitPoolValue}("");
         (bool success2, ) = eventAddress.call{value: splitPoolValue}("");
         require(success1 && success2, "Unable to send funds");
