@@ -78,14 +78,12 @@ abstract contract Ownable is Context {
     }
 }
 
-
 contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
-    // EventByte is a unique identifier for each event that takes in:
+    // bytes32 is a unique identifier for each event that takes in:
     // eventAddress: this is the address of the event owner, so channel owner (previously was sharesSubject)
     // eventId: this is numerical and unique ID on our backend to differentiate between events for one channel
     // eventType: this is the type of event, which can be YayVote, NayVote, or VIPBadge
     // and combines all three into one bytes32 key
-    type EventByte is bytes32;
 
     enum EventType {
         YayVote,
@@ -97,7 +95,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     struct Tournament {
         bool isActive;
         bool isWinnerSelected;
-        EventByte winningBadge;
+        bytes32 winningBadge;
         uint256 vipPooledEth;
     }
 
@@ -110,7 +108,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
 
     struct TradeInfo {
         address trader;
-        EventByte eventByte;
+        bytes32 eventByte;
         bool isBuy;
         uint256 shareAmount;
         uint256 ethAmount;
@@ -121,25 +119,25 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
 
     // ~~~~~~~~~~~~~~~~~~~TODO: edit events to include all types of trades~~~~~~~~~~~~~~~~~~
     event Trade(TradeInfo trade);
-    event EventVerified(EventByte eventByte, bool result);
+    event EventVerified(bytes32 eventByte, bool result);
     event Payout(address indexed voter, uint256 amount);
 
     // this is a mapping between events and their holders which each own an amount of yay/nay votes
-    mapping(EventByte => mapping(address => uint256)) public yayVotesBalance;
-    mapping(EventByte => mapping(address => uint256)) public nayVotesBalance;
+    mapping(bytes32 => mapping(address => uint256)) public yayVotesBalance;
+    mapping(bytes32 => mapping(address => uint256)) public nayVotesBalance;
 
-    mapping(EventByte => uint256) public yayVotesSupply;
-    mapping(EventByte => uint256) public nayVotesSupply;
+    mapping(bytes32 => uint256) public yayVotesSupply;
+    mapping(bytes32 => uint256) public nayVotesSupply;
 
     // this is a mapping between channels and VIP badges
-    mapping(EventByte => uint256) public vipBadgeSupply;
-    mapping(EventByte => mapping(address => uint256)) public vipBadgeBalance;
+    mapping(bytes32 => uint256) public vipBadgeSupply;
+    mapping(bytes32 => mapping(address => uint256)) public vipBadgeBalance;
 
-    mapping(EventByte => bool) public eventVerified;
-    mapping(EventByte => bool) public eventResult;
+    mapping(bytes32 => bool) public eventVerified;
+    mapping(bytes32 => bool) public eventResult;
 
     // this is a mapping between sharesSubject and total amount of ETH in the pool
-    mapping(EventByte => uint256) public votingPooledEth;
+    mapping(bytes32 => uint256) public votingPooledEth;
 
     // user roles
     mapping(address => bool) public isVerifier;
@@ -198,9 +196,9 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         isVerifier[verifier] = false;
     }
 
-	function generateKey(address eventAddress, uint256 eventId, EventType eventType) public pure validEventType(eventType) returns (EventByte) {
+	function generateKey(address eventAddress, uint256 eventId, EventType eventType) public pure validEventType(eventType) returns (bytes32) {
         require(eventId < 1000000, "ID must be less than 1 million");
-        return EventByte.wrap(keccak256(abi.encodePacked(eventAddress, eventId, eventType)));
+        return keccak256(abi.encodePacked(eventAddress, eventId, eventType));
     }
 
     function createTournament() public onlyTournamentCreator {
@@ -208,7 +206,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         activeTournament = Tournament({
             isActive: true,
             isWinnerSelected: false,
-            winningBadge: EventByte.wrap(bytes32(0)),
+            winningBadge: bytes32(0),
             vipPooledEth: 0
         });
     }
@@ -216,7 +214,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     function selectTournamentWinner(address eventAddress, uint256 eventId, EventType eventType) public onlyTournamentCreator {
         require(activeTournament.isActive, "No active tournament currently.");
         require(!activeTournament.isWinnerSelected, "Winner already selected.");
-        EventByte winningBadge = generateKey(eventAddress, eventId, eventType);
+        bytes32 winningBadge = generateKey(eventAddress, eventId, eventType);
         activeTournament.winningBadge = winningBadge;
         activeTournament.isWinnerSelected = true;
     }
@@ -242,14 +240,14 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         require(success, "Unable to send funds");
     }
 
-    function endTournament(EventByte winningBadge) public onlyTournamentCreator {
+    function endTournament(bytes32 winningBadge) public onlyTournamentCreator {
         require(activeTournament.isActive, "No active tournament currently.");
         require(!activeTournament.isWinnerSelected, "Winner already selected.");
         activeTournament.isActive = false;
     }
 
     function verifyEvent(address eventAddress, uint256 eventId, EventType eventType, bool result) public onlyVerifier validEventType(eventType) {
-        EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         require(!eventVerified[eventBytes], "Event already verified");
         eventVerified[eventBytes] = true;
         eventResult[eventBytes] = result;
@@ -258,7 +256,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     }
 
     function getHolderBalance(address eventAddress, uint256 eventId, EventType eventType, address holder) public view validEventType(eventType) returns (uint256 balance) {
-        EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         if (eventType == EventType.YayVote) {
             return yayVotesBalance[eventBytes][holder];
         } else if (eventType == EventType.NayVote) {
@@ -278,7 +276,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     }
 
     function getBuyPrice(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
-        EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         if (eventType == EventType.YayVote) {
             uint256 supply = yayVotesSupply[eventBytes];
             return getPrice(supply, amount);
@@ -292,7 +290,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     }
 
     function getSellPrice(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
-        EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         if (eventType == EventType.YayVote) {
             uint256 supply = yayVotesSupply[eventBytes];
             if (supply < amount) return 0;
@@ -325,7 +323,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     // def: buyShares takes in streamer address (ex: 0xTed), amount of shares purchased, and if its yay or nay
     function buyVotes(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) {
         require(eventType == EventType.YayVote || eventType == EventType.NayVote, "invalid event type");
-        EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[eventBytes], "Event already verified");
         require(amount > 0, "Cannot buy zero shares");
@@ -366,7 +364,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
 
     function sellVotes(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) nonReentrant {
         require(eventType == EventType.YayVote || eventType == EventType.NayVote, "invalid event type");
-        EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[eventBytes], "Event already verified");
         require(amount > 0, "Cannot sell zero shares");
@@ -415,7 +413,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
 
 
     function claimVotePayout(address eventAddress, uint256 eventId, EventType eventType) public validEventType(eventType) nonReentrant {
-        EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         require(eventVerified[eventBytes], "Event not yet verified");
 
         bool result = eventResult[eventBytes];
@@ -449,7 +447,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
 
     function buyVIPBadge(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable {
         require(activeTournament.isActive, "No active tournament currently.");
-        EventByte eventByte = generateKey(eventAddress, eventId, eventType);
+        bytes32 eventByte = generateKey(eventAddress, eventId, eventType);
         uint256 price = getPrice(vipBadgeSupply[eventByte], amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
@@ -469,7 +467,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
 
     function sellVIPBadge(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public nonReentrant{
         require(activeTournament.isActive, "No active tournament");
-        EventByte eventByte = generateKey(eventAddress, eventId, eventType);
+        bytes32 eventByte = generateKey(eventAddress, eventId, eventType);
         require(vipBadgeBalance[eventByte][msg.sender] >= amount, "Insufficient badges");
         uint256 price = getPrice(vipBadgeSupply[eventByte] - amount, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
@@ -493,7 +491,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     }
 
     function getVotePayout(address eventAddress, uint256 eventId, EventType eventType, address userAddress) public view validEventType(eventType) returns (uint256) {
-        EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         if (!eventVerified[eventBytes]) return 0;
         bool result = eventResult[eventBytes];
         uint256 userVotes = result ? yayVotesBalance[eventBytes][userAddress] : nayVotesBalance[eventBytes][userAddress];
@@ -509,7 +507,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         split the pool w creator and protocol
     */
     function closeEventIfNoWinners(address eventAddress, uint256 eventId, EventType eventType) public onlyVerifier validEventType(eventType) {
-        EventByte eventBytes = generateKey(eventAddress, eventId, eventType);
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(eventVerified[eventBytes], "Event is not verified");
         require(votingPooledEth[eventBytes] > 0, "Pool is already empty");
