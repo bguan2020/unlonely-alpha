@@ -44,12 +44,15 @@ import {
   ChannelProvider,
   useChannelContext,
 } from "../../hooks/context/useChannel";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useUser } from "../../hooks/context/useUser";
+import { useBuyVotes } from "../../hooks/contracts/useSharesContractV2";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
 import usePostBet from "../../hooks/server/gamblable/usePostBet";
 import usePostBetBuy from "../../hooks/server/gamblable/usePostBetBuy";
+import { getContractFromNetwork } from "../../utils/contract";
 
 const ChannelDetail = ({
   channelData,
@@ -80,6 +83,9 @@ const DesktopPage = ({
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
   const { channel, recentStreamInteractions, arcade } = useChannelContext();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+
   const {
     channelQueryData,
     loading: channelDataLoading,
@@ -145,6 +151,20 @@ const DesktopPage = ({
     },
   });
 
+  const v2contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
+
+  const { buyVotes } = useBuyVotes(
+    {
+      eventAddress: "0x34Bb9e91dC8AC1E13fb42A0e23f7236999e063D4",
+      eventId: 1,
+      eventType: 0,
+      amountOfVotes: BigInt(1),
+      value: BigInt(1),
+    },
+    v2contract,
+    {}
+  );
+
   return (
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}
@@ -179,13 +199,15 @@ const DesktopPage = ({
                 </Button>
                 <Button
                   bg="#000000"
-                  onClick={() =>
+                  onClick={() => {
+                    if (!buyVotes) return;
+                    buyVotes?.();
                     postBetBuy({
                       channelId: channelQueryData?.id,
                       userAddress: user?.address,
                       isYay: true,
-                    })
-                  }
+                    });
+                  }}
                 >
                   buy bet
                 </Button>
