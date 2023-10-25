@@ -16,12 +16,16 @@ export const useReadPublic = (contract: ContractData) => {
     BigInt(0)
   );
   const [subjectFeePercent, setSubjectFeePercent] = useState<bigint>(BigInt(0));
+  const [tournamentFeePercent, setTournamentFeePercent] = useState<bigint>(
+    BigInt(0)
+  );
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
       setProtocolFeeDestination(NULL_ADDRESS);
       setProtocolFeePercent(BigInt(0));
       setSubjectFeePercent(BigInt(0));
+      setTournamentFeePercent(BigInt(0));
       return;
     }
     const [protocolFeeDestination, protocolFeePercent, subjectFeePercent] =
@@ -44,10 +48,17 @@ export const useReadPublic = (contract: ContractData) => {
           functionName: "subjectFeePercent",
           args: [],
         }),
+        publicClient.readContract({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: "tournamentFeePercent",
+          args: [],
+        }),
       ]);
     setProtocolFeeDestination(String(protocolFeeDestination));
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
+    setTournamentFeePercent(BigInt(String(tournamentFeePercent)));
   }, [contract, publicClient]);
 
   useEffect(() => {
@@ -59,10 +70,45 @@ export const useReadPublic = (contract: ContractData) => {
     protocolFeeDestination,
     protocolFeePercent,
     subjectFeePercent,
+    tournamentFeePercent,
   };
 };
 
-export const useGetHolderBalance = (
+export const useGenerateKey = (
+  eventAddress: `0x${string}`,
+  eventId: number,
+  eventType: EventType,
+  contract: ContractData
+) => {
+  const publicClient = usePublicClient();
+
+  const [key, setKey] = useState<string>("");
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setKey("");
+      return;
+    }
+    const key = await publicClient.readContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: "generateKey",
+      args: [eventAddress, eventId, eventType],
+    });
+    setKey(String(key));
+  }, [contract, publicClient]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
+    key,
+  };
+};
+
+export const useGetHolderBalances = (
   eventAddress: `0x${string}`,
   eventId: number,
   holder: `0x${string}`,
@@ -212,6 +258,7 @@ export const useGetPriceAfterFee = (
 };
 
 export const useReadMappings = (
+  key: string,
   eventAddress: `0x${string}`,
   eventId: number,
   eventType: EventType,
@@ -222,37 +269,38 @@ export const useReadMappings = (
 
   const [yayVotesSupply, setYayVotesSupply] = useState<bigint>(BigInt(0));
   const [nayVotesSupply, setNayVotesSupply] = useState<bigint>(BigInt(0));
+  const [vipBadgeSupply, setVipBadgeSupply] = useState<bigint>(BigInt(0));
 
   const [eventVerified, setEventVerified] = useState<boolean>(false);
   const [eventResult, setEventResult] = useState<boolean>(false);
   const [isVerifier, setIsVerifier] = useState<boolean>(false);
+  const [isTournamentCreator, setIsTournamentCreator] =
+    useState<boolean>(false);
 
-  const [pooledEth, setPooledEth] = useState<bigint>(BigInt(0));
+  const [votingPooledEth, setVotingPooledEth] = useState<bigint>(BigInt(0));
   const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
-      setPooledEth(BigInt(0));
+      setVotingPooledEth(BigInt(0));
       setYayVotesSupply(BigInt(0));
       setNayVotesSupply(BigInt(0));
+      setVipBadgeSupply(BigInt(0));
       setEventVerified(false);
       setEventResult(false);
       setIsVerifier(false);
+      setIsTournamentCreator(false);
       setUserPayout(BigInt(0));
       return;
     }
-    const key = await publicClient.readContract({
-      address: contract.address,
-      abi: contract.abi,
-      functionName: "generateKey",
-      args: [eventAddress, eventId, eventType],
-    });
     const [
       yayVotesSupply,
       nayVotesSupply,
+      vipBadgeSupply,
       eventVerified,
       eventResult,
       isVerifier,
+      isTournamentCreator,
       pooledEth,
       userPayout,
     ] = await Promise.all([
@@ -266,6 +314,12 @@ export const useReadMappings = (
         address: contract.address,
         abi: contract.abi,
         functionName: "nayVotesSupply",
+        args: [key],
+      }),
+      publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "vipBadgeSupply",
         args: [key],
       }),
       publicClient.readContract({
@@ -289,22 +343,30 @@ export const useReadMappings = (
       publicClient.readContract({
         address: contract.address,
         abi: contract.abi,
-        functionName: "pooledEth",
+        functionName: "isTournamentCreator",
+        args: [userAddress],
+      }),
+      publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "votingPooledEth",
         args: [key],
       }),
       publicClient.readContract({
         address: contract.address,
         abi: contract.abi,
-        functionName: "getPayout",
+        functionName: "getVotePayout",
         args: [eventAddress, eventId, eventType, userAddress],
       }),
     ]);
-    setPooledEth(BigInt(String(pooledEth)));
+    setVotingPooledEth(BigInt(String(pooledEth)));
     setYayVotesSupply(BigInt(String(yayVotesSupply)));
     setNayVotesSupply(BigInt(String(nayVotesSupply)));
+    setVipBadgeSupply(BigInt(String(vipBadgeSupply)));
     setEventVerified(Boolean(eventVerified));
     setEventResult(Boolean(eventResult));
     setIsVerifier(Boolean(isVerifier));
+    setIsTournamentCreator(Boolean(isTournamentCreator));
     setUserPayout(BigInt(String(userPayout)));
   }, [contract, publicClient, userAddress]);
 
@@ -316,10 +378,12 @@ export const useReadMappings = (
     refetch: getData,
     yayVotesSupply,
     nayVotesSupply,
+    vipBadgeSupply,
     eventVerified,
     eventResult,
     isVerifier,
-    pooledEth,
+    isTournamentCreator,
+    votingPooledEth,
     userPayout,
   };
 };
@@ -558,29 +622,214 @@ export const useSellVotes = (
   };
 };
 
-export const useClaimPayout = (
+export const useBuyVipBadge = (
+  args: {
+    eventAddress: `0x${string}`;
+    eventId: number;
+    eventType: EventType;
+    amount: bigint;
+    value: bigint;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: buyVipBadge,
+    writeData: buyVipBadgeData,
+    txData: buyVipBadgeTxData,
+    isTxLoading: buyVipBadgeTxLoading,
+    refetch,
+  } = useWrite(
+    contract,
+    "buyVIPBadge",
+    [args.eventAddress, args.eventId, args.eventType, args.amount],
+    createCallbackHandler("useBuyVipBadge buyVipBadge", callbacks),
+    { value: args.value }
+  );
+
+  return {
+    refetch,
+    buyVipBadge,
+    buyVipBadgeData,
+    buyVipBadgeTxData,
+    buyVipBadgeTxLoading,
+  };
+};
+
+export const useSellVipBadge = (
+  args: {
+    eventAddress: `0x${string}`;
+    eventId: number;
+    eventType: EventType;
+    amount: bigint;
+    value: bigint;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: sellVipBadge,
+    writeData: sellVipBadgeData,
+    txData: sellVipBadgeTxData,
+    isTxLoading: sellVipBadgeTxLoading,
+    refetch,
+  } = useWrite(
+    contract,
+    "sellVIPBadge",
+    [args.eventAddress, args.eventId, args.eventType, args.amount],
+    createCallbackHandler("useSellVipBadge sellVipBadge", callbacks)
+  );
+
+  return {
+    refetch,
+    sellVipBadge,
+    sellVipBadgeData,
+    sellVipBadgeTxData,
+    sellVipBadgeTxLoading,
+  };
+};
+
+export const useClaimVotePayout = (
   args: { eventAddress: `0x${string}`; eventId: number; eventType: EventType },
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
   const {
-    writeAsync: claimPayout,
-    writeData: claimPayoutData,
-    txData: claimPayoutTxData,
-    isTxLoading: claimPayoutTxLoading,
+    writeAsync: claimVotePayout,
+    writeData: claimVotePayoutData,
+    txData: claimVotePayoutTxData,
+    isTxLoading: claimVotePayoutTxLoading,
     refetch,
   } = useWrite(
     contract,
-    "claimPayout",
+    "claimVotePayout",
     [args.eventAddress, args.eventId, args.eventType],
-    createCallbackHandler("useClaimPayout claimPayout", callbacks)
+    createCallbackHandler("useClaimVotePayout claimVotePayout", callbacks)
   );
 
   return {
-    claimPayout,
-    claimPayoutData,
-    claimPayoutTxData,
-    claimPayoutTxLoading,
+    claimVotePayout,
+    claimVotePayoutData,
+    claimVotePayoutTxData,
+    claimVotePayoutTxLoading,
     refetch,
+  };
+};
+
+export const useCreateTournament = (
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: createTournament,
+    writeData: createTournamentData,
+    txData: createTournamentTxData,
+    isTxLoading: createTournamentTxLoading,
+    refetch: refetchCreateTournament,
+  } = useWrite(
+    contract,
+    "createTournament",
+    [],
+    createCallbackHandler("useCreateTournament createTournament", callbacks)
+  );
+
+  return {
+    createTournament,
+    createTournamentData,
+    createTournamentTxData,
+    createTournamentTxLoading,
+    refetchCreateTournament,
+  };
+};
+
+export const useSelectTournamentWinner = (
+  args: {
+    eventAddress: `0x${string}`;
+    eventId: number;
+    eventType: EventType;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: selectTournamentWinner,
+    writeData: selectTournamentWinnerData,
+    txData: selectTournamentWinnerTxData,
+    isTxLoading: selectTournamentWinnerTxLoading,
+    refetch: refetchCreateTournament,
+  } = useWrite(
+    contract,
+    "selectTournamentWinner",
+    [args.eventAddress, args.eventId, args.eventType],
+    createCallbackHandler(
+      "useSelectTournamentWinner selectTournamentWinner",
+      callbacks
+    )
+  );
+
+  return {
+    selectTournamentWinner,
+    selectTournamentWinnerData,
+    selectTournamentWinnerTxData,
+    selectTournamentWinnerTxLoading,
+    refetchCreateTournament,
+  };
+};
+
+export const useClaimTournamentPayout = (
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: claimTournamentPayout,
+    writeData: claimTournamentPayoutData,
+    txData: claimTournamentPayoutTxData,
+    isTxLoading: claimTournamentPayoutTxLoading,
+    refetch: refetchClaimTournamentPayout,
+  } = useWrite(
+    contract,
+    "claimTournamentPayout",
+    [],
+    createCallbackHandler(
+      "useClaimTournamentPayout claimTournamentPayout",
+      callbacks
+    )
+  );
+
+  return {
+    claimTournamentPayout,
+    claimTournamentPayoutData,
+    claimTournamentPayoutTxData,
+    claimTournamentPayoutTxLoading,
+    refetchClaimTournamentPayout,
+  };
+};
+
+export const useEndTournament = (
+  args: {
+    key: string;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: endTournament,
+    writeData: endTournamentData,
+    txData: endTournamentTxData,
+    isTxLoading: endTournamentTxLoading,
+    refetch: refetchEndTournament,
+  } = useWrite(
+    contract,
+    "endTournament",
+    [args.key],
+    createCallbackHandler("useEndTournament endTournament", callbacks)
+  );
+
+  return {
+    endTournament,
+    endTournamentData,
+    endTournamentTxData,
+    endTournamentTxLoading,
+    refetchEndTournament,
   };
 };
