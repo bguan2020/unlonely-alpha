@@ -142,9 +142,9 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         tournamentFeePercent = _feePercent;
     }
 
-	function generateKey(address eventAddress, uint256 eventId, EventType eventType) public pure validEventType(eventType) returns (bytes32) {
+	function generateKey(address streamerAddress, uint256 eventId, EventType eventType) public pure validEventType(eventType) returns (bytes32) {
         require(eventId < 1000000, "ID must be less than 1 million");
-        return keccak256(abi.encodePacked(eventAddress, eventId, eventType));
+        return keccak256(abi.encodePacked(streamerAddress, eventId, eventType));
     }
 
     function createTournament(uint256 endTimestamp) public onlyTournamentCreator {
@@ -158,10 +158,10 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         });
     }
 
-    function selectTournamentWinner(address eventAddress, uint256 eventId, EventType eventType) public onlyTournamentCreator validEventType(eventType) {
+    function selectTournamentWinner(address streamerAddress, uint256 eventId, EventType eventType) public onlyTournamentCreator validEventType(eventType) {
         require(activeTournament.isActive, "No active tournament currently.");
         require(!activeTournament.isWinnerSelected, "Winner already selected.");
-        bytes32 winningBadge = generateKey(eventAddress, eventId, eventType);
+        bytes32 winningBadge = generateKey(streamerAddress, eventId, eventType);
         activeTournament.winningBadge = winningBadge;
         activeTournament.isWinnerSelected = true;
     }
@@ -187,14 +187,22 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         require(success, "Unable to send funds");
     }
 
+    function getTournamentPayout() public view returns (uint256){
+        if (!activeTournament.isWinnerSelected) return 0;
+        uint256 totalPool = activeTournament.vipPooledEth;
+        uint256 totalWinningShares = vipBadgeSupply[activeTournament.winningBadge];
+        uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * vipBadgeBalance[activeTournament.winningBadge][msg.sender] / totalWinningShares);
+        return userPayout;
+    }
+
     function endTournament() public onlyTournamentCreator {
         require(activeTournament.isActive, "No active tournament currently.");
         require(!activeTournament.isWinnerSelected, "Winner already selected.");
         activeTournament.isActive = false;
     }
 
-    function getHolderBalance(address eventAddress, uint256 eventId, EventType eventType, address holder) public view validEventType(eventType) returns (uint256 balance) {
-        bytes32 key = generateKey(eventAddress, eventId, eventType);
+    function getHolderBalance(address streamerAddress, uint256 eventId, EventType eventType, address holder) public view validEventType(eventType) returns (uint256 balance) {
+        bytes32 key = generateKey(streamerAddress, eventId, eventType);
         return vipBadgeBalance[key][holder];
     }
 
@@ -207,36 +215,36 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         return summation * 1 ether / 32000;
     }
 
-    function getBuyPrice(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
-        bytes32 key = generateKey(eventAddress, eventId, eventType);
+    function getBuyPrice(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
+        bytes32 key = generateKey(streamerAddress, eventId, eventType);
         uint256 supply = vipBadgeSupply[key];
         return getPrice(supply, amount);
     }
 
-    function getSellPrice(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
-        bytes32 key = generateKey(eventAddress, eventId, eventType);
+    function getSellPrice(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
+        bytes32 key = generateKey(streamerAddress, eventId, eventType);
         uint256 supply = vipBadgeSupply[key];
         if (supply < amount) return 0;
         return getPrice(supply - amount, amount);
     }
 
-    function getBuyPriceAfterFee(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256) {
-        uint256 price = getBuyPrice(eventAddress, eventId, eventType, amount);
+    function getBuyPriceAfterFee(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256) {
+        uint256 price = getBuyPrice(streamerAddress, eventId, eventType, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         return price + protocolFee + subjectFee;
     }
 
-    function getSellPriceAfterFee(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256) {
-        uint256 price = getSellPrice(eventAddress, eventId, eventType, amount);
+    function getSellPriceAfterFee(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256) {
+        uint256 price = getSellPrice(streamerAddress, eventId, eventType, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         return price - protocolFee - subjectFee;
     }
 
-    function buyVIPBadge(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) {
+    function buyVIPBadge(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) {
         require(activeTournament.isActive, "No active tournament currently.");
-        bytes32 key = generateKey(eventAddress, eventId, eventType);
+        bytes32 key = generateKey(streamerAddress, eventId, eventType);
         uint256 price = getPrice(vipBadgeSupply[key], amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
@@ -250,13 +258,13 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
 
         // Send protocol and subject fees
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
-        (bool success2, ) = eventAddress.call{value: subjectFee}("");
+        (bool success2, ) = streamerAddress.call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
     }
 
-    function sellVIPBadge(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public validEventType(eventType) nonReentrant {
+    function sellVIPBadge(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public validEventType(eventType) nonReentrant {
         require(activeTournament.isActive, "No active tournament");
-        bytes32 key = generateKey(eventAddress, eventId, eventType);
+        bytes32 key = generateKey(streamerAddress, eventId, eventType);
         require(vipBadgeBalance[key][msg.sender] >= amount, "Insufficient badges");
         uint256 price = getPrice(vipBadgeSupply[key] - amount, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
@@ -270,7 +278,7 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
 
         // Send protocol and subject fees
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
-        (bool success2, ) = eventAddress.call{value: subjectFee}("");
+        (bool success2, ) = streamerAddress.call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
 
         // Send the remaining amount to the seller
