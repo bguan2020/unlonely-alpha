@@ -91,6 +91,357 @@
       "UnlonelySharesV2": {
         "src": "contracts\\UnlonelySharesV2.sol:81",
         "version": {
+          "withMetadata": "9aee44a5a49f92f453622140eb19b5b2ba0987cf8a0c388946f48fa056ff7611",
+          "withoutMetadata": "7b67482b690184dbdb8dcd4f783639dc6c113f774759330ffe719c383a35ead3",
+          "linkedWithoutMetadata": "7b67482b690184dbdb8dcd4f783639dc6c113f774759330ffe719c383a35ead3"
+        },
+        "inherit": [
+          "ReentrancyGuard",
+          "Ownable",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "()",
+          "setFeeDestination(address)",
+          "setProtocolFeePercent(uint256)",
+          "setSubjectFeePercent(uint256)",
+          "setTournamentFeePercent(uint256)",
+          "addVerifier(address)",
+          "removeVerifier(address)",
+          "generateKey(address,uint256,uint8)",
+          "createTournament(uint256)",
+          "selectTournamentWinner(address,uint256,uint8)",
+          "claimTournamentPayout()",
+          "endTournament(bytes32)",
+          "openEvent(address,uint256,uint8,uint256)",
+          "verifyEvent(address,uint256,uint8,bool)",
+          "getHolderBalance(address,uint256,uint8,address)",
+          "getPrice(uint256,uint256)",
+          "getBuyPrice(address,uint256,uint8,uint256)",
+          "getSellPrice(address,uint256,uint8,uint256)",
+          "getBuyPriceAfterFee(address,uint256,uint8,uint256)",
+          "getSellPriceAfterFee(address,uint256,uint8,uint256)",
+          "buyVotes(address,uint256,uint8,uint256)",
+          "sellVotes(address,uint256,uint8,uint256)",
+          "claimVotePayout(address,uint256,uint8)",
+          "buyVIPBadge(address,uint256,uint8,uint256)",
+          "sellVIPBadge(address,uint256,uint8,uint256)",
+          "getVotePayout(address,uint256,uint8,address)",
+          "closeEventIfNoWinners(address,uint256,uint8)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "UnlonelySharesV2",
+            "src": "contracts\\UnlonelySharesV2.sol:169"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelySharesV2.sol:17"
+            },
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            },
+            {
+              "label": "activeTournament",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_struct(Tournament)203_storage",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:103"
+            },
+            {
+              "label": "protocolFeeDestination",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_address",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:105"
+            },
+            {
+              "label": "protocolFeePercent",
+              "offset": 0,
+              "slot": "7",
+              "type": "t_uint256",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:106"
+            },
+            {
+              "label": "subjectFeePercent",
+              "offset": 0,
+              "slot": "8",
+              "type": "t_uint256",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:107"
+            },
+            {
+              "label": "tournamentFeePercent",
+              "offset": 0,
+              "slot": "9",
+              "type": "t_uint256",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:108"
+            },
+            {
+              "label": "yayVotesBalance",
+              "offset": 0,
+              "slot": "10",
+              "type": "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:128"
+            },
+            {
+              "label": "nayVotesBalance",
+              "offset": 0,
+              "slot": "11",
+              "type": "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:129"
+            },
+            {
+              "label": "yayVotesSupply",
+              "offset": 0,
+              "slot": "12",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:131"
+            },
+            {
+              "label": "nayVotesSupply",
+              "offset": 0,
+              "slot": "13",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:132"
+            },
+            {
+              "label": "vipBadgeSupply",
+              "offset": 0,
+              "slot": "14",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:135"
+            },
+            {
+              "label": "vipBadgeBalance",
+              "offset": 0,
+              "slot": "15",
+              "type": "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:136"
+            },
+            {
+              "label": "eventVerified",
+              "offset": 0,
+              "slot": "16",
+              "type": "t_mapping(t_bytes32,t_bool)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:138"
+            },
+            {
+              "label": "eventResult",
+              "offset": 0,
+              "slot": "17",
+              "type": "t_mapping(t_bytes32,t_bool)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:139"
+            },
+            {
+              "label": "eventEndTimestamp",
+              "offset": 0,
+              "slot": "18",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:140"
+            },
+            {
+              "label": "votingPooledEth",
+              "offset": 0,
+              "slot": "19",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:143"
+            },
+            {
+              "label": "isVerifier",
+              "offset": 0,
+              "slot": "20",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:146"
+            },
+            {
+              "label": "isTournamentCreator",
+              "offset": 0,
+              "slot": "21",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:147"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_bytes32": {
+              "label": "bytes32"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_mapping(t_bytes32,t_bool)": {
+              "label": "mapping(bytes32 => bool)"
+            },
+            "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))": {
+              "label": "mapping(bytes32 => mapping(address => uint256))"
+            },
+            "t_mapping(t_bytes32,t_uint256)": {
+              "label": "mapping(bytes32 => uint256)"
+            },
+            "t_struct(Tournament)203_storage": {
+              "label": "struct UnlonelySharesV2.Tournament",
+              "members": [
+                {
+                  "label": "isActive",
+                  "type": "t_bool"
+                },
+                {
+                  "label": "isWinnerSelected",
+                  "type": "t_bool"
+                },
+                {
+                  "label": "winningBadge",
+                  "type": "t_bytes32"
+                },
+                {
+                  "label": "vipPooledEth",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "endTimestamp",
+                  "type": "t_uint256"
+                }
+              ]
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      }
+    },
+    {
+      "ReentrancyGuard": {
+        "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:22",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "ReentrancyGuard",
+            "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:39"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            }
+          ],
+          "types": {
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "Context": {
+        "src": "contracts\\UnlonelySharesV2.sol:6",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "Ownable": {
+        "src": "contracts\\UnlonelySharesV2.sol:16",
+        "inherit": [
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "owner()",
+          "renounceOwnership()",
+          "transferOwnership(address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "Ownable",
+            "src": "contracts\\UnlonelySharesV2.sol:24"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelySharesV2.sol:17"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "UnlonelySharesV2": {
+        "src": "contracts\\UnlonelySharesV2.sol:81",
+        "version": {
           "withMetadata": "05c105f8d3e59b6b6ec9efd6a6015db3569a38bec88fa722f490cd8625dc3136",
           "withoutMetadata": "d20552c15105398128567ce300c745a1764efc5f700e3a439dbc2342322a6840",
           "linkedWithoutMetadata": "d20552c15105398128567ce300c745a1764efc5f700e3a439dbc2342322a6840"

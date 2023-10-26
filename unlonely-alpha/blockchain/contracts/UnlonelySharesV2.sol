@@ -97,6 +97,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         bool isWinnerSelected;
         bytes32 winningBadge;
         uint256 vipPooledEth;
+        uint256 endTimestamp;
     }
 
     Tournament public activeTournament;
@@ -119,6 +120,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
 
     // ~~~~~~~~~~~~~~~~~~~TODO: edit events to include all types of trades~~~~~~~~~~~~~~~~~~
     event Trade(TradeInfo trade);
+    event EventOpened(bytes32 eventByte, uint256 endTimestamp);
     event EventVerified(bytes32 eventByte, bool result);
     event Payout(address indexed voter, uint256 amount);
 
@@ -135,6 +137,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
 
     mapping(bytes32 => bool) public eventVerified;
     mapping(bytes32 => bool) public eventResult;
+    mapping(bytes32 => uint256) public eventEndTimestamp;
 
     // this is a mapping between sharesSubject and total amount of ETH in the pool
     mapping(bytes32 => uint256) public votingPooledEth;
@@ -201,13 +204,14 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         return keccak256(abi.encodePacked(eventAddress, eventId, eventType));
     }
 
-    function createTournament() public onlyTournamentCreator {
+    function createTournament(uint256 endTimestamp) public onlyTournamentCreator {
         require(!activeTournament.isActive, "A tournament is already active.");
         activeTournament = Tournament({
             isActive: true,
             isWinnerSelected: false,
             winningBadge: bytes32(0),
-            vipPooledEth: 0
+            vipPooledEth: 0,
+            endTimestamp: endTimestamp
         });
     }
 
@@ -244,6 +248,15 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         require(activeTournament.isActive, "No active tournament currently.");
         require(!activeTournament.isWinnerSelected, "Winner already selected.");
         activeTournament.isActive = false;
+    }
+
+    function openEvent(address eventAddress, uint256 eventId, EventType eventType, uint256 _eventEndTimestamp) public onlyVerifier validEventType(eventType) {
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
+        require(!eventVerified[eventBytes], "Event already verified");
+        require(eventEndTimestamp[eventBytes] > 0, "Event already opened");
+        eventEndTimestamp[eventBytes] = _eventEndTimestamp;
+
+        emit EventOpened(eventBytes, _eventEndTimestamp);
     }
 
     function verifyEvent(address eventAddress, uint256 eventId, EventType eventType, bool result) public onlyVerifier validEventType(eventType) {
@@ -324,6 +337,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     function buyVotes(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) {
         require(eventType == EventType.YayVote || eventType == EventType.NayVote, "invalid event type");
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
+        require(eventEndTimestamp[eventBytes] > 0 && eventEndTimestamp[eventBytes] > block.timestamp, "Event is not ongoing");
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[eventBytes], "Event already verified");
         require(amount > 0, "Cannot buy zero shares");
@@ -365,6 +379,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     function sellVotes(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) nonReentrant {
         require(eventType == EventType.YayVote || eventType == EventType.NayVote, "invalid event type");
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
+        require(eventEndTimestamp[eventBytes] > 0 && eventEndTimestamp[eventBytes] > block.timestamp, "Event is not ongoing");
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[eventBytes], "Event already verified");
         require(amount > 0, "Cannot sell zero shares");
