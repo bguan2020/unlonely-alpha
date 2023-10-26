@@ -86,8 +86,8 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     // and combines all three into one bytes32 key
 
     enum EventType {
-        YayVote,
-        NayVote
+        YayNayVote,
+        VIPBadge
     }
 
     address public protocolFeeDestination;
@@ -135,8 +135,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
 
     modifier validEventType(EventType eventType) {
         require(
-            eventType == EventType.YayVote ||
-            eventType == EventType.NayVote,
+            eventType == EventType.YayNayVote,
             "Invalid event type"
         );
         _;
@@ -189,13 +188,9 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         emit EventVerified(eventBytes, result);
     }
 
-    function getHolderBalance(address eventAddress, uint256 eventId, EventType eventType, address holder) public view validEventType(eventType) returns (uint256 balance) {
+    function getHolderBalance(address eventAddress, uint256 eventId, EventType eventType, bool isYay, address holder) public view validEventType(eventType) returns (uint256 balance) {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
-        if (eventType == EventType.YayVote) {
-            return yayVotesBalance[eventBytes][holder];
-        } else  {
-            return nayVotesBalance[eventBytes][holder];
-        }
+        return isYay ? yayVotesBalance[eventBytes][holder] : nayVotesBalance[eventBytes][holder];
     }
 
     function getPrice(uint256 supply, uint256 amount) public pure returns (uint256) {
@@ -207,53 +202,40 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         return summation * 1 ether / 32000;
     }
 
-    function getBuyPrice(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
+    function getBuyPrice(address eventAddress, uint256 eventId, EventType eventType, bool isYay, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
-        if (eventType == EventType.YayVote) {
-            uint256 supply = yayVotesSupply[eventBytes];
-            return getPrice(supply, amount);
-        } else{
-            uint256 supply = nayVotesSupply[eventBytes];
-            return getPrice(supply, amount);
-        }
+        uint256 supply = isYay ? yayVotesSupply[eventBytes] : nayVotesSupply[eventBytes];
+        return getPrice(supply, amount);
     }
 
-    function getSellPrice(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
+    function getSellPrice(address eventAddress, uint256 eventId, EventType eventType, bool isYay, uint256 amount) public view validEventType(eventType) returns (uint256 price) {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
-        if (eventType == EventType.YayVote) {
-            uint256 supply = yayVotesSupply[eventBytes];
-            if (supply < amount) return 0;
-            return getPrice(supply - amount, amount);
-        } else {
-            uint256 supply = nayVotesSupply[eventBytes];
-            if (supply < amount) return 0;
-            return getPrice(supply - amount, amount);
-        }
+        uint256 supply = isYay ? yayVotesSupply[eventBytes] : nayVotesSupply[eventBytes];
+        if (supply < amount) return 0;
+        return getPrice(supply - amount, amount);
     }
 
-    function getBuyPriceAfterFee(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256) {
-        uint256 price = getBuyPrice(eventAddress, eventId, eventType, amount);
+    function getBuyPriceAfterFee(address eventAddress, uint256 eventId, EventType eventType, bool isYay, uint256 amount) public view validEventType(eventType) returns (uint256) {
+        uint256 price = getBuyPrice(eventAddress, eventId, eventType, isYay, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         return price + protocolFee + subjectFee;
     }
 
-    function getSellPriceAfterFee(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256) {
-        uint256 price = getSellPrice(eventAddress, eventId, eventType, amount);
+    function getSellPriceAfterFee(address eventAddress, uint256 eventId, EventType eventType, bool isYay, uint256 amount) public view validEventType(eventType) returns (uint256) {
+        uint256 price = getSellPrice(eventAddress, eventId, eventType, isYay, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         return price - protocolFee - subjectFee;
     }
 
     // def: buyShares takes in streamer address (ex: 0xTed), amount of shares purchased, and if its yay or nay
-    function buyVotes(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) {
-        require(eventType == EventType.YayVote || eventType == EventType.NayVote, "invalid event type");
+    function buyVotes(address eventAddress, uint256 eventId, EventType eventType, bool isYay, uint256 amount) public payable validEventType(eventType) {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         require(eventEndTimestamp[eventBytes] > 0 && eventEndTimestamp[eventBytes] > block.timestamp, "Event is not ongoing");
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[eventBytes], "Event already verified");
         require(amount > 0, "Cannot buy zero shares");
-        bool isYay = eventType == EventType.YayVote;
         uint256 supply = isYay ? yayVotesSupply[eventBytes] : nayVotesSupply[eventBytes];
         uint256 price = getPrice(supply, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
@@ -288,14 +270,12 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         require(success1 && success2, "Unable to send funds");
     }
 
-    function sellVotes(address eventAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) nonReentrant {
-        require(eventType == EventType.YayVote || eventType == EventType.NayVote, "invalid event type");
+    function sellVotes(address eventAddress, uint256 eventId, EventType eventType, bool isYay, uint256 amount) public payable validEventType(eventType) nonReentrant {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         require(eventEndTimestamp[eventBytes] > 0 && eventEndTimestamp[eventBytes] > block.timestamp, "Event is not ongoing");
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(!eventVerified[eventBytes], "Event already verified");
         require(amount > 0, "Cannot sell zero shares");
-        bool isYay = eventType == EventType.YayVote;
         uint256 supply = isYay ? yayVotesSupply[eventBytes] : nayVotesSupply[eventBytes];
         require(supply >= amount, "Cannot sell more shares than the current supply");
 
