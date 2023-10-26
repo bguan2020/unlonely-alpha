@@ -5,6 +5,7 @@ import IVSPlayer from "./IVSPlayer";
 import useScript from "../../hooks/internal/useScript";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { BorderType, OuterBorder } from "../general/OuterBorder";
 
 const StreamComponent = () => {
   const { isStandalone } = useUserAgent();
@@ -54,39 +55,44 @@ const StreamComponent = () => {
       flexDirection="row"
       justifyContent="center"
       width="100%"
-      height={
-        !isStandalone
-          ? { base: "250px", sm: "500px", md: "600px", lg: "700px" }
-          : "25vh"
-      }
+      height={!isStandalone ? { base: "65vh" } : "25vh"}
     >
-      {playbackUrl ? (
-        <IVSPlayer playbackUrl={playbackUrl} />
-      ) : (
+      <OuterBorder type={BorderType.OCEAN}>
         <Flex
-          direction="column"
+          bg="rgba(24, 22, 47, 1)"
+          p={"2rem"}
           width="100%"
-          maxW="100%"
-          pl="10px"
-          fontWeight="bold"
-          fontSize="40px"
-          bg="black"
-          borderRadius="10px"
-          justifyContent={"center"}
+          borderRadius="15px"
         >
-          {channelLoading ? (
-            <Spinner />
+          {playbackUrl ? (
+            <IVSPlayer playbackUrl={playbackUrl} />
           ) : (
-            <Text
-              fontFamily="Neue Pixel Sans"
-              textAlign="center"
-              fontSize="25px"
+            <Flex
+              direction="column"
+              width="100%"
+              maxW="100%"
+              pl="10px"
+              fontWeight="bold"
+              fontSize="40px"
+              bg="black"
+              justifyContent={"center"}
+              borderRadius={"20px"}
             >
-              missing playback url, stream cannot be reached at this time
-            </Text>
+              {channelLoading ? (
+                <Spinner />
+              ) : (
+                <Text
+                  fontFamily="Neue Pixel Sans"
+                  textAlign="center"
+                  fontSize="25px"
+                >
+                  missing playback url, stream cannot be reached at this time
+                </Text>
+              )}
+            </Flex>
           )}
         </Flex>
-      )}
+      </OuterBorder>
     </Flex>
   );
 };

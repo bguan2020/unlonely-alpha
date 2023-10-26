@@ -1,8 +1,5 @@
 import { useQuery } from "@apollo/client";
 import {
-  Box,
-  Button,
-  Container,
   Flex,
   Grid,
   GridItem,
@@ -15,16 +12,12 @@ import {
 } from "@chakra-ui/react";
 import { GetServerSidePropsContext } from "next";
 import React, { useCallback, useMemo, useState } from "react";
-import { isAddress } from "viem";
 
 import { initializeApollo } from "../../apiClient/client";
-import BuyButton from "../../components/arcade/BuyButton";
-import CoinButton from "../../components/arcade/CoinButton";
-import CustomButton from "../../components/arcade/CustomButton";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
-import AblyChatComponent from "../../components/chat/ChatComponent";
+import ChatComponent from "../../components/chat/ChatComponentV2";
 import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
@@ -186,7 +179,7 @@ const DesktopPage = ({
                 spacing={[4, 8]}
                 direction={["column", "column", "row", "row"]}
               >
-                <Button
+                {/* <Button
                   bg="#000000"
                   onClick={() =>
                     postBet({
@@ -222,7 +215,7 @@ const DesktopPage = ({
                   }
                 >
                   trade badge
-                </Button>
+                </Button> */}
                 <Stack direction="column" width={"100%"}>
                   {isOwner && !previewStream ? (
                     <ChannelStreamerPerspective />
@@ -268,7 +261,7 @@ const DesktopPage = ({
                         </Flex>
                       </GridItem>
                     )}
-                    {showArcadeButtons && !isOwner && (
+                    {/* {showArcadeButtons && !isOwner && (
                       <GridItem justifyItems={"center"}>
                         <Box
                           display="flex"
@@ -364,10 +357,10 @@ const DesktopPage = ({
                           )}
                         </Box>
                       </GridItem>
-                    )}
+                    )} */}
                   </Grid>
                 </Stack>
-                <Flex
+                {/* <Flex
                   hidden={isHidden(true)}
                   borderWidth="1px"
                   borderRadius={"10px"}
@@ -390,7 +383,8 @@ const DesktopPage = ({
                   >
                     <AblyChatComponent />
                   </Container>
-                </Flex>
+                </Flex> */}
+                <ChatComponent />
               </Stack>
             </Stack>
           </>

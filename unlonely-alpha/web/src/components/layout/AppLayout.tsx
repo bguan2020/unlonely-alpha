@@ -46,11 +46,20 @@ const AppLayout: React.FC<Props> = ({
     xl: false,
   });
 
+  const boxStyle = () => {
+    return router.pathname.startsWith("/channels")
+      ? {
+          bg: "rgba(24, 22, 47, 1)",
+        }
+      : {
+          bgGradient:
+            "linear-gradient(90deg, #E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
+          bg: "rgba(0, 0, 0, 0.65)",
+        };
+  };
+
   return (
-    <Box
-      bgGradient="linear-gradient(90deg, #E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-      background="rgba(0, 0, 0, 0.65)"
-    >
+    <Box {...boxStyle()}>
       {isCustomHeader === false && (
         <NextHead
           title=""
