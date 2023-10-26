@@ -910,8 +910,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelySharesV2.sol": {
-      "lastModificationDate": 1698343682978,
-      "contentHash": "3e895cf70d92a4aa664e8d64b2c32b8b",
+      "lastModificationDate": 1698349998723,
+      "contentHash": "572ebe57906f2237b3a7fff2c4b4e70b",
       "sourceName": "contracts/UnlonelySharesV2.sol",
       "solcConfig": {
         "version": "0.8.8",
@@ -983,6 +983,46 @@
       ],
       "artifacts": [
         "ReentrancyGuard"
+      ]
+    },
+    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelyTournament.sol": {
+      "lastModificationDate": 1698350051643,
+      "contentHash": "f1a3b90a538f742c96f86e99ab3303b6",
+      "sourceName": "contracts/UnlonelyTournament.sol",
+      "solcConfig": {
+        "version": "0.8.8",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/security/ReentrancyGuard.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.8"
+      ],
+      "artifacts": [
+        "Context",
+        "Ownable",
+        "UnlonelyTournament"
       ]
     }
   }

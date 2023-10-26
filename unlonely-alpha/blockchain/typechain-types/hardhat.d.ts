@@ -88,6 +88,14 @@ declare module "hardhat/types/runtime" {
       name: "UnlonelySharesV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UnlonelySharesV2__factory>;
+    getContractFactory(
+      name: "Ownable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Ownable__factory>;
+    getContractFactory(
+      name: "UnlonelyTournament",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.UnlonelyTournament__factory>;
 
     getContractAt(
       name: "Ownable",
@@ -184,6 +192,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.UnlonelySharesV2>;
+    getContractAt(
+      name: "Ownable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Ownable>;
+    getContractAt(
+      name: "UnlonelyTournament",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.UnlonelyTournament>;
 
     // default types
     getContractFactory(
