@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { ApolloError } from "@apollo/client";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 import NextHead from "./NextHead";
 import Header from "../navigation/Header";
@@ -46,20 +47,18 @@ const AppLayout: React.FC<Props> = ({
     xl: false,
   });
 
-  const boxStyle = () => {
-    return router.pathname.startsWith("/channels")
-      ? {
-          bg: "rgba(24, 22, 47, 1)",
-        }
-      : {
-          bgGradient:
-            "linear-gradient(90deg, #E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
-          bg: "rgba(0, 0, 0, 0.65)",
-        };
-  };
+  useEffect(() => {
+    if (router.pathname.startsWith("/channels")) {
+      document.body.style.backgroundImage = "none";
+      document.body.style.background = "rgba(24, 22, 47, 1)";
+    } else {
+      document.body.style.backgroundImage =
+        "linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)),linear-gradient(90deg, #E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)";
+    }
+  }, [router.pathname]);
 
   return (
-    <Box {...boxStyle()}>
+    <Box>
       {isCustomHeader === false && (
         <NextHead
           title=""
@@ -74,13 +73,7 @@ const AppLayout: React.FC<Props> = ({
             <>
               <Header />
               {!router.pathname.startsWith("/nfc") && <AddToHomeScreen />}
-              <Box
-                minW="100%"
-                as="main"
-                minH={
-                  smallestDevice ? "calc(100vh - 25px)" : "calc(100vh - 48px)"
-                }
-              >
+              <Box minW="100%" as="main">
                 {error && (
                   <Alert status="error">
                     <AlertIcon />

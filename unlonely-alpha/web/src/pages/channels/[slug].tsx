@@ -18,6 +18,7 @@ import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
 import ChatComponent from "../../components/chat/ChatComponentV2";
+import { BorderType, OuterBorder } from "../../components/general/OuterBorder";
 import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
@@ -170,16 +171,13 @@ const DesktopPage = ({
       >
         {!queryLoading && !channelDataError ? (
           <>
-            <Stack direction="column" mt={"1rem"}>
-              <Stack
-                mx={[0, 8, 4]}
-                alignItems={["center", "initial"]}
-                mt="10px"
-                mb="25px"
-                spacing={[4, 8]}
-                direction={["column", "column", "row", "row"]}
-              >
-                {/* <Button
+            <Stack
+              mx={[0, 8, 4]}
+              alignItems={["center", "initial"]}
+              spacing={[4, 8]}
+              direction={["column", "column", "row", "row"]}
+            >
+              {/* <Button
                   bg="#000000"
                   onClick={() =>
                     postBet({
@@ -216,52 +214,50 @@ const DesktopPage = ({
                 >
                   trade badge
                 </Button> */}
-                <Stack direction="column" width={"100%"}>
-                  {isOwner && !previewStream ? (
-                    <ChannelStreamerPerspective />
-                  ) : (
-                    <ChannelViewerPerspective />
-                  )}
-                  <Grid
-                    templateColumns="repeat(3, 1fr)"
-                    gap={4}
-                    mt="20px"
-                    alignItems="baseline"
-                  >
-                    <GridItem colSpan={showArcadeButtons ? 2 : 3}>
-                      <ChannelDesc />
+              <Stack direction="column" width={"100%"}>
+                {isOwner && !previewStream ? (
+                  <ChannelStreamerPerspective />
+                ) : (
+                  <ChannelViewerPerspective />
+                )}
+                <Grid
+                  templateColumns="repeat(3, 1fr)"
+                  gap={4}
+                  mt="20px"
+                  alignItems="baseline"
+                >
+                  <GridItem colSpan={showArcadeButtons ? 2 : 3}>
+                    <ChannelDesc />
+                  </GridItem>
+                  {isOwner && (
+                    <GridItem>
+                      <Flex justifyContent={"center"} gap="10px">
+                        <Tooltip
+                          label={`${previewStream ? "hide" : "preview"} stream`}
+                        >
+                          <IconButton
+                            onClick={() => setPreviewStream((prev) => !prev)}
+                            aria-label="preview"
+                            _hover={{}}
+                            _active={{}}
+                            _focus={{}}
+                            icon={
+                              <Image
+                                src="/svg/preview-video.svg"
+                                height={12}
+                                style={{
+                                  filter: previewStream
+                                    ? "grayscale(100%)"
+                                    : "none",
+                                }}
+                              />
+                            }
+                          />
+                        </Tooltip>
+                      </Flex>
                     </GridItem>
-                    {isOwner && (
-                      <GridItem>
-                        <Flex justifyContent={"center"} gap="10px">
-                          <Tooltip
-                            label={`${
-                              previewStream ? "hide" : "preview"
-                            } stream`}
-                          >
-                            <IconButton
-                              onClick={() => setPreviewStream((prev) => !prev)}
-                              aria-label="preview"
-                              _hover={{}}
-                              _active={{}}
-                              _focus={{}}
-                              icon={
-                                <Image
-                                  src="/svg/preview-video.svg"
-                                  height={12}
-                                  style={{
-                                    filter: previewStream
-                                      ? "grayscale(100%)"
-                                      : "none",
-                                  }}
-                                />
-                              }
-                            />
-                          </Tooltip>
-                        </Flex>
-                      </GridItem>
-                    )}
-                    {/* {showArcadeButtons && !isOwner && (
+                  )}
+                  {/* {showArcadeButtons && !isOwner && (
                       <GridItem justifyItems={"center"}>
                         <Box
                           display="flex"
@@ -358,9 +354,9 @@ const DesktopPage = ({
                         </Box>
                       </GridItem>
                     )} */}
-                  </Grid>
-                </Stack>
-                {/* <Flex
+                </Grid>
+              </Stack>
+              {/* <Flex
                   hidden={isHidden(true)}
                   borderWidth="1px"
                   borderRadius={"10px"}
@@ -384,7 +380,15 @@ const DesktopPage = ({
                     <AblyChatComponent />
                   </Container>
                 </Flex> */}
+              <Stack
+                direction="column"
+                minW={["100%", "100%", "380px", "380px"]}
+                gap="1rem"
+              >
                 <ChatComponent />
+                <OuterBorder type={BorderType.FIRE}>
+                  <Flex width="100%" bg="rgba(19, 18, 37, 1)"></Flex>
+                </OuterBorder>
               </Stack>
             </Stack>
           </>

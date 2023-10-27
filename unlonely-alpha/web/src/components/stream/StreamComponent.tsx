@@ -58,12 +58,7 @@ const StreamComponent = () => {
       height={!isStandalone ? { base: "65vh" } : "25vh"}
     >
       <OuterBorder type={BorderType.OCEAN}>
-        <Flex
-          bg="rgba(24, 22, 47, 1)"
-          p={"2rem"}
-          width="100%"
-          borderRadius="15px"
-        >
+        <Flex bg="rgba(24, 22, 47, 1)" p={"2rem"} width="100%">
           {playbackUrl ? (
             <IVSPlayer playbackUrl={playbackUrl} />
           ) : (
@@ -76,7 +71,6 @@ const StreamComponent = () => {
               fontSize="40px"
               bg="black"
               justifyContent={"center"}
-              borderRadius={"20px"}
             >
               {channelLoading ? (
                 <Spinner />

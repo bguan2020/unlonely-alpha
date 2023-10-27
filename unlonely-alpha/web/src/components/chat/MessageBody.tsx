@@ -1,4 +1,4 @@
-import { AddIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
@@ -14,7 +14,6 @@ import {
 import React, { useMemo, useState } from "react";
 
 import {
-  ADD_REACTION_EVENT,
   APPOINT_USER_EVENT,
   BAN_USER_EVENT,
   InteractionType,
@@ -23,12 +22,10 @@ import {
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import Badges from "./Badges";
-import EmojiDisplay from "./emoji/EmojiDisplay";
 import { Message } from "../../constants/types/chat";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import usePostUserRoleForChannel from "../../hooks/server/usePostUserRoleForChannel";
-import { REACTION_EMOJIS } from "./emoji/constants";
 
 type Props = {
   index: number;
@@ -111,7 +108,7 @@ const MessageBody = ({
       };
     } else {
       return {
-        bg: "rgba(19, 18, 37, 1)",
+        // bg: "rgba(19, 18, 37, 1)",
       };
     }
   };
@@ -176,13 +173,12 @@ const MessageBody = ({
               key={index}
               borderRadius="10px"
               {...messageBg()}
-              px="10px"
-              pt="10px"
-              pb={showEmojiList === message.id ? "15px" : "10px"}
-              mt="5px"
-              mb="15px"
+              // px="10px"
+              // pt="10px"
+              // pb={showEmojiList === message.id ? "15px" : "10px"}
+              p="5px"
+              my="5px"
               position="relative"
-              // width={!isStandalone ? "274px" : "100%"}
             >
               <Flex direction="row" align="center">
                 <Badges user={user} message={message} />
@@ -347,7 +343,7 @@ const MessageBody = ({
                 <Text
                   onClick={() => setIsOpen(true)}
                   _hover={{ cursor: "pointer" }}
-                  fontSize="16px"
+                  fontSize="12px"
                   color={message.data.chatColor}
                   fontWeight="bold"
                 >
@@ -378,7 +374,6 @@ const MessageBody = ({
                           }
                           wordBreak="break-word"
                           textAlign="left"
-                          p={"5px"}
                         >
                           {fragments.map((fragment, i) => {
                             if (fragment.isLink) {
@@ -408,7 +403,6 @@ const MessageBody = ({
                         }
                         wordBreak="break-word"
                         textAlign="left"
-                        p={"5px"}
                       >
                         {messageText.split("\n").map((line, index) => (
                           <span key={index}>
@@ -420,7 +414,7 @@ const MessageBody = ({
                     )}
                   </>
                 )}
-                <div
+                {/* <div
                   className="showme"
                   style={{
                     position: "absolute",
@@ -452,8 +446,8 @@ const MessageBody = ({
                       <AddIcon height="12px" width="12px" color={"white"} />
                     </Button>
                   </Flex>
-                </div>
-                <Flex flexDirection="row">
+                </div> */}
+                {/* <Flex flexDirection="row">
                   {message.data.reactions?.map((reaction) => (
                     <div
                       key={reaction.emojiType}
@@ -504,9 +498,9 @@ const MessageBody = ({
                       )}
                     </div>
                   ))}
-                </Flex>
+                </Flex> */}
               </Flex>
-              {showEmojiList === message.id && (
+              {/* {showEmojiList === message.id && (
                 <Flex
                   flexWrap="wrap"
                   background={"rgba(255, 255, 255, 0.5)"}
@@ -544,7 +538,7 @@ const MessageBody = ({
                     </Box>
                   ))}
                 </Flex>
-              )}
+              )} */}
             </Box>
           </Flex>
         </Flex>

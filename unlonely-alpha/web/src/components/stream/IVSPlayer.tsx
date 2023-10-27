@@ -94,7 +94,6 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             maxWidth: "100%",
             height: "100% !important",
             width: "100% !important",
-            borderRadius: "20px",
             minHeight: "100%",
           }}
         />
@@ -126,7 +125,6 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             height="100%"
             justifyContent={"center"}
             gap="20px"
-            borderRadius={"20px"}
           >
             <Text
               fontFamily="Neue Pixel Sans"

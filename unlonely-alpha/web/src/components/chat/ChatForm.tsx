@@ -24,8 +24,10 @@ import React, {
 import Link from "next/link";
 import { parseUnits } from "viem";
 import copy from "copy-to-clipboard";
+import { BsFillHeartFill } from "react-icons/bs";
 
 import {
+  ADD_REACTION_EVENT,
   CommandData,
   InteractionType,
   USER_APPROVAL_AMOUNT,
@@ -45,6 +47,8 @@ import ConnectWallet from "../navigation/ConnectWallet";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { ChatClip } from "./ChatClip";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
+import { REACTION_EMOJIS } from "./emoji/constants";
+import EmojiDisplay from "./emoji/EmojiDisplay";
 
 type Props = {
   sendChatMessage: (message: string, isGif: boolean, body?: string) => void;
@@ -52,6 +56,7 @@ type Props = {
   mobile?: boolean;
   additionalChatCommands?: CommandData[];
   allowPopout?: boolean;
+  channel?: any;
 };
 
 const PRICE = "2";
@@ -59,9 +64,9 @@ const PRICE = "2";
 const ChatForm = ({
   sendChatMessage,
   inputBox,
-  mobile,
   additionalChatCommands,
   allowPopout,
+  channel,
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
   const { isStandalone } = useUserAgent();
@@ -88,6 +93,9 @@ const ChatForm = ({
   const [blastMode, setBlastMode] = useState(false);
 
   const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+
+  const [showEmojiReactionList, setShowEmojiReactionList] = useState(false);
+  const [reactionDisabled, setReactionDisabled] = useState<boolean>(false);
 
   const {
     requiresApproval,
@@ -401,6 +409,15 @@ const ChatForm = ({
     );
   };
 
+  const sendMessageReaction = (emoji: string, reactionEvent: string) => {
+    console.log("reaction");
+    channel.publish(reactionEvent, {
+      body: emoji,
+      name: reactionEvent,
+    });
+    setShowEmojiReactionList(false);
+  };
+
   return (
     <>
       <ChatClip />
@@ -479,76 +496,43 @@ const ChatForm = ({
               </Text>
             </Flex>
           ) : (
-            <>
-              <Flex
-                width="100%"
-                position="relative"
-                direction="column"
-                border={blastMode ? "2px solid red" : "2px solid white"}
-                px="10px"
-                py="5px"
-                borderRadius="12px"
-                background={
-                  mobile
-                    ? "rgba(34, 34, 34, 0.35)"
-                    : blastMode
-                    ? "rgba(255, 108, 108, 0.35)"
-                    : "rgba(255, 255, 255, 0.35)"
-                }
-              >
-                {blastMode && tooltipError === "" && (
-                  <Text
-                    color={"#b82929"}
-                    fontSize="12px"
-                    position="absolute"
-                    top={-5}
-                    whiteSpace="nowrap"
-                  >
-                    chat blast mode enabled{" "}
-                    {channelQueryData?.token?.symbol &&
-                      `(cost: ${PRICE} $${channelQueryData?.token?.symbol})`}
-                  </Text>
-                )}
-                {blastMode && tooltipError !== "" && (
-                  <Text
-                    color={"#b82929"}
-                    fontSize="12px"
-                    position="absolute"
-                    top={-5}
-                    whiteSpace="nowrap"
-                  >
-                    {tooltipError}
-                  </Text>
-                )}
-                <Textarea
-                  resize="none"
-                  variant="unstyled"
-                  maxLength={500}
-                  ref={(element) => {
-                    inputBox = element;
-                  }}
-                  value={messageText}
-                  color={"white"}
-                  fontWeight="medium"
-                  placeholder={
-                    blastMode
-                      ? "blast a message to everyone watching!"
-                      : "say something in chat!"
-                  }
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                  // @ts-ignore
-                  enterKeyHint="send"
-                  onChange={(e) => {
-                    if (e.target.value === "") {
-                      setCommandsOpen(false);
-                    }
-                    setMessageText(e.target.value);
-                  }}
-                  onKeyPress={handleKeyPress}
-                  style={{ zIndex: 0, minHeight: mobile ? "68px" : "50px" }}
-                  height={"100%"}
-                />
-                <Flex justifyContent={"flex-end"} alignItems="center">
+            <Flex direction="column" width="100%">
+              {showEmojiReactionList && (
+                <Flex
+                  flexWrap="wrap"
+                  background={"rgba(255, 255, 255, 0.2)"}
+                  borderRadius={"10px"}
+                >
+                  {REACTION_EMOJIS.map((emoji) => (
+                    <Box
+                      minH="40px"
+                      background="transparent"
+                      p="5px"
+                      key={emoji}
+                      style={{
+                        cursor: reactionDisabled ? "not-allowed" : "pointer",
+                      }}
+                      onClick={() => {
+                        setReactionDisabled(true);
+                        sendMessageReaction(emoji, ADD_REACTION_EVENT);
+                        setTimeout(() => {
+                          setReactionDisabled(false);
+                        }, 2000);
+                      }}
+                    >
+                      <EmojiDisplay
+                        emoji={emoji}
+                        fontSize={"18px"}
+                        buttonDisabled={reactionDisabled}
+                        setButtonDisabled={setReactionDisabled}
+                      />
+                    </Box>
+                  ))}
+                </Flex>
+              )}
+
+              <Flex justifyContent={"space-between"}>
+                <Flex>
                   {clipLoading ? (
                     <Spinner />
                   ) : (
@@ -653,9 +637,88 @@ const ChatForm = ({
                     </PopoverContent>
                   </Popover>
                   <EmojiButton
-                    mobile={mobile}
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
                     onSelectGif={(gif) => sendGif(gif)}
+                  />
+                </Flex>
+                <IconButton
+                  icon={<BsFillHeartFill />}
+                  bg="transparent"
+                  aria-label="react"
+                  _focus={{}}
+                  _hover={{ transform: "scale(1.15)" }}
+                  _active={{ transform: "scale(1.3)" }}
+                  onClick={() =>
+                    setShowEmojiReactionList(!showEmojiReactionList)
+                  }
+                />
+              </Flex>
+              <Flex
+                width="100%"
+                position="relative"
+                direction="column"
+                border={
+                  blastMode
+                    ? "1px solid red"
+                    : "1px solid rgba(250, 250, 250, 0.5)"
+                }
+                px="10px"
+                py="5px"
+                background={blastMode ? "rgba(255, 108, 108, 0.35)" : undefined}
+              >
+                {blastMode && tooltipError === "" && (
+                  <Text
+                    color={"#b82929"}
+                    fontSize="12px"
+                    position="absolute"
+                    top={-5}
+                    whiteSpace="nowrap"
+                  >
+                    chat blast mode enabled{" "}
+                    {channelQueryData?.token?.symbol &&
+                      `(cost: ${PRICE} $${channelQueryData?.token?.symbol})`}
+                  </Text>
+                )}
+                {blastMode && tooltipError !== "" && (
+                  <Text
+                    color={"#b82929"}
+                    fontSize="12px"
+                    position="absolute"
+                    top={-5}
+                    whiteSpace="nowrap"
+                  >
+                    {tooltipError}
+                  </Text>
+                )}
+                <Flex alignItems="center">
+                  <Textarea
+                    size="md"
+                    resize="none"
+                    variant="unstyled"
+                    maxLength={500}
+                    ref={(element) => {
+                      inputBox = element;
+                    }}
+                    value={messageText}
+                    color={"white"}
+                    fontWeight="medium"
+                    placeholder={
+                      blastMode
+                        ? "blast a message to everyone watching!"
+                        : "say something in chat!"
+                    }
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    enterKeyHint="send"
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        setCommandsOpen(false);
+                      }
+                      setMessageText(e.target.value);
+                    }}
+                    onKeyPress={handleKeyPress}
+                    style={{ zIndex: 0, minHeight: "50px" }}
+                    height={"100%"}
                   />
                   <IconButton
                     type="submit"
@@ -699,7 +762,7 @@ const ChatForm = ({
                   />
                 </Flex>
               </Flex>
-            </>
+            </Flex>
           )}
         </Stack>
       </form>

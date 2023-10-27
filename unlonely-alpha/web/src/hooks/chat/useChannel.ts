@@ -56,6 +56,7 @@ export function useChannel(fixedChatName?: string) {
       : "persistMessages:chat-demo");
 
   const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
+  const [allMessages, setAllMessages] = useState<Message[]>([]);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [localBanList, setLocalBanList] = useState<string[] | undefined>(
@@ -65,14 +66,16 @@ export function useChannel(fixedChatName?: string) {
   const [channel, ably] = useAblyChannel(channelName, async (message) => {
     setHasMessagesLoaded(false);
     if (localBanList === undefined) return;
-    let messageHistory = receivedMessages.filter(
+    const newAllMessages = [...allMessages, message];
+    setAllMessages(newAllMessages);
+    const messageHistory = receivedMessages.filter(
       (m) => m.name === CHAT_MESSAGE_EVENT
     );
-    if (message.name === ADD_REACTION_EVENT) {
-      messageHistory = updateMessageHistoryReactions(message, messageHistory);
+    // if (message.name === ADD_REACTION_EVENT) {
+    //   messageHistory = updateMessageHistoryReactions(message, messageHistory);
 
-      setReceivedMessages([...messageHistory]);
-    }
+    //   setReceivedMessages([...messageHistory]);
+    // }
     if (message.name === BAN_USER_EVENT) {
       const userAddressToBan = message.data.body;
       setLocalBanList([...localBanList, userAddressToBan]);
@@ -115,6 +118,7 @@ export function useChannel(fixedChatName?: string) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await channel.history((err, result) => {
+        setAllMessages(result.items);
         let messageHistory = result.items.filter((message: any) => {
           if (message.name !== CHAT_MESSAGE_EVENT) return false;
 
@@ -153,6 +157,7 @@ export function useChannel(fixedChatName?: string) {
     ably,
     ablyChannel: channel,
     receivedMessages,
+    allMessages,
     hasMessagesLoaded,
     mounted,
     setReceivedMessages,

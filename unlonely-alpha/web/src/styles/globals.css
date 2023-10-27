@@ -98,13 +98,6 @@ body {
   line-height: 1.5;
   color: #333;
   background-color: #fff;
-  background-image: linear-gradient(
-    to right,
-    #e2f979,
-    #b0e5cf,
-    #ba98d7,
-    #d16fce
-  ) !important;
   position: relative;
 }
 
@@ -113,6 +106,24 @@ h1 {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(var(--translateY));
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 0;
+  }
+}
+
+.floatingEmoji {
+  position: absolute;
+  top: 0;
+  right: 0;
+  animation: floatUp 1s ease-in-out forwards;
 }
 
 @keyframes gradientBackgroundAnimation {

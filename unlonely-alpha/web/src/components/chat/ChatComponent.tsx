@@ -427,7 +427,7 @@ const AblyChatComponent = () => {
             </Box>
           )}
         </Flex>
-        <Flex mt="40px" w="100%" mb="15px">
+        <Flex w="100%">
           <ChatForm
             sendChatMessage={sendChatMessage}
             inputBox={inputBox}

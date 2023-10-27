@@ -33,6 +33,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
     hasMessagesLoaded,
     setHasMessagesLoaded,
     receivedMessages,
+    allMessages,
     mounted,
   } = useChannel();
   const { user, username, userAddress: address, walletIsConnected } = useUser();
@@ -320,6 +321,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
     channel,
     hasMessagesLoaded,
     receivedMessages,
+    allMessages,
     isAtBottom,
     scrollRef,
     channelChatCommands,

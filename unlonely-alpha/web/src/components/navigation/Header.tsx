@@ -33,10 +33,9 @@ const Header: React.FC = () => {
       minWidth="90%"
       alignItems="center"
       marginBottom={logo ? "20px" : "0px"}
-      padding="16px"
+      padding="1rem"
       paddingBottom={logo ? "10px" : "5px"}
       paddingTop={logo ? "20px" : "5px"}
-      px="40px"
       justifyContent="space-between"
       left={["0px", "0px", "0px"]}
       right="0px"
