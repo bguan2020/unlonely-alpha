@@ -3,6 +3,7 @@ import { baseGoerli } from "wagmi/chains";
 import { Network } from "../types";
 import UnlonelySharesV1 from "../abi/UnlonelySharesV1.json";
 import UnlonelySharesV2 from "../abi/UnlonelySharesV2.json";
+import UnlonelyTournament from "../abi/UnlonelyTournament.json";
 
 export const BaseGoerli: Network = {
   ...baseGoerli,
@@ -21,7 +22,7 @@ export const BaseGoerli: Network = {
       },
       unlonelyTournament: {
         address: "0xF220244FD0Ab160D45f724a15b1Fc9E84fFFAD55",
-        abi: UnlonelySharesV2,
+        abi: UnlonelyTournament,
       },
     },
   },

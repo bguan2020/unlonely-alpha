@@ -8,44 +8,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "eventByte",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "endTimestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "EventOpened",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "eventByte",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "result",
-        "type": "bool"
-      }
-    ],
-    "name": "EventVerified",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "internalType": "address",
         "name": "previousOwner",
@@ -81,65 +43,43 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
+    "inputs": [],
+    "name": "activeTournament",
+    "outputs": [
       {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "trader",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "eventByte",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "shareAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "ethAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "protocolEthAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "subjectEthAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "supply",
-            "type": "uint256"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct UnlonelySharesV2.TradeInfo",
-        "name": "trade",
-        "type": "tuple"
+        "internalType": "bool",
+        "name": "isActive",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isWinnerSelected",
+        "type": "bool"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "winningBadge",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "vipPooledEth",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endTimestamp",
+        "type": "uint256"
       }
     ],
-    "name": "Trade",
-    "type": "event"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "eventAddress",
+        "name": "streamerAddress",
         "type": "address"
       },
       {
@@ -148,14 +88,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "enum UnlonelySharesV2.EventType",
+        "internalType": "enum UnlonelyTournament.EventType",
         "name": "eventType",
         "type": "uint8"
-      },
-      {
-        "internalType": "bool",
-        "name": "isYay",
-        "type": "bool"
       },
       {
         "internalType": "uint256",
@@ -163,30 +98,34 @@
         "type": "uint256"
       }
     ],
-    "name": "buyVotes",
+    "name": "buyVIPBadge",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "claimTournamentPayout",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "eventAddress",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
-        "name": "eventId",
+        "name": "endTimestamp",
         "type": "uint256"
-      },
-      {
-        "internalType": "enum UnlonelySharesV2.EventType",
-        "name": "eventType",
-        "type": "uint8"
       }
     ],
-    "name": "claimVotePayout",
+    "name": "createTournament",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "endTournament",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -195,7 +134,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "eventAddress",
+        "name": "streamerAddress",
         "type": "address"
       },
       {
@@ -204,87 +143,7 @@
         "type": "uint256"
       },
       {
-        "internalType": "enum UnlonelySharesV2.EventType",
-        "name": "eventType",
-        "type": "uint8"
-      }
-    ],
-    "name": "closeEventIfNoWinners",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "eventEndTimestamp",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "eventResult",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "eventVerified",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "eventAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "eventId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "enum UnlonelySharesV2.EventType",
+        "internalType": "enum UnlonelyTournament.EventType",
         "name": "eventType",
         "type": "uint8"
       }
@@ -304,7 +163,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "eventAddress",
+        "name": "streamerAddress",
         "type": "address"
       },
       {
@@ -313,14 +172,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "enum UnlonelySharesV2.EventType",
+        "internalType": "enum UnlonelyTournament.EventType",
         "name": "eventType",
         "type": "uint8"
-      },
-      {
-        "internalType": "bool",
-        "name": "isYay",
-        "type": "bool"
       },
       {
         "internalType": "uint256",
@@ -343,7 +197,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "eventAddress",
+        "name": "streamerAddress",
         "type": "address"
       },
       {
@@ -352,14 +206,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "enum UnlonelySharesV2.EventType",
+        "internalType": "enum UnlonelyTournament.EventType",
         "name": "eventType",
         "type": "uint8"
-      },
-      {
-        "internalType": "bool",
-        "name": "isYay",
-        "type": "bool"
       },
       {
         "internalType": "uint256",
@@ -382,7 +231,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "eventAddress",
+        "name": "streamerAddress",
         "type": "address"
       },
       {
@@ -391,14 +240,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "enum UnlonelySharesV2.EventType",
+        "internalType": "enum UnlonelyTournament.EventType",
         "name": "eventType",
         "type": "uint8"
-      },
-      {
-        "internalType": "bool",
-        "name": "isYay",
-        "type": "bool"
       },
       {
         "internalType": "address",
@@ -445,7 +289,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "eventAddress",
+        "name": "streamerAddress",
         "type": "address"
       },
       {
@@ -454,14 +298,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "enum UnlonelySharesV2.EventType",
+        "internalType": "enum UnlonelyTournament.EventType",
         "name": "eventType",
         "type": "uint8"
-      },
-      {
-        "internalType": "bool",
-        "name": "isYay",
-        "type": "bool"
       },
       {
         "internalType": "uint256",
@@ -484,7 +323,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "eventAddress",
+        "name": "streamerAddress",
         "type": "address"
       },
       {
@@ -493,14 +332,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "enum UnlonelySharesV2.EventType",
+        "internalType": "enum UnlonelyTournament.EventType",
         "name": "eventType",
         "type": "uint8"
-      },
-      {
-        "internalType": "bool",
-        "name": "isYay",
-        "type": "bool"
       },
       {
         "internalType": "uint256",
@@ -520,29 +354,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "eventAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "eventId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "enum UnlonelySharesV2.EventType",
-        "name": "eventType",
-        "type": "uint8"
-      },
-      {
-        "internalType": "address",
-        "name": "userAddress",
-        "type": "address"
-      }
-    ],
-    "name": "getVotePayout",
+    "inputs": [],
+    "name": "getTournamentPayout",
     "outputs": [
       {
         "internalType": "uint256",
@@ -561,7 +374,7 @@
         "type": "address"
       }
     ],
-    "name": "isVerifier",
+    "name": "isTournamentCreator",
     "outputs": [
       {
         "internalType": "bool",
@@ -570,77 +383,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "nayVotesBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "nayVotesSupply",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "eventAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "eventId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "enum UnlonelySharesV2.EventType",
-        "name": "eventType",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_eventEndTimestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "openEvent",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -693,7 +435,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "eventAddress",
+        "name": "streamerAddress",
         "type": "address"
       },
       {
@@ -702,14 +444,32 @@
         "type": "uint256"
       },
       {
-        "internalType": "enum UnlonelySharesV2.EventType",
+        "internalType": "enum UnlonelyTournament.EventType",
         "name": "eventType",
         "type": "uint8"
+      }
+    ],
+    "name": "selectTournamentWinner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "streamerAddress",
+        "type": "address"
       },
       {
-        "internalType": "bool",
-        "name": "isYay",
-        "type": "bool"
+        "internalType": "uint256",
+        "name": "eventId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum UnlonelyTournament.EventType",
+        "name": "eventType",
+        "type": "uint8"
       },
       {
         "internalType": "uint256",
@@ -717,9 +477,9 @@
         "type": "uint256"
       }
     ],
-    "name": "sellVotes",
+    "name": "sellVIPBadge",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -764,17 +524,12 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "verifier",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "value",
-        "type": "bool"
+        "internalType": "uint256",
+        "name": "_feePercent",
+        "type": "uint256"
       }
     ],
-    "name": "setVerifier",
+    "name": "setTournamentFeePercent",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -782,6 +537,19 @@
   {
     "inputs": [],
     "name": "subjectFeePercent",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tournamentFeePercent",
     "outputs": [
       {
         "internalType": "uint256",
@@ -808,53 +576,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "eventAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "eventId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "enum UnlonelySharesV2.EventType",
-        "name": "eventType",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bool",
-        "name": "result",
-        "type": "bool"
-      }
-    ],
-    "name": "verifyEvent",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "votingPooledEth",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
@@ -865,7 +586,7 @@
         "type": "address"
       }
     ],
-    "name": "yayVotesBalance",
+    "name": "vipBadgeBalance",
     "outputs": [
       {
         "internalType": "uint256",
@@ -884,7 +605,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "yayVotesSupply",
+    "name": "vipBadgeSupply",
     "outputs": [
       {
         "internalType": "uint256",
