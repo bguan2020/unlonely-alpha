@@ -64,7 +64,7 @@ const LiveChannelList: React.FunctionComponent<Props> = ({
           gap="15px"
           my="2rem"
         >
-          <Text fontFamily={"Neue Pixel Sans"}>no one is live right now</Text>
+          <Text fontFamily={"LoRes15"}>no one is live right now</Text>
         </Flex>
       )}
     </>

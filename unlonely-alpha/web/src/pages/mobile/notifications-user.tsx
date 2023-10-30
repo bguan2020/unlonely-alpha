@@ -57,11 +57,11 @@ export default function MobileNotifications() {
             fontSize="50px"
           >
             {!user ? (
-              <Text fontFamily="Neue Pixel Sans">
+              <Text fontFamily="LoRes15">
                 Unauthenticated. Please connect wallet to continue.
               </Text>
             ) : authError ? (
-              <Text fontFamily="Neue Pixel Sans">
+              <Text fontFamily="LoRes15">
                 server authentication error, please try again later
               </Text>
             ) : (
@@ -223,7 +223,7 @@ function MainContent() {
         px="1rem"
         direction="column"
       >
-        <Text fontFamily={"Neue Pixel Sans"}>Why am I seeing this?</Text>
+        <Text fontFamily={"LoRes15"}>Why am I seeing this?</Text>
         <Text fontSize="20px">
           Hi! We've deprecated this page and moved the notification pushing
           feature to your channel page for better streamer experience

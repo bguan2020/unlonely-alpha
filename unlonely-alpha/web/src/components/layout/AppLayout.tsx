@@ -9,7 +9,6 @@ import {
 } from "@chakra-ui/react";
 import { ApolloError } from "@apollo/client";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
 
 import NextHead from "./NextHead";
 import Header from "../navigation/Header";
@@ -47,18 +46,8 @@ const AppLayout: React.FC<Props> = ({
     xl: false,
   });
 
-  useEffect(() => {
-    if (router.pathname.startsWith("/channels")) {
-      document.body.style.backgroundImage = "none";
-      document.body.style.background = "rgba(24, 22, 47, 1)";
-    } else {
-      document.body.style.backgroundImage =
-        "linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)),linear-gradient(90deg, #E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)";
-    }
-  }, [router.pathname]);
-
   return (
-    <Box>
+    <Box background="rgba(0, 0, 0, 0.65)">
       {isCustomHeader === false && (
         <NextHead
           title=""

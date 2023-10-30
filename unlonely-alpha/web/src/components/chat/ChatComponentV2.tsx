@@ -1,3 +1,4 @@
+import { AddIcon, ChevronDownIcon, MinusIcon } from "@chakra-ui/icons";
 import {
   Flex,
   Box,
@@ -8,13 +9,18 @@ import {
   Tbody,
   Td,
   Tr,
+  IconButton,
+  Button,
+  Input,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState, CSSProperties } from "react";
+import { Virtuoso } from "react-virtuoso";
 
 import { useChat } from "../../hooks/chat/useChat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { filteredInput } from "../../utils/validation/input";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import ChatForm from "./ChatForm";
 import MessageList from "./MessageList";
@@ -25,6 +31,16 @@ const holders = [
   { name: "test3", quantity: 300 },
   { name: "test4", quantity: 200 },
   { name: "test5", quantity: 100 },
+  { name: "test6", quantity: 50 },
+  { name: "test7", quantity: 40 },
+  { name: "test8", quantity: 30 },
+  { name: "test9", quantity: 20 },
+  { name: "test10", quantity: 10 },
+  { name: "test11", quantity: 5 },
+  { name: "test12", quantity: 4 },
+  { name: "test13", quantity: 3 },
+  { name: "test14", quantity: 2 },
+  { name: "test15", quantity: 1 },
 ];
 
 const ChatComponent = () => {
@@ -33,9 +49,11 @@ const ChatComponent = () => {
     "chat"
   );
 
+  const [leaderboardIsCollapsed, setLeaderboardIsCollapsed] = useState(true);
+
   return (
     <Flex
-      height={!isStandalone ? { base: "65vh" } : "100%"}
+      height={!isStandalone ? { base: "80vh" } : "100%"}
       position={"relative"}
     >
       <OuterBorder type={BorderType.OCEAN} p={"0"}>
@@ -116,26 +134,46 @@ const ChatComponent = () => {
               width={"100%"}
               direction="column"
             >
-              <Flex
-                borderRadius={"5px"}
-                p="1px"
-                zIndex={3}
-                style={{
-                  border: "1px solid",
-                  borderWidth: "1px",
-                  borderImageSource:
-                    "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
-                  borderImageSlice: 1,
-                }}
-              >
+              <Flex borderRadius={"5px"} p="1px" zIndex={3} mb="75px">
                 <Flex
                   direction="column"
+                  position="absolute"
                   style={{ backdropFilter: "blur(6px)" }}
-                  width={"100%"}
+                  // width={"100%"}
+                  left={"10px"}
+                  right={"10px"}
                 >
-                  <Text fontSize={"20px"} textAlign={"center"}>
+                  <Text
+                    fontSize={"20px"}
+                    textAlign={"center"}
+                    fontFamily={"LoRes15"}
+                  >
                     LEADERBOARD
                   </Text>
+                  <IconButton
+                    aria-label="show leaderboard"
+                    _hover={{}}
+                    _active={{}}
+                    _focus={{}}
+                    bg="transparent"
+                    icon={<ChevronDownIcon />}
+                    onClick={() => {
+                      setLeaderboardIsCollapsed(!leaderboardIsCollapsed);
+                    }}
+                    position="absolute"
+                    right="-10px"
+                    top="-10px"
+                    transform={!leaderboardIsCollapsed ? "rotate(180deg)" : ""}
+                  />
+                  {leaderboardIsCollapsed && (
+                    <Box
+                      position="absolute"
+                      bg={"linear-gradient(to bottom, transparent 75%, black)"}
+                      width="100%"
+                      height="100%"
+                      pointerEvents={"none"}
+                    />
+                  )}
                   {/* {channelQueryData?.token?.symbol && (
                     <Text
                       color={"#B6B6B6"}
@@ -152,7 +190,11 @@ const ChatComponent = () => {
                     </Flex>
                   )} */}
                   {/* {!holdersLoading && holders.length > 0 && ( */}
-                  <TableContainer overflowX={"auto"}>
+                  <TableContainer
+                    overflowY={leaderboardIsCollapsed ? "hidden" : "auto"}
+                    maxHeight={leaderboardIsCollapsed ? "45px" : "150px"}
+                    transition={"max-height 0.2s ease-in-out"}
+                  >
                     <Table variant="unstyled" size="xs">
                       {/* <Thead>
                         <Tr>
@@ -213,13 +255,160 @@ const ChatComponent = () => {
                 </Flex>
               </Flex>
               {selectedTab === "chat" && <Chat />}
-              {selectedTab === "trade" && <Chat />}
+              {selectedTab === "trade" && <Trade />}
               {selectedTab === "vip" && <Chat />}
             </Flex>
           </OuterBorder>
         </Container>
       </OuterBorder>
     </Flex>
+  );
+};
+
+const Trade = () => {
+  const [isBuying, setIsBuying] = useState<boolean>(true);
+  const [isYay, setIsYay] = useState<boolean>(true);
+  const [amountOfVotes, setAmountOfVotes] = useState<string>("0");
+
+  const handleInputChange = (event: any) => {
+    const input = event.target.value;
+    const filtered = filteredInput(input);
+    setAmountOfVotes(filtered);
+  };
+
+  const tradeMessages = Array(50).fill("Brian bought 1 YES vote for 4 ETH");
+
+  return (
+    <>
+      <Flex
+        direction="column"
+        overflowX="auto"
+        height="100%"
+        width="100%"
+        mt="8px"
+        position="relative"
+      >
+        <Virtuoso
+          followOutput={"auto"}
+          style={{
+            height: "100%",
+            overflowY: "scroll",
+          }}
+          className="hide-scrollbar"
+          data={tradeMessages}
+          initialTopMostItemIndex={tradeMessages.length - 1}
+          itemContent={(index, data) => <Text key={index}>{data}</Text>}
+        />
+      </Flex>
+      <Flex justifyContent={"space-around"}>
+        <Flex>
+          <Button
+            bg={isYay ? "#46a800" : "transparent"}
+            _focus={{}}
+            _hover={{}}
+            _active={{}}
+            onClick={() => setIsYay(true)}
+          >
+            YES
+          </Button>
+          <Button
+            bg={!isYay ? "#fe2815" : "transparent"}
+            _focus={{}}
+            _hover={{}}
+            _active={{}}
+            onClick={() => setIsYay(false)}
+          >
+            NO
+          </Button>
+        </Flex>
+        <Flex bg={"#131323"} borderRadius="15px">
+          <Button
+            bg={isBuying ? "#46a800" : "transparent"}
+            _focus={{}}
+            _hover={{}}
+            _active={{}}
+            onClick={() => setIsBuying(true)}
+            borderRadius="15px"
+          >
+            BUY
+          </Button>
+          <Button
+            bg={!isBuying ? "#fe2815" : "transparent"}
+            _focus={{}}
+            _hover={{}}
+            _active={{}}
+            onClick={() => setIsBuying(false)}
+            borderRadius="15px"
+          >
+            SELL
+          </Button>
+        </Flex>
+      </Flex>
+      <Flex direction="column" borderRadius="15px" p="1rem">
+        <Flex gap="1rem" mb="5px">
+          <Flex direction="column">
+            <Text fontSize="10px" textAlign="center">
+              how many
+            </Text>
+            <Flex alignItems={"center"}>
+              <IconButton
+                bg="transparent"
+                _active={{}}
+                _focus={{}}
+                _hover={{}}
+                aria-label="decrease Votes"
+                icon={<MinusIcon />}
+                onClick={() => {
+                  if (Number(amountOfVotes) <= 0) return;
+                  setAmountOfVotes(String(Number(amountOfVotes) - 1));
+                }}
+              />
+              <Input
+                textAlign="center"
+                minWidth={"70px"}
+                value={amountOfVotes}
+                onChange={handleInputChange}
+              />
+              <IconButton
+                bg="transparent"
+                _active={{}}
+                _focus={{}}
+                _hover={{}}
+                aria-label="decrease Votes"
+                icon={<AddIcon />}
+                onClick={() => {
+                  setAmountOfVotes(String(Number(amountOfVotes) + 1));
+                }}
+              />
+            </Flex>
+          </Flex>
+          <Flex direction="column">
+            <Text fontSize="10px" textAlign="center">
+              price
+            </Text>
+            <Text whiteSpace={"nowrap"} margin="auto">
+              0.003 ETH
+            </Text>
+          </Flex>
+          <Flex direction="column">
+            <Text fontSize="10px" textAlign="center">
+              have
+            </Text>
+            <Text whiteSpace={"nowrap"} margin="auto">
+              {truncateValue(3, 0)}
+            </Text>
+          </Flex>
+        </Flex>
+        <Button
+          bg={isBuying ? "#46a800" : "#fe2815"}
+          _focus={{}}
+          _hover={{}}
+          _active={{}}
+        >
+          {isBuying ? "BUY" : "SELL"}
+        </Button>
+      </Flex>
+    </>
   );
 };
 

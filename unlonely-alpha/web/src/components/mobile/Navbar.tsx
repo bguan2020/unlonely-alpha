@@ -43,7 +43,7 @@ export const Navbar = () => {
             }.svg`}
             h="40px"
           />
-          <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
+          <Text fontFamily="LoRes15" fontWeight={"light"}>
             channels
           </Text>
         </Flex>
@@ -64,7 +64,7 @@ export const Navbar = () => {
             }.svg`}
             h="40px"
           />
-          <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
+          <Text fontFamily="LoRes15" fontWeight={"light"}>
             NFCs
           </Text>
         </Flex>
@@ -85,7 +85,7 @@ export const Navbar = () => {
             }.svg`}
             h="40px"
           />
-          <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
+          <Text fontFamily="LoRes15" fontWeight={"light"}>
             schedule
           </Text>
         </Flex>
@@ -115,7 +115,7 @@ export const Navbar = () => {
               h="40px"
             />
           )}
-          <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
+          <Text fontFamily="LoRes15" fontWeight={"light"}>
             profile
           </Text>
         </Flex>

@@ -1,14 +1,16 @@
 import { useQuery } from "@apollo/client";
+import { AddIcon, MinusIcon } from "@chakra-ui/icons";
 import {
+  Button,
   Flex,
   Grid,
   GridItem,
   IconButton,
   Image,
+  Input,
   Stack,
   Text,
   Tooltip,
-  useBreakpointValue,
 } from "@chakra-ui/react";
 import { GetServerSidePropsContext } from "next";
 import React, { useCallback, useMemo, useState } from "react";
@@ -47,6 +49,8 @@ import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
 import usePostBet from "../../hooks/server/gamblable/usePostBet";
 import usePostBetBuy from "../../hooks/server/gamblable/usePostBetBuy";
 import { getContractFromNetwork } from "../../utils/contract";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { filteredInput } from "../../utils/validation/input";
 
 const ChannelDetail = ({
   channelData,
@@ -115,8 +119,6 @@ const DesktopPage = ({
 
   const [previewStream, setPreviewStream] = useState<boolean>(false);
 
-  const showArcadeButtons = useBreakpointValue({ md: false, lg: true });
-
   //used on mobile view
   const [hideChat, setHideChat] = useState<boolean>(false);
 
@@ -145,6 +147,15 @@ const DesktopPage = ({
     },
   });
 
+  const [isBuying, setIsBuying] = useState<boolean>(true);
+  const [amountOfBadges, setAmountOfBadges] = useState<string>("0");
+
+  const handleInputChange = (event: any) => {
+    const input = event.target.value;
+    const filtered = filteredInput(input);
+    setAmountOfBadges(filtered);
+  };
+
   const v2contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const { buyVotes } = useBuyVotes(
@@ -152,7 +163,7 @@ const DesktopPage = ({
       eventAddress: "0x34Bb9e91dC8AC1E13fb42A0e23f7236999e063D4",
       eventId: 1,
       eventType: 0,
-      amountOfVotes: BigInt(1),
+      amountOfVotes: BigInt(amountOfBadges),
       value: BigInt(1),
     },
     v2contract,
@@ -220,15 +231,110 @@ const DesktopPage = ({
                 ) : (
                   <ChannelViewerPerspective />
                 )}
-                <Grid
-                  templateColumns="repeat(3, 1fr)"
-                  gap={4}
-                  mt="20px"
-                  alignItems="baseline"
-                >
-                  <GridItem colSpan={showArcadeButtons ? 2 : 3}>
-                    <ChannelDesc />
-                  </GridItem>
+                <Grid templateColumns="repeat(2, 1fr)" gap={4} mt="20px">
+                  <ChannelDesc />
+                  <Flex gap="1rem" margin="1rem">
+                    <Flex
+                      bg={"#131323"}
+                      borderRadius="15px"
+                      height="fit-content"
+                      margin="auto"
+                    >
+                      <Button
+                        bg={isBuying ? "#46a800" : "transparent"}
+                        _focus={{}}
+                        _hover={{}}
+                        _active={{}}
+                        onClick={() => setIsBuying(true)}
+                        borderRadius="15px"
+                      >
+                        BUY
+                      </Button>
+                      <Button
+                        bg={!isBuying ? "#fe2815" : "transparent"}
+                        _focus={{}}
+                        _hover={{}}
+                        _active={{}}
+                        onClick={() => setIsBuying(false)}
+                        borderRadius="15px"
+                      >
+                        SELL
+                      </Button>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      bg={"#131323"}
+                      borderRadius="15px"
+                      p="1rem"
+                    >
+                      <Flex gap="1rem" mb="5px">
+                        <Flex direction="column">
+                          <Text fontSize="10px" textAlign="center">
+                            how many
+                          </Text>
+                          <Flex alignItems={"center"}>
+                            <IconButton
+                              bg="transparent"
+                              _active={{}}
+                              _focus={{}}
+                              _hover={{}}
+                              aria-label="decrease badges"
+                              icon={<MinusIcon />}
+                              onClick={() => {
+                                if (Number(amountOfBadges) <= 0) return;
+                                setAmountOfBadges(
+                                  String(Number(amountOfBadges) - 1)
+                                );
+                              }}
+                            />
+                            <Input
+                              textAlign="center"
+                              minWidth={"70px"}
+                              value={amountOfBadges}
+                              onChange={handleInputChange}
+                            />
+                            <IconButton
+                              bg="transparent"
+                              _active={{}}
+                              _focus={{}}
+                              _hover={{}}
+                              aria-label="decrease badges"
+                              icon={<AddIcon />}
+                              onClick={() => {
+                                setAmountOfBadges(
+                                  String(Number(amountOfBadges) + 1)
+                                );
+                              }}
+                            />
+                          </Flex>
+                        </Flex>
+                        <Flex direction="column">
+                          <Text fontSize="10px" textAlign="center">
+                            price
+                          </Text>
+                          <Text whiteSpace={"nowrap"} margin="auto">
+                            0.003 ETH
+                          </Text>
+                        </Flex>
+                        <Flex direction="column">
+                          <Text fontSize="10px" textAlign="center">
+                            have
+                          </Text>
+                          <Text whiteSpace={"nowrap"} margin="auto">
+                            {truncateValue(3, 0)}
+                          </Text>
+                        </Flex>
+                      </Flex>
+                      <Button
+                        bg={isBuying ? "#46a800" : "#fe2815"}
+                        _focus={{}}
+                        _hover={{}}
+                        _active={{}}
+                      >
+                        {isBuying ? "BUY" : "SELL"}
+                      </Button>
+                    </Flex>
+                  </Flex>
                   {isOwner && (
                     <GridItem>
                       <Flex justifyContent={"center"} gap="10px">
@@ -403,7 +509,7 @@ const DesktopPage = ({
             {!channelDataError ? (
               <WavyText text="loading..." />
             ) : (
-              <Text fontFamily="Neue Pixel Sans">
+              <Text fontFamily="LoRes15">
                 server error, please try again later
               </Text>
             )}
@@ -479,7 +585,7 @@ const MobilePage = ({
               </Flex>
             </>
           ) : (
-            <Text fontFamily="Neue Pixel Sans">
+            <Text fontFamily="LoRes15">
               server error, please try again later
             </Text>
           )}

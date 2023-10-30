@@ -97,7 +97,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
           fontSize={{ base: "30px", lg: "40px" }}
           lineHeight={{ base: "60px", lg: "80px" }}
           textAlign="center"
-          fontFamily="Neue Pixel Sans"
+          fontFamily="LoRes15"
         >
           non-fungible clips
         </Text>
@@ -130,17 +130,17 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
               passHref
               target="_blank"
             >
-              <Text fontFamily="Neue Pixel Sans">twitter</Text>
+              <Text fontFamily="LoRes15">twitter</Text>
             </Link>
             <Link href="https://warpcast.com/unlonely" passHref target="_blank">
-              <Text fontFamily="Neue Pixel Sans">farcaster</Text>
+              <Text fontFamily="LoRes15">farcaster</Text>
             </Link>
             <Link
               href="https://t.me/+IE_BA-tyLIA5MzZh"
               passHref
               target="_blank"
             >
-              <Text fontFamily="Neue Pixel Sans">telegram</Text>
+              <Text fontFamily="LoRes15">telegram</Text>
             </Link>
           </Stack>
         </Flex>
@@ -429,7 +429,7 @@ function MobilePage({
             ) : (
               <Text
                 textAlign={"center"}
-                fontFamily={"Neue Pixel Sans"}
+                fontFamily={"LoRes15"}
                 fontSize={"25px"}
               >
                 Could not fetch channels, please try again later

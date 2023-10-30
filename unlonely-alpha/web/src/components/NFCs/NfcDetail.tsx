@@ -383,7 +383,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
           </>
         ) : (
           <Flex justifyContent={"center"}>
-            <Text fontSize={32} fontFamily="Neue Pixel Sans">
+            <Text fontSize={32} fontFamily="LoRes15">
               clip data could not be fetched
             </Text>
           </Flex>

@@ -392,13 +392,13 @@ export default function CustomTransactionModal({
             {!isEditing && (
               <>
                 <Flex gap="10px" alignItems="center" justifyContent={"center"}>
-                  <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
+                  <Text fontSize="30px" fontFamily={"LoRes15"}>
                     action:
                   </Text>
                   <Text fontSize="30px">{currentRequest}</Text>
                 </Flex>
                 <Flex gap="10px" alignItems="center" justifyContent={"center"}>
-                  <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
+                  <Text fontSize="30px" fontFamily={"LoRes15"}>
                     price:
                   </Text>
                   <Text fontSize="30px">{currentPrice}</Text>
@@ -420,13 +420,13 @@ export default function CustomTransactionModal({
                   }`}
                 </Text>
                 <Flex gap="10px" alignItems="center" justifyContent={"center"}>
-                  <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
+                  <Text fontSize="30px" fontFamily={"LoRes15"}>
                     action:
                   </Text>
                   <Text fontSize="30px">{currentRequest}</Text>
                 </Flex>
                 <Flex gap="10px" alignItems="center" justifyContent={"center"}>
-                  <Text fontSize="30px" fontFamily={"Neue Pixel Sans"}>
+                  <Text fontSize="30px" fontFamily={"LoRes15"}>
                     price:
                   </Text>
                   <Text fontSize="30px">{currentPrice}</Text>

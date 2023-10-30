@@ -146,7 +146,7 @@ const AblyChatComponent = () => {
                   setShowArcade(!showArcade);
                 }}
               >
-                <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
+                <Text fontSize={"24px"} fontFamily={"LoRes15"}>
                   arcade
                 </Text>
               </Button>
@@ -175,7 +175,7 @@ const AblyChatComponent = () => {
                   setShowLeaderboard(!showLeaderboard);
                 }}
               >
-                <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
+                <Text fontSize={"24px"} fontFamily={"LoRes15"}>
                   leaderboard
                 </Text>
               </Button>

@@ -692,7 +692,7 @@ const SharesUi = ({
                 >
                   <Flex direction="column">
                     <Text
-                      fontFamily="Neue Pixel Sans"
+                      fontFamily="LoRes15"
                       fontWeight={"light"}
                       fontSize="15px"
                     >
@@ -716,7 +716,7 @@ const SharesUi = ({
                 >
                   <Flex direction="column">
                     <Text
-                      fontFamily="Neue Pixel Sans"
+                      fontFamily="LoRes15"
                       fontWeight={"light"}
                       fontSize="15px"
                     >
