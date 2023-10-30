@@ -81,7 +81,7 @@ export const typeDef = gql`
     id: ID!
   }
 
-  input SetUserRoleForChannelInput {
+  input PostUserRoleForChannelInput {
     channelId: ID!
     userAddress: String!
     role: Int!
@@ -100,6 +100,6 @@ export const typeDef = gql`
     postSharesEvent(data: PostSharesEventInput!): Channel
     updateChannelText(data: UpdateChannelTextInput!): Channel
     updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
-    setUserRoleForChannel(data: SetUserRoleForChannelInput): ChannelUserRole
+    postUserRoleForChannel(data: PostUserRoleForChannelInput): ChannelUserRole
   }
 `;

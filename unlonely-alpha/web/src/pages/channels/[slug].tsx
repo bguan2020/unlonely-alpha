@@ -1,5 +1,7 @@
+import { useQuery } from "@apollo/client";
 import {
   Box,
+  Button,
   Container,
   Flex,
   Grid,
@@ -28,15 +30,29 @@ import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
 // import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
-import { CHANNEL_DETAIL_QUERY } from "../../constants/queries";
-import { ChannelDetailQuery } from "../../generated/graphql";
+import {
+  CHANNEL_DETAIL_QUERY,
+  GET_BADGE_HOLDERS_BY_CHANNEL_QUERY,
+  GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY,
+} from "../../constants/queries";
+import {
+  ChannelDetailQuery,
+  GetBadgeHoldersByChannelQuery,
+  GetChannelsByNumberOfBadgeHoldersQuery,
+} from "../../generated/graphql";
 import {
   ChannelProvider,
   useChannelContext,
 } from "../../hooks/context/useChannel";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useUser } from "../../hooks/context/useUser";
+import { useBuyVotes } from "../../hooks/contracts/useSharesContractV2";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
+import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
+import usePostBet from "../../hooks/server/gamblable/usePostBet";
+import usePostBetBuy from "../../hooks/server/gamblable/usePostBetBuy";
+import { getContractFromNetwork } from "../../utils/contract";
 
 const ChannelDetail = ({
   channelData,
@@ -67,6 +83,9 @@ const DesktopPage = ({
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
   const { channel, recentStreamInteractions, arcade } = useChannelContext();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+
   const {
     channelQueryData,
     loading: channelDataLoading,
@@ -78,6 +97,21 @@ const DesktopPage = ({
     () => channelDataLoading || recentStreamInteractionsLoading,
     [channelDataLoading, recentStreamInteractionsLoading]
   );
+
+  const { data } = useQuery<GetBadgeHoldersByChannelQuery>(
+    GET_BADGE_HOLDERS_BY_CHANNEL_QUERY,
+    {
+      variables: { data: { channelId: channelQueryData?.id } },
+    }
+  );
+
+  const { data: _data } = useQuery<GetChannelsByNumberOfBadgeHoldersQuery>(
+    GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY
+  );
+
+  console.log(_data?.getChannelsByNumberOfBadgeHolders);
+
+  console.log(data?.getBadgeHoldersByChannel);
 
   const [width] = useWindowSize();
   const { userAddress, user } = useUser();
@@ -98,6 +132,37 @@ const DesktopPage = ({
       return width <= 768 && (isChat ? hideChat : !hideChat);
     },
     [width, hideChat]
+  );
+
+  const { postBet, loading: postBetLoading } = usePostBet({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { postBetBuy, loading: postBetBuyLoading } = usePostBetBuy({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+  const { postBadgeTrade, loading: postBadgeTradeLoading } = usePostBadgeTrade({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const v2contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
+
+  const { buyVotes } = useBuyVotes(
+    {
+      eventAddress: "0x34Bb9e91dC8AC1E13fb42A0e23f7236999e063D4",
+      eventId: 1,
+      isYay: true,
+      amountOfVotes: BigInt(1),
+      value: BigInt(1),
+    },
+    v2contract,
+    {}
   );
 
   return (
@@ -121,6 +186,43 @@ const DesktopPage = ({
                 spacing={[4, 8]}
                 direction={["column", "column", "row", "row"]}
               >
+                <Button
+                  bg="#000000"
+                  onClick={() =>
+                    postBet({
+                      channelId: channelQueryData?.id,
+                      userAddress: user?.address,
+                    })
+                  }
+                >
+                  create bet
+                </Button>
+                <Button
+                  bg="#000000"
+                  onClick={() => {
+                    if (!buyVotes) return;
+                    buyVotes?.();
+                    postBetBuy({
+                      channelId: channelQueryData?.id,
+                      userAddress: user?.address,
+                      isYay: true,
+                    });
+                  }}
+                >
+                  buy bet
+                </Button>
+                <Button
+                  bg="#000000"
+                  onClick={() =>
+                    postBadgeTrade({
+                      channelId: channelQueryData?.id,
+                      userAddress: user?.address,
+                      isBuying: false,
+                    })
+                  }
+                >
+                  trade badge
+                </Button>
                 <Stack direction="column" width={"100%"}>
                   {isOwner && !previewStream ? (
                     <ChannelStreamerPerspective />

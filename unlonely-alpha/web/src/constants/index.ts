@@ -22,6 +22,11 @@ export enum BaseChatCommand {
   CLIP = "!clip",
 }
 
+export enum EventType {
+  YAY_NAY_VOTE = 0,
+  VIP_BADGE = 1,
+}
+
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const USER_APPROVAL_AMOUNT = "10000";

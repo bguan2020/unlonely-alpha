@@ -86,15 +86,6 @@ export default extendTheme({
     Button: {
       baseStyle: {
         fontWeight: "600",
-        _hover: {
-          opacity: 0.3,
-        },
-        _active: {
-          opacity: 0.6,
-        },
-        _focus: {
-          opacity: 0.6,
-        },
       },
       sizes: {
         sm: {

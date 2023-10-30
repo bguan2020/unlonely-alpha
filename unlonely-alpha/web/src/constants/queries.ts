@@ -234,3 +234,46 @@ export const GET_BASE_LEADERBOARD_QUERY = gql`
     }
   }
 `;
+
+export const GET_BADGE_HOLDERS_BY_CHANNEL_QUERY = gql`
+  query GetBadgeHoldersByChannel($data: GetBadgeHoldersByChannelInput!) {
+    getBadgeHoldersByChannel(data: $data)
+  }
+`;
+
+export const GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY = gql`
+  query GetChannelsByNumberOfBadgeHolders {
+    getChannelsByNumberOfBadgeHolders {
+      channel {
+        awsId
+        channelArn
+        description
+        customButtonPrice
+        customButtonAction
+        isLive
+        id
+        name
+        slug
+        allowNFCs
+        sharesEvent {
+          sharesSubjectQuestion
+          sharesSubjectAddress
+          eventState
+        }
+        owner {
+          FCImageUrl
+          lensImageUrl
+          username
+          address
+        }
+        token {
+          id
+          name
+          symbol
+          address
+        }
+      }
+      holders
+    }
+  }
+`;

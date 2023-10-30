@@ -210,6 +210,28 @@ export type DeviceToken = {
   updatedAt: Scalars["DateTime"];
 };
 
+export enum GamblableEvent {
+  BadgeBuy = "BADGE_BUY",
+  BadgeSell = "BADGE_SELL",
+  BetCreate = "BET_CREATE",
+  BetNo = "BET_NO",
+  BetYes = "BET_YES",
+}
+
+export type GamblableInteraction = {
+  __typename?: "GamblableInteraction";
+  channel: Channel;
+  createdAt: Scalars["DateTime"];
+  id: Scalars["ID"];
+  softDelete?: Maybe<Scalars["Boolean"]>;
+  type: GamblableEvent;
+  user: User;
+};
+
+export type GetBadgeHoldersByChannelInput = {
+  channelId: Scalars["ID"];
+};
+
 export type GetChatInput = {
   channelId: Scalars["Int"];
   limit: Scalars["Int"];
@@ -288,7 +310,10 @@ export type Mutation = {
   createCreatorToken: CreatorToken;
   handleLike?: Maybe<Likable>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
+  postBadgeTrade: GamblableInteraction;
   postBaseLeaderboard: BaseLeaderboard;
+  postBet: GamblableInteraction;
+  postBetBuy: GamblableInteraction;
   postChatByAwsId?: Maybe<Chat>;
   postDeviceToken?: Maybe<DeviceToken>;
   postFirstChat?: Maybe<Chat>;
@@ -297,9 +322,9 @@ export type Mutation = {
   postStreamInteraction?: Maybe<StreamInteraction>;
   postSubscription?: Maybe<Subscription>;
   postTask?: Maybe<Task>;
+  postUserRoleForChannel?: Maybe<ChannelUserRole>;
   postVideo?: Maybe<Video>;
   removeChannelFromSubscription?: Maybe<Subscription>;
-  setUserRoleForChannel?: Maybe<ChannelUserRole>;
   softDeleteSubscription?: Maybe<Subscription>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
@@ -339,8 +364,20 @@ export type MutationHandleLikeArgs = {
   data: HandleLikeInput;
 };
 
+export type MutationPostBadgeTradeArgs = {
+  data: PostBadgeTradeInput;
+};
+
 export type MutationPostBaseLeaderboardArgs = {
   data: PostBaseLeaderboardInput;
+};
+
+export type MutationPostBetArgs = {
+  data: PostBetInput;
+};
+
+export type MutationPostBetBuyArgs = {
+  data: PostBetBuyInput;
 };
 
 export type MutationPostChatByAwsIdArgs = {
@@ -375,16 +412,16 @@ export type MutationPostTaskArgs = {
   data: PostTaskInput;
 };
 
+export type MutationPostUserRoleForChannelArgs = {
+  data?: InputMaybe<PostUserRoleForChannelInput>;
+};
+
 export type MutationPostVideoArgs = {
   data: PostVideoInput;
 };
 
 export type MutationRemoveChannelFromSubscriptionArgs = {
   data: MoveChannelAlongSubscriptionInput;
-};
-
-export type MutationSetUserRoleForChannelArgs = {
-  data?: InputMaybe<SetUserRoleForChannelInput>;
 };
 
 export type MutationSoftDeleteSubscriptionArgs = {
@@ -456,6 +493,12 @@ export type NfcFeedInput = {
   orderBy?: InputMaybe<SortBy>;
 };
 
+export type NumberOfHolders = {
+  __typename?: "NumberOfHolders";
+  channel: Channel;
+  holders: Scalars["Int"];
+};
+
 export type Poap = {
   __typename?: "Poap";
   createdAt: Scalars["DateTime"];
@@ -467,8 +510,25 @@ export type Poap = {
   updatedAt: Scalars["DateTime"];
 };
 
+export type PostBadgeTradeInput = {
+  channelId: Scalars["ID"];
+  isBuying: Scalars["Boolean"];
+  userAddress: Scalars["String"];
+};
+
 export type PostBaseLeaderboardInput = {
   amount: Scalars["Float"];
+};
+
+export type PostBetBuyInput = {
+  channelId: Scalars["ID"];
+  isYay: Scalars["Boolean"];
+  userAddress: Scalars["String"];
+};
+
+export type PostBetInput = {
+  channelId: Scalars["ID"];
+  userAddress: Scalars["String"];
 };
 
 export type PostChatByAwsIdInput = {
@@ -528,6 +588,12 @@ export type PostTaskInput = {
   youtubeId?: InputMaybe<Scalars["String"]>;
 };
 
+export type PostUserRoleForChannelInput = {
+  channelId: Scalars["ID"];
+  role: Scalars["Int"];
+  userAddress: Scalars["String"];
+};
+
 export type PostVideoInput = {
   description?: InputMaybe<Scalars["String"]>;
   duration?: InputMaybe<Scalars["Int"]>;
@@ -549,12 +615,14 @@ export type Query = {
   getAllUsers?: Maybe<Array<Maybe<User>>>;
   getAllUsersWithChannel?: Maybe<Array<Maybe<User>>>;
   getAllUsersWithNotificationsToken?: Maybe<Array<Maybe<User>>>;
+  getBadgeHoldersByChannel: Array<Maybe<Scalars["String"]>>;
   getBaseLeaderboard: Array<BaseLeaderboard>;
   getChannelByAwsId?: Maybe<Channel>;
   getChannelById?: Maybe<Channel>;
   getChannelBySlug?: Maybe<Channel>;
   getChannelFeed?: Maybe<Array<Maybe<Channel>>>;
   getChannelWithTokenById?: Maybe<Channel>;
+  getChannelsByNumberOfBadgeHolders: Array<Maybe<NumberOfHolders>>;
   getDeviceByToken?: Maybe<DeviceToken>;
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
   getNFC?: Maybe<Nfc>;
@@ -577,6 +645,10 @@ export type Query = {
 
 export type QueryCheckSubscriptionByEndpointArgs = {
   data: ToggleSubscriptionInput;
+};
+
+export type QueryGetBadgeHoldersByChannelArgs = {
+  data?: InputMaybe<GetBadgeHoldersByChannelInput>;
 };
 
 export type QueryGetChannelByAwsIdArgs = {
@@ -663,12 +735,6 @@ export type SendAllNotificationsInput = {
   body: Scalars["String"];
   channelId?: InputMaybe<Scalars["ID"]>;
   title: Scalars["String"];
-};
-
-export type SetUserRoleForChannelInput = {
-  channelId: Scalars["ID"];
-  role: Scalars["Int"];
-  userAddress: Scalars["String"];
 };
 
 export type SharesEvent = {
@@ -1144,6 +1210,60 @@ export type GetBaseLeaderboardQuery = {
   }>;
 };
 
+export type GetBadgeHoldersByChannelQueryVariables = Exact<{
+  data: GetBadgeHoldersByChannelInput;
+}>;
+
+export type GetBadgeHoldersByChannelQuery = {
+  __typename?: "Query";
+  getBadgeHoldersByChannel: Array<string | null>;
+};
+
+export type GetChannelsByNumberOfBadgeHoldersQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetChannelsByNumberOfBadgeHoldersQuery = {
+  __typename?: "Query";
+  getChannelsByNumberOfBadgeHolders: Array<{
+    __typename?: "NumberOfHolders";
+    holders: number;
+    channel: {
+      __typename?: "Channel";
+      awsId: string;
+      channelArn?: string | null;
+      description?: string | null;
+      customButtonPrice?: number | null;
+      customButtonAction?: string | null;
+      isLive?: boolean | null;
+      id: string;
+      name?: string | null;
+      slug: string;
+      allowNFCs?: boolean | null;
+      sharesEvent?: Array<{
+        __typename?: "SharesEvent";
+        sharesSubjectQuestion?: string | null;
+        sharesSubjectAddress?: string | null;
+        eventState?: SharesEventState | null;
+      } | null> | null;
+      owner: {
+        __typename?: "User";
+        FCImageUrl?: string | null;
+        lensImageUrl?: string | null;
+        username?: string | null;
+        address: string;
+      };
+      token?: {
+        __typename?: "CreatorToken";
+        id: string;
+        name: string;
+        symbol: string;
+        address: string;
+      } | null;
+    };
+  } | null>;
+};
+
 export type GetUserQueryVariables = Exact<{
   data: GetUserInput;
 }>;
@@ -1200,6 +1320,33 @@ export type UpdateUserCreatorTokenQuantityMutation = {
     __typename?: "UserCreatorToken";
     quantity: number;
   };
+};
+
+export type PostBadgeTradeMutationVariables = Exact<{
+  data: PostBadgeTradeInput;
+}>;
+
+export type PostBadgeTradeMutation = {
+  __typename?: "Mutation";
+  postBadgeTrade: { __typename?: "GamblableInteraction"; id: string };
+};
+
+export type PostBetMutationVariables = Exact<{
+  data: PostBetInput;
+}>;
+
+export type PostBetMutation = {
+  __typename?: "Mutation";
+  postBet: { __typename?: "GamblableInteraction"; id: string };
+};
+
+export type PostBetBuyMutationVariables = Exact<{
+  data: PostBetBuyInput;
+}>;
+
+export type PostBetBuyMutation = {
+  __typename?: "Mutation";
+  postBetBuy: { __typename?: "GamblableInteraction"; id: string };
 };
 
 export type UpdateDeleteChatCommandsMutationVariables = Exact<{
@@ -1351,6 +1498,21 @@ export type PostTaskMutation = {
   postTask?: { __typename?: "Task"; id: string } | null;
 };
 
+export type PostUserRoleForChannelMutationVariables = Exact<{
+  data: PostUserRoleForChannelInput;
+}>;
+
+export type PostUserRoleForChannelMutation = {
+  __typename?: "Mutation";
+  postUserRoleForChannel?: {
+    __typename?: "ChannelUserRole";
+    id: number;
+    channelId: number;
+    userAddress: string;
+    role: number;
+  } | null;
+};
+
 export type PostVideoMutationVariables = Exact<{
   data: PostVideoInput;
 }>;
@@ -1369,21 +1531,6 @@ export type RemoveChannelFromSubscriptionMutation = {
   removeChannelFromSubscription?: {
     __typename?: "Subscription";
     id: string;
-  } | null;
-};
-
-export type SetUserRoleForChannelMutationVariables = Exact<{
-  data: SetUserRoleForChannelInput;
-}>;
-
-export type SetUserRoleForChannelMutation = {
-  __typename?: "Mutation";
-  setUserRoleForChannel?: {
-    __typename?: "ChannelUserRole";
-    id: number;
-    channelId: number;
-    userAddress: string;
-    role: number;
   } | null;
 };
 
@@ -2442,6 +2589,148 @@ export type GetBaseLeaderboardQueryResult = Apollo.QueryResult<
   GetBaseLeaderboardQuery,
   GetBaseLeaderboardQueryVariables
 >;
+export const GetBadgeHoldersByChannelDocument = gql`
+  query GetBadgeHoldersByChannel($data: GetBadgeHoldersByChannelInput!) {
+    getBadgeHoldersByChannel(data: $data)
+  }
+`;
+
+/**
+ * __useGetBadgeHoldersByChannelQuery__
+ *
+ * To run a query within a React component, call `useGetBadgeHoldersByChannelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBadgeHoldersByChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBadgeHoldersByChannelQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetBadgeHoldersByChannelQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetBadgeHoldersByChannelQuery,
+    GetBadgeHoldersByChannelQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetBadgeHoldersByChannelQuery,
+    GetBadgeHoldersByChannelQueryVariables
+  >(GetBadgeHoldersByChannelDocument, options);
+}
+export function useGetBadgeHoldersByChannelLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetBadgeHoldersByChannelQuery,
+    GetBadgeHoldersByChannelQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetBadgeHoldersByChannelQuery,
+    GetBadgeHoldersByChannelQueryVariables
+  >(GetBadgeHoldersByChannelDocument, options);
+}
+export type GetBadgeHoldersByChannelQueryHookResult = ReturnType<
+  typeof useGetBadgeHoldersByChannelQuery
+>;
+export type GetBadgeHoldersByChannelLazyQueryHookResult = ReturnType<
+  typeof useGetBadgeHoldersByChannelLazyQuery
+>;
+export type GetBadgeHoldersByChannelQueryResult = Apollo.QueryResult<
+  GetBadgeHoldersByChannelQuery,
+  GetBadgeHoldersByChannelQueryVariables
+>;
+export const GetChannelsByNumberOfBadgeHoldersDocument = gql`
+  query GetChannelsByNumberOfBadgeHolders {
+    getChannelsByNumberOfBadgeHolders {
+      channel {
+        awsId
+        channelArn
+        description
+        customButtonPrice
+        customButtonAction
+        isLive
+        id
+        name
+        slug
+        allowNFCs
+        sharesEvent {
+          sharesSubjectQuestion
+          sharesSubjectAddress
+          eventState
+        }
+        owner {
+          FCImageUrl
+          lensImageUrl
+          username
+          address
+        }
+        token {
+          id
+          name
+          symbol
+          address
+        }
+      }
+      holders
+    }
+  }
+`;
+
+/**
+ * __useGetChannelsByNumberOfBadgeHoldersQuery__
+ *
+ * To run a query within a React component, call `useGetChannelsByNumberOfBadgeHoldersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelsByNumberOfBadgeHoldersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelsByNumberOfBadgeHoldersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetChannelsByNumberOfBadgeHoldersQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetChannelsByNumberOfBadgeHoldersQuery,
+    GetChannelsByNumberOfBadgeHoldersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetChannelsByNumberOfBadgeHoldersQuery,
+    GetChannelsByNumberOfBadgeHoldersQueryVariables
+  >(GetChannelsByNumberOfBadgeHoldersDocument, options);
+}
+export function useGetChannelsByNumberOfBadgeHoldersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetChannelsByNumberOfBadgeHoldersQuery,
+    GetChannelsByNumberOfBadgeHoldersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetChannelsByNumberOfBadgeHoldersQuery,
+    GetChannelsByNumberOfBadgeHoldersQueryVariables
+  >(GetChannelsByNumberOfBadgeHoldersDocument, options);
+}
+export type GetChannelsByNumberOfBadgeHoldersQueryHookResult = ReturnType<
+  typeof useGetChannelsByNumberOfBadgeHoldersQuery
+>;
+export type GetChannelsByNumberOfBadgeHoldersLazyQueryHookResult = ReturnType<
+  typeof useGetChannelsByNumberOfBadgeHoldersLazyQuery
+>;
+export type GetChannelsByNumberOfBadgeHoldersQueryResult = Apollo.QueryResult<
+  GetChannelsByNumberOfBadgeHoldersQuery,
+  GetChannelsByNumberOfBadgeHoldersQueryVariables
+>;
 export const GetUserDocument = gql`
   query getUser($data: GetUserInput!) {
     getUser(data: $data) {
@@ -2658,6 +2947,153 @@ export type UpdateUserCreatorTokenQuantityMutationOptions =
     UpdateUserCreatorTokenQuantityMutation,
     UpdateUserCreatorTokenQuantityMutationVariables
   >;
+export const PostBadgeTradeDocument = gql`
+  mutation PostBadgeTrade($data: PostBadgeTradeInput!) {
+    postBadgeTrade(data: $data) {
+      id
+    }
+  }
+`;
+export type PostBadgeTradeMutationFn = Apollo.MutationFunction<
+  PostBadgeTradeMutation,
+  PostBadgeTradeMutationVariables
+>;
+
+/**
+ * __usePostBadgeTradeMutation__
+ *
+ * To run a mutation, you first call `usePostBadgeTradeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostBadgeTradeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postBadgeTradeMutation, { data, loading, error }] = usePostBadgeTradeMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostBadgeTradeMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostBadgeTradeMutation,
+    PostBadgeTradeMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostBadgeTradeMutation,
+    PostBadgeTradeMutationVariables
+  >(PostBadgeTradeDocument, options);
+}
+export type PostBadgeTradeMutationHookResult = ReturnType<
+  typeof usePostBadgeTradeMutation
+>;
+export type PostBadgeTradeMutationResult =
+  Apollo.MutationResult<PostBadgeTradeMutation>;
+export type PostBadgeTradeMutationOptions = Apollo.BaseMutationOptions<
+  PostBadgeTradeMutation,
+  PostBadgeTradeMutationVariables
+>;
+export const PostBetDocument = gql`
+  mutation PostBet($data: PostBetInput!) {
+    postBet(data: $data) {
+      id
+    }
+  }
+`;
+export type PostBetMutationFn = Apollo.MutationFunction<
+  PostBetMutation,
+  PostBetMutationVariables
+>;
+
+/**
+ * __usePostBetMutation__
+ *
+ * To run a mutation, you first call `usePostBetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostBetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postBetMutation, { data, loading, error }] = usePostBetMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostBetMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostBetMutation,
+    PostBetMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<PostBetMutation, PostBetMutationVariables>(
+    PostBetDocument,
+    options
+  );
+}
+export type PostBetMutationHookResult = ReturnType<typeof usePostBetMutation>;
+export type PostBetMutationResult = Apollo.MutationResult<PostBetMutation>;
+export type PostBetMutationOptions = Apollo.BaseMutationOptions<
+  PostBetMutation,
+  PostBetMutationVariables
+>;
+export const PostBetBuyDocument = gql`
+  mutation PostBetBuy($data: PostBetBuyInput!) {
+    postBetBuy(data: $data) {
+      id
+    }
+  }
+`;
+export type PostBetBuyMutationFn = Apollo.MutationFunction<
+  PostBetBuyMutation,
+  PostBetBuyMutationVariables
+>;
+
+/**
+ * __usePostBetBuyMutation__
+ *
+ * To run a mutation, you first call `usePostBetBuyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostBetBuyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postBetBuyMutation, { data, loading, error }] = usePostBetBuyMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostBetBuyMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostBetBuyMutation,
+    PostBetBuyMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<PostBetBuyMutation, PostBetBuyMutationVariables>(
+    PostBetBuyDocument,
+    options
+  );
+}
+export type PostBetBuyMutationHookResult = ReturnType<
+  typeof usePostBetBuyMutation
+>;
+export type PostBetBuyMutationResult =
+  Apollo.MutationResult<PostBetBuyMutation>;
+export type PostBetBuyMutationOptions = Apollo.BaseMutationOptions<
+  PostBetBuyMutation,
+  PostBetBuyMutationVariables
+>;
 export const UpdateDeleteChatCommandsDocument = gql`
   mutation UpdateDeleteChatCommands($data: UpdateDeleteChatCommandInput!) {
     updateDeleteChatCommands(data: $data) {
@@ -3308,6 +3744,59 @@ export type PostTaskMutationOptions = Apollo.BaseMutationOptions<
   PostTaskMutation,
   PostTaskMutationVariables
 >;
+export const PostUserRoleForChannelDocument = gql`
+  mutation PostUserRoleForChannel($data: PostUserRoleForChannelInput!) {
+    postUserRoleForChannel(data: $data) {
+      id
+      channelId
+      userAddress
+      role
+    }
+  }
+`;
+export type PostUserRoleForChannelMutationFn = Apollo.MutationFunction<
+  PostUserRoleForChannelMutation,
+  PostUserRoleForChannelMutationVariables
+>;
+
+/**
+ * __usePostUserRoleForChannelMutation__
+ *
+ * To run a mutation, you first call `usePostUserRoleForChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostUserRoleForChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postUserRoleForChannelMutation, { data, loading, error }] = usePostUserRoleForChannelMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostUserRoleForChannelMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostUserRoleForChannelMutation,
+    PostUserRoleForChannelMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostUserRoleForChannelMutation,
+    PostUserRoleForChannelMutationVariables
+  >(PostUserRoleForChannelDocument, options);
+}
+export type PostUserRoleForChannelMutationHookResult = ReturnType<
+  typeof usePostUserRoleForChannelMutation
+>;
+export type PostUserRoleForChannelMutationResult =
+  Apollo.MutationResult<PostUserRoleForChannelMutation>;
+export type PostUserRoleForChannelMutationOptions = Apollo.BaseMutationOptions<
+  PostUserRoleForChannelMutation,
+  PostUserRoleForChannelMutationVariables
+>;
 export const PostVideoDocument = gql`
   mutation PostVideo($data: PostVideoInput!) {
     postVideo(data: $data) {
@@ -3410,59 +3899,6 @@ export type RemoveChannelFromSubscriptionMutationOptions =
     RemoveChannelFromSubscriptionMutation,
     RemoveChannelFromSubscriptionMutationVariables
   >;
-export const SetUserRoleForChannelDocument = gql`
-  mutation setUserRoleForChannel($data: SetUserRoleForChannelInput!) {
-    setUserRoleForChannel(data: $data) {
-      id
-      channelId
-      userAddress
-      role
-    }
-  }
-`;
-export type SetUserRoleForChannelMutationFn = Apollo.MutationFunction<
-  SetUserRoleForChannelMutation,
-  SetUserRoleForChannelMutationVariables
->;
-
-/**
- * __useSetUserRoleForChannelMutation__
- *
- * To run a mutation, you first call `useSetUserRoleForChannelMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSetUserRoleForChannelMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [setUserRoleForChannelMutation, { data, loading, error }] = useSetUserRoleForChannelMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useSetUserRoleForChannelMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    SetUserRoleForChannelMutation,
-    SetUserRoleForChannelMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    SetUserRoleForChannelMutation,
-    SetUserRoleForChannelMutationVariables
-  >(SetUserRoleForChannelDocument, options);
-}
-export type SetUserRoleForChannelMutationHookResult = ReturnType<
-  typeof useSetUserRoleForChannelMutation
->;
-export type SetUserRoleForChannelMutationResult =
-  Apollo.MutationResult<SetUserRoleForChannelMutation>;
-export type SetUserRoleForChannelMutationOptions = Apollo.BaseMutationOptions<
-  SetUserRoleForChannelMutation,
-  SetUserRoleForChannelMutationVariables
->;
 export const ToggleSubscriptionDocument = gql`
   mutation ToggleSubscription($data: ToggleSubscriptionInput!) {
     toggleSubscription(data: $data) {
