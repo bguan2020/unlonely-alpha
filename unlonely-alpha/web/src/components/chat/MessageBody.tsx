@@ -22,7 +22,7 @@ import {
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import Badges from "./Badges";
-import { Message } from "../../constants/types/chat";
+import { Message, SenderStatus } from "../../constants/types/chat";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import usePostUserRoleForChannel from "../../hooks/server/usePostUserRoleForChannel";
@@ -33,7 +33,10 @@ type Props = {
   messageText: string;
   linkArray: RegExpMatchArray | null;
   channel: any;
+  isVipChat?: boolean;
 };
+
+// if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred
 
 const MessageBody = ({
   message,
@@ -41,6 +44,7 @@ const MessageBody = ({
   messageText,
   linkArray,
   channel,
+  isVipChat,
 }: Props) => {
   const { channel: c } = useChannelContext();
   const { channelQueryData } = c;
@@ -114,22 +118,22 @@ const MessageBody = ({
   };
 
   // publish emoji reaction using timeserial
-  const sendMessageReaction = (
-    emoji: string,
-    timeserial: any,
-    reactionEvent: string
-  ) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    channel.publish(reactionEvent, {
-      body: emoji,
-      name: reactionEvent,
-      extras: {
-        reference: { type: "com.ably.reaction", timeserial },
-      },
-    });
-    setShowEmojiList(null);
-  };
+  // const sendMessageReaction = (
+  //   emoji: string,
+  //   timeserial: any,
+  //   reactionEvent: string
+  // ) => {
+  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //   // @ts-ignore
+  //   channel.publish(reactionEvent, {
+  //     body: emoji,
+  //     name: reactionEvent,
+  //     extras: {
+  //       reference: { type: "com.ably.reaction", timeserial },
+  //     },
+  //   });
+  //   setShowEmojiList(null);
+  // };
 
   const ban = async () => {
     await postUserRoleForChannel({
@@ -346,6 +350,13 @@ const MessageBody = ({
                   fontSize="12px"
                   color={message.data.chatColor}
                   fontWeight="bold"
+                  filter={
+                    isVipChat &&
+                    (message.data.senderStatus === SenderStatus.VIP ||
+                      message.data.senderStatus === SenderStatus.CHATBOT)
+                      ? "blur(0px)"
+                      : "blur(2px)"
+                  }
                 >
                   {message.data.username
                     ? message.data.username
@@ -367,6 +378,14 @@ const MessageBody = ({
                     {linkArray ? (
                       <Flex direction="column">
                         <Text
+                          filter={
+                            isVipChat &&
+                            (message.data.senderStatus === SenderStatus.VIP ||
+                              message.data.senderStatus ===
+                                SenderStatus.CHATBOT)
+                              ? "blur(0px)"
+                              : "blur(2px)"
+                          }
                           fontSize={
                             message.data.address === NULL_ADDRESS
                               ? "12px"
@@ -403,6 +422,13 @@ const MessageBody = ({
                         }
                         wordBreak="break-word"
                         textAlign="left"
+                        filter={
+                          isVipChat &&
+                          (message.data.senderStatus === SenderStatus.VIP ||
+                            message.data.senderStatus === SenderStatus.CHATBOT)
+                            ? "blur(0px)"
+                            : "blur(2px)"
+                        }
                       >
                         {messageText.split("\n").map((line, index) => (
                           <span key={index}>

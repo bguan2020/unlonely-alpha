@@ -4,6 +4,12 @@ export type EmojiType = {
   unicodeString: string;
 };
 
+export enum SenderStatus {
+  CHATBOT,
+  USER,
+  VIP,
+}
+
 export type EmojiTypes = { emojiType: "unicode" | string; count: number }[];
 
 export type Message = {
@@ -25,6 +31,7 @@ export type Message = {
     tokenHolderRank?: number;
     isGif: boolean;
     body?: string;
+    senderStatus: SenderStatus;
   };
   id: string;
   timestamp: number;

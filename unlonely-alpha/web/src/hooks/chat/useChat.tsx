@@ -19,6 +19,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
 import { ChatBot } from "../../constants/types";
 import { REACTION_EMOJIS } from "../../components/chat/emoji/constants";
+import { SenderStatus } from "../../constants/types/chat";
 
 const initializeEmojis = REACTION_EMOJIS.map((emoji) => ({
   emojiType: emoji,
@@ -163,6 +164,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
         isLens: false,
         isGif: false,
         reactions: initializeEmojis,
+        senderStatus: SenderStatus.CHATBOT,
         body,
       },
     });
@@ -178,6 +180,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
   const sendChatMessage = async (
     messageText: string,
     isGif: boolean,
+    senderStatus: SenderStatus,
     body?: string
   ) => {
     if (walletIsConnected && user) {
@@ -194,6 +197,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
           tokenHolderRank: userRank,
           isGif,
           reactions: initializeEmojis,
+          senderStatus,
           body,
         },
       });

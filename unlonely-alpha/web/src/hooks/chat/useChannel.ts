@@ -71,11 +71,6 @@ export function useChannel(fixedChatName?: string) {
     const messageHistory = receivedMessages.filter(
       (m) => m.name === CHAT_MESSAGE_EVENT
     );
-    // if (message.name === ADD_REACTION_EVENT) {
-    //   messageHistory = updateMessageHistoryReactions(message, messageHistory);
-
-    //   setReceivedMessages([...messageHistory]);
-    // }
     if (message.name === BAN_USER_EVENT) {
       const userAddressToBan = message.data.body;
       setLocalBanList([...localBanList, userAddressToBan]);

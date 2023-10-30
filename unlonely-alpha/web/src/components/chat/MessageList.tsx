@@ -3,7 +3,7 @@ import React, { memo, useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 
 import MessageBody from "./MessageBody";
-import { Message } from "../../constants/types/chat";
+import { Message, SenderStatus } from "../../constants/types/chat";
 import { CHAT_MESSAGE_EVENT } from "../../constants";
 
 type MessageListProps = {
@@ -11,36 +11,52 @@ type MessageListProps = {
   channel: any;
   scrollRef: any;
   isAtBottomCallback: (value: boolean) => void;
+  isVipChat?: boolean;
 };
 
 type MessageItemProps = {
   message: Message;
   channel: any;
   index: number;
+  isVipChat?: boolean;
 };
 
-const MessageItem = memo(({ message, channel, index }: MessageItemProps) => {
-  const messageText = message.data.messageText;
-  const linkArray: RegExpMatchArray | null = messageText.match(
-    /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
-  );
+const MessageItem = memo(
+  ({ message, channel, index, isVipChat }: MessageItemProps) => {
+    const messageText = message.data.messageText;
+    const linkArray: RegExpMatchArray | null = messageText.match(
+      /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
+    );
 
-  return (
-    <div key={message.id || index}>
-      <MessageBody
-        index={index}
-        message={message}
-        messageText={messageText}
-        linkArray={linkArray}
-        channel={channel}
-      />
-    </div>
-  );
-});
+    return (
+      <div key={message.id || index}>
+        <MessageBody
+          index={index}
+          message={message}
+          messageText={messageText}
+          linkArray={linkArray}
+          channel={channel}
+          isVipChat={isVipChat}
+        />
+      </div>
+    );
+  }
+);
 const MessageList = memo(
-  ({ messages, channel, scrollRef, isAtBottomCallback }: MessageListProps) => {
+  ({
+    messages,
+    channel,
+    scrollRef,
+    isAtBottomCallback,
+    isVipChat,
+  }: MessageListProps) => {
     const chatMessages = useMemo(
-      () => messages.filter((message) => message.name === CHAT_MESSAGE_EVENT),
+      () =>
+        messages
+          .filter((message) => message.name === CHAT_MESSAGE_EVENT)
+          .filter((message) =>
+            isVipChat ? message.data.senderStatus !== SenderStatus.USER : true
+          ),
       [messages]
     );
 
@@ -64,6 +80,7 @@ const MessageList = memo(
                 message={data}
                 channel={channel}
                 index={index}
+                isVipChat={isVipChat}
               />
             )}
           />

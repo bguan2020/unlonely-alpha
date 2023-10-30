@@ -33,7 +33,7 @@ import {
   USER_APPROVAL_AMOUNT,
 } from "../../constants";
 import Commands from "./Commands";
-import { EmojiType } from "../../constants/types/chat";
+import { EmojiType, SenderStatus } from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import EmojiButton from "./emoji/EmojiButton";
@@ -51,7 +51,12 @@ import { REACTION_EMOJIS } from "./emoji/constants";
 import EmojiDisplay from "./emoji/EmojiDisplay";
 
 type Props = {
-  sendChatMessage: (message: string, isGif: boolean, body?: string) => void;
+  sendChatMessage: (
+    message: string,
+    isGif: boolean,
+    senderStatus: SenderStatus,
+    body?: string
+  ) => void;
   inputBox: HTMLTextAreaElement | null;
   mobile?: boolean;
   additionalChatCommands?: CommandData[];
@@ -223,6 +228,7 @@ const ChatForm = ({
             ? gifInTransaction
             : messageText.replace(/^\s*\n|\n\s*$/g, ""),
           gifInTransaction !== "",
+          SenderStatus.USER,
           `${InteractionType.BLAST}:`
         );
         setGifInTransaction("");
@@ -264,7 +270,7 @@ const ChatForm = ({
 
   const sendGif = (gif: string) => {
     if (!blastMode) {
-      sendChatMessage(gif, true);
+      sendChatMessage(gif, true, SenderStatus.USER);
       setMessageText("");
     } else {
       if (channelQueryData?.token?.address) {
@@ -277,7 +283,12 @@ const ChatForm = ({
           useFeature?.();
         }
       } else {
-        sendChatMessage(gif, true, `${InteractionType.BLAST}:`);
+        sendChatMessage(
+          gif,
+          true,
+          SenderStatus.USER,
+          `${InteractionType.BLAST}:`
+        );
         setBlastMode(false);
       }
     }
@@ -296,7 +307,11 @@ const ChatForm = ({
       }
       event.preventDefault();
       if (!blastMode) {
-        sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
+        sendChatMessage(
+          messageText.replace(/^\s*\n|\n\s*$/g, ""),
+          false,
+          SenderStatus.USER
+        );
         setMessageText("");
       } else {
         if (channelQueryData?.token?.address) {
@@ -312,6 +327,7 @@ const ChatForm = ({
           sendChatMessage(
             messageText.replace(/^\s*\n|\n\s*$/g, ""),
             false,
+            SenderStatus.USER,
             `${InteractionType.BLAST}:`
           );
           setBlastMode(false);
@@ -334,7 +350,11 @@ const ChatForm = ({
     async (event: { preventDefault: () => void }) => {
       event.preventDefault();
       if (!blastMode) {
-        sendChatMessage(messageText.replace(/^\s*\n|\n\s*$/g, ""), false);
+        sendChatMessage(
+          messageText.replace(/^\s*\n|\n\s*$/g, ""),
+          false,
+          SenderStatus.USER
+        );
         setMessageText("");
       } else {
         if (channelQueryData?.token?.address) {
@@ -349,6 +369,7 @@ const ChatForm = ({
           sendChatMessage(
             messageText.replace(/^\s*\n|\n\s*$/g, ""),
             false,
+            SenderStatus.USER,
             `${InteractionType.BLAST}:`
           );
           setBlastMode(false);
