@@ -71,6 +71,12 @@ export const typeDef = gql`
   }
 
   input PostSharesEventInput {
+    channelId: ID!
+    sharesSubjectQuestion: String
+    sharesSubjectAddress: String
+  }
+
+  input UpdateSharesEventInput {
     id: ID!
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
@@ -98,6 +104,7 @@ export const typeDef = gql`
   extend type Mutation {
     closeSharesEvent(data: PostCloseSharesEventInput!): Channel
     postSharesEvent(data: PostSharesEventInput!): Channel
+    updateSharesEvent(data: UpdateSharesEventInput!): Channel
     updateChannelText(data: UpdateChannelTextInput!): Channel
     updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
     postUserRoleForChannel(data: PostUserRoleForChannelInput): ChannelUserRole
