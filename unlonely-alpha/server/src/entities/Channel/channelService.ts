@@ -53,6 +53,12 @@ export const updateChannelCustomButton = (
 };
 
 export interface IPostSharesEventInput {
+  channelId: number;
+  sharesSubjectQuestion: string;
+  sharesSubjectAddress: string;
+}
+
+export interface IUpdateSharesEventInput {
   id: number;
   sharesSubjectQuestion: string;
   sharesSubjectAddress: string;
@@ -63,33 +69,40 @@ export const postSharesEvent = async (
   data: IPostSharesEventInput,
   ctx: Context
 ) => {
-  const existingSharesEvent = await ctx.prisma.sharesEvent.findMany({
-    // where softDelete is false
-    where: { channelId: Number(data.id), softDelete: false },
-    // order by createdAt w latest first
-    orderBy: { createdAt: "desc" },
-  });
-  if (existingSharesEvent.length > 0) {
-    return ctx.prisma.sharesEvent.update({
-      where: { id: existingSharesEvent[0].id },
-      data: {
-        sharesSubjectQuestion: data.sharesSubjectQuestion,
-        sharesSubjectAddress: data.sharesSubjectAddress,
-        eventState: data.eventState,
-      },
-    });
-  }
   return ctx.prisma.sharesEvent.create({
     data: {
       sharesSubjectQuestion: data.sharesSubjectQuestion,
       sharesSubjectAddress: data.sharesSubjectAddress,
-      eventState: data.eventState,
+      eventState: SharesEventState.LIVE,
       softDelete: false,
       channel: {
         connect: {
-          id: Number(data.id),
+          id: Number(data.channelId),
         },
       },
+    },
+  });
+};
+
+export const updateSharesEvent = async (
+  data: IUpdateSharesEventInput,
+  ctx: Context
+) => {
+  // find latest shares event
+  const sharesEvent = await ctx.prisma.sharesEvent.findFirst({
+    where: { id: Number(data.id), softDelete: false },
+  });
+
+  if (!sharesEvent) {
+    throw new Error("No shares event found");
+  }
+
+  return ctx.prisma.sharesEvent.update({
+    where: { id: sharesEvent.id },
+    data: {
+      sharesSubjectQuestion: data.sharesSubjectQuestion,
+      sharesSubjectAddress: data.sharesSubjectAddress,
+      eventState: data.eventState,
     },
   });
 };
@@ -103,7 +116,7 @@ export const closeSharesEvent = async (
   ctx: Context
 ) => {
   const sharesEvent = await ctx.prisma.sharesEvent.findFirst({
-    where: { channelId: Number(data.id), softDelete: false },
+    where: { id: Number(data.id), softDelete: false },
   });
 
   if (!sharesEvent) {
