@@ -162,8 +162,8 @@ const DesktopPage = ({
     {
       eventAddress: "0x34Bb9e91dC8AC1E13fb42A0e23f7236999e063D4",
       eventId: 1,
-      eventType: 0,
-      amountOfVotes: BigInt(amountOfBadges),
+      isYay: true,
+      amountOfVotes: BigInt(1),
       value: BigInt(1),
     },
     v2contract,
