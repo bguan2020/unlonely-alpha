@@ -204,7 +204,6 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
 
     function endTournament() public onlyTournamentCreator {
         require(activeTournament.isActive, "No active tournament currently.");
-        require(!activeTournament.isWinnerSelected, "Winner already selected.");
         activeTournament.isActive = false;
     }
 

@@ -8,7 +8,6 @@ import {
   Image,
   Tooltip,
   Grid,
-  GridItem,
   Stack,
 } from "@chakra-ui/react";
 
@@ -166,39 +165,38 @@ const DesktopPage = ({
                 ) : (
                   <ChannelViewerPerspective />
                 )}
+                {isOwner && (
+                  <Flex justifyContent={"center"} gap="10px">
+                    <Tooltip
+                      label={`${previewStream ? "hide" : "preview"} stream`}
+                    >
+                      <IconButton
+                        onClick={() => setPreviewStream((prev) => !prev)}
+                        aria-label="preview"
+                        _hover={{}}
+                        _active={{}}
+                        _focus={{}}
+                        icon={
+                          <Image
+                            src="/svg/preview-video.svg"
+                            height={12}
+                            style={{
+                              filter: previewStream
+                                ? "grayscale(100%)"
+                                : "none",
+                            }}
+                          />
+                        }
+                      />
+                    </Tooltip>
+                  </Flex>
+                )}
                 <Grid templateColumns="50% 50%" gap={4} mt="20px">
                   <ChannelDesc />
                   <Flex gap="1rem" margin="1rem" justifyContent={"flex-end"}>
                     <ChannelTournament />
                   </Flex>
-                  {isOwner && (
-                    <GridItem>
-                      <Flex justifyContent={"center"} gap="10px">
-                        <Tooltip
-                          label={`${previewStream ? "hide" : "preview"} stream`}
-                        >
-                          <IconButton
-                            onClick={() => setPreviewStream((prev) => !prev)}
-                            aria-label="preview"
-                            _hover={{}}
-                            _active={{}}
-                            _focus={{}}
-                            icon={
-                              <Image
-                                src="/svg/preview-video.svg"
-                                height={12}
-                                style={{
-                                  filter: previewStream
-                                    ? "grayscale(100%)"
-                                    : "none",
-                                }}
-                              />
-                            }
-                          />
-                        </Tooltip>
-                      </Flex>
-                    </GridItem>
-                  )}
+
                   {/* {showArcadeButtons && !isOwner && (
                       <GridItem justifyItems={"center"}>
                         <Box
