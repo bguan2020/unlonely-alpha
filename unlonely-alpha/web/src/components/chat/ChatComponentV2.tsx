@@ -30,7 +30,9 @@ import {
 } from "../../hooks/chat/useChatV2";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
+import { useBuyVotes } from "../../hooks/contracts/useSharesContractV2";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import usePostBetBuy from "../../hooks/server/gamblable/usePostBetBuy";
 import { getContractFromNetwork } from "../../utils/contract";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { filteredInput } from "../../utils/validation/input";
@@ -281,6 +283,12 @@ const ChatComponent = () => {
 };
 
 const Trade = ({ chat }: { chat: ChatReturnType }) => {
+  const { channel } = useChannelContext();
+  const {
+    channelQueryData,
+    loading: channelDataLoading,
+    error: channelDataError,
+  } = channel;
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
 
@@ -300,6 +308,27 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     const filtered = filteredInput(input);
     setAmountOfVotes(filtered);
   };
+
+  const { postBetBuy, loading: postBetBuyLoading } = usePostBetBuy({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const v2contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
+
+  const { buyVotes } = useBuyVotes(
+    {
+      eventAddress: channelQueryData?.sharesEvent?.[0]
+        ?.sharesSubjectAddress as `0x${string}`,
+      eventId: Number(channelQueryData?.sharesEvent?.[0]?.id),
+      isYay: true,
+      amountOfVotes: amount_bigint,
+      value: BigInt(1),
+    },
+    v2contract,
+    {}
+  );
 
   const tradeMessages = useMemo(() => {
     const tradeMessages = chat.receivedMessages.filter(

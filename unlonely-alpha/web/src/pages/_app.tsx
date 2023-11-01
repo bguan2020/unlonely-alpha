@@ -33,7 +33,7 @@ function App({ Component, pageProps, cookies }: Props) {
   );
 
   const configureChainsConfig = configureChains(
-    [Base, Mainnet, Goerli, BaseGoerli],
+    [Base, Mainnet, Goerli, BaseGoerli], // first chain in array determines the first chain to interact with via publicClient
     [
       alchemyProvider({
         apiKey: "aR93M6MdEC4lgh4VjPXLaMnfBveve1fC",

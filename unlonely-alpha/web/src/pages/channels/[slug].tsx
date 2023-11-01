@@ -1,23 +1,21 @@
 import { useQuery } from "@apollo/client";
-import { AddIcon, MinusIcon } from "@chakra-ui/icons";
-import {
-  Button,
-  Flex,
-  Grid,
-  GridItem,
-  IconButton,
-  Image,
-  Input,
-  Stack,
-  Text,
-  Tooltip,
-} from "@chakra-ui/react";
 import { GetServerSidePropsContext } from "next";
 import React, { useCallback, useMemo, useState } from "react";
+import {
+  Flex,
+  IconButton,
+  Text,
+  Image,
+  Tooltip,
+  Grid,
+  GridItem,
+  Stack,
+} from "@chakra-ui/react";
 
 import { initializeApollo } from "../../apiClient/client";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
+import { ChannelTournament } from "../../components/channels/ChannelTournament";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
 import ChatComponent from "../../components/chat/ChatComponentV2";
 import { BorderType, OuterBorder } from "../../components/general/OuterBorder";
@@ -40,17 +38,8 @@ import {
   ChannelProvider,
   useChannelContext,
 } from "../../hooks/context/useChannel";
-import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useUser } from "../../hooks/context/useUser";
-import { useBuyVotes } from "../../hooks/contracts/useSharesContractV2";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import { useWindowSize } from "../../hooks/internal/useWindowSize";
-import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
-import usePostBet from "../../hooks/server/gamblable/usePostBet";
-import usePostBetBuy from "../../hooks/server/gamblable/usePostBetBuy";
-import { getContractFromNetwork } from "../../utils/contract";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { filteredInput } from "../../utils/validation/input";
 
 const ChannelDetail = ({
   channelData,
@@ -81,8 +70,6 @@ const DesktopPage = ({
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
   const { channel, recentStreamInteractions, arcade } = useChannelContext();
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
 
   const {
     channelQueryData,
@@ -111,64 +98,12 @@ const DesktopPage = ({
 
   console.log(data?.getBadgeHoldersByChannel);
 
-  const [width] = useWindowSize();
-  const { userAddress, user } = useUser();
+  const { userAddress } = useUser();
 
   const isOwner = userAddress === channelQueryData?.owner.address;
   // const isOwner = true;
 
   const [previewStream, setPreviewStream] = useState<boolean>(false);
-
-  //used on mobile view
-  const [hideChat, setHideChat] = useState<boolean>(false);
-
-  const isHidden = useCallback(
-    (isChat: boolean) => {
-      //checks if width is <= 48 em (base size) if so checks switch tab is disabled
-      return width <= 768 && (isChat ? hideChat : !hideChat);
-    },
-    [width, hideChat]
-  );
-
-  const { postBet, loading: postBetLoading } = usePostBet({
-    onError: (err) => {
-      console.log(err);
-    },
-  });
-
-  const { postBetBuy, loading: postBetBuyLoading } = usePostBetBuy({
-    onError: (err) => {
-      console.log(err);
-    },
-  });
-  const { postBadgeTrade, loading: postBadgeTradeLoading } = usePostBadgeTrade({
-    onError: (err) => {
-      console.log(err);
-    },
-  });
-
-  // const [isBuying, setIsBuying] = useState<boolean>(true);
-  const [amountOfBadges, setAmountOfBadges] = useState<string>("0");
-
-  const handleInputChange = (event: any) => {
-    const input = event.target.value;
-    const filtered = filteredInput(input);
-    setAmountOfBadges(filtered);
-  };
-
-  const v2contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
-
-  const { buyVotes } = useBuyVotes(
-    {
-      eventAddress: "0x34Bb9e91dC8AC1E13fb42A0e23f7236999e063D4",
-      eventId: 1,
-      isYay: true,
-      amountOfVotes: BigInt(1),
-      value: BigInt(1),
-    },
-    v2contract,
-    {}
-  );
 
   return (
     <>
@@ -234,121 +169,7 @@ const DesktopPage = ({
                 <Grid templateColumns="50% 50%" gap={4} mt="20px">
                   <ChannelDesc />
                   <Flex gap="1rem" margin="1rem" justifyContent={"flex-end"}>
-                    {/* <Flex
-                      bg={"#131323"}
-                      borderRadius="15px"
-                      height="fit-content"
-                      margin="auto"
-                    >
-                      <Button
-                        bg={isBuying ? "#46a800" : "transparent"}
-                        _focus={{}}
-                        _hover={{}}
-                        _active={{}}
-                        onClick={() => setIsBuying(true)}
-                        borderRadius="15px"
-                      >
-                        BUY
-                      </Button>
-                      <Button
-                        bg={!isBuying ? "#fe2815" : "transparent"}
-                        _focus={{}}
-                        _hover={{}}
-                        _active={{}}
-                        onClick={() => setIsBuying(false)}
-                        borderRadius="15px"
-                      >
-                        SELL
-                      </Button>
-                    </Flex> */}
-                    <Flex
-                      direction="column"
-                      bg={"#131323"}
-                      borderRadius="15px"
-                      p="1rem"
-                    >
-                      <Text fontFamily={"LoRes15"} fontSize="20px">
-                        BECOME A VIP
-                      </Text>
-                      <Flex gap="1rem" mb="5px">
-                        <Flex direction="column">
-                          <Text fontSize="10px" textAlign="center">
-                            how many
-                          </Text>
-                          <Flex alignItems={"center"}>
-                            <IconButton
-                              bg="transparent"
-                              _active={{}}
-                              _focus={{}}
-                              _hover={{}}
-                              aria-label="decrease badges"
-                              icon={<MinusIcon />}
-                              onClick={() => {
-                                if (Number(amountOfBadges) <= 0) return;
-                                setAmountOfBadges(
-                                  String(Number(amountOfBadges) - 1)
-                                );
-                              }}
-                            />
-                            <Input
-                              textAlign="center"
-                              width={"70px"}
-                              value={amountOfBadges}
-                              onChange={handleInputChange}
-                            />
-                            <IconButton
-                              bg="transparent"
-                              _active={{}}
-                              _focus={{}}
-                              _hover={{}}
-                              aria-label="decrease badges"
-                              icon={<AddIcon />}
-                              onClick={() => {
-                                setAmountOfBadges(
-                                  String(Number(amountOfBadges) + 1)
-                                );
-                              }}
-                            />
-                          </Flex>
-                        </Flex>
-                        <Flex direction="column">
-                          <Text fontSize="10px" textAlign="center">
-                            price
-                          </Text>
-                          <Text whiteSpace={"nowrap"} margin="auto">
-                            0.003 ETH
-                          </Text>
-                        </Flex>
-                        <Flex direction="column">
-                          <Text fontSize="10px" textAlign="center">
-                            have
-                          </Text>
-                          <Text whiteSpace={"nowrap"} margin="auto">
-                            {truncateValue(3, 0)}
-                          </Text>
-                        </Flex>
-                      </Flex>
-                      <Flex gap="5px">
-                        <Button
-                          bg={"#46a800"}
-                          _focus={{}}
-                          _hover={{}}
-                          _active={{}}
-                          width="100%"
-                        >
-                          BUY
-                        </Button>
-                        <Button
-                          bg={"#fe2815"}
-                          _focus={{}}
-                          _hover={{}}
-                          _active={{}}
-                          width="100%"
-                        >
-                          SELL
-                        </Button>
-                      </Flex>
-                    </Flex>
+                    <ChannelTournament />
                   </Flex>
                   {isOwner && (
                     <GridItem>

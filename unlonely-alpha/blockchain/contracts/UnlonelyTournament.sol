@@ -121,6 +121,9 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
     }
 
     constructor() {
+        // Set the contract deployer as the initial tournament creator
+
+        isTournamentCreator[msg.sender] = true;
         protocolFeePercent = 5 * 10**16; // 5%
         subjectFeePercent = 5 * 10**16;  // 5%
         tournamentFeePercent = 5 * 10**16;  // 5%
@@ -140,6 +143,10 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
 
     function setTournamentFeePercent(uint256 _feePercent) public onlyOwner {
         tournamentFeePercent = _feePercent;
+    }
+
+    function setTournamentCreator(address creator, bool value) public onlyOwner {
+        isTournamentCreator[creator] = value;
     }
 
 	function generateKey(address streamerAddress, uint256 eventId, EventType eventType) public pure validEventType(eventType) returns (bytes32) {
@@ -232,18 +239,22 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         uint256 price = getBuyPrice(streamerAddress, eventId, eventType, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
-        return price + protocolFee + subjectFee;
+        uint256 tournamentFee = price * tournamentFeePercent / 1 ether;
+        return price + protocolFee + subjectFee + tournamentFee;
     }
 
     function getSellPriceAfterFee(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256) {
         uint256 price = getSellPrice(streamerAddress, eventId, eventType, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
-        return price - protocolFee - subjectFee;
+        uint256 tournamentFee = price * tournamentFeePercent / 1 ether;
+        return price - protocolFee - subjectFee - tournamentFee;
     }
 
     function buyVIPBadge(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) {
+        require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(activeTournament.isActive, "No active tournament currently.");
+        require(amount > 0, "Cannot buy zero badges");
         bytes32 key = generateKey(streamerAddress, eventId, eventType);
         uint256 price = getPrice(vipBadgeSupply[key], amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
@@ -263,7 +274,9 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
     }
 
     function sellVIPBadge(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public validEventType(eventType) nonReentrant {
+        require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(activeTournament.isActive, "No active tournament");
+        require(amount > 0, "Cannot buy zero badges");
         bytes32 key = generateKey(streamerAddress, eventId, eventType);
         require(vipBadgeBalance[key][msg.sender] >= amount, "Insufficient badges");
         uint256 price = getPrice(vipBadgeSupply[key] - amount, amount);

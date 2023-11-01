@@ -350,13 +350,6 @@ const MessageBody = ({
                   fontSize="12px"
                   color={message.data.chatColor}
                   fontWeight="bold"
-                  filter={
-                    !isVipChat &&
-                    message.data.senderStatus === SenderStatus.VIP &&
-                    (!userIsChannelOwner || false)
-                      ? "blur(5px)"
-                      : "blur(0px)"
-                  }
                 >
                   {message.data.username
                     ? message.data.username

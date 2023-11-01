@@ -91,6 +91,544 @@
       "UnlonelyTournament": {
         "src": "contracts\\UnlonelyTournament.sol:81",
         "version": {
+          "withMetadata": "489038cd6cb9872e854a9656905e2c3b484b32413aed429eea4f500e1c5b9a4e",
+          "withoutMetadata": "95259f56cc21e5b8fedd22b8f9e7cba5a4263e961925239a1fa3c516607ccd14",
+          "linkedWithoutMetadata": "95259f56cc21e5b8fedd22b8f9e7cba5a4263e961925239a1fa3c516607ccd14"
+        },
+        "inherit": [
+          "ReentrancyGuard",
+          "Ownable",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "()",
+          "setFeeDestination(address)",
+          "setProtocolFeePercent(uint256)",
+          "setSubjectFeePercent(uint256)",
+          "setTournamentFeePercent(uint256)",
+          "setTournamentCreator(address,bool)",
+          "generateKey(address,uint256,uint8)",
+          "createTournament(uint256)",
+          "selectTournamentWinner(address,uint256,uint8)",
+          "claimTournamentPayout()",
+          "getTournamentPayout()",
+          "endTournament()",
+          "getHolderBalance(address,uint256,uint8,address)",
+          "getPrice(uint256,uint256)",
+          "getBuyPrice(address,uint256,uint8,uint256)",
+          "getSellPrice(address,uint256,uint8,uint256)",
+          "getBuyPriceAfterFee(address,uint256,uint8,uint256)",
+          "getSellPriceAfterFee(address,uint256,uint8,uint256)",
+          "buyVIPBadge(address,uint256,uint8,uint256)",
+          "sellVIPBadge(address,uint256,uint8,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "UnlonelyTournament",
+            "src": "contracts\\UnlonelyTournament.sol:123"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelyTournament.sol:17"
+            },
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            },
+            {
+              "label": "activeTournament",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_struct(Tournament)202_storage",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:97"
+            },
+            {
+              "label": "protocolFeeDestination",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_address",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:99"
+            },
+            {
+              "label": "protocolFeePercent",
+              "offset": 0,
+              "slot": "7",
+              "type": "t_uint256",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:100"
+            },
+            {
+              "label": "subjectFeePercent",
+              "offset": 0,
+              "slot": "8",
+              "type": "t_uint256",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:101"
+            },
+            {
+              "label": "tournamentFeePercent",
+              "offset": 0,
+              "slot": "9",
+              "type": "t_uint256",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:102"
+            },
+            {
+              "label": "vipBadgeSupply",
+              "offset": 0,
+              "slot": "10",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:106"
+            },
+            {
+              "label": "vipBadgeBalance",
+              "offset": 0,
+              "slot": "11",
+              "type": "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:107"
+            },
+            {
+              "label": "isTournamentCreator",
+              "offset": 0,
+              "slot": "12",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:108"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_bytes32": {
+              "label": "bytes32"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))": {
+              "label": "mapping(bytes32 => mapping(address => uint256))"
+            },
+            "t_mapping(t_bytes32,t_uint256)": {
+              "label": "mapping(bytes32 => uint256)"
+            },
+            "t_struct(Tournament)202_storage": {
+              "label": "struct UnlonelyTournament.Tournament",
+              "members": [
+                {
+                  "label": "isActive",
+                  "type": "t_bool"
+                },
+                {
+                  "label": "isWinnerSelected",
+                  "type": "t_bool"
+                },
+                {
+                  "label": "winningBadge",
+                  "type": "t_bytes32"
+                },
+                {
+                  "label": "vipPooledEth",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "endTimestamp",
+                  "type": "t_uint256"
+                }
+              ]
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      }
+    },
+    {
+      "ReentrancyGuard": {
+        "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:22",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "ReentrancyGuard",
+            "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:39"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            }
+          ],
+          "types": {
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "Context": {
+        "src": "contracts\\UnlonelyTournament.sol:6",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "Ownable": {
+        "src": "contracts\\UnlonelyTournament.sol:16",
+        "inherit": [
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "owner()",
+          "renounceOwnership()",
+          "transferOwnership(address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "Ownable",
+            "src": "contracts\\UnlonelyTournament.sol:24"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelyTournament.sol:17"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "UnlonelyTournament": {
+        "src": "contracts\\UnlonelyTournament.sol:81",
+        "version": {
+          "withMetadata": "4b7fdbd223b535819dbaf045b5ed7d606269508a3c6c4ecf46a541c3114ec379",
+          "withoutMetadata": "0fef65a0e82a20b555265d58e0b9c19fbd2628ea09387f36c1015ceb9369a6f9",
+          "linkedWithoutMetadata": "0fef65a0e82a20b555265d58e0b9c19fbd2628ea09387f36c1015ceb9369a6f9"
+        },
+        "inherit": [
+          "ReentrancyGuard",
+          "Ownable",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "()",
+          "setFeeDestination(address)",
+          "setProtocolFeePercent(uint256)",
+          "setSubjectFeePercent(uint256)",
+          "setTournamentFeePercent(uint256)",
+          "setTournamentCreator(address,bool)",
+          "generateKey(address,uint256,uint8)",
+          "createTournament(uint256)",
+          "selectTournamentWinner(address,uint256,uint8)",
+          "claimTournamentPayout()",
+          "getTournamentPayout()",
+          "endTournament()",
+          "getHolderBalance(address,uint256,uint8,address)",
+          "getPrice(uint256,uint256)",
+          "getBuyPrice(address,uint256,uint8,uint256)",
+          "getSellPrice(address,uint256,uint8,uint256)",
+          "getBuyPriceAfterFee(address,uint256,uint8,uint256)",
+          "getSellPriceAfterFee(address,uint256,uint8,uint256)",
+          "buyVIPBadge(address,uint256,uint8,uint256)",
+          "sellVIPBadge(address,uint256,uint8,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "UnlonelyTournament",
+            "src": "contracts\\UnlonelyTournament.sol:123"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelyTournament.sol:17"
+            },
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            },
+            {
+              "label": "activeTournament",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_struct(Tournament)202_storage",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:97"
+            },
+            {
+              "label": "protocolFeeDestination",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_address",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:99"
+            },
+            {
+              "label": "protocolFeePercent",
+              "offset": 0,
+              "slot": "7",
+              "type": "t_uint256",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:100"
+            },
+            {
+              "label": "subjectFeePercent",
+              "offset": 0,
+              "slot": "8",
+              "type": "t_uint256",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:101"
+            },
+            {
+              "label": "tournamentFeePercent",
+              "offset": 0,
+              "slot": "9",
+              "type": "t_uint256",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:102"
+            },
+            {
+              "label": "vipBadgeSupply",
+              "offset": 0,
+              "slot": "10",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:106"
+            },
+            {
+              "label": "vipBadgeBalance",
+              "offset": 0,
+              "slot": "11",
+              "type": "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:107"
+            },
+            {
+              "label": "isTournamentCreator",
+              "offset": 0,
+              "slot": "12",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:108"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_bytes32": {
+              "label": "bytes32"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))": {
+              "label": "mapping(bytes32 => mapping(address => uint256))"
+            },
+            "t_mapping(t_bytes32,t_uint256)": {
+              "label": "mapping(bytes32 => uint256)"
+            },
+            "t_struct(Tournament)202_storage": {
+              "label": "struct UnlonelyTournament.Tournament",
+              "members": [
+                {
+                  "label": "isActive",
+                  "type": "t_bool"
+                },
+                {
+                  "label": "isWinnerSelected",
+                  "type": "t_bool"
+                },
+                {
+                  "label": "winningBadge",
+                  "type": "t_bytes32"
+                },
+                {
+                  "label": "vipPooledEth",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "endTimestamp",
+                  "type": "t_uint256"
+                }
+              ]
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      }
+    },
+    {
+      "ReentrancyGuard": {
+        "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:22",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "ReentrancyGuard",
+            "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:39"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            }
+          ],
+          "types": {
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "Context": {
+        "src": "contracts\\UnlonelyTournament.sol:6",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "Ownable": {
+        "src": "contracts\\UnlonelyTournament.sol:16",
+        "inherit": [
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "owner()",
+          "renounceOwnership()",
+          "transferOwnership(address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "Ownable",
+            "src": "contracts\\UnlonelyTournament.sol:24"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelyTournament.sol:17"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "UnlonelyTournament": {
+        "src": "contracts\\UnlonelyTournament.sol:81",
+        "version": {
           "withMetadata": "0918f807db3ecc11dfac1edda5e06d4d1578c65b01182d78fabb766574fa7592",
           "withoutMetadata": "7f8efef9b3781fe19c73629252166ff3d9a8fc797f9d9be744c9ba616bf6aa81",
           "linkedWithoutMetadata": "7f8efef9b3781fe19c73629252166ff3d9a8fc797f9d9be744c9ba616bf6aa81"

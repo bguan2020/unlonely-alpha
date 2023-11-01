@@ -18,9 +18,13 @@ type ActiveTournament = {
 export const useReadPublic = (contract: ContractData) => {
   const publicClient = usePublicClient();
 
-  const [activeTournament, setActiveTournament] = useState<
-    ActiveTournament | undefined
-  >(undefined);
+  const [activeTournament, setActiveTournament] = useState<ActiveTournament>({
+    isActive: false,
+    isWinnerSelected: false,
+    winningBadge: NULL_ADDRESS,
+    vipPooledEth: BigInt(0),
+    endTimestamp: BigInt(0),
+  });
   const [protocolFeeDestination, setProtocolFeeDestination] =
     useState<string>(NULL_ADDRESS);
   const [protocolFeePercent, setProtocolFeePercent] = useState<bigint>(
@@ -33,13 +37,20 @@ export const useReadPublic = (contract: ContractData) => {
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
-      setActiveTournament(undefined);
+      setActiveTournament({
+        isActive: false,
+        isWinnerSelected: false,
+        winningBadge: NULL_ADDRESS,
+        vipPooledEth: BigInt(0),
+        endTimestamp: BigInt(0),
+      });
       setProtocolFeeDestination(NULL_ADDRESS);
       setProtocolFeePercent(BigInt(0));
       setSubjectFeePercent(BigInt(0));
       setTournamentFeePercent(BigInt(0));
       return;
     }
+    // try {
     const [
       activeTournament,
       protocolFeeDestination,
@@ -78,12 +89,31 @@ export const useReadPublic = (contract: ContractData) => {
         args: [],
       }),
     ]);
-    setActiveTournament(activeTournament as unknown as ActiveTournament);
+    setActiveTournament({
+      isActive: Boolean(activeTournament[0]),
+      isWinnerSelected: Boolean(activeTournament[1]),
+      winningBadge: String(activeTournament[2]),
+      vipPooledEth: BigInt(String(activeTournament[3])),
+      endTimestamp: BigInt(String(activeTournament[4])),
+    });
     setProtocolFeeDestination(String(protocolFeeDestination));
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
     setTournamentFeePercent(BigInt(String(tournamentFeePercent)));
-  }, [contract, publicClient]);
+    // } catch (e) {
+    //   setActiveTournament({
+    //     isActive: false,
+    //     isWinnerSelected: false,
+    //     winningBadge: NULL_ADDRESS,
+    //     vipPooledEth: BigInt(0),
+    //     endTimestamp: BigInt(0),
+    //   });
+    //   setProtocolFeeDestination(NULL_ADDRESS);
+    //   setProtocolFeePercent(BigInt(0));
+    //   setSubjectFeePercent(BigInt(0));
+    //   setTournamentFeePercent(BigInt(0));
+    // }
+  }, [contract.address, publicClient]);
 
   useEffect(() => {
     getData();
@@ -129,7 +159,7 @@ export const useReadMappings = (key: string, contract: ContractData) => {
     ]);
     setVipBadgeSupply(BigInt(String(vipBadgeSupply)));
     setIsTournamentCreator(Boolean(isTournamentCreator));
-  }, [contract, publicClient, userAddress, key]);
+  }, [contract.address, publicClient, userAddress, key]);
 
   useEffect(() => {
     getData();
@@ -280,7 +310,7 @@ export const useGenerateKey = (
       args: [streamerAddress, eventId, EventType.VIP_BADGE],
     });
     setKey(String(key));
-  }, [contract, publicClient, streamerAddress, eventId]);
+  }, [contract.address, publicClient, streamerAddress, eventId]);
 
   useEffect(() => {
     getData();
@@ -409,6 +439,34 @@ export const useEndTournament = (
   };
 };
 
+export const useGetTournamentPayout = (contract: ContractData) => {
+  const publicClient = usePublicClient();
+  const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setUserPayout(BigInt(0));
+      return;
+    }
+    const userPayout = await publicClient.readContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: "getTournamentPayout",
+      args: [],
+    });
+    setUserPayout(BigInt(String(userPayout)));
+  }, [contract.address, publicClient]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
+    userPayout,
+  };
+};
+
 export const useGetHolderBalance = (
   streamerAddress: `0x${string}`,
   eventId: number,
@@ -433,7 +491,7 @@ export const useGetHolderBalance = (
       }),
     ]);
     setVipBadgeBalance(String(vipBadgeBalance));
-  }, [contract, publicClient, streamerAddress, eventId, holder]);
+  }, [contract.address, publicClient, streamerAddress, eventId, holder]);
 
   useEffect(() => {
     getData();
@@ -478,7 +536,14 @@ export const useGetPrice = (
             args: [streamerAddress, eventId, EventType.VIP_BADGE, amount],
           });
     setPrice(BigInt(String(price)));
-  }, [contract, publicClient, streamerAddress, eventId, amount, isBuying]);
+  }, [
+    contract.address,
+    publicClient,
+    streamerAddress,
+    eventId,
+    amount,
+    isBuying,
+  ]);
 
   useEffect(() => {
     getData();
@@ -523,7 +588,14 @@ export const useGetPriceAfterFee = (
             args: [streamerAddress, eventId, EventType.VIP_BADGE, amount],
           });
     setPriceAfterFee(BigInt(String(price)));
-  }, [contract, publicClient, streamerAddress, eventId, amount, isBuying]);
+  }, [
+    contract.address,
+    publicClient,
+    streamerAddress,
+    eventId,
+    amount,
+    isBuying,
+  ]);
 
   useEffect(() => {
     getData();
