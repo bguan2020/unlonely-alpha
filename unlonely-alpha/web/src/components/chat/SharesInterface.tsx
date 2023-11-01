@@ -419,9 +419,11 @@ const SharesUi = ({
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
-          taskType: InteractionType.BUY_SHARES,
+          taskType: InteractionType.BUY_VOTES,
           title,
-          description: `${args.shareAmount}:${args.isYay ? "yay" : "nay"}`,
+          description: `${user?.username ?? userAddress ?? ""}:${
+            args.shareAmount
+          }:${args.isYay ? "yay" : "nay"}`,
         });
       },
       onTxError: (error) => {
@@ -511,9 +513,11 @@ const SharesUi = ({
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
-          taskType: InteractionType.SELL_SHARES,
+          taskType: InteractionType.SELL_VOTES,
           title,
-          description: `${args.shareAmount}:${args.isYay ? "yay" : "nay"}`,
+          description: `${user?.username ?? userAddress ?? ""}:${
+            args.shareAmount
+          }:${args.isYay ? "yay" : "nay"}`,
         });
       },
       onTxError: (error) => {

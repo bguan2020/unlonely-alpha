@@ -65,17 +65,19 @@ export function useChannel(fixedChatName?: string) {
 
   const [channel, ably] = useAblyChannel(channelName, async (message) => {
     setHasMessagesLoaded(false);
-    if (localBanList === undefined) return;
+    if (localBanList === undefined) {
+      setHasMessagesLoaded(true);
+      return;
+    }
     const newAllMessages = [...allMessages, message];
     setAllMessages(newAllMessages);
     const messageHistory = receivedMessages.filter(
       (m) => m.name === CHAT_MESSAGE_EVENT
     );
-    if (message.name === BAN_USER_EVENT) {
-      const userAddressToBan = message.data.body;
-      setLocalBanList([...localBanList, userAddressToBan]);
-    }
-    if (message.name === APPOINT_USER_EVENT) {
+    if (
+      message.name === APPOINT_USER_EVENT ||
+      message.name === BAN_USER_EVENT
+    ) {
       await refetch();
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
@@ -156,7 +158,6 @@ export function useChannel(fixedChatName?: string) {
     hasMessagesLoaded,
     mounted,
     setReceivedMessages,
-    setHasMessagesLoaded,
   };
 }
 

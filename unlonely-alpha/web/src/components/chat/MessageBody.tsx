@@ -23,7 +23,6 @@ import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import Badges from "./Badges";
 import { Message, SenderStatus } from "../../constants/types/chat";
-import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import usePostUserRoleForChannel from "../../hooks/server/usePostUserRoleForChannel";
 
@@ -49,9 +48,9 @@ const MessageBody = ({
   const { channel: c } = useChannelContext();
   const { channelQueryData } = c;
   const { user } = useUser();
-  const { isStandalone } = useUserAgent();
-  const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
-  const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
+  // const { isStandalone } = useUserAgent();
+  // const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
+  // const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const { postUserRoleForChannel, loading } = usePostUserRoleForChannel({
@@ -344,6 +343,7 @@ const MessageBody = ({
                     </>
                   )}
                 </ChatUserModal>
+                {/* { TODO: change false to if not vip} */}
                 <Text
                   onClick={() => setIsOpen(true)}
                   _hover={{ cursor: "pointer" }}
@@ -351,11 +351,11 @@ const MessageBody = ({
                   color={message.data.chatColor}
                   fontWeight="bold"
                   filter={
-                    isVipChat &&
-                    (message.data.senderStatus === SenderStatus.VIP ||
-                      message.data.senderStatus === SenderStatus.CHATBOT)
-                      ? "blur(0px)"
-                      : "blur(2px)"
+                    !isVipChat &&
+                    message.data.senderStatus === SenderStatus.VIP &&
+                    (!userIsChannelOwner || false)
+                      ? "blur(5px)"
+                      : "blur(0px)"
                   }
                 >
                   {message.data.username
@@ -379,12 +379,11 @@ const MessageBody = ({
                       <Flex direction="column">
                         <Text
                           filter={
-                            isVipChat &&
-                            (message.data.senderStatus === SenderStatus.VIP ||
-                              message.data.senderStatus ===
-                                SenderStatus.CHATBOT)
-                              ? "blur(0px)"
-                              : "blur(2px)"
+                            !isVipChat &&
+                            message.data.senderStatus === SenderStatus.VIP &&
+                            (!userIsChannelOwner || false)
+                              ? "blur(5px)"
+                              : "blur(0px)"
                           }
                           fontSize={
                             message.data.address === NULL_ADDRESS
@@ -423,11 +422,11 @@ const MessageBody = ({
                         wordBreak="break-word"
                         textAlign="left"
                         filter={
-                          isVipChat &&
-                          (message.data.senderStatus === SenderStatus.VIP ||
-                            message.data.senderStatus === SenderStatus.CHATBOT)
-                            ? "blur(0px)"
-                            : "blur(2px)"
+                          !isVipChat &&
+                          message.data.senderStatus === SenderStatus.VIP &&
+                          (!userIsChannelOwner || false)
+                            ? "blur(5px)"
+                            : "blur(0px)"
                         }
                       >
                         {messageText.split("\n").map((line, index) => (

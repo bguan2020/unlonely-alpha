@@ -147,7 +147,7 @@ const DesktopPage = ({
     },
   });
 
-  const [isBuying, setIsBuying] = useState<boolean>(true);
+  // const [isBuying, setIsBuying] = useState<boolean>(true);
   const [amountOfBadges, setAmountOfBadges] = useState<string>("0");
 
   const handleInputChange = (event: any) => {
@@ -231,10 +231,10 @@ const DesktopPage = ({
                 ) : (
                   <ChannelViewerPerspective />
                 )}
-                <Grid templateColumns="repeat(2, 1fr)" gap={4} mt="20px">
+                <Grid templateColumns="50% 50%" gap={4} mt="20px">
                   <ChannelDesc />
-                  <Flex gap="1rem" margin="1rem">
-                    <Flex
+                  <Flex gap="1rem" margin="1rem" justifyContent={"flex-end"}>
+                    {/* <Flex
                       bg={"#131323"}
                       borderRadius="15px"
                       height="fit-content"
@@ -260,13 +260,16 @@ const DesktopPage = ({
                       >
                         SELL
                       </Button>
-                    </Flex>
+                    </Flex> */}
                     <Flex
                       direction="column"
                       bg={"#131323"}
                       borderRadius="15px"
                       p="1rem"
                     >
+                      <Text fontFamily={"LoRes15"} fontSize="20px">
+                        BECOME A VIP
+                      </Text>
                       <Flex gap="1rem" mb="5px">
                         <Flex direction="column">
                           <Text fontSize="10px" textAlign="center">
@@ -289,7 +292,7 @@ const DesktopPage = ({
                             />
                             <Input
                               textAlign="center"
-                              minWidth={"70px"}
+                              width={"70px"}
                               value={amountOfBadges}
                               onChange={handleInputChange}
                             />
@@ -325,14 +328,26 @@ const DesktopPage = ({
                           </Text>
                         </Flex>
                       </Flex>
-                      <Button
-                        bg={isBuying ? "#46a800" : "#fe2815"}
-                        _focus={{}}
-                        _hover={{}}
-                        _active={{}}
-                      >
-                        {isBuying ? "BUY" : "SELL"}
-                      </Button>
+                      <Flex gap="5px">
+                        <Button
+                          bg={"#46a800"}
+                          _focus={{}}
+                          _hover={{}}
+                          _active={{}}
+                          width="100%"
+                        >
+                          BUY
+                        </Button>
+                        <Button
+                          bg={"#fe2815"}
+                          _focus={{}}
+                          _hover={{}}
+                          _active={{}}
+                          width="100%"
+                        >
+                          SELL
+                        </Button>
+                      </Flex>
                     </Flex>
                   </Flex>
                   {isOwner && (
@@ -489,6 +504,7 @@ const DesktopPage = ({
               <Stack
                 direction="column"
                 minW={["100%", "100%", "380px", "380px"]}
+                maxW={["100%", "100%", "380px", "380px"]}
                 gap="1rem"
               >
                 <ChatComponent />

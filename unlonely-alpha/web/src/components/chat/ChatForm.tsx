@@ -57,7 +57,7 @@ type Props = {
     senderStatus: SenderStatus,
     body?: string
   ) => void;
-  inputBox: HTMLTextAreaElement | null;
+  isVipChat?: boolean;
   mobile?: boolean;
   additionalChatCommands?: CommandData[];
   allowPopout?: boolean;
@@ -68,10 +68,10 @@ const PRICE = "2";
 
 const ChatForm = ({
   sendChatMessage,
-  inputBox,
   additionalChatCommands,
   allowPopout,
   channel,
+  isVipChat,
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
   const { isStandalone } = useUserAgent();
@@ -101,6 +101,7 @@ const ChatForm = ({
 
   const [showEmojiReactionList, setShowEmojiReactionList] = useState(false);
   const [reactionDisabled, setReactionDisabled] = useState<boolean>(false);
+  const isOwner = address === channelQueryData?.owner.address;
 
   const {
     requiresApproval,
@@ -228,7 +229,7 @@ const ChatForm = ({
             ? gifInTransaction
             : messageText.replace(/^\s*\n|\n\s*$/g, ""),
           gifInTransaction !== "",
-          SenderStatus.USER,
+          isVipChat ? SenderStatus.VIP : SenderStatus.USER,
           `${InteractionType.BLAST}:`
         );
         setGifInTransaction("");
@@ -270,7 +271,11 @@ const ChatForm = ({
 
   const sendGif = (gif: string) => {
     if (!blastMode) {
-      sendChatMessage(gif, true, SenderStatus.USER);
+      sendChatMessage(
+        gif,
+        true,
+        isVipChat ? SenderStatus.VIP : SenderStatus.USER
+      );
       setMessageText("");
     } else {
       if (channelQueryData?.token?.address) {
@@ -286,7 +291,7 @@ const ChatForm = ({
         sendChatMessage(
           gif,
           true,
-          SenderStatus.USER,
+          isVipChat ? SenderStatus.VIP : SenderStatus.USER,
           `${InteractionType.BLAST}:`
         );
         setBlastMode(false);
@@ -310,7 +315,7 @@ const ChatForm = ({
         sendChatMessage(
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
-          SenderStatus.USER
+          isVipChat ? SenderStatus.VIP : SenderStatus.USER
         );
         setMessageText("");
       } else {
@@ -327,7 +332,7 @@ const ChatForm = ({
           sendChatMessage(
             messageText.replace(/^\s*\n|\n\s*$/g, ""),
             false,
-            SenderStatus.USER,
+            isVipChat ? SenderStatus.VIP : SenderStatus.USER,
             `${InteractionType.BLAST}:`
           );
           setBlastMode(false);
@@ -353,7 +358,7 @@ const ChatForm = ({
         sendChatMessage(
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
-          SenderStatus.USER
+          isVipChat ? SenderStatus.VIP : SenderStatus.USER
         );
         setMessageText("");
       } else {
@@ -369,7 +374,7 @@ const ChatForm = ({
           sendChatMessage(
             messageText.replace(/^\s*\n|\n\s*$/g, ""),
             false,
-            SenderStatus.USER,
+            isVipChat ? SenderStatus.VIP : SenderStatus.USER,
             `${InteractionType.BLAST}:`
           );
           setBlastMode(false);
@@ -551,117 +556,120 @@ const ChatForm = ({
                   ))}
                 </Flex>
               )}
-
-              <Flex justifyContent={"space-between"}>
-                <Flex>
-                  {clipLoading ? (
-                    <Spinner />
-                  ) : (
+              <Flex justifyContent={isVipChat ? "space-between" : "flex-end"}>
+                {/* { TODO: change true to if is vip} */}
+                {isVipChat && (isOwner || true) && (
+                  <Flex>
+                    {clipLoading ? (
+                      <Spinner />
+                    ) : (
+                      <Popover trigger="hover" placement="top" openDelay={500}>
+                        <PopoverTrigger>
+                          <IconButton
+                            icon={<Image src="/svg/cut.svg" />}
+                            aria-label="clip stream"
+                            bg="transparent"
+                            _focus={{}}
+                            _hover={{ transform: "scale(1.15)" }}
+                            _active={{ transform: "scale(1.3)" }}
+                            onClick={() => {
+                              if (user) {
+                                handleIsClipUiOpen(true);
+                                addToChatbot({
+                                  username: user?.username ?? "",
+                                  address: user?.address ?? "",
+                                  taskType: InteractionType.CLIP,
+                                  title: `${
+                                    user?.username ??
+                                    centerEllipses(address, 15)
+                                  } has just clipped a highlight from this stream!`,
+                                  description: "",
+                                });
+                              } else {
+                                toastSignIn();
+                              }
+                            }}
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent
+                          bg="#1557c0"
+                          border="none"
+                          width="100%"
+                          p="2px"
+                        >
+                          <PopoverArrow bg="#1557c0" />
+                          <Text fontSize="12px" textAlign={"center"}>
+                            clip the last 30 secs as an NFC!
+                          </Text>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                    {allowPopout && (
+                      <Popover trigger="hover" placement="top" openDelay={500}>
+                        <PopoverTrigger>
+                          <IconButton
+                            onClick={openChatPopout}
+                            aria-label="chat-popout"
+                            _focus={{}}
+                            _hover={{ transform: "scale(1.15)" }}
+                            _active={{ transform: "scale(1.3)" }}
+                            icon={<Image src="/svg/pop-out.svg" />}
+                            bg="transparent"
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent
+                          bg="#5d12c6"
+                          border="none"
+                          width="100%"
+                          p="2px"
+                        >
+                          <PopoverArrow bg="#5d12c6" />
+                          <Text fontSize="12px" textAlign={"center"}>
+                            pop out chat in a new window!
+                          </Text>
+                        </PopoverContent>
+                      </Popover>
+                    )}
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
-                          icon={<Image src="/svg/cut.svg" />}
+                          icon={<Image src="/svg/blast.svg" />}
                           aria-label="clip stream"
-                          bg="transparent"
+                          bg={blastMode ? "red" : "transparent"}
                           _focus={{}}
                           _hover={{ transform: "scale(1.15)" }}
                           _active={{ transform: "scale(1.3)" }}
                           onClick={() => {
-                            if (user) {
-                              handleIsClipUiOpen(true);
-                              addToChatbot({
-                                username: user?.username ?? "",
-                                address: user?.address ?? "",
-                                taskType: InteractionType.CLIP,
-                                title: `${
-                                  user?.username ?? centerEllipses(address, 15)
-                                } has just clipped a highlight from this stream!`,
-                                description: "",
-                              });
+                            if (blastMode) {
+                              setBlastMode(false);
                             } else {
-                              toastSignIn();
+                              if (user) {
+                                setBlastMode(true);
+                              } else {
+                                toastSignIn();
+                              }
                             }
                           }}
                         />
                       </PopoverTrigger>
                       <PopoverContent
-                        bg="#1557c0"
+                        bg="#c82606"
                         border="none"
                         width="100%"
                         p="2px"
                       >
-                        <PopoverArrow bg="#1557c0" />
+                        <PopoverArrow bg="#c82606" />
                         <Text fontSize="12px" textAlign={"center"}>
-                          clip the last 30 secs as an NFC!
+                          blast ur chat across the screen!
                         </Text>
                       </PopoverContent>
                     </Popover>
-                  )}
-                  {allowPopout && (
-                    <Popover trigger="hover" placement="top" openDelay={500}>
-                      <PopoverTrigger>
-                        <IconButton
-                          onClick={openChatPopout}
-                          aria-label="chat-popout"
-                          _focus={{}}
-                          _hover={{ transform: "scale(1.15)" }}
-                          _active={{ transform: "scale(1.3)" }}
-                          icon={<Image src="/svg/pop-out.svg" />}
-                          bg="transparent"
-                        />
-                      </PopoverTrigger>
-                      <PopoverContent
-                        bg="#5d12c6"
-                        border="none"
-                        width="100%"
-                        p="2px"
-                      >
-                        <PopoverArrow bg="#5d12c6" />
-                        <Text fontSize="12px" textAlign={"center"}>
-                          pop out chat in a new window!
-                        </Text>
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                  <Popover trigger="hover" placement="top" openDelay={500}>
-                    <PopoverTrigger>
-                      <IconButton
-                        icon={<Image src="/svg/blast.svg" />}
-                        aria-label="clip stream"
-                        bg={blastMode ? "red" : "transparent"}
-                        _focus={{}}
-                        _hover={{ transform: "scale(1.15)" }}
-                        _active={{ transform: "scale(1.3)" }}
-                        onClick={() => {
-                          if (blastMode) {
-                            setBlastMode(false);
-                          } else {
-                            if (user) {
-                              setBlastMode(true);
-                            } else {
-                              toastSignIn();
-                            }
-                          }
-                        }}
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent
-                      bg="#c82606"
-                      border="none"
-                      width="100%"
-                      p="2px"
-                    >
-                      <PopoverArrow bg="#c82606" />
-                      <Text fontSize="12px" textAlign={"center"}>
-                        blast ur chat across the screen!
-                      </Text>
-                    </PopoverContent>
-                  </Popover>
-                  <EmojiButton
-                    onSelectEmoji={(emoji) => addEmoji(emoji)}
-                    onSelectGif={(gif) => sendGif(gif)}
-                  />
-                </Flex>
+                    <EmojiButton
+                      onSelectEmoji={(emoji) => addEmoji(emoji)}
+                      onSelectGif={(gif) => sendGif(gif)}
+                    />
+                  </Flex>
+                )}
                 <IconButton
                   icon={<BsFillHeartFill />}
                   bg="transparent"
@@ -717,9 +725,6 @@ const ChatForm = ({
                     resize="none"
                     variant="unstyled"
                     maxLength={500}
-                    ref={(element) => {
-                      inputBox = element;
-                    }}
                     value={messageText}
                     color={"white"}
                     fontWeight="medium"

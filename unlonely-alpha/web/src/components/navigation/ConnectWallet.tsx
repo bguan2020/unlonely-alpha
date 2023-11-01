@@ -73,7 +73,7 @@ const ConnectWallet = ({
                     </MenuButton>
                   </Flex>
 
-                  <MenuList zIndex={4} bg={"#131323"} borderRadius="0">
+                  <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
                     <MenuItem
                       _hover={{ bg: "#1f1f3c" }}
                       _focus={{}}
@@ -114,7 +114,7 @@ const ConnectWallet = ({
                   </MenuButton>
                 </Flex>
 
-                <MenuList zIndex={4} bg={"#131323"} borderRadius="0">
+                <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
                   <MenuItem
                     _hover={{ bg: "#1f1f3c" }}
                     _focus={{}}
@@ -155,7 +155,7 @@ const ConnectWallet = ({
                 </MenuButton>
               </Flex>
 
-              <MenuList zIndex={4} bg={"#131323"} borderRadius="0">
+              <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
                 <MenuItem
                   _hover={{ bg: "#1f1f3c" }}
                   _focus={{}}

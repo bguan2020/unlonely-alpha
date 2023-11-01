@@ -62,7 +62,13 @@ const AppLayout: React.FC<Props> = ({
             <>
               <Header />
               {!router.pathname.startsWith("/nfc") && <AddToHomeScreen />}
-              <Box minW="100%" as="main">
+              <Box
+                minW="100%"
+                as="main"
+                minH={
+                  smallestDevice ? "calc(100vh - 25px)" : "calc(100vh - 48px)"
+                }
+              >
                 {error && (
                   <Alert status="error">
                     <AlertIcon />

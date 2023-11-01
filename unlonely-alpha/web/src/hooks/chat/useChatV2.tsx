@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VirtuosoHandle } from "react-virtuoso";
 
 import {
-  APPOINT_USER_EVENT,
   BaseChatCommand,
   CHAT_MESSAGE_EVENT,
   InteractionType,
@@ -19,16 +18,21 @@ import centerEllipses from "../../utils/centerEllipses";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
 import { ChatBot } from "../../constants/types";
 import { REACTION_EMOJIS } from "../../components/chat/emoji/constants";
-import { SenderStatus } from "../../constants/types/chat";
+import { Message, SenderStatus } from "../../constants/types/chat";
 
 const initializeEmojis = REACTION_EMOJIS.map((emoji) => ({
   emojiType: emoji,
   count: 0,
 }));
 
-export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
-  const [isAtBottom, setIsAtBottom] = useState(false);
-  const scrollRef = useRef<VirtuosoHandle>(null);
+export type ChatReturnType = {
+  channel: any;
+  hasMessagesLoaded: boolean;
+  receivedMessages: Message[];
+  allMessages: Message[];
+};
+
+export const useChat = (): ChatReturnType => {
   const {
     ablyChannel: channel,
     hasMessagesLoaded,
@@ -36,22 +40,101 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
     allMessages,
     mounted,
   } = useChannel();
-  const { user, username, userAddress: address, walletIsConnected } = useUser();
 
-  const {
-    channel: channelContext,
-    holders: holdersContext,
-    chat,
-    recentStreamInteractions,
-  } = useChannelContext();
-  const { channelQueryData } = channelContext;
-  const { userRank } = holdersContext;
-  const { clipping } = chat;
-  const { handleIsClipUiOpen } = clipping;
+  const { recentStreamInteractions } = useChannelContext();
   const { addToTextOverVideo } = recentStreamInteractions;
 
   const mountingMessages = useRef(true);
   const { emojiBlast, fireworks } = useScreenAnimationsContext();
+
+  useEffect(() => {
+    if (mounted) mountingMessages.current = false;
+  }, [mounted]);
+
+  // chat messages from chatbot to create events
+  useEffect(() => {
+    if (mountingMessages.current || receivedMessages.length === 0) return;
+    const latestMessage = receivedMessages[receivedMessages.length - 1];
+    if (
+      latestMessage &&
+      latestMessage.data.body &&
+      latestMessage.name === CHAT_MESSAGE_EVENT &&
+      Date.now() - latestMessage.timestamp < 12000
+    ) {
+      const body = latestMessage.data.body;
+      if (body.split(":")[0] === InteractionType.CONTROL) {
+        const newTextOverVideo = body.split(":").slice(1).join();
+        if (newTextOverVideo) {
+          addToTextOverVideo(newTextOverVideo);
+        }
+      } else if (
+        (body.split(":")[0] === InteractionType.BUY ||
+          body.split(":")[0] === InteractionType.TIP) &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        fireworks();
+      } else if (
+        body.split(":")[0] === InteractionType.BLAST &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        if (latestMessage.data.isGif) {
+          emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
+        } else {
+          emojiBlast(
+            <Text fontSize="40px">{latestMessage.data.messageText}</Text>
+          );
+        }
+      } else if (
+        body.split(":")[0] === InteractionType.BUY_VOTES &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        const isYay = body.split(":")[2] === "yay";
+        const amount = body.split(":")[1];
+        emojiBlast(
+          <Text fontSize="40px">
+            {isYay ? "📈" : "📉"}
+            {amount}
+          </Text>
+        );
+      } else if (
+        body.split(":")[0] === InteractionType.SELL_VOTES &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        const isYay = body.split(":")[2] === "yay";
+        const amount = body.split(":")[1];
+        emojiBlast(
+          <Text fontSize="40px">
+            {!isYay ? "📈" : "📉"}
+            {amount}
+          </Text>
+        );
+      }
+    }
+  }, [receivedMessages]);
+
+  return {
+    channel,
+    hasMessagesLoaded,
+    receivedMessages,
+    allMessages,
+  };
+};
+
+export const useChatBox = (
+  chatId: string,
+  chatBot: ChatBot[],
+  receivedMessages: Message[],
+  hasMessagesLoaded: boolean,
+  channel: any,
+  mobile?: boolean
+) => {
+  const scrollRef = useRef<VirtuosoHandle>(null);
+  const [isAtBottom, setIsAtBottom] = useState(false);
+
+  const toast = useToast();
+  const { channel: channelContext } = useChannelContext();
+  const { channelQueryData } = channelContext;
+  const { user, username, userAddress: address, walletIsConnected } = useUser();
 
   const { postFirstChat } = usePostFirstChat({
     onError: (m) => {
@@ -59,7 +142,11 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
     },
   });
 
-  const toast = useToast();
+  const { holders: holdersContext, chat } = useChannelContext();
+
+  const { userRank } = holdersContext;
+  const { clipping } = chat;
+  const { handleIsClipUiOpen } = clipping;
 
   const channelChatCommands = useMemo(
     () =>
@@ -71,11 +158,6 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
     [channelQueryData?.chatCommands]
   );
 
-  const channelId = useMemo(
-    () => (channelQueryData?.id ? Number(channelQueryData?.id) : 3),
-    [channelQueryData?.id]
-  );
-
   const handleScrollToPresent = useCallback(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollToIndex(receivedMessages.length - 1);
@@ -85,6 +167,18 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
   const handleIsAtBottom = useCallback((value: boolean) => {
     setIsAtBottom(value);
   }, []);
+
+  useEffect(() => {
+    const chat = document.getElementById(chatId);
+    if (!chat) return;
+    if ((hasMessagesLoaded && receivedMessages.length) || isAtBottom)
+      handleScrollToPresent();
+  }, [receivedMessages, chatId, hasMessagesLoaded, isAtBottom]);
+
+  const channelId = useMemo(
+    () => (channelQueryData?.id ? Number(channelQueryData?.id) : 3),
+    [channelQueryData?.id]
+  );
 
   const handleChatCommand = async (messageText: string) => {
     let messageToPublish = "";
@@ -149,30 +243,6 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
     }
   };
 
-  const publishChatBotMessage = (messageText: string, body?: string) => {
-    channel.publish({
-      name: CHAT_MESSAGE_EVENT,
-      data: {
-        messageText: messageText,
-        username: "chatbot🤖",
-        address: NULL_ADDRESS,
-        isFC: false,
-        isLens: false,
-        isGif: false,
-        reactions: initializeEmojis,
-        senderStatus: SenderStatus.CHATBOT,
-        body,
-      },
-    });
-  };
-
-  const publishEvent = (eventName: string, body?: string) => {
-    channel.publish({
-      name: eventName,
-      data: { body },
-    });
-  };
-
   const sendChatMessage = async (
     messageText: string,
     isGif: boolean,
@@ -211,78 +281,22 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
     }
   };
 
-  // useeffect to scroll to the bottom of the chat
-  useEffect(() => {
-    const chat = document.getElementById("chat");
-    if (!chat) return;
-    if ((hasMessagesLoaded && receivedMessages.length) || isAtBottom) {
-      handleScrollToPresent();
-    }
-  }, [receivedMessages, hasMessagesLoaded, isAtBottom]);
-
-  useEffect(() => {
-    if (mounted) mountingMessages.current = false;
-  }, [mounted]);
-
-  useEffect(() => {
-    if (mountingMessages.current || receivedMessages.length === 0) return;
-    const latestMessage = receivedMessages[receivedMessages.length - 1];
-    if (
-      latestMessage &&
-      latestMessage.data.body &&
-      latestMessage.name === CHAT_MESSAGE_EVENT &&
-      Date.now() - latestMessage.timestamp < 12000
-    ) {
-      const body = latestMessage.data.body;
-      if (body.split(":")[0] === InteractionType.CONTROL) {
-        const newTextOverVideo = body.split(":").slice(1).join();
-        if (newTextOverVideo) {
-          addToTextOverVideo(newTextOverVideo);
-        }
-      } else if (
-        (body.split(":")[0] === InteractionType.BUY ||
-          body.split(":")[0] === InteractionType.TIP) &&
-        Date.now() - latestMessage.timestamp < 12000
-      ) {
-        fireworks();
-      } else if (
-        body.split(":")[0] === InteractionType.BLAST &&
-        Date.now() - latestMessage.timestamp < 12000
-      ) {
-        if (latestMessage.data.isGif) {
-          emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
-        } else {
-          emojiBlast(
-            <Text fontSize="40px">{latestMessage.data.messageText}</Text>
-          );
-        }
-      } else if (
-        body.split(":")[0] === InteractionType.BUY_VOTES &&
-        Date.now() - latestMessage.timestamp < 12000
-      ) {
-        const isYay = body.split(":")[2] === "yay";
-        const amount = body.split(":")[1];
-        emojiBlast(
-          <Text fontSize="40px">
-            {isYay ? "📈" : "📉"}
-            {amount}
-          </Text>
-        );
-      } else if (
-        body.split(":")[0] === InteractionType.SELL_VOTES &&
-        Date.now() - latestMessage.timestamp < 12000
-      ) {
-        const isYay = body.split(":")[2] === "yay";
-        const amount = body.split(":")[1];
-        emojiBlast(
-          <Text fontSize="40px">
-            {!isYay ? "📈" : "📉"}
-            {amount}
-          </Text>
-        );
-      }
-    }
-  }, [receivedMessages]);
+  const publishChatBotMessage = (messageText: string, body?: string) => {
+    channel.publish({
+      name: CHAT_MESSAGE_EVENT,
+      data: {
+        messageText: messageText,
+        username: "chatbot🤖",
+        address: NULL_ADDRESS,
+        isFC: false,
+        isLens: false,
+        isGif: false,
+        reactions: initializeEmojis,
+        senderStatus: SenderStatus.CHATBOT,
+        body,
+      },
+    });
+  };
 
   useEffect(() => {
     if (chatBot.length > 0) {
@@ -302,23 +316,15 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
         body = `${lastMessage.taskType}:${lastMessage.description ?? ""}`;
         publishChatBotMessage(messageText, body);
       }
-      if (lastMessage.taskType === APPOINT_USER_EVENT) {
-        body = lastMessage.description ?? "";
-        publishEvent(lastMessage.taskType, body);
-      }
     }
   }, [chatBot]);
 
   return {
+    scrollRef,
+    isAtBottom,
+    channelChatCommands,
     handleScrollToPresent,
     handleIsAtBottom,
-    channel,
-    hasMessagesLoaded,
-    receivedMessages,
-    allMessages,
-    isAtBottom,
-    scrollRef,
-    channelChatCommands,
     sendChatMessage,
   };
 };

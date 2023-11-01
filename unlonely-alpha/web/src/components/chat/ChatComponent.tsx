@@ -62,7 +62,6 @@ const AblyChatComponent = () => {
     scrollRef,
     channelChatCommands,
     sendChatMessage,
-    inputBox,
   } = useChat(chatBot);
 
   const { user, userAddress: address } = useUser();
@@ -430,7 +429,6 @@ const AblyChatComponent = () => {
         <Flex w="100%">
           <ChatForm
             sendChatMessage={sendChatMessage}
-            inputBox={inputBox}
             additionalChatCommands={channelChatCommands}
             allowPopout
           />

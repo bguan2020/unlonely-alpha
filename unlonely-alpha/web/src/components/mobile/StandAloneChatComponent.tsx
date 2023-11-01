@@ -105,7 +105,6 @@ const StandaloneAblyChatComponent = ({
     scrollRef,
     channelChatCommands,
     sendChatMessage,
-    inputBox,
   } = useChat(chatBot, true);
   const router = useRouter();
 
@@ -903,7 +902,6 @@ const StandaloneAblyChatComponent = ({
       </Flex>
       <ChatForm
         sendChatMessage={sendChatMessage}
-        inputBox={inputBox}
         additionalChatCommands={channelChatCommands}
       />
     </Flex>

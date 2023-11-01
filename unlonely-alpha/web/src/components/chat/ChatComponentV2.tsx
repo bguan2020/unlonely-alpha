@@ -1,4 +1,10 @@
-import { AddIcon, ChevronDownIcon, MinusIcon } from "@chakra-ui/icons";
+import {
+  AddIcon,
+  ChevronDownIcon,
+  MinusIcon,
+  TriangleDownIcon,
+  TriangleUpIcon,
+} from "@chakra-ui/icons";
 import {
   Flex,
   Box,
@@ -13,12 +19,19 @@ import {
   Button,
   Input,
 } from "@chakra-ui/react";
-import { useEffect, useRef, useState, CSSProperties } from "react";
+import { useEffect, useRef, useState, CSSProperties, useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 
-import { useChat } from "../../hooks/chat/useChat";
+import { ADD_REACTION_EVENT, InteractionType } from "../../constants";
+import {
+  ChatReturnType,
+  useChat as useChatV2,
+  useChatBox,
+} from "../../hooks/chat/useChatV2";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { getContractFromNetwork } from "../../utils/contract";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { filteredInput } from "../../utils/validation/input";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
@@ -48,6 +61,8 @@ const ChatComponent = () => {
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
   );
+
+  const chat = useChatV2();
 
   const [leaderboardIsCollapsed, setLeaderboardIsCollapsed] = useState(true);
 
@@ -254,9 +269,9 @@ const ChatComponent = () => {
                   )} */}
                 </Flex>
               </Flex>
-              {selectedTab === "chat" && <Chat />}
-              {selectedTab === "trade" && <Trade />}
-              {selectedTab === "vip" && <Chat />}
+              {selectedTab === "chat" && <Chat chat={chat} />}
+              {selectedTab === "trade" && <Trade chat={chat} />}
+              {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
             </Flex>
           </OuterBorder>
         </Container>
@@ -265,10 +280,20 @@ const ChatComponent = () => {
   );
 };
 
-const Trade = () => {
+const Trade = ({ chat }: { chat: ChatReturnType }) => {
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork, explorerUrl } = network;
+
   const [isBuying, setIsBuying] = useState<boolean>(true);
   const [isYay, setIsYay] = useState<boolean>(true);
   const [amountOfVotes, setAmountOfVotes] = useState<string>("0");
+
+  const amount_bigint = useMemo(
+    () => BigInt(amountOfVotes as `${number}`),
+    [amountOfVotes]
+  );
+
+  const contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
@@ -276,7 +301,23 @@ const Trade = () => {
     setAmountOfVotes(filtered);
   };
 
-  const tradeMessages = Array(50).fill("Brian bought 1 YES vote for 4 ETH");
+  const tradeMessages = useMemo(() => {
+    const tradeMessages = chat.receivedMessages.filter(
+      (m) =>
+        m.data.body?.split(":")[0] === InteractionType.BUY_VOTES ||
+        m.data.body?.split(":")[0] === InteractionType.SELL_VOTES
+    );
+    const tradeData = tradeMessages.map((m) => {
+      const splitMessage = m.data.body?.split(":");
+      return {
+        taskType: splitMessage?.[0],
+        trader: splitMessage?.[1],
+        amount: splitMessage?.[2],
+        isYay: splitMessage?.[3],
+      };
+    });
+    return tradeData;
+  }, [chat.receivedMessages]);
 
   return (
     <>
@@ -297,33 +338,48 @@ const Trade = () => {
           className="hide-scrollbar"
           data={tradeMessages}
           initialTopMostItemIndex={tradeMessages.length - 1}
-          itemContent={(index, data) => <Text key={index}>{data}</Text>}
+          itemContent={(index, data) => (
+            <Flex>
+              <Text>{data.trader}</Text>
+              <Text>
+                {data.taskType === InteractionType.BUY_VOTES
+                  ? "bought"
+                  : "sold"}
+              </Text>
+              <Text>{data.amount}</Text>
+              <Text>{data.isYay ? "YES" : "NO"}</Text>
+              <Text>votes!</Text>
+            </Flex>
+          )}
         />
       </Flex>
       <Flex justifyContent={"space-around"}>
-        <Flex>
+        <Flex gap="5px">
           <Button
             bg={isYay ? "#46a800" : "transparent"}
+            border={!isYay ? "1px solid #46a800" : undefined}
             _focus={{}}
             _hover={{}}
             _active={{}}
             onClick={() => setIsYay(true)}
           >
-            YES
+            <TriangleUpIcon />
           </Button>
           <Button
             bg={!isYay ? "#fe2815" : "transparent"}
+            border={isYay ? "1px solid #fe2815" : undefined}
             _focus={{}}
             _hover={{}}
             _active={{}}
             onClick={() => setIsYay(false)}
           >
-            NO
+            <TriangleDownIcon />
           </Button>
         </Flex>
         <Flex bg={"#131323"} borderRadius="15px">
           <Button
             bg={isBuying ? "#46a800" : "transparent"}
+            border={!isBuying ? "1px solid #46a800" : undefined}
             _focus={{}}
             _hover={{}}
             _active={{}}
@@ -334,6 +390,7 @@ const Trade = () => {
           </Button>
           <Button
             bg={!isBuying ? "#fe2815" : "transparent"}
+            border={isBuying ? "1px solid #fe2815" : undefined}
             _focus={{}}
             _hover={{}}
             _active={{}}
@@ -365,7 +422,7 @@ const Trade = () => {
               />
               <Input
                 textAlign="center"
-                minWidth={"70px"}
+                width={"70px"}
                 value={amountOfVotes}
                 onChange={handleInputChange}
               />
@@ -412,23 +469,30 @@ const Trade = () => {
   );
 };
 
-const Chat = () => {
+const Chat = ({
+  chat,
+  isVipChat,
+}: {
+  chat: ChatReturnType;
+  isVipChat?: boolean;
+}) => {
   const { arcade } = useChannelContext();
   const { chatBot } = arcade;
 
   const {
+    scrollRef,
+    isAtBottom,
+    channelChatCommands,
     handleScrollToPresent,
     handleIsAtBottom,
-    channel,
-    hasMessagesLoaded,
-    receivedMessages,
-    allMessages,
-    isAtBottom,
-    scrollRef,
-    channelChatCommands,
     sendChatMessage,
-    inputBox,
-  } = useChat(chatBot);
+  } = useChatBox(
+    "chat",
+    chatBot,
+    chat.receivedMessages,
+    chat.hasMessagesLoaded,
+    chat.channel
+  );
 
   const [emojisToAnimate, setEmojisToAnimate] = useState<
     { emoji: string; id: number }[]
@@ -443,7 +507,7 @@ const Chat = () => {
     }
   }, [containerRef]);
 
-  const handleReactionEmoji = (str: string) => {
+  const handleAnimateReactionEmoji = (str: string) => {
     const id = Date.now();
     setEmojisToAnimate((prev) => [...prev, { emoji: str, id }]);
 
@@ -454,15 +518,15 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    if (!allMessages || allMessages.length === 0) return;
-    const latestMessage = allMessages[allMessages.length - 1];
+    if (!chat.allMessages || chat.allMessages.length === 0) return;
+    const latestMessage = chat.allMessages[chat.allMessages.length - 1];
     if (
-      Date.now() - latestMessage.timestamp < 12000 &&
+      Date.now() - latestMessage.timestamp < 300 &&
+      latestMessage.name === ADD_REACTION_EVENT &&
       latestMessage.data.body
-    ) {
-      handleReactionEmoji(latestMessage.data.body);
-    }
-  }, [allMessages]);
+    )
+      handleAnimateReactionEmoji(latestMessage.data.body);
+  }, [chat.allMessages]);
 
   return (
     <Flex
@@ -506,13 +570,14 @@ const Chat = () => {
       >
         <MessageList
           scrollRef={scrollRef}
-          messages={receivedMessages}
-          channel={channel}
+          messages={chat.receivedMessages}
+          channel={chat.channel}
           isAtBottomCallback={handleIsAtBottom}
+          isVipChat={isVipChat}
         />
       </Flex>
       <Flex justifyContent="center">
-        {!isAtBottom && hasMessagesLoaded && (
+        {!isAtBottom && chat.hasMessagesLoaded && (
           <Box
             bg="rgba(98, 98, 98, 0.6)"
             p="4px"
@@ -532,10 +597,10 @@ const Chat = () => {
       <Flex w="100%">
         <ChatForm
           sendChatMessage={sendChatMessage}
-          inputBox={inputBox}
           additionalChatCommands={channelChatCommands}
           allowPopout
-          channel={channel}
+          channel={chat.channel}
+          isVipChat={isVipChat}
         />
       </Flex>
     </Flex>
