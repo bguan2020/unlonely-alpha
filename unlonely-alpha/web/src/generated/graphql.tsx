@@ -232,6 +232,14 @@ export type GetBadgeHoldersByChannelInput = {
   channelId: Scalars["ID"];
 };
 
+export type GetBetsByChannelInput = {
+  channelId: Scalars["ID"];
+};
+
+export type GetBetsByUserInput = {
+  userAddress: Scalars["String"];
+};
+
 export type GetChatInput = {
   channelId: Scalars["Int"];
   limit: Scalars["Int"];
@@ -336,6 +344,7 @@ export type Mutation = {
   updateDeviceToken?: Maybe<DeviceToken>;
   updateNFC?: Maybe<Nfc>;
   updateOpenseaLink?: Maybe<Nfc>;
+  updateSharesEvent?: Maybe<Channel>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
 };
@@ -464,6 +473,10 @@ export type MutationUpdateNfcArgs = {
   data: UpdateNfcInput;
 };
 
+export type MutationUpdateSharesEventArgs = {
+  data: UpdateSharesEventInput;
+};
+
 export type MutationUpdateUserCreatorTokenQuantityArgs = {
   data: UpdateUserCreatorTokenQuantityInput;
 };
@@ -560,8 +573,7 @@ export type PostNfcInput = {
 };
 
 export type PostSharesEventInput = {
-  eventState?: InputMaybe<SharesEventState>;
-  id: Scalars["ID"];
+  channelId: Scalars["ID"];
   sharesSubjectAddress?: InputMaybe<Scalars["String"]>;
   sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;
 };
@@ -617,6 +629,8 @@ export type Query = {
   getAllUsersWithNotificationsToken?: Maybe<Array<Maybe<User>>>;
   getBadgeHoldersByChannel: Array<Maybe<Scalars["String"]>>;
   getBaseLeaderboard: Array<BaseLeaderboard>;
+  getBetsByChannel: Array<Maybe<GamblableInteraction>>;
+  getBetsByUser: Array<Maybe<GamblableInteraction>>;
   getChannelByAwsId?: Maybe<Channel>;
   getChannelById?: Maybe<Channel>;
   getChannelBySlug?: Maybe<Channel>;
@@ -649,6 +663,14 @@ export type QueryCheckSubscriptionByEndpointArgs = {
 
 export type QueryGetBadgeHoldersByChannelArgs = {
   data?: InputMaybe<GetBadgeHoldersByChannelInput>;
+};
+
+export type QueryGetBetsByChannelArgs = {
+  data?: InputMaybe<GetBetsByChannelInput>;
+};
+
+export type QueryGetBetsByUserArgs = {
+  data?: InputMaybe<GetBetsByUserInput>;
 };
 
 export type QueryGetChannelByAwsIdArgs = {
@@ -741,6 +763,7 @@ export type SharesEvent = {
   __typename?: "SharesEvent";
   createdAt: Scalars["DateTime"];
   eventState?: Maybe<SharesEventState>;
+  id: Scalars["ID"];
   sharesSubjectAddress?: Maybe<Scalars["String"]>;
   sharesSubjectQuestion?: Maybe<Scalars["String"]>;
   softDelete?: Maybe<Scalars["Boolean"]>;
@@ -850,6 +873,13 @@ export type UpdateNfcInput = {
   title: Scalars["String"];
   videoLink: Scalars["String"];
   videoThumbnail: Scalars["String"];
+};
+
+export type UpdateSharesEventInput = {
+  eventState?: InputMaybe<SharesEventState>;
+  id: Scalars["ID"];
+  sharesSubjectAddress?: InputMaybe<Scalars["String"]>;
+  sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;
 };
 
 export type UpdateUserCreatorTokenQuantityInput = {
@@ -987,6 +1017,8 @@ export type ChannelDetailQuery = {
       sharesSubjectQuestion?: string | null;
       sharesSubjectAddress?: string | null;
       eventState?: SharesEventState | null;
+      createdAt: any;
+      id: string;
     } | null> | null;
     owner: {
       __typename?: "User";
@@ -1245,6 +1277,8 @@ export type GetChannelsByNumberOfBadgeHoldersQuery = {
         sharesSubjectQuestion?: string | null;
         sharesSubjectAddress?: string | null;
         eventState?: SharesEventState | null;
+        createdAt: any;
+        id: string;
       } | null> | null;
       owner: {
         __typename?: "User";
@@ -1580,6 +1614,15 @@ export type UpdateNfcMutation = {
   updateNFC?: { __typename?: "NFC"; id: string } | null;
 };
 
+export type UpdateSharesEventMutationVariables = Exact<{
+  data: UpdateSharesEventInput;
+}>;
+
+export type UpdateSharesEventMutation = {
+  __typename?: "Mutation";
+  updateSharesEvent?: { __typename?: "Channel"; id: string } | null;
+};
+
 export type UpdateUserNotificationsMutationVariables = Exact<{
   data: UpdateUserNotificationsInput;
 }>;
@@ -1866,6 +1909,8 @@ export const ChannelDetailDocument = gql`
         sharesSubjectQuestion
         sharesSubjectAddress
         eventState
+        createdAt
+        id
       }
       owner {
         FCImageUrl
@@ -2663,6 +2708,8 @@ export const GetChannelsByNumberOfBadgeHoldersDocument = gql`
           sharesSubjectQuestion
           sharesSubjectAddress
           eventState
+          createdAt
+          id
         }
         owner {
           FCImageUrl
@@ -4102,6 +4149,56 @@ export type UpdateNfcMutationResult = Apollo.MutationResult<UpdateNfcMutation>;
 export type UpdateNfcMutationOptions = Apollo.BaseMutationOptions<
   UpdateNfcMutation,
   UpdateNfcMutationVariables
+>;
+export const UpdateSharesEventDocument = gql`
+  mutation UpdateSharesEvent($data: UpdateSharesEventInput!) {
+    updateSharesEvent(data: $data) {
+      id
+    }
+  }
+`;
+export type UpdateSharesEventMutationFn = Apollo.MutationFunction<
+  UpdateSharesEventMutation,
+  UpdateSharesEventMutationVariables
+>;
+
+/**
+ * __useUpdateSharesEventMutation__
+ *
+ * To run a mutation, you first call `useUpdateSharesEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSharesEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSharesEventMutation, { data, loading, error }] = useUpdateSharesEventMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateSharesEventMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateSharesEventMutation,
+    UpdateSharesEventMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateSharesEventMutation,
+    UpdateSharesEventMutationVariables
+  >(UpdateSharesEventDocument, options);
+}
+export type UpdateSharesEventMutationHookResult = ReturnType<
+  typeof useUpdateSharesEventMutation
+>;
+export type UpdateSharesEventMutationResult =
+  Apollo.MutationResult<UpdateSharesEventMutation>;
+export type UpdateSharesEventMutationOptions = Apollo.BaseMutationOptions<
+  UpdateSharesEventMutation,
+  UpdateSharesEventMutationVariables
 >;
 export const UpdateUserNotificationsDocument = gql`
   mutation updateUserNotifications($data: UpdateUserNotificationsInput!) {

@@ -4,47 +4,48 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
-  PostSharesEventMutation,
-  PostSharesEventMutationVariables,
+  UpdateSharesEventMutation,
+  UpdateSharesEventMutationVariables,
 } from "../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
-const POST_SHARES_EVENT_MUTATION = gql`
-  mutation PostSharesEvent($data: PostSharesEventInput!) {
-    postSharesEvent(data: $data) {
+const UPDATE_SHARES_EVENT_MUTATION = gql`
+  mutation UpdateSharesEvent($data: UpdateSharesEventInput!) {
+    updateSharesEvent(data: $data) {
       id
     }
   }
 `;
 
-const usePostSharesEvent = ({ onError }: Props) => {
+const useUpdateSharesEvent = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    PostSharesEventMutation,
-    PostSharesEventMutationVariables
-  >(POST_SHARES_EVENT_MUTATION);
+    UpdateSharesEventMutation,
+    UpdateSharesEventMutationVariables
+  >(UPDATE_SHARES_EVENT_MUTATION);
 
-  const postSharesEvent = useCallback(
+  const updateSharesEvent = useCallback(
     async (data) => {
       try {
         setLoading(true);
         const mutationResult = await mutate({
           variables: {
             data: {
-              channelId: data.id,
+              id: data.id,
               sharesSubjectQuestion: data.sharesSubjectQuestion,
               sharesSubjectAddress: data.sharesSubjectAddress,
+              eventState: data.eventState,
             },
           },
         });
 
-        const res = mutationResult?.data?.postSharesEvent;
+        const res = mutationResult?.data?.updateSharesEvent;
 
         if (res) {
-          console.log("postSharesEvent success");
+          console.log("updateSharesEvent success");
         } else {
           onError && onError();
         }
@@ -53,13 +54,13 @@ const usePostSharesEvent = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("postSharesEvent", JSON.stringify(e, null, 2));
+        console.log("updateSharesEvent", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]
   );
 
-  return { postSharesEvent, loading };
+  return { updateSharesEvent, loading };
 };
 
-export default usePostSharesEvent;
+export default useUpdateSharesEvent;
