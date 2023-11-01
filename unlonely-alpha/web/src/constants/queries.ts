@@ -49,6 +49,8 @@ export const CHANNEL_DETAIL_QUERY = gql`
         sharesSubjectQuestion
         sharesSubjectAddress
         eventState
+        createdAt
+        id
       }
       owner {
         FCImageUrl
@@ -259,6 +261,8 @@ export const GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY = gql`
           sharesSubjectQuestion
           sharesSubjectAddress
           eventState
+          createdAt
+          id
         }
         owner {
           FCImageUrl

@@ -13,6 +13,7 @@ export const typeDef = gql`
   }
 
   type SharesEvent {
+    id: ID!
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
     eventState: SharesEventState
