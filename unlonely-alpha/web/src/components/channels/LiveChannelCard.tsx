@@ -44,32 +44,30 @@ const LiveChannelCard = ({ channel, callback }: Props) => {
             position: "relative",
           }}
         >
-          {channel.thumbnailUrl && (
-            <Box position="relative">
-              <Image
-                src={channel.thumbnailUrl}
-                width={["236px", "380px"]}
-                height={["132px", "213px"]}
-                borderRadius={"10px"}
-                boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
-              />
-              <Image
-                src="/images/playIcon.png"
-                opacity={0.5}
-                style={
-                  {
-                    position: "absolute",
-                    zIndex: 1,
-                    visibility: "visible",
-                    margin: "auto",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                  } as React.CSSProperties
-                }
-              />
-            </Box>
-          )}
+          <Box position="relative">
+            <Image
+              src={channel.thumbnailUrl ?? "/svg/defaultThumbnail.svg"}
+              width={["236px", "380px"]}
+              height={["132px", "213px"]}
+              borderRadius={"10px"}
+              boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
+            />
+            <Image
+              src="/images/playIcon.png"
+              opacity={0.5}
+              style={
+                {
+                  position: "absolute",
+                  zIndex: 1,
+                  visibility: "visible",
+                  margin: "auto",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                } as React.CSSProperties
+              }
+            />
+          </Box>
         </Flex>
         <Flex direction="row" justifyContent="left" mt="1rem"></Flex>
         <Flex justifyContent="space-between" flexDirection="column">

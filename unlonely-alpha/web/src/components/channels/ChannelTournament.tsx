@@ -267,7 +267,11 @@ export const ChannelTournament = () => {
       setErrorMessage("wrong network");
     } else if (!isBuying && Number(vipBadgeBalance) < Number(amountOfBadges)) {
       setErrorMessage("insufficient badges to sell");
-    } else if (userEthBalance?.value && badgePrice > userEthBalance?.value) {
+    } else if (
+      isBuying &&
+      userEthBalance?.value &&
+      badgePrice > userEthBalance?.value
+    ) {
       setErrorMessage("insufficient ETH to spend");
     } else {
       setErrorMessage("");

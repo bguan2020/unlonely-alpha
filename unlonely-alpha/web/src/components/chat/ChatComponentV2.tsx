@@ -22,6 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState, CSSProperties, useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
+import { useBalance, useBlockNumber } from "wagmi";
 
 import { ADD_REACTION_EVENT, InteractionType } from "../../constants";
 import {
@@ -37,6 +38,7 @@ import {
   useReadMappings,
   useGenerateKey,
   useSellVotes,
+  useGetHolderBalances,
 } from "../../hooks/contracts/useSharesContractV2";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import usePostBetBuy from "../../hooks/server/gamblable/usePostBetBuy";
@@ -46,6 +48,7 @@ import { filteredInput } from "../../utils/validation/input";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import ChatForm from "./ChatForm";
 import MessageList from "./MessageList";
+import { useUser } from "../../hooks/context/useUser";
 
 const holders = [
   { name: "test1", quantity: 500 },
@@ -290,6 +293,7 @@ const ChatComponent = () => {
 };
 
 const Trade = ({ chat }: { chat: ChatReturnType }) => {
+  const { userAddress, walletIsConnected } = useUser();
   const { channel } = useChannelContext();
   const {
     channelQueryData,
@@ -307,6 +311,10 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     () => BigInt(amountOfVotes as `${number}`),
     [amountOfVotes]
   );
+
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
+    address: userAddress as `0x${string}`,
+  });
 
   const toast = useToast();
 
@@ -387,8 +395,6 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     };
   };
 
-  const contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
-
   const handleInputChange = (event: any) => {
     const input = event.target.value;
     const filtered = filteredInput(input);
@@ -403,10 +409,22 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
 
   const v2contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
+  const {
+    refetch: refetchBalances,
+    yayVotesBalance,
+    nayVotesBalance,
+  } = useGetHolderBalances(
+    channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress as `0x${string}`,
+    Number(channelQueryData?.sharesEvent?.[0]?.id),
+    userAddress as `0x${string}`,
+    isYay,
+    v2contract
+  );
+
   const { priceAfterFee: votePrice, refetch: refetchVotePrice } =
     useGetPriceAfterFee(
       channelQueryData?.owner?.address as `0x${string}`,
-      0,
+      Number(channelQueryData?.sharesEvent?.[0]?.id),
       BigInt(amountOfVotes),
       isYay,
       isBuying,
@@ -415,13 +433,14 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
 
   const { key: generatedKey } = useGenerateKey(
     channelQueryData?.owner?.address as `0x${string}`,
-    0,
+    Number(channelQueryData?.sharesEvent?.[0]?.id),
     v2contract
   );
 
   const {
     yayVotesSupply,
     nayVotesSupply,
+    eventEndTimestamp,
     refetch: refetchMappings,
   } = useReadMappings(
     generatedKey,
@@ -440,7 +459,16 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
       value: votePrice,
     },
     v2contract,
-    {}
+    getCallbackHandlers("buyVotes", {
+      callbackOnTxSuccess: async () => {
+        await postBetBuy({
+          channelId: channelQueryData?.id as string,
+          userAddress: userAddress as `0x${string}`,
+          isBuying: true,
+        });
+        setAmountOfVotes("0");
+      },
+    })
   );
 
   const { sellVotes, refetch: refetchSellVotes } = useSellVotes(
@@ -452,7 +480,11 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
       amountOfVotes: amount_bigint,
     },
     v2contract,
-    {}
+    getCallbackHandlers("sellVotes", {
+      callbackOnTxSuccess: async () => {
+        setAmountOfVotes("0");
+      },
+    })
   );
 
   const tradeMessages = useMemo(() => {
@@ -472,6 +504,82 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     });
     return tradeData;
   }, [chat.receivedMessages]);
+
+  const blockNumber = useBlockNumber({
+    watch: true,
+  });
+
+  const doesEventExist = useMemo(() => {
+    if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
+    if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
+    return true;
+  }, [channelQueryData?.sharesEvent]);
+
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [dateNow, setDateNow] = useState<number>(Date.now());
+
+  const isFetching = useRef(false);
+
+  useEffect(() => {
+    if (!blockNumber.data || isFetching.current) return;
+    const fetch = async () => {
+      isFetching.current = true;
+      try {
+        await Promise.all([
+          refetchBalances(),
+          refetchVotePrice(),
+          refetchBuyVotes(),
+          refetchSellVotes(),
+          refetchMappings(),
+          refetchUserEthBalance(),
+        ]);
+      } catch (err) {
+        console.log("vote fetching error", err);
+      }
+      setDateNow(Date.now());
+      isFetching.current = false;
+    };
+    fetch();
+  }, [blockNumber.data]);
+
+  useEffect(() => {
+    if (!walletIsConnected) {
+      setErrorMessage("connect wallet first");
+    } else if (!matchingChain) {
+      setErrorMessage("wrong network");
+    } else if (!doesEventExist) {
+      setErrorMessage("event not found");
+    } else if (Number(eventEndTimestamp) * 1000 < dateNow) {
+      setErrorMessage("event not ongoing");
+    } else if (!isBuying) {
+      if (
+        (isYay && Number(yayVotesBalance) < Number(amountOfVotes)) ||
+        (!isYay && Number(nayVotesBalance) < Number(amountOfVotes))
+      ) {
+        setErrorMessage("insufficient votes to sell");
+      }
+    } else if (
+      isBuying &&
+      userEthBalance?.value &&
+      votePrice > userEthBalance?.value
+    ) {
+      setErrorMessage("insufficient ETH to spend");
+    } else {
+      setErrorMessage("");
+    }
+  }, [
+    walletIsConnected,
+    matchingChain,
+    userEthBalance,
+    isBuying,
+    votePrice,
+    yayVotesBalance,
+    nayVotesBalance,
+    amountOfVotes,
+    dateNow,
+    eventEndTimestamp,
+    doesEventExist,
+  ]);
 
   return (
     <>
@@ -507,99 +615,110 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           )}
         />
       </Flex>
-      <Flex justifyContent={"space-around"} gap="5px">
-        <Flex gap="5px">
-          <Button
-            bg={isYay ? "#46a800" : "transparent"}
-            border={!isYay ? "1px solid #46a800" : undefined}
-            _focus={{}}
-            _hover={{}}
-            _active={{}}
-            onClick={() => setIsYay(true)}
-          >
-            <Flex alignItems={"center"} gap="2px">
-              {truncateValue(String(yayVotesSupply), 0, true)}
-              <TriangleUpIcon />
+      {errorMessage && (
+        <Text textAlign={"center"} color="red.400">
+          {errorMessage}
+        </Text>
+      )}
+      {doesEventExist && (
+        <>
+          <Flex justifyContent={"space-around"} gap="5px">
+            <Flex gap="5px">
+              <Button
+                bg={isYay ? "#46a800" : "transparent"}
+                border={!isYay ? "1px solid #46a800" : undefined}
+                _focus={{}}
+                _hover={{}}
+                _active={{}}
+                onClick={() => setIsYay(true)}
+              >
+                <Flex alignItems={"center"} gap="2px">
+                  {truncateValue(String(yayVotesSupply), 0, true)}
+                  <TriangleUpIcon />
+                </Flex>
+              </Button>
+              <Button
+                bg={!isYay ? "#fe2815" : "transparent"}
+                border={isYay ? "1px solid #fe2815" : undefined}
+                _focus={{}}
+                _hover={{}}
+                _active={{}}
+                onClick={() => setIsYay(false)}
+              >
+                <Flex alignItems={"center"} gap="2px">
+                  {truncateValue(String(nayVotesSupply), 0, true)}
+                  <TriangleDownIcon />
+                </Flex>
+              </Button>
             </Flex>
-          </Button>
-          <Button
-            bg={!isYay ? "#fe2815" : "transparent"}
-            border={isYay ? "1px solid #fe2815" : undefined}
-            _focus={{}}
-            _hover={{}}
-            _active={{}}
-            onClick={() => setIsYay(false)}
-          >
-            <Flex alignItems={"center"} gap="2px">
-              {truncateValue(String(nayVotesSupply), 0, true)}
-              <TriangleDownIcon />
-            </Flex>
-          </Button>
-        </Flex>
-        <Flex bg={"#131323"} borderRadius="15px">
-          <Button
-            bg={isBuying ? "#46a800" : "transparent"}
-            border={!isBuying ? "1px solid #46a800" : undefined}
-            _focus={{}}
-            _hover={{}}
-            _active={{}}
-            onClick={() => setIsBuying(true)}
-          >
-            BUY
-          </Button>
-          <Button
-            bg={!isBuying ? "#fe2815" : "transparent"}
-            border={isBuying ? "1px solid #fe2815" : undefined}
-            _focus={{}}
-            _hover={{}}
-            _active={{}}
-            onClick={() => setIsBuying(false)}
-          >
-            SELL
-          </Button>
-        </Flex>
-      </Flex>
-      <Flex direction="column" borderRadius="15px" p="1rem">
-        <Flex justifyContent={"space-between"} mb="5px">
-          <Flex direction="column">
-            <Text fontSize="10px" textAlign="center">
-              how many
-            </Text>
-            <Flex alignItems={"center"}>
-              <Input
-                textAlign="center"
-                width={"70px"}
-                value={amountOfVotes}
-                onChange={handleInputChange}
-              />
+            <Flex bg={"#131323"} borderRadius="15px">
+              <Button
+                bg={isBuying ? "#46a800" : "transparent"}
+                border={!isBuying ? "1px solid #46a800" : undefined}
+                _focus={{}}
+                _hover={{}}
+                _active={{}}
+                onClick={() => setIsBuying(true)}
+              >
+                BUY
+              </Button>
+              <Button
+                bg={!isBuying ? "#fe2815" : "transparent"}
+                border={isBuying ? "1px solid #fe2815" : undefined}
+                _focus={{}}
+                _hover={{}}
+                _active={{}}
+                onClick={() => setIsBuying(false)}
+              >
+                SELL
+              </Button>
             </Flex>
           </Flex>
-          <Flex direction="column">
-            <Text fontSize="10px" textAlign="center">
-              ETH price
-            </Text>
-            <Text whiteSpace={"nowrap"} margin="auto">
-              {truncateValue(formatUnits(votePrice, 18), 4)}
-            </Text>
+          <Flex direction="column" borderRadius="15px" p="1rem">
+            <Flex justifyContent={"space-between"} mb="5px">
+              <Flex direction="column">
+                <Text fontSize="10px" textAlign="center">
+                  how many
+                </Text>
+                <Flex alignItems={"center"}>
+                  <Input
+                    textAlign="center"
+                    width={"70px"}
+                    value={amountOfVotes}
+                    onChange={handleInputChange}
+                  />
+                </Flex>
+              </Flex>
+              <Flex direction="column">
+                <Text fontSize="10px" textAlign="center">
+                  ETH price
+                </Text>
+                <Text whiteSpace={"nowrap"} margin="auto">
+                  {truncateValue(formatUnits(votePrice, 18), 4)}
+                </Text>
+              </Flex>
+              <Flex direction="column">
+                <Text fontSize="10px" textAlign="center">
+                  have
+                </Text>
+                <Text whiteSpace={"nowrap"} margin="auto">
+                  {isYay ? yayVotesBalance : nayVotesBalance}
+                </Text>
+              </Flex>
+            </Flex>
+            <Button
+              bg={isBuying ? "#46a800" : "#fe2815"}
+              _focus={{}}
+              _hover={{}}
+              _active={{}}
+              onClick={() => (isBuying ? buyVotes?.() : sellVotes?.())}
+              disabled={(isBuying && !buyVotes) || (!isBuying && !sellVotes)}
+            >
+              {isBuying ? "BUY" : "SELL"}
+            </Button>
           </Flex>
-          <Flex direction="column">
-            <Text fontSize="10px" textAlign="center">
-              have
-            </Text>
-            <Text whiteSpace={"nowrap"} margin="auto">
-              {truncateValue(3, 0)}
-            </Text>
-          </Flex>
-        </Flex>
-        <Button
-          bg={isBuying ? "#46a800" : "#fe2815"}
-          _focus={{}}
-          _hover={{}}
-          _active={{}}
-        >
-          {isBuying ? "BUY" : "SELL"}
-        </Button>
-      </Flex>
+        </>
+      )}
     </>
   );
 };
