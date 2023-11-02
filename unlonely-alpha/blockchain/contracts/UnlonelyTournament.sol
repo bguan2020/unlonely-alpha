@@ -194,11 +194,11 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         require(success, "Unable to send funds");
     }
 
-    function getTournamentPayout() public view returns (uint256){
+    function getTournamentPayout(address _address) public view returns (uint256){
         if (!activeTournament.isWinnerSelected) return 0;
         uint256 totalPool = activeTournament.vipPooledEth;
         uint256 totalWinningShares = vipBadgeSupply[activeTournament.winningBadge];
-        uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * vipBadgeBalance[activeTournament.winningBadge][msg.sender] / totalWinningShares);
+        uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * vipBadgeBalance[activeTournament.winningBadge][_address] / totalWinningShares);
         return userPayout;
     }
 

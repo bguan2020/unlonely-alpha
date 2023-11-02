@@ -296,11 +296,11 @@ export const useGenerateKey = (
 ) => {
   const publicClient = usePublicClient();
 
-  const [key, setKey] = useState<string>("");
+  const [key, setKey] = useState<string>(NULL_ADDRESS);
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
-      setKey("");
+      setKey(NULL_ADDRESS);
       return;
     }
     const key = await publicClient.readContract({
@@ -439,7 +439,10 @@ export const useEndTournament = (
   };
 };
 
-export const useGetTournamentPayout = (contract: ContractData) => {
+export const useGetTournamentPayout = (
+  address: `0x${string}`,
+  contract: ContractData
+) => {
   const publicClient = usePublicClient();
   const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
 
@@ -452,7 +455,7 @@ export const useGetTournamentPayout = (contract: ContractData) => {
       address: contract.address,
       abi: contract.abi,
       functionName: "getTournamentPayout",
-      args: [],
+      args: [address],
     });
     setUserPayout(BigInt(String(userPayout)));
   }, [contract.address, publicClient]);

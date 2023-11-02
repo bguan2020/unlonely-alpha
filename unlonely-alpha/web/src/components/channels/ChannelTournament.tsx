@@ -152,8 +152,10 @@ export const ChannelTournament = () => {
     refetch: refetchMappings,
   } = useReadMappings(generatedKey, tournamentContract);
 
-  const { userPayout, refetch: refetchUserPayout } =
-    useGetTournamentPayout(tournamentContract);
+  const { userPayout, refetch: refetchUserPayout } = useGetTournamentPayout(
+    userAddress as `0x${string}`,
+    tournamentContract
+  );
 
   const { vipBadgeBalance, refetch: refetchVipBadgeBalance } =
     useGetHolderBalance(
@@ -239,18 +241,22 @@ export const ChannelTournament = () => {
     if (!blockNumber.data || isFetching.current) return;
     const fetch = async () => {
       isFetching.current = true;
-      await Promise.all([
-        refetchUserPayout(),
-        refetchVipBadgeBalance(),
-        refetchPublic(),
-        refetchBadgeBuyPrice(),
-        refetchBadgeSellPrice(),
-        refetchBuyVipBadge(),
-        refetchSellVipBadge(),
-        refetchUserEthBalance(),
-        refetchClaimTournamentPayout(),
-        refetchMappings(),
-      ]);
+      try {
+        await Promise.all([
+          refetchUserPayout(),
+          refetchVipBadgeBalance(),
+          refetchPublic(),
+          refetchBadgeBuyPrice(),
+          refetchBadgeSellPrice(),
+          refetchBuyVipBadge(),
+          refetchSellVipBadge(),
+          refetchUserEthBalance(),
+          refetchClaimTournamentPayout(),
+          refetchMappings(),
+        ]);
+      } catch (err) {
+        console.log("channelTournament fetching error", err);
+      }
       isFetching.current = false;
     };
     fetch();
