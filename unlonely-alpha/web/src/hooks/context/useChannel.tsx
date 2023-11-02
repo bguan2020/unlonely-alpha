@@ -83,11 +83,13 @@ const ChannelContext = createContext<{
     refetchOwnerTokenBalance?: () => void;
   };
   holders: {
+    isVip?: boolean;
     userRank: number;
     data?: GetTokenHoldersByChannelQuery;
     loading: boolean;
     error?: ApolloError;
     refetchTokenHolders?: () => Promise<void>;
+    handleIsVip?: (value: boolean) => void;
   };
   arcade: {
     addToChatbot: (chatBotMessageToAdd: ChatBot) => void;
@@ -156,11 +158,13 @@ const ChannelContext = createContext<{
     refetchOwnerTokenBalance: () => undefined,
   },
   holders: {
+    isVip: false,
     userRank: -1,
     data: undefined,
     loading: true,
     error: undefined,
     refetchTokenHolders: undefined,
+    handleIsVip: () => undefined,
   },
   arcade: {
     addToChatbot: () => undefined,
@@ -276,6 +280,7 @@ export const ChannelProvider = ({
   >(undefined);
   const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
   const [isClipUiOpen, setIsClipUiOpen] = useState<boolean>(false);
+  const [isVip, setIsVip] = useState<boolean>(false);
 
   const handleIsClipUiOpen = useCallback((isClipUiOpen: boolean) => {
     setIsClipUiOpen(isClipUiOpen);
@@ -407,6 +412,10 @@ export const ChannelProvider = ({
     setModeratorModal(value);
   }, []);
 
+  const handleIsVip = useCallback((value: boolean) => {
+    setIsVip(value);
+  }, []);
+
   const value = useMemo(
     () => ({
       channel: {
@@ -517,6 +526,7 @@ export const ChannelProvider = ({
       clipUrl,
       clipThumbnail,
       loading,
+      isVip,
       addToChatbot,
       handleBuyModal,
       handleTipModal,
@@ -531,6 +541,7 @@ export const ChannelProvider = ({
       handleBetModal,
       handleModeratorModal,
       handleChatCommandModal,
+      handleIsVip,
       showBuyModal,
       showTipModal,
       showCustomModal,

@@ -7,23 +7,21 @@ import { createCallbackHandler } from "../../utils/contract";
 import { useUser } from "../context/useUser";
 import { useWrite } from "./useWrite";
 
-type ActiveTournament = {
+type Tournament = {
   isActive: boolean;
-  isWinnerSelected: boolean;
+  isPayoutClaimable: boolean;
   winningBadge: string;
   vipPooledEth: bigint;
-  endTimestamp: bigint;
 };
 
 export const useReadPublic = (contract: ContractData) => {
   const publicClient = usePublicClient();
 
-  const [activeTournament, setActiveTournament] = useState<ActiveTournament>({
+  const [tournament, setTournament] = useState<Tournament>({
     isActive: false,
-    isWinnerSelected: false,
+    isPayoutClaimable: false,
     winningBadge: NULL_ADDRESS,
     vipPooledEth: BigInt(0),
-    endTimestamp: BigInt(0),
   });
   const [protocolFeeDestination, setProtocolFeeDestination] =
     useState<string>(NULL_ADDRESS);
@@ -37,12 +35,11 @@ export const useReadPublic = (contract: ContractData) => {
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
-      setActiveTournament({
+      setTournament({
         isActive: false,
-        isWinnerSelected: false,
+        isPayoutClaimable: false,
         winningBadge: NULL_ADDRESS,
         vipPooledEth: BigInt(0),
-        endTimestamp: BigInt(0),
       });
       setProtocolFeeDestination(NULL_ADDRESS);
       setProtocolFeePercent(BigInt(0));
@@ -52,7 +49,7 @@ export const useReadPublic = (contract: ContractData) => {
     }
     // try {
     const [
-      activeTournament,
+      tournament,
       protocolFeeDestination,
       protocolFeePercent,
       subjectFeePercent,
@@ -61,7 +58,7 @@ export const useReadPublic = (contract: ContractData) => {
       publicClient.readContract({
         address: contract.address,
         abi: contract.abi,
-        functionName: "activeTournament",
+        functionName: "tournament",
         args: [],
       }),
       publicClient.readContract({
@@ -89,21 +86,20 @@ export const useReadPublic = (contract: ContractData) => {
         args: [],
       }),
     ]);
-    setActiveTournament({
-      isActive: Boolean(activeTournament[0]),
-      isWinnerSelected: Boolean(activeTournament[1]),
-      winningBadge: String(activeTournament[2]),
-      vipPooledEth: BigInt(String(activeTournament[3])),
-      endTimestamp: BigInt(String(activeTournament[4])),
+    setTournament({
+      isActive: Boolean(tournament[0]),
+      isPayoutClaimable: Boolean(tournament[1]),
+      winningBadge: String(tournament[2]),
+      vipPooledEth: BigInt(String(tournament[3])),
     });
     setProtocolFeeDestination(String(protocolFeeDestination));
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
     setTournamentFeePercent(BigInt(String(tournamentFeePercent)));
     // } catch (e) {
-    //   setActiveTournament({
+    //   setTournament({
     //     isActive: false,
-    //     isWinnerSelected: false,
+    //     isPayoutClaimable: false,
     //     winningBadge: NULL_ADDRESS,
     //     vipPooledEth: BigInt(0),
     //     endTimestamp: BigInt(0),
@@ -121,7 +117,7 @@ export const useReadPublic = (contract: ContractData) => {
 
   return {
     refetch: getData,
-    activeTournament,
+    tournament,
     protocolFeeDestination,
     protocolFeePercent,
     subjectFeePercent,
@@ -296,11 +292,15 @@ export const useGenerateKey = (
 ) => {
   const publicClient = usePublicClient();
 
-  const [key, setKey] = useState<string>(NULL_ADDRESS);
+  const [key, setKey] = useState<string>(
+    "0x0000000000000000000000000000000000000000000000000000000000000000"
+  );
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
-      setKey(NULL_ADDRESS);
+      setKey(
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      );
       return;
     }
     const key = await publicClient.readContract({
@@ -322,32 +322,29 @@ export const useGenerateKey = (
   };
 };
 
-export const useCreateTournament = (
-  args: {
-    endTimestamp: bigint;
-  },
+export const useStartTournament = (
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
   const {
-    writeAsync: createTournament,
-    writeData: createTournamentData,
-    txData: createTournamentTxData,
-    isTxLoading: createTournamentTxLoading,
-    refetch: refetchCreateTournament,
+    writeAsync: startTournament,
+    writeData: startTournamentData,
+    txData: startTournamentTxData,
+    isTxLoading: startTournamentTxLoading,
+    refetch: refetchStartTournament,
   } = useWrite(
     contract,
-    "createTournament",
-    [args.endTimestamp],
-    createCallbackHandler("useCreateTournament createTournament", callbacks)
+    "startTournament",
+    [],
+    createCallbackHandler("useStartTournament startTournament", callbacks)
   );
 
   return {
-    createTournament,
-    createTournamentData,
-    createTournamentTxData,
-    createTournamentTxLoading,
-    refetchCreateTournament,
+    startTournament,
+    startTournamentData,
+    startTournamentTxData,
+    startTournamentTxLoading,
+    refetchStartTournament,
   };
 };
 
@@ -364,7 +361,7 @@ export const useSelectTournamentWinner = (
     writeData: selectTournamentWinnerData,
     txData: selectTournamentWinnerTxData,
     isTxLoading: selectTournamentWinnerTxLoading,
-    refetch: refetchCreateTournament,
+    refetch: refetchSelectTournamentWinner,
   } = useWrite(
     contract,
     "selectTournamentWinner",
@@ -380,7 +377,7 @@ export const useSelectTournamentWinner = (
     selectTournamentWinnerData,
     selectTournamentWinnerTxData,
     selectTournamentWinnerTxLoading,
-    refetchCreateTournament,
+    refetchSelectTournamentWinner,
   };
 };
 

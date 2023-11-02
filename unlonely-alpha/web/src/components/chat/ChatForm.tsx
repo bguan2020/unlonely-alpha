@@ -79,7 +79,14 @@ const ChatForm = ({
   const { matchingChain, localNetwork, explorerUrl } = network;
 
   const toast = useToast();
-  const { channel: channelContext, token, chat, arcade } = useChannelContext();
+  const {
+    channel: channelContext,
+    token,
+    chat,
+    arcade,
+    holders,
+  } = useChannelContext();
+  const { isVip } = holders;
   const { clipping } = chat;
   const { addToChatbot } = arcade;
   const { handleIsClipUiOpen, loading: clipLoading } = clipping;
@@ -557,8 +564,7 @@ const ChatForm = ({
                 </Flex>
               )}
               <Flex justifyContent={isVipChat ? "space-between" : "flex-end"}>
-                {/* { TODO: change true to if is vip} */}
-                {isVipChat && (isOwner || true) && (
+                {isVipChat && (isOwner || isVip) && (
                   <Flex>
                     {clipLoading ? (
                       <Spinner />

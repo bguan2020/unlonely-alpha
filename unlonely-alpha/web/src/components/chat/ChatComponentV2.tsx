@@ -1,10 +1,10 @@
 import {
-  AddIcon,
   ChevronDownIcon,
-  MinusIcon,
   TriangleDownIcon,
   TriangleUpIcon,
 } from "@chakra-ui/icons";
+import Link from "next/link";
+import { formatUnits } from "viem";
 import {
   Flex,
   Box,
@@ -17,6 +17,7 @@ import {
   Tr,
   IconButton,
   Button,
+  useToast,
   Input,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState, CSSProperties, useMemo } from "react";
@@ -30,7 +31,13 @@ import {
 } from "../../hooks/chat/useChatV2";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
-import { useBuyVotes } from "../../hooks/contracts/useSharesContractV2";
+import {
+  useBuyVotes,
+  useGetPriceAfterFee,
+  useReadMappings,
+  useGenerateKey,
+  useSellVotes,
+} from "../../hooks/contracts/useSharesContractV2";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import usePostBetBuy from "../../hooks/server/gamblable/usePostBetBuy";
 import { getContractFromNetwork } from "../../utils/contract";
@@ -301,6 +308,85 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     [amountOfVotes]
   );
 
+  const toast = useToast();
+
+  const getCallbackHandlers = (
+    name: string,
+    callbacks?: {
+      callbackOnWriteError?: any;
+      callbackOnTxError?: any;
+      callbackOnWriteSuccess?: any;
+      callbackOnTxSuccess?: any;
+    }
+  ) => {
+    return {
+      onWriteSuccess: (data: any) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                {name} pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        callbacks?.callbackOnWriteSuccess?.();
+      },
+      onWriteError: (error: any) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              {name} cancelled
+            </Box>
+          ),
+        });
+        callbacks?.callbackOnWriteError?.();
+      },
+      onTxSuccess: (data: any) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                {name} success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        callbacks?.callbackOnTxSuccess?.();
+      },
+      onTxError: (error: any) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              {name} error
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        callbacks?.callbackOnTxError?.();
+      },
+    };
+  };
+
   const contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const handleInputChange = (event: any) => {
@@ -317,14 +403,53 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
 
   const v2contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
-  const { buyVotes } = useBuyVotes(
+  const { priceAfterFee: votePrice, refetch: refetchVotePrice } =
+    useGetPriceAfterFee(
+      channelQueryData?.owner?.address as `0x${string}`,
+      0,
+      BigInt(amountOfVotes),
+      isYay,
+      isBuying,
+      v2contract
+    );
+
+  const { key: generatedKey } = useGenerateKey(
+    channelQueryData?.owner?.address as `0x${string}`,
+    0,
+    v2contract
+  );
+
+  const {
+    yayVotesSupply,
+    nayVotesSupply,
+    refetch: refetchMappings,
+  } = useReadMappings(
+    generatedKey,
+    channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress as `0x${string}`,
+    Number(channelQueryData?.sharesEvent?.[0]?.id),
+    v2contract
+  );
+
+  const { buyVotes, refetch: refetchBuyVotes } = useBuyVotes(
     {
       eventAddress: channelQueryData?.sharesEvent?.[0]
         ?.sharesSubjectAddress as `0x${string}`,
       eventId: Number(channelQueryData?.sharesEvent?.[0]?.id),
-      isYay: true,
+      isYay,
       amountOfVotes: amount_bigint,
-      value: BigInt(1),
+      value: votePrice,
+    },
+    v2contract,
+    {}
+  );
+
+  const { sellVotes, refetch: refetchSellVotes } = useSellVotes(
+    {
+      eventAddress: channelQueryData?.sharesEvent?.[0]
+        ?.sharesSubjectAddress as `0x${string}`,
+      eventId: Number(channelQueryData?.sharesEvent?.[0]?.id),
+      isYay,
+      amountOfVotes: amount_bigint,
     },
     v2contract,
     {}
@@ -382,7 +507,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           )}
         />
       </Flex>
-      <Flex justifyContent={"space-around"}>
+      <Flex justifyContent={"space-around"} gap="5px">
         <Flex gap="5px">
           <Button
             bg={isYay ? "#46a800" : "transparent"}
@@ -392,7 +517,10 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             _active={{}}
             onClick={() => setIsYay(true)}
           >
-            <TriangleUpIcon />
+            <Flex alignItems={"center"} gap="2px">
+              {truncateValue(String(yayVotesSupply), 0, true)}
+              <TriangleUpIcon />
+            </Flex>
           </Button>
           <Button
             bg={!isYay ? "#fe2815" : "transparent"}
@@ -402,7 +530,10 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             _active={{}}
             onClick={() => setIsYay(false)}
           >
-            <TriangleDownIcon />
+            <Flex alignItems={"center"} gap="2px">
+              {truncateValue(String(nayVotesSupply), 0, true)}
+              <TriangleDownIcon />
+            </Flex>
           </Button>
         </Flex>
         <Flex bg={"#131323"} borderRadius="15px">
@@ -413,7 +544,6 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             _hover={{}}
             _active={{}}
             onClick={() => setIsBuying(true)}
-            borderRadius="15px"
           >
             BUY
           </Button>
@@ -424,56 +554,32 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             _hover={{}}
             _active={{}}
             onClick={() => setIsBuying(false)}
-            borderRadius="15px"
           >
             SELL
           </Button>
         </Flex>
       </Flex>
       <Flex direction="column" borderRadius="15px" p="1rem">
-        <Flex gap="1rem" mb="5px">
+        <Flex justifyContent={"space-between"} mb="5px">
           <Flex direction="column">
             <Text fontSize="10px" textAlign="center">
               how many
             </Text>
             <Flex alignItems={"center"}>
-              <IconButton
-                bg="transparent"
-                _active={{}}
-                _focus={{}}
-                _hover={{}}
-                aria-label="decrease Votes"
-                icon={<MinusIcon />}
-                onClick={() => {
-                  if (Number(amountOfVotes) <= 0) return;
-                  setAmountOfVotes(String(Number(amountOfVotes) - 1));
-                }}
-              />
               <Input
                 textAlign="center"
                 width={"70px"}
                 value={amountOfVotes}
                 onChange={handleInputChange}
               />
-              <IconButton
-                bg="transparent"
-                _active={{}}
-                _focus={{}}
-                _hover={{}}
-                aria-label="decrease Votes"
-                icon={<AddIcon />}
-                onClick={() => {
-                  setAmountOfVotes(String(Number(amountOfVotes) + 1));
-                }}
-              />
             </Flex>
           </Flex>
           <Flex direction="column">
             <Text fontSize="10px" textAlign="center">
-              price
+              ETH price
             </Text>
             <Text whiteSpace={"nowrap"} margin="auto">
-              0.003 ETH
+              {truncateValue(formatUnits(votePrice, 18), 4)}
             </Text>
           </Flex>
           <Flex direction="column">

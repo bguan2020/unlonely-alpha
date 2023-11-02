@@ -26,7 +26,8 @@ import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
 
 export const ChannelTournament = () => {
   const { userAddress, walletIsConnected } = useUser();
-  const { channel } = useChannelContext();
+  const { channel, holders } = useChannelContext();
+  const { handleIsVip } = holders;
 
   const { channelQueryData } = channel;
   const { network } = useNetworkContext();
@@ -43,7 +44,7 @@ export const ChannelTournament = () => {
 
   const toast = useToast();
 
-  const { postBadgeTrade, loading: postBadgeTradeLoading } = usePostBadgeTrade({
+  const { postBadgeTrade } = usePostBadgeTrade({
     onError: (err) => {
       console.log(err);
     },
@@ -141,16 +142,15 @@ export const ChannelTournament = () => {
   });
 
   const {
-    activeTournament,
+    tournament,
     protocolFeeDestination,
     refetch: refetchPublic,
   } = useReadPublic(tournamentContract);
 
-  const {
-    vipBadgeSupply,
-    isTournamentCreator,
-    refetch: refetchMappings,
-  } = useReadMappings(generatedKey, tournamentContract);
+  const { vipBadgeSupply, refetch: refetchMappings } = useReadMappings(
+    generatedKey,
+    tournamentContract
+  );
 
   const { userPayout, refetch: refetchUserPayout } = useGetTournamentPayout(
     userAddress as `0x${string}`,
@@ -165,7 +165,7 @@ export const ChannelTournament = () => {
       tournamentContract
     );
 
-  const { priceAfterFee: badgeBuyPrice, refetch: refetchBadgeBuyPrice } =
+  const { priceAfterFee: badgePrice, refetch: refetchBadgePrice } =
     useGetPriceAfterFee(
       channelQueryData?.owner?.address as `0x${string}`,
       0,
@@ -174,26 +174,17 @@ export const ChannelTournament = () => {
       tournamentContract
     );
 
-  const { priceAfterFee: badgeSellPrice, refetch: refetchBadgeSellPrice } =
-    useGetPriceAfterFee(
-      channelQueryData?.owner?.address as `0x${string}`,
-      0,
-      BigInt(amountOfBadges),
-      !isBuying,
-      tournamentContract
-    );
-
   const { buyVipBadge, refetch: refetchBuyVipBadge } = useBuyVipBadge(
     {
       streamerAddress: channelQueryData?.owner?.address as `0x${string}`,
       eventId: 0,
       amount: BigInt(amountOfBadges),
-      value: badgeBuyPrice,
+      value: badgePrice,
     },
     tournamentContract,
     getCallbackHandlers("buyVipBadge", {
-      callbackOnTxSuccess: () => {
-        postBadgeTrade({
+      callbackOnTxSuccess: async () => {
+        await postBadgeTrade({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
           isBuying: true,
@@ -208,12 +199,12 @@ export const ChannelTournament = () => {
       streamerAddress: channelQueryData?.owner?.address as `0x${string}`,
       eventId: 0,
       amount: BigInt(amountOfBadges),
-      value: badgeSellPrice,
+      value: badgePrice,
     },
     tournamentContract,
     getCallbackHandlers("sellVipBadge", {
-      callbackOnTxSuccess: () => {
-        postBadgeTrade({
+      callbackOnTxSuccess: async () => {
+        await postBadgeTrade({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
           isBuying: false,
@@ -246,8 +237,7 @@ export const ChannelTournament = () => {
           refetchUserPayout(),
           refetchVipBadgeBalance(),
           refetchPublic(),
-          refetchBadgeBuyPrice(),
-          refetchBadgeSellPrice(),
+          refetchBadgePrice(),
           refetchBuyVipBadge(),
           refetchSellVipBadge(),
           refetchUserEthBalance(),
@@ -263,16 +253,21 @@ export const ChannelTournament = () => {
   }, [blockNumber.data]);
 
   useEffect(() => {
+    if (Number(vipBadgeBalance) > 0) {
+      handleIsVip?.(true);
+    } else {
+      handleIsVip?.(false);
+    }
+  }, [vipBadgeBalance]);
+
+  useEffect(() => {
     if (!walletIsConnected) {
       setErrorMessage("connect wallet first");
     } else if (!matchingChain) {
       setErrorMessage("wrong network");
     } else if (!isBuying && Number(vipBadgeBalance) < Number(amountOfBadges)) {
       setErrorMessage("insufficient badges to sell");
-    } else if (
-      userEthBalance?.value &&
-      (isBuying ? badgeBuyPrice : badgeSellPrice) > userEthBalance?.value
-    ) {
+    } else if (userEthBalance?.value && badgePrice > userEthBalance?.value) {
       setErrorMessage("insufficient ETH to spend");
     } else {
       setErrorMessage("");
@@ -282,8 +277,7 @@ export const ChannelTournament = () => {
     matchingChain,
     userEthBalance,
     isBuying,
-    badgeBuyPrice,
-    badgeSellPrice,
+    badgePrice,
     vipBadgeBalance,
     amountOfBadges,
   ]);
@@ -294,7 +288,7 @@ export const ChannelTournament = () => {
         <Text fontFamily={"LoRes15"} fontSize="25px">
           BECOME A VIP
         </Text>
-        {activeTournament.isActive && protocolFeeDestination !== NULL_ADDRESS && (
+        {protocolFeeDestination !== NULL_ADDRESS && (
           <Flex
             bg={"#131323"}
             borderRadius="15px"
@@ -303,37 +297,43 @@ export const ChannelTournament = () => {
           >
             <Button
               bg={isBuying ? "#46a800" : "transparent"}
+              border={!isBuying ? "1px solid #46a800" : undefined}
               _focus={{}}
               _hover={{}}
               _active={{}}
               onClick={() => setIsBuying(true)}
-              borderRadius="15px"
+              borderRadius="0px"
+              maxHeight="20px"
             >
-              BUY
+              <Text fontSize="13px">BUY</Text>
             </Button>
             <Button
               bg={!isBuying ? "#fe2815" : "transparent"}
+              border={isBuying ? "1px solid #fe2815" : undefined}
               _focus={{}}
               _hover={{}}
               _active={{}}
               onClick={() => setIsBuying(false)}
-              borderRadius="15px"
+              borderRadius="0px"
+              maxHeight="20px"
             >
-              SELL
+              <Text fontSize="13px">SELL</Text>
             </Button>
           </Flex>
         )}
       </Flex>
-      <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
-        {truncateValue(formatUnits(activeTournament.vipPooledEth, 18), 4)} ETH
-        in the VIP pool
-      </Text>
+      {tournament.isActive && protocolFeeDestination !== NULL_ADDRESS && (
+        <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
+          {truncateValue(formatUnits(tournament.vipPooledEth, 18), 4)} ETH in
+          the VIP pool
+        </Text>
+      )}
       {errorMessage && (
         <Text textAlign={"center"} color="red.400">
           {errorMessage}
         </Text>
       )}
-      {activeTournament.isActive && protocolFeeDestination !== NULL_ADDRESS && (
+      {protocolFeeDestination !== NULL_ADDRESS && userPayout === BigInt(0) && (
         <>
           <Flex gap="1rem" my="5px" justifyContent={"space-between"}>
             <Flex direction="column">
@@ -341,35 +341,12 @@ export const ChannelTournament = () => {
                 how many
               </Text>
               <Flex alignItems={"center"}>
-                {/* <IconButton
-                  bg="transparent"
-                  _active={{}}
-                  _focus={{}}
-                  _hover={{}}
-                  aria-label="decrease badges"
-                  icon={<MinusIcon />}
-                  onClick={() => {
-                    if (Number(amountOfBadges) <= 0) return;
-                    setAmountOfBadges(String(Number(amountOfBadges) - 1));
-                  }}
-                /> */}
                 <Input
                   textAlign="center"
                   width={"70px"}
                   value={amountOfBadges}
                   onChange={handleInputChange}
                 />
-                {/* <IconButton
-                  bg="transparent"
-                  _active={{}}
-                  _focus={{}}
-                  _hover={{}}
-                  aria-label="decrease badges"
-                  icon={<AddIcon />}
-                  onClick={() => {
-                    setAmountOfBadges(String(Number(amountOfBadges) + 1));
-                  }}
-                /> */}
               </Flex>
             </Flex>
             <Flex direction="column">
@@ -377,10 +354,7 @@ export const ChannelTournament = () => {
                 ETH price
               </Text>
               <Text whiteSpace={"nowrap"} margin="auto">
-                {truncateValue(
-                  formatUnits(isBuying ? badgeBuyPrice : badgeSellPrice, 18),
-                  4
-                )}
+                {truncateValue(formatUnits(badgePrice, 18), 4)}
               </Text>
             </Flex>
             <Flex direction="column">
@@ -393,16 +367,10 @@ export const ChannelTournament = () => {
             </Flex>
             <Flex direction="column">
               <Text fontSize="10px" textAlign="center">
-                share
+                total badges
               </Text>
               <Text whiteSpace={"nowrap"} margin="auto">
-                {Number(vipBadgeSupply) === 0
-                  ? 0
-                  : truncateValue(
-                      (Number(vipBadgeBalance) / Number(vipBadgeSupply)) * 100,
-                      1
-                    )}
-                %
+                {truncateValue(Number(vipBadgeSupply), 0)}
               </Text>
             </Flex>
           </Flex>
@@ -425,38 +393,23 @@ export const ChannelTournament = () => {
         <Flex>
           <Text>Contract not ready, admin must set fee destination</Text>
         </Flex>
-      ) : !activeTournament.isActive ? (
-        <Flex>
-          <Text>There is no active tournament right now</Text>
-        </Flex>
-      ) : activeTournament.isWinnerSelected ? (
+      ) : userPayout > BigInt(0) ? (
         <Flex direction="column">
           <Text color="#fff64a">The winning badge has been decided</Text>
           <Flex justifyContent={"space-between"}>
-            <Text>
-              {generatedKey === activeTournament.winningBadge
-                ? "We won!"
-                : "We lost"}
-            </Text>
-            {generatedKey === activeTournament.winningBadge && (
-              <Text>
-                your payout: {truncateValue(formatUnits(userPayout, 18))}
-              </Text>
-            )}
+            <Text>your payout</Text>
+            <Text>{truncateValue(formatUnits(userPayout, 18))}</Text>
           </Flex>
-          {userPayout > BigInt(0) && (
-            <Button
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              bg={"#E09025"}
-              borderRadius="25px"
-              isDisabled={!claimTournamentPayout}
-              onClick={claimTournamentPayout}
-            >
-              <Text fontSize="20px">get payout</Text>
-            </Button>
-          )}
+          <Button
+            _hover={{}}
+            _focus={{}}
+            _active={{}}
+            bg={"#E09025"}
+            isDisabled={!claimTournamentPayout}
+            onClick={claimTournamentPayout}
+          >
+            get payout
+          </Button>
         </Flex>
       ) : null}
     </Flex>

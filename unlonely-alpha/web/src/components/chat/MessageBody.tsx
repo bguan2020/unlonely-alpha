@@ -45,7 +45,8 @@ const MessageBody = ({
   channel,
   isVipChat,
 }: Props) => {
-  const { channel: c } = useChannelContext();
+  const { channel: c, holders } = useChannelContext();
+  const { isVip } = holders;
   const { channelQueryData } = c;
   const { user } = useUser();
   // const { isStandalone } = useUserAgent();
@@ -343,7 +344,6 @@ const MessageBody = ({
                     </>
                   )}
                 </ChatUserModal>
-                {/* { TODO: change false to if not vip} */}
                 <Text
                   onClick={() => setIsOpen(true)}
                   _hover={{ cursor: "pointer" }}
@@ -374,7 +374,9 @@ const MessageBody = ({
                           filter={
                             !isVipChat &&
                             message.data.senderStatus === SenderStatus.VIP &&
-                            (!userIsChannelOwner || false)
+                            !userIsChannelOwner &&
+                            !userIsModerator &&
+                            !isVip
                               ? "blur(5px)"
                               : "blur(0px)"
                           }
@@ -417,7 +419,9 @@ const MessageBody = ({
                         filter={
                           !isVipChat &&
                           message.data.senderStatus === SenderStatus.VIP &&
-                          (!userIsChannelOwner || false)
+                          !userIsChannelOwner &&
+                          !userIsModerator &&
+                          !isVip
                             ? "blur(5px)"
                             : "blur(0px)"
                         }
