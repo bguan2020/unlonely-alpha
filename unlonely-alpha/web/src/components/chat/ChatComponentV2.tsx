@@ -4,7 +4,7 @@ import {
   TriangleUpIcon,
 } from "@chakra-ui/icons";
 import Link from "next/link";
-import { formatUnits } from "viem";
+import { decodeEventLog, formatUnits } from "viem";
 import {
   Flex,
   Box,
@@ -20,11 +20,22 @@ import {
   useToast,
   Input,
 } from "@chakra-ui/react";
-import { useEffect, useRef, useState, CSSProperties, useMemo } from "react";
-import { Virtuoso } from "react-virtuoso";
+import {
+  useEffect,
+  useRef,
+  useState,
+  CSSProperties,
+  useMemo,
+  useCallback,
+} from "react";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useBalance, useBlockNumber } from "wagmi";
 
-import { ADD_REACTION_EVENT, InteractionType } from "../../constants";
+import {
+  ADD_REACTION_EVENT,
+  InteractionType,
+  NULL_ADDRESS,
+} from "../../constants";
 import {
   ChatReturnType,
   useChat as useChatV2,
@@ -39,6 +50,7 @@ import {
   useGenerateKey,
   useSellVotes,
   useGetHolderBalances,
+  useClaimVotePayout,
 } from "../../hooks/contracts/useSharesContractV2";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import usePostBetBuy from "../../hooks/server/gamblable/usePostBetBuy";
@@ -49,6 +61,8 @@ import { OuterBorder, BorderType } from "../general/OuterBorder";
 import ChatForm from "./ChatForm";
 import MessageList from "./MessageList";
 import { useUser } from "../../hooks/context/useUser";
+import centerEllipses from "../../utils/centerEllipses";
+import { getTimeFromMillis } from "../../utils/time";
 
 const holders = [
   { name: "test1", quantity: 500 },
@@ -293,13 +307,11 @@ const ChatComponent = () => {
 };
 
 const Trade = ({ chat }: { chat: ChatReturnType }) => {
-  const { userAddress, walletIsConnected } = useUser();
-  const { channel } = useChannelContext();
-  const {
-    channelQueryData,
-    loading: channelDataLoading,
-    error: channelDataError,
-  } = channel;
+  const { userAddress, walletIsConnected, user } = useUser();
+  const { channel, arcade } = useChannelContext();
+  const { channelQueryData, refetch } = channel;
+  const { addToChatbot } = arcade;
+
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
 
@@ -318,90 +330,13 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
 
   const toast = useToast();
 
-  const getCallbackHandlers = (
-    name: string,
-    callbacks?: {
-      callbackOnWriteError?: any;
-      callbackOnTxError?: any;
-      callbackOnWriteSuccess?: any;
-      callbackOnTxSuccess?: any;
-    }
-  ) => {
-    return {
-      onWriteSuccess: (data: any) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.hash}`}
-                passHref
-              >
-                {name} pending, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-        callbacks?.callbackOnWriteSuccess?.();
-      },
-      onWriteError: (error: any) => {
-        toast({
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-              {name} cancelled
-            </Box>
-          ),
-        });
-        callbacks?.callbackOnWriteError?.();
-      },
-      onTxSuccess: (data: any) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.transactionHash}`}
-                passHref
-              >
-                {name} success, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-        callbacks?.callbackOnTxSuccess?.();
-      },
-      onTxError: (error: any) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              {name} error
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-        callbacks?.callbackOnTxError?.();
-      },
-    };
-  };
-
   const handleInputChange = (event: any) => {
     const input = event.target.value;
     const filtered = filteredInput(input);
     setAmountOfVotes(filtered);
   };
 
-  const { postBetBuy, loading: postBetBuyLoading } = usePostBetBuy({
+  const { postBetBuy } = usePostBetBuy({
     onError: (err) => {
       console.log(err);
     },
@@ -414,8 +349,9 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     yayVotesBalance,
     nayVotesBalance,
   } = useGetHolderBalances(
-    channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress as `0x${string}`,
-    Number(channelQueryData?.sharesEvent?.[0]?.id),
+    (channelQueryData?.sharesEvent?.[0]
+      ?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
+    Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
     userAddress as `0x${string}`,
     isYay,
     v2contract
@@ -424,7 +360,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
   const { priceAfterFee: votePrice, refetch: refetchVotePrice } =
     useGetPriceAfterFee(
       channelQueryData?.owner?.address as `0x${string}`,
-      Number(channelQueryData?.sharesEvent?.[0]?.id),
+      Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
       BigInt(amountOfVotes),
       isYay,
       isBuying,
@@ -433,7 +369,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
 
   const { key: generatedKey } = useGenerateKey(
     channelQueryData?.owner?.address as `0x${string}`,
-    Number(channelQueryData?.sharesEvent?.[0]?.id),
+    Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
     v2contract
   );
 
@@ -441,51 +377,281 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     yayVotesSupply,
     nayVotesSupply,
     eventEndTimestamp,
+    votingPooledEth,
+    userPayout,
+    eventVerified,
+    eventResult,
     refetch: refetchMappings,
   } = useReadMappings(
     generatedKey,
-    channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress as `0x${string}`,
-    Number(channelQueryData?.sharesEvent?.[0]?.id),
+    (channelQueryData?.sharesEvent?.[0]
+      ?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
+    Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
     v2contract
   );
 
   const { buyVotes, refetch: refetchBuyVotes } = useBuyVotes(
     {
-      eventAddress: channelQueryData?.sharesEvent?.[0]
-        ?.sharesSubjectAddress as `0x${string}`,
-      eventId: Number(channelQueryData?.sharesEvent?.[0]?.id),
+      eventAddress:
+        (channelQueryData?.sharesEvent?.[0]
+          ?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
+      eventId: Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
       isYay,
       amountOfVotes: amount_bigint,
       value: votePrice,
     },
     v2contract,
-    getCallbackHandlers("buyVotes", {
-      callbackOnTxSuccess: async () => {
+    {
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                buyVotes pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+      onWriteError: (error) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              buyVotes cancelled
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: async (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                buyVotes success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        setAmountOfVotes("0");
+        const topics = decodeEventLog({
+          abi: v2contract.abi,
+          data: data.logs[0].data,
+          topics: data.logs[0].topics,
+        });
+        const args: any = topics.args;
+        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+          args.trade.isBuy ? "bought" : "sold"
+        } ${args.trade.shareAmount} ${args.trade.isYay ? "yes" : "no"} votes!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.BUY_VOTES,
+          title,
+          description: `${user?.username ?? userAddress ?? ""}:${
+            args.trade.shareAmount
+          }:${args.trade.isYay ? "yay" : "nay"}`,
+        });
         await postBetBuy({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
-          isBuying: true,
+          isYay: args.trade.isYay,
         });
-        setAmountOfVotes("0");
       },
-    })
+      onTxError: (error) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              buyVotes error
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+    }
   );
 
   const { sellVotes, refetch: refetchSellVotes } = useSellVotes(
     {
       eventAddress: channelQueryData?.sharesEvent?.[0]
         ?.sharesSubjectAddress as `0x${string}`,
-      eventId: Number(channelQueryData?.sharesEvent?.[0]?.id),
+      eventId: Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
       isYay,
       amountOfVotes: amount_bigint,
     },
     v2contract,
-    getCallbackHandlers("sellVotes", {
-      callbackOnTxSuccess: async () => {
-        setAmountOfVotes("0");
+    {
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                sellVotes pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
       },
-    })
+      onWriteError: (error) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              sellVotes cancelled
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: async (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                sellVotes success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        setAmountOfVotes("0");
+        const topics = decodeEventLog({
+          abi: v2contract.abi,
+          data: data.logs[0].data,
+          topics: data.logs[0].topics,
+        });
+        const args: any = topics.args;
+        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+          args.trade.isBuy ? "bought" : "sold"
+        } ${args.trade.shareAmount} ${args.trade.isYay ? "yes" : "no"} votes!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.SELL_VOTES,
+          title,
+          description: `${user?.username ?? userAddress ?? ""}:${
+            args.trade.shareAmount
+          }:${args.trade.isYay ? "yay" : "nay"}`,
+        });
+      },
+      onTxError: (error) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              sellVotes error
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+    }
   );
+
+  const { claimVotePayout, refetch: refetchClaimVotePayout } =
+    useClaimVotePayout(
+      {
+        eventAddress: channelQueryData?.sharesEvent?.[0]
+          ?.sharesSubjectAddress as `0x${string}`,
+        eventId: Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
+      },
+      v2contract,
+      {
+        onWriteSuccess: (data) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`${explorerUrl}/tx/${data.hash}`}
+                  passHref
+                >
+                  claimVotePayout pending, click to view
+                </Link>
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
+        onWriteError: (error) => {
+          toast({
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+                claimVotePayout cancelled
+              </Box>
+            ),
+          });
+        },
+        onTxSuccess: async (data) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`${explorerUrl}/tx/${data.transactionHash}`}
+                  passHref
+                >
+                  claimVotePayout success, click to view
+                </Link>
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
+        onTxError: (error) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+                claimVotePayout error
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
+      }
+    );
 
   const tradeMessages = useMemo(() => {
     const tradeMessages = chat.receivedMessages.filter(
@@ -499,7 +665,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
         taskType: splitMessage?.[0],
         trader: splitMessage?.[1],
         amount: splitMessage?.[2],
-        isYay: splitMessage?.[3],
+        isYay: splitMessage?.[3] === "yay",
       };
     });
     return tradeData;
@@ -517,7 +683,8 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [dateNow, setDateNow] = useState<number>(Date.now());
-
+  const [isAtBottom, setIsAtBottom] = useState(false);
+  const scrollRef = useRef<VirtuosoHandle>(null);
   const isFetching = useRef(false);
 
   useEffect(() => {
@@ -531,6 +698,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           refetchBuyVotes(),
           refetchSellVotes(),
           refetchMappings(),
+          refetchClaimVotePayout(),
           refetchUserEthBalance(),
         ]);
       } catch (err) {
@@ -543,12 +711,36 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
   }, [blockNumber.data]);
 
   useEffect(() => {
+    const fetch = async () => {
+      if (chat.receivedMessages.length > 0) {
+        const latestMessage =
+          chat.receivedMessages[chat.receivedMessages.length - 1];
+        if (
+          latestMessage.data.body &&
+          (latestMessage.data.body.split(":")[0] ===
+            InteractionType.EVENT_LIVE ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_LOCK ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_PAYOUT ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_END) &&
+          Date.now() - latestMessage.timestamp < 12000
+        ) {
+          await refetch();
+        }
+      }
+    };
+    fetch();
+  }, [chat.receivedMessages]);
+
+  useEffect(() => {
     if (!walletIsConnected) {
       setErrorMessage("connect wallet first");
     } else if (!matchingChain) {
       setErrorMessage("wrong network");
     } else if (!doesEventExist) {
-      setErrorMessage("event not found");
+      setErrorMessage("no event found");
     } else if (Number(eventEndTimestamp) * 1000 < dateNow) {
       setErrorMessage("event not ongoing");
     } else if (!isBuying) {
@@ -581,144 +773,278 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     doesEventExist,
   ]);
 
+  const getColor = (taskType: InteractionType, isYay: boolean) => {
+    if (taskType === InteractionType.BUY_VOTES && !isYay) return "#ff321f";
+    if (taskType === InteractionType.SELL_VOTES && isYay) return "#fe6715";
+    if (taskType === InteractionType.SELL_VOTES && !isYay) return "#bbd400";
+    return "#14de02";
+  };
+
+  const handleIsAtBottom = useCallback((value: boolean) => {
+    setIsAtBottom(value);
+  }, []);
+
+  const handleScrollToPresent = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollToIndex(tradeMessages.length - 1);
+    }
+  }, [tradeMessages.length]);
+
+  useEffect(() => {
+    const scrollable = document.getElementById("scrollable");
+    if (!scrollable) return;
+    if (isAtBottom) handleScrollToPresent();
+  }, [isAtBottom]);
+
   return (
     <>
-      <Flex
-        direction="column"
-        overflowX="auto"
-        height="100%"
-        width="100%"
-        mt="8px"
-        position="relative"
-      >
-        <Virtuoso
-          followOutput={"auto"}
-          style={{
-            height: "100%",
-            overflowY: "scroll",
-          }}
-          className="hide-scrollbar"
-          data={tradeMessages}
-          initialTopMostItemIndex={tradeMessages.length - 1}
-          itemContent={(index, data) => (
-            <Flex>
-              <Text>{data.trader}</Text>
-              <Text>
-                {data.taskType === InteractionType.BUY_VOTES
-                  ? "bought"
-                  : "sold"}
-              </Text>
-              <Text>{data.amount}</Text>
-              <Text>{data.isYay ? "YES" : "NO"}</Text>
-              <Text>votes!</Text>
-            </Flex>
-          )}
-        />
-      </Flex>
+      {doesEventExist && (
+        <Flex
+          direction="column"
+          overflowX="auto"
+          height="100%"
+          width="100%"
+          mt="8px"
+          position="relative"
+        >
+          <Text
+            textAlign={"center"}
+            width="90%"
+            fontSize={"20px"}
+            fontWeight={"bold"}
+          >
+            {channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion}
+          </Text>
+          <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
+            {truncateValue(formatUnits(votingPooledEth, 18), 4)} ETH in the pool
+          </Text>
+          <Flex
+            direction="column"
+            overflowX="auto"
+            height="100%"
+            id={"scrollable"}
+            position="relative"
+            mt="8px"
+          >
+            <Virtuoso
+              ref={scrollRef}
+              followOutput={"auto"}
+              style={{
+                height: "100%",
+                overflowY: "scroll",
+              }}
+              className="hide-scrollbar"
+              data={tradeMessages}
+              atBottomStateChange={(isAtBottom) => handleIsAtBottom(isAtBottom)}
+              initialTopMostItemIndex={tradeMessages.length - 1}
+              itemContent={(index, data) => {
+                const color = getColor(
+                  data.taskType as InteractionType.BUY_VOTES,
+                  data.isYay as boolean
+                );
+                return (
+                  <Flex justifyContent={"space-between"}>
+                    <Text>{data.trader}</Text>
+                    <Text color={color}>
+                      {data.taskType === InteractionType.BUY_VOTES
+                        ? "bought"
+                        : "sold"}{" "}
+                      {data.amount} {data.isYay ? "YES" : "NO"}
+                    </Text>
+                  </Flex>
+                );
+              }}
+            />
+          </Flex>
+          <Flex justifyContent="center">
+            {!isAtBottom && tradeMessages.length > 0 && (
+              <Box
+                bg="rgba(98, 98, 98, 0.6)"
+                p="4px"
+                borderRadius="4px"
+                _hover={{
+                  background: "rgba(98, 98, 98, 0.3)",
+                  cursor: "pointer",
+                }}
+                onClick={handleScrollToPresent}
+              >
+                <Text fontSize="12px" textAlign={"center"}>
+                  scroll to present
+                </Text>
+              </Box>
+            )}
+          </Flex>
+        </Flex>
+      )}
       {errorMessage && (
         <Text textAlign={"center"} color="red.400">
           {errorMessage}
         </Text>
       )}
-      {doesEventExist && (
-        <>
-          <Flex justifyContent={"space-around"} gap="5px">
-            <Flex gap="5px">
-              <Button
-                bg={isYay ? "#46a800" : "transparent"}
-                border={!isYay ? "1px solid #46a800" : undefined}
-                _focus={{}}
-                _hover={{}}
-                _active={{}}
-                onClick={() => setIsYay(true)}
-              >
-                <Flex alignItems={"center"} gap="2px">
-                  {truncateValue(String(yayVotesSupply), 0, true)}
-                  <TriangleUpIcon />
-                </Flex>
-              </Button>
-              <Button
-                bg={!isYay ? "#fe2815" : "transparent"}
-                border={isYay ? "1px solid #fe2815" : undefined}
-                _focus={{}}
-                _hover={{}}
-                _active={{}}
-                onClick={() => setIsYay(false)}
-              >
-                <Flex alignItems={"center"} gap="2px">
-                  {truncateValue(String(nayVotesSupply), 0, true)}
-                  <TriangleDownIcon />
-                </Flex>
-              </Button>
-            </Flex>
-            <Flex bg={"#131323"} borderRadius="15px">
-              <Button
-                bg={isBuying ? "#46a800" : "transparent"}
-                border={!isBuying ? "1px solid #46a800" : undefined}
-                _focus={{}}
-                _hover={{}}
-                _active={{}}
-                onClick={() => setIsBuying(true)}
-              >
-                BUY
-              </Button>
-              <Button
-                bg={!isBuying ? "#fe2815" : "transparent"}
-                border={isBuying ? "1px solid #fe2815" : undefined}
-                _focus={{}}
-                _hover={{}}
-                _active={{}}
-                onClick={() => setIsBuying(false)}
-              >
-                SELL
-              </Button>
-            </Flex>
-          </Flex>
-          <Flex direction="column" borderRadius="15px" p="1rem">
-            <Flex justifyContent={"space-between"} mb="5px">
-              <Flex direction="column">
-                <Text fontSize="10px" textAlign="center">
-                  how many
-                </Text>
-                <Flex alignItems={"center"}>
-                  <Input
-                    textAlign="center"
-                    width={"70px"}
-                    value={amountOfVotes}
-                    onChange={handleInputChange}
-                  />
-                </Flex>
+      {doesEventExist &&
+        Number(eventEndTimestamp) * 1000 > dateNow &&
+        channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE" && (
+          <>
+            <Flex justifyContent={"space-around"} gap="5px">
+              <Flex gap="5px">
+                <Button
+                  bg={isYay ? "#46a800" : "transparent"}
+                  border={!isYay ? "1px solid #46a800" : undefined}
+                  _focus={{}}
+                  _hover={{}}
+                  _active={{}}
+                  onClick={() => setIsYay(true)}
+                >
+                  <Flex alignItems={"center"} gap="2px">
+                    <TriangleUpIcon />
+                    {truncateValue(String(yayVotesSupply), 0, true)}
+                  </Flex>
+                </Button>
+                <Button
+                  bg={!isYay ? "#fe2815" : "transparent"}
+                  border={isYay ? "1px solid #fe2815" : undefined}
+                  _focus={{}}
+                  _hover={{}}
+                  _active={{}}
+                  onClick={() => setIsYay(false)}
+                >
+                  <Flex alignItems={"center"} gap="2px">
+                    <TriangleDownIcon />
+                    {truncateValue(String(nayVotesSupply), 0, true)}
+                  </Flex>
+                </Button>
               </Flex>
-              <Flex direction="column">
-                <Text fontSize="10px" textAlign="center">
-                  ETH price
-                </Text>
-                <Text whiteSpace={"nowrap"} margin="auto">
-                  {truncateValue(formatUnits(votePrice, 18), 4)}
-                </Text>
-              </Flex>
-              <Flex direction="column">
-                <Text fontSize="10px" textAlign="center">
-                  have
-                </Text>
-                <Text whiteSpace={"nowrap"} margin="auto">
-                  {isYay ? yayVotesBalance : nayVotesBalance}
-                </Text>
+              <Flex bg={"#131323"} borderRadius="15px">
+                <Button
+                  bg={isBuying ? "#46a800" : "transparent"}
+                  border={!isBuying ? "1px solid #46a800" : undefined}
+                  _focus={{}}
+                  _hover={{}}
+                  _active={{}}
+                  onClick={() => setIsBuying(true)}
+                >
+                  BUY
+                </Button>
+                <Button
+                  bg={!isBuying ? "#fe2815" : "transparent"}
+                  border={isBuying ? "1px solid #fe2815" : undefined}
+                  _focus={{}}
+                  _hover={{}}
+                  _active={{}}
+                  onClick={() => setIsBuying(false)}
+                >
+                  SELL
+                </Button>
               </Flex>
             </Flex>
-            <Button
-              bg={isBuying ? "#46a800" : "#fe2815"}
-              _focus={{}}
-              _hover={{}}
-              _active={{}}
-              onClick={() => (isBuying ? buyVotes?.() : sellVotes?.())}
-              disabled={(isBuying && !buyVotes) || (!isBuying && !sellVotes)}
-            >
-              {isBuying ? "BUY" : "SELL"}
-            </Button>
-          </Flex>
-        </>
-      )}
+            <Flex direction="column" borderRadius="15px" p="1rem">
+              <Flex justifyContent={"space-between"} mb="5px">
+                <Flex direction="column">
+                  <Text fontSize="10px" textAlign="center">
+                    how many
+                  </Text>
+                  <Flex alignItems={"center"}>
+                    <Input
+                      textAlign="center"
+                      width={"70px"}
+                      value={amountOfVotes}
+                      onChange={handleInputChange}
+                    />
+                  </Flex>
+                </Flex>
+                <Flex direction="column">
+                  <Text fontSize="10px" textAlign="center">
+                    ETH price
+                  </Text>
+                  <Text whiteSpace={"nowrap"} margin="auto">
+                    {truncateValue(formatUnits(votePrice, 18), 4)}
+                  </Text>
+                </Flex>
+                <Flex direction="column">
+                  <Text fontSize="10px" textAlign="center">
+                    have
+                  </Text>
+                  <Text whiteSpace={"nowrap"} margin="auto">
+                    {isYay ? yayVotesBalance : nayVotesBalance}
+                  </Text>
+                </Flex>
+              </Flex>
+              <Text>
+                Time to close:{" "}
+                {getTimeFromMillis(Number(eventEndTimestamp) * 1000 - dateNow)}
+              </Text>
+              <Button
+                bg={
+                  isBuying && isYay
+                    ? "#46a800"
+                    : isBuying && !isYay
+                    ? "#fe2815"
+                    : !isBuying && !isYay
+                    ? "#809100"
+                    : "#fe6715"
+                }
+                _focus={{}}
+                _hover={{}}
+                _active={{}}
+                onClick={() => (isBuying ? buyVotes?.() : sellVotes?.())}
+                disabled={(isBuying && !buyVotes) || (!isBuying && !sellVotes)}
+              >
+                {isBuying ? "BUY" : "SELL"}
+              </Button>
+            </Flex>
+          </>
+        )}
+      {doesEventExist &&
+        channelQueryData?.sharesEvent?.[0]?.eventState === "LOCK" && (
+          <>
+            <Flex justifyContent={"space-evenly"} my="10px">
+              <Text color="#35b657" fontWeight="bold" fontSize="25px">
+                {truncateValue(String(yayVotesSupply), 0, true)} YES
+              </Text>
+              <Text color="#ff623b" fontWeight="bold" fontSize="25px">
+                {truncateValue(String(nayVotesSupply), 0, true)} NO
+              </Text>
+            </Flex>
+            <Text textAlign={"center"} fontSize="14px" color="#e49c16">
+              voting disabled
+            </Text>
+          </>
+        )}
+      {doesEventExist &&
+        channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT" &&
+        eventVerified && (
+          <>
+            <Flex justifyContent="space-between">
+              <Text fontSize="18px">event outcome</Text>
+              <Text
+                fontSize="18px"
+                fontWeight="bold"
+                color={eventResult === true ? "#02f042" : "#ee6204"}
+              >
+                {eventResult ? "Yes" : "No"}
+              </Text>
+            </Flex>
+            <Flex justifyContent="space-between">
+              <Text fontSize="18px">your winnings</Text>
+              <Text fontSize="18px">
+                {truncateValue(formatUnits(userPayout, 18))}
+              </Text>
+            </Flex>
+            {userPayout > BigInt(0) && (
+              <Button
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                bg={"#E09025"}
+                borderRadius="25px"
+                isDisabled={!claimVotePayout}
+                onClick={claimVotePayout}
+              >
+                <Text fontSize="20px">get payout</Text>
+              </Button>
+            )}
+          </>
+        )}
     </>
   );
 };
@@ -730,9 +1056,6 @@ const Chat = ({
   chat: ChatReturnType;
   isVipChat?: boolean;
 }) => {
-  const { arcade } = useChannelContext();
-  const { chatBot } = arcade;
-
   const {
     scrollRef,
     isAtBottom,
@@ -741,8 +1064,7 @@ const Chat = ({
     handleIsAtBottom,
     sendChatMessage,
   } = useChatBox(
-    "chat",
-    chatBot,
+    isVipChat ? "vip-chat" : "chat",
     chat.receivedMessages,
     chat.hasMessagesLoaded,
     chat.channel
@@ -818,7 +1140,7 @@ const Chat = ({
         direction="column"
         overflowX="auto"
         height="100%"
-        id="chat"
+        id={isVipChat ? "vip-chat" : "chat"}
         position="relative"
         mt="8px"
       >

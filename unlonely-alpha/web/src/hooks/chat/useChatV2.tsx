@@ -16,7 +16,6 @@ import usePostFirstChat from "../server/usePostFirstChat";
 import { useChannel } from "./useChannel";
 import centerEllipses from "../../utils/centerEllipses";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
-import { ChatBot } from "../../constants/types";
 import { REACTION_EMOJIS } from "../../components/chat/emoji/constants";
 import { Message, SenderStatus } from "../../constants/types/chat";
 
@@ -40,12 +39,30 @@ export const useChat = (): ChatReturnType => {
     allMessages,
     mounted,
   } = useChannel();
-
-  const { recentStreamInteractions } = useChannelContext();
+  const { username, userAddress: address } = useUser();
+  const { arcade, recentStreamInteractions } = useChannelContext();
+  const { chatBot } = arcade;
   const { addToTextOverVideo } = recentStreamInteractions;
 
   const mountingMessages = useRef(true);
   const { emojiBlast, fireworks } = useScreenAnimationsContext();
+
+  const publishChatBotMessage = (messageText: string, body?: string) => {
+    channel.publish({
+      name: CHAT_MESSAGE_EVENT,
+      data: {
+        messageText: messageText,
+        username: "chatbot🤖",
+        address: NULL_ADDRESS,
+        isFC: false,
+        isLens: false,
+        isGif: false,
+        reactions: initializeEmojis,
+        senderStatus: SenderStatus.CHATBOT,
+        body,
+      },
+    });
+  };
 
   useEffect(() => {
     if (mounted) mountingMessages.current = false;
@@ -88,8 +105,8 @@ export const useChat = (): ChatReturnType => {
         body.split(":")[0] === InteractionType.BUY_VOTES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        const isYay = body.split(":")[2] === "yay";
-        const amount = body.split(":")[1];
+        const isYay = body.split(":")[3] === "yay";
+        const amount = body.split(":")[2];
         emojiBlast(
           <Text fontSize="40px">
             {isYay ? "📈" : "📉"}
@@ -100,8 +117,8 @@ export const useChat = (): ChatReturnType => {
         body.split(":")[0] === InteractionType.SELL_VOTES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        const isYay = body.split(":")[2] === "yay";
-        const amount = body.split(":")[1];
+        const isYay = body.split(":")[3] === "yay";
+        const amount = body.split(":")[2];
         emojiBlast(
           <Text fontSize="40px">
             {!isYay ? "📈" : "📉"}
@@ -111,6 +128,30 @@ export const useChat = (): ChatReturnType => {
       }
     }
   }, [receivedMessages]);
+
+  useEffect(() => {
+    if (chatBot.length > 0) {
+      const lastMessage = chatBot[chatBot.length - 1];
+      let body: string | undefined = undefined;
+      let messageText = `${
+        username ?? address
+      } paid 5 $BRIAN to switch to a random scene!`;
+      if (lastMessage.taskType === "video") {
+        messageText = `${username ?? address} added a ${
+          lastMessage.taskType
+        } task: "${lastMessage.title}", "${lastMessage.description}"`;
+      }
+      if (
+        Object.values(InteractionType).includes(
+          lastMessage.taskType as InteractionType
+        )
+      ) {
+        messageText = lastMessage.title ?? lastMessage.taskType;
+        body = `${lastMessage.taskType}:${lastMessage.description ?? ""}`;
+        publishChatBotMessage(messageText, body);
+      }
+    }
+  }, [chatBot]);
 
   return {
     channel,
@@ -122,7 +163,6 @@ export const useChat = (): ChatReturnType => {
 
 export const useChatBox = (
   chatId: string,
-  chatBot: ChatBot[],
   receivedMessages: Message[],
   hasMessagesLoaded: boolean,
   channel: any,
@@ -134,7 +174,7 @@ export const useChatBox = (
   const toast = useToast();
   const { channel: channelContext } = useChannelContext();
   const { channelQueryData } = channelContext;
-  const { user, username, userAddress: address, walletIsConnected } = useUser();
+  const { user, userAddress: address, walletIsConnected } = useUser();
 
   const { postFirstChat } = usePostFirstChat({
     onError: (m) => {
@@ -297,27 +337,6 @@ export const useChatBox = (
       },
     });
   };
-
-  useEffect(() => {
-    if (chatBot.length > 0) {
-      const lastMessage = chatBot[chatBot.length - 1];
-      let body: string | undefined = undefined;
-
-      let messageText = `${
-        username ?? address
-      } paid 5 $BRIAN to switch to a random scene!`;
-      if (lastMessage.taskType === "video") {
-        messageText = `${username ?? address} added a ${
-          lastMessage.taskType
-        } task: "${lastMessage.title}", "${lastMessage.description}"`;
-      }
-      if (lastMessage.taskType in InteractionType) {
-        messageText = lastMessage.title ?? lastMessage.taskType;
-        body = `${lastMessage.taskType}:${lastMessage.description ?? ""}`;
-        publishChatBotMessage(messageText, body);
-      }
-    }
-  }, [chatBot]);
 
   return {
     scrollRef,

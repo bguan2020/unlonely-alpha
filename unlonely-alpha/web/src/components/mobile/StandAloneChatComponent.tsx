@@ -607,7 +607,7 @@ const StandaloneAblyChatComponent = ({
                     >
                       <Text textAlign="center">
                         {isSharesEventPayout
-                          ? "stop payout"
+                          ? "stop event"
                           : isSharesEventLive
                           ? "lock bets"
                           : isSharesEventLock

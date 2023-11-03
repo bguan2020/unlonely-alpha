@@ -40,7 +40,7 @@ export const BlastRain = React.memo(
           width: "100vw",
           height: "100vh",
           overflow: "hidden",
-          zIndex: 2,
+          zIndex: 4,
           pointerEvents: "none",
         }}
       >

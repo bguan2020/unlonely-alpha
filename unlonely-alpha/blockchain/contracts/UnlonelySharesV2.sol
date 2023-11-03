@@ -98,6 +98,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         address trader;
         bytes32 eventByte;
         bool isBuy;
+        bool isYay;
         uint256 shareAmount;
         uint256 ethAmount;
         uint256 protocolEthAmount;
@@ -173,7 +174,8 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     function openEvent(address eventAddress, uint256 eventId, EventType eventType, uint256 _eventEndTimestamp) public onlyVerifier validEventType(eventType) {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         require(!eventVerified[eventBytes], "Event already verified");
-        require(eventEndTimestamp[eventBytes] > 0, "Event already opened");
+        require(eventEndTimestamp[eventBytes] == 0, "Event already opened");
+        require(_eventEndTimestamp > block.timestamp, "Event end timestamp must be in the future");
         eventEndTimestamp[eventBytes] = _eventEndTimestamp;
 
         emit EventOpened(eventBytes, _eventEndTimestamp);
@@ -257,6 +259,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
             trader: msg.sender,
             eventByte: eventBytes,
             isBuy: true,
+            isYay: isYay,
             shareAmount: amount,
             ethAmount: price,
             protocolEthAmount: protocolFee,
@@ -302,6 +305,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
             trader: msg.sender,
             eventByte: eventBytes,
             isBuy: false,
+            isYay: isYay,
             shareAmount: amount,
             ethAmount: price,
             protocolEthAmount: protocolFee,

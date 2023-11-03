@@ -78,17 +78,17 @@ const ConnectWallet = ({
                       _hover={{ bg: "#1f1f3c" }}
                       _focus={{}}
                       _active={{}}
-                      onClick={() => setIsCloseModalOpen(true)}
+                      onClick={redirectToBridge}
                     >
-                      logout
+                      bridge
                     </MenuItem>
                     <MenuItem
                       _hover={{ bg: "#1f1f3c" }}
                       _focus={{}}
                       _active={{}}
-                      onClick={redirectToBridge}
+                      onClick={() => setIsCloseModalOpen(true)}
                     >
-                      bridge
+                      logout
                     </MenuItem>
                   </MenuList>
                 </Menu>

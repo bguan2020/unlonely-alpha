@@ -32,6 +32,7 @@ const Header: React.FC = () => {
           <NextLink href="/" style={{ margin: "auto" }}>
             <NextImage
               src="/svg/unlonely.svg"
+              priority
               alt="unlonely"
               width={100}
               height={100}

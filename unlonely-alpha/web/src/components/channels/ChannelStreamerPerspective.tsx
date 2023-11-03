@@ -1,11 +1,4 @@
-import {
-  Flex,
-  Stack,
-  SimpleGrid,
-  Box,
-  Text,
-  Image,
-} from "@chakra-ui/react";
+import { Flex, Stack, SimpleGrid, Box, Text, Image } from "@chakra-ui/react";
 
 import { SharesEventState } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -164,7 +157,7 @@ const ChannelStreamerPerspective = () => {
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">
                 {isSharesEventPayout
-                  ? "stop payout"
+                  ? "stop event"
                   : isSharesEventLive
                   ? "lock bets"
                   : isSharesEventLock

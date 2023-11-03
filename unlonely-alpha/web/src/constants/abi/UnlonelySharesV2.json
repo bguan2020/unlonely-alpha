@@ -101,6 +101,11 @@
             "type": "bool"
           },
           {
+            "internalType": "bool",
+            "name": "isYay",
+            "type": "bool"
+          },
+          {
             "internalType": "uint256",
             "name": "shareAmount",
             "type": "uint256"

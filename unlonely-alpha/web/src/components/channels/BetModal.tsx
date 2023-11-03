@@ -7,7 +7,7 @@ import {
   useToast,
   Spinner,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { decodeEventLog, isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 import Link from "next/link";
@@ -17,13 +17,17 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import usePostSharesEvent from "../../hooks/server/usePostSharesEvent";
 import { getContractFromNetwork } from "../../utils/contract";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
-import { useVerifyEvent } from "../../hooks/contracts/useSharesContract";
-import { InteractionType } from "../../constants";
+import { EventType, InteractionType } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import useCloseSharesEvent from "../../hooks/server/useCloseSharesEvent";
-import { useReadSharesSubject } from "../../hooks/contracts/useSharesContract";
+import {
+  useOpenEvent,
+  useVerifyEvent,
+} from "../../hooks/contracts/useSharesContractV2";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { SharesEventState } from "../../generated/graphql";
+import useUpdateSharesEvent from "../../hooks/server/useUpdateSharesEvent";
+import usePostBet from "../../hooks/server/gamblable/usePostBet";
 
 export default function BetModal({
   title,
@@ -41,31 +45,47 @@ export default function BetModal({
   const { localNetwork, explorerUrl } = network;
   const { channel, arcade } = useChannelContext();
   const { addToChatbot } = arcade;
-  const { channelQueryData } = channel;
+  const { channelQueryData, refetch } = channel;
   const { isStandalone } = useUserAgent();
   const publicClient = usePublicClient();
   const toast = useToast();
 
   const { postSharesEvent, loading: postSharesEventLoading } =
     usePostSharesEvent({});
+  const { updateSharesEvent, loading: updateSharesEventLoading } =
+    useUpdateSharesEvent({});
   const { closeSharesEvent, loading: closeSharesEventLoading } =
     useCloseSharesEvent({});
 
   const [question, setQuestion] = useState("");
   const [eventVerified, setEventVerified] = useState(false);
-  const [isSharesSubjectUsedBefore, setIsSharesSubjectUsedBefore] =
-    useState(false);
+  const [createdEventId, setCreatedEventId] = useState<number | undefined>(
+    undefined
+  );
   const [endDecision, setEndDecision] = useState<boolean | undefined>(
     undefined
   );
   const [sharesSubject, setSharesSubject] = useState<string>("");
+  const [openingEvent, setOpeningEvent] = useState<boolean>(false);
 
-  const contract = getContractFromNetwork("unlonelySharesV1", localNetwork);
+  const contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
-  const { isVerifier } = useReadSharesSubject(
-    channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress as `0x${string}`,
-    contract
-  );
+  const { postBet } = usePostBet({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const isVerifier = useMemo(async () => {
+    if (!contract.address || !contract.abi || !userAddress) return false;
+    const res = await publicClient.readContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: "isVerifier",
+      args: [userAddress],
+    });
+    return Boolean(res);
+  }, [contract, userAddress, publicClient]);
 
   const isSharesEventLive =
     channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
@@ -74,26 +94,35 @@ export default function BetModal({
   const isSharesEventPayout =
     channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
 
+  const handleCreatedEventId = useCallback((eventId: number) => {
+    setCreatedEventId(eventId);
+  }, []);
+
   const _postSharesEvent = useCallback(
-    async (
-      event: SharesEventState,
-      sharesSubject?: `0x${string}`,
-      sharesSubjectQuestion?: string
-    ) => {
-      await postSharesEvent({
+    async (sharesSubject: `0x${string}`, sharesSubjectQuestion: string) => {
+      const data = await postSharesEvent({
         id: channelQueryData?.id ?? "",
-        sharesSubjectQuestion:
-          sharesSubjectQuestion ??
-          channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion ??
-          "",
-        sharesSubjectAddress:
-          sharesSubject ??
-          channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress ??
-          "",
-        eventState: event,
+        sharesSubjectQuestion: sharesSubjectQuestion,
+        sharesSubjectAddress: sharesSubject,
       });
-      setQuestion("");
-      if (event === "LIVE") {
+      await refetch();
+      const eventId = Number(data?.res?.id ?? "0");
+      handleCreatedEventId(eventId);
+    },
+    [channelQueryData, question, user, userAddress]
+  );
+
+  const _updateSharesEvent = useCallback(
+    async (eventState: SharesEventState) => {
+      await updateSharesEvent({
+        id: channelQueryData?.sharesEvent?.[0]?.id ?? "",
+        sharesSubjectQuestion:
+          channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion ?? "",
+        sharesSubjectAddress:
+          channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress ?? "",
+        eventState,
+      });
+      if (eventState === SharesEventState.Live) {
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -103,7 +132,7 @@ export default function BetModal({
         });
         handleClose();
       }
-      if (event === "LOCK") {
+      if (eventState === SharesEventState.Lock) {
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -114,12 +143,12 @@ export default function BetModal({
         handleClose();
       }
     },
-    [channelQueryData, question, user, userAddress]
+    [channelQueryData, user, userAddress]
   );
 
   const _closeSharesEvent = async () => {
     await closeSharesEvent({
-      id: channelQueryData?.id ?? "",
+      id: channelQueryData?.sharesEvent?.[0]?.id ?? "",
     });
     addToChatbot({
       username: user?.username ?? "",
@@ -131,10 +160,98 @@ export default function BetModal({
     handleClose();
   };
 
+  const { openEvent, openEventTxLoading } = useOpenEvent(
+    {
+      eventAddress: sharesSubject as `0x${string}` as `0x${string}`,
+      eventId: (channelQueryData?.sharesEvent?.[0]?.id ??
+        createdEventId) as number,
+      endTimestamp: BigInt("1699582502"),
+    },
+    contract,
+    {
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                openEvent pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+      onWriteError: (error) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              openEvent cancelled
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: async (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                openEvent success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        await postBet({
+          channelId: channelQueryData?.id as string,
+          userAddress: userAddress as `0x${string}`,
+        });
+        setQuestion("");
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.EVENT_LIVE,
+          title: "Event is live!",
+          description: "event-live",
+        });
+        setOpeningEvent(false);
+        handleClose();
+      },
+      onTxError: (error) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              openEvent error
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        setOpeningEvent(false);
+      },
+    }
+  );
+
   const { verifyEvent, verifyEventTxLoading } = useVerifyEvent(
     {
-      sharesSubject: channelQueryData?.sharesEvent?.[0]
+      eventAddress: channelQueryData?.sharesEvent?.[0]
         ?.sharesSubjectAddress as `0x${string}`,
+      eventId: Number(channelQueryData?.sharesEvent?.[0]?.id) ?? 0,
       result: endDecision ?? false,
     },
     contract,
@@ -193,7 +310,7 @@ export default function BetModal({
           topics: data.logs[0].topics,
         });
         const args: any = topics.args;
-        await _postSharesEvent(SharesEventState.Payout);
+        await _updateSharesEvent(SharesEventState.Payout);
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -219,39 +336,36 @@ export default function BetModal({
   );
 
   useEffect(() => {
+    const c = async () => {
+      setOpeningEvent(true);
+      await openEvent?.();
+    };
+    if (createdEventId && openEvent) c();
+  }, [createdEventId, openEvent]);
+
+  useEffect(() => {
     const init = async () => {
-      if (
-        !channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress ||
-        !contract.address
-      )
-        return;
+      if (!channelQueryData?.sharesEvent?.[0] || !contract.address) return;
+      const key = await publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "generateKey",
+        args: [
+          channelQueryData?.sharesEvent?.[0].sharesSubjectAddress,
+          Number(channelQueryData?.sharesEvent?.[0].id),
+          EventType.YAY_NAY_VOTE,
+        ],
+      });
       const res = await publicClient.readContract({
         address: contract.address as `0x${string}`,
         abi: contract.abi,
         functionName: "eventVerified",
-        args: [
-          channelQueryData?.sharesEvent?.[0]
-            ?.sharesSubjectAddress as `0x${string}`,
-        ],
+        args: [key],
       });
       setEventVerified(Boolean(res));
     };
     init();
-  }, [channelQueryData, contract]);
-
-  useEffect(() => {
-    const init = async () => {
-      if (!contract.address || !isAddress(sharesSubject)) return;
-      const res = await publicClient.readContract({
-        address: contract.address as `0x${string}`,
-        abi: contract.abi,
-        functionName: "eventVerified",
-        args: [sharesSubject as `0x${string}`],
-      });
-      setIsSharesSubjectUsedBefore(Boolean(res));
-    };
-    init();
-  }, [sharesSubject, contract]);
+  }, [channelQueryData, contract.address, publicClient]);
 
   return (
     <TransactionModalTemplate
@@ -264,7 +378,13 @@ export default function BetModal({
       }}
       size={isStandalone ? "sm" : "md"}
       hideFooter
-      isModalLoading={postSharesEventLoading || closeSharesEventLoading}
+      isModalLoading={
+        postSharesEventLoading ||
+        closeSharesEventLoading ||
+        updateSharesEventLoading ||
+        openEventTxLoading ||
+        openingEvent
+      }
       loadingText={`${
         closeSharesEventLoading ? "closing event" : "loading"
       }, please wait...`}
@@ -281,7 +401,9 @@ export default function BetModal({
             _focus={{}}
             _active={{}}
             width="100%"
-            onClick={async () => await _postSharesEvent(SharesEventState.Lock)}
+            onClick={async () =>
+              await _updateSharesEvent(SharesEventState.Lock)
+            }
           >
             lock bets
           </Button>
@@ -299,7 +421,9 @@ export default function BetModal({
             color={"#8f81b6"}
             textDecoration="underline"
             cursor={"pointer"}
-            onClick={async () => await _postSharesEvent(SharesEventState.Live)}
+            onClick={async () =>
+              await _updateSharesEvent(SharesEventState.Live)
+            }
           >
             or allow voting again
           </Text>
@@ -377,10 +501,6 @@ export default function BetModal({
       )}
       {!isSharesEventLive && !isSharesEventPayout && !isSharesEventLock && (
         <Flex direction="column" gap="10px">
-          <Text textAlign={"center"} fontSize="13px">
-            Note: enter a new wallet address when you want to make another bet,
-            we can also make it for you.
-          </Text>
           <Input
             variant="glow"
             placeholder={"Will I go on a second date?"}
@@ -389,32 +509,25 @@ export default function BetModal({
           />
           <Input
             variant="glow"
-            placeholder={"your fee address"}
+            placeholder={"your address to collect fees"}
             value={sharesSubject}
             onChange={(e) => setSharesSubject(e.target.value)}
           />
-          {isSharesSubjectUsedBefore && (
-            <Text textAlign={"center"} fontSize="13px">
-              This address has been used before, please enter a new one.
-            </Text>
-          )}
           <Button
             bg="#E09025"
             _hover={{}}
             _focus={{}}
             _active={{}}
             width="100%"
-            disabled={
-              question.length === 0 ||
-              isSharesSubjectUsedBefore ||
-              !isAddress(sharesSubject)
-            }
+            disabled={question.length === 0 || !isAddress(sharesSubject)}
             onClick={async () =>
-              await _postSharesEvent(
-                SharesEventState.Live,
-                sharesSubject as `0x${string}`,
-                question
-              )
+              channelQueryData?.sharesEvent &&
+              channelQueryData?.sharesEvent?.length > 0
+                ? await openEvent?.()
+                : await _postSharesEvent(
+                    sharesSubject as `0x${string}`,
+                    question
+                  )
             }
           >
             confirm

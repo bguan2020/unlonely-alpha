@@ -628,7 +628,7 @@ const TransactionModals = () => {
       <BetModal
         title={
           isSharesEventPayout
-            ? "stop payout"
+            ? "stop event"
             : isSharesEventLive
             ? "lock bets"
             : isSharesEventLock
