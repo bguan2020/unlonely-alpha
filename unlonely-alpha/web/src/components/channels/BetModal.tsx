@@ -6,18 +6,23 @@ import {
   Box,
   useToast,
   Spinner,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { decodeEventLog, isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 import Link from "next/link";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import usePostSharesEvent from "../../hooks/server/usePostSharesEvent";
 import { getContractFromNetwork } from "../../utils/contract";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
-import { EventType, InteractionType } from "../../constants";
+import { EventType, InteractionType, NULL_ADDRESS } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import useCloseSharesEvent from "../../hooks/server/useCloseSharesEvent";
 import {
@@ -28,6 +33,7 @@ import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { SharesEventState } from "../../generated/graphql";
 import useUpdateSharesEvent from "../../hooks/server/useUpdateSharesEvent";
 import usePostBet from "../../hooks/server/gamblable/usePostBet";
+import { getHourAndMinutesFromMillis } from "../../utils/time";
 
 export default function BetModal({
   title,
@@ -67,6 +73,11 @@ export default function BetModal({
   );
   const [sharesSubject, setSharesSubject] = useState<string>("");
   const [openingEvent, setOpeningEvent] = useState<boolean>(false);
+  const [selectedEndTime, setSelectedEndTime] = useState<
+    "10" | "30" | "60" | "120"
+  >("60");
+
+  const dateNow = useMemo(() => Date.now(), []);
 
   const contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
@@ -162,10 +173,15 @@ export default function BetModal({
 
   const { openEvent, openEventTxLoading } = useOpenEvent(
     {
-      eventAddress: sharesSubject as `0x${string}` as `0x${string}`,
+      eventAddress: isAddress(sharesSubject) ? sharesSubject : NULL_ADDRESS,
       eventId: (channelQueryData?.sharesEvent?.[0]?.id ??
-        createdEventId) as number,
-      endTimestamp: BigInt("1699582502"),
+        createdEventId ??
+        0) as number,
+      endTimestamp: BigInt(
+        String(
+          Math.floor((dateNow + Number(selectedEndTime) * 60 * 1000) / 1000)
+        )
+      ),
     },
     contract,
     {
@@ -340,8 +356,8 @@ export default function BetModal({
       setOpeningEvent(true);
       await openEvent?.();
     };
-    if (createdEventId && openEvent) c();
-  }, [createdEventId, openEvent]);
+    if (createdEventId && openEvent && !openingEvent) c();
+  }, [createdEventId, openEvent, openingEvent]);
 
   useEffect(() => {
     const init = async () => {
@@ -513,6 +529,75 @@ export default function BetModal({
             value={sharesSubject}
             onChange={(e) => setSharesSubject(e.target.value)}
           />
+          <Text>event duration</Text>
+          <Menu>
+            <MenuButton
+              as={Button}
+              rightIcon={<ChevronDownIcon />}
+              bg={"#244FA7"}
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+            >
+              {selectedEndTime === "10"
+                ? "10 mins"
+                : selectedEndTime === "30"
+                ? "30 mins"
+                : selectedEndTime === "60"
+                ? "1 hour"
+                : "2 hours"}
+            </MenuButton>
+            <MenuList bg="#000" border="none">
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("10")}
+              >
+                {`10 mins (until ${getHourAndMinutesFromMillis(
+                  dateNow + 10 * 60 * 1000
+                )})`}
+              </MenuItem>
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("30")}
+              >
+                {`30 mins (until ${getHourAndMinutesFromMillis(
+                  dateNow + 30 * 60 * 1000
+                )})`}
+              </MenuItem>
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("60")}
+              >
+                {`1 hour (until ${getHourAndMinutesFromMillis(
+                  dateNow + 60 * 60 * 1000
+                )})`}
+              </MenuItem>
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("120")}
+              >
+                {`2 hour (until ${getHourAndMinutesFromMillis(
+                  dateNow + 120 * 60 * 1000
+                )})`}
+              </MenuItem>
+            </MenuList>
+          </Menu>
           <Button
             bg="#E09025"
             _hover={{}}

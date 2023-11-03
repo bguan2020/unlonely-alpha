@@ -48,3 +48,12 @@ export const getTimeFromMillis = (millis: number): string => {
   if (str === "") str = "<1m";
   return str;
 };
+
+export const getHourAndMinutesFromMillis = (millis: number): string => {
+  const time = new Date(millis);
+  const hours = time.getHours().toString().padStart(2, "0");
+  const minutes = time.getMinutes().toString().padStart(2, "0");
+
+  const timeString = `${hours}:${minutes}`;
+  return timeString;
+};

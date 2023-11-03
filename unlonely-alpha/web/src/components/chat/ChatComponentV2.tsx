@@ -881,6 +881,9 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           {errorMessage}
         </Text>
       )}
+      {!doesEventExist && (
+        <Text textAlign={"center"}>there is no event at the moment</Text>
+      )}
       {doesEventExist &&
         Number(eventEndTimestamp) * 1000 > dateNow &&
         channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE" && (
