@@ -19,6 +19,17 @@ export const resolvers = {
         ctx
       );
     },
+    getGamblableEventUserRank: (
+      _: any,
+      {
+        data,
+      }: {
+        data: gamblableInteractionService.IGetGamblableEventUserRankInput;
+      },
+      ctx: Context
+    ) => {
+      return gamblableInteractionService.getGamblableEventUserRank(data, ctx);
+    },
     getBadgeHoldersByChannel: (
       _: any,
       {
