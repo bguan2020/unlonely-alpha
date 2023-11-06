@@ -37,6 +37,8 @@ const usePostBadgeTrade = ({ onError }: Props) => {
               channelId: data.channelId,
               userAddress: data.userAddress,
               isBuying: data.isBuying,
+              fees: data.fees,
+              chainId: data.chainId,
             },
           },
         });

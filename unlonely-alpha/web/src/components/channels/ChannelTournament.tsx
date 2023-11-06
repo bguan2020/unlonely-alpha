@@ -1,6 +1,6 @@
 import { Button, Flex, Box, useToast, Input, Text } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
-import { formatUnits } from "viem";
+import { decodeEventLog, formatUnits } from "viem";
 import { useBalance, useBlockNumber } from "wagmi";
 import Link from "next/link";
 
@@ -26,8 +26,8 @@ import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
 
 export const ChannelTournament = () => {
   const { userAddress, walletIsConnected } = useUser();
-  const { channel, holders } = useChannelContext();
-  const { handleIsVip } = holders;
+  const { channel, leaderboard } = useChannelContext();
+  const { handleIsVip } = leaderboard;
 
   const { channelQueryData } = channel;
   const { network } = useNetworkContext();
@@ -81,7 +81,7 @@ export const ChannelTournament = () => {
           isClosable: true,
           position: "top-right",
         });
-        callbacks?.callbackOnWriteSuccess?.();
+        callbacks?.callbackOnWriteSuccess?.(data);
       },
       onWriteError: (error: any) => {
         toast({
@@ -94,7 +94,7 @@ export const ChannelTournament = () => {
             </Box>
           ),
         });
-        callbacks?.callbackOnWriteError?.();
+        callbacks?.callbackOnWriteError?.(error);
       },
       onTxSuccess: (data: any) => {
         toast({
@@ -113,7 +113,7 @@ export const ChannelTournament = () => {
           isClosable: true,
           position: "top-right",
         });
-        callbacks?.callbackOnTxSuccess?.();
+        callbacks?.callbackOnTxSuccess?.(data);
       },
       onTxError: (error: any) => {
         toast({
@@ -126,7 +126,7 @@ export const ChannelTournament = () => {
           isClosable: true,
           position: "top-right",
         });
-        callbacks?.callbackOnTxError?.();
+        callbacks?.callbackOnTxError?.(error);
       },
     };
   };
@@ -183,11 +183,19 @@ export const ChannelTournament = () => {
     },
     tournamentContract,
     getCallbackHandlers("buyVipBadge", {
-      callbackOnTxSuccess: async () => {
+      callbackOnTxSuccess: async (data: any) => {
+        const topics = decodeEventLog({
+          abi: tournamentContract.abi,
+          data: data.logs[0].data,
+          topics: data.logs[0].topics,
+        });
+        const args: any = topics.args;
         await postBadgeTrade({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
           isBuying: true,
+          chainId: localNetwork.config.chainId,
+          fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
         setAmountOfBadges("0");
       },
@@ -203,11 +211,19 @@ export const ChannelTournament = () => {
     },
     tournamentContract,
     getCallbackHandlers("sellVipBadge", {
-      callbackOnTxSuccess: async () => {
+      callbackOnTxSuccess: async (data: any) => {
+        const topics = decodeEventLog({
+          abi: tournamentContract.abi,
+          data: data.logs[0].data,
+          topics: data.logs[0].topics,
+        });
+        const args: any = topics.args;
         await postBadgeTrade({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
           isBuying: false,
+          chainId: localNetwork.config.chainId,
+          fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
         setAmountOfBadges("0");
       },

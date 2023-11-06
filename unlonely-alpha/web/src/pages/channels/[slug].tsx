@@ -68,14 +68,13 @@ const DesktopPage = ({
 }: {
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
-  const { channel, recentStreamInteractions, arcade } = useChannelContext();
+  const { channel, recentStreamInteractions } = useChannelContext();
 
   const {
     channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
   } = channel;
-  const { handleCustomModal, handleBuyModal, handleTipModal } = arcade;
   const { loading: recentStreamInteractionsLoading } = recentStreamInteractions;
   const queryLoading = useMemo(
     () => channelDataLoading || recentStreamInteractionsLoading,
@@ -122,43 +121,6 @@ const DesktopPage = ({
               spacing={[4, 8]}
               direction={["column", "column", "row", "row"]}
             >
-              {/* <Button
-                  bg="#000000"
-                  onClick={() =>
-                    postBet({
-                      channelId: channelQueryData?.id,
-                      userAddress: user?.address,
-                    })
-                  }
-                >
-                  create bet
-                </Button>
-                <Button
-                  bg="#000000"
-                  onClick={() => {
-                    if (!buyVotes) return;
-                    buyVotes?.();
-                    postBetBuy({
-                      channelId: channelQueryData?.id,
-                      userAddress: user?.address,
-                      isYay: true,
-                    });
-                  }}
-                >
-                  buy bet
-                </Button>
-                <Button
-                  bg="#000000"
-                  onClick={() =>
-                    postBadgeTrade({
-                      channelId: channelQueryData?.id,
-                      userAddress: user?.address,
-                      isBuying: false,
-                    })
-                  }
-                >
-                  trade badge
-                </Button> */}
               <Stack direction="column" width={"100%"}>
                 {isOwner && !previewStream ? (
                   <ChannelStreamerPerspective />
@@ -196,130 +158,8 @@ const DesktopPage = ({
                   <Flex gap="1rem" margin="1rem" justifyContent={"flex-end"}>
                     <ChannelTournament />
                   </Flex>
-
-                  {/* {showArcadeButtons && !isOwner && (
-                      <GridItem justifyItems={"center"}>
-                        <Box
-                          display="flex"
-                          justifyContent="center"
-                          alignItems="center"
-                          gap={5}
-                        >
-                          {isAddress(
-                            String(channelQueryData?.token?.address)
-                          ) &&
-                            user &&
-                            userAddress && (
-                              <>
-                                <Grid
-                                  templateColumns="repeat(2, 1fr)"
-                                  templateRows="repeat(1, 1fr)"
-                                  gridGap={4}
-                                  alignItems="flex-start"
-                                  justifyItems="flex-start"
-                                >
-                                  <Tooltip label={"make streamer do X"}>
-                                    <span>
-                                      <CustomButton
-                                        callback={() => handleCustomModal(true)}
-                                      />
-                                    </span>
-                                  </Tooltip>
-                                  <Tooltip label={"tip the streamer"}>
-                                    <span>
-                                      <CoinButton
-                                        callback={() => handleTipModal(true)}
-                                      />
-                                    </span>
-                                  </Tooltip>
-                                </Grid>
-                                <BuyButton
-                                  tokenName={
-                                    channelQueryData?.token?.symbol
-                                      ? `$${channelQueryData?.token?.symbol}`
-                                      : "token"
-                                  }
-                                  callback={() => handleBuyModal(true)}
-                                />
-                              </>
-                            )}
-                          {(!isAddress(
-                            String(channelQueryData?.token?.address)
-                          ) ||
-                            !user) && (
-                            <>
-                              <Grid
-                                templateColumns="repeat(2, 1fr)"
-                                templateRows="repeat(1, 1fr)"
-                                gridGap={4}
-                                alignItems="flex-start"
-                                justifyItems="flex-start"
-                              >
-                                <Tooltip
-                                  label={
-                                    !user
-                                      ? "connect wallet first"
-                                      : "not available"
-                                  }
-                                >
-                                  <span>
-                                    <CustomButton />
-                                  </span>
-                                </Tooltip>
-                                <Tooltip
-                                  label={
-                                    !user
-                                      ? "connect wallet first"
-                                      : "not available"
-                                  }
-                                >
-                                  <span>
-                                    <CoinButton />
-                                  </span>
-                                </Tooltip>
-                              </Grid>
-                              <Tooltip
-                                label={
-                                  !user
-                                    ? "connect wallet first"
-                                    : "not available"
-                                }
-                              >
-                                <span>
-                                  <BuyButton tokenName={"token"} />
-                                </span>
-                              </Tooltip>
-                            </>
-                          )}
-                        </Box>
-                      </GridItem>
-                    )} */}
                 </Grid>
               </Stack>
-              {/* <Flex
-                  hidden={isHidden(true)}
-                  borderWidth="1px"
-                  borderRadius={"10px"}
-                  p="1px"
-                  bg={
-                    "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-                  }
-                  width="100%"
-                  maxW={["768px", "100%", "380px"]}
-                  maxH={["500px", "600px", "600px", "700px"]}
-                  minH={["500px", "600px", "600px", "700px"]}
-                  boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
-                >
-                  <Container
-                    borderRadius={10}
-                    background={"#19162F"}
-                    centerContent
-                    maxW="100%"
-                    px="10px"
-                  >
-                    <AblyChatComponent />
-                  </Container>
-                </Flex> */}
               <Stack
                 direction="column"
                 minW={["100%", "100%", "380px", "380px"]}

@@ -21,7 +21,7 @@ export const BaseGoerli: Network = {
         abi: UnlonelySharesV2,
       },
       unlonelyTournament: {
-        address: "0x49E81Dc86D6D23CEfCCACc7525ABbB8337667cb6",
+        address: "0x496869c9b3952a34a67478196fe96a6c72b5207b",
         abi: UnlonelyTournament,
       },
     },

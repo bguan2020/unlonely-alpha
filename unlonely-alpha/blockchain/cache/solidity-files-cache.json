@@ -986,8 +986,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelyTournament.sol": {
-      "lastModificationDate": 1698949376622,
-      "contentHash": "b2ec6e5a8c945bc284b45e7ba257dfa4",
+      "lastModificationDate": 1699305279323,
+      "contentHash": "a8bf1c130756de09b48c04cf4b125c39",
       "sourceName": "contracts/UnlonelyTournament.sol",
       "solcConfig": {
         "version": "0.8.8",

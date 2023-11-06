@@ -42,8 +42,8 @@ const limit = 6;
 const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
   const { user } = useUser();
   const { isStandalone } = useUserAgent();
-  const { holders } = useChannelContext();
-  const { userRank } = holders;
+  const { leaderboard } = useChannelContext();
+  const { userRank } = leaderboard;
   const [presenceData, updateStatus] = usePresence(
     ablyPresenceChannel ? ablyPresenceChannel : "presence"
   );

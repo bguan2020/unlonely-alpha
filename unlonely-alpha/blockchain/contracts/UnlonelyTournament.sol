@@ -93,6 +93,19 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         uint256 vipPooledEth;
     }
 
+    struct TradeInfo {
+        address trader;
+        bytes32 eventByte;
+        bool isBuy;
+        uint256 badgeAmount;
+        uint256 ethAmount;
+        uint256 protocolEthAmount;
+        uint256 subjectEthAmount;
+        uint256 tournamentEthAmount;
+        uint256 supply;
+        uint256 pooledEth;
+    }
+
     Tournament public tournament;
 
     address public protocolFeeDestination;
@@ -100,6 +113,7 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
     uint256 public subjectFeePercent;
     uint256 public tournamentFeePercent;
 
+    event Trade(TradeInfo trade);
     event Payout(address indexed voter, uint256 amount);
 
     mapping(bytes32 => uint256) public vipBadgeSupply;
@@ -245,6 +259,21 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         vipBadgeBalance[key][msg.sender] += amount;
         tournament.vipPooledEth += tournamentFee;
 
+        TradeInfo memory tradeInfo = TradeInfo({
+            trader: msg.sender,
+            eventByte: key,
+            isBuy: true,
+            badgeAmount: amount,
+            ethAmount: price,
+            protocolEthAmount: protocolFee,
+            subjectEthAmount: subjectFee,
+            tournamentEthAmount: tournamentFee,
+            supply: vipBadgeSupply[key],
+            pooledEth: tournament.vipPooledEth
+        });
+
+        emit Trade(tradeInfo);
+
         // Send protocol and subject fees
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
         (bool success2, ) = streamerAddress.call{value: subjectFee}("");
@@ -265,6 +294,21 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         vipBadgeSupply[key] -= amount;
         vipBadgeBalance[key][msg.sender] -= amount;
         tournament.vipPooledEth += tournamentFee;
+
+        TradeInfo memory tradeInfo = TradeInfo({
+            trader: msg.sender,
+            eventByte: key,
+            isBuy: false,
+            badgeAmount: amount,
+            ethAmount: price,
+            protocolEthAmount: protocolFee,
+            subjectEthAmount: subjectFee,
+            tournamentEthAmount: tournamentFee,
+            supply: vipBadgeSupply[key],
+            pooledEth: tournament.vipPooledEth
+        });
+
+        emit Trade(tradeInfo);
 
         // Send protocol and subject fees
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");

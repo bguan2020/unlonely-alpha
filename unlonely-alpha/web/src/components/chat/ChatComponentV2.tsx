@@ -53,7 +53,7 @@ import {
   useClaimVotePayout,
 } from "../../hooks/contracts/useSharesContractV2";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import usePostBetBuy from "../../hooks/server/gamblable/usePostBetBuy";
+import usePostBetTrade from "../../hooks/server/gamblable/usePostBetTrade";
 import { getContractFromNetwork } from "../../utils/contract";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { filteredInput } from "../../utils/validation/input";
@@ -63,34 +63,42 @@ import MessageList from "./MessageList";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import { getTimeFromMillis } from "../../utils/time";
-
-const holders = [
-  { name: "test1", quantity: 500 },
-  { name: "test2", quantity: 400 },
-  { name: "test3", quantity: 300 },
-  { name: "test4", quantity: 200 },
-  { name: "test5", quantity: 100 },
-  { name: "test6", quantity: 50 },
-  { name: "test7", quantity: 40 },
-  { name: "test8", quantity: 30 },
-  { name: "test9", quantity: 20 },
-  { name: "test10", quantity: 10 },
-  { name: "test11", quantity: 5 },
-  { name: "test12", quantity: 4 },
-  { name: "test13", quantity: 3 },
-  { name: "test14", quantity: 2 },
-  { name: "test15", quantity: 1 },
-];
+import { GamblableEvent } from "../../generated/graphql";
+import { getSortedLeaderboard } from "../../utils/getSortedLeaderboard";
 
 const ChatComponent = () => {
   const { isStandalone } = useUserAgent();
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
   );
+  const { leaderboard: leaderboardContext } = useChannelContext();
+
+  const {
+    data: leaderboardData,
+    loading: leaderboardLoading,
+    error: leaderboardError,
+    refetchGamblableEventLeaderboard,
+  } = leaderboardContext;
 
   const chat = useChatV2();
-
+  const [leaderboard, setLeaderboard] = useState<
+    { name: string; totalFees: number }[]
+  >([]);
   const [leaderboardIsCollapsed, setLeaderboardIsCollapsed] = useState(true);
+
+  useEffect(() => {
+    refetchGamblableEventLeaderboard?.();
+  }, []);
+
+  useEffect(() => {
+    if (!leaderboardLoading && !leaderboardError && leaderboardData) {
+      const _leaderboard: { name: string; totalFees: number }[] =
+        getSortedLeaderboard(
+          leaderboardData.getGamblableEventLeaderboardByChannelId
+        );
+      setLeaderboard(_leaderboard);
+    }
+  }, [leaderboardLoading, leaderboardError, leaderboardData]);
 
   return (
     <Flex
@@ -264,7 +272,7 @@ const ChatComponent = () => {
                         </Tr>
                       </Thead> */}
                       <Tbody>
-                        {holders.map((holder, index) => (
+                        {leaderboard.map((holder, index) => (
                           <Tr>
                             <Td fontSize={"20px"} p="4px" textAlign="center">
                               <Text fontSize="14px">{index + 1}</Text>
@@ -279,7 +287,7 @@ const ChatComponent = () => {
                               isNumeric
                             >
                               <Text fontSize="14px">
-                                {truncateValue(holder.quantity, 2)}
+                                {truncateValue(holder.totalFees, 2)}
                               </Text>
                             </Td>
                           </Tr>
@@ -308,7 +316,11 @@ const ChatComponent = () => {
 
 const Trade = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress, walletIsConnected, user } = useUser();
-  const { channel, arcade } = useChannelContext();
+  const {
+    channel,
+    arcade,
+    leaderboard: leaderboardContext,
+  } = useChannelContext();
   const { channelQueryData, refetch } = channel;
   const { addToChatbot } = arcade;
 
@@ -336,7 +348,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     setAmountOfVotes(filtered);
   };
 
-  const { postBetBuy } = usePostBetBuy({
+  const { postBetTrade } = usePostBetTrade({
     onError: (err) => {
       console.log(err);
     },
@@ -468,10 +480,14 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             args.trade.shareAmount
           }:${args.trade.isYay ? "yay" : "nay"}`,
         });
-        await postBetBuy({
+        await postBetTrade({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
-          isYay: args.trade.isYay,
+          chainId: localNetwork.config.chainId,
+          type: args.trade.isYay
+            ? GamblableEvent.BetYesBuy
+            : GamblableEvent.BetNoBuy,
+          fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
       },
       onTxError: (error) => {
@@ -564,6 +580,15 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           description: `${user?.username ?? userAddress ?? ""}:${
             args.trade.shareAmount
           }:${args.trade.isYay ? "yay" : "nay"}`,
+        });
+        await postBetTrade({
+          channelId: channelQueryData?.id as string,
+          userAddress: userAddress as `0x${string}`,
+          chainId: localNetwork.config.chainId,
+          type: args.trade.isYay
+            ? GamblableEvent.BetYesSell
+            : GamblableEvent.BetNoSell,
+          fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
       },
       onTxError: (error) => {

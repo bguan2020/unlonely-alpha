@@ -3,16 +3,8 @@ import {
   Flex,
   Button,
   Stack,
-  Table,
-  TableContainer,
-  Thead,
-  Tbody,
-  Td,
-  Th,
-  Tr,
   Grid,
   GridItem,
-  Spinner,
   Tooltip,
   Box,
 } from "@chakra-ui/react";
@@ -27,30 +19,28 @@ import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import CoinButton from "../arcade/CoinButton";
 // import DiceButton from "../arcade/DiceButton";
 import BuyButton from "../arcade/BuyButton";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import CustomButton from "../arcade/CustomButton";
 import MessageList from "./MessageList";
 import { useChat } from "../../hooks/chat/useChat";
-import { getHolders } from "../../utils/getHolders";
 import { SharesInterface } from "./SharesInterface";
 
 const AblyChatComponent = () => {
   const {
     channel: channelContext,
     chat,
-    holders: holdersContext,
+    leaderboard: leaderboardContext,
     arcade,
   } = useChannelContext();
   const { chatBot, handleBuyModal, handleTipModal, handleCustomModal } = arcade;
   const { channelQueryData } = channelContext;
   const { chatChannel, presenceChannel } = chat;
   const {
-    data: holdersData,
-    loading: holdersLoading,
-    error: holdersError,
-    refetchTokenHolders,
-  } = holdersContext;
+    data: leaderboardData,
+    loading: leaderboardLoading,
+    error: leaderboardError,
+    refetchGamblableEventLeaderboard,
+  } = leaderboardContext;
 
   const {
     handleScrollToPresent,
@@ -68,9 +58,9 @@ const AblyChatComponent = () => {
 
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showArcade, setShowArcade] = useState<boolean>(false);
-  const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
-    []
-  );
+  const [leaderboard, setLeaderboard] = useState<
+    { name: string; quantity: number }[]
+  >([]);
 
   const clickedOutsideLeaderBoard = useRef(false);
   const clickedOutsideArcade = useRef(false);
@@ -78,19 +68,19 @@ const AblyChatComponent = () => {
   const arcadeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (showLeaderboard && !holdersLoading && !holdersData) {
-      refetchTokenHolders?.();
+    if (showLeaderboard && !leaderboardLoading && !leaderboardData) {
+      refetchGamblableEventLeaderboard?.();
     }
   }, [showLeaderboard]);
 
-  useEffect(() => {
-    if (!holdersLoading && !holdersError && holdersData) {
-      const _holders: { name: string; quantity: number }[] = getHolders(
-        holdersData.getTokenHoldersByChannel
-      );
-      setHolders(_holders);
-    }
-  }, [holdersLoading, holdersError, holdersData]);
+  // useEffect(() => {
+  //   if (!leaderboardLoading && !leaderboardError && leaderboardData) {
+  //     const _leaderboard: { name: string; quantity: number }[] = getLeaderboard(
+  //       leaderboardData.getGamblableEventLeaderboardByChannelId
+  //     );
+  //     setLeaderboard(_leaderboard);
+  //   }
+  // }, [leaderboardLoading, leaderboardError, leaderboardData]);
 
   useOnClickOutside(leaderboardRef, () => {
     if (showLeaderboard) {
@@ -286,7 +276,7 @@ const AblyChatComponent = () => {
             </Flex>
           </Flex>
         )}
-        {showLeaderboard && (
+        {/* {showLeaderboard && (
           <Flex
             ref={leaderboardRef}
             borderRadius={"5px"}
@@ -324,12 +314,12 @@ const AblyChatComponent = () => {
                   {`who owns the most $${channelQueryData?.token?.symbol}?`}
                 </Text>
               )}
-              {holdersLoading && (
+              {leaderboardLoading && (
                 <Flex justifyContent={"center"} p="20px">
                   <Spinner />
                 </Flex>
               )}
-              {!holdersLoading && holders.length > 0 && (
+              {!leaderboardLoading && leaderboard.length > 0 && (
                 <TableContainer overflowX={"auto"}>
                   <Table variant="unstyled">
                     <Thead>
@@ -362,7 +352,7 @@ const AblyChatComponent = () => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {holders.map((holder, index) => (
+                      {leaderboard.map((holder, index) => (
                         <Tr>
                           <Td fontSize={"20px"} p="10px" textAlign="center">
                             {index + 1}
@@ -384,14 +374,14 @@ const AblyChatComponent = () => {
                   </Table>
                 </TableContainer>
               )}
-              {!holdersLoading && holders.length === 0 && (
+              {!leaderboardLoading && leaderboard.length === 0 && (
                 <Text textAlign={"center"} p="20px">
-                  no holders found
+                  no leaderboard found
                 </Text>
               )}
             </Flex>
           </Flex>
-        )}
+        )} */}
         <SharesInterface messages={receivedMessages} />
         <Flex
           direction="column"

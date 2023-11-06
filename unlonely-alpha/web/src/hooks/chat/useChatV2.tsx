@@ -182,9 +182,9 @@ export const useChatBox = (
     },
   });
 
-  const { holders: holdersContext, chat } = useChannelContext();
+  const { leaderboard, chat } = useChannelContext();
 
-  const { userRank } = holdersContext;
+  const { userRank } = leaderboard;
   const { clipping } = chat;
   const { handleIsClipUiOpen } = clipping;
 

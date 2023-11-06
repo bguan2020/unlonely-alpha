@@ -23,7 +23,7 @@ export const typeDef = gql`
   type GamblableEventLeaderboard {
     id: ID!
     channelId: Int!
-    userAddress: String!
+    user: User!
     totalFees: Float!
     chainId: Int!
   }

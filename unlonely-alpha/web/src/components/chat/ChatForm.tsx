@@ -84,9 +84,9 @@ const ChatForm = ({
     token,
     chat,
     arcade,
-    holders,
+    leaderboard,
   } = useChannelContext();
-  const { isVip } = holders;
+  const { isVip } = leaderboard;
   const { clipping } = chat;
   const { addToChatbot } = arcade;
   const { handleIsClipUiOpen, loading: clipLoading } = clipping;

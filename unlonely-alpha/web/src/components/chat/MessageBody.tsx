@@ -45,8 +45,8 @@ const MessageBody = ({
   channel,
   isVipChat,
 }: Props) => {
-  const { channel: c, holders } = useChannelContext();
-  const { isVip } = holders;
+  const { channel: c, leaderboard } = useChannelContext();
+  const { isVip } = leaderboard;
   const { channelQueryData } = c;
   const { user } = useUser();
   // const { isStandalone } = useUserAgent();

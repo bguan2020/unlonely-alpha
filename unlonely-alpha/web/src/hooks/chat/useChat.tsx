@@ -40,12 +40,12 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
 
   const {
     channel: channelContext,
-    holders: holdersContext,
+    leaderboard,
     chat,
     recentStreamInteractions,
   } = useChannelContext();
   const { channelQueryData } = channelContext;
-  const { userRank } = holdersContext;
+  const { userRank } = leaderboard;
   const { clipping } = chat;
   const { handleIsClipUiOpen } = clipping;
   const { addToTextOverVideo } = recentStreamInteractions;

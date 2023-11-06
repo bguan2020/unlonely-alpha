@@ -9,37 +9,30 @@ import {
 } from "react";
 import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
 import { useBalance } from "wagmi";
-import { Image } from "@chakra-ui/react";
 
 import {
   CHANNEL_DETAIL_QUERY,
+  GET_GAMBLABLE_EVENT_LEADERBOARD_BY_CHANNEL_ID_QUERY,
   GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
-  GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY,
   GET_USER_TOKEN_HOLDING_QUERY,
 } from "../../constants/queries";
 import {
   ChannelDetailQuery,
   GetRecentStreamInteractionsQuery,
-  GetTokenHoldersByChannelQuery,
+  GetGamblableEventLeaderboardByChannelIdQuery,
   SharesEventState,
 } from "../../generated/graphql";
 import { ChatBot, FetchBalanceResult } from "../../constants/types";
 import { useUser } from "./useUser";
 import { InteractionType } from "../../constants";
 import { useClip } from "../chat/useClip";
-import BuyButton from "../../components/arcade/BuyButton";
 import CalendarEventModal from "../../components/channels/CalendarEventModal";
 import ChatCommandModal from "../../components/channels/ChatCommandModal";
 import EditChannelModal from "../../components/channels/EditChannelModal";
 import NotificationsModal from "../../components/channels/NotificationsModal";
-import TokenSaleModal from "../../components/channels/TokenSaleModal";
-import BuyTransactionModal from "../../components/transactions/BuyTransactionModal";
-import ChanceTransactionModal from "../../components/transactions/ChanceTransactionModal";
-import ControlTransactionModal from "../../components/transactions/ControlTransactionModal";
-import CustomTransactionModal from "../../components/transactions/CustomTransactionModal";
-import TipTransactionModal from "../../components/transactions/TipTransactionModal";
 import BetModal from "../../components/channels/BetModal";
 import ModeratorModal from "../../components/channels/ModeratorModal";
+import { useNetworkContext } from "./useNetwork";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -82,13 +75,13 @@ const ChannelContext = createContext<{
     ownerTokenBalance?: FetchBalanceResult;
     refetchOwnerTokenBalance?: () => void;
   };
-  holders: {
+  leaderboard: {
     isVip?: boolean;
     userRank: number;
-    data?: GetTokenHoldersByChannelQuery;
+    data?: GetGamblableEventLeaderboardByChannelIdQuery;
     loading: boolean;
     error?: ApolloError;
-    refetchTokenHolders?: () => Promise<void>;
+    refetchGamblableEventLeaderboard?: () => Promise<void>;
     handleIsVip?: (value: boolean) => void;
   };
   arcade: {
@@ -157,13 +150,13 @@ const ChannelContext = createContext<{
     ownerTokenBalance: undefined,
     refetchOwnerTokenBalance: () => undefined,
   },
-  holders: {
+  leaderboard: {
     isVip: false,
     userRank: -1,
     data: undefined,
     loading: true,
     error: undefined,
-    refetchTokenHolders: undefined,
+    refetchGamblableEventLeaderboard: undefined,
     handleIsVip: () => undefined,
   },
   arcade: {
@@ -205,6 +198,8 @@ export const ChannelProvider = ({
   mobile?: boolean;
   children: React.ReactNode;
 }) => {
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
   const { user, userAddress } = useUser();
   const router = useRouter();
   const { slug } = router.query;
@@ -256,9 +251,13 @@ export const ChannelProvider = ({
   );
 
   const [
-    getTokenHolders,
-    { loading: holdersLoading, error: holdersError, data: holdersData },
-  ] = useLazyQuery(GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY);
+    getGamblableEventLeaderboard,
+    {
+      loading: leaderboardLoading,
+      error: leaderboardError,
+      data: leaderboardData,
+    },
+  ] = useLazyQuery(GET_GAMBLABLE_EVENT_LEADERBOARD_BY_CHANNEL_ID_QUERY);
 
   const { data: userTokenBalance, refetch: refetchUserTokenBalance } =
     useBalance({
@@ -321,15 +320,16 @@ export const ChannelProvider = ({
     }
   }, [channelQueryData]);
 
-  const handleRefetchTokenHolders = useCallback(async () => {
-    await getTokenHolders({
+  const handleRefetchGamblableEventLeaderboard = useCallback(async () => {
+    await getGamblableEventLeaderboard({
       variables: {
         data: {
           channelId: channelQueryData?.id,
+          chainId: localNetwork.config.chainId,
         },
       },
     });
-  }, [channelQueryData]);
+  }, [channelQueryData, localNetwork.config.chainId]);
 
   useEffect(() => {
     if (textOverVideo.length > 0) {
@@ -454,12 +454,15 @@ export const ChannelProvider = ({
         ownerTokenBalance,
         refetchOwnerTokenBalance,
       },
-      holders: {
+      leaderboard: {
         userRank,
-        data: holdersData,
-        loading: holdersLoading,
-        error: holdersError,
-        refetchTokenHolders: handleRefetchTokenHolders,
+        isVip,
+        data: leaderboardData,
+        loading: leaderboardLoading,
+        error: leaderboardError,
+        refetchGamblableEventLeaderboard:
+          handleRefetchGamblableEventLeaderboard,
+        handleIsVip,
       },
       arcade: {
         addToChatbot,
@@ -494,9 +497,6 @@ export const ChannelProvider = ({
     }),
     [
       channelQueryData,
-      // channelMobileData,
-      // channelMobileDataLoading,
-      // channelMobileDataError,
       channelData,
       channelDataLoading,
       channelDataError,
@@ -512,10 +512,6 @@ export const ChannelProvider = ({
       refetchUserTokenBalance,
       ownerTokenBalance,
       refetchOwnerTokenBalance,
-      holdersData,
-      holdersLoading,
-      holdersError,
-      handleRefetchTokenHolders,
       userRank,
       isClipUiOpen,
       handleIsClipUiOpen,
@@ -526,7 +522,13 @@ export const ChannelProvider = ({
       clipUrl,
       clipThumbnail,
       loading,
+      userRank,
       isVip,
+      leaderboardData,
+      leaderboardLoading,
+      leaderboardError,
+      handleRefetchGamblableEventLeaderboard,
+      handleIsVip,
       addToChatbot,
       handleBuyModal,
       handleTipModal,
@@ -638,11 +640,6 @@ const TransactionModals = () => {
         isOpen={showBetModal}
         handleClose={() => handleBetModal(false)}
       />
-      <TokenSaleModal
-        title={"offer tokens for sale"}
-        isOpen={showTokenSaleModal}
-        handleClose={() => handleTokenSaleModal(false)}
-      />
       <ChatCommandModal
         title={"custom commands"}
         isOpen={showChatCommandModal}
@@ -663,7 +660,7 @@ const TransactionModals = () => {
         isOpen={showEventModal}
         handleClose={() => handleEventModal(false)}
       />
-      <CustomTransactionModal
+      {/* <CustomTransactionModal
         icon={
           <Image
             alt="custom"
@@ -730,6 +727,11 @@ const TransactionModals = () => {
         isOpen={showChanceModal}
         handleClose={handleClose}
       />
+      <TokenSaleModal
+        title={"offer tokens for sale"}
+        isOpen={showTokenSaleModal}
+        handleClose={() => handleTokenSaleModal(false)}
+      /> */}
     </>
   );
 };
