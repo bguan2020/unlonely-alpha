@@ -43,15 +43,15 @@ export const resolvers = {
       }
       return gamblableInteractionService.postBet(data, ctx);
     },
-    postBetBuy: (
+    postBetTrade: (
       _: any,
-      { data }: { data: gamblableInteractionService.IPostBetBuyInput },
+      { data }: { data: gamblableInteractionService.IPostBetTradeInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
-      return gamblableInteractionService.postBetBuy(data, ctx);
+      return gamblableInteractionService.postBetTrade(data, ctx);
     },
     postBadgeTrade: (
       _: any,

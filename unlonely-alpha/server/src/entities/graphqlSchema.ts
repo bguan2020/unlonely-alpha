@@ -21,6 +21,7 @@ import { typeDef as chatCommandTypeDef } from "./ChatCommand/chatCommandTypeDef"
 import { typeDef as subscriptionTypeDef } from "./Subscription/SubscriptionTypeDef";
 import { typeDef as baseLeaderboardTypeDef } from "./BaseLeaderboard/baseLeaderboardTypeDef";
 import { typeDef as gamblableInteractionTypeDef } from "./GamblableInteraction/gamblableInteractionTypeDef";
+import { typeDef as eventLeaderboardTypeDef } from "./EventLeaderboard/eventLeaderboardTypeDef";
 import { resolvers as likeResolvers } from "./Like/likeResolvers";
 import { resolvers as userResolvers } from "./User/userResolvers";
 import { resolvers as videoResolvers } from "./Video/videoResolvers";
@@ -36,6 +37,7 @@ import { resolvers as chatCommandResolvers } from "./ChatCommand/chatCommandReso
 import { resolvers as subscriptionResolvers } from "./Subscription/SubscriptionResolvers";
 import { resolvers as baseLeaderboardResolvers } from "./BaseLeaderboard/baseLeaderboardResolvers";
 import { resolvers as gamblableInteractionResolvers } from "./GamblableInteraction/gamblableInteractionResolvers";
+import { resolvers as eventLeaderboardResolvers } from "./EventLeaderboard/eventLeaderboardResolvers";
 
 const Query = gql`
   enum SortOrder {
@@ -80,6 +82,7 @@ export default makeExecutableSchema({
     subscriptionTypeDef,
     baseLeaderboardTypeDef,
     gamblableInteractionTypeDef,
+    eventLeaderboardTypeDef,
   ],
   resolvers: merge(
     resolvers,
@@ -97,6 +100,7 @@ export default makeExecutableSchema({
     chatCommandResolvers,
     subscriptionResolvers,
     baseLeaderboardResolvers,
-    gamblableInteractionResolvers
+    gamblableInteractionResolvers,
+    eventLeaderboardResolvers
   ),
 });

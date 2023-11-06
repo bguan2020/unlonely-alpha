@@ -53,6 +53,7 @@ model User {
   tokens UserCreatorToken[]
   leaderboardEntries BaseLeaderboard[]
   gamblableInteractions GamblableInteraction[]
+  eventLeaderboardEntries EventLeaderboard[]
 }
 
 model Subscription {
@@ -158,6 +159,7 @@ model Channel {
   roles ChannelUserRole[]
 
   gamblableInteractions GamblableInteraction[]
+  eventLeaderboardEntries EventLeaderboard[]
 }
 
 model ChannelUserRole {
@@ -183,8 +185,10 @@ model CreatorToken {
 
 enum GamblableEvent {
   BET_CREATE
-  BET_YES
-  BET_NO
+  BET_YES_BUY
+  BET_NO_BUY
+  BET_YES_SELL
+  BET_NO_SELL
   BADGE_BUY
   BADGE_SELL
 }
@@ -239,6 +243,17 @@ model SharesEvent {
 
   channel Channel @relation(fields: [channelId], references: [id])
   channelId Int
+}
+
+model EventLeaderboard {
+  id        Int      @id @default(autoincrement())
+
+  channel Channel @relation(fields: [channelId], references: [id])
+  channelId Int
+  totalFees    Float
+  user    User     @relation(fields: [userAddress], references: [address])
+  userAddress  String
+
 }
 
 model BaseLeaderboard {
