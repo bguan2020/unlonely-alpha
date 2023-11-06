@@ -4,8 +4,10 @@ import { Context } from "../../context";
 
 enum GamblableEvent {
   BET_CREATE = "BET_CREATE",
-  BET_YES = "BET_YES",
-  BET_NO = "BET_NO",
+  BET_YES_BUY = "BET_YES_BUY",
+  BET_NO_BUY = "BET_NO_BUY",
+  BET_YES_SELL = "BET_YES_SELL",
+  BET_NO_SELL = "BET_NO_SELL",
   BADGE_BUY = "BADGE_BUY",
   BADGE_SELL = "BADGE_SELL",
 }
@@ -24,16 +26,20 @@ export interface IPostBetInput {
   userAddress: string;
 }
 
-export interface IPostBetBuyInput {
+export interface IPostBetTradeInput {
   channelId: string;
+  chainId: number;
   userAddress: string;
-  isYay: boolean;
+  type: GamblableEvent;
+  fees: number;
 }
 
 export interface IPostBadgeTradeInput {
   channelId: string;
+  chainId: number;
   userAddress: string;
   isBuying: boolean;
+  fees: number;
 }
 
 export interface IGetBetsByChannelInput {
@@ -43,6 +49,71 @@ export interface IGetBetsByChannelInput {
 export interface IGetBetsByUserInput {
   userAddress: string;
 }
+
+export interface IGetGamblableEventLeaderboardByChannelInput {
+  channelId: string;
+  chainId: number;
+}
+
+const handleExistingLeaderboardEntry = async (
+  channelId: number,
+  userAddress: string,
+  chainId: number,
+  ctx: Context,
+  fees: number
+) => {
+  const existingLeaderboardEntry =
+    await ctx.prisma.gamblableEventLeaderboard.findFirst({
+      where: {
+        channelId: channelId,
+        userAddress: userAddress,
+        chainId: chainId,
+      },
+    });
+
+  if (!existingLeaderboardEntry) {
+    await ctx.prisma.gamblableEventLeaderboard.create({
+      data: {
+        channel: {
+          connect: {
+            id: channelId,
+          },
+        },
+        chainId: chainId,
+        user: {
+          connect: {
+            address: userAddress,
+          },
+        },
+        totalFees: fees,
+      },
+    });
+  } else {
+    await ctx.prisma.gamblableEventLeaderboard.update({
+      where: {
+        id: existingLeaderboardEntry.id,
+      },
+      data: {
+        totalFees: existingLeaderboardEntry.totalFees + fees,
+      },
+    });
+  }
+};
+
+export const getGamblableEventLeaderboardByChannel = (
+  data: IGetGamblableEventLeaderboardByChannelInput,
+  ctx: Context
+) => {
+  return ctx.prisma.gamblableEventLeaderboard.findMany({
+    where: {
+      channelId: Number(data.channelId),
+      chainId: data.chainId,
+    },
+    orderBy: {
+      totalFees: "desc",
+    },
+  });
+};
 
 export const postBet = (data: IPostBetInput, ctx: Context) => {
   return ctx.prisma.gamblableInteraction.create({
@@ -62,7 +133,15 @@ export const postBet = (data: IPostBetInput, ctx: Context) => {
   });
 };
 
-export const postBetBuy = (data: IPostBetBuyInput, ctx: Context) => {
+export const postBetTrade = async (data: IPostBetTradeInput, ctx: Context) => {
+  await handleExistingLeaderboardEntry(
+    Number(data.channelId),
+    data.userAddress,
+    data.chainId,
+    ctx,
+    data.fees
+  );
+
   return ctx.prisma.gamblableInteraction.create({
     data: {
       channel: {
@@ -70,7 +149,7 @@ export const postBetBuy = (data: IPostBetBuyInput, ctx: Context) => {
           id: Number(data.channelId),
         },
       },
-      type: data.isYay ? GamblableEvent.BET_YES : GamblableEvent.BET_NO,
+      type: data.type,
       user: {
         connect: {
           address: data.userAddress,
@@ -94,6 +173,14 @@ export const postBadgeTrade = async (
       },
     },
   });
+
+  await handleExistingLeaderboardEntry(
+    Number(data.channelId),
+    data.userAddress,
+    data.chainId,
+    ctx,
+    data.fees
+  );
 
   if (existingBadgeTrade) {
     // If found, update the existing trade while retaining the same channelId and userAddress
@@ -200,7 +287,12 @@ export const getBetsByChannel = async (
     where: {
       channelId: Number(data.channelId),
       type: {
-        in: [GamblableEvent.BET_YES, GamblableEvent.BET_NO],
+        in: [
+          GamblableEvent.BET_YES_BUY,
+          GamblableEvent.BET_NO_BUY,
+          GamblableEvent.BET_YES_SELL,
+          GamblableEvent.BET_NO_SELL,
+        ],
       },
     },
     include: {
@@ -219,7 +311,12 @@ export const getBetsByUser = async (
     where: {
       userAddress: data.userAddress,
       type: {
-        in: [GamblableEvent.BET_YES, GamblableEvent.BET_NO],
+        in: [
+          GamblableEvent.BET_YES_BUY,
+          GamblableEvent.BET_NO_BUY,
+          GamblableEvent.BET_YES_SELL,
+          GamblableEvent.BET_NO_SELL,
+        ],
       },
     },
     include: {

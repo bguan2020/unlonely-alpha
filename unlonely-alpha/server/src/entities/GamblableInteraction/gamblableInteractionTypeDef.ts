@@ -3,8 +3,10 @@ import { gql } from "apollo-server-express";
 export const typeDef = gql`
   enum GamblableEvent {
     BET_CREATE
-    BET_YES
-    BET_NO
+    BET_YES_BUY
+    BET_NO_BUY
+    BET_YES_SELL
+    BET_NO_SELL
     BADGE_BUY
     BADGE_SELL
   }
@@ -16,6 +18,14 @@ export const typeDef = gql`
     user: User!
     createdAt: DateTime!
     softDelete: Boolean
+  }
+
+  type GamblableEventLeaderboard {
+    id: ID!
+    channelId: Int!
+    userAddress: String!
+    totalFees: Float!
+    chainId: Int!
   }
 
   type NumberOfHolders {
@@ -32,16 +42,20 @@ export const typeDef = gql`
     userAddress: String!
   }
 
-  input PostBetBuyInput {
+  input PostBetTradeInput {
     channelId: ID!
+    chainId: Int!
     userAddress: String!
-    isYay: Boolean!
+    type: GamblableEvent!
+    fees: Float!
   }
 
   input PostBadgeTradeInput {
     channelId: ID!
+    chainId: Int!
     userAddress: String!
     isBuying: Boolean!
+    fees: Float!
   }
 
   input GetBetsByChannelInput {
@@ -52,16 +66,24 @@ export const typeDef = gql`
     userAddress: String!
   }
 
+  input GetGamblableEventLeaderboardByChannelIdInput {
+    channelId: ID!
+    chainId: Int!
+  }
+
   extend type Query {
     getBadgeHoldersByChannel(data: GetBadgeHoldersByChannelInput): [String]!
     getChannelsByNumberOfBadgeHolders: [NumberOfHolders]!
     getBetsByChannel(data: GetBetsByChannelInput): [GamblableInteraction]!
     getBetsByUser(data: GetBetsByUserInput): [GamblableInteraction]!
+    getGamblableEventLeaderboardByChannelId(
+      data: GetGamblableEventLeaderboardByChannelIdInput
+    ): [GamblableEventLeaderboard!]!
   }
 
   extend type Mutation {
     postBet(data: PostBetInput!): GamblableInteraction!
-    postBetBuy(data: PostBetBuyInput!): GamblableInteraction!
+    postBetTrade(data: PostBetTradeInput!): GamblableInteraction!
     postBadgeTrade(data: PostBadgeTradeInput!): GamblableInteraction!
   }
 `;
