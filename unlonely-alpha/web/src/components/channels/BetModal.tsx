@@ -11,7 +11,7 @@ import {
   MenuList,
   MenuItem,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { decodeEventLog, isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 import Link from "next/link";
@@ -55,6 +55,7 @@ export default function BetModal({
   const { isStandalone } = useUserAgent();
   const publicClient = usePublicClient();
   const toast = useToast();
+  const openingEvent = useRef(false);
 
   const { postSharesEvent, loading: postSharesEventLoading } =
     usePostSharesEvent({});
@@ -72,7 +73,6 @@ export default function BetModal({
     undefined
   );
   const [sharesSubject, setSharesSubject] = useState<string>("");
-  const [openingEvent, setOpeningEvent] = useState<boolean>(false);
   const [selectedEndTime, setSelectedEndTime] = useState<
     "10" | "30" | "60" | "120"
   >("60");
@@ -244,7 +244,7 @@ export default function BetModal({
           title: "Event is live!",
           description: "event-live",
         });
-        setOpeningEvent(false);
+        openingEvent.current = false;
         handleClose();
       },
       onTxError: (error) => {
@@ -258,7 +258,7 @@ export default function BetModal({
           isClosable: true,
           position: "top-right",
         });
-        setOpeningEvent(false);
+        openingEvent.current = false;
       },
     }
   );
@@ -353,11 +353,11 @@ export default function BetModal({
 
   useEffect(() => {
     const c = async () => {
-      setOpeningEvent(true);
+      openingEvent.current = true;
       await openEvent?.();
     };
-    if (createdEventId && openEvent && !openingEvent) c();
-  }, [createdEventId, openEvent, openingEvent]);
+    if (createdEventId && openEvent && !openingEvent.current) c();
+  }, [createdEventId, openEvent]);
 
   useEffect(() => {
     const init = async () => {
@@ -398,8 +398,7 @@ export default function BetModal({
         postSharesEventLoading ||
         closeSharesEventLoading ||
         updateSharesEventLoading ||
-        openEventTxLoading ||
-        openingEvent
+        openEventTxLoading
       }
       loadingText={`${
         closeSharesEventLoading ? "closing event" : "loading"
