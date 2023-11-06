@@ -3,8 +3,10 @@ import { gql } from "apollo-server-express";
 export const typeDef = gql`
   enum GamblableEvent {
     BET_CREATE
-    BET_YES
-    BET_NO
+    BET_YES_BUY
+    BET_NO_BUY
+    BET_YES_SELL
+    BET_NO_SELL
     BADGE_BUY
     BADGE_SELL
   }
@@ -32,16 +34,19 @@ export const typeDef = gql`
     userAddress: String!
   }
 
-  input PostBetBuyInput {
+  input PostBetTradeInput {
     channelId: ID!
     userAddress: String!
     isYay: Boolean!
+    isBuying: Boolean!
+    fees: Float!
   }
 
   input PostBadgeTradeInput {
     channelId: ID!
     userAddress: String!
     isBuying: Boolean!
+    fees: Float!
   }
 
   input GetBetsByChannelInput {
@@ -61,7 +66,7 @@ export const typeDef = gql`
 
   extend type Mutation {
     postBet(data: PostBetInput!): GamblableInteraction!
-    postBetBuy(data: PostBetBuyInput!): GamblableInteraction!
+    postBetTrade(data: PostBetTradeInput!): GamblableInteraction!
     postBadgeTrade(data: PostBadgeTradeInput!): GamblableInteraction!
   }
 `;
