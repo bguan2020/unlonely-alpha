@@ -53,7 +53,7 @@ model User {
   tokens UserCreatorToken[]
   leaderboardEntries BaseLeaderboard[]
   gamblableInteractions GamblableInteraction[]
-  eventLeaderboardEntries EventLeaderboard[]
+  gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
 }
 
 model Subscription {
@@ -142,6 +142,7 @@ model Channel {
   slug String @unique
   isLive Boolean @default(false)
   allowNFCs Boolean @default(true)
+  livepeerPlaybackId String
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
@@ -159,7 +160,7 @@ model Channel {
   roles ChannelUserRole[]
 
   gamblableInteractions GamblableInteraction[]
-  eventLeaderboardEntries EventLeaderboard[]
+  gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
 }
 
 model ChannelUserRole {
@@ -195,10 +196,11 @@ enum GamblableEvent {
 
 model GamblableInteraction {
   id        Int      @id @default(autoincrement())
-  channel   Channel  @relation(fields: [channelId], references: [id])
+
   channelId Int
-  user    User     @relation(fields: [userAddress], references: [address])
+  channel   Channel  @relation(fields: [channelId], references: [id])
   userAddress  String
+  user    User     @relation(fields: [userAddress], references: [address])
   type GamblableEvent
   createdAt DateTime @default(now())
   softDelete Boolean @default(false)
@@ -245,14 +247,15 @@ model SharesEvent {
   channelId Int
 }
 
-model EventLeaderboard {
+model GamblableEventLeaderboard {
   id        Int      @id @default(autoincrement())
-  
-  channel Channel @relation(fields: [channelId], references: [id])
+  chainId Int
+
   channelId Int
+  channel Channel @relation(fields: [channelId], references: [id])
   totalFees    Float
-  user    User     @relation(fields: [userAddress], references: [address])
   userAddress  String
+  user    User     @relation(fields: [userAddress], references: [address])
 }
 
 model BaseLeaderboard {

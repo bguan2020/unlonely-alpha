@@ -20,6 +20,14 @@ export const typeDef = gql`
     softDelete: Boolean
   }
 
+  type GamblableEventLeaderboard {
+    id: ID!
+    channelId: Int!
+    userAddress: String!
+    totalFees: Float!
+    chainId: Int!
+  }
+
   type NumberOfHolders {
     channel: Channel!
     holders: Int!
@@ -36,14 +44,15 @@ export const typeDef = gql`
 
   input PostBetTradeInput {
     channelId: ID!
+    chainId: Int!
     userAddress: String!
-    isYay: Boolean!
-    isBuying: Boolean!
+    type: GamblableEvent!
     fees: Float!
   }
 
   input PostBadgeTradeInput {
     channelId: ID!
+    chainId: Int!
     userAddress: String!
     isBuying: Boolean!
     fees: Float!
@@ -57,11 +66,19 @@ export const typeDef = gql`
     userAddress: String!
   }
 
+  input GetGamblableEventLeaderboardByChannelIdInput {
+    channelId: ID!
+    chainId: Int!
+  }
+
   extend type Query {
     getBadgeHoldersByChannel(data: GetBadgeHoldersByChannelInput): [String]!
     getChannelsByNumberOfBadgeHolders: [NumberOfHolders]!
     getBetsByChannel(data: GetBetsByChannelInput): [GamblableInteraction]!
     getBetsByUser(data: GetBetsByUserInput): [GamblableInteraction]!
+    getGamblableEventLeaderboardByChannelId(
+      data: GetGamblableEventLeaderboardByChannelIdInput
+    ): [GamblableEventLeaderboard!]!
   }
 
   extend type Mutation {

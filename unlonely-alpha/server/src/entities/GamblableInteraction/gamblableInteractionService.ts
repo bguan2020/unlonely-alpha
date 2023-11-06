@@ -28,14 +28,15 @@ export interface IPostBetInput {
 
 export interface IPostBetTradeInput {
   channelId: string;
+  chainId: number;
   userAddress: string;
-  isYay: boolean;
-  isBuying: boolean;
+  type: GamblableEvent;
   fees: number;
 }
 
 export interface IPostBadgeTradeInput {
   channelId: string;
+  chainId: number;
   userAddress: string;
   isBuying: boolean;
   fees: number;
@@ -48,6 +49,71 @@ export interface IGetBetsByChannelInput {
 export interface IGetBetsByUserInput {
   userAddress: string;
 }
+
+export interface IGetGamblableEventLeaderboardByChannelInput {
+  channelId: string;
+  chainId: number;
+}
+
+const handleExistingLeaderboardEntry = async (
+  channelId: number,
+  userAddress: string,
+  chainId: number,
+  ctx: Context,
+  fees: number
+) => {
+  const existingLeaderboardEntry =
+    await ctx.prisma.gamblableEventLeaderboard.findFirst({
+      where: {
+        channelId: channelId,
+        userAddress: userAddress,
+        chainId: chainId,
+      },
+    });
+
+  if (!existingLeaderboardEntry) {
+    await ctx.prisma.gamblableEventLeaderboard.create({
+      data: {
+        channel: {
+          connect: {
+            id: channelId,
+          },
+        },
+        chainId: chainId,
+        user: {
+          connect: {
+            address: userAddress,
+          },
+        },
+        totalFees: fees,
+      },
+    });
+  } else {
+    await ctx.prisma.gamblableEventLeaderboard.update({
+      where: {
+        id: existingLeaderboardEntry.id,
+      },
+      data: {
+        totalFees: existingLeaderboardEntry.totalFees + fees,
+      },
+    });
+  }
+};
+
+export const getGamblableEventLeaderboardByChannel = (
+  data: IGetGamblableEventLeaderboardByChannelInput,
+  ctx: Context
+) => {
+  return ctx.prisma.gamblableEventLeaderboard.findMany({
+    where: {
+      channelId: Number(data.channelId),
+      chainId: data.chainId,
+    },
+    orderBy: {
+      totalFees: "desc",
+    },
+  });
+};
 
 export const postBet = (data: IPostBetInput, ctx: Context) => {
   return ctx.prisma.gamblableInteraction.create({
@@ -68,50 +134,13 @@ export const postBet = (data: IPostBetInput, ctx: Context) => {
 };
 
 export const postBetTrade = async (data: IPostBetTradeInput, ctx: Context) => {
-  let type: GamblableEvent = GamblableEvent.BET_YES_BUY;
-  if (!data.isYay && data.isBuying) {
-    type = GamblableEvent.BET_NO_BUY;
-  }
-  if (data.isYay && !data.isBuying) {
-    type = GamblableEvent.BET_YES_SELL;
-  }
-  if (!data.isYay && !data.isBuying) {
-    type = GamblableEvent.BET_NO_SELL;
-  }
-
-  const existingLeaderboardEntry = await ctx.prisma.eventLeaderboard.findFirst({
-    where: {
-      channelId: Number(data.channelId),
-      userAddress: data.userAddress,
-    },
-  });
-
-  if (!existingLeaderboardEntry) {
-    await ctx.prisma.eventLeaderboard.create({
-      data: {
-        channel: {
-          connect: {
-            id: Number(data.channelId),
-          },
-        },
-        user: {
-          connect: {
-            address: data.userAddress,
-          },
-        },
-        totalFees: data.fees,
-      },
-    });
-  } else {
-    await ctx.prisma.eventLeaderboard.update({
-      where: {
-        id: existingLeaderboardEntry.id,
-      },
-      data: {
-        totalFees: existingLeaderboardEntry.totalFees + data.fees,
-      },
-    });
-  }
+  await handleExistingLeaderboardEntry(
+    Number(data.channelId),
+    data.userAddress,
+    data.chainId,
+    ctx,
+    data.fees
+  );
 
   return ctx.prisma.gamblableInteraction.create({
     data: {
@@ -120,7 +149,7 @@ export const postBetTrade = async (data: IPostBetTradeInput, ctx: Context) => {
           id: Number(data.channelId),
         },
       },
-      type: type,
+      type: data.type,
       user: {
         connect: {
           address: data.userAddress,
@@ -145,39 +174,13 @@ export const postBadgeTrade = async (
     },
   });
 
-  const existingLeaderboardEntry = await ctx.prisma.eventLeaderboard.findFirst({
-    where: {
-      channelId: Number(data.channelId),
-      userAddress: data.userAddress,
-    },
-  });
-
-  if (!existingLeaderboardEntry) {
-    await ctx.prisma.eventLeaderboard.create({
-      data: {
-        channel: {
-          connect: {
-            id: Number(data.channelId),
-          },
-        },
-        user: {
-          connect: {
-            address: data.userAddress,
-          },
-        },
-        totalFees: data.fees,
-      },
-    });
-  } else {
-    await ctx.prisma.eventLeaderboard.update({
-      where: {
-        id: existingLeaderboardEntry.id,
-      },
-      data: {
-        totalFees: existingLeaderboardEntry.totalFees + data.fees,
-      },
-    });
-  }
+  await handleExistingLeaderboardEntry(
+    Number(data.channelId),
+    data.userAddress,
+    data.chainId,
+    ctx,
+    data.fees
+  );
 
   if (existingBadgeTrade) {
     // If found, update the existing trade while retaining the same channelId and userAddress

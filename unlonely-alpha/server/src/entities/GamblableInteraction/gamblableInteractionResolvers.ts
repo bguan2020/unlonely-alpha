@@ -5,6 +5,20 @@ import * as gamblableInteractionService from "./gamblableInteractionService";
 
 export const resolvers = {
   Query: {
+    getGamblableEventLeaderboardByChannelId: (
+      _: any,
+      {
+        data,
+      }: {
+        data: gamblableInteractionService.IGetGamblableEventLeaderboardByChannelInput;
+      },
+      ctx: Context
+    ) => {
+      return gamblableInteractionService.getGamblableEventLeaderboardByChannel(
+        data,
+        ctx
+      );
+    },
     getBadgeHoldersByChannel: (
       _: any,
       {
