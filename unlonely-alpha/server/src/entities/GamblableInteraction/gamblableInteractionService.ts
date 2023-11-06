@@ -55,6 +55,12 @@ export interface IGetGamblableEventLeaderboardByChannelInput {
   chainId: number;
 }
 
+export interface IGetGamblableEventUserRankInput {
+  channelId: string;
+  chainId: number;
+  userAddress: string;
+}
+
 const handleExistingLeaderboardEntry = async (
   channelId: number,
   userAddress: string,
@@ -98,6 +104,30 @@ const handleExistingLeaderboardEntry = async (
       },
     });
   }
+};
+
+export const getGamblableEventUserRank = async (
+  data: IGetGamblableEventUserRankInput,
+  ctx: Context
+) => {
+  const leaderboard = await ctx.prisma.gamblableEventLeaderboard.findMany({
+    where: {
+      channelId: Number(data.channelId),
+      chainId: data.chainId,
+    },
+    orderBy: {
+      totalFees: "desc",
+    },
+  });
+
+  // Find the index of the user in the sorted list of token holdings
+  const userRanking = leaderboard.findIndex(
+    (entry) => entry.userAddress === data.userAddress
+  );
+
+  // The 'findIndex' function returns -1 if it does not find the user in the list,
+  // so we need to account for this
+  return userRanking;
 };
 
 export const getGamblableEventLeaderboardByChannel = (

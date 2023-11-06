@@ -71,6 +71,12 @@ export const typeDef = gql`
     chainId: Int!
   }
 
+  input GetGamblableEventUserRankInput {
+    channelId: ID!
+    chainId: Int!
+    userAddress: String!
+  }
+
   extend type Query {
     getBadgeHoldersByChannel(data: GetBadgeHoldersByChannelInput): [String]!
     getChannelsByNumberOfBadgeHolders: [NumberOfHolders]!
@@ -79,6 +85,7 @@ export const typeDef = gql`
     getGamblableEventLeaderboardByChannelId(
       data: GetGamblableEventLeaderboardByChannelIdInput
     ): [GamblableEventLeaderboard!]!
+    getGamblableEventUserRank(data: GetGamblableEventUserRankInput): Int!
   }
 
   extend type Mutation {
