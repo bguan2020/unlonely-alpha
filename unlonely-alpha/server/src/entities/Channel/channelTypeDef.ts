@@ -34,6 +34,7 @@ export const typeDef = gql`
     id: ID!
     awsId: String!
     channelArn: String
+    livepeerPlaybackId: String
     name: String
     description: String
     playbackUrl: String
