@@ -247,6 +247,7 @@ model SharesEvent {
 
 model EventLeaderboard {
   id        Int      @id @default(autoincrement())
+  
   channel Channel @relation(fields: [channelId], references: [id])
   channelId Int
   totalFees    Float

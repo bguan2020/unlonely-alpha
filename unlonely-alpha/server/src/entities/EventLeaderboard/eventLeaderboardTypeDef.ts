@@ -7,6 +7,7 @@ export const typeDef = gql`
     userAddress: String!
     totalFees: Float!
   }
+
   extend type Query {
     getEventLeaderboardByChannelId(channelId: Int!): [EventLeaderboard!]!
   }
