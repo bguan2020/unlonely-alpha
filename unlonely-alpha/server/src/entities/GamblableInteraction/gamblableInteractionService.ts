@@ -109,6 +109,9 @@ export const getGamblableEventLeaderboardByChannel = (
       channelId: Number(data.channelId),
       chainId: data.chainId,
     },
+    include: {
+      user: true,
+    },
     orderBy: {
       totalFees: "desc",
     },
