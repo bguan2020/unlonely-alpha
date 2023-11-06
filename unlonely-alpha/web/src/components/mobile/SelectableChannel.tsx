@@ -207,7 +207,6 @@ export const SelectableChannel = ({
                 }}
               />{" "}
             </Flex>
-
             <Flex
               position="absolute"
               right="10px"
@@ -229,8 +228,10 @@ export const SelectableChannel = ({
                 <Text>🔴 Live</Text>
               </Flex>
             </Flex>
-
-            <Image src={channel.thumbnailUrl ?? ""} borderRadius={"10px"} />
+            <Image
+              src={channel.thumbnailUrl ?? "/svg/defaultThumbnail.svg"}
+              borderRadius={"10px"}
+            />
             <Image
               src="/images/playIcon.png"
               opacity={0.5}
