@@ -163,9 +163,9 @@ const ConnectWallet = ({
                   _hover={{ bg: "#1f1f3c" }}
                   _focus={{}}
                   _active={{}}
-                  onClick={linkWallet}
+                  onClick={login}
                 >
-                  connect
+                  login
                 </MenuItem>
                 <MenuItem
                   _hover={{ bg: "#1f1f3c" }}

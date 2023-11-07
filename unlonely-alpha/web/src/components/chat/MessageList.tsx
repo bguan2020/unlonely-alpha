@@ -18,30 +18,26 @@ type MessageItemProps = {
   message: Message;
   channel: any;
   index: number;
-  isVipChat?: boolean;
 };
 
-const MessageItem = memo(
-  ({ message, channel, index, isVipChat }: MessageItemProps) => {
-    const messageText = message.data.messageText;
-    const linkArray: RegExpMatchArray | null = messageText.match(
-      /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
-    );
+const MessageItem = memo(({ message, channel, index }: MessageItemProps) => {
+  const messageText = message.data.messageText;
+  const linkArray: RegExpMatchArray | null = messageText.match(
+    /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
+  );
 
-    return (
-      <div key={message.id || index}>
-        <MessageBody
-          index={index}
-          message={message}
-          messageText={messageText}
-          linkArray={linkArray}
-          channel={channel}
-          isVipChat={isVipChat}
-        />
-      </div>
-    );
-  }
-);
+  return (
+    <div key={message.id || index}>
+      <MessageBody
+        index={index}
+        message={message}
+        messageText={messageText}
+        linkArray={linkArray}
+        channel={channel}
+      />
+    </div>
+  );
+});
 const MessageList = memo(
   ({
     messages,
@@ -80,7 +76,6 @@ const MessageList = memo(
                 message={data}
                 channel={channel}
                 index={index}
-                isVipChat={isVipChat}
               />
             )}
           />

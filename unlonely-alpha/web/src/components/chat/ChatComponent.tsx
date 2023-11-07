@@ -318,11 +318,7 @@ const ChatComponent = () => {
 
 const Trade = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress, walletIsConnected, user } = useUser();
-  const {
-    channel,
-    arcade,
-    leaderboard: leaderboardContext,
-  } = useChannelContext();
+  const { channel, arcade } = useChannelContext();
   const { channelQueryData, refetch } = channel;
   const { addToChatbot } = arcade;
 
@@ -1089,6 +1085,24 @@ const Chat = ({
   chat: ChatReturnType;
   isVipChat?: boolean;
 }) => {
+  const { channel, leaderboard } = useChannelContext();
+  const { channelQueryData } = channel;
+  const { isVip } = leaderboard;
+  const { user } = useUser();
+
+  const userIsChannelOwner = useMemo(
+    () => user?.address === channelQueryData?.owner.address,
+    [user, channelQueryData]
+  );
+
+  const userIsModerator = useMemo(
+    () =>
+      channelQueryData?.roles?.some(
+        (m) => m?.userAddress === user?.address && m?.role === 2
+      ),
+    [user, channelQueryData]
+  );
+
   const {
     scrollRef,
     isAtBottom,
@@ -1120,7 +1134,7 @@ const Chat = ({
     const id = Date.now();
     setEmojisToAnimate((prev) => [...prev, { emoji: str, id }]);
 
-    // Remove the emoji from the state after the animation duration (1s)
+    // Remove the emoji from the state after the animation duration
     setTimeout(() => {
       setEmojisToAnimate((prev) => prev.filter((emoji) => emoji.id !== id));
     }, 4000);
@@ -1130,7 +1144,7 @@ const Chat = ({
     if (!chat.allMessages || chat.allMessages.length === 0) return;
     const latestMessage = chat.allMessages[chat.allMessages.length - 1];
     if (
-      Date.now() - latestMessage.timestamp < 300 &&
+      Date.now() - latestMessage.timestamp < 2000 &&
       latestMessage.name === ADD_REACTION_EVENT &&
       latestMessage.data.body
     )
@@ -1169,6 +1183,11 @@ const Chat = ({
           </span>
         ))}
       </div>
+      {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
+        <Text textAlign={"center"}>
+          You must have at least one VIP badge to use this chat.
+        </Text>
+      )}
       <Flex
         direction="column"
         overflowX="auto"
@@ -1177,6 +1196,17 @@ const Chat = ({
         position="relative"
         mt="8px"
       >
+        {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
+          <Flex
+            position="absolute"
+            style={{ backdropFilter: "blur(6px)" }}
+            left={"0"}
+            right={"0"}
+            top={"0"}
+            bottom={"0"}
+            zIndex={"1"}
+          />
+        )}
         <MessageList
           scrollRef={scrollRef}
           messages={chat.receivedMessages}
@@ -1203,15 +1233,17 @@ const Chat = ({
           </Box>
         )}
       </Flex>
-      <Flex w="100%">
-        <ChatForm
-          sendChatMessage={sendChatMessage}
-          additionalChatCommands={channelChatCommands}
-          allowPopout
-          channel={chat.channel}
-          isVipChat={isVipChat}
-        />
-      </Flex>
+      {(userIsChannelOwner || userIsModerator || isVip || !isVipChat) && (
+        <Flex w="100%">
+          <ChatForm
+            sendChatMessage={sendChatMessage}
+            additionalChatCommands={channelChatCommands}
+            allowPopout
+            channel={chat.channel}
+            isVipChat={isVipChat}
+          />
+        </Flex>
+      )}
     </Flex>
   );
 };

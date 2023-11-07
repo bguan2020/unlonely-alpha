@@ -32,7 +32,6 @@ type Props = {
   messageText: string;
   linkArray: RegExpMatchArray | null;
   channel: any;
-  isVipChat?: boolean;
 };
 
 // if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred
@@ -43,7 +42,6 @@ const MessageBody = ({
   messageText,
   linkArray,
   channel,
-  isVipChat,
 }: Props) => {
   const { channel: c, leaderboard } = useChannelContext();
   const { isVip } = leaderboard;
@@ -116,24 +114,6 @@ const MessageBody = ({
       };
     }
   };
-
-  // publish emoji reaction using timeserial
-  // const sendMessageReaction = (
-  //   emoji: string,
-  //   timeserial: any,
-  //   reactionEvent: string
-  // ) => {
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   // @ts-ignore
-  //   channel.publish(reactionEvent, {
-  //     body: emoji,
-  //     name: reactionEvent,
-  //     extras: {
-  //       reference: { type: "com.ably.reaction", timeserial },
-  //     },
-  //   });
-  //   setShowEmojiList(null);
-  // };
 
   const ban = async () => {
     await postUserRoleForChannel({
@@ -372,7 +352,6 @@ const MessageBody = ({
                       <Flex direction="column">
                         <Text
                           filter={
-                            !isVipChat &&
                             message.data.senderStatus === SenderStatus.VIP &&
                             !userIsChannelOwner &&
                             !userIsModerator &&
@@ -417,7 +396,6 @@ const MessageBody = ({
                         wordBreak="break-word"
                         textAlign="left"
                         filter={
-                          !isVipChat &&
                           message.data.senderStatus === SenderStatus.VIP &&
                           !userIsChannelOwner &&
                           !userIsModerator &&

@@ -49,8 +49,6 @@ type Props = {
   channel?: any;
 };
 
-const PRICE = "2";
-
 const ChatForm = ({
   sendChatMessage,
   additionalChatCommands,
@@ -81,6 +79,7 @@ const ChatForm = ({
   const [error, setError] = useState<string>("");
 
   const [blastMode, setBlastMode] = useState(false);
+  const [blastDisabled, setBlastDisabled] = useState(false);
 
   const [showEmojiReactionList, setShowEmojiReactionList] = useState(false);
   const [reactionDisabled, setReactionDisabled] = useState<boolean>(false);
@@ -108,6 +107,10 @@ const ChatForm = ({
         `${InteractionType.BLAST}:`
       );
       setBlastMode(false);
+      setBlastDisabled(true);
+      setTimeout(() => {
+        setBlastDisabled(false);
+      }, 6000);
     }
     setMessageText("");
   };
@@ -138,6 +141,10 @@ const ChatForm = ({
           `${InteractionType.BLAST}:`
         );
         setBlastMode(false);
+        setBlastDisabled(true);
+        setTimeout(() => {
+          setBlastDisabled(false);
+        }, 6000);
       }
       setMessageText("");
     },
@@ -161,6 +168,10 @@ const ChatForm = ({
           `${InteractionType.BLAST}:`
         );
         setBlastMode(false);
+        setBlastDisabled(true);
+        setTimeout(() => {
+          setBlastDisabled(false);
+        }, 6000);
       }
       setMessageText("");
     },
@@ -189,7 +200,6 @@ const ChatForm = ({
   };
 
   const sendMessageReaction = (emoji: string, reactionEvent: string) => {
-    console.log("reaction");
     channel.publish(reactionEvent, {
       body: emoji,
       name: reactionEvent,
@@ -366,12 +376,15 @@ const ChatForm = ({
                           _focus={{}}
                           _hover={{ transform: "scale(1.15)" }}
                           _active={{ transform: "scale(1.3)" }}
+                          style={{
+                            cursor: blastDisabled ? "not-allowed" : "pointer",
+                          }}
                           onClick={() => {
                             if (blastMode) {
                               setBlastMode(false);
                             } else {
                               if (user) {
-                                setBlastMode(true);
+                                if (!blastDisabled) setBlastMode(true);
                               } else {
                                 toastSignIn();
                               }
