@@ -92,9 +92,9 @@ const DesktopPage = ({
     GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY
   );
 
-  console.log(_data?.getChannelsByNumberOfBadgeHolders);
+  // console.log(_data?.getChannelsByNumberOfBadgeHolders);
 
-  console.log(data?.getBadgeHoldersByChannel);
+  // console.log(data?.getBadgeHoldersByChannel);
 
   const { userAddress } = useUser();
 

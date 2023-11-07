@@ -119,11 +119,7 @@ const ChatComponent = () => {
               pb={selectedTab === "chat" ? "0px" : undefined}
             >
               <Flex
-                bg={
-                  selectedTab === "chat"
-                    ? "rgba(24, 22, 47, 1)"
-                    : "rgba(19, 18, 37, 1)"
-                }
+                bg={selectedTab === "chat" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
                 py="0.3rem"
                 width="100%"
                 justifyContent={"center"}
@@ -139,11 +135,7 @@ const ChatComponent = () => {
               pb={selectedTab === "trade" ? "0px" : undefined}
             >
               <Flex
-                bg={
-                  selectedTab === "trade"
-                    ? "rgba(24, 22, 47, 1)"
-                    : "rgba(19, 18, 37, 1)"
-                }
+                bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
                 py="0.3rem"
                 width="100%"
                 justifyContent={"center"}
@@ -159,11 +151,7 @@ const ChatComponent = () => {
               pb={selectedTab === "vip" ? "0px" : undefined}
             >
               <Flex
-                bg={
-                  selectedTab === "vip"
-                    ? "rgba(24, 22, 47, 1)"
-                    : "rgba(19, 18, 37, 1)"
-                }
+                bg={selectedTab === "vip" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
                 py="0.3rem"
                 width="100%"
                 justifyContent={"center"}

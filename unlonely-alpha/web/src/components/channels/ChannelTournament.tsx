@@ -23,9 +23,11 @@ import {
 import { useUser } from "../../hooks/context/useUser";
 import { NULL_ADDRESS } from "../../constants";
 import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 export const ChannelTournament = () => {
   const { userAddress, walletIsConnected } = useUser();
+  const { isStandalone } = useUserAgent();
   const { channel, leaderboard } = useChannelContext();
   const { handleIsVip } = leaderboard;
 
@@ -303,7 +305,12 @@ export const ChannelTournament = () => {
   ]);
 
   return (
-    <Flex direction="column" bg={"#131323"} borderRadius="15px" p="1rem">
+    <Flex
+      direction="column"
+      bg={isStandalone ? "#570d5f" : "#131323"}
+      borderRadius="15px"
+      p="1rem"
+    >
       <Flex alignItems="center" gap="10px">
         <Text fontFamily={"LoRes15"} fontSize="25px">
           BECOME A VIP
