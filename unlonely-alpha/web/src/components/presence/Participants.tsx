@@ -56,7 +56,7 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
         user: user
           ? {
               ...user,
-              tokenHolderRank: userRank,
+              channelUserRank: userRank,
             }
           : undefined,
       });

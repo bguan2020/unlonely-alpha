@@ -63,7 +63,7 @@ import MessageList from "./MessageList";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import { getTimeFromMillis } from "../../utils/time";
-import { GamblableEvent } from "../../generated/graphql";
+import { GamblableEvent, SharesEventState } from "../../generated/graphql";
 import { getSortedLeaderboard } from "../../utils/getSortedLeaderboard";
 
 const ChatComponent = () => {
@@ -72,6 +72,8 @@ const ChatComponent = () => {
     "chat"
   );
   const { leaderboard: leaderboardContext } = useChannelContext();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
 
   const {
     data: leaderboardData,
@@ -88,7 +90,7 @@ const ChatComponent = () => {
 
   useEffect(() => {
     refetchGamblableEventLeaderboard?.();
-  }, []);
+  }, [localNetwork]);
 
   useEffect(() => {
     if (!leaderboardLoading && !leaderboardError && leaderboardData) {
@@ -766,8 +768,11 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
       setErrorMessage("wrong network");
     } else if (!doesEventExist) {
       setErrorMessage("no event found");
-    } else if (Number(eventEndTimestamp) * 1000 < dateNow) {
-      setErrorMessage("event not ongoing");
+    } else if (
+      Number(eventEndTimestamp) * 1000 < dateNow ||
+      channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout
+    ) {
+      setErrorMessage("event over");
     } else if (!isBuying) {
       if (
         (isYay && Number(yayVotesBalance) < Number(amountOfVotes)) ||

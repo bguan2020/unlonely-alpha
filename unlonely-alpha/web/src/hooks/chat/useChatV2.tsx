@@ -300,7 +300,7 @@ export const useChatBox = (
           isLens: user.isLensUser,
           lensHandle: user.lensHandle,
           address: user.address,
-          tokenHolderRank: userRank,
+          channelUserRank: userRank,
           isGif,
           reactions: initializeEmojis,
           senderStatus,

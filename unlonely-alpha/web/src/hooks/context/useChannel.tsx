@@ -13,8 +13,8 @@ import { useBalance } from "wagmi";
 import {
   CHANNEL_DETAIL_QUERY,
   GET_GAMBLABLE_EVENT_LEADERBOARD_BY_CHANNEL_ID_QUERY,
+  GET_GAMBLABLE_EVENT_USER_RANK_QUERY,
   GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY,
-  GET_USER_TOKEN_HOLDING_QUERY,
 } from "../../constants/queries";
 import {
   ChannelDetailQuery,
@@ -235,18 +235,18 @@ export const ChannelProvider = ({
     }
   );
 
-  const { data: userRankData } = useQuery(GET_USER_TOKEN_HOLDING_QUERY, {
+  const { data: userRankData } = useQuery(GET_GAMBLABLE_EVENT_USER_RANK_QUERY, {
     variables: {
       data: {
-        tokenAddress: channelQueryData?.token?.address,
+        channelId: channelQueryData?.id,
         userAddress: user?.address,
+        chainId: localNetwork.config.chainId,
       },
     },
   });
 
   const userRank = useMemo(
-    () =>
-      channelQueryData?.token?.address ? userRankData?.getUserTokenHolding : -1,
+    () => userRankData?.getGamblableEventUserRank,
     [userRankData]
   );
 

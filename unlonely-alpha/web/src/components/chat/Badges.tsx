@@ -1,4 +1,5 @@
 import { Tooltip, Image } from "@chakra-ui/react";
+
 import { User } from "../../generated/graphql";
 import { Message } from "../../constants/types/chat";
 import { useGetBadges } from "../../hooks/internal/useGetBadges";
@@ -9,7 +10,7 @@ type Props = {
 };
 
 export default function Badges({ message, user }: Props) {
-  const { rankUrl, rankDesc } = useGetBadges(message.data.tokenHolderRank);
+  const { rankUrl, rankDesc } = useGetBadges(message.data.channelUserRank);
 
   return (
     <>

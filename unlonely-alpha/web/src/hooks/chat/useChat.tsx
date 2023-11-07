@@ -190,7 +190,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
           isLens: user.isLensUser,
           lensHandle: user.lensHandle,
           address: user.address,
-          tokenHolderRank: userRank,
+          channelUserRank: userRank,
           isGif,
           reactions: initializeEmojis,
           senderStatus,

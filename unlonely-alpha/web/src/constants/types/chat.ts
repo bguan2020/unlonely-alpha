@@ -28,7 +28,7 @@ export type Message = {
     videoSavantLvl: number | null;
     nfcRank: number | null;
     reactions: EmojiTypes;
-    tokenHolderRank?: number;
+    channelUserRank?: number;
     isGif: boolean;
     body?: string;
     senderStatus: SenderStatus;

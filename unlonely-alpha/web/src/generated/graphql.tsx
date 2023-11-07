@@ -266,6 +266,12 @@ export type GetGamblableEventLeaderboardByChannelIdInput = {
   channelId: Scalars["ID"];
 };
 
+export type GetGamblableEventUserRankInput = {
+  chainId: Scalars["Int"];
+  channelId: Scalars["ID"];
+  userAddress: Scalars["String"];
+};
+
 export type GetPoapInput = {
   date: Scalars["String"];
 };
@@ -660,6 +666,7 @@ export type Query = {
   getChannelsByNumberOfBadgeHolders: Array<Maybe<NumberOfHolders>>;
   getDeviceByToken?: Maybe<DeviceToken>;
   getGamblableEventLeaderboardByChannelId: Array<GamblableEventLeaderboard>;
+  getGamblableEventUserRank: Scalars["Int"];
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
   getNFC?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
@@ -721,6 +728,10 @@ export type QueryGetDeviceByTokenArgs = {
 
 export type QueryGetGamblableEventLeaderboardByChannelIdArgs = {
   data?: InputMaybe<GetGamblableEventLeaderboardByChannelIdInput>;
+};
+
+export type QueryGetGamblableEventUserRankArgs = {
+  data?: InputMaybe<GetGamblableEventUserRankInput>;
 };
 
 export type QueryGetNfcArgs = {
@@ -1129,6 +1140,15 @@ export type GetAllUsersWithChannelQuery = {
     address: string;
     username?: string | null;
   } | null> | null;
+};
+
+export type GetGamblableEventUserRankQueryVariables = Exact<{
+  data: GetGamblableEventUserRankInput;
+}>;
+
+export type GetGamblableEventUserRankQuery = {
+  __typename?: "Query";
+  getGamblableEventUserRank: number;
 };
 
 export type GetGamblableEventLeaderboardByChannelIdQueryVariables = Exact<{
@@ -2231,6 +2251,62 @@ export type GetAllUsersWithChannelLazyQueryHookResult = ReturnType<
 export type GetAllUsersWithChannelQueryResult = Apollo.QueryResult<
   GetAllUsersWithChannelQuery,
   GetAllUsersWithChannelQueryVariables
+>;
+export const GetGamblableEventUserRankDocument = gql`
+  query GetGamblableEventUserRank($data: GetGamblableEventUserRankInput!) {
+    getGamblableEventUserRank(data: $data)
+  }
+`;
+
+/**
+ * __useGetGamblableEventUserRankQuery__
+ *
+ * To run a query within a React component, call `useGetGamblableEventUserRankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGamblableEventUserRankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGamblableEventUserRankQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetGamblableEventUserRankQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetGamblableEventUserRankQuery,
+    GetGamblableEventUserRankQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetGamblableEventUserRankQuery,
+    GetGamblableEventUserRankQueryVariables
+  >(GetGamblableEventUserRankDocument, options);
+}
+export function useGetGamblableEventUserRankLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetGamblableEventUserRankQuery,
+    GetGamblableEventUserRankQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetGamblableEventUserRankQuery,
+    GetGamblableEventUserRankQueryVariables
+  >(GetGamblableEventUserRankDocument, options);
+}
+export type GetGamblableEventUserRankQueryHookResult = ReturnType<
+  typeof useGetGamblableEventUserRankQuery
+>;
+export type GetGamblableEventUserRankLazyQueryHookResult = ReturnType<
+  typeof useGetGamblableEventUserRankLazyQuery
+>;
+export type GetGamblableEventUserRankQueryResult = Apollo.QueryResult<
+  GetGamblableEventUserRankQuery,
+  GetGamblableEventUserRankQueryVariables
 >;
 export const GetGamblableEventLeaderboardByChannelIdDocument = gql`
   query GetGamblableEventLeaderboardByChannelId(

@@ -128,6 +128,12 @@ export const GET_ALL_USERS_WITH_CHANNEL = gql`
   }
 `;
 
+export const GET_GAMBLABLE_EVENT_USER_RANK_QUERY = gql`
+  query GetGamblableEventUserRank($data: GetGamblableEventUserRankInput!) {
+    getGamblableEventUserRank(data: $data)
+  }
+`;
+
 export const GET_GAMBLABLE_EVENT_LEADERBOARD_BY_CHANNEL_ID_QUERY = gql`
   query GetGamblableEventLeaderboardByChannelId(
     $data: GetGamblableEventLeaderboardByChannelIdInput!

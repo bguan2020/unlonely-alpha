@@ -12,8 +12,8 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { decodeEventLog, isAddress } from "viem";
-import { usePublicClient } from "wagmi";
+import { decodeEventLog } from "viem";
+import { useBlockNumber, usePublicClient } from "wagmi";
 import Link from "next/link";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 
@@ -22,10 +22,11 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import usePostSharesEvent from "../../hooks/server/usePostSharesEvent";
 import { getContractFromNetwork } from "../../utils/contract";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
-import { EventType, InteractionType, NULL_ADDRESS } from "../../constants";
+import { InteractionType, NULL_ADDRESS } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import useCloseSharesEvent from "../../hooks/server/useCloseSharesEvent";
 import {
+  useGenerateKey,
   useOpenEvent,
   useVerifyEvent,
 } from "../../hooks/contracts/useSharesContractV2";
@@ -33,7 +34,10 @@ import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { SharesEventState } from "../../generated/graphql";
 import useUpdateSharesEvent from "../../hooks/server/useUpdateSharesEvent";
 import usePostBet from "../../hooks/server/gamblable/usePostBet";
-import { getHourAndMinutesFromMillis } from "../../utils/time";
+import {
+  getHourAndMinutesFromMillis,
+  getTimeFromMillis,
+} from "../../utils/time";
 
 export default function BetModal({
   title,
@@ -55,7 +59,7 @@ export default function BetModal({
   const { isStandalone } = useUserAgent();
   const publicClient = usePublicClient();
   const toast = useToast();
-  const openingEvent = useRef(false);
+  const isOpeningEvent = useRef(false);
 
   const { postSharesEvent, loading: postSharesEventLoading } =
     usePostSharesEvent({});
@@ -72,13 +76,14 @@ export default function BetModal({
   const [endDecision, setEndDecision] = useState<boolean | undefined>(
     undefined
   );
-  const [sharesSubject, setSharesSubject] = useState<string>("");
   const [selectedEndTime, setSelectedEndTime] = useState<
     "10" | "30" | "60" | "120"
   >("60");
-
-  const dateNow = useMemo(() => Date.now(), []);
-
+  const [eventEndTimestamp, setEventEndTimestamp] = useState<bigint>(BigInt(0));
+  const [dateNow, setDateNow] = useState<number>(Date.now());
+  const blockNumber = useBlockNumber({
+    watch: true,
+  });
   const contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const { postBet } = usePostBet({
@@ -110,11 +115,11 @@ export default function BetModal({
   }, []);
 
   const _postSharesEvent = useCallback(
-    async (sharesSubject: `0x${string}`, sharesSubjectQuestion: string) => {
+    async (sharesSubjectQuestion: string) => {
       const data = await postSharesEvent({
         id: channelQueryData?.id ?? "",
         sharesSubjectQuestion: sharesSubjectQuestion,
-        sharesSubjectAddress: sharesSubject,
+        sharesSubjectAddress: userAddress,
       });
       await refetch();
       const eventId = Number(data?.res?.id ?? "0");
@@ -173,7 +178,11 @@ export default function BetModal({
 
   const { openEvent, openEventTxLoading } = useOpenEvent(
     {
-      eventAddress: isAddress(sharesSubject) ? sharesSubject : NULL_ADDRESS,
+      eventAddress:
+        (channelQueryData?.sharesEvent?.[0]
+          ?.sharesSubjectAddress as `0x${string}`) ??
+        userAddress ??
+        NULL_ADDRESS,
       eventId: (channelQueryData?.sharesEvent?.[0]?.id ??
         createdEventId ??
         0) as number,
@@ -214,6 +223,7 @@ export default function BetModal({
             </Box>
           ),
         });
+        isOpeningEvent.current = false;
       },
       onTxSuccess: async (data) => {
         toast({
@@ -244,7 +254,7 @@ export default function BetModal({
           title: "Event is live!",
           description: "event-live",
         });
-        openingEvent.current = false;
+        isOpeningEvent.current = false;
         handleClose();
       },
       onTxError: (error) => {
@@ -258,7 +268,7 @@ export default function BetModal({
           isClosable: true,
           position: "top-right",
         });
-        openingEvent.current = false;
+        isOpeningEvent.current = false;
       },
     }
   );
@@ -351,37 +361,49 @@ export default function BetModal({
     }
   );
 
+  const { key: generatedKey } = useGenerateKey(
+    channelQueryData?.owner?.address as `0x${string}`,
+    Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
+    contract
+  );
+
   useEffect(() => {
     const c = async () => {
-      openingEvent.current = true;
+      isOpeningEvent.current = true;
       await openEvent?.();
     };
-    if (createdEventId && openEvent && !openingEvent.current) c();
+    if (createdEventId && openEvent && !isOpeningEvent.current) c();
   }, [createdEventId, openEvent]);
 
   useEffect(() => {
     const init = async () => {
-      if (!channelQueryData?.sharesEvent?.[0] || !contract.address) return;
-      const key = await publicClient.readContract({
-        address: contract.address,
-        abi: contract.abi,
-        functionName: "generateKey",
-        args: [
-          channelQueryData?.sharesEvent?.[0].sharesSubjectAddress,
-          Number(channelQueryData?.sharesEvent?.[0].id),
-          EventType.YAY_NAY_VOTE,
-        ],
-      });
-      const res = await publicClient.readContract({
-        address: contract.address as `0x${string}`,
-        abi: contract.abi,
-        functionName: "eventVerified",
-        args: [key],
-      });
-      setEventVerified(Boolean(res));
+      const [endTimestamp, eventVerified] = await Promise.all([
+        publicClient.readContract({
+          address: contract.address as `0x${string}`,
+          abi: contract.abi,
+          functionName: "eventEndTimestamp",
+          args: [generatedKey],
+        }),
+        publicClient.readContract({
+          address: contract.address as `0x${string}`,
+          abi: contract.abi,
+          functionName: "eventVerified",
+          args: [generatedKey],
+        }),
+      ]);
+      console.log(
+        "eventVerified",
+        eventVerified,
+        channelQueryData?.owner?.address,
+        channelQueryData?.sharesEvent?.[0]?.id,
+        generatedKey
+      );
+      setDateNow(Date.now());
+      setEventEndTimestamp(BigInt(String(endTimestamp)));
+      setEventVerified(Boolean(eventVerified));
     };
     init();
-  }, [channelQueryData, contract.address, publicClient]);
+  }, [blockNumber.data]);
 
   return (
     <TransactionModalTemplate
@@ -404,7 +426,94 @@ export default function BetModal({
         closeSharesEventLoading ? "closing event" : "loading"
       }, please wait...`}
     >
-      {isSharesEventLive && (
+      {isSharesEventLive && eventEndTimestamp === BigInt(0) && (
+        <Flex direction="column" gap="10px">
+          <Text textAlign={"center"} fontSize="13px">
+            Please continue the process to initiate your event
+          </Text>
+          <Text>event duration</Text>
+          <Menu>
+            <MenuButton
+              as={Button}
+              rightIcon={<ChevronDownIcon />}
+              bg={"#244FA7"}
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+            >
+              {selectedEndTime === "10"
+                ? "10 mins"
+                : selectedEndTime === "30"
+                ? "30 mins"
+                : selectedEndTime === "60"
+                ? "1 hour"
+                : "2 hours"}
+            </MenuButton>
+            <MenuList bg="#000" border="none">
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("10")}
+              >
+                {`10 mins (until ${getHourAndMinutesFromMillis(
+                  dateNow + 10 * 60 * 1000
+                )})`}
+              </MenuItem>
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("30")}
+              >
+                {`30 mins (until ${getHourAndMinutesFromMillis(
+                  dateNow + 30 * 60 * 1000
+                )})`}
+              </MenuItem>
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("60")}
+              >
+                {`1 hour (until ${getHourAndMinutesFromMillis(
+                  dateNow + 60 * 60 * 1000
+                )})`}
+              </MenuItem>
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("120")}
+              >
+                {`2 hour (until ${getHourAndMinutesFromMillis(
+                  dateNow + 120 * 60 * 1000
+                )})`}
+              </MenuItem>
+            </MenuList>
+          </Menu>
+          <Button
+            bg="#E09025"
+            _hover={{}}
+            _focus={{}}
+            _active={{}}
+            width="100%"
+            disabled={!openEvent}
+            onClick={openEvent}
+          >
+            confirm
+          </Button>
+        </Flex>
+      )}
+      {isSharesEventLive && eventEndTimestamp > BigInt(0) && (
         <Flex direction="column" gap="10px">
           <Text textAlign={"center"} fontSize="13px">
             Betting will be locked and you can take the time to make your
@@ -430,18 +539,22 @@ export default function BetModal({
             The outcome of the event will be decided and winnings can start
             being claimed.
           </Text>
-          <Text
-            textAlign={"center"}
-            fontSize="11px"
-            color={"#8f81b6"}
-            textDecoration="underline"
-            cursor={"pointer"}
-            onClick={async () =>
-              await _updateSharesEvent(SharesEventState.Live)
-            }
-          >
-            or allow voting again
-          </Text>
+          {eventEndTimestamp > BigInt(0) && (
+            <Text
+              textAlign={"center"}
+              fontSize="11px"
+              color={"#8f81b6"}
+              textDecoration="underline"
+              cursor={"pointer"}
+              onClick={async () =>
+                await _updateSharesEvent(SharesEventState.Live)
+              }
+            >
+              {`or allow voting again (still got${getTimeFromMillis(
+                Number(eventEndTimestamp) * 1000 - dateNow
+              )})`}
+            </Text>
+          )}
           {!isVerifier && (
             <Text textAlign={"center"} fontSize="13px">
               You cannot verify events, please ask Brian for permission.
@@ -522,12 +635,6 @@ export default function BetModal({
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
           />
-          <Input
-            variant="glow"
-            placeholder={"your address to collect fees"}
-            value={sharesSubject}
-            onChange={(e) => setSharesSubject(e.target.value)}
-          />
           <Text>event duration</Text>
           <Menu>
             <MenuButton
@@ -603,15 +710,12 @@ export default function BetModal({
             _focus={{}}
             _active={{}}
             width="100%"
-            disabled={question.length === 0 || !isAddress(sharesSubject)}
+            disabled={question.length === 0}
             onClick={async () =>
               channelQueryData?.sharesEvent &&
               channelQueryData?.sharesEvent?.length > 0
                 ? await openEvent?.()
-                : await _postSharesEvent(
-                    sharesSubject as `0x${string}`,
-                    question
-                  )
+                : await _postSharesEvent(question)
             }
           >
             confirm

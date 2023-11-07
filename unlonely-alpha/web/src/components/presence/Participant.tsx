@@ -34,7 +34,7 @@ const Participant = ({ user, mobile }: Props) => {
     ? `https://ipfs.io/ipfs/${imageUrl.slice(7)}`
     : imageUrl;
 
-  const { rankUrl } = useGetBadges(user?.tokenHolderRank);
+  const { rankUrl } = useGetBadges(user?.channelUserRank);
   const { network } = useNetworkContext();
   const { explorerUrl } = network;
 
