@@ -16,7 +16,7 @@ import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import { ChannelTournament } from "../../components/channels/ChannelTournament";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
-import ChatComponent from "../../components/chat/ChatComponentV2";
+import ChatComponent from "../../components/chat/ChatComponent";
 import { BorderType, OuterBorder } from "../../components/general/OuterBorder";
 import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";

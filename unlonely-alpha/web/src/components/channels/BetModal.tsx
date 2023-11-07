@@ -391,13 +391,13 @@ export default function BetModal({
           args: [generatedKey],
         }),
       ]);
-      console.log(
-        "eventVerified",
-        eventVerified,
-        channelQueryData?.owner?.address,
-        channelQueryData?.sharesEvent?.[0]?.id,
-        generatedKey
-      );
+      // console.log(
+      //   "eventVerified",
+      //   eventVerified,
+      //   channelQueryData?.owner?.address,
+      //   channelQueryData?.sharesEvent?.[0]?.id,
+      //   generatedKey
+      // );
       setDateNow(Date.now());
       setEventEndTimestamp(BigInt(String(endTimestamp)));
       setEventVerified(Boolean(eventVerified));

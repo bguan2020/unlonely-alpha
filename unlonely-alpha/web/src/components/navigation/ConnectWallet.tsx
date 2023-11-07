@@ -61,6 +61,7 @@ const ConnectWallet = ({
                     }
                   >
                     <MenuButton
+                      width={"100%"}
                       as={Button}
                       borderRadius="0"
                       _hover={{ bg: "#020202" }}
@@ -102,6 +103,7 @@ const ConnectWallet = ({
                   }
                 >
                   <MenuButton
+                    width={"100%"}
                     as={Button}
                     borderRadius="0"
                     _hover={{ bg: "#020202" }}
@@ -143,6 +145,7 @@ const ConnectWallet = ({
                 }
               >
                 <MenuButton
+                  width={"100%"}
                   as={Button}
                   borderRadius="0"
                   _hover={{ bg: "#020202" }}

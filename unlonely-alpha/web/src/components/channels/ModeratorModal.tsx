@@ -63,8 +63,8 @@ export default function ModeratorModal({
     >
       {!loading ? (
         <>
-          {moderators?.map((moderator) => (
-            <Box>
+          {moderators?.map((moderator, i) => (
+            <Box key={i}>
               <Flex justifyContent={"space-between"} alignItems="center">
                 <Text color="#9d9d9d">
                   {centerEllipses(moderator?.userAddress, 13)}
