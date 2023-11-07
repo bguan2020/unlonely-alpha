@@ -4,6 +4,35 @@ import * as AWS from "aws-sdk";
 import { Context } from "../../context";
 import opensea from "./opensea.json";
 
+interface ClipData {
+  startTime: number;
+  endTime: number;
+  playbackId: string;
+  name?: string;
+}
+
+interface ClipResponse {
+  task: {
+    id: string;
+  };
+  asset: {
+    id: string;
+    playbackId: string;
+    userId: string;
+    createdAt: number;
+    status: {
+      phase: string;
+      updatedAt: number;
+    };
+    name: string;
+    source: {
+      type: string;
+      sessionId: string;
+    };
+    objectStoreId: string;
+  };
+}
+
 export interface IPostNFCInput {
   title: string;
   videoLink: string;
@@ -22,6 +51,11 @@ export interface IUpdateNFCInput {
 export interface ICreateClipInput {
   title: string;
   channelArn: string;
+}
+
+export interface ICreateLivepeerClipInput {
+  title: string;
+  livepeerPlaybackId: string;
 }
 
 export const postNFC = async (
@@ -149,6 +183,89 @@ export const createClip = async (
   } catch (e) {
     console.log(`createClip Error invoking lambda, id:${id}`, e);
     return { errorMessage: "Error invoking lambda" };
+  }
+};
+
+export const createLivepeerClip = async (
+  data: ICreateLivepeerClipInput,
+  ctx: Context,
+  user: User
+) => {
+  const endTime = Date.now();
+  const startTime = endTime - 30000; // 30 seconds before the endTime in milliseconds
+  const clipData: ClipData = {
+    startTime,
+    endTime,
+    playbackId: data.livepeerPlaybackId,
+    name: data.title,
+  };
+  const headers = {
+    Authorization: `Bearer ${String(process.env.NEXT_PUBLIC_STUDIO_API_KEY)}`,
+    "Content-Type": "application/json",
+  };
+  console.log(
+    "createClip calling livepeer at time",
+    new Date(Date.now()).toISOString(),
+    `id:${endTime}`
+  );
+  try {
+    const response = await fetch("https://livepeer.studio/api/clip", {
+      method: "POST",
+      headers,
+      body: JSON.stringify(clipData),
+    });
+    console.log(
+      "createClip livepeer response at time,",
+      new Date(Date.now()).toISOString(),
+      `id:${endTime}`,
+      `${(Date.now() - endTime) / 1000}s`,
+      response
+    );
+    const responseData: ClipResponse = await response.json();
+    let asset = null;
+    while (true) {
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+      const poll = await fetch(
+        `https://livepeer.studio/api/asset/${responseData.asset.id}`,
+        {
+          method: "GET",
+          headers,
+        }
+      );
+      const res = await poll.json();
+      if (res.status.phase === "ready") {
+        asset = res;
+        break;
+      }
+      if (res.status.phase === "failed") {
+        return {
+          errorMessage: "createClip Error livepeer could not create clip",
+        };
+      }
+    }
+    console.log(
+      "createClip fetching playback,",
+      new Date(Date.now()).toISOString(),
+      `id:${endTime}`
+    );
+    const playbackData: any = await fetch(
+      `https://livepeer.studio/api/playback/${asset.playbackId}`
+    );
+    const playBackUrl = playbackData.meta.source[0].url;
+    const res = await postNFC(
+      {
+        title: data.title,
+        videoLink: playBackUrl,
+        videoThumbnail: "",
+        openseaLink: "",
+      },
+      ctx,
+      user
+    );
+    return { playBackUrl, thumbnail: "", ...res };
+  } catch (e) {
+    console.log(`createLivepeerClip Error invoking livepeer, id:${endTime}`, e);
+    return { errorMessage: "Error invoking livepeer" };
   }
 };
 

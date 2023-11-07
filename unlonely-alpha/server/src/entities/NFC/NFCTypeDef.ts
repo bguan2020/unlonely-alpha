@@ -64,12 +64,18 @@ export const typeDef = gql`
     channelArn: String!
   }
 
+  input CreateLivepeerClipInput {
+    title: String!
+    livepeerPlaybackId: String!
+  }
+
   extend type Query {
     getNFCFeed(data: NFCFeedInput): [NFC]
     getNFC(id: ID!): NFC
   }
 
   extend type Mutation {
+    createLivepeerClip(data: CreateLivepeerClipInput): ClipNFCOutput
     createClip(data: CreateClipInput): ClipNFCOutput
     postNFC(data: PostNFCInput!): NFC
     updateNFC(data: UpdateNFCInput!): NFC
