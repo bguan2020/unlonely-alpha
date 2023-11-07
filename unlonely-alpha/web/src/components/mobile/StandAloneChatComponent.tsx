@@ -45,18 +45,7 @@ const StandaloneAblyChatComponent = ({
   previewStream,
   handleShowPreviewStream,
 }: Props) => {
-  const {
-    channel: channelContext,
-    chat,
-    // holders: holdersContext,
-    arcade,
-  } = useChannelContext();
-  // const {
-  //   data: holdersData,
-  //   loading: holdersLoading,
-  //   error: holdersError,
-  //   refetchTokenHolders,
-  // } = holdersContext;
+  const { channel: channelContext, chat, arcade } = useChannelContext();
   const {
     chatBot,
     handleNotificationsModal,
@@ -117,10 +106,12 @@ const StandaloneAblyChatComponent = ({
   const leaderboardRef = useRef<HTMLDivElement>(null);
   const arcadeRef = useRef<HTMLDivElement>(null);
 
-  const [getSubscription, { loading, data }] =
-    useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
+  const [getSubscription, { data }] = useLazyQuery<GetSubscriptionQuery>(
+    GET_SUBSCRIPTION,
+    {
       fetchPolicy: "network-only",
-    });
+    }
+  );
 
   const { addChannelToSubscription, loading: addLoading } =
     useAddChannelToSubscription({

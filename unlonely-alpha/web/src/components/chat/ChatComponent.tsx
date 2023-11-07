@@ -19,6 +19,7 @@ import {
   Button,
   useToast,
   Input,
+  Spinner,
 } from "@chakra-ui/react";
 import {
   useEffect,
@@ -38,7 +39,7 @@ import {
 } from "../../constants";
 import {
   ChatReturnType,
-  useChat as useChatV2,
+  useChat,
   useChatBox,
 } from "../../hooks/chat/useChatV2";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -82,7 +83,7 @@ const ChatComponent = () => {
     refetchGamblableEventLeaderboard,
   } = leaderboardContext;
 
-  const chat = useChatV2();
+  const chat = useChat();
   const [leaderboard, setLeaderboard] = useState<
     { name: string; totalFees: number }[]
   >([]);
@@ -190,7 +191,6 @@ const ChatComponent = () => {
                   direction="column"
                   position="absolute"
                   style={{ backdropFilter: "blur(6px)" }}
-                  // width={"100%"}
                   left={"10px"}
                   right={"10px"}
                 >
@@ -225,54 +225,12 @@ const ChatComponent = () => {
                       pointerEvents={"none"}
                     />
                   )}
-                  {/* {channelQueryData?.token?.symbol && (
-                    <Text
-                      color={"#B6B6B6"}
-                      fontSize={"14px"}
-                      fontWeight="400"
-                      textAlign={"center"}
-                    >
-                      {`who owns the most $${channelQueryData?.token?.symbol}?`}
-                    </Text>
-                  )} */}
-                  {/* {holdersLoading && (
-                    <Flex justifyContent={"center"} p="20px">
-                      <Spinner />
-                    </Flex>
-                  )} */}
-                  {/* {!holdersLoading && holders.length > 0 && ( */}
                   <TableContainer
                     overflowY={leaderboardIsCollapsed ? "hidden" : "auto"}
                     maxHeight={leaderboardIsCollapsed ? "45px" : "150px"}
                     transition={"max-height 0.2s ease-in-out"}
                   >
                     <Table variant="unstyled" size="xs">
-                      {/* <Thead>
-                        <Tr>
-                          <Th
-                            textTransform={"lowercase"}
-                            fontSize={"20px"}
-                            textAlign="center"
-                          >
-                            rank
-                          </Th>
-                          <Th
-                            textTransform={"lowercase"}
-                            fontSize={"20px"}
-                            textAlign="center"
-                          >
-                            name
-                          </Th>
-                          <Th
-                            textTransform={"lowercase"}
-                            fontSize={"20px"}
-                            textAlign="center"
-                            isNumeric
-                          >
-                            amount
-                          </Th>
-                        </Tr>
-                      </Thead> */}
                       <Tbody>
                         {leaderboard.map((holder, index) => (
                           <Tr>
@@ -297,12 +255,16 @@ const ChatComponent = () => {
                       </Tbody>
                     </Table>
                   </TableContainer>
-                  {/* )} */}
-                  {/* {!holdersLoading && holders.length === 0 && (
+                  {leaderboardLoading && (
+                    <Flex justifyContent={"center"} p="20px">
+                      <Spinner />
+                    </Flex>
+                  )}
+                  {!leaderboardLoading && leaderboard.length === 0 && (
                     <Text textAlign={"center"} p="20px">
-                      no holders found
+                      no leaderboard found
                     </Text>
-                  )} */}
+                  )}
                 </Flex>
               </Flex>
               {selectedTab === "chat" && <Chat chat={chat} />}
@@ -316,7 +278,7 @@ const ChatComponent = () => {
   );
 };
 
-const Trade = ({ chat }: { chat: ChatReturnType }) => {
+export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress, walletIsConnected, user } = useUser();
   const { channel, arcade } = useChannelContext();
   const { channelQueryData, refetch } = channel;

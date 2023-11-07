@@ -21,7 +21,7 @@ import { BorderType, OuterBorder } from "../../components/general/OuterBorder";
 import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
-import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
+import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponentV2";
 // import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
 import {
   CHANNEL_DETAIL_QUERY,
