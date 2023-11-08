@@ -99,6 +99,7 @@ export type Channel = {
   description?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
   isLive?: Maybe<Scalars["Boolean"]>;
+  livepeerPlaybackId?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
   owner: User;
   playbackUrl?: Maybe<Scalars["String"]>;
@@ -214,9 +215,20 @@ export enum GamblableEvent {
   BadgeBuy = "BADGE_BUY",
   BadgeSell = "BADGE_SELL",
   BetCreate = "BET_CREATE",
-  BetNo = "BET_NO",
-  BetYes = "BET_YES",
+  BetNoBuy = "BET_NO_BUY",
+  BetNoSell = "BET_NO_SELL",
+  BetYesBuy = "BET_YES_BUY",
+  BetYesSell = "BET_YES_SELL",
 }
+
+export type GamblableEventLeaderboard = {
+  __typename?: "GamblableEventLeaderboard";
+  chainId: Scalars["Int"];
+  channelId: Scalars["Int"];
+  id: Scalars["ID"];
+  totalFees: Scalars["Float"];
+  user: User;
+};
 
 export type GamblableInteraction = {
   __typename?: "GamblableInteraction";
@@ -247,6 +259,17 @@ export type GetChatInput = {
 
 export type GetDeviceByTokenInput = {
   token: Scalars["String"];
+};
+
+export type GetGamblableEventLeaderboardByChannelIdInput = {
+  chainId: Scalars["Int"];
+  channelId: Scalars["ID"];
+};
+
+export type GetGamblableEventUserRankInput = {
+  chainId: Scalars["Int"];
+  channelId: Scalars["ID"];
+  userAddress: Scalars["String"];
 };
 
 export type GetPoapInput = {
@@ -321,7 +344,7 @@ export type Mutation = {
   postBadgeTrade: GamblableInteraction;
   postBaseLeaderboard: BaseLeaderboard;
   postBet: GamblableInteraction;
-  postBetBuy: GamblableInteraction;
+  postBetTrade: GamblableInteraction;
   postChatByAwsId?: Maybe<Chat>;
   postDeviceToken?: Maybe<DeviceToken>;
   postFirstChat?: Maybe<Chat>;
@@ -385,8 +408,8 @@ export type MutationPostBetArgs = {
   data: PostBetInput;
 };
 
-export type MutationPostBetBuyArgs = {
-  data: PostBetBuyInput;
+export type MutationPostBetTradeArgs = {
+  data: PostBetTradeInput;
 };
 
 export type MutationPostChatByAwsIdArgs = {
@@ -524,7 +547,9 @@ export type Poap = {
 };
 
 export type PostBadgeTradeInput = {
+  chainId: Scalars["Int"];
   channelId: Scalars["ID"];
+  fees: Scalars["Float"];
   isBuying: Scalars["Boolean"];
   userAddress: Scalars["String"];
 };
@@ -533,14 +558,16 @@ export type PostBaseLeaderboardInput = {
   amount: Scalars["Float"];
 };
 
-export type PostBetBuyInput = {
+export type PostBetInput = {
   channelId: Scalars["ID"];
-  isYay: Scalars["Boolean"];
   userAddress: Scalars["String"];
 };
 
-export type PostBetInput = {
+export type PostBetTradeInput = {
+  chainId: Scalars["Int"];
   channelId: Scalars["ID"];
+  fees: Scalars["Float"];
+  type: GamblableEvent;
   userAddress: Scalars["String"];
 };
 
@@ -638,6 +665,8 @@ export type Query = {
   getChannelWithTokenById?: Maybe<Channel>;
   getChannelsByNumberOfBadgeHolders: Array<Maybe<NumberOfHolders>>;
   getDeviceByToken?: Maybe<DeviceToken>;
+  getGamblableEventLeaderboardByChannelId: Array<GamblableEventLeaderboard>;
+  getGamblableEventUserRank: Scalars["Int"];
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
   getNFC?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
@@ -695,6 +724,14 @@ export type QueryGetChannelWithTokenByIdArgs = {
 
 export type QueryGetDeviceByTokenArgs = {
   data: GetDeviceByTokenInput;
+};
+
+export type QueryGetGamblableEventLeaderboardByChannelIdArgs = {
+  data?: InputMaybe<GetGamblableEventLeaderboardByChannelIdInput>;
+};
+
+export type QueryGetGamblableEventUserRankArgs = {
+  data?: InputMaybe<GetGamblableEventUserRankInput>;
 };
 
 export type QueryGetNfcArgs = {
@@ -1004,6 +1041,7 @@ export type ChannelDetailQuery = {
     awsId: string;
     channelArn?: string | null;
     description?: string | null;
+    livepeerPlaybackId?: string | null;
     customButtonPrice?: number | null;
     customButtonAction?: string | null;
     isLive?: boolean | null;
@@ -1040,53 +1078,6 @@ export type ChannelDetailQuery = {
       userAddress: string;
       role: number;
     } | null> | null;
-    chatCommands?: Array<{
-      __typename?: "ChatCommand";
-      command: string;
-      response: string;
-    } | null> | null;
-  } | null;
-};
-
-export type ChannelDetailMobileQueryVariables = Exact<{
-  awsId: Scalars["String"];
-}>;
-
-export type ChannelDetailMobileQuery = {
-  __typename?: "Query";
-  getChannelByAwsId?: {
-    __typename?: "Channel";
-    awsId: string;
-    channelArn?: string | null;
-    description?: string | null;
-    customButtonPrice?: number | null;
-    customButtonAction?: string | null;
-    isLive?: boolean | null;
-    id: string;
-    name?: string | null;
-    slug: string;
-    allowNFCs?: boolean | null;
-    playbackUrl?: string | null;
-    sharesEvent?: Array<{
-      __typename?: "SharesEvent";
-      sharesSubjectQuestion?: string | null;
-      sharesSubjectAddress?: string | null;
-      eventState?: SharesEventState | null;
-    } | null> | null;
-    owner: {
-      __typename?: "User";
-      FCImageUrl?: string | null;
-      lensImageUrl?: string | null;
-      username?: string | null;
-      address: string;
-    };
-    token?: {
-      __typename?: "CreatorToken";
-      id: string;
-      name: string;
-      symbol: string;
-      address: string;
-    } | null;
     chatCommands?: Array<{
       __typename?: "ChatCommand";
       command: string;
@@ -1149,6 +1140,31 @@ export type GetAllUsersWithChannelQuery = {
     address: string;
     username?: string | null;
   } | null> | null;
+};
+
+export type GetGamblableEventUserRankQueryVariables = Exact<{
+  data: GetGamblableEventUserRankInput;
+}>;
+
+export type GetGamblableEventUserRankQuery = {
+  __typename?: "Query";
+  getGamblableEventUserRank: number;
+};
+
+export type GetGamblableEventLeaderboardByChannelIdQueryVariables = Exact<{
+  data: GetGamblableEventLeaderboardByChannelIdInput;
+}>;
+
+export type GetGamblableEventLeaderboardByChannelIdQuery = {
+  __typename?: "Query";
+  getGamblableEventLeaderboardByChannelId: Array<{
+    __typename?: "GamblableEventLeaderboard";
+    chainId: number;
+    channelId: number;
+    id: string;
+    totalFees: number;
+    user: { __typename?: "User"; address: string; username?: string | null };
+  }>;
 };
 
 export type CheckSubscriptionQueryVariables = Exact<{
@@ -1374,13 +1390,13 @@ export type PostBetMutation = {
   postBet: { __typename?: "GamblableInteraction"; id: string };
 };
 
-export type PostBetBuyMutationVariables = Exact<{
-  data: PostBetBuyInput;
+export type PostBetTradeMutationVariables = Exact<{
+  data: PostBetTradeInput;
 }>;
 
-export type PostBetBuyMutation = {
+export type PostBetTradeMutation = {
   __typename?: "Mutation";
-  postBetBuy: { __typename?: "GamblableInteraction"; id: string };
+  postBetTrade: { __typename?: "GamblableInteraction"; id: string };
 };
 
 export type UpdateDeleteChatCommandsMutationVariables = Exact<{
@@ -1898,6 +1914,7 @@ export const ChannelDetailDocument = gql`
       awsId
       channelArn
       description
+      livepeerPlaybackId
       customButtonPrice
       customButtonAction
       isLive
@@ -1987,95 +2004,6 @@ export type ChannelDetailLazyQueryHookResult = ReturnType<
 export type ChannelDetailQueryResult = Apollo.QueryResult<
   ChannelDetailQuery,
   ChannelDetailQueryVariables
->;
-export const ChannelDetailMobileDocument = gql`
-  query ChannelDetailMobile($awsId: String!) {
-    getChannelByAwsId(awsId: $awsId) {
-      awsId
-      channelArn
-      description
-      customButtonPrice
-      customButtonAction
-      isLive
-      id
-      name
-      slug
-      allowNFCs
-      sharesEvent {
-        sharesSubjectQuestion
-        sharesSubjectAddress
-        eventState
-      }
-      owner {
-        FCImageUrl
-        lensImageUrl
-        username
-        address
-      }
-      token {
-        id
-        name
-        symbol
-        address
-      }
-      playbackUrl
-      chatCommands {
-        command
-        response
-      }
-    }
-  }
-`;
-
-/**
- * __useChannelDetailMobileQuery__
- *
- * To run a query within a React component, call `useChannelDetailMobileQuery` and pass it any options that fit your needs.
- * When your component renders, `useChannelDetailMobileQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useChannelDetailMobileQuery({
- *   variables: {
- *      awsId: // value for 'awsId'
- *   },
- * });
- */
-export function useChannelDetailMobileQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    ChannelDetailMobileQuery,
-    ChannelDetailMobileQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    ChannelDetailMobileQuery,
-    ChannelDetailMobileQueryVariables
-  >(ChannelDetailMobileDocument, options);
-}
-export function useChannelDetailMobileLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    ChannelDetailMobileQuery,
-    ChannelDetailMobileQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    ChannelDetailMobileQuery,
-    ChannelDetailMobileQueryVariables
-  >(ChannelDetailMobileDocument, options);
-}
-export type ChannelDetailMobileQueryHookResult = ReturnType<
-  typeof useChannelDetailMobileQuery
->;
-export type ChannelDetailMobileLazyQueryHookResult = ReturnType<
-  typeof useChannelDetailMobileLazyQuery
->;
-export type ChannelDetailMobileQueryResult = Apollo.QueryResult<
-  ChannelDetailMobileQuery,
-  ChannelDetailMobileQueryVariables
 >;
 export const GetRecentStreamInteractionsDocument = gql`
   query GetRecentStreamInteractions(
@@ -2324,6 +2252,129 @@ export type GetAllUsersWithChannelQueryResult = Apollo.QueryResult<
   GetAllUsersWithChannelQuery,
   GetAllUsersWithChannelQueryVariables
 >;
+export const GetGamblableEventUserRankDocument = gql`
+  query GetGamblableEventUserRank($data: GetGamblableEventUserRankInput!) {
+    getGamblableEventUserRank(data: $data)
+  }
+`;
+
+/**
+ * __useGetGamblableEventUserRankQuery__
+ *
+ * To run a query within a React component, call `useGetGamblableEventUserRankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGamblableEventUserRankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGamblableEventUserRankQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetGamblableEventUserRankQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetGamblableEventUserRankQuery,
+    GetGamblableEventUserRankQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetGamblableEventUserRankQuery,
+    GetGamblableEventUserRankQueryVariables
+  >(GetGamblableEventUserRankDocument, options);
+}
+export function useGetGamblableEventUserRankLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetGamblableEventUserRankQuery,
+    GetGamblableEventUserRankQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetGamblableEventUserRankQuery,
+    GetGamblableEventUserRankQueryVariables
+  >(GetGamblableEventUserRankDocument, options);
+}
+export type GetGamblableEventUserRankQueryHookResult = ReturnType<
+  typeof useGetGamblableEventUserRankQuery
+>;
+export type GetGamblableEventUserRankLazyQueryHookResult = ReturnType<
+  typeof useGetGamblableEventUserRankLazyQuery
+>;
+export type GetGamblableEventUserRankQueryResult = Apollo.QueryResult<
+  GetGamblableEventUserRankQuery,
+  GetGamblableEventUserRankQueryVariables
+>;
+export const GetGamblableEventLeaderboardByChannelIdDocument = gql`
+  query GetGamblableEventLeaderboardByChannelId(
+    $data: GetGamblableEventLeaderboardByChannelIdInput!
+  ) {
+    getGamblableEventLeaderboardByChannelId(data: $data) {
+      chainId
+      channelId
+      id
+      totalFees
+      user {
+        address
+        username
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetGamblableEventLeaderboardByChannelIdQuery__
+ *
+ * To run a query within a React component, call `useGetGamblableEventLeaderboardByChannelIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGamblableEventLeaderboardByChannelIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGamblableEventLeaderboardByChannelIdQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetGamblableEventLeaderboardByChannelIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetGamblableEventLeaderboardByChannelIdQuery,
+    GetGamblableEventLeaderboardByChannelIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetGamblableEventLeaderboardByChannelIdQuery,
+    GetGamblableEventLeaderboardByChannelIdQueryVariables
+  >(GetGamblableEventLeaderboardByChannelIdDocument, options);
+}
+export function useGetGamblableEventLeaderboardByChannelIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetGamblableEventLeaderboardByChannelIdQuery,
+    GetGamblableEventLeaderboardByChannelIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetGamblableEventLeaderboardByChannelIdQuery,
+    GetGamblableEventLeaderboardByChannelIdQueryVariables
+  >(GetGamblableEventLeaderboardByChannelIdDocument, options);
+}
+export type GetGamblableEventLeaderboardByChannelIdQueryHookResult = ReturnType<
+  typeof useGetGamblableEventLeaderboardByChannelIdQuery
+>;
+export type GetGamblableEventLeaderboardByChannelIdLazyQueryHookResult =
+  ReturnType<typeof useGetGamblableEventLeaderboardByChannelIdLazyQuery>;
+export type GetGamblableEventLeaderboardByChannelIdQueryResult =
+  Apollo.QueryResult<
+    GetGamblableEventLeaderboardByChannelIdQuery,
+    GetGamblableEventLeaderboardByChannelIdQueryVariables
+  >;
 export const CheckSubscriptionDocument = gql`
   query CheckSubscription($data: ToggleSubscriptionInput!) {
     checkSubscriptionByEndpoint(data: $data)
@@ -3091,55 +3142,55 @@ export type PostBetMutationOptions = Apollo.BaseMutationOptions<
   PostBetMutation,
   PostBetMutationVariables
 >;
-export const PostBetBuyDocument = gql`
-  mutation PostBetBuy($data: PostBetBuyInput!) {
-    postBetBuy(data: $data) {
+export const PostBetTradeDocument = gql`
+  mutation PostBetTrade($data: PostBetTradeInput!) {
+    postBetTrade(data: $data) {
       id
     }
   }
 `;
-export type PostBetBuyMutationFn = Apollo.MutationFunction<
-  PostBetBuyMutation,
-  PostBetBuyMutationVariables
+export type PostBetTradeMutationFn = Apollo.MutationFunction<
+  PostBetTradeMutation,
+  PostBetTradeMutationVariables
 >;
 
 /**
- * __usePostBetBuyMutation__
+ * __usePostBetTradeMutation__
  *
- * To run a mutation, you first call `usePostBetBuyMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostBetBuyMutation` returns a tuple that includes:
+ * To run a mutation, you first call `usePostBetTradeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostBetTradeMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [postBetBuyMutation, { data, loading, error }] = usePostBetBuyMutation({
+ * const [postBetTradeMutation, { data, loading, error }] = usePostBetTradeMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function usePostBetBuyMutation(
+export function usePostBetTradeMutation(
   baseOptions?: Apollo.MutationHookOptions<
-    PostBetBuyMutation,
-    PostBetBuyMutationVariables
+    PostBetTradeMutation,
+    PostBetTradeMutationVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<PostBetBuyMutation, PostBetBuyMutationVariables>(
-    PostBetBuyDocument,
-    options
-  );
+  return Apollo.useMutation<
+    PostBetTradeMutation,
+    PostBetTradeMutationVariables
+  >(PostBetTradeDocument, options);
 }
-export type PostBetBuyMutationHookResult = ReturnType<
-  typeof usePostBetBuyMutation
+export type PostBetTradeMutationHookResult = ReturnType<
+  typeof usePostBetTradeMutation
 >;
-export type PostBetBuyMutationResult =
-  Apollo.MutationResult<PostBetBuyMutation>;
-export type PostBetBuyMutationOptions = Apollo.BaseMutationOptions<
-  PostBetBuyMutation,
-  PostBetBuyMutationVariables
+export type PostBetTradeMutationResult =
+  Apollo.MutationResult<PostBetTradeMutation>;
+export type PostBetTradeMutationOptions = Apollo.BaseMutationOptions<
+  PostBetTradeMutation,
+  PostBetTradeMutationVariables
 >;
 export const UpdateDeleteChatCommandsDocument = gql`
   mutation UpdateDeleteChatCommands($data: UpdateDeleteChatCommandInput!) {

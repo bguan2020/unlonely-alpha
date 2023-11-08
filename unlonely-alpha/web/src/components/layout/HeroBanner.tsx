@@ -5,7 +5,7 @@ const HeroBanner = () => {
     <Flex direction="column" mt="20px" gap="10px">
       <Text
         fontSize={["40px", "55px", "70px"]}
-        fontFamily={"Neue Pixel Sans"}
+        fontFamily={"LoRes15"}
         textAlign="center"
       >
         welcome to unlonely

@@ -33,7 +33,6 @@ const MobileAblyChatComponent = () => {
     scrollRef,
     channelChatCommands,
     sendChatMessage,
-    inputBox,
   } = useChat(chatBot, true);
 
   return (
@@ -85,7 +84,6 @@ const MobileAblyChatComponent = () => {
             <Flex mt="20px" w="100%">
               <ChatForm
                 sendChatMessage={sendChatMessage}
-                inputBox={inputBox}
                 additionalChatCommands={channelChatCommands}
               />
             </Flex>

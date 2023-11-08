@@ -910,8 +910,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelySharesV2.sol": {
-      "lastModificationDate": 1698355168263,
-      "contentHash": "aa6f7305fb28548ec69ad5c5ac0a4307",
+      "lastModificationDate": 1699039022179,
+      "contentHash": "4bfee8114546876e26f41ec2190d9311",
       "sourceName": "contracts/UnlonelySharesV2.sol",
       "solcConfig": {
         "version": "0.8.8",
@@ -986,8 +986,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelyTournament.sol": {
-      "lastModificationDate": 1698359499835,
-      "contentHash": "d4b6da002820bae45c10dfc912a69709",
+      "lastModificationDate": 1699305279323,
+      "contentHash": "a8bf1c130756de09b48c04cf4b125c39",
       "sourceName": "contracts/UnlonelyTournament.sol",
       "solcConfig": {
         "version": "0.8.8",

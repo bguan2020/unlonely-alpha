@@ -54,39 +54,32 @@ const StreamComponent = () => {
       flexDirection="row"
       justifyContent="center"
       width="100%"
-      height={
-        !isStandalone
-          ? { base: "250px", sm: "500px", md: "600px", lg: "700px" }
-          : "25vh"
-      }
+      height={!isStandalone ? { base: "80vh" } : "25vh"}
     >
-      {playbackUrl ? (
-        <IVSPlayer playbackUrl={playbackUrl} />
-      ) : (
-        <Flex
-          direction="column"
-          width="100%"
-          maxW="100%"
-          pl="10px"
-          fontWeight="bold"
-          fontSize="40px"
-          bg="black"
-          borderRadius="10px"
-          justifyContent={"center"}
-        >
-          {channelLoading ? (
-            <Spinner />
-          ) : (
-            <Text
-              fontFamily="Neue Pixel Sans"
-              textAlign="center"
-              fontSize="25px"
-            >
-              missing playback url, stream cannot be reached at this time
-            </Text>
-          )}
-        </Flex>
-      )}
+      <Flex width="100%">
+        {playbackUrl ? (
+          <IVSPlayer playbackUrl={playbackUrl} />
+        ) : (
+          <Flex
+            direction="column"
+            width="100%"
+            maxW="100%"
+            pl="10px"
+            fontWeight="bold"
+            fontSize="40px"
+            bg="black"
+            justifyContent={"center"}
+          >
+            {channelLoading ? (
+              <Spinner />
+            ) : (
+              <Text fontFamily="LoRes15" textAlign="center" fontSize="25px">
+                missing playback url, stream cannot be reached at this time
+              </Text>
+            )}
+          </Flex>
+        )}
+      </Flex>
     </Flex>
   );
 };

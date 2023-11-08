@@ -27,7 +27,7 @@ export type ChatBot = {
 };
 
 export type CustomUser = User & {
-  tokenHolderRank: number;
+  channelUserRank: number;
 };
 
 export type ContractData =

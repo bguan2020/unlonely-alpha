@@ -19,7 +19,7 @@ const ChannelDesc = () => {
     : imageUrl;
 
   return (
-    <Flex direction="row">
+    <Flex direction="row" m="1rem">
       <Avatar
         name={
           channelQueryData?.owner.username
@@ -27,7 +27,7 @@ const ChannelDesc = () => {
             : channelQueryData?.owner.address
         }
         src={ipfsUrl}
-        size="md"
+        size="sm"
       />
       <Flex direction="column" gap={["0px", "16px"]} width="100%">
         <Flex
@@ -41,7 +41,7 @@ const ChannelDesc = () => {
           wordBreak={"break-all"}
         >
           <Text
-            fontSize={["1rem", "1.5rem", "2rem"]}
+            fontSize={["1rem", "1.2rem"]}
             fontWeight="bold"
             noOfLines={2}
             wordBreak={"break-word"}
@@ -52,7 +52,7 @@ const ChannelDesc = () => {
         </Flex>
         <Text
           px="30px"
-          fontSize={["0.8rem", "1.2rem"]}
+          fontSize={["0.5rem", "0.8rem"]}
           width={isStandalone ? "70%" : "unset"}
         >
           {channelQueryData?.description}

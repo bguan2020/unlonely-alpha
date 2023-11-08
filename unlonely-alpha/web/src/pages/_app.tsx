@@ -13,7 +13,7 @@ import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { PrivyWagmiConnector } from "@privy-io/wagmi-connector";
 
-import { Base, Mainnet, Goerli, BaseGoerli } from "../constants/networks";
+import { Base, NETWORKS } from "../constants/networks";
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/context/useUser";
 import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
@@ -33,7 +33,7 @@ function App({ Component, pageProps, cookies }: Props) {
   );
 
   const configureChainsConfig = configureChains(
-    [Base, Mainnet, Goerli, BaseGoerli],
+    NETWORKS, // first chain in array determines the first chain to interact with via publicClient
     [
       alchemyProvider({
         apiKey: "aR93M6MdEC4lgh4VjPXLaMnfBveve1fC",

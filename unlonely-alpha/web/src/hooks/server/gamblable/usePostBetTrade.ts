@@ -4,30 +4,30 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
 import {
-  PostBetBuyMutation,
-  PostBetBuyMutationVariables,
+  PostBetTradeMutation,
+  PostBetTradeMutationVariables,
 } from "../../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
-const POST_BET_BUY_MUTATION = gql`
-  mutation PostBetBuy($data: PostBetBuyInput!) {
-    postBetBuy(data: $data) {
+const POST_BET_TRADE_MUTATION = gql`
+  mutation PostBetTrade($data: PostBetTradeInput!) {
+    postBetTrade(data: $data) {
       id
     }
   }
 `;
 
-const usePostBetBuy = ({ onError }: Props) => {
+const usePostBetTrade = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    PostBetBuyMutation,
-    PostBetBuyMutationVariables
-  >(POST_BET_BUY_MUTATION);
+    PostBetTradeMutation,
+    PostBetTradeMutationVariables
+  >(POST_BET_TRADE_MUTATION);
 
-  const postBetBuy = useCallback(
+  const postBetTrade = useCallback(
     async (data) => {
       try {
         setLoading(true);
@@ -36,14 +36,16 @@ const usePostBetBuy = ({ onError }: Props) => {
             data: {
               channelId: data.channelId,
               userAddress: data.userAddress,
-              isYay: data.isYay,
+              type: data.type,
+              fees: data.fees,
+              chainId: data.chainId,
             },
           },
         });
 
-        const res = mutationResult?.data?.postBetBuy;
+        const res = mutationResult?.data?.postBetTrade;
         if (res) {
-          console.log("postBetBuy success", res);
+          console.log("postBetTrade success", res);
         } else {
           onError && onError();
         }
@@ -52,13 +54,13 @@ const usePostBetBuy = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("postBetBuy error", JSON.stringify(e, null, 2));
+        console.log("postBetTrade error", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]
   );
 
-  return { postBetBuy, loading };
+  return { postBetTrade, loading };
 };
 
-export default usePostBetBuy;
+export default usePostBetTrade;

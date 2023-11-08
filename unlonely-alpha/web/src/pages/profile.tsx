@@ -134,11 +134,7 @@ const Profile = () => {
           gap="1rem"
         >
           <Flex direction="column">
-            <Text
-              color="#e2f979"
-              fontFamily="Neue Pixel Sans"
-              fontSize={"25px"}
-            >
+            <Text color="#e2f979" fontFamily="LoRes15" fontSize={"25px"}>
               connected as
             </Text>
             <Flex justifyContent={"space-between"} alignItems="center">
@@ -167,11 +163,7 @@ const Profile = () => {
             </Flex>
           </Flex>
           <Flex direction="column">
-            <Text
-              fontFamily="Neue Pixel Sans"
-              fontSize={"25px"}
-              color="#e2f979"
-            >
+            <Text fontFamily="LoRes15" fontSize={"25px"} color="#e2f979">
               network
             </Text>
             <Flex justifyContent={"space-between"} alignItems="center">
@@ -205,7 +197,7 @@ const Profile = () => {
             </Flex>
           </Flex>
           <Flex justifyContent={"space-between"} alignItems="center" gap="10px">
-            <Text fontFamily="Neue Pixel Sans" fontSize={"25px"}>
+            <Text fontFamily="LoRes15" fontSize={"25px"}>
               notifications
             </Text>
             <Flex alignItems="center" gap="4px">

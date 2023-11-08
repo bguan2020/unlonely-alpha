@@ -76,7 +76,7 @@ const BaseLeaderboard = ({ count }: { count: number }) => {
         fontSize={{ base: "30px", lg: "40px" }}
         fontWeight="400"
         textAlign={"center"}
-        fontFamily={"Neue Pixel Sans"}
+        fontFamily={"LoRes15"}
       >
         Base Bridge Leaderboard
       </Text>
@@ -152,7 +152,7 @@ const BaseLeaderboard = ({ count }: { count: number }) => {
                     _active={{}}
                     onClick={() => setItemsShown((prev) => prev + 10)}
                   >
-                    <Text fontFamily="Neue Pixel Sans" fontWeight="light">
+                    <Text fontFamily="LoRes15" fontWeight="light">
                       See More
                     </Text>
                   </Button>

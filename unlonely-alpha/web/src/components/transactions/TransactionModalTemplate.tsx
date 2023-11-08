@@ -99,7 +99,7 @@ export const TransactionModalTemplate = ({
                 <Text
                   fontSize="25px"
                   textAlign={"center"}
-                  fontFamily="Neue Pixel Sans"
+                  fontFamily="LoRes15"
                   fontWeight="medium"
                 >
                   {title}

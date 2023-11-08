@@ -67,8 +67,8 @@ export default extendTheme({
   },
 
   fonts: {
-    body: "Neue Pixel Sans, sans-serif",
-    heading: "Neue Pixel Sans, sans-serif",
+    body: "LoRes15, sans-serif",
+    heading: "LoRes15, sans-serif",
   },
 
   styles: {

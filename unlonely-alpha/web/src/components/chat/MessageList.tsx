@@ -3,7 +3,7 @@ import React, { memo, useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 
 import MessageBody from "./MessageBody";
-import { Message } from "../../constants/types/chat";
+import { Message, SenderStatus } from "../../constants/types/chat";
 import { CHAT_MESSAGE_EVENT } from "../../constants";
 
 type MessageListProps = {
@@ -11,6 +11,7 @@ type MessageListProps = {
   channel: any;
   scrollRef: any;
   isAtBottomCallback: (value: boolean) => void;
+  isVipChat?: boolean;
 };
 
 type MessageItemProps = {
@@ -38,9 +39,20 @@ const MessageItem = memo(({ message, channel, index }: MessageItemProps) => {
   );
 });
 const MessageList = memo(
-  ({ messages, channel, scrollRef, isAtBottomCallback }: MessageListProps) => {
+  ({
+    messages,
+    channel,
+    scrollRef,
+    isAtBottomCallback,
+    isVipChat,
+  }: MessageListProps) => {
     const chatMessages = useMemo(
-      () => messages.filter((message) => message.name === CHAT_MESSAGE_EVENT),
+      () =>
+        messages
+          .filter((message) => message.name === CHAT_MESSAGE_EVENT)
+          .filter((message) =>
+            isVipChat ? message.data.senderStatus !== SenderStatus.USER : true
+          ),
       [messages]
     );
 
@@ -50,7 +62,10 @@ const MessageList = memo(
           <Virtuoso
             followOutput={"auto"}
             ref={scrollRef}
-            style={{ height: "100%", overflowY: "scroll" }}
+            style={{
+              height: "100%",
+              overflowY: "scroll",
+            }}
             className="hide-scrollbar"
             data={chatMessages}
             atBottomStateChange={(isAtBottom) => isAtBottomCallback(isAtBottom)}

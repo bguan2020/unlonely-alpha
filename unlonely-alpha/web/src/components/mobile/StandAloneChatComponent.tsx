@@ -7,14 +7,7 @@ import {
   GridItem,
   Spinner,
   Stack,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
   Tooltip,
-  Tr,
   IconButton,
   SimpleGrid,
 } from "@chakra-ui/react";
@@ -31,7 +24,6 @@ import {
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import BuyButton from "../arcade/BuyButton";
 import CoinButton from "../arcade/CoinButton";
 import CustomButton from "../arcade/CustomButton";
@@ -42,7 +34,6 @@ import { GET_SUBSCRIPTION } from "../../constants/queries";
 import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubscription";
 import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChannelFromSubscription";
 import { useChat } from "../../hooks/chat/useChat";
-import { getHolders } from "../../utils/getHolders";
 import { SharesInterface } from "../chat/SharesInterface";
 
 type Props = {
@@ -54,18 +45,7 @@ const StandaloneAblyChatComponent = ({
   previewStream,
   handleShowPreviewStream,
 }: Props) => {
-  const {
-    channel: channelContext,
-    chat,
-    holders: holdersContext,
-    arcade,
-  } = useChannelContext();
-  const {
-    data: holdersData,
-    loading: holdersLoading,
-    error: holdersError,
-    refetchTokenHolders,
-  } = holdersContext;
+  const { channel: channelContext, chat, arcade } = useChannelContext();
   const {
     chatBot,
     handleNotificationsModal,
@@ -105,7 +85,6 @@ const StandaloneAblyChatComponent = ({
     scrollRef,
     channelChatCommands,
     sendChatMessage,
-    inputBox,
   } = useChat(chatBot, true);
   const router = useRouter();
 
@@ -127,10 +106,12 @@ const StandaloneAblyChatComponent = ({
   const leaderboardRef = useRef<HTMLDivElement>(null);
   const arcadeRef = useRef<HTMLDivElement>(null);
 
-  const [getSubscription, { loading, data }] =
-    useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
+  const [getSubscription, { data }] = useLazyQuery<GetSubscriptionQuery>(
+    GET_SUBSCRIPTION,
+    {
       fetchPolicy: "network-only",
-    });
+    }
+  );
 
   const { addChannelToSubscription, loading: addLoading } =
     useAddChannelToSubscription({
@@ -166,20 +147,20 @@ const StandaloneAblyChatComponent = ({
     }
   }, [endpoint]);
 
-  useEffect(() => {
-    if (showLeaderboard && !holdersLoading && !holdersData) {
-      refetchTokenHolders?.();
-    }
-  }, [showLeaderboard]);
+  // useEffect(() => {
+  //   if (showLeaderboard && !holdersLoading && !holdersData) {
+  //     refetchTokenHolders?.();
+  //   }
+  // }, [showLeaderboard]);
 
-  useEffect(() => {
-    if (!holdersLoading && !holdersError && holdersData) {
-      const _holders: { name: string; quantity: number }[] = getHolders(
-        holdersData.getTokenHoldersByChannel
-      );
-      setHolders(_holders);
-    }
-  }, [holdersLoading, holdersError, holdersData]);
+  // useEffect(() => {
+  //   if (!holdersLoading && !holdersError && holdersData) {
+  //     const _holders: { name: string; quantity: number }[] = getHolders(
+  //       holdersData.getTokenHoldersByChannel
+  //     );
+  //     setHolders(_holders);
+  //   }
+  // }, [holdersLoading, holdersError, holdersData]);
 
   useOnClickOutside(infoRef, () => {
     if (showInfo) {
@@ -608,7 +589,7 @@ const StandaloneAblyChatComponent = ({
                     >
                       <Text textAlign="center">
                         {isSharesEventPayout
-                          ? "stop payout"
+                          ? "stop event"
                           : isSharesEventLive
                           ? "lock bets"
                           : isSharesEventLock
@@ -769,7 +750,7 @@ const StandaloneAblyChatComponent = ({
           </Flex>
         </Flex>
       )}
-      {showLeaderboard && (
+      {/* {showLeaderboard && (
         <Flex
           ref={leaderboardRef}
           borderRadius={"5px"}
@@ -875,7 +856,7 @@ const StandaloneAblyChatComponent = ({
             )}
           </Flex>
         </Flex>
-      )}
+      )} */}
       <SharesInterface messages={receivedMessages} />
       <MessageList
         scrollRef={scrollRef}
@@ -903,7 +884,6 @@ const StandaloneAblyChatComponent = ({
       </Flex>
       <ChatForm
         sendChatMessage={sendChatMessage}
-        inputBox={inputBox}
         additionalChatCommands={channelChatCommands}
       />
     </Flex>

@@ -43,37 +43,69 @@
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "activeTournament",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
-        "internalType": "bool",
-        "name": "isActive",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "isWinnerSelected",
-        "type": "bool"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "winningBadge",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "vipPooledEth",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "endTimestamp",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "trader",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "eventByte",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bool",
+            "name": "isBuy",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "badgeAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "ethAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "protocolEthAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "subjectEthAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tournamentEthAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "supply",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pooledEth",
+            "type": "uint256"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct UnlonelyTournament.TradeInfo",
+        "name": "trade",
+        "type": "tuple"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    "name": "Trade",
+    "type": "event"
   },
   {
     "inputs": [
@@ -106,19 +138,6 @@
   {
     "inputs": [],
     "name": "claimTournamentPayout",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "endTimestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "createTournament",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -354,7 +373,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
     "name": "getTournamentPayout",
     "outputs": [
       {
@@ -524,6 +549,24 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "value",
+        "type": "bool"
+      }
+    ],
+    "name": "setTournamentCreator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_feePercent",
         "type": "uint256"
@@ -536,11 +579,46 @@
   },
   {
     "inputs": [],
+    "name": "startTournament",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "subjectFeePercent",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tournament",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "isActive",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isPayoutClaimable",
+        "type": "bool"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "winningBadge",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "vipPooledEth",
         "type": "uint256"
       }
     ],

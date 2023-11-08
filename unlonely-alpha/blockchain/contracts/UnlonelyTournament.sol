@@ -88,19 +88,32 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
 
     struct Tournament {
         bool isActive;
-        bool isWinnerSelected;
+        bool isPayoutClaimable;
         bytes32 winningBadge;
         uint256 vipPooledEth;
-        uint256 endTimestamp;
     }
 
-    Tournament public activeTournament;
+    struct TradeInfo {
+        address trader;
+        bytes32 eventByte;
+        bool isBuy;
+        uint256 badgeAmount;
+        uint256 ethAmount;
+        uint256 protocolEthAmount;
+        uint256 subjectEthAmount;
+        uint256 tournamentEthAmount;
+        uint256 supply;
+        uint256 pooledEth;
+    }
+
+    Tournament public tournament;
 
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
     uint256 public subjectFeePercent;
     uint256 public tournamentFeePercent;
 
+    event Trade(TradeInfo trade);
     event Payout(address indexed voter, uint256 amount);
 
     mapping(bytes32 => uint256) public vipBadgeSupply;
@@ -121,6 +134,9 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
     }
 
     constructor() {
+        // Set the contract deployer as the initial tournament creator
+        isTournamentCreator[msg.sender] = true;
+
         protocolFeePercent = 5 * 10**16; // 5%
         subjectFeePercent = 5 * 10**16;  // 5%
         tournamentFeePercent = 5 * 10**16;  // 5%
@@ -142,63 +158,21 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         tournamentFeePercent = _feePercent;
     }
 
+    function setTournamentCreator(address creator, bool value) public onlyOwner {
+        isTournamentCreator[creator] = value;
+    }
+
 	function generateKey(address streamerAddress, uint256 eventId, EventType eventType) public pure validEventType(eventType) returns (bytes32) {
         require(eventId < 1000000, "ID must be less than 1 million");
         return keccak256(abi.encodePacked(streamerAddress, eventId, eventType));
     }
 
-    function createTournament(uint256 endTimestamp) public onlyTournamentCreator {
-        require(!activeTournament.isActive, "A tournament is already active.");
-        activeTournament = Tournament({
-            isActive: true,
-            isWinnerSelected: false,
-            winningBadge: bytes32(0),
-            vipPooledEth: 0,
-            endTimestamp: endTimestamp
-        });
-    }
-
-    function selectTournamentWinner(address streamerAddress, uint256 eventId, EventType eventType) public onlyTournamentCreator validEventType(eventType) {
-        require(activeTournament.isActive, "No active tournament currently.");
-        require(!activeTournament.isWinnerSelected, "Winner already selected.");
-        bytes32 winningBadge = generateKey(streamerAddress, eventId, eventType);
-        activeTournament.winningBadge = winningBadge;
-        activeTournament.isWinnerSelected = true;
-    }
-
-    function claimTournamentPayout() public nonReentrant {
-        require(activeTournament.isActive, "No active tournament currently.");
-        require(activeTournament.isWinnerSelected, "Winner not selected.");
-        require(vipBadgeBalance[activeTournament.winningBadge][msg.sender] > 0, "No VIP badges to claim payout for.");
-        uint256 totalPool = activeTournament.vipPooledEth;
-        uint256 totalWinningShares = vipBadgeSupply[activeTournament.winningBadge];
-        uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * vipBadgeBalance[activeTournament.winningBadge][msg.sender] / totalWinningShares);
-        require(userPayout > 0, "No payout for user");
-
-        // Reset user's shares after distributing
-        vipBadgeBalance[activeTournament.winningBadge][msg.sender] = 0;
-        vipBadgeSupply[activeTournament.winningBadge] -= vipBadgeBalance[activeTournament.winningBadge][msg.sender];
-
-        // Deduct the user's payout from the sharesSubject's pool
-        activeTournament.vipPooledEth -= userPayout;
-
-        emit Payout(msg.sender, userPayout);
-        (bool success, ) = msg.sender.call{value: userPayout}("");
-        require(success, "Unable to send funds");
-    }
-
-    function getTournamentPayout() public view returns (uint256){
-        if (!activeTournament.isWinnerSelected) return 0;
-        uint256 totalPool = activeTournament.vipPooledEth;
-        uint256 totalWinningShares = vipBadgeSupply[activeTournament.winningBadge];
-        uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * vipBadgeBalance[activeTournament.winningBadge][msg.sender] / totalWinningShares);
+    function getTournamentPayout(address _address) public view returns (uint256){
+        if (!tournament.isPayoutClaimable) return 0;
+        uint256 totalPool = tournament.vipPooledEth;
+        uint256 totalWinningShares = vipBadgeSupply[tournament.winningBadge];
+        uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * vipBadgeBalance[tournament.winningBadge][_address] / totalWinningShares);
         return userPayout;
-    }
-
-    function endTournament() public onlyTournamentCreator {
-        require(activeTournament.isActive, "No active tournament currently.");
-        require(!activeTournament.isWinnerSelected, "Winner already selected.");
-        activeTournament.isActive = false;
     }
 
     function getHolderBalance(address streamerAddress, uint256 eventId, EventType eventType, address holder) public view validEventType(eventType) returns (uint256 balance) {
@@ -232,29 +206,73 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         uint256 price = getBuyPrice(streamerAddress, eventId, eventType, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
-        return price + protocolFee + subjectFee;
+        uint256 tournamentFee = tournament.isActive ? price * tournamentFeePercent / 1 ether : 0;
+        return price + protocolFee + subjectFee + tournamentFee;
     }
 
     function getSellPriceAfterFee(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public view validEventType(eventType) returns (uint256) {
         uint256 price = getSellPrice(streamerAddress, eventId, eventType, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
-        return price - protocolFee - subjectFee;
+        uint256 tournamentFee = tournament.isActive ? price * tournamentFeePercent / 1 ether : 0;
+        return price - protocolFee - subjectFee - tournamentFee;
+    }
+
+    function startTournament() public onlyTournamentCreator {
+        require(!tournament.isActive, "Tournament is already active.");
+        require(!tournament.isPayoutClaimable, "Winner payouts still allowed.");
+        tournament = Tournament({
+            isActive: true,
+            isPayoutClaimable: false,
+            winningBadge: bytes32(0),
+            vipPooledEth: 0
+        });
+    }
+
+    function selectTournamentWinner(address streamerAddress, uint256 eventId, EventType eventType) public onlyTournamentCreator validEventType(eventType) {
+        require(tournament.isActive, "Tournament is not active.");
+        require(!tournament.isPayoutClaimable, "Winner payouts already allowed.");
+        bytes32 winningBadge = generateKey(streamerAddress, eventId, eventType);
+        tournament.winningBadge = winningBadge;
+        tournament.isPayoutClaimable = true;
+        tournament.isActive = false;
+    }
+    
+    function endTournament() public onlyTournamentCreator {
+        require(!tournament.isActive, "Tournament still active.");
+        require(tournament.isPayoutClaimable, "Winner payouts already stopped.");
+        tournament.isPayoutClaimable = false;
     }
 
     function buyVIPBadge(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) {
-        require(activeTournament.isActive, "No active tournament currently.");
+        require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
+        require(amount > 0, "Cannot buy zero badges");
         bytes32 key = generateKey(streamerAddress, eventId, eventType);
         uint256 price = getPrice(vipBadgeSupply[key], amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
-        uint256 tournamentFee = price * tournamentFeePercent / 1 ether;  // Assume tournamentFeePercent is defined
+        uint256 tournamentFee = tournament.isActive ? (price * tournamentFeePercent / 1 ether) : 0;  // Assume tournamentFeePercent is defined
         require(msg.value >= price + protocolFee + subjectFee + tournamentFee, "Insufficient payment");
 
         // Update the contract state
         vipBadgeSupply[key] += amount;
         vipBadgeBalance[key][msg.sender] += amount;
-        activeTournament.vipPooledEth += tournamentFee;
+        tournament.vipPooledEth += tournamentFee;
+
+        TradeInfo memory tradeInfo = TradeInfo({
+            trader: msg.sender,
+            eventByte: key,
+            isBuy: true,
+            badgeAmount: amount,
+            ethAmount: price,
+            protocolEthAmount: protocolFee,
+            subjectEthAmount: subjectFee,
+            tournamentEthAmount: tournamentFee,
+            supply: vipBadgeSupply[key],
+            pooledEth: tournament.vipPooledEth
+        });
+
+        emit Trade(tradeInfo);
 
         // Send protocol and subject fees
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
@@ -263,18 +281,34 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
     }
 
     function sellVIPBadge(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public validEventType(eventType) nonReentrant {
-        require(activeTournament.isActive, "No active tournament");
+        require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
+        require(amount > 0, "Cannot buy zero badges");
         bytes32 key = generateKey(streamerAddress, eventId, eventType);
         require(vipBadgeBalance[key][msg.sender] >= amount, "Insufficient badges");
         uint256 price = getPrice(vipBadgeSupply[key] - amount, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
-        uint256 tournamentFee = price * tournamentFeePercent / 1 ether;  // Assume tournamentFeePercent is defined
+        uint256 tournamentFee = tournament.isActive ? (price * tournamentFeePercent / 1 ether) : 0;  // Assume tournamentFeePercent is defined
 
         // Update the contract state
         vipBadgeSupply[key] -= amount;
         vipBadgeBalance[key][msg.sender] -= amount;
-        activeTournament.vipPooledEth += tournamentFee;
+        tournament.vipPooledEth += tournamentFee;
+
+        TradeInfo memory tradeInfo = TradeInfo({
+            trader: msg.sender,
+            eventByte: key,
+            isBuy: false,
+            badgeAmount: amount,
+            ethAmount: price,
+            protocolEthAmount: protocolFee,
+            subjectEthAmount: subjectFee,
+            tournamentEthAmount: tournamentFee,
+            supply: vipBadgeSupply[key],
+            pooledEth: tournament.vipPooledEth
+        });
+
+        emit Trade(tradeInfo);
 
         // Send protocol and subject fees
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
@@ -285,5 +319,25 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         uint256 netAmount = price - protocolFee - subjectFee - tournamentFee;
         (bool success3, ) = msg.sender.call{value: netAmount}("");
         require(success3, "Unable to send funds");
+    }
+
+    function claimTournamentPayout() public nonReentrant {
+        require(tournament.isPayoutClaimable, "Winner payout not allowed right now");
+        require(vipBadgeBalance[tournament.winningBadge][msg.sender] > 0, "No VIP badges to claim payout for.");
+        uint256 totalPool = tournament.vipPooledEth;
+        uint256 totalWinningShares = vipBadgeSupply[tournament.winningBadge];
+        uint256 userPayout = totalWinningShares == 0 ? 0 : (totalPool * vipBadgeBalance[tournament.winningBadge][msg.sender] / totalWinningShares);
+        require(userPayout > 0, "No payout for user");
+
+        // Reset user's shares after distributing
+        vipBadgeBalance[tournament.winningBadge][msg.sender] = 0;
+        vipBadgeSupply[tournament.winningBadge] -= vipBadgeBalance[tournament.winningBadge][msg.sender];
+
+        // Deduct the user's payout from the sharesSubject's pool
+        tournament.vipPooledEth -= userPayout;
+
+        emit Payout(msg.sender, userPayout);
+        (bool success, ) = msg.sender.call{value: userPayout}("");
+        require(success, "Unable to send funds");
     }
 }

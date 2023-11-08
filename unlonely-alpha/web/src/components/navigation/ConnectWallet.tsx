@@ -1,4 +1,14 @@
-import { Button, Flex, Spinner, Text } from "@chakra-ui/react";
+import { ChevronDownIcon } from "@chakra-ui/icons";
+import {
+  Button,
+  Flex,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Spinner,
+  Text,
+} from "@chakra-ui/react";
 import { usePrivy } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { useCallback, useState } from "react";
@@ -22,6 +32,10 @@ const ConnectWallet = ({
     setIsCloseModalOpen(false);
   }, []);
 
+  const redirectToBridge = () => {
+    window.open(`${window.location.origin}/bridge`, "_blank");
+  };
+
   return (
     <>
       {ready ? (
@@ -39,71 +53,130 @@ const ConnectWallet = ({
                   isModalLoading={false}
                   handleClose={() => setIsCloseModalOpen(false)}
                 />
+                <Menu>
+                  <Flex
+                    p="1px"
+                    bg={
+                      "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                    }
+                  >
+                    <MenuButton
+                      width={"100%"}
+                      as={Button}
+                      borderRadius="0"
+                      _hover={{ bg: "#020202" }}
+                      _focus={{}}
+                      _active={{}}
+                      bg={"#131323"}
+                      rightIcon={<ChevronDownIcon />}
+                    >
+                      <Text>{centerEllipses(userAddress, 13)}</Text>
+                    </MenuButton>
+                  </Flex>
+
+                  <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
+                    <MenuItem
+                      _hover={{ bg: "#1f1f3c" }}
+                      _focus={{}}
+                      _active={{}}
+                      onClick={redirectToBridge}
+                    >
+                      bridge
+                    </MenuItem>
+                    <MenuItem
+                      _hover={{ bg: "#1f1f3c" }}
+                      _focus={{}}
+                      _active={{}}
+                      onClick={() => setIsCloseModalOpen(true)}
+                    >
+                      logout
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </>
+            ) : (
+              <Menu>
                 <Flex
                   p="1px"
                   bg={
                     "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
                   }
-                  borderRadius="10px"
                 >
-                  <Button
-                    _hover={{}}
+                  <MenuButton
+                    width={"100%"}
+                    as={Button}
+                    borderRadius="0"
+                    _hover={{ bg: "#020202" }}
                     _focus={{}}
                     _active={{}}
                     bg={"#131323"}
-                    borderRadius="10px"
-                    width={"100%"}
-                    onClick={() => setIsCloseModalOpen(true)}
+                    rightIcon={<ChevronDownIcon />}
                   >
-                    <Text>
-                      {shouldSayDisconnect
-                        ? "logout"
-                        : centerEllipses(userAddress, 13)}
-                    </Text>
-                  </Button>
+                    <Text>Connect</Text>
+                  </MenuButton>
                 </Flex>
-              </>
-            ) : (
+
+                <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
+                  <MenuItem
+                    _hover={{ bg: "#1f1f3c" }}
+                    _focus={{}}
+                    _active={{}}
+                    onClick={linkWallet}
+                  >
+                    connect
+                  </MenuItem>
+                  <MenuItem
+                    _hover={{ bg: "#1f1f3c" }}
+                    _focus={{}}
+                    _active={{}}
+                    onClick={redirectToBridge}
+                  >
+                    bridge
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            )
+          ) : (
+            <Menu>
               <Flex
                 p="1px"
                 bg={
                   "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
                 }
-                borderRadius="10px"
               >
-                <Button
-                  onClick={linkWallet}
-                  _hover={{}}
+                <MenuButton
+                  width={"100%"}
+                  as={Button}
+                  borderRadius="0"
+                  _hover={{ bg: "#020202" }}
                   _focus={{}}
                   _active={{}}
                   bg={"#131323"}
-                  borderRadius="10px"
-                  width={"100%"}
+                  rightIcon={<ChevronDownIcon />}
                 >
-                  <Text>Connect</Text>
-                </Button>
+                  <Text>Login</Text>
+                </MenuButton>
               </Flex>
-            )
-          ) : (
-            <Flex
-              p="1px"
-              bg={
-                "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-              }
-              borderRadius="10px"
-            >
-              <Button
-                onClick={login}
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                bg={"#131323"}
-                borderRadius="10px"
-                width="100%"
-              >
-                <Text>Login</Text>
-              </Button>
-            </Flex>
+
+              <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
+                <MenuItem
+                  _hover={{ bg: "#1f1f3c" }}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={login}
+                >
+                  login
+                </MenuItem>
+                <MenuItem
+                  _hover={{ bg: "#1f1f3c" }}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={redirectToBridge}
+                >
+                  bridge
+                </MenuItem>
+              </MenuList>
+            </Menu>
           )}
         </>
       ) : (

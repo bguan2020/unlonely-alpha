@@ -299,11 +299,15 @@ export const useGenerateKey = (
 ) => {
   const publicClient = usePublicClient();
 
-  const [key, setKey] = useState<string>("");
+  const [key, setKey] = useState<string>(
+    "0x0000000000000000000000000000000000000000000000000000000000000000"
+  );
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
-      setKey("");
+      setKey(
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      );
       return;
     }
     const key = await publicClient.readContract({
@@ -597,7 +601,6 @@ export const useSellVotes = (
     eventId: number;
     isYay: boolean;
     amountOfVotes: bigint;
-    value: bigint;
   },
   contract: ContractData,
   callbacks?: WriteCallbacks

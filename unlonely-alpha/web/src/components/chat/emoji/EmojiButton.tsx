@@ -16,10 +16,9 @@ import { EmojiType } from "../../../constants/types/chat";
 type Props = {
   onSelectEmoji: (emoji: EmojiType) => void;
   onSelectGif: (gif: string) => void;
-  mobile?: boolean;
 };
 
-const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
+const EmojiButton = ({ onSelectEmoji, onSelectGif }: Props) => {
   return (
     <Popover>
       <PopoverTrigger>

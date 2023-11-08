@@ -19,6 +19,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
 import { ChatBot } from "../../constants/types";
 import { REACTION_EMOJIS } from "../../components/chat/emoji/constants";
+import { SenderStatus } from "../../constants/types/chat";
 
 const initializeEmojis = REACTION_EMOJIS.map((emoji) => ({
   emojiType: emoji,
@@ -31,20 +32,20 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
   const {
     ablyChannel: channel,
     hasMessagesLoaded,
-    setHasMessagesLoaded,
     receivedMessages,
+    allMessages,
     mounted,
   } = useChannel();
   const { user, username, userAddress: address, walletIsConnected } = useUser();
 
   const {
     channel: channelContext,
-    holders: holdersContext,
+    leaderboard,
     chat,
     recentStreamInteractions,
   } = useChannelContext();
   const { channelQueryData } = channelContext;
-  const { userRank } = holdersContext;
+  const { userRank } = leaderboard;
   const { clipping } = chat;
   const { handleIsClipUiOpen } = clipping;
   const { addToTextOverVideo } = recentStreamInteractions;
@@ -59,9 +60,6 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
   });
 
   const toast = useToast();
-
-  /*eslint-disable prefer-const*/
-  let inputBox: HTMLTextAreaElement | null = null;
 
   const channelChatCommands = useMemo(
     () =>
@@ -162,6 +160,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
         isLens: false,
         isGif: false,
         reactions: initializeEmojis,
+        senderStatus: SenderStatus.CHATBOT,
         body,
       },
     });
@@ -177,6 +176,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
   const sendChatMessage = async (
     messageText: string,
     isGif: boolean,
+    senderStatus: SenderStatus,
     body?: string
   ) => {
     if (walletIsConnected && user) {
@@ -190,9 +190,10 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
           isLens: user.isLensUser,
           lensHandle: user.lensHandle,
           address: user.address,
-          tokenHolderRank: userRank,
+          channelUserRank: userRank,
           isGif,
           reactions: initializeEmojis,
+          senderStatus,
           body,
         },
       });
@@ -208,22 +209,16 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
         position: mobile ? "bottom" : "top",
       });
     }
-    if (inputBox) inputBox.focus();
   };
 
   // useeffect to scroll to the bottom of the chat
   useEffect(() => {
     const chat = document.getElementById("chat");
     if (!chat) return;
-    if (!hasMessagesLoaded && receivedMessages.length) {
-      handleScrollToPresent();
-      setHasMessagesLoaded(true);
-      return;
-    }
-    if (isAtBottom) {
+    if ((hasMessagesLoaded && receivedMessages.length) || isAtBottom) {
       handleScrollToPresent();
     }
-  }, [receivedMessages]);
+  }, [receivedMessages, hasMessagesLoaded, isAtBottom]);
 
   useEffect(() => {
     if (mounted) mountingMessages.current = false;
@@ -262,7 +257,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
           );
         }
       } else if (
-        body.split(":")[0] === InteractionType.BUY_SHARES &&
+        body.split(":")[0] === InteractionType.BUY_VOTES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
         const isYay = body.split(":")[2] === "yay";
@@ -274,7 +269,7 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
           </Text>
         );
       } else if (
-        body.split(":")[0] === InteractionType.SELL_SHARES &&
+        body.split(":")[0] === InteractionType.SELL_VOTES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
         const isYay = body.split(":")[2] === "yay";
@@ -320,10 +315,10 @@ export const useChat = (chatBot: ChatBot[], mobile?: boolean) => {
     channel,
     hasMessagesLoaded,
     receivedMessages,
+    allMessages,
     isAtBottom,
     scrollRef,
     channelChatCommands,
     sendChatMessage,
-    inputBox,
   };
 };
