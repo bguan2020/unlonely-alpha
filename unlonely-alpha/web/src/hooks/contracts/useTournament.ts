@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { EventType, NULL_ADDRESS } from "../../constants";
@@ -285,8 +286,38 @@ export const useSetTournamentFeePercent = (
   };
 };
 
+export const useSetTournamentCreator = (
+  args: {
+    creator: string;
+    value: boolean;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: setTournamentCreator,
+    writeData: setTournamentCreatorData,
+    txData: setTournamentCreatorTxData,
+    isTxLoading: setTournamentCreatorTxLoading,
+  } = useWrite(
+    contract,
+    "setTournamentCreator",
+    [args.creator, args.value],
+    createCallbackHandler(
+      "useSetTournamentCreator setTournamentCreator",
+      callbacks
+    )
+  );
+  return {
+    setTournamentCreator,
+    setTournamentCreatorData,
+    setTournamentCreatorTxData,
+    setTournamentCreatorTxLoading,
+  };
+};
+
 export const useGenerateKey = (
-  streamerAddress: `0x${string}`,
+  streamerAddress: string,
   eventId: number,
   contract: ContractData
 ) => {
@@ -297,7 +328,13 @@ export const useGenerateKey = (
   );
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient) {
+    if (
+      !contract.address ||
+      !contract.abi ||
+      !publicClient ||
+      !streamerAddress ||
+      !isAddress(streamerAddress)
+    ) {
       setKey(
         "0x0000000000000000000000000000000000000000000000000000000000000000"
       );
@@ -307,7 +344,7 @@ export const useGenerateKey = (
       address: contract.address,
       abi: contract.abi,
       functionName: "generateKey",
-      args: [streamerAddress, eventId, EventType.VIP_BADGE],
+      args: [streamerAddress as `0x${string}`, eventId, EventType.VIP_BADGE],
     });
     setKey(String(key));
   }, [contract.address, publicClient, streamerAddress, eventId]);

@@ -330,8 +330,8 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         require(userPayout > 0, "No payout for user");
 
         // Reset user's shares after distributing
-        vipBadgeBalance[tournament.winningBadge][msg.sender] = 0;
         vipBadgeSupply[tournament.winningBadge] -= vipBadgeBalance[tournament.winningBadge][msg.sender];
+        vipBadgeBalance[tournament.winningBadge][msg.sender] = 0;
 
         // Deduct the user's payout from the sharesSubject's pool
         tournament.vipPooledEth -= userPayout;

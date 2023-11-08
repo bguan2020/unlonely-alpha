@@ -449,7 +449,7 @@ const AdminContent = () => {
   return (
     <Flex direction="column" p="10px" gap="20px" bg="#636363">
       <Flex>{localNetwork.config.name}</Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         addCreatorToken
       </Text>
       <Flex gap={"10px"} alignItems="flex-end">
@@ -529,7 +529,7 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         useFeature
       </Text>
       <Flex gap={"10px"} alignItems="flex-end">
@@ -578,7 +578,7 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         buyCreatorToken
       </Text>
       <Flex gap={"10px"} alignItems="flex-end">
@@ -640,7 +640,7 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         setTokenPrices
       </Text>
       <Flex gap={"10px"} alignItems="flex-end">
@@ -690,7 +690,7 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         approve (owners only)
       </Text>
       <Flex gap={"10px"} alignItems="flex-end">
@@ -751,7 +751,7 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         admin notifications
       </Text>
       <AdminNotifications />
