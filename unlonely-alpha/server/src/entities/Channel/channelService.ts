@@ -15,6 +15,12 @@ interface Channel extends PrismaChannel {
   thumbnailUrl?: string | null;
 }
 
+type Source = {
+  hrn: string;
+  url: string;
+  type: string;
+};
+
 enum SharesEventState {
   LIVE = "LIVE",
   LOCK = "LOCK",
@@ -230,7 +236,14 @@ export const getChannelFeed = async (
     // Add getThumbnailUrl function call for live channels
     await Promise.all(
       sortedChannels.map(async (channel) => {
-        if (liveChannelArns.includes(channel.channelArn)) {
+        if (
+          channel.livepeerPlaybackId &&
+          livePlaybackIds.includes(channel.livepeerPlaybackId)
+        ) {
+          channel.thumbnailUrl = await getLivepeerThumbnail(
+            channel.livepeerPlaybackId
+          );
+        } else if (liveChannelArns.includes(channel.channelArn)) {
           channel.thumbnailUrl = await getThumbnailUrl(channel.channelArn);
         }
       })
@@ -318,6 +331,29 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
     console.log(
       `getThumbnailUrl Error invoking Lambda function: ${error.message}`
     );
+    return null;
+  }
+};
+
+const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
+  try {
+    const response = await axios.get(
+      `https://livepeer.studio/api/playback/${livepeerPlaybackId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+        },
+      }
+    );
+
+    const thumbnail = response.data.meta.source.find(
+      (source: Source) => source.hrn === "Thumbnail"
+    );
+
+    return thumbnail.url;
+  } catch (error: any) {
+    const { data } = error.response;
+    console.log("getLivepeerThumbnail error", data);
     return null;
   }
 };
