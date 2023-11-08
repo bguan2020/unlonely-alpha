@@ -1,45 +1,61 @@
-import { Button, Flex, Input, Text, useToast, VStack } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Flex,
+  Input,
+  Spinner,
+  Text,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
+import { useEffect, useMemo, useState } from "react";
 import { formatUnits, isAddress, parseUnits } from "viem";
+import Link from "next/link";
 
 import AppLayout from "../components/layout/AppLayout";
-import { filteredInput } from "../utils/validation/input";
+import { NULL_ADDRESS } from "../constants";
+import {
+  useAddCreatorToken,
+  useAdmins,
+  useBuyCreatorToken,
+  useCalculateEthAmount,
+  useReadPublic,
+  useSetTokenPrices,
+  useUseFeature,
+} from "../hooks/contracts/useArcadeContract";
+import { useApproval } from "../hooks/contracts/useApproval";
+import useCreateCreatorToken from "../hooks/server/arcade/useCreateCreatorToken";
+import { useUser } from "../hooks/context/useUser";
+import { getContractFromNetwork } from "../utils/contract";
+import {
+  filteredInput,
+  formatIncompleteNumber,
+} from "../utils/validation/input";
+import useUpdateCreatorTokenPrice from "../hooks/server/arcade/useUpdateTokenPrice";
+import useUpdateUserCreatorTokenQuantity from "../hooks/server/arcade/useUpdateTokenQuantity";
+import CreatorTokenAbi from "../constants/abi/CreatorToken.json";
 import AdminNotifications from "../components/general/AdminNotifications";
 import { useNetworkContext } from "../hooks/context/useNetwork";
-import {
-  useEndTournament,
-  useGenerateKey,
-  useReadMappings,
-  useReadPublic,
-  useSelectTournamentWinner,
-  useSetFeeDestination,
-  useSetProtocolFeePercent,
-  useSetSubjectFeePercent,
-  useSetTournamentFeePercent,
-  useStartTournament,
-} from "../hooks/contracts/useTournament";
-import { getContractFromNetwork } from "../utils/contract";
 
 export default function AdminPage() {
-  // const { user } = useUser();
-  // const { network } = useNetworkContext();
-  // const { localNetwork } = network;
-  // const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
-  // const { admins } = useAdmins(contract);
+  const { user } = useUser();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+  const { admins } = useAdmins(contract);
 
-  // const isAdmin = useMemo(() => {
-  //   if (admins !== undefined && user?.address) {
-  //     const userAddress = user.address;
-  //     return admins.some((admin) => userAddress === admin);
-  //   }
-  //   return false;
-  // }, [user, admins]);
+  const isAdmin = useMemo(() => {
+    if (admins !== undefined && user?.address) {
+      const userAddress = user.address;
+      return admins.some((admin) => userAddress === admin);
+    }
+    return false;
+  }, [user, admins]);
 
   return (
     <AppLayout isCustomHeader={false}>
-      <AdminContent />
-      {/* {isAdmin && <AdminContent />}
-      {!isAdmin && <Text>You're not supposed to be here.</Text>} */}
+      {isAdmin && <AdminContent />}
+      {!isAdmin && <Text>You're not supposed to be here.</Text>}
     </AppLayout>
   );
 }
@@ -48,481 +64,373 @@ const AdminContent = () => {
   const toast = useToast();
   const { network } = useNetworkContext();
   const { localNetwork } = network;
-  const contract = getContractFromNetwork("unlonelyTournament", localNetwork);
-  const [streamerAddress, setStreamerAddress] = useState<string>("");
-  const [_protocolFeeDestination, set_ProtocolFeeDestination] =
+  const contract = getContractFromNetwork("unlonelyArcade", localNetwork);
+  const { explorerUrl } = network;
+  const [creatorTokenAddress, setCreatorTokenAddress] = useState<string>("");
+  const [creatorTokenSymbol, setCreatorTokenSymbol] = useState<string>("");
+  const [creatorTokenName, setCreatorTokenName] = useState<string>("");
+  const [channelId, setChannelId] = useState<string>("");
+  const [newCreatorTokenAddress, setNewCreatorTokenAddress] =
     useState<string>("");
-  const [_subjectFeePercent, set_SubjectFeePercent] = useState<string>("");
-  const [_tournamentFeePercent, set_TournamentFeePercent] =
+  const [tokenOwnerAddress, setTokenOwnerAddress] = useState<string>("");
+
+  const [buyTokenAmount, setBuyTokenAmount] = useState<string>("");
+  const [featurePrice, setFeaturePrice] = useState<string>("");
+  const [initialPrice, setInitialPrice] = useState<string>("");
+  const [newTokenPricesStr, setNewTokenPricesStr] = useState<string>("");
+  const [creatorTokenAddressesStr, setCreatorTokenAddressesStr] =
     useState<string>("");
-  const [_protocolFeePercent, set_ProtocolFeePercent] = useState<string>("");
-  // const { explorerUrl } = network;
-  // const [creatorTokenAddress, setCreatorTokenAddress] = useState<string>("");
-  // const [creatorTokenSymbol, setCreatorTokenSymbol] = useState<string>("");
-  // const [creatorTokenName, setCreatorTokenName] = useState<string>("");
-  // const [channelId, setChannelId] = useState<string>("");
-  // const [newCreatorTokenAddress, setNewCreatorTokenAddress] =
-  //   useState<string>("");
-  // const [tokenOwnerAddress, setTokenOwnerAddress] = useState<string>("");
 
-  // const [buyTokenAmount, setBuyTokenAmount] = useState<string>("");
-  // const [featurePrice, setFeaturePrice] = useState<string>("");
-  // const [initialPrice, setInitialPrice] = useState<string>("");
-  // const [newTokenPricesStr, setNewTokenPricesStr] = useState<string>("");
-  // const [creatorTokenAddressesStr, setCreatorTokenAddressesStr] =
-  //   useState<string>("");
-
-  // const buyTokenAmount_bigint = useMemo(
-  //   () => parseUnits(formatIncompleteNumber(buyTokenAmount) as `${number}`, 18),
-  //   [buyTokenAmount]
-  // );
-
-  // const {
-  //   refetch: refetchPublic,
-  //   creatorToken,
-  //   tokenPrice,
-  //   tokenOwner,
-  // } = useReadPublic(contract, creatorTokenAddress as `0x${string}`);
-
-  // const { amountIn } = useCalculateEthAmount(
-  //   creatorTokenAddress as `0x${string}`,
-  //   contract,
-  //   buyTokenAmount_bigint
-  // );
-
-  // const {
-  //   requiresApproval,
-  //   writeApproval,
-  //   isTxLoading: isApprovalLoading,
-  //   refetchAllowance,
-  // } = useApproval(
-  //   creatorTokenAddress as `0x${string}`,
-  //   CreatorTokenAbi,
-  //   tokenOwner as `0x${string}`,
-  //   contract?.address as `0x${string}`,
-  //   contract?.chainId as number,
-  //   buyTokenAmount_bigint,
-  //   undefined,
-  //   {
-  //     onWriteSuccess: (data) => {
-  //       toast({
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-  //             <Link
-  //               target="_blank"
-  //               href={`${explorerUrl}/tx/${data.hash}`}
-  //               passHref
-  //             >
-  //               approve pending, click to view
-  //             </Link>
-  //           </Box>
-  //         ),
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //     },
-  //     onTxSuccess: (data) => {
-  //       toast({
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-  //             <Link
-  //               target="_blank"
-  //               href={`${explorerUrl}/tx/${data.transactionHash}`}
-  //               passHref
-  //             >
-  //               approve success, click to view
-  //             </Link>
-  //           </Box>
-  //         ),
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //       refetchPublic();
-  //     },
-  //   }
-  // );
-
-  // const {
-  //   addCreatorToken,
-  //   addCreatorTokenData,
-  //   addCreatorTokenTxData,
-  //   addCreatorTokenTxLoading,
-  // } = useAddCreatorToken(
-  //   {
-  //     creatorTokenAddress: newCreatorTokenAddress as `0x${string}`,
-  //     initialPrice: parseUnits(
-  //       formatIncompleteNumber(initialPrice) as `${number}`,
-  //       18
-  //     ),
-  //     tokenOwner: tokenOwnerAddress as `0x${string}`,
-  //   },
-  //   contract,
-  //   {
-  //     onWriteSuccess: (data) => {
-  //       toast({
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-  //             <Link
-  //               target="_blank"
-  //               href={`${explorerUrl}/tx/${data.hash}`}
-  //               passHref
-  //             >
-  //               addCreatorToken pending, click to view
-  //             </Link>
-  //           </Box>
-  //         ),
-  //       });
-  //     },
-  //     onTxSuccess: (data) => {
-  //       toast({
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-  //             <Link
-  //               target="_blank"
-  //               href={`${explorerUrl}/tx/${data.transactionHash}`}
-  //               passHref
-  //             >
-  //               addCreatorToken success, click to view
-  //             </Link>
-  //           </Box>
-  //         ),
-  //       });
-  //       refetchPublic();
-  //     },
-  //   }
-  // );
-
-  // const { createCreatorToken } = useCreateCreatorToken({
-  //   onError: (error: any) => {
-  //     // console.log(error);
-  //   },
-  // });
-
-  // const handleCreateCreatorToken = async () => {
-  //   if (!addCreatorToken) return;
-  //   // first call smart contract
-  //   await addCreatorToken();
-  //   // then call our database
-  //   await createCreatorToken({
-  //     address: newCreatorTokenAddress as `0x${string}`,
-  //     symbol: creatorTokenSymbol,
-  //     name: creatorTokenName,
-  //     price: Number(initialPrice),
-  //     channelId: channelId,
-  //   });
-  // };
-
-  // const { useFeature, useFeatureData, useFeatureTxData, useFeatureTxLoading } =
-  //   useUseFeature(
-  //     {
-  //       creatorTokenAddress: creatorTokenAddress as `0x${string}`,
-  //       featurePrice: parseUnits(
-  //         formatIncompleteNumber(featurePrice) as `${number}`,
-  //         18
-  //       ),
-  //     },
-  //     contract,
-  //     {
-  //       onWriteSuccess: (data) => {
-  //         toast({
-  //           render: () => (
-  //             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-  //               <Link
-  //                 target="_blank"
-  //                 href={`${explorerUrl}/tx/${data.hash}`}
-  //                 passHref
-  //               >
-  //                 useFeature pending, click to view
-  //               </Link>
-  //             </Box>
-  //           ),
-  //           duration: 9000,
-  //           isClosable: true,
-  //           position: "top-right",
-  //         });
-  //       },
-  //       onTxSuccess: (data) => {
-  //         toast({
-  //           render: () => (
-  //             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-  //               <Link
-  //                 target="_blank"
-  //                 href={`${explorerUrl}/tx/${data.transactionHash}`}
-  //                 passHref
-  //               >
-  //                 useFeature success, click to view
-  //               </Link>
-  //             </Box>
-  //           ),
-  //           duration: 9000,
-  //           isClosable: true,
-  //           position: "top-right",
-  //         });
-  //         refetchPublic();
-  //       },
-  //     }
-  //   );
-
-  // const {
-  //   buyCreatorToken,
-  //   buyCreatorTokenData,
-  //   buyCreatorTokenTxData,
-  //   buyCreatorTokenTxLoading,
-  // } = useBuyCreatorToken(
-  //   {
-  //     creatorTokenAddress: creatorTokenAddress as `0x${string}`,
-  //     amountIn,
-  //     amountOut: buyTokenAmount_bigint,
-  //   },
-  //   contract,
-  //   {
-  //     onWriteSuccess: (data) => {
-  //       toast({
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-  //             <Link
-  //               target="_blank"
-  //               href={`${explorerUrl}/tx/${data.hash}`}
-  //               passHref
-  //             >
-  //               buyCreatorToken pending, click to view
-  //             </Link>
-  //           </Box>
-  //         ),
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //     },
-  //     onTxSuccess: (data) => {
-  //       toast({
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-  //             <Link
-  //               target="_blank"
-  //               href={`${explorerUrl}/tx/${data.transactionHash}`}
-  //               passHref
-  //             >
-  //               buyCreatorToken success, click to view
-  //             </Link>
-  //           </Box>
-  //         ),
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //       refetchPublic();
-  //     },
-  //   }
-  // );
-
-  // const { updateUserCreatorTokenQuantity } = useUpdateUserCreatorTokenQuantity({
-  //   onError: (error: any) => {
-  //     // console.log(error);
-  //   },
-  // });
-
-  // const handleBuyCreatorToken = async () => {
-  //   if (!buyCreatorToken) return;
-  //   // first call smart contract
-  //   await buyCreatorToken();
-  //   // then call our database
-  //   await updateUserCreatorTokenQuantity({
-  //     tokenAddress: creatorTokenAddress as `0x${string}`,
-  //     purchasedAmount: Number(buyTokenAmount),
-  //   });
-  // };
-
-  // const {
-  //   setTokenPrices,
-  //   setTokenPricesData,
-  //   setTokenPricesTxData,
-  //   setTokenPricesTxLoading,
-  // } = useSetTokenPrices(
-  //   {
-  //     creatorTokens: creatorTokenAddressesStr.split(",") as `0x${string}`[],
-  //     newPrices: newTokenPricesStr
-  //       .split(",")
-  //       .map((p) => parseUnits(formatIncompleteNumber(p) as `${number}`, 18)),
-  //   },
-  //   contract,
-  //   {
-  //     onWriteSuccess: async (data) => {
-  //       toast({
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-  //             <Link
-  //               target="_blank"
-  //               href={`${explorerUrl}/tx/${data.hash}`}
-  //               passHref
-  //             >
-  //               setTokenPrices pending, click to view
-  //             </Link>
-  //           </Box>
-  //         ),
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //     },
-  //     onTxSuccess: async (data) => {
-  //       // then call our database
-  //       await Promise.all(
-  //         creatorTokenAddressesStr
-  //           .split(",")
-  //           .map(async (tokenAddress, index) => {
-  //             await updateCreatorTokenPrice({
-  //               tokenAddress: tokenAddress as `0x${string}`,
-  //               price: Number(newTokenPricesStr.split(",")[index]),
-  //             });
-  //           })
-  //       );
-  //       toast({
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-  //             <Link
-  //               target="_blank"
-  //               href={`${explorerUrl}/tx/${data.transactionHash}`}
-  //               passHref
-  //             >
-  //               setTokenPrices success, click to view
-  //             </Link>
-  //           </Box>
-  //         ),
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //       refetchPublic();
-  //     },
-  //   }
-  // );
-
-  // const { updateCreatorTokenPrice } = useUpdateCreatorTokenPrice({
-  //   onError: (error: any) => {
-  //     // console.log(error);
-  //   },
-  // });
-
-  // const handleSetTokenPrices = async () => {
-  //   if (
-  //     !setTokenPrices ||
-  //     newTokenPricesStr.split(",").length !==
-  //       creatorTokenAddressesStr.split(",").length
-  //   )
-  //     return;
-  //   // first call smart contract
-  //   await setTokenPrices();
-  // };
-
-  const {
-    refetch,
-    tournament,
-    protocolFeeDestination,
-    protocolFeePercent,
-    subjectFeePercent,
-    tournamentFeePercent,
-  } = useReadPublic(contract);
-
-  const { key, refetch: refetchKey } = useGenerateKey(
-    streamerAddress as `0x${string}`,
-    0,
-    contract
+  const buyTokenAmount_bigint = useMemo(
+    () => parseUnits(formatIncompleteNumber(buyTokenAmount) as `${number}`, 18),
+    [buyTokenAmount]
   );
 
   const {
-    setFeeDestination,
-    setFeeDestinationData,
-    setFeeDestinationTxData,
-    setFeeDestinationTxLoading,
-  } = useSetFeeDestination(
-    { feeDestination: _protocolFeeDestination as `0x${string}` },
-    contract
+    refetch: refetchPublic,
+    creatorToken,
+    tokenPrice,
+    tokenOwner,
+  } = useReadPublic(contract, creatorTokenAddress as `0x${string}`);
+
+  const { amountIn } = useCalculateEthAmount(
+    creatorTokenAddress as `0x${string}`,
+    contract,
+    buyTokenAmount_bigint
   );
 
   const {
-    setProtocolFeePercent,
-    setProtocolFeePercentData,
-    setProtocolFeePercentTxData,
-    setProtocolFeePercentTxLoading,
-  } = useSetProtocolFeePercent(
+    requiresApproval,
+    writeApproval,
+    isTxLoading: isApprovalLoading,
+    refetchAllowance,
+  } = useApproval(
+    creatorTokenAddress as `0x${string}`,
+    CreatorTokenAbi,
+    tokenOwner as `0x${string}`,
+    contract?.address as `0x${string}`,
+    contract?.chainId as number,
+    buyTokenAmount_bigint,
+    undefined,
     {
-      feePercent: parseUnits(_protocolFeePercent as `${number}`, 18),
-    },
-    contract
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                approve pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+      onTxSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                approve success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchPublic();
+      },
+    }
   );
 
   const {
-    setSubjectFeePercent,
-    setSubjectFeePercentData,
-    setSubjectFeePercentTxData,
-    setSubjectFeePercentTxLoading,
-  } = useSetSubjectFeePercent(
+    addCreatorToken,
+    addCreatorTokenData,
+    addCreatorTokenTxData,
+    addCreatorTokenTxLoading,
+  } = useAddCreatorToken(
     {
-      feePercent: parseUnits(_subjectFeePercent as `${number}`, 18),
+      creatorTokenAddress: newCreatorTokenAddress as `0x${string}`,
+      initialPrice: parseUnits(
+        formatIncompleteNumber(initialPrice) as `${number}`,
+        18
+      ),
+      tokenOwner: tokenOwnerAddress as `0x${string}`,
     },
-    contract
-  );
-
-  const {
-    setTournamentFeePercent,
-    setTournamentFeePercentData,
-    setTournamentFeePercentTxData,
-    setTournamentFeePercentTxLoading,
-  } = useSetTournamentFeePercent(
+    contract,
     {
-      feePercent: parseUnits(_tournamentFeePercent as `${number}`, 18),
-    },
-    contract
+      onWriteSuccess: (data) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                addCreatorToken pending, click to view
+              </Link>
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: (data) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                addCreatorToken success, click to view
+              </Link>
+            </Box>
+          ),
+        });
+        refetchPublic();
+      },
+    }
   );
 
-  const {
-    refetch: getData,
-    vipBadgeSupply,
-    isTournamentCreator,
-  } = useReadMappings(key, contract);
+  const { createCreatorToken } = useCreateCreatorToken({
+    onError: (error: any) => {
+      // console.log(error);
+    },
+  });
 
-  useEffect(() => {
-    getData();
-  }, [key]);
+  const handleCreateCreatorToken = async () => {
+    if (!addCreatorToken) return;
+    // first call smart contract
+    await addCreatorToken();
+    // then call our database
+    await createCreatorToken({
+      address: newCreatorTokenAddress as `0x${string}`,
+      symbol: creatorTokenSymbol,
+      name: creatorTokenName,
+      price: Number(initialPrice),
+      channelId: channelId,
+    });
+  };
+
+  const { useFeature, useFeatureData, useFeatureTxData, useFeatureTxLoading } =
+    useUseFeature(
+      {
+        creatorTokenAddress: creatorTokenAddress as `0x${string}`,
+        featurePrice: parseUnits(
+          formatIncompleteNumber(featurePrice) as `${number}`,
+          18
+        ),
+      },
+      contract,
+      {
+        onWriteSuccess: (data) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`${explorerUrl}/tx/${data.hash}`}
+                  passHref
+                >
+                  useFeature pending, click to view
+                </Link>
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
+        onTxSuccess: (data) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`${explorerUrl}/tx/${data.transactionHash}`}
+                  passHref
+                >
+                  useFeature success, click to view
+                </Link>
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+          refetchPublic();
+        },
+      }
+    );
 
   const {
-    startTournament,
-    startTournamentData,
-    startTournamentTxData,
-    startTournamentTxLoading,
-    refetchStartTournament,
-  } = useStartTournament(contract);
-
-  const {
-    selectTournamentWinner,
-    selectTournamentWinnerData,
-    selectTournamentWinnerTxData,
-    selectTournamentWinnerTxLoading,
-    refetchSelectTournamentWinner,
-  } = useSelectTournamentWinner(
+    buyCreatorToken,
+    buyCreatorTokenData,
+    buyCreatorTokenTxData,
+    buyCreatorTokenTxLoading,
+  } = useBuyCreatorToken(
     {
-      streamerAddress: streamerAddress as `0x${string}`,
-      eventId: 0,
+      creatorTokenAddress: creatorTokenAddress as `0x${string}`,
+      amountIn,
+      amountOut: buyTokenAmount_bigint,
     },
-    contract
+    contract,
+    {
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                buyCreatorToken pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+      onTxSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                buyCreatorToken success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchPublic();
+      },
+    }
   );
 
+  const { updateUserCreatorTokenQuantity } = useUpdateUserCreatorTokenQuantity({
+    onError: (error: any) => {
+      // console.log(error);
+    },
+  });
+
+  const handleBuyCreatorToken = async () => {
+    if (!buyCreatorToken) return;
+    // first call smart contract
+    await buyCreatorToken();
+    // then call our database
+    await updateUserCreatorTokenQuantity({
+      tokenAddress: creatorTokenAddress as `0x${string}`,
+      purchasedAmount: Number(buyTokenAmount),
+    });
+  };
+
   const {
-    endTournament,
-    endTournamentData,
-    endTournamentTxData,
-    endTournamentTxLoading,
-    refetchEndTournament,
-  } = useEndTournament(contract);
+    setTokenPrices,
+    setTokenPricesData,
+    setTokenPricesTxData,
+    setTokenPricesTxLoading,
+  } = useSetTokenPrices(
+    {
+      creatorTokens: creatorTokenAddressesStr.split(",") as `0x${string}`[],
+      newPrices: newTokenPricesStr
+        .split(",")
+        .map((p) => parseUnits(formatIncompleteNumber(p) as `${number}`, 18)),
+    },
+    contract,
+    {
+      onWriteSuccess: async (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                setTokenPrices pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+      onTxSuccess: async (data) => {
+        // then call our database
+        await Promise.all(
+          creatorTokenAddressesStr
+            .split(",")
+            .map(async (tokenAddress, index) => {
+              await updateCreatorTokenPrice({
+                tokenAddress: tokenAddress as `0x${string}`,
+                price: Number(newTokenPricesStr.split(",")[index]),
+              });
+            })
+        );
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                setTokenPrices success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchPublic();
+      },
+    }
+  );
+
+  const { updateCreatorTokenPrice } = useUpdateCreatorTokenPrice({
+    onError: (error: any) => {
+      // console.log(error);
+    },
+  });
+
+  const handleSetTokenPrices = async () => {
+    if (
+      !setTokenPrices ||
+      newTokenPricesStr.split(",").length !==
+        creatorTokenAddressesStr.split(",").length
+    )
+      return;
+    // first call smart contract
+    await setTokenPrices();
+  };
 
   const handleInputChange = (
     event: any,
@@ -534,280 +442,14 @@ const AdminContent = () => {
     callback(filtered);
   };
 
-  // useEffect(() => {
-  //   if (creatorTokenAddress) refetchAllowance();
-  // }, [buyCreatorTokenTxLoading, isApprovalLoading]);
+  useEffect(() => {
+    if (creatorTokenAddress) refetchAllowance();
+  }, [buyCreatorTokenTxLoading, isApprovalLoading]);
 
   return (
     <Flex direction="column" p="10px" gap="20px" bg="#636363">
       <Flex>{localNetwork.config.name}</Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
-        tournament
-      </Text>
-      <Flex gap={"10px"} alignItems="flex-end">
-        <VStack>
-          <Text>isActive</Text>
-          <Input
-            variant="glow"
-            width="300px"
-            isReadOnly
-            value={tournament.isActive ? "true" : "false"}
-          />
-        </VStack>
-        <VStack>
-          <Text>isPayoutClaimable</Text>
-          <Input
-            variant="glow"
-            width="300px"
-            isReadOnly
-            value={tournament.isPayoutClaimable ? "true" : "false"}
-          />
-        </VStack>
-        <VStack>
-          <Text>winningBadge</Text>
-          <Input
-            variant="glow"
-            width="300px"
-            isReadOnly
-            value={tournament.winningBadge}
-          />
-        </VStack>
-        <VStack>
-          <Text>vipPooledEth</Text>
-          <Input
-            variant="glow"
-            width="300px"
-            isReadOnly
-            value={String(tournament.vipPooledEth)}
-          />
-        </VStack>
-      </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
-        setFeeDestination
-      </Text>
-      <Flex gap={"10px"} alignItems="flex-end">
-        <VStack>
-          <Text>current</Text>
-          <Input
-            width="400px"
-            variant="glow"
-            readOnly
-            value={protocolFeeDestination}
-          />
-        </VStack>
-        <VStack>
-          <Text>new</Text>
-          <Input
-            width="400px"
-            variant="glow"
-            isInvalid={!isAddress(_protocolFeeDestination)}
-            value={_protocolFeeDestination}
-            onChange={(e) => set_ProtocolFeeDestination(e.target.value)}
-          />
-        </VStack>
-        <Button
-          bg="#131323"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={setFeeDestination}
-          isDisabled={!setFeeDestination}
-        >
-          Send
-        </Button>
-      </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
-        setProtocolFeePercent
-      </Text>
-      <Flex gap={"10px"} alignItems="flex-end">
-        <VStack>
-          <Text>current</Text>
-          <Input
-            width="400px"
-            variant="glow"
-            readOnly
-            value={formatUnits(protocolFeePercent, 18)}
-          />
-        </VStack>
-        <VStack>
-          <Text>new</Text>
-          <Input
-            width="400px"
-            variant="glow"
-            value={_protocolFeePercent}
-            onChange={(e) => set_ProtocolFeePercent(e.target.value)}
-          />
-        </VStack>
-        <Button
-          bg="#131323"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={setProtocolFeePercent}
-          isDisabled={!setProtocolFeePercent}
-        >
-          Send
-        </Button>
-      </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
-        setSubjectFeePercent
-      </Text>
-      <Flex gap={"10px"} alignItems="flex-end">
-        <VStack>
-          <Text>current</Text>
-          <Input
-            width="400px"
-            variant="glow"
-            readOnly
-            value={formatUnits(subjectFeePercent, 18)}
-          />
-        </VStack>
-        <VStack>
-          <Text>new</Text>
-          <Input
-            width="400px"
-            variant="glow"
-            value={_subjectFeePercent}
-            onChange={(e) => set_SubjectFeePercent(e.target.value)}
-          />
-        </VStack>
-        <Button
-          bg="#131323"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={setSubjectFeePercent}
-          isDisabled={!setSubjectFeePercent}
-        >
-          Send
-        </Button>
-      </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
-        setTournamentFeePercent
-      </Text>
-      <Flex gap={"10px"} alignItems="flex-end">
-        <VStack>
-          <Text>current</Text>
-          <Input
-            width="400px"
-            variant="glow"
-            readOnly
-            value={formatUnits(tournamentFeePercent, 18)}
-          />
-        </VStack>
-        <VStack>
-          <Text>new</Text>
-          <Input
-            width="400px"
-            variant="glow"
-            value={_tournamentFeePercent}
-            onChange={(e) => set_TournamentFeePercent(e.target.value)}
-          />
-        </VStack>
-        <Button
-          bg="#131323"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={setTournamentFeePercent}
-          isDisabled={!setTournamentFeePercent}
-        >
-          Send
-        </Button>
-      </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
-        key
-      </Text>
-      <Flex gap={"10px"} alignItems="flex-end">
-        <VStack>
-          <Text>streamerAddress</Text>
-          <Input
-            width="400px"
-            variant="glow"
-            isInvalid={!isAddress(streamerAddress)}
-            value={streamerAddress}
-            onChange={(e) => setStreamerAddress(e.target.value)}
-          />
-        </VStack>
-        <VStack>
-          <Text>generated key</Text>
-          <Input width="400px" variant="glow" readOnly value={key} />
-        </VStack>
-        <VStack>
-          <Text>vipBadgeSupply</Text>
-          <Input
-            width="200px"
-            variant="glow"
-            readOnly
-            value={String(vipBadgeSupply)}
-          />
-        </VStack>
-        <VStack>
-          <Text>isTournamentCreator</Text>
-          <Input
-            width="200px"
-            variant="glow"
-            readOnly
-            value={isTournamentCreator ? "true" : "false"}
-          />
-        </VStack>
-      </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
-        startTournament
-      </Text>
-      <Flex gap={"10px"} alignItems="flex-end">
-        <Button
-          bg="#131323"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={startTournament}
-          isDisabled={!startTournament}
-        >
-          Send
-        </Button>
-      </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
-        selectTournamentWinner
-      </Text>
-      <Flex gap={"10px"} alignItems="flex-end">
-        <VStack>
-          <Text>streamerAddress</Text>
-          <Input
-            width="400px"
-            variant="glow"
-            isInvalid={!isAddress(streamerAddress)}
-            value={streamerAddress}
-            onChange={(e) => setStreamerAddress(e.target.value)}
-          />
-        </VStack>
-        <Button
-          bg="#131323"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={selectTournamentWinner}
-          isDisabled={!selectTournamentWinner}
-        >
-          Send
-        </Button>
-      </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
-        endTournament
-      </Text>
-      <Flex gap={"10px"} alignItems="flex-end">
-        <Button
-          bg="#131323"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-          onClick={endTournament}
-          isDisabled={!endTournament}
-        >
-          Send
-        </Button>
-      </Flex>
-      {/* <Text fontSize="25px" fontFamily="LoRes15">
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         addCreatorToken
       </Text>
       <Flex gap={"10px"} alignItems="flex-end">
@@ -887,7 +529,7 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         useFeature
       </Text>
       <Flex gap={"10px"} alignItems="flex-end">
@@ -936,7 +578,7 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         buyCreatorToken
       </Text>
       <Flex gap={"10px"} alignItems="flex-end">
@@ -998,7 +640,7 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         setTokenPrices
       </Text>
       <Flex gap={"10px"} alignItems="flex-end">
@@ -1048,7 +690,7 @@ const AdminContent = () => {
           </Button>
         )}
       </Flex>
-      <Text fontSize="25px" fontFamily="LoRes15">
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         approve (owners only)
       </Text>
       <Flex gap={"10px"} alignItems="flex-end">
@@ -1108,8 +750,8 @@ const AdminContent = () => {
             Send
           </Button>
         )}
-      </Flex> */}
-      <Text fontSize="25px" fontFamily="LoRes15">
+      </Flex>
+      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         admin notifications
       </Text>
       <AdminNotifications />
