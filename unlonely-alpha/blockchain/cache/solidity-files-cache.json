@@ -20,12 +20,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -42,8 +48,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\node_modules\\hardhat\\console.sol": {
-      "lastModificationDate": 1691179410640,
-      "contentHash": "cc4777addd464ea56fa35b1c45df0591",
+      "lastModificationDate": 1699480509245,
+      "contentHash": "896f68942c3a20e9ae3c3c5bfd3add54",
       "sourceName": "hardhat/console.sol",
       "solcConfig": {
         "version": "0.8.8",
@@ -60,12 +66,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -96,12 +108,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -136,12 +154,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -174,12 +198,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -210,12 +240,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -248,12 +284,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -284,12 +326,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -328,12 +376,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -366,12 +420,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -402,12 +462,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -440,12 +506,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -476,12 +548,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -514,12 +592,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -552,12 +636,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -588,12 +678,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -624,12 +720,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -662,12 +764,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -702,12 +810,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -738,12 +852,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -778,12 +898,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -814,12 +940,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -854,12 +986,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -910,7 +1048,7 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelySharesV2.sol": {
-      "lastModificationDate": 1699039022179,
+      "lastModificationDate": 1699479566400,
       "contentHash": "4bfee8114546876e26f41ec2190d9311",
       "sourceName": "contracts/UnlonelySharesV2.sol",
       "solcConfig": {
@@ -928,12 +1066,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -968,12 +1112,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
@@ -986,7 +1136,7 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelyTournament.sol": {
-      "lastModificationDate": 1699469232928,
+      "lastModificationDate": 1699479566401,
       "contentHash": "967cbf5a151b5dbf295e0821107615af",
       "sourceName": "contracts/UnlonelyTournament.sol",
       "solcConfig": {
@@ -1004,12 +1154,18 @@
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
                 "metadata",
-                "storageLayout"
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
               ],
               "": [
                 "ast"
               ]
             }
+          },
+          "metadata": {
+            "useLiteralContent": true
           }
         }
       },
