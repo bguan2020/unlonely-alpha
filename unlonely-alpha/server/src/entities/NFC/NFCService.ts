@@ -1,5 +1,6 @@
 import { User } from "@prisma/client";
 import * as AWS from "aws-sdk";
+import axios from "axios";
 
 import { Context } from "../../context";
 import opensea from "./opensea.json";
@@ -32,6 +33,12 @@ interface ClipResponse {
     objectStoreId: string;
   };
 }
+
+type Source = {
+  hrn: string;
+  url: string;
+  type: string;
+};
 
 export interface IPostNFCInput {
   title: string;
@@ -252,17 +259,31 @@ export const createLivepeerClip = async (
       `https://livepeer.studio/api/playback/${asset.playbackId}`
     );
     const playBackUrl = playbackData.meta.source[0].url;
+
+    const thumbnailResponse = await axios.get(
+      `https://livepeer.studio/api/playback/${asset.playbackId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+        },
+      }
+    );
+
+    const thumbnail = thumbnailResponse.data.meta.source.find(
+      (source: Source) => source.hrn === "Thumbnail"
+    );
+
     const res = await postNFC(
       {
         title: data.title,
         videoLink: playBackUrl,
-        videoThumbnail: "",
+        videoThumbnail: thumbnail.url,
         openseaLink: "",
       },
       ctx,
       user
     );
-    return { playBackUrl, thumbnail: "", ...res };
+    return { playBackUrl, thumbnail: thumbnail.url, ...res };
   } catch (e) {
     console.log(`createLivepeerClip Error invoking livepeer, id:${endTime}`, e);
     return { errorMessage: "Error invoking livepeer" };
