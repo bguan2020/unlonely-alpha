@@ -2,6 +2,1567 @@
   "version": "3.2",
   "log": [
     {
+      "Ownable": {
+        "src": "contracts\\UnlonelyTournament.sol:16",
+        "inherit": [
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "owner()",
+          "renounceOwnership()",
+          "transferOwnership(address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "Ownable",
+            "src": "contracts\\UnlonelyTournament.sol:24"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelyTournament.sol:17"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "ReentrancyGuard": {
+        "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:22",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "ReentrancyGuard",
+            "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:39"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            }
+          ],
+          "types": {
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "ERC20": {
+        "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:35",
+        "version": {
+          "withMetadata": "cc77f09e978e3fea06470b9e13c609aedd789d7073046910c6df4525ea73e0da",
+          "withoutMetadata": "7a4b8526f9f3098ae88cbb0401a58cc50d73e8a24aa61e1e06d1cc8c626e7400",
+          "linkedWithoutMetadata": "7a4b8526f9f3098ae88cbb0401a58cc50d73e8a24aa61e1e06d1cc8c626e7400"
+        },
+        "inherit": [
+          "IERC20Metadata",
+          "IERC20",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "(string,string)",
+          "name()",
+          "symbol()",
+          "decimals()",
+          "totalSupply()",
+          "balanceOf(address)",
+          "transfer(address,uint256)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transferFrom(address,address,uint256)",
+          "increaseAllowance(address,uint256)",
+          "decreaseAllowance(address,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "ERC20",
+            "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:54"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_balances",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "ERC20",
+              "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:36"
+            },
+            {
+              "label": "_allowances",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "contract": "ERC20",
+              "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:38"
+            },
+            {
+              "label": "_totalSupply",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_uint256",
+              "contract": "ERC20",
+              "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:40"
+            },
+            {
+              "label": "_name",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_string_storage",
+              "contract": "ERC20",
+              "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:42"
+            },
+            {
+              "label": "_symbol",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_string_storage",
+              "contract": "ERC20",
+              "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:43"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+              "label": "mapping(address => mapping(address => uint256))"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_string_storage": {
+              "label": "string"
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "IERC20": {
+        "src": "@openzeppelin\\contracts\\token\\ERC20\\IERC20.sol:9",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "totalSupply()",
+          "balanceOf(address)",
+          "transfer(address,uint256)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transferFrom(address,address,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "IERC20Metadata": {
+        "src": "@openzeppelin\\contracts\\token\\ERC20\\extensions\\IERC20Metadata.sol:13",
+        "inherit": [
+          "IERC20"
+        ],
+        "libraries": [],
+        "methods": [
+          "name()",
+          "symbol()",
+          "decimals()"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "IERC20Permit": {
+        "src": "@openzeppelin\\contracts\\token\\ERC20\\extensions\\draft-IERC20Permit.sol:14",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)",
+          "nonces(address)",
+          "DOMAIN_SEPARATOR()"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "SafeERC20": {
+        "src": "@openzeppelin\\contracts\\token\\ERC20\\utils\\SafeERC20.sol:19",
+        "version": {
+          "withMetadata": "089f2240cf711b3b7144a5fcf4deb02b91dcaaf32ff23704b0a1ca23e3045e72",
+          "withoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff",
+          "linkedWithoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff"
+        },
+        "inherit": [],
+        "libraries": [
+          "Address"
+        ],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "ERC721": {
+        "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:19",
+        "version": {
+          "withMetadata": "32e999c939e42560adcce9569a9e6ebdc60f4ffc00e13eaa52eaccbbaaa443e3",
+          "withoutMetadata": "712c5de2453d9a059577308fbee96d4e3fccbf7e1161bec8a8f3bc841b99ecb6",
+          "linkedWithoutMetadata": "712c5de2453d9a059577308fbee96d4e3fccbf7e1161bec8a8f3bc841b99ecb6"
+        },
+        "inherit": [
+          "IERC721Metadata",
+          "IERC721",
+          "ERC165",
+          "IERC165",
+          "Context"
+        ],
+        "libraries": [
+          "Address",
+          "Strings"
+        ],
+        "methods": [
+          "(string,string)",
+          "supportsInterface(bytes4)",
+          "balanceOf(address)",
+          "ownerOf(uint256)",
+          "name()",
+          "symbol()",
+          "tokenURI(uint256)",
+          "approve(address,uint256)",
+          "getApproved(uint256)",
+          "setApprovalForAll(address,bool)",
+          "isApprovedForAll(address,address)",
+          "transferFrom(address,address,uint256)",
+          "safeTransferFrom(address,address,uint256)",
+          "safeTransferFrom(address,address,uint256,bytes)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "ERC721",
+            "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:44"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_name",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_string_storage",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:24"
+            },
+            {
+              "label": "_symbol",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_string_storage",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:27"
+            },
+            {
+              "label": "_owners",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_mapping(t_uint256,t_address)",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:30"
+            },
+            {
+              "label": "_balances",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:33"
+            },
+            {
+              "label": "_tokenApprovals",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_uint256,t_address)",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:36"
+            },
+            {
+              "label": "_operatorApprovals",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:39"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+              "label": "mapping(address => mapping(address => bool))"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_mapping(t_uint256,t_address)": {
+              "label": "mapping(uint256 => address)"
+            },
+            "t_string_storage": {
+              "label": "string"
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "IERC721": {
+        "src": "@openzeppelin\\contracts\\token\\ERC721\\IERC721.sol:11",
+        "inherit": [
+          "IERC165"
+        ],
+        "libraries": [],
+        "methods": [
+          "balanceOf(address)",
+          "ownerOf(uint256)",
+          "safeTransferFrom(address,address,uint256,bytes)",
+          "safeTransferFrom(address,address,uint256)",
+          "transferFrom(address,address,uint256)",
+          "approve(address,uint256)",
+          "setApprovalForAll(address,bool)",
+          "getApproved(uint256)",
+          "isApprovedForAll(address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "IERC721Receiver": {
+        "src": "@openzeppelin\\contracts\\token\\ERC721\\IERC721Receiver.sol:11",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "onERC721Received(address,address,uint256,bytes)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "ERC721URIStorage": {
+        "src": "@openzeppelin\\contracts\\token\\ERC721\\extensions\\ERC721URIStorage.sol:11",
+        "inherit": [
+          "ERC721",
+          "IERC721Metadata",
+          "IERC721",
+          "ERC165",
+          "IERC165",
+          "Context"
+        ],
+        "libraries": [
+          "Strings"
+        ],
+        "methods": [
+          "tokenURI(uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [
+            {
+              "label": "_name",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_string_storage",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:24"
+            },
+            {
+              "label": "_symbol",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_string_storage",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:27"
+            },
+            {
+              "label": "_owners",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_mapping(t_uint256,t_address)",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:30"
+            },
+            {
+              "label": "_balances",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:33"
+            },
+            {
+              "label": "_tokenApprovals",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_uint256,t_address)",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:36"
+            },
+            {
+              "label": "_operatorApprovals",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:39"
+            },
+            {
+              "label": "_tokenURIs",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_uint256,t_string_storage)",
+              "contract": "ERC721URIStorage",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\extensions\\ERC721URIStorage.sol:15"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+              "label": "mapping(address => mapping(address => bool))"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_mapping(t_uint256,t_address)": {
+              "label": "mapping(uint256 => address)"
+            },
+            "t_mapping(t_uint256,t_string_storage)": {
+              "label": "mapping(uint256 => string)"
+            },
+            "t_string_storage": {
+              "label": "string"
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "IERC721Metadata": {
+        "src": "@openzeppelin\\contracts\\token\\ERC721\\extensions\\IERC721Metadata.sol:12",
+        "inherit": [
+          "IERC721",
+          "IERC165"
+        ],
+        "libraries": [],
+        "methods": [
+          "name()",
+          "symbol()",
+          "tokenURI(uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "Address": {
+        "src": "@openzeppelin\\contracts\\utils\\Address.sol:9",
+        "version": {
+          "withMetadata": "8541625d87eea02b0dfd42a77729959aa2bfb8e4fba2aefe33cd43a43333c4b1",
+          "withoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff",
+          "linkedWithoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "delegatecall",
+            "src": "@openzeppelin\\contracts\\utils\\Address.sol:185"
+          }
+        ],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "Context": {
+        "src": "contracts\\UnlonelyTournament.sol:6",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "Counters": {
+        "src": "@openzeppelin\\contracts\\utils\\Counters.sol:14",
+        "version": {
+          "withMetadata": "293405fae636ff5a910a99dea257531486ed4a8dfafba32e89de51316aa941f2",
+          "withoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff",
+          "linkedWithoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "Strings": {
+        "src": "@openzeppelin\\contracts\\utils\\Strings.sol:11",
+        "version": {
+          "withMetadata": "3a475d16691125176ce95ed4f5840cf26385ab911f3a93e3e29ef167b8b879dc",
+          "withoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff",
+          "linkedWithoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff"
+        },
+        "inherit": [],
+        "libraries": [
+          "Math"
+        ],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "ERC165": {
+        "src": "@openzeppelin\\contracts\\utils\\introspection\\ERC165.sol:22",
+        "inherit": [
+          "IERC165"
+        ],
+        "libraries": [],
+        "methods": [
+          "supportsInterface(bytes4)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "IERC165": {
+        "src": "@openzeppelin\\contracts\\utils\\introspection\\IERC165.sol:15",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "supportsInterface(bytes4)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "Math": {
+        "src": "@openzeppelin\\contracts\\utils\\math\\Math.sol:9",
+        "version": {
+          "withMetadata": "338fdc31d1855e6e9e78151463dda70aea5835dcdd73aab6505d7ca96c1f896b",
+          "withoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff",
+          "linkedWithoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "BrianToken": {
+        "src": "contracts\\BrianTokenContract.sol:9",
+        "version": {
+          "withMetadata": "c69e533b2054194dcebe5b6e02623b22b4e9969e5975fedfecb7a7911a70feac",
+          "withoutMetadata": "a7a5712b26577065835950b3d42187ed84c8cbb9244f251f38ac49404474cb57",
+          "linkedWithoutMetadata": "a7a5712b26577065835950b3d42187ed84c8cbb9244f251f38ac49404474cb57"
+        },
+        "inherit": [
+          "ERC20",
+          "IERC20Metadata",
+          "IERC20",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "(string,string,uint256,address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "BrianToken",
+            "src": "contracts\\BrianTokenContract.sol:10"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_balances",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "ERC20",
+              "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:36"
+            },
+            {
+              "label": "_allowances",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "contract": "ERC20",
+              "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:38"
+            },
+            {
+              "label": "_totalSupply",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_uint256",
+              "contract": "ERC20",
+              "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:40"
+            },
+            {
+              "label": "_name",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_string_storage",
+              "contract": "ERC20",
+              "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:42"
+            },
+            {
+              "label": "_symbol",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_string_storage",
+              "contract": "ERC20",
+              "src": "@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol:43"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+              "label": "mapping(address => mapping(address => uint256))"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_string_storage": {
+              "label": "string"
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "UnlonelyArcadeContractV1": {
+        "src": "contracts\\UnlonelyArcadeContractV2.sol:9",
+        "version": {
+          "withMetadata": "be28f18221c6bacf95eb1e275ee2faf5d70551ad09f12d63c47f513eb40e5b93",
+          "withoutMetadata": "908f850e8ae90b549caf9075a2cf5be35d7615ec81379bb43ca16dc0cc69266a",
+          "linkedWithoutMetadata": "908f850e8ae90b549caf9075a2cf5be35d7615ec81379bb43ca16dc0cc69266a"
+        },
+        "inherit": [],
+        "libraries": [
+          "SafeERC20"
+        ],
+        "methods": [
+          "()",
+          "calculateEthAmount(address,uint256)",
+          "addCreatorToken(address,uint256,address)",
+          "setTokenPrices(address[],uint256[])",
+          "buyCreatorToken(address,uint256)",
+          "useFeature(address,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "UnlonelyArcadeContractV1",
+            "src": "contracts\\UnlonelyArcadeContractV2.sol:20"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "brian",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "UnlonelyArcadeContractV1",
+              "src": "contracts\\UnlonelyArcadeContractV2.sol:12"
+            },
+            {
+              "label": "danny",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "UnlonelyArcadeContractV1",
+              "src": "contracts\\UnlonelyArcadeContractV2.sol:13"
+            },
+            {
+              "label": "grace",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_address",
+              "contract": "UnlonelyArcadeContractV1",
+              "src": "contracts\\UnlonelyArcadeContractV2.sol:14"
+            },
+            {
+              "label": "creatorTokens",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_mapping(t_address,t_contract(IERC20)831)",
+              "contract": "UnlonelyArcadeContractV1",
+              "src": "contracts\\UnlonelyArcadeContractV2.sol:16"
+            },
+            {
+              "label": "tokenPrices",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "UnlonelyArcadeContractV1",
+              "src": "contracts\\UnlonelyArcadeContractV2.sol:17"
+            },
+            {
+              "label": "tokenOwners",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_address,t_address)",
+              "contract": "UnlonelyArcadeContractV1",
+              "src": "contracts\\UnlonelyArcadeContractV2.sol:18"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_contract(IERC20)831": {
+              "label": "contract IERC20"
+            },
+            "t_mapping(t_address,t_address)": {
+              "label": "mapping(address => address)"
+            },
+            "t_mapping(t_address,t_contract(IERC20)831)": {
+              "label": "mapping(address => contract IERC20)"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "UnlonelyNFCsV2": {
+        "src": "contracts\\UnlonelyNFCsV2.sol:8",
+        "version": {
+          "withMetadata": "70dc0633819e7d8cad02bcc6b05a9d247cd40193ea904624dd84fd60ddda7fb5",
+          "withoutMetadata": "a79f7aa53d69777e281af8fc29cfc70e3a207f1d95e0f1b8fd3c6b623851ead6",
+          "linkedWithoutMetadata": "a79f7aa53d69777e281af8fc29cfc70e3a207f1d95e0f1b8fd3c6b623851ead6"
+        },
+        "inherit": [
+          "ERC721URIStorage",
+          "ERC721",
+          "IERC721Metadata",
+          "IERC721",
+          "ERC165",
+          "IERC165",
+          "Context"
+        ],
+        "libraries": [
+          "Counters"
+        ],
+        "methods": [
+          "(string,string)",
+          "mint(address,string)",
+          "tokenURI(uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "UnlonelyNFCsV2",
+            "src": "contracts\\UnlonelyNFCsV2.sol:12"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_name",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_string_storage",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:24"
+            },
+            {
+              "label": "_symbol",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_string_storage",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:27"
+            },
+            {
+              "label": "_owners",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_mapping(t_uint256,t_address)",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:30"
+            },
+            {
+              "label": "_balances",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:33"
+            },
+            {
+              "label": "_tokenApprovals",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_uint256,t_address)",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:36"
+            },
+            {
+              "label": "_operatorApprovals",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+              "contract": "ERC721",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol:39"
+            },
+            {
+              "label": "_tokenURIs",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_uint256,t_string_storage)",
+              "contract": "ERC721URIStorage",
+              "src": "@openzeppelin\\contracts\\token\\ERC721\\extensions\\ERC721URIStorage.sol:15"
+            },
+            {
+              "label": "_tokenIds",
+              "offset": 0,
+              "slot": "7",
+              "type": "t_struct(Counter)2762_storage",
+              "contract": "UnlonelyNFCsV2",
+              "src": "contracts\\UnlonelyNFCsV2.sol:10"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+              "label": "mapping(address => mapping(address => bool))"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_mapping(t_uint256,t_address)": {
+              "label": "mapping(uint256 => address)"
+            },
+            "t_mapping(t_uint256,t_string_storage)": {
+              "label": "mapping(uint256 => string)"
+            },
+            "t_string_storage": {
+              "label": "string"
+            },
+            "t_struct(Counter)2762_storage": {
+              "label": "struct Counters.Counter",
+              "members": [
+                {
+                  "label": "_value",
+                  "type": "t_uint256"
+                }
+              ]
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "UnlonelySharesV1": {
+        "src": "contracts\\UnlonelySharesV1.sol:81",
+        "version": {
+          "withMetadata": "89794efdf70be3b8fb47e76fecbe0f5f231d732bb31aea00409b6b407c31fa8f",
+          "withoutMetadata": "68053e223a5daeb0185701b4d68239ea8cc9f0016b5428eba7a2762a274e5b36",
+          "linkedWithoutMetadata": "68053e223a5daeb0185701b4d68239ea8cc9f0016b5428eba7a2762a274e5b36"
+        },
+        "inherit": [
+          "Ownable",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "()",
+          "addVerifier(address)",
+          "removeVerifier(address)",
+          "verifyEvent(address,bool)",
+          "closeEventIfNoWinners(address)",
+          "setFeeDestination(address)",
+          "setProtocolFeePercent(uint256)",
+          "setSubjectFeePercent(uint256)",
+          "getHolderSharesBalance(address,address,bool)",
+          "getPrice(uint256,uint256)",
+          "getBuyPrice(address,uint256,bool)",
+          "getSellPrice(address,uint256,bool)",
+          "getBuyPriceAfterFee(address,uint256,bool)",
+          "getSellPriceAfterFee(address,uint256,bool)",
+          "getPayout(address,address)",
+          "buyShares(address,uint256,bool)",
+          "sellShares(address,uint256,bool)",
+          "claimPayout(address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "UnlonelySharesV1",
+            "src": "contracts\\UnlonelySharesV1.sol:110"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelySharesV1.sol:16"
+            },
+            {
+              "label": "protocolFeeDestination",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:82"
+            },
+            {
+              "label": "protocolFeePercent",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_uint256",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:83"
+            },
+            {
+              "label": "subjectFeePercent",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_uint256",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:84"
+            },
+            {
+              "label": "yaySharesBalance",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:91"
+            },
+            {
+              "label": "naySharesBalance",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:92"
+            },
+            {
+              "label": "yaySharesSupply",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:95"
+            },
+            {
+              "label": "naySharesSupply",
+              "offset": 0,
+              "slot": "7",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:96"
+            },
+            {
+              "label": "eventVerified",
+              "offset": 0,
+              "slot": "8",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:98"
+            },
+            {
+              "label": "eventResult",
+              "offset": 0,
+              "slot": "9",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:99"
+            },
+            {
+              "label": "isVerifier",
+              "offset": 0,
+              "slot": "10",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:100"
+            },
+            {
+              "label": "pooledEth",
+              "offset": 0,
+              "slot": "11",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "UnlonelySharesV1",
+              "src": "contracts\\UnlonelySharesV1.sol:103"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+              "label": "mapping(address => mapping(address => uint256))"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "UnlonelySharesV2": {
+        "src": "contracts\\UnlonelySharesV2.sol:81",
+        "version": {
+          "withMetadata": "a9a9094ff58b4b8bef90636e0c59c01d8e5c7da5cfff708a569aec244943d0df",
+          "withoutMetadata": "e081b8858aa16ef2673bd6448a0741741005d378798a7e84603eb684ea36ef0a",
+          "linkedWithoutMetadata": "e081b8858aa16ef2673bd6448a0741741005d378798a7e84603eb684ea36ef0a"
+        },
+        "inherit": [
+          "ReentrancyGuard",
+          "Ownable",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "()",
+          "setFeeDestination(address)",
+          "setProtocolFeePercent(uint256)",
+          "setSubjectFeePercent(uint256)",
+          "setVerifier(address,bool)",
+          "generateKey(address,uint256,uint8)",
+          "openEvent(address,uint256,uint8,uint256)",
+          "verifyEvent(address,uint256,uint8,bool)",
+          "getHolderBalance(address,uint256,uint8,bool,address)",
+          "getPrice(uint256,uint256)",
+          "getBuyPrice(address,uint256,uint8,bool,uint256)",
+          "getSellPrice(address,uint256,uint8,bool,uint256)",
+          "getBuyPriceAfterFee(address,uint256,uint8,bool,uint256)",
+          "getSellPriceAfterFee(address,uint256,uint8,bool,uint256)",
+          "buyVotes(address,uint256,uint8,bool,uint256)",
+          "sellVotes(address,uint256,uint8,bool,uint256)",
+          "claimVotePayout(address,uint256,uint8)",
+          "getVotePayout(address,uint256,uint8,address)",
+          "closeEventIfNoWinners(address,uint256,uint8)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "UnlonelySharesV2",
+            "src": "contracts\\UnlonelySharesV2.sol:145"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelySharesV2.sol:17"
+            },
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            },
+            {
+              "label": "protocolFeeDestination",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_address",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:93"
+            },
+            {
+              "label": "protocolFeePercent",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_uint256",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:94"
+            },
+            {
+              "label": "subjectFeePercent",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_uint256",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:95"
+            },
+            {
+              "label": "yayVotesBalance",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:116"
+            },
+            {
+              "label": "nayVotesBalance",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:117"
+            },
+            {
+              "label": "yayVotesSupply",
+              "offset": 0,
+              "slot": "7",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:119"
+            },
+            {
+              "label": "nayVotesSupply",
+              "offset": 0,
+              "slot": "8",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:120"
+            },
+            {
+              "label": "eventVerified",
+              "offset": 0,
+              "slot": "9",
+              "type": "t_mapping(t_bytes32,t_bool)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:122"
+            },
+            {
+              "label": "eventResult",
+              "offset": 0,
+              "slot": "10",
+              "type": "t_mapping(t_bytes32,t_bool)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:123"
+            },
+            {
+              "label": "eventEndTimestamp",
+              "offset": 0,
+              "slot": "11",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:124"
+            },
+            {
+              "label": "votingPooledEth",
+              "offset": 0,
+              "slot": "12",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:127"
+            },
+            {
+              "label": "isVerifier",
+              "offset": 0,
+              "slot": "13",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelySharesV2",
+              "src": "contracts\\UnlonelySharesV2.sol:130"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_bytes32": {
+              "label": "bytes32"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_mapping(t_bytes32,t_bool)": {
+              "label": "mapping(bytes32 => bool)"
+            },
+            "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))": {
+              "label": "mapping(bytes32 => mapping(address => uint256))"
+            },
+            "t_mapping(t_bytes32,t_uint256)": {
+              "label": "mapping(bytes32 => uint256)"
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "UnlonelyTournament": {
+        "src": "contracts\\UnlonelyTournament.sol:81",
+        "version": {
+          "withMetadata": "d670f8981fb2d52576dd866f76a4a607c2f793c89030ed47a1db870fe54079e2",
+          "withoutMetadata": "bb4827ac2c0e50025c87e2809d6025c9fd6920abc80c089b7738bebec792a30d",
+          "linkedWithoutMetadata": "bb4827ac2c0e50025c87e2809d6025c9fd6920abc80c089b7738bebec792a30d"
+        },
+        "inherit": [
+          "ReentrancyGuard",
+          "Ownable",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "()",
+          "setFeeDestination(address)",
+          "setProtocolFeePercent(uint256)",
+          "setSubjectFeePercent(uint256)",
+          "setTournamentFeePercent(uint256)",
+          "setTournamentCreator(address,bool)",
+          "generateKey(address,uint256,uint8)",
+          "getTournamentPayout(address)",
+          "getHolderBalance(address,uint256,uint8,address)",
+          "getPrice(uint256,uint256)",
+          "getBuyPrice(address,uint256,uint8,uint256)",
+          "getSellPrice(address,uint256,uint8,uint256)",
+          "getBuyPriceAfterFee(address,uint256,uint8,uint256)",
+          "getSellPriceAfterFee(address,uint256,uint8,uint256)",
+          "startTournament()",
+          "selectTournamentWinner(address,uint256,uint8)",
+          "endTournament()",
+          "buyVIPBadge(address,uint256,uint8,uint256)",
+          "sellVIPBadge(address,uint256,uint8,uint256)",
+          "claimTournamentPayout()"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "UnlonelyTournament",
+            "src": "contracts\\UnlonelyTournament.sol:136"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelyTournament.sol:17"
+            },
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            },
+            {
+              "label": "tournament",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_struct(Tournament)7475_storage",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:109"
+            },
+            {
+              "label": "protocolFeeDestination",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_address",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:111"
+            },
+            {
+              "label": "protocolFeePercent",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_uint256",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:112"
+            },
+            {
+              "label": "subjectFeePercent",
+              "offset": 0,
+              "slot": "7",
+              "type": "t_uint256",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:113"
+            },
+            {
+              "label": "tournamentFeePercent",
+              "offset": 0,
+              "slot": "8",
+              "type": "t_uint256",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:114"
+            },
+            {
+              "label": "vipBadgeSupply",
+              "offset": 0,
+              "slot": "9",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:119"
+            },
+            {
+              "label": "vipBadgeBalance",
+              "offset": 0,
+              "slot": "10",
+              "type": "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:120"
+            },
+            {
+              "label": "isTournamentCreator",
+              "offset": 0,
+              "slot": "11",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelyTournament",
+              "src": "contracts\\UnlonelyTournament.sol:121"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_bytes32": {
+              "label": "bytes32"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_mapping(t_bytes32,t_mapping(t_address,t_uint256))": {
+              "label": "mapping(bytes32 => mapping(address => uint256))"
+            },
+            "t_mapping(t_bytes32,t_uint256)": {
+              "label": "mapping(bytes32 => uint256)"
+            },
+            "t_struct(Tournament)7475_storage": {
+              "label": "struct UnlonelyTournament.Tournament",
+              "members": [
+                {
+                  "label": "isActive",
+                  "type": "t_bool"
+                },
+                {
+                  "label": "isPayoutClaimable",
+                  "type": "t_bool"
+                },
+                {
+                  "label": "winningBadge",
+                  "type": "t_bytes32"
+                },
+                {
+                  "label": "vipPooledEth",
+                  "type": "t_uint256"
+                }
+              ]
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "console": {
+        "src": "hardhat\\console.sol:4",
+        "version": {
+          "withMetadata": "e7874c2f7767daaf9950070e66361d68ebaa49f8d13ce637d2677ea3ad6d7004",
+          "withoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff",
+          "linkedWithoutMetadata": "08d24783a787f8a51dea0c166bb6f91a4f0865e02d03d749f102d332e6ead0ff"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      }
+    },
+    {
       "ReentrancyGuard": {
         "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:22",
         "inherit": [],
