@@ -297,7 +297,9 @@ const ChatForm = ({
               <Flex justifyContent={"space-between"}>
                 <Flex>
                   {clipLoading ? (
-                    <Spinner />
+                    <Flex justifyContent="center">
+                      <Spinner />
+                    </Flex>
                   ) : (
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>

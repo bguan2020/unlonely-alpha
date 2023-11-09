@@ -26,7 +26,13 @@ export const useClip = (
   });
 
   const handleCreateClip = async (title: string) => {
-    if (!user?.address || !channelQueryData?.channelArn || loading) return;
+    if (
+      !user?.address ||
+      !channelQueryData?.channelArn ||
+      !channelQueryData?.livepeerPlaybackId ||
+      loading
+    )
+      return;
     setLoading(true);
     handleIsClipUiOpen(false);
     const { res } = await createClip({
