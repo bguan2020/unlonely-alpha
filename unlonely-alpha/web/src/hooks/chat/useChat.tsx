@@ -40,9 +40,8 @@ export const useChat = (): ChatReturnType => {
     mounted,
   } = useChannel();
   const { username, userAddress: address } = useUser();
-  const { arcade, recentStreamInteractions } = useChannelContext();
-  const { chatBot } = arcade;
-  const { addToTextOverVideo } = recentStreamInteractions;
+  const { chat } = useChannelContext();
+  const { chatBot } = chat;
 
   const mountingMessages = useRef(true);
   const { emojiBlast, fireworks } = useScreenAnimationsContext();
@@ -79,12 +78,7 @@ export const useChat = (): ChatReturnType => {
       Date.now() - latestMessage.timestamp < 12000
     ) {
       const body = latestMessage.data.body;
-      if (body.split(":")[0] === InteractionType.CONTROL) {
-        const newTextOverVideo = body.split(":").slice(1).join();
-        if (newTextOverVideo) {
-          addToTextOverVideo(newTextOverVideo);
-        }
-      } else if (
+      if (
         (body.split(":")[0] === InteractionType.BUY ||
           body.split(":")[0] === InteractionType.TIP) &&
         Date.now() - latestMessage.timestamp < 12000

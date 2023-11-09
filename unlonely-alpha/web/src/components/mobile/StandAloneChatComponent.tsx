@@ -386,7 +386,7 @@ const InfoComponent = ({
   handleShowPreviewStream: () => void;
 }) => {
   const { userAddress } = useUser();
-  const { channel: channelContext, arcade } = useChannelContext();
+  const { channel: channelContext, ui } = useChannelContext();
   const {
     handleNotificationsModal,
     handleEventModal,
@@ -394,7 +394,7 @@ const InfoComponent = ({
     handleChatCommandModal,
     handleBetModal,
     handleModeratorModal,
-  } = arcade;
+  } = ui;
   const { channelQueryData } = channelContext;
   const isOwner = userAddress === channelQueryData?.owner.address;
   const isSharesEventLive =

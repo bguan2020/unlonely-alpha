@@ -21,8 +21,8 @@ export default function ModeratorModal({
   handleClose: () => void;
 }) {
   const { userAddress, user } = useUser();
-  const { channel, arcade } = useChannelContext();
-  const { addToChatbot } = arcade;
+  const { channel, chat } = useChannelContext();
+  const { addToChatbot } = chat;
   const { channelQueryData } = channel;
   const { isStandalone } = useUserAgent();
 

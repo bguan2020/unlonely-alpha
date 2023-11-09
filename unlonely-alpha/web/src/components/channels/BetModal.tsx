@@ -53,8 +53,8 @@ export default function BetModal({
   const { userAddress, user } = useUser();
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
-  const { channel, arcade } = useChannelContext();
-  const { addToChatbot } = arcade;
+  const { channel, chat } = useChannelContext();
+  const { addToChatbot } = chat;
   const { channelQueryData, refetch } = channel;
   const { isStandalone } = useUserAgent();
   const publicClient = usePublicClient();

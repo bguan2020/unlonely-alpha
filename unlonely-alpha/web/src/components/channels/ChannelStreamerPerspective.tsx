@@ -4,7 +4,7 @@ import { SharesEventState } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 
 const ChannelStreamerPerspective = () => {
-  const { arcade, channel } = useChannelContext();
+  const { ui, channel } = useChannelContext();
   const {
     handleNotificationsModal,
     handleEventModal,
@@ -12,7 +12,7 @@ const ChannelStreamerPerspective = () => {
     handleChatCommandModal,
     handleBetModal,
     handleModeratorModal,
-  } = arcade;
+  } = ui;
   const { channelQueryData } = channel;
 
   const isSharesEventLive =

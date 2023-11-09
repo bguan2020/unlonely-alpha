@@ -60,19 +60,12 @@ const ChatForm = ({
   const { isStandalone } = useUserAgent();
 
   const toast = useToast();
-  const {
-    channel: channelContext,
-    chat,
-    arcade,
-    leaderboard,
-  } = useChannelContext();
+  const { channel: channelContext, chat, leaderboard } = useChannelContext();
   const { isVip } = leaderboard;
-  const { clipping } = chat;
-  const { addToChatbot } = arcade;
+  const { clipping, addToChatbot } = chat;
   const { handleIsClipUiOpen, loading: clipLoading } = clipping;
 
   const { channelQueryData } = channelContext;
-  // const { userTokenBalance, refetchUserTokenBalance } = token;
 
   const [messageText, setMessageText] = useState<string>("");
   const [commandsOpen, setCommandsOpen] = useState(false);

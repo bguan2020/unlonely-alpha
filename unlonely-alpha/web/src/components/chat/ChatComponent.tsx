@@ -264,9 +264,9 @@ const ChatComponent = () => {
 
 export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress, walletIsConnected, user } = useUser();
-  const { channel, arcade } = useChannelContext();
+  const { channel, chat: chatContext } = useChannelContext();
   const { channelQueryData, refetch } = channel;
-  const { addToChatbot } = arcade;
+  const { addToChatbot } = chatContext;
 
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;

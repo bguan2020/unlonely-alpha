@@ -68,18 +68,14 @@ const DesktopPage = ({
 }: {
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
-  const { channel, recentStreamInteractions } = useChannelContext();
+  const { channel } = useChannelContext();
 
   const {
     channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
   } = channel;
-  const { loading: recentStreamInteractionsLoading } = recentStreamInteractions;
-  const queryLoading = useMemo(
-    () => channelDataLoading || recentStreamInteractionsLoading,
-    [channelDataLoading, recentStreamInteractionsLoading]
-  );
+  const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
 
   const { data } = useQuery<GetBadgeHoldersByChannelQuery>(
     GET_BADGE_HOLDERS_BY_CHANNEL_QUERY,
@@ -200,18 +196,14 @@ const MobilePage = ({
 }: {
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
-  const { channel, recentStreamInteractions } = useChannelContext();
+  const { channel } = useChannelContext();
   const {
     channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
   } = channel;
-  const { loading: recentStreamInteractionsLoading } = recentStreamInteractions;
 
-  const queryLoading = useMemo(
-    () => channelDataLoading || recentStreamInteractionsLoading,
-    [channelDataLoading, recentStreamInteractionsLoading]
-  );
+  const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
 
   const { userAddress } = useUser();
 

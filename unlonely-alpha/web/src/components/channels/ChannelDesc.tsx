@@ -3,11 +3,12 @@ import { Avatar, Text, Flex } from "@chakra-ui/react";
 import { anonUrl } from "../presence/AnonUrl";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
 const ChannelDesc = () => {
   const { isStandalone } = useUserAgent();
   const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
+  const { channelQueryData, totalBadges } = channel;
 
   const imageUrl = channelQueryData?.owner?.FCImageUrl
     ? channelQueryData?.owner.FCImageUrl
@@ -20,19 +21,27 @@ const ChannelDesc = () => {
 
   return (
     <Flex direction="row" m="1rem">
-      <Avatar
-        name={
-          channelQueryData?.owner.username
-            ? channelQueryData?.owner.username
-            : channelQueryData?.owner.address
-        }
-        src={ipfsUrl}
-        size="sm"
-      />
-      <Flex direction="column" gap={["0px", "16px"]} width="100%">
+      <Flex direction="column" gap={["4px", "16px"]}>
+        <Flex justifyContent={"center"}>
+          <Avatar
+            name={
+              channelQueryData?.owner.username
+                ? channelQueryData?.owner.username
+                : channelQueryData?.owner.address
+            }
+            src={ipfsUrl}
+            size="md"
+          />
+        </Flex>
+        <Flex p="0.5rem" bg={"#570d5f"} borderRadius="15px">
+          <Text fontSize="14px" textAlign={"center"}>
+            {truncateValue(totalBadges, 0)} badges
+          </Text>
+        </Flex>
+      </Flex>
+      <Flex direction="column" gap={["4px", "16px"]} width="100%" pl="30px">
         <Flex
           maxH="400px"
-          ml="32px"
           justifyContent="left"
           pr="32px"
           flexDirection="row"
@@ -51,7 +60,6 @@ const ChannelDesc = () => {
           </Text>
         </Flex>
         <Text
-          px="30px"
           fontSize={["0.5rem", "0.8rem"]}
           width={isStandalone ? "70%" : "unset"}
         >
