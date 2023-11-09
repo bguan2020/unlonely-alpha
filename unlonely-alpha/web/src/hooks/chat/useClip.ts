@@ -31,6 +31,7 @@ export const useClip = (
     handleIsClipUiOpen(false);
     const { res } = await createClip({
       title,
+      livepeerPlaybackId: channelQueryData.livepeerPlaybackId,
       channelArn: channelQueryData.channelArn,
     });
     // if res.errorMessage is not null, then show error message

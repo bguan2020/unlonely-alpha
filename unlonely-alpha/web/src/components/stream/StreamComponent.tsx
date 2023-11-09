@@ -5,6 +5,7 @@ import IVSPlayer from "./IVSPlayer";
 import useScript from "../../hooks/internal/useScript";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import LivepeerPlayer from "./LivepeerPlayer";
 
 const StreamComponent = () => {
   const { isStandalone } = useUserAgent();
@@ -16,6 +17,14 @@ const StreamComponent = () => {
       channelQueryData?.playbackUrl == null
         ? undefined
         : channelQueryData?.playbackUrl,
+    [channelQueryData]
+  );
+
+  const livepeerPlaybackId = useMemo(
+    () =>
+      channelQueryData?.livepeerPlaybackId == null
+        ? undefined
+        : channelQueryData?.livepeerPlaybackId,
     [channelQueryData]
   );
 
@@ -57,7 +66,9 @@ const StreamComponent = () => {
       height={!isStandalone ? { base: "80vh" } : "25vh"}
     >
       <Flex width="100%">
-        {playbackUrl ? (
+        {livepeerPlaybackId ? (
+          <LivepeerPlayer playbackId={livepeerPlaybackId} />
+        ) : playbackUrl ? (
           <IVSPlayer playbackUrl={playbackUrl} />
         ) : (
           <Flex

@@ -188,6 +188,11 @@ export type CreateCreatorTokenInput = {
   symbol: Scalars["String"];
 };
 
+export type CreateLivepeerClipInput = {
+  livepeerPlaybackId: Scalars["String"];
+  title: Scalars["String"];
+};
+
 export type CreatorToken = {
   __typename?: "CreatorToken";
   address: Scalars["String"];
@@ -339,6 +344,7 @@ export type Mutation = {
   closeSharesEvent?: Maybe<Channel>;
   createClip?: Maybe<ClipNfcOutput>;
   createCreatorToken: CreatorToken;
+  createLivepeerClip?: Maybe<ClipNfcOutput>;
   handleLike?: Maybe<Likable>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
   postBadgeTrade: GamblableInteraction;
@@ -390,6 +396,10 @@ export type MutationCreateClipArgs = {
 
 export type MutationCreateCreatorTokenArgs = {
   data: CreateCreatorTokenInput;
+};
+
+export type MutationCreateLivepeerClipArgs = {
+  data?: InputMaybe<CreateLivepeerClipInput>;
 };
 
 export type MutationHandleLikeArgs = {
@@ -1734,6 +1744,21 @@ export type FetchCurrentUserQuery = {
     __typename?: "User";
     signature?: string | null;
     sigTimestamp?: any | null;
+  } | null;
+};
+
+export type CreateLivepeerClipMutationVariables = Exact<{
+  data: CreateLivepeerClipInput;
+}>;
+
+export type CreateLivepeerClipMutation = {
+  __typename?: "Mutation";
+  createLivepeerClip?: {
+    __typename?: "ClipNFCOutput";
+    url?: string | null;
+    thumbnail?: string | null;
+    errorMessage?: string | null;
+    id: string;
   } | null;
 };
 
@@ -4611,4 +4636,57 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
+>;
+export const CreateLivepeerClipDocument = gql`
+  mutation CreateLivepeerClip($data: CreateLivepeerClipInput!) {
+    createLivepeerClip(data: $data) {
+      url
+      thumbnail
+      errorMessage
+      id
+    }
+  }
+`;
+export type CreateLivepeerClipMutationFn = Apollo.MutationFunction<
+  CreateLivepeerClipMutation,
+  CreateLivepeerClipMutationVariables
+>;
+
+/**
+ * __useCreateLivepeerClipMutation__
+ *
+ * To run a mutation, you first call `useCreateLivepeerClipMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateLivepeerClipMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createLivepeerClipMutation, { data, loading, error }] = useCreateLivepeerClipMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateLivepeerClipMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CreateLivepeerClipMutation,
+    CreateLivepeerClipMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    CreateLivepeerClipMutation,
+    CreateLivepeerClipMutationVariables
+  >(CreateLivepeerClipDocument, options);
+}
+export type CreateLivepeerClipMutationHookResult = ReturnType<
+  typeof useCreateLivepeerClipMutation
+>;
+export type CreateLivepeerClipMutationResult =
+  Apollo.MutationResult<CreateLivepeerClipMutation>;
+export type CreateLivepeerClipMutationOptions = Apollo.BaseMutationOptions<
+  CreateLivepeerClipMutation,
+  CreateLivepeerClipMutationVariables
 >;

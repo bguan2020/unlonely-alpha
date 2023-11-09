@@ -204,7 +204,7 @@ export const createLivepeerClip = async (
     "Content-Type": "application/json",
   };
   console.log(
-    "createClip calling livepeer at time",
+    "createLivepeerClip calling livepeer at time",
     new Date(Date.now()).toISOString(),
     `id:${endTime}`
   );
@@ -215,7 +215,7 @@ export const createLivepeerClip = async (
       body: JSON.stringify(clipData),
     });
     console.log(
-      "createClip livepeer response at time,",
+      "createLivepeerClip livepeer response at time,",
       new Date(Date.now()).toISOString(),
       `id:${endTime}`,
       `${(Date.now() - endTime) / 1000}s`,
@@ -239,12 +239,13 @@ export const createLivepeerClip = async (
       }
       if (res.status.phase === "failed") {
         return {
-          errorMessage: "createClip Error livepeer could not create clip",
+          errorMessage:
+            "createLivepeerClip Error livepeer could not create clip",
         };
       }
     }
     console.log(
-      "createClip fetching playback,",
+      "createLivepeerClip fetching playback,",
       new Date(Date.now()).toISOString(),
       `id:${endTime}`
     );
