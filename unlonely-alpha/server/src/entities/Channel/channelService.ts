@@ -1,6 +1,7 @@
 import { Lambda } from "aws-sdk";
 import { Channel as PrismaChannel } from "@prisma/client";
 import * as AWS from "aws-sdk";
+import axios from "axios";
 
 import { Context } from "../../context";
 
@@ -13,6 +14,12 @@ export interface IPostChannelTextInput {
 interface Channel extends PrismaChannel {
   thumbnailUrl?: string | null;
 }
+
+type Source = {
+  hrn: string;
+  url: string;
+  type: string;
+};
 
 enum SharesEventState {
   LIVE = "LIVE",
@@ -154,7 +161,25 @@ export const getChannelFeed = async (
   try {
     const liveStreams = await ivs.listStreams().promise();
 
-    if (liveStreams.streams.length === 0) {
+    const headers = {
+      Authorization: `Bearer ${String(process.env.STUDIO_API_KEY)}`,
+      "Content-Type": "application/json",
+    };
+    const livePlaybackIds = await axios
+      .get(
+        'https://livepeer.studio/api/stream?streamsonly=1&filters=[{"id": "isActive", "value": true}]',
+        { headers }
+      )
+      .then((res) => {
+        console.log("res", res.data);
+        return res.data.map((stream: any) => stream.playbackId);
+      })
+      .catch((err) => {
+        console.log("err", err);
+        return [];
+      });
+
+    if (liveStreams.streams.length === 0 && livePlaybackIds.length === 0) {
       // Update isLive field for all channels to false
       await ctx.prisma.channel.updateMany({
         where: { isLive: true },
@@ -175,7 +200,9 @@ export const getChannelFeed = async (
     // Update isLive field for all channels
     await Promise.all(
       allChannels.map(async (channel) => {
-        const isLive = liveChannelArns.includes(channel.channelArn);
+        const isLive =
+          liveChannelArns.includes(channel.channelArn) ||
+          livePlaybackIds.includes(channel.livepeerPlaybackId);
         if (channel.isLive !== isLive) {
           await ctx.prisma.channel.update({
             where: { id: channel.id },
@@ -190,11 +217,16 @@ export const getChannelFeed = async (
 
     const sortedChannels = updatedChannels.sort((a, b) => {
       if (
-        liveChannelArns.includes(a.channelArn) &&
-        liveChannelArns.includes(b.channelArn)
+        (liveChannelArns.includes(a.channelArn) &&
+          liveChannelArns.includes(b.channelArn)) ||
+        (livePlaybackIds.includes(a.livepeerPlaybackId) &&
+          livePlaybackIds.includes(b.livepeerPlaybackId))
       ) {
         return 0; // both channels are live, maintain their original order
-      } else if (liveChannelArns.includes(a.channelArn)) {
+      } else if (
+        liveChannelArns.includes(a.channelArn) ||
+        livePlaybackIds.includes(a.livepeerPlaybackId)
+      ) {
         return -1; // a is live, put it before b
       } else {
         return 1; // a is not live, put it after b
@@ -204,7 +236,14 @@ export const getChannelFeed = async (
     // Add getThumbnailUrl function call for live channels
     await Promise.all(
       sortedChannels.map(async (channel) => {
-        if (liveChannelArns.includes(channel.channelArn)) {
+        if (
+          channel.livepeerPlaybackId &&
+          livePlaybackIds.includes(channel.livepeerPlaybackId)
+        ) {
+          channel.thumbnailUrl = await getLivepeerThumbnail(
+            channel.livepeerPlaybackId
+          );
+        } else if (liveChannelArns.includes(channel.channelArn)) {
           channel.thumbnailUrl = await getThumbnailUrl(channel.channelArn);
         }
       })
@@ -292,6 +331,29 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
     console.log(
       `getThumbnailUrl Error invoking Lambda function: ${error.message}`
     );
+    return null;
+  }
+};
+
+const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
+  try {
+    const response = await axios.get(
+      `https://livepeer.studio/api/playback/${livepeerPlaybackId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+        },
+      }
+    );
+
+    const thumbnail = response.data.meta.source.find(
+      (source: Source) => source.hrn === "Thumbnail"
+    );
+
+    return thumbnail.url;
+  } catch (error: any) {
+    const { data } = error.response;
+    console.log("getLivepeerThumbnail error", data);
     return null;
   }
 };
