@@ -1002,7 +1002,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
             <Flex justifyContent="space-between">
               <Text fontSize="18px">your winnings</Text>
               <Text fontSize="18px">
-                {truncateValue(formatUnits(userPayout, 18))}
+                {truncateValue(formatUnits(userPayout, 18))} ETH
               </Text>
             </Flex>
             {userPayout > BigInt(0) && (
