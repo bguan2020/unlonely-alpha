@@ -21,15 +21,17 @@ import {
   useGetTournamentPayout,
 } from "../../hooks/contracts/useTournament";
 import { useUser } from "../../hooks/context/useUser";
-import { NULL_ADDRESS } from "../../constants";
+import { InteractionType, NULL_ADDRESS } from "../../constants";
 import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import centerEllipses from "../../utils/centerEllipses";
 
 export const ChannelTournament = () => {
   const { userAddress, walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
-  const { channel, leaderboard } = useChannelContext();
+  const { channel, arcade, leaderboard } = useChannelContext();
   const { handleIsVip } = leaderboard;
+  const { addToChatbot } = arcade;
 
   const { channelQueryData } = channel;
   const { network } = useNetworkContext();
@@ -38,6 +40,8 @@ export const ChannelTournament = () => {
   const [amountOfBadges, setAmountOfBadges] = useState<string>("0");
   const [isBuying, setIsBuying] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const { user } = useUser();
 
   const tournamentContract = getContractFromNetwork(
     "unlonelyTournament",
@@ -192,6 +196,18 @@ export const ChannelTournament = () => {
           topics: data.logs[0].topics,
         });
         const args: any = topics.args;
+        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+          args.trade.isBuy ? "bought" : "sold"
+        } ${args.trade.badgeAmount} badges!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.BUY_BADGES,
+          title,
+          description: `${user?.username ?? userAddress ?? ""}:${
+            args.trade.badgeAmount
+          }`,
+        });
         await postBadgeTrade({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
@@ -220,6 +236,18 @@ export const ChannelTournament = () => {
           topics: data.logs[0].topics,
         });
         const args: any = topics.args;
+        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+          args.trade.isBuy ? "bought" : "sold"
+        } ${args.trade.badgeAmount} badges!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.SELL_BADGES,
+          title,
+          description: `${user?.username ?? userAddress ?? ""}:${
+            args.trade.badgeAmount
+          }`,
+        });
         await postBadgeTrade({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
@@ -304,12 +332,21 @@ export const ChannelTournament = () => {
     amountOfBadges,
   ]);
 
+  const determineBg = () => {
+    if (userPayout > BigInt(0))
+      return "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 3%, rgba(255,213,86,1) 4%, rgba(246,190,45,1) 6%, rgba(249,163,32,1) 7%, rgba(231,143,0,1) 8%, #2c1b0b 10%, #603208 100%)";
+    if (tournament.isActive)
+      return "radial-gradient(circle, rgba(19,19,35,1) 84%, rgba(40,96,179,1) 100%)";
+    return isStandalone ? "#570d5f" : "#131323";
+  };
+
   return (
     <Flex
       direction="column"
-      bg={isStandalone ? "#570d5f" : "#131323"}
+      bg={determineBg()}
       borderRadius="15px"
       p="1rem"
+      boxShadow={userPayout > BigInt(0) ? "-2px -2px 2px white" : undefined}
     >
       <Flex alignItems="center" gap="10px">
         <Text fontFamily={"LoRes15"} fontSize="25px">
@@ -425,7 +462,7 @@ export const ChannelTournament = () => {
           <Text color="#fff64a">The winning badge has been decided</Text>
           <Flex justifyContent={"space-between"}>
             <Text>your payout</Text>
-            <Text>{truncateValue(formatUnits(userPayout, 18))}</Text>
+            <Text>{truncateValue(formatUnits(userPayout, 18))} ETH</Text>
           </Flex>
           <Button
             _hover={{}}

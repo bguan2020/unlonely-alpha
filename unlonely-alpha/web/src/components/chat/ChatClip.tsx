@@ -23,7 +23,6 @@ export const ChatClip = () => {
   const {
     isClipUiOpen,
     handleIsClipUiOpen,
-    submitClip,
     handleCreateClip,
     setClipError,
     clipError,

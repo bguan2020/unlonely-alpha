@@ -162,7 +162,7 @@ export const getChannelFeed = async (
     const liveStreams = await ivs.listStreams().promise();
 
     const headers = {
-      Authorization: `Bearer ${String(process.env.STUDIO_API_KEY)}`,
+      Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
       "Content-Type": "application/json",
     };
     const livePlaybackIds = await axios
@@ -171,7 +171,6 @@ export const getChannelFeed = async (
         { headers }
       )
       .then((res) => {
-        console.log("res", res.data);
         return res.data.map((stream: any) => stream.playbackId);
       })
       .catch((err) => {
@@ -335,7 +334,7 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
   }
 };
 
-const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
+export const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
   try {
     const response = await axios.get(
       `https://livepeer.studio/api/playback/${livepeerPlaybackId}`,
@@ -352,8 +351,7 @@ const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
 
     return thumbnail.url;
   } catch (error: any) {
-    const { data } = error.response;
-    console.log("getLivepeerThumbnail error", data);
+    console.log("getLivepeerThumbnail error", error);
     return null;
   }
 };

@@ -3,6 +3,7 @@ import * as AWS from "aws-sdk";
 import axios from "axios";
 
 import { Context } from "../../context";
+import { getLivepeerThumbnail } from "../Channel/channelService";
 import opensea from "./opensea.json";
 
 interface ClipData {
@@ -207,28 +208,30 @@ export const createLivepeerClip = async (
     name: data.title,
   };
   const headers = {
-    Authorization: `Bearer ${String(process.env.NEXT_PUBLIC_STUDIO_API_KEY)}`,
+    Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
     "Content-Type": "application/json",
   };
   console.log(
-    "createClip calling livepeer at time",
+    "createLivepeerClip calling livepeer at time",
     new Date(Date.now()).toISOString(),
     `id:${endTime}`
   );
   try {
-    const response = await fetch("https://livepeer.studio/api/clip", {
-      method: "POST",
-      headers,
-      body: JSON.stringify(clipData),
-    });
+    const response = await axios.post(
+      "https://livepeer.studio/api/clip",
+      clipData,
+      {
+        headers,
+      }
+    );
     console.log(
-      "createClip livepeer response at time,",
+      "createLivepeerClip livepeer response at time,",
       new Date(Date.now()).toISOString(),
       `id:${endTime}`,
       `${(Date.now() - endTime) / 1000}s`,
       response
     );
-    const responseData: ClipResponse = await response.json();
+    const responseData: ClipResponse = response.data;
     let asset = null;
     while (true) {
       await new Promise((resolve) => setTimeout(resolve, 10000));
@@ -246,12 +249,13 @@ export const createLivepeerClip = async (
       }
       if (res.status.phase === "failed") {
         return {
-          errorMessage: "createClip Error livepeer could not create clip",
+          errorMessage:
+            "createLivepeerClip Error livepeer could not create clip",
         };
       }
     }
     console.log(
-      "createClip fetching playback,",
+      "createLivepeerClip fetching playback,",
       new Date(Date.now()).toISOString(),
       `id:${endTime}`
     );
@@ -260,30 +264,19 @@ export const createLivepeerClip = async (
     );
     const playBackUrl = playbackData.meta.source[0].url;
 
-    const thumbnailResponse = await axios.get(
-      `https://livepeer.studio/api/playback/${asset.playbackId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
-        },
-      }
-    );
-
-    const thumbnail = thumbnailResponse.data.meta.source.find(
-      (source: Source) => source.hrn === "Thumbnail"
-    );
+    const thumbNailUrl = await getLivepeerThumbnail(asset.playbackId);
 
     const res = await postNFC(
       {
         title: data.title,
         videoLink: playBackUrl,
-        videoThumbnail: thumbnail.url,
+        videoThumbnail: thumbNailUrl,
         openseaLink: "",
       },
       ctx,
       user
     );
-    return { playBackUrl, thumbnail: thumbnail.url, ...res };
+    return { playBackUrl, thumbnail: thumbNailUrl, ...res };
   } catch (e) {
     console.log(`createLivepeerClip Error invoking livepeer, id:${endTime}`, e);
     return { errorMessage: "Error invoking livepeer" };

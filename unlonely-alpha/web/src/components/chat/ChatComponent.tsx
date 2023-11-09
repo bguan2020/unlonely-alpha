@@ -37,11 +37,7 @@ import {
   InteractionType,
   NULL_ADDRESS,
 } from "../../constants";
-import {
-  ChatReturnType,
-  useChat,
-  useChatBox,
-} from "../../hooks/chat/useChatV2";
+import { ChatReturnType, useChat, useChatBox } from "../../hooks/chat/useChat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import {
@@ -1006,7 +1002,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
             <Flex justifyContent="space-between">
               <Text fontSize="18px">your winnings</Text>
               <Text fontSize="18px">
-                {truncateValue(formatUnits(userPayout, 18))}
+                {truncateValue(formatUnits(userPayout, 18))} ETH
               </Text>
             </Flex>
             {userPayout > BigInt(0) && (

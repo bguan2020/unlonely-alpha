@@ -3,8 +3,7 @@ import { Box, Flex } from "@chakra-ui/react";
 import ChatForm from "../chat/ChatForm";
 import MessageList from "../chat/MessageList";
 import NextHead from "../layout/NextHead";
-import { useChat } from "../../hooks/chat/useChat";
-import { useChannelContext } from "../../hooks/context/useChannel";
+import { useChat, useChatBox } from "../../hooks/chat/useChat";
 
 const styles = `
   html, body {
@@ -22,18 +21,21 @@ const styles = `
 `;
 
 const MobileAblyChatComponent = () => {
-  const { arcade } = useChannelContext();
-  const { chatBot } = arcade;
+  const chat = useChat();
+
   const {
+    scrollRef,
+    isAtBottom,
+    channelChatCommands,
     handleScrollToPresent,
     handleIsAtBottom,
-    channel,
-    receivedMessages,
-    isAtBottom,
-    scrollRef,
-    channelChatCommands,
     sendChatMessage,
-  } = useChat(chatBot, true);
+  } = useChatBox(
+    "chat",
+    chat.receivedMessages,
+    chat.hasMessagesLoaded,
+    chat.channel
+  );
 
   return (
     <Box flexDirection="column" height="100dvh" flexWrap="nowrap">
@@ -77,8 +79,8 @@ const MobileAblyChatComponent = () => {
           >
             <MessageList
               scrollRef={scrollRef}
-              messages={receivedMessages}
-              channel={channel}
+              messages={chat.receivedMessages}
+              channel={chat.channel}
               isAtBottomCallback={handleIsAtBottom}
             />
             <Flex mt="20px" w="100%">

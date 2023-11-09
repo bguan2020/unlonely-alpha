@@ -61,7 +61,6 @@ const ChannelContext = createContext<{
       isClipUiOpen: boolean;
       handleIsClipUiOpen: (value: boolean) => void;
       handleCreateClip: (title: string) => Promise<string | undefined>;
-      submitClip: (title: string) => Promise<string | undefined>;
       setClipError: (value: string) => void;
       clipError?: string;
       clipUrl?: string;
@@ -136,7 +135,6 @@ const ChannelContext = createContext<{
       isClipUiOpen: false,
       handleIsClipUiOpen: () => undefined,
       handleCreateClip: () => Promise.resolve(undefined),
-      submitClip: () => Promise.resolve(undefined),
       setClipError: () => undefined,
       clipError: undefined,
       clipUrl: undefined,
@@ -305,7 +303,6 @@ export const ChannelProvider = ({
 
   const {
     handleCreateClip,
-    submitClip,
     setClipError,
     clipError,
     clipUrl,
@@ -440,7 +437,6 @@ export const ChannelProvider = ({
           isClipUiOpen,
           handleIsClipUiOpen,
           handleCreateClip,
-          submitClip,
           setClipError,
           clipError: clipError ?? undefined,
           clipUrl,
@@ -516,7 +512,6 @@ export const ChannelProvider = ({
       isClipUiOpen,
       handleIsClipUiOpen,
       handleCreateClip,
-      submitClip,
       setClipError,
       clipError,
       clipUrl,
