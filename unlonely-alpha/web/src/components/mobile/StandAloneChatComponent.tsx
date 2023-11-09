@@ -1,21 +1,29 @@
 import {
-  Text,
-  Image,
   Flex,
   Box,
-  Grid,
-  GridItem,
-  Spinner,
-  Stack,
-  Tooltip,
+  Text,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Tr,
+  Image,
   IconButton,
+  Spinner,
   SimpleGrid,
+  Stack,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { isAddress } from "viem";
+import {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useRouter } from "next/router";
-import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
 import { useLazyQuery } from "@apollo/client";
+import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
 
 import {
   GetSubscriptionQuery,
@@ -23,88 +31,70 @@ import {
 } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
-import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
-import BuyButton from "../arcade/BuyButton";
-import CoinButton from "../arcade/CoinButton";
-import CustomButton from "../arcade/CustomButton";
-import ChatForm from "../chat/ChatForm";
-import MessageList from "../chat/MessageList";
 import ChannelDesc from "../channels/ChannelDesc";
+import { getSortedLeaderboard } from "../../utils/getSortedLeaderboard";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { ChatReturnType, useChatBox, useChat } from "../../hooks/chat/useChat";
+import { ADD_REACTION_EVENT } from "../../constants";
+import MessageList from "../chat/MessageList";
+import ChatForm from "../chat/ChatForm";
+import { ChannelTournament } from "../channels/ChannelTournament";
 import { GET_SUBSCRIPTION } from "../../constants/queries";
 import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubscription";
 import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChannelFromSubscription";
-import { useChat } from "../../hooks/chat/useChat";
-import { SharesInterface } from "../chat/SharesInterface";
+import { BorderType, OuterBorder } from "../general/OuterBorder";
+import { Trade } from "../chat/ChatComponent";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
+import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 
-type Props = {
-  previewStream?: boolean;
-  handleShowPreviewStream: () => void;
-};
-
-const StandaloneAblyChatComponent = ({
+const StandaloneChatComponent = ({
   previewStream,
   handleShowPreviewStream,
-}: Props) => {
-  const { channel: channelContext, chat, arcade } = useChannelContext();
-  const {
-    chatBot,
-    handleNotificationsModal,
-    handleTokenSaleModal,
-    handleEventModal,
-    handleEditModal,
-    handleChatCommandModal,
-    handleCustomModal,
-    handleBuyModal,
-    handleTipModal,
-    handleBetModal,
-    handleModeratorModal,
-  } = arcade;
-  const { chatChannel } = chat;
-
+}: {
+  previewStream?: boolean;
+  handleShowPreviewStream: () => void;
+}) => {
+  const { channel: channelContext, chat: chatInfo } = useChannelContext();
+  const { userAddress } = useUser();
   const { channelQueryData } = channelContext;
+  const { chatChannel } = chatInfo;
+  const chat = useChat();
+
+  const router = useRouter();
+  const [isBellAnimating, setIsBellAnimating] = useState(false);
+  const [showInfo, setShowInfo] = useState<boolean>(false);
+  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
+  const [endpoint, setEndpoint] = useState<string>("");
+  const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
+    "chat"
+  );
+  const clickedOutsideInfo = useRef(false);
+  const clickedOutsideLeaderBoard = useRef(false);
+  const infoRef = useRef<HTMLDivElement>(null);
+  const leaderboardRef = useRef<HTMLDivElement>(null);
+
+  useOnClickOutside(infoRef, () => {
+    if (showInfo) {
+      setShowInfo(false);
+      clickedOutsideInfo.current = true;
+    }
+    clickedOutsideLeaderBoard.current = false;
+  });
+
+  useOnClickOutside(leaderboardRef, () => {
+    if (showLeaderboard) {
+      setShowLeaderboard(false);
+      clickedOutsideLeaderBoard.current = true;
+    }
+    clickedOutsideInfo.current = false;
+  });
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   const channelId = useMemo(
     () => (channelQueryData?.id ? Number(channelQueryData?.id) : 3),
     [channelQueryData?.id]
   );
-
-  const isSharesEventLive =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
-  const isSharesEventLock =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Lock;
-  const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
-
-  const {
-    handleScrollToPresent,
-    handleIsAtBottom,
-    channel,
-    hasMessagesLoaded,
-    receivedMessages,
-    isAtBottom,
-    scrollRef,
-    channelChatCommands,
-    sendChatMessage,
-  } = useChat(chatBot, true);
-  const router = useRouter();
-
-  const { userAddress, user, userAddress: address } = useUser();
-
-  const [showInfo, setShowInfo] = useState<boolean>(false);
-  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
-  const [showArcade, setShowArcade] = useState<boolean>(false);
-  const [endpoint, setEndpoint] = useState<string>("");
-  const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
-    []
-  );
-  const [isBellAnimating, setIsBellAnimating] = useState(false);
-
-  const clickedOutsideInfo = useRef(false);
-  const clickedOutsideLeaderBoard = useRef(false);
-  const clickedOutsideArcade = useRef(false);
-  const infoRef = useRef<HTMLDivElement>(null);
-  const leaderboardRef = useRef<HTMLDivElement>(null);
-  const arcadeRef = useRef<HTMLDivElement>(null);
 
   const [getSubscription, { data }] = useLazyQuery<GetSubscriptionQuery>(
     GET_SUBSCRIPTION,
@@ -146,49 +136,6 @@ const StandaloneAblyChatComponent = ({
       handleGetSubscription();
     }
   }, [endpoint]);
-
-  // useEffect(() => {
-  //   if (showLeaderboard && !holdersLoading && !holdersData) {
-  //     refetchTokenHolders?.();
-  //   }
-  // }, [showLeaderboard]);
-
-  // useEffect(() => {
-  //   if (!holdersLoading && !holdersError && holdersData) {
-  //     const _holders: { name: string; quantity: number }[] = getHolders(
-  //       holdersData.getTokenHoldersByChannel
-  //     );
-  //     setHolders(_holders);
-  //   }
-  // }, [holdersLoading, holdersError, holdersData]);
-
-  useOnClickOutside(infoRef, () => {
-    if (showInfo) {
-      setShowInfo(false);
-      clickedOutsideInfo.current = true;
-    }
-    clickedOutsideLeaderBoard.current = false;
-    clickedOutsideArcade.current = false;
-  });
-
-  useOnClickOutside(leaderboardRef, () => {
-    if (showLeaderboard) {
-      setShowLeaderboard(false);
-      clickedOutsideLeaderBoard.current = true;
-    }
-    clickedOutsideArcade.current = false;
-    clickedOutsideInfo.current = false;
-  });
-  useOnClickOutside(arcadeRef, () => {
-    if (showArcade) {
-      setShowArcade(false);
-      clickedOutsideArcade.current = true;
-    }
-    clickedOutsideLeaderBoard.current = false;
-    clickedOutsideInfo.current = false;
-  });
-
-  const isOwner = userAddress === channelQueryData?.owner.address;
 
   useEffect(() => {
     const init = async () => {
@@ -351,21 +298,6 @@ const StandaloneAblyChatComponent = ({
                 }
               }}
             />
-            <BuyButton
-              tokenName={
-                channelQueryData?.token?.symbol
-                  ? `$${channelQueryData?.token?.symbol}`
-                  : "token"
-              }
-              small
-              callback={() => {
-                if (clickedOutsideArcade.current) {
-                  clickedOutsideArcade.current = false;
-                  return;
-                }
-                setShowArcade(!showArcade);
-              }}
-            />
           </Flex>
         </Flex>
       ) : (
@@ -377,495 +309,531 @@ const StandaloneAblyChatComponent = ({
         />
       )}
       {showInfo && (
-        <Flex
-          ref={infoRef}
-          borderRadius={"5px"}
-          p="1px"
-          position="absolute"
-          top="50px"
-          left="0"
-          width={"100%"}
-          zIndex={3}
-          style={{
-            border: "1px solid",
-            borderWidth: "1px",
-            borderImageSource:
-              "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
-            borderImageSlice: 1,
-            borderRadius: "5px",
-          }}
+        <Flex ref={infoRef}>
+          <InfoComponent
+            previewStream={previewStream}
+            handleShowPreviewStream={handleShowPreviewStream}
+          />
+        </Flex>
+      )}
+      {showLeaderboard && (
+        <Flex ref={leaderboardRef}>
+          <LeaderboardComponent />
+        </Flex>
+      )}
+      <Flex width="100%">
+        <OuterBorder
+          type={BorderType.OCEAN}
+          zIndex={selectedTab === "chat" ? 4 : 2}
+          onClick={() => setSelectedTab("chat")}
+          noborder
+          pb={selectedTab === "chat" ? "0px" : undefined}
         >
           <Flex
-            direction="column"
-            bg={"rgba(19, 19, 35, 1)"}
-            borderRadius={"5px"}
-            width={"100%"}
-            padding="10px"
+            bg={selectedTab === "chat" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+            py="0.3rem"
+            width="100%"
+            justifyContent={"center"}
           >
-            <Flex justifyContent={"space-between"}>
-              <ChannelDesc />
-              {isOwner && (
-                <IconButton
-                  onClick={handleShowPreviewStream}
-                  aria-label="preview"
-                  _hover={{}}
-                  _active={{}}
-                  _focus={{}}
-                  icon={
-                    <Image
-                      src="/svg/preview-video.svg"
-                      height={12}
-                      style={{
-                        filter: previewStream ? "grayscale(100%)" : "none",
-                      }}
-                    />
-                  }
+            <Text>CHAT</Text>
+          </Flex>
+        </OuterBorder>
+        <OuterBorder
+          type={BorderType.OCEAN}
+          zIndex={selectedTab === "trade" ? 4 : 2}
+          onClick={() => setSelectedTab("trade")}
+          noborder
+          pb={selectedTab === "trade" ? "0px" : undefined}
+        >
+          <Flex
+            bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+            py="0.3rem"
+            width="100%"
+            justifyContent={"center"}
+          >
+            <Text>VOTE</Text>
+          </Flex>
+        </OuterBorder>
+        <OuterBorder
+          type={BorderType.OCEAN}
+          zIndex={selectedTab === "vip" ? 4 : 2}
+          onClick={() => setSelectedTab("vip")}
+          noborder
+          pb={selectedTab === "vip" ? "0px" : undefined}
+        >
+          <Flex
+            bg={selectedTab === "vip" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+            py="0.3rem"
+            width="100%"
+            justifyContent={"center"}
+          >
+            <Text>VIP</Text>
+          </Flex>
+        </OuterBorder>
+      </Flex>
+      {selectedTab === "chat" && <Chat chat={chat} />}
+      {selectedTab === "trade" && <Trade chat={chat} />}
+      {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
+    </Flex>
+  );
+};
+
+const InfoComponent = ({
+  previewStream,
+  handleShowPreviewStream,
+}: {
+  previewStream?: boolean;
+  handleShowPreviewStream: () => void;
+}) => {
+  const { userAddress } = useUser();
+  const { channel: channelContext, arcade } = useChannelContext();
+  const {
+    handleNotificationsModal,
+    handleEventModal,
+    handleEditModal,
+    handleChatCommandModal,
+    handleBetModal,
+    handleModeratorModal,
+  } = arcade;
+  const { channelQueryData } = channelContext;
+  const isOwner = userAddress === channelQueryData?.owner.address;
+  const isSharesEventLive =
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
+  const isSharesEventLock =
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Lock;
+  const isSharesEventPayout =
+    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
+
+  return (
+    <Flex
+      borderRadius={"5px"}
+      p="1px"
+      position="absolute"
+      top="50px"
+      left="0"
+      width={"100%"}
+      zIndex={5}
+      style={{
+        border: "1px solid",
+        borderWidth: "1px",
+        borderImageSource:
+          "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
+        borderImageSlice: 1,
+        borderRadius: "5px",
+      }}
+    >
+      <Flex
+        direction="column"
+        bg={"rgba(19, 19, 35, 1)"}
+        borderRadius={"5px"}
+        width={"100%"}
+        padding="10px"
+      >
+        <Flex justifyContent={"space-between"}>
+          <ChannelDesc />
+          {isOwner && (
+            <IconButton
+              onClick={handleShowPreviewStream}
+              aria-label="preview"
+              _hover={{}}
+              _active={{}}
+              _focus={{}}
+              icon={
+                <Image
+                  src="/svg/preview-video.svg"
+                  height={12}
+                  style={{
+                    filter: previewStream ? "grayscale(100%)" : "none",
+                  }}
                 />
-              )}
-            </Flex>
-            {isOwner && (
-              <Stack
-                my="5rem"
-                direction="column"
-                width={"100%"}
-                justifyContent="center"
-              >
-                <Flex
-                  width={"100%"}
-                  position="relative"
-                  justifyContent={"center"}
-                >
-                  <SimpleGrid columns={3} spacing={10}>
-                    <Flex
-                      direction="column"
-                      gap="10px"
-                      justifyContent={"flex-end"}
-                    >
-                      <Text textAlign="center">send notifications</Text>
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        borderRadius="10px"
-                        onClick={() => handleNotificationsModal(true)}
-                        _hover={{
-                          cursor: "pointer",
-                          transform: "scale(1.1)",
-                          transitionDuration: "0.3s",
-                        }}
-                        _active={{
-                          transform: "scale(1)",
-                        }}
-                      >
-                        <Image src="/svg/notifications.svg" width="100%" />
-                      </Box>
-                    </Flex>
-                    <Flex
-                      direction="column"
-                      gap="10px"
-                      justifyContent={"flex-end"}
-                    >
-                      <Text textAlign="center">offer tokens for sale</Text>
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        borderRadius="10px"
-                        onClick={() => handleTokenSaleModal(true)}
-                        _hover={{
-                          cursor: "pointer",
-                          transform: "scale(1.1)",
-                          transitionDuration: "0.3s",
-                        }}
-                        _active={{
-                          transform: "scale(1)",
-                        }}
-                      >
-                        <Image src="/svg/token-sale.svg" width="100%" />
-                      </Box>
-                    </Flex>
-                    <Flex
-                      direction="column"
-                      gap="10px"
-                      justifyContent={"flex-end"}
-                    >
-                      <Text textAlign="center">add event</Text>
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        borderRadius="10px"
-                        onClick={() => handleEventModal(true)}
-                        _hover={{
-                          cursor: "pointer",
-                          transform: "scale(1.1)",
-                          transitionDuration: "0.3s",
-                        }}
-                        _active={{
-                          transform: "scale(1)",
-                        }}
-                      >
-                        <Image src="/svg/calendar.svg" width="100%" />
-                      </Box>
-                    </Flex>
-                    <Flex
-                      direction="column"
-                      gap="10px"
-                      justifyContent={"flex-end"}
-                    >
-                      <Text textAlign="center">
-                        edit channel title / description
-                      </Text>
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        borderRadius="10px"
-                        onClick={() => handleEditModal(true)}
-                        _hover={{
-                          cursor: "pointer",
-                          transform: "scale(1.1)",
-                          transitionDuration: "0.3s",
-                        }}
-                        _active={{
-                          transform: "scale(1)",
-                        }}
-                      >
-                        <Image src="/svg/edit.svg" width="100%" />
-                      </Box>
-                    </Flex>
-                    <Flex
-                      direction="column"
-                      gap="10px"
-                      justifyContent={"flex-end"}
-                    >
-                      <Text textAlign="center">custom commands</Text>
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        borderRadius="10px"
-                        onClick={() => handleChatCommandModal(true)}
-                        _hover={{
-                          cursor: "pointer",
-                          transform: "scale(1.1)",
-                          transitionDuration: "0.3s",
-                        }}
-                        _active={{
-                          transform: "scale(1)",
-                        }}
-                      >
-                        <Image src="/svg/custom-commands.svg" width="100%" />
-                      </Box>
-                    </Flex>
-                    <Flex
-                      direction="column"
-                      gap="10px"
-                      justifyContent={"flex-end"}
-                    >
-                      <Text textAlign="center">paid custom action</Text>
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        borderRadius="10px"
-                        onClick={() => handleCustomModal?.(true)}
-                        _hover={{
-                          cursor: "pointer",
-                          transform: "scale(1.1)",
-                          transitionDuration: "0.3s",
-                        }}
-                        _active={{
-                          transform: "scale(1)",
-                        }}
-                      >
-                        <Image src="/svg/custom-actions.svg" width="100%" />
-                      </Box>
-                    </Flex>
-                    <Flex
-                      direction="column"
-                      gap="10px"
-                      justifyContent={"flex-end"}
-                    >
-                      <Text textAlign="center">
-                        {isSharesEventPayout
-                          ? "stop event"
-                          : isSharesEventLive
-                          ? "lock bets"
-                          : isSharesEventLock
-                          ? "decide outcome"
-                          : "create a bet"}
-                      </Text>
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        borderRadius="10px"
-                        onClick={() => handleBetModal(true)}
-                        _hover={{
-                          cursor: "pointer",
-                          transform: "scale(1.1)",
-                          transitionDuration: "0.3s",
-                        }}
-                        _active={{
-                          transform: "scale(1)",
-                        }}
-                      >
-                        <Image src="/svg/bet.svg" width="100%" />
-                      </Box>
-                    </Flex>
-                    <Flex
-                      direction="column"
-                      gap="10px"
-                      justifyContent={"flex-end"}
-                    >
-                      <Text textAlign={"center"}>moderators</Text>
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        borderRadius="10px"
-                        onClick={() => handleModeratorModal(true)}
-                        _hover={{
-                          cursor: "pointer",
-                          transform: "scale(1.1)",
-                          transitionDuration: "0.3s",
-                        }}
-                        _active={{
-                          transform: "scale(1)",
-                        }}
-                      >
-                        <Image src="/svg/mods.svg" width="100%" />
-                      </Box>
-                    </Flex>
-                  </SimpleGrid>
-                </Flex>
-              </Stack>
-            )}
-          </Flex>
+              }
+            />
+          )}
         </Flex>
-      )}
-      {showArcade && (
-        <Flex
-          ref={arcadeRef}
-          borderRadius={"5px"}
-          p="1px"
-          position="absolute"
-          top="50px"
-          left="0"
-          width={"100%"}
-          zIndex={3}
-          style={{
-            border: "1px solid",
-            borderWidth: "1px",
-            borderImageSource:
-              "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
-            borderImageSlice: 1,
-            borderRadius: "5px",
-          }}
-        >
-          <Flex
+        {isOwner && (
+          <Stack
+            my="5rem"
             direction="column"
-            bg={"rgba(19, 19, 35, 1)"}
-            borderRadius={"5px"}
             width={"100%"}
-            padding={"40px"}
+            justifyContent="center"
           >
-            {isAddress(String(channelQueryData?.token?.address)) &&
-              user &&
-              address && (
-                <>
-                  <BuyButton
-                    tokenName={
-                      channelQueryData?.token?.symbol
-                        ? `$${channelQueryData?.token?.symbol}`
-                        : "token"
-                    }
-                    callback={() => handleBuyModal?.(true)}
-                  />
-                  <Grid
-                    mt="50px"
-                    templateColumns="repeat(2, 1fr)"
-                    gap={12}
+            <Flex width={"100%"} position="relative" justifyContent={"center"}>
+              <SimpleGrid columns={3} spacing={10}>
+                <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+                  <Text textAlign="center">send notifications</Text>
+                  <Box
+                    display="flex"
                     alignItems="center"
-                    justifyItems="center"
+                    justifyContent="center"
+                    borderRadius="10px"
+                    onClick={() => handleNotificationsModal(true)}
+                    _hover={{
+                      cursor: "pointer",
+                      transform: "scale(1.1)",
+                      transitionDuration: "0.3s",
+                    }}
+                    _active={{
+                      transform: "scale(1)",
+                    }}
                   >
-                    <GridItem>
-                      <Tooltip label={"make streamer do X"}>
-                        <span>
-                          <CustomButton
-                            callback={() => handleCustomModal?.(true)}
-                          />
-                        </span>
-                      </Tooltip>
-                    </GridItem>
-                    <GridItem>
-                      <Tooltip label={"tip the streamer"}>
-                        <span>
-                          <CoinButton callback={() => handleTipModal?.(true)} />
-                        </span>
-                      </Tooltip>
-                    </GridItem>
-                  </Grid>
-                </>
-              )}
-            {(!isAddress(String(channelQueryData?.token?.address)) ||
-              !user) && (
-              <>
-                <Tooltip
-                  label={!user ? "connect wallet first" : "not available"}
-                >
-                  <span>
-                    <BuyButton tokenName={"token"} />
-                  </span>
-                </Tooltip>
-                <Grid
-                  mt="50px"
-                  templateColumns="repeat(2, 1fr)"
-                  gap={12}
-                  alignItems="center"
-                  justifyItems="center"
-                >
-                  <GridItem>
-                    <Tooltip
-                      label={!user ? "connect wallet first" : "not available"}
-                    >
-                      <span>
-                        <CustomButton />
-                      </span>
-                    </Tooltip>
-                  </GridItem>
-                  <GridItem>
-                    <Tooltip
-                      label={!user ? "connect wallet first" : "not available"}
-                    >
-                      <span>
-                        <CoinButton />
-                      </span>
-                    </Tooltip>
-                  </GridItem>
-                </Grid>
-              </>
-            )}
+                    <Image src="/svg/notifications.svg" width="100%" />
+                  </Box>
+                </Flex>
+                <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+                  <Text textAlign="center">add event</Text>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="10px"
+                    onClick={() => handleEventModal(true)}
+                    _hover={{
+                      cursor: "pointer",
+                      transform: "scale(1.1)",
+                      transitionDuration: "0.3s",
+                    }}
+                    _active={{
+                      transform: "scale(1)",
+                    }}
+                  >
+                    <Image src="/svg/calendar.svg" width="100%" />
+                  </Box>
+                </Flex>
+                <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+                  <Text textAlign="center">
+                    edit channel title / description
+                  </Text>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="10px"
+                    onClick={() => handleEditModal(true)}
+                    _hover={{
+                      cursor: "pointer",
+                      transform: "scale(1.1)",
+                      transitionDuration: "0.3s",
+                    }}
+                    _active={{
+                      transform: "scale(1)",
+                    }}
+                  >
+                    <Image src="/svg/edit.svg" width="100%" />
+                  </Box>
+                </Flex>
+                <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+                  <Text textAlign="center">custom commands</Text>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="10px"
+                    onClick={() => handleChatCommandModal(true)}
+                    _hover={{
+                      cursor: "pointer",
+                      transform: "scale(1.1)",
+                      transitionDuration: "0.3s",
+                    }}
+                    _active={{
+                      transform: "scale(1)",
+                    }}
+                  >
+                    <Image src="/svg/custom-commands.svg" width="100%" />
+                  </Box>
+                </Flex>
+                <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+                  <Text textAlign="center">
+                    {isSharesEventPayout
+                      ? "stop event"
+                      : isSharesEventLive
+                      ? "lock bets"
+                      : isSharesEventLock
+                      ? "decide outcome"
+                      : "create a bet"}
+                  </Text>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="10px"
+                    onClick={() => handleBetModal(true)}
+                    _hover={{
+                      cursor: "pointer",
+                      transform: "scale(1.1)",
+                      transitionDuration: "0.3s",
+                    }}
+                    _active={{
+                      transform: "scale(1)",
+                    }}
+                  >
+                    <Image src="/svg/bet.svg" width="100%" />
+                  </Box>
+                </Flex>
+                <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+                  <Text textAlign={"center"}>moderators</Text>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="10px"
+                    onClick={() => handleModeratorModal(true)}
+                    _hover={{
+                      cursor: "pointer",
+                      transform: "scale(1.1)",
+                      transitionDuration: "0.3s",
+                    }}
+                    _active={{
+                      transform: "scale(1)",
+                    }}
+                  >
+                    <Image src="/svg/mods.svg" width="100%" />
+                  </Box>
+                </Flex>
+              </SimpleGrid>
+            </Flex>
+          </Stack>
+        )}
+      </Flex>
+    </Flex>
+  );
+};
+
+const LeaderboardComponent = () => {
+  const { leaderboard: leaderboardContext } = useChannelContext();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+
+  const {
+    data: leaderboardData,
+    loading: leaderboardLoading,
+    error: leaderboardError,
+    refetchGamblableEventLeaderboard,
+  } = leaderboardContext;
+
+  const [leaderboard, setLeaderboard] = useState<
+    { name: string; totalFees: number }[]
+  >([]);
+
+  useEffect(() => {
+    refetchGamblableEventLeaderboard?.();
+  }, [localNetwork]);
+
+  useEffect(() => {
+    if (!leaderboardLoading && !leaderboardError && leaderboardData) {
+      const _leaderboard: { name: string; totalFees: number }[] =
+        getSortedLeaderboard(
+          leaderboardData.getGamblableEventLeaderboardByChannelId
+        );
+      setLeaderboard(_leaderboard);
+    }
+  }, [leaderboardLoading, leaderboardError, leaderboardData]);
+
+  return (
+    <Flex
+      borderRadius={"5px"}
+      p="1px"
+      position="absolute"
+      top="50px"
+      bottom="10px"
+      left="0"
+      width={"100%"}
+      zIndex={5}
+      style={{
+        border: "1px solid",
+        borderWidth: "1px",
+        borderImageSource:
+          "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
+        borderImageSlice: 1,
+        borderRadius: "5px",
+      }}
+    >
+      <Flex
+        direction="column"
+        bg={"rgba(19, 19, 35, 1)"}
+        borderRadius={"5px"}
+        width={"100%"}
+      >
+        <Text fontSize={"20px"} textAlign={"center"} fontFamily={"LoRes15"}>
+          LEADERBOARD
+        </Text>
+        {!leaderboardLoading && leaderboard.length > 0 && (
+          <TableContainer overflowX={"auto"} overflowY="scroll">
+            <Table variant="unstyled">
+              <Tbody>
+                {leaderboard.map((holder, index) => (
+                  <Tr>
+                    <Td fontSize={"20px"} p="4px" textAlign="center">
+                      <Text fontSize="14px">{index + 1}</Text>
+                    </Td>
+                    <Td fontSize={"20px"} p="4px" textAlign="center">
+                      <Text fontSize="14px">{holder.name}</Text>
+                    </Td>
+                    <Td fontSize={"20px"} p="4px" textAlign="center" isNumeric>
+                      <Text fontSize="14px">
+                        {truncateValue(holder.totalFees, 2)}
+                      </Text>
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </TableContainer>
+        )}
+        {leaderboardLoading && (
+          <Flex justifyContent={"center"} p="20px">
+            <Spinner />
           </Flex>
-        </Flex>
-      )}
-      {/* {showLeaderboard && (
-        <Flex
-          ref={leaderboardRef}
-          borderRadius={"5px"}
-          p="1px"
-          position="absolute"
-          top="50px"
-          bottom="10px"
-          left="0"
-          width={"100%"}
-          zIndex={3}
-          style={{
-            border: "1px solid",
-            borderWidth: "1px",
-            borderImageSource:
-              "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
-            borderImageSlice: 1,
-            borderRadius: "5px",
-          }}
-        >
-          <Flex
-            direction="column"
-            bg={"rgba(19, 19, 35, 1)"}
-            borderRadius={"5px"}
-            width={"100%"}
+        )}
+        {!leaderboardLoading && leaderboard.length === 0 && (
+          <Text textAlign={"center"} p="20px">
+            no leaderboard found
+          </Text>
+        )}
+      </Flex>
+    </Flex>
+  );
+};
+
+const Chat = ({
+  chat,
+  isVipChat,
+}: {
+  chat: ChatReturnType;
+  isVipChat?: boolean;
+}) => {
+  const { user } = useUser();
+
+  const { channel, leaderboard } = useChannelContext();
+  const { channelQueryData } = channel;
+  const { isVip } = leaderboard;
+
+  const userIsChannelOwner = useMemo(
+    () => user?.address === channelQueryData?.owner.address,
+    [user, channelQueryData]
+  );
+
+  const userIsModerator = useMemo(
+    () =>
+      channelQueryData?.roles?.some(
+        (m) => m?.userAddress === user?.address && m?.role === 2
+      ),
+    [user, channelQueryData]
+  );
+
+  const {
+    scrollRef,
+    isAtBottom,
+    channelChatCommands,
+    handleScrollToPresent,
+    handleIsAtBottom,
+    sendChatMessage,
+  } = useChatBox(
+    isVipChat ? "vip-chat" : "chat",
+    chat.receivedMessages,
+    chat.hasMessagesLoaded,
+    chat.channel
+  );
+
+  const [emojisToAnimate, setEmojisToAnimate] = useState<
+    { emoji: string; id: number }[]
+  >([]);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState(0);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      setContainerHeight(containerRef.current.offsetHeight);
+    }
+  }, [containerRef]);
+
+  const handleAnimateReactionEmoji = (str: string) => {
+    const id = Date.now();
+    setEmojisToAnimate((prev) => [...prev, { emoji: str, id }]);
+
+    // Remove the emoji from the state after the animation duration
+    setTimeout(() => {
+      setEmojisToAnimate((prev) => prev.filter((emoji) => emoji.id !== id));
+    }, 4000);
+  };
+
+  useEffect(() => {
+    if (!chat.allMessages || chat.allMessages.length === 0) return;
+    const latestMessage = chat.allMessages[chat.allMessages.length - 1];
+    if (
+      Date.now() - latestMessage.timestamp < 2000 &&
+      latestMessage.name === ADD_REACTION_EVENT &&
+      latestMessage.data.body
+    )
+      handleAnimateReactionEmoji(latestMessage.data.body);
+  }, [chat.allMessages]);
+
+  return (
+    <Flex
+      mt="10px"
+      direction="column"
+      minW="100%"
+      width="100%"
+      h="100%"
+      position={"relative"}
+    >
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "absolute",
+          pointerEvents: "none",
+        }}
+        ref={containerRef}
+      >
+        {emojisToAnimate.map(({ emoji, id }) => (
+          <span
+            key={id}
+            className="floatingEmoji"
+            style={
+              {
+                "--translateY": `${containerHeight - 120}px`,
+              } as CSSProperties & { "--translateY": string }
+            }
           >
-            <Text fontSize={"36px"} fontWeight="bold" textAlign={"center"}>
-              HIGH SCORES
-            </Text>
-            {channelQueryData?.token?.symbol && (
-              <Text
-                color={"#B6B6B6"}
-                fontSize={"14px"}
-                fontWeight="400"
-                textAlign={"center"}
-              >
-                {`who owns the most $${channelQueryData?.token?.symbol}?`}
-              </Text>
-            )}
-            {holdersLoading && (
-              <Flex justifyContent={"center"} p="20px">
-                <Spinner />
-              </Flex>
-            )}
-            {!holdersLoading && holders.length > 0 && (
-              <TableContainer overflowX={"auto"} overflowY="scroll">
-                <Table variant="unstyled">
-                  <Thead>
-                    <Tr>
-                      <Th
-                        textTransform={"lowercase"}
-                        fontSize={"20px"}
-                        p="10px"
-                        textAlign="center"
-                      >
-                        rank
-                      </Th>
-                      <Th
-                        textTransform={"lowercase"}
-                        fontSize={"20px"}
-                        p="10px"
-                        textAlign="center"
-                      >
-                        name
-                      </Th>
-                      <Th
-                        textTransform={"lowercase"}
-                        fontSize={"20px"}
-                        p="10px"
-                        textAlign="center"
-                        isNumeric
-                      >
-                        amount
-                      </Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {holders.map((holder, index) => (
-                      <Tr key={index}>
-                        <Td fontSize={"20px"} p="10px" textAlign="center">
-                          {index + 1}
-                        </Td>
-                        <Td fontSize={"20px"} p="10px" textAlign="center">
-                          {holder.name}
-                        </Td>
-                        <Td
-                          fontSize={"20px"}
-                          p="10px"
-                          textAlign="center"
-                          isNumeric
-                        >
-                          {truncateValue(holder.quantity, 2)}
-                        </Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
-              </TableContainer>
-            )}
-            {!holdersLoading && holders.length === 0 && (
-              <Text textAlign={"center"} p="20px">
-                no holders found
-              </Text>
-            )}
-          </Flex>
-        </Flex>
-      )} */}
-      <SharesInterface messages={receivedMessages} />
-      <MessageList
-        scrollRef={scrollRef}
-        messages={receivedMessages}
-        channel={channel}
-        isAtBottomCallback={handleIsAtBottom}
-      />
+            {emoji}
+          </span>
+        ))}
+      </div>
+      {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
+        <Text textAlign={"center"}>
+          You must have at least one VIP badge to use this chat.
+        </Text>
+      )}
+      <Flex
+        direction="column"
+        overflowX="auto"
+        height="100%"
+        id={isVipChat ? "vip-chat" : "chat"}
+        position="relative"
+        mt="8px"
+      >
+        {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
+          <Flex
+            position="absolute"
+            style={{ backdropFilter: "blur(6px)" }}
+            left={"0"}
+            right={"0"}
+            top={"0"}
+            bottom={"0"}
+            zIndex={"1"}
+          />
+        )}
+        <MessageList
+          scrollRef={scrollRef}
+          messages={chat.receivedMessages}
+          channel={chat.channel}
+          isAtBottomCallback={handleIsAtBottom}
+          isVipChat={isVipChat}
+        />
+      </Flex>
       <Flex justifyContent="center">
-        {!isAtBottom && hasMessagesLoaded && receivedMessages.length > 0 && (
+        {!isAtBottom && chat.hasMessagesLoaded && (
           <Box
             bg="rgba(98, 98, 98, 0.6)"
             p="4px"
@@ -876,18 +844,26 @@ const StandaloneAblyChatComponent = ({
             }}
             onClick={handleScrollToPresent}
           >
-            <Text fontSize="12px" textAlign={"center"}>
-              scroll to present
+            <Text fontSize="12px">
+              scrolling paused. click to scroll to bottom.
             </Text>
           </Box>
         )}
       </Flex>
-      <ChatForm
-        sendChatMessage={sendChatMessage}
-        additionalChatCommands={channelChatCommands}
-      />
+      {!isVipChat && <ChannelTournament />}
+      {(userIsChannelOwner || userIsModerator || isVip || !isVipChat) && (
+        <Flex w="100%">
+          <ChatForm
+            sendChatMessage={sendChatMessage}
+            additionalChatCommands={channelChatCommands}
+            allowPopout
+            channel={chat.channel}
+            isVipChat={isVipChat}
+          />
+        </Flex>
+      )}
     </Flex>
   );
 };
 
-export default StandaloneAblyChatComponent;
+export default StandaloneChatComponent;

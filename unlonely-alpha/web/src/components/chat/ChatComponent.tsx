@@ -37,11 +37,7 @@ import {
   InteractionType,
   NULL_ADDRESS,
 } from "../../constants";
-import {
-  ChatReturnType,
-  useChat,
-  useChatBox,
-} from "../../hooks/chat/useChatV2";
+import { ChatReturnType, useChat, useChatBox } from "../../hooks/chat/useChat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import {

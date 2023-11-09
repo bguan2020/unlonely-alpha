@@ -21,15 +21,17 @@ import {
   useGetTournamentPayout,
 } from "../../hooks/contracts/useTournament";
 import { useUser } from "../../hooks/context/useUser";
-import { NULL_ADDRESS } from "../../constants";
+import { InteractionType, NULL_ADDRESS } from "../../constants";
 import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import centerEllipses from "../../utils/centerEllipses";
 
 export const ChannelTournament = () => {
   const { userAddress, walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
-  const { channel, leaderboard } = useChannelContext();
+  const { channel, arcade, leaderboard } = useChannelContext();
   const { handleIsVip } = leaderboard;
+  const { addToChatbot } = arcade;
 
   const { channelQueryData } = channel;
   const { network } = useNetworkContext();
@@ -38,6 +40,8 @@ export const ChannelTournament = () => {
   const [amountOfBadges, setAmountOfBadges] = useState<string>("0");
   const [isBuying, setIsBuying] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const { user } = useUser();
 
   const tournamentContract = getContractFromNetwork(
     "unlonelyTournament",
@@ -192,6 +196,18 @@ export const ChannelTournament = () => {
           topics: data.logs[0].topics,
         });
         const args: any = topics.args;
+        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+          args.trade.isBuy ? "bought" : "sold"
+        } ${args.trade.badgeAmount} badges!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.BUY_BADGES,
+          title,
+          description: `${user?.username ?? userAddress ?? ""}:${
+            args.trade.badgeAmount
+          }`,
+        });
         await postBadgeTrade({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
@@ -220,6 +236,18 @@ export const ChannelTournament = () => {
           topics: data.logs[0].topics,
         });
         const args: any = topics.args;
+        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+          args.trade.isBuy ? "bought" : "sold"
+        } ${args.trade.badgeAmount} badges!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.SELL_BADGES,
+          title,
+          description: `${user?.username ?? userAddress ?? ""}:${
+            args.trade.badgeAmount
+          }`,
+        });
         await postBadgeTrade({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
