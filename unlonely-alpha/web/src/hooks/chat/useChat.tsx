@@ -16,13 +16,7 @@ import usePostFirstChat from "../server/usePostFirstChat";
 import { useChannel } from "./useChannel";
 import centerEllipses from "../../utils/centerEllipses";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
-import { REACTION_EMOJIS } from "../../components/chat/emoji/constants";
 import { Message, SenderStatus } from "../../constants/types/chat";
-
-const initializeEmojis = REACTION_EMOJIS.map((emoji) => ({
-  emojiType: emoji,
-  count: 0,
-}));
 
 export type ChatReturnType = {
   channel: any;
@@ -56,7 +50,6 @@ export const useChat = (): ChatReturnType => {
         isFC: false,
         isLens: false,
         isGif: false,
-        reactions: initializeEmojis,
         senderStatus: SenderStatus.CHATBOT,
         body,
       },
@@ -296,7 +289,6 @@ export const useChatBox = (
           address: user.address,
           channelUserRank: userRank,
           isGif,
-          reactions: initializeEmojis,
           senderStatus,
           body,
         },
@@ -325,7 +317,6 @@ export const useChatBox = (
         isFC: false,
         isLens: false,
         isGif: false,
-        reactions: initializeEmojis,
         senderStatus: SenderStatus.CHATBOT,
         body,
       },

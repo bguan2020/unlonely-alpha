@@ -11,6 +11,7 @@ import {
   Text,
   Container,
   Table,
+  Image,
   TableContainer,
   Tbody,
   Td,
@@ -20,6 +21,7 @@ import {
   useToast,
   Input,
   Spinner,
+  Tooltip,
 } from "@chakra-ui/react";
 import {
   useEffect,
@@ -61,6 +63,7 @@ import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import { getTimeFromMillis } from "../../utils/time";
 import { GamblableEvent, SharesEventState } from "../../generated/graphql";
+import Participants from "../presence/Participants";
 import { getSortedLeaderboard } from "../../utils/getSortedLeaderboard";
 
 const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
@@ -107,6 +110,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
         <Container centerContent maxW="100%" h="100%" alignSelf="end" p="0">
           <Flex width="100%">
             <OuterBorder
+              cursor={"pointer"}
               type={BorderType.OCEAN}
               zIndex={selectedTab === "chat" ? 4 : 2}
               onClick={() => setSelectedTab("chat")}
@@ -115,14 +119,16 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
             >
               <Flex
                 bg={selectedTab === "chat" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
-                py="0.3rem"
                 width="100%"
                 justifyContent={"center"}
               >
-                <Text>CHAT</Text>
+                <Text fontFamily="LoRes15" fontSize="30px" fontWeight={"bold"}>
+                  chat
+                </Text>
               </Flex>
             </OuterBorder>
             <OuterBorder
+              cursor={"pointer"}
               type={BorderType.OCEAN}
               zIndex={selectedTab === "trade" ? 4 : 2}
               onClick={() => setSelectedTab("trade")}
@@ -131,14 +137,16 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
             >
               <Flex
                 bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
-                py="0.3rem"
                 width="100%"
                 justifyContent={"center"}
               >
-                <Text>VOTE</Text>
+                <Text fontFamily="LoRes15" fontSize="30px" fontWeight={"bold"}>
+                  vote
+                </Text>
               </Flex>
             </OuterBorder>
             <OuterBorder
+              cursor={"pointer"}
               type={BorderType.OCEAN}
               zIndex={selectedTab === "vip" ? 4 : 2}
               onClick={() => setSelectedTab("vip")}
@@ -146,12 +154,18 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
               pb={selectedTab === "vip" ? "0px" : undefined}
             >
               <Flex
-                bg={selectedTab === "vip" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
-                py="0.3rem"
+                bg={selectedTab === "vip" ? "#1b9d9d" : "#9112be"}
                 width="100%"
                 justifyContent={"center"}
+                alignItems={"center"}
+                gap="5px"
               >
-                <Text>VIP</Text>
+                <Text fontFamily="LoRes15" fontSize="30px" fontWeight={"bold"}>
+                  vip
+                </Text>
+                <Tooltip label="placeholder" shouldWrapChildren>
+                  <Image src="/svg/info.svg" width="16px" height="16px" />
+                </Tooltip>
               </Flex>
             </OuterBorder>
           </Flex>
@@ -165,24 +179,32 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
           >
             <Flex
               bg="rgba(24, 22, 47, 1)"
-              p={"1rem"}
+              p={"0.5rem"}
               width={"100%"}
               direction="column"
             >
-              <Flex borderRadius={"5px"} p="1px" zIndex={3} mb="75px">
+              <Participants />
+              <Flex
+                mt={"0.5rem"}
+                borderRadius={"5px"}
+                p="1px"
+                zIndex={3}
+                mb="75px"
+              >
                 <Flex
                   direction="column"
                   position="absolute"
                   style={{ backdropFilter: "blur(6px)" }}
                   left={"10px"}
                   right={"10px"}
+                  border={"1px solid rgba(255, 255, 255, 0.1)"}
                 >
                   <Text
                     fontSize={"20px"}
                     textAlign={"center"}
                     fontFamily={"LoRes15"}
                   >
-                    LEADERBOARD
+                    leaderboard
                   </Text>
                   <IconButton
                     aria-label="show leaderboard"
@@ -209,8 +231,14 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                     />
                   )}
                   <TableContainer
-                    overflowY={leaderboardIsCollapsed ? "hidden" : "auto"}
-                    maxHeight={leaderboardIsCollapsed ? "45px" : "150px"}
+                    overflowY={leaderboardIsCollapsed ? "hidden" : "scroll"}
+                    maxHeight={
+                      leaderboardIsCollapsed
+                        ? leaderboard.length === 0
+                          ? "30px"
+                          : "45px"
+                        : "150px"
+                    }
                     transition={"max-height 0.2s ease-in-out"}
                   >
                     <Table variant="unstyled" size="xs">
@@ -242,11 +270,6 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                     <Flex justifyContent={"center"} p="20px">
                       <Spinner />
                     </Flex>
-                  )}
-                  {!leaderboardLoading && leaderboard.length === 0 && (
-                    <Text textAlign={"center"} p="20px">
-                      no leaderboard found
-                    </Text>
                   )}
                 </Flex>
               </Flex>

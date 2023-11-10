@@ -361,7 +361,7 @@ export const ChannelTournament = () => {
     <Flex
       direction="column"
       bg={determineBg()}
-      borderRadius="15px"
+      borderRadius="0px"
       p="1rem"
       boxShadow={userPayout > BigInt(0) ? "-2px -2px 2px white" : undefined}
     >
@@ -369,7 +369,7 @@ export const ChannelTournament = () => {
         <>
           <Flex alignItems="center" gap="10px">
             <Text fontFamily={"LoRes15"} fontSize="25px">
-              VIP
+              vip
             </Text>
             {protocolFeeDestination !== NULL_ADDRESS && (
               <Flex
@@ -386,7 +386,7 @@ export const ChannelTournament = () => {
                   _active={{}}
                   onClick={() => setIsBuying(true)}
                   borderRadius="0px"
-                  maxHeight="20px"
+                  maxHeight="25px"
                 >
                   <Text fontSize="13px">BUY</Text>
                 </Button>
@@ -398,7 +398,7 @@ export const ChannelTournament = () => {
                   _active={{}}
                   onClick={() => setIsBuying(false)}
                   borderRadius="0px"
-                  maxHeight="20px"
+                  maxHeight="25px"
                 >
                   <Text fontSize="13px">SELL</Text>
                 </Button>
@@ -494,7 +494,7 @@ export const ChannelTournament = () => {
             <Flex direction="column" gap={"5px"}>
               <Flex gap={"5px"}>
                 <Text fontFamily={"LoRes15"} fontSize="25px">
-                  VIP
+                  vip
                 </Text>
                 {protocolFeeDestination !== NULL_ADDRESS &&
                   userPayout === BigInt(0) && (

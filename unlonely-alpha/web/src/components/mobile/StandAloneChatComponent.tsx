@@ -38,7 +38,6 @@ import { ChatReturnType, useChatBox, useChat } from "../../hooks/chat/useChat";
 import { ADD_REACTION_EVENT } from "../../constants";
 import MessageList from "../chat/MessageList";
 import ChatForm from "../chat/ChatForm";
-import { ChannelTournament } from "../channels/ChannelTournament";
 import { GET_SUBSCRIPTION } from "../../constants/queries";
 import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubscription";
 import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChannelFromSubscription";
@@ -46,6 +45,7 @@ import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { Trade } from "../chat/ChatComponent";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -335,7 +335,7 @@ const StandaloneChatComponent = ({
             width="100%"
             justifyContent={"center"}
           >
-            <Text>CHAT</Text>
+            <Text>chat</Text>
           </Flex>
         </OuterBorder>
         <OuterBorder
@@ -351,7 +351,7 @@ const StandaloneChatComponent = ({
             width="100%"
             justifyContent={"center"}
           >
-            <Text>VOTE</Text>
+            <Text>vote</Text>
           </Flex>
         </OuterBorder>
         <OuterBorder
@@ -362,12 +362,12 @@ const StandaloneChatComponent = ({
           pb={selectedTab === "vip" ? "0px" : undefined}
         >
           <Flex
-            bg={selectedTab === "vip" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+            bg={selectedTab === "vip" ? "#1b9d9d" : "#9112be"}
             py="0.3rem"
             width="100%"
             justifyContent={"center"}
           >
-            <Text>VIP</Text>
+            <Text>vip</Text>
           </Flex>
         </OuterBorder>
       </Flex>
@@ -654,7 +654,7 @@ const LeaderboardComponent = () => {
         width={"100%"}
       >
         <Text fontSize={"20px"} textAlign={"center"} fontFamily={"LoRes15"}>
-          LEADERBOARD
+          leaderboard
         </Text>
         {!leaderboardLoading && leaderboard.length > 0 && (
           <TableContainer overflowX={"auto"} overflowY="scroll">
@@ -684,11 +684,6 @@ const LeaderboardComponent = () => {
             <Spinner />
           </Flex>
         )}
-        {!leaderboardLoading && leaderboard.length === 0 && (
-          <Text textAlign={"center"} p="20px">
-            no leaderboard found
-          </Text>
-        )}
       </Flex>
     </Flex>
   );
@@ -702,6 +697,7 @@ const Chat = ({
   isVipChat?: boolean;
 }) => {
   const { user } = useUser();
+  const { isStandalone } = useUserAgent();
 
   const { channel, leaderboard } = useChannelContext();
   const { channelQueryData } = channel;
@@ -801,9 +797,16 @@ const Chat = ({
         ))}
       </div>
       {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
-        <Text textAlign={"center"}>
-          You must have at least one VIP badge to use this chat.
-        </Text>
+        <>
+          <Text textAlign={"center"}>
+            You must have at least one VIP badge to use this chat.
+          </Text>
+          {isStandalone && (
+            <Text textAlign={"center"}>
+              (Trading vip badges is only available on desktop right now)
+            </Text>
+          )}
+        </>
       )}
       <Flex
         direction="column"
@@ -850,7 +853,7 @@ const Chat = ({
           </Box>
         )}
       </Flex>
-      {!isVipChat && <ChannelTournament />}
+      {/* {!isVipChat && <ChannelTournament />} */}
       {(userIsChannelOwner || userIsModerator || isVip || !isVipChat) && (
         <Flex w="100%">
           <ChatForm

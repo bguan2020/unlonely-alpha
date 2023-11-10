@@ -7,7 +7,6 @@ import {
   Text,
   Image,
   Tooltip,
-  Grid,
   Stack,
 } from "@chakra-ui/react";
 
@@ -150,12 +149,12 @@ const DesktopPage = ({
                     </Tooltip>
                   </Flex>
                 )}
-                <Grid templateColumns="50% 50%" gap={4} mt="20px">
+                <Flex gap={4} mt="20px" justifyContent={"space-between"}>
                   <ChannelDesc />
-                  <Flex gap="1rem" margin="1rem" justifyContent={"flex-end"}>
+                  <Flex gap="1rem" mt="1rem" justifyContent={"flex-end"}>
                     <ChannelTournament />
                   </Flex>
-                </Grid>
+                </Flex>
               </Stack>
               <Stack
                 direction="column"

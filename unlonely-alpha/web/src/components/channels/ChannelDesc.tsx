@@ -50,7 +50,7 @@ const ChannelDesc = () => {
           wordBreak={"break-all"}
         >
           <Text
-            fontSize={["1rem", "1.2rem"]}
+            fontSize={["1rem", "25px"]}
             fontWeight="bold"
             noOfLines={2}
             wordBreak={"break-word"}

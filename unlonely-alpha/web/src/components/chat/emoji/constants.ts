@@ -31,7 +31,6 @@ export const REACTION_EMOJIS = [
   "👎",
   "🚀",
   "🙈",
-  "🫶",
 ];
 
 export const unicodeEmojis = categoriesList.reduce(

@@ -1,17 +1,17 @@
-import { ExternalLinkIcon } from "@chakra-ui/icons";
 import {
   Box,
-  Flex,
-  Text,
   Image,
+  Flex,
+  Link,
+  Text,
   Button,
   Modal,
   ModalOverlay,
   ModalContent,
-  Link,
   Spinner,
 } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 import {
   APPOINT_USER_EVENT,
@@ -21,10 +21,10 @@ import {
 } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
-import Badges from "./Badges";
 import { Message, SenderStatus } from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import usePostUserRoleForChannel from "../../hooks/server/usePostUserRoleForChannel";
+import Badges from "./Badges";
 
 type Props = {
   index: number;
@@ -47,9 +47,6 @@ const MessageBody = ({
   const { isVip } = leaderboard;
   const { channelQueryData } = c;
   const { user } = useUser();
-  // const { isStandalone } = useUserAgent();
-  // const [showEmojiList, setShowEmojiList] = useState<null | string>(null);
-  // const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const { postUserRoleForChannel, loading } = usePostUserRoleForChannel({
@@ -157,175 +154,173 @@ const MessageBody = ({
               key={index}
               borderRadius="10px"
               {...messageBg()}
-              // px="10px"
-              // pt="10px"
-              // pb={showEmojiList === message.id ? "15px" : "10px"}
               p="5px"
-              my="5px"
               position="relative"
             >
-              <Flex direction="row" align="center">
-                <Badges user={user} message={message} />
-                <ChatUserModal
-                  isOpen={isOpen}
-                  handleClose={() => {
-                    setIsBanning(false);
-                    setIsAppointing(false);
-                    setIsOpen(false);
-                  }}
-                >
-                  {!isBanning && !isAppointing && (
-                    <>
-                      <Text
-                        _hover={{ cursor: "pointer" }}
-                        fontSize="16px"
-                        color={message.data.chatColor}
-                        fontWeight="bold"
-                      >
-                        {message.data.username
-                          ? message.data.username
-                          : centerEllipses(message.data.address, 10)}
-                        :
-                      </Text>
-                      {message.data.address}
-                      {(userIsChannelOwner || userIsModerator) &&
-                        message.data.address !==
-                          channelQueryData?.owner.address &&
-                        message.data.address !== user?.address &&
-                        !isBanning && (
-                          <>
-                            {!channelQueryData?.roles?.some(
-                              (m) =>
-                                m?.userAddress === message.data.address &&
-                                m?.role === 2
-                            ) ? (
-                              <Button
-                                mt="20px"
-                                bg="#842007"
-                                _hover={{}}
-                                _focus={{}}
-                                _active={{}}
-                                onClick={() => setIsBanning(true)}
-                              >
-                                ban user from chat
-                              </Button>
-                            ) : (
-                              <Text
-                                textAlign={"center"}
-                                fontSize="14px"
-                                color="#db9719"
-                              >
-                                Cannot ban this user because they are a
-                                moderator, remove their status on your dashboard
-                                first
-                              </Text>
-                            )}
-                          </>
-                        )}
-                      {userIsChannelOwner &&
-                        message.data.address !== user?.address &&
-                        !channelQueryData?.roles?.some(
-                          (m) =>
-                            m?.userAddress === message.data.address &&
-                            m?.role === 2
-                        ) &&
-                        !isAppointing && (
+              <ChatUserModal
+                isOpen={isOpen}
+                handleClose={() => {
+                  setIsBanning(false);
+                  setIsAppointing(false);
+                  setIsOpen(false);
+                }}
+              >
+                {!isBanning && !isAppointing && (
+                  <>
+                    <Text
+                      _hover={{ cursor: "pointer" }}
+                      fontSize="16px"
+                      color={message.data.chatColor}
+                      fontWeight="bold"
+                    >
+                      {message.data.username
+                        ? message.data.username
+                        : centerEllipses(message.data.address, 10)}
+                      :
+                    </Text>
+                    {message.data.address}
+                    {(userIsChannelOwner || userIsModerator) &&
+                      message.data.address !==
+                        channelQueryData?.owner.address &&
+                      message.data.address !== user?.address &&
+                      !isBanning && (
+                        <>
+                          {!channelQueryData?.roles?.some(
+                            (m) =>
+                              m?.userAddress === message.data.address &&
+                              m?.role === 2
+                          ) ? (
+                            <Button
+                              mt="20px"
+                              bg="#842007"
+                              _hover={{}}
+                              _focus={{}}
+                              _active={{}}
+                              onClick={() => setIsBanning(true)}
+                            >
+                              ban user from chat
+                            </Button>
+                          ) : (
+                            <Text
+                              textAlign={"center"}
+                              fontSize="14px"
+                              color="#db9719"
+                            >
+                              Cannot ban this user because they are a moderator,
+                              remove their status on your dashboard first
+                            </Text>
+                          )}
+                        </>
+                      )}
+                    {userIsChannelOwner &&
+                      message.data.address !== user?.address &&
+                      !channelQueryData?.roles?.some(
+                        (m) =>
+                          m?.userAddress === message.data.address &&
+                          m?.role === 2
+                      ) &&
+                      !isAppointing && (
+                        <Button
+                          mt="20px"
+                          bg="#074a84"
+                          _hover={{}}
+                          _focus={{}}
+                          _active={{}}
+                          onClick={() => setIsAppointing(true)}
+                        >
+                          appoint user as chat moderator
+                        </Button>
+                      )}
+                  </>
+                )}
+                {isBanning && (
+                  <>
+                    {!loading ? (
+                      <Flex direction="column" gap="10px">
+                        <Text textAlign="center">
+                          are you sure you want to ban this user from chatting
+                          on your channel and all their chat messages?
+                        </Text>
+                        <Flex justifyContent={"space-evenly"}>
                           <Button
-                            mt="20px"
-                            bg="#074a84"
+                            bg="#b12805"
                             _hover={{}}
                             _focus={{}}
                             _active={{}}
-                            onClick={() => setIsAppointing(true)}
+                            onClick={ban}
                           >
-                            appoint user as chat moderator
+                            yes, do it
                           </Button>
-                        )}
-                    </>
-                  )}
-                  {isBanning && (
-                    <>
-                      {!loading ? (
-                        <Flex direction="column" gap="10px">
-                          <Text textAlign="center">
-                            are you sure you want to ban this user from chatting
-                            on your channel and all their chat messages?
-                          </Text>
-                          <Flex justifyContent={"space-evenly"}>
-                            <Button
-                              bg="#b12805"
-                              _hover={{}}
-                              _focus={{}}
-                              _active={{}}
-                              onClick={ban}
-                            >
-                              yes, do it
-                            </Button>
-                            <Button
-                              opacity={"0.5"}
-                              border={"1px solid white"}
-                              bg={"transparent"}
-                              _hover={{}}
-                              _focus={{}}
-                              _active={{}}
-                              onClick={() => setIsBanning(false)}
-                            >
-                              maybe not...
-                            </Button>
-                          </Flex>
+                          <Button
+                            opacity={"0.5"}
+                            border={"1px solid white"}
+                            bg={"transparent"}
+                            _hover={{}}
+                            _focus={{}}
+                            _active={{}}
+                            onClick={() => setIsBanning(false)}
+                          >
+                            maybe not...
+                          </Button>
                         </Flex>
-                      ) : (
-                        <Flex justifyContent={"center"}>
-                          <Spinner size="xl" />
+                      </Flex>
+                    ) : (
+                      <Flex justifyContent={"center"}>
+                        <Spinner size="xl" />
+                      </Flex>
+                    )}
+                  </>
+                )}
+                {isAppointing && (
+                  <>
+                    {!loading ? (
+                      <Flex direction="column" gap="10px">
+                        <Text textAlign="center">
+                          are you sure you want to make this user a chat
+                          moderator?
+                        </Text>
+                        <Text textAlign="center" color="#8ced15">
+                          you can always remove their status through your
+                          dashboard
+                        </Text>
+                        <Flex justifyContent={"space-evenly"}>
+                          <Button
+                            bg="#054db1"
+                            _hover={{}}
+                            _focus={{}}
+                            _active={{}}
+                            onClick={appoint}
+                          >
+                            yes, do it
+                          </Button>
+                          <Button
+                            opacity={"0.5"}
+                            border={"1px solid white"}
+                            bg={"transparent"}
+                            _hover={{}}
+                            _focus={{}}
+                            _active={{}}
+                            onClick={() => setIsAppointing(false)}
+                          >
+                            maybe not...
+                          </Button>
                         </Flex>
-                      )}
-                    </>
-                  )}
-                  {isAppointing && (
-                    <>
-                      {!loading ? (
-                        <Flex direction="column" gap="10px">
-                          <Text textAlign="center">
-                            are you sure you want to make this user a chat
-                            moderator?
-                          </Text>
-                          <Text textAlign="center" color="#8ced15">
-                            you can always remove their status through your
-                            dashboard
-                          </Text>
-                          <Flex justifyContent={"space-evenly"}>
-                            <Button
-                              bg="#054db1"
-                              _hover={{}}
-                              _focus={{}}
-                              _active={{}}
-                              onClick={appoint}
-                            >
-                              yes, do it
-                            </Button>
-                            <Button
-                              opacity={"0.5"}
-                              border={"1px solid white"}
-                              bg={"transparent"}
-                              _hover={{}}
-                              _focus={{}}
-                              _active={{}}
-                              onClick={() => setIsAppointing(false)}
-                            >
-                              maybe not...
-                            </Button>
-                          </Flex>
-                        </Flex>
-                      ) : (
-                        <Flex justifyContent={"center"}>
-                          <Spinner size="xl" />
-                        </Flex>
-                      )}
-                    </>
-                  )}
-                </ChatUserModal>
+                      </Flex>
+                    ) : (
+                      <Flex justifyContent={"center"}>
+                        <Spinner size="xl" />
+                      </Flex>
+                    )}
+                  </>
+                )}
+              </ChatUserModal>
+              <Text as="span">
+                <Badges user={user} message={message} />
                 <Text
-                  onClick={() => setIsOpen(true)}
+                  as="span"
+                  onClick={() => {
+                    if (message.data.username !== "chatbot🤖") setIsOpen(true);
+                  }}
                   _hover={{ cursor: "pointer" }}
                   fontSize="12px"
                   color={message.data.chatColor}
@@ -334,211 +329,92 @@ const MessageBody = ({
                   {message.data.username
                     ? message.data.username
                     : centerEllipses(message.data.address, 10)}
-                  :
                 </Text>
-              </Flex>
-              <Flex justifyContent="space-between" flexDirection="column">
-                {message.data.isGif ? (
+                :{" "}
+                {message.data.isGif && (
                   <>
-                    <Flex flexDirection="row">
-                      <Image src={messageText} h="40px" p="5px" />
-                      <Image src={messageText} h="40px" p="5px" />
-                      <Image src={messageText} h="40px" p="5px" />
-                    </Flex>
-                  </>
-                ) : (
-                  <>
-                    {linkArray ? (
-                      <Flex direction="column">
-                        <Text
-                          filter={
-                            message.data.senderStatus === SenderStatus.VIP &&
-                            !userIsChannelOwner &&
-                            !userIsModerator &&
-                            !isVip
-                              ? "blur(5px)"
-                              : "blur(0px)"
-                          }
-                          fontSize={
-                            message.data.address === NULL_ADDRESS
-                              ? "12px"
-                              : "14px"
-                          }
-                          wordBreak="break-word"
-                          textAlign="left"
-                        >
-                          {fragments.map((fragment, i) => {
-                            if (fragment.isLink) {
-                              return (
-                                <Link
-                                  href={fragment.message}
-                                  isExternal
-                                  key={i}
-                                >
-                                  {fragment.message}
-                                  <ExternalLinkIcon mx="2px" />
-                                </Link>
-                              );
-                            } else {
-                              return <span key={i}>{fragment.message}</span>;
-                            }
-                          })}
-                        </Text>
-                      </Flex>
-                    ) : (
-                      <Text
-                        color="white"
-                        fontSize={
-                          message.data.address === NULL_ADDRESS
-                            ? "12px"
-                            : "14px"
-                        }
-                        wordBreak="break-word"
-                        textAlign="left"
-                        filter={
-                          message.data.senderStatus === SenderStatus.VIP &&
-                          !userIsChannelOwner &&
-                          !userIsModerator &&
-                          !isVip
-                            ? "blur(5px)"
-                            : "blur(0px)"
-                        }
-                      >
-                        {messageText.split("\n").map((line, index) => (
-                          <span key={index}>
-                            {line}
-                            <br />
-                          </span>
-                        ))}
-                      </Text>
-                    )}
+                    <Image
+                      src={messageText}
+                      display="inline"
+                      verticalAlign={"middle"}
+                      h="40px"
+                      p="5px"
+                    />
+                    <Image
+                      src={messageText}
+                      display="inline"
+                      verticalAlign={"middle"}
+                      h="40px"
+                      p="5px"
+                    />
+                    <Image
+                      src={messageText}
+                      display="inline"
+                      verticalAlign={"middle"}
+                      h="40px"
+                      p="5px"
+                    />
                   </>
                 )}
-                {/* <div
-                  className="showme"
-                  style={{
-                    position: "absolute",
-                    left: "5px",
-                    bottom: "-10px",
-                  }}
-                >
-                  <Flex
-                    borderRadius={"5px"}
-                    p="1px"
-                    bg={
-                      "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+                {!message.data.isGif && linkArray && (
+                  <Text
+                    as="span"
+                    color="#15dae4"
+                    filter={
+                      message.data.senderStatus === SenderStatus.VIP &&
+                      !userIsChannelOwner &&
+                      !userIsModerator &&
+                      !isVip
+                        ? "blur(5px)"
+                        : "blur(0px)"
+                    }
+                    fontSize={
+                      message.data.address === NULL_ADDRESS ? "12px" : "14px"
+                    }
+                    wordBreak="break-word"
+                    textAlign="left"
+                  >
+                    {fragments.map((fragment, i) => {
+                      if (fragment.isLink) {
+                        return (
+                          <Link href={fragment.message} isExternal key={i}>
+                            {fragment.message}
+                            <ExternalLinkIcon mx="2px" />
+                          </Link>
+                        );
+                      } else {
+                        return <span key={i}>{fragment.message}</span>;
+                      }
+                    })}
+                  </Text>
+                )}
+                {!message.data.isGif && !linkArray && (
+                  <Text
+                    as="span"
+                    color="white"
+                    fontSize={
+                      message.data.address === NULL_ADDRESS ? "12px" : "14px"
+                    }
+                    wordBreak="break-word"
+                    textAlign="left"
+                    filter={
+                      message.data.senderStatus === SenderStatus.VIP &&
+                      !userIsChannelOwner &&
+                      !userIsModerator &&
+                      !isVip
+                        ? "blur(5px)"
+                        : "blur(0px)"
                     }
                   >
-                    <Button
-                      aria-label="Chat-Reaction"
-                      onClick={() =>
-                        setShowEmojiList(showEmojiList ? null : message.id)
-                      }
-                      height="12px"
-                      width="12px"
-                      padding={"10px"}
-                      minWidth={"0px"}
-                      bg={"#C6C0C0"}
-                      _hover={{}}
-                      _active={{}}
-                      _focus={{}}
-                    >
-                      <AddIcon height="12px" width="12px" color={"white"} />
-                    </Button>
-                  </Flex>
-                </div> */}
-                {/* <Flex flexDirection="row">
-                  {message.data.reactions?.map((reaction) => (
-                    <div
-                      key={reaction.emojiType}
-                      className={
-                        "text-xs rounded-full p-2 m-1 space-x-2  bg-slate-100 hover:bg-slate-50"
-                      }
-                      style={{
-                        cursor: buttonDisabled ? "not-allowed" : "pointer",
-                      }}
-                      onClick={() => {
-                        if (buttonDisabled) return;
-                        sendMessageReaction(
-                          reaction.emojiType,
-                          message.extras.timeserial,
-                          ADD_REACTION_EVENT
-                        );
-                        setTimeout(() => {
-                          setButtonDisabled(false);
-                        }, 3000);
-                        setButtonDisabled(true);
-                      }}
-                    >
-                      {reaction.count > 0 && (
-                        <Flex
-                          flexDirection="row"
-                          alignItems={"center"}
-                          bgColor="#5A5A5A"
-                          borderRadius={"10px"}
-                          mb={"5px"}
-                        >
-                          <EmojiDisplay
-                            emoji={reaction.emojiType}
-                            fontSize={"16px"}
-                            buttonDisabled={buttonDisabled}
-                            setButtonDisabled={setButtonDisabled}
-                          />
-                          <span>
-                            <Flex
-                              pl="2px"
-                              textColor="white"
-                              fontSize="14px"
-                              mr="4px"
-                            >
-                              {reaction.count}
-                            </Flex>
-                          </span>
-                        </Flex>
-                      )}
-                    </div>
-                  ))}
-                </Flex> */}
-              </Flex>
-              {/* {showEmojiList === message.id && (
-                <Flex
-                  flexWrap="wrap"
-                  background={"rgba(255, 255, 255, 0.5)"}
-                  borderRadius={"10px"}
-                >
-                  {REACTION_EMOJIS.map((emoji) => (
-                    <Box
-                      minH="40px"
-                      background="transparent"
-                      p="5px"
-                      key={emoji}
-                      style={{
-                        cursor: buttonDisabled ? "not-allowed" : "pointer",
-                      }}
-                      onClick={() => {
-                        setButtonDisabled(true);
-                        sendMessageReaction(
-                          emoji,
-                          message.extras.timeserial,
-                          ADD_REACTION_EVENT
-                        );
-                        setTimeout(() => {
-                          setButtonDisabled(false);
-                        }, 2000);
-                      }}
-                    >
-                      <EmojiDisplay
-                        emoji={emoji}
-                        fontSize={"18px"}
-                        buttonDisabled={buttonDisabled}
-                        setButtonDisabled={setButtonDisabled}
-                        channel={channel}
-                        timeserial={message.extras.timeserial}
-                      />
-                    </Box>
-                  ))}
-                </Flex>
-              )} */}
+                    {messageText.split("\n").map((line, index) => (
+                      <span key={index}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
+                  </Text>
+                )}
+              </Text>
             </Box>
           </Flex>
         </Flex>

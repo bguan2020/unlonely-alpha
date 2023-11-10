@@ -260,8 +260,10 @@ export const createLivepeerClip = async (
       `id:${endTime}`
     );
     const playbackData: any = await fetch(
-      `https://livepeer.studio/api/playback/${asset.playbackId}`
-    );
+      `https://livepeer.studio/api/playback/${asset.playbackId}`,
+      { headers }
+    ).then((res) => res.json());
+
     const playBackUrl = playbackData.meta.source[0].url;
 
     const thumbNailUrl = await getLivepeerThumbnail(asset.playbackId);

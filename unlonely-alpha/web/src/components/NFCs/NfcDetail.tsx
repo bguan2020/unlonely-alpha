@@ -235,13 +235,13 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         mr="1rem"
         gap={"10px"}
       >
-        {nfc && nfc?.videoThumbnail && nfc?.videoLink ? (
+        {nfc && nfc?.videoLink ? (
           <>
             <video
               controls
               loop
               preload="metadata"
-              poster={nfc?.videoThumbnail}
+              poster={nfc?.videoThumbnail ?? "/svg/defaultThumbnail.svg"}
             >
               <source src={nfc?.videoLink} type="video/mp4"></source>
             </video>

@@ -31,31 +31,29 @@ const NfcCard = ({ nfc }: any) => {
             position: "relative",
           }}
         >
-          {nfc.videoThumbnail && (
-            <Box position="relative" mb="10px">
-              <Image
-                src={nfc.videoThumbnail}
-                width={["236px", "380px"]}
-                height={["132px", "213px"]}
-                borderRadius={"10px"}
-              />
-              <Image
-                src="/images/playIcon.png"
-                opacity={0.5}
-                style={
-                  {
-                    position: "absolute",
-                    zIndex: 1,
-                    visibility: "visible",
-                    margin: "auto",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                  } as React.CSSProperties
-                }
-              />
-            </Box>
-          )}
+          <Box position="relative" mb="10px">
+            <Image
+              src={nfc.videoThumbnail ?? "/svg/defaultThumbnail.svg"}
+              width={["236px", "380px"]}
+              height={["132px", "213px"]}
+              borderRadius={"10px"}
+            />
+            <Image
+              src="/images/playIcon.png"
+              opacity={0.5}
+              style={
+                {
+                  position: "absolute",
+                  zIndex: 1,
+                  visibility: "visible",
+                  margin: "auto",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                } as React.CSSProperties
+              }
+            />
+          </Box>
         </Flex>
         <Flex justifyContent="space-between">
           <Text fontSize={16} fontWeight="bold" noOfLines={1}>

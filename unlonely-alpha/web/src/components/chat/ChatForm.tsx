@@ -1,11 +1,9 @@
 import {
   Flex,
-  Textarea,
   Stack,
   IconButton,
   Image,
   useToast,
-  Box,
   Spinner,
   Text,
   Button,
@@ -13,6 +11,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverArrow,
+  Input,
 } from "@chakra-ui/react";
 import React, { useCallback, useState } from "react";
 import copy from "copy-to-clipboard";
@@ -197,7 +196,7 @@ const ChatForm = ({
       body: emoji,
       name: reactionEvent,
     });
-    setShowEmojiReactionList(false);
+    // setShowEmojiReactionList(false);
   };
 
   return (
@@ -259,9 +258,10 @@ const ChatForm = ({
                   flexWrap="wrap"
                   background={"rgba(255, 255, 255, 0.2)"}
                   borderRadius={"10px"}
+                  justifyContent="space-between"
                 >
                   {REACTION_EMOJIS.map((emoji) => (
-                    <Box
+                    <Button
                       minH="40px"
                       background="transparent"
                       p="5px"
@@ -269,12 +269,15 @@ const ChatForm = ({
                       style={{
                         cursor: reactionDisabled ? "not-allowed" : "pointer",
                       }}
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{ transform: "scale(1.15)" }}
                       onClick={() => {
-                        setReactionDisabled(true);
+                        // setReactionDisabled(true);
                         sendMessageReaction(emoji, ADD_REACTION_EVENT);
-                        setTimeout(() => {
-                          setReactionDisabled(false);
-                        }, 2000);
+                        // setTimeout(() => {
+                        //   setReactionDisabled(false);
+                        // }, 2000);
                       }}
                     >
                       <EmojiDisplay
@@ -283,14 +286,14 @@ const ChatForm = ({
                         buttonDisabled={reactionDisabled}
                         setButtonDisabled={setReactionDisabled}
                       />
-                    </Box>
+                    </Button>
                   ))}
                 </Flex>
               )}
               <Flex justifyContent={"space-between"}>
                 <Flex>
                   {clipLoading ? (
-                    <Flex justifyContent="center">
+                    <Flex alignSelf="center" mr="8px">
                       <Spinner />
                     </Flex>
                   ) : (
@@ -405,7 +408,7 @@ const ChatForm = ({
                   />
                 </Flex>
                 <IconButton
-                  icon={<BsFillHeartFill />}
+                  icon={<BsFillHeartFill size={24} />}
                   bg="transparent"
                   aria-label="react"
                   _focus={{}}
@@ -421,23 +424,18 @@ const ChatForm = ({
                 width="100%"
                 position="relative"
                 direction="column"
-                border={
-                  blastMode
-                    ? "1px solid red"
-                    : "1px solid rgba(250, 250, 250, 0.5)"
-                }
+                border={blastMode ? "1px solid red" : "1px solid #FAFAFA"}
                 px="10px"
                 py="5px"
-                background={blastMode ? "rgba(255, 108, 108, 0.35)" : undefined}
+                background={blastMode ? "rgba(255, 108, 108, 0.35)" : "#131225"}
               >
-                <Flex alignItems="center">
-                  <Textarea
-                    size="md"
-                    resize="none"
+                <Flex alignItems="center" gap="5px">
+                  <Input
                     variant="unstyled"
+                    size="sm"
                     maxLength={500}
                     value={messageText}
-                    color={"white"}
+                    color={"FAFAFA"}
                     fontWeight="medium"
                     placeholder={
                       blastMode
@@ -456,8 +454,10 @@ const ChatForm = ({
                     onKeyPress={handleKeyPress}
                     style={{ zIndex: 0, minHeight: "50px" }}
                     height={"100%"}
+                    minHeight={"0px !important"}
                   />
                   <IconButton
+                    size={"10px"}
                     type="submit"
                     disabled={messageTextIsEmpty}
                     icon={

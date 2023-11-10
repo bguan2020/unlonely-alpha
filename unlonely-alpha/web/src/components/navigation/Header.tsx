@@ -18,9 +18,9 @@ const Header: React.FC = () => {
       backgroundColor="transparent"
       minWidth="90%"
       alignItems="center"
-      marginBottom={logo ? "20px" : "0px"}
+      marginBottom={logo ? "5px" : "0px"}
       padding="1rem"
-      paddingBottom={logo ? "10px" : "5px"}
+      paddingBottom={"5px"}
       paddingTop={logo ? "20px" : "5px"}
       justifyContent="space-between"
       left={["0px", "0px", "0px"]}

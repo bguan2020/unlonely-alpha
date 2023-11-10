@@ -72,6 +72,8 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
     }
   };
 
+  console.log("nfc", nfc);
+
   return (
     <Flex
       scrollSnapAlign={"start"}
@@ -130,7 +132,7 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
         backgroundColor="rgba(25,22,47, 0.9)" // This will overlay a semi-transparent black
         zIndex={2}
       />
-      {nfc && nfc?.videoThumbnail && nfc.videoLink ? (
+      {nfc && nfc.videoLink ? (
         <Flex direction={"column"} position="relative">
           <video
             ref={videoRef}

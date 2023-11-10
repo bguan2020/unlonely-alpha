@@ -67,10 +67,13 @@ const ConnectWallet = ({
                       _hover={{ bg: "#020202" }}
                       _focus={{}}
                       _active={{}}
+                      px="23px"
                       bg={"#131323"}
                       rightIcon={<ChevronDownIcon />}
                     >
-                      <Text>{centerEllipses(userAddress, 13)}</Text>
+                      <Text fontFamily="LoRes15" fontSize="20px">
+                        {centerEllipses(userAddress, 13)}
+                      </Text>
                     </MenuButton>
                   </Flex>
 
@@ -81,7 +84,7 @@ const ConnectWallet = ({
                       _active={{}}
                       onClick={redirectToBridge}
                     >
-                      bridge
+                      bridge to base ETH
                     </MenuItem>
                     <MenuItem
                       _hover={{ bg: "#1f1f3c" }}
@@ -110,9 +113,12 @@ const ConnectWallet = ({
                     _focus={{}}
                     _active={{}}
                     bg={"#131323"}
+                    px="23px"
                     rightIcon={<ChevronDownIcon />}
                   >
-                    <Text>Connect</Text>
+                    <Text fontFamily="LoRes15" fontSize="20px">
+                      Connect
+                    </Text>
                   </MenuButton>
                 </Flex>
 
@@ -131,7 +137,7 @@ const ConnectWallet = ({
                     _active={{}}
                     onClick={redirectToBridge}
                   >
-                    bridge
+                    bridge to base ETH
                   </MenuItem>
                 </MenuList>
               </Menu>
@@ -152,9 +158,12 @@ const ConnectWallet = ({
                   _focus={{}}
                   _active={{}}
                   bg={"#131323"}
+                  px="23px"
                   rightIcon={<ChevronDownIcon />}
                 >
-                  <Text>Login</Text>
+                  <Text fontFamily="LoRes15" fontSize="20px">
+                    Login
+                  </Text>
                 </MenuButton>
               </Flex>
 
@@ -173,7 +182,7 @@ const ConnectWallet = ({
                   _active={{}}
                   onClick={redirectToBridge}
                 >
-                  bridge
+                  bridge to base ETH
                 </MenuItem>
               </MenuList>
             </Menu>
