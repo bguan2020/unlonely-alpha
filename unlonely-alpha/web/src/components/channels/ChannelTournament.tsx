@@ -415,7 +415,7 @@ export const ChannelTournament = () => {
               <Flex gap="1rem" my="5px" justifyContent={"space-between"}>
                 <Flex direction="column">
                   <Text fontSize="10px" textAlign="center">
-                    how many
+                    #
                   </Text>
                   <Flex alignItems={"center"}>
                     <Input
@@ -436,7 +436,7 @@ export const ChannelTournament = () => {
                 </Flex>
                 <Flex direction="column">
                   <Text fontSize="10px" textAlign="center">
-                    have
+                    own
                   </Text>
                   <Text whiteSpace={"nowrap"} margin="auto">
                     {truncateValue(vipBadgeBalance, 0)}

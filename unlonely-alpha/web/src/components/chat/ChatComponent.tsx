@@ -837,9 +837,19 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   data.isYay as boolean
                 );
                 return (
-                  <Flex justifyContent={"space-between"}>
+                  <Flex justifyContent={"space-between"} px="4px">
                     <Text>{data.trader}</Text>
-                    <Text color={color}>
+                    <Text
+                      color={color}
+                      fontStyle={
+                        (data.taskType === InteractionType.BUY_VOTES &&
+                          !data.isYay) ||
+                        (data.taskType === InteractionType.SELL_VOTES &&
+                          data.isYay)
+                          ? "italic"
+                          : "unset"
+                      }
+                    >
                       {data.taskType === InteractionType.BUY_VOTES
                         ? "bought"
                         : "sold"}{" "}
@@ -938,7 +948,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
               <Flex justifyContent={"space-between"} mb="5px">
                 <Flex direction="column">
                   <Text fontSize="10px" textAlign="center">
-                    how many
+                    #
                   </Text>
                   <Flex alignItems={"center"}>
                     <Input
@@ -959,7 +969,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                 </Flex>
                 <Flex direction="column">
                   <Text fontSize="10px" textAlign="center">
-                    have
+                    own
                   </Text>
                   <Text whiteSpace={"nowrap"} margin="auto">
                     {isYay ? yayVotesBalance : nayVotesBalance}
@@ -977,8 +987,8 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                     : isBuying && !isYay
                     ? "#fe2815"
                     : !isBuying && !isYay
-                    ? "#809100"
-                    : "#fe6715"
+                    ? "#46a800"
+                    : "#fe2815"
                 }
                 _focus={{}}
                 _hover={{}}
