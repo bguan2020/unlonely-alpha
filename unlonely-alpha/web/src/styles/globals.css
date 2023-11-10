@@ -1,13 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=DM+Sans&display=swap");
 
 @font-face {
-  font-family: "LoRes15";
+  font-family: "Neue Pixel Sans";
   src: url("/fonts/NeuePixelSans.ttf");
 }
 
 @font-face {
   font-family: "LoRes15";
-  src: url("/fonts/LoRes15OTNarrow-Regular.ttf");
+  src: url("/fonts/LoRes15OT-Bold.ttf");
 }
 
 @font-face {
