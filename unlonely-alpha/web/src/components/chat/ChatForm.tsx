@@ -300,7 +300,7 @@ const ChatForm = ({
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
-                          icon={<Image src="/svg/cut.svg" />}
+                          icon={<Image src="/svg/cut.svg" height={"20px"} />}
                           aria-label="clip stream"
                           bg="transparent"
                           _focus={{}}
@@ -346,7 +346,9 @@ const ChatForm = ({
                           _focus={{}}
                           _hover={{ transform: "scale(1.15)" }}
                           _active={{ transform: "scale(1.3)" }}
-                          icon={<Image src="/svg/pop-out.svg" />}
+                          icon={
+                            <Image src="/svg/pop-out.svg" height={"20px"} />
+                          }
                           bg="transparent"
                         />
                       </PopoverTrigger>
@@ -367,7 +369,7 @@ const ChatForm = ({
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
-                          icon={<Image src="/svg/blast.svg" />}
+                          icon={<Image src="/svg/blast.svg" height={"20px"} />}
                           aria-label="clip stream"
                           bg={blastMode ? "red" : "transparent"}
                           _focus={{}}
@@ -408,7 +410,7 @@ const ChatForm = ({
                   />
                 </Flex>
                 <IconButton
-                  icon={<BsFillHeartFill size={24} />}
+                  icon={<BsFillHeartFill size={15} />}
                   bg="transparent"
                   aria-label="react"
                   _focus={{}}
@@ -421,7 +423,7 @@ const ChatForm = ({
               </Flex>
               <Flex
                 mt="5px"
-                width="100%"
+                mx="15px"
                 position="relative"
                 direction="column"
                 border={blastMode ? "1px solid red" : "1px solid #FAFAFA"}

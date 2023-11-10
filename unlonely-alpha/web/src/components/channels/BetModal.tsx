@@ -550,7 +550,8 @@ export default function BetModal({
           )}
           {!isVerifier && (
             <Text textAlign={"center"} fontSize="13px">
-              You cannot verify events, please ask Brian for permission.
+              You do not have access to this feature. Please DM @brianguan on
+              telegram to get access to live-betting.
             </Text>
           )}
           {!verifyEventTxLoading ? (
@@ -622,6 +623,12 @@ export default function BetModal({
       )}
       {!isSharesEventLive && !isSharesEventPayout && !isSharesEventLock && (
         <Flex direction="column" gap="10px">
+          {!isVerifier && (
+            <Text textAlign={"center"} fontSize="13px">
+              You do not have access to this feature. Please DM @brianguan on
+              telegram to get access to live-betting.
+            </Text>
+          )}
           <Input
             variant="glow"
             placeholder={"Will I go on a second date?"}
@@ -703,7 +710,7 @@ export default function BetModal({
             _focus={{}}
             _active={{}}
             width="100%"
-            disabled={question.length === 0}
+            disabled={question.length === 0 || !isVerifier}
             onClick={async () =>
               channelQueryData?.sharesEvent &&
               channelQueryData?.sharesEvent?.length > 0

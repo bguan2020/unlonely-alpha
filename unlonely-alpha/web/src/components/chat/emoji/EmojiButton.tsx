@@ -23,7 +23,7 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif }: Props) => {
     <Popover>
       <PopoverTrigger>
         <IconButton
-          icon={<Image src="/svg/emoji.svg" />}
+          icon={<Image src="/svg/emoji.svg" height={"20px"} />}
           aria-label="clip stream"
           bg="transparent"
           _focus={{}}
@@ -42,7 +42,7 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif }: Props) => {
       >
         <PopoverArrow bg={"#3B3547"} />
         <PopoverCloseButton />
-        <PopoverBody overflow={"scroll"} height="300px">
+        <PopoverBody overflow={"scroll"}>
           <EmojiPicker
             onSelectEmoji={onSelectEmoji}
             onSelectGif={onSelectGif}

@@ -1,12 +1,4 @@
-import {
-  Button,
-  Flex,
-  Box,
-  useToast,
-  Text,
-  Input,
-  Grid,
-} from "@chakra-ui/react";
+import { Button, Flex, Box, useToast, Text, Input } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { decodeEventLog, formatUnits } from "viem";
 import { useBalance, useBlockNumber } from "wagmi";
@@ -31,12 +23,10 @@ import {
 import { useUser } from "../../hooks/context/useUser";
 import { InteractionType, NULL_ADDRESS } from "../../constants";
 import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
-import useUserAgent from "../../hooks/internal/useUserAgent";
 import centerEllipses from "../../utils/centerEllipses";
 
 export const ChannelTournament = () => {
   const { userAddress, walletIsConnected } = useUser();
-  const { isStandalone } = useUserAgent();
   const { channel, chat, leaderboard, ui } = useChannelContext();
   const { channelQueryData, handleTotalBadges } = channel;
   const { handleIsVip } = leaderboard;
@@ -354,7 +344,7 @@ export const ChannelTournament = () => {
       return "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 3%, rgba(255,213,86,1) 4%, rgba(246,190,45,1) 6%, rgba(249,163,32,1) 7%, rgba(231,143,0,1) 8%, #2c1b0b 10%, #603208 100%)";
     if (tournament.isActive)
       return "radial-gradient(circle, rgba(19,19,35,1) 84%, rgba(40,96,179,1) 100%)";
-    return isStandalone ? "#570d5f" : "#131323";
+    return "#131323";
   };
 
   return (
@@ -365,228 +355,123 @@ export const ChannelTournament = () => {
       p="1rem"
       boxShadow={userPayout > BigInt(0) ? "-2px -2px 2px white" : undefined}
     >
-      {!isStandalone && (
-        <>
-          <Flex alignItems="center" gap="10px">
-            <Text fontFamily={"LoRes15"} fontSize="25px">
-              vip
-            </Text>
-            {protocolFeeDestination !== NULL_ADDRESS && (
-              <Flex
-                bg={"#131323"}
-                borderRadius="15px"
-                height="fit-content"
-                margin="auto"
-              >
-                <Button
-                  bg={isBuying ? "#46a800" : "transparent"}
-                  border={!isBuying ? "1px solid #46a800" : undefined}
-                  _focus={{}}
-                  _hover={{}}
-                  _active={{}}
-                  onClick={() => setIsBuying(true)}
-                  borderRadius="0px"
-                  maxHeight="25px"
-                >
-                  <Text fontSize="13px">BUY</Text>
-                </Button>
-                <Button
-                  bg={!isBuying ? "#fe2815" : "transparent"}
-                  border={isBuying ? "1px solid #fe2815" : undefined}
-                  _focus={{}}
-                  _hover={{}}
-                  _active={{}}
-                  onClick={() => setIsBuying(false)}
-                  borderRadius="0px"
-                  maxHeight="25px"
-                >
-                  <Text fontSize="13px">SELL</Text>
-                </Button>
-              </Flex>
-            )}
-          </Flex>
-          {errorMessage && (
-            <Text textAlign={"center"} color="red.400">
-              {errorMessage}
-            </Text>
-          )}
-          {protocolFeeDestination !== NULL_ADDRESS && userPayout === BigInt(0) && (
-            <>
-              <Flex gap="1rem" my="5px" justifyContent={"space-between"}>
-                <Flex direction="column">
-                  <Text fontSize="10px" textAlign="center">
-                    #
-                  </Text>
-                  <Flex alignItems={"center"}>
-                    <Input
-                      textAlign="center"
-                      width={"70px"}
-                      value={amountOfBadges}
-                      onChange={handleInputChange}
-                    />
-                  </Flex>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="10px" textAlign="center">
-                    ETH price
-                  </Text>
-                  <Text whiteSpace={"nowrap"} margin="auto">
-                    {truncateValue(formatUnits(badgePrice, 18), 4)}
-                  </Text>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="10px" textAlign="center">
-                    own
-                  </Text>
-                  <Text whiteSpace={"nowrap"} margin="auto">
-                    {truncateValue(vipBadgeBalance, 0)}
-                  </Text>
-                </Flex>
-              </Flex>
+      <>
+        <Flex alignItems="center" gap="10px">
+          <Text fontFamily={"LoRes15"} fontSize="25px">
+            VIP
+          </Text>
+          {protocolFeeDestination !== NULL_ADDRESS && (
+            <Flex
+              bg={"#131323"}
+              borderRadius="15px"
+              height="fit-content"
+              margin="auto"
+            >
               <Button
+                bg={isBuying ? "#46a800" : "transparent"}
+                border={!isBuying ? "1px solid #46a800" : undefined}
                 _focus={{}}
                 _hover={{}}
                 _active={{}}
-                width="100%"
-                bg={isBuying ? "#46a800" : "#fe2815"}
-                onClick={() => (isBuying ? buyVipBadge?.() : sellVipBadge?.())}
-                disabled={
-                  (isBuying && !buyVipBadge) || (!isBuying && !sellVipBadge)
-                }
+                onClick={() => setIsBuying(true)}
+                borderRadius="0px"
+                maxHeight="25px"
               >
-                {isBuying ? "BUY" : "SELL"}
+                <Text fontSize="13px">BUY</Text>
               </Button>
-            </>
-          )}
-          {protocolFeeDestination === NULL_ADDRESS ? (
-            <Flex>
-              <Text>Contract not ready, admin must set fee destination</Text>
-            </Flex>
-          ) : userPayout > BigInt(0) ? (
-            <Flex direction="column">
-              <Text color="#fff64a">The winning badge has been decided</Text>
-              <Flex justifyContent={"space-between"}>
-                <Text>your payout</Text>
-                <Text>{truncateValue(formatUnits(userPayout, 18))} ETH</Text>
-              </Flex>
               <Button
-                _hover={{}}
+                bg={!isBuying ? "#fe2815" : "transparent"}
+                border={isBuying ? "1px solid #fe2815" : undefined}
                 _focus={{}}
+                _hover={{}}
                 _active={{}}
-                bg={"#E09025"}
-                isDisabled={!claimTournamentPayout}
-                onClick={claimTournamentPayout}
+                onClick={() => setIsBuying(false)}
+                borderRadius="0px"
+                maxHeight="25px"
               >
-                get payout
+                <Text fontSize="13px">SELL</Text>
               </Button>
             </Flex>
-          ) : null}
-        </>
-      )}
-      {isStandalone && (
-        <>
-          {errorMessage && (
-            <Text textAlign={"center"} color="red.400">
-              {errorMessage}
-            </Text>
           )}
-          <Grid templateColumns="70% 30%" gap={"5px"}>
-            <Flex direction="column" gap={"5px"}>
-              <Flex gap={"5px"}>
-                <Text fontFamily={"LoRes15"} fontSize="25px">
-                  vip
+        </Flex>
+        {errorMessage && (
+          <Text textAlign={"center"} color="red.400">
+            {errorMessage}
+          </Text>
+        )}
+        {protocolFeeDestination !== NULL_ADDRESS && userPayout === BigInt(0) && (
+          <>
+            <Flex gap="1rem" my="5px" justifyContent={"space-between"}>
+              <Flex direction="column">
+                <Text fontSize="10px" textAlign="center">
+                  #
                 </Text>
-                {protocolFeeDestination !== NULL_ADDRESS &&
-                  userPayout === BigInt(0) && (
-                    <Flex
-                      bg={"#131323"}
-                      borderRadius="0px"
-                      height="fit-content"
-                      margin="auto"
-                    >
-                      <Button
-                        bg={isBuying ? "#46a800" : "transparent"}
-                        border={!isBuying ? "1px solid #46a800" : undefined}
-                        _focus={{}}
-                        _hover={{}}
-                        _active={{}}
-                        onClick={() => setIsBuying(true)}
-                        borderRadius="0px"
-                        maxHeight="25px"
-                      >
-                        <Text fontSize="13px">BUY</Text>
-                      </Button>
-                      <Button
-                        bg={!isBuying ? "#fe2815" : "transparent"}
-                        border={isBuying ? "1px solid #fe2815" : undefined}
-                        _focus={{}}
-                        _hover={{}}
-                        _active={{}}
-                        onClick={() => setIsBuying(false)}
-                        borderRadius="0px"
-                        maxHeight="25px"
-                      >
-                        <Text fontSize="13px">SELL</Text>
-                      </Button>
-                    </Flex>
-                  )}
-              </Flex>
-              {userPayout === BigInt(0) ? (
-                <Flex>
+                <Flex alignItems={"center"}>
                   <Input
                     textAlign="center"
-                    width={"70px"}
+                    width={"40px"}
                     value={amountOfBadges}
                     onChange={handleInputChange}
+                    p="10px"
                   />
-                  <Text whiteSpace={"nowrap"} margin="auto">
-                    {truncateValue(formatUnits(badgePrice, 18), 4)} ETH
-                  </Text>
                 </Flex>
-              ) : (
-                <Text color="#fff64a">The winning badge has been decided</Text>
-              )}
-            </Flex>
-            {protocolFeeDestination === NULL_ADDRESS ? (
-              <Flex>
-                <Text>Contract not ready, admin must set fee destination</Text>
               </Flex>
-            ) : userPayout > BigInt(0) ? (
               <Flex direction="column">
-                <Flex justifyContent={"space-between"}>
-                  <Text>your payout</Text>
-                  <Text>{truncateValue(formatUnits(userPayout, 18))} ETH</Text>
-                </Flex>
-                <Button
-                  _hover={{}}
-                  _focus={{}}
-                  _active={{}}
-                  bg={"#E09025"}
-                  isDisabled={!claimTournamentPayout}
-                  onClick={claimTournamentPayout}
-                >
-                  get payout
-                </Button>
+                <Text fontSize="10px" textAlign="center">
+                  ETH price
+                </Text>
+                <Text whiteSpace={"nowrap"} margin="auto">
+                  {truncateValue(formatUnits(badgePrice, 18), 4)}
+                </Text>
               </Flex>
-            ) : (
-              <Button
-                _focus={{}}
-                _hover={{}}
-                _active={{}}
-                width="100%"
-                height="100%"
-                bg={isBuying ? "#46a800" : "#fe2815"}
-                onClick={() => (isBuying ? buyVipBadge?.() : sellVipBadge?.())}
-                disabled={
-                  (isBuying && !buyVipBadge) || (!isBuying && !sellVipBadge)
-                }
-              >
-                {isBuying ? "BUY" : "SELL"}
-              </Button>
-            )}
-          </Grid>
-        </>
-      )}
+              <Flex direction="column">
+                <Text fontSize="10px" textAlign="center">
+                  own
+                </Text>
+                <Text whiteSpace={"nowrap"} margin="auto">
+                  {truncateValue(vipBadgeBalance, 0)}
+                </Text>
+              </Flex>
+            </Flex>
+            <Button
+              _focus={{}}
+              _hover={{}}
+              _active={{}}
+              width="100%"
+              bg={isBuying ? "#46a800" : "#fe2815"}
+              onClick={() => (isBuying ? buyVipBadge?.() : sellVipBadge?.())}
+              disabled={
+                (isBuying && !buyVipBadge) || (!isBuying && !sellVipBadge)
+              }
+            >
+              {isBuying ? "BUY" : "SELL"}
+            </Button>
+          </>
+        )}
+        {protocolFeeDestination === NULL_ADDRESS ? (
+          <Flex>
+            <Text>Contract not ready, admin must set fee destination</Text>
+          </Flex>
+        ) : userPayout > BigInt(0) ? (
+          <Flex direction="column">
+            <Text color="#fff64a">The winning badge has been decided</Text>
+            <Flex justifyContent={"space-between"}>
+              <Text>your payout</Text>
+              <Text>{truncateValue(formatUnits(userPayout, 18))} ETH</Text>
+            </Flex>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={"#E09025"}
+              isDisabled={!claimTournamentPayout}
+              onClick={claimTournamentPayout}
+            >
+              get payout
+            </Button>
+          </Flex>
+        ) : null}
+      </>
     </Flex>
   );
 };

@@ -114,7 +114,7 @@ const DesktopPage = ({
             <Stack
               mx={[0, 8, 4]}
               alignItems={["center", "initial"]}
-              spacing={[4, 8]}
+              spacing={[4, "1rem"]}
               direction={["column", "column", "row", "row"]}
             >
               <Stack direction="column" width={"100%"}>

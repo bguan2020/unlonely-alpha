@@ -24,12 +24,7 @@ const ChannelStreamerPerspective = () => {
 
   return (
     <Flex direction="column" width={"100%"}>
-      <Stack
-        my="5rem"
-        direction="column"
-        width={"100%"}
-        justifyContent="center"
-      >
+      <Stack direction="column" width={"100%"} justifyContent="center">
         <Flex width={"100%"} position="relative" justifyContent={"center"}>
           <SimpleGrid columns={3} spacing={10}>
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>

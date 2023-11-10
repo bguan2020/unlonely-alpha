@@ -51,9 +51,12 @@ const MessageList = memo(
         messages
           .filter((message) => message.name === CHAT_MESSAGE_EVENT)
           .filter((message) =>
-            isVipChat ? message.data.senderStatus === SenderStatus.USER : true
+            isVipChat
+              ? message.data.senderStatus === SenderStatus.VIP ||
+                message.data.senderStatus === SenderStatus.CHATBOT
+              : true
           ),
-      [messages]
+      [messages, isVipChat]
     );
 
     return (

@@ -122,7 +122,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                 width="100%"
                 justifyContent={"center"}
               >
-                <Text fontFamily="LoRes15" fontSize="30px" fontWeight={"bold"}>
+                <Text fontFamily="LoRes15" fontSize="25px" fontWeight={"bold"}>
                   chat
                 </Text>
               </Flex>
@@ -140,7 +140,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                 width="100%"
                 justifyContent={"center"}
               >
-                <Text fontFamily="LoRes15" fontSize="30px" fontWeight={"bold"}>
+                <Text fontFamily="LoRes15" fontSize="25px" fontWeight={"bold"}>
                   vote
                 </Text>
               </Flex>
@@ -160,7 +160,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                 alignItems={"center"}
                 gap="5px"
               >
-                <Text fontFamily="LoRes15" fontSize="30px" fontWeight={"bold"}>
+                <Text fontFamily="LoRes15" fontSize="25px" fontWeight={"bold"}>
                   vip
                 </Text>
                 <Tooltip label="placeholder" shouldWrapChildren>

@@ -4,7 +4,7 @@ import unicodeMap from "emoji-unicode-map";
 
 const _unicodeEmojis = {
   "crypto emojis": ["😂", "💰", "⛽️", "🌝", "📉", "🚀", "🔥"],
-  "love on leverage emojis": ["👀", "🥵", "💀", "💘", "📈", "🫣", "💔"],
+  "rizz olympics emojis": ["👀", "🥵", "💀", "💘", "📈", "🫣", "💔"],
 };
 
 export const gifsList = [
@@ -19,7 +19,7 @@ export const gifsList = [
   // "https://media.tenor.com/nxh5YC7o1YYAAAAM/jack-nicholson-yes.gif", // jack nicholson yes
 ];
 
-export const categoriesList = ["crypto emojis", "love on leverage emojis"];
+export const categoriesList = ["crypto emojis", "rizz olympics emojis"];
 
 export const REACTION_EMOJIS = [
   "⛽️",

@@ -10,16 +10,7 @@ import { BorderType, OuterBorder } from "../general/OuterBorder";
 
 const debounceDelay = 1000; // milliseconds
 
-function countDecimalPlaces(decimalString: string) {
-  // Check if there is a decimal point in the string
-  const index = decimalString.indexOf(".");
-  if (index === -1) {
-    // No decimal point, so no decimal places
-    return 0;
-  }
-  // Calculate the number of decimal places
-  return decimalString.length - index - 1;
-}
+const NUMBER_DECIMAL_THRESHOLD = 0.0000000001;
 
 const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
   const { ui } = useChannelContext();
@@ -60,7 +51,7 @@ const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
           remove={removeCoin}
           config={{
             notFixed: true,
-            numParticles: 6,
+            numParticles: 9,
             durationInMillis: 5000,
             vertSpeed: 4,
           }}
@@ -107,11 +98,8 @@ const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
     end: Number(debouncedVipPool),
     delay: 0,
     duration: 1,
-    decimals:
-      Number(debouncedVipPool) > 1 ? 6 : countDecimalPlaces(debouncedVipPool),
+    decimals: Number(debouncedVipPool) > 1 ? 3 : 10,
     useEasing: true,
-    onStart: () => console.log("Started counting!"),
-    onEnd: () => console.log("Finished counting!"),
   });
 
   useEffect(() => {
@@ -157,7 +145,7 @@ const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
   }, [chat.receivedMessages]);
 
   return (
-    <OuterBorder type={BorderType.FIRE}>
+    <OuterBorder type={BorderType.FIRE} m={"0px !important"}>
       <Flex
         width="100%"
         // bg="rgba(19, 18, 37, 1)"
@@ -179,14 +167,26 @@ const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
             //   "radial-gradient(circle, rgba(195,117,0,1) 40%, rgba(246,173,24,1) 59%, rgba(255,255,255,0) 100%)"
             // }
           >
-            <Text
-              fontFamily="LoRes15"
-              fontWeight="bold"
-              fontSize="40px"
-              color="#f7cf60"
-              ref={countUpRef}
-              textShadow={"white 1px 0 5px"}
-            />
+            {Number(debouncedVipPool) > NUMBER_DECIMAL_THRESHOLD ? (
+              <Text
+                fontFamily="LoRes15"
+                fontWeight="bold"
+                fontSize="40px"
+                color="#f7cf60"
+                ref={countUpRef}
+                textShadow={"white 1px 0 5px"}
+              />
+            ) : (
+              <Text
+                fontFamily="LoRes15"
+                fontWeight="bold"
+                fontSize="40px"
+                color="#f7cf60"
+                textShadow={"white 1px 0 5px"}
+              >
+                ~ 0
+              </Text>
+            )}
             <Text
               fontFamily="LoRes15"
               fontWeight="bold"
