@@ -76,7 +76,7 @@ const AppLayout: React.FC<Props> = ({
                     <AlertDescription>{error.toString()}</AlertDescription>
                   </Alert>
                 )}
-                <Skeleton isLoaded={!loading} overflowX="hidden">
+                <Skeleton isLoaded={!loading} overflowX="hidden" pb="20px">
                   {children}
                 </Skeleton>
               </Box>

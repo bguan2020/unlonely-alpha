@@ -342,7 +342,7 @@ export const ChannelTournament = () => {
   ]);
 
   useEffect(() => {
-    handleVipPool(truncateValue(formatUnits(tournament.vipPooledEth, 18), 4));
+    handleVipPool(formatUnits(tournament.vipPooledEth, 18));
   }, [tournament.vipPooledEth]);
 
   useEffect(() => {

@@ -37,7 +37,7 @@ import {
   InteractionType,
   NULL_ADDRESS,
 } from "../../constants";
-import { ChatReturnType, useChat, useChatBox } from "../../hooks/chat/useChat";
+import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import {
@@ -63,7 +63,7 @@ import { getTimeFromMillis } from "../../utils/time";
 import { GamblableEvent, SharesEventState } from "../../generated/graphql";
 import { getSortedLeaderboard } from "../../utils/getSortedLeaderboard";
 
-const ChatComponent = () => {
+const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { isStandalone } = useUserAgent();
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
@@ -79,7 +79,6 @@ const ChatComponent = () => {
     refetchGamblableEventLeaderboard,
   } = leaderboardContext;
 
-  const chat = useChat();
   const [leaderboard, setLeaderboard] = useState<
     { name: string; totalFees: number }[]
   >([]);

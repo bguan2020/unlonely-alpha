@@ -1,13 +1,20 @@
 import { useEffect } from "react";
 
-export const useBlastRainAnimation = (parentId: string, childClass: string) => {
+export const useBlastRainAnimation = (
+  parentId: string,
+  childClass: string,
+  config?: {
+    vertSpeed?: number;
+    horiSpeed?: number;
+  }
+) => {
   useEffect(() => {
     const parent = document.getElementById(parentId);
     if (!parent) return;
 
     const elements = parent.getElementsByClassName(childClass);
-    const vertSpeed = 3;
-    const horiSpeed = 1;
+    const vertSpeed = config?.vertSpeed ?? 3;
+    const horiSpeed = config?.horiSpeed ?? 1;
 
     const height = parent.clientHeight;
     const width = parent.clientWidth;

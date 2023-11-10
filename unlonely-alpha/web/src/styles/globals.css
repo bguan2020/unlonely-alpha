@@ -24,6 +24,32 @@ html {
   pointer-events: none;
 }
 
+@keyframes rotate-clockwise {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotate-counterclockwise {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.rotate-clockwise {
+  animation: rotate-clockwise 1s linear infinite;
+}
+
+.rotate-counterclockwise {
+  animation: rotate-counterclockwise 1s linear infinite;
+}
+
 @keyframes showThenHide {
   0% {
     opacity: 1;

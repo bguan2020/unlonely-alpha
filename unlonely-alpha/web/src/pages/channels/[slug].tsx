@@ -17,12 +17,10 @@ import ChannelStreamerPerspective from "../../components/channels/ChannelStreame
 import { ChannelTournament } from "../../components/channels/ChannelTournament";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
 import ChatComponent from "../../components/chat/ChatComponent";
-import { BorderType, OuterBorder } from "../../components/general/OuterBorder";
 import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
-// import PvpTransactionModal from "../../components/transactions/PvpTransactionModal";
 import {
   CHANNEL_DETAIL_QUERY,
   GET_BADGE_HOLDERS_BY_CHANNEL_QUERY,
@@ -39,6 +37,8 @@ import {
 } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import TournamentPot from "../../components/channels/TournamentPot";
+import { useChat } from "../../hooks/chat/useChat";
 
 const ChannelDetail = ({
   channelData,
@@ -68,7 +68,8 @@ const DesktopPage = ({
 }: {
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
-  const { channel } = useChannelContext();
+  const { channel, ui } = useChannelContext();
+  const chat = useChat();
 
   const {
     channelQueryData,
@@ -162,10 +163,8 @@ const DesktopPage = ({
                 maxW={["100%", "100%", "380px", "380px"]}
                 gap="1rem"
               >
-                <ChatComponent />
-                <OuterBorder type={BorderType.FIRE}>
-                  <Flex width="100%" bg="rgba(19, 18, 37, 1)"></Flex>
-                </OuterBorder>
+                <ChatComponent chat={chat} />
+                <TournamentPot chat={chat} />
               </Stack>
             </Stack>
           </>
