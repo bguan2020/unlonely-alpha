@@ -12,6 +12,7 @@ import {
   Spinner,
   SimpleGrid,
   Stack,
+  Button,
 } from "@chakra-ui/react";
 import {
   CSSProperties,
@@ -46,6 +47,8 @@ import { Trade } from "../chat/ChatComponent";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { ChannelTournament } from "../channels/ChannelTournament";
+import TournamentPot from "../channels/TournamentPot";
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -64,14 +67,17 @@ const StandaloneChatComponent = ({
   const [isBellAnimating, setIsBellAnimating] = useState(false);
   const [showInfo, setShowInfo] = useState<boolean>(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
+  const [showVip, setShowVip] = useState<boolean>(false);
   const [endpoint, setEndpoint] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
   );
   const clickedOutsideInfo = useRef(false);
   const clickedOutsideLeaderBoard = useRef(false);
+  const clickedOutsideVip = useRef(false);
   const infoRef = useRef<HTMLDivElement>(null);
   const leaderboardRef = useRef<HTMLDivElement>(null);
+  const vipRef = useRef<HTMLDivElement>(null);
 
   useOnClickOutside(infoRef, () => {
     if (showInfo) {
@@ -79,6 +85,7 @@ const StandaloneChatComponent = ({
       clickedOutsideInfo.current = true;
     }
     clickedOutsideLeaderBoard.current = false;
+    clickedOutsideVip.current = false;
   });
 
   useOnClickOutside(leaderboardRef, () => {
@@ -86,6 +93,16 @@ const StandaloneChatComponent = ({
       setShowLeaderboard(false);
       clickedOutsideLeaderBoard.current = true;
     }
+    clickedOutsideInfo.current = false;
+    clickedOutsideVip.current = false;
+  });
+
+  useOnClickOutside(vipRef, () => {
+    if (showVip) {
+      setShowVip(false);
+      clickedOutsideVip.current = true;
+    }
+    clickedOutsideLeaderBoard.current = false;
     clickedOutsideInfo.current = false;
   });
 
@@ -216,7 +233,7 @@ const StandaloneChatComponent = ({
       marginTop={!previewStream && isOwner ? "0" : "25vh"}
     >
       {chatChannel?.includes("channel") ? (
-        <Flex justifyContent={"space-between"}>
+        <Flex justifyContent={"space-between"} py="2px">
           <Flex alignItems="center">
             <IconButton
               _hover={{}}
@@ -298,6 +315,27 @@ const StandaloneChatComponent = ({
                 }
               }}
             />
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              px={"5px"}
+              bg={
+                "linear-gradient(163deg, rgba(255,255,255,1) 0%, rgba(255,227,143,1) 3%, rgba(255,213,86,1) 4%, rgba(246,190,45,1) 6%, #bb7205 7%, #daab0f 63%, #925a00 100%)"
+              }
+              boxShadow={"-2px -2px 2px white"}
+              onClick={() => {
+                if (clickedOutsideVip.current) {
+                  clickedOutsideVip.current = false;
+                  return;
+                }
+                setShowVip(!showVip);
+              }}
+            >
+              <Text fontFamily="LoRes15" fontSize="18px">
+                BUY VIP BADGES
+              </Text>
+            </Button>
           </Flex>
         </Flex>
       ) : (
@@ -319,6 +357,11 @@ const StandaloneChatComponent = ({
       {showLeaderboard && (
         <Flex ref={leaderboardRef}>
           <LeaderboardComponent />
+        </Flex>
+      )}
+      {showVip && (
+        <Flex ref={vipRef}>
+          <VipTradeComponent chat={chat} />
         </Flex>
       )}
       <Flex width="100%">
@@ -693,6 +736,40 @@ const LeaderboardComponent = () => {
   );
 };
 
+const VipTradeComponent = ({ chat }: { chat: ChatReturnType }) => {
+  return (
+    <Flex
+      borderRadius={"5px"}
+      p="1px"
+      position="absolute"
+      top="50px"
+      bottom="10px"
+      left="0"
+      width={"100%"}
+      zIndex={5}
+      style={{
+        border: "1px solid",
+        borderWidth: "1px",
+        borderImageSource:
+          "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
+        borderImageSlice: 1,
+        borderRadius: "5px",
+      }}
+    >
+      <Flex
+        direction="column"
+        bg={"rgba(19, 19, 35, 1)"}
+        borderRadius={"5px"}
+        width={"100%"}
+        gap="5px"
+      >
+        <TournamentPot chat={chat} />
+        <ChannelTournament />
+      </Flex>
+    </Flex>
+  );
+};
+
 const Chat = ({
   chat,
   isVipChat,
@@ -805,11 +882,11 @@ const Chat = ({
           <Text textAlign={"center"}>
             You must have at least one VIP badge to use this chat.
           </Text>
-          {isStandalone && (
+          {/* {isStandalone && (
             <Text textAlign={"center"}>
               (Trading vip badges is only available on desktop right now)
             </Text>
-          )}
+          )} */}
         </>
       )}
       <Flex
