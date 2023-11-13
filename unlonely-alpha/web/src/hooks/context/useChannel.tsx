@@ -83,6 +83,8 @@ const ChannelContext = createContext<{
     showChatCommandModal: boolean;
     showModeratorModal: boolean;
     vipPool: string;
+    tournamentActive: boolean;
+    handleTournamentActive: (value: boolean) => void;
     handleVipPool: (value: string) => void;
   };
 }>({
@@ -134,6 +136,8 @@ const ChannelContext = createContext<{
     showChatCommandModal: false,
     showModeratorModal: false,
     vipPool: "0",
+    tournamentActive: false,
+    handleTournamentActive: () => undefined,
     handleVipPool: () => undefined,
   },
 });
@@ -217,6 +221,7 @@ export const ChannelProvider = ({
 
   const [totalBadges, setTotalBadges] = useState<string>("0");
   const [vipPool, setVipPool] = useState<string>("0");
+  const [tournamentActive, setTournamentActive] = useState<boolean>(false);
 
   const {
     handleCreateClip,
@@ -298,6 +303,10 @@ export const ChannelProvider = ({
     setVipPool(value);
   }, []);
 
+  const handleTournamentActive = useCallback((value: boolean) => {
+    setTournamentActive(value);
+  }, []);
+
   const value = useMemo(
     () => ({
       channel: {
@@ -349,6 +358,8 @@ export const ChannelProvider = ({
         showChatCommandModal,
         showModeratorModal,
         vipPool,
+        tournamentActive,
+        handleTournamentActive,
         handleVipPool,
       },
     }),
@@ -396,6 +407,8 @@ export const ChannelProvider = ({
       totalBadges,
       handleTotalBadges,
       vipPool,
+      tournamentActive,
+      handleTournamentActive,
       handleVipPool,
     ]
   );

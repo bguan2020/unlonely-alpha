@@ -31,7 +31,7 @@ export const ChannelTournament = () => {
   const { channelQueryData, handleTotalBadges } = channel;
   const { handleIsVip } = leaderboard;
   const { addToChatbot } = chat;
-  const { handleVipPool } = ui;
+  const { handleVipPool, handleTournamentActive } = ui;
 
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
@@ -336,14 +336,18 @@ export const ChannelTournament = () => {
   }, [tournament.vipPooledEth]);
 
   useEffect(() => {
+    handleTournamentActive(tournament.isActive);
+  }, [tournament.isActive]);
+
+  useEffect(() => {
     handleTotalBadges(truncateValue(Number(vipBadgeSupply), 0));
   }, [vipBadgeSupply]);
 
   const determineBg = () => {
     if (userPayout > BigInt(0))
-      return "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 3%, rgba(255,213,86,1) 4%, rgba(246,190,45,1) 6%, rgba(249,163,32,1) 7%, rgba(231,143,0,1) 8%, #2c1b0b 10%, #603208 100%)";
+      return "linear-gradient(163deg, rgba(255,255,255,1) 0%, rgba(255,227,143,1) 3%, rgba(255,213,86,1) 4%, rgba(246,190,45,1) 6%, #bb7205 7%, #995803 63%, #a36604 100%)";
     if (tournament.isActive)
-      return "radial-gradient(circle, rgba(19,19,35,1) 84%, rgba(40,96,179,1) 100%)";
+      return "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 3%, rgba(255,213,86,1) 4%, rgba(246,190,45,1) 6%, rgba(249,163,32,1) 7%, rgba(231,143,0,1) 8%, #2c1b0b 10%, #603208 100%)";
     return "#131323";
   };
 
@@ -363,7 +367,7 @@ export const ChannelTournament = () => {
           {protocolFeeDestination !== NULL_ADDRESS && (
             <Flex
               bg={"#131323"}
-              borderRadius="15px"
+              borderRadius="0px"
               height="fit-content"
               margin="auto"
             >

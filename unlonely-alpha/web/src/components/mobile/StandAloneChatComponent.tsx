@@ -362,7 +362,11 @@ const StandaloneChatComponent = ({
           pb={selectedTab === "vip" ? "0px" : undefined}
         >
           <Flex
-            bg={selectedTab === "vip" ? "#1b9d9d" : "#9112be"}
+            bg={
+              selectedTab === "vip"
+                ? "#1b9d9d"
+                : "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 13%, rgba(255,213,86,1) 14%, rgba(246,190,45,1) 16%, rgba(249,163,32,1) 27%, rgba(231,143,0,1) 28%, #2e1405 30%, #603208 100%)"
+            }
             py="0.3rem"
             width="100%"
             justifyContent={"center"}

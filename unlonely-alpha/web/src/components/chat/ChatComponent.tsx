@@ -1,8 +1,4 @@
-import {
-  ChevronDownIcon,
-  TriangleDownIcon,
-  TriangleUpIcon,
-} from "@chakra-ui/icons";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import Link from "next/link";
 import { decodeEventLog, formatUnits } from "viem";
 import {
@@ -154,7 +150,11 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
               pb={selectedTab === "vip" ? "0px" : undefined}
             >
               <Flex
-                bg={selectedTab === "vip" ? "#1b9d9d" : "#9112be"}
+                bg={
+                  selectedTab === "vip"
+                    ? "#1b9d9d"
+                    : "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 13%, rgba(255,213,86,1) 14%, rgba(246,190,45,1) 16%, rgba(249,163,32,1) 27%, rgba(231,143,0,1) 28%, #2e1405 30%, #603208 100%)"
+                }
                 width="100%"
                 justifyContent={"center"}
                 alignItems={"center"}
@@ -163,7 +163,10 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                 <Text fontFamily="LoRes15" fontSize="25px" fontWeight={"bold"}>
                   vip
                 </Text>
-                <Tooltip label="placeholder" shouldWrapChildren>
+                <Tooltip
+                  label="buy a vip badge to get access to the VIP chat!"
+                  shouldWrapChildren
+                >
                   <Image src="/svg/info.svg" width="16px" height="16px" />
                 </Tooltip>
               </Flex>
@@ -903,8 +906,8 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   onClick={() => setIsYay(true)}
                 >
                   <Flex alignItems={"center"} gap="2px">
-                    <TriangleUpIcon />
-                    {truncateValue(String(yayVotesSupply), 0, true)}
+                    <Text>YES</Text>
+                    {/* {truncateValue(String(yayVotesSupply), 0, true)} */}
                   </Flex>
                 </Button>
                 <Button
@@ -916,8 +919,8 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   onClick={() => setIsYay(false)}
                 >
                   <Flex alignItems={"center"} gap="2px">
-                    <TriangleDownIcon />
-                    {truncateValue(String(nayVotesSupply), 0, true)}
+                    <Text>NO</Text>
+                    {/* {truncateValue(String(nayVotesSupply), 0, true)} */}
                   </Flex>
                 </Button>
               </Flex>

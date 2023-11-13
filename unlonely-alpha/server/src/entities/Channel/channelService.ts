@@ -335,21 +335,25 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
 };
 
 export const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
+  const TRIES = 5;
   try {
-    const response = await axios.get(
-      `https://livepeer.studio/api/playback/${livepeerPlaybackId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
-        },
-      }
-    );
+    while (TRIES > 0) {
+      const response = await axios.get(
+        `https://livepeer.studio/api/playback/${livepeerPlaybackId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+          },
+        }
+      );
 
-    const thumbnail = response.data.meta.source.find(
-      (source: Source) => source.hrn === "Thumbnail"
-    );
-
-    return thumbnail.url;
+      const thumbnail = response.data.meta.source.find(
+        (source: Source) => source.hrn === "Thumbnail"
+      );
+      if (thumbnail) return thumbnail.url;
+      await new Promise((resolve) => setTimeout(resolve, 3500));
+    }
+    return null;
   } catch (error: any) {
     console.log("getLivepeerThumbnail error", error);
     return null;

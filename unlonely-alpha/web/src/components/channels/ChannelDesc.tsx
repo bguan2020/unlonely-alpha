@@ -4,6 +4,7 @@ import { anonUrl } from "../presence/AnonUrl";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { BorderType, OuterBorder } from "../general/OuterBorder";
 
 const ChannelDesc = () => {
   const { isStandalone } = useUserAgent();
@@ -33,11 +34,19 @@ const ChannelDesc = () => {
             size="md"
           />
         </Flex>
-        <Flex p="0.5rem" bg={"#570d5f"} borderRadius="15px">
-          <Text fontSize="14px" textAlign={"center"}>
-            {truncateValue(totalBadges, 0)} badges
-          </Text>
-        </Flex>
+        <OuterBorder flex={"0"} type={BorderType.FIRE}>
+          <Flex
+            p="0.5rem"
+            bg={
+              "linear-gradient(163deg, rgba(231,204,126,1) 0%, rgba(203,167,60,1) 7%, rgba(201,149,13,1) 32%, rgba(195,128,27,1) 43%, rgba(167,103,0,1) 63%, rgba(112,53,0,1) 100%)"
+            }
+          >
+            <Text fontSize="14px" textAlign={"center"} fontFamily="LoRes15">
+              <Text fontSize="20px">{truncateValue(totalBadges, 0)}</Text>
+              badges
+            </Text>
+          </Flex>
+        </OuterBorder>
       </Flex>
       <Flex direction="column" gap={["4px", "16px"]} width="100%" pl="30px">
         <Flex

@@ -14,7 +14,7 @@ const NUMBER_DECIMAL_THRESHOLD = 0.0000000001;
 
 const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
   const { ui } = useChannelContext();
-  const { vipPool } = ui;
+  const { vipPool, tournamentActive } = ui;
 
   const countUpRef = useRef(null);
   const audioRef = useRef<HTMLAudioElement>(new Audio("/mp3/coin.mp3"));
@@ -98,19 +98,24 @@ const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
     end: Number(debouncedVipPool),
     delay: 0,
     duration: 1,
-    decimals: Number(debouncedVipPool) > 1 ? 3 : 10,
+    decimals:
+      Number(debouncedVipPool) === 0
+        ? 0
+        : Number(debouncedVipPool) > 1
+        ? 3
+        : 10,
     useEasing: true,
   });
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedVipPool(ui.vipPool);
+      setDebouncedVipPool(vipPool);
     }, debounceDelay);
 
     return () => {
       clearTimeout(handler);
     };
-  }, [ui.vipPool]);
+  }, [vipPool]);
 
   useEffect(() => {
     update(Number(debouncedVipPool));
@@ -148,26 +153,40 @@ const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
     <OuterBorder type={BorderType.FIRE} m={"0px !important"}>
       <Flex
         width="100%"
-        // bg="rgba(19, 18, 37, 1)"
         bg={
-          "radial-gradient(circle, rgba(158,98,0,1) 0%, rgba(120,74,0,1) 11%, rgba(56,38,0,1) 40%, rgba(19,18,37,1) 100%)"
+          !tournamentActive
+            ? "rgba(19,18,37,1)"
+            : "radial-gradient(circle, rgba(158,98,0,1) 0%, rgba(120,74,0,1) 11%, rgba(56,38,0,1) 40%, rgba(19,18,37,1) 100%)"
         }
         justifyContent={"center"}
         alignItems={"center"}
         position={"relative"}
       >
         {rainComponents}
-        <Flex direction="column">
-          <Text textAlign={"center"} fontSize="10px">
-            Vip Pool
-          </Text>
-          <Flex
-            gap="5px"
-            // bg={
-            //   "radial-gradient(circle, rgba(195,117,0,1) 40%, rgba(246,173,24,1) 59%, rgba(255,255,255,0) 100%)"
-            // }
-          >
-            {Number(debouncedVipPool) > NUMBER_DECIMAL_THRESHOLD ? (
+        <Flex direction="column" py="5px">
+          <>
+            <Text
+              fontFamily="LoRes15"
+              textAlign={"center"}
+              fontSize="20px"
+              color={tournamentActive ? "#fcd875" : "#c2c2c2"}
+            >
+              {tournamentActive
+                ? "tournament is live!"
+                : "tournament is not live"}
+            </Text>
+            <Flex gap="5px" justifyContent={"center"}>
+              {Number(debouncedVipPool) < NUMBER_DECIMAL_THRESHOLD &&
+                Number(debouncedVipPool) > 0 && (
+                  <Text
+                    fontFamily="LoRes15"
+                    fontWeight="bold"
+                    fontSize="40px"
+                    color="#f7cf60"
+                  >
+                    ~
+                  </Text>
+                )}
               <Text
                 fontFamily="LoRes15"
                 fontWeight="bold"
@@ -176,26 +195,24 @@ const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
                 ref={countUpRef}
                 textShadow={"white 1px 0 5px"}
               />
-            ) : (
               <Text
                 fontFamily="LoRes15"
                 fontWeight="bold"
                 fontSize="40px"
                 color="#f7cf60"
-                textShadow={"white 1px 0 5px"}
               >
-                ~ 0
+                ETH
               </Text>
-            )}
+            </Flex>
             <Text
+              textAlign={"center"}
+              fontSize="14px"
+              color="#e4b944"
               fontFamily="LoRes15"
-              fontWeight="bold"
-              fontSize="40px"
-              color="#f7cf60"
             >
-              ETH
+              in the vip pool
             </Text>
-          </Flex>
+          </>
         </Flex>
       </Flex>
     </OuterBorder>
