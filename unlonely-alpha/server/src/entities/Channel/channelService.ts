@@ -335,7 +335,7 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
 };
 
 export const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
-  const TRIES = 5;
+  let TRIES = 20;
   try {
     while (TRIES > 0) {
       const response = await axios.get(
@@ -350,8 +350,10 @@ export const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
       const thumbnail = response.data.meta.source.find(
         (source: Source) => source.hrn === "Thumbnail"
       );
+      console.log("livepeerthumbnail", thumbnail);
       if (thumbnail) return thumbnail.url;
-      await new Promise((resolve) => setTimeout(resolve, 3500));
+      await new Promise((resolve) => setTimeout(resolve, 6000));
+      TRIES--;
     }
     return null;
   } catch (error: any) {
