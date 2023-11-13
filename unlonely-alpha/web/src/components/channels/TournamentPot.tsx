@@ -54,6 +54,7 @@ const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
             numParticles: 9,
             durationInMillis: 5000,
             vertSpeed: 4,
+            downward: true,
           }}
         />
       )),

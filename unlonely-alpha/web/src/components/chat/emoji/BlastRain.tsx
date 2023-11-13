@@ -9,6 +9,7 @@ type Config = {
   horizSpeed?: number;
   notFixed?: boolean;
   durationInMillis?: number;
+  downward?: boolean;
 };
 
 export const BlastRain = React.memo(
