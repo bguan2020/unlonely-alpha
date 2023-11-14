@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
+
 import { GET_TOKEN_LEADERBOARD_QUERY } from "../../constants/queries";
 import { GetTokenLeaderboardQuery } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
@@ -87,7 +88,7 @@ const TokenLeaderboard = ({ callback }: { callback?: () => void }) => {
         fontSize={{ base: "30px", lg: "40px" }}
         fontWeight="400"
         textAlign={"center"}
-        fontFamily={"Neue Pixel Sans"}
+        fontFamily={"LoRes15"}
       >
         channel token leaderboard
       </Text>
@@ -168,7 +169,7 @@ const TokenLeaderboard = ({ callback }: { callback?: () => void }) => {
                     _active={{}}
                     onClick={() => setItemsShown((prev) => prev + 10)}
                   >
-                    <Text fontFamily="Neue Pixel Sans" fontWeight="light">
+                    <Text fontFamily="LoRes15" fontWeight="light">
                       See More
                     </Text>
                   </Button>

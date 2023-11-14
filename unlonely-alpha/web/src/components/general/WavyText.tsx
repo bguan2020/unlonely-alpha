@@ -7,7 +7,7 @@ export const WavyText = ({ text }: { text: string }) => {
         <Text
           className="bouncing-text"
           key={index}
-          fontFamily="Neue Pixel Sans"
+          fontFamily="LoRes15"
           style={{
             animationDelay: `${index * 0.1}s`,
           }}

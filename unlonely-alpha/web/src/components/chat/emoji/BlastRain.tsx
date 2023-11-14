@@ -3,19 +3,30 @@ import { useEffect, useRef } from "react";
 
 import { useBlastRainAnimation } from "../../../hooks/internal/useBlastRainAnimation";
 
+type Config = {
+  numParticles?: number;
+  vertSpeed?: number;
+  horizSpeed?: number;
+  notFixed?: boolean;
+  durationInMillis?: number;
+  downward?: boolean;
+};
+
 export const BlastRain = React.memo(
   ({
     emoji,
     uid,
     remove,
+    config,
   }: {
     emoji: JSX.Element;
     uid: string;
     remove: (uid: string) => void;
+    config?: Config;
   }) => {
     const parentId = "rp".concat(uid);
     const childClass = "rc".concat(uid);
-    useBlastRainAnimation(parentId, childClass);
+    useBlastRainAnimation(parentId, childClass, config);
     const emojiBlastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
       null
     );
@@ -26,7 +37,7 @@ export const BlastRain = React.memo(
       }
       const newTimer = setTimeout(() => {
         remove(uid);
-      }, 15000);
+      }, config?.durationInMillis ?? 15000);
       emojiBlastTimerRef.current = newTimer;
     }, []);
 
@@ -34,17 +45,17 @@ export const BlastRain = React.memo(
       <div
         id={parentId}
         style={{
-          position: "fixed",
+          position: config?.notFixed ? "absolute" : "fixed",
           top: 0,
           left: 0,
-          width: "100vw",
-          height: "100vh",
+          width: config?.notFixed ? "100%" : "100vw",
+          height: config?.notFixed ? "100%" : "100vh",
           overflow: "hidden",
-          zIndex: 2,
+          zIndex: 4,
           pointerEvents: "none",
         }}
       >
-        {Array.from({ length: 12 }).map((_, i) => (
+        {Array.from({ length: config?.numParticles ?? 12 }).map((_, i) => (
           <div
             key={i}
             className={childClass}

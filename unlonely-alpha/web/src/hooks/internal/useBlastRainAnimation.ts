@@ -1,13 +1,22 @@
 import { useEffect } from "react";
 
-export const useBlastRainAnimation = (parentId: string, childClass: string) => {
+export const useBlastRainAnimation = (
+  parentId: string,
+  childClass: string,
+  config?: {
+    vertSpeed?: number;
+    horiSpeed?: number;
+    downward?: boolean; // New option for downward movement
+  }
+) => {
   useEffect(() => {
     const parent = document.getElementById(parentId);
     if (!parent) return;
 
     const elements = parent.getElementsByClassName(childClass);
-    const vertSpeed = 3;
-    const horiSpeed = 1;
+    const vertSpeed = config?.vertSpeed ?? 3;
+    const horiSpeed = config?.horiSpeed ?? 1;
+    const downward = config?.downward ?? false; // Default is upward
 
     const height = parent.clientHeight;
     const width = parent.clientWidth;
@@ -24,7 +33,7 @@ export const useBlastRainAnimation = (parentId: string, childClass: string) => {
         element: element,
         elementHeight,
         elementWidth,
-        ySpeed: -vertSpeed,
+        ySpeed: downward ? vertSpeed : -vertSpeed, // Adjust based on direction
         omega: (2 * Math.PI * horiSpeed) / (width * 60),
         random: (Math.random() / 2 + 0.5) * i * 10000,
         x: function (time: number) {
@@ -33,7 +42,9 @@ export const useBlastRainAnimation = (parentId: string, childClass: string) => {
             (width - elementWidth)
           );
         },
-        y: height + (Math.random() + 1) * i * elementHeight,
+        y: downward
+          ? -elementHeight - (Math.random() + 1) * i * elementHeight
+          : height + (Math.random() + 1) * i * elementHeight,
       };
       items.push(item);
     }
@@ -54,8 +65,12 @@ export const useBlastRainAnimation = (parentId: string, childClass: string) => {
         item.element.style.webkitTransform = transformString;
 
         item.y += item.ySpeed;
-        if (check && item.y < -item.elementHeight) {
-          item.y = height;
+        if (check) {
+          if (downward && item.y > height) {
+            item.y = -item.elementHeight;
+          } else if (!downward && item.y < -item.elementHeight) {
+            item.y = height;
+          }
         }
       }
 

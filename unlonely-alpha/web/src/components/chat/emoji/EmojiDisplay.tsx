@@ -36,7 +36,6 @@ const EmojiDisplay = ({
             size={"20px"}
             padding={"0px"}
             channel={channel}
-            timeserial={timeserial}
           />
         ) : (
           <Flex fontSize={fontSize}>{emoji}</Flex>

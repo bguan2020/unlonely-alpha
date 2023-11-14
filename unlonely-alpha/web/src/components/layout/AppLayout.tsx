@@ -47,10 +47,7 @@ const AppLayout: React.FC<Props> = ({
   });
 
   return (
-    <Box
-      bgGradient="linear-gradient(90deg, #E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-      background="rgba(0, 0, 0, 0.65)"
-    >
+    <Box background="rgba(0, 0, 0, 0.65)">
       {isCustomHeader === false && (
         <NextHead
           title=""
@@ -79,7 +76,7 @@ const AppLayout: React.FC<Props> = ({
                     <AlertDescription>{error.toString()}</AlertDescription>
                   </Alert>
                 )}
-                <Skeleton isLoaded={!loading} overflowX="hidden">
+                <Skeleton isLoaded={!loading} overflowX="hidden" pb="20px">
                   {children}
                 </Skeleton>
               </Box>

@@ -26,12 +26,7 @@ export default function AddToOtherBrowser(props: Props) {
     >
       <Flex direction="column" alignItems={"center"} margin="10px">
         <Image src="/icons/icon-192x192.png" h="80px" mb="10px" />
-        <Text
-          color="black"
-          fontFamily="Neue Pixel Sans"
-          fontSize="25px"
-          mb="10px"
-        >
+        <Text color="black" fontFamily="LoRes15" fontSize="25px" mb="10px">
           add to home screen
         </Text>
         <Text textAlign={"center"} color="black" fontSize="15px" mb={"10px"}>

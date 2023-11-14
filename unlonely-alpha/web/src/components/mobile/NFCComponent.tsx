@@ -72,6 +72,8 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
     }
   };
 
+  console.log("nfc", nfc);
+
   return (
     <Flex
       scrollSnapAlign={"start"}
@@ -91,7 +93,7 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
         <Text
           color="white"
           zIndex="3"
-          fontFamily="Neue Pixel Sans"
+          fontFamily="LoRes15"
           fontSize={30}
           textShadow="0px 0px 10px rgba(0,0,0,0.75)"
           borderRadius="md"
@@ -103,7 +105,7 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
           zIndex="3"
           noOfLines={1}
           fontWeight="light"
-          fontFamily="Neue Pixel Sans"
+          fontFamily="LoRes15"
           color="#9d9d9d"
         >
           owner: {nfc?.owner.username ?? centerEllipses(nfc?.owner.address, 13)}
@@ -130,7 +132,7 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
         backgroundColor="rgba(25,22,47, 0.9)" // This will overlay a semi-transparent black
         zIndex={2}
       />
-      {nfc && nfc?.videoThumbnail && nfc.videoLink ? (
+      {nfc && nfc.videoLink ? (
         <Flex direction={"column"} position="relative">
           <video
             ref={videoRef}
@@ -141,7 +143,10 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
             preload="metadata"
             poster={nfc?.videoThumbnail}
           >
-            <source src={nfc?.videoLink} type="video/mp4"></source>
+            <source
+              src={nfc?.videoLink.concat("#t=0.1")}
+              type="video/mp4"
+            ></source>
           </video>
           <Flex
             style={{
@@ -184,7 +189,7 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
             >
               <Flex alignItems={"center"} gap="2px" px="5px">
                 {nfc.score >= 1 ? (
-                  <Text fontFamily={"Neue Pixel Sans"} fontSize={20}>
+                  <Text fontFamily={"LoRes15"} fontSize={20}>
                     {nfc.score}
                   </Text>
                 ) : null}
@@ -211,7 +216,7 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
         </Flex>
       ) : (
         <Flex justifyContent={"center"}>
-          <Text fontSize={32} fontFamily="Neue Pixel Sans">
+          <Text fontSize={32} fontFamily="LoRes15">
             clip data could not be fetched
           </Text>
         </Flex>

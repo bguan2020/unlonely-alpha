@@ -235,15 +235,18 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         mr="1rem"
         gap={"10px"}
       >
-        {nfc && nfc?.videoThumbnail && nfc?.videoLink ? (
+        {nfc && nfc?.videoLink ? (
           <>
             <video
               controls
               loop
               preload="metadata"
-              poster={nfc?.videoThumbnail}
+              poster={nfc?.videoThumbnail ?? "/svg/defaultThumbnail.svg"}
             >
-              <source src={nfc?.videoLink} type="video/mp4"></source>
+              <source
+                src={nfc?.videoLink.concat("#t=0.1")}
+                type="video/mp4"
+              ></source>
             </video>
             {error && (
               <Flex width="100%" justifyContent="center">
@@ -383,7 +386,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
           </>
         ) : (
           <Flex justifyContent={"center"}>
-            <Text fontSize={32} fontFamily="Neue Pixel Sans">
+            <Text fontSize={32} fontFamily="LoRes15">
               clip data could not be fetched
             </Text>
           </Flex>

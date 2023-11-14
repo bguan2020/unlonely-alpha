@@ -34,10 +34,9 @@ const usePostSharesEvent = ({ onError }: Props) => {
         const mutationResult = await mutate({
           variables: {
             data: {
-              id: data.id,
+              channelId: data.id,
               sharesSubjectQuestion: data.sharesSubjectQuestion,
               sharesSubjectAddress: data.sharesSubjectAddress,
-              eventState: data.eventState,
             },
           },
         });

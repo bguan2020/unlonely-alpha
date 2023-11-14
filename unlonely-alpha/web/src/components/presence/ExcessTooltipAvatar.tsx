@@ -9,7 +9,7 @@ import { useGetBadges } from "../../hooks/internal/useGetBadges";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 const ExcessTooltipAvatar = ({ user }: { user: CustomUser }) => {
-  const { rankUrl } = useGetBadges(user.tokenHolderRank);
+  const { rankUrl } = useGetBadges(user.channelUserRank);
   const [isHovered, setIsHovered] = useState(false);
   const { network } = useNetworkContext();
   const { explorerUrl } = network;

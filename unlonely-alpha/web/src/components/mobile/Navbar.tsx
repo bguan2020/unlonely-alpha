@@ -34,7 +34,7 @@ export const Navbar = () => {
           router.push("/");
         }}
       >
-        <Flex direction="column">
+        <Flex direction="column" alignItems="center">
           <Image
             src={`/svg/mobile/channels-nav${
               router.pathname.startsWith("/channels") || router.pathname === "/"
@@ -43,7 +43,7 @@ export const Navbar = () => {
             }.svg`}
             h="40px"
           />
-          <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
+          <Text fontFamily="LoRes15" fontWeight={"light"}>
             channels
           </Text>
         </Flex>
@@ -57,14 +57,14 @@ export const Navbar = () => {
           router.push("/nfcs");
         }}
       >
-        <Flex direction="column">
+        <Flex direction="column" alignItems="center">
           <Image
             src={`/svg/mobile/nfcs-nav${
               router.pathname.startsWith("/nfcs") ? "-selected" : ""
             }.svg`}
             h="40px"
           />
-          <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
+          <Text fontFamily="LoRes15" fontWeight={"light"}>
             NFCs
           </Text>
         </Flex>
@@ -78,14 +78,14 @@ export const Navbar = () => {
           router.push("/schedule");
         }}
       >
-        <Flex direction="column">
+        <Flex direction="column" alignItems="center">
           <Image
             src={`/svg/mobile/schedule-nav${
               router.pathname.startsWith("/schedule") ? "-selected" : ""
             }.svg`}
             h="40px"
           />
-          <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
+          <Text fontFamily="LoRes15" fontWeight={"light"}>
             schedule
           </Text>
         </Flex>
@@ -99,7 +99,7 @@ export const Navbar = () => {
           router.push("/profile");
         }}
       >
-        <Flex direction="column" alignItems={"center"}>
+        <Flex direction="column" alignItems="center">
           {user ? (
             <Avatar
               name={user?.username ?? user?.address}
@@ -115,7 +115,7 @@ export const Navbar = () => {
               h="40px"
             />
           )}
-          <Text fontFamily="Neue Pixel Sans" fontWeight={"light"}>
+          <Text fontFamily="LoRes15" fontWeight={"light"}>
             profile
           </Text>
         </Flex>

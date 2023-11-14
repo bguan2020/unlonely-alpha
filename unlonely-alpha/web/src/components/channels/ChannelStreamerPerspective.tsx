@@ -4,16 +4,15 @@ import { SharesEventState } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 
 const ChannelStreamerPerspective = () => {
-  const { arcade, channel } = useChannelContext();
+  const { ui, channel } = useChannelContext();
   const {
     handleNotificationsModal,
-    handleTokenSaleModal,
     handleEventModal,
     handleEditModal,
     handleChatCommandModal,
-    handleCustomModal,
     handleBetModal,
-  } = arcade;
+    handleModeratorModal,
+  } = ui;
   const { channelQueryData } = channel;
 
   const isSharesEventLive =
@@ -25,14 +24,9 @@ const ChannelStreamerPerspective = () => {
 
   return (
     <Flex direction="column" width={"100%"}>
-      <Stack
-        my="5rem"
-        direction="column"
-        width={"100%"}
-        justifyContent="center"
-      >
+      <Stack direction="column" width={"100%"} justifyContent="center">
         <Flex width={"100%"} position="relative" justifyContent={"center"}>
-          <SimpleGrid columns={4} spacing={10}>
+          <SimpleGrid columns={3} spacing={10}>
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">send notifications</Text>
               <Box
@@ -51,26 +45,6 @@ const ChannelStreamerPerspective = () => {
                 }}
               >
                 <Image src="/svg/notifications.svg" width="100%" />
-              </Box>
-            </Flex>
-            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
-              <Text textAlign="center">offer tokens for sale</Text>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="10px"
-                onClick={() => handleTokenSaleModal(true)}
-                _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transitionDuration: "0.3s",
-                }}
-                _active={{
-                  transform: "scale(1)",
-                }}
-              >
-                <Image src="/svg/token-sale.svg" width="100%" />
               </Box>
             </Flex>
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
@@ -134,29 +108,9 @@ const ChannelStreamerPerspective = () => {
               </Box>
             </Flex>
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
-              <Text textAlign="center">paid custom action</Text>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="10px"
-                onClick={() => handleCustomModal(true)}
-                _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transitionDuration: "0.3s",
-                }}
-                _active={{
-                  transform: "scale(1)",
-                }}
-              >
-                <Image src="/svg/custom-actions.svg" width="100%" />
-              </Box>
-            </Flex>
-            {/* <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">
                 {isSharesEventPayout
-                  ? "stop payout"
+                  ? "stop event"
                   : isSharesEventLive
                   ? "lock bets"
                   : isSharesEventLock
@@ -180,7 +134,27 @@ const ChannelStreamerPerspective = () => {
               >
                 <Image src="/svg/bet.svg" width="100%" />
               </Box>
-            </Flex> */}
+            </Flex>
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+              <Text textAlign={"center"}>moderators</Text>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="10px"
+                onClick={() => handleModeratorModal(true)}
+                _hover={{
+                  cursor: "pointer",
+                  transform: "scale(1.1)",
+                  transitionDuration: "0.3s",
+                }}
+                _active={{
+                  transform: "scale(1)",
+                }}
+              >
+                <Image src="/svg/mods.svg" width="100%" />
+              </Box>
+            </Flex>
           </SimpleGrid>
         </Flex>
       </Stack>

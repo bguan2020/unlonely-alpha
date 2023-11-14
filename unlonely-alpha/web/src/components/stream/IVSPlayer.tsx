@@ -94,7 +94,6 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             maxWidth: "100%",
             height: "100% !important",
             width: "100% !important",
-            borderRadius: "10px",
             minHeight: "100%",
           }}
         />
@@ -127,19 +126,11 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             justifyContent={"center"}
             gap="20px"
           >
-            <Text
-              fontFamily="Neue Pixel Sans"
-              textAlign="center"
-              fontSize="30px"
-            >
+            <Text fontFamily="LoRes15" textAlign="center" fontSize="30px">
               stream offline
             </Text>
             {!isStandalone && (
-              <Text
-                fontFamily="Neue Pixel Sans"
-                textAlign="center"
-                fontSize="18px"
-              >
+              <Text fontFamily="LoRes15" textAlign="center" fontSize="18px">
                 or install the app on your mobile device to sign up for future
                 notifications
               </Text>

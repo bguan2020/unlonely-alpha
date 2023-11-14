@@ -1,443 +1,1269 @@
+import { ChevronDownIcon } from "@chakra-ui/icons";
+import Link from "next/link";
+import { decodeEventLog, formatUnits } from "viem";
 import {
-  Text,
   Flex,
-  Button,
-  Stack,
+  Box,
+  Text,
+  Container,
   Table,
+  Image,
   TableContainer,
-  Thead,
   Tbody,
   Td,
-  Th,
   Tr,
-  Grid,
-  GridItem,
+  IconButton,
+  Button,
+  useToast,
+  Input,
   Spinner,
   Tooltip,
-  Box,
 } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
-import { isAddress } from "viem";
+import {
+  useEffect,
+  useRef,
+  useState,
+  CSSProperties,
+  useMemo,
+  useCallback,
+} from "react";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { useBalance, useBlockNumber } from "wagmi";
 
-import ChatForm from "./ChatForm";
-import Participants from "../presence/Participants";
-import { useUser } from "../../hooks/context/useUser";
-import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
-// import SwordButton from "../arcade/SwordButton";
-import CoinButton from "../arcade/CoinButton";
-// import DiceButton from "../arcade/DiceButton";
-import BuyButton from "../arcade/BuyButton";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import {
+  ADD_REACTION_EVENT,
+  InteractionType,
+  NULL_ADDRESS,
+} from "../../constants";
+import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import CustomButton from "../arcade/CustomButton";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
+import {
+  useBuyVotes,
+  useGetPriceAfterFee,
+  useReadMappings,
+  useGenerateKey,
+  useSellVotes,
+  useGetHolderBalances,
+  useClaimVotePayout,
+} from "../../hooks/contracts/useSharesContractV2";
+import useUserAgent from "../../hooks/internal/useUserAgent";
+import usePostBetTrade from "../../hooks/server/gamblable/usePostBetTrade";
+import { getContractFromNetwork } from "../../utils/contract";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { filteredInput } from "../../utils/validation/input";
+import { OuterBorder, BorderType } from "../general/OuterBorder";
+import ChatForm from "./ChatForm";
 import MessageList from "./MessageList";
-import { useChat } from "../../hooks/chat/useChat";
-import { getHolders } from "../../utils/getHolders";
-import { SharesInterface } from "./SharesInterface";
+import { useUser } from "../../hooks/context/useUser";
+import centerEllipses from "../../utils/centerEllipses";
+import { getTimeFromMillis } from "../../utils/time";
+import { GamblableEvent, SharesEventState } from "../../generated/graphql";
+import Participants from "../presence/Participants";
+import { getSortedLeaderboard } from "../../utils/getSortedLeaderboard";
 
-const AblyChatComponent = () => {
-  const {
-    channel: channelContext,
-    chat,
-    holders: holdersContext,
-    arcade,
-  } = useChannelContext();
-  const { chatBot, handleBuyModal, handleTipModal, handleCustomModal } = arcade;
-  const { channelQueryData } = channelContext;
-  const { chatChannel, presenceChannel } = chat;
-  const {
-    data: holdersData,
-    loading: holdersLoading,
-    error: holdersError,
-    refetchTokenHolders,
-  } = holdersContext;
-
-  const {
-    handleScrollToPresent,
-    handleIsAtBottom,
-    channel,
-    hasMessagesLoaded,
-    receivedMessages,
-    isAtBottom,
-    scrollRef,
-    channelChatCommands,
-    sendChatMessage,
-    inputBox,
-  } = useChat(chatBot);
-
-  const { user, userAddress: address } = useUser();
-
-  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
-  const [showArcade, setShowArcade] = useState<boolean>(false);
-  const [holders, setHolders] = useState<{ name: string; quantity: number }[]>(
-    []
+const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
+  const { isStandalone } = useUserAgent();
+  const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
+    "chat"
   );
+  const { leaderboard: leaderboardContext } = useChannelContext();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
 
-  const clickedOutsideLeaderBoard = useRef(false);
-  const clickedOutsideArcade = useRef(false);
-  const leaderboardRef = useRef<HTMLDivElement>(null);
-  const arcadeRef = useRef<HTMLDivElement>(null);
+  const {
+    data: leaderboardData,
+    loading: leaderboardLoading,
+    error: leaderboardError,
+    refetchGamblableEventLeaderboard,
+  } = leaderboardContext;
+
+  const [leaderboard, setLeaderboard] = useState<
+    { name: string; totalFees: number }[]
+  >([]);
+  const [leaderboardIsCollapsed, setLeaderboardIsCollapsed] = useState(true);
 
   useEffect(() => {
-    if (showLeaderboard && !holdersLoading && !holdersData) {
-      refetchTokenHolders?.();
-    }
-  }, [showLeaderboard]);
+    refetchGamblableEventLeaderboard?.();
+  }, [localNetwork]);
 
   useEffect(() => {
-    if (!holdersLoading && !holdersError && holdersData) {
-      const _holders: { name: string; quantity: number }[] = getHolders(
-        holdersData.getTokenHoldersByChannel
-      );
-      setHolders(_holders);
+    if (!leaderboardLoading && !leaderboardError && leaderboardData) {
+      const _leaderboard: { name: string; totalFees: number }[] =
+        getSortedLeaderboard(
+          leaderboardData.getGamblableEventLeaderboardByChannelId
+        );
+      setLeaderboard(_leaderboard);
     }
-  }, [holdersLoading, holdersError, holdersData]);
-
-  useOnClickOutside(leaderboardRef, () => {
-    if (showLeaderboard) {
-      setShowLeaderboard(false);
-      clickedOutsideLeaderBoard.current = true;
-    }
-    clickedOutsideArcade.current = false;
-  });
-  useOnClickOutside(arcadeRef, () => {
-    if (showArcade) {
-      setShowArcade(false);
-      clickedOutsideArcade.current = true;
-    }
-    clickedOutsideLeaderBoard.current = false;
-  });
+  }, [leaderboardLoading, leaderboardError, leaderboardData]);
 
   return (
-    <Flex h="100%" minW="100%" position={"relative"}>
-      <Flex position="absolute" zIndex="1" top={"-15px"} left="10px">
-        <Participants ablyPresenceChannel={presenceChannel} />
-      </Flex>
-      <Flex
-        mt="10px"
-        direction="column"
-        minW="100%"
-        width="100%"
-        position={"relative"}
-      >
-        {chatChannel?.includes("channel") && (
-          <Stack direction={"row"} spacing="10px">
-            <Flex
-              borderRadius={"5px"}
-              p="1px"
-              bg={
-                "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-              }
-              flex={1}
-              minWidth={0}
+    <Flex
+      height={!isStandalone ? { base: "80vh" } : "100%"}
+      position={"relative"}
+    >
+      <OuterBorder type={BorderType.OCEAN} p={"0"}>
+        <Container centerContent maxW="100%" h="100%" alignSelf="end" p="0">
+          <Flex width="100%">
+            <OuterBorder
+              cursor={"pointer"}
+              type={BorderType.OCEAN}
+              zIndex={selectedTab === "chat" ? 4 : 2}
+              onClick={() => setSelectedTab("chat")}
+              noborder
+              pb={selectedTab === "chat" ? "0px" : undefined}
             >
-              <Button
-                opacity={showArcade ? 0.9 : 1}
+              <Flex
+                bg={selectedTab === "chat" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
                 width="100%"
-                bg={"#131323"}
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                onClick={() => {
-                  if (clickedOutsideArcade.current) {
-                    clickedOutsideArcade.current = false;
-                    return;
-                  }
-                  setShowArcade(!showArcade);
-                }}
+                justifyContent={"center"}
               >
-                <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
-                  arcade
+                <Text fontFamily="LoRes15" fontSize="25px" fontWeight={"bold"}>
+                  chat
                 </Text>
-              </Button>
-            </Flex>
-            <Flex
-              borderRadius={"5px"}
-              p="1px"
-              bg={
-                "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-              }
-              flex={1}
-              minWidth={0}
+              </Flex>
+            </OuterBorder>
+            <OuterBorder
+              cursor={"pointer"}
+              type={BorderType.OCEAN}
+              zIndex={selectedTab === "trade" ? 4 : 2}
+              onClick={() => setSelectedTab("trade")}
+              noborder
+              pb={selectedTab === "trade" ? "0px" : undefined}
             >
-              <Button
-                opacity={showLeaderboard ? 0.9 : 1}
+              <Flex
+                bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
                 width="100%"
-                bg={"#131323"}
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                onClick={() => {
-                  if (clickedOutsideLeaderBoard.current) {
-                    clickedOutsideLeaderBoard.current = false;
-                    return;
-                  }
-                  setShowLeaderboard(!showLeaderboard);
-                }}
+                justifyContent={"center"}
               >
-                <Text fontSize={"24px"} fontFamily={"Neue Pixel Sans"}>
-                  leaderboard
+                <Text fontFamily="LoRes15" fontSize="25px" fontWeight={"bold"}>
+                  vote
                 </Text>
-              </Button>
-            </Flex>
-          </Stack>
-        )}
-        {showArcade && (
-          <Flex
-            ref={arcadeRef}
-            borderRadius={"5px"}
-            p="1px"
-            position="absolute"
-            top="50px"
-            width={"100%"}
-            zIndex={3}
-            style={{
-              border: "1px solid",
-              borderWidth: "1px",
-              borderImageSource:
-                "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
-              borderImageSlice: 1,
-              borderRadius: "5px",
-            }}
-          >
-            <Flex
-              direction="column"
-              bg={"rgba(19, 19, 35, 0.8)"}
-              style={{ backdropFilter: "blur(6px)" }}
-              borderRadius={"5px"}
-              width={"100%"}
-              padding={"40px"}
+              </Flex>
+            </OuterBorder>
+            <OuterBorder
+              cursor={"pointer"}
+              type={BorderType.OCEAN}
+              zIndex={selectedTab === "vip" ? 4 : 2}
+              onClick={() => setSelectedTab("vip")}
+              noborder
+              pb={selectedTab === "vip" ? "0px" : undefined}
             >
-              {isAddress(String(channelQueryData?.token?.address)) &&
-                user &&
-                address && (
-                  <>
-                    <BuyButton
-                      tokenName={
-                        channelQueryData?.token?.symbol
-                          ? `$${channelQueryData?.token?.symbol}`
-                          : "token"
-                      }
-                      callback={() => handleBuyModal(true)}
-                    />
-                    <Grid
-                      mt="50px"
-                      templateColumns="repeat(2, 1fr)"
-                      gap={12}
-                      alignItems="center"
-                      justifyItems="center"
-                    >
-                      <GridItem>
-                        <Tooltip label={"make streamer do X"}>
-                          <span>
-                            <CustomButton
-                              callback={() => handleCustomModal(true)}
-                            />
-                          </span>
-                        </Tooltip>
-                      </GridItem>
-                      <GridItem>
-                        <Tooltip label={"tip the streamer"}>
-                          <span>
-                            <CoinButton callback={() => handleTipModal(true)} />
-                          </span>
-                        </Tooltip>
-                      </GridItem>
-                    </Grid>
-                  </>
-                )}
-              {(!isAddress(String(channelQueryData?.token?.address)) ||
-                !user) && (
-                <>
-                  <Tooltip
-                    label={!user ? "connect wallet first" : "not available"}
-                  >
-                    <span>
-                      <BuyButton tokenName={"token"} />
-                    </span>
-                  </Tooltip>
-                  <Grid
-                    mt="50px"
-                    templateColumns="repeat(2, 1fr)"
-                    gap={12}
-                    alignItems="center"
-                    justifyItems="center"
-                  >
-                    <GridItem>
-                      <Tooltip
-                        label={!user ? "connect wallet first" : "not available"}
-                      >
-                        <span>
-                          <CustomButton />
-                        </span>
-                      </Tooltip>
-                    </GridItem>
-                    <GridItem>
-                      <Tooltip
-                        label={!user ? "connect wallet first" : "not available"}
-                      >
-                        <span>
-                          <CoinButton />
-                        </span>
-                      </Tooltip>
-                    </GridItem>
-                  </Grid>
-                </>
-              )}
-            </Flex>
-          </Flex>
-        )}
-        {showLeaderboard && (
-          <Flex
-            ref={leaderboardRef}
-            borderRadius={"5px"}
-            p="1px"
-            position="absolute"
-            top="50px"
-            width={"100%"}
-            zIndex={3}
-            style={{
-              border: "1px solid",
-              borderWidth: "1px",
-              borderImageSource:
-                "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
-              borderImageSlice: 1,
-              borderRadius: "5px",
-            }}
-          >
-            <Flex
-              direction="column"
-              bg={"rgba(19, 19, 35, 0.8)"}
-              style={{ backdropFilter: "blur(6px)" }}
-              borderRadius={"5px"}
-              width={"100%"}
-            >
-              <Text fontSize={"36px"} fontWeight="bold" textAlign={"center"}>
-                HIGH SCORES
-              </Text>
-              {channelQueryData?.token?.symbol && (
-                <Text
-                  color={"#B6B6B6"}
-                  fontSize={"14px"}
-                  fontWeight="400"
-                  textAlign={"center"}
+              <Flex
+                bg={
+                  selectedTab === "vip"
+                    ? "#1b9d9d"
+                    : "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 13%, rgba(255,213,86,1) 14%, rgba(246,190,45,1) 16%, rgba(249,163,32,1) 27%, rgba(231,143,0,1) 28%, #2e1405 30%, #603208 100%)"
+                }
+                width="100%"
+                justifyContent={"center"}
+                alignItems={"center"}
+                gap="5px"
+              >
+                <Text fontFamily="LoRes15" fontSize="25px" fontWeight={"bold"}>
+                  vip
+                </Text>
+                <Tooltip
+                  label="buy a vip badge to get access to the VIP chat!"
+                  shouldWrapChildren
                 >
-                  {`who owns the most $${channelQueryData?.token?.symbol}?`}
-                </Text>
-              )}
-              {holdersLoading && (
-                <Flex justifyContent={"center"} p="20px">
-                  <Spinner />
-                </Flex>
-              )}
-              {!holdersLoading && holders.length > 0 && (
-                <TableContainer overflowX={"auto"}>
-                  <Table variant="unstyled">
-                    <Thead>
-                      <Tr>
-                        <Th
-                          textTransform={"lowercase"}
-                          fontSize={"20px"}
-                          p="10px"
-                          textAlign="center"
-                        >
-                          rank
-                        </Th>
-                        <Th
-                          textTransform={"lowercase"}
-                          fontSize={"20px"}
-                          p="10px"
-                          textAlign="center"
-                        >
-                          name
-                        </Th>
-                        <Th
-                          textTransform={"lowercase"}
-                          fontSize={"20px"}
-                          p="10px"
-                          textAlign="center"
-                          isNumeric
-                        >
-                          amount
-                        </Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {holders.map((holder, index) => (
-                        <Tr>
-                          <Td fontSize={"20px"} p="10px" textAlign="center">
-                            {index + 1}
-                          </Td>
-                          <Td fontSize={"20px"} p="10px" textAlign="center">
-                            {holder.name}
-                          </Td>
-                          <Td
-                            fontSize={"20px"}
-                            p="10px"
-                            textAlign="center"
-                            isNumeric
-                          >
-                            {truncateValue(holder.quantity, 2)}
-                          </Td>
-                        </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
-                </TableContainer>
-              )}
-              {!holdersLoading && holders.length === 0 && (
-                <Text textAlign={"center"} p="20px">
-                  no holders found
-                </Text>
-              )}
-            </Flex>
+                  <Image src="/svg/info.svg" width="16px" height="16px" />
+                </Tooltip>
+              </Flex>
+            </OuterBorder>
           </Flex>
-        )}
-        <SharesInterface messages={receivedMessages} />
-        <Flex
-          direction="column"
-          overflowX="auto"
-          height="100%"
-          id="chat"
-          position="relative"
-          mt="8px"
-        >
-          <MessageList
-            scrollRef={scrollRef}
-            messages={receivedMessages}
-            channel={channel}
-            isAtBottomCallback={handleIsAtBottom}
-          />
-        </Flex>
-        <Flex justifyContent="center">
-          {!isAtBottom && hasMessagesLoaded && (
-            <Box
-              bg="rgba(98, 98, 98, 0.6)"
-              p="4px"
-              borderRadius="4px"
-              _hover={{
-                background: "rgba(98, 98, 98, 0.3)",
-                cursor: "pointer",
-              }}
-              onClick={handleScrollToPresent}
+          <OuterBorder
+            type={BorderType.OCEAN}
+            width={"100%"}
+            zIndex={3}
+            alignSelf="flex-end"
+            noborder
+            pt="0px"
+          >
+            <Flex
+              bg="rgba(24, 22, 47, 1)"
+              p={"0.5rem"}
+              width={"100%"}
+              direction="column"
             >
-              <Text fontSize="12px">
-                scrolling paused. click to scroll to bottom.
-              </Text>
-            </Box>
-          )}
-        </Flex>
-        <Flex mt="40px" w="100%" mb="15px">
-          <ChatForm
-            sendChatMessage={sendChatMessage}
-            inputBox={inputBox}
-            additionalChatCommands={channelChatCommands}
-            allowPopout
-          />
-        </Flex>
-      </Flex>
+              <Participants />
+              <Flex
+                mt={"0.5rem"}
+                borderRadius={"5px"}
+                p="1px"
+                zIndex={3}
+                mb="75px"
+              >
+                <Flex
+                  direction="column"
+                  position="absolute"
+                  style={{ backdropFilter: "blur(6px)" }}
+                  left={"10px"}
+                  right={"10px"}
+                  border={"1px solid rgba(255, 255, 255, 0.1)"}
+                >
+                  <Text
+                    fontSize={"20px"}
+                    textAlign={"center"}
+                    fontFamily={"LoRes15"}
+                  >
+                    leaderboard
+                  </Text>
+                  <IconButton
+                    aria-label="show leaderboard"
+                    _hover={{}}
+                    _active={{}}
+                    _focus={{}}
+                    bg="transparent"
+                    icon={<ChevronDownIcon />}
+                    onClick={() => {
+                      setLeaderboardIsCollapsed(!leaderboardIsCollapsed);
+                    }}
+                    position="absolute"
+                    right="-10px"
+                    top="-10px"
+                    transform={!leaderboardIsCollapsed ? "rotate(180deg)" : ""}
+                  />
+                  {leaderboardIsCollapsed && (
+                    <Box
+                      position="absolute"
+                      bg={"linear-gradient(to bottom, transparent 75%, black)"}
+                      width="100%"
+                      height="100%"
+                      pointerEvents={"none"}
+                    />
+                  )}
+                  <TableContainer
+                    overflowY={leaderboardIsCollapsed ? "hidden" : "scroll"}
+                    maxHeight={
+                      leaderboardIsCollapsed
+                        ? leaderboard.length === 0
+                          ? "30px"
+                          : "45px"
+                        : "150px"
+                    }
+                    transition={"max-height 0.2s ease-in-out"}
+                  >
+                    <Table variant="unstyled" size="xs">
+                      <Tbody>
+                        {leaderboard.map((holder, index) => (
+                          <Tr>
+                            <Td fontSize={"20px"} p="4px" textAlign="center">
+                              <Text fontSize="14px">{index + 1}</Text>
+                            </Td>
+                            <Td fontSize={"20px"} p="4px" textAlign="center">
+                              <Text fontSize="14px">{holder.name}</Text>
+                            </Td>
+                            <Td
+                              fontSize={"20px"}
+                              p="4px"
+                              textAlign="center"
+                              isNumeric
+                            >
+                              <Text fontSize="14px">
+                                {truncateValue(holder.totalFees, 2)}
+                              </Text>
+                            </Td>
+                          </Tr>
+                        ))}
+                      </Tbody>
+                    </Table>
+                  </TableContainer>
+                  {leaderboardLoading && (
+                    <Flex justifyContent={"center"} p="20px">
+                      <Spinner />
+                    </Flex>
+                  )}
+                </Flex>
+              </Flex>
+              {selectedTab === "chat" && <Chat chat={chat} />}
+              {selectedTab === "trade" && <Trade chat={chat} />}
+              {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
+            </Flex>
+          </OuterBorder>
+        </Container>
+      </OuterBorder>
     </Flex>
   );
 };
 
-export default AblyChatComponent;
+export const Trade = ({ chat }: { chat: ChatReturnType }) => {
+  const { userAddress, walletIsConnected, user } = useUser();
+  const { channel, chat: chatContext } = useChannelContext();
+  const { channelQueryData, refetch } = channel;
+  const { addToChatbot } = chatContext;
+
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork, explorerUrl } = network;
+
+  const [isBuying, setIsBuying] = useState<boolean>(true);
+  const [isYay, setIsYay] = useState<boolean>(true);
+  const [amountOfVotes, setAmountOfVotes] = useState<string>("0");
+
+  const amount_bigint = useMemo(
+    () => BigInt(amountOfVotes as `${number}`),
+    [amountOfVotes]
+  );
+
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
+    address: userAddress as `0x${string}`,
+  });
+
+  const toast = useToast();
+
+  const handleInputChange = (event: any) => {
+    const input = event.target.value;
+    const filtered = filteredInput(input);
+    setAmountOfVotes(filtered);
+  };
+
+  const { postBetTrade } = usePostBetTrade({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const v2contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
+
+  const {
+    refetch: refetchBalances,
+    yayVotesBalance,
+    nayVotesBalance,
+  } = useGetHolderBalances(
+    (channelQueryData?.sharesEvent?.[0]
+      ?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
+    Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
+    userAddress as `0x${string}`,
+    isYay,
+    v2contract
+  );
+
+  const { priceAfterFee: votePrice, refetch: refetchVotePrice } =
+    useGetPriceAfterFee(
+      channelQueryData?.owner?.address as `0x${string}`,
+      Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
+      BigInt(amountOfVotes),
+      isYay,
+      isBuying,
+      v2contract
+    );
+
+  const { key: generatedKey } = useGenerateKey(
+    channelQueryData?.owner?.address as `0x${string}`,
+    Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
+    v2contract
+  );
+
+  const {
+    yayVotesSupply,
+    nayVotesSupply,
+    eventEndTimestamp,
+    votingPooledEth,
+    userPayout,
+    eventVerified,
+    eventResult,
+    refetch: refetchMappings,
+  } = useReadMappings(
+    generatedKey,
+    (channelQueryData?.sharesEvent?.[0]
+      ?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
+    Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
+    v2contract
+  );
+
+  const {
+    buyVotes,
+    refetch: refetchBuyVotes,
+    isRefetchingBuyVotes,
+  } = useBuyVotes(
+    {
+      eventAddress:
+        (channelQueryData?.sharesEvent?.[0]
+          ?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
+      eventId: Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
+      isYay,
+      amountOfVotes: amount_bigint,
+      value: votePrice,
+    },
+    v2contract,
+    {
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                buyVotes pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+      onWriteError: (error) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              buyVotes cancelled
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: async (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                buyVotes success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        setAmountOfVotes("0");
+        const topics = decodeEventLog({
+          abi: v2contract.abi,
+          data: data.logs[0].data,
+          topics: data.logs[0].topics,
+        });
+        const args: any = topics.args;
+        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+          args.trade.isBuy ? "bought" : "sold"
+        } ${args.trade.shareAmount} ${args.trade.isYay ? "yes" : "no"} votes!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.BUY_VOTES,
+          title,
+          description: `${user?.username ?? userAddress ?? ""}:${
+            args.trade.shareAmount
+          }:${args.trade.isYay ? "yay" : "nay"}`,
+        });
+        await postBetTrade({
+          channelId: channelQueryData?.id as string,
+          userAddress: userAddress as `0x${string}`,
+          chainId: localNetwork.config.chainId,
+          type: args.trade.isYay
+            ? GamblableEvent.BetYesBuy
+            : GamblableEvent.BetNoBuy,
+          fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
+        });
+      },
+      onTxError: (error) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              buyVotes error
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+    }
+  );
+
+  const {
+    sellVotes,
+    refetch: refetchSellVotes,
+    isRefetchingSellVotes,
+  } = useSellVotes(
+    {
+      eventAddress: channelQueryData?.sharesEvent?.[0]
+        ?.sharesSubjectAddress as `0x${string}`,
+      eventId: Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
+      isYay,
+      amountOfVotes: amount_bigint,
+    },
+    v2contract,
+    {
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                sellVotes pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+      onWriteError: (error) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              sellVotes cancelled
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: async (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                sellVotes success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        setAmountOfVotes("0");
+        const topics = decodeEventLog({
+          abi: v2contract.abi,
+          data: data.logs[0].data,
+          topics: data.logs[0].topics,
+        });
+        const args: any = topics.args;
+        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+          args.trade.isBuy ? "bought" : "sold"
+        } ${args.trade.shareAmount} ${args.trade.isYay ? "yes" : "no"} votes!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.SELL_VOTES,
+          title,
+          description: `${user?.username ?? userAddress ?? ""}:${
+            args.trade.shareAmount
+          }:${args.trade.isYay ? "yay" : "nay"}`,
+        });
+        await postBetTrade({
+          channelId: channelQueryData?.id as string,
+          userAddress: userAddress as `0x${string}`,
+          chainId: localNetwork.config.chainId,
+          type: args.trade.isYay
+            ? GamblableEvent.BetYesSell
+            : GamblableEvent.BetNoSell,
+          fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
+        });
+      },
+      onTxError: (error) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              sellVotes error
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+    }
+  );
+
+  const { claimVotePayout, refetch: refetchClaimVotePayout } =
+    useClaimVotePayout(
+      {
+        eventAddress: channelQueryData?.sharesEvent?.[0]
+          ?.sharesSubjectAddress as `0x${string}`,
+        eventId: Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
+      },
+      v2contract,
+      {
+        onWriteSuccess: (data) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`${explorerUrl}/tx/${data.hash}`}
+                  passHref
+                >
+                  claimVotePayout pending, click to view
+                </Link>
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
+        onWriteError: (error) => {
+          toast({
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+                claimVotePayout cancelled
+              </Box>
+            ),
+          });
+        },
+        onTxSuccess: async (data) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+                <Link
+                  target="_blank"
+                  href={`${explorerUrl}/tx/${data.transactionHash}`}
+                  passHref
+                >
+                  claimVotePayout success, click to view
+                </Link>
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
+        onTxError: (error) => {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+                claimVotePayout error
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        },
+      }
+    );
+
+  const tradeMessages = useMemo(() => {
+    const tradeMessages = chat.receivedMessages.filter(
+      (m) =>
+        m.data.body?.split(":")[0] === InteractionType.BUY_VOTES ||
+        m.data.body?.split(":")[0] === InteractionType.SELL_VOTES
+    );
+    const tradeData = tradeMessages.map((m) => {
+      const splitMessage = m.data.body?.split(":");
+      return {
+        taskType: splitMessage?.[0],
+        trader: splitMessage?.[1],
+        amount: splitMessage?.[2],
+        isYay: splitMessage?.[3] === "yay",
+      };
+    });
+    return tradeData;
+  }, [chat.receivedMessages]);
+
+  const blockNumber = useBlockNumber({
+    watch: true,
+  });
+
+  const doesEventExist = useMemo(() => {
+    if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
+    if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
+    return true;
+  }, [channelQueryData?.sharesEvent]);
+
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [dateNow, setDateNow] = useState<number>(Date.now());
+  const [isAtBottom, setIsAtBottom] = useState(false);
+  const scrollRef = useRef<VirtuosoHandle>(null);
+  const isFetching = useRef(false);
+
+  useEffect(() => {
+    if (!blockNumber.data || isFetching.current) return;
+    const fetch = async () => {
+      isFetching.current = true;
+      try {
+        await Promise.all([
+          refetchBalances(),
+          refetchVotePrice(),
+          refetchBuyVotes(),
+          refetchSellVotes(),
+          refetchMappings(),
+          refetchClaimVotePayout(),
+          refetchUserEthBalance(),
+        ]);
+      } catch (err) {
+        console.log("vote fetching error", err);
+      }
+      setDateNow(Date.now());
+      isFetching.current = false;
+    };
+    fetch();
+  }, [blockNumber.data]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (chat.receivedMessages.length > 0) {
+        const latestMessage =
+          chat.receivedMessages[chat.receivedMessages.length - 1];
+        if (
+          latestMessage.data.body &&
+          (latestMessage.data.body.split(":")[0] ===
+            InteractionType.EVENT_LIVE ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_LOCK ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_PAYOUT ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_END) &&
+          Date.now() - latestMessage.timestamp < 12000
+        ) {
+          await refetch();
+        }
+      }
+    };
+    fetch();
+  }, [chat.receivedMessages]);
+
+  useEffect(() => {
+    if (!walletIsConnected) {
+      setErrorMessage("connect wallet first");
+    } else if (!matchingChain) {
+      setErrorMessage("wrong network");
+    } else if (!doesEventExist) {
+      setErrorMessage("no event found");
+    } else if (
+      Number(eventEndTimestamp) * 1000 < dateNow ||
+      channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout
+    ) {
+      setErrorMessage("event over");
+    } else if (!isBuying) {
+      if (
+        (isYay && Number(yayVotesBalance) < Number(amountOfVotes)) ||
+        (!isYay && Number(nayVotesBalance) < Number(amountOfVotes))
+      ) {
+        setErrorMessage("insufficient votes to sell");
+      }
+    } else if (
+      isBuying &&
+      userEthBalance?.value &&
+      votePrice > userEthBalance?.value
+    ) {
+      setErrorMessage("insufficient ETH to spend");
+    } else if (isBuying && Number(amountOfVotes) === 0) {
+      setErrorMessage("enter amount first");
+    } else {
+      setErrorMessage("");
+    }
+  }, [
+    walletIsConnected,
+    matchingChain,
+    userEthBalance,
+    isBuying,
+    votePrice,
+    yayVotesBalance,
+    nayVotesBalance,
+    amountOfVotes,
+    dateNow,
+    eventEndTimestamp,
+    doesEventExist,
+  ]);
+
+  const getColor = (taskType: InteractionType, isYay: boolean) => {
+    if (taskType === InteractionType.BUY_VOTES && !isYay) return "#ff321f";
+    if (taskType === InteractionType.SELL_VOTES && isYay) return "#fe6715";
+    if (taskType === InteractionType.SELL_VOTES && !isYay) return "#bbd400";
+    return "#14de02";
+  };
+
+  const handleIsAtBottom = useCallback((value: boolean) => {
+    setIsAtBottom(value);
+  }, []);
+
+  const handleScrollToPresent = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollToIndex(tradeMessages.length - 1);
+    }
+  }, [tradeMessages.length]);
+
+  useEffect(() => {
+    const scrollable = document.getElementById("scrollable");
+    if (!scrollable) return;
+    if (isAtBottom) handleScrollToPresent();
+  }, [isAtBottom]);
+
+  return (
+    <>
+      {doesEventExist && (
+        <>
+          <Text
+            textAlign={"center"}
+            width="90%"
+            fontSize={"20px"}
+            fontWeight={"bold"}
+          >
+            {channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion}
+          </Text>
+          <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
+            {truncateValue(formatUnits(votingPooledEth, 18), 4)} ETH in the pool
+          </Text>
+        </>
+      )}
+      {(Number(eventEndTimestamp) * 1000 < dateNow ||
+        channelQueryData?.sharesEvent?.[0]?.eventState ===
+          SharesEventState.Payout) && (
+        <Text textAlign={"center"} color="red.400">
+          event is over
+        </Text>
+      )}
+      {!doesEventExist && errorMessage && (
+        <Text textAlign={"center"} color="red.400">
+          {errorMessage}
+        </Text>
+      )}
+      {!doesEventExist && (
+        <Text textAlign={"center"}>there is no event at the moment</Text>
+      )}
+      {doesEventExist &&
+        Number(eventEndTimestamp) * 1000 > dateNow &&
+        channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE" && (
+          <>
+            <Flex justifyContent={"space-around"} gap="5px">
+              <Flex gap="5px">
+                <Button
+                  bg={isYay ? "#46a800" : "transparent"}
+                  border={!isYay ? "1px solid #46a800" : undefined}
+                  _focus={{}}
+                  _hover={{}}
+                  _active={{}}
+                  onClick={() => setIsYay(true)}
+                >
+                  <Flex alignItems={"center"} gap="2px">
+                    <Text>YES</Text>
+                    {/* {truncateValue(String(yayVotesSupply), 0, true)} */}
+                  </Flex>
+                </Button>
+                <Button
+                  bg={!isYay ? "#fe2815" : "transparent"}
+                  border={isYay ? "1px solid #fe2815" : undefined}
+                  _focus={{}}
+                  _hover={{}}
+                  _active={{}}
+                  onClick={() => setIsYay(false)}
+                >
+                  <Flex alignItems={"center"} gap="2px">
+                    <Text>NO</Text>
+                    {/* {truncateValue(String(nayVotesSupply), 0, true)} */}
+                  </Flex>
+                </Button>
+              </Flex>
+              <Flex bg={"#131323"} borderRadius="15px">
+                <Button
+                  bg={isBuying ? "#46a800" : "transparent"}
+                  border={!isBuying ? "1px solid #46a800" : undefined}
+                  _focus={{}}
+                  _hover={{}}
+                  _active={{}}
+                  onClick={() => setIsBuying(true)}
+                >
+                  BUY
+                </Button>
+                <Button
+                  bg={!isBuying ? "#fe2815" : "transparent"}
+                  border={isBuying ? "1px solid #fe2815" : undefined}
+                  _focus={{}}
+                  _hover={{}}
+                  _active={{}}
+                  onClick={() => setIsBuying(false)}
+                >
+                  SELL
+                </Button>
+              </Flex>
+            </Flex>
+            <Flex direction="column" borderRadius="15px" p="1rem">
+              <Flex justifyContent={"space-between"} mb="5px">
+                <Flex direction="column">
+                  <Text fontSize="10px" textAlign="center">
+                    #
+                  </Text>
+                  <Flex alignItems={"center"}>
+                    <Input
+                      textAlign="center"
+                      width={"70px"}
+                      value={amountOfVotes}
+                      onChange={handleInputChange}
+                    />
+                  </Flex>
+                </Flex>
+                <Flex direction="column">
+                  <Text fontSize="10px" textAlign="center">
+                    ETH {isBuying ? "price" : "return"}
+                  </Text>
+                  <Text whiteSpace={"nowrap"} margin="auto">
+                    {truncateValue(formatUnits(votePrice, 18), 4)}
+                  </Text>
+                </Flex>
+                <Flex direction="column">
+                  <Text fontSize="10px" textAlign="center">
+                    own
+                  </Text>
+                  <Text whiteSpace={"nowrap"} margin="auto">
+                    {isYay ? yayVotesBalance : nayVotesBalance}
+                  </Text>
+                </Flex>
+              </Flex>
+              <Text>
+                Time to close:{" "}
+                {getTimeFromMillis(Number(eventEndTimestamp) * 1000 - dateNow)}
+              </Text>
+              {errorMessage && (
+                <Text textAlign={"center"} color="red.400">
+                  {errorMessage}
+                </Text>
+              )}
+              <Button
+                bg={
+                  isBuying && isYay
+                    ? "#46a800"
+                    : isBuying && !isYay
+                    ? "#fe2815"
+                    : !isBuying && !isYay
+                    ? "#46a800"
+                    : "#fe2815"
+                }
+                _focus={{}}
+                _hover={{}}
+                _active={{}}
+                onClick={() => (isBuying ? buyVotes?.() : sellVotes?.())}
+                disabled={
+                  (isBuying && !buyVotes) ||
+                  (!isBuying && !sellVotes) ||
+                  isRefetchingBuyVotes ||
+                  isRefetchingSellVotes
+                }
+              >
+                {isRefetchingBuyVotes || isRefetchingSellVotes ? (
+                  <Spinner />
+                ) : isBuying ? (
+                  "BUY"
+                ) : (
+                  "SELL"
+                )}
+              </Button>
+            </Flex>
+          </>
+        )}
+      {doesEventExist &&
+        channelQueryData?.sharesEvent?.[0]?.eventState === "LOCK" && (
+          <>
+            <Flex justifyContent={"space-evenly"} my="10px">
+              <Text color="#35b657" fontWeight="bold" fontSize="25px">
+                {truncateValue(String(yayVotesSupply), 0, true)} YES
+              </Text>
+              <Text color="#ff623b" fontWeight="bold" fontSize="25px">
+                {truncateValue(String(nayVotesSupply), 0, true)} NO
+              </Text>
+            </Flex>
+            <Text textAlign={"center"} fontSize="14px" color="#e49c16">
+              voting disabled
+            </Text>
+          </>
+        )}
+      {doesEventExist &&
+        channelQueryData?.sharesEvent?.[0]?.eventState === "PAYOUT" &&
+        eventVerified && (
+          <>
+            <Flex justifyContent="space-between">
+              <Text fontSize="18px">event outcome</Text>
+              <Text
+                fontSize="18px"
+                fontWeight="bold"
+                color={eventResult === true ? "#02f042" : "#ee6204"}
+              >
+                {eventResult ? "Yes" : "No"}
+              </Text>
+            </Flex>
+            <Flex justifyContent="space-between">
+              <Text fontSize="18px">your winnings</Text>
+              <Text fontSize="18px">
+                {truncateValue(formatUnits(userPayout, 18))} ETH
+              </Text>
+            </Flex>
+            {userPayout > BigInt(0) && (
+              <Button
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                bg={"#E09025"}
+                borderRadius="25px"
+                isDisabled={!claimVotePayout}
+                onClick={claimVotePayout}
+              >
+                <Text fontSize="20px">get payout</Text>
+              </Button>
+            )}
+          </>
+        )}
+      {doesEventExist && (
+        <Flex
+          direction="column"
+          overflowX="auto"
+          height="100%"
+          width="100%"
+          mt="8px"
+          position="relative"
+        >
+          <Flex
+            direction="column"
+            overflowX="auto"
+            height="100%"
+            id={"scrollable"}
+            position="relative"
+            mt="8px"
+          >
+            <Virtuoso
+              ref={scrollRef}
+              followOutput={"auto"}
+              style={{
+                height: "100%",
+                overflowY: "scroll",
+              }}
+              className="hide-scrollbar"
+              data={tradeMessages}
+              atBottomStateChange={(isAtBottom) => handleIsAtBottom(isAtBottom)}
+              initialTopMostItemIndex={tradeMessages.length - 1}
+              itemContent={(index, data) => {
+                const color = getColor(
+                  data.taskType as InteractionType.BUY_VOTES,
+                  data.isYay as boolean
+                );
+                return (
+                  <Flex justifyContent={"space-between"} px="4px">
+                    <Text>{data.trader}</Text>
+                    <Text
+                      color={color}
+                      fontStyle={
+                        (data.taskType === InteractionType.BUY_VOTES &&
+                          !data.isYay) ||
+                        (data.taskType === InteractionType.SELL_VOTES &&
+                          data.isYay)
+                          ? "italic"
+                          : "unset"
+                      }
+                    >
+                      {data.taskType === InteractionType.BUY_VOTES
+                        ? "bought"
+                        : "sold"}{" "}
+                      {data.amount} {data.isYay ? "YES" : "NO"}
+                    </Text>
+                  </Flex>
+                );
+              }}
+            />
+          </Flex>
+          <Flex justifyContent="center">
+            {!isAtBottom && tradeMessages.length > 0 && (
+              <Box
+                bg="rgba(98, 98, 98, 0.6)"
+                p="4px"
+                borderRadius="4px"
+                _hover={{
+                  background: "rgba(98, 98, 98, 0.3)",
+                  cursor: "pointer",
+                }}
+                onClick={handleScrollToPresent}
+              >
+                <Text fontSize="12px" textAlign={"center"}>
+                  scroll to present
+                </Text>
+              </Box>
+            )}
+          </Flex>
+        </Flex>
+      )}
+    </>
+  );
+};
+
+const Chat = ({
+  chat,
+  isVipChat,
+}: {
+  chat: ChatReturnType;
+  isVipChat?: boolean;
+}) => {
+  const { channel, leaderboard } = useChannelContext();
+  const { channelQueryData } = channel;
+  const { isVip } = leaderboard;
+  const { user } = useUser();
+
+  const userIsChannelOwner = useMemo(
+    () => user?.address === channelQueryData?.owner.address,
+    [user, channelQueryData]
+  );
+
+  const userIsModerator = useMemo(
+    () =>
+      channelQueryData?.roles?.some(
+        (m) => m?.userAddress === user?.address && m?.role === 2
+      ),
+    [user, channelQueryData]
+  );
+
+  const {
+    scrollRef,
+    isAtBottom,
+    channelChatCommands,
+    handleScrollToPresent,
+    handleIsAtBottom,
+    sendChatMessage,
+  } = useChatBox(
+    isVipChat ? "vip-chat" : "chat",
+    chat.receivedMessages,
+    chat.hasMessagesLoaded,
+    chat.channel
+  );
+
+  const [emojisToAnimate, setEmojisToAnimate] = useState<
+    { emoji: string; id: number }[]
+  >([]);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState(0);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      setContainerHeight(containerRef.current.offsetHeight);
+    }
+  }, [containerRef]);
+
+  const handleAnimateReactionEmoji = (str: string) => {
+    const id = Date.now();
+    setEmojisToAnimate((prev) => [...prev, { emoji: str, id }]);
+
+    // Remove the emoji from the state after the animation duration
+    setTimeout(() => {
+      setEmojisToAnimate((prev) => prev.filter((emoji) => emoji.id !== id));
+    }, 4000);
+  };
+
+  useEffect(() => {
+    if (!chat.allMessages || chat.allMessages.length === 0) return;
+    const latestMessage = chat.allMessages[chat.allMessages.length - 1];
+    if (
+      Date.now() - latestMessage.timestamp < 2000 &&
+      latestMessage.name === ADD_REACTION_EVENT &&
+      latestMessage.data.body
+    )
+      handleAnimateReactionEmoji(latestMessage.data.body);
+  }, [chat.allMessages]);
+
+  return (
+    <Flex
+      mt="10px"
+      direction="column"
+      minW="100%"
+      width="100%"
+      h="100%"
+      position={"relative"}
+    >
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "absolute",
+          pointerEvents: "none",
+        }}
+        ref={containerRef}
+      >
+        {emojisToAnimate.map(({ emoji, id }) => (
+          <span
+            key={id}
+            className="floatingEmoji"
+            style={
+              {
+                "--translateY": `${containerHeight - 120}px`,
+              } as CSSProperties & { "--translateY": string }
+            }
+          >
+            {emoji}
+          </span>
+        ))}
+      </div>
+      {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
+        <Text textAlign={"center"}>
+          You must have at least one VIP badge to use this chat.
+        </Text>
+      )}
+      <Flex
+        direction="column"
+        overflowX="auto"
+        height="100%"
+        id={isVipChat ? "vip-chat" : "chat"}
+        position="relative"
+        mt="8px"
+      >
+        {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
+          <Flex
+            position="absolute"
+            style={{ backdropFilter: "blur(6px)" }}
+            left={"0"}
+            right={"0"}
+            top={"0"}
+            bottom={"0"}
+            zIndex={"1"}
+          />
+        )}
+        <MessageList
+          scrollRef={scrollRef}
+          messages={chat.receivedMessages}
+          channel={chat.channel}
+          isAtBottomCallback={handleIsAtBottom}
+          isVipChat={isVipChat}
+        />
+      </Flex>
+      <Flex justifyContent="center">
+        {!isAtBottom && chat.hasMessagesLoaded && (
+          <Box
+            bg="rgba(98, 98, 98, 0.6)"
+            p="4px"
+            borderRadius="4px"
+            _hover={{
+              background: "rgba(98, 98, 98, 0.3)",
+              cursor: "pointer",
+            }}
+            onClick={handleScrollToPresent}
+          >
+            <Text fontSize="12px">
+              scrolling paused. click to scroll to bottom.
+            </Text>
+          </Box>
+        )}
+      </Flex>
+      {(userIsChannelOwner || userIsModerator || isVip || !isVipChat) && (
+        <Flex w="100%">
+          <ChatForm
+            sendChatMessage={sendChatMessage}
+            additionalChatCommands={channelChatCommands}
+            allowPopout
+            channel={chat.channel}
+            isVipChat={isVipChat}
+          />
+        </Flex>
+      )}
+    </Flex>
+  );
+};
+
+export default ChatComponent;

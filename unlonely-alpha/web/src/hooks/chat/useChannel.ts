@@ -6,6 +6,7 @@ import { useChannelContext } from "../context/useChannel";
 import { Message } from "../../constants/types/chat";
 import {
   ADD_REACTION_EVENT,
+  APPOINT_USER_EVENT,
   BAN_USER_EVENT,
   CHAT_MESSAGE_EVENT,
 } from "../../constants";
@@ -45,7 +46,7 @@ export function useAblyChannel(
 export function useChannel(fixedChatName?: string) {
   const { userAddress } = useUser();
   const { channel: c, chat } = useChannelContext();
-  const { channelQueryData } = c;
+  const { channelQueryData, refetch } = c;
   const { chatChannel } = chat;
 
   const channelName =
@@ -55,26 +56,29 @@ export function useChannel(fixedChatName?: string) {
       : "persistMessages:chat-demo");
 
   const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
+  const [allMessages, setAllMessages] = useState<Message[]>([]);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [localBanList, setLocalBanList] = useState<string[] | undefined>(
     undefined
   );
 
-  const [channel, ably] = useAblyChannel(channelName, (message) => {
+  const [channel, ably] = useAblyChannel(channelName, async (message) => {
     setHasMessagesLoaded(false);
-    if (localBanList === undefined) return;
-    let messageHistory = receivedMessages.filter(
+    if (localBanList === undefined) {
+      setHasMessagesLoaded(true);
+      return;
+    }
+    const newAllMessages = [...allMessages, message];
+    setAllMessages(newAllMessages);
+    const messageHistory = receivedMessages.filter(
       (m) => m.name === CHAT_MESSAGE_EVENT
     );
-    if (message.name === ADD_REACTION_EVENT) {
-      messageHistory = updateMessageHistoryReactions(message, messageHistory);
-
-      setReceivedMessages([...messageHistory]);
-    }
-    if (message.name === BAN_USER_EVENT) {
-      const userAddressToBan = message.data.body;
-      setLocalBanList([...localBanList, userAddressToBan]);
+    if (
+      message.name === APPOINT_USER_EVENT ||
+      message.name === BAN_USER_EVENT
+    ) {
+      await refetch();
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (localBanList.length === 0) {
@@ -99,10 +103,10 @@ export function useChannel(fixedChatName?: string) {
       setLocalBanList(undefined);
       return;
     }
-    const filteredUsers = (channelQueryData.bannedUsers ?? []).filter(
-      (user) => user !== null
-    ) as string[];
-    setLocalBanList(filteredUsers);
+    const filteredUsersToBan = (channelQueryData.roles ?? [])
+      .filter((user) => user?.role === 1)
+      .map((user) => user?.userAddress) as string[];
+    setLocalBanList(filteredUsersToBan);
   }, [channelQueryData]);
 
   useEffect(() => {
@@ -111,6 +115,7 @@ export function useChannel(fixedChatName?: string) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await channel.history((err, result) => {
+        setAllMessages(result.items);
         let messageHistory = result.items.filter((message: any) => {
           if (message.name !== CHAT_MESSAGE_EVENT) return false;
 
@@ -149,10 +154,10 @@ export function useChannel(fixedChatName?: string) {
     ably,
     ablyChannel: channel,
     receivedMessages,
+    allMessages,
     hasMessagesLoaded,
     mounted,
     setReceivedMessages,
-    setHasMessagesLoaded,
   };
 }
 

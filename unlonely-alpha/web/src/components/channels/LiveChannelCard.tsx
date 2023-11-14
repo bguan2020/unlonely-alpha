@@ -44,7 +44,7 @@ const LiveChannelCard = ({ channel, callback }: Props) => {
             position: "relative",
           }}
         >
-           <Box position="relative">
+          <Box position="relative">
             <Image
               src={channel.thumbnailUrl ?? "/svg/defaultThumbnail.svg"}
               width={["236px", "380px"]}

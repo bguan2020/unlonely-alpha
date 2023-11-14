@@ -14,24 +14,23 @@ export const useGetBadges = (rank?: number) => {
       setRankDesc("");
       return;
     }
-    const channelTokenSymbol = channelQueryData?.token?.symbol;
     if (rank < 10) {
       setRankUrl("/svg/holder-1.svg");
-      setRankDesc(`Top 10 Holder of ${channelTokenSymbol}`);
+      setRankDesc("Top 10 Badge Holder");
       return;
     }
     if (rank < 20) {
       setRankUrl("/svg/holder-2.svg");
-      setRankDesc(`Top 20 Holder of ${channelTokenSymbol}`);
+      setRankDesc("Top 20 Badge Holder");
       return;
     }
     if (rank < 30) {
       setRankUrl("/svg/holder-3.svg");
-      setRankDesc(`Top 30 Holder of ${channelTokenSymbol}`);
+      setRankDesc("Top 30 Badge Holder");
       return;
     }
     setRankUrl("/svg/holder-general.svg");
-    setRankDesc(`Holder of ${channelTokenSymbol}`);
+    setRankDesc("Badge Holder");
   }, [rank, channelQueryData]);
 
   return {

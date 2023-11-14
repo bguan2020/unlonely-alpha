@@ -12,13 +12,19 @@ import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { PrivyWagmiConnector } from "@privy-io/wagmi-connector";
+import {
+  LivepeerConfig,
+  createReactClient,
+  studioProvider,
+} from "@livepeer/react";
 
-import { Base, Mainnet, Goerli, BaseGoerli } from "../constants/networks";
+import { Base, NETWORKS } from "../constants/networks";
 import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/context/useUser";
 import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
 import theme from "../styles/theme";
 import { NetworkProvider } from "../hooks/context/useNetwork";
+
 
 interface InitialProps {
   cookies: Cookies;
@@ -33,7 +39,7 @@ function App({ Component, pageProps, cookies }: Props) {
   );
 
   const configureChainsConfig = configureChains(
-    [Base, Mainnet, Goerli, BaseGoerli],
+    NETWORKS, // first chain in array determines the first chain to interact with via publicClient
     [
       alchemyProvider({
         apiKey: "aR93M6MdEC4lgh4VjPXLaMnfBveve1fC",
@@ -51,11 +57,18 @@ function App({ Component, pageProps, cookies }: Props) {
     ]
   );
 
+  const livepeerClient = createReactClient({
+    provider: studioProvider({
+      apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
+    }),
+  });
+
   return (
     <ChakraProvider theme={theme}>
       <PrivyProvider
         appId={String(process.env.NEXT_PUBLIC_PRIVY_APP_ID)}
         config={{
+          defaultChain: Base,
           loginMethods: ["email", "wallet"],
           walletConnectCloudProjectId: "e16ffa60853050eaa9746f45acd2207a",
           embeddedWallets: {
@@ -74,7 +87,20 @@ function App({ Component, pageProps, cookies }: Props) {
             <UserProvider>
               <ScreenAnimationsProvider>
                 <NetworkProvider>
-                  <Component {...pageProps} />
+                  <LivepeerConfig
+                    client={livepeerClient}
+                    theme={{
+                      colors: {
+                        accent: "rgb(0, 145, 255)",
+                        containerBorderColor: "rgba(0, 145, 255, 0.9)",
+                      },
+                      fonts: {
+                        display: "Inter",
+                      },
+                    }}
+                  >
+                    <Component {...pageProps} />
+                  </LivepeerConfig>
                 </NetworkProvider>
               </ScreenAnimationsProvider>
             </UserProvider>

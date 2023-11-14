@@ -43,6 +43,16 @@ export const resolvers = {
       }
       return channelService.postSharesEvent(data, ctx);
     },
+    updateSharesEvent: (
+      _: any,
+      { data }: { data: channelService.IUpdateSharesEventInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      return channelService.updateSharesEvent(data, ctx);
+    },
     updateChannelText: (
       _: any,
       { data }: { data: channelService.IPostChannelTextInput },
@@ -65,20 +75,19 @@ export const resolvers = {
 
       return channelService.updateChannelCustomButton(data, ctx);
     },
-    toggleBannedUserToChannel: (
+    postUserRoleForChannel: (
       _: any,
-      { data }: { data: channelService.IToggleBannedUserToChannelInput },
+      { data }: { data: channelService.IPostUserRoleForChannelInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
 
-      return channelService.toggleBannedUserToChannel(data, ctx);
+      return channelService.postUserRoleForChannel(data, ctx);
     },
   },
   Channel: {
-    // add getChannelCreatorToken
     token: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelCreatorToken({ id }, ctx);
     },
@@ -90,6 +99,9 @@ export const resolvers = {
     },
     sharesEvent: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelSharesEvent({ id }, ctx);
+    },
+    roles: ({ id }: { id: number }, _: any, ctx: Context) => {
+      return channelService.getChannelUserRolesByChannel({ id }, ctx);
     },
   },
 };

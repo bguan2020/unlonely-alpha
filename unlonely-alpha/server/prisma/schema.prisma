@@ -4,9 +4,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25061/unloney_staging_pool_2?pgbouncer=true"
+
+  // switch to this db url when pushing to master branch
+  url = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25061/unloney_staging_pool_2?pgbouncer=true"
   // switch to this db url when pushing db changes
   // url = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely_v1_staging?sslmode=require"
+
+  // dev db url (switch to this work pushing to staging branch)
+  // url = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely-dev?sslmode=require"
 }
 
 model User {
@@ -47,6 +52,8 @@ model User {
   channel Channel[]
   tokens UserCreatorToken[]
   leaderboardEntries BaseLeaderboard[]
+  gamblableInteractions GamblableInteraction[]
+  gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
 }
 
 model Subscription {
@@ -135,8 +142,7 @@ model Channel {
   slug String @unique
   isLive Boolean @default(false)
   allowNFCs Boolean @default(true)
-
-  bannedUsers String[]
+  livepeerPlaybackId String? @default("")
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
@@ -151,6 +157,20 @@ model Channel {
   customButtonAction String?
   customButtonPrice Int?
   sharesEvent SharesEvent[]
+  roles ChannelUserRole[]
+
+  gamblableInteractions GamblableInteraction[]
+  gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
+}
+
+model ChannelUserRole {
+  id        Int      @id @default(autoincrement())
+  userAddress  String
+  role      Int     @default(0)
+  channelId Int 
+  channel   Channel  @relation(fields: [channelId], references: [id])
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }
 
 model CreatorToken {
@@ -162,6 +182,28 @@ model CreatorToken {
   channel   Channel  @relation(fields: [channelId], references: [id])
   channelId Int      @unique
   users     UserCreatorToken[]
+}
+
+enum GamblableEvent {
+  BET_CREATE
+  BET_YES_BUY
+  BET_NO_BUY
+  BET_YES_SELL
+  BET_NO_SELL
+  BADGE_BUY
+  BADGE_SELL
+}
+
+model GamblableInteraction {
+  id        Int      @id @default(autoincrement())
+
+  channelId Int
+  channel   Channel  @relation(fields: [channelId], references: [id])
+  userAddress  String
+  user    User     @relation(fields: [userAddress], references: [address])
+  type GamblableEvent
+  createdAt DateTime @default(now())
+  softDelete Boolean @default(false)
 }
 
 model UserCreatorToken {
@@ -203,6 +245,17 @@ model SharesEvent {
 
   channel Channel @relation(fields: [channelId], references: [id])
   channelId Int
+}
+
+model GamblableEventLeaderboard {
+  id        Int      @id @default(autoincrement())
+  chainId Int
+
+  channelId Int
+  channel Channel @relation(fields: [channelId], references: [id])
+  totalFees    Float
+  userAddress  String
+  user    User     @relation(fields: [userAddress], references: [address])
 }
 
 model BaseLeaderboard {

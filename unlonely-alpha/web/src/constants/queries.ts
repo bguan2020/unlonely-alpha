@@ -38,6 +38,7 @@ export const CHANNEL_DETAIL_QUERY = gql`
       awsId
       channelArn
       description
+      livepeerPlaybackId
       customButtonPrice
       customButtonAction
       isLive
@@ -45,11 +46,12 @@ export const CHANNEL_DETAIL_QUERY = gql`
       name
       slug
       allowNFCs
-      bannedUsers
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
         eventState
+        createdAt
+        id
       }
       owner {
         FCImageUrl
@@ -63,45 +65,10 @@ export const CHANNEL_DETAIL_QUERY = gql`
         symbol
         address
       }
-      playbackUrl
-      chatCommands {
-        command
-        response
-      }
-    }
-  }
-`;
-
-export const CHANNEL_DETAIL_MOBILE_QUERY = gql`
-  query ChannelDetailMobile($awsId: String!) {
-    getChannelByAwsId(awsId: $awsId) {
-      awsId
-      channelArn
-      description
-      customButtonPrice
-      customButtonAction
-      isLive
-      id
-      name
-      slug
-      allowNFCs
-      bannedUsers
-      sharesEvent {
-        sharesSubjectQuestion
-        sharesSubjectAddress
-        eventState
-      }
-      owner {
-        FCImageUrl
-        lensImageUrl
-        username
-        address
-      }
-      token {
+      roles {
         id
-        name
-        symbol
-        address
+        userAddress
+        role
       }
       playbackUrl
       chatCommands {
@@ -157,6 +124,29 @@ export const GET_ALL_USERS_WITH_CHANNEL = gql`
     getAllUsersWithChannel {
       address
       username
+    }
+  }
+`;
+
+export const GET_GAMBLABLE_EVENT_USER_RANK_QUERY = gql`
+  query GetGamblableEventUserRank($data: GetGamblableEventUserRankInput!) {
+    getGamblableEventUserRank(data: $data)
+  }
+`;
+
+export const GET_GAMBLABLE_EVENT_LEADERBOARD_BY_CHANNEL_ID_QUERY = gql`
+  query GetGamblableEventLeaderboardByChannelId(
+    $data: GetGamblableEventLeaderboardByChannelIdInput!
+  ) {
+    getGamblableEventLeaderboardByChannelId(data: $data) {
+      chainId
+      channelId
+      id
+      totalFees
+      user {
+        address
+        username
+      }
     }
   }
 `;
@@ -228,6 +218,51 @@ export const GET_BASE_LEADERBOARD_QUERY = gql`
         FCImageUrl
         lensImageUrl
       }
+    }
+  }
+`;
+
+export const GET_BADGE_HOLDERS_BY_CHANNEL_QUERY = gql`
+  query GetBadgeHoldersByChannel($data: GetBadgeHoldersByChannelInput!) {
+    getBadgeHoldersByChannel(data: $data)
+  }
+`;
+
+export const GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY = gql`
+  query GetChannelsByNumberOfBadgeHolders {
+    getChannelsByNumberOfBadgeHolders {
+      channel {
+        awsId
+        channelArn
+        description
+        customButtonPrice
+        customButtonAction
+        isLive
+        id
+        name
+        slug
+        allowNFCs
+        sharesEvent {
+          sharesSubjectQuestion
+          sharesSubjectAddress
+          eventState
+          createdAt
+          id
+        }
+        owner {
+          FCImageUrl
+          lensImageUrl
+          username
+          address
+        }
+        token {
+          id
+          name
+          symbol
+          address
+        }
+      }
+      holders
     }
   }
 `;

@@ -1,15 +1,6 @@
-import {
-  Button,
-  Flex,
-  Heading,
-  Spacer,
-  useBreakpointValue,
-  Image,
-  Text,
-} from "@chakra-ui/react";
+import { Flex, Spacer, useBreakpointValue } from "@chakra-ui/react";
 import NextLink from "next/link";
-import { useRouter } from "next/router";
-// import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import NextImage from "next/image";
 
 import ConnectWallet from "./ConnectWallet";
 
@@ -20,11 +11,6 @@ const Header: React.FC = () => {
     md: true,
     xl: true,
   });
-  const router = useRouter();
-
-  const openChatPopout = () => {
-    window.open(`${window.location.origin}/bridge`, "_blank");
-  };
 
   return (
     <Flex
@@ -32,11 +18,10 @@ const Header: React.FC = () => {
       backgroundColor="transparent"
       minWidth="90%"
       alignItems="center"
-      marginBottom={logo ? "20px" : "0px"}
-      padding="16px"
-      paddingBottom={logo ? "10px" : "5px"}
+      marginBottom={logo ? "5px" : "0px"}
+      padding="1rem"
+      paddingBottom={"5px"}
       paddingTop={logo ? "20px" : "5px"}
-      px="40px"
       justifyContent="space-between"
       left={["0px", "0px", "0px"]}
       right="0px"
@@ -44,22 +29,14 @@ const Header: React.FC = () => {
     >
       <Flex as="nav" width="100%" justifyContent="center">
         {logo && (
-          <NextLink href="/">
-            <Heading
-              as="h1"
-              aria-label="title"
-              fontSize="30px"
-              lineHeight="1.2em"
-              mt="20px"
-              mb="40px"
-              pb="10px"
-              color="#fff"
-              paddingRight="10px"
-              paddingLeft="6px"
-              m="auto"
-            >
-              unlonely
-            </Heading>
+          <NextLink href="/" style={{ margin: "auto" }}>
+            <NextImage
+              src="/svg/unlonely.svg"
+              priority
+              alt="unlonely"
+              width={100}
+              height={100}
+            />
           </NextLink>
         )}
         <Spacer>
@@ -70,21 +47,6 @@ const Header: React.FC = () => {
             margin="auto"
             width="100%"
           >
-            {!router.pathname.startsWith("/bridge") && (
-              <Button
-                _hover={{ transform: "scale(1.1)" }}
-                _focus={{}}
-                _active={{}}
-                bg="#1724d7"
-                p="0"
-                onClick={openChatPopout}
-              >
-                <Flex gap="0.5rem" height={"100%"} p="5px">
-                  <Image src="/svg/Base_Network_Logo.svg" />
-                  <Text alignSelf={"center"}>Bridge</Text>
-                </Flex>
-              </Button>
-            )}
             <ConnectWallet />
           </Flex>
         </Spacer>

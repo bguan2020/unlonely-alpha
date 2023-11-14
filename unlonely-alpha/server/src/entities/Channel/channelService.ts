@@ -1,6 +1,7 @@
 import { Lambda } from "aws-sdk";
 import { Channel as PrismaChannel } from "@prisma/client";
 import * as AWS from "aws-sdk";
+import axios from "axios";
 
 import { Context } from "../../context";
 
@@ -13,6 +14,12 @@ export interface IPostChannelTextInput {
 interface Channel extends PrismaChannel {
   thumbnailUrl?: string | null;
 }
+
+type Source = {
+  hrn: string;
+  url: string;
+  type: string;
+};
 
 enum SharesEventState {
   LIVE = "LIVE",
@@ -53,6 +60,12 @@ export const updateChannelCustomButton = (
 };
 
 export interface IPostSharesEventInput {
+  channelId: number;
+  sharesSubjectQuestion: string;
+  sharesSubjectAddress: string;
+}
+
+export interface IUpdateSharesEventInput {
   id: number;
   sharesSubjectQuestion: string;
   sharesSubjectAddress: string;
@@ -63,33 +76,40 @@ export const postSharesEvent = async (
   data: IPostSharesEventInput,
   ctx: Context
 ) => {
-  const existingSharesEvent = await ctx.prisma.sharesEvent.findMany({
-    // where softDelete is false
-    where: { channelId: Number(data.id), softDelete: false },
-    // order by createdAt w latest first
-    orderBy: { createdAt: "desc" },
-  });
-  if (existingSharesEvent.length > 0) {
-    return ctx.prisma.sharesEvent.update({
-      where: { id: existingSharesEvent[0].id },
-      data: {
-        sharesSubjectQuestion: data.sharesSubjectQuestion,
-        sharesSubjectAddress: data.sharesSubjectAddress,
-        eventState: data.eventState,
-      },
-    });
-  }
   return ctx.prisma.sharesEvent.create({
     data: {
       sharesSubjectQuestion: data.sharesSubjectQuestion,
       sharesSubjectAddress: data.sharesSubjectAddress,
-      eventState: data.eventState,
+      eventState: SharesEventState.LIVE,
       softDelete: false,
       channel: {
         connect: {
-          id: Number(data.id),
+          id: Number(data.channelId),
         },
       },
+    },
+  });
+};
+
+export const updateSharesEvent = async (
+  data: IUpdateSharesEventInput,
+  ctx: Context
+) => {
+  // find latest shares event
+  const sharesEvent = await ctx.prisma.sharesEvent.findFirst({
+    where: { id: Number(data.id), softDelete: false },
+  });
+
+  if (!sharesEvent) {
+    throw new Error("No shares event found");
+  }
+
+  return ctx.prisma.sharesEvent.update({
+    where: { id: sharesEvent.id },
+    data: {
+      sharesSubjectQuestion: data.sharesSubjectQuestion,
+      sharesSubjectAddress: data.sharesSubjectAddress,
+      eventState: data.eventState,
     },
   });
 };
@@ -103,7 +123,7 @@ export const closeSharesEvent = async (
   ctx: Context
 ) => {
   const sharesEvent = await ctx.prisma.sharesEvent.findFirst({
-    where: { channelId: Number(data.id), softDelete: false },
+    where: { id: Number(data.id), softDelete: false },
   });
 
   if (!sharesEvent) {
@@ -141,7 +161,24 @@ export const getChannelFeed = async (
   try {
     const liveStreams = await ivs.listStreams().promise();
 
-    if (liveStreams.streams.length === 0) {
+    const headers = {
+      Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+      "Content-Type": "application/json",
+    };
+    const livePlaybackIds = await axios
+      .get(
+        'https://livepeer.studio/api/stream?streamsonly=1&filters=[{"id": "isActive", "value": true}]',
+        { headers }
+      )
+      .then((res) => {
+        return res.data.map((stream: any) => stream.playbackId);
+      })
+      .catch((err) => {
+        console.log("err", err);
+        return [];
+      });
+
+    if (liveStreams.streams.length === 0 && livePlaybackIds.length === 0) {
       // Update isLive field for all channels to false
       await ctx.prisma.channel.updateMany({
         where: { isLive: true },
@@ -162,7 +199,9 @@ export const getChannelFeed = async (
     // Update isLive field for all channels
     await Promise.all(
       allChannels.map(async (channel) => {
-        const isLive = liveChannelArns.includes(channel.channelArn);
+        const isLive =
+          liveChannelArns.includes(channel.channelArn) ||
+          livePlaybackIds.includes(channel.livepeerPlaybackId);
         if (channel.isLive !== isLive) {
           await ctx.prisma.channel.update({
             where: { id: channel.id },
@@ -177,11 +216,16 @@ export const getChannelFeed = async (
 
     const sortedChannels = updatedChannels.sort((a, b) => {
       if (
-        liveChannelArns.includes(a.channelArn) &&
-        liveChannelArns.includes(b.channelArn)
+        (liveChannelArns.includes(a.channelArn) &&
+          liveChannelArns.includes(b.channelArn)) ||
+        (livePlaybackIds.includes(a.livepeerPlaybackId) &&
+          livePlaybackIds.includes(b.livepeerPlaybackId))
       ) {
         return 0; // both channels are live, maintain their original order
-      } else if (liveChannelArns.includes(a.channelArn)) {
+      } else if (
+        liveChannelArns.includes(a.channelArn) ||
+        livePlaybackIds.includes(a.livepeerPlaybackId)
+      ) {
         return -1; // a is live, put it before b
       } else {
         return 1; // a is not live, put it after b
@@ -191,7 +235,14 @@ export const getChannelFeed = async (
     // Add getThumbnailUrl function call for live channels
     await Promise.all(
       sortedChannels.map(async (channel) => {
-        if (liveChannelArns.includes(channel.channelArn)) {
+        if (
+          channel.livepeerPlaybackId &&
+          livePlaybackIds.includes(channel.livepeerPlaybackId)
+        ) {
+          channel.thumbnailUrl = await getLivepeerThumbnail(
+            channel.livepeerPlaybackId
+          );
+        } else if (liveChannelArns.includes(channel.channelArn)) {
           channel.thumbnailUrl = await getThumbnailUrl(channel.channelArn);
         }
       })
@@ -283,40 +334,82 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
   }
 };
 
-export interface IToggleBannedUserToChannelInput {
+export const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
+  let TRIES = 6;
+  try {
+    while (TRIES > 0) {
+      const response = await axios.get(
+        `https://livepeer.studio/api/playback/${livepeerPlaybackId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+          },
+        }
+      );
+
+      console.log(
+        "getLivepeerThumbnail response meta source",
+        response.data.meta.source
+      );
+
+      const thumbnail = response.data.meta.source.find(
+        (source: Source) => source.hrn === "Thumbnail (JPEG)"
+      );
+
+      const thumbnails = response.data.meta.source.find(
+        (source: Source) => source.hrn === "Thumbnails"
+      );
+
+      if (thumbnail) return thumbnail.url;
+      if (thumbnails)
+        return thumbnails.url
+          .split("/")
+          .slice(0, -1)
+          .concat("keyframes_0.jpg")
+          .join("/");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      TRIES--;
+    }
+    return null;
+  } catch (error: any) {
+    console.log("getLivepeerThumbnail error", error);
+    return null;
+  }
+};
+
+export interface IPostUserRoleForChannelInput {
   channelId: number;
   userAddress: string;
+  role: number;
 }
 
-export const toggleBannedUserToChannel = async (
-  data: IToggleBannedUserToChannelInput,
+export const postUserRoleForChannel = async (
+  data: IPostUserRoleForChannelInput,
   ctx: Context
 ) => {
-  // get bannedUSer arrray from channel, check if userAddress is in array
-  const channel = await ctx.prisma.channel.findUnique({
-    where: { id: Number(data.channelId) },
+  const existingRole = await ctx.prisma.channelUserRole.findFirst({
+    where: {
+      channelId: Number(data.channelId),
+      userAddress: data.userAddress,
+    },
   });
 
-  if (!channel) {
-    throw new Error("Channel not found");
-  }
-
-  const bannedUsers = channel.bannedUsers || [];
-
-  const userIndex = bannedUsers.indexOf(data.userAddress);
-
-  if (userIndex === -1) {
-    // user is not banned, add to bannedUsers array
-    bannedUsers.push(data.userAddress);
+  if (!existingRole) {
+    // If the role doesn't exist, create a new one.
+    return ctx.prisma.channelUserRole.create({
+      data: {
+        userAddress: data.userAddress,
+        role: data.role,
+        channelId: Number(data.channelId),
+      },
+    });
   } else {
-    // user is banned, remove from bannedUsers array
-    bannedUsers.splice(userIndex, 1);
+    // If the role exists, update it.
+    return ctx.prisma.channelUserRole.update({
+      where: { id: existingRole.id },
+      data: { role: data.role },
+    });
   }
-
-  return ctx.prisma.channel.update({
-    where: { id: Number(data.channelId) },
-    data: { bannedUsers },
-  });
 };
 
 export const getChannelChatCommands = async (
@@ -338,5 +431,17 @@ export const getChannelSharesEvent = async (
     where: { channelId: Number(id), softDelete: false },
     // order by createdAt w latest first
     orderBy: { createdAt: "desc" },
+  });
+};
+
+export const getChannelUserRolesByChannel = async (
+  { id }: { id: number },
+  ctx: Context
+) => {
+  // Fetch all roles for the given channelId
+  return await ctx.prisma.channelUserRole.findMany({
+    where: {
+      channelId: Number(id),
+    },
   });
 };

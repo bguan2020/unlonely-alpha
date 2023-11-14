@@ -16,7 +16,7 @@ const ClipDetailCard = ({ clipUrl }: Prop) => {
         justifyContent="center"
       >
         <video controls loop preload="metadata">
-          <source src={clipUrl} type="video/mp4"></source>
+          <source src={clipUrl.concat("#t=0.1")} type="video/mp4"></source>
         </video>
       </Flex>
     </>

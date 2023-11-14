@@ -105,8 +105,8 @@ export const SelectableChannel = ({
                 size="md"
               />
               <Flex direction="column">
-                <Text fontFamily="Neue Pixel Sans">{channel.name}</Text>
-                <Text fontFamily="Neue Pixel Sans" color="#9d9d9d">
+                <Text fontFamily="LoRes15">{channel.name}</Text>
+                <Text fontFamily="LoRes15" color="#9d9d9d">
                   {channel?.owner.username ??
                     centerEllipses(channel?.owner.address, 13)}
                 </Text>
@@ -170,10 +170,10 @@ export const SelectableChannel = ({
                   size="md"
                 />
                 <Flex direction="column">
-                  <Text noOfLines={2} fontFamily="Neue Pixel Sans">
+                  <Text noOfLines={2} fontFamily="LoRes15">
                     {channel.name}
                   </Text>
-                  <Text fontFamily="Neue Pixel Sans" color="#9d9d9d">
+                  <Text fontFamily="LoRes15" color="#9d9d9d">
                     {channel?.owner.username ??
                       centerEllipses(channel?.owner.address, 13)}
                   </Text>

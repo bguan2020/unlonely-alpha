@@ -16,15 +16,14 @@ import { EmojiType } from "../../../constants/types/chat";
 type Props = {
   onSelectEmoji: (emoji: EmojiType) => void;
   onSelectGif: (gif: string) => void;
-  mobile?: boolean;
 };
 
-const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
+const EmojiButton = ({ onSelectEmoji, onSelectGif }: Props) => {
   return (
     <Popover>
       <PopoverTrigger>
         <IconButton
-          icon={<Image src="/svg/emoji.svg" />}
+          icon={<Image src="/svg/emoji.svg" height={"20px"} />}
           aria-label="clip stream"
           bg="transparent"
           _focus={{}}
@@ -43,7 +42,7 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif, mobile }: Props) => {
       >
         <PopoverArrow bg={"#3B3547"} />
         <PopoverCloseButton />
-        <PopoverBody overflow={"scroll"} height="300px">
+        <PopoverBody overflow={"scroll"}>
           <EmojiPicker
             onSelectEmoji={onSelectEmoji}
             onSelectGif={onSelectGif}

@@ -72,14 +72,8 @@ export const UserProvider = ({
   const [initialNotificationsGranted, setInitialNotificationsGranted] =
     useState(false);
 
-  const tosPopupCookie = useMemo(() => {
-    if (typeof window !== "undefined") {
-      const value = localStorage.getItem("unlonely-tos-popup");
-      return value ? JSON.parse(value) : null;
-    }
-    return null;
-  }, []);
-  const [tosPopup, setTosPopup] = useState(true);
+  const [tosPopupCookie, setTosPopupCookie] = useState(null);
+  const [tosPopup, setTosPopup] = useState(false);
 
   const { postSubscription } = usePostSubscription({
     onError: () => {
@@ -232,6 +226,19 @@ export const UserProvider = ({
     };
     f();
   }, [activeWallet, user]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const value = localStorage.getItem("unlonely-tos-popup");
+      setTosPopupCookie(value ? JSON.parse(value) : null);
+    }
+  }, []);
+
+  useEffect(() => {
+    setInterval(() => {
+      setTosPopup(true);
+    }, 2000);
+  }, []);
 
   useEffect(() => {
     if (!ready || !isStandalone) return;

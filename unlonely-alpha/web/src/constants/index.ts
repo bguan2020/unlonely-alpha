@@ -7,8 +7,10 @@ export enum InteractionType {
   CUSTOM = "custom-action-interaction",
   BLAST = "blast-emoji-interaction",
   CLIP = "clip-interaction",
-  BUY_SHARES = "buy-shares-interaction",
-  SELL_SHARES = "sell-shares-interaction",
+  BUY_VOTES = "buy-votes-interaction",
+  SELL_VOTES = "sell-votes-interaction",
+  BUY_BADGES = "buy-badges-interaction",
+  SELL_BADGES = "sell-badges-interaction",
   EVENT_LIVE = "event-live-interaction",
   EVENT_LOCK = "event-lock-interaction",
   EVENT_PAYOUT = "event-payout-interaction",
@@ -22,6 +24,11 @@ export enum BaseChatCommand {
   CLIP = "!clip",
 }
 
+export enum EventType {
+  YAY_NAY_VOTE = 0,
+  VIP_BADGE = 1,
+}
+
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const USER_APPROVAL_AMOUNT = "10000";
@@ -32,6 +39,7 @@ export const RANDOM_CHAT_COLOR =
 export const ADD_REACTION_EVENT = "add-reaction";
 export const CHAT_MESSAGE_EVENT = "chat-message";
 export const BAN_USER_EVENT = "ban-user";
+export const APPOINT_USER_EVENT = "appoint-user";
 
 export type CommandData = {
   command: string;

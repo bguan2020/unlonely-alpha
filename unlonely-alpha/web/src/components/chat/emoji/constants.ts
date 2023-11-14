@@ -4,7 +4,7 @@ import unicodeMap from "emoji-unicode-map";
 
 const _unicodeEmojis = {
   "crypto emojis": ["😂", "💰", "⛽️", "🌝", "📉", "🚀", "🔥"],
-  "love on leverage emojis": ["👀", "🥵", "💀", "💘", "📈", "🫣", "💔"],
+  "rizz olympics emojis": ["👀", "🥵", "💀", "💘", "📈", "🫣", "💔"],
 };
 
 export const gifsList = () => {
@@ -31,7 +31,7 @@ export const gifsList = () => {
   return originalGifs;
 };
 
-export const categoriesList = ["crypto emojis", "love on leverage emojis"];
+export const categoriesList = ["crypto emojis", "rizz olympics emojis"];
 
 export const REACTION_EMOJIS = [
   "⛽️",
@@ -43,7 +43,6 @@ export const REACTION_EMOJIS = [
   "👎",
   "🚀",
   "🙈",
-  "🫶",
 ];
 
 export const unicodeEmojis = categoriesList.reduce(
