@@ -378,7 +378,222 @@ const StandaloneChatComponent = ({
             width="100%"
             justifyContent={"center"}
           >
-            <Text>chat</Text>
+            <Flex justifyContent={"space-between"}>
+              <ChannelDesc />
+              {isOwner && (
+                <IconButton
+                  onClick={handleShowPreviewStream}
+                  aria-label="preview"
+                  _hover={{}}
+                  _active={{}}
+                  _focus={{}}
+                  icon={
+                    <Image
+                      src="/svg/preview-video.svg"
+                      height={12}
+                      style={{
+                        filter: previewStream ? "grayscale(100%)" : "none",
+                      }}
+                    />
+                  }
+                />
+              )}
+            </Flex>
+            {isOwner && (
+              <Stack
+                my="5rem"
+                direction="column"
+                width={"100%"}
+                justifyContent="center"
+              >
+                <Flex
+                  width={"100%"}
+                  position="relative"
+                  justifyContent={"center"}
+                >
+                  <SimpleGrid columns={3} spacing={10}>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">send notifications</Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => handleNotificationsModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/notifications.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">offer tokens for sale</Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => handleTokenSaleModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/token-sale.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">add event</Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => handleEventModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/calendar.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">
+                        edit channel title / description
+                      </Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => handleEditModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/edit.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">custom commands</Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => handleChatCommandModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/custom-commands.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">paid custom action</Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => handleCustomModal?.(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/custom-actions.svg" width="100%" />
+                      </Box>
+                    </Flex>
+                    {/* <Flex
+                      direction="column"
+                      gap="10px"
+                      justifyContent={"flex-end"}
+                    >
+                      <Text textAlign="center">
+                        {isSharesEventPayout
+                          ? "stop payout"
+                          : isSharesEventLive
+                          ? "lock bets"
+                          : isSharesEventLock
+                          ? "decide outcome"
+                          : "create a bet"}
+                      </Text>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="10px"
+                        onClick={() => handleBetModal(true)}
+                        _hover={{
+                          cursor: "pointer",
+                          transform: "scale(1.1)",
+                          transitionDuration: "0.3s",
+                        }}
+                        _active={{
+                          transform: "scale(1)",
+                        }}
+                      >
+                        <Image src="/svg/bet.svg" width="100%" />
+                      </Box>
+                    </Flex> */}
+                  </SimpleGrid>
+                </Flex>
+              </Stack>
+            )}
           </Flex>
         </OuterBorder>
         <OuterBorder

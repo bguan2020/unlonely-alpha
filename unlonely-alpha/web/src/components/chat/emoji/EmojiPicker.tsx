@@ -54,7 +54,7 @@ const EmojiPicker = ({ onSelectEmoji, onSelectGif }: Props) => {
           emojis={unicodeEmojis[category]}
         />
       ))}
-      <GifPicker onSelectGif={onSelectGif} gifs={gifsList} />
+      <GifPicker onSelectGif={onSelectGif} gifs={gifsList()} />
     </Flex>
   );
 };
