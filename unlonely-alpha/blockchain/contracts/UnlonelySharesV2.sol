@@ -201,7 +201,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         return isYay ? yayVotesBalance[eventBytes][holder] : nayVotesBalance[eventBytes][holder];
     }
 
-    function getPrice(uint256 supply, uint256 amount) public pure returns (uint256) {
+    function getPrice(uint256 supply, uint256 amount) public view returns (uint256) {
         uint256 price = (supply + amount) * priceSlope;
 
         return price;
@@ -242,7 +242,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         require(!eventVerified[eventBytes], "Event already verified");
         require(amount > 0, "Cannot buy zero shares");
         uint256 supply = isYay ? yayVotesSupply[eventBytes] : nayVotesSupply[eventBytes];
-        uint256 price = getPrice(supply);
+        uint256 price = getPrice(supply, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         require(msg.value >= price + protocolFee + subjectFee, "Insufficient payment");
@@ -287,7 +287,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
 
         uint256 userVotes = isYay ? yayVotesBalance[eventBytes][msg.sender] : nayVotesBalance[eventBytes][msg.sender];
         require(userVotes >= amount, "You don't have enough shares to sell");
-        uint256 price = getPrice(supply - amount);
+        uint256 price = getPrice(supply - amount, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         // Deduct the sold shares from the user's balance and reduce the total supply

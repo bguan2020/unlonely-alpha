@@ -243,7 +243,10 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
               preload="metadata"
               poster={nfc?.videoThumbnail ?? "/svg/defaultThumbnail.svg"}
             >
-              <source src={nfc?.videoLink} type="video/mp4"></source>
+              <source
+                src={nfc?.videoLink.concat("#t=0.1")}
+                type="video/mp4"
+              ></source>
             </video>
             {error && (
               <Flex width="100%" justifyContent="center">

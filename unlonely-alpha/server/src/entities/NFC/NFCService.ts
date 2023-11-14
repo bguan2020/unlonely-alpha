@@ -278,7 +278,7 @@ export const createLivepeerClip = async (
       ctx,
       user
     );
-    return { playBackUrl, thumbnail: thumbNailUrl, ...res };
+    return { url: playBackUrl, thumbnail: thumbNailUrl, ...res };
   } catch (e) {
     console.log(`createLivepeerClip Error invoking livepeer, id:${endTime}`, e);
     return { errorMessage: "Error invoking livepeer" };

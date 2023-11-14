@@ -143,7 +143,10 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
             preload="metadata"
             poster={nfc?.videoThumbnail}
           >
-            <source src={nfc?.videoLink} type="video/mp4"></source>
+            <source
+              src={nfc?.videoLink.concat("#t=0.1")}
+              type="video/mp4"
+            ></source>
           </video>
           <Flex
             style={{

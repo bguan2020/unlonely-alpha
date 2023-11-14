@@ -540,6 +540,41 @@ export const useGetHolderBalance = (
   };
 };
 
+export const getSupply = (
+  streamerAddress: `0x${string}`,
+  eventId: number,
+  contract: ContractData
+) => {
+  const publicClient = usePublicClient();
+
+  const [vipBadgeSupply, setVipBadgeSupply] = useState<string>("0");
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setVipBadgeSupply("0");
+      return;
+    }
+    const [vipBadgeSupply] = await Promise.all([
+      publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "getSupply",
+        args: [streamerAddress, eventId, EventType.VIP_BADGE],
+      }),
+    ]);
+    setVipBadgeSupply(String(vipBadgeSupply));
+  }, [contract.address, publicClient, streamerAddress, eventId]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
+    vipBadgeSupply,
+  };
+};
+
 export const useGetPrice = (
   streamerAddress: `0x${string}`,
   eventId: number,

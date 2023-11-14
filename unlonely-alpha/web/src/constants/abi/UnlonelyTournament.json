@@ -376,6 +376,35 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "streamerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "eventId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum UnlonelyTournament.EventType",
+        "name": "eventType",
+        "type": "uint8"
+      }
+    ],
+    "name": "getSupply",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "supply",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_address",
         "type": "address"
       }
