@@ -126,22 +126,6 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
         >
           <Stack direction="row" spacing={["3", "8", "10", "16"]}>
             <Link
-              href="https://www.unlonely.app/privacy"
-              passHref
-              target="_blank"
-            >
-              <Text fontFamily="Neue Pixel Sans">privacy</Text>
-            </Link>
-            <Link
-              href="https://super-okra-6ad.notion.site/Unlonely-Terms-of-Service-b3c0ea0272c943e98e3120243955cd75?pvs=4"
-              passHref
-              target="_blank"
-            >
-              <Text fontFamily="Neue Pixel Sans">terms</Text>
-            </Link>
-          </Stack>
-          <Stack direction="row" spacing={["3", "8", "10", "16"]}>
-            <Link
               href="https://twitter.com/unlonely_app"
               passHref
               target="_blank"

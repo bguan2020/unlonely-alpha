@@ -207,6 +207,7 @@ export const SelectableChannel = ({
                 }}
               />{" "}
             </Flex>
+
             <Flex
               position="absolute"
               right="10px"

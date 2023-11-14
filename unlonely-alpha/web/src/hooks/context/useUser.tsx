@@ -4,8 +4,7 @@ import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
 import { usePrivy, WalletWithMetadata } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
-import { Box, Button, Flex, Text, IconButton, Image } from "@chakra-ui/react";
-import Link from "next/link";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 
 import { User } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
@@ -71,15 +70,6 @@ export const UserProvider = ({
   >("off");
   const [initialNotificationsGranted, setInitialNotificationsGranted] =
     useState(false);
-
-  const tosPopupCookie = useMemo(() => {
-    if (typeof window !== "undefined") {
-      const value = localStorage.getItem("unlonely-tos-popup");
-      return value ? JSON.parse(value) : null;
-    }
-    return null;
-  }, []);
-  const [tosPopup, setTosPopup] = useState(true);
 
   const { postSubscription } = usePostSubscription({
     onError: () => {
@@ -351,70 +341,6 @@ export const UserProvider = ({
           </Text>
         </Flex>
       </TransactionModalTemplate>
-      {tosPopup && !isStandalone && !tosPopupCookie && (
-        <Flex
-          position="fixed"
-          bottom="0"
-          bg="black"
-          zIndex="20"
-          width="100%"
-          justifyContent={"center"}
-        >
-          <Text textAlign={"center"} my="auto">
-            By using Unlonely, you agree to our{" "}
-            <span
-              style={{
-                cursor: "pointer",
-                textDecoration: "underline",
-              }}
-            >
-              <Link
-                href={"https://www.unlonely.app/privacy"}
-                target="_blank"
-                passHref
-              >
-                Privacy Policy
-              </Link>
-            </span>{" "}
-            and{" "}
-            <span
-              style={{
-                cursor: "pointer",
-                textDecoration: "underline",
-              }}
-            >
-              <Link
-                href={
-                  "https://super-okra-6ad.notion.site/Unlonely-Terms-of-Service-b3c0ea0272c943e98e3120243955cd75"
-                }
-                target="_blank"
-                passHref
-              >
-                Terms of Service
-              </Link>
-            </span>
-            .
-          </Text>
-          <IconButton
-            aria-label="close"
-            _hover={{}}
-            _active={{}}
-            _focus={{}}
-            bg="transparent"
-            icon={<Image alt="close" src="/svg/close.svg" width="20px" />}
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                localStorage.setItem(
-                  "unlonely-tos-popup",
-                  JSON.stringify(true)
-                );
-              }
-              setTosPopup(false);
-            }}
-            height="30px"
-          />
-        </Flex>
-      )}
       {children}
     </UserContext.Provider>
   );
