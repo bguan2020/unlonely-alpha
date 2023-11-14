@@ -333,7 +333,7 @@ const StandaloneChatComponent = ({
               }}
             >
               <Text fontFamily="LoRes15" fontSize="18px">
-                BUY VIP BADGES
+                BUY VIP
               </Text>
             </Button>
           </Flex>
@@ -499,7 +499,7 @@ const InfoComponent = ({
         </Flex>
         {isOwner && (
           <Stack
-            my="5rem"
+            my={["0", "5rem"]}
             direction="column"
             width={"100%"}
             justifyContent="center"

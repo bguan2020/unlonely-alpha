@@ -34,7 +34,7 @@ export const Navbar = () => {
           router.push("/");
         }}
       >
-        <Flex direction="column">
+        <Flex direction="column" alignItems="center">
           <Image
             src={`/svg/mobile/channels-nav${
               router.pathname.startsWith("/channels") || router.pathname === "/"
@@ -57,7 +57,7 @@ export const Navbar = () => {
           router.push("/nfcs");
         }}
       >
-        <Flex direction="column">
+        <Flex direction="column" alignItems="center">
           <Image
             src={`/svg/mobile/nfcs-nav${
               router.pathname.startsWith("/nfcs") ? "-selected" : ""
@@ -78,7 +78,7 @@ export const Navbar = () => {
           router.push("/schedule");
         }}
       >
-        <Flex direction="column">
+        <Flex direction="column" alignItems="center">
           <Image
             src={`/svg/mobile/schedule-nav${
               router.pathname.startsWith("/schedule") ? "-selected" : ""
@@ -99,7 +99,7 @@ export const Navbar = () => {
           router.push("/profile");
         }}
       >
-        <Flex direction="column" alignItems={"center"}>
+        <Flex direction="column" alignItems="center">
           {user ? (
             <Avatar
               name={user?.username ?? user?.address}

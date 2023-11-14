@@ -52,7 +52,6 @@ const ChannelDesc = () => {
         <Flex
           maxH="400px"
           justifyContent="left"
-          pr="32px"
           flexDirection="row"
           alignItems={"baseline"}
           gap="1rem"

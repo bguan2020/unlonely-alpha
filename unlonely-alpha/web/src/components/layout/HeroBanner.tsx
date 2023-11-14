@@ -1,4 +1,5 @@
 import { Flex, Text, Tooltip } from "@chakra-ui/react";
+import Link from "next/link";
 
 const HeroBanner = () => {
   return (
@@ -18,28 +19,29 @@ const HeroBanner = () => {
         your cozy space on the internet
       </Text>
       <Text textAlign="center" fontSize={["15px", "18px"]} fontStyle="italic">
+        new here? check out our{" "}
         <span
           style={{
             cursor: "pointer",
             textDecoration: "underline",
           }}
         >
-          <Tooltip label="dm @gracewhiteguan on telegram a picture of your OBS setup to get your own channel">
+          <Link href={"https://bit.ly/unlonelyFAQs"} target="_blank" passHref>
+            FAQs
+          </Link>
+        </span>{" "}
+        and{" "}
+        <span
+          style={{
+            cursor: "pointer",
+            textDecoration: "underline",
+          }}
+        >
+          <Tooltip label="DM @gracewhiteguan on telegram a screenshot of your OBS setup and links to your socials to get your own channel">
             start
           </Tooltip>
         </span>{" "}
-        your own channel and{" "}
-        <span
-          style={{
-            cursor: "pointer",
-            textDecoration: "underline",
-          }}
-        >
-          <Tooltip label="stream for 10 hours to get your own arcade token">
-            launch
-          </Tooltip>
-        </span>{" "}
-        your own arcade token
+        your own channel today
       </Text>
     </Flex>
   );
