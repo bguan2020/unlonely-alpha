@@ -180,6 +180,11 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         return vipBadgeBalance[key][holder];
     }
 
+    function getSupply(address streamerAddress, uint256 eventId, EventType eventType) public view validEventType(eventType) returns (uint256 supply) {
+        bytes32 key = generateKey(streamerAddress, eventId, eventType);
+        return vipBadgeSupply[key];
+    }
+
     function getPrice(uint256 supply, uint256 amount) public pure returns (uint256) {
         if (supply == 0 && amount == 0) return 0;
 
