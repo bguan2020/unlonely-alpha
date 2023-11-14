@@ -14,7 +14,7 @@ export const useWrite = (
   callbacks?: WriteCallbacks,
   overrides?: { value?: bigint; gas?: bigint }
 ) => {
-  const { config, refetch } = usePrepareContractWrite({
+  const { config, refetch, isRefetching } = usePrepareContractWrite({
     address: contract.address,
     abi: contract.abi,
     functionName,
@@ -68,5 +68,6 @@ export const useWrite = (
     writeError,
     txError,
     refetch,
+    isRefetching,
   };
 };

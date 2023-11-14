@@ -11,7 +11,7 @@ import {
   MenuList,
   MenuItem,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { decodeEventLog } from "viem";
 import { useBlockNumber, usePublicClient } from "wagmi";
 import Link from "next/link";
@@ -85,23 +85,13 @@ export default function BetModal({
     watch: true,
   });
   const contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
+  const [isVerifier, setIsVerifier] = useState<boolean>(false);
 
   const { postBet } = usePostBet({
     onError: (err) => {
       console.log(err);
     },
   });
-
-  const isVerifier = useMemo(async () => {
-    if (!contract.address || !contract.abi || !userAddress) return false;
-    const res = await publicClient.readContract({
-      address: contract.address,
-      abi: contract.abi,
-      functionName: "isVerifier",
-      args: [userAddress],
-    });
-    return Boolean(res);
-  }, [contract, userAddress, publicClient]);
 
   const isSharesEventLive =
     channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
@@ -377,7 +367,7 @@ export default function BetModal({
 
   useEffect(() => {
     const init = async () => {
-      const [endTimestamp, eventVerified] = await Promise.all([
+      const [endTimestamp, eventVerified, isVerifier] = await Promise.all([
         publicClient.readContract({
           address: contract.address as `0x${string}`,
           abi: contract.abi,
@@ -390,10 +380,17 @@ export default function BetModal({
           functionName: "eventVerified",
           args: [generatedKey],
         }),
+        publicClient.readContract({
+          address: contract.address as `0x${string}`,
+          abi: contract.abi,
+          functionName: "isVerifier",
+          args: [userAddress],
+        }),
       ]);
       setDateNow(Date.now());
       setEventEndTimestamp(BigInt(String(endTimestamp)));
       setEventVerified(Boolean(eventVerified));
+      setIsVerifier(Boolean(isVerifier));
     };
     init();
   }, [blockNumber.data]);
@@ -421,6 +418,12 @@ export default function BetModal({
     >
       {isSharesEventLive && eventEndTimestamp === BigInt(0) && (
         <Flex direction="column" gap="10px">
+          {!isVerifier && (
+            <Text textAlign={"center"} fontSize="13px" color="red.300">
+              You do not have access to this feature. Please DM @brianguan on
+              telegram to get access to live-betting.
+            </Text>
+          )}
           <Text textAlign={"center"} fontSize="13px">
             Please continue the process to initiate your event
           </Text>
@@ -549,7 +552,7 @@ export default function BetModal({
             </Text>
           )}
           {!isVerifier && (
-            <Text textAlign={"center"} fontSize="13px">
+            <Text textAlign={"center"} fontSize="13px" color="red.300">
               You do not have access to this feature. Please DM @brianguan on
               telegram to get access to live-betting.
             </Text>
@@ -624,7 +627,7 @@ export default function BetModal({
       {!isSharesEventLive && !isSharesEventPayout && !isSharesEventLock && (
         <Flex direction="column" gap="10px">
           {!isVerifier && (
-            <Text textAlign={"center"} fontSize="13px">
+            <Text textAlign={"center"} fontSize="13px" color="red.300">
               You do not have access to this feature. Please DM @brianguan on
               telegram to get access to live-betting.
             </Text>
@@ -698,7 +701,7 @@ export default function BetModal({
                 _active={{ opacity: "1" }}
                 onClick={() => setSelectedEndTime("120")}
               >
-                {`2 hour (until ${getHourAndMinutesFromMillis(
+                {`2 hours (until ${getHourAndMinutesFromMillis(
                   dateNow + 120 * 60 * 1000
                 )})`}
               </MenuItem>

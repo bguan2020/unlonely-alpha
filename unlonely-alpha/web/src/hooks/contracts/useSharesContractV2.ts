@@ -572,6 +572,7 @@ export const useBuyVotes = (
     txData: buyVotesTxData,
     isTxLoading: buyVotesTxLoading,
     refetch,
+    isRefetching: isRefetchingBuyVotes,
   } = useWrite(
     contract,
     "buyVotes",
@@ -592,6 +593,7 @@ export const useBuyVotes = (
     buyVotesData,
     buyVotesTxData,
     buyVotesTxLoading,
+    isRefetchingBuyVotes,
   };
 };
 
@@ -611,6 +613,7 @@ export const useSellVotes = (
     txData: sellVotesTxData,
     isTxLoading: sellVotesTxLoading,
     refetch,
+    isRefetching: isRefetchingSellVotes,
   } = useWrite(
     contract,
     "sellVotes",
@@ -630,6 +633,7 @@ export const useSellVotes = (
     sellVotesData,
     sellVotesTxData,
     sellVotesTxLoading,
+    isRefetchingSellVotes,
   };
 };
 

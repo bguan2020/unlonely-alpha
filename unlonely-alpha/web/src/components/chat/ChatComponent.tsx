@@ -371,7 +371,11 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
     v2contract
   );
 
-  const { buyVotes, refetch: refetchBuyVotes } = useBuyVotes(
+  const {
+    buyVotes,
+    refetch: refetchBuyVotes,
+    isRefetchingBuyVotes,
+  } = useBuyVotes(
     {
       eventAddress:
         (channelQueryData?.sharesEvent?.[0]
@@ -474,7 +478,11 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
     }
   );
 
-  const { sellVotes, refetch: refetchSellVotes } = useSellVotes(
+  const {
+    sellVotes,
+    refetch: refetchSellVotes,
+    isRefetchingSellVotes,
+  } = useSellVotes(
     {
       eventAddress: channelQueryData?.sharesEvent?.[0]
         ?.sharesSubjectAddress as `0x${string}`,
@@ -753,6 +761,8 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
       votePrice > userEthBalance?.value
     ) {
       setErrorMessage("insufficient ETH to spend");
+    } else if (isBuying && Number(amountOfVotes) === 0) {
+      setErrorMessage("enter amount first");
     } else {
       setErrorMessage("");
     }
@@ -796,14 +806,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   return (
     <>
       {doesEventExist && (
-        <Flex
-          direction="column"
-          overflowX="auto"
-          height="100%"
-          width="100%"
-          mt="8px"
-          position="relative"
-        >
+        <>
           <Text
             textAlign={"center"}
             width="90%"
@@ -815,75 +818,16 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
             {truncateValue(formatUnits(votingPooledEth, 18), 4)} ETH in the pool
           </Text>
-          <Flex
-            direction="column"
-            overflowX="auto"
-            height="100%"
-            id={"scrollable"}
-            position="relative"
-            mt="8px"
-          >
-            <Virtuoso
-              ref={scrollRef}
-              followOutput={"auto"}
-              style={{
-                height: "100%",
-                overflowY: "scroll",
-              }}
-              className="hide-scrollbar"
-              data={tradeMessages}
-              atBottomStateChange={(isAtBottom) => handleIsAtBottom(isAtBottom)}
-              initialTopMostItemIndex={tradeMessages.length - 1}
-              itemContent={(index, data) => {
-                const color = getColor(
-                  data.taskType as InteractionType.BUY_VOTES,
-                  data.isYay as boolean
-                );
-                return (
-                  <Flex justifyContent={"space-between"} px="4px">
-                    <Text>{data.trader}</Text>
-                    <Text
-                      color={color}
-                      fontStyle={
-                        (data.taskType === InteractionType.BUY_VOTES &&
-                          !data.isYay) ||
-                        (data.taskType === InteractionType.SELL_VOTES &&
-                          data.isYay)
-                          ? "italic"
-                          : "unset"
-                      }
-                    >
-                      {data.taskType === InteractionType.BUY_VOTES
-                        ? "bought"
-                        : "sold"}{" "}
-                      {data.amount} {data.isYay ? "YES" : "NO"}
-                    </Text>
-                  </Flex>
-                );
-              }}
-            />
-          </Flex>
-          <Flex justifyContent="center">
-            {!isAtBottom && tradeMessages.length > 0 && (
-              <Box
-                bg="rgba(98, 98, 98, 0.6)"
-                p="4px"
-                borderRadius="4px"
-                _hover={{
-                  background: "rgba(98, 98, 98, 0.3)",
-                  cursor: "pointer",
-                }}
-                onClick={handleScrollToPresent}
-              >
-                <Text fontSize="12px" textAlign={"center"}>
-                  scroll to present
-                </Text>
-              </Box>
-            )}
-          </Flex>
-        </Flex>
+        </>
       )}
-      {errorMessage && (
+      {(Number(eventEndTimestamp) * 1000 < dateNow ||
+        channelQueryData?.sharesEvent?.[0]?.eventState ===
+          SharesEventState.Payout) && (
+        <Text textAlign={"center"} color="red.400">
+          event is over
+        </Text>
+      )}
+      {!doesEventExist && errorMessage && (
         <Text textAlign={"center"} color="red.400">
           {errorMessage}
         </Text>
@@ -964,7 +908,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                 </Flex>
                 <Flex direction="column">
                   <Text fontSize="10px" textAlign="center">
-                    ETH price
+                    ETH {isBuying ? "price" : "return"}
                   </Text>
                   <Text whiteSpace={"nowrap"} margin="auto">
                     {truncateValue(formatUnits(votePrice, 18), 4)}
@@ -983,6 +927,11 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                 Time to close:{" "}
                 {getTimeFromMillis(Number(eventEndTimestamp) * 1000 - dateNow)}
               </Text>
+              {errorMessage && (
+                <Text textAlign={"center"} color="red.400">
+                  {errorMessage}
+                </Text>
+              )}
               <Button
                 bg={
                   isBuying && isYay
@@ -997,9 +946,20 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                 _hover={{}}
                 _active={{}}
                 onClick={() => (isBuying ? buyVotes?.() : sellVotes?.())}
-                disabled={(isBuying && !buyVotes) || (!isBuying && !sellVotes)}
+                disabled={
+                  (isBuying && !buyVotes) ||
+                  (!isBuying && !sellVotes) ||
+                  isRefetchingBuyVotes ||
+                  isRefetchingSellVotes
+                }
               >
-                {isBuying ? "BUY" : "SELL"}
+                {isRefetchingBuyVotes || isRefetchingSellVotes ? (
+                  <Spinner />
+                ) : isBuying ? (
+                  "BUY"
+                ) : (
+                  "SELL"
+                )}
               </Button>
             </Flex>
           </>
@@ -1055,6 +1015,83 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
             )}
           </>
         )}
+      {doesEventExist && (
+        <Flex
+          direction="column"
+          overflowX="auto"
+          height="100%"
+          width="100%"
+          mt="8px"
+          position="relative"
+        >
+          <Flex
+            direction="column"
+            overflowX="auto"
+            height="100%"
+            id={"scrollable"}
+            position="relative"
+            mt="8px"
+          >
+            <Virtuoso
+              ref={scrollRef}
+              followOutput={"auto"}
+              style={{
+                height: "100%",
+                overflowY: "scroll",
+              }}
+              className="hide-scrollbar"
+              data={tradeMessages}
+              atBottomStateChange={(isAtBottom) => handleIsAtBottom(isAtBottom)}
+              initialTopMostItemIndex={tradeMessages.length - 1}
+              itemContent={(index, data) => {
+                const color = getColor(
+                  data.taskType as InteractionType.BUY_VOTES,
+                  data.isYay as boolean
+                );
+                return (
+                  <Flex justifyContent={"space-between"} px="4px">
+                    <Text>{data.trader}</Text>
+                    <Text
+                      color={color}
+                      fontStyle={
+                        (data.taskType === InteractionType.BUY_VOTES &&
+                          !data.isYay) ||
+                        (data.taskType === InteractionType.SELL_VOTES &&
+                          data.isYay)
+                          ? "italic"
+                          : "unset"
+                      }
+                    >
+                      {data.taskType === InteractionType.BUY_VOTES
+                        ? "bought"
+                        : "sold"}{" "}
+                      {data.amount} {data.isYay ? "YES" : "NO"}
+                    </Text>
+                  </Flex>
+                );
+              }}
+            />
+          </Flex>
+          <Flex justifyContent="center">
+            {!isAtBottom && tradeMessages.length > 0 && (
+              <Box
+                bg="rgba(98, 98, 98, 0.6)"
+                p="4px"
+                borderRadius="4px"
+                _hover={{
+                  background: "rgba(98, 98, 98, 0.3)",
+                  cursor: "pointer",
+                }}
+                onClick={handleScrollToPresent}
+              >
+                <Text fontSize="12px" textAlign={"center"}>
+                  scroll to present
+                </Text>
+              </Box>
+            )}
+          </Flex>
+        </Flex>
+      )}
     </>
   );
 };

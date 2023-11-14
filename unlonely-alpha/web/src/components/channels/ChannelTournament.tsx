@@ -422,7 +422,7 @@ export const ChannelTournament = () => {
               </Flex>
               <Flex direction="column">
                 <Text fontSize="10px" textAlign="center">
-                  ETH price
+                  ETH {isBuying ? "price" : "return"}
                 </Text>
                 <Text whiteSpace={"nowrap"} margin="auto">
                   {truncateValue(formatUnits(badgePrice, 18), 4)}
