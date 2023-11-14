@@ -235,7 +235,7 @@ export const UserProvider = ({
   }, []);
 
   useEffect(() => {
-    setInterval(() => {
+    setTimeout(() => {
       setTosPopup(true);
     }, 2000);
   }, []);

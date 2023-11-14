@@ -22,6 +22,7 @@ export const useWrite = (
     chainId: contract.chainId,
     value: overrides?.value,
     gas: overrides?.gas,
+    cacheTime: 0,
     onSuccess(data) {
       if (callbacks?.onPrepareSuccess) callbacks?.onPrepareSuccess(data);
     },

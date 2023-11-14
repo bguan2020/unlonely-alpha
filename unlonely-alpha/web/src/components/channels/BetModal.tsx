@@ -52,7 +52,7 @@ export default function BetModal({
 }) {
   const { userAddress, user } = useUser();
   const { network } = useNetworkContext();
-  const { localNetwork, explorerUrl } = network;
+  const { matchingChain, localNetwork, explorerUrl } = network;
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
   const { channelQueryData, refetch } = channel;
@@ -632,6 +632,11 @@ export default function BetModal({
               telegram to get access to live-betting.
             </Text>
           )}
+          {!matchingChain && (
+            <Text textAlign={"center"} fontSize="13px" color="red.300">
+              wrong network
+            </Text>
+          )}
           <Input
             variant="glow"
             placeholder={"Will I go on a second date?"}
@@ -713,7 +718,7 @@ export default function BetModal({
             _focus={{}}
             _active={{}}
             width="100%"
-            disabled={question.length === 0 || !isVerifier}
+            disabled={question.length === 0 || !isVerifier || !matchingChain}
             onClick={async () =>
               channelQueryData?.sharesEvent &&
               channelQueryData?.sharesEvent?.length > 0

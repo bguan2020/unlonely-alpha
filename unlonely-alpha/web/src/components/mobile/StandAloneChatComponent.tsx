@@ -46,7 +46,6 @@ import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { Trade } from "../chat/ChatComponent";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
-import useUserAgent from "../../hooks/internal/useUserAgent";
 import { ChannelTournament } from "../channels/ChannelTournament";
 import TournamentPot from "../channels/TournamentPot";
 
@@ -112,6 +111,12 @@ const StandaloneChatComponent = ({
     () => (channelQueryData?.id ? Number(channelQueryData?.id) : 3),
     [channelQueryData?.id]
   );
+
+  const doesEventExist = useMemo(() => {
+    if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
+    if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
+    return true;
+  }, [channelQueryData?.sharesEvent]);
 
   const [getSubscription, { data }] = useLazyQuery<GetSubscriptionQuery>(
     GET_SUBSCRIPTION,
@@ -378,7 +383,9 @@ const StandaloneChatComponent = ({
             width="100%"
             justifyContent={"center"}
           >
-            <Text>chat</Text>
+            <Text fontFamily="LoRes15" fontSize="20px" fontWeight={"bold"}>
+              chat
+            </Text>
           </Flex>
         </OuterBorder>
         <OuterBorder
@@ -394,7 +401,14 @@ const StandaloneChatComponent = ({
             width="100%"
             justifyContent={"center"}
           >
-            <Text>vote</Text>
+            {doesEventExist && (
+              <Text className="zooming-text" fontSize="8px">
+                🔴
+              </Text>
+            )}
+            <Text fontFamily="LoRes15" fontSize="20px" fontWeight={"bold"}>
+              vote
+            </Text>
           </Flex>
         </OuterBorder>
         <OuterBorder
@@ -414,7 +428,9 @@ const StandaloneChatComponent = ({
             width="100%"
             justifyContent={"center"}
           >
-            <Text>vip</Text>
+            <Text fontFamily="LoRes15" fontSize="20px" fontWeight={"bold"}>
+              vip
+            </Text>
           </Flex>
         </OuterBorder>
       </Flex>
@@ -778,7 +794,6 @@ const Chat = ({
   isVipChat?: boolean;
 }) => {
   const { user } = useUser();
-  const { isStandalone } = useUserAgent();
 
   const { channel, leaderboard } = useChannelContext();
   const { channelQueryData } = channel;
@@ -882,11 +897,6 @@ const Chat = ({
           <Text textAlign={"center"}>
             You must have at least one VIP badge to use this chat.
           </Text>
-          {/* {isStandalone && (
-            <Text textAlign={"center"}>
-              (Trading vip badges is only available on desktop right now)
-            </Text>
-          )} */}
         </>
       )}
       <Flex
@@ -934,7 +944,6 @@ const Chat = ({
           </Box>
         )}
       </Flex>
-      {/* {!isVipChat && <ChannelTournament />} */}
       {(userIsChannelOwner || userIsModerator || isVip || !isVipChat) && (
         <Flex w="100%">
           <ChatForm

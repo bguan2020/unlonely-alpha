@@ -67,7 +67,10 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
   );
-  const { leaderboard: leaderboardContext } = useChannelContext();
+  const { channel: channelContext, leaderboard: leaderboardContext } =
+    useChannelContext();
+  const { channelQueryData } = channelContext;
+
   const { network } = useNetworkContext();
   const { localNetwork } = network;
 
@@ -82,6 +85,12 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
     { name: string; totalFees: number }[]
   >([]);
   const [leaderboardIsCollapsed, setLeaderboardIsCollapsed] = useState(true);
+
+  const doesEventExist = useMemo(() => {
+    if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
+    if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
+    return true;
+  }, [channelQueryData?.sharesEvent]);
 
   useEffect(() => {
     refetchGamblableEventLeaderboard?.();
@@ -135,8 +144,19 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                 bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
                 width="100%"
                 justifyContent={"center"}
+                alignItems={"center"}
               >
-                <Text fontFamily="LoRes15" fontSize="25px" fontWeight={"bold"}>
+                {doesEventExist && (
+                  <Text className="zooming-text" fontSize="10px">
+                    🔴
+                  </Text>
+                )}
+                <Text
+                  alignItems={"center"}
+                  fontFamily="LoRes15"
+                  fontSize="25px"
+                  fontWeight={"bold"}
+                >
                   vote
                 </Text>
               </Flex>
@@ -809,7 +829,6 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
         <>
           <Text
             textAlign={"center"}
-            width="90%"
             fontSize={"20px"}
             fontWeight={"bold"}
           >
