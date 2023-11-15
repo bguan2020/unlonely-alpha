@@ -17,7 +17,6 @@ import {
   APPOINT_USER_EVENT,
   BAN_USER_EVENT,
   InteractionType,
-  NULL_ADDRESS,
 } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
@@ -368,9 +367,7 @@ const MessageBody = ({
                         ? "blur(5px)"
                         : "blur(0px)"
                     }
-                    fontSize={
-                      message.data.address === NULL_ADDRESS ? "12px" : "14px"
-                    }
+                    fontSize={"12px"}
                     wordBreak="break-word"
                     textAlign="left"
                   >
@@ -392,9 +389,7 @@ const MessageBody = ({
                   <Text
                     as="span"
                     color="white"
-                    fontSize={
-                      message.data.address === NULL_ADDRESS ? "12px" : "14px"
-                    }
+                    fontSize={"12px"}
                     wordBreak="break-word"
                     textAlign="left"
                     filter={

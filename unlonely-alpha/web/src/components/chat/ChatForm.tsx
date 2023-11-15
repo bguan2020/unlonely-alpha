@@ -291,7 +291,7 @@ const ChatForm = ({
                 </Flex>
               )}
               <Flex justifyContent={"space-between"}>
-                <Flex>
+                <Flex gap="1rem">
                   {clipLoading ? (
                     <Flex alignSelf="center" mr="8px">
                       <Spinner />
@@ -306,6 +306,7 @@ const ChatForm = ({
                           _focus={{}}
                           _hover={{ transform: "scale(1.15)" }}
                           _active={{ transform: "scale(1.3)" }}
+                          minWidth="auto"
                           onClick={() => {
                             if (user) {
                               handleIsClipUiOpen(true);
@@ -350,6 +351,7 @@ const ChatForm = ({
                             <Image src="/svg/pop-out.svg" height={"20px"} />
                           }
                           bg="transparent"
+                          minWidth="auto"
                         />
                       </PopoverTrigger>
                       <PopoverContent
@@ -378,6 +380,7 @@ const ChatForm = ({
                           style={{
                             cursor: blastDisabled ? "not-allowed" : "pointer",
                           }}
+                          minWidth="auto"
                           onClick={() => {
                             if (blastMode) {
                               setBlastMode(false);
@@ -419,16 +422,15 @@ const ChatForm = ({
                   onClick={() =>
                     setShowEmojiReactionList(!showEmojiReactionList)
                   }
+                  minWidth="auto"
                 />
               </Flex>
               <Flex
                 mt="5px"
-                mx="15px"
                 position="relative"
                 direction="column"
                 border={blastMode ? "1px solid red" : "1px solid #FAFAFA"}
-                px="10px"
-                py="5px"
+                p="5px"
                 background={blastMode ? "rgba(255, 108, 108, 0.35)" : "#131225"}
               >
                 <Flex alignItems="center" gap="5px">

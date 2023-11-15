@@ -29,6 +29,7 @@ const EmojiButton = ({ onSelectEmoji, onSelectGif }: Props) => {
           _focus={{}}
           _hover={{ transform: "scale(1.15)" }}
           _active={{ transform: "scale(1.3)" }}
+          minWidth="auto"
         />
       </PopoverTrigger>
       <PopoverContent

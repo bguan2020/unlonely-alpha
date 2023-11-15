@@ -17,11 +17,7 @@ import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
-const ConnectWallet = ({
-  shouldSayDisconnect,
-}: {
-  shouldSayDisconnect?: boolean;
-}) => {
+const ConnectWallet = () => {
   const { user, loginMethod, userAddress } = useUser();
   const { login, ready, linkWallet, logout } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
@@ -67,11 +63,11 @@ const ConnectWallet = ({
                       _hover={{ bg: "#020202" }}
                       _focus={{}}
                       _active={{}}
-                      px="23px"
+                      px="10px"
                       bg={"#131323"}
                       rightIcon={<ChevronDownIcon />}
                     >
-                      <Text fontFamily="LoRes15" fontSize="20px">
+                      <Text fontFamily="LoRes15" fontSize="15px">
                         {centerEllipses(userAddress, 13)}
                       </Text>
                     </MenuButton>
@@ -113,10 +109,10 @@ const ConnectWallet = ({
                     _focus={{}}
                     _active={{}}
                     bg={"#131323"}
-                    px="23px"
+                    px="10px"
                     rightIcon={<ChevronDownIcon />}
                   >
-                    <Text fontFamily="LoRes15" fontSize="20px">
+                    <Text fontFamily="LoRes15" fontSize="15px">
                       Connect
                     </Text>
                   </MenuButton>
@@ -158,10 +154,10 @@ const ConnectWallet = ({
                   _focus={{}}
                   _active={{}}
                   bg={"#131323"}
-                  px="23px"
+                  px="10px"
                   rightIcon={<ChevronDownIcon />}
                 >
-                  <Text fontFamily="LoRes15" fontSize="20px">
+                  <Text fontFamily="LoRes15" fontSize="15px">
                     Login
                   </Text>
                 </MenuButton>

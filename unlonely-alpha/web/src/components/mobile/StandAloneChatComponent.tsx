@@ -26,10 +26,7 @@ import { useRouter } from "next/router";
 import { useLazyQuery } from "@apollo/client";
 import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
 
-import {
-  GetSubscriptionQuery,
-  SharesEventState,
-} from "../../generated/graphql";
+import { GetSubscriptionQuery } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import ChannelDesc from "../channels/ChannelDesc";
@@ -383,7 +380,7 @@ const StandaloneChatComponent = ({
             width="100%"
             justifyContent={"center"}
           >
-            <Text fontFamily="LoRes15" fontSize="20px" fontWeight={"bold"}>
+            <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
               chat
             </Text>
           </Flex>
@@ -406,7 +403,7 @@ const StandaloneChatComponent = ({
                 🔴
               </Text>
             )}
-            <Text fontFamily="LoRes15" fontSize="20px" fontWeight={"bold"}>
+            <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
               vote
             </Text>
           </Flex>
@@ -428,7 +425,7 @@ const StandaloneChatComponent = ({
             width="100%"
             justifyContent={"center"}
           >
-            <Text fontFamily="LoRes15" fontSize="20px" fontWeight={"bold"}>
+            <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
               vip
             </Text>
           </Flex>
@@ -460,12 +457,6 @@ const InfoComponent = ({
   } = ui;
   const { channelQueryData } = channelContext;
   const isOwner = userAddress === channelQueryData?.owner.address;
-  const isSharesEventLive =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
-  const isSharesEventLock =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Lock;
-  const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
 
   return (
     <Flex
@@ -606,12 +597,8 @@ const InfoComponent = ({
                 </Flex>
                 <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
                   <Text textAlign="center">
-                    {isSharesEventPayout
-                      ? "stop event"
-                      : isSharesEventLive
-                      ? "lock bets"
-                      : isSharesEventLock
-                      ? "decide outcome"
+                    {channelQueryData?.sharesEvent?.[0]
+                      ? "🔴manage bet"
                       : "create a bet"}
                   </Text>
                   <Box

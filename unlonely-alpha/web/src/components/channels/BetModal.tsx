@@ -11,7 +11,7 @@ import {
   MenuList,
   MenuItem,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { decodeEventLog } from "viem";
 import { useBlockNumber, usePublicClient } from "wagmi";
 import Link from "next/link";
@@ -92,6 +92,11 @@ export default function BetModal({
       console.log(err);
     },
   });
+
+  const eventEndTimestampPassed = useMemo(
+    () => Number(eventEndTimestamp) * 1000 <= dateNow,
+    [eventEndTimestamp, dateNow]
+  );
 
   const isSharesEventLive =
     channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
@@ -509,33 +514,38 @@ export default function BetModal({
           </Button>
         </Flex>
       )}
-      {isSharesEventLive && eventEndTimestamp > BigInt(0) && (
-        <Flex direction="column" gap="10px">
-          <Text textAlign={"center"} fontSize="13px">
-            Betting will be locked and you can take the time to make your
-            decision.
-          </Text>
-          <Button
-            bg="#e35b16"
-            _hover={{}}
-            _focus={{}}
-            _active={{}}
-            width="100%"
-            onClick={async () =>
-              await _updateSharesEvent(SharesEventState.Lock)
-            }
-          >
-            lock bets
-          </Button>
-        </Flex>
-      )}
-      {isSharesEventLock && (
+      {isSharesEventLive &&
+        eventEndTimestamp > BigInt(0) &&
+        !eventEndTimestampPassed && (
+          <Flex direction="column" gap="10px">
+            <Text textAlign={"center"} fontSize="13px">
+              Betting will be locked and you can take the time to make your
+              decision.
+            </Text>
+            <Button
+              bg="#e35b16"
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              width="100%"
+              onClick={async () =>
+                await _updateSharesEvent(SharesEventState.Lock)
+              }
+            >
+              lock bets
+            </Button>
+          </Flex>
+        )}
+      {(isSharesEventLock ||
+        (isSharesEventLive &&
+          eventEndTimestamp > BigInt(0) &&
+          eventEndTimestampPassed)) && (
         <Flex direction="column" gap="10px">
           <Text textAlign={"center"} fontSize="13px">
             The outcome of the event will be decided and winnings can start
             being claimed.
           </Text>
-          {eventEndTimestamp > BigInt(0) && (
+          {eventEndTimestamp > BigInt(0) && !eventEndTimestampPassed && (
             <Text
               textAlign={"center"}
               fontSize="11px"
