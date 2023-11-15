@@ -247,12 +247,14 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         require(!tournament.isActive, "Tournament still active.");
         require(tournament.isPayoutClaimable, "Winner payouts already stopped.");
         tournament.isPayoutClaimable = false;
+        tournament.winningBadge = bytes32(0);
     }
 
     function buyVIPBadge(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount) public payable validEventType(eventType) {
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(amount > 0, "Cannot buy zero badges");
         bytes32 key = generateKey(streamerAddress, eventId, eventType);
+        require(key != tournament.winningBadge, "Cannot buy winning badge during payout phase");
         uint256 price = getPrice(vipBadgeSupply[key], amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
