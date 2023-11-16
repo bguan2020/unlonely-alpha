@@ -452,7 +452,7 @@ export const ChannelTournament = () => {
             </Button>
           </>
         )}
-        {protocolFeeDestination === NULL_ADDRESS ? (
+        {protocolFeeDestination === NULL_ADDRESS && matchingChain ? (
           <Flex>
             <Text>Contract not ready, admin must set fee destination</Text>
           </Flex>

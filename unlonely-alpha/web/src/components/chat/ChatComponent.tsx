@@ -256,13 +256,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                   {leaderboard.length > 0 && (
                     <TableContainer
                       overflowY={leaderboardIsCollapsed ? "hidden" : "scroll"}
-                      maxHeight={
-                        leaderboardIsCollapsed
-                          ? leaderboard.length === 0
-                            ? "30px"
-                            : "45px"
-                          : "150px"
-                      }
+                      height={leaderboardIsCollapsed ? "45px" : "150px"}
                       transition={"max-height 0.2s ease-in-out"}
                     >
                       <Table variant="unstyled" size="xs">
@@ -292,9 +286,11 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                     </TableContainer>
                   )}
                   {leaderboard.length === 0 && (
-                    <Text fontSize="10px" textAlign={"center"}>
-                      no one is on the leaderboard for this channel yet! 👀
-                    </Text>
+                    <Flex height="40px" justifyContent={"center"}>
+                      <Text fontSize="10px">
+                        no one is on the leaderboard for this channel yet! 👀
+                      </Text>
+                    </Flex>
                   )}
                   {leaderboardLoading && (
                     <Flex justifyContent={"center"} p="20px">
@@ -1265,7 +1261,7 @@ const Chat = ({
         height="100%"
         id={isVipChat ? "vip-chat" : "chat"}
         position="relative"
-        mt="8px"
+        mt="40px"
       >
         {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
           <Flex

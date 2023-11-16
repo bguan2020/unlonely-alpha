@@ -27,8 +27,7 @@ import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
-import HeroBanner from "../components/layout/HeroBanner";
-import TokenLeaderboard from "../components/arcade/TokenLeaderboard";
+import TokenLeaderboard from "../components/arcade/HomePageLeaderboard";
 import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
 import {
@@ -46,6 +45,7 @@ import useAddChannelToSubscription from "../hooks/server/useAddChannelToSubscrip
 import useRemoveChannelFromSubscription from "../hooks/server/useRemoveChannelFromSubscription";
 import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
+import TournamentSection from "../components/layout/TournamentSection";
 
 const FixedComponent = () => {
   return (
@@ -74,18 +74,17 @@ const FixedComponent = () => {
 };
 
 const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
-  const {
-    data: dataNFCs,
-    loading: loadingNFCs,
-    error: errorNFCs,
-  } = useQuery<NfcFeedQuery>(NFC_FEED_QUERY, {
-    variables: {
-      data: {
-        limit: 30,
-        orderBy: "createdAt",
+  const { data: dataNFCs, loading: loadingNFCs } = useQuery<NfcFeedQuery>(
+    NFC_FEED_QUERY,
+    {
+      variables: {
+        data: {
+          limit: 30,
+          orderBy: "createdAt",
+        },
       },
-    },
-  });
+    }
+  );
 
   const nfcs = dataNFCs?.getNFCFeed;
 
@@ -211,7 +210,7 @@ function DesktopPage({
             </DrawerContent>
           </Drawer>
           <Flex direction="column" gap={5}>
-            <HeroBanner />
+            {/* <HeroBanner /> */}
             {!sideBarBreakpoints && !loading && (
               <Flex justifyContent={"center"}>
                 <Button
@@ -244,6 +243,7 @@ function DesktopPage({
                 callback={() => setDirectingToChannel(true)}
               />
             )}
+            <TournamentSection />
           </Flex>
           <Flex p="16px">
             <Box
