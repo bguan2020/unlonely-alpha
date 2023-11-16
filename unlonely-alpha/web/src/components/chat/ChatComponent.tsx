@@ -67,7 +67,10 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
   );
-  const { leaderboard: leaderboardContext } = useChannelContext();
+  const { channel: channelContext, leaderboard: leaderboardContext } =
+    useChannelContext();
+  const { channelQueryData } = channelContext;
+
   const { network } = useNetworkContext();
   const { localNetwork } = network;
 
@@ -82,6 +85,12 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
     { name: string; totalFees: number }[]
   >([]);
   const [leaderboardIsCollapsed, setLeaderboardIsCollapsed] = useState(true);
+
+  const doesEventExist = useMemo(() => {
+    if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
+    if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
+    return true;
+  }, [channelQueryData?.sharesEvent]);
 
   useEffect(() => {
     refetchGamblableEventLeaderboard?.();
@@ -118,7 +127,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                 width="100%"
                 justifyContent={"center"}
               >
-                <Text fontFamily="LoRes15" fontSize="25px" fontWeight={"bold"}>
+                <Text fontFamily="LoRes15" fontSize="20px" fontWeight={"bold"}>
                   chat
                 </Text>
               </Flex>
@@ -135,8 +144,19 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                 bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
                 width="100%"
                 justifyContent={"center"}
+                alignItems={"center"}
               >
-                <Text fontFamily="LoRes15" fontSize="25px" fontWeight={"bold"}>
+                {doesEventExist && (
+                  <Text className="zooming-text" fontSize="10px">
+                    🔴
+                  </Text>
+                )}
+                <Text
+                  alignItems={"center"}
+                  fontFamily="LoRes15"
+                  fontSize="20px"
+                  fontWeight={"bold"}
+                >
                   vote
                 </Text>
               </Flex>
@@ -160,7 +180,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                 alignItems={"center"}
                 gap="5px"
               >
-                <Text fontFamily="LoRes15" fontSize="25px" fontWeight={"bold"}>
+                <Text fontFamily="LoRes15" fontSize="20px" fontWeight={"bold"}>
                   vip
                 </Text>
                 <Tooltip
@@ -192,12 +212,12 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                 borderRadius={"5px"}
                 p="1px"
                 zIndex={3}
-                mb="75px"
+                mb="30px"
               >
                 <Flex
                   direction="column"
                   position="absolute"
-                  style={{ backdropFilter: "blur(6px)" }}
+                  bg="rgba(24, 22, 47, 1)"
                   left={"10px"}
                   right={"10px"}
                   border={"1px solid rgba(255, 255, 255, 0.1)"}
@@ -233,42 +253,49 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                       pointerEvents={"none"}
                     />
                   )}
-                  <TableContainer
-                    overflowY={leaderboardIsCollapsed ? "hidden" : "scroll"}
-                    maxHeight={
-                      leaderboardIsCollapsed
-                        ? leaderboard.length === 0
-                          ? "30px"
-                          : "45px"
-                        : "150px"
-                    }
-                    transition={"max-height 0.2s ease-in-out"}
-                  >
-                    <Table variant="unstyled" size="xs">
-                      <Tbody>
-                        {leaderboard.map((holder, index) => (
-                          <Tr>
-                            <Td fontSize={"20px"} p="4px" textAlign="center">
-                              <Text fontSize="14px">{index + 1}</Text>
-                            </Td>
-                            <Td fontSize={"20px"} p="4px" textAlign="center">
-                              <Text fontSize="14px">{holder.name}</Text>
-                            </Td>
-                            <Td
-                              fontSize={"20px"}
-                              p="4px"
-                              textAlign="center"
-                              isNumeric
-                            >
-                              <Text fontSize="14px">
-                                {truncateValue(holder.totalFees, 2)}
-                              </Text>
-                            </Td>
-                          </Tr>
-                        ))}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+                  {leaderboard.length > 0 && (
+                    <TableContainer
+                      overflowY={leaderboardIsCollapsed ? "hidden" : "scroll"}
+                      maxHeight={
+                        leaderboardIsCollapsed
+                          ? leaderboard.length === 0
+                            ? "30px"
+                            : "45px"
+                          : "150px"
+                      }
+                      transition={"max-height 0.2s ease-in-out"}
+                    >
+                      <Table variant="unstyled" size="xs">
+                        <Tbody>
+                          {leaderboard.map((holder, index) => (
+                            <Tr>
+                              <Td fontSize={"20px"} p="4px" textAlign="center">
+                                <Text fontSize="14px">{index + 1}</Text>
+                              </Td>
+                              <Td fontSize={"20px"} p="4px" textAlign="center">
+                                <Text fontSize="14px">{holder.name}</Text>
+                              </Td>
+                              <Td
+                                fontSize={"20px"}
+                                p="4px"
+                                textAlign="center"
+                                isNumeric
+                              >
+                                <Text fontSize="14px">
+                                  {truncateValue(holder.totalFees, 2)}
+                                </Text>
+                              </Td>
+                            </Tr>
+                          ))}
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+                  )}
+                  {leaderboard.length === 0 && (
+                    <Text fontSize="10px" textAlign={"center"}>
+                      no one is on the leaderboard for this channel yet! 👀
+                    </Text>
+                  )}
                   {leaderboardLoading && (
                     <Flex justifyContent={"center"} p="20px">
                       <Spinner />
@@ -678,6 +705,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   });
 
   const doesEventExist = useMemo(() => {
+    if (!channelQueryData?.sharesEvent) return false;
     if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
     if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
     return true;
@@ -688,6 +716,22 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   const [isAtBottom, setIsAtBottom] = useState(false);
   const scrollRef = useRef<VirtuosoHandle>(null);
   const isFetching = useRef(false);
+
+  const isEventOver = useMemo(() => {
+    return (
+      Number(eventEndTimestamp) * 1000 <= dateNow ||
+      channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout
+    );
+  }, [
+    eventEndTimestamp,
+    dateNow,
+    channelQueryData?.sharesEvent?.[0]?.eventState,
+  ]);
+
+  const eventEndTimestampPassed = useMemo(
+    () => Number(eventEndTimestamp) * 1000 <= dateNow,
+    [eventEndTimestamp, dateNow]
+  );
 
   useEffect(() => {
     if (!blockNumber.data || isFetching.current) return;
@@ -741,27 +785,28 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
       setErrorMessage("connect wallet first");
     } else if (!matchingChain) {
       setErrorMessage("wrong network");
-    } else if (!doesEventExist) {
-      setErrorMessage("no event found");
     } else if (
-      Number(eventEndTimestamp) * 1000 < dateNow ||
-      channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout
+      !isBuying &&
+      ((isYay && Number(yayVotesBalance) < Number(amountOfVotes)) ||
+        (!isYay && Number(nayVotesBalance) < Number(amountOfVotes))) &&
+      doesEventExist &&
+      !isEventOver
     ) {
-      setErrorMessage("event over");
-    } else if (!isBuying) {
-      if (
-        (isYay && Number(yayVotesBalance) < Number(amountOfVotes)) ||
-        (!isYay && Number(nayVotesBalance) < Number(amountOfVotes))
-      ) {
-        setErrorMessage("insufficient votes to sell");
-      }
+      setErrorMessage("insufficient votes to sell");
     } else if (
       isBuying &&
       userEthBalance?.value &&
-      votePrice > userEthBalance?.value
+      votePrice > userEthBalance?.value &&
+      doesEventExist &&
+      !isEventOver
     ) {
       setErrorMessage("insufficient ETH to spend");
-    } else if (isBuying && Number(amountOfVotes) === 0) {
+    } else if (
+      isBuying &&
+      Number(amountOfVotes) === 0 &&
+      doesEventExist &&
+      !isEventOver
+    ) {
       setErrorMessage("enter amount first");
     } else {
       setErrorMessage("");
@@ -778,6 +823,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
     dateNow,
     eventEndTimestamp,
     doesEventExist,
+    isEventOver,
   ]);
 
   const getColor = (taskType: InteractionType, isYay: boolean) => {
@@ -807,12 +853,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
     <>
       {doesEventExist && (
         <>
-          <Text
-            textAlign={"center"}
-            width="90%"
-            fontSize={"20px"}
-            fontWeight={"bold"}
-          >
+          <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
             {channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion}
           </Text>
           <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
@@ -820,23 +861,18 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           </Text>
         </>
       )}
-      {(Number(eventEndTimestamp) * 1000 < dateNow ||
-        channelQueryData?.sharesEvent?.[0]?.eventState ===
-          SharesEventState.Payout) && (
-        <Text textAlign={"center"} color="red.400">
-          event is over
-        </Text>
-      )}
-      {!doesEventExist && errorMessage && (
+      {errorMessage && (
         <Text textAlign={"center"} color="red.400">
           {errorMessage}
         </Text>
       )}
-      {!doesEventExist && (
+      {!doesEventExist ? (
         <Text textAlign={"center"}>there is no event at the moment</Text>
-      )}
+      ) : isEventOver ? (
+        <Text textAlign={"center"}>event is over</Text>
+      ) : null}
       {doesEventExist &&
-        Number(eventEndTimestamp) * 1000 > dateNow &&
+        !eventEndTimestampPassed &&
         channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE" && (
           <>
             <Flex justifyContent={"space-around"} gap="5px">
@@ -962,6 +998,23 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                 )}
               </Button>
             </Flex>
+          </>
+        )}
+      {doesEventExist &&
+        eventEndTimestampPassed &&
+        channelQueryData?.sharesEvent?.[0]?.eventState === "LIVE" && (
+          <>
+            <Flex justifyContent={"space-evenly"} my="10px">
+              <Text color="#35b657" fontWeight="bold" fontSize="25px">
+                {truncateValue(String(yayVotesSupply), 0, true)} YES
+              </Text>
+              <Text color="#ff623b" fontWeight="bold" fontSize="25px">
+                {truncateValue(String(nayVotesSupply), 0, true)} NO
+              </Text>
+            </Flex>
+            <Text textAlign={"center"} fontSize="14px">
+              The time for voting has ended
+            </Text>
           </>
         )}
       {doesEventExist &&

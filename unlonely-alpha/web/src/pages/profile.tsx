@@ -159,7 +159,7 @@ const Profile = () => {
                   </Flex>
                 )}
               </Flex>
-              <ConnectWallet shouldSayDisconnect />
+              <ConnectWallet />
             </Flex>
           </Flex>
           <Flex direction="column">

@@ -65,7 +65,7 @@ export const Base: Network = {
         abi: UnlonelySharesV2,
       },
       unlonelyTournament: {
-        address: "0x35F9D9447b58B7Ea80F5C9C0b9E59650F2fAd8E9",
+        address: "0x78d7a31BA97a8edfa038cddD27c2043427a5A607",
         abi: UnlonelyTournament,
       },
     },

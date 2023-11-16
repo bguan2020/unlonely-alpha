@@ -26,10 +26,7 @@ import { useRouter } from "next/router";
 import { useLazyQuery } from "@apollo/client";
 import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
 
-import {
-  GetSubscriptionQuery,
-  SharesEventState,
-} from "../../generated/graphql";
+import { GetSubscriptionQuery } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import ChannelDesc from "../channels/ChannelDesc";
@@ -46,7 +43,6 @@ import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { Trade } from "../chat/ChatComponent";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
-import useUserAgent from "../../hooks/internal/useUserAgent";
 import { ChannelTournament } from "../channels/ChannelTournament";
 import TournamentPot from "../channels/TournamentPot";
 
@@ -112,6 +108,12 @@ const StandaloneChatComponent = ({
     () => (channelQueryData?.id ? Number(channelQueryData?.id) : 3),
     [channelQueryData?.id]
   );
+
+  const doesEventExist = useMemo(() => {
+    if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
+    if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
+    return true;
+  }, [channelQueryData?.sharesEvent]);
 
   const [getSubscription, { data }] = useLazyQuery<GetSubscriptionQuery>(
     GET_SUBSCRIPTION,
@@ -378,7 +380,9 @@ const StandaloneChatComponent = ({
             width="100%"
             justifyContent={"center"}
           >
-            <Text>chat</Text>
+            <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
+              chat
+            </Text>
           </Flex>
         </OuterBorder>
         <OuterBorder
@@ -394,7 +398,14 @@ const StandaloneChatComponent = ({
             width="100%"
             justifyContent={"center"}
           >
-            <Text>vote</Text>
+            {doesEventExist && (
+              <Text className="zooming-text" fontSize="8px">
+                🔴
+              </Text>
+            )}
+            <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
+              vote
+            </Text>
           </Flex>
         </OuterBorder>
         <OuterBorder
@@ -414,7 +425,9 @@ const StandaloneChatComponent = ({
             width="100%"
             justifyContent={"center"}
           >
-            <Text>vip</Text>
+            <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
+              vip
+            </Text>
           </Flex>
         </OuterBorder>
       </Flex>
@@ -444,12 +457,6 @@ const InfoComponent = ({
   } = ui;
   const { channelQueryData } = channelContext;
   const isOwner = userAddress === channelQueryData?.owner.address;
-  const isSharesEventLive =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
-  const isSharesEventLock =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Lock;
-  const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
 
   return (
     <Flex
@@ -590,12 +597,8 @@ const InfoComponent = ({
                 </Flex>
                 <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
                   <Text textAlign="center">
-                    {isSharesEventPayout
-                      ? "stop event"
-                      : isSharesEventLive
-                      ? "lock bets"
-                      : isSharesEventLock
-                      ? "decide outcome"
+                    {channelQueryData?.sharesEvent?.[0]
+                      ? "🔴manage bet"
                       : "create a bet"}
                   </Text>
                   <Box
@@ -778,7 +781,6 @@ const Chat = ({
   isVipChat?: boolean;
 }) => {
   const { user } = useUser();
-  const { isStandalone } = useUserAgent();
 
   const { channel, leaderboard } = useChannelContext();
   const { channelQueryData } = channel;
@@ -882,11 +884,6 @@ const Chat = ({
           <Text textAlign={"center"}>
             You must have at least one VIP badge to use this chat.
           </Text>
-          {/* {isStandalone && (
-            <Text textAlign={"center"}>
-              (Trading vip badges is only available on desktop right now)
-            </Text>
-          )} */}
         </>
       )}
       <Flex
@@ -934,7 +931,6 @@ const Chat = ({
           </Box>
         )}
       </Flex>
-      {/* {!isVipChat && <ChannelTournament />} */}
       {(userIsChannelOwner || userIsModerator || isVip || !isVipChat) && (
         <Flex w="100%">
           <ChatForm

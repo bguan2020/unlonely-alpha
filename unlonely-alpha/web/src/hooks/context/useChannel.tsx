@@ -17,7 +17,6 @@ import {
 import {
   ChannelDetailQuery,
   GetGamblableEventLeaderboardByChannelIdQuery,
-  SharesEventState,
 } from "../../generated/graphql";
 import { ChatBot } from "../../constants/types";
 import { useUser } from "./useUser";
@@ -440,13 +439,6 @@ const TransactionModals = () => {
     showModeratorModal,
   } = ui;
 
-  const isSharesEventLive =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Live;
-  const isSharesEventLock =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Lock;
-  const isSharesEventPayout =
-    channelQueryData?.sharesEvent?.[0]?.eventState === SharesEventState.Payout;
-
   return (
     <>
       <ModeratorModal
@@ -456,13 +448,7 @@ const TransactionModals = () => {
       />
       <BetModal
         title={
-          isSharesEventPayout
-            ? "stop event"
-            : isSharesEventLive
-            ? "lock bets"
-            : isSharesEventLock
-            ? "decide outcome"
-            : "create a bet"
+          channelQueryData?.sharesEvent?.[0] ? "manage bet" : "create a bet"
         }
         isOpen={showBetModal}
         handleClose={() => handleBetModal(false)}

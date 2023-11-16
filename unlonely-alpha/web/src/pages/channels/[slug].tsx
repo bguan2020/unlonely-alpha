@@ -149,7 +149,11 @@ const DesktopPage = ({
                     </Tooltip>
                   </Flex>
                 )}
-                <Flex gap={4} mt="20px" justifyContent={"space-between"}>
+                <Flex
+                  gap={4}
+                  mt="0 !important"
+                  justifyContent={"space-between"}
+                >
                   <ChannelDesc />
                   <Flex gap="1rem" mt="1rem" justifyContent={"flex-end"}>
                     <ChannelTournament />
