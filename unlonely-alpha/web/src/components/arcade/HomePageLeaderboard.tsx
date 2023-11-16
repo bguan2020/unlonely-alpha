@@ -11,7 +11,6 @@ import {
   Box,
   useBreakpointValue,
   Spinner,
-  Button,
   Td,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -78,11 +77,7 @@ const vipBadgeSupplyContractConfig = {
 const Leaderboard = ({ callback }: { callback?: () => void }) => {
   const { data, loading, error } = useMultipleChannelQueries(slugs);
 
-  const {
-    data: contractData,
-    isError,
-    isLoading,
-  } = useContractReads({
+  const { data: contractData } = useContractReads({
     contracts: slugs.map((slug, i: number) => ({
       ...vipBadgeSupplyContractConfig,
       args: [data[i]?.owner?.address ?? NULL_ADDRESS, 0, 1],
@@ -102,27 +97,21 @@ const Leaderboard = ({ callback }: { callback?: () => void }) => {
     router.push(`/channels/${slug}`);
   };
 
-  const [itemsShown, setItemsShown] = useState(10);
-
   const datasetCapped = useMemo(
     () =>
-      data
-        .map((d, i) => {
-          return {
-            data: [
-              `${i + 1}`,
-              d?.slug,
-              (contractData as any)?.[i].result.toString(),
-              d?.owner?.username ?? centerEllipses(d?.owner?.address, 10),
-            ],
-            channelLink: d?.slug,
-          };
-        })
-        .slice(0, itemsShown),
-    [data, contractData, itemsShown]
+      data.map((d, i) => {
+        return {
+          data: [
+            `${i + 1}`,
+            d?.slug,
+            (contractData as any)?.[i].result.toString(),
+            d?.owner?.username ?? centerEllipses(d?.owner?.address, 10),
+          ],
+          channelLink: d?.slug,
+        };
+      }),
+    [data, contractData]
   );
-
-  console.log(data, contractData, datasetCapped);
 
   return (
     <Flex
@@ -164,9 +153,13 @@ const Leaderboard = ({ callback }: { callback?: () => void }) => {
             <Spinner />
           </Flex>
         ) : (
-          <TableContainer overflowX={"auto"}>
+          <TableContainer
+            overflowX={"auto"}
+            maxHeight={"50vh"}
+            overflowY={"scroll"}
+          >
             <Table variant="unstyled">
-              <Thead>
+              <Thead position={"sticky"} top="0">
                 <Tr>
                   {visibleColumns &&
                     visibleColumns.map((i) => (
@@ -174,6 +167,7 @@ const Leaderboard = ({ callback }: { callback?: () => void }) => {
                         textTransform={"lowercase"}
                         fontSize={["20px", "24px"]}
                         p="10px"
+                        background={"#19162F"}
                         textAlign="center"
                         borderBottom="1px solid #615C5C"
                         key={i}
@@ -206,29 +200,6 @@ const Leaderboard = ({ callback }: { callback?: () => void }) => {
                 ))}
               </Tbody>
             </Table>
-            {itemsShown < data.length && (
-              <Flex justifyContent={"center"} p="5px">
-                <Flex
-                  borderRadius={"5px"}
-                  p="1px"
-                  bg={
-                    "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-                  }
-                >
-                  <Button
-                    bg={"#131323"}
-                    _hover={{ opacity: 0.9 }}
-                    _focus={{}}
-                    _active={{}}
-                    onClick={() => setItemsShown((prev) => prev + 10)}
-                  >
-                    <Text fontFamily="LoRes15" fontWeight="light">
-                      See More
-                    </Text>
-                  </Button>
-                </Flex>
-              </Flex>
-            )}
           </TableContainer>
         )}
       </Box>
