@@ -97,19 +97,23 @@ const Leaderboard = ({ callback }: { callback?: () => void }) => {
     router.push(`/channels/${slug}`);
   };
 
-  const datasetCapped = useMemo(
+  const cleanedData = useMemo(
     () =>
-      data.map((d, i) => {
-        return {
-          data: [
-            `${i + 1}`,
-            d?.slug,
-            (contractData as any)?.[i].result.toString(),
-            d?.owner?.username ?? centerEllipses(d?.owner?.address, 10),
-          ],
-          channelLink: d?.slug,
-        };
-      }),
+      data
+        .map((d, i) => {
+          return {
+            data: [
+              `${i + 1}`,
+              d?.slug,
+              ((contractData as any)?.[i].result as bigint).toString(),
+              d?.owner?.username ?? centerEllipses(d?.owner?.address, 10),
+            ],
+            channelLink: d?.slug,
+          };
+        })
+        .sort((a, b) => {
+          return Number(b.data[2]) - Number(a.data[2]);
+        }),
     [data, contractData]
   );
 
@@ -178,7 +182,7 @@ const Leaderboard = ({ callback }: { callback?: () => void }) => {
                 </Tr>
               </Thead>
               <Tbody>
-                {datasetCapped.map((row, rowIndex) => (
+                {cleanedData.map((row, rowIndex) => (
                   <Tr
                     onClick={() => handleRowClick(row.channelLink)}
                     _hover={{ background: "#615C5C" }}
