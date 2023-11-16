@@ -31,8 +31,15 @@ export const useClip = (
       !channelQueryData?.channelArn ||
       !channelQueryData?.livepeerPlaybackId ||
       loading
-    )
+    ) {
+      console.log(
+        "useClip cannot handleCreateClip",
+        channelQueryData,
+        user?.address,
+        loading
+      );
       return;
+    }
     setLoading(true);
     handleIsClipUiOpen(false);
     const { res } = await createClip({

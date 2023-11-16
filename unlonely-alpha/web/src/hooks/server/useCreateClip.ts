@@ -50,7 +50,7 @@ const useCreateClip = ({ onError }: Props) => {
   const createClip = useCallback(
     async (data) => {
       let res = null;
-      if (data.livepeerPlaybackId) {
+      if ((data.livepeerPlaybackId as string).length > 0) {
         const mutationResult = await mutateLivepeer({
           variables: {
             data: {
