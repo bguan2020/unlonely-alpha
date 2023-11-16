@@ -112,6 +112,7 @@ export function useChannel(fixedChatName?: string) {
   useEffect(() => {
     async function getMessages() {
       if (!channel || localBanList === undefined) return;
+      // TODO: fix how this channel history function is called
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await channel.history((err, result) => {

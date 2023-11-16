@@ -1010,10 +1010,10 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
               <Text color="#ff623b" fontWeight="bold" fontSize="25px">
                 {truncateValue(String(nayVotesSupply), 0, true)} NO
               </Text>
-              <Text textAlign={"center"} fontSize="14px">
-                The time for voting has ended
-              </Text>
             </Flex>
+            <Text textAlign={"center"} fontSize="14px">
+              The time for voting has ended
+            </Text>
           </>
         )}
       {doesEventExist &&
