@@ -705,6 +705,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   });
 
   const doesEventExist = useMemo(() => {
+    if (!channelQueryData?.sharesEvent) return false;
     if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
     if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
     return true;
