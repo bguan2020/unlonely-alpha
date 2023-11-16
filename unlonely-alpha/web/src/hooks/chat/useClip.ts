@@ -27,10 +27,11 @@ export const useClip = (
 
   const handleCreateClip = async (title: string) => {
     if (
+      !channelQueryData ||
       !user?.address ||
-      !channelQueryData?.channelArn ||
-      !channelQueryData?.livepeerPlaybackId ||
-      loading
+      loading ||
+      (channelQueryData?.livepeerPlaybackId?.length === 0 &&
+        channelQueryData?.channelArn?.length === 0)
     ) {
       console.log(
         "useClip cannot handleCreateClip",
