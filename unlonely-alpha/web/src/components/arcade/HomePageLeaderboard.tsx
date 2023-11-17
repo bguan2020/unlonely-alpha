@@ -1,4 +1,5 @@
 import { useApolloClient } from "@apollo/client";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import {
   Flex,
   Table,
@@ -105,7 +106,7 @@ const Leaderboard = ({ callback }: { callback?: () => void }) => {
             data: [
               `${i + 1}`,
               d?.slug,
-              ((contractData as any)?.[i].result as bigint).toString(),
+              String(contractData?.[i].result as bigint),
               d?.owner?.username ?? centerEllipses(d?.owner?.address, 10),
             ],
             channelLink: d?.slug,
@@ -136,7 +137,7 @@ const Leaderboard = ({ callback }: { callback?: () => void }) => {
         textAlign={"center"}
         fontFamily={"LoRes15"}
       >
-        channel token leaderboard
+        leaderboard
       </Text>
       <Text
         color={"#B6B6B6"}
@@ -145,7 +146,7 @@ const Leaderboard = ({ callback }: { callback?: () => void }) => {
         textAlign={"center"}
         mb="20px"
       >
-        who has the most valuable token?
+        who has the most badges?
       </Text>
       <Box borderWidth="1px" borderColor="#615C5C" borderRadius={10}>
         {error ? (
@@ -198,6 +199,9 @@ const Leaderboard = ({ callback }: { callback?: () => void }) => {
                           key={index}
                         >
                           {row.data[index]}
+                          {index === 1 && row.data[index] && (
+                            <ExternalLinkIcon height="0.8rem" />
+                          )}
                         </Td>
                       ))}
                   </Tr>
