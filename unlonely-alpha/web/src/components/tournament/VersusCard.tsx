@@ -1,18 +1,16 @@
 import { Flex, Image, SimpleGrid, Text } from "@chakra-ui/react";
 
+type Contestant = {
+  name: string;
+  portrait: string;
+  slug: string;
+  logo?: string;
+  logoSize?: string;
+};
+
 export type VersusCardData = {
-  contestant1: {
-    name: string;
-    portrait: string;
-    slug: string;
-    logo?: string;
-  };
-  contestant2: {
-    name: string;
-    portrait: string;
-    slug: string;
-    logo?: string;
-  };
+  contestant1: Contestant;
+  contestant2: Contestant;
   time: string;
 }[];
 
@@ -37,8 +35,7 @@ export const VersusCard = ({ data }: { data: VersusCardData }) => {
               <Image
                 position="absolute"
                 src={versus.contestant1.logo}
-                width="60px"
-                height="60px"
+                width={versus.contestant1.logoSize ?? "60px"}
                 bottom={"-10px"}
                 left={"-10px"}
               />
@@ -83,8 +80,7 @@ export const VersusCard = ({ data }: { data: VersusCardData }) => {
               <Image
                 position="absolute"
                 src={versus.contestant2.logo}
-                width="60px"
-                height="60px"
+                width={versus.contestant2.logoSize ?? "60px"}
                 bottom={"-10px"}
                 left={"-10px"}
               />
