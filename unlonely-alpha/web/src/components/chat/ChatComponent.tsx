@@ -67,9 +67,13 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
   );
-  const { channel: channelContext, leaderboard: leaderboardContext } =
-    useChannelContext();
+  const {
+    channel: channelContext,
+    leaderboard: leaderboardContext,
+    chat: chatContext,
+  } = useChannelContext();
   const { channelQueryData } = channelContext;
+  const { presenceChannel } = chatContext;
 
   const { network } = useNetworkContext();
   const { localNetwork } = network;
@@ -206,7 +210,9 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
               width={"100%"}
               direction="column"
             >
-              <Participants />
+              {presenceChannel && (
+                <Participants ablyPresenceChannel={presenceChannel} />
+              )}
               <Flex
                 mt={"0.5rem"}
                 borderRadius={"5px"}

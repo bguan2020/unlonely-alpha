@@ -111,9 +111,11 @@ const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             className="show-then-hide"
             id="video-overlay"
           >
-            <Flex position="absolute" left="20px" top="10px">
-              <Participants ablyPresenceChannel={presenceChannel} mobile />
-            </Flex>
+            {presenceChannel && (
+              <Flex position="absolute" left="20px" top="10px">
+                <Participants ablyPresenceChannel={presenceChannel} mobile />
+              </Flex>
+            )}
           </Flex>
         )}
         {offline && (
