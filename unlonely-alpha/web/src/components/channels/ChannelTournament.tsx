@@ -407,7 +407,7 @@ export const ChannelTournament = () => {
           <>
             <Flex gap="1rem" my="5px" justifyContent={"space-between"}>
               <Flex direction="column">
-                <Text fontSize="10px" textAlign="center">
+                <Text fontSize="15px" textAlign="center">
                   #
                 </Text>
                 <Flex alignItems={"center"}>
@@ -421,7 +421,7 @@ export const ChannelTournament = () => {
                 </Flex>
               </Flex>
               <Flex direction="column">
-                <Text fontSize="10px" textAlign="center">
+                <Text fontSize="15px" textAlign="center">
                   ETH {isBuying ? "price" : "return"}
                 </Text>
                 <Text whiteSpace={"nowrap"} margin="auto">
@@ -429,7 +429,7 @@ export const ChannelTournament = () => {
                 </Text>
               </Flex>
               <Flex direction="column">
-                <Text fontSize="10px" textAlign="center">
+                <Text fontSize="15px" textAlign="center">
                   own
                 </Text>
                 <Text whiteSpace={"nowrap"} margin="auto">
