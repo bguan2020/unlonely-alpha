@@ -1,4 +1,10 @@
-import { Flex, Text, Image, Divider } from "@chakra-ui/react";
+import {
+  Flex,
+  Text,
+  Image,
+  Divider,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 
 import { VersusCard, VersusCardData } from "../tournament/VersusCard";
 
@@ -131,9 +137,20 @@ export const tournamentDates: TournamentDates = [
 ];
 
 const TournamentSection = () => {
+  const shouldChangeToColumn = useBreakpointValue({
+    base: true,
+    sm: true,
+    md: false,
+    xl: false,
+  });
+
   return (
-    <Flex direction="column" bg={"#18162F"} p="2rem" gap="3rem">
-      <Flex justifyContent={"center"} gap={"2rem"}>
+    <Flex direction="column" bg={"#18162F"} p="3rem" gap="3rem">
+      <Flex
+        justifyContent={"center"}
+        gap={"2rem"}
+        direction={shouldChangeToColumn ? "column" : "row"}
+      >
         <Image src="/svg/temp/rizz-olympics.svg" height="5rem" />
         <Text
           fontSize="40px"
@@ -146,7 +163,11 @@ const TournamentSection = () => {
         </Text>
         <Image src="/svg/temp/rizz-olympics.svg" height="5rem" />
       </Flex>
-      <Flex justifyContent={"space-evenly"}>
+      <Flex
+        justifyContent={"space-evenly"}
+        direction={shouldChangeToColumn ? "column" : "row"}
+        gap={"2rem"}
+      >
         {Array.from({ length: tournamentDates.length * 2 - 1 }).map((_, i) => (
           <>
             {i % 2 === 0 ? (
@@ -159,7 +180,7 @@ const TournamentSection = () => {
             ) : (
               <Flex key={i}>
                 <Divider
-                  orientation="vertical"
+                  orientation={shouldChangeToColumn ? "horizontal" : "vertical"}
                   borderColor={"#37FF8B"}
                   borderWidth={1}
                   height="100%"

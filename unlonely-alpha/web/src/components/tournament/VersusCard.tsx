@@ -45,7 +45,7 @@ export const VersusCard = ({ data }: { data: VersusCardData }) => {
             )}
             <Text
               fontFamily={"LoRes15"}
-              fontSize={["10px", "10px", "15px", "20px"]}
+              fontSize={["15px", "20px"]}
               color={"#37FF8B"}
               position="absolute"
               top={"-6px"}
@@ -60,10 +60,7 @@ export const VersusCard = ({ data }: { data: VersusCardData }) => {
             />
           </Flex>
           <Flex direction="column" alignSelf="center" align="center">
-            <Text
-              fontFamily={"LoRes15"}
-              fontSize={["10px", "10px", "15px", "20px"]}
-            >
+            <Text fontFamily={"LoRes15"} fontSize={["15px", "20px"]}>
               -VERSUS-
             </Text>
             <Text fontFamily={"LoRes15"} color={"#37FF8B"}>
@@ -94,7 +91,7 @@ export const VersusCard = ({ data }: { data: VersusCardData }) => {
             )}
             <Text
               fontFamily={"LoRes15"}
-              fontSize={["10px", "10px", "15px", "20px"]}
+              fontSize={["15px", "20px"]}
               color={"#37FF8B"}
               position="absolute"
               top={"-6px"}
