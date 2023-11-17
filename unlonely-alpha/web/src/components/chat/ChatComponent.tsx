@@ -852,7 +852,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   }, [isAtBottom]);
 
   return (
-    <>
+    <div style={{ marginTop: "40px" }}>
       {doesEventExist && (
         <>
           <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
@@ -863,7 +863,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           </Text>
         </>
       )}
-      {errorMessage && (
+      {!doesEventExist && errorMessage && (
         <Text textAlign={"center"} color="red.400">
           {errorMessage}
         </Text>
@@ -932,7 +932,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
             <Flex direction="column" borderRadius="15px" p="1rem">
               <Flex justifyContent={"space-between"} mb="5px">
                 <Flex direction="column">
-                  <Text fontSize="10px" textAlign="center">
+                  <Text fontSize="14px" textAlign="center">
                     #
                   </Text>
                   <Flex alignItems={"center"}>
@@ -945,7 +945,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   </Flex>
                 </Flex>
                 <Flex direction="column">
-                  <Text fontSize="10px" textAlign="center">
+                  <Text fontSize="14px" textAlign="center">
                     ETH {isBuying ? "price" : "return"}
                   </Text>
                   <Text whiteSpace={"nowrap"} margin="auto">
@@ -953,7 +953,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   </Text>
                 </Flex>
                 <Flex direction="column">
-                  <Text fontSize="10px" textAlign="center">
+                  <Text fontSize="14px" textAlign="center">
                     own
                   </Text>
                   <Text whiteSpace={"nowrap"} margin="auto">
@@ -1147,7 +1147,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           </Flex>
         </Flex>
       )}
-    </>
+    </div>
   );
 };
 
@@ -1236,7 +1236,6 @@ const Chat = ({
       <div
         style={{
           width: "100%",
-          height: "100%",
           position: "absolute",
           pointerEvents: "none",
         }}
