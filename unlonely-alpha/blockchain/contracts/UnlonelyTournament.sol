@@ -241,6 +241,8 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         tournament.winningBadge = winningBadge;
         tournament.isPayoutClaimable = true;
         tournament.isActive = false;
+        // winning badge ETH is added to the tournament pool
+        tournament.vipPooledEth += getPrice(0, vipBadgeSupply[winningBadge]);
     }
     
     function endTournament() public onlyTournamentCreator {
@@ -260,6 +262,10 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         uint256 tournamentFee = tournament.isActive ? (price * tournamentFeePercent / 1 ether) : 0;  // Assume tournamentFeePercent is defined
         require(msg.value >= price + protocolFee + subjectFee + tournamentFee, "Insufficient payment");
+
+        if(msg.value > (price + protocolFee + subjectFee + tournamentFee)) {
+            msg.sender.call{value: msg.value - (price + protocolFee + subjectFee + tournamentFee)}("");
+        }
 
         // Update the contract state
         vipBadgeSupply[key] += amount;
@@ -292,6 +298,7 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         require(amount > 0, "Cannot buy zero badges");
         bytes32 key = generateKey(streamerAddress, eventId, eventType);
         require(vipBadgeBalance[key][msg.sender] >= amount, "Insufficient badges");
+        require(key != tournament.winningBadge, "Cannot sell winning badge during payout phase");
         uint256 price = getPrice(vipBadgeSupply[key] - amount, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;

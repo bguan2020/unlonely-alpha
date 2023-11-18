@@ -168,9 +168,9 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         isVerifier[verifier] = value;
     }
 
-    function setPriceSlope(uint256 value) public onlyOwner {
-        priceSlope = value;
-    }
+    // function setPriceSlope(uint256 value) public onlyOwner {
+    //     priceSlope = value;
+    // }
 
 	function generateKey(address eventAddress, uint256 eventId, EventType eventType) public pure validEventType(eventType) returns (bytes32) {
         require(eventId < 1000000, "ID must be less than 1 million");
@@ -202,7 +202,9 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     }
 
     function getPrice(uint256 supply, uint256 amount) public view returns (uint256) {
-        uint256 price = (supply + amount) * priceSlope;
+        uint256 startSupply = supply + 1;
+        uint256 endSupply = supply + amount;
+        uint256 price = (startSupply + endSupply) * amount * priceSlope / 2;
 
         return price;
     }
