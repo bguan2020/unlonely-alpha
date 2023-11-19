@@ -28,8 +28,6 @@ const StreamComponent = () => {
     [channelQueryData]
   );
 
-  console.log(channelQueryData, livepeerPlaybackId);
-
   const { loading: scriptLoading, error } = useScript({
     src: "https://player.live-video.net/1.2.0/amazon-ivs-videojs-tech.min.js",
   });
