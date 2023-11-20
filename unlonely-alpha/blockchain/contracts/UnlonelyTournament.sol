@@ -118,6 +118,7 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
 
     mapping(bytes32 => uint256) public vipBadgeSupply;
     mapping(bytes32 => mapping(address => uint256)) public vipBadgeBalance;
+    mapping(bytes32 => bool) public winningBadges;
     mapping(address => bool) public isTournamentCreator;
 
     modifier onlyTournamentCreator() {
@@ -241,13 +242,29 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         tournament.winningBadge = winningBadge;
         tournament.isPayoutClaimable = true;
         tournament.isActive = false;
+        winningBadges[winningBadge] = true;
         // winning badge ETH is added to the tournament pool
         tournament.vipPooledEth += getPrice(0, vipBadgeSupply[winningBadge]);
     }
     
-    function endTournament() public onlyTournamentCreator {
+    function endTournament(address streamerAddress, uint256 eventId, EventType eventType) public onlyTournamentCreator {
         require(!tournament.isActive, "Tournament still active.");
         require(tournament.isPayoutClaimable, "Winner payouts already stopped.");
+        if(tournament.vipPooledEth > 0) {
+            // if funds remain after claims close, split remaining funds between streamer and protocol
+            bytes32 winningBadge = generateKey(streamerAddress, eventId, eventType);
+            require(tournament.winningBadge == winningBadge, "Winning badge parameters must match set badge.");
+            
+            uint256 remainingPooledEth = tournament.vipPooledEth;
+            tournament.vipPooledEth = 0;
+
+            uint256 streamerFee = remainingPooledEth / 2;
+            uint256 protocolFee = remainingPooledEth - streamerFee;
+            (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
+            (bool success2, ) = streamerAddress.call{value: streamerFee}("");
+            require(success1 && success2, "Unable to send funds");
+
+        }
         tournament.isPayoutClaimable = false;
         tournament.winningBadge = bytes32(0);
     }
@@ -256,7 +273,7 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         require(protocolFeeDestination != address(0), "protocolFeeDestination is the zero address");
         require(amount > 0, "Cannot buy zero badges");
         bytes32 key = generateKey(streamerAddress, eventId, eventType);
-        require(key != tournament.winningBadge, "Cannot buy winning badge during payout phase");
+        require(!winningBadges[key], "Winning badges cannot be purchased.");
         uint256 price = getPrice(vipBadgeSupply[key], amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
@@ -298,7 +315,7 @@ contract UnlonelyTournament is Ownable, ReentrancyGuard {
         require(amount > 0, "Cannot buy zero badges");
         bytes32 key = generateKey(streamerAddress, eventId, eventType);
         require(vipBadgeBalance[key][msg.sender] >= amount, "Insufficient badges");
-        require(key != tournament.winningBadge, "Cannot sell winning badge during payout phase");
+        require(!winningBadges[key], "Winning badges cannot be sold");
         uint256 price = getPrice(vipBadgeSupply[key] - amount, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
