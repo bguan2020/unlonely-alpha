@@ -503,9 +503,9 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           address: userAddress ?? "",
           taskType: InteractionType.BUY_VOTES,
           title,
-          description: `${user?.username ?? userAddress ?? ""}:${
-            args.trade.shareAmount
-          }:${args.trade.isYay ? "yay" : "nay"}`,
+          description: `${
+            user?.username ?? centerEllipses(userAddress ?? "", 15)
+          }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}`,
         });
         await postBetTrade({
           channelId: channelQueryData?.id as string,
@@ -608,9 +608,9 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           address: userAddress ?? "",
           taskType: InteractionType.SELL_VOTES,
           title,
-          description: `${user?.username ?? userAddress ?? ""}:${
-            args.trade.shareAmount
-          }:${args.trade.isYay ? "yay" : "nay"}`,
+          description: `${
+            user?.username ?? centerEllipses(userAddress ?? "", 15)
+          }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}`,
         });
         await postBetTrade({
           channelId: channelQueryData?.id as string,
@@ -1065,6 +1065,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                 borderRadius="25px"
                 isDisabled={!claimVotePayout}
                 onClick={claimVotePayout}
+                width="100%"
               >
                 <Text fontSize="20px">get payout</Text>
               </Button>

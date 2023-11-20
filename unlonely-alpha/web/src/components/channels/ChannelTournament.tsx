@@ -203,7 +203,7 @@ export const ChannelTournament = () => {
           address: userAddress ?? "",
           taskType: InteractionType.BUY_BADGES,
           title,
-          description: `${user?.username ?? userAddress ?? ""}:${
+          description: `${user?.username ?? centerEllipses(userAddress, 15)}:${
             args.trade.badgeAmount
           }`,
         });
@@ -243,7 +243,7 @@ export const ChannelTournament = () => {
           address: userAddress ?? "",
           taskType: InteractionType.SELL_BADGES,
           title,
-          description: `${user?.username ?? userAddress ?? ""}:${
+          description: `${user?.username ?? centerEllipses(userAddress, 15)}:${
             args.trade.badgeAmount
           }`,
         });
