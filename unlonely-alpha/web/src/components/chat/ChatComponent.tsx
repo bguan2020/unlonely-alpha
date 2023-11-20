@@ -23,6 +23,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useLayoutEffect,
   CSSProperties,
   useMemo,
   useCallback,
@@ -1197,11 +1198,30 @@ const Chat = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        setContainerHeight(containerRef.current.offsetHeight);
+      }
+    };
+
+    updateHeight();
+
+    // Optional: Use ResizeObserver to handle dynamic content resizing
+    const resizeObserver = new ResizeObserver(() => {
+      updateHeight();
+    });
+
     if (containerRef.current) {
-      setContainerHeight(containerRef.current.offsetHeight);
+      resizeObserver.observe(containerRef.current);
     }
-  }, [containerRef]);
+
+    return () => {
+      if (containerRef.current) {
+        resizeObserver.unobserve(containerRef.current);
+      }
+    };
+  }, []);
 
   const handleAnimateReactionEmoji = (str: string) => {
     const id = Date.now();
@@ -1238,6 +1258,7 @@ const Chat = ({
           width: "100%",
           position: "absolute",
           pointerEvents: "none",
+          height: "100%",
         }}
         ref={containerRef}
       >

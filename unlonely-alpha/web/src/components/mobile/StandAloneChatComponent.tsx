@@ -876,6 +876,7 @@ const Chat = ({
           width: "100%",
           position: "absolute",
           pointerEvents: "none",
+          height: "100%",
         }}
         ref={containerRef}
       >
