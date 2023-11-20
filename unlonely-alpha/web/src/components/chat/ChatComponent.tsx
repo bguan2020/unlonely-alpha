@@ -1226,7 +1226,7 @@ const Chat = ({
 
   return (
     <Flex
-      mt="10px"
+      mt="40px"
       direction="column"
       minW="100%"
       width="100%"
