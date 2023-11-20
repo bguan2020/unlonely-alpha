@@ -1,4 +1,4 @@
-import { Flex, Spacer, useBreakpointValue } from "@chakra-ui/react";
+import { Flex, Spacer, useBreakpointValue, Text } from "@chakra-ui/react";
 import NextLink from "next/link";
 import NextImage from "next/image";
 
@@ -30,13 +30,22 @@ const Header: React.FC = () => {
       <Flex as="nav" width="100%" justifyContent="center">
         {logo && (
           <NextLink href="/" style={{ margin: "auto" }}>
-            <NextImage
-              src="/svg/unlonely.svg"
-              priority
-              alt="unlonely"
-              width={100}
-              height={100}
-            />
+            <Flex direction="column">
+              <NextImage
+                src="/svg/unlonely.svg"
+                priority
+                alt="unlonely"
+                width={120}
+                height={120}
+              />
+              <Text
+                fontSize={"10px"}
+                className="gradient-text"
+                textAlign="center"
+              >
+                your cozy space on the internet
+              </Text>
+            </Flex>
           </NextLink>
         )}
         <Spacer>

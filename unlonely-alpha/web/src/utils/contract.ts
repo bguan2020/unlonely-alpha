@@ -2,7 +2,7 @@ import { ContractData, Network, WriteCallbacks } from "../constants/types";
 
 export const getContractFromNetwork = (
   contractName: string,
-  network?: Network
+  network: Network
 ): ContractData => {
   if (
     !network ||

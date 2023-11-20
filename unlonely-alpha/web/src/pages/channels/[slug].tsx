@@ -36,7 +36,6 @@ import {
 } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import TournamentPot from "../../components/channels/TournamentPot";
 import { useChat } from "../../hooks/chat/useChat";
 
 const ChannelDetail = ({
@@ -167,7 +166,7 @@ const DesktopPage = ({
                 gap="1rem"
               >
                 <ChatComponent chat={chat} />
-                <TournamentPot chat={chat} />
+                {/* <TournamentPot chat={chat} /> */}
               </Stack>
             </Stack>
           </>

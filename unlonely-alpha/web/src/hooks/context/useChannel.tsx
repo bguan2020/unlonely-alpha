@@ -232,9 +232,9 @@ export const ChannelProvider = ({
   } = useClip(channelQueryData, handleIsClipUiOpen);
 
   useEffect(() => {
-    if (channelQueryData && channelQueryData.awsId) {
-      setAblyChatChannel(`${channelQueryData.awsId}-chat-channel`);
-      setAblyPresenceChannel(`${channelQueryData.awsId}-presence-channel`);
+    if (channelQueryData && channelQueryData.slug) {
+      setAblyChatChannel(`${channelQueryData.slug}-chat-channel`);
+      setAblyPresenceChannel(`${channelQueryData.slug}-presence-channel`);
     }
   }, [channelQueryData]);
 
