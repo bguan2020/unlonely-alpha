@@ -73,7 +73,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
     leaderboard: leaderboardContext,
     chat: chatContext,
   } = useChannelContext();
-  const { channelQueryData } = channelContext;
+  const { channelQueryData, refetch } = channelContext;
   const { presenceChannel } = chatContext;
 
   const { network } = useNetworkContext();
@@ -110,6 +110,30 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
       setLeaderboard(_leaderboard);
     }
   }, [leaderboardLoading, leaderboardError, leaderboardData]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (chat.receivedMessages.length > 0) {
+        const latestMessage =
+          chat.receivedMessages[chat.receivedMessages.length - 1];
+        if (
+          latestMessage.data.body &&
+          (latestMessage.data.body.split(":")[0] ===
+            InteractionType.EVENT_LIVE ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_LOCK ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_PAYOUT ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_END) &&
+          Date.now() - latestMessage.timestamp < 12000
+        ) {
+          await refetch();
+        }
+      }
+    };
+    fetch();
+  }, [chat.receivedMessages]);
 
   return (
     <Flex
@@ -320,7 +344,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
 export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress, walletIsConnected, user } = useUser();
   const { channel, chat: chatContext } = useChannelContext();
-  const { channelQueryData, refetch } = channel;
+  const { channelQueryData } = channel;
   const { addToChatbot } = chatContext;
 
   const { network } = useNetworkContext();
@@ -758,30 +782,6 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
     };
     fetch();
   }, [blockNumber.data]);
-
-  useEffect(() => {
-    const fetch = async () => {
-      if (chat.receivedMessages.length > 0) {
-        const latestMessage =
-          chat.receivedMessages[chat.receivedMessages.length - 1];
-        if (
-          latestMessage.data.body &&
-          (latestMessage.data.body.split(":")[0] ===
-            InteractionType.EVENT_LIVE ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_LOCK ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_PAYOUT ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_END) &&
-          Date.now() - latestMessage.timestamp < 12000
-        ) {
-          await refetch();
-        }
-      }
-    };
-    fetch();
-  }, [chat.receivedMessages]);
 
   useEffect(() => {
     if (!walletIsConnected) {
