@@ -128,14 +128,17 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
               passHref
               target="_blank"
             >
-              <Text fontFamily="Neue Pixel Sans">privacy</Text>
+              <Text fontFamily="LoRes15">privacy</Text>
             </Link>
             <Link
               href="https://super-okra-6ad.notion.site/Unlonely-Terms-of-Service-b3c0ea0272c943e98e3120243955cd75?pvs=4"
               passHref
               target="_blank"
             >
-              <Text fontFamily="Neue Pixel Sans">terms</Text>
+              <Text fontFamily="LoRes15">terms</Text>
+            </Link>
+            <Link href="https://bit.ly/unlonelyFAQs" passHref target="_blank">
+              <Text fontFamily="LoRes15">about</Text>
             </Link>
           </Stack>
           <Stack direction="row" spacing={["3", "8", "10", "16"]}>
