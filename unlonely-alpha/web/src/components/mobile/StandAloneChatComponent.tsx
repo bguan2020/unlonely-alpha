@@ -44,7 +44,6 @@ import { Trade } from "../chat/ChatComponent";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import { ChannelTournament } from "../channels/ChannelTournament";
-import TournamentPot from "../channels/TournamentPot";
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -65,9 +64,6 @@ const StandaloneChatComponent = ({
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showVip, setShowVip] = useState<boolean>(false);
   const [endpoint, setEndpoint] = useState<string>("");
-  const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
-    "chat"
-  );
   const clickedOutsideInfo = useRef(false);
   const clickedOutsideLeaderBoard = useRef(false);
   const clickedOutsideVip = useRef(false);
@@ -108,12 +104,6 @@ const StandaloneChatComponent = ({
     () => (channelQueryData?.id ? Number(channelQueryData?.id) : 3),
     [channelQueryData?.id]
   );
-
-  const doesEventExist = useMemo(() => {
-    if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
-    if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
-    return true;
-  }, [channelQueryData?.sharesEvent]);
 
   const [getSubscription, { data }] = useLazyQuery<GetSubscriptionQuery>(
     GET_SUBSCRIPTION,
@@ -366,6 +356,29 @@ const StandaloneChatComponent = ({
           <VipTradeComponent chat={chat} />
         </Flex>
       )}
+      <TabsComponent />
+    </Flex>
+  );
+};
+
+export const TabsComponent = () => {
+  const { channel: channelContext } = useChannelContext();
+  const { channelQueryData } = channelContext;
+
+  const chat = useChat();
+
+  const doesEventExist = useMemo(() => {
+    if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
+    if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
+    return true;
+  }, [channelQueryData?.sharesEvent]);
+
+  const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
+    "chat"
+  );
+
+  return (
+    <>
       <Flex width="100%">
         <OuterBorder
           type={BorderType.OCEAN}
@@ -431,10 +444,12 @@ const StandaloneChatComponent = ({
           </Flex>
         </OuterBorder>
       </Flex>
-      {selectedTab === "chat" && <Chat chat={chat} />}
-      {selectedTab === "trade" && <Trade chat={chat} />}
-      {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
-    </Flex>
+      <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
+        {selectedTab === "chat" && <Chat chat={chat} />}
+        {selectedTab === "trade" && <Trade chat={chat} />}
+        {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
+      </Flex>
+    </>
   );
 };
 
@@ -766,7 +781,7 @@ const VipTradeComponent = ({ chat }: { chat: ChatReturnType }) => {
         width={"100%"}
         gap="5px"
       >
-        <TournamentPot chat={chat} />
+        {/* <TournamentPot chat={chat} /> */}
         <ChannelTournament />
       </Flex>
     </Flex>
@@ -859,7 +874,6 @@ const Chat = ({
       <div
         style={{
           width: "100%",
-          height: "100%",
           position: "absolute",
           pointerEvents: "none",
         }}

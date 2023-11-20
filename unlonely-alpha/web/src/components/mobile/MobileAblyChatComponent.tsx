@@ -1,9 +1,7 @@
 import { Box, Flex } from "@chakra-ui/react";
 
-import ChatForm from "../chat/ChatForm";
-import MessageList from "../chat/MessageList";
 import NextHead from "../layout/NextHead";
-import { useChat, useChatBox } from "../../hooks/chat/useChat";
+import { TabsComponent } from "./StandAloneChatComponent";
 
 const styles = `
   html, body {
@@ -21,22 +19,6 @@ const styles = `
 `;
 
 const MobileAblyChatComponent = () => {
-  const chat = useChat();
-
-  const {
-    scrollRef,
-    isAtBottom,
-    channelChatCommands,
-    handleScrollToPresent,
-    handleIsAtBottom,
-    sendChatMessage,
-  } = useChatBox(
-    "chat",
-    chat.receivedMessages,
-    chat.hasMessagesLoaded,
-    chat.channel
-  );
-
   return (
     <Box flexDirection="column" height="100dvh" flexWrap="nowrap">
       <style>{styles}</style>
@@ -54,79 +36,9 @@ const MobileAblyChatComponent = () => {
           position: "relative",
         }}
       >
-        <div
-          // scroll area
-          style={{
-            // backgroundColor: "yellow",
-            height: "100%",
-            overflowY: "scroll",
-            overscrollBehavior: "contain",
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            "-webkit-overflow-scrolling": "touch",
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-          }}
-        >
-          <Flex
-            direction="column"
-            overflowX="auto"
-            height="100%"
-            id="chat"
-            position="relative"
-            padding="8px"
-            background={"#19162F"}
-          >
-            <MessageList
-              scrollRef={scrollRef}
-              messages={chat.receivedMessages}
-              channel={chat.channel}
-              isAtBottomCallback={handleIsAtBottom}
-            />
-            <Flex mt="20px" w="100%">
-              <ChatForm
-                sendChatMessage={sendChatMessage}
-                additionalChatCommands={channelChatCommands}
-              />
-            </Flex>
-          </Flex>
-          <button
-            style={{
-              position: "fixed",
-              top: 8,
-              fontSize: 13,
-              height: 64,
-              width: "100%",
-              textAlign: "center",
-              transition: !isAtBottom
-                ? "all 0.25s 0.5s ease"
-                : "all 0.15s ease",
-              opacity: !isAtBottom ? 1 : 0,
-              pointerEvents: !isAtBottom ? "all" : "none",
-              transform: !isAtBottom ? "translateY(0)" : "translateY(-100%)",
-            }}
-            onClick={handleScrollToPresent}
-          >
-            <span
-              style={{
-                position: "relative",
-                display: "inline-block",
-                background: "rgba(255,255,255,0.6)",
-                padding: 8,
-                borderRadius: 32,
-                boxShadow: "0 3px 12px rgba(0,0,0,0.5)",
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                "-webkit-backdrop-filter": "blur(6px)",
-                backdropFilter: "blur(6px)",
-                zIndex: 10,
-                color: "black",
-              }}
-            >
-              👇️ tap to scroll to bottom 👇️
-            </span>
-          </button>
-        </div>
+        <Flex bg={"#19162F"} h={"100%"} direction="column">
+          <TabsComponent />
+        </Flex>
       </div>
     </Box>
   );

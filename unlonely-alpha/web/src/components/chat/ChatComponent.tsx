@@ -67,9 +67,13 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
   );
-  const { channel: channelContext, leaderboard: leaderboardContext } =
-    useChannelContext();
+  const {
+    channel: channelContext,
+    leaderboard: leaderboardContext,
+    chat: chatContext,
+  } = useChannelContext();
   const { channelQueryData } = channelContext;
+  const { presenceChannel } = chatContext;
 
   const { network } = useNetworkContext();
   const { localNetwork } = network;
@@ -206,7 +210,9 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
               width={"100%"}
               direction="column"
             >
-              <Participants />
+              {presenceChannel && (
+                <Participants ablyPresenceChannel={presenceChannel} />
+              )}
               <Flex
                 mt={"0.5rem"}
                 borderRadius={"5px"}
@@ -256,13 +262,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                   {leaderboard.length > 0 && (
                     <TableContainer
                       overflowY={leaderboardIsCollapsed ? "hidden" : "scroll"}
-                      maxHeight={
-                        leaderboardIsCollapsed
-                          ? leaderboard.length === 0
-                            ? "30px"
-                            : "45px"
-                          : "150px"
-                      }
+                      height={leaderboardIsCollapsed ? "45px" : "150px"}
                       transition={"max-height 0.2s ease-in-out"}
                     >
                       <Table variant="unstyled" size="xs">
@@ -292,9 +292,11 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                     </TableContainer>
                   )}
                   {leaderboard.length === 0 && (
-                    <Text fontSize="10px" textAlign={"center"}>
-                      no one is on the leaderboard for this channel yet! 👀
-                    </Text>
+                    <Flex height="40px" justifyContent={"center"}>
+                      <Text fontSize="10px">
+                        no one is on the leaderboard for this channel yet! 👀
+                      </Text>
+                    </Flex>
                   )}
                   {leaderboardLoading && (
                     <Flex justifyContent={"center"} p="20px">
@@ -850,7 +852,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   }, [isAtBottom]);
 
   return (
-    <>
+    <div style={{ marginTop: "40px" }}>
       {doesEventExist && (
         <>
           <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
@@ -861,7 +863,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           </Text>
         </>
       )}
-      {errorMessage && (
+      {!doesEventExist && errorMessage && (
         <Text textAlign={"center"} color="red.400">
           {errorMessage}
         </Text>
@@ -930,7 +932,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
             <Flex direction="column" borderRadius="15px" p="1rem">
               <Flex justifyContent={"space-between"} mb="5px">
                 <Flex direction="column">
-                  <Text fontSize="10px" textAlign="center">
+                  <Text fontSize="14px" textAlign="center">
                     #
                   </Text>
                   <Flex alignItems={"center"}>
@@ -943,7 +945,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   </Flex>
                 </Flex>
                 <Flex direction="column">
-                  <Text fontSize="10px" textAlign="center">
+                  <Text fontSize="14px" textAlign="center">
                     ETH {isBuying ? "price" : "return"}
                   </Text>
                   <Text whiteSpace={"nowrap"} margin="auto">
@@ -951,7 +953,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   </Text>
                 </Flex>
                 <Flex direction="column">
-                  <Text fontSize="10px" textAlign="center">
+                  <Text fontSize="14px" textAlign="center">
                     own
                   </Text>
                   <Text whiteSpace={"nowrap"} margin="auto">
@@ -1145,7 +1147,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           </Flex>
         </Flex>
       )}
-    </>
+    </div>
   );
 };
 
@@ -1224,7 +1226,7 @@ const Chat = ({
 
   return (
     <Flex
-      mt="10px"
+      mt="40px"
       direction="column"
       minW="100%"
       width="100%"
@@ -1234,7 +1236,6 @@ const Chat = ({
       <div
         style={{
           width: "100%",
-          height: "100%",
           position: "absolute",
           pointerEvents: "none",
         }}
@@ -1265,7 +1266,7 @@ const Chat = ({
         height="100%"
         id={isVipChat ? "vip-chat" : "chat"}
         position="relative"
-        mt="8px"
+        mt="40px"
       >
         {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
           <Flex

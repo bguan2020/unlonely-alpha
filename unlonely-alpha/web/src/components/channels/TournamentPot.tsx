@@ -1,4 +1,4 @@
-import { Flex, Text, Image } from "@chakra-ui/react";
+import { Flex, Text, Image, Tooltip } from "@chakra-ui/react";
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { useCountUp } from "react-countup";
 
@@ -151,7 +151,7 @@ const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
   }, [chat.receivedMessages]);
 
   return (
-    <OuterBorder type={BorderType.FIRE} m={"0px !important"}>
+    <OuterBorder type={BorderType.GOLD} m={"0px !important"} noborder>
       <Flex
         width="100%"
         bg={
@@ -166,16 +166,24 @@ const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
         {rainComponents}
         <Flex direction="column" py="5px">
           <>
-            <Text
-              fontFamily="LoRes15"
-              textAlign={"center"}
-              fontSize="20px"
-              color={tournamentActive ? "#fcd875" : "#c2c2c2"}
-            >
-              {tournamentActive
-                ? "tournament is live!"
-                : "tournament is not live"}
-            </Text>
+            <Flex direction="row" gap="5px" alignItems={"center"}>
+              <Text
+                fontFamily="LoRes15"
+                textAlign={"center"}
+                fontSize="20px"
+                color={tournamentActive ? "#fcd875" : "#c2c2c2"}
+              >
+                {tournamentActive
+                  ? "tournament is live!"
+                  : "tournament is not live"}
+              </Text>
+              <Tooltip
+                label="when a tournament is live, badge trades contribute to the pool"
+                shouldWrapChildren
+              >
+                <Image src="/svg/info.svg" width="16px" height="16px" />
+              </Tooltip>
+            </Flex>
             <Flex gap="5px" justifyContent={"center"}>
               {Number(debouncedVipPool) < NUMBER_DECIMAL_THRESHOLD &&
                 Number(debouncedVipPool) > 0 && (
@@ -194,7 +202,6 @@ const TournamentPot = ({ chat }: { chat: ChatReturnType }) => {
                 fontSize="40px"
                 color="#f7cf60"
                 ref={countUpRef}
-                textShadow={"white 1px 0 5px"}
               />
               <Text
                 fontFamily="LoRes15"

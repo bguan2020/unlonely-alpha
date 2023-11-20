@@ -61,11 +61,11 @@ export const Base: Network = {
         abi: UnlonelySharesV1,
       },
       unlonelySharesV2: {
-        address: "0x91b2a02bCF0E54E88232a42a58318245d06d7Ed3",
+        address: "0x1914DaD7Bf9dA8Cf40CD6bD8f6434F52eAD78980",
         abi: UnlonelySharesV2,
       },
       unlonelyTournament: {
-        address: "0x78d7a31BA97a8edfa038cddD27c2043427a5A607",
+        address: "0xbDb1Af6F2f3879cAcc5Eb9A2b8c770f7c424a5C9",
         abi: UnlonelyTournament,
       },
     },

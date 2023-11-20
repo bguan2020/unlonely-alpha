@@ -5,6 +5,7 @@ export enum BorderType {
   OCEAN,
   FIRE,
   GHOST,
+  GOLD,
 }
 
 interface OuterBorderProps extends FlexProps {
@@ -38,6 +39,8 @@ export const OuterBorder = ({
           bg={
             type === BorderType.OCEAN
               ? "repeating-linear-gradient(rgba(55, 255, 139, 1) 0%, rgba(81, 187, 254, 1) 100%)"
+              : type === BorderType.GOLD
+              ? "repeating-linear-gradient(#bc9636 0%, #feea51 100%)"
               : type === BorderType.FIRE
               ? "repeating-linear-gradient(rgba(255, 6, 6, 1) 0%, rgba(237, 174, 73, 1) 100%)"
               : "#e5e5e5"
