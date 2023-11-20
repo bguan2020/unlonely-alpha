@@ -1,7 +1,8 @@
 import { Flex } from "@chakra-ui/react";
 import { Player } from "@livepeer/react";
+import { memo } from "react";
 
-const LivepeerPlayer = ({ playbackId }: { playbackId: string }) => {
+const LivepeerPlayer = memo(({ playbackId }: { playbackId: string }) => {
   const showOverlay = () => {
     const overlay = document.getElementById("video-overlay");
 
@@ -37,6 +38,6 @@ const LivepeerPlayer = ({ playbackId }: { playbackId: string }) => {
       />
     </Flex>
   );
-};
+});
 
 export default LivepeerPlayer;
