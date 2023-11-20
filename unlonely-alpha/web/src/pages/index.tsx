@@ -27,7 +27,6 @@ import AppLayout from "../components/layout/AppLayout";
 import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
 import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
-import TokenLeaderboard from "../components/arcade/HomePageLeaderboard";
 import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
 import {
@@ -90,7 +89,7 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
 
   return (
     <>
-      <TokenLeaderboard callback={callback} />
+      {/* <TokenLeaderboard callback={callback} /> */}
       <Flex direction="column" width="100%">
         <Text
           fontSize={{ base: "30px", lg: "40px" }}

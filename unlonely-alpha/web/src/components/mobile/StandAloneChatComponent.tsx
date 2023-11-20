@@ -44,7 +44,6 @@ import { Trade } from "../chat/ChatComponent";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import { ChannelTournament } from "../channels/ChannelTournament";
-import TournamentPot from "../channels/TournamentPot";
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -782,7 +781,7 @@ const VipTradeComponent = ({ chat }: { chat: ChatReturnType }) => {
         width={"100%"}
         gap="5px"
       >
-        <TournamentPot chat={chat} />
+        {/* <TournamentPot chat={chat} /> */}
         <ChannelTournament />
       </Flex>
     </Flex>
