@@ -318,6 +318,8 @@ export const ChannelTournament = () => {
       badgePrice > userEthBalance?.value
     ) {
       setErrorMessage("insufficient ETH to spend");
+    } else if (Number(amountOfBadges) === 0) {
+      setErrorMessage("enter amount first");
     } else {
       setErrorMessage("");
     }
