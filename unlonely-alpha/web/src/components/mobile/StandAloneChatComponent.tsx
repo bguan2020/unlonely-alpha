@@ -405,7 +405,7 @@ export const TabsComponent = () => {
 
   return (
     <>
-      <Flex width="100%">
+      <Flex width="100%" pb="0.5rem">
         <OuterBorder
           type={BorderType.OCEAN}
           zIndex={selectedTab === "chat" ? 4 : 2}
