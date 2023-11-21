@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
 import Link from "next/link";
 import { decodeEventLog, formatUnits } from "viem";
 import {
@@ -6,13 +5,7 @@ import {
   Box,
   Text,
   Container,
-  Table,
   Image,
-  TableContainer,
-  Tbody,
-  Td,
-  Tr,
-  IconButton,
   Button,
   useToast,
   Input,
@@ -238,7 +231,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
               {presenceChannel && (
                 <Participants ablyPresenceChannel={presenceChannel} />
               )}
-              <Flex
+              {/* <Flex
                 mt={"0.5rem"}
                 borderRadius={"5px"}
                 p="1px"
@@ -329,7 +322,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                     </Flex>
                   )}
                 </Flex>
-              </Flex>
+              </Flex> */}
               {selectedTab === "chat" && <Chat chat={chat} />}
               {selectedTab === "trade" && <Trade chat={chat} />}
               {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
