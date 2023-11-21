@@ -44,6 +44,7 @@ import { Trade } from "../chat/ChatComponent";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import { ChannelTournament } from "../channels/ChannelTournament";
+import Participants from "../presence/Participants";
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -362,8 +363,9 @@ const StandaloneChatComponent = ({
 };
 
 export const TabsComponent = () => {
-  const { channel: channelContext } = useChannelContext();
+  const { channel: channelContext, chat: chatContext } = useChannelContext();
   const { channelQueryData, refetch } = channelContext;
+  const { presenceChannel } = chatContext;
 
   const chat = useChat();
 
@@ -468,6 +470,9 @@ export const TabsComponent = () => {
           </Flex>
         </OuterBorder>
       </Flex>
+      {presenceChannel && (
+        <Participants ablyPresenceChannel={presenceChannel} />
+      )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}
         {selectedTab === "trade" && <Trade chat={chat} />}
