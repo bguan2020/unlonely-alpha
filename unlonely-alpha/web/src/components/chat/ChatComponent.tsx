@@ -853,7 +853,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   }, [isAtBottom]);
 
   return (
-    <Flex direction="column" mt="45px">
+    <Flex direction="column" mt="45px" height="100%">
       {doesEventExist && (
         <>
           <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
