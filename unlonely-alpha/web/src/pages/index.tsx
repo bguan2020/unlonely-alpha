@@ -44,7 +44,6 @@ import useAddChannelToSubscription from "../hooks/server/useAddChannelToSubscrip
 import useRemoveChannelFromSubscription from "../hooks/server/useRemoveChannelFromSubscription";
 import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
-import TournamentSection from "../components/layout/TournamentSection";
 
 const FixedComponent = () => {
   return (
@@ -245,7 +244,7 @@ function DesktopPage({
                 callback={() => setDirectingToChannel(true)}
               />
             )}
-            <TournamentSection />
+            {/* <TournamentSection /> */}
           </Flex>
           <Flex p="16px">
             <Box
