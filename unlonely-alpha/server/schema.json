@@ -7915,6 +7915,18 @@
             "deprecationReason": null
           },
           {
+            "name": "BET_CLAIM_PAYOUT",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "BADGE_CLAIM_PAYOUT",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "BADGE_BUY",
             "description": null,
             "isDeprecated": false,

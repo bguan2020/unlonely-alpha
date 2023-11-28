@@ -63,6 +63,8 @@ export interface IPostSharesEventInput {
   channelId: number;
   sharesSubjectQuestion: string;
   sharesSubjectAddress: string;
+  creatorAddress: string;
+  answers: string[];
 }
 
 export interface IUpdateSharesEventInput {
@@ -81,6 +83,8 @@ export const postSharesEvent = async (
       sharesSubjectQuestion: data.sharesSubjectQuestion,
       sharesSubjectAddress: data.sharesSubjectAddress,
       eventState: SharesEventState.LIVE,
+      creatorAddress: data.creatorAddress,
+      answers: data.answers,
       softDelete: false,
       channel: {
         connect: {
@@ -295,14 +299,6 @@ export const getOwner = (
   return ctx.prisma.user.findUnique({ where: { address: ownerAddr } });
 };
 
-// aws lambda function
-interface ThumbnailEvent {
-  detail: {
-    "channel-arn": string;
-    "recording-config-arn": string;
-  };
-}
-
 const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
   const recordingConfigArn =
     "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
@@ -422,13 +418,12 @@ export const getChannelChatCommands = async (
   });
 };
 
-export const getChannelSharesEvent = async (
+export const getChannelSharesEvents = async (
   { id }: { id: number },
   ctx: Context
 ) => {
   return ctx.prisma.sharesEvent.findMany({
-    // where softDelete is false
-    where: { channelId: Number(id), softDelete: false },
+    where: { channelId: Number(id) },
     // order by createdAt w latest first
     orderBy: { createdAt: "desc" },
   });

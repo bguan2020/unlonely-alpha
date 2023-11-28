@@ -8,6 +8,8 @@ enum GamblableEvent {
   BET_NO_BUY = "BET_NO_BUY",
   BET_YES_SELL = "BET_YES_SELL",
   BET_NO_SELL = "BET_NO_SELL",
+  BET_CLAIM_PAYOUT = "BET_CLAIM_PAYOUT",
+  BADGE_CLAIM_PAYOUT = "BADGE_CLAIM_PAYOUT",
   BADGE_BUY = "BADGE_BUY",
   BADGE_SELL = "BADGE_SELL",
 }
@@ -24,12 +26,14 @@ export interface IGetBadgeHoldersByChannelInput {
 export interface IPostBetInput {
   channelId: string;
   userAddress: string;
+  sharesEventId: number;
 }
 
 export interface IPostBetTradeInput {
   channelId: string;
   chainId: number;
   userAddress: string;
+  sharesEventId: number;
   type: GamblableEvent;
   fees: number;
 }
@@ -38,8 +42,16 @@ export interface IPostBadgeTradeInput {
   channelId: string;
   chainId: number;
   userAddress: string;
+  sharesEventId: number;
   isBuying: boolean;
   fees: number;
+}
+
+export interface IPostClaimPayoutInput {
+  channelId: string;
+  userAddress: string;
+  sharesEventId: number;
+  type: GamblableEvent;
 }
 
 export interface IGetBetsByChannelInput {
@@ -156,6 +168,11 @@ export const postBet = (data: IPostBetInput, ctx: Context) => {
           id: Number(data.channelId),
         },
       },
+      sharesEvent: {
+        connect: {
+          id: data.sharesEventId,
+        },
+      },
       type: GamblableEvent.BET_CREATE,
       user: {
         connect: {
@@ -182,6 +199,11 @@ export const postBetTrade = async (data: IPostBetTradeInput, ctx: Context) => {
           id: Number(data.channelId),
         },
       },
+      sharesEvent: {
+        connect: {
+          id: data.sharesEventId,
+        },
+      },
       type: data.type,
       user: {
         connect: {
@@ -201,6 +223,7 @@ export const postBadgeTrade = async (
     where: {
       channelId: Number(data.channelId),
       userAddress: data.userAddress,
+      sharesEventId: data.sharesEventId,
       type: {
         in: [GamblableEvent.BADGE_BUY, GamblableEvent.BADGE_SELL],
       },
@@ -238,6 +261,11 @@ export const postBadgeTrade = async (
             id: Number(data.channelId),
           },
         },
+        sharesEvent: {
+          connect: {
+            id: Number(data.sharesEventId),
+          },
+        },
         type: data.isBuying
           ? GamblableEvent.BADGE_BUY
           : GamblableEvent.BADGE_SELL,
@@ -250,6 +278,33 @@ export const postBadgeTrade = async (
       },
     });
   }
+};
+
+export const postClaimPayout = async (
+  data: IPostClaimPayoutInput,
+  ctx: Context
+) => {
+  // Find an existing gamblable interaction that matches channelId, userAddress, sharesEventId, and type
+  return await ctx.prisma.gamblableInteraction.create({
+    data: {
+      channel: {
+        connect: {
+          id: Number(data.channelId),
+        },
+      },
+      sharesEvent: {
+        connect: {
+          id: Number(data.sharesEventId),
+        },
+      },
+      type: data.type,
+      user: {
+        connect: {
+          address: data.userAddress,
+        },
+      },
+    },
+  });
 };
 
 export const getBadgeHoldersByChannel = async (
@@ -325,6 +380,7 @@ export const getBetsByChannel = async (
           GamblableEvent.BET_NO_BUY,
           GamblableEvent.BET_YES_SELL,
           GamblableEvent.BET_NO_SELL,
+          GamblableEvent.BET_CLAIM_PAYOUT,
         ],
       },
     },
@@ -349,6 +405,7 @@ export const getBetsByUser = async (
           GamblableEvent.BET_NO_BUY,
           GamblableEvent.BET_YES_SELL,
           GamblableEvent.BET_NO_SELL,
+          GamblableEvent.BET_CLAIM_PAYOUT,
         ],
       },
     },

@@ -7,6 +7,8 @@ export const typeDef = gql`
     BET_NO_BUY
     BET_YES_SELL
     BET_NO_SELL
+    BET_CLAIM_PAYOUT
+    BADGE_CLAIM_PAYOUT
     BADGE_BUY
     BADGE_SELL
   }

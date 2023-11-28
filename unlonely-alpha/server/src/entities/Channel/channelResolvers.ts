@@ -98,7 +98,7 @@ export const resolvers = {
       return channelService.getChannelChatCommands({ id }, ctx);
     },
     sharesEvent: ({ id }: { id: number }, _: any, ctx: Context) => {
-      return channelService.getChannelSharesEvent({ id }, ctx);
+      return channelService.getChannelSharesEvents({ id }, ctx);
     },
     roles: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelUserRolesByChannel({ id }, ctx);
