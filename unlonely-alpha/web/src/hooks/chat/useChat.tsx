@@ -198,6 +198,8 @@ export const useChatBox = (
   useEffect(() => {
     const chat = document.getElementById(chatId);
     if (!chat) return;
+    // eslint-disable-next-line no-warning-comments
+    // TODO: sometimes when I'm not at the bottom, it scrolls to the bottom
     if ((hasMessagesLoaded && receivedMessages.length) || isAtBottom)
       handleScrollToPresent();
   }, [receivedMessages, chatId, hasMessagesLoaded, isAtBottom]);

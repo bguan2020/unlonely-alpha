@@ -33,7 +33,7 @@ import ChannelDesc from "../channels/ChannelDesc";
 import { getSortedLeaderboard } from "../../utils/getSortedLeaderboard";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { ChatReturnType, useChatBox, useChat } from "../../hooks/chat/useChat";
-import { ADD_REACTION_EVENT } from "../../constants";
+import { ADD_REACTION_EVENT, InteractionType } from "../../constants";
 import MessageList from "../chat/MessageList";
 import ChatForm from "../chat/ChatForm";
 import { GET_SUBSCRIPTION } from "../../constants/queries";
@@ -44,6 +44,7 @@ import { Trade } from "../chat/ChatComponent";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import { ChannelTournament } from "../channels/ChannelTournament";
+import Participants from "../presence/Participants";
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -362,8 +363,9 @@ const StandaloneChatComponent = ({
 };
 
 export const TabsComponent = () => {
-  const { channel: channelContext } = useChannelContext();
-  const { channelQueryData } = channelContext;
+  const { channel: channelContext, chat: chatContext } = useChannelContext();
+  const { channelQueryData, refetch } = channelContext;
+  const { presenceChannel } = chatContext;
 
   const chat = useChat();
 
@@ -377,9 +379,33 @@ export const TabsComponent = () => {
     "chat"
   );
 
+  useEffect(() => {
+    const fetch = async () => {
+      if (chat.receivedMessages.length > 0) {
+        const latestMessage =
+          chat.receivedMessages[chat.receivedMessages.length - 1];
+        if (
+          latestMessage.data.body &&
+          (latestMessage.data.body.split(":")[0] ===
+            InteractionType.EVENT_LIVE ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_LOCK ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_PAYOUT ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_END) &&
+          Date.now() - latestMessage.timestamp < 12000
+        ) {
+          await refetch();
+        }
+      }
+    };
+    fetch();
+  }, [chat.receivedMessages]);
+
   return (
     <>
-      <Flex width="100%">
+      <Flex width="100%" pb="0.5rem">
         <OuterBorder
           type={BorderType.OCEAN}
           zIndex={selectedTab === "chat" ? 4 : 2}
@@ -444,6 +470,9 @@ export const TabsComponent = () => {
           </Flex>
         </OuterBorder>
       </Flex>
+      {presenceChannel && (
+        <Participants ablyPresenceChannel={presenceChannel} />
+      )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}
         {selectedTab === "trade" && <Trade chat={chat} />}
@@ -876,6 +905,7 @@ const Chat = ({
           width: "100%",
           position: "absolute",
           pointerEvents: "none",
+          height: "100%",
         }}
         ref={containerRef}
       >

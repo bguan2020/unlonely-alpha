@@ -23,14 +23,14 @@ export const tournamentDates: TournamentDates = [
           portrait: "/svg/temp/seraphim.svg",
           logo: "/svg/temp/logos/seraphim.svg",
           slug: "seraphim",
-          logoSize: "80px",
+          logoSize: "60px",
         },
         contestant2: {
-          name: "@winny",
-          portrait: "/svg/temp/winny.svg",
-          logo: "/svg/temp/logos/winny.svg",
-          slug: "winny",
-          logoSize: "80px",
+          name: "@jessjay.eth",
+          portrait: "/svg/temp/jessjay.svg",
+          logo: "/svg/temp/logos/jessjay.svg",
+          slug: "wailoaloa",
+          logoSize: "60px",
         },
         time: "3PM EST",
       },
@@ -38,16 +38,18 @@ export const tournamentDates: TournamentDates = [
         contestant1: {
           name: "@cassie",
           portrait: "/svg/temp/cassie.svg",
-          logo: "/svg/temp/logos/cassie.svg",
+          logo: "/svg/temp/logos/cassie.png",
           slug: "cassie",
-          logoSize: "150px",
+          logoSize: "35px",
+          logoBottom: "5px",
+          rounded: true,
         },
         contestant2: {
           name: "@shoni",
           portrait: "/svg/temp/shoni.svg",
           logo: "/svg/temp/logos/shoni.svg",
           slug: "shoni",
-          logoSize: "50px",
+          logoSize: "40px",
         },
         time: "8PM EST",
       },
@@ -62,14 +64,14 @@ export const tournamentDates: TournamentDates = [
           portrait: "/svg/temp/azeemk_.svg",
           logo: "/svg/temp/logos/azeemk_.svg",
           slug: "azeem",
-          logoSize: "80px",
+          logoSize: "60px",
         },
         contestant2: {
           name: "cybershakti.lens",
           portrait: "/svg/temp/cybershakti.svg",
           logo: "/svg/temp/logos/cybershakti.svg",
           slug: "cybershakti",
-          logoSize: "80px",
+          logoSize: "60px",
         },
         time: "12PM EST",
       },
@@ -79,14 +81,16 @@ export const tournamentDates: TournamentDates = [
           portrait: "/svg/temp/floguo.svg",
           logo: "/svg/temp/logos/floguo.svg",
           slug: "floguo",
-          logoSize: "40px",
+          logoSize: "30px",
+          logoLeft: "5px",
+          logoBottom: "5px",
         },
         contestant2: {
           name: "@512mace",
           portrait: "/svg/temp/512mace.svg",
           logo: "/svg/temp/logos/512mace.svg",
           slug: "512mace",
-          logoSize: "80px",
+          logoSize: "60px",
         },
         time: "3PM EST",
       },
@@ -96,14 +100,16 @@ export const tournamentDates: TournamentDates = [
           portrait: "/svg/temp/cryptohun3y.svg",
           logo: "/svg/temp/logos/cryptohun3y.svg",
           slug: "hun3y",
-          logoSize: "100px",
+          logoSize: "90px",
         },
         contestant2: {
           name: "@ivy",
           portrait: "/svg/temp/ivy.svg",
           logo: "/svg/temp/logos/ivy.svg",
           slug: "ivy",
-          logoSize: "50px",
+          logoSize: "35px",
+          logoLeft: "5px",
+          logoBottom: "5px",
         },
         time: "8PM EST",
       },
@@ -118,31 +124,35 @@ export const tournamentDates: TournamentDates = [
           portrait: "/svg/temp/jackniewold.svg",
           logo: "/svg/temp/logos/jackniewold.svg",
           slug: "jackniewold",
-          logoSize: "80px",
+          logoSize: "60px",
         },
         contestant2: {
           name: "@MichaelK",
           portrait: "/svg/temp/MichaelK.svg",
           logo: "/svg/temp/logos/MichaelK.svg",
           slug: "michaelk",
-          logoSize: "80px",
+          logoSize: "70px",
+          logoLeft: "-15px",
+          logoBottom: "-15px",
         },
         time: "10AM EST",
       },
       {
         contestant1: {
-          name: "@jessjay.eth",
-          portrait: "/svg/temp/jessjay.svg",
-          logo: "/svg/temp/logos/jessjay.svg",
-          slug: "wailoaloa",
-          logoSize: "80px",
+          name: "@winny",
+          portrait: "/svg/temp/winny.svg",
+          logo: "/svg/temp/logos/winny.svg",
+          slug: "winny",
+          logoSize: "60px",
         },
         contestant2: {
           name: "@BeraMVP",
           portrait: "/svg/temp/bera.svg",
           logo: "/svg/temp/logos/bera.svg",
           slug: "beraMVP",
-          logoSize: "50px",
+          logoSize: "35px",
+          logoLeft: "-5px",
+          logoBottom: "-5px",
         },
         time: "3PM EST",
       },
@@ -159,22 +169,41 @@ const TournamentSection = () => {
   });
 
   return (
-    <Flex direction="column" bg={"#18162F"} p="3rem" gap="3rem">
+    <Flex
+      direction="column"
+      bg={"#18162F"}
+      p="3rem"
+      gap="3rem"
+      onClick={() => {
+        window.open("/channels/brian", "_blank");
+      }}
+    >
       <Flex
         justifyContent={"center"}
         gap={"2rem"}
         direction={shouldChangeToColumn ? "column" : "row"}
       >
         <Image src="/svg/temp/rizz-olympics.svg" height="5rem" />
-        <Text
-          fontSize="40px"
-          color={"#37FF8B"}
-          fontFamily="LoRes15"
-          alignSelf="center"
-          textAlign={"center"}
-        >
-          CURRENT TOURNAMENT: THE RIZZ OLYMPICS
-        </Text>
+        <Flex gap="1rem" direction={["column", "column", "column", "row"]}>
+          <Text
+            fontSize="40px"
+            color={"#37FF8B"}
+            fontFamily="LoRes15"
+            alignSelf="center"
+            textAlign={"center"}
+          >
+            CURRENT TOURNAMENT:{" "}
+          </Text>
+          <Text
+            fontSize="40px"
+            color={"#37FF8B"}
+            fontFamily="LoRes15"
+            alignSelf="center"
+            textAlign={"center"}
+          >
+            THE RIZZ OLYMPICS
+          </Text>
+        </Flex>
         <Image src="/svg/temp/rizz-olympics.svg" height="5rem" />
       </Flex>
       <Flex

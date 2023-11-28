@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
 import Link from "next/link";
 import { decodeEventLog, formatUnits } from "viem";
 import {
@@ -6,13 +5,7 @@ import {
   Box,
   Text,
   Container,
-  Table,
   Image,
-  TableContainer,
-  Tbody,
-  Td,
-  Tr,
-  IconButton,
   Button,
   useToast,
   Input,
@@ -23,6 +16,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useLayoutEffect,
   CSSProperties,
   useMemo,
   useCallback,
@@ -72,7 +66,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
     leaderboard: leaderboardContext,
     chat: chatContext,
   } = useChannelContext();
-  const { channelQueryData } = channelContext;
+  const { channelQueryData, refetch } = channelContext;
   const { presenceChannel } = chatContext;
 
   const { network } = useNetworkContext();
@@ -109,6 +103,30 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
       setLeaderboard(_leaderboard);
     }
   }, [leaderboardLoading, leaderboardError, leaderboardData]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (chat.receivedMessages.length > 0) {
+        const latestMessage =
+          chat.receivedMessages[chat.receivedMessages.length - 1];
+        if (
+          latestMessage.data.body &&
+          (latestMessage.data.body.split(":")[0] ===
+            InteractionType.EVENT_LIVE ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_LOCK ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_PAYOUT ||
+            latestMessage.data.body.split(":")[0] ===
+              InteractionType.EVENT_END) &&
+          Date.now() - latestMessage.timestamp < 12000
+        ) {
+          await refetch();
+        }
+      }
+    };
+    fetch();
+  }, [chat.receivedMessages]);
 
   return (
     <Flex
@@ -213,7 +231,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
               {presenceChannel && (
                 <Participants ablyPresenceChannel={presenceChannel} />
               )}
-              <Flex
+              {/* <Flex
                 mt={"0.5rem"}
                 borderRadius={"5px"}
                 p="1px"
@@ -304,7 +322,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                     </Flex>
                   )}
                 </Flex>
-              </Flex>
+              </Flex> */}
               {selectedTab === "chat" && <Chat chat={chat} />}
               {selectedTab === "trade" && <Trade chat={chat} />}
               {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
@@ -319,7 +337,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
 export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress, walletIsConnected, user } = useUser();
   const { channel, chat: chatContext } = useChannelContext();
-  const { channelQueryData, refetch } = channel;
+  const { channelQueryData } = channel;
   const { addToChatbot } = chatContext;
 
   const { network } = useNetworkContext();
@@ -478,9 +496,9 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           address: userAddress ?? "",
           taskType: InteractionType.BUY_VOTES,
           title,
-          description: `${user?.username ?? userAddress ?? ""}:${
-            args.trade.shareAmount
-          }:${args.trade.isYay ? "yay" : "nay"}`,
+          description: `${
+            user?.username ?? centerEllipses(userAddress ?? "", 15)
+          }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}`,
         });
         await postBetTrade({
           channelId: channelQueryData?.id as string,
@@ -583,9 +601,9 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           address: userAddress ?? "",
           taskType: InteractionType.SELL_VOTES,
           title,
-          description: `${user?.username ?? userAddress ?? ""}:${
-            args.trade.shareAmount
-          }:${args.trade.isYay ? "yay" : "nay"}`,
+          description: `${
+            user?.username ?? centerEllipses(userAddress ?? "", 15)
+          }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}`,
         });
         await postBetTrade({
           channelId: channelQueryData?.id as string,
@@ -759,30 +777,6 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   }, [blockNumber.data]);
 
   useEffect(() => {
-    const fetch = async () => {
-      if (chat.receivedMessages.length > 0) {
-        const latestMessage =
-          chat.receivedMessages[chat.receivedMessages.length - 1];
-        if (
-          latestMessage.data.body &&
-          (latestMessage.data.body.split(":")[0] ===
-            InteractionType.EVENT_LIVE ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_LOCK ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_PAYOUT ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_END) &&
-          Date.now() - latestMessage.timestamp < 12000
-        ) {
-          await refetch();
-        }
-      }
-    };
-    fetch();
-  }, [chat.receivedMessages]);
-
-  useEffect(() => {
     if (!walletIsConnected) {
       setErrorMessage("connect wallet first");
     } else if (!matchingChain) {
@@ -852,7 +846,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
   }, [isAtBottom]);
 
   return (
-    <div style={{ marginTop: "40px" }}>
+    <Flex direction="column" mt="45px" height="100%">
       {doesEventExist && (
         <>
           <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
@@ -1064,6 +1058,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
                 borderRadius="25px"
                 isDisabled={!claimVotePayout}
                 onClick={claimVotePayout}
+                width="100%"
               >
                 <Text fontSize="20px">get payout</Text>
               </Button>
@@ -1147,7 +1142,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           </Flex>
         </Flex>
       )}
-    </div>
+    </Flex>
   );
 };
 
@@ -1197,11 +1192,30 @@ const Chat = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        setContainerHeight(containerRef.current.offsetHeight);
+      }
+    };
+
+    updateHeight();
+
+    // Optional: Use ResizeObserver to handle dynamic content resizing
+    const resizeObserver = new ResizeObserver(() => {
+      updateHeight();
+    });
+
     if (containerRef.current) {
-      setContainerHeight(containerRef.current.offsetHeight);
+      resizeObserver.observe(containerRef.current);
     }
-  }, [containerRef]);
+
+    return () => {
+      if (containerRef.current) {
+        resizeObserver.unobserve(containerRef.current);
+      }
+    };
+  }, []);
 
   const handleAnimateReactionEmoji = (str: string) => {
     const id = Date.now();
@@ -1226,7 +1240,7 @@ const Chat = ({
 
   return (
     <Flex
-      mt="40px"
+      // mt="40px"
       direction="column"
       minW="100%"
       width="100%"
@@ -1238,6 +1252,7 @@ const Chat = ({
           width: "100%",
           position: "absolute",
           pointerEvents: "none",
+          height: "100%",
         }}
         ref={containerRef}
       >
