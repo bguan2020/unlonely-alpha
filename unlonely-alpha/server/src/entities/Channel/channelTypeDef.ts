@@ -16,6 +16,7 @@ export const typeDef = gql`
     id: ID!
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
+    answers: [String]
     eventState: SharesEventState
     softDelete: Boolean
     createdAt: DateTime!

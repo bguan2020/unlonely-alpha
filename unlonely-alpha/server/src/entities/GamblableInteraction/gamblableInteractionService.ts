@@ -1,4 +1,4 @@
-import { Channel } from "@prisma/client";
+import { Channel, SharesEventState } from "@prisma/client";
 
 import { Context } from "../../context";
 
@@ -60,6 +60,11 @@ export interface IGetBetsByChannelInput {
 
 export interface IGetBetsByUserInput {
   userAddress: string;
+}
+
+export interface IGetUnclaimedEventsForUser {
+  userAddress: string;
+  channelId?: string;
 }
 
 export interface IGetGamblableEventLeaderboardByChannelInput {
@@ -415,4 +420,66 @@ export const getBetsByUser = async (
   });
 
   return bets;
+};
+
+export const getUnclaimedEventsByUser = async (
+  data: IGetUnclaimedEventsForUser,
+  ctx: Context
+) => {
+  // Step 1: Fetch ongoing SharesEvents
+  let query = {};
+
+  if (data.channelId) {
+    query = {
+      where: {
+        channelId: Number(data.channelId),
+        eventState: SharesEventState.PAYOUT,
+        softDelete: false,
+      },
+      orderBy: { createdAt: "desc" },
+    };
+  } else {
+    query = {
+      where: {
+        eventState: SharesEventState.PAYOUT,
+        softDelete: false,
+      },
+      orderBy: { createdAt: "desc" },
+    };
+  }
+
+  const ongoingSharesEvents = await ctx.prisma.sharesEvent.findMany(query);
+
+  const unclaimedEvents = [];
+
+  for (const event of ongoingSharesEvents) {
+    const userBuys = await ctx.prisma.gamblableInteraction.findMany({
+      where: {
+        sharesEventId: event.id,
+        userAddress: data.userAddress,
+        type: {
+          in: [GamblableEvent.BET_YES_BUY, GamblableEvent.BET_NO_BUY],
+        },
+        softDelete: false,
+      },
+    });
+
+    const hasClaimed = await ctx.prisma.gamblableInteraction.findFirst({
+      where: {
+        sharesEventId: event.id,
+        userAddress: data.userAddress,
+        type: {
+          in: [GamblableEvent.BET_CLAIM_PAYOUT],
+        },
+        softDelete: false,
+      },
+    });
+
+    // Step 3: Determine if the event is unclaimed
+    if (userBuys.length > 0 && !hasClaimed) {
+      unclaimedEvents.push(event);
+    }
+  }
+
+  return unclaimedEvents;
 };

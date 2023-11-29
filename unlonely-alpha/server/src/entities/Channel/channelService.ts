@@ -421,7 +421,7 @@ export const getChannelSharesEvents = async (
   ctx: Context
 ) => {
   return ctx.prisma.sharesEvent.findMany({
-    where: { channelId: Number(id) },
+    where: { channelId: Number(id), softDelete: false },
     // order by createdAt w latest first
     orderBy: { createdAt: "desc" },
   });

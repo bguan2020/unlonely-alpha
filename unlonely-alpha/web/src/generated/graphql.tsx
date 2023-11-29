@@ -826,6 +826,7 @@ export type SendAllNotificationsInput = {
 
 export type SharesEvent = {
   __typename?: "SharesEvent";
+  answers?: Maybe<Array<Maybe<Scalars["String"]>>>;
   createdAt: Scalars["DateTime"];
   eventState?: Maybe<SharesEventState>;
   id: Scalars["ID"];
@@ -1082,6 +1083,7 @@ export type ChannelDetailQuery = {
       __typename?: "SharesEvent";
       sharesSubjectQuestion?: string | null;
       sharesSubjectAddress?: string | null;
+      answers?: Array<string | null> | null;
       eventState?: SharesEventState | null;
       createdAt: any;
       id: string;
@@ -1320,6 +1322,7 @@ export type GetChannelsByNumberOfBadgeHoldersQuery = {
         __typename?: "SharesEvent";
         sharesSubjectQuestion?: string | null;
         sharesSubjectAddress?: string | null;
+        answers?: Array<string | null> | null;
         eventState?: SharesEventState | null;
         createdAt: any;
         id: string;
@@ -1469,6 +1472,21 @@ export type CreateClipMutationVariables = Exact<{
 export type CreateClipMutation = {
   __typename?: "Mutation";
   createClip?: {
+    __typename?: "ClipNFCOutput";
+    url?: string | null;
+    thumbnail?: string | null;
+    errorMessage?: string | null;
+    id: string;
+  } | null;
+};
+
+export type CreateLivepeerClipMutationVariables = Exact<{
+  data: CreateLivepeerClipInput;
+}>;
+
+export type CreateLivepeerClipMutation = {
+  __typename?: "Mutation";
+  createLivepeerClip?: {
     __typename?: "ClipNFCOutput";
     url?: string | null;
     thumbnail?: string | null;
@@ -1765,21 +1783,6 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
-export type CreateLivepeerClipMutationVariables = Exact<{
-  data: CreateLivepeerClipInput;
-}>;
-
-export type CreateLivepeerClipMutation = {
-  __typename?: "Mutation";
-  createLivepeerClip?: {
-    __typename?: "ClipNFCOutput";
-    url?: string | null;
-    thumbnail?: string | null;
-    errorMessage?: string | null;
-    id: string;
-  } | null;
-};
-
 export const QueryDocument = gql`
   query Query($data: GetUserTokenHoldingInput!) {
     getUserTokenHolding(data: $data)
@@ -1968,6 +1971,7 @@ export const ChannelDetailDocument = gql`
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
+        answers
         eventState
         createdAt
         id
@@ -2801,6 +2805,7 @@ export const GetChannelsByNumberOfBadgeHoldersDocument = gql`
         sharesEvent {
           sharesSubjectQuestion
           sharesSubjectAddress
+          answers
           eventState
           createdAt
           id
@@ -3443,6 +3448,59 @@ export type CreateClipMutationResult =
 export type CreateClipMutationOptions = Apollo.BaseMutationOptions<
   CreateClipMutation,
   CreateClipMutationVariables
+>;
+export const CreateLivepeerClipDocument = gql`
+  mutation CreateLivepeerClip($data: CreateLivepeerClipInput!) {
+    createLivepeerClip(data: $data) {
+      url
+      thumbnail
+      errorMessage
+      id
+    }
+  }
+`;
+export type CreateLivepeerClipMutationFn = Apollo.MutationFunction<
+  CreateLivepeerClipMutation,
+  CreateLivepeerClipMutationVariables
+>;
+
+/**
+ * __useCreateLivepeerClipMutation__
+ *
+ * To run a mutation, you first call `useCreateLivepeerClipMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateLivepeerClipMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createLivepeerClipMutation, { data, loading, error }] = useCreateLivepeerClipMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateLivepeerClipMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CreateLivepeerClipMutation,
+    CreateLivepeerClipMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    CreateLivepeerClipMutation,
+    CreateLivepeerClipMutationVariables
+  >(CreateLivepeerClipDocument, options);
+}
+export type CreateLivepeerClipMutationHookResult = ReturnType<
+  typeof useCreateLivepeerClipMutation
+>;
+export type CreateLivepeerClipMutationResult =
+  Apollo.MutationResult<CreateLivepeerClipMutation>;
+export type CreateLivepeerClipMutationOptions = Apollo.BaseMutationOptions<
+  CreateLivepeerClipMutation,
+  CreateLivepeerClipMutationVariables
 >;
 export const LikeDocument = gql`
   mutation Like($data: HandleLikeInput!) {
@@ -4654,57 +4712,4 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
->;
-export const CreateLivepeerClipDocument = gql`
-  mutation CreateLivepeerClip($data: CreateLivepeerClipInput!) {
-    createLivepeerClip(data: $data) {
-      url
-      thumbnail
-      errorMessage
-      id
-    }
-  }
-`;
-export type CreateLivepeerClipMutationFn = Apollo.MutationFunction<
-  CreateLivepeerClipMutation,
-  CreateLivepeerClipMutationVariables
->;
-
-/**
- * __useCreateLivepeerClipMutation__
- *
- * To run a mutation, you first call `useCreateLivepeerClipMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateLivepeerClipMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createLivepeerClipMutation, { data, loading, error }] = useCreateLivepeerClipMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useCreateLivepeerClipMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    CreateLivepeerClipMutation,
-    CreateLivepeerClipMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    CreateLivepeerClipMutation,
-    CreateLivepeerClipMutationVariables
-  >(CreateLivepeerClipDocument, options);
-}
-export type CreateLivepeerClipMutationHookResult = ReturnType<
-  typeof useCreateLivepeerClipMutation
->;
-export type CreateLivepeerClipMutationResult =
-  Apollo.MutationResult<CreateLivepeerClipMutation>;
-export type CreateLivepeerClipMutationOptions = Apollo.BaseMutationOptions<
-  CreateLivepeerClipMutation,
-  CreateLivepeerClipMutationVariables
 >;
