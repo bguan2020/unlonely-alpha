@@ -218,7 +218,9 @@ export type DeviceToken = {
 
 export enum GamblableEvent {
   BadgeBuy = "BADGE_BUY",
+  BadgeClaimPayout = "BADGE_CLAIM_PAYOUT",
   BadgeSell = "BADGE_SELL",
+  BetClaimPayout = "BET_CLAIM_PAYOUT",
   BetCreate = "BET_CREATE",
   BetNoBuy = "BET_NO_BUY",
   BetNoSell = "BET_NO_SELL",
@@ -352,6 +354,7 @@ export type Mutation = {
   postBet: GamblableInteraction;
   postBetTrade: GamblableInteraction;
   postChatByAwsId?: Maybe<Chat>;
+  postClaimPayout: GamblableInteraction;
   postDeviceToken?: Maybe<DeviceToken>;
   postFirstChat?: Maybe<Chat>;
   postNFC?: Maybe<Nfc>;
@@ -424,6 +427,10 @@ export type MutationPostBetTradeArgs = {
 
 export type MutationPostChatByAwsIdArgs = {
   data: PostChatByAwsIdInput;
+};
+
+export type MutationPostClaimPayoutArgs = {
+  data: PostClaimPayoutInput;
 };
 
 export type MutationPostDeviceTokenArgs = {
@@ -561,6 +568,7 @@ export type PostBadgeTradeInput = {
   channelId: Scalars["ID"];
   fees: Scalars["Float"];
   isBuying: Scalars["Boolean"];
+  sharesEventId: Scalars["Int"];
   userAddress: Scalars["String"];
 };
 
@@ -570,6 +578,7 @@ export type PostBaseLeaderboardInput = {
 
 export type PostBetInput = {
   channelId: Scalars["ID"];
+  sharesEventId: Scalars["ID"];
   userAddress: Scalars["String"];
 };
 
@@ -577,6 +586,7 @@ export type PostBetTradeInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["ID"];
   fees: Scalars["Float"];
+  sharesEventId: Scalars["Int"];
   type: GamblableEvent;
   userAddress: Scalars["String"];
 };
@@ -589,6 +599,13 @@ export type PostChatByAwsIdInput = {
 export type PostChatInput = {
   channelId: Scalars["Int"];
   text: Scalars["String"];
+};
+
+export type PostClaimPayoutInput = {
+  channelId: Scalars["ID"];
+  sharesEventId: Scalars["Int"];
+  type: GamblableEvent;
+  userAddress: Scalars["String"];
 };
 
 export type PostCloseSharesEventInput = {
@@ -610,6 +627,7 @@ export type PostNfcInput = {
 };
 
 export type PostSharesEventInput = {
+  answers?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
   channelId: Scalars["ID"];
   sharesSubjectAddress?: InputMaybe<Scalars["String"]>;
   sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;

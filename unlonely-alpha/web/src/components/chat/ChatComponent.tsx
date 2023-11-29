@@ -507,6 +507,7 @@ export const Trade = ({ chat }: { chat: ChatReturnType }) => {
           type: args.trade.isYay
             ? GamblableEvent.BetYesBuy
             : GamblableEvent.BetNoBuy,
+          sharesEventId: Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
           fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
       },

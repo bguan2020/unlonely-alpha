@@ -240,6 +240,9 @@ export default function BetModal({
         await postBet({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
+          sharesEventId: (channelQueryData?.sharesEvent?.[0]?.id ??
+            createdEventId ??
+            0) as number,
         });
         setQuestion("");
         addToChatbot({

@@ -38,6 +38,7 @@ const usePostBetTrade = ({ onError }: Props) => {
               userAddress: data.userAddress,
               type: data.type,
               fees: data.fees,
+              sharesEventId: data.sharesEventId,
               chainId: data.chainId,
             },
           },
