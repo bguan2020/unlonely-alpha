@@ -63,7 +63,6 @@ export interface IPostSharesEventInput {
   channelId: number;
   sharesSubjectQuestion: string;
   sharesSubjectAddress: string;
-  creatorAddress: string;
   answers: string[];
 }
 
@@ -83,7 +82,6 @@ export const postSharesEvent = async (
       sharesSubjectQuestion: data.sharesSubjectQuestion,
       sharesSubjectAddress: data.sharesSubjectAddress,
       eventState: SharesEventState.LIVE,
-      creatorAddress: data.creatorAddress,
       answers: data.answers,
       softDelete: false,
       channel: {

@@ -243,7 +243,6 @@ model SharesEvent {
   sharesSubjectQuestion String
   sharesSubjectAddress String
   eventState SharesEventState?
-  creatorAddress String
   answers String[]
 
   createdAt DateTime @default(now())
