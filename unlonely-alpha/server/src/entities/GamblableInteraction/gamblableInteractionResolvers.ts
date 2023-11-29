@@ -88,5 +88,15 @@ export const resolvers = {
       }
       return gamblableInteractionService.postBadgeTrade(data, ctx);
     },
+    postClaimPayout: (
+      _: any,
+      { data }: { data: gamblableInteractionService.IPostClaimPayoutInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      return gamblableInteractionService.postClaimPayout(data, ctx);
+    },
   },
 };

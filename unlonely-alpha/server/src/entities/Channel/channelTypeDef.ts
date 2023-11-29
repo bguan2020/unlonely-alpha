@@ -76,6 +76,7 @@ export const typeDef = gql`
     channelId: ID!
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
+    answers: [String]
   }
 
   input UpdateSharesEventInput {

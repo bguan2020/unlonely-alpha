@@ -42,12 +42,14 @@ export const typeDef = gql`
   input PostBetInput {
     channelId: ID!
     userAddress: String!
+    sharesEventId: ID!
   }
 
   input PostBetTradeInput {
     channelId: ID!
     chainId: Int!
     userAddress: String!
+    sharesEventId: Int!
     type: GamblableEvent!
     fees: Float!
   }
@@ -56,8 +58,16 @@ export const typeDef = gql`
     channelId: ID!
     chainId: Int!
     userAddress: String!
+    sharesEventId: Int!
     isBuying: Boolean!
     fees: Float!
+  }
+
+  input PostClaimPayoutInput {
+    channelId: ID!
+    userAddress: String!
+    sharesEventId: Int!
+    type: GamblableEvent!
   }
 
   input GetBetsByChannelInput {
@@ -94,5 +104,6 @@ export const typeDef = gql`
     postBet(data: PostBetInput!): GamblableInteraction!
     postBetTrade(data: PostBetTradeInput!): GamblableInteraction!
     postBadgeTrade(data: PostBadgeTradeInput!): GamblableInteraction!
+    postClaimPayout(data: PostClaimPayoutInput!): GamblableInteraction!
   }
 `;
