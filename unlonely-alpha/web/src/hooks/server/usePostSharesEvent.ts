@@ -37,6 +37,7 @@ const usePostSharesEvent = ({ onError }: Props) => {
               channelId: data.id,
               sharesSubjectQuestion: data.sharesSubjectQuestion,
               sharesSubjectAddress: data.sharesSubjectAddress,
+              answers: data.answers,
             },
           },
         });
