@@ -56,6 +56,15 @@ export const resolvers = {
     ) => {
       return gamblableInteractionService.getBetsByUser(data, ctx);
     },
+    getUnclaimedEventsByUser: (
+      _: any,
+      {
+        data,
+      }: { data: gamblableInteractionService.IGetUnclaimedEventsForUser },
+      ctx: Context
+    ) => {
+      return gamblableInteractionService.getUnclaimedEventsByUser(data, ctx);
+    },
   },
   Mutation: {
     postBet: (

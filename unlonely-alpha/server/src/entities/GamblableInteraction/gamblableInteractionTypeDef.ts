@@ -13,12 +13,29 @@ export const typeDef = gql`
     BADGE_SELL
   }
 
+  enum SharesEventState {
+    LIVE
+    LOCK
+    PAYOUT
+  }
+
+  type SharesEvent {
+    id: ID!
+    sharesSubjectQuestion: String
+    sharesSubjectAddress: String
+    answers: [String]
+    eventState: SharesEventState
+    softDelete: Boolean
+    createdAt: DateTime!
+  }
+
   type GamblableInteraction {
     id: ID!
     channel: Channel!
     type: GamblableEvent!
     user: User!
     createdAt: DateTime!
+    sharesEvent: SharesEvent
     softDelete: Boolean
   }
 
@@ -89,6 +106,11 @@ export const typeDef = gql`
     userAddress: String!
   }
 
+  input GetUnclaimedEventsForUser {
+    userAddress: String!
+    channelId: ID
+  }
+
   extend type Query {
     getBadgeHoldersByChannel(data: GetBadgeHoldersByChannelInput): [String]!
     getChannelsByNumberOfBadgeHolders: [NumberOfHolders]!
@@ -98,6 +120,7 @@ export const typeDef = gql`
       data: GetGamblableEventLeaderboardByChannelIdInput
     ): [GamblableEventLeaderboard!]!
     getGamblableEventUserRank(data: GetGamblableEventUserRankInput): Int!
+    getUnclaimedEventsByUser(data: GetUnclaimedEventsForUser): [SharesEvent]!
   }
 
   extend type Mutation {

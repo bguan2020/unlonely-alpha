@@ -242,6 +242,7 @@ export type GamblableInteraction = {
   channel: Channel;
   createdAt: Scalars["DateTime"];
   id: Scalars["ID"];
+  sharesEvent?: Maybe<SharesEvent>;
   softDelete?: Maybe<Scalars["Boolean"]>;
   type: GamblableEvent;
   user: User;
@@ -295,6 +296,11 @@ export type GetTokenHoldersInput = {
   channelId: Scalars["ID"];
   limit?: InputMaybe<Scalars["Int"]>;
   offset?: InputMaybe<Scalars["Int"]>;
+};
+
+export type GetUnclaimedEventsForUser = {
+  channelId?: InputMaybe<Scalars["ID"]>;
+  userAddress: Scalars["String"];
 };
 
 export type GetUserInput = {
@@ -706,6 +712,7 @@ export type Query = {
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getTokenHoldersByChannel: Array<UserCreatorToken>;
   getTokenLeaderboard: Array<CreatorToken>;
+  getUnclaimedEventsByUser: Array<Maybe<SharesEvent>>;
   getUser?: Maybe<User>;
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
   getVideo?: Maybe<Video>;
@@ -796,6 +803,10 @@ export type QueryGetTaskFeedArgs = {
 
 export type QueryGetTokenHoldersByChannelArgs = {
   data?: InputMaybe<GetTokenHoldersInput>;
+};
+
+export type QueryGetUnclaimedEventsByUserArgs = {
+  data?: InputMaybe<GetUnclaimedEventsForUser>;
 };
 
 export type QueryGetUserArgs = {

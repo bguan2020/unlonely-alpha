@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { decodeEventLog } from "viem";
-import { useBlockNumber, usePublicClient } from "wagmi";
+import { useBlockNumber, usePublicClient, useBalance } from "wagmi";
 import Link from "next/link";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 
@@ -84,8 +84,19 @@ export default function BetModal({
   const blockNumber = useBlockNumber({
     watch: true,
   });
-  const contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
+  const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
   const [isVerifier, setIsVerifier] = useState<boolean>(false);
+
+  // const [requiredGas, setRequiredGas] = useState<bigint>(BigInt(-1));
+
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
+    address: userAddress as `0x${string}`,
+  });
+
+  const sufficientEthForGas = useMemo(
+    () => userEthBalance && userEthBalance.value >= BigInt(1000000),
+    [userEthBalance?.value]
+  );
 
   const { postBet } = usePostBet({
     onError: (err) => {
@@ -187,7 +198,7 @@ export default function BetModal({
         )
       ),
     },
-    contract,
+    contractData,
     {
       onWriteSuccess: (data) => {
         toast({
@@ -278,7 +289,7 @@ export default function BetModal({
       eventId: Number(channelQueryData?.sharesEvent?.[0]?.id) ?? 0,
       result: endDecision ?? false,
     },
-    contract,
+    contractData,
     {
       onWriteSuccess: (data) => {
         toast({
@@ -329,7 +340,7 @@ export default function BetModal({
         });
         setEndDecision(undefined);
         const topics = decodeEventLog({
-          abi: contract.abi,
+          abi: contractData.abi,
           data: data.logs[0].data,
           topics: data.logs[0].topics,
         });
@@ -362,7 +373,7 @@ export default function BetModal({
   const { key: generatedKey } = useGenerateKey(
     channelQueryData?.owner?.address as `0x${string}`,
     Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
-    contract
+    contractData
   );
 
   useEffect(() => {
@@ -377,24 +388,25 @@ export default function BetModal({
     const init = async () => {
       const [endTimestamp, eventVerified, isVerifier] = await Promise.all([
         publicClient.readContract({
-          address: contract.address as `0x${string}`,
-          abi: contract.abi,
+          address: contractData.address as `0x${string}`,
+          abi: contractData.abi,
           functionName: "eventEndTimestamp",
           args: [generatedKey],
         }),
         publicClient.readContract({
-          address: contract.address as `0x${string}`,
-          abi: contract.abi,
+          address: contractData.address as `0x${string}`,
+          abi: contractData.abi,
           functionName: "eventVerified",
           args: [generatedKey],
         }),
         publicClient.readContract({
-          address: contract.address as `0x${string}`,
-          abi: contract.abi,
+          address: contractData.address as `0x${string}`,
+          abi: contractData.abi,
           functionName: "isVerifier",
           args: [userAddress],
         }),
       ]);
+      refetchUserEthBalance();
       setDateNow(Date.now());
       setEventEndTimestamp(BigInt(String(endTimestamp)));
       setEventVerified(Boolean(eventVerified));
@@ -402,6 +414,33 @@ export default function BetModal({
     };
     init();
   }, [blockNumber.data]);
+
+  // useEffect(() => {
+  //   const estimateGas = async () => {
+  //     console.log("calling", publicClient);
+  //     const gas = await publicClient
+  //       .estimateContractGas({
+  //         address: contractData.address as `0x${string}`,
+  //         abi: contractData.abi,
+  //         functionName: "openEvent",
+  //         args: [
+  //           userAddress as `0x${string}`,
+  //           0,
+  //           EventType.YAY_NAY_VOTE,
+  //           BigInt(String(Math.floor((60 * 60 * 1000) / 1000))),
+  //         ],
+  //         account: userAddress as `0x${string}`,
+  //       })
+  //       .then((data) => console.log(data))
+  //       .catch((e) => console.log(e));
+  //     console.log("calling gas", gas);
+  //     const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
+  //     setRequiredGas(adjustedGas);
+  //   };
+  //   if (publicClient && contractData && channelQueryData && userAddress) {
+  //     estimateGas();
+  //   }
+  // }, [publicClient, contractData, channelQueryData, userAddress]);
 
   return (
     <TransactionModalTemplate
@@ -426,12 +465,18 @@ export default function BetModal({
     >
       {isSharesEventLive && eventEndTimestamp === BigInt(0) && (
         <Flex direction="column" gap="10px">
-          {!isVerifier && (
+          {!isVerifier ? (
             <Text textAlign={"center"} fontSize="13px" color="red.300">
               You do not have access to this feature. Please DM @brianguan on
               telegram to get access to live-betting.
             </Text>
-          )}
+          ) : !sufficientEthForGas ? (
+            <Text textAlign={"center"} fontSize="13px" color="red.300">
+              You do not have enough ETH to use this feature. Please send some
+              ETH to your wallet over Base network. We recommend having at least
+              0.01 ETH for most cases.
+            </Text>
+          ) : null}
           <Text textAlign={"center"} fontSize="13px">
             Please continue the process to initiate your event
           </Text>
@@ -731,7 +776,12 @@ export default function BetModal({
             _focus={{}}
             _active={{}}
             width="100%"
-            disabled={question.length === 0 || !isVerifier || !matchingChain}
+            disabled={
+              question.length === 0 ||
+              !isVerifier ||
+              !matchingChain ||
+              !sufficientEthForGas
+            }
             onClick={async () =>
               channelQueryData?.sharesEvent &&
               channelQueryData?.sharesEvent?.length > 0
