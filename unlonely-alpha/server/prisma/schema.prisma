@@ -203,8 +203,8 @@ model GamblableInteraction {
   channel   Channel  @relation(fields: [channelId], references: [id])
   userAddress  String
   user    User     @relation(fields: [userAddress], references: [address])
-  sharesEventId Int
-  sharesEvent SharesEvent @relation(fields: [sharesEventId], references: [id])
+  sharesEventId Int? @default(0)
+  sharesEvent SharesEvent? @relation(fields: [sharesEventId], references: [id])
   type GamblableEvent
   createdAt DateTime @default(now())
   softDelete Boolean @default(false)
