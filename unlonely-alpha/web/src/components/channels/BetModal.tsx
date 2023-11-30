@@ -10,6 +10,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Divider,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { decodeEventLog } from "viem";
@@ -85,7 +86,7 @@ export default function BetModal({
     watch: true,
   });
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
-  const [isVerifier, setIsVerifier] = useState<boolean>(false);
+  const [isVerifier, setIsVerifier] = useState<boolean>(true);
 
   // const [requiredGas, setRequiredGas] = useState<bigint>(BigInt(-1));
 
@@ -126,6 +127,7 @@ export default function BetModal({
         id: channelQueryData?.id ?? "",
         sharesSubjectQuestion: sharesSubjectQuestion,
         sharesSubjectAddress: userAddress,
+        answers: ["yes", "no"],
       });
       await refetch();
       const eventId = Number(data?.res?.id ?? "0");
@@ -184,14 +186,8 @@ export default function BetModal({
 
   const { openEvent, openEventTxLoading } = useOpenEvent(
     {
-      eventAddress:
-        (channelQueryData?.sharesEvent?.[0]
-          ?.sharesSubjectAddress as `0x${string}`) ??
-        userAddress ??
-        NULL_ADDRESS,
-      eventId: (channelQueryData?.sharesEvent?.[0]?.id ??
-        createdEventId ??
-        0) as number,
+      eventAddress: userAddress ?? NULL_ADDRESS,
+      eventId: (createdEventId ?? 0) as number,
       endTimestamp: BigInt(
         String(
           Math.floor((dateNow + Number(selectedEndTime) * 60 * 1000) / 1000)
@@ -256,6 +252,7 @@ export default function BetModal({
             0) as number,
         });
         setQuestion("");
+        setCreatedEventId(undefined);
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -565,23 +562,79 @@ export default function BetModal({
       {isSharesEventLive &&
         eventEndTimestamp > BigInt(0) &&
         !eventEndTimestampPassed && (
-          <Flex direction="column" gap="10px">
-            <Text textAlign={"center"} fontSize="13px">
-              Betting will be locked and you can take the time to make your
-              decision.
-            </Text>
-            <Button
-              bg="#e35b16"
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              width="100%"
-              onClick={async () =>
-                await _updateSharesEvent(SharesEventState.Lock)
-              }
-            >
-              lock bets
-            </Button>
+          <Flex gap="20px">
+            <Flex direction="column" gap="10px">
+              <Text textAlign={"center"} fontSize="13px">
+                Betting will be locked and you can take the time to make your
+                decision.
+              </Text>
+              <Button
+                bg="#e35b16"
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                width="100%"
+                onClick={async () =>
+                  await _updateSharesEvent(SharesEventState.Lock)
+                }
+              >
+                lock bets
+              </Button>
+            </Flex>
+            <Flex>
+              <Divider
+                orientation={"vertical"}
+                borderColor={"#cccccc"}
+                borderWidth={1}
+                height="100%"
+              />
+            </Flex>
+            <Flex direction="column" gap="10px">
+              <Text textAlign={"center"} fontSize="13px">
+                The outcome of the event will be decided and winnings can start
+                being claimed.
+              </Text>
+              <Flex gap="5px">
+                <Button
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  transform={endDecision !== false ? undefined : "scale(0.95)"}
+                  bg={endDecision !== false ? "#009d2a" : "#909090"}
+                  onClick={() => setEndDecision(true)}
+                  disabled={!isVerifier}
+                  w="100%"
+                >
+                  YES
+                </Button>
+                <Button
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  transform={endDecision !== true ? undefined : "scale(0.95)"}
+                  bg={endDecision !== true ? "#da3b14" : "#909090"}
+                  onClick={() => setEndDecision(false)}
+                  disabled={!isVerifier}
+                  w="100%"
+                >
+                  NO
+                </Button>
+              </Flex>
+              {endDecision !== undefined && (
+                <Flex justifyContent={"center"} pb="0.5rem">
+                  <Button
+                    _hover={{}}
+                    _focus={{}}
+                    _active={{}}
+                    bg="#0057bb"
+                    isDisabled={!verifyEvent}
+                    onClick={verifyEvent}
+                  >
+                    confirm {endDecision ? "yes" : "no"}
+                  </Button>
+                </Flex>
+              )}
+            </Flex>
           </Flex>
         )}
       {(isSharesEventLock ||
@@ -609,12 +662,18 @@ export default function BetModal({
               )})`}
             </Text>
           )}
-          {!isVerifier && (
+          {!isVerifier ? (
             <Text textAlign={"center"} fontSize="13px" color="red.300">
               You do not have access to this feature. Please DM @brianguan on
               telegram to get access to live-betting.
             </Text>
-          )}
+          ) : !sufficientEthForGas ? (
+            <Text textAlign={"center"} fontSize="13px" color="red.300">
+              You do not have enough ETH to use this feature. Please send some
+              ETH to your wallet over Base network. We recommend having at least
+              0.01 ETH for most cases.
+            </Text>
+          ) : null}
           {!verifyEventTxLoading ? (
             <>
               <Flex justifyContent={"space-evenly"} p="0.5rem">
@@ -663,26 +722,7 @@ export default function BetModal({
           )}
         </Flex>
       )}
-      {isSharesEventPayout && (
-        <Flex direction="column" gap="10px">
-          <Text textAlign={"center"} fontSize="13px">
-            By stopping the event, winnings can no longer be claimed and you
-            will be able to make a new event.
-          </Text>
-          <Button
-            bg="#E09025"
-            _hover={{}}
-            _focus={{}}
-            _active={{}}
-            width="100%"
-            disabled={!eventVerified}
-            onClick={_closeSharesEvent}
-          >
-            stop event
-          </Button>
-        </Flex>
-      )}
-      {!isSharesEventLive && !isSharesEventPayout && !isSharesEventLock && (
+      {!isSharesEventLive && !isSharesEventLock && (
         <Flex direction="column" gap="10px">
           {!isVerifier && (
             <Text textAlign={"center"} fontSize="13px" color="red.300">
@@ -782,12 +822,7 @@ export default function BetModal({
               !matchingChain ||
               !sufficientEthForGas
             }
-            onClick={async () =>
-              channelQueryData?.sharesEvent &&
-              channelQueryData?.sharesEvent?.length > 0
-                ? await openEvent?.()
-                : await _postSharesEvent(question)
-            }
+            onClick={async () => await _postSharesEvent(question)}
           >
             confirm
           </Button>

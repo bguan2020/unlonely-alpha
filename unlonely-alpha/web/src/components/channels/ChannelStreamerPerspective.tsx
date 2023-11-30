@@ -99,7 +99,7 @@ const ChannelStreamerPerspective = () => {
                 <Image src="/svg/custom-commands.svg" width="100%" />
               </Box>
             </Flex>
-            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+            {/* <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">
                 {channelQueryData?.sharesEvent?.[0]
                   ? "🔴manage bet"
@@ -122,7 +122,7 @@ const ChannelStreamerPerspective = () => {
               >
                 <Image src="/svg/bet.svg" width="100%" />
               </Box>
-            </Flex>
+            </Flex> */}
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign={"center"}>moderators</Text>
               <Box

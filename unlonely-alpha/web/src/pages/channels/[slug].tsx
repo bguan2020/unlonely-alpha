@@ -13,7 +13,6 @@ import {
 import { initializeApollo } from "../../apiClient/client";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
-import { ChannelTournament } from "../../components/channels/ChannelTournament";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
 import ChatComponent from "../../components/chat/ChatComponent";
 import { WavyText } from "../../components/general/WavyText";
@@ -37,6 +36,7 @@ import {
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChat } from "../../hooks/chat/useChat";
+import Trade from "../../components/channels/bet/Trade";
 
 const ChannelDetail = ({
   channelData,
@@ -91,7 +91,7 @@ const DesktopPage = ({
 
   // console.log(data?.getBadgeHoldersByChannel);
 
-  const { userAddress } = useUser();
+  const { userAddress, walletIsConnected } = useUser();
 
   const isOwner = userAddress === channelQueryData?.owner.address;
   // const isOwner = true;
@@ -117,7 +117,7 @@ const DesktopPage = ({
               direction={["column", "column", "row", "row"]}
             >
               <Stack direction="column" width={"100%"}>
-                {isOwner && !previewStream ? (
+                {isOwner && !previewStream && walletIsConnected ? (
                   <ChannelStreamerPerspective />
                 ) : (
                   <ChannelViewerPerspective />
@@ -155,7 +155,16 @@ const DesktopPage = ({
                 >
                   <ChannelDesc />
                   <Flex gap="1rem" mt="1rem" justifyContent={"flex-end"}>
-                    <ChannelTournament />
+                    {/* <ChannelTournament /> */}
+                    <Flex
+                      direction="column"
+                      bg={"#131323"}
+                      width="400px"
+                      borderRadius="0px"
+                      p="1rem"
+                    >
+                      <Trade chat={chat} />
+                    </Flex>
                   </Flex>
                 </Flex>
               </Stack>
