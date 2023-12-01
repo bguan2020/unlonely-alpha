@@ -298,9 +298,10 @@ export type GetTokenHoldersInput = {
   offset?: InputMaybe<Scalars["Int"]>;
 };
 
-export type GetUnclaimedEventsForUser = {
+export type GetUnclaimedEvents = {
+  chainId: Scalars["Int"];
   channelId?: InputMaybe<Scalars["ID"]>;
-  userAddress: Scalars["String"];
+  userAddress?: InputMaybe<Scalars["String"]>;
 };
 
 export type GetUserInput = {
@@ -615,7 +616,8 @@ export type PostClaimPayoutInput = {
 };
 
 export type PostCloseSharesEventInput = {
-  id: Scalars["ID"];
+  chainId: Scalars["Int"];
+  channelId: Scalars["ID"];
 };
 
 export type PostDeviceTokenInput = {
@@ -634,6 +636,7 @@ export type PostNfcInput = {
 
 export type PostSharesEventInput = {
   answers?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
+  chainId: Scalars["Int"];
   channelId: Scalars["ID"];
   sharesSubjectAddress?: InputMaybe<Scalars["String"]>;
   sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;
@@ -712,7 +715,7 @@ export type Query = {
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getTokenHoldersByChannel: Array<UserCreatorToken>;
   getTokenLeaderboard: Array<CreatorToken>;
-  getUnclaimedEventsByUser: Array<Maybe<SharesEvent>>;
+  getUnclaimedEvents: Array<Maybe<SharesEvent>>;
   getUser?: Maybe<User>;
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
   getVideo?: Maybe<Video>;
@@ -805,8 +808,8 @@ export type QueryGetTokenHoldersByChannelArgs = {
   data?: InputMaybe<GetTokenHoldersInput>;
 };
 
-export type QueryGetUnclaimedEventsByUserArgs = {
-  data?: InputMaybe<GetUnclaimedEventsForUser>;
+export type QueryGetUnclaimedEventsArgs = {
+  data?: InputMaybe<GetUnclaimedEvents>;
 };
 
 export type QueryGetUserArgs = {
@@ -838,6 +841,7 @@ export type SendAllNotificationsInput = {
 export type SharesEvent = {
   __typename?: "SharesEvent";
   answers?: Maybe<Array<Maybe<Scalars["String"]>>>;
+  chainId?: Maybe<Scalars["Int"]>;
   createdAt: Scalars["DateTime"];
   eventState?: Maybe<SharesEventState>;
   id: Scalars["ID"];
@@ -1095,6 +1099,7 @@ export type ChannelDetailQuery = {
       sharesSubjectQuestion?: string | null;
       sharesSubjectAddress?: string | null;
       answers?: Array<string | null> | null;
+      chainId?: number | null;
       eventState?: SharesEventState | null;
       createdAt: any;
       id: string;
@@ -1333,6 +1338,7 @@ export type GetChannelsByNumberOfBadgeHoldersQuery = {
         __typename?: "SharesEvent";
         sharesSubjectQuestion?: string | null;
         sharesSubjectAddress?: string | null;
+        chainId?: number | null;
         answers?: Array<string | null> | null;
         eventState?: SharesEventState | null;
         createdAt: any;
@@ -1794,6 +1800,15 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
+export type PostClaimPayoutMutationVariables = Exact<{
+  data: PostClaimPayoutInput;
+}>;
+
+export type PostClaimPayoutMutation = {
+  __typename?: "Mutation";
+  postClaimPayout: { __typename?: "GamblableInteraction"; id: string };
+};
+
 export const QueryDocument = gql`
   query Query($data: GetUserTokenHoldingInput!) {
     getUserTokenHolding(data: $data)
@@ -1983,6 +1998,7 @@ export const ChannelDetailDocument = gql`
         sharesSubjectQuestion
         sharesSubjectAddress
         answers
+        chainId
         eventState
         createdAt
         id
@@ -2816,6 +2832,7 @@ export const GetChannelsByNumberOfBadgeHoldersDocument = gql`
         sharesEvent {
           sharesSubjectQuestion
           sharesSubjectAddress
+          chainId
           answers
           eventState
           createdAt
@@ -4723,4 +4740,54 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
+>;
+export const PostClaimPayoutDocument = gql`
+  mutation PostClaimPayout($data: PostClaimPayoutInput!) {
+    postClaimPayout(data: $data) {
+      id
+    }
+  }
+`;
+export type PostClaimPayoutMutationFn = Apollo.MutationFunction<
+  PostClaimPayoutMutation,
+  PostClaimPayoutMutationVariables
+>;
+
+/**
+ * __usePostClaimPayoutMutation__
+ *
+ * To run a mutation, you first call `usePostClaimPayoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostClaimPayoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postClaimPayoutMutation, { data, loading, error }] = usePostClaimPayoutMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostClaimPayoutMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostClaimPayoutMutation,
+    PostClaimPayoutMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostClaimPayoutMutation,
+    PostClaimPayoutMutationVariables
+  >(PostClaimPayoutDocument, options);
+}
+export type PostClaimPayoutMutationHookResult = ReturnType<
+  typeof usePostClaimPayoutMutation
+>;
+export type PostClaimPayoutMutationResult =
+  Apollo.MutationResult<PostClaimPayoutMutation>;
+export type PostClaimPayoutMutationOptions = Apollo.BaseMutationOptions<
+  PostClaimPayoutMutation,
+  PostClaimPayoutMutationVariables
 >;

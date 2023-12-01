@@ -40,11 +40,11 @@ import { GET_SUBSCRIPTION } from "../../constants/queries";
 import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubscription";
 import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChannelFromSubscription";
 import { BorderType, OuterBorder } from "../general/OuterBorder";
-import { Trade } from "../chat/ChatComponent";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import { ChannelTournament } from "../channels/ChannelTournament";
 import Participants from "../presence/Participants";
+import Trade from "../channels/bet/Trade";
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -364,16 +364,16 @@ const StandaloneChatComponent = ({
 
 export const TabsComponent = () => {
   const { channel: channelContext, chat: chatContext } = useChannelContext();
-  const { channelQueryData, refetch } = channelContext;
+  const { channelQueryData, ongoingBets, refetch } = channelContext;
   const { presenceChannel } = chatContext;
 
   const chat = useChat();
 
   const doesEventExist = useMemo(() => {
-    if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
-    if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
+    if (!ongoingBets?.[0]?.sharesSubjectAddress) return false;
+    if (!ongoingBets?.[0]?.id) return false;
     return true;
-  }, [channelQueryData?.sharesEvent]);
+  }, [ongoingBets]);
 
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
@@ -496,7 +496,6 @@ const InfoComponent = ({
     handleEventModal,
     handleEditModal,
     handleChatCommandModal,
-    handleBetModal,
     handleModeratorModal,
   } = ui;
   const { channelQueryData } = channelContext;
@@ -637,30 +636,6 @@ const InfoComponent = ({
                     }}
                   >
                     <Image src="/svg/custom-commands.svg" width="100%" />
-                  </Box>
-                </Flex>
-                <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
-                  <Text textAlign="center">
-                    {channelQueryData?.sharesEvent?.[0]
-                      ? "🔴manage bet"
-                      : "create a bet"}
-                  </Text>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    borderRadius="10px"
-                    onClick={() => handleBetModal(true)}
-                    _hover={{
-                      cursor: "pointer",
-                      transform: "scale(1.1)",
-                      transitionDuration: "0.3s",
-                    }}
-                    _active={{
-                      transform: "scale(1)",
-                    }}
-                  >
-                    <Image src="/svg/bet.svg" width="100%" />
                   </Box>
                 </Flex>
                 <Flex direction="column" gap="10px" justifyContent={"flex-end"}>

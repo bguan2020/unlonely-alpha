@@ -50,6 +50,7 @@ export const CHANNEL_DETAIL_QUERY = gql`
         sharesSubjectQuestion
         sharesSubjectAddress
         answers
+        chainId
         eventState
         createdAt
         id
@@ -246,6 +247,7 @@ export const GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY = gql`
         sharesEvent {
           sharesSubjectQuestion
           sharesSubjectAddress
+          chainId
           answers
           eventState
           createdAt

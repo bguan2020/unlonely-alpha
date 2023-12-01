@@ -24,6 +24,7 @@ export const typeDef = gql`
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
     answers: [String]
+    chainId: Int
     eventState: SharesEventState
     softDelete: Boolean
     createdAt: DateTime!
@@ -106,8 +107,9 @@ export const typeDef = gql`
     userAddress: String!
   }
 
-  input GetUnclaimedEventsForUser {
-    userAddress: String!
+  input GetUnclaimedEvents {
+    chainId: Int!
+    userAddress: String
     channelId: ID
   }
 
@@ -120,7 +122,7 @@ export const typeDef = gql`
       data: GetGamblableEventLeaderboardByChannelIdInput
     ): [GamblableEventLeaderboard!]!
     getGamblableEventUserRank(data: GetGamblableEventUserRankInput): Int!
-    getUnclaimedEventsByUser(data: GetUnclaimedEventsForUser): [SharesEvent]!
+    getUnclaimedEvents(data: GetUnclaimedEvents): [SharesEvent]!
   }
 
   extend type Mutation {

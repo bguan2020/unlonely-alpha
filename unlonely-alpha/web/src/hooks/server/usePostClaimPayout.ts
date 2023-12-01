@@ -4,46 +4,49 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
-  CloseSharesEventMutation,
-  CloseSharesEventMutationVariables,
+  GamblableEvent,
+  PostClaimPayoutMutation,
+  PostClaimPayoutMutationVariables,
 } from "../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
-const CLOSE_SHARES_EVENT_MUTATION = gql`
-  mutation CloseSharesEvent($data: PostCloseSharesEventInput!) {
-    closeSharesEvent(data: $data) {
+const POST_CLAIM_PAYOUT_MUTATION = gql`
+  mutation PostClaimPayout($data: PostClaimPayoutInput!) {
+    postClaimPayout(data: $data) {
       id
     }
   }
 `;
 
-const useCloseSharesEvent = ({ onError }: Props) => {
+const usePostClaimPayout = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    CloseSharesEventMutation,
-    CloseSharesEventMutationVariables
-  >(CLOSE_SHARES_EVENT_MUTATION);
+    PostClaimPayoutMutation,
+    PostClaimPayoutMutationVariables
+  >(POST_CLAIM_PAYOUT_MUTATION);
 
-  const closeSharesEvent = useCallback(
+  const postClaimPayout = useCallback(
     async (data) => {
       try {
         setLoading(true);
         const mutationResult = await mutate({
           variables: {
             data: {
-              chainId: data.chainId,
               channelId: data.channelId,
+              userAddress: data.userAddress,
+              sharesEventId: data.sharesEventId,
+              type: GamblableEvent.BetClaimPayout,
             },
           },
         });
 
-        const res = mutationResult?.data?.closeSharesEvent;
+        const res = mutationResult?.data?.postClaimPayout;
 
         if (res) {
-          console.log("closeSharesEvent success");
+          console.log("postClaimPayout success");
         } else {
           onError && onError();
         }
@@ -52,13 +55,13 @@ const useCloseSharesEvent = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("closeSharesEvent", JSON.stringify(e, null, 2));
+        console.log("postClaimPayout", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]
   );
 
-  return { closeSharesEvent, loading };
+  return { postClaimPayout, loading };
 };
 
-export default useCloseSharesEvent;
+export default usePostClaimPayout;

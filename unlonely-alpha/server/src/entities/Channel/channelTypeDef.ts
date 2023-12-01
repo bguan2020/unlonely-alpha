@@ -17,6 +17,7 @@ export const typeDef = gql`
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
     answers: [String]
+    chainId: Int
     eventState: SharesEventState
     softDelete: Boolean
     createdAt: DateTime!
@@ -75,6 +76,7 @@ export const typeDef = gql`
 
   input PostSharesEventInput {
     channelId: ID!
+    chainId: Int!
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
     answers: [String]
@@ -88,7 +90,8 @@ export const typeDef = gql`
   }
 
   input PostCloseSharesEventInput {
-    id: ID!
+    channelId: ID!
+    chainId: Int!
   }
 
   input PostUserRoleForChannelInput {

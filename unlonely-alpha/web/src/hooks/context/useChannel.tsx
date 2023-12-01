@@ -17,6 +17,7 @@ import {
 import {
   ChannelDetailQuery,
   GetGamblableEventLeaderboardByChannelIdQuery,
+  SharesEvent,
 } from "../../generated/graphql";
 import { ChatBot } from "../../constants/types";
 import { useUser } from "./useUser";
@@ -25,7 +26,6 @@ import CalendarEventModal from "../../components/channels/CalendarEventModal";
 import ChatCommandModal from "../../components/channels/ChatCommandModal";
 import EditChannelModal from "../../components/channels/EditChannelModal";
 import NotificationsModal from "../../components/channels/NotificationsModal";
-import BetModal from "../../components/channels/BetModal";
 import ModeratorModal from "../../components/channels/ModeratorModal";
 import { useNetworkContext } from "./useNetwork";
 
@@ -36,6 +36,7 @@ export const useChannelContext = () => {
 const ChannelContext = createContext<{
   channel: {
     channelQueryData?: ChannelDetailQuery["getChannelBySlug"];
+    ongoingBets?: SharesEvent[];
     data?: ChannelDetailQuery;
     loading: boolean;
     error?: ApolloError;
@@ -73,9 +74,7 @@ const ChannelContext = createContext<{
     handleNotificationsModal: (value: boolean) => void;
     handleEventModal: (value: boolean) => void;
     handleChatCommandModal: (value: boolean) => void;
-    handleBetModal: (value: boolean) => void;
     handleModeratorModal: (value: boolean) => void;
-    showBetModal: boolean;
     showEditModal: boolean;
     showNotificationsModal: boolean;
     showEventModal: boolean;
@@ -89,6 +88,7 @@ const ChannelContext = createContext<{
 }>({
   channel: {
     channelQueryData: undefined,
+    ongoingBets: undefined,
     data: undefined,
     loading: true,
     error: undefined,
@@ -126,9 +126,7 @@ const ChannelContext = createContext<{
     handleNotificationsModal: () => undefined,
     handleEventModal: () => undefined,
     handleChatCommandModal: () => undefined,
-    handleBetModal: () => undefined,
     handleModeratorModal: () => undefined,
-    showBetModal: false,
     showEditModal: false,
     showNotificationsModal: false,
     showEventModal: false,
@@ -168,6 +166,15 @@ export const ChannelProvider = ({
   const channelQueryData = useMemo(
     () => channelData?.getChannelBySlug,
     [channelData, mobile]
+  );
+
+  const ongoingBets = useMemo(
+    () =>
+      channelQueryData?.sharesEvent?.filter(
+        (event): event is SharesEvent =>
+          event !== null && event?.chainId === localNetwork.config.chainId
+      ),
+    [channelQueryData?.sharesEvent, localNetwork.config.chainId]
   );
 
   const { data: userRankData } = useQuery(GET_GAMBLABLE_EVENT_USER_RANK_QUERY, {
@@ -215,7 +222,6 @@ export const ChannelProvider = ({
   const [showNotificationsModal, setNotificationsModal] =
     useState<boolean>(false);
   const [showEventModal, setEventModal] = useState<boolean>(false);
-  const [showBetModal, setBetModal] = useState<boolean>(false);
   const [showModeratorModal, setModeratorModal] = useState<boolean>(false);
 
   const [totalBadges, setTotalBadges] = useState<string>("0");
@@ -282,10 +288,6 @@ export const ChannelProvider = ({
     setChatCommandModal(value);
   }, []);
 
-  const handleBetModal = useCallback((value: boolean) => {
-    setBetModal(value);
-  }, []);
-
   const handleModeratorModal = useCallback((value: boolean) => {
     setModeratorModal(value);
   }, []);
@@ -310,6 +312,7 @@ export const ChannelProvider = ({
     () => ({
       channel: {
         channelQueryData,
+        ongoingBets: ongoingBets ?? undefined,
         data: channelData,
         loading: channelDataLoading,
         error: channelDataError,
@@ -348,12 +351,10 @@ export const ChannelProvider = ({
         handleNotificationsModal,
         handleEventModal,
         handleChatCommandModal,
-        handleBetModal,
         handleModeratorModal,
         showEditModal,
         showNotificationsModal,
         showEventModal,
-        showBetModal,
         showChatCommandModal,
         showModeratorModal,
         vipPool,
@@ -364,6 +365,7 @@ export const ChannelProvider = ({
     }),
     [
       channelQueryData,
+      ongoingBets,
       channelData,
       channelDataLoading,
       channelDataError,
@@ -392,14 +394,12 @@ export const ChannelProvider = ({
       handleEditModal,
       handleNotificationsModal,
       handleEventModal,
-      handleBetModal,
       handleModeratorModal,
       handleChatCommandModal,
       handleIsVip,
       showEditModal,
       showNotificationsModal,
       showEventModal,
-      showBetModal,
       showChatCommandModal,
       showModeratorModal,
       chatBot,
@@ -429,13 +429,11 @@ const TransactionModals = () => {
     handleNotificationsModal,
     handleEventModal,
     handleChatCommandModal,
-    handleBetModal,
     handleModeratorModal,
     showEditModal,
     showNotificationsModal,
     showEventModal,
     showChatCommandModal,
-    showBetModal,
     showModeratorModal,
   } = ui;
 
@@ -445,13 +443,6 @@ const TransactionModals = () => {
         title={"manage moderators"}
         isOpen={showModeratorModal}
         handleClose={() => handleModeratorModal(false)}
-      />
-      <BetModal
-        title={
-          channelQueryData?.sharesEvent?.[0] ? "manage bet" : "create a bet"
-        }
-        isOpen={showBetModal}
-        handleClose={() => handleBetModal(false)}
       />
       <ChatCommandModal
         title={"custom commands"}

@@ -2253,10 +2253,26 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "GetUnclaimedEventsForUser",
+        "name": "GetUnclaimedEvents",
         "description": null,
         "fields": null,
         "inputFields": [
+          {
+            "name": "chainId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "channelId",
             "description": null,
@@ -2273,13 +2289,9 @@
             "name": "userAddress",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -4929,7 +4941,23 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "id",
+            "name": "chainId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "channelId",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -5102,6 +5130,22 @@
               "ofType": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "chainId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
                 "ofType": null
               }
             },
@@ -6382,7 +6426,7 @@
             "deprecationReason": null
           },
           {
-            "name": "getUnclaimedEventsByUser",
+            "name": "getUnclaimedEvents",
             "description": null,
             "args": [
               {
@@ -6390,7 +6434,7 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "GetUnclaimedEventsForUser",
+                  "name": "GetUnclaimedEvents",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -6683,6 +6727,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "chainId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null

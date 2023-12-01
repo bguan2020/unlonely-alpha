@@ -23,7 +23,7 @@ export const JudgeBet = ({ handleClose }: { handleClose: () => void }) => {
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { channelQueryData } = channel;
+  const { channelQueryData, ongoingBets } = channel;
   const [endDecision, setEndDecision] = useState<boolean | undefined>(
     undefined
   );
@@ -42,9 +42,8 @@ export const JudgeBet = ({ handleClose }: { handleClose: () => void }) => {
 
   const { verifyEvent, verifyEventTxLoading } = useVerifyEvent(
     {
-      eventAddress: channelQueryData?.sharesEvent?.[0]
-        ?.sharesSubjectAddress as `0x${string}`,
-      eventId: Number(channelQueryData?.sharesEvent?.[0]?.id) ?? 0,
+      eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
+      eventId: Number(ongoingBets?.[0]?.id) ?? 0,
       result: endDecision ?? false,
     },
     contractData,
@@ -131,15 +130,13 @@ export const JudgeBet = ({ handleClose }: { handleClose: () => void }) => {
   const _updateSharesEvent = useCallback(
     async (eventState: SharesEventState) => {
       await updateSharesEvent({
-        id: channelQueryData?.sharesEvent?.[0]?.id ?? "",
-        sharesSubjectQuestion:
-          channelQueryData?.sharesEvent?.[0]?.sharesSubjectQuestion ?? "",
-        sharesSubjectAddress:
-          channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress ?? "",
+        id: ongoingBets?.[0]?.id ?? "",
+        sharesSubjectQuestion: ongoingBets?.[0]?.sharesSubjectQuestion ?? "",
+        sharesSubjectAddress: ongoingBets?.[0]?.sharesSubjectAddress ?? "",
         eventState,
       });
     },
-    [channelQueryData, user, userAddress]
+    [ongoingBets, user, userAddress]
   );
 
   useEffect(() => {

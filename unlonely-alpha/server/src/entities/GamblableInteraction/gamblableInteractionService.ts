@@ -62,9 +62,10 @@ export interface IGetBetsByUserInput {
   userAddress: string;
 }
 
-export interface IGetUnclaimedEventsForUser {
-  userAddress: string;
+export interface IGetUnclaimedEvents {
   channelId?: string;
+  userAddress?: string;
+  chainId: number;
 }
 
 export interface IGetGamblableEventLeaderboardByChannelInput {
@@ -422,24 +423,25 @@ export const getBetsByUser = async (
   return bets;
 };
 
-export const getUnclaimedEventsByUser = async (
-  data: IGetUnclaimedEventsForUser,
+export const getUnclaimedEvents = async (
+  data: IGetUnclaimedEvents,
   ctx: Context
 ) => {
   // Step 1: Fetch ongoing SharesEvents
-  let query = {};
+  let sharesQuery = {};
 
   if (data.channelId) {
-    query = {
+    sharesQuery = {
       where: {
         channelId: Number(data.channelId),
         eventState: SharesEventState.PAYOUT,
+        chainId: Number(data.chainId),
         softDelete: false,
       },
       orderBy: { createdAt: "desc" },
     };
   } else {
-    query = {
+    sharesQuery = {
       where: {
         eventState: SharesEventState.PAYOUT,
         softDelete: false,
@@ -448,32 +450,73 @@ export const getUnclaimedEventsByUser = async (
     };
   }
 
-  const ongoingSharesEvents = await ctx.prisma.sharesEvent.findMany(query);
+  const ongoingSharesEvents = await ctx.prisma.sharesEvent.findMany(
+    sharesQuery
+  );
 
   const unclaimedEvents = [];
 
+  // Step 2: Fetch all GamblableInteractions that are either BET_YES_BUY or BET_NO_BUY,
+  // then fetch the first GamblableInteraction that is a claim, if found, that is a closed transaction,
+  // else, add it to the returning array
   for (const event of ongoingSharesEvents) {
-    const userBuys = await ctx.prisma.gamblableInteraction.findMany({
-      where: {
-        sharesEventId: event.id,
-        userAddress: data.userAddress,
-        type: {
-          in: [GamblableEvent.BET_YES_BUY, GamblableEvent.BET_NO_BUY],
-        },
-        softDelete: false,
-      },
-    });
+    let userBuysQuery = {};
 
-    const hasClaimed = await ctx.prisma.gamblableInteraction.findFirst({
-      where: {
-        sharesEventId: event.id,
-        userAddress: data.userAddress,
-        type: {
-          in: [GamblableEvent.BET_CLAIM_PAYOUT],
+    if (data.userAddress) {
+      userBuysQuery = {
+        where: {
+          sharesEventId: event.id,
+          userAddress: data.userAddress,
+          type: {
+            in: [GamblableEvent.BET_YES_BUY, GamblableEvent.BET_NO_BUY],
+          },
+          softDelete: false,
         },
-        softDelete: false,
-      },
-    });
+      };
+    } else {
+      userBuysQuery = {
+        where: {
+          sharesEventId: event.id,
+          type: {
+            in: [GamblableEvent.BET_YES_BUY, GamblableEvent.BET_NO_BUY],
+          },
+          softDelete: false,
+        },
+      };
+    }
+
+    const userBuys = await ctx.prisma.gamblableInteraction.findMany(
+      userBuysQuery
+    );
+
+    let hasClaimedQuery = {};
+
+    if (data.userAddress) {
+      hasClaimedQuery = {
+        where: {
+          sharesEventId: event.id,
+          userAddress: data.userAddress,
+          type: {
+            in: [GamblableEvent.BET_CLAIM_PAYOUT],
+          },
+          softDelete: false,
+        },
+      };
+    } else {
+      hasClaimedQuery = {
+        where: {
+          sharesEventId: event.id,
+          type: {
+            in: [GamblableEvent.BET_CLAIM_PAYOUT],
+          },
+          softDelete: false,
+        },
+      };
+    }
+
+    const hasClaimed = await ctx.prisma.gamblableInteraction.findFirst(
+      hasClaimedQuery
+    );
 
     // Step 3: Determine if the event is unclaimed
     if (userBuys.length > 0 && !hasClaimed) {

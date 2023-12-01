@@ -9,10 +9,8 @@ const ChannelStreamerPerspective = () => {
     handleEventModal,
     handleEditModal,
     handleChatCommandModal,
-    handleBetModal,
     handleModeratorModal,
   } = ui;
-  const { channelQueryData } = channel;
 
   return (
     <Flex direction="column" width={"100%"}>
@@ -99,30 +97,6 @@ const ChannelStreamerPerspective = () => {
                 <Image src="/svg/custom-commands.svg" width="100%" />
               </Box>
             </Flex>
-            {/* <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
-              <Text textAlign="center">
-                {channelQueryData?.sharesEvent?.[0]
-                  ? "🔴manage bet"
-                  : "create a bet"}
-              </Text>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="10px"
-                onClick={() => handleBetModal(true)}
-                _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transitionDuration: "0.3s",
-                }}
-                _active={{
-                  transform: "scale(1)",
-                }}
-              >
-                <Image src="/svg/bet.svg" width="100%" />
-              </Box>
-            </Flex> */}
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign={"center"}>moderators</Text>
               <Box

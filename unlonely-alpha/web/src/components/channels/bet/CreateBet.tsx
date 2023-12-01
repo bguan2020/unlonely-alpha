@@ -10,6 +10,7 @@ import {
   MenuList,
   useToast,
   Text,
+  Spinner,
 } from "@chakra-ui/react";
 import { useBalance, useBlockNumber, usePublicClient } from "wagmi";
 import Link from "next/link";
@@ -21,12 +22,17 @@ import { useUser } from "../../../hooks/context/useUser";
 import usePostSharesEvent from "../../../hooks/server/usePostSharesEvent";
 import { getContractFromNetwork } from "../../../utils/contract";
 import usePostBet from "../../../hooks/server/gamblable/usePostBet";
-import { InteractionType, NULL_ADDRESS } from "../../../constants";
+import {
+  InteractionType,
+  NULL_ADDRESS,
+  NULL_ADDRESSS_BYTES32,
+} from "../../../constants";
 import {
   useGenerateKey,
   useOpenEvent,
 } from "../../../hooks/contracts/useSharesContractV2";
 import { getHourAndMinutesFromMillis } from "../../../utils/time";
+import useCloseSharesEvent from "../../../hooks/server/useCloseSharesEvent";
 
 const MAX_CHARS = 8;
 
@@ -36,12 +42,14 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
   const { matchingChain, localNetwork, explorerUrl } = network;
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { channelQueryData, refetch } = channel;
+  const { channelQueryData, refetch, ongoingBets } = channel;
   const publicClient = usePublicClient();
   const toast = useToast();
   const isOpeningEvent = useRef(false);
   const { postSharesEvent, loading: postSharesEventLoading } =
     usePostSharesEvent({});
+  const { closeSharesEvent, loading: closeSharesEventLoading } =
+    useCloseSharesEvent({});
 
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState<string[]>(["yes", "no"]);
@@ -51,14 +59,14 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
   const [selectedEndTime, setSelectedEndTime] = useState<
     "10" | "30" | "60" | "120"
   >("60");
+  const [loading, setLoading] = useState<string | undefined>("prepping");
 
   const [eventEndTimestamp, setEventEndTimestamp] = useState<bigint>(BigInt(0));
   const eventNeedsProcessing = useMemo(
-    () =>
-      eventEndTimestamp === BigInt(0) &&
-      (channelQueryData?.sharesEvent?.length ?? 0) > 0,
-    [eventEndTimestamp, channelQueryData?.sharesEvent?.length]
+    () => eventEndTimestamp === BigInt(0) && (ongoingBets?.length ?? 0) > 0,
+    [eventEndTimestamp, ongoingBets?.length]
   );
+
   const [dateNow, setDateNow] = useState<number>(Date.now());
   const blockNumber = useBlockNumber({
     watch: true,
@@ -75,14 +83,9 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
     [userEthBalance?.value]
   );
 
-  console.log(
-    channelQueryData?.sharesEvent?.[0]?.id,
-    eventEndTimestamp === BigInt(0)
-  );
-
   const { key: generatedKey } = useGenerateKey(
     channelQueryData?.owner?.address as `0x${string}`,
-    Number(channelQueryData?.sharesEvent?.[0]?.id ?? "0"),
+    Number(ongoingBets?.[0]?.id ?? "0"),
     contractData
   );
 
@@ -108,13 +111,22 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
         id: channelQueryData?.id ?? "",
         sharesSubjectQuestion: sharesSubjectQuestion,
         sharesSubjectAddress: userAddress,
-        answers: ["yes", "no"],
+        answers: [answers[0], answers[1]],
+        chainId: localNetwork.config.chainId,
       });
       await refetch();
       const eventId = Number(data?.res?.id ?? "0");
       handleCreatedEventId(eventId);
+      setLoading(undefined);
     },
-    [channelQueryData, question, user, userAddress]
+    [
+      channelQueryData,
+      question,
+      user,
+      userAddress,
+      localNetwork.config.chainId,
+      answers,
+    ]
   );
 
   const { openEvent, openEventTxLoading } = useOpenEvent(
@@ -180,9 +192,7 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
         await postBet({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
-          sharesEventId: (channelQueryData?.sharesEvent?.[0]?.id ??
-            createdEventId ??
-            0) as number,
+          sharesEventId: (createdEventId ?? 0) as number,
         });
         setQuestion("");
         setCreatedEventId(undefined);
@@ -208,13 +218,42 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
           position: "top-right",
         });
         isOpeningEvent.current = false;
+        setLoading(undefined);
       },
     }
   );
 
+  // useEffect(() => {
+  //   const estimateGas = async () => {
+  //     console.log("calling", publicClient);
+  //     const gas = await publicClient
+  //       .estimateContractGas({
+  //         address: contractData.address as `0x${string}`,
+  //         abi: contractData.abi,
+  //         functionName: "openEvent",
+  //         args: [
+  //           userAddress as `0x${string}`,
+  //           0,
+  //           EventType.YAY_NAY_VOTE,
+  //           BigInt(String(Math.floor((60 * 60 * 1000) / 1000))),
+  //         ],
+  //         account: userAddress as `0x${string}`,
+  //       })
+  //       .then((data) => console.log(data))
+  //       .catch((e) => console.log(e));
+  //     console.log("calling gas", gas);
+  //     const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
+  //     setRequiredGas(adjustedGas);
+  //   };
+  //   if (publicClient && contractData && channelQueryData && userAddress) {
+  //     estimateGas();
+  //   }
+  // }, [publicClient, contractData, channelQueryData, userAddress]);
+
   useEffect(() => {
     const c = async () => {
       isOpeningEvent.current = true;
+      setLoading("opening bet (2/2)");
       await openEvent?.();
     };
     if (createdEventId && openEvent && !isOpeningEvent.current) c();
@@ -240,12 +279,14 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
       setEventEndTimestamp(BigInt(String(endTimestamp)));
       setDateNow(Date.now());
       setIsVerifier(Boolean(isVerifier));
+      if (generatedKey !== NULL_ADDRESSS_BYTES32 || ongoingBets?.length === 0)
+        setLoading(undefined);
     };
     init();
   }, [blockNumber.data]);
 
   return (
-    <Flex direction="column" gap="10px">
+    <Flex direction="column" gap="10px" mt="10px">
       {!isVerifier ? (
         <Text textAlign={"center"} fontSize="13px" color="red.300">
           You do not have access to this feature. Please DM @brianguan on
@@ -263,130 +304,146 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
           wrong network
         </Text>
       )}
-      {eventNeedsProcessing ? (
-        <Text textAlign={"center"} fontSize="13px">
-          Please continue the process to initiate your event
-        </Text>
+      {loading || postSharesEventLoading || openEventTxLoading ? (
+        <Flex direction={"column"}>
+          <Flex justifyContent="center">
+            <Spinner />
+          </Flex>
+          <Text textAlign={"center"}>{loading ?? "loading"}</Text>
+        </Flex>
       ) : (
         <>
-          <Input
-            variant="glow"
-            placeholder={"Will I go on a second date?"}
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-          />
-          <Text>{`create answers (up to ${MAX_CHARS} characters)`}</Text>
-          <Flex gap="1rem">
-            <Input
-              variant="glow"
-              placeholder={"YES"}
-              textAlign="center"
-              value={answers[0]}
-              onChange={(e) =>
-                handleAnswerChange(0, e.target.value.slice(0, MAX_CHARS))
-              }
-            />
-            <Input
-              variant="glow"
-              placeholder={"NO"}
-              textAlign="center"
-              value={answers[1]}
-              onChange={(e) =>
-                handleAnswerChange(1, e.target.value.slice(0, MAX_CHARS))
-              }
-            />
-          </Flex>
+          {eventNeedsProcessing ? (
+            <Text textAlign={"center"} fontSize="13px">
+              Please continue the process to initiate your event
+            </Text>
+          ) : (
+            <>
+              <Input
+                variant="glow"
+                placeholder={"Will I go on a second date?"}
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+              />
+              <Text>{`create answers (up to ${MAX_CHARS} characters)`}</Text>
+              <Flex gap="1rem">
+                <Input
+                  variant="glow"
+                  placeholder={"YES"}
+                  textAlign="center"
+                  value={answers[0]}
+                  onChange={(e) =>
+                    handleAnswerChange(0, e.target.value.slice(0, MAX_CHARS))
+                  }
+                />
+                <Input
+                  variant="glow"
+                  placeholder={"NO"}
+                  textAlign="center"
+                  value={answers[1]}
+                  onChange={(e) =>
+                    handleAnswerChange(1, e.target.value.slice(0, MAX_CHARS))
+                  }
+                />
+              </Flex>
+            </>
+          )}
+          <Text>event duration</Text>
+          <Menu>
+            <MenuButton
+              as={Button}
+              rightIcon={<ChevronDownIcon />}
+              bg={"#244FA7"}
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+            >
+              {selectedEndTime === "10"
+                ? "10 mins"
+                : selectedEndTime === "30"
+                ? "30 mins"
+                : selectedEndTime === "60"
+                ? "1 hour"
+                : "2 hours"}
+            </MenuButton>
+            <MenuList bg="#000" border="none">
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("10")}
+              >
+                {`10 mins (until ${getHourAndMinutesFromMillis(
+                  dateNow + 10 * 60 * 1000
+                )})`}
+              </MenuItem>
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("30")}
+              >
+                {`30 mins (until ${getHourAndMinutesFromMillis(
+                  dateNow + 30 * 60 * 1000
+                )})`}
+              </MenuItem>
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("60")}
+              >
+                {`1 hour (until ${getHourAndMinutesFromMillis(
+                  dateNow + 60 * 60 * 1000
+                )})`}
+              </MenuItem>
+              <MenuItem
+                bg={"rgb(36, 79, 167)"}
+                opacity="0.8"
+                _hover={{ opacity: "1" }}
+                _focus={{ opacity: "1" }}
+                _active={{ opacity: "1" }}
+                onClick={() => setSelectedEndTime("120")}
+              >
+                {`2 hours (until ${getHourAndMinutesFromMillis(
+                  dateNow + 120 * 60 * 1000
+                )})`}
+              </MenuItem>
+            </MenuList>
+          </Menu>
+          <Button
+            bg="#E09025"
+            _hover={{}}
+            _focus={{}}
+            _active={{}}
+            width="100%"
+            disabled={
+              (!eventNeedsProcessing && question.length === 0) ||
+              !isVerifier ||
+              // !matchingChain ||
+              !sufficientEthForGas
+            }
+            onClick={async () => {
+              setLoading(
+                eventNeedsProcessing
+                  ? "opening bet (2/2)"
+                  : "creating bet (1/2)"
+              );
+              eventNeedsProcessing
+                ? await openEvent?.()
+                : await _postSharesEvent(question);
+            }}
+          >
+            confirm
+          </Button>
         </>
       )}
-      <Text>event duration</Text>
-      <Menu>
-        <MenuButton
-          as={Button}
-          rightIcon={<ChevronDownIcon />}
-          bg={"#244FA7"}
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
-        >
-          {selectedEndTime === "10"
-            ? "10 mins"
-            : selectedEndTime === "30"
-            ? "30 mins"
-            : selectedEndTime === "60"
-            ? "1 hour"
-            : "2 hours"}
-        </MenuButton>
-        <MenuList bg="#000" border="none">
-          <MenuItem
-            bg={"rgb(36, 79, 167)"}
-            opacity="0.8"
-            _hover={{ opacity: "1" }}
-            _focus={{ opacity: "1" }}
-            _active={{ opacity: "1" }}
-            onClick={() => setSelectedEndTime("10")}
-          >
-            {`10 mins (until ${getHourAndMinutesFromMillis(
-              dateNow + 10 * 60 * 1000
-            )})`}
-          </MenuItem>
-          <MenuItem
-            bg={"rgb(36, 79, 167)"}
-            opacity="0.8"
-            _hover={{ opacity: "1" }}
-            _focus={{ opacity: "1" }}
-            _active={{ opacity: "1" }}
-            onClick={() => setSelectedEndTime("30")}
-          >
-            {`30 mins (until ${getHourAndMinutesFromMillis(
-              dateNow + 30 * 60 * 1000
-            )})`}
-          </MenuItem>
-          <MenuItem
-            bg={"rgb(36, 79, 167)"}
-            opacity="0.8"
-            _hover={{ opacity: "1" }}
-            _focus={{ opacity: "1" }}
-            _active={{ opacity: "1" }}
-            onClick={() => setSelectedEndTime("60")}
-          >
-            {`1 hour (until ${getHourAndMinutesFromMillis(
-              dateNow + 60 * 60 * 1000
-            )})`}
-          </MenuItem>
-          <MenuItem
-            bg={"rgb(36, 79, 167)"}
-            opacity="0.8"
-            _hover={{ opacity: "1" }}
-            _focus={{ opacity: "1" }}
-            _active={{ opacity: "1" }}
-            onClick={() => setSelectedEndTime("120")}
-          >
-            {`2 hours (until ${getHourAndMinutesFromMillis(
-              dateNow + 120 * 60 * 1000
-            )})`}
-          </MenuItem>
-        </MenuList>
-      </Menu>
-      <Button
-        bg="#E09025"
-        _hover={{}}
-        _focus={{}}
-        _active={{}}
-        width="100%"
-        disabled={
-          (!eventNeedsProcessing && question.length === 0) ||
-          !isVerifier ||
-          !matchingChain ||
-          !sufficientEthForGas
-        }
-        onClick={async () =>
-          eventNeedsProcessing
-            ? await openEvent?.()
-            : await _postSharesEvent(question)
-        }
-      >
-        confirm
-      </Button>
     </Flex>
   );
 };
