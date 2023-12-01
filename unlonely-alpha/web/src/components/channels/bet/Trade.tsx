@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useBalance, useBlockNumber } from "wagmi";
+import { AddIcon } from "@chakra-ui/icons";
 
 import { InteractionType, NULL_ADDRESS } from "../../../constants";
 import { ChatReturnType } from "../../../hooks/chat/useChat";
@@ -37,6 +38,8 @@ import { CreateBet } from "./CreateBet";
 import { JudgeBet } from "./JudgeBet";
 import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
 import usePostClaimPayout from "../../../hooks/server/usePostClaimPayout";
+import useCloseSharesEvent from "../../../hooks/server/useCloseSharesEvent";
+import useDebounce from "../../../hooks/internal/useDebounce";
 
 const Trade = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress, walletIsConnected, user } = useUser();
@@ -52,13 +55,14 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
   const [viewState, setViewState] = useState<
     "normal" | "create" | "choose winner"
   >("normal");
-  const [amountOfVotes, setAmountOfVotes] = useState<string>("0");
+  const [amountOfVotes, setAmountOfVotes] = useState<string>("1");
+  const debouncedAmountOfVotes = useDebounce(amountOfVotes, 300);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [dateNow, setDateNow] = useState<number>(Date.now());
   const isFetching = useRef(false);
   const amount_bigint = useMemo(
-    () => BigInt(amountOfVotes as `${number}`),
-    [amountOfVotes]
+    () => BigInt(debouncedAmountOfVotes as `${number}`),
+    [debouncedAmountOfVotes]
   );
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
@@ -83,6 +87,11 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
       console.log(err);
     },
   });
+  const { closeSharesEvents } = useCloseSharesEvent({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   const v2contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
@@ -102,7 +111,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     useGetPriceAfterFee(
       channelQueryData?.owner?.address as `0x${string}`,
       Number(ongoingBets?.[0]?.id ?? "0"),
-      BigInt(amountOfVotes),
+      amount_bigint,
       isYay,
       isBuying,
       v2contract
@@ -122,6 +131,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     userPayout,
     eventVerified,
     eventResult,
+    isVerifier,
     refetch: refetchMappings,
   } = useReadMappings(
     generatedKey,
@@ -193,7 +203,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           isClosable: true,
           position: "top-right",
         });
-        setAmountOfVotes("0");
+        setAmountOfVotes("1");
         const topics = decodeEventLog({
           abi: v2contract.abi,
           data: data.logs[0].data,
@@ -298,7 +308,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           isClosable: true,
           position: "top-right",
         });
-        setAmountOfVotes("0");
+        setAmountOfVotes("1");
         const topics = decodeEventLog({
           abi: v2contract.abi,
           data: data.logs[0].data,
@@ -397,11 +407,24 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             isClosable: true,
             position: "top-right",
           });
+          const topics = decodeEventLog({
+            abi: v2contract.abi,
+            data: data.logs[0].data,
+            topics: data.logs[0].topics,
+          });
+          const args: any = topics.args;
           await postClaimPayout({
             channelId: channelQueryData?.id as string,
             userAddress: userAddress as `0x${string}`,
             sharesEventId: Number(ongoingBets?.[0]?.id ?? "0"),
           });
+          if (args.votingPooledEth === BigInt(0)) {
+            await closeSharesEvents({
+              chainId: localNetwork.config.chainId,
+              channelId: channelQueryData?.id as string,
+              sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
+            });
+          }
         },
         onTxError: (error) => {
           toast({
@@ -474,18 +497,26 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
 
   useEffect(() => {
     if (!blockNumber.data || isFetching.current) return;
+    let calls: any[] = [refetchMappings(), refetchUserEthBalance()];
+    if (doesEventExist && isSharesEventLive) {
+      calls = calls.concat([
+        refetchVotePrice(),
+        refetchBuyVotes(),
+        refetchSellVotes(),
+        refetchBalances(),
+      ]);
+    }
+    if (doesEventExist && isSharesEventLock) {
+      calls = calls.concat([refetchBalances()]);
+    }
+    if (doesEventExist && isSharesEventPayout) {
+      calls = calls.concat([refetchBalances(), refetchClaimVotePayout()]);
+    }
+    console.log("calls", calls);
     const fetch = async () => {
       isFetching.current = true;
       try {
-        await Promise.all([
-          refetchBalances(),
-          refetchVotePrice(),
-          refetchBuyVotes(),
-          refetchSellVotes(),
-          refetchMappings(),
-          refetchClaimVotePayout(),
-          refetchUserEthBalance(),
-        ]);
+        await Promise.all(calls);
       } catch (err) {
         console.log("vote fetching error", err);
       }
@@ -502,8 +533,8 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
       setErrorMessage("wrong network");
     } else if (
       !isBuying &&
-      ((isYay && Number(yayVotesBalance) < Number(amountOfVotes)) ||
-        (!isYay && Number(nayVotesBalance) < Number(amountOfVotes))) &&
+      ((isYay && Number(yayVotesBalance) < Number(debouncedAmountOfVotes)) ||
+        (!isYay && Number(nayVotesBalance) < Number(debouncedAmountOfVotes))) &&
       doesEventExist &&
       !isEventOver
     ) {
@@ -518,7 +549,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
       setErrorMessage("insufficient ETH to spend");
     } else if (
       isBuying &&
-      Number(amountOfVotes) === 0 &&
+      Number(debouncedAmountOfVotes) === 0 &&
       doesEventExist &&
       !isEventOver
     ) {
@@ -534,7 +565,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     votePrice,
     yayVotesBalance,
     nayVotesBalance,
-    amountOfVotes,
+    debouncedAmountOfVotes,
     dateNow,
     eventEndTimestamp,
     doesEventExist,
@@ -547,7 +578,6 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
         <Flex
           justifyContent={"space-between"}
           gap="5px"
-          p="5px"
           bg={"rgba(255, 255, 255, 0.1)"}
           borderRadius="5px"
         >
@@ -566,92 +596,99 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   )
                 }
               >
-                <Text fontSize={"18px"} fontFamily="LoRes15">
-                  {!isSharesEventPayout && votingPooledEth === BigInt(0)
+                <Text fontSize={"20px"} fontFamily="LoRes15">
+                  {!isSharesEventPayout &&
+                  doesEventExist &&
+                  votingPooledEth === BigInt(0)
                     ? "replace bet"
                     : "create bet"}
                 </Text>
               </Button>
             </>
           )}
-          {doesEventExist && isSharesEventLive && !eventEndTimestampPassed && (
-            <>
-              <Button
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                p="5px !important"
-                w="100%"
-                bg={viewState === "choose winner" ? "#1b9d9d" : "#E09025"}
-                onClick={() =>
-                  setViewState((prev) =>
-                    prev === "choose winner" ? "normal" : "choose winner"
-                  )
-                }
-              >
-                <Text fontSize={"18px"} fontFamily="LoRes15">
-                  select winner
-                </Text>
-              </Button>
-              <Button
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                bg={"#E09025"}
-                p="5px !important"
-                w="100%"
-                isLoading={updateSharesEventLoading}
-                onClick={async () =>
-                  await _updateSharesEvent(SharesEventState.Lock)
-                }
-              >
-                <Text fontSize={"18px"} fontFamily="LoRes15">
-                  lock bet
-                </Text>
-              </Button>
-            </>
-          )}
-          {doesEventExist && (isSharesEventLock || eventEndTimestampPassed) && (
-            <>
-              {!isSharesEventPayout && (
+          {doesEventExist &&
+            isSharesEventLive &&
+            !eventEndTimestampPassed &&
+            eventEndTimestamp > 0 && (
+              <>
                 <Button
                   _hover={{}}
                   _focus={{}}
                   _active={{}}
-                  bg={viewState === "choose winner" ? "#1b9d9d" : "#E09025"}
                   p="5px !important"
                   w="100%"
+                  bg={viewState === "choose winner" ? "#1b9d9d" : "#E09025"}
                   onClick={() =>
                     setViewState((prev) =>
                       prev === "choose winner" ? "normal" : "choose winner"
                     )
                   }
                 >
-                  <Text fontSize={"18px"} fontFamily="LoRes15">
+                  <Text fontSize={"20px"} fontFamily="LoRes15">
                     select winner
                   </Text>
                 </Button>
-              )}
-              {!eventEndTimestampPassed && (
                 <Button
                   _hover={{}}
                   _focus={{}}
                   _active={{}}
-                  bg={isSharesEventLock ? "#1b9d9d" : "#E09025"}
+                  bg={"#E09025"}
                   p="5px !important"
                   w="100%"
                   isLoading={updateSharesEventLoading}
                   onClick={async () =>
-                    await _updateSharesEvent(SharesEventState.Live)
+                    await _updateSharesEvent(SharesEventState.Lock)
                   }
                 >
-                  <Text fontSize={"18px"} fontFamily="LoRes15">
-                    resume bet
+                  <Text fontSize={"20px"} fontFamily="LoRes15">
+                    lock bet
                   </Text>
                 </Button>
-              )}
-            </>
-          )}
+              </>
+            )}
+          {doesEventExist &&
+            (isSharesEventLock ||
+              (eventEndTimestamp > 0 && eventEndTimestampPassed)) && (
+              <>
+                {!isSharesEventPayout && (
+                  <Button
+                    _hover={{}}
+                    _focus={{}}
+                    _active={{}}
+                    bg={viewState === "choose winner" ? "#1b9d9d" : "#E09025"}
+                    p="5px !important"
+                    w="100%"
+                    onClick={() =>
+                      setViewState((prev) =>
+                        prev === "choose winner" ? "normal" : "choose winner"
+                      )
+                    }
+                  >
+                    <Text fontSize={"20px"} fontFamily="LoRes15">
+                      select winner
+                    </Text>
+                  </Button>
+                )}
+                {!eventEndTimestampPassed && eventEndTimestamp > 0 && (
+                  <Button
+                    _hover={{}}
+                    _focus={{}}
+                    _active={{}}
+                    bg={isSharesEventLock ? "#1b9d9d" : "#E09025"}
+                    p="5px !important"
+                    w="100%"
+                    isLoading={updateSharesEventLoading}
+                    onClick={async () =>
+                      await _updateSharesEvent(SharesEventState.Live)
+                    }
+                  >
+                    <Text fontSize={"20px"} fontFamily="LoRes15">
+                      unlock bet
+                    </Text>
+                  </Button>
+                )}
+              </>
+            )}
         </Flex>
       )}
       {doesEventExist && viewState !== "create" && (
@@ -672,18 +709,11 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
       {viewState === "normal" && (
         <>
           {!doesEventExist ? (
-            <>
-              {isOwner ? (
-                <CreateBet handleClose={() => setViewState("normal")} />
-              ) : (
-                <Text textAlign={"center"}>
-                  there is no event at the moment
-                </Text>
-              )}
-            </>
+            <Text textAlign={"center"}>there is no event at the moment</Text>
           ) : (
             <>
               {!eventEndTimestampPassed &&
+                eventEndTimestamp > 0 &&
                 ongoingBets?.[0]?.eventState === "LIVE" && (
                   <>
                     <Flex justifyContent={"space-around"} gap="5px">
@@ -726,13 +756,32 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                           <Text fontSize="14px" textAlign="center">
                             #
                           </Text>
-                          <Flex alignItems={"center"}>
+                          <Flex alignItems={"center"} gap="5px">
                             <Input
                               textAlign="center"
                               width={"70px"}
                               value={amountOfVotes}
                               onChange={handleInputChange}
                             />
+                            <Button
+                              _focus={{}}
+                              _hover={{}}
+                              _active={{}}
+                              p="2px !important"
+                              bg="transparent"
+                              borderRadius={"50%"}
+                              borderWidth="1px"
+                              borderColor="#5193bd"
+                              height="auto"
+                              minWidth="auto"
+                              onClick={() =>
+                                setAmountOfVotes((prev) =>
+                                  String(Number(prev) + 1)
+                                )
+                              }
+                            >
+                              <AddIcon color={"#51c0db"} />
+                            </Button>
                           </Flex>
                         </Flex>
                         <Flex direction="column">
@@ -786,7 +835,10 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                           isRefetchingSellVotes
                         }
                       >
-                        {isRefetchingBuyVotes || isRefetchingSellVotes ? (
+                        {(isBuying && !buyVotes) ||
+                        (!isBuying && !sellVotes) ||
+                        isRefetchingBuyVotes ||
+                        isRefetchingSellVotes ? (
                           <Spinner />
                         ) : isBuying ? (
                           "BUY"
@@ -798,6 +850,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   </>
                 )}
               {eventEndTimestampPassed &&
+                eventEndTimestamp > 0 &&
                 ongoingBets?.[0]?.eventState === "LIVE" && (
                   <>
                     <Flex justifyContent={"space-evenly"} my="10px">
@@ -867,10 +920,21 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
         </>
       )}
       {viewState === "create" && (
-        <CreateBet handleClose={() => setViewState("normal")} />
+        <CreateBet
+          pool={votingPooledEth}
+          generatedKey={generatedKey}
+          ethBalance={userEthBalance?.value ?? BigInt(0)}
+          isVerifier={isVerifier}
+          eventEndTimestamp={eventEndTimestamp}
+          handleClose={() => setViewState("normal")}
+        />
       )}
       {viewState === "choose winner" && (
-        <JudgeBet handleClose={() => setViewState("normal")} />
+        <JudgeBet
+          ethBalance={userEthBalance?.value ?? BigInt(0)}
+          isVerifier={isVerifier}
+          handleClose={() => setViewState("normal")}
+        />
       )}
     </Flex>
   );

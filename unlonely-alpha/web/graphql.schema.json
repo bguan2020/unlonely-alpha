@@ -2940,7 +2940,7 @@
             "deprecationReason": null
           },
           {
-            "name": "closeSharesEvent",
+            "name": "closeSharesEvents",
             "description": null,
             "args": [
               {
@@ -2951,7 +2951,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "PostCloseSharesEventInput",
+                    "name": "PostCloseSharesEventsInput",
                     "ofType": null
                   }
                 },
@@ -2962,7 +2962,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "Channel",
+              "name": "UpdateManyResponse",
               "ofType": null
             },
             "isDeprecated": false,
@@ -4936,7 +4936,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "PostCloseSharesEventInput",
+        "name": "PostCloseSharesEventsInput",
         "description": null,
         "fields": null,
         "inputFields": [
@@ -4966,6 +4966,30 @@
                 "kind": "SCALAR",
                 "name": "ID",
                 "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "sharesEventIds",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  }
+                }
               }
             },
             "defaultValue": null,
@@ -7798,6 +7822,33 @@
           }
         ],
         "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "UpdateManyResponse",
+        "description": null,
+        "fields": [
+          {
+            "name": "count",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },

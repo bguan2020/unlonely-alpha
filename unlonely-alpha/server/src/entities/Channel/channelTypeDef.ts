@@ -55,6 +55,10 @@ export const typeDef = gql`
     roles: [ChannelUserRole]
   }
 
+  type UpdateManyResponse {
+    count: Int!
+  }
+
   input ChannelFeedInput {
     limit: Int
     offset: Int
@@ -89,9 +93,10 @@ export const typeDef = gql`
     eventState: SharesEventState
   }
 
-  input PostCloseSharesEventInput {
+  input PostCloseSharesEventsInput {
     channelId: ID!
     chainId: Int!
+    sharesEventIds: [ID!]!
   }
 
   input PostUserRoleForChannelInput {
@@ -109,7 +114,7 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    closeSharesEvent(data: PostCloseSharesEventInput!): Channel
+    closeSharesEvents(data: PostCloseSharesEventsInput!): UpdateManyResponse
     postSharesEvent(data: PostSharesEventInput!): Channel
     updateSharesEvent(data: UpdateSharesEventInput!): Channel
     updateChannelText(data: UpdateChannelTextInput!): Channel

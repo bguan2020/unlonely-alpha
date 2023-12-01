@@ -4,30 +4,30 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
-  CloseSharesEventMutation,
-  CloseSharesEventMutationVariables,
+  CloseSharesEventsMutation,
+  CloseSharesEventsMutationVariables,
 } from "../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
-const CLOSE_SHARES_EVENT_MUTATION = gql`
-  mutation CloseSharesEvent($data: PostCloseSharesEventInput!) {
-    closeSharesEvent(data: $data) {
-      id
+const CLOSE_SHARES_EVENTS_MUTATION = gql`
+  mutation CloseSharesEvents($data: PostCloseSharesEventsInput!) {
+    closeSharesEvents(data: $data) {
+      count
     }
   }
 `;
 
-const useCloseSharesEvent = ({ onError }: Props) => {
+const useCloseSharesEvents = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    CloseSharesEventMutation,
-    CloseSharesEventMutationVariables
-  >(CLOSE_SHARES_EVENT_MUTATION);
+    CloseSharesEventsMutation,
+    CloseSharesEventsMutationVariables
+  >(CLOSE_SHARES_EVENTS_MUTATION);
 
-  const closeSharesEvent = useCallback(
+  const closeSharesEvents = useCallback(
     async (data) => {
       try {
         setLoading(true);
@@ -36,14 +36,15 @@ const useCloseSharesEvent = ({ onError }: Props) => {
             data: {
               chainId: data.chainId,
               channelId: data.channelId,
+              sharesEventIds: data.sharesEventIds,
             },
           },
         });
 
-        const res = mutationResult?.data?.closeSharesEvent;
+        const res = mutationResult?.data?.closeSharesEvents;
 
         if (res) {
-          console.log("closeSharesEvent success");
+          console.log("closeSharesEvents success");
         } else {
           onError && onError();
         }
@@ -52,13 +53,13 @@ const useCloseSharesEvent = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("closeSharesEvent", JSON.stringify(e, null, 2));
+        console.log("closeSharesEvents", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]
   );
 
-  return { closeSharesEvent, loading };
+  return { closeSharesEvents, loading };
 };
 
-export default useCloseSharesEvent;
+export default useCloseSharesEvents;

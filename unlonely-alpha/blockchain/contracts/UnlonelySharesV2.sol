@@ -111,7 +111,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
     event Trade(TradeInfo trade);
     event EventOpened(bytes32 eventByte, uint256 endTimestamp);
     event EventVerified(bytes32 eventByte, bool result);
-    event Payout(address indexed voter, uint256 amount);
+    event Payout(address indexed voter, uint256 amount, uint256 votingPooledEth);
 
     // this is a mapping between events and their holders which each own an amount of yay/nay votes
     mapping(bytes32 => mapping(address => uint256)) public yayVotesBalance;
@@ -356,7 +356,7 @@ contract UnlonelySharesV2 is Ownable, ReentrancyGuard {
         // Deduct the user's payout from the sharesSubject's pool
         votingPooledEth[eventBytes] -= userPayout;
 
-        emit Payout(msg.sender, userPayout);
+        emit Payout(msg.sender, userPayout, votingPooledEth[eventBytes]);
         (bool success, ) = msg.sender.call{value: userPayout}("");
         require(success, "Unable to send funds");
     }

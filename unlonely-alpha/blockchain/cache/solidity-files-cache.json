@@ -1048,8 +1048,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelySharesV2.sol": {
-      "lastModificationDate": 1700323842522,
-      "contentHash": "1cb2315411e8183da043e09f2efb8d1e",
+      "lastModificationDate": 1701453474542,
+      "contentHash": "9539248c3907c5f09891437a17d07e1f",
       "sourceName": "contracts/UnlonelySharesV2.sol",
       "solcConfig": {
         "version": "0.8.8",

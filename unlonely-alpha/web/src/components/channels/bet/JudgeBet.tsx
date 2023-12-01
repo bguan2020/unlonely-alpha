@@ -1,6 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Text, Flex, Button, useToast, Box } from "@chakra-ui/react";
-import { useBalance, useBlockNumber, usePublicClient } from "wagmi";
 import Link from "next/link";
 import { decodeEventLog } from "viem";
 
@@ -12,32 +11,32 @@ import { useVerifyEvent } from "../../../hooks/contracts/useSharesContractV2";
 import { InteractionType } from "../../../constants";
 import { SharesEventState } from "../../../generated/graphql";
 import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
-export const JudgeBet = ({ handleClose }: { handleClose: () => void }) => {
+export const JudgeBet = ({
+  ethBalance,
+  isVerifier,
+  handleClose,
+}: {
+  ethBalance: bigint;
+  isVerifier: boolean;
+  handleClose: () => void;
+}) => {
   const { userAddress, user } = useUser();
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
-  const publicClient = usePublicClient();
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { channelQueryData, ongoingBets } = channel;
+  const { ongoingBets } = channel;
   const [endDecision, setEndDecision] = useState<boolean | undefined>(
     undefined
   );
-  const [isVerifier, setIsVerifier] = useState<boolean>(true);
   const toast = useToast();
 
-  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
-    address: userAddress as `0x${string}`,
-  });
   const { updateSharesEvent, loading: updateSharesEventLoading } =
     useUpdateSharesEvent({});
   const sufficientEthForGas = useMemo(
-    () => userEthBalance && userEthBalance.value >= BigInt(1000000),
-    [userEthBalance?.value]
+    () => ethBalance >= BigInt(1000000),
+    [ethBalance]
   );
 
   const { verifyEvent, verifyEventTxLoading } = useVerifyEvent(
@@ -138,20 +137,6 @@ export const JudgeBet = ({ handleClose }: { handleClose: () => void }) => {
     },
     [ongoingBets, user, userAddress]
   );
-
-  useEffect(() => {
-    const init = async () => {
-      const isVerifier = await publicClient.readContract({
-        address: contractData.address as `0x${string}`,
-        abi: contractData.abi,
-        functionName: "isVerifier",
-        args: [userAddress],
-      });
-      refetchUserEthBalance();
-      setIsVerifier(Boolean(isVerifier));
-    };
-    init();
-  }, [blockNumber.data]);
 
   return (
     <Flex direction="column" gap="10px">

@@ -118,19 +118,23 @@ export const updateSharesEvent = async (
   });
 };
 
-export interface IPostCloseSharesEventInput {
+export interface IPostCloseSharesEventsInput {
   channelId: number;
   chainId: number;
+  sharesEventIds: number[];
 }
 
-export const closeSharesEvent = async (
-  data: IPostCloseSharesEventInput,
+export const closeSharesEvents = async (
+  data: IPostCloseSharesEventsInput,
   ctx: Context
 ) => {
   return await ctx.prisma.sharesEvent.updateMany({
     where: {
       channelId: Number(data.channelId),
       chainId: Number(data.chainId),
+      id: {
+        in: data.sharesEventIds.map((id) => Number(id)),
+      },
       softDelete: false,
     },
     data: {

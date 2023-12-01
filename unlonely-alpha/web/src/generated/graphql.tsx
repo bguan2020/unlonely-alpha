@@ -350,7 +350,7 @@ export type Mutation = {
   _empty?: Maybe<Scalars["String"]>;
   addChannelToSubscription?: Maybe<Subscription>;
   addSuggestedChannelsToSubscriptions?: Maybe<Array<Maybe<Subscription>>>;
-  closeSharesEvent?: Maybe<Channel>;
+  closeSharesEvents?: Maybe<UpdateManyResponse>;
   createClip?: Maybe<ClipNfcOutput>;
   createCreatorToken: CreatorToken;
   createLivepeerClip?: Maybe<ClipNfcOutput>;
@@ -396,8 +396,8 @@ export type MutationAddSuggestedChannelsToSubscriptionsArgs = {
   data: AddSuggestedChannelsToSubscriptionsInput;
 };
 
-export type MutationCloseSharesEventArgs = {
-  data: PostCloseSharesEventInput;
+export type MutationCloseSharesEventsArgs = {
+  data: PostCloseSharesEventsInput;
 };
 
 export type MutationCreateClipArgs = {
@@ -615,9 +615,10 @@ export type PostClaimPayoutInput = {
   userAddress: Scalars["String"];
 };
 
-export type PostCloseSharesEventInput = {
+export type PostCloseSharesEventsInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["ID"];
+  sharesEventIds: Array<Scalars["ID"]>;
 };
 
 export type PostDeviceTokenInput = {
@@ -946,6 +947,11 @@ export type UpdateDeviceInput = {
   notificationsLive: Scalars["Boolean"];
   notificationsNFCs: Scalars["Boolean"];
   token: Scalars["String"];
+};
+
+export type UpdateManyResponse = {
+  __typename?: "UpdateManyResponse";
+  count: Scalars["Int"];
 };
 
 export type UpdateNfcInput = {
@@ -1473,13 +1479,16 @@ export type AddChannelToSubscriptionMutation = {
   addChannelToSubscription?: { __typename?: "Subscription"; id: string } | null;
 };
 
-export type CloseSharesEventMutationVariables = Exact<{
-  data: PostCloseSharesEventInput;
+export type CloseSharesEventsMutationVariables = Exact<{
+  data: PostCloseSharesEventsInput;
 }>;
 
-export type CloseSharesEventMutation = {
+export type CloseSharesEventsMutation = {
   __typename?: "Mutation";
-  closeSharesEvent?: { __typename?: "Channel"; id: string } | null;
+  closeSharesEvents?: {
+    __typename?: "UpdateManyResponse";
+    count: number;
+  } | null;
 };
 
 export type CreateClipMutationVariables = Exact<{
@@ -1552,6 +1561,15 @@ export type PostChatByAwsIdMutationVariables = Exact<{
 export type PostChatByAwsIdMutation = {
   __typename?: "Mutation";
   postChatByAwsId?: { __typename?: "Chat"; id: string } | null;
+};
+
+export type PostClaimPayoutMutationVariables = Exact<{
+  data: PostClaimPayoutInput;
+}>;
+
+export type PostClaimPayoutMutation = {
+  __typename?: "Mutation";
+  postClaimPayout: { __typename?: "GamblableInteraction"; id: string };
 };
 
 export type PostFirstChatMutationVariables = Exact<{
@@ -1798,15 +1816,6 @@ export type FetchCurrentUserQuery = {
     signature?: string | null;
     sigTimestamp?: any | null;
   } | null;
-};
-
-export type PostClaimPayoutMutationVariables = Exact<{
-  data: PostClaimPayoutInput;
-}>;
-
-export type PostClaimPayoutMutation = {
-  __typename?: "Mutation";
-  postClaimPayout: { __typename?: "GamblableInteraction"; id: string };
 };
 
 export const QueryDocument = gql`
@@ -3374,55 +3383,55 @@ export type AddChannelToSubscriptionMutationOptions =
     AddChannelToSubscriptionMutation,
     AddChannelToSubscriptionMutationVariables
   >;
-export const CloseSharesEventDocument = gql`
-  mutation CloseSharesEvent($data: PostCloseSharesEventInput!) {
-    closeSharesEvent(data: $data) {
-      id
+export const CloseSharesEventsDocument = gql`
+  mutation CloseSharesEvents($data: PostCloseSharesEventsInput!) {
+    closeSharesEvents(data: $data) {
+      count
     }
   }
 `;
-export type CloseSharesEventMutationFn = Apollo.MutationFunction<
-  CloseSharesEventMutation,
-  CloseSharesEventMutationVariables
+export type CloseSharesEventsMutationFn = Apollo.MutationFunction<
+  CloseSharesEventsMutation,
+  CloseSharesEventsMutationVariables
 >;
 
 /**
- * __useCloseSharesEventMutation__
+ * __useCloseSharesEventsMutation__
  *
- * To run a mutation, you first call `useCloseSharesEventMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCloseSharesEventMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCloseSharesEventsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCloseSharesEventsMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [closeSharesEventMutation, { data, loading, error }] = useCloseSharesEventMutation({
+ * const [closeSharesEventsMutation, { data, loading, error }] = useCloseSharesEventsMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useCloseSharesEventMutation(
+export function useCloseSharesEventsMutation(
   baseOptions?: Apollo.MutationHookOptions<
-    CloseSharesEventMutation,
-    CloseSharesEventMutationVariables
+    CloseSharesEventsMutation,
+    CloseSharesEventsMutationVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
-    CloseSharesEventMutation,
-    CloseSharesEventMutationVariables
-  >(CloseSharesEventDocument, options);
+    CloseSharesEventsMutation,
+    CloseSharesEventsMutationVariables
+  >(CloseSharesEventsDocument, options);
 }
-export type CloseSharesEventMutationHookResult = ReturnType<
-  typeof useCloseSharesEventMutation
+export type CloseSharesEventsMutationHookResult = ReturnType<
+  typeof useCloseSharesEventsMutation
 >;
-export type CloseSharesEventMutationResult =
-  Apollo.MutationResult<CloseSharesEventMutation>;
-export type CloseSharesEventMutationOptions = Apollo.BaseMutationOptions<
-  CloseSharesEventMutation,
-  CloseSharesEventMutationVariables
+export type CloseSharesEventsMutationResult =
+  Apollo.MutationResult<CloseSharesEventsMutation>;
+export type CloseSharesEventsMutationOptions = Apollo.BaseMutationOptions<
+  CloseSharesEventsMutation,
+  CloseSharesEventsMutationVariables
 >;
 export const CreateClipDocument = gql`
   mutation CreateClip($data: CreateClipInput!) {
@@ -3676,6 +3685,56 @@ export type PostChatByAwsIdMutationResult =
 export type PostChatByAwsIdMutationOptions = Apollo.BaseMutationOptions<
   PostChatByAwsIdMutation,
   PostChatByAwsIdMutationVariables
+>;
+export const PostClaimPayoutDocument = gql`
+  mutation PostClaimPayout($data: PostClaimPayoutInput!) {
+    postClaimPayout(data: $data) {
+      id
+    }
+  }
+`;
+export type PostClaimPayoutMutationFn = Apollo.MutationFunction<
+  PostClaimPayoutMutation,
+  PostClaimPayoutMutationVariables
+>;
+
+/**
+ * __usePostClaimPayoutMutation__
+ *
+ * To run a mutation, you first call `usePostClaimPayoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostClaimPayoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postClaimPayoutMutation, { data, loading, error }] = usePostClaimPayoutMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostClaimPayoutMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostClaimPayoutMutation,
+    PostClaimPayoutMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostClaimPayoutMutation,
+    PostClaimPayoutMutationVariables
+  >(PostClaimPayoutDocument, options);
+}
+export type PostClaimPayoutMutationHookResult = ReturnType<
+  typeof usePostClaimPayoutMutation
+>;
+export type PostClaimPayoutMutationResult =
+  Apollo.MutationResult<PostClaimPayoutMutation>;
+export type PostClaimPayoutMutationOptions = Apollo.BaseMutationOptions<
+  PostClaimPayoutMutation,
+  PostClaimPayoutMutationVariables
 >;
 export const PostFirstChatDocument = gql`
   mutation PostFirstChat($data: PostChatInput!) {
@@ -4740,54 +4799,4 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
->;
-export const PostClaimPayoutDocument = gql`
-  mutation PostClaimPayout($data: PostClaimPayoutInput!) {
-    postClaimPayout(data: $data) {
-      id
-    }
-  }
-`;
-export type PostClaimPayoutMutationFn = Apollo.MutationFunction<
-  PostClaimPayoutMutation,
-  PostClaimPayoutMutationVariables
->;
-
-/**
- * __usePostClaimPayoutMutation__
- *
- * To run a mutation, you first call `usePostClaimPayoutMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostClaimPayoutMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postClaimPayoutMutation, { data, loading, error }] = usePostClaimPayoutMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostClaimPayoutMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostClaimPayoutMutation,
-    PostClaimPayoutMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    PostClaimPayoutMutation,
-    PostClaimPayoutMutationVariables
-  >(PostClaimPayoutDocument, options);
-}
-export type PostClaimPayoutMutationHookResult = ReturnType<
-  typeof usePostClaimPayoutMutation
->;
-export type PostClaimPayoutMutationResult =
-  Apollo.MutationResult<PostClaimPayoutMutation>;
-export type PostClaimPayoutMutationOptions = Apollo.BaseMutationOptions<
-  PostClaimPayoutMutation,
-  PostClaimPayoutMutationVariables
 >;

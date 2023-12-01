@@ -12,7 +12,7 @@ import {
   Text,
   Spinner,
 } from "@chakra-ui/react";
-import { useBalance, useBlockNumber, usePublicClient } from "wagmi";
+import { useBlockNumber } from "wagmi";
 import Link from "next/link";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 
@@ -27,29 +27,37 @@ import {
   NULL_ADDRESS,
   NULL_ADDRESSS_BYTES32,
 } from "../../../constants";
-import {
-  useGenerateKey,
-  useOpenEvent,
-} from "../../../hooks/contracts/useSharesContractV2";
+import { useOpenEvent } from "../../../hooks/contracts/useSharesContractV2";
 import { getHourAndMinutesFromMillis } from "../../../utils/time";
-import useCloseSharesEvent from "../../../hooks/server/useCloseSharesEvent";
+import { SharesEventState } from "../../../generated/graphql";
 
 const MAX_CHARS = 8;
 
-export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
+export const CreateBet = ({
+  pool,
+  generatedKey,
+  ethBalance,
+  eventEndTimestamp,
+  isVerifier,
+  handleClose,
+}: {
+  pool: bigint;
+  generatedKey: string;
+  ethBalance: bigint;
+  eventEndTimestamp: bigint;
+  isVerifier: boolean;
+  handleClose: () => void;
+}) => {
   const { userAddress, user } = useUser();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
   const { channelQueryData, refetch, ongoingBets } = channel;
-  const publicClient = usePublicClient();
   const toast = useToast();
   const isOpeningEvent = useRef(false);
   const { postSharesEvent, loading: postSharesEventLoading } =
     usePostSharesEvent({});
-  const { closeSharesEvent, loading: closeSharesEventLoading } =
-    useCloseSharesEvent({});
 
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState<string[]>(["yes", "no"]);
@@ -61,7 +69,6 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
   >("60");
   const [loading, setLoading] = useState<string | undefined>("prepping");
 
-  const [eventEndTimestamp, setEventEndTimestamp] = useState<bigint>(BigInt(0));
   const eventNeedsProcessing = useMemo(
     () => eventEndTimestamp === BigInt(0) && (ongoingBets?.length ?? 0) > 0,
     [eventEndTimestamp, ongoingBets?.length]
@@ -72,21 +79,18 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
     watch: true,
   });
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
-  const [isVerifier, setIsVerifier] = useState<boolean>(true);
-
-  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
-    address: userAddress as `0x${string}`,
-  });
 
   const sufficientEthForGas = useMemo(
-    () => userEthBalance && userEthBalance.value >= BigInt(1000000),
-    [userEthBalance?.value]
+    () => ethBalance >= BigInt(1000000),
+    [ethBalance]
   );
 
-  const { key: generatedKey } = useGenerateKey(
-    channelQueryData?.owner?.address as `0x${string}`,
-    Number(ongoingBets?.[0]?.id ?? "0"),
-    contractData
+  const currentBetIsActiveAndHasFunds = useMemo(
+    () =>
+      (ongoingBets?.length ?? 0) > 0 &&
+      pool > BigInt(0) &&
+      ongoingBets?.[0].eventState !== SharesEventState.Payout,
+    [pool, ongoingBets]
   );
 
   const { postBet } = usePostBet({
@@ -261,24 +265,7 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
 
   useEffect(() => {
     const init = async () => {
-      const [endTimestamp, isVerifier] = await Promise.all([
-        publicClient.readContract({
-          address: contractData.address as `0x${string}`,
-          abi: contractData.abi,
-          functionName: "eventEndTimestamp",
-          args: [generatedKey],
-        }),
-        publicClient.readContract({
-          address: contractData.address as `0x${string}`,
-          abi: contractData.abi,
-          functionName: "isVerifier",
-          args: [userAddress],
-        }),
-      ]);
-      refetchUserEthBalance();
-      setEventEndTimestamp(BigInt(String(endTimestamp)));
       setDateNow(Date.now());
-      setIsVerifier(Boolean(isVerifier));
       if (generatedKey !== NULL_ADDRESSS_BYTES32 || ongoingBets?.length === 0)
         setLoading(undefined);
     };
@@ -297,6 +284,11 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
           You do not have enough ETH to use this feature. Please send some ETH
           to your wallet over Base network. We recommend having at least 0.01
           ETH for most cases.
+        </Text>
+      ) : currentBetIsActiveAndHasFunds ? (
+        <Text textAlign={"center"} fontSize="13px" color="red.300">
+          The current bet already has ETH in the pool. Please select the winner
+          for it before creating a new one.
         </Text>
       ) : null}
       {!matchingChain && (
@@ -426,8 +418,9 @@ export const CreateBet = ({ handleClose }: { handleClose: () => void }) => {
             disabled={
               (!eventNeedsProcessing && question.length === 0) ||
               !isVerifier ||
-              // !matchingChain ||
-              !sufficientEthForGas
+              // !matchingChain || TODO: change back
+              !sufficientEthForGas ||
+              currentBetIsActiveAndHasFunds
             }
             onClick={async () => {
               setLoading(
