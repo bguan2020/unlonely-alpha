@@ -512,7 +512,6 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     if (doesEventExist && isSharesEventPayout) {
       calls = calls.concat([refetchBalances(), refetchClaimVotePayout()]);
     }
-    console.log("calls", calls);
     const fetch = async () => {
       isFetching.current = true;
       try {
@@ -713,160 +712,152 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           ) : (
             <>
               {!eventEndTimestampPassed &&
-                eventEndTimestamp > 0 &&
-                ongoingBets?.[0]?.eventState === "LIVE" && (
-                  <>
-                    <Flex justifyContent={"space-around"} gap="5px">
-                      <Flex gap="5px" w="100%">
-                        <Button
-                          bg={isYay ? "#46a800" : "transparent"}
-                          border={!isYay ? "1px solid #46a800" : undefined}
-                          _focus={{}}
-                          _hover={{}}
-                          _active={{}}
-                          onClick={() => setIsYay(true)}
-                          w="100%"
-                        >
-                          <Flex alignItems={"center"} gap="2px">
-                            <Text>
-                              {ongoingBets?.[0]?.answers?.[0] ?? "YES"}
-                            </Text>
-                          </Flex>
-                        </Button>
-                        <Button
-                          bg={!isYay ? "#fe2815" : "transparent"}
-                          border={isYay ? "1px solid #fe2815" : undefined}
-                          _focus={{}}
-                          _hover={{}}
-                          _active={{}}
-                          onClick={() => setIsYay(false)}
-                          w="100%"
-                        >
-                          <Flex alignItems={"center"} gap="2px">
-                            <Text>
-                              {ongoingBets?.[0]?.answers?.[1] ?? "NO"}
-                            </Text>
-                          </Flex>
-                        </Button>
-                      </Flex>
-                    </Flex>
-                    <Flex direction="column" borderRadius="15px" pt="0.5rem">
-                      <Flex justifyContent={"space-between"}>
-                        <Flex direction="column">
-                          <Text fontSize="14px" textAlign="center">
-                            #
-                          </Text>
-                          <Flex alignItems={"center"} gap="5px">
-                            <Input
-                              textAlign="center"
-                              width={"70px"}
-                              value={amountOfVotes}
-                              onChange={handleInputChange}
-                            />
-                            <Button
-                              _focus={{}}
-                              _hover={{}}
-                              _active={{}}
-                              p="2px !important"
-                              bg="transparent"
-                              borderRadius={"50%"}
-                              borderWidth="1px"
-                              borderColor="#5193bd"
-                              height="auto"
-                              minWidth="auto"
-                              onClick={() =>
-                                setAmountOfVotes((prev) =>
-                                  String(Number(prev) + 1)
-                                )
-                              }
-                            >
-                              <AddIcon color={"#51c0db"} />
-                            </Button>
-                          </Flex>
-                        </Flex>
-                        <Flex direction="column">
-                          <Text fontSize="14px" textAlign="center">
-                            ETH {isBuying ? "price" : "return"}
-                          </Text>
-                          <Text whiteSpace={"nowrap"} margin="auto">
-                            {truncateValue(formatUnits(votePrice, 18), 4)}
-                          </Text>
-                        </Flex>
-                        <Flex direction="column">
-                          <Text fontSize="14px" textAlign="center">
-                            own
-                          </Text>
-                          <Text whiteSpace={"nowrap"} margin="auto">
-                            {isYay ? yayVotesBalance : nayVotesBalance}
-                          </Text>
-                        </Flex>
-                      </Flex>
-                      <Text>
-                        Time to close:{" "}
-                        {getTimeFromMillis(
-                          Number(eventEndTimestamp) * 1000 - dateNow
-                        )}
-                      </Text>
-                      {errorMessage && (
-                        <Text textAlign={"center"} color="red.400">
-                          {errorMessage}
-                        </Text>
-                      )}
+              eventEndTimestamp > 0 &&
+              ongoingBets?.[0]?.eventState === "LIVE" ? (
+                <>
+                  <Flex justifyContent={"space-around"} gap="5px">
+                    <Flex gap="5px" w="100%">
                       <Button
-                        bg={
-                          isBuying && isYay
-                            ? "#46a800"
-                            : isBuying && !isYay
-                            ? "#fe2815"
-                            : !isBuying && !isYay
-                            ? "#46a800"
-                            : "#fe2815"
-                        }
+                        bg={isYay ? "#46a800" : "transparent"}
+                        border={!isYay ? "1px solid #46a800" : undefined}
                         _focus={{}}
                         _hover={{}}
                         _active={{}}
-                        onClick={() =>
-                          isBuying ? buyVotes?.() : sellVotes?.()
-                        }
-                        disabled={
-                          (isBuying && !buyVotes) ||
-                          (!isBuying && !sellVotes) ||
-                          isRefetchingBuyVotes ||
-                          isRefetchingSellVotes
-                        }
+                        onClick={() => setIsYay(true)}
+                        w="100%"
                       >
-                        {(isBuying && !buyVotes) ||
-                        (!isBuying && !sellVotes) ||
-                        isRefetchingBuyVotes ||
-                        isRefetchingSellVotes ? (
-                          <Spinner />
-                        ) : isBuying ? (
-                          "BUY"
-                        ) : (
-                          "SELL"
-                        )}
+                        <Flex alignItems={"center"} gap="2px">
+                          <Text>{ongoingBets?.[0]?.answers?.[0] ?? "YES"}</Text>
+                        </Flex>
+                      </Button>
+                      <Button
+                        bg={!isYay ? "#fe2815" : "transparent"}
+                        border={isYay ? "1px solid #fe2815" : undefined}
+                        _focus={{}}
+                        _hover={{}}
+                        _active={{}}
+                        onClick={() => setIsYay(false)}
+                        w="100%"
+                      >
+                        <Flex alignItems={"center"} gap="2px">
+                          <Text>{ongoingBets?.[0]?.answers?.[1] ?? "NO"}</Text>
+                        </Flex>
                       </Button>
                     </Flex>
-                  </>
-                )}
-              {eventEndTimestampPassed &&
-                eventEndTimestamp > 0 &&
-                ongoingBets?.[0]?.eventState === "LIVE" && (
-                  <>
-                    <Flex justifyContent={"space-evenly"} my="10px">
-                      <Text color="#35b657" fontWeight="bold" fontSize="25px">
-                        {truncateValue(String(yayVotesSupply), 0, true)} YES
-                      </Text>
-                      <Text color="#ff623b" fontWeight="bold" fontSize="25px">
-                        {truncateValue(String(nayVotesSupply), 0, true)} NO
-                      </Text>
+                  </Flex>
+                  <Flex direction="column" borderRadius="15px" pt="0.5rem">
+                    <Flex justifyContent={"space-between"}>
+                      <Flex direction="column">
+                        <Text fontSize="14px" textAlign="center">
+                          #
+                        </Text>
+                        <Flex alignItems={"center"} gap="5px">
+                          <Input
+                            textAlign="center"
+                            width={"70px"}
+                            value={amountOfVotes}
+                            onChange={handleInputChange}
+                          />
+                          <Button
+                            _focus={{}}
+                            _hover={{}}
+                            _active={{}}
+                            p="2px !important"
+                            bg="transparent"
+                            borderRadius={"50%"}
+                            borderWidth="1px"
+                            borderColor="#5193bd"
+                            height="auto"
+                            minWidth="auto"
+                            onClick={() =>
+                              setAmountOfVotes((prev) =>
+                                String(Number(prev) + 1)
+                              )
+                            }
+                          >
+                            <AddIcon color={"#51c0db"} />
+                          </Button>
+                        </Flex>
+                      </Flex>
+                      <Flex direction="column">
+                        <Text fontSize="14px" textAlign="center">
+                          ETH {isBuying ? "price" : "return"}
+                        </Text>
+                        <Text whiteSpace={"nowrap"} margin="auto">
+                          {truncateValue(formatUnits(votePrice, 18), 4)}
+                        </Text>
+                      </Flex>
+                      <Flex direction="column">
+                        <Text fontSize="14px" textAlign="center">
+                          own
+                        </Text>
+                        <Text whiteSpace={"nowrap"} margin="auto">
+                          {isYay ? yayVotesBalance : nayVotesBalance}
+                        </Text>
+                      </Flex>
                     </Flex>
-                    <Text textAlign={"center"} fontSize="14px">
-                      The time for voting has ended
+                    <Text>
+                      Time to close:{" "}
+                      {getTimeFromMillis(
+                        Number(eventEndTimestamp) * 1000 - dateNow
+                      )}
                     </Text>
-                  </>
-                )}
-              {ongoingBets?.[0]?.eventState === "LOCK" && (
+                    {errorMessage && (
+                      <Text textAlign={"center"} color="red.400">
+                        {errorMessage}
+                      </Text>
+                    )}
+                    <Button
+                      bg={
+                        isBuying && isYay
+                          ? "#46a800"
+                          : isBuying && !isYay
+                          ? "#fe2815"
+                          : !isBuying && !isYay
+                          ? "#46a800"
+                          : "#fe2815"
+                      }
+                      _focus={{}}
+                      _hover={{}}
+                      _active={{}}
+                      onClick={() => (isBuying ? buyVotes?.() : sellVotes?.())}
+                      disabled={
+                        (isBuying && !buyVotes) ||
+                        (!isBuying && !sellVotes) ||
+                        isRefetchingBuyVotes ||
+                        isRefetchingSellVotes
+                      }
+                    >
+                      {(isBuying && !buyVotes) ||
+                      (!isBuying && !sellVotes) ||
+                      isRefetchingBuyVotes ||
+                      isRefetchingSellVotes ? (
+                        <Spinner />
+                      ) : isBuying ? (
+                        "BUY"
+                      ) : (
+                        "SELL"
+                      )}
+                    </Button>
+                  </Flex>
+                </>
+              ) : eventEndTimestampPassed &&
+                eventEndTimestamp > 0 &&
+                ongoingBets?.[0]?.eventState === "LIVE" ? (
+                <>
+                  <Flex justifyContent={"space-evenly"} my="10px">
+                    <Text color="#35b657" fontWeight="bold" fontSize="25px">
+                      {truncateValue(String(yayVotesSupply), 0, true)} YES
+                    </Text>
+                    <Text color="#ff623b" fontWeight="bold" fontSize="25px">
+                      {truncateValue(String(nayVotesSupply), 0, true)} NO
+                    </Text>
+                  </Flex>
+                  <Text textAlign={"center"} fontSize="14px">
+                    The time for voting has ended
+                  </Text>
+                </>
+              ) : ongoingBets?.[0]?.eventState === "LOCK" ? (
                 <>
                   <Flex justifyContent={"space-evenly"} my="10px">
                     <Text color="#35b657" fontWeight="bold" fontSize="25px">
@@ -880,8 +871,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                     voting disabled
                   </Text>
                 </>
-              )}
-              {ongoingBets?.[0]?.eventState === "PAYOUT" && eventVerified && (
+              ) : ongoingBets?.[0]?.eventState === "PAYOUT" && eventVerified ? (
                 <>
                   <Flex justifyContent="space-between">
                     <Text fontSize="18px">event outcome</Text>
@@ -914,6 +904,10 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                     </Button>
                   )}
                 </>
+              ) : (
+                <Flex justifyContent="center">
+                  <Spinner />
+                </Flex>
               )}
             </>
           )}
