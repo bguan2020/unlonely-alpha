@@ -60,7 +60,7 @@ export const CreateBet = ({
     usePostSharesEvent({});
 
   const [question, setQuestion] = useState("");
-  const [answers, setAnswers] = useState<string[]>(["yes", "no"]);
+  const [answers, setAnswers] = useState<string[]>(["YES", "NO"]);
   const [createdEventId, setCreatedEventId] = useState<number | undefined>(
     undefined
   );
@@ -311,6 +311,7 @@ export const CreateBet = ({
             </Text>
           ) : (
             <>
+              <Text>enter the question for the event</Text>
               <Input
                 variant="glow"
                 placeholder={"Will I go on a second date?"}
@@ -340,7 +341,7 @@ export const CreateBet = ({
               </Flex>
             </>
           )}
-          <Text>event duration</Text>
+          <Text>set event duration</Text>
           <Menu>
             <MenuButton
               as={Button}
