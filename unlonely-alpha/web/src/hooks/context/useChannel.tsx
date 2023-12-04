@@ -84,6 +84,8 @@ const ChannelContext = createContext<{
     tournamentActive: boolean;
     handleTournamentActive: (value: boolean) => void;
     handleVipPool: (value: string) => void;
+    tradeLoading: boolean;
+    handleTradeLoading: (value: boolean) => void;
   };
 }>({
   channel: {
@@ -136,6 +138,8 @@ const ChannelContext = createContext<{
     tournamentActive: false,
     handleTournamentActive: () => undefined,
     handleVipPool: () => undefined,
+    tradeLoading: false,
+    handleTradeLoading: () => undefined,
   },
 });
 
@@ -227,6 +231,7 @@ export const ChannelProvider = ({
   const [totalBadges, setTotalBadges] = useState<string>("0");
   const [vipPool, setVipPool] = useState<string>("0");
   const [tournamentActive, setTournamentActive] = useState<boolean>(false);
+  const [tradeLoading, setTradeLoading] = useState<boolean>(false);
 
   const {
     handleCreateClip,
@@ -308,6 +313,10 @@ export const ChannelProvider = ({
     setTournamentActive(value);
   }, []);
 
+  const handleTradeLoading = useCallback((value: boolean) => {
+    setTradeLoading(value);
+  }, []);
+
   const value = useMemo(
     () => ({
       channel: {
@@ -361,6 +370,8 @@ export const ChannelProvider = ({
         tournamentActive,
         handleTournamentActive,
         handleVipPool,
+        tradeLoading,
+        handleTradeLoading,
       },
     }),
     [
@@ -409,6 +420,8 @@ export const ChannelProvider = ({
       tournamentActive,
       handleTournamentActive,
       handleVipPool,
+      tradeLoading,
+      handleTradeLoading,
     ]
   );
 

@@ -43,9 +43,10 @@ import useDebounce from "../../../hooks/internal/useDebounce";
 
 const Trade = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress, walletIsConnected, user } = useUser();
-  const { channel, chat: chatContext } = useChannelContext();
+  const { channel, chat: chatContext, ui } = useChannelContext();
   const { channelQueryData, ongoingBets } = channel;
   const { addToChatbot } = chatContext;
+  const { tradeLoading } = ui;
 
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
@@ -573,6 +574,11 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
 
   return (
     <Flex direction="column" height="100%">
+      {tradeLoading && (
+        <Text>
+          updating... <Spinner size="xs" />
+        </Text>
+      )}
       {isOwner && walletIsConnected && (
         <Flex
           justifyContent={"space-between"}
@@ -589,6 +595,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                 bg={viewState === "create" ? "#1b9d9d" : "#E09025"}
                 p="5px !important"
                 w="100%"
+                disabled={tradeLoading}
                 onClick={() =>
                   setViewState((prev) =>
                     prev === "create" ? "normal" : "create"
@@ -617,6 +624,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   p="5px !important"
                   w="100%"
                   bg={viewState === "choose winner" ? "#1b9d9d" : "#E09025"}
+                  disabled={tradeLoading}
                   onClick={() =>
                     setViewState((prev) =>
                       prev === "choose winner" ? "normal" : "choose winner"
@@ -635,6 +643,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   p="5px !important"
                   w="100%"
                   isLoading={updateSharesEventLoading}
+                  disabled={tradeLoading}
                   onClick={async () =>
                     await _updateSharesEvent(SharesEventState.Lock)
                   }
@@ -657,6 +666,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                     bg={viewState === "choose winner" ? "#1b9d9d" : "#E09025"}
                     p="5px !important"
                     w="100%"
+                    disabled={tradeLoading}
                     onClick={() =>
                       setViewState((prev) =>
                         prev === "choose winner" ? "normal" : "choose winner"
@@ -677,6 +687,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                     p="5px !important"
                     w="100%"
                     isLoading={updateSharesEventLoading}
+                    disabled={tradeLoading}
                     onClick={async () =>
                       await _updateSharesEvent(SharesEventState.Live)
                     }
@@ -825,12 +836,14 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                         (isBuying && !buyVotes) ||
                         (!isBuying && !sellVotes) ||
                         isRefetchingBuyVotes ||
-                        isRefetchingSellVotes
+                        isRefetchingSellVotes ||
+                        tradeLoading
                       }
                     >
                       {(isBuying && !buyVotes) ||
                       (!isBuying && !sellVotes) ||
                       isRefetchingBuyVotes ||
+                      tradeLoading ||
                       isRefetchingSellVotes ? (
                         <Spinner />
                       ) : isBuying ? (
@@ -896,7 +909,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                       _active={{}}
                       bg={"#E09025"}
                       borderRadius="25px"
-                      isDisabled={!claimVotePayout}
+                      isDisabled={!claimVotePayout || tradeLoading}
                       onClick={claimVotePayout}
                       width="100%"
                     >

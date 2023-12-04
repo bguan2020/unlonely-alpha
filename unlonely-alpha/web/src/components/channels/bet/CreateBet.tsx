@@ -60,7 +60,7 @@ export const CreateBet = ({
     usePostSharesEvent({});
 
   const [question, setQuestion] = useState("");
-  const [answers, setAnswers] = useState<string[]>(["YES", "NO"]);
+  const [answers, setAnswers] = useState<string[]>(["", ""]);
   const [createdEventId, setCreatedEventId] = useState<number | undefined>(
     undefined
   );
@@ -115,7 +115,10 @@ export const CreateBet = ({
         id: channelQueryData?.id ?? "",
         sharesSubjectQuestion: sharesSubjectQuestion,
         sharesSubjectAddress: userAddress,
-        answers: [answers[0], answers[1]],
+        answers: [
+          answers[0] === "" ? "YES" : answers[0],
+          answers[1] === "" ? "NO" : answers[1],
+        ],
         chainId: localNetwork.config.chainId,
       });
       await refetch();

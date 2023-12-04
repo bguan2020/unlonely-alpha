@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import { InteractionType } from "../../constants";
 import { ChatReturnType } from "../../hooks/chat/useChat";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { useNetworkContext } from "../../hooks/context/useNetwork";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
-import { getSortedLeaderboard } from "../../utils/getSortedLeaderboard";
 import Trade from "../channels/bet/Trade";
 import Chat from "./Chat";
 
@@ -21,37 +19,39 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
     channel: channelContext,
     leaderboard: leaderboardContext,
     chat: chatContext,
+    ui: uiContext,
   } = useChannelContext();
   const { channelQueryData, refetch } = channelContext;
   const { presenceChannel } = chatContext;
+  const { handleTradeLoading } = uiContext;
 
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
+  // const { network } = useNetworkContext();
+  // const { localNetwork } = network;
 
-  const {
-    data: leaderboardData,
-    loading: leaderboardLoading,
-    error: leaderboardError,
-    refetchGamblableEventLeaderboard,
-  } = leaderboardContext;
+  // const {
+  //   data: leaderboardData,
+  //   loading: leaderboardLoading,
+  //   error: leaderboardError,
+  //   refetchGamblableEventLeaderboard,
+  // } = leaderboardContext;
 
-  const [leaderboard, setLeaderboard] = useState<
-    { name: string; totalFees: number }[]
-  >([]);
-  const [leaderboardIsCollapsed, setLeaderboardIsCollapsed] = useState(true);
-  useEffect(() => {
-    refetchGamblableEventLeaderboard?.();
-  }, [localNetwork]);
+  // const [leaderboard, setLeaderboard] = useState<
+  //   { name: string; totalFees: number }[]
+  // >([]);
+  // const [leaderboardIsCollapsed, setLeaderboardIsCollapsed] = useState(true);
+  // useEffect(() => {
+  //   refetchGamblableEventLeaderboard?.();
+  // }, [localNetwork]);
 
-  useEffect(() => {
-    if (!leaderboardLoading && !leaderboardError && leaderboardData) {
-      const _leaderboard: { name: string; totalFees: number }[] =
-        getSortedLeaderboard(
-          leaderboardData.getGamblableEventLeaderboardByChannelId
-        );
-      setLeaderboard(_leaderboard);
-    }
-  }, [leaderboardLoading, leaderboardError, leaderboardData]);
+  // useEffect(() => {
+  //   if (!leaderboardLoading && !leaderboardError && leaderboardData) {
+  //     const _leaderboard: { name: string; totalFees: number }[] =
+  //       getSortedLeaderboard(
+  //         leaderboardData.getGamblableEventLeaderboardByChannelId
+  //       );
+  //     setLeaderboard(_leaderboard);
+  //   }
+  // }, [leaderboardLoading, leaderboardError, leaderboardData]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -70,7 +70,9 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
               InteractionType.EVENT_END) &&
           Date.now() - latestMessage.timestamp < 12000
         ) {
+          handleTradeLoading(true);
           await refetch();
+          handleTradeLoading(false);
         }
       }
     };
