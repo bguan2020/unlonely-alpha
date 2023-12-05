@@ -884,7 +884,7 @@ const Chat = ({
     if (!chat.allMessages || chat.allMessages.length === 0) return;
     const latestMessage = chat.allMessages[chat.allMessages.length - 1];
     if (
-      Date.now() - latestMessage.timestamp < 2000 &&
+      Date.now() - latestMessage.timestamp < 12000 &&
       latestMessage.name === ADD_REACTION_EVENT &&
       latestMessage.data.body
     )
