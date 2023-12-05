@@ -97,13 +97,44 @@ const MessageBody = ({
   }, [messageText, linkArray]);
 
   const messageBg = () => {
+    const eventTypes = [
+      InteractionType.EVENT_LIVE,
+      InteractionType.EVENT_END,
+      InteractionType.EVENT_LOCK,
+      InteractionType.EVENT_PAYOUT,
+    ];
+
     if (
       message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.CUSTOM
+      (eventTypes as string[]).includes(message.data.body.split(":")[0])
     ) {
       return {
         bgGradient: "linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)",
       };
+    } else if (
+      message.data.body &&
+      message.data.body.split(":")[0] === InteractionType.BUY_VOTES
+    ) {
+      if (message.data.body?.split(":")[3] === "yay") {
+        return {
+          bgGradient:
+            "linear-gradient(90deg, rgba(5,153,49,1) 0%, rgba(48,215,149,1) 100%)",
+        };
+      } else {
+        return {
+          bgGradient:
+            "linear-gradient(90deg, rgba(181,55,13,1) 0%, rgba(212,131,0,1) 100%)",
+        };
+      }
+    } else if (
+      message.data.body?.split(":")[0] === InteractionType.SELL_VOTES
+    ) {
+      return {};
+      // } else if (message.data.senderStatus === SenderStatus.VIP) {
+      //   return {
+      //     bgGradient:
+      //       "linear-gradient(90deg, rgba(144,99,0,1) 0%, rgba(212,170,0,1) 100%)",
+      //   };
     } else {
       return {
         // bg: "rgba(19, 18, 37, 1)",
@@ -151,9 +182,10 @@ const MessageBody = ({
           <Flex direction={"column"} width="100%">
             <Box
               key={index}
-              borderRadius="10px"
+              // borderRadius="10px"
               {...messageBg()}
-              p="5px"
+              py="5px"
+              px="0.5rem"
               position="relative"
             >
               <ChatUserModal

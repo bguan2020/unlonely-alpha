@@ -150,7 +150,7 @@ const Chat = ({
         height="100%"
         id={isVipChat ? "vip-chat" : "chat"}
         position="relative"
-        mt="40px"
+        // mt="40px"
       >
         {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
           <Flex
@@ -190,7 +190,7 @@ const Chat = ({
         )}
       </Flex>
       {(userIsChannelOwner || userIsModerator || isVip || !isVipChat) && (
-        <Flex w="100%">
+        <Flex w="100%" px="0.5rem" pb="0.5rem">
           <ChatForm
             sendChatMessage={sendChatMessage}
             additionalChatCommands={channelChatCommands}
