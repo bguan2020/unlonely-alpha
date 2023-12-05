@@ -1180,6 +1180,52 @@
         "Ownable",
         "UnlonelyTournament"
       ]
+    },
+    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelySideBetsV1.sol": {
+      "lastModificationDate": 1701818267619,
+      "contentHash": "2363e4925c0f000e15971e28ae31629a",
+      "sourceName": "contracts/UnlonelySideBetsV1.sol",
+      "solcConfig": {
+        "version": "0.8.8",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/security/ReentrancyGuard.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.8"
+      ],
+      "artifacts": [
+        "Context",
+        "Ownable",
+        "UnlonelySideBetsV1"
+      ]
     }
   }
 }

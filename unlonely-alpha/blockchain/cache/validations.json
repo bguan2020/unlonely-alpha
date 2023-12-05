@@ -36,6 +36,472 @@
         }
       },
       "Context": {
+        "src": "contracts\\UnlonelySideBetsV1.sol:6",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "Ownable": {
+        "src": "contracts\\UnlonelySideBetsV1.sol:16",
+        "inherit": [
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "owner()",
+          "renounceOwnership()",
+          "transferOwnership(address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "Ownable",
+            "src": "contracts\\UnlonelySideBetsV1.sol:24"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelySideBetsV1.sol:17"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "UnlonelySideBetsV1": {
+        "src": "contracts\\UnlonelySideBetsV1.sol:81",
+        "version": {
+          "withMetadata": "f51813d87ee70a639085850165bafee0830cc1417c0fc383dccb04a1faafae9e",
+          "withoutMetadata": "ce4e5aca65c4e9dad76b0a0666fa3481da4b51bd4b5ce095d875293553fedb60",
+          "linkedWithoutMetadata": "ce4e5aca65c4e9dad76b0a0666fa3481da4b51bd4b5ce095d875293553fedb60"
+        },
+        "inherit": [
+          "ReentrancyGuard",
+          "Ownable",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "()",
+          "setFeeDestination(address)",
+          "setProtocolFeePercent(uint256)",
+          "setSubjectFeePercent(uint256)",
+          "setVerifier(address,bool)",
+          "generateKey(address,uint256,uint8)",
+          "openSideBet(address,uint256,uint8,uint256,uint256)",
+          "acceptSideBet(address,uint256,uint8)",
+          "pickWinner(address,uint256,uint8,address)",
+          "closeSideBet(address,uint256,uint8)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "UnlonelySideBetsV1",
+            "src": "contracts\\UnlonelySideBetsV1.sol:130"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelySideBetsV1.sol:17"
+            },
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            },
+            {
+              "label": "protocolFeeDestination",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_address",
+              "contract": "UnlonelySideBetsV1",
+              "src": "contracts\\UnlonelySideBetsV1.sol:82"
+            },
+            {
+              "label": "protocolFeePercent",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_uint256",
+              "contract": "UnlonelySideBetsV1",
+              "src": "contracts\\UnlonelySideBetsV1.sol:83"
+            },
+            {
+              "label": "subjectFeePercent",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_uint256",
+              "contract": "UnlonelySideBetsV1",
+              "src": "contracts\\UnlonelySideBetsV1.sol:84"
+            },
+            {
+              "label": "sideBetStructs",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_bytes32,t_struct(SideBet)207_storage)",
+              "contract": "UnlonelySideBetsV1",
+              "src": "contracts\\UnlonelySideBetsV1.sol:106"
+            },
+            {
+              "label": "isVerifier",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelySideBetsV1",
+              "src": "contracts\\UnlonelySideBetsV1.sol:109"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_bytes32": {
+              "label": "bytes32"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_bytes32,t_struct(SideBet)207_storage)": {
+              "label": "mapping(bytes32 => struct UnlonelySideBetsV1.SideBet)"
+            },
+            "t_struct(SideBet)207_storage": {
+              "label": "struct UnlonelySideBetsV1.SideBet",
+              "members": [
+                {
+                  "label": "initiator",
+                  "type": "t_address"
+                },
+                {
+                  "label": "opponent",
+                  "type": "t_address"
+                },
+                {
+                  "label": "wagerAmount",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "expirationTime",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "isWinnerPicked",
+                  "type": "t_bool"
+                },
+                {
+                  "label": "winner",
+                  "type": "t_address"
+                }
+              ]
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      }
+    },
+    {
+      "ReentrancyGuard": {
+        "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:22",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "ReentrancyGuard",
+            "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:39"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            }
+          ],
+          "types": {
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "Context": {
+        "src": "contracts\\UnlonelySideBetV1.sol:6",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1",
+          "flat": false
+        }
+      },
+      "Ownable": {
+        "src": "contracts\\UnlonelySideBetV1.sol:16",
+        "inherit": [
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "owner()",
+          "renounceOwnership()",
+          "transferOwnership(address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "Ownable",
+            "src": "contracts\\UnlonelySideBetV1.sol:24"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelySideBetV1.sol:17"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "UnlonelySideBetsV1": {
+        "src": "contracts\\UnlonelySideBetV1.sol:81",
+        "version": {
+          "withMetadata": "27dbb4cf6c59f8a6af45e7a2e32dedefb9a7c1598d6ce38cabf44dd380fb8f5a",
+          "withoutMetadata": "ce4e5aca65c4e9dad76b0a0666fa3481da4b51bd4b5ce095d875293553fedb60",
+          "linkedWithoutMetadata": "ce4e5aca65c4e9dad76b0a0666fa3481da4b51bd4b5ce095d875293553fedb60"
+        },
+        "inherit": [
+          "ReentrancyGuard",
+          "Ownable",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "()",
+          "setFeeDestination(address)",
+          "setProtocolFeePercent(uint256)",
+          "setSubjectFeePercent(uint256)",
+          "setVerifier(address,bool)",
+          "generateKey(address,uint256,uint8)",
+          "openSideBet(address,uint256,uint8,uint256,uint256)",
+          "acceptSideBet(address,uint256,uint8)",
+          "pickWinner(address,uint256,uint8,address)",
+          "closeSideBet(address,uint256,uint8)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "UnlonelySideBetsV1",
+            "src": "contracts\\UnlonelySideBetV1.sol:130"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "Ownable",
+              "src": "contracts\\UnlonelySideBetV1.sol:17"
+            },
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            },
+            {
+              "label": "protocolFeeDestination",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_address",
+              "contract": "UnlonelySideBetsV1",
+              "src": "contracts\\UnlonelySideBetV1.sol:82"
+            },
+            {
+              "label": "protocolFeePercent",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_uint256",
+              "contract": "UnlonelySideBetsV1",
+              "src": "contracts\\UnlonelySideBetV1.sol:83"
+            },
+            {
+              "label": "subjectFeePercent",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_uint256",
+              "contract": "UnlonelySideBetsV1",
+              "src": "contracts\\UnlonelySideBetV1.sol:84"
+            },
+            {
+              "label": "sideBetStructs",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_bytes32,t_struct(SideBet)207_storage)",
+              "contract": "UnlonelySideBetsV1",
+              "src": "contracts\\UnlonelySideBetV1.sol:106"
+            },
+            {
+              "label": "isVerifier",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_address,t_bool)",
+              "contract": "UnlonelySideBetsV1",
+              "src": "contracts\\UnlonelySideBetV1.sol:109"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
+            },
+            "t_bytes32": {
+              "label": "bytes32"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_mapping(t_bytes32,t_struct(SideBet)207_storage)": {
+              "label": "mapping(bytes32 => struct UnlonelySideBetsV1.SideBet)"
+            },
+            "t_struct(SideBet)207_storage": {
+              "label": "struct UnlonelySideBetsV1.SideBet",
+              "members": [
+                {
+                  "label": "initiator",
+                  "type": "t_address"
+                },
+                {
+                  "label": "opponent",
+                  "type": "t_address"
+                },
+                {
+                  "label": "wagerAmount",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "expirationTime",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "isWinnerPicked",
+                  "type": "t_bool"
+                },
+                {
+                  "label": "winner",
+                  "type": "t_address"
+                }
+              ]
+            },
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      }
+    },
+    {
+      "ReentrancyGuard": {
+        "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:22",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "ReentrancyGuard",
+            "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:39"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "_status",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "ReentrancyGuard",
+              "src": "@openzeppelin\\contracts\\security\\ReentrancyGuard.sol:37"
+            }
+          ],
+          "types": {
+            "t_uint256": {
+              "label": "uint256"
+            }
+          },
+          "layoutVersion": "1.1",
+          "flat": true
+        }
+      },
+      "Context": {
         "src": "contracts\\UnlonelySharesV2.sol:6",
         "inherit": [],
         "libraries": [],

@@ -4,6 +4,7 @@ import { Network } from "../types";
 import UnlonelySharesV1 from "../abi/UnlonelySharesV1.json";
 import UnlonelySharesV2 from "../abi/UnlonelySharesV2.json";
 import UnlonelyTournament from "../abi/UnlonelyTournament.json";
+import UnlonelySideBetsV1 from "../abi/UnlonelySideBetsV1.json";
 
 export const BaseGoerli: Network = {
   ...baseGoerli,
@@ -23,6 +24,10 @@ export const BaseGoerli: Network = {
       unlonelyTournament: {
         address: "0x3199c0270662d59D37cd57fBa51AD26Af124f8F5",
         abi: UnlonelyTournament,
+      },
+      unlonelySideBetsV1: {
+        address: "0x6f36Eb517060b7558B48035e66cf5a843C456436",
+        abi: UnlonelySideBetsV1,
       },
     },
   },
