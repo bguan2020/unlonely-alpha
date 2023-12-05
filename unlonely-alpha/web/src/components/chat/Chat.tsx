@@ -14,6 +14,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import ChatForm from "./ChatForm";
 import MessageList from "./MessageList";
 import { useUser } from "../../hooks/context/useUser";
+import { VipBadgeBuy } from "../channels/VipBadgeBuy";
 
 const Chat = ({
   chat,
@@ -122,6 +123,7 @@ const Chat = ({
           position: "absolute",
           pointerEvents: "none",
           height: "100%",
+          zIndex: 2,
         }}
         ref={containerRef}
       >
@@ -140,9 +142,12 @@ const Chat = ({
         ))}
       </div>
       {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
-        <Text textAlign={"center"}>
-          You must have at least one VIP badge to use this chat.
-        </Text>
+        <Flex direction="column">
+          <Text textAlign={"center"}>
+            You must have a VIP badge to use this chat.
+          </Text>
+          <VipBadgeBuy />
+        </Flex>
       )}
       <Flex
         direction="column"
