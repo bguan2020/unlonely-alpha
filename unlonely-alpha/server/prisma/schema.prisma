@@ -161,6 +161,7 @@ model Channel {
 
   gamblableInteractions GamblableInteraction[]
   gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
+  sideBets SideBet[]
 }
 
 model ChannelUserRole {
@@ -254,6 +255,20 @@ model SharesEvent {
   channelId Int
 
   gamblableInteractions GamblableInteraction[]
+}
+
+model SideBet {
+  id        Int      @id @default(autoincrement())
+  question String
+  creatorAddress String
+  opponentAddress String
+  chainId Int
+
+  createdAt DateTime @default(now())
+  softDelete Boolean @default(false)
+
+  channel Channel @relation(fields: [channelId], references: [id])
+  channelId Int
 }
 
 model GamblableEventLeaderboard {

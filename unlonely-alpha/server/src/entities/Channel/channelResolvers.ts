@@ -103,5 +103,8 @@ export const resolvers = {
     roles: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelUserRolesByChannel({ id }, ctx);
     },
+    sideBets: ({ id }: { id: number }, _: any, ctx: Context) => {
+      return channelService.getChannelSideBets({ id }, ctx);
+    },
   },
 };

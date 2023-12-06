@@ -442,3 +442,12 @@ export const getChannelUserRolesByChannel = async (
     },
   });
 };
+
+export const getChannelSideBets = async (
+  { id }: { id: number },
+  ctx: Context
+) => {
+  return ctx.prisma.sideBet.findMany({
+    where: { channelId: Number(id), softDelete: false },
+  });
+};

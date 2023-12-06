@@ -13,6 +13,16 @@ export const typeDef = gql`
     response: String!
   }
 
+  type SideBet {
+    id: ID!
+    question: String
+    creatorAddress: String
+    opponentAddress: String
+    chainId: Int
+    softDelete: Boolean
+    createdAt: DateTime!
+  }
+
   type SharesEvent {
     id: ID!
     sharesSubjectQuestion: String
@@ -54,6 +64,7 @@ export const typeDef = gql`
     chatCommands: [ChatCommand]
     sharesEvent: [SharesEvent]
     roles: [ChannelUserRole]
+    sideBets: [SideBet]
   }
 
   type UpdateManyResponse {
