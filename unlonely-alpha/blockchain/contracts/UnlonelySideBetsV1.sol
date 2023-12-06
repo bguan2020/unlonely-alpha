@@ -156,6 +156,25 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         return keccak256(abi.encodePacked(eventAddress, eventId, eventType));
     }
 
+    function getOpeningWager(uint256 wagerAmount) public view returns (uint256) {
+        uint256 protocolFee = wagerAmount * protocolFeePercent / 1 ether;
+        uint256 subjectFee = wagerAmount * subjectFeePercent / 1 ether;
+        return wagerAmount + protocolFee + subjectFee;
+    }
+
+    function getExistingWager(address eventAddress, uint256 eventId, EventType eventType) public view returns (uint256) {
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
+        uint256 wagerAmount = sideBetStructs[eventBytes].wagerAmount;
+        uint256 protocolFee = wagerAmount * protocolFeePercent / 1 ether;
+        uint256 subjectFee = wagerAmount * subjectFeePercent / 1 ether;
+        return wagerAmount + protocolFee + subjectFee;
+    }
+
+    function isSideBetAvailable(address eventAddress, uint256 eventId, EventType eventType) public view returns (bool) {
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
+        return sideBetStructs[eventBytes].expirationTime > block.timestamp || sideBetStructs[eventBytes].opponent == address(0);
+    }
+
     function openSideBet(
         address eventAddress, 
         uint256 eventId, 
@@ -170,7 +189,9 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         uint256 subjectFee = wagerAmount * subjectFeePercent / 1 ether;
         require(msg.value >= wagerAmount + protocolFee + subjectFee, "Insufficient payment");
 
-        // TO DO: refund user their excess ETH
+        if(msg.value > (wagerAmount + protocolFee + subjectFee)) {
+            msg.sender.call{value: msg.value - (wagerAmount + protocolFee + subjectFee)}("");
+        }
 
         sideBetStructs[eventBytes] = SideBet({
             initiator: msg.sender,
@@ -205,6 +226,10 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         uint256 protocolFee = wagerAmount * protocolFeePercent / 1 ether;
         uint256 subjectFee = wagerAmount * subjectFeePercent / 1 ether;
         require(msg.value >= wagerAmount + protocolFee + subjectFee, "Insufficient payment");
+
+        if(msg.value > (wagerAmount + protocolFee + subjectFee)) {
+            msg.sender.call{value: msg.value - (wagerAmount + protocolFee + subjectFee)}("");
+        }
 
         // Update the sidebet with the opponent details
         sideBetStructs[eventBytes].opponent = msg.sender;
