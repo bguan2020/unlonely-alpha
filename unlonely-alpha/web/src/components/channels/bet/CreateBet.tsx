@@ -30,6 +30,7 @@ import {
 import { useOpenEvent } from "../../../hooks/contracts/useSharesContractV2";
 import { getHourAndMinutesFromMillis } from "../../../utils/time";
 import { SharesEventState } from "../../../generated/graphql";
+import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
 
 const MAX_CHARS = 8;
 
@@ -61,17 +62,16 @@ export const CreateBet = ({
 
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState<string[]>(["", ""]);
-  const [createdEventId, setCreatedEventId] = useState<number | undefined>(
-    undefined
-  );
+  const [contractCallInProgress, setContractCallInProgress] = useState(false);
   const [selectedEndTime, setSelectedEndTime] = useState<
     "10" | "30" | "60" | "120"
   >("60");
   const [loading, setLoading] = useState<string | undefined>("prepping");
 
-  const eventNeedsProcessing = useMemo(
-    () => eventEndTimestamp === BigInt(0) && (ongoingBets?.length ?? 0) > 0,
-    [eventEndTimestamp, ongoingBets?.length]
+  const pendingBet = useMemo(
+    () =>
+      ongoingBets?.find((bet) => bet.eventState === SharesEventState.Pending),
+    [ongoingBets?.length]
   );
 
   const [dateNow, setDateNow] = useState<number>(Date.now());
@@ -93,14 +93,17 @@ export const CreateBet = ({
     [pool, ongoingBets]
   );
 
+  const { updateSharesEvent, loading: updateSharesEventLoading } =
+    useUpdateSharesEvent({});
+
   const { postBet } = usePostBet({
     onError: (err) => {
       console.log(err);
     },
   });
 
-  const handleCreatedEventId = useCallback((eventId: number) => {
-    setCreatedEventId(eventId);
+  const handleContractCallInProgress = useCallback((value: boolean) => {
+    setContractCallInProgress(value);
   }, []);
 
   const handleAnswerChange = (index: number, value: string) => {
@@ -109,9 +112,21 @@ export const CreateBet = ({
     setAnswers(newAnswers);
   };
 
+  const _updateSharesEvent = useCallback(
+    async (eventState: SharesEventState) => {
+      await updateSharesEvent({
+        id: pendingBet?.id ?? "",
+        sharesSubjectQuestion: pendingBet?.sharesSubjectQuestion ?? "",
+        sharesSubjectAddress: pendingBet?.sharesSubjectAddress ?? "",
+        eventState,
+      });
+    },
+    [pendingBet, user, userAddress]
+  );
+
   const _postSharesEvent = useCallback(
     async (sharesSubjectQuestion: string) => {
-      const data = await postSharesEvent({
+      await postSharesEvent({
         id: channelQueryData?.id ?? "",
         sharesSubjectQuestion: sharesSubjectQuestion,
         sharesSubjectAddress: userAddress,
@@ -122,8 +137,7 @@ export const CreateBet = ({
         chainId: localNetwork.config.chainId,
       });
       await refetch();
-      const eventId = Number(data?.res?.id ?? "0");
-      handleCreatedEventId(eventId);
+      handleContractCallInProgress(true);
       setLoading(undefined);
     },
     [
@@ -139,7 +153,7 @@ export const CreateBet = ({
   const { openEvent, openEventTxLoading } = useOpenEvent(
     {
       eventAddress: userAddress ?? NULL_ADDRESS,
-      eventId: (createdEventId ?? 0) as number,
+      eventId: (pendingBet?.id ?? 0) as number,
       endTimestamp: BigInt(
         String(
           Math.floor((dateNow + Number(selectedEndTime) * 60 * 1000) / 1000)
@@ -177,6 +191,7 @@ export const CreateBet = ({
             </Box>
           ),
         });
+        setContractCallInProgress(false);
         isOpeningEvent.current = false;
       },
       onTxSuccess: async (data) => {
@@ -199,10 +214,11 @@ export const CreateBet = ({
         await postBet({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
-          sharesEventId: (createdEventId ?? 0) as number,
+          sharesEventId: (pendingBet?.id ?? 0) as number,
         });
+        await _updateSharesEvent(SharesEventState.Live);
         setQuestion("");
-        setCreatedEventId(undefined);
+        setContractCallInProgress(false);
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -225,6 +241,7 @@ export const CreateBet = ({
           position: "top-right",
         });
         isOpeningEvent.current = false;
+        setContractCallInProgress(false);
         setLoading(undefined);
       },
     }
@@ -263,8 +280,14 @@ export const CreateBet = ({
       setLoading("opening bet (2/2)");
       await openEvent?.();
     };
-    if (createdEventId && openEvent && !isOpeningEvent.current) c();
-  }, [createdEventId, openEvent]);
+    if (
+      pendingBet &&
+      contractCallInProgress &&
+      openEvent &&
+      !isOpeningEvent.current
+    )
+      c();
+  }, [pendingBet, contractCallInProgress, openEvent]);
 
   useEffect(() => {
     const init = async () => {
@@ -308,7 +331,7 @@ export const CreateBet = ({
         </Flex>
       ) : (
         <>
-          {eventNeedsProcessing ? (
+          {pendingBet ? (
             <Text textAlign={"center"} fontSize="13px">
               Please continue the process to initiate your event
             </Text>
@@ -420,7 +443,7 @@ export const CreateBet = ({
             _active={{}}
             width="100%"
             disabled={
-              (!eventNeedsProcessing && question.length === 0) ||
+              (!pendingBet && question.length === 0) ||
               !isVerifier ||
               // !matchingChain || TODO: change back
               !sufficientEthForGas ||
@@ -428,11 +451,9 @@ export const CreateBet = ({
             }
             onClick={async () => {
               setLoading(
-                eventNeedsProcessing
-                  ? "opening bet (2/2)"
-                  : "creating bet (1/2)"
+                pendingBet ? "opening bet (2/2)" : "creating bet (1/2)"
               );
-              eventNeedsProcessing
+              pendingBet
                 ? await openEvent?.()
                 : await _postSharesEvent(question);
             }}

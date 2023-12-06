@@ -213,7 +213,11 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
         const args: any = topics.args;
         const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
           args.trade.isBuy ? "bought" : "sold"
-        } ${args.trade.shareAmount} ${args.trade.isYay ? "yes" : "no"} votes!`;
+        } ${args.trade.shareAmount} ${
+          args.trade.isYay
+            ? ongoingBets?.[0]?.answers?.[0] ?? "yes"
+            : ongoingBets?.[0]?.answers?.[1] ?? "no"
+        } vote${Number(args.trade.shareAmount) > 1 ? "s" : ""}!`;
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -603,9 +607,13 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                 }
               >
                 <Text fontSize={"20px"} fontFamily="LoRes15">
-                  {!isSharesEventPayout &&
-                  doesEventExist &&
-                  votingPooledEth === BigInt(0)
+                  {doesEventExist &&
+                  isSharesEventLive &&
+                  eventEndTimestamp === BigInt(0)
+                    ? "continue creating bet"
+                    : !isSharesEventPayout &&
+                      doesEventExist &&
+                      votingPooledEth === BigInt(0)
                     ? "replace bet"
                     : "create bet"}
                 </Text>
@@ -723,7 +731,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           ) : (
             <>
               {!eventEndTimestampPassed &&
-              eventEndTimestamp > 0 &&
+              eventEndTimestamp > BigInt(0) &&
               ongoingBets?.[0]?.eventState === "LIVE" ? (
                 <>
                   <Flex justifyContent={"space-around"} gap="5px">
@@ -855,7 +863,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   </Flex>
                 </>
               ) : eventEndTimestampPassed &&
-                eventEndTimestamp > 0 &&
+                eventEndTimestamp > BigInt(0) &&
                 ongoingBets?.[0]?.eventState === "LIVE" ? (
                 <>
                   <Flex justifyContent={"space-evenly"} my="10px">
@@ -917,6 +925,11 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                     </Button>
                   )}
                 </>
+              ) : eventEndTimestamp === BigInt(0) &&
+                ongoingBets?.[0]?.eventState === "PENDING" ? (
+                <Text textAlign={"center"}>
+                  The streamer is currently creating a new bet, please wait
+                </Text>
               ) : (
                 <Flex justifyContent="center">
                   <Spinner />

@@ -855,6 +855,7 @@ export enum SharesEventState {
   Live = "LIVE",
   Lock = "LOCK",
   Payout = "PAYOUT",
+  Pending = "PENDING",
 }
 
 export type SoftDeleteSubscriptionInput = {

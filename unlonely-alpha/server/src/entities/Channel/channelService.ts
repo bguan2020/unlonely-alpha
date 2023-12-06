@@ -22,6 +22,7 @@ type Source = {
 };
 
 enum SharesEventState {
+  PENDING = "PENDING",
   LIVE = "LIVE",
   LOCK = "LOCK",
   PAYOUT = "PAYOUT",
@@ -82,7 +83,7 @@ export const postSharesEvent = async (
     data: {
       sharesSubjectQuestion: data.sharesSubjectQuestion,
       sharesSubjectAddress: data.sharesSubjectAddress,
-      eventState: SharesEventState.LIVE,
+      eventState: SharesEventState.PENDING,
       chainId: Number(data.chainId),
       answers: data.answers,
       softDelete: false,

@@ -109,7 +109,7 @@ const MessageBody = ({
       (eventTypes as string[]).includes(message.data.body.split(":")[0])
     ) {
       return {
-        bgGradient: "linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)",
+        bgGradient: "linear-gradient(0deg, #d16fce, #7655D2, #4173D6, #4ABBDF)",
       };
     } else if (
       message.data.body &&
@@ -118,12 +118,12 @@ const MessageBody = ({
       if (message.data.body?.split(":")[3] === "yay") {
         return {
           bgGradient:
-            "linear-gradient(90deg, rgba(5,153,49,1) 0%, rgba(48,215,149,1) 100%)",
+            "linear-gradient(0deg, rgba(5,153,49,1) 0%, rgba(48,215,149,1) 100%)",
         };
       } else {
         return {
           bgGradient:
-            "linear-gradient(90deg, rgba(181,55,13,1) 0%, rgba(212,131,0,1) 100%)",
+            "linear-gradient(0deg, rgba(181,55,13,1) 0%, rgba(212,131,0,1) 100%)",
         };
       }
     } else if (
