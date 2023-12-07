@@ -247,6 +247,7 @@ model SharesEvent {
   eventState SharesEventState?
   chainId Int?
   answers String[]
+  result Boolean?
 
   createdAt DateTime @default(now())
   softDelete Boolean @default(false)
@@ -263,6 +264,7 @@ model SideBet {
   creatorAddress String
   opponentAddress String
   chainId Int
+  result Boolean?
 
   createdAt DateTime @default(now())
   softDelete Boolean @default(false)

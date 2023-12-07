@@ -38,6 +38,7 @@ const useUpdateSharesEvent = ({ onError }: Props) => {
               sharesSubjectQuestion: data.sharesSubjectQuestion,
               sharesSubjectAddress: data.sharesSubjectAddress,
               eventState: data.eventState,
+              result: data.result,
             },
           },
         });

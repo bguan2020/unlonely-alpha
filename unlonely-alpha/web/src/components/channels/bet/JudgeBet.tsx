@@ -94,14 +94,17 @@ export const JudgeBet = ({
           isClosable: true,
           position: "top-right",
         });
-        setEndDecision(undefined);
         const topics = decodeEventLog({
           abi: contractData.abi,
           data: data.logs[0].data,
           topics: data.logs[0].topics,
         });
         const args: any = topics.args;
-        await _updateSharesEvent(SharesEventState.Payout);
+        await _updateSharesEvent(
+          SharesEventState.Payout,
+          args.result as boolean
+        );
+        setEndDecision(undefined);
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -127,12 +130,13 @@ export const JudgeBet = ({
   );
 
   const _updateSharesEvent = useCallback(
-    async (eventState: SharesEventState) => {
+    async (eventState: SharesEventState, result?: boolean) => {
       await updateSharesEvent({
         id: ongoingBets?.[0]?.id ?? "",
         sharesSubjectQuestion: ongoingBets?.[0]?.sharesSubjectQuestion ?? "",
         sharesSubjectAddress: ongoingBets?.[0]?.sharesSubjectAddress ?? "",
         eventState,
+        result,
       });
     },
     [ongoingBets, user, userAddress]

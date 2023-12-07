@@ -182,6 +182,15 @@ export const CHANNEL_FEED_QUERY = gql`
         FCImageUrl
         lensImageUrl
       }
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        answers
+        chainId
+        eventState
+        createdAt
+        id
+      }
       thumbnailUrl
     }
   }

@@ -30,6 +30,7 @@ export const typeDef = gql`
     answers: [String]
     chainId: Int
     eventState: SharesEventState
+    result: Boolean
     softDelete: Boolean
     createdAt: DateTime!
   }
@@ -103,6 +104,7 @@ export const typeDef = gql`
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
     eventState: SharesEventState
+    result: Boolean
   }
 
   input PostCloseSharesEventsInput {

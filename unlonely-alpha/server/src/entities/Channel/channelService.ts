@@ -73,6 +73,7 @@ export interface IUpdateSharesEventInput {
   sharesSubjectQuestion: string;
   sharesSubjectAddress: string;
   eventState?: SharesEventState;
+  result?: boolean;
 }
 
 export const postSharesEvent = async (
@@ -115,6 +116,7 @@ export const updateSharesEvent = async (
       sharesSubjectQuestion: data.sharesSubjectQuestion,
       sharesSubjectAddress: data.sharesSubjectAddress,
       eventState: data.eventState,
+      result: data.result,
     },
   });
 };

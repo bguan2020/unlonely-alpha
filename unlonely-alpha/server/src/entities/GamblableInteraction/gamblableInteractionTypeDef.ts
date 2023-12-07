@@ -28,6 +28,7 @@ export const typeDef = gql`
     eventState: SharesEventState
     softDelete: Boolean
     createdAt: DateTime!
+    result: Boolean
   }
 
   type GamblableInteraction {

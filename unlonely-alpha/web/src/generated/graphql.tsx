@@ -106,6 +106,7 @@ export type Channel = {
   response: Scalars["String"];
   roles?: Maybe<Array<Maybe<ChannelUserRole>>>;
   sharesEvent?: Maybe<Array<Maybe<SharesEvent>>>;
+  sideBets?: Maybe<Array<Maybe<SideBet>>>;
   slug: Scalars["String"];
   thumbnailUrl?: Maybe<Scalars["String"]>;
   token?: Maybe<CreatorToken>;
@@ -173,6 +174,10 @@ export type ClipOutput = {
   errorMessage?: Maybe<Scalars["String"]>;
   thumbnail?: Maybe<Scalars["String"]>;
   url?: Maybe<Scalars["String"]>;
+};
+
+export type CloseSideBetInput = {
+  id: Scalars["ID"];
 };
 
 export type CreateClipInput = {
@@ -351,6 +356,7 @@ export type Mutation = {
   addChannelToSubscription?: Maybe<Subscription>;
   addSuggestedChannelsToSubscriptions?: Maybe<Array<Maybe<Subscription>>>;
   closeSharesEvents?: Maybe<UpdateManyResponse>;
+  closeSideBet?: Maybe<SideBet>;
   createClip?: Maybe<ClipNfcOutput>;
   createCreatorToken: CreatorToken;
   createLivepeerClip?: Maybe<ClipNfcOutput>;
@@ -366,6 +372,7 @@ export type Mutation = {
   postFirstChat?: Maybe<Chat>;
   postNFC?: Maybe<Nfc>;
   postSharesEvent?: Maybe<Channel>;
+  postSideBet?: Maybe<SideBet>;
   postStreamInteraction?: Maybe<StreamInteraction>;
   postSubscription?: Maybe<Subscription>;
   postTask?: Maybe<Task>;
@@ -384,6 +391,7 @@ export type Mutation = {
   updateNFC?: Maybe<Nfc>;
   updateOpenseaLink?: Maybe<Nfc>;
   updateSharesEvent?: Maybe<Channel>;
+  updateSideBet?: Maybe<SideBet>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
 };
@@ -398,6 +406,10 @@ export type MutationAddSuggestedChannelsToSubscriptionsArgs = {
 
 export type MutationCloseSharesEventsArgs = {
   data: PostCloseSharesEventsInput;
+};
+
+export type MutationCloseSideBetArgs = {
+  data: CloseSideBetInput;
 };
 
 export type MutationCreateClipArgs = {
@@ -454,6 +466,10 @@ export type MutationPostNfcArgs = {
 
 export type MutationPostSharesEventArgs = {
   data: PostSharesEventInput;
+};
+
+export type MutationPostSideBetArgs = {
+  data: PostSideBetInput;
 };
 
 export type MutationPostStreamInteractionArgs = {
@@ -522,6 +538,10 @@ export type MutationUpdateNfcArgs = {
 
 export type MutationUpdateSharesEventArgs = {
   data: UpdateSharesEventInput;
+};
+
+export type MutationUpdateSideBetArgs = {
+  data: UpdateSideBetInput;
 };
 
 export type MutationUpdateUserCreatorTokenQuantityArgs = {
@@ -643,6 +663,14 @@ export type PostSharesEventInput = {
   sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;
 };
 
+export type PostSideBetInput = {
+  chainId: Scalars["Int"];
+  channelId: Scalars["ID"];
+  creatorAddress?: InputMaybe<Scalars["String"]>;
+  opponentAddress?: InputMaybe<Scalars["String"]>;
+  question?: InputMaybe<Scalars["String"]>;
+};
+
 export type PostStreamInteractionInput = {
   channelId: Scalars["ID"];
   interactionType: Scalars["String"];
@@ -711,6 +739,9 @@ export type Query = {
   getPoap?: Maybe<Poap>;
   getRecentChats?: Maybe<Array<Maybe<Chat>>>;
   getRecentStreamInteractionsByChannel?: Maybe<Array<Maybe<StreamInteraction>>>;
+  getSideBetByChannelId?: Maybe<SideBet>;
+  getSideBetById?: Maybe<SideBet>;
+  getSideBetByUser?: Maybe<SideBet>;
   getSubscriptionByEndpoint?: Maybe<Subscription>;
   getSubscriptionsByChannelId?: Maybe<Array<Maybe<Subscription>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
@@ -793,6 +824,18 @@ export type QueryGetRecentStreamInteractionsByChannelArgs = {
   data?: InputMaybe<GetRecentStreamInteractionsByChannelInput>;
 };
 
+export type QueryGetSideBetByChannelIdArgs = {
+  id: Scalars["ID"];
+};
+
+export type QueryGetSideBetByIdArgs = {
+  id: Scalars["ID"];
+};
+
+export type QueryGetSideBetByUserArgs = {
+  userAddress: Scalars["String"];
+};
+
 export type QueryGetSubscriptionByEndpointArgs = {
   data: ToggleSubscriptionInput;
 };
@@ -846,6 +889,7 @@ export type SharesEvent = {
   createdAt: Scalars["DateTime"];
   eventState?: Maybe<SharesEventState>;
   id: Scalars["ID"];
+  result?: Maybe<Scalars["Boolean"]>;
   sharesSubjectAddress?: Maybe<Scalars["String"]>;
   sharesSubjectQuestion?: Maybe<Scalars["String"]>;
   softDelete?: Maybe<Scalars["Boolean"]>;
@@ -857,6 +901,17 @@ export enum SharesEventState {
   Payout = "PAYOUT",
   Pending = "PENDING",
 }
+
+export type SideBet = {
+  __typename?: "SideBet";
+  chainId?: Maybe<Scalars["Int"]>;
+  createdAt: Scalars["DateTime"];
+  creatorAddress?: Maybe<Scalars["String"]>;
+  id: Scalars["ID"];
+  opponentAddress?: Maybe<Scalars["String"]>;
+  question?: Maybe<Scalars["String"]>;
+  softDelete?: Maybe<Scalars["Boolean"]>;
+};
 
 export type SoftDeleteSubscriptionInput = {
   id: Scalars["ID"];
@@ -966,8 +1021,16 @@ export type UpdateNfcInput = {
 export type UpdateSharesEventInput = {
   eventState?: InputMaybe<SharesEventState>;
   id: Scalars["ID"];
+  result?: InputMaybe<Scalars["Boolean"]>;
   sharesSubjectAddress?: InputMaybe<Scalars["String"]>;
   sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;
+};
+
+export type UpdateSideBetInput = {
+  creatorAddress?: InputMaybe<Scalars["String"]>;
+  id: Scalars["ID"];
+  opponentAddress?: InputMaybe<Scalars["String"]>;
+  question?: InputMaybe<Scalars["String"]>;
 };
 
 export type UpdateUserCreatorTokenQuantityInput = {
@@ -1263,6 +1326,16 @@ export type GetChannelFeedQuery = {
       FCImageUrl?: string | null;
       lensImageUrl?: string | null;
     };
+    sharesEvent?: Array<{
+      __typename?: "SharesEvent";
+      sharesSubjectQuestion?: string | null;
+      sharesSubjectAddress?: string | null;
+      answers?: Array<string | null> | null;
+      chainId?: number | null;
+      eventState?: SharesEventState | null;
+      createdAt: any;
+      id: string;
+    } | null> | null;
   } | null> | null;
 };
 
@@ -2587,6 +2660,15 @@ export const GetChannelFeedDocument = gql`
         address
         FCImageUrl
         lensImageUrl
+      }
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        answers
+        chainId
+        eventState
+        createdAt
+        id
       }
       thumbnailUrl
     }
