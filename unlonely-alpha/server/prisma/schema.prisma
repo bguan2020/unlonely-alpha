@@ -185,6 +185,12 @@ model CreatorToken {
   users     UserCreatorToken[]
 }
 
+enum EventType {
+  YAY_NAY_VOTE
+  VIP_BADGE
+  SIDE_BET
+}
+
 enum GamblableEvent {
   BET_CREATE
   BET_YES_BUY
@@ -204,8 +210,8 @@ model GamblableInteraction {
   channel   Channel  @relation(fields: [channelId], references: [id])
   userAddress  String
   user    User     @relation(fields: [userAddress], references: [address])
-  sharesEventId Int?
-  sharesEvent SharesEvent? @relation(fields: [sharesEventId], references: [id])
+  eventId Int?
+  eventType EventType?
   type GamblableEvent
   createdAt DateTime @default(now())
   softDelete Boolean @default(false)
@@ -246,21 +252,19 @@ model SharesEvent {
   sharesSubjectAddress String
   eventState SharesEventState?
   chainId Int?
-  answers String[]
-  result Boolean?
+  options String[]
+  resultIndex Int?
 
   createdAt DateTime @default(now())
   softDelete Boolean @default(false)
 
   channel Channel @relation(fields: [channelId], references: [id])
   channelId Int
-
-  gamblableInteractions GamblableInteraction[]
 }
 
 model SideBet {
   id        Int      @id @default(autoincrement())
-  question String
+  wagerDescription String
   creatorAddress String
   opponentAddress String
   chainId Int

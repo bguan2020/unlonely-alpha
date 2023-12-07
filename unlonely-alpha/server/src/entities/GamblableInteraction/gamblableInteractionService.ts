@@ -2,6 +2,12 @@ import { Channel, SharesEventState } from "@prisma/client";
 
 import { Context } from "../../context";
 
+enum EventType {
+  YAY_NAY_VOTE = "YAY_NAY_VOTE",
+  VIP_BADGE = "VIP_BADGE",
+  SIDE_BET = "SIDE_BET",
+}
+
 enum GamblableEvent {
   BET_CREATE = "BET_CREATE",
   BET_YES_BUY = "BET_YES_BUY",
@@ -26,14 +32,16 @@ export interface IGetBadgeHoldersByChannelInput {
 export interface IPostBetInput {
   channelId: string;
   userAddress: string;
-  sharesEventId: number;
+  eventId: number;
+  eventType: EventType;
 }
 
 export interface IPostBetTradeInput {
   channelId: string;
   chainId: number;
   userAddress: string;
-  sharesEventId: number;
+  eventId: number;
+  eventType: EventType;
   type: GamblableEvent;
   fees: number;
 }
@@ -42,7 +50,7 @@ export interface IPostBadgeTradeInput {
   channelId: string;
   chainId: number;
   userAddress: string;
-  sharesEventId: number;
+  eventId: number;
   isBuying: boolean;
   fees: number;
 }
@@ -50,7 +58,8 @@ export interface IPostBadgeTradeInput {
 export interface IPostClaimPayoutInput {
   channelId: string;
   userAddress: string;
-  sharesEventId: number;
+  eventId: number;
+  eventType: EventType;
   type: GamblableEvent;
 }
 
@@ -174,11 +183,8 @@ export const postBet = (data: IPostBetInput, ctx: Context) => {
           id: Number(data.channelId),
         },
       },
-      sharesEvent: {
-        connect: {
-          id: data.sharesEventId,
-        },
-      },
+      eventId: data.eventId,
+      eventType: data.eventType,
       type: GamblableEvent.BET_CREATE,
       user: {
         connect: {
@@ -205,11 +211,8 @@ export const postBetTrade = async (data: IPostBetTradeInput, ctx: Context) => {
           id: Number(data.channelId),
         },
       },
-      sharesEvent: {
-        connect: {
-          id: data.sharesEventId,
-        },
-      },
+      eventId: data.eventId,
+      eventType: data.eventType,
       type: data.type,
       user: {
         connect: {
@@ -229,7 +232,8 @@ export const postBadgeTrade = async (
     where: {
       channelId: Number(data.channelId),
       userAddress: data.userAddress,
-      sharesEventId: data.sharesEventId,
+      eventId: data.eventId,
+      eventType: EventType.VIP_BADGE,
       type: {
         in: [GamblableEvent.BADGE_BUY, GamblableEvent.BADGE_SELL],
       },
@@ -267,11 +271,8 @@ export const postBadgeTrade = async (
             id: Number(data.channelId),
           },
         },
-        sharesEvent: {
-          connect: {
-            id: Number(data.sharesEventId),
-          },
-        },
+        eventId: data.eventId,
+        eventType: EventType.VIP_BADGE,
         type: data.isBuying
           ? GamblableEvent.BADGE_BUY
           : GamblableEvent.BADGE_SELL,
@@ -298,11 +299,8 @@ export const postClaimPayout = async (
           id: Number(data.channelId),
         },
       },
-      sharesEvent: {
-        connect: {
-          id: Number(data.sharesEventId),
-        },
-      },
+      eventId: data.eventId,
+      eventType: data.eventType,
       type: data.type,
       user: {
         connect: {

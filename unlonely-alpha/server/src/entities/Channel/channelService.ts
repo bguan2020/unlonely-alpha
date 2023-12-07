@@ -65,7 +65,7 @@ export interface IPostSharesEventInput {
   chainId: number;
   sharesSubjectQuestion: string;
   sharesSubjectAddress: string;
-  answers: string[];
+  options: string[];
 }
 
 export interface IUpdateSharesEventInput {
@@ -73,7 +73,7 @@ export interface IUpdateSharesEventInput {
   sharesSubjectQuestion: string;
   sharesSubjectAddress: string;
   eventState?: SharesEventState;
-  result?: boolean;
+  resultIndex?: number;
 }
 
 export const postSharesEvent = async (
@@ -86,7 +86,7 @@ export const postSharesEvent = async (
       sharesSubjectAddress: data.sharesSubjectAddress,
       eventState: SharesEventState.PENDING,
       chainId: Number(data.chainId),
-      answers: data.answers,
+      options: data.options,
       softDelete: false,
       channel: {
         connect: {
@@ -116,7 +116,7 @@ export const updateSharesEvent = async (
       sharesSubjectQuestion: data.sharesSubjectQuestion,
       sharesSubjectAddress: data.sharesSubjectAddress,
       eventState: data.eventState,
-      result: data.result,
+      resultIndex: data.resultIndex,
     },
   });
 };
@@ -451,5 +451,7 @@ export const getChannelSideBets = async (
 ) => {
   return ctx.prisma.sideBet.findMany({
     where: { channelId: Number(id), softDelete: false },
+    // order by createdAt w latest first
+    orderBy: { createdAt: "desc" },
   });
 };

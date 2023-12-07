@@ -221,6 +221,12 @@ export type DeviceToken = {
   updatedAt: Scalars["DateTime"];
 };
 
+export enum EventType {
+  SideBet = "SIDE_BET",
+  VipBadge = "VIP_BADGE",
+  YayNayVote = "YAY_NAY_VOTE",
+}
+
 export enum GamblableEvent {
   BadgeBuy = "BADGE_BUY",
   BadgeClaimPayout = "BADGE_CLAIM_PAYOUT",
@@ -246,8 +252,9 @@ export type GamblableInteraction = {
   __typename?: "GamblableInteraction";
   channel: Channel;
   createdAt: Scalars["DateTime"];
+  eventId?: Maybe<Scalars["Int"]>;
+  eventType?: Maybe<EventType>;
   id: Scalars["ID"];
-  sharesEvent?: Maybe<SharesEvent>;
   softDelete?: Maybe<Scalars["Boolean"]>;
   type: GamblableEvent;
   user: User;
@@ -593,9 +600,9 @@ export type Poap = {
 export type PostBadgeTradeInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["ID"];
+  eventId: Scalars["Int"];
   fees: Scalars["Float"];
   isBuying: Scalars["Boolean"];
-  sharesEventId: Scalars["Int"];
   userAddress: Scalars["String"];
 };
 
@@ -605,15 +612,17 @@ export type PostBaseLeaderboardInput = {
 
 export type PostBetInput = {
   channelId: Scalars["ID"];
-  sharesEventId: Scalars["ID"];
+  eventId: Scalars["Int"];
+  eventType: EventType;
   userAddress: Scalars["String"];
 };
 
 export type PostBetTradeInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["ID"];
+  eventId: Scalars["Int"];
+  eventType: EventType;
   fees: Scalars["Float"];
-  sharesEventId: Scalars["Int"];
   type: GamblableEvent;
   userAddress: Scalars["String"];
 };
@@ -630,7 +639,8 @@ export type PostChatInput = {
 
 export type PostClaimPayoutInput = {
   channelId: Scalars["ID"];
-  sharesEventId: Scalars["Int"];
+  eventId: Scalars["Int"];
+  eventType: EventType;
   type: GamblableEvent;
   userAddress: Scalars["String"];
 };
@@ -656,9 +666,9 @@ export type PostNfcInput = {
 };
 
 export type PostSharesEventInput = {
-  answers?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
   chainId: Scalars["Int"];
   channelId: Scalars["ID"];
+  options?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
   sharesSubjectAddress?: InputMaybe<Scalars["String"]>;
   sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;
 };
@@ -668,7 +678,7 @@ export type PostSideBetInput = {
   channelId: Scalars["ID"];
   creatorAddress?: InputMaybe<Scalars["String"]>;
   opponentAddress?: InputMaybe<Scalars["String"]>;
-  question?: InputMaybe<Scalars["String"]>;
+  wagerDescription?: InputMaybe<Scalars["String"]>;
 };
 
 export type PostStreamInteractionInput = {
@@ -884,12 +894,12 @@ export type SendAllNotificationsInput = {
 
 export type SharesEvent = {
   __typename?: "SharesEvent";
-  answers?: Maybe<Array<Maybe<Scalars["String"]>>>;
   chainId?: Maybe<Scalars["Int"]>;
   createdAt: Scalars["DateTime"];
   eventState?: Maybe<SharesEventState>;
   id: Scalars["ID"];
-  result?: Maybe<Scalars["Boolean"]>;
+  options?: Maybe<Array<Maybe<Scalars["String"]>>>;
+  resultIndex?: Maybe<Scalars["Int"]>;
   sharesSubjectAddress?: Maybe<Scalars["String"]>;
   sharesSubjectQuestion?: Maybe<Scalars["String"]>;
   softDelete?: Maybe<Scalars["Boolean"]>;
@@ -909,8 +919,9 @@ export type SideBet = {
   creatorAddress?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
   opponentAddress?: Maybe<Scalars["String"]>;
-  question?: Maybe<Scalars["String"]>;
+  result?: Maybe<Scalars["Boolean"]>;
   softDelete?: Maybe<Scalars["Boolean"]>;
+  wagerDescription?: Maybe<Scalars["String"]>;
 };
 
 export type SoftDeleteSubscriptionInput = {
@@ -1021,7 +1032,7 @@ export type UpdateNfcInput = {
 export type UpdateSharesEventInput = {
   eventState?: InputMaybe<SharesEventState>;
   id: Scalars["ID"];
-  result?: InputMaybe<Scalars["Boolean"]>;
+  resultIndex?: InputMaybe<Scalars["Int"]>;
   sharesSubjectAddress?: InputMaybe<Scalars["String"]>;
   sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;
 };
@@ -1030,7 +1041,7 @@ export type UpdateSideBetInput = {
   creatorAddress?: InputMaybe<Scalars["String"]>;
   id: Scalars["ID"];
   opponentAddress?: InputMaybe<Scalars["String"]>;
-  question?: InputMaybe<Scalars["String"]>;
+  wagerDescription?: InputMaybe<Scalars["String"]>;
 };
 
 export type UpdateUserCreatorTokenQuantityInput = {
@@ -1168,11 +1179,22 @@ export type ChannelDetailQuery = {
       __typename?: "SharesEvent";
       sharesSubjectQuestion?: string | null;
       sharesSubjectAddress?: string | null;
-      answers?: Array<string | null> | null;
+      options?: Array<string | null> | null;
       chainId?: number | null;
       eventState?: SharesEventState | null;
       createdAt: any;
       id: string;
+      resultIndex?: number | null;
+    } | null> | null;
+    sideBets?: Array<{
+      __typename?: "SideBet";
+      id: string;
+      wagerDescription?: string | null;
+      creatorAddress?: string | null;
+      opponentAddress?: string | null;
+      chainId?: number | null;
+      createdAt: any;
+      result?: boolean | null;
     } | null> | null;
     owner: {
       __typename?: "User";
@@ -1330,11 +1352,22 @@ export type GetChannelFeedQuery = {
       __typename?: "SharesEvent";
       sharesSubjectQuestion?: string | null;
       sharesSubjectAddress?: string | null;
-      answers?: Array<string | null> | null;
+      options?: Array<string | null> | null;
       chainId?: number | null;
       eventState?: SharesEventState | null;
       createdAt: any;
+      resultIndex?: number | null;
       id: string;
+    } | null> | null;
+    sideBets?: Array<{
+      __typename?: "SideBet";
+      id: string;
+      wagerDescription?: string | null;
+      creatorAddress?: string | null;
+      opponentAddress?: string | null;
+      chainId?: number | null;
+      createdAt: any;
+      result?: boolean | null;
     } | null> | null;
   } | null> | null;
 };
@@ -1419,10 +1452,11 @@ export type GetChannelsByNumberOfBadgeHoldersQuery = {
         sharesSubjectQuestion?: string | null;
         sharesSubjectAddress?: string | null;
         chainId?: number | null;
-        answers?: Array<string | null> | null;
+        options?: Array<string | null> | null;
         eventState?: SharesEventState | null;
         createdAt: any;
         id: string;
+        resultIndex?: number | null;
       } | null> | null;
       owner: {
         __typename?: "User";
@@ -2080,11 +2114,21 @@ export const ChannelDetailDocument = gql`
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
-        answers
+        options
         chainId
         eventState
         createdAt
         id
+        resultIndex
+      }
+      sideBets {
+        id
+        wagerDescription
+        creatorAddress
+        opponentAddress
+        chainId
+        createdAt
+        result
       }
       owner {
         FCImageUrl
@@ -2664,11 +2708,21 @@ export const GetChannelFeedDocument = gql`
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
-        answers
+        options
         chainId
         eventState
         createdAt
+        resultIndex
         id
+      }
+      sideBets {
+        id
+        wagerDescription
+        creatorAddress
+        opponentAddress
+        chainId
+        createdAt
+        result
       }
       thumbnailUrl
     }
@@ -2925,10 +2979,11 @@ export const GetChannelsByNumberOfBadgeHoldersDocument = gql`
           sharesSubjectQuestion
           sharesSubjectAddress
           chainId
-          answers
+          options
           eventState
           createdAt
           id
+          resultIndex
         }
         owner {
           FCImageUrl

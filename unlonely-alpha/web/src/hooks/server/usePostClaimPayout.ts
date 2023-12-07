@@ -37,7 +37,8 @@ const usePostClaimPayout = ({ onError }: Props) => {
             data: {
               channelId: data.channelId,
               userAddress: data.userAddress,
-              sharesEventId: data.sharesEventId,
+              eventId: data.eventId,
+              eventType: data.eventType,
               type: GamblableEvent.BetClaimPayout,
             },
           },

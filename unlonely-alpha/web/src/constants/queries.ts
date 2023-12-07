@@ -49,11 +49,21 @@ export const CHANNEL_DETAIL_QUERY = gql`
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
-        answers
+        options
         chainId
         eventState
         createdAt
         id
+        resultIndex
+      }
+      sideBets {
+        id
+        wagerDescription
+        creatorAddress
+        opponentAddress
+        chainId
+        createdAt
+        result
       }
       owner {
         FCImageUrl
@@ -185,11 +195,21 @@ export const CHANNEL_FEED_QUERY = gql`
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
-        answers
+        options
         chainId
         eventState
         createdAt
+        resultIndex
         id
+      }
+      sideBets {
+        id
+        wagerDescription
+        creatorAddress
+        opponentAddress
+        chainId
+        createdAt
+        result
       }
       thumbnailUrl
     }
@@ -257,10 +277,11 @@ export const GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY = gql`
           sharesSubjectQuestion
           sharesSubjectAddress
           chainId
-          answers
+          options
           eventState
           createdAt
           id
+          resultIndex
         }
         owner {
           FCImageUrl

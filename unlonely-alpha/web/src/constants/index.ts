@@ -27,6 +27,7 @@ export enum BaseChatCommand {
 export enum EventType {
   YAY_NAY_VOTE = 0,
   VIP_BADGE = 1,
+  SIDE_BET = 2,
 }
 
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";

@@ -15,14 +15,14 @@ export type IGetSideBetByChannelIdInput = {
 export type IPostSideBetInput = {
   channelId: string;
   chainId: number;
-  question: string;
+  wagerDescription: string;
   creatorAddress: string;
   opponentAddress: string;
 };
 
 export type IUpdateSideBetInput = {
   id: string;
-  question: string;
+  wagerDescription: string;
   creatorAddress: string;
   opponentAddress: string;
 };
@@ -82,7 +82,7 @@ export const postSideBet = async (data: IPostSideBetInput, ctx: Context) => {
       chainId: data.chainId,
       creatorAddress: data.creatorAddress,
       opponentAddress: data.opponentAddress,
-      question: data.question,
+      wagerDescription: data.wagerDescription,
     },
   });
 };
@@ -96,7 +96,7 @@ export const updateSideBet = async (
       id: Number(data.id),
     },
     data: {
-      question: data.question,
+      wagerDescription: data.wagerDescription,
       creatorAddress: data.creatorAddress,
       opponentAddress: data.opponentAddress,
     },

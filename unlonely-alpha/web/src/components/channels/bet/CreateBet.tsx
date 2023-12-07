@@ -61,7 +61,7 @@ export const CreateBet = ({
     usePostSharesEvent({});
 
   const [question, setQuestion] = useState("");
-  const [answers, setAnswers] = useState<string[]>(["", ""]);
+  const [options, setOptions] = useState<string[]>(["", ""]);
   const [contractCallInProgress, setContractCallInProgress] = useState(false);
   const [selectedEndTime, setSelectedEndTime] = useState<
     "10" | "30" | "60" | "120"
@@ -107,9 +107,9 @@ export const CreateBet = ({
   }, []);
 
   const handleAnswerChange = (index: number, value: string) => {
-    const newAnswers = [...answers];
-    newAnswers[index] = value;
-    setAnswers(newAnswers);
+    const newOptions = [...options];
+    newOptions[index] = value;
+    setOptions(newOptions);
   };
 
   const _updateSharesEvent = useCallback(
@@ -130,9 +130,9 @@ export const CreateBet = ({
         id: channelQueryData?.id ?? "",
         sharesSubjectQuestion: sharesSubjectQuestion,
         sharesSubjectAddress: userAddress,
-        answers: [
-          answers[0] === "" ? "YES" : answers[0],
-          answers[1] === "" ? "NO" : answers[1],
+        options: [
+          options[0] === "" ? "YES" : options[0],
+          options[1] === "" ? "NO" : options[1],
         ],
         chainId: localNetwork.config.chainId,
       });
@@ -146,7 +146,7 @@ export const CreateBet = ({
       user,
       userAddress,
       localNetwork.config.chainId,
-      answers,
+      options,
     ]
   );
 
@@ -344,13 +344,13 @@ export const CreateBet = ({
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
               />
-              <Text>{`create answers (up to ${MAX_CHARS} characters)`}</Text>
+              <Text>{`create options (up to ${MAX_CHARS} characters)`}</Text>
               <Flex gap="1rem">
                 <Input
                   variant="glow"
                   placeholder={"YES"}
                   textAlign="center"
-                  value={answers[0]}
+                  value={options[0]}
                   onChange={(e) =>
                     handleAnswerChange(0, e.target.value.slice(0, MAX_CHARS))
                   }
@@ -359,7 +359,7 @@ export const CreateBet = ({
                   variant="glow"
                   placeholder={"NO"}
                   textAlign="center"
-                  value={answers[1]}
+                  value={options[1]}
                   onChange={(e) =>
                     handleAnswerChange(1, e.target.value.slice(0, MAX_CHARS))
                   }

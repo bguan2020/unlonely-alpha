@@ -38,7 +38,7 @@ const usePostSharesEvent = ({ onError }: Props) => {
               sharesSubjectQuestion: data.sharesSubjectQuestion,
               sharesSubjectAddress: data.sharesSubjectAddress,
               chainId: data.chainId,
-              answers: data.answers,
+              options: data.options,
             },
           },
         });

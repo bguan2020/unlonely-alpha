@@ -28,9 +28,9 @@ export const resolvers = {
       { data }: { data: channelService.IPostCloseSharesEventsInput },
       ctx: Context
     ) => {
-      // if (!ctx.user || !ctx.userIsAuthed) {
-      //   throw new AuthenticationError("User is not authenticated");
-      // }
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
       return channelService.closeSharesEvents(data, ctx);
     },
     postSharesEvent: (

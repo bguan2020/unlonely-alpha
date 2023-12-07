@@ -15,7 +15,7 @@ export const typeDef = gql`
 
   type SideBet {
     id: ID!
-    question: String
+    wagerDescription: String
     creatorAddress: String
     opponentAddress: String
     chainId: Int
@@ -27,10 +27,10 @@ export const typeDef = gql`
     id: ID!
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
-    answers: [String]
+    options: [String]
     chainId: Int
     eventState: SharesEventState
-    result: Boolean
+    resultIndex: Int
     softDelete: Boolean
     createdAt: DateTime!
   }
@@ -96,7 +96,7 @@ export const typeDef = gql`
     chainId: Int!
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
-    answers: [String]
+    options: [String]
   }
 
   input UpdateSharesEventInput {
@@ -104,7 +104,7 @@ export const typeDef = gql`
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
     eventState: SharesEventState
-    result: Boolean
+    resultIndex: Int
   }
 
   input PostCloseSharesEventsInput {

@@ -215,8 +215,8 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           args.trade.isBuy ? "bought" : "sold"
         } ${args.trade.shareAmount} ${
           args.trade.isYay
-            ? ongoingBets?.[0]?.answers?.[0] ?? "yes"
-            : ongoingBets?.[0]?.answers?.[1] ?? "no"
+            ? ongoingBets?.[0]?.options?.[0] ?? "yes"
+            : ongoingBets?.[0]?.options?.[1] ?? "no"
         } vote${Number(args.trade.shareAmount) > 1 ? "s" : ""}!`;
         addToChatbot({
           username: user?.username ?? "",
@@ -746,7 +746,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                         w="100%"
                       >
                         <Flex alignItems={"center"} gap="2px">
-                          <Text>{ongoingBets?.[0]?.answers?.[0] ?? "YES"}</Text>
+                          <Text>{ongoingBets?.[0]?.options?.[0] ?? "YES"}</Text>
                         </Flex>
                       </Button>
                       <Button
@@ -759,7 +759,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                         w="100%"
                       >
                         <Flex alignItems={"center"} gap="2px">
-                          <Text>{ongoingBets?.[0]?.answers?.[1] ?? "NO"}</Text>
+                          <Text>{ongoingBets?.[0]?.options?.[1] ?? "NO"}</Text>
                         </Flex>
                       </Button>
                     </Flex>

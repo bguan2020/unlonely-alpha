@@ -257,9 +257,7 @@ const EventsDashboard = ({ channel }: { channel: Channel }) => {
         payout: formattedPayouts[i],
       }));
       const claimableBets = combinedBets.filter(
-        (event) =>
-          event.payout > BigInt(0) &&
-          (event.result === true || event.result === false)
+        (event) => event.payout > BigInt(0) && (event?.resultIndex ?? -1) >= 0
       );
       setClaimableBets(claimableBets);
       isFetching.current = false;
@@ -403,16 +401,18 @@ const EventCard = ({
       <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
         {event.sharesSubjectQuestion}
       </Text>
-      <Flex justifyContent="space-between">
-        <Text fontSize="18px">event outcome</Text>
-        <Text
-          fontSize="18px"
-          fontWeight="bold"
-          color={event.result === true ? "#02f042" : "#ee6204"}
-        >
-          {event.result ? "Yes" : "No"}
-        </Text>
-      </Flex>
+      {(event?.resultIndex ?? -1 >= 0) && (
+        <Flex justifyContent="space-between">
+          <Text fontSize="18px">event outcome</Text>
+          <Text
+            fontSize="18px"
+            fontWeight="bold"
+            color={event.resultIndex === 0 ? "#02f042" : "#ee6204"}
+          >
+            {event.resultIndex === 0 ? "Yes" : "No"}
+          </Text>
+        </Flex>
+      )}
       <Button
         _hover={{}}
         _focus={{}}

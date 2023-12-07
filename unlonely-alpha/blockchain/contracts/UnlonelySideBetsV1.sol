@@ -103,7 +103,7 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
     event WinnerPicked(bytes32 eventByte, address winner);
     event SideBetClosed(SideBet sideBet);
 
-    mapping(bytes32 => SideBet) public sideBetStructs;
+    mapping(bytes32 => SideBet) public sideBets;
 
     // user roles
     mapping(address => bool) public isVerifier;
@@ -156,7 +156,7 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         return keccak256(abi.encodePacked(eventAddress, eventId, eventType));
     }
 
-    function getOpeningWager(uint256 wagerAmount) public view returns (uint256) {
+    function getOpeningWagerAfterFee(uint256 wagerAmount) public view returns (uint256) {
         uint256 protocolFee = wagerAmount * protocolFeePercent / 1 ether;
         uint256 subjectFee = wagerAmount * subjectFeePercent / 1 ether;
         return wagerAmount + protocolFee + subjectFee;
@@ -164,7 +164,13 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
 
     function getExistingWager(address eventAddress, uint256 eventId, EventType eventType) public view returns (uint256) {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
-        uint256 wagerAmount = sideBetStructs[eventBytes].wagerAmount;
+        uint256 wagerAmount = sideBets[eventBytes].wagerAmount;
+        return wagerAmount;
+    }
+
+    function getExistingWagerAfterFees(address eventAddress, uint256 eventId, EventType eventType) public view returns (uint256) {
+        bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
+        uint256 wagerAmount = sideBets[eventBytes].wagerAmount;
         uint256 protocolFee = wagerAmount * protocolFeePercent / 1 ether;
         uint256 subjectFee = wagerAmount * subjectFeePercent / 1 ether;
         return wagerAmount + protocolFee + subjectFee;
@@ -172,7 +178,7 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
 
     function isSideBetAvailable(address eventAddress, uint256 eventId, EventType eventType) public view returns (bool) {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
-        return sideBetStructs[eventBytes].expirationTime > block.timestamp || sideBetStructs[eventBytes].opponent == address(0);
+        return sideBets[eventBytes].expirationTime > block.timestamp && sideBets[eventBytes].opponent == address(0);
     }
 
     function openSideBet(
@@ -183,7 +189,7 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         uint256 expirationTime
     ) public payable onlyVerifier validEventType(eventType) nonReentrant {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
-        require(sideBetStructs[eventBytes].initiator == address(0), "Sidebet already created");
+        require(sideBets[eventBytes].initiator == address(0), "Sidebet already created");
 
         uint256 protocolFee = wagerAmount * protocolFeePercent / 1 ether;
         uint256 subjectFee = wagerAmount * subjectFeePercent / 1 ether;
@@ -193,7 +199,7 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
             msg.sender.call{value: msg.value - (wagerAmount + protocolFee + subjectFee)}("");
         }
 
-        sideBetStructs[eventBytes] = SideBet({
+        sideBets[eventBytes] = SideBet({
             initiator: msg.sender,
             opponent: address(0), // No opponent yet
             wagerAmount: wagerAmount,
@@ -202,7 +208,7 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
             winner: address(0) // No winner yet
         });
 
-        emit SideBetOpened(sideBetStructs[eventBytes]);
+        emit SideBetOpened(sideBets[eventBytes]);
 
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
         (bool success2, ) = eventAddress.call{value: subjectFee}("");
@@ -217,12 +223,12 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
 
         // Check if the sidebet exists and is open for an opponent
-        require(sideBetStructs[eventBytes].initiator != address(0), "Sidebet does not exist");
-        require(sideBetStructs[eventBytes].opponent == address(0), "Sidebet already taken");
-        require(sideBetStructs[eventBytes].expirationTime > block.timestamp, "Sidebet expired");
+        require(sideBets[eventBytes].initiator != address(0), "Sidebet does not exist");
+        require(sideBets[eventBytes].opponent == address(0), "Sidebet already taken");
+        require(sideBets[eventBytes].expirationTime > block.timestamp, "Sidebet expired");
         
         // Validate the wager amount
-        uint256 wagerAmount = sideBetStructs[eventBytes].wagerAmount;
+        uint256 wagerAmount = sideBets[eventBytes].wagerAmount;
         uint256 protocolFee = wagerAmount * protocolFeePercent / 1 ether;
         uint256 subjectFee = wagerAmount * subjectFeePercent / 1 ether;
         require(msg.value >= wagerAmount + protocolFee + subjectFee, "Insufficient payment");
@@ -232,9 +238,9 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         }
 
         // Update the sidebet with the opponent details
-        sideBetStructs[eventBytes].opponent = msg.sender;
+        sideBets[eventBytes].opponent = msg.sender;
 
-        emit SideBetAccepted(sideBetStructs[eventBytes]);
+        emit SideBetAccepted(sideBets[eventBytes]);
 
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
         (bool success2, ) = eventAddress.call{value: subjectFee}("");
@@ -250,18 +256,18 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
 
         // Ensure the sidebet exists and is valid
-        require(sideBetStructs[eventBytes].initiator != address(0), "Sidebet does not exist");
-        require(sideBetStructs[eventBytes].opponent != address(0), "Sidebet not yet accepted");
-        require(!sideBetStructs[eventBytes].isWinnerPicked, "Winner already picked");
+        require(sideBets[eventBytes].initiator != address(0), "Sidebet does not exist");
+        require(sideBets[eventBytes].opponent != address(0), "Sidebet not yet accepted");
+        require(!sideBets[eventBytes].isWinnerPicked, "Winner already picked");
 
         // Assign the winner
-        sideBetStructs[eventBytes].winner = winnerAddress;
-        sideBetStructs[eventBytes].isWinnerPicked = true;
+        sideBets[eventBytes].winner = winnerAddress;
+        sideBets[eventBytes].isWinnerPicked = true;
 
         emit WinnerPicked(eventBytes, winnerAddress);
 
         // Handle payout
-        uint256 totalWager = sideBetStructs[eventBytes].wagerAmount * 2; // Sum of both wagers
+        uint256 totalWager = sideBets[eventBytes].wagerAmount * 2; // Sum of both wagers
         (bool success, ) = winnerAddress.call{value: totalWager}("");
         require(success, "Failed to transfer winnings");
     }
@@ -274,23 +280,23 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
 
         // Check if the sidebet exists
-        require(sideBetStructs[eventBytes].initiator != address(0), "Sidebet does not exist");
+        require(sideBets[eventBytes].initiator != address(0), "Sidebet does not exist");
         // Ensure that the msg.sender is the initiator of the sidebet
-        require(sideBetStructs[eventBytes].initiator == msg.sender, "Only initiator can close the sidebet");
+        require(sideBets[eventBytes].initiator == msg.sender, "Only initiator can close the sidebet");
         // Check if sidebet has expired and not yet accepted
-        require(block.timestamp >= sideBetStructs[eventBytes].expirationTime, "Sidebet not yet expired");
-        require(sideBetStructs[eventBytes].opponent == address(0), "Sidebet already accepted");
+        require(block.timestamp >= sideBets[eventBytes].expirationTime, "Sidebet not yet expired");
+        require(sideBets[eventBytes].opponent == address(0), "Sidebet already accepted");
 
         // Refund the wager to the initiator
-        uint256 wager = sideBetStructs[eventBytes].wagerAmount;
-        address initiator = sideBetStructs[eventBytes].initiator;
+        uint256 wager = sideBets[eventBytes].wagerAmount;
+        address initiator = sideBets[eventBytes].initiator;
 
         // Reset the sidebet to free up storage and refund gas
-        delete sideBetStructs[eventBytes];
+        delete sideBets[eventBytes];
 
         (bool success, ) = initiator.call{value: wager}("");
         require(success, "Refund failed");
 
-        emit SideBetClosed(sideBetStructs[eventBytes]);
+        emit SideBetClosed(sideBets[eventBytes]);
     }
 }

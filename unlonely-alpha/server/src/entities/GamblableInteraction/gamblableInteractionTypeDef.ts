@@ -1,6 +1,12 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
+  enum EventType {
+    YAY_NAY_VOTE
+    VIP_BADGE
+    SIDE_BET
+  }
+
   enum GamblableEvent {
     BET_CREATE
     BET_YES_BUY
@@ -23,12 +29,12 @@ export const typeDef = gql`
     id: ID!
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
-    answers: [String]
+    options: [String]
     chainId: Int
     eventState: SharesEventState
     softDelete: Boolean
     createdAt: DateTime!
-    result: Boolean
+    resultIndex: Int
   }
 
   type GamblableInteraction {
@@ -37,7 +43,8 @@ export const typeDef = gql`
     type: GamblableEvent!
     user: User!
     createdAt: DateTime!
-    sharesEvent: SharesEvent
+    eventId: Int
+    eventType: EventType
     softDelete: Boolean
   }
 
@@ -61,14 +68,16 @@ export const typeDef = gql`
   input PostBetInput {
     channelId: ID!
     userAddress: String!
-    sharesEventId: ID!
+    eventId: Int!
+    eventType: EventType!
   }
 
   input PostBetTradeInput {
     channelId: ID!
     chainId: Int!
     userAddress: String!
-    sharesEventId: Int!
+    eventId: Int!
+    eventType: EventType!
     type: GamblableEvent!
     fees: Float!
   }
@@ -77,7 +86,7 @@ export const typeDef = gql`
     channelId: ID!
     chainId: Int!
     userAddress: String!
-    sharesEventId: Int!
+    eventId: Int!
     isBuying: Boolean!
     fees: Float!
   }
@@ -85,7 +94,8 @@ export const typeDef = gql`
   input PostClaimPayoutInput {
     channelId: ID!
     userAddress: String!
-    sharesEventId: Int!
+    eventId: Int!
+    eventType: EventType!
     type: GamblableEvent!
   }
 
