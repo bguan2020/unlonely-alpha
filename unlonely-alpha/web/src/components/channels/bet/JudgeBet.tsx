@@ -136,7 +136,7 @@ export const JudgeBet = ({
         sharesSubjectQuestion: ongoingBets?.[0]?.sharesSubjectQuestion ?? "",
         sharesSubjectAddress: ongoingBets?.[0]?.sharesSubjectAddress ?? "",
         eventState,
-        result,
+        resultIndex: result ? 0 : 1,
       });
     },
     [ongoingBets, user, userAddress]

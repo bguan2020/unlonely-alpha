@@ -371,7 +371,8 @@ const EventCard = ({
         await postClaimPayout({
           channelId: channel?.id as string,
           userAddress: userAddress as `0x${string}`,
-          sharesEventId: Number(event.id),
+          eventId: Number(event.id),
+          eventType: EventType.YAY_NAY_VOTE,
         });
         if (args.votingPooledEth === BigInt(0)) {
           await closeSharesEvents({

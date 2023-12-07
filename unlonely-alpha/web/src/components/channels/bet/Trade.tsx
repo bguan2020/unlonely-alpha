@@ -13,7 +13,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useBalance, useBlockNumber } from "wagmi";
 import { AddIcon } from "@chakra-ui/icons";
 
-import { InteractionType, NULL_ADDRESS } from "../../../constants";
+import { EventType, InteractionType, NULL_ADDRESS } from "../../../constants";
 import { ChatReturnType } from "../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
@@ -234,7 +234,8 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           type: args.trade.isYay
             ? GamblableEvent.BetYesBuy
             : GamblableEvent.BetNoBuy,
-          sharesEventId: Number(ongoingBets?.[0]?.id ?? "0"),
+          eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+          eventType: EventType.YAY_NAY_VOTE,
           fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
       },
@@ -421,7 +422,8 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           await postClaimPayout({
             channelId: channelQueryData?.id as string,
             userAddress: userAddress as `0x${string}`,
-            sharesEventId: Number(ongoingBets?.[0]?.id ?? "0"),
+            eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+            eventType: EventType.YAY_NAY_VOTE,
           });
           if (args.votingPooledEth === BigInt(0)) {
             await closeSharesEvents({

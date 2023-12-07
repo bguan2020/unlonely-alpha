@@ -211,7 +211,7 @@ export const ChannelTournament = () => {
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
           isBuying: true,
-          sharesEventId: 0,
+          eventId: 0,
           chainId: localNetwork.config.chainId,
           fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });

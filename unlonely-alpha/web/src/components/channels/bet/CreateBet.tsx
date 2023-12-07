@@ -23,6 +23,7 @@ import usePostSharesEvent from "../../../hooks/server/usePostSharesEvent";
 import { getContractFromNetwork } from "../../../utils/contract";
 import usePostBet from "../../../hooks/server/gamblable/usePostBet";
 import {
+  EventType,
   InteractionType,
   NULL_ADDRESS,
   NULL_ADDRESSS_BYTES32,
@@ -214,7 +215,8 @@ export const CreateBet = ({
         await postBet({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
-          sharesEventId: (pendingBet?.id ?? 0) as number,
+          eventId: (pendingBet?.id ?? 0) as number,
+          eventType: EventType.SIDE_BET,
         });
         await _updateSharesEvent(SharesEventState.Live);
         setQuestion("");
