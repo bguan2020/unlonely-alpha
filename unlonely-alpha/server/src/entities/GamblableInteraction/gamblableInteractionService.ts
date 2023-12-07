@@ -425,102 +425,62 @@ export const getUnclaimedEvents = async (
   data: IGetUnclaimedEvents,
   ctx: Context
 ) => {
-  // Step 1: Fetch ongoing SharesEvents
-  let sharesQuery = {};
-
-  if (data.channelId) {
-    sharesQuery = {
-      where: {
-        channelId: Number(data.channelId),
-        eventState: SharesEventState.PAYOUT,
-        chainId: Number(data.chainId),
-        softDelete: false,
-      },
-      orderBy: { createdAt: "desc" },
-    };
-  } else {
-    sharesQuery = {
-      where: {
-        eventState: SharesEventState.PAYOUT,
-        softDelete: false,
-      },
-      orderBy: { createdAt: "desc" },
-    };
-  }
+  // STEP 1: fetch for all ongoing shares events, if data.channelId is provided, filter by channelId, then get each event's id
+  const sharesQuery = {
+    where: {
+      ...(data.channelId
+        ? { channelId: Number(data.channelId), chainId: Number(data.chainId) }
+        : {}),
+      eventState: SharesEventState.PAYOUT,
+      softDelete: false,
+    },
+    orderBy: { createdAt: "desc" as const },
+  };
 
   const ongoingSharesEvents = await ctx.prisma.sharesEvent.findMany(
     sharesQuery
   );
+  const eventIds = ongoingSharesEvents.map((event) => event.id);
 
-  const unclaimedEvents = [];
+  /* STEP 2: fetch for all gamblable interactions that match the userAddress, eventIds returned above, the eventType, and gamblableEvent types
+              this is us basically asking "give me all the buy and claim interactions that this user made for each of these ongoing events"
+  */
+  const userInteractions = await ctx.prisma.gamblableInteraction.findMany({
+    where: {
+      eventId: { in: eventIds },
+      eventType: EventType.YAY_NAY_VOTE,
+      userAddress: data.userAddress,
+      type: {
+        in: [
+          GamblableEvent.BET_YES_BUY,
+          GamblableEvent.BET_NO_BUY,
+          GamblableEvent.BET_CLAIM_PAYOUT,
+        ],
+      },
+      softDelete: false,
+    },
+  });
 
-  // Step 2: Fetch all GamblableInteractions that are either BET_YES_BUY or BET_NO_BUY,
-  // then fetch the first GamblableInteraction that is a claim, if found, that is a closed transaction,
-  // else, add it to the returning array
-  for (const event of ongoingSharesEvents) {
-    let userBuysQuery = {};
-
-    if (data.userAddress) {
-      userBuysQuery = {
-        where: {
-          sharesEventId: event.id,
-          userAddress: data.userAddress,
-          type: {
-            in: [GamblableEvent.BET_YES_BUY, GamblableEvent.BET_NO_BUY],
-          },
-          softDelete: false,
-        },
-      };
-    } else {
-      userBuysQuery = {
-        where: {
-          sharesEventId: event.id,
-          type: {
-            in: [GamblableEvent.BET_YES_BUY, GamblableEvent.BET_NO_BUY],
-          },
-          softDelete: false,
-        },
-      };
-    }
-
-    const userBuys = await ctx.prisma.gamblableInteraction.findMany(
-      userBuysQuery
+  // STEP 3: we filter out the events that have already been claimed by the user, thus returning only the events the user had not claimed for
+  const unclaimedEvents = ongoingSharesEvents.filter((event) => {
+    // STEP 3a: we get the buy interactions for this event
+    const buys = userInteractions.filter(
+      (interaction) =>
+        interaction.eventId === event.id &&
+        (interaction.type === GamblableEvent.BET_YES_BUY ||
+          interaction.type === GamblableEvent.BET_NO_BUY)
     );
 
-    let hasClaimedQuery = {};
-
-    if (data.userAddress) {
-      hasClaimedQuery = {
-        where: {
-          sharesEventId: event.id,
-          userAddress: data.userAddress,
-          type: {
-            in: [GamblableEvent.BET_CLAIM_PAYOUT],
-          },
-          softDelete: false,
-        },
-      };
-    } else {
-      hasClaimedQuery = {
-        where: {
-          sharesEventId: event.id,
-          type: {
-            in: [GamblableEvent.BET_CLAIM_PAYOUT],
-          },
-          softDelete: false,
-        },
-      };
-    }
-
-    const hasClaimed = await ctx.prisma.gamblableInteraction.findFirst(
-      hasClaimedQuery
+    // STEP 3b: we check if the user has already claimed the payout for this event
+    const hasClaimed = userInteractions.some(
+      (interaction) =>
+        interaction.eventId === event.id &&
+        interaction.type === GamblableEvent.BET_CLAIM_PAYOUT
     );
 
-    // Step 3: Determine if the event is unclaimed
-    if (userBuys.length > 0 && !hasClaimed) {
-      unclaimedEvents.push(event);
-    }
-  }
+    // STEP 3c: if the user has made buys and has not claimed the payout for this event, we return true, else, return false
+    return buys.length > 0 && !hasClaimed;
+  });
 
   return unclaimedEvents;
 };
