@@ -128,6 +128,7 @@ export const CreateBet = ({
 
   const _updateSharesEvent = useCallback(
     async (eventState: SharesEventState) => {
+      if (!pendingBet) return;
       await updateSharesEvent({
         id: pendingBet?.id ?? "",
         sharesSubjectQuestion: pendingBet?.sharesSubjectQuestion ?? "",
@@ -135,7 +136,7 @@ export const CreateBet = ({
         eventState,
       });
     },
-    [pendingBet, user, userAddress]
+    [pendingBet]
   );
 
   const _postSharesEvent = useCallback(
