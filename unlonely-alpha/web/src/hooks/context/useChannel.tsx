@@ -163,8 +163,7 @@ export const ChannelProvider = ({
     refetch: refetchChannelData,
   } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
     variables: { slug },
-    // fetchPolicy: "cache-first",
-    nextFetchPolicy: "network-only",
+    fetchPolicy: "network-only",
   });
 
   const channelQueryData = useMemo(

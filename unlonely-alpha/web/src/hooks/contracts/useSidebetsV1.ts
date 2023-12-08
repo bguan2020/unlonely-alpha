@@ -224,7 +224,7 @@ export const useGetExistingWager = (
       ? await publicClient.readContract({
           address: contract.address,
           abi: contract.abi,
-          functionName: "getExistingWagerAfterFees",
+          functionName: "getExistingWagerAfterFee",
           args: [eventAddress, eventId, EventType.SIDE_BET],
         })
       : await publicClient.readContract({

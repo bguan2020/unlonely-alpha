@@ -1135,6 +1135,25 @@ export type SendAllNotificationsQuery = {
   sendAllNotifications?: boolean | null;
 };
 
+export type GetUnclaimedEventsQueryVariables = Exact<{
+  data?: InputMaybe<GetUnclaimedEvents>;
+}>;
+
+export type GetUnclaimedEventsQuery = {
+  __typename?: "Query";
+  getUnclaimedEvents: Array<{
+    __typename?: "SharesEvent";
+    sharesSubjectQuestion?: string | null;
+    sharesSubjectAddress?: string | null;
+    resultIndex?: number | null;
+    options?: Array<string | null> | null;
+    id: string;
+    eventState?: SharesEventState | null;
+    createdAt: any;
+    chainId?: number | null;
+  } | null>;
+};
+
 export type GetTokenLeaderboardQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetTokenLeaderboardQuery = {
@@ -2027,6 +2046,71 @@ export type SendAllNotificationsLazyQueryHookResult = ReturnType<
 export type SendAllNotificationsQueryResult = Apollo.QueryResult<
   SendAllNotificationsQuery,
   SendAllNotificationsQueryVariables
+>;
+export const GetUnclaimedEventsDocument = gql`
+  query GetUnclaimedEvents($data: GetUnclaimedEvents) {
+    getUnclaimedEvents(data: $data) {
+      sharesSubjectQuestion
+      sharesSubjectAddress
+      resultIndex
+      options
+      id
+      eventState
+      createdAt
+      chainId
+    }
+  }
+`;
+
+/**
+ * __useGetUnclaimedEventsQuery__
+ *
+ * To run a query within a React component, call `useGetUnclaimedEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUnclaimedEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUnclaimedEventsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetUnclaimedEventsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetUnclaimedEventsQuery,
+    GetUnclaimedEventsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetUnclaimedEventsQuery,
+    GetUnclaimedEventsQueryVariables
+  >(GetUnclaimedEventsDocument, options);
+}
+export function useGetUnclaimedEventsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetUnclaimedEventsQuery,
+    GetUnclaimedEventsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetUnclaimedEventsQuery,
+    GetUnclaimedEventsQueryVariables
+  >(GetUnclaimedEventsDocument, options);
+}
+export type GetUnclaimedEventsQueryHookResult = ReturnType<
+  typeof useGetUnclaimedEventsQuery
+>;
+export type GetUnclaimedEventsLazyQueryHookResult = ReturnType<
+  typeof useGetUnclaimedEventsLazyQuery
+>;
+export type GetUnclaimedEventsQueryResult = Apollo.QueryResult<
+  GetUnclaimedEventsQuery,
+  GetUnclaimedEventsQueryVariables
 >;
 export const GetTokenLeaderboardDocument = gql`
   query GetTokenLeaderboard {

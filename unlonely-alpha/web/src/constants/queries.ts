@@ -12,6 +12,21 @@ export const SEND_ALL_NOTIFICATIONS_QUERY = gql`
   }
 `;
 
+export const GET_UNCLAIMED_EVENTS_QUERY = gql`
+  query GetUnclaimedEvents($data: GetUnclaimedEvents) {
+    getUnclaimedEvents(data: $data) {
+      sharesSubjectQuestion
+      sharesSubjectAddress
+      resultIndex
+      options
+      id
+      eventState
+      createdAt
+      chainId
+    }
+  }
+`;
+
 export const GET_TOKEN_LEADERBOARD_QUERY = gql`
   query GetTokenLeaderboard {
     getTokenLeaderboard {

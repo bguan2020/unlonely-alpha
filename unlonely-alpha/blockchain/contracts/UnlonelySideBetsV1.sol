@@ -168,7 +168,7 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         return wagerAmount;
     }
 
-    function getExistingWagerAfterFees(address eventAddress, uint256 eventId, EventType eventType) public view returns (uint256) {
+    function getExistingWagerAfterFee(address eventAddress, uint256 eventId, EventType eventType) public view returns (uint256) {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         uint256 wagerAmount = sideBets[eventBytes].wagerAmount;
         uint256 protocolFee = wagerAmount * protocolFeePercent / 1 ether;
@@ -196,7 +196,8 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         require(msg.value >= wagerAmount + protocolFee + subjectFee, "Insufficient payment");
 
         if(msg.value > (wagerAmount + protocolFee + subjectFee)) {
-            msg.sender.call{value: msg.value - (wagerAmount + protocolFee + subjectFee)}("");
+            (bool success, ) =  msg.sender.call{value: msg.value - (wagerAmount + protocolFee + subjectFee)}("");
+            require(success, "Unable to send leftover funds");
         }
 
         sideBets[eventBytes] = SideBet({
@@ -234,7 +235,8 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         require(msg.value >= wagerAmount + protocolFee + subjectFee, "Insufficient payment");
 
         if(msg.value > (wagerAmount + protocolFee + subjectFee)) {
-            msg.sender.call{value: msg.value - (wagerAmount + protocolFee + subjectFee)}("");
+            (bool success, ) = msg.sender.call{value: msg.value - (wagerAmount + protocolFee + subjectFee)}("");
+            require(success, "Unable to send leftover funds");
         }
 
         // Update the sidebet with the opponent details
