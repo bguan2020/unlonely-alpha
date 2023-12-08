@@ -13,7 +13,10 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useBalance, useBlockNumber } from "wagmi";
 import { AddIcon } from "@chakra-ui/icons";
 
-import { EventType, InteractionType, NULL_ADDRESS } from "../../../constants";
+import {
+  InteractionType,
+  NULL_ADDRESS,
+} from "../../../constants";
 import { ChatReturnType } from "../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
@@ -32,7 +35,11 @@ import { filteredInput } from "../../../utils/validation/input";
 import { useUser } from "../../../hooks/context/useUser";
 import centerEllipses from "../../../utils/centerEllipses";
 import { getTimeFromMillis } from "../../../utils/time";
-import { GamblableEvent, SharesEventState } from "../../../generated/graphql";
+import {
+  EventType,
+  GamblableEvent,
+  SharesEventState,
+} from "../../../generated/graphql";
 import { CreateBet } from "./CreateBet";
 import { JudgeBet } from "./JudgeBet";
 import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
@@ -234,7 +241,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             ? GamblableEvent.BetYesBuy
             : GamblableEvent.BetNoBuy,
           eventId: Number(ongoingBets?.[0]?.id ?? "0"),
-          eventType: EventType.YAY_NAY_VOTE,
+          eventType: EventType.YayNayVote,
           fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
       },
@@ -422,7 +429,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             channelId: channelQueryData?.id as string,
             userAddress: userAddress as `0x${string}`,
             eventId: Number(ongoingBets?.[0]?.id ?? "0"),
-            eventType: EventType.YAY_NAY_VOTE,
+            eventType: EventType.YayNayVote,
           });
           if (args.votingPooledEth === BigInt(0)) {
             await closeSharesEvents({

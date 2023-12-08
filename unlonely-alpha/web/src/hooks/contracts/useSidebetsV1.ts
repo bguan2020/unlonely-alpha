@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
 
-import { EventType, NULL_ADDRESS } from "../../constants";
+import { EventTypeForContract, NULL_ADDRESS } from "../../constants";
 import { ContractData, WriteCallbacks } from "../../constants/types";
 import { createCallbackHandler } from "../../utils/contract";
 import { useUser } from "../context/useUser";
@@ -156,7 +156,7 @@ export const useGenerateKey = (
       address: contract.address,
       abi: contract.abi,
       functionName: "generateKey",
-      args: [eventAddress, eventId, EventType.SIDE_BET],
+      args: [eventAddress, eventId, EventTypeForContract.SIDE_BET],
     });
     setKey(String(key));
   }, [contract, publicClient, eventAddress, eventId]);
@@ -225,13 +225,13 @@ export const useGetExistingWager = (
           address: contract.address,
           abi: contract.abi,
           functionName: "getExistingWagerAfterFee",
-          args: [eventAddress, eventId, EventType.SIDE_BET],
+          args: [eventAddress, eventId, EventTypeForContract.SIDE_BET],
         })
       : await publicClient.readContract({
           address: contract.address,
           abi: contract.abi,
           functionName: "getExistingWager",
-          args: [eventAddress, eventId, EventType.SIDE_BET],
+          args: [eventAddress, eventId, EventTypeForContract.SIDE_BET],
         });
     setExistingWager(BigInt(String(wager)));
   }, [contract, publicClient, eventAddress, eventId]);
@@ -264,7 +264,7 @@ export const useIsSideBetAvailable = (
       address: contract.address,
       abi: contract.abi,
       functionName: "isSideBetAvailable",
-      args: [eventAddress, eventId, EventType.SIDE_BET],
+      args: [eventAddress, eventId, EventTypeForContract.SIDE_BET],
     });
     setIsAvailable(Boolean(isAvailable));
   }, [contract, publicClient, eventAddress, eventId]);
@@ -300,7 +300,7 @@ export const useOpenSideBet = (
     [
       args.eventAddress,
       args.eventId,
-      EventType.SIDE_BET,
+      EventTypeForContract.SIDE_BET,
       args.wagerAmount,
       args.expirationTime,
     ],
@@ -333,7 +333,7 @@ export const useAcceptSideBet = (
   } = useWrite(
     contract,
     "acceptSideBet",
-    [args.eventAddress, args.eventId, EventType.SIDE_BET],
+    [args.eventAddress, args.eventId, EventTypeForContract.SIDE_BET],
     createCallbackHandler("useAcceptSideBet acceptSideBet", callbacks),
     { value: args.wagerAmount }
   );
@@ -363,7 +363,12 @@ export const usePickWinner = (
   } = useWrite(
     contract,
     "pickWinner",
-    [args.eventAddress, args.eventId, EventType.SIDE_BET, args.winner],
+    [
+      args.eventAddress,
+      args.eventId,
+      EventTypeForContract.SIDE_BET,
+      args.winner,
+    ],
     createCallbackHandler("usePickWinner pickWinner", callbacks)
   );
 
@@ -391,7 +396,7 @@ export const useCloseSideBet = (
   } = useWrite(
     contract,
     "closeSideBet",
-    [args.eventAddress, args.eventId, EventType.SIDE_BET],
+    [args.eventAddress, args.eventId, EventTypeForContract.SIDE_BET],
     createCallbackHandler("useCloseSideBet closeSideBet", callbacks)
   );
 

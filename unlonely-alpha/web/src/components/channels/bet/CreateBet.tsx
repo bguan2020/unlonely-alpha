@@ -23,14 +23,14 @@ import usePostSharesEvent from "../../../hooks/server/usePostSharesEvent";
 import { getContractFromNetwork } from "../../../utils/contract";
 import usePostBet from "../../../hooks/server/gamblable/usePostBet";
 import {
-  EventType,
+  EventTypeForContract,
   InteractionType,
   NULL_ADDRESS,
   NULL_ADDRESSS_BYTES32,
 } from "../../../constants";
 import { useOpenEvent } from "../../../hooks/contracts/useSharesContractV2";
 import { getHourAndMinutesFromMillis } from "../../../utils/time";
-import { SharesEventState } from "../../../generated/graphql";
+import { EventType, SharesEventState } from "../../../generated/graphql";
 import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
 import useCloseSharesEvent from "../../../hooks/server/useCloseSharesEvent";
 
@@ -55,7 +55,12 @@ export const CreateBet = ({
   const { matchingChain, localNetwork, explorerUrl } = network;
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { channelQueryData, refetch, ongoingBets } = channel;
+  const {
+    channelQueryData,
+    refetch,
+    loading: channelQueryLoading,
+    ongoingBets,
+  } = channel;
   const toast = useToast();
   const isOpeningEvent = useRef(false);
   const { postSharesEvent, loading: postSharesEventLoading } =
@@ -236,7 +241,7 @@ export const CreateBet = ({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
           eventId: (pendingBet?.id ?? 0) as number,
-          eventType: EventType.SIDE_BET,
+          eventType: EventType.SideBet,
         });
         await _updateSharesEvent(SharesEventState.Live);
         setQuestion("");
@@ -279,7 +284,7 @@ export const CreateBet = ({
           args: [
             userAddress as `0x${string}`,
             0,
-            EventType.YAY_NAY_VOTE,
+            EventTypeForContract.YAY_NAY_VOTE,
             BigInt(String(Math.floor((dateNow + 60 * 60 * 1000) / 1000))),
           ],
           account: userAddress as `0x${string}`,
@@ -347,7 +352,10 @@ export const CreateBet = ({
           wrong network
         </Text>
       )}
-      {loading || postSharesEventLoading || openEventTxLoading ? (
+      {loading ||
+      postSharesEventLoading ||
+      openEventTxLoading ||
+      channelQueryLoading ? (
         <Flex direction={"column"}>
           <Flex justifyContent="center">
             <Spinner />

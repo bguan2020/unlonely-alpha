@@ -183,7 +183,7 @@ export const postBet = (data: IPostBetInput, ctx: Context) => {
           id: Number(data.channelId),
         },
       },
-      eventId: data.eventId,
+      eventId: Number(data.eventId),
       eventType: data.eventType,
       type: GamblableEvent.BET_CREATE,
       user: {

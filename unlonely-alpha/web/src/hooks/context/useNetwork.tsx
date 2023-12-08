@@ -92,7 +92,7 @@ export const NetworkProvider = ({
       }
       setMatchingChain(true);
     }
-  }, [wallet, router.pathname]);
+  }, [wallet?.chainId, router.pathname]);
 
   const value = useMemo(() => {
     return {

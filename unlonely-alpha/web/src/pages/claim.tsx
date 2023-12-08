@@ -20,11 +20,17 @@ import { useRouter } from "next/router";
 import { WavyText } from "../components/general/WavyText";
 import AppLayout from "../components/layout/AppLayout";
 import { anonUrl } from "../components/presence/AnonUrl";
-import { EventType } from "../constants";
-import { CHANNEL_FEED_QUERY, GET_SUBSCRIPTION } from "../constants/queries";
+import { EventTypeForContract } from "../constants";
+import {
+  CHANNEL_FEED_QUERY,
+  GET_SUBSCRIPTION,
+  GET_UNCLAIMED_EVENTS_QUERY,
+} from "../constants/queries";
 import {
   Channel,
+  EventType,
   GetSubscriptionQuery,
+  GetUnclaimedEventsQuery,
   SharesEvent,
 } from "../generated/graphql";
 import { useNetworkContext } from "../hooks/context/useNetwork";
@@ -53,7 +59,11 @@ export default function ClaimPage() {
 const ClaimContent = () => {
   const router = useRouter();
   const { c } = router.query;
-  const { initialNotificationsGranted } = useUser();
+  const { userAddress, initialNotificationsGranted } = useUser();
+  const isFetching = useRef(false);
+
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
 
   const [endpoint, setEndpoint] = useState<string>("");
   const [sortedChannels, setSortedChannels] = useState<Channel[]>([]);
@@ -63,13 +73,17 @@ const ClaimContent = () => {
     undefined
   );
   const [claimedPayouts, setClaimedPayouts] = useState<SharesEvent[]>([]);
+  const [pageLoading, setPageLoading] = useState<boolean>(true);
 
-  const { data: dataChannels, loading } = useQuery(CHANNEL_FEED_QUERY, {
-    variables: {
-      data: {},
-    },
-    fetchPolicy: "cache-first",
-  });
+  const { data: dataChannels, loading: feedLoading } = useQuery(
+    CHANNEL_FEED_QUERY,
+    {
+      variables: {
+        data: {},
+      },
+      fetchPolicy: "cache-first",
+    }
+  );
 
   const [getSubscription, { data: subscriptionData }] =
     useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
@@ -80,6 +94,81 @@ const ClaimContent = () => {
 
   const suggestedChannels =
     subscriptionData?.getSubscriptionByEndpoint?.allowedChannels;
+
+  const publicClient = usePublicClient();
+  const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
+
+  const ongoingBets = useMemo(
+    () =>
+      selectedChannel?.sharesEvent?.filter(
+        (event): event is SharesEvent =>
+          event !== null && event?.chainId === localNetwork.config.chainId
+      ) || [],
+    [selectedChannel?.sharesEvent, localNetwork.config.chainId]
+  );
+
+  const [getUnclaimedEvents, { loading, data, error }] =
+    useLazyQuery<GetUnclaimedEventsQuery>(GET_UNCLAIMED_EVENTS_QUERY, {
+      fetchPolicy: "network-only",
+    });
+
+  const [claimableBets, setClaimableBets] = useState<UnclaimedBet[]>([]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (!contractData || !contractData.address || isFetching.current) return;
+      setPageLoading(true);
+      isFetching.current = true;
+      let unclaimedBets: SharesEvent[] = [];
+      try {
+        const data = await getUnclaimedEvents({
+          variables: {
+            data: {
+              userAddress: userAddress as `0x${string}`,
+              chainId: contractData.chainId,
+            },
+          },
+        });
+        unclaimedBets =
+          data?.data?.getUnclaimedEvents.filter(
+            (event): event is SharesEvent =>
+              event !== null && event?.chainId === localNetwork.config.chainId
+          ) || [];
+      } catch (err) {
+        console.log(
+          "claimpage fetching for unclaimed events failed, switching to fetching ongoing bets",
+          err
+        );
+        unclaimedBets = ongoingBets;
+      }
+      const promises = unclaimedBets.map((event) =>
+        publicClient.readContract({
+          address: contractData.address,
+          abi: contractData.abi,
+          functionName: "getVotePayout",
+          args: [
+            event.sharesSubjectAddress,
+            event.id,
+            EventTypeForContract.YAY_NAY_VOTE,
+            userAddress,
+          ],
+        })
+      );
+      const payouts = await Promise.all(promises);
+      const formattedPayouts = payouts.map((payout) => BigInt(String(payout)));
+      const combinedBets = unclaimedBets.map((event, i) => ({
+        ...event,
+        payout: formattedPayouts[i],
+      }));
+      const claimableBets = combinedBets.filter(
+        (event) => event.payout > BigInt(0) && (event?.resultIndex ?? -1) >= 0
+      );
+      setClaimableBets(claimableBets);
+      isFetching.current = false;
+      setPageLoading(false);
+    };
+    init();
+  }, [userAddress, contractData.address]);
 
   const handleGetSubscription = useCallback(async () => {
     await getSubscription({
@@ -148,7 +237,7 @@ const ClaimContent = () => {
 
   return (
     <>
-      {!loading ? (
+      {!feedLoading && !pageLoading ? (
         <Flex direction="column">
           <Text
             fontSize={["40px", "55px", "70px"]}
@@ -205,6 +294,7 @@ const ClaimContent = () => {
               <>
                 {(selectedChannel?.sharesEvent?.length ?? 0) > 0 ? (
                   <EventsDashboard
+                    claimableBets={claimableBets}
                     channel={selectedChannel}
                     claimedPayouts={claimedPayouts}
                     addPayoutToClaimedPayouts={addPayoutToClaimedPayouts}
@@ -258,98 +348,37 @@ type UnclaimedBet = SharesEvent & {
 
 const EventsDashboard = ({
   channel,
+  claimableBets,
   claimedPayouts,
   addPayoutToClaimedPayouts,
 }: {
   channel: Channel;
+  claimableBets: UnclaimedBet[];
   claimedPayouts: SharesEvent[];
   addPayoutToClaimedPayouts: (event: SharesEvent) => void;
 }) => {
-  const { userAddress } = useUser();
-  const isFetching = useRef(false);
-
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
-
-  const [loading, setLoading] = useState<boolean>(false);
-  const publicClient = usePublicClient();
-  const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
-
-  const ongoingBets = useMemo(
-    () =>
-      channel?.sharesEvent?.filter(
-        (event): event is SharesEvent =>
-          event !== null && event?.chainId === localNetwork.config.chainId
-      ) || [],
-    [channel?.sharesEvent, localNetwork.config.chainId]
-  );
-
-  const [claimableBets, setClaimableBets] = useState<UnclaimedBet[]>([]);
-
-  useEffect(() => {
-    const init = async () => {
-      if (!contractData || !contractData.address || isFetching.current) return;
-      setLoading(true);
-      isFetching.current = true;
-      const promises = ongoingBets.map((event) =>
-        publicClient.readContract({
-          address: contractData.address,
-          abi: contractData.abi,
-          functionName: "getVotePayout",
-          args: [
-            event.sharesSubjectAddress,
-            event.id,
-            EventType.YAY_NAY_VOTE,
-            userAddress,
-          ],
-        })
-      );
-      const payouts = await Promise.all(promises);
-      const formattedPayouts = payouts.map((payout) => BigInt(String(payout)));
-      const combinedBets = ongoingBets.map((event, i) => ({
-        ...event,
-        payout: formattedPayouts[i],
-      }));
-      const claimableBets = combinedBets.filter(
-        (event) => event.payout > BigInt(0) && (event?.resultIndex ?? -1) >= 0
-      );
-      setClaimableBets(claimableBets);
-      isFetching.current = false;
-      setLoading(false);
-    };
-    init();
-  }, [ongoingBets, userAddress, contractData.address]);
-
   return (
     <Flex>
-      {loading ? (
-        <Spinner />
-      ) : (
-        <Flex direction="column">
-          <>
-            {claimableBets.length > 0 ? (
-              <SimpleGrid columns={[2, 3, 4, 4]} spacing={10}>
-                {claimableBets.map((event) => (
-                  <EventCard
-                    event={event}
-                    channel={channel}
-                    claimedPayouts={claimedPayouts}
-                    addPayoutToClaimedPayouts={addPayoutToClaimedPayouts}
-                  />
-                ))}
-              </SimpleGrid>
-            ) : (
-              <Text
-                textAlign={"center"}
-                fontFamily={"LoRes15"}
-                fontSize={"25px"}
-              >
-                You don't have any payouts waiting for this channel's bets
-              </Text>
-            )}
-          </>
-        </Flex>
-      )}
+      <Flex direction="column">
+        <>
+          {claimableBets.length > 0 ? (
+            <SimpleGrid columns={[2, 3, 4, 4]} spacing={10}>
+              {claimableBets.map((event) => (
+                <EventCard
+                  event={event}
+                  channel={channel}
+                  claimedPayouts={claimedPayouts}
+                  addPayoutToClaimedPayouts={addPayoutToClaimedPayouts}
+                />
+              ))}
+            </SimpleGrid>
+          ) : (
+            <Text textAlign={"center"} fontFamily={"LoRes15"} fontSize={"25px"}>
+              You don't have any payouts waiting for this channel's bets
+            </Text>
+          )}
+        </>
+      </Flex>
     </Flex>
   );
 };
@@ -367,7 +396,7 @@ const EventCard = ({
 }) => {
   const { userAddress } = useUser();
   const { network } = useNetworkContext();
-  const { matchingChain, localNetwork, explorerUrl } = network;
+  const { localNetwork, explorerUrl } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
   const toast = useToast();
 
@@ -451,7 +480,7 @@ const EventCard = ({
           channelId: channel?.id as string,
           userAddress: userAddress as `0x${string}`,
           eventId: Number(event.id),
-          eventType: EventType.YAY_NAY_VOTE,
+          eventType: EventType.YayNayVote,
         });
         if (args.votingPooledEth === BigInt(0)) {
           await closeSharesEvents({

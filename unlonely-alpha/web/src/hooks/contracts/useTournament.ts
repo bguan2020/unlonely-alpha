@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
-import { EventType, NULL_ADDRESS } from "../../constants";
+import { EventTypeForContract, NULL_ADDRESS } from "../../constants";
 import { ContractData, WriteCallbacks } from "../../constants/types";
 import { createCallbackHandler } from "../../utils/contract";
 import { useUser } from "../context/useUser";
@@ -344,7 +344,11 @@ export const useGenerateKey = (
       address: contract.address,
       abi: contract.abi,
       functionName: "generateKey",
-      args: [streamerAddress as `0x${string}`, eventId, EventType.VIP_BADGE],
+      args: [
+        streamerAddress as `0x${string}`,
+        eventId,
+        EventTypeForContract.VIP_BADGE,
+      ],
     });
     setKey(String(key));
   }, [contract.address, publicClient, streamerAddress, eventId]);
@@ -402,7 +406,7 @@ export const useSelectTournamentWinner = (
   } = useWrite(
     contract,
     "selectTournamentWinner",
-    [args.streamerAddress, args.eventId, EventType.VIP_BADGE],
+    [args.streamerAddress, args.eventId, EventTypeForContract.VIP_BADGE],
     createCallbackHandler(
       "useSelectTournamentWinner selectTournamentWinner",
       callbacks
@@ -524,7 +528,12 @@ export const useGetHolderBalance = (
         address: contract.address,
         abi: contract.abi,
         functionName: "getHolderBalance",
-        args: [streamerAddress, eventId, EventType.VIP_BADGE, holder],
+        args: [
+          streamerAddress,
+          eventId,
+          EventTypeForContract.VIP_BADGE,
+          holder,
+        ],
       }),
     ]);
     setVipBadgeBalance(String(vipBadgeBalance));
@@ -559,7 +568,7 @@ export const getSupply = (
         address: contract.address,
         abi: contract.abi,
         functionName: "getSupply",
-        args: [streamerAddress, eventId, EventType.VIP_BADGE],
+        args: [streamerAddress, eventId, EventTypeForContract.VIP_BADGE],
       }),
     ]);
     setVipBadgeSupply(String(vipBadgeSupply));
@@ -599,13 +608,23 @@ export const useGetPrice = (
             address: contract.address,
             abi: contract.abi,
             functionName: "getBuyPrice",
-            args: [streamerAddress, eventId, EventType.VIP_BADGE, amount],
+            args: [
+              streamerAddress,
+              eventId,
+              EventTypeForContract.VIP_BADGE,
+              amount,
+            ],
           })
         : await publicClient.readContract({
             address: contract.address,
             abi: contract.abi,
             functionName: "getSellPrice",
-            args: [streamerAddress, eventId, EventType.VIP_BADGE, amount],
+            args: [
+              streamerAddress,
+              eventId,
+              EventTypeForContract.VIP_BADGE,
+              amount,
+            ],
           });
     setPrice(BigInt(String(price)));
   }, [
@@ -651,13 +670,23 @@ export const useGetPriceAfterFee = (
             address: contract.address,
             abi: contract.abi,
             functionName: "getBuyPriceAfterFee",
-            args: [streamerAddress, eventId, EventType.VIP_BADGE, amount],
+            args: [
+              streamerAddress,
+              eventId,
+              EventTypeForContract.VIP_BADGE,
+              amount,
+            ],
           })
         : await publicClient.readContract({
             address: contract.address,
             abi: contract.abi,
             functionName: "getSellPriceAfterFee",
-            args: [streamerAddress, eventId, EventType.VIP_BADGE, amount],
+            args: [
+              streamerAddress,
+              eventId,
+              EventTypeForContract.VIP_BADGE,
+              amount,
+            ],
           });
     setPriceAfterFee(BigInt(String(price)));
   }, [
@@ -698,7 +727,12 @@ export const useBuyVipBadge = (
   } = useWrite(
     contract,
     "buyVIPBadge",
-    [args.streamerAddress, args.eventId, EventType.VIP_BADGE, args.amount],
+    [
+      args.streamerAddress,
+      args.eventId,
+      EventTypeForContract.VIP_BADGE,
+      args.amount,
+    ],
     createCallbackHandler("useBuyVipBadge buyVipBadge", callbacks),
     { value: args.value }
   );
@@ -731,7 +765,12 @@ export const useSellVipBadge = (
   } = useWrite(
     contract,
     "sellVIPBadge",
-    [args.streamerAddress, args.eventId, EventType.VIP_BADGE, args.amount],
+    [
+      args.streamerAddress,
+      args.eventId,
+      EventTypeForContract.VIP_BADGE,
+      args.amount,
+    ],
     createCallbackHandler("useSellVipBadge sellVipBadge", callbacks)
   );
 
