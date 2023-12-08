@@ -12,7 +12,7 @@ import {
   Text,
   Spinner,
 } from "@chakra-ui/react";
-import { useBlockNumber } from "wagmi";
+import { useBlockNumber, usePublicClient } from "wagmi";
 import Link from "next/link";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 
@@ -32,6 +32,7 @@ import { useOpenEvent } from "../../../hooks/contracts/useSharesContractV2";
 import { getHourAndMinutesFromMillis } from "../../../utils/time";
 import { SharesEventState } from "../../../generated/graphql";
 import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
+import useCloseSharesEvent from "../../../hooks/server/useCloseSharesEvent";
 
 const MAX_CHARS = 8;
 
@@ -39,18 +40,17 @@ export const CreateBet = ({
   pool,
   generatedKey,
   ethBalance,
-  eventEndTimestamp,
   isVerifier,
   handleClose,
 }: {
   pool: bigint;
   generatedKey: string;
   ethBalance: bigint;
-  eventEndTimestamp: bigint;
   isVerifier: boolean;
   handleClose: () => void;
 }) => {
   const { userAddress, user } = useUser();
+  const publicClient = usePublicClient();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
   const { channel, chat } = useChannelContext();
@@ -68,6 +68,7 @@ export const CreateBet = ({
     "10" | "30" | "60" | "120"
   >("60");
   const [loading, setLoading] = useState<string | undefined>("prepping");
+  const [requiredGas, setRequiredGas] = useState<bigint>(BigInt(0));
 
   const pendingBet = useMemo(
     () =>
@@ -82,15 +83,16 @@ export const CreateBet = ({
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const sufficientEthForGas = useMemo(
-    () => ethBalance >= BigInt(1000000),
-    [ethBalance]
+    () => ethBalance >= requiredGas,
+    [ethBalance, requiredGas]
   );
 
   const currentBetIsActiveAndHasFunds = useMemo(
     () =>
       (ongoingBets?.length ?? 0) > 0 &&
       pool > BigInt(0) &&
-      ongoingBets?.[0].eventState !== SharesEventState.Payout,
+      ongoingBets?.[0].eventState !== SharesEventState.Payout &&
+      ongoingBets?.[0].eventState !== SharesEventState.Pending,
     [pool, ongoingBets]
   );
 
@@ -98,6 +100,12 @@ export const CreateBet = ({
     useUpdateSharesEvent({});
 
   const { postBet } = usePostBet({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { closeSharesEvents } = useCloseSharesEvent({
     onError: (err) => {
       console.log(err);
     },
@@ -127,6 +135,17 @@ export const CreateBet = ({
 
   const _postSharesEvent = useCallback(
     async (sharesSubjectQuestion: string) => {
+      if (
+        (ongoingBets?.length ?? 0) > 0 &&
+        pool === BigInt(0) &&
+        ongoingBets?.[0].eventState !== SharesEventState.Pending
+      ) {
+        await closeSharesEvents({
+          chainId: localNetwork.config.chainId,
+          channelId: channelQueryData?.id as string,
+          sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
+        });
+      }
       await postSharesEvent({
         id: channelQueryData?.id ?? "",
         sharesSubjectQuestion: sharesSubjectQuestion,
@@ -142,6 +161,7 @@ export const CreateBet = ({
       setLoading(undefined);
     },
     [
+      ongoingBets?.length,
       channelQueryData,
       question,
       user,
@@ -249,32 +269,35 @@ export const CreateBet = ({
     }
   );
 
-  // useEffect(() => {
-  //   const estimateGas = async () => {
-  //     console.log("calling", publicClient);
-  //     const gas = await publicClient
-  //       .estimateContractGas({
-  //         address: contractData.address as `0x${string}`,
-  //         abi: contractData.abi,
-  //         functionName: "openEvent",
-  //         args: [
-  //           userAddress as `0x${string}`,
-  //           0,
-  //           EventType.YAY_NAY_VOTE,
-  //           BigInt(String(Math.floor((60 * 60 * 1000) / 1000))),
-  //         ],
-  //         account: userAddress as `0x${string}`,
-  //       })
-  //       .then((data) => console.log(data))
-  //       .catch((e) => console.log(e));
-  //     console.log("calling gas", gas);
-  //     const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
-  //     setRequiredGas(adjustedGas);
-  //   };
-  //   if (publicClient && contractData && channelQueryData && userAddress) {
-  //     estimateGas();
-  //   }
-  // }, [publicClient, contractData, channelQueryData, userAddress]);
+  useEffect(() => {
+    const estimateGas = async () => {
+      const gas = await publicClient
+        .estimateContractGas({
+          address: contractData.address as `0x${string}`,
+          abi: contractData.abi,
+          functionName: "openEvent",
+          args: [
+            userAddress as `0x${string}`,
+            0,
+            EventType.YAY_NAY_VOTE,
+            BigInt(String(Math.floor((dateNow + 60 * 60 * 1000) / 1000))),
+          ],
+          account: userAddress as `0x${string}`,
+        })
+        .then((data) => {
+          return data;
+        })
+        .catch((e) => {
+          console.log("calling error", e);
+          return BigInt(0);
+        });
+      const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
+      setRequiredGas(adjustedGas);
+    };
+    if (publicClient && contractData && channelQueryData && userAddress) {
+      estimateGas();
+    }
+  }, [publicClient, contractData, channelQueryData, userAddress, dateNow]);
 
   useEffect(() => {
     const c = async () => {
@@ -293,7 +316,7 @@ export const CreateBet = ({
 
   useEffect(() => {
     const init = async () => {
-      setDateNow(Date.now());
+      if (!contractCallInProgress) setDateNow(Date.now());
       if (generatedKey !== NULL_ADDRESSS_BYTES32 || ongoingBets?.length === 0)
         setLoading(undefined);
     };
@@ -339,7 +362,9 @@ export const CreateBet = ({
             </Text>
           ) : (
             <>
-              <Text>enter the question for the event</Text>
+              <Text color={question.length === 0 ? "red.300" : "unset"}>
+                enter the question for the event
+              </Text>
               <Input
                 variant="glow"
                 placeholder={"Will I go on a second date?"}

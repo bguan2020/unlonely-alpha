@@ -15,6 +15,7 @@ import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { decodeEventLog, formatUnits } from "viem";
 import { usePublicClient } from "wagmi";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 import { WavyText } from "../components/general/WavyText";
 import AppLayout from "../components/layout/AppLayout";
@@ -50,13 +51,18 @@ export default function ClaimPage() {
 }
 
 const ClaimContent = () => {
+  const router = useRouter();
+  const { c } = router.query;
   const { initialNotificationsGranted } = useUser();
 
   const [endpoint, setEndpoint] = useState<string>("");
   const [sortedChannels, setSortedChannels] = useState<Channel[]>([]);
   const [isSorted, setIsSorted] = useState<boolean>(false);
   const scrollRef = useRef<VirtuosoHandle>(null);
-  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
+  const [selectedChannel, setSelectedChannel] = useState<Channel | undefined>(
+    undefined
+  );
+  const [claimedPayouts, setClaimedPayouts] = useState<SharesEvent[]>([]);
 
   const { data: dataChannels, loading } = useQuery(CHANNEL_FEED_QUERY, {
     variables: {
@@ -80,6 +86,10 @@ const ClaimContent = () => {
       variables: { data: { endpoint } },
     });
   }, [endpoint]);
+
+  const addPayoutToClaimedPayouts = useCallback((event: SharesEvent) => {
+    setClaimedPayouts((prev) => [...prev, event]);
+  }, []);
 
   useEffect(() => {
     if (endpoint) {
@@ -130,18 +140,40 @@ const ClaimContent = () => {
     setIsSorted(true);
   }, [channels, isSorted, suggestedChannels]);
 
+  useEffect(() => {
+    if (!c) return;
+    const _channel = channels?.find((channel) => channel.slug === c);
+    setSelectedChannel(_channel);
+  }, [c, channels]);
+
   return (
     <>
       {!loading ? (
         <Flex direction="column">
-          <Text>claim payout</Text>
-          <Flex>
+          <Text
+            fontSize={["40px", "55px", "70px"]}
+            fontFamily={"LoRes15"}
+            textAlign="center"
+          >
+            claim payout
+          </Text>
+          <Text
+            color="#1cfff0"
+            fontSize={["20px", "25px", "30px"]}
+            textAlign="center"
+          >
+            {selectedChannel
+              ? `showing claim payouts for ${selectedChannel.slug}`
+              : "select a channel to claim payouts"}
+          </Text>
+          <Flex gap="10px" mt="20px">
             {sortedChannels && sortedChannels.length > 0 ? (
               <Flex
                 height="calc(80vh)"
                 position={"relative"}
                 direction="column"
                 justifyContent="center"
+                bg="#19162F"
                 width="300px"
               >
                 <Virtuoso
@@ -172,12 +204,26 @@ const ClaimContent = () => {
             {selectedChannel && (
               <>
                 {(selectedChannel?.sharesEvent?.length ?? 0) > 0 ? (
-                  <EventsDashboard channel={selectedChannel} />
+                  <EventsDashboard
+                    channel={selectedChannel}
+                    claimedPayouts={claimedPayouts}
+                    addPayoutToClaimedPayouts={addPayoutToClaimedPayouts}
+                  />
                 ) : (
-                  <Text>
-                    This channel does not have any ongoing bets, please choose
-                    another one.
-                  </Text>
+                  <Flex
+                    justifyContent={"center"}
+                    flexGrow={1}
+                    alignItems="center"
+                  >
+                    <Text
+                      textAlign={"center"}
+                      fontFamily={"LoRes15"}
+                      fontSize={"25px"}
+                    >
+                      This channel does not have any ongoing bets, please choose
+                      another one.
+                    </Text>
+                  </Flex>
                 )}
               </>
             )}
@@ -210,7 +256,15 @@ type UnclaimedBet = SharesEvent & {
   payout: bigint;
 };
 
-const EventsDashboard = ({ channel }: { channel: Channel }) => {
+const EventsDashboard = ({
+  channel,
+  claimedPayouts,
+  addPayoutToClaimedPayouts,
+}: {
+  channel: Channel;
+  claimedPayouts: SharesEvent[];
+  addPayoutToClaimedPayouts: (event: SharesEvent) => void;
+}) => {
   const { userAddress } = useUser();
   const isFetching = useRef(false);
 
@@ -272,12 +326,28 @@ const EventsDashboard = ({ channel }: { channel: Channel }) => {
         <Spinner />
       ) : (
         <Flex direction="column">
-          <Text>claimable bets</Text>
-          <SimpleGrid columns={[2, 3, 4, 4]} spacing={10}>
-            {claimableBets.map((event) => (
-              <EventCard event={event} channel={channel} />
-            ))}
-          </SimpleGrid>
+          <>
+            {claimableBets.length > 0 ? (
+              <SimpleGrid columns={[2, 3, 4, 4]} spacing={10}>
+                {claimableBets.map((event) => (
+                  <EventCard
+                    event={event}
+                    channel={channel}
+                    claimedPayouts={claimedPayouts}
+                    addPayoutToClaimedPayouts={addPayoutToClaimedPayouts}
+                  />
+                ))}
+              </SimpleGrid>
+            ) : (
+              <Text
+                textAlign={"center"}
+                fontFamily={"LoRes15"}
+                fontSize={"25px"}
+              >
+                You don't have any payouts waiting for this channel's bets
+              </Text>
+            )}
+          </>
         </Flex>
       )}
     </Flex>
@@ -287,15 +357,24 @@ const EventsDashboard = ({ channel }: { channel: Channel }) => {
 const EventCard = ({
   event,
   channel,
+  claimedPayouts,
+  addPayoutToClaimedPayouts,
 }: {
   event: UnclaimedBet;
   channel: Channel;
+  claimedPayouts: SharesEvent[];
+  addPayoutToClaimedPayouts: (event: SharesEvent) => void;
 }) => {
   const { userAddress } = useUser();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
   const toast = useToast();
+
+  const alreadyClaimed = useMemo(
+    () => claimedPayouts.some((claimedPayout) => claimedPayout.id === event.id),
+    [claimedPayouts, event.id]
+  );
 
   const { postClaimPayout } = usePostClaimPayout({
     onError: (err) => {
@@ -308,7 +387,7 @@ const EventCard = ({
     },
   });
 
-  const { claimVotePayout } = useClaimVotePayout(
+  const { claimVotePayout, claimVotePayoutTxLoading } = useClaimVotePayout(
     {
       eventAddress: event.sharesSubjectAddress as `0x${string}`,
       eventId: Number(event.id ?? "0"),
@@ -381,6 +460,7 @@ const EventCard = ({
             sharesEventIds: [Number(event.id)],
           });
         }
+        addPayoutToClaimedPayouts(event);
       },
       onTxError: (error) => {
         toast({
@@ -398,36 +478,69 @@ const EventCard = ({
   );
 
   return (
-    <Flex direction="column">
+    <Flex
+      direction="column"
+      bg="#19162F"
+      p="1rem"
+      borderRadius="15px"
+      justifyContent={"space-between"}
+    >
+      <Text
+        textAlign={"center"}
+        color="#8a8a8a"
+        fontSize={"10px"}
+        fontWeight={"bold"}
+      >
+        {new Date(event.createdAt).toLocaleString()}
+      </Text>
       <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
         {event.sharesSubjectQuestion}
       </Text>
-      {(event?.resultIndex ?? -1 >= 0) && (
-        <Flex justifyContent="space-between">
-          <Text fontSize="18px">event outcome</Text>
-          <Text
-            fontSize="18px"
-            fontWeight="bold"
-            color={event.resultIndex === 0 ? "#02f042" : "#ee6204"}
-          >
-            {event.resultIndex === 0 ? "Yes" : "No"}
-          </Text>
-        </Flex>
-      )}
-      <Button
-        _hover={{}}
-        _focus={{}}
-        _active={{}}
-        bg={"#E09025"}
-        borderRadius="25px"
-        isDisabled={!claimVotePayout}
-        onClick={claimVotePayout}
-        width="100%"
-      >
-        <Text fontSize="20px">
-          {truncateValue(formatUnits(event.payout, 18))} ETH
-        </Text>
-      </Button>
+      <Flex direction="column">
+        {(event?.resultIndex ?? -1) >= 0 && (
+          <Flex justifyContent={"center"}>
+            <Text
+              textAlign={"center"}
+              fontSize="18px"
+              fontWeight="bold"
+              color={event.resultIndex === 0 ? "#02f042" : "#ee6204"}
+            >
+              {event.resultIndex === 0 ? "Yes" : "No"}
+            </Text>
+          </Flex>
+        )}
+        <>
+          {alreadyClaimed ? (
+            <Text
+              textAlign={"center"}
+              fontSize={["20px", "20px", "35px"]}
+              fontFamily="LoRes15"
+              color={"#ffce8f"}
+            >
+              claimed!
+            </Text>
+          ) : (
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={"#E09025"}
+              borderRadius="25px"
+              isDisabled={!claimVotePayout || claimVotePayoutTxLoading}
+              onClick={claimVotePayout}
+              width="100%"
+            >
+              {claimVotePayoutTxLoading ? (
+                <Spinner />
+              ) : (
+                <Text fontSize="20px">
+                  {truncateValue(formatUnits(event.payout, 18))} ETH
+                </Text>
+              )}
+            </Button>
+          )}
+        </>
+      </Flex>
     </Flex>
   );
 };
@@ -437,7 +550,7 @@ const ChannelBlock = ({
   selectedChannel,
   callback,
 }: {
-  selectedChannel: Channel | null;
+  selectedChannel?: Channel;
   channel: Channel;
   callback: (channel: Channel) => void;
 }) => {
@@ -453,7 +566,7 @@ const ChannelBlock = ({
   return (
     <Flex
       p="10px"
-      bg={selectedChannel?.id === channel.id ? "#006080" : "#19162F"}
+      bg={selectedChannel?.id === channel.id ? "#006080" : "unset"}
       width="100%"
       justifyContent={"space-between"}
       onClick={() => callback(channel)}

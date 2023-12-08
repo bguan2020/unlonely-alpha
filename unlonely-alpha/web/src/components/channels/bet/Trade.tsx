@@ -22,7 +22,6 @@ import {
   useGetPriceAfterFee,
   useReadMappings,
   useGenerateKey,
-  useSellVotes,
   useGetHolderBalances,
   useClaimVotePayout,
 } from "../../../hooks/contracts/useSharesContractV2";
@@ -254,109 +253,109 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     }
   );
 
-  const {
-    sellVotes,
-    refetch: refetchSellVotes,
-    isRefetchingSellVotes,
-  } = useSellVotes(
-    {
-      eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
-      eventId: Number(ongoingBets?.[0]?.id ?? "0"),
-      isYay,
-      amountOfVotes: amount_bigint,
-    },
-    v2contract,
-    {
-      onWriteSuccess: (data) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.hash}`}
-                passHref
-              >
-                sellVotes pending, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-      },
-      onWriteError: (error) => {
-        toast({
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-              sellVotes cancelled
-            </Box>
-          ),
-        });
-      },
-      onTxSuccess: async (data) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.transactionHash}`}
-                passHref
-              >
-                sellVotes success, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-        setAmountOfVotes("1");
-        const topics = decodeEventLog({
-          abi: v2contract.abi,
-          data: data.logs[0].data,
-          topics: data.logs[0].topics,
-        });
-        const args: any = topics.args;
-        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
-          args.trade.isBuy ? "bought" : "sold"
-        } ${args.trade.shareAmount} ${args.trade.isYay ? "yes" : "no"} votes!`;
-        addToChatbot({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType: InteractionType.SELL_VOTES,
-          title,
-          description: `${
-            user?.username ?? centerEllipses(userAddress ?? "", 15)
-          }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}`,
-        });
-        await postBetTrade({
-          channelId: channelQueryData?.id as string,
-          userAddress: userAddress as `0x${string}`,
-          chainId: localNetwork.config.chainId,
-          type: args.trade.isYay
-            ? GamblableEvent.BetYesSell
-            : GamblableEvent.BetNoSell,
-          fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
-        });
-      },
-      onTxError: (error) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              sellVotes error
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-      },
-    }
-  );
+  // const {
+  //   sellVotes,
+  //   refetch: refetchSellVotes,
+  //   isRefetchingSellVotes,
+  // } = useSellVotes(
+  //   {
+  //     eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
+  //     eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+  //     isYay,
+  //     amountOfVotes: amount_bigint,
+  //   },
+  //   v2contract,
+  //   {
+  //     onWriteSuccess: (data) => {
+  //       toast({
+  //         render: () => (
+  //           <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+  //             <Link
+  //               target="_blank"
+  //               href={`${explorerUrl}/tx/${data.hash}`}
+  //               passHref
+  //             >
+  //               sellVotes pending, click to view
+  //             </Link>
+  //           </Box>
+  //         ),
+  //         duration: 9000,
+  //         isClosable: true,
+  //         position: "top-right",
+  //       });
+  //     },
+  //     onWriteError: (error) => {
+  //       toast({
+  //         duration: 9000,
+  //         isClosable: true,
+  //         position: "top-right",
+  //         render: () => (
+  //           <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+  //             sellVotes cancelled
+  //           </Box>
+  //         ),
+  //       });
+  //     },
+  //     onTxSuccess: async (data) => {
+  //       toast({
+  //         render: () => (
+  //           <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+  //             <Link
+  //               target="_blank"
+  //               href={`${explorerUrl}/tx/${data.transactionHash}`}
+  //               passHref
+  //             >
+  //               sellVotes success, click to view
+  //             </Link>
+  //           </Box>
+  //         ),
+  //         duration: 9000,
+  //         isClosable: true,
+  //         position: "top-right",
+  //       });
+  //       setAmountOfVotes("1");
+  //       const topics = decodeEventLog({
+  //         abi: v2contract.abi,
+  //         data: data.logs[0].data,
+  //         topics: data.logs[0].topics,
+  //       });
+  //       const args: any = topics.args;
+  //       const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+  //         args.trade.isBuy ? "bought" : "sold"
+  //       } ${args.trade.shareAmount} ${args.trade.isYay ? "yes" : "no"} votes!`;
+  //       addToChatbot({
+  //         username: user?.username ?? "",
+  //         address: userAddress ?? "",
+  //         taskType: InteractionType.SELL_VOTES,
+  //         title,
+  //         description: `${
+  //           user?.username ?? centerEllipses(userAddress ?? "", 15)
+  //         }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}`,
+  //       });
+  //       await postBetTrade({
+  //         channelId: channelQueryData?.id as string,
+  //         userAddress: userAddress as `0x${string}`,
+  //         chainId: localNetwork.config.chainId,
+  //         type: args.trade.isYay
+  //           ? GamblableEvent.BetYesSell
+  //           : GamblableEvent.BetNoSell,
+  //         fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
+  //       });
+  //     },
+  //     onTxError: (error) => {
+  //       toast({
+  //         render: () => (
+  //           <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+  //             sellVotes error
+  //           </Box>
+  //         ),
+  //         duration: 9000,
+  //         isClosable: true,
+  //         position: "top-right",
+  //       });
+  //     },
+  //   }
+  // );
 
   const { claimVotePayout, refetch: refetchClaimVotePayout } =
     useClaimVotePayout(
@@ -509,7 +508,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
       calls = calls.concat([
         refetchVotePrice(),
         refetchBuyVotes(),
-        refetchSellVotes(),
+        // refetchSellVotes(),
         refetchBalances(),
       ]);
     }
@@ -579,10 +578,10 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
   ]);
 
   return (
-    <Flex direction="column" height="100%">
+    <Flex direction="column" height="100%" position={"relative"}>
       {tradeLoading && (
-        <Text>
-          updating... <Spinner size="xs" />
+        <Text fontSize="12px" color="#1cfff0" position="absolute" top="-15px">
+          <Spinner size="xs" /> updating interface...
         </Text>
       )}
       {isOwner && walletIsConnected && (
@@ -841,20 +840,16 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                       _focus={{}}
                       _hover={{}}
                       _active={{}}
-                      onClick={() => (isBuying ? buyVotes?.() : sellVotes?.())}
+                      onClick={() => (isBuying ? buyVotes?.() : undefined)}
                       disabled={
                         (isBuying && !buyVotes) ||
-                        (!isBuying && !sellVotes) ||
                         isRefetchingBuyVotes ||
-                        isRefetchingSellVotes ||
                         tradeLoading
                       }
                     >
                       {(isBuying && !buyVotes) ||
-                      (!isBuying && !sellVotes) ||
                       isRefetchingBuyVotes ||
-                      tradeLoading ||
-                      isRefetchingSellVotes ? (
+                      tradeLoading ? (
                         <Spinner />
                       ) : isBuying ? (
                         "BUY"
@@ -947,7 +942,6 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           generatedKey={generatedKey}
           ethBalance={userEthBalance?.value ?? BigInt(0)}
           isVerifier={isVerifier}
-          eventEndTimestamp={eventEndTimestamp}
           handleClose={() => setViewState("normal")}
         />
       )}

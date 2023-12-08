@@ -44,7 +44,7 @@ import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChat } from "../../hooks/chat/useChat";
 import Trade from "../../components/channels/bet/Trade";
-import { useGenerateKey } from "../../hooks/contracts/useSharesContractV2";
+import { useGenerateKey } from "../../hooks/contracts/useTournament";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useGetHolderBalance } from "../../hooks/contracts/useTournament";
