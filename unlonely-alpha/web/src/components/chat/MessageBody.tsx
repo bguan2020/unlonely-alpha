@@ -113,6 +113,14 @@ const MessageBody = ({
       };
     } else if (
       message.data.body &&
+      message.data.body.split(":")[0] === InteractionType.CLIP
+    ) {
+      return {
+        bgGradient:
+          "linear-gradient(138deg, rgba(0,0,0,1) 10%, rgba(125,125,125,1) 11%, rgba(125,125,125,1) 20%, rgba(0,0,0,1) 21%, rgba(0,0,0,1) 30%, rgba(125,125,125,1) 31%, rgba(125,125,125,1) 40%, rgba(0,0,0,1) 41%, rgba(0,0,0,1) 50%, rgba(125,125,125,1) 51%, rgba(125,125,125,1) 60%, rgba(0,0,0,1) 61%, rgba(0,0,0,1) 70%, rgba(125,125,125,1) 71%, rgba(125,125,125,1) 80%, rgba(0,0,0,1) 81%, rgba(0,0,0,1) 90%, rgba(125,125,125,1) 91%)",
+      };
+    } else if (
+      message.data.body &&
       message.data.body.split(":")[0] === InteractionType.BUY_VOTES
     ) {
       if (message.data.body?.split(":")[3] === "yay") {
@@ -222,6 +230,7 @@ const MessageBody = ({
                               m?.role === 2
                           ) ? (
                             <Button
+                              color="white"
                               mt="20px"
                               bg="#842007"
                               _hover={{}}
@@ -252,6 +261,7 @@ const MessageBody = ({
                       ) &&
                       !isAppointing && (
                         <Button
+                          color="white"
                           mt="20px"
                           bg="#074a84"
                           _hover={{}}
@@ -274,6 +284,7 @@ const MessageBody = ({
                         </Text>
                         <Flex justifyContent={"space-evenly"}>
                           <Button
+                            color="white"
                             bg="#b12805"
                             _hover={{}}
                             _focus={{}}
@@ -283,6 +294,7 @@ const MessageBody = ({
                             yes, do it
                           </Button>
                           <Button
+                            color="white"
                             opacity={"0.5"}
                             border={"1px solid white"}
                             bg={"transparent"}
@@ -316,6 +328,7 @@ const MessageBody = ({
                         </Text>
                         <Flex justifyContent={"space-evenly"}>
                           <Button
+                            color="white"
                             bg="#054db1"
                             _hover={{}}
                             _focus={{}}
@@ -325,6 +338,7 @@ const MessageBody = ({
                             yes, do it
                           </Button>
                           <Button
+                            color="white"
                             opacity={"0.5"}
                             border={"1px solid white"}
                             bg={"transparent"}

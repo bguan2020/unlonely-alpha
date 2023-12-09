@@ -70,6 +70,7 @@ export default function ModeratorModal({
                   {centerEllipses(moderator?.userAddress, 13)}
                 </Text>
                 <Button
+                  color="white"
                   bg="#dd5555ff"
                   _hover={{}}
                   _active={{}}

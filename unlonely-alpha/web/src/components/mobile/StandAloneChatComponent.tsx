@@ -282,6 +282,7 @@ const StandaloneChatComponent = ({
           </Flex>
           <Flex gap="10px">
             <IconButton
+              color="white"
               _hover={{}}
               _focus={{}}
               _active={{}}
@@ -309,6 +310,7 @@ const StandaloneChatComponent = ({
               }}
             />
             <Button
+              color="white"
               _hover={{}}
               _focus={{}}
               _active={{}}

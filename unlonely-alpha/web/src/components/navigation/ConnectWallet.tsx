@@ -1,5 +1,6 @@
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
+  Badge,
   Button,
   Flex,
   Menu,
@@ -13,6 +14,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { useCallback, useState } from "react";
 
+import { useCacheContext } from "../../hooks/context/useCache";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
@@ -22,6 +24,7 @@ const ConnectWallet = () => {
   const { login, ready, linkWallet, logout } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const { claimableBets } = useCacheContext();
 
   const callLogout = useCallback(() => {
     logout();
@@ -30,6 +33,10 @@ const ConnectWallet = () => {
 
   const redirectToBridge = () => {
     window.open(`${window.location.origin}/bridge`, "_blank");
+  };
+
+  const redirectToClaim = () => {
+    window.open(`${window.location.origin}/claim`, "_blank");
   };
 
   return (
@@ -57,6 +64,7 @@ const ConnectWallet = () => {
                     }
                   >
                     <MenuButton
+                      color="white"
                       width={"100%"}
                       as={Button}
                       borderRadius="0"
@@ -67,14 +75,55 @@ const ConnectWallet = () => {
                       bg={"#131323"}
                       rightIcon={<ChevronDownIcon />}
                     >
-                      <Text fontFamily="LoRes15" fontSize="15px">
-                        {centerEllipses(userAddress, 13)}
-                      </Text>
+                      <Flex alignItems={"center"}>
+                        <Text fontFamily="LoRes15" fontSize="15px">
+                          {centerEllipses(userAddress, 13)}{" "}
+                        </Text>
+                        {claimableBets.length > 0 && (
+                          <Text className="zooming-text">
+                            <Badge
+                              variant="solid"
+                              ml="1"
+                              bg="#c72d28"
+                              fontSize="0.7em"
+                            >
+                              {claimableBets.length > 99
+                                ? "99+"
+                                : claimableBets.length}
+                            </Badge>
+                          </Text>
+                        )}
+                      </Flex>
                     </MenuButton>
                   </Flex>
-
                   <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
+                    {claimableBets.length > 0 && (
+                      <MenuItem
+                        bg={"#E09025"}
+                        _hover={{ bg: "#f07c1d" }}
+                        _focus={{}}
+                        _active={{}}
+                        onClick={redirectToClaim}
+                      >
+                        claim payouts{" "}
+                        {claimableBets.length > 0 && (
+                          <Text>
+                            <Badge
+                              variant="solid"
+                              ml="1"
+                              colorScheme="red"
+                              fontSize="0.7em"
+                            >
+                              {claimableBets.length > 99
+                                ? "99+"
+                                : claimableBets.length}
+                            </Badge>
+                          </Text>
+                        )}
+                      </MenuItem>
+                    )}
                     <MenuItem
+                      bg={"#131323"}
                       _hover={{ bg: "#1f1f3c" }}
                       _focus={{}}
                       _active={{}}
@@ -83,6 +132,7 @@ const ConnectWallet = () => {
                       bridge to base ETH
                     </MenuItem>
                     <MenuItem
+                      bg={"#131323"}
                       _hover={{ bg: "#1f1f3c" }}
                       _focus={{}}
                       _active={{}}
@@ -102,6 +152,7 @@ const ConnectWallet = () => {
                   }
                 >
                   <MenuButton
+                    color="white"
                     width={"100%"}
                     as={Button}
                     borderRadius="0"
@@ -120,6 +171,7 @@ const ConnectWallet = () => {
 
                 <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
                   <MenuItem
+                    bg={"#131323"}
                     _hover={{ bg: "#1f1f3c" }}
                     _focus={{}}
                     _active={{}}
@@ -128,6 +180,7 @@ const ConnectWallet = () => {
                     connect
                   </MenuItem>
                   <MenuItem
+                    bg={"#131323"}
                     _hover={{ bg: "#1f1f3c" }}
                     _focus={{}}
                     _active={{}}
@@ -147,6 +200,7 @@ const ConnectWallet = () => {
                 }
               >
                 <MenuButton
+                  color="white"
                   width={"100%"}
                   as={Button}
                   borderRadius="0"
@@ -165,6 +219,7 @@ const ConnectWallet = () => {
 
               <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
                 <MenuItem
+                  bg={"#131323"}
                   _hover={{ bg: "#1f1f3c" }}
                   _focus={{}}
                   _active={{}}
@@ -173,6 +228,7 @@ const ConnectWallet = () => {
                   login
                 </MenuItem>
                 <MenuItem
+                  bg={"#131323"}
                   _hover={{ bg: "#1f1f3c" }}
                   _focus={{}}
                   _active={{}}

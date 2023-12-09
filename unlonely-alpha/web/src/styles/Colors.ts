@@ -31,3 +31,18 @@ export const COLORS = [
   "#9B59B6", // Medium Purple
   "#ae77d2", // Lavender Purple
 ];
+
+function stringToNumber(str: string) {
+  let seed = 0;
+  for (let i = 0; i < str.length; i++) {
+    seed += str.charCodeAt(i);
+  }
+
+  return Math.floor(seed++);
+}
+
+export const getColorFromString = (str: string) => {
+  const number = stringToNumber(str);
+  const index = Math.floor(number % COLORS.length);
+  return COLORS[index];
+};

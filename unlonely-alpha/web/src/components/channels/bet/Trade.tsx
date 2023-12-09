@@ -13,10 +13,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useBalance, useBlockNumber } from "wagmi";
 import { AddIcon } from "@chakra-ui/icons";
 
-import {
-  InteractionType,
-  NULL_ADDRESS,
-} from "../../../constants";
+import { InteractionType, NULL_ADDRESS } from "../../../constants";
 import { ChatReturnType } from "../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
@@ -40,7 +37,7 @@ import {
   GamblableEvent,
   SharesEventState,
 } from "../../../generated/graphql";
-import { CreateBet } from "./CreateBet";
+import { CreateBet } from "./CreateBet2";
 import { JudgeBet } from "./JudgeBet";
 import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
 import usePostClaimPayout from "../../../hooks/server/usePostClaimPayout";
@@ -466,6 +463,8 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     return true;
   }, [ongoingBets]);
 
+  const isSharesEventPending =
+    ongoingBets?.[0]?.eventState === SharesEventState.Pending;
   const isSharesEventLive =
     ongoingBets?.[0]?.eventState === SharesEventState.Live;
   const isSharesEventLock =
@@ -601,13 +600,14 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           {(isSharesEventPayout || votingPooledEth === BigInt(0)) && (
             <>
               <Button
+                color="white"
                 _hover={{}}
                 _focus={{}}
                 _active={{}}
                 bg={viewState === "create" ? "#1b9d9d" : "#E09025"}
                 p="5px !important"
                 w="100%"
-                disabled={tradeLoading}
+                isDisabled={tradeLoading}
                 onClick={() =>
                   setViewState((prev) =>
                     prev === "create" ? "normal" : "create"
@@ -616,7 +616,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
               >
                 <Text fontSize={"20px"} fontFamily="LoRes15">
                   {doesEventExist &&
-                  isSharesEventLive &&
+                  isSharesEventPending &&
                   eventEndTimestamp === BigInt(0)
                     ? "continue creating bet"
                     : !isSharesEventPayout &&
@@ -634,13 +634,14 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             eventEndTimestamp > 0 && (
               <>
                 <Button
+                  color="white"
                   _hover={{}}
                   _focus={{}}
                   _active={{}}
                   p="5px !important"
                   w="100%"
                   bg={viewState === "choose winner" ? "#1b9d9d" : "#E09025"}
-                  disabled={tradeLoading}
+                  isDisabled={tradeLoading}
                   onClick={() =>
                     setViewState((prev) =>
                       prev === "choose winner" ? "normal" : "choose winner"
@@ -652,6 +653,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   </Text>
                 </Button>
                 <Button
+                  color="white"
                   _hover={{}}
                   _focus={{}}
                   _active={{}}
@@ -659,7 +661,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   p="5px !important"
                   w="100%"
                   isLoading={updateSharesEventLoading}
-                  disabled={tradeLoading}
+                  isDisabled={tradeLoading}
                   onClick={async () =>
                     await _updateSharesEvent(SharesEventState.Lock)
                   }
@@ -676,13 +678,14 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
               <>
                 {!isSharesEventPayout && (
                   <Button
+                    color="white"
                     _hover={{}}
                     _focus={{}}
                     _active={{}}
                     bg={viewState === "choose winner" ? "#1b9d9d" : "#E09025"}
                     p="5px !important"
                     w="100%"
-                    disabled={tradeLoading}
+                    isDisabled={tradeLoading}
                     onClick={() =>
                       setViewState((prev) =>
                         prev === "choose winner" ? "normal" : "choose winner"
@@ -696,6 +699,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                 )}
                 {!eventEndTimestampPassed && eventEndTimestamp > 0 && (
                   <Button
+                    color="white"
                     _hover={{}}
                     _focus={{}}
                     _active={{}}
@@ -703,7 +707,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                     p="5px !important"
                     w="100%"
                     isLoading={updateSharesEventLoading}
-                    disabled={tradeLoading}
+                    isDisabled={tradeLoading}
                     onClick={async () =>
                       await _updateSharesEvent(SharesEventState.Live)
                     }
@@ -745,6 +749,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   <Flex justifyContent={"space-around"} gap="5px">
                     <Flex gap="5px" w="100%">
                       <Button
+                        color="white"
                         bg={isYay ? "#46a800" : "transparent"}
                         border={!isYay ? "1px solid #46a800" : undefined}
                         _focus={{}}
@@ -758,6 +763,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                         </Flex>
                       </Button>
                       <Button
+                        color="white"
                         bg={!isYay ? "#fe2815" : "transparent"}
                         border={isYay ? "1px solid #fe2815" : undefined}
                         _focus={{}}
@@ -786,6 +792,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                             onChange={handleInputChange}
                           />
                           <Button
+                            color="white"
                             _focus={{}}
                             _hover={{}}
                             _active={{}}
@@ -835,6 +842,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                       </Text>
                     )}
                     <Button
+                      color="white"
                       bg={
                         isBuying && isYay
                           ? "#46a800"
@@ -848,7 +856,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                       _hover={{}}
                       _active={{}}
                       onClick={() => (isBuying ? buyVotes?.() : undefined)}
-                      disabled={
+                      isDisabled={
                         (isBuying && !buyVotes) ||
                         isRefetchingBuyVotes ||
                         tradeLoading
@@ -916,6 +924,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                   </Flex>
                   {userPayout > BigInt(0) && (
                     <Button
+                      color="white"
                       _hover={{}}
                       _focus={{}}
                       _active={{}}
@@ -932,7 +941,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
               ) : eventEndTimestamp === BigInt(0) &&
                 ongoingBets?.[0]?.eventState === "PENDING" ? (
                 <Text textAlign={"center"}>
-                  The streamer is currently creating a new bet, please wait
+                  The streamer is currently setting up the new bet, please wait
                 </Text>
               ) : (
                 <Flex justifyContent="center">

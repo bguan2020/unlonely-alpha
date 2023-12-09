@@ -23,6 +23,7 @@ export const GET_UNCLAIMED_EVENTS_QUERY = gql`
       eventState
       createdAt
       chainId
+      channelId
     }
   }
 `;
@@ -66,6 +67,7 @@ export const CHANNEL_DETAIL_QUERY = gql`
         sharesSubjectAddress
         options
         chainId
+        channelId
         eventState
         createdAt
         id
@@ -212,6 +214,7 @@ export const CHANNEL_FEED_QUERY = gql`
         sharesSubjectAddress
         options
         chainId
+        channelId
         eventState
         createdAt
         resultIndex
@@ -292,6 +295,7 @@ export const GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY = gql`
           sharesSubjectQuestion
           sharesSubjectAddress
           chainId
+          channelId
           options
           eventState
           createdAt

@@ -34,7 +34,6 @@ const inputGlow = {
 export default extendTheme({
   breakpoints,
   initialColorMode: "dark",
-  useSystemColorMode: false,
 
   colors: {
     background: "#000",

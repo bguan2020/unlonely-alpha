@@ -46,6 +46,7 @@ const Gif = ({
   return (
     <>
       <Button
+        color="white"
         type="button"
         padding={padding}
         as={onClick !== null ? "button" : "div"}

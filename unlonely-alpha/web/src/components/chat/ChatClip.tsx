@@ -96,6 +96,7 @@ export const ChatClip = () => {
                   <source src={clipUrl} type="video/mp4"></source>
                 </video>
                 <Button
+                  color="white"
                   width="100%"
                   bg="#0ca2b6"
                   onClick={share}
@@ -105,6 +106,7 @@ export const ChatClip = () => {
                   share link
                 </Button>
                 <Button
+                  color="white"
                   width="100%"
                   bg="#0ab643"
                   onClick={() => copy(finalUrl)}
@@ -114,6 +116,7 @@ export const ChatClip = () => {
                   copy link
                 </Button>
                 <Button
+                  color="white"
                   opacity={"0.5"}
                   border={"1px solid white"}
                   bg={"transparent"}
@@ -137,6 +140,7 @@ export const ChatClip = () => {
                 </Text>
                 <Flex gap="10px">
                   <Button
+                    color="white"
                     width="100%"
                     bg="#b82929"
                     onClick={() => copy(clipError)}
@@ -146,6 +150,7 @@ export const ChatClip = () => {
                     copy error
                   </Button>
                   <Button
+                    color="white"
                     opacity={"0.5"}
                     border={"1px solid white"}
                     bg={"transparent"}
@@ -223,6 +228,7 @@ export const ChatClip = () => {
                   </Text>
                   <Flex width="100%" justifyContent={"center"}>
                     <Button
+                      color="white"
                       bg="#2262d8"
                       py={6}
                       _hover={{ transform: "scale(1.05)" }}
@@ -235,7 +241,7 @@ export const ChatClip = () => {
                       width="100%"
                       type="submit"
                       loadingText="uploading..."
-                      disabled={title.length === 0}
+                      isDisabled={title.length === 0}
                     >
                       <Text fontSize="20px">clip</Text>
                     </Button>

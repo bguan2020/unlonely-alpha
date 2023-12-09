@@ -518,6 +518,7 @@ const AdminContent = () => {
           <Spinner />
         ) : (
           <Button
+            color="white"
             bg="#131323"
             _hover={{}}
             _focus={{}}
@@ -567,6 +568,7 @@ const AdminContent = () => {
           <Spinner />
         ) : (
           <Button
+            color="white"
             bg="#131323"
             _hover={{}}
             _focus={{}}
@@ -629,6 +631,7 @@ const AdminContent = () => {
           <Spinner />
         ) : (
           <Button
+            color="white"
             bg="#131323"
             _hover={{}}
             _focus={{}}
@@ -675,6 +678,7 @@ const AdminContent = () => {
           <Spinner />
         ) : (
           <Button
+            color="white"
             bg="#131323"
             _hover={{}}
             _focus={{}}
@@ -740,6 +744,7 @@ const AdminContent = () => {
           <Spinner />
         ) : (
           <Button
+            color="white"
             bg="#131323"
             _hover={{}}
             _focus={{}}

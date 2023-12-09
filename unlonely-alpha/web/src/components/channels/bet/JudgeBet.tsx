@@ -167,25 +167,27 @@ export const JudgeBet = ({
       </Text>
       <Flex gap="5px">
         <Button
+          color="white"
           _hover={{}}
           _focus={{}}
           _active={{}}
           transform={endDecision !== false ? undefined : "scale(0.95)"}
           bg={endDecision !== false ? "#009d2a" : "#909090"}
           onClick={() => setEndDecision(true)}
-          disabled={!isVerifier}
+          isDisabled={!isVerifier}
           w="100%"
         >
           YES
         </Button>
         <Button
+          color="white"
           _hover={{}}
           _focus={{}}
           _active={{}}
           transform={endDecision !== true ? undefined : "scale(0.95)"}
           bg={endDecision !== true ? "#da3b14" : "#909090"}
           onClick={() => setEndDecision(false)}
-          disabled={!isVerifier}
+          isDisabled={!isVerifier}
           w="100%"
         >
           NO
@@ -194,6 +196,7 @@ export const JudgeBet = ({
       {endDecision !== undefined && (
         <Flex justifyContent={"center"} pb="0.5rem">
           <Button
+            color="white"
             _hover={{}}
             _focus={{}}
             _active={{}}

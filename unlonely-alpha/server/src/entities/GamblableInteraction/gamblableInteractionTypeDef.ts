@@ -31,6 +31,7 @@ export const typeDef = gql`
     sharesSubjectAddress: String
     options: [String]
     chainId: Int
+    channelId: ID
     eventState: SharesEventState
     softDelete: Boolean
     createdAt: DateTime!

@@ -895,6 +895,7 @@ export type SendAllNotificationsInput = {
 export type SharesEvent = {
   __typename?: "SharesEvent";
   chainId?: Maybe<Scalars["Int"]>;
+  channelId?: Maybe<Scalars["ID"]>;
   createdAt: Scalars["DateTime"];
   eventState?: Maybe<SharesEventState>;
   id: Scalars["ID"];
@@ -1151,6 +1152,7 @@ export type GetUnclaimedEventsQuery = {
     eventState?: SharesEventState | null;
     createdAt: any;
     chainId?: number | null;
+    channelId?: string | null;
   } | null>;
 };
 
@@ -1200,6 +1202,7 @@ export type ChannelDetailQuery = {
       sharesSubjectAddress?: string | null;
       options?: Array<string | null> | null;
       chainId?: number | null;
+      channelId?: string | null;
       eventState?: SharesEventState | null;
       createdAt: any;
       id: string;
@@ -1373,6 +1376,7 @@ export type GetChannelFeedQuery = {
       sharesSubjectAddress?: string | null;
       options?: Array<string | null> | null;
       chainId?: number | null;
+      channelId?: string | null;
       eventState?: SharesEventState | null;
       createdAt: any;
       resultIndex?: number | null;
@@ -1471,6 +1475,7 @@ export type GetChannelsByNumberOfBadgeHoldersQuery = {
         sharesSubjectQuestion?: string | null;
         sharesSubjectAddress?: string | null;
         chainId?: number | null;
+        channelId?: string | null;
         options?: Array<string | null> | null;
         eventState?: SharesEventState | null;
         createdAt: any;
@@ -2058,6 +2063,7 @@ export const GetUnclaimedEventsDocument = gql`
       eventState
       createdAt
       chainId
+      channelId
     }
   }
 `;
@@ -2200,6 +2206,7 @@ export const ChannelDetailDocument = gql`
         sharesSubjectAddress
         options
         chainId
+        channelId
         eventState
         createdAt
         id
@@ -2794,6 +2801,7 @@ export const GetChannelFeedDocument = gql`
         sharesSubjectAddress
         options
         chainId
+        channelId
         eventState
         createdAt
         resultIndex
@@ -3063,6 +3071,7 @@ export const GetChannelsByNumberOfBadgeHoldersDocument = gql`
           sharesSubjectQuestion
           sharesSubjectAddress
           chainId
+          channelId
           options
           eventState
           createdAt

@@ -158,6 +158,7 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
             gap="10px"
           >
             <IconButton
+              color="white"
               aria-label="share"
               icon={<HiDotsVertical size="20px" />}
               onClick={share}

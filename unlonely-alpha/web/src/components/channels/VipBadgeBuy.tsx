@@ -212,6 +212,7 @@ export const VipBadgeBuy = () => {
         </Text>
       )}
       <Button
+        color="white"
         bg={"#46a800"}
         border={"1px solid #46a800"}
         _focus={{}}
@@ -219,7 +220,7 @@ export const VipBadgeBuy = () => {
         _active={{}}
         borderRadius="0px"
         onClick={() => buyVipBadge?.()}
-        disabled={!buyVipBadge}
+        isDisabled={!buyVipBadge}
       >
         <Text fontSize="20px">
           BUY 1 ({truncateValue(formatUnits(badgePrice, 18), 4)} ETH)

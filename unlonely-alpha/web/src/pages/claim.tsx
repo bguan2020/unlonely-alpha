@@ -1,4 +1,4 @@
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import {
   Text,
   Flex,
@@ -13,24 +13,17 @@ import {
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { decodeEventLog, formatUnits } from "viem";
-import { usePublicClient } from "wagmi";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
 import { WavyText } from "../components/general/WavyText";
 import AppLayout from "../components/layout/AppLayout";
 import { anonUrl } from "../components/presence/AnonUrl";
-import { EventTypeForContract } from "../constants";
-import {
-  CHANNEL_FEED_QUERY,
-  GET_SUBSCRIPTION,
-  GET_UNCLAIMED_EVENTS_QUERY,
-} from "../constants/queries";
+import { GET_SUBSCRIPTION } from "../constants/queries";
 import {
   Channel,
   EventType,
   GetSubscriptionQuery,
-  GetUnclaimedEventsQuery,
   SharesEvent,
 } from "../generated/graphql";
 import { useNetworkContext } from "../hooks/context/useNetwork";
@@ -42,6 +35,8 @@ import { getContractFromNetwork } from "../utils/contract";
 import { truncateValue } from "../utils/tokenDisplayFormatting";
 import useCloseSharesEvent from "../hooks/server/useCloseSharesEvent";
 import usePostClaimPayout from "../hooks/server/usePostClaimPayout";
+import { getColorFromString } from "../styles/Colors";
+import { useCacheContext } from "../hooks/context/useCache";
 export default function ClaimPage() {
   const { user, walletIsConnected } = useUser();
 
@@ -59,11 +54,14 @@ export default function ClaimPage() {
 const ClaimContent = () => {
   const router = useRouter();
   const { c } = router.query;
-  const { userAddress, initialNotificationsGranted } = useUser();
-  const isFetching = useRef(false);
+  const { initialNotificationsGranted } = useUser();
 
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
+  const {
+    claimableBets,
+    fetchingBets,
+    channelFeed: channels,
+    feedLoading,
+  } = useCacheContext();
 
   const [endpoint, setEndpoint] = useState<string>("");
   const [sortedChannels, setSortedChannels] = useState<Channel[]>([]);
@@ -73,102 +71,14 @@ const ClaimContent = () => {
     undefined
   );
   const [claimedPayouts, setClaimedPayouts] = useState<SharesEvent[]>([]);
-  const [pageLoading, setPageLoading] = useState<boolean>(true);
-
-  const { data: dataChannels, loading: feedLoading } = useQuery(
-    CHANNEL_FEED_QUERY,
-    {
-      variables: {
-        data: {},
-      },
-      fetchPolicy: "cache-first",
-    }
-  );
 
   const [getSubscription, { data: subscriptionData }] =
     useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
       fetchPolicy: "cache-first",
     });
 
-  const channels: Channel[] = dataChannels?.getChannelFeed;
-
   const suggestedChannels =
     subscriptionData?.getSubscriptionByEndpoint?.allowedChannels;
-
-  const publicClient = usePublicClient();
-  const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
-
-  const ongoingBets = useMemo(
-    () =>
-      selectedChannel?.sharesEvent?.filter(
-        (event): event is SharesEvent =>
-          event !== null && event?.chainId === localNetwork.config.chainId
-      ) || [],
-    [selectedChannel?.sharesEvent, localNetwork.config.chainId]
-  );
-
-  const [getUnclaimedEvents, { loading, data, error }] =
-    useLazyQuery<GetUnclaimedEventsQuery>(GET_UNCLAIMED_EVENTS_QUERY, {
-      fetchPolicy: "network-only",
-    });
-
-  const [claimableBets, setClaimableBets] = useState<UnclaimedBet[]>([]);
-
-  useEffect(() => {
-    const init = async () => {
-      if (!contractData || !contractData.address || isFetching.current) return;
-      setPageLoading(true);
-      isFetching.current = true;
-      let unclaimedBets: SharesEvent[] = [];
-      try {
-        const data = await getUnclaimedEvents({
-          variables: {
-            data: {
-              userAddress: userAddress as `0x${string}`,
-              chainId: contractData.chainId,
-            },
-          },
-        });
-        unclaimedBets =
-          data?.data?.getUnclaimedEvents.filter(
-            (event): event is SharesEvent =>
-              event !== null && event?.chainId === localNetwork.config.chainId
-          ) || [];
-      } catch (err) {
-        console.log(
-          "claimpage fetching for unclaimed events failed, switching to fetching ongoing bets",
-          err
-        );
-        unclaimedBets = ongoingBets;
-      }
-      const promises = unclaimedBets.map((event) =>
-        publicClient.readContract({
-          address: contractData.address,
-          abi: contractData.abi,
-          functionName: "getVotePayout",
-          args: [
-            event.sharesSubjectAddress,
-            event.id,
-            EventTypeForContract.YAY_NAY_VOTE,
-            userAddress,
-          ],
-        })
-      );
-      const payouts = await Promise.all(promises);
-      const formattedPayouts = payouts.map((payout) => BigInt(String(payout)));
-      const combinedBets = unclaimedBets.map((event, i) => ({
-        ...event,
-        payout: formattedPayouts[i],
-      }));
-      const claimableBets = combinedBets.filter(
-        (event) => event.payout > BigInt(0) && (event?.resultIndex ?? -1) >= 0
-      );
-      setClaimableBets(claimableBets);
-      isFetching.current = false;
-      setPageLoading(false);
-    };
-    init();
-  }, [userAddress, contractData.address]);
 
   const handleGetSubscription = useCallback(async () => {
     await getSubscription({
@@ -237,7 +147,7 @@ const ClaimContent = () => {
 
   return (
     <>
-      {!feedLoading && !pageLoading ? (
+      {!feedLoading && !fetchingBets ? (
         <Flex direction="column">
           <Text
             fontSize={["40px", "55px", "70px"]}
@@ -253,7 +163,7 @@ const ClaimContent = () => {
           >
             {selectedChannel
               ? `showing claim payouts for ${selectedChannel.slug}`
-              : "select a channel to claim payouts"}
+              : "showing claim payouts for all channels"}
           </Text>
           <Flex gap="10px" mt="20px">
             {sortedChannels && sortedChannels.length > 0 ? (
@@ -276,7 +186,11 @@ const ClaimContent = () => {
                       key={index}
                       channel={data}
                       selectedChannel={selectedChannel}
-                      callback={(channel) => setSelectedChannel(channel)}
+                      callback={(channel) =>
+                        setSelectedChannel((prev) =>
+                          prev?.id === channel?.id ? undefined : channel
+                        )
+                      }
                     />
                   )}
                 />
@@ -290,32 +204,25 @@ const ClaimContent = () => {
                 Could not fetch channels, please try again later
               </Text>
             )}
-            {selectedChannel && (
-              <>
-                {(selectedChannel?.sharesEvent?.length ?? 0) > 0 ? (
-                  <EventsDashboard
-                    claimableBets={claimableBets}
-                    channel={selectedChannel}
-                    claimedPayouts={claimedPayouts}
-                    addPayoutToClaimedPayouts={addPayoutToClaimedPayouts}
-                  />
-                ) : (
-                  <Flex
-                    justifyContent={"center"}
-                    flexGrow={1}
-                    alignItems="center"
-                  >
-                    <Text
-                      textAlign={"center"}
-                      fontFamily={"LoRes15"}
-                      fontSize={"25px"}
-                    >
-                      This channel does not have any ongoing bets, please choose
-                      another one.
-                    </Text>
-                  </Flex>
-                )}
-              </>
+            {claimableBets.length > 0 ? (
+              <EventsDashboard
+                claimableBets={claimableBets}
+                sortedChannels={sortedChannels}
+                selectedChannel={selectedChannel}
+                claimedPayouts={claimedPayouts}
+                addPayoutToClaimedPayouts={addPayoutToClaimedPayouts}
+              />
+            ) : (
+              <Flex justifyContent={"center"} flexGrow={1} alignItems="center">
+                <Text
+                  textAlign={"center"}
+                  fontFamily={"LoRes15"}
+                  fontSize={"25px"}
+                >
+                  We can't find any payouts waiting for you, please try again
+                  later
+                </Text>
+              </Flex>
             )}
           </Flex>
         </Flex>
@@ -347,35 +254,55 @@ type UnclaimedBet = SharesEvent & {
 };
 
 const EventsDashboard = ({
-  channel,
+  selectedChannel,
+  sortedChannels,
   claimableBets,
   claimedPayouts,
   addPayoutToClaimedPayouts,
 }: {
-  channel: Channel;
+  selectedChannel?: Channel;
+  sortedChannels: Channel[];
   claimableBets: UnclaimedBet[];
   claimedPayouts: SharesEvent[];
   addPayoutToClaimedPayouts: (event: SharesEvent) => void;
 }) => {
+  const filteredClaimableBetsByChannelId = useMemo(
+    () =>
+      selectedChannel
+        ? claimableBets.filter((bet) => bet.channelId === selectedChannel?.id)
+        : claimableBets,
+    [claimableBets, selectedChannel?.id]
+  );
+
   return (
-    <Flex>
+    <Flex bg="rgba(0, 0, 0, 0.3)" mx="1rem" p="1rem" borderRadius="15px">
       <Flex direction="column">
         <>
-          {claimableBets.length > 0 ? (
+          {filteredClaimableBetsByChannelId.length > 0 ? (
             <SimpleGrid columns={[2, 3, 4, 4]} spacing={10}>
-              {claimableBets.map((event) => (
+              {filteredClaimableBetsByChannelId.map((event, i) => (
                 <EventCard
+                  channels={sortedChannels}
+                  key={i}
                   event={event}
-                  channel={channel}
                   claimedPayouts={claimedPayouts}
                   addPayoutToClaimedPayouts={addPayoutToClaimedPayouts}
                 />
               ))}
             </SimpleGrid>
           ) : (
-            <Text textAlign={"center"} fontFamily={"LoRes15"} fontSize={"25px"}>
-              You don't have any payouts waiting for this channel's bets
-            </Text>
+            <Flex direction="column" gap="1rem">
+              <Text
+                textAlign={"center"}
+                fontFamily={"LoRes15"}
+                fontSize={"25px"}
+              >
+                We can't find any payouts waiting for you from this channel
+              </Text>
+              <Text textAlign={"center"}>
+                To see payouts from all channels, unselect the current channel
+              </Text>
+            </Flex>
           )}
         </>
       </Flex>
@@ -385,12 +312,12 @@ const EventsDashboard = ({
 
 const EventCard = ({
   event,
-  channel,
+  channels,
   claimedPayouts,
   addPayoutToClaimedPayouts,
 }: {
   event: UnclaimedBet;
-  channel: Channel;
+  channels: Channel[];
   claimedPayouts: SharesEvent[];
   addPayoutToClaimedPayouts: (event: SharesEvent) => void;
 }) => {
@@ -399,6 +326,20 @@ const EventCard = ({
   const { localNetwork, explorerUrl } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
   const toast = useToast();
+
+  const matchingChannel = useMemo(
+    () => channels.find((channel) => channel.id === event.channelId),
+    [channels, event.channelId]
+  );
+
+  const imageUrl = matchingChannel?.owner?.FCImageUrl
+    ? matchingChannel?.owner.FCImageUrl
+    : matchingChannel?.owner?.lensImageUrl
+    ? matchingChannel?.owner.lensImageUrl
+    : anonUrl;
+  const ipfsUrl = imageUrl.startsWith("ipfs://")
+    ? `https://ipfs.io/ipfs/${imageUrl.slice(7)}`
+    : imageUrl;
 
   const alreadyClaimed = useMemo(
     () => claimedPayouts.some((claimedPayout) => claimedPayout.id === event.id),
@@ -477,7 +418,7 @@ const EventCard = ({
         });
         const args: any = topics.args;
         await postClaimPayout({
-          channelId: channel?.id as string,
+          channelId: event.channelId as string,
           userAddress: userAddress as `0x${string}`,
           eventId: Number(event.id),
           eventType: EventType.YayNayVote,
@@ -485,7 +426,7 @@ const EventCard = ({
         if (args.votingPooledEth === BigInt(0)) {
           await closeSharesEvents({
             chainId: localNetwork.config.chainId,
-            channelId: channel?.id as string,
+            channelId: event.channelId as string,
             sharesEventIds: [Number(event.id)],
           });
         }
@@ -514,14 +455,36 @@ const EventCard = ({
       borderRadius="15px"
       justifyContent={"space-between"}
     >
-      <Text
-        textAlign={"center"}
-        color="#8a8a8a"
-        fontSize={"10px"}
-        fontWeight={"bold"}
-      >
-        {new Date(event.createdAt).toLocaleString()}
-      </Text>
+      <Flex gap="15px" mb="5px">
+        <Avatar
+          name={
+            matchingChannel?.owner.username
+              ? matchingChannel?.owner.username
+              : matchingChannel?.owner.address
+          }
+          src={ipfsUrl}
+          bg={getColorFromString(
+            matchingChannel?.owner.username
+              ? matchingChannel?.owner.username
+              : matchingChannel?.owner.address ?? ""
+          )}
+          size="sm"
+        />
+        <Flex direction="column">
+          <Text fontFamily="LoRes15">
+            {matchingChannel?.owner.username ??
+              centerEllipses(matchingChannel?.owner.address, 13)}
+          </Text>
+          <Text
+            textAlign={"center"}
+            color="#8a8a8a"
+            fontSize={"10px"}
+            fontWeight={"bold"}
+          >
+            {new Date(event.createdAt).toLocaleString()}
+          </Text>
+        </Flex>
+      </Flex>
       <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
         {event.sharesSubjectQuestion}
       </Text>
@@ -550,6 +513,7 @@ const EventCard = ({
             </Text>
           ) : (
             <Button
+              color="white"
               _hover={{}}
               _focus={{}}
               _active={{}}
@@ -606,6 +570,9 @@ const ChannelBlock = ({
           name={channel?.owner.username ?? channel?.owner.address}
           src={ipfsUrl}
           size="md"
+          bg={getColorFromString(
+            channel?.owner.username ?? channel?.owner.address
+          )}
         />
         <Flex direction="column">
           <Text fontFamily="LoRes15">{channel.name}</Text>

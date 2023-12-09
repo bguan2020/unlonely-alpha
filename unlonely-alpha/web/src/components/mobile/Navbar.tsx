@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 
 import { anonUrl } from "../../components/presence/AnonUrl";
 import { useUser } from "../../hooks/context/useUser";
+import { getColorFromString } from "../../styles/Colors";
 
 export const Navbar = () => {
   const router = useRouter();
@@ -26,6 +27,7 @@ export const Navbar = () => {
       height="95px"
     >
       <Button
+        color="white"
         bg="transparent"
         _hover={{}}
         _focus={{}}
@@ -49,6 +51,7 @@ export const Navbar = () => {
         </Flex>
       </Button>
       <Button
+        color="white"
         bg="transparent"
         _hover={{}}
         _focus={{}}
@@ -70,6 +73,7 @@ export const Navbar = () => {
         </Flex>
       </Button>
       <Button
+        color="white"
         bg="transparent"
         _hover={{}}
         _focus={{}}
@@ -91,6 +95,7 @@ export const Navbar = () => {
         </Flex>
       </Button>
       <Button
+        color="white"
         bg="transparent"
         _hover={{}}
         _focus={{}}
@@ -106,6 +111,7 @@ export const Navbar = () => {
               src={ipfsUrl}
               width="40px"
               height="40px"
+              bg={getColorFromString(user?.username ?? user?.address)}
             />
           ) : (
             <Image
