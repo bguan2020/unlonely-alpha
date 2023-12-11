@@ -910,6 +910,8 @@ export enum SharesEventState {
   Live = "LIVE",
   Lock = "LOCK",
   Payout = "PAYOUT",
+  PayoutCurrent = "PAYOUT_CURRENT",
+  PayoutPrevious = "PAYOUT_PREVIOUS",
   Pending = "PENDING",
 }
 

@@ -85,8 +85,10 @@ export const CreateBet = ({
 
   const pendingBet = useMemo(
     () =>
-      ongoingBets?.find((bet) => bet.eventState === SharesEventState.Pending),
-    [ongoingBets?.length]
+      ongoingBets?.[0].eventState === SharesEventState.Pending
+        ? ongoingBets?.[0]
+        : undefined,
+    [ongoingBets]
   );
 
   const steps = [
@@ -114,6 +116,7 @@ export const CreateBet = ({
       (ongoingBets?.length ?? 0) > 0 &&
       pool > BigInt(0) &&
       ongoingBets?.[0].eventState !== SharesEventState.Payout &&
+      ongoingBets?.[0].eventState !== SharesEventState.PayoutPrevious &&
       ongoingBets?.[0].eventState !== SharesEventState.Pending,
     [pool, ongoingBets]
   );
@@ -123,6 +126,7 @@ export const CreateBet = ({
       console.log(err);
     },
   });
+  const { updateSharesEvent } = useUpdateSharesEvent({});
 
   const _postSharesEvent = useCallback(
     async (sharesSubjectQuestion: string) => {
@@ -135,6 +139,18 @@ export const CreateBet = ({
           chainId: localNetwork.config.chainId,
           channelId: channelQueryData?.id as string,
           sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
+        });
+      }
+      if (
+        (ongoingBets?.length ?? 0) > 0 &&
+        ongoingBets?.[0].eventState === SharesEventState.Payout
+      ) {
+        await updateSharesEvent({
+          id: ongoingBets?.[0].id ?? "",
+          sharesSubjectQuestion: ongoingBets?.[0].sharesSubjectQuestion ?? "",
+          sharesSubjectAddress: ongoingBets?.[0].sharesSubjectAddress ?? "",
+          eventState: SharesEventState.PayoutPrevious,
+          resultIndex: ongoingBets?.[0].resultIndex ?? undefined,
         });
       }
       await postSharesEvent({

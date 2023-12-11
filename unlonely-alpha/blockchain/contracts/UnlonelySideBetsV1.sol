@@ -187,7 +187,7 @@ contract UnlonelySideBetsV1 is Ownable, ReentrancyGuard {
         EventType eventType, 
         uint256 wagerAmount, 
         uint256 expirationTime
-    ) public payable onlyVerifier validEventType(eventType) nonReentrant {
+    ) public payable validEventType(eventType) nonReentrant {
         bytes32 eventBytes = generateKey(eventAddress, eventId, eventType);
         require(sideBets[eventBytes].initiator == address(0), "Sidebet already created");
 

@@ -244,6 +244,7 @@ enum SharesEventState {
   LIVE
   LOCK
   PAYOUT
+  PAYOUT_PREVIOUS
 }
 
 model SharesEvent {

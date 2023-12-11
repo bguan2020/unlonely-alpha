@@ -26,6 +26,7 @@ enum SharesEventState {
   LIVE = "LIVE",
   LOCK = "LOCK",
   PAYOUT = "PAYOUT",
+  PAYOUT_PREVIOUS = "PAYOUT_PREVIOUS",
 }
 
 export const updateChannelText = (

@@ -738,8 +738,26 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
       )}
       {viewState === "normal" && (
         <>
-          {!doesEventExist ? (
-            <Text textAlign={"center"}>there is no event at the moment</Text>
+          {!doesEventExist ||
+          (doesEventExist &&
+            ongoingBets?.[0].eventState === SharesEventState.PayoutPrevious) ? (
+            <>
+              <Text textAlign={"center"}>there is no event at the moment</Text>
+              <Button
+                color="white"
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                bg={"#E09025"}
+                borderRadius="25px"
+                onClick={() =>
+                  window.open(`${window.location.origin}/claim`, "_blank")
+                }
+                width="100%"
+              >
+                <Text fontSize="20px">go to claim page</Text>
+              </Button>
+            </>
           ) : (
             <>
               {!eventEndTimestampPassed &&

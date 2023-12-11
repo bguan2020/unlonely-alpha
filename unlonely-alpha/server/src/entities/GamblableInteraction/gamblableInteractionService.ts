@@ -431,7 +431,9 @@ export const getUnclaimedEvents = async (
       ...(data.channelId
         ? { channelId: Number(data.channelId), chainId: Number(data.chainId) }
         : {}),
-      eventState: SharesEventState.PAYOUT,
+      eventState: {
+        in: [SharesEventState.PAYOUT, SharesEventState.PAYOUT_PREVIOUS],
+      },
       softDelete: false,
     },
     orderBy: { createdAt: "desc" as const },

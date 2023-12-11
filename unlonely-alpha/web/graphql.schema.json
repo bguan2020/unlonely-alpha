@@ -7289,6 +7289,18 @@
             "deprecationReason": null
           },
           {
+            "name": "PAYOUT_CURRENT",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "PAYOUT_PREVIOUS",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "PENDING",
             "description": null,
             "isDeprecated": false,

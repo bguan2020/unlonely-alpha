@@ -146,7 +146,6 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("claimpage getVotePayout", err);
         payouts = [];
       }
-      console.log("payouts", payouts, contractData.address, userAddress);
       const formattedPayouts = payouts.map((payout) => BigInt(String(payout)));
       const combinedBets = unclaimedBets.map((event, i) => ({
         ...event,

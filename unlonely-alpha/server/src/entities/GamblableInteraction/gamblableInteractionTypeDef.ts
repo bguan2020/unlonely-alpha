@@ -20,9 +20,11 @@ export const typeDef = gql`
   }
 
   enum SharesEventState {
+    PENDING
     LIVE
     LOCK
-    PAYOUT
+    PAYOUT_CURRENT
+    PAYOUT_PREVIOUS
   }
 
   type SharesEvent {

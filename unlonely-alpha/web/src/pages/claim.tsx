@@ -1,4 +1,3 @@
-import { useLazyQuery } from "@apollo/client";
 import {
   Text,
   Flex,
@@ -10,27 +9,18 @@ import {
   useToast,
   Spinner,
 } from "@chakra-ui/react";
-import { useRef, useEffect, useCallback, useState, useMemo } from "react";
-import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { useCallback, useState, useMemo } from "react";
 import { decodeEventLog, formatUnits } from "viem";
 import Link from "next/link";
-import { useRouter } from "next/router";
 
 import { WavyText } from "../components/general/WavyText";
 import AppLayout from "../components/layout/AppLayout";
 import { anonUrl } from "../components/presence/AnonUrl";
-import { GET_SUBSCRIPTION } from "../constants/queries";
-import {
-  Channel,
-  EventType,
-  GetSubscriptionQuery,
-  SharesEvent,
-} from "../generated/graphql";
+import { Channel, EventType, SharesEvent } from "../generated/graphql";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 import { useUser } from "../hooks/context/useUser";
 import { useClaimVotePayout } from "../hooks/contracts/useSharesContractV2";
 import centerEllipses from "../utils/centerEllipses";
-import { sortChannels } from "../utils/channelSort";
 import { getContractFromNetwork } from "../utils/contract";
 import { truncateValue } from "../utils/tokenDisplayFormatting";
 import useCloseSharesEvent from "../hooks/server/useCloseSharesEvent";
@@ -52,10 +42,6 @@ export default function ClaimPage() {
 }
 
 const ClaimContent = () => {
-  const router = useRouter();
-  const { c } = router.query;
-  const { initialNotificationsGranted } = useUser();
-
   const {
     claimableBets,
     fetchingBets,
@@ -63,87 +49,11 @@ const ClaimContent = () => {
     feedLoading,
   } = useCacheContext();
 
-  const [endpoint, setEndpoint] = useState<string>("");
-  const [sortedChannels, setSortedChannels] = useState<Channel[]>([]);
-  const [isSorted, setIsSorted] = useState<boolean>(false);
-  const scrollRef = useRef<VirtuosoHandle>(null);
-  const [selectedChannel, setSelectedChannel] = useState<Channel | undefined>(
-    undefined
-  );
   const [claimedPayouts, setClaimedPayouts] = useState<SharesEvent[]>([]);
-
-  const [getSubscription, { data: subscriptionData }] =
-    useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
-      fetchPolicy: "cache-first",
-    });
-
-  const suggestedChannels =
-    subscriptionData?.getSubscriptionByEndpoint?.allowedChannels;
-
-  const handleGetSubscription = useCallback(async () => {
-    await getSubscription({
-      variables: { data: { endpoint } },
-    });
-  }, [endpoint]);
 
   const addPayoutToClaimedPayouts = useCallback((event: SharesEvent) => {
     setClaimedPayouts((prev) => [...prev, event]);
   }, []);
-
-  useEffect(() => {
-    if (endpoint) {
-      handleGetSubscription();
-    }
-  }, [endpoint]);
-
-  useEffect(() => {
-    const init = async () => {
-      if ("serviceWorker" in navigator) {
-        const registrationExists =
-          await navigator.serviceWorker.getRegistration("/");
-        if (registrationExists) {
-          const subscription =
-            await registrationExists.pushManager.getSubscription();
-          if (subscription) {
-            const endpoint = subscription.endpoint;
-            setEndpoint(endpoint);
-          }
-        }
-      }
-    };
-    init();
-  }, [initialNotificationsGranted]);
-
-  useEffect(() => {
-    if (isSorted || !suggestedChannels || !channels) return;
-    const liveChannels = channels.filter((channel) => channel.isLive);
-    const _suggestedNonLiveChannels = channels.filter(
-      (channel) =>
-        suggestedChannels.includes(String(channel.id)) && !channel.isLive
-    );
-    const otherChannels = channels.filter(
-      (channel) =>
-        !suggestedChannels.includes(String(channel.id)) && !channel.isLive
-    );
-
-    const sortedLiveChannels = sortChannels(liveChannels);
-    const sortedSuggestedNonLiveChannels = sortChannels(
-      _suggestedNonLiveChannels
-    );
-    const sortedOtherChannels = sortChannels(otherChannels);
-    setSortedChannels([
-      ...sortedLiveChannels,
-      ...sortedSuggestedNonLiveChannels,
-      ...sortedOtherChannels,
-    ]);
-    setIsSorted(true);
-  }, [channels, isSorted, suggestedChannels]);
-
-  useEffect(() => {
-    if (!c) return;
-    const _channel = channels?.find((channel) => channel.slug === c);
-    setSelectedChannel(_channel);
-  }, [c, channels]);
 
   return (
     <>
@@ -156,59 +66,11 @@ const ClaimContent = () => {
           >
             claim payout
           </Text>
-          <Text
-            color="#1cfff0"
-            fontSize={["20px", "25px", "30px"]}
-            textAlign="center"
-          >
-            {selectedChannel
-              ? `showing claim payouts for ${selectedChannel.slug}`
-              : "showing claim payouts for all channels"}
-          </Text>
-          <Flex gap="10px" mt="20px">
-            {sortedChannels && sortedChannels.length > 0 ? (
-              <Flex
-                height="calc(80vh)"
-                position={"relative"}
-                direction="column"
-                justifyContent="center"
-                bg="#19162F"
-                width="300px"
-              >
-                <Virtuoso
-                  followOutput={"auto"}
-                  ref={scrollRef}
-                  data={sortedChannels}
-                  totalCount={sortedChannels.length}
-                  initialTopMostItemIndex={0}
-                  itemContent={(index, data) => (
-                    <ChannelBlock
-                      key={index}
-                      channel={data}
-                      selectedChannel={selectedChannel}
-                      callback={(channel) =>
-                        setSelectedChannel((prev) =>
-                          prev?.id === channel?.id ? undefined : channel
-                        )
-                      }
-                    />
-                  )}
-                />
-              </Flex>
-            ) : (
-              <Text
-                textAlign={"center"}
-                fontFamily={"LoRes15"}
-                fontSize={"25px"}
-              >
-                Could not fetch channels, please try again later
-              </Text>
-            )}
+          <Flex gap="10px" mt="20px" justifyContent={"center"}>
             {claimableBets.length > 0 ? (
               <EventsDashboard
+                channels={channels}
                 claimableBets={claimableBets}
-                sortedChannels={sortedChannels}
-                selectedChannel={selectedChannel}
                 claimedPayouts={claimedPayouts}
                 addPayoutToClaimedPayouts={addPayoutToClaimedPayouts}
               />
@@ -254,35 +116,25 @@ type UnclaimedBet = SharesEvent & {
 };
 
 const EventsDashboard = ({
-  selectedChannel,
-  sortedChannels,
+  channels,
   claimableBets,
   claimedPayouts,
   addPayoutToClaimedPayouts,
 }: {
-  selectedChannel?: Channel;
-  sortedChannels: Channel[];
+  channels: Channel[];
   claimableBets: UnclaimedBet[];
   claimedPayouts: SharesEvent[];
   addPayoutToClaimedPayouts: (event: SharesEvent) => void;
 }) => {
-  const filteredClaimableBetsByChannelId = useMemo(
-    () =>
-      selectedChannel
-        ? claimableBets.filter((bet) => bet.channelId === selectedChannel?.id)
-        : claimableBets,
-    [claimableBets, selectedChannel?.id]
-  );
-
   return (
     <Flex bg="rgba(0, 0, 0, 0.3)" mx="1rem" p="1rem" borderRadius="15px">
       <Flex direction="column">
         <>
-          {filteredClaimableBetsByChannelId.length > 0 ? (
+          {claimableBets.length > 0 ? (
             <SimpleGrid columns={[2, 3, 4, 4]} spacing={10}>
-              {filteredClaimableBetsByChannelId.map((event, i) => (
+              {claimableBets.map((event, i) => (
                 <EventCard
-                  channels={sortedChannels}
+                  channels={channels}
                   key={i}
                   event={event}
                   claimedPayouts={claimedPayouts}

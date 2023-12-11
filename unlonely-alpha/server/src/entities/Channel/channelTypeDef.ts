@@ -6,6 +6,7 @@ export const typeDef = gql`
     LIVE
     LOCK
     PAYOUT
+    PAYOUT_PREVIOUS
   }
 
   type ChatCommand {
