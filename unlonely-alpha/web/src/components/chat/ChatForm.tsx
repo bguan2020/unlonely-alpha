@@ -369,7 +369,7 @@ const ChatForm = ({
                       </PopoverContent>
                     </Popover>
                   )}
-                  {isVipChat && (isOwner || isVip) && (
+                  {(isOwner || isVip) && (
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton

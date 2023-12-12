@@ -237,7 +237,7 @@ const DesktopPage = ({
                       borderRadius="0px"
                       p="1rem"
                     >
-                      <Trade chat={chat} />
+                      <Trade />
                     </Flex>
                   </Flex>
                 </Flex>

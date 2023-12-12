@@ -375,7 +375,7 @@ const EventCard = ({
               _hover={{ transform: "scale(1.1)" }}
               _focus={{}}
               _active={{}}
-              bg={"#E09025"}
+              bg={"#09b311"}
               borderRadius="25px"
               isDisabled={
                 !claimVotePayout || claimVotePayoutTxLoading || calling

@@ -272,7 +272,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                 </Flex>
               </Flex> */}
               {selectedTab === "chat" && <Chat chat={chat} />}
-              {selectedTab === "trade" && <Trade chat={chat} />}
+              {selectedTab === "trade" && <Trade />}
               {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
             </Flex>
           </OuterBorder>

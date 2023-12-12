@@ -14,7 +14,6 @@ import { useBalance, useBlockNumber } from "wagmi";
 import { AddIcon } from "@chakra-ui/icons";
 
 import { InteractionType, NULL_ADDRESS } from "../../../constants";
-import { ChatReturnType } from "../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import {
@@ -43,9 +42,11 @@ import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
 import usePostClaimPayout from "../../../hooks/server/usePostClaimPayout";
 import useCloseSharesEvent from "../../../hooks/server/useCloseSharesEvent";
 import useDebounce from "../../../hooks/internal/useDebounce";
+import useUserAgent from "../../../hooks/internal/useUserAgent";
 
-const Trade = ({ chat }: { chat: ChatReturnType }) => {
+const Trade = () => {
   const { userAddress, walletIsConnected, user } = useUser();
+  const { isStandalone } = useUserAgent();
   const { channel, chat: chatContext, ui } = useChannelContext();
   const { channelQueryData, ongoingBets } = channel;
   const { addToChatbot } = chatContext;
@@ -599,6 +600,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           gap="5px"
           bg={"rgba(255, 255, 255, 0.1)"}
           borderRadius="5px"
+          mb="10px"
         >
           {(isSharesEventPayout ||
             isSharesEventPayoutPrevious ||
@@ -681,7 +683,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             (isSharesEventLock ||
               (eventEndTimestamp > 0 && eventEndTimestampPassed)) && (
               <>
-                {!isSharesEventPayout && (
+                {!isSharesEventPayout && !isSharesEventPayoutPrevious && (
                   <Button
                     color="white"
                     _hover={{}}
@@ -735,7 +737,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             p="5px"
             bg={"rgba(0, 0, 0, 0.4)"}
             borderRadius="15px"
-            mt={"10px"}
+            mb={"10px"}
           >
             <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
               {ongoingBets?.[0]?.sharesSubjectQuestion}
@@ -758,20 +760,15 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             ongoingBets?.[0].eventState === SharesEventState.PayoutPrevious) ? (
             <>
               <Text textAlign={"center"}>there is no event at the moment</Text>
-              <Button
-                color="white"
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                bg={"#E09025"}
-                borderRadius="25px"
-                onClick={() =>
-                  window.open(`${window.location.origin}/claim`, "_blank")
-                }
-                width="100%"
-              >
-                <Text fontSize="20px">go to claim page</Text>
-              </Button>
+              <Flex justifyContent={"center"}>
+                <Link
+                  href={"/claim"}
+                  target={isStandalone ? "_self" : "_blank"}
+                  style={{ textDecoration: "underline" }}
+                >
+                  go to claim page
+                </Link>
+              </Flex>
             </>
           ) : (
             <>
@@ -965,7 +962,7 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                         _hover={{}}
                         _focus={{}}
                         _active={{}}
-                        bg={"#E09025"}
+                        bg={"#09b311"}
                         borderRadius="25px"
                         isDisabled={!claimVotePayout || tradeLoading}
                         onClick={claimVotePayout}
@@ -974,20 +971,15 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                         <Text fontSize="20px">get payout</Text>
                       </Button>
                     )}
-                    <Button
-                      color="white"
-                      _hover={{}}
-                      _focus={{}}
-                      _active={{}}
-                      bg={"#E09025"}
-                      borderRadius="25px"
-                      onClick={() =>
-                        window.open(`${window.location.origin}/claim`, "_blank")
-                      }
-                      width="100%"
-                    >
-                      <Text fontSize="20px">go to claim page</Text>
-                    </Button>
+                    <Flex justifyContent={"center"}>
+                      <Link
+                        href={"/claim"}
+                        target={isStandalone ? "_self" : "_blank"}
+                        style={{ textDecoration: "underline" }}
+                      >
+                        go to claim page
+                      </Link>
+                    </Flex>
                   </Flex>
                 </>
               ) : eventEndTimestamp === BigInt(0) &&

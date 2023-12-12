@@ -170,7 +170,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
 
   setInterval(() => {
     setCounter((counter) => counter + 1);
-  }, 1000 * 60 * 10);
+  }, 1000 * 60 * 8);
 
   const value = useMemo(() => {
     return {

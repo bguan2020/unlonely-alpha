@@ -192,7 +192,7 @@ const ConnectedDisplay = () => {
       Number(feeData?.data?.formatted?.gasPrice ?? "0") >
       Number(userEthBalance.formatted)
     );
-  }, [feeData, userEthBalance, matchingChain]);
+  }, [feeData?.data?.formatted?.gasPrice, userEthBalance, matchingChain]);
 
   const redirectToBridge = useCallback(() => {
     if (isStandalone) {

@@ -71,7 +71,7 @@ export const NetworkProvider = ({
   useEffect(() => {
     if (
       wallet &&
-      user &&
+      user?.address &&
       wallet?.chainId?.split(":")[1] &&
       wallet?.chainId?.split(":")[1] !== String(NETWORKS[0].config.chainId) &&
       !router.pathname.startsWith("/bridge")

@@ -470,7 +470,7 @@ export const TabsComponent = () => {
       )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}
-        {selectedTab === "trade" && <Trade chat={chat} />}
+        {selectedTab === "trade" && <Trade />}
         {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
       </Flex>
     </>
