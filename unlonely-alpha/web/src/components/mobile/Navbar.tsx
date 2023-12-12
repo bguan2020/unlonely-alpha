@@ -136,7 +136,7 @@ export const Navbar = () => {
                 variant="solid"
                 ml="1"
                 colorScheme={"red"}
-                fontSize="0.7em"
+                fontSize="0.8em"
               >
                 {claimableBets.length > 99 ? "99+" : claimableBets.length}
               </Badge>

@@ -32,8 +32,9 @@ export const VipBadgeBuy = () => {
     watch: true,
   });
 
-  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
+  const { data: userEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
+    watch: true,
   });
 
   const getCallbackHandlers = (
@@ -182,11 +183,7 @@ export const VipBadgeBuy = () => {
       if (isFetching.current) return;
       isFetching.current = true;
       try {
-        await Promise.all([
-          refetchBadgePrice(),
-          refetchBuyVipBadge(),
-          refetchUserEthBalance(),
-        ]);
+        await Promise.all([refetchBadgePrice(), refetchBuyVipBadge()]);
       } catch (err) {
         console.log("VipBadgeBuy fetching error", err);
       }

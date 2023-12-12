@@ -173,7 +173,7 @@ body {
 }
 
 .hithere {
-  animation: hithere 5s ease infinite;
+  animation: hithere 3.5s ease infinite;
 }
 
 @keyframes hithere {
@@ -243,6 +243,21 @@ body {
 .bouncing-text {
   letter-spacing: normal;
   animation: waveAnim 1s 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
+}
+
+@keyframes attention {
+  0%,
+  50% {
+    color: red;
+  }
+  51%,
+  100% {
+    color: yellow;
+  }
+}
+
+.attention {
+  animation: attention 3s infinite;
 }
 
 .gradient-text {
