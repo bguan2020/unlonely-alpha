@@ -18,7 +18,7 @@ const styles = `
   }
 `;
 
-const MobileAblyChatComponent = () => {
+const PopOutChatComponent = () => {
   return (
     <Box flexDirection="column" height="100dvh" flexWrap="nowrap">
       <style>{styles}</style>
@@ -44,4 +44,4 @@ const MobileAblyChatComponent = () => {
   );
 };
 
-export default MobileAblyChatComponent;
+export default PopOutChatComponent;

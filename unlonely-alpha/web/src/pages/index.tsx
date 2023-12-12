@@ -215,6 +215,7 @@ function DesktopPage({
             {!sideBarBreakpoints && !loading && (
               <Flex justifyContent={"center"}>
                 <Button
+                  color="white"
                   ref={btnRef}
                   onClick={onOpen}
                   bg="#CB520E"
@@ -405,6 +406,7 @@ function MobilePage({
             height="100%"
           >
             <IconButton
+              color="white"
               position="absolute"
               aria-label="refresh"
               icon={<BiRefresh size="20px" />}

@@ -1,14 +1,43 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
+  enum EventType {
+    YAY_NAY_VOTE
+    VIP_BADGE
+    SIDE_BET
+  }
+
   enum GamblableEvent {
     BET_CREATE
     BET_YES_BUY
     BET_NO_BUY
     BET_YES_SELL
     BET_NO_SELL
+    BET_CLAIM_PAYOUT
+    BADGE_CLAIM_PAYOUT
     BADGE_BUY
     BADGE_SELL
+  }
+
+  enum SharesEventState {
+    PENDING
+    LIVE
+    LOCK
+    PAYOUT_CURRENT
+    PAYOUT_PREVIOUS
+  }
+
+  type SharesEvent {
+    id: ID!
+    sharesSubjectQuestion: String
+    sharesSubjectAddress: String
+    options: [String]
+    chainId: Int
+    channelId: ID
+    eventState: SharesEventState
+    softDelete: Boolean
+    createdAt: DateTime!
+    resultIndex: Int
   }
 
   type GamblableInteraction {
@@ -17,6 +46,8 @@ export const typeDef = gql`
     type: GamblableEvent!
     user: User!
     createdAt: DateTime!
+    eventId: Int
+    eventType: EventType
     softDelete: Boolean
   }
 
@@ -40,12 +71,16 @@ export const typeDef = gql`
   input PostBetInput {
     channelId: ID!
     userAddress: String!
+    eventId: Int!
+    eventType: EventType!
   }
 
   input PostBetTradeInput {
     channelId: ID!
     chainId: Int!
     userAddress: String!
+    eventId: Int!
+    eventType: EventType!
     type: GamblableEvent!
     fees: Float!
   }
@@ -54,8 +89,17 @@ export const typeDef = gql`
     channelId: ID!
     chainId: Int!
     userAddress: String!
+    eventId: Int!
     isBuying: Boolean!
     fees: Float!
+  }
+
+  input PostClaimPayoutInput {
+    channelId: ID!
+    userAddress: String!
+    eventId: Int!
+    eventType: EventType!
+    type: GamblableEvent!
   }
 
   input GetBetsByChannelInput {
@@ -77,6 +121,12 @@ export const typeDef = gql`
     userAddress: String!
   }
 
+  input GetUnclaimedEvents {
+    chainId: Int!
+    userAddress: String
+    channelId: ID
+  }
+
   extend type Query {
     getBadgeHoldersByChannel(data: GetBadgeHoldersByChannelInput): [String]!
     getChannelsByNumberOfBadgeHolders: [NumberOfHolders]!
@@ -86,11 +136,13 @@ export const typeDef = gql`
       data: GetGamblableEventLeaderboardByChannelIdInput
     ): [GamblableEventLeaderboard!]!
     getGamblableEventUserRank(data: GetGamblableEventUserRankInput): Int!
+    getUnclaimedEvents(data: GetUnclaimedEvents): [SharesEvent]!
   }
 
   extend type Mutation {
     postBet(data: PostBetInput!): GamblableInteraction!
     postBetTrade(data: PostBetTradeInput!): GamblableInteraction!
     postBadgeTrade(data: PostBadgeTradeInput!): GamblableInteraction!
+    postClaimPayout(data: PostClaimPayoutInput!): GamblableInteraction!
   }
 `;

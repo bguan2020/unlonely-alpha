@@ -22,9 +22,11 @@ type Source = {
 };
 
 enum SharesEventState {
+  PENDING = "PENDING",
   LIVE = "LIVE",
   LOCK = "LOCK",
   PAYOUT = "PAYOUT",
+  PAYOUT_PREVIOUS = "PAYOUT_PREVIOUS",
 }
 
 export const updateChannelText = (
@@ -61,8 +63,10 @@ export const updateChannelCustomButton = (
 
 export interface IPostSharesEventInput {
   channelId: number;
+  chainId: number;
   sharesSubjectQuestion: string;
   sharesSubjectAddress: string;
+  options: string[];
 }
 
 export interface IUpdateSharesEventInput {
@@ -70,6 +74,7 @@ export interface IUpdateSharesEventInput {
   sharesSubjectQuestion: string;
   sharesSubjectAddress: string;
   eventState?: SharesEventState;
+  resultIndex?: number;
 }
 
 export const postSharesEvent = async (
@@ -80,7 +85,9 @@ export const postSharesEvent = async (
     data: {
       sharesSubjectQuestion: data.sharesSubjectQuestion,
       sharesSubjectAddress: data.sharesSubjectAddress,
-      eventState: SharesEventState.LIVE,
+      eventState: SharesEventState.PENDING,
+      chainId: Number(data.chainId),
+      options: data.options,
       softDelete: false,
       channel: {
         connect: {
@@ -110,28 +117,30 @@ export const updateSharesEvent = async (
       sharesSubjectQuestion: data.sharesSubjectQuestion,
       sharesSubjectAddress: data.sharesSubjectAddress,
       eventState: data.eventState,
+      resultIndex: data.resultIndex,
     },
   });
 };
 
-export interface IPostCloseSharesEventInput {
-  id: number;
+export interface IPostCloseSharesEventsInput {
+  channelId: number;
+  chainId: number;
+  sharesEventIds: number[];
 }
 
-export const closeSharesEvent = async (
-  data: IPostCloseSharesEventInput,
+export const closeSharesEvents = async (
+  data: IPostCloseSharesEventsInput,
   ctx: Context
 ) => {
-  const sharesEvent = await ctx.prisma.sharesEvent.findFirst({
-    where: { id: Number(data.id), softDelete: false },
-  });
-
-  if (!sharesEvent) {
-    throw new Error("Shares event not found");
-  }
-
-  return await ctx.prisma.sharesEvent.update({
-    where: { id: sharesEvent.id },
+  return await ctx.prisma.sharesEvent.updateMany({
+    where: {
+      channelId: Number(data.channelId),
+      chainId: Number(data.chainId),
+      id: {
+        in: data.sharesEventIds.map((id) => Number(id)),
+      },
+      softDelete: false,
+    },
     data: {
       softDelete: true,
     },
@@ -295,14 +304,6 @@ export const getOwner = (
   return ctx.prisma.user.findUnique({ where: { address: ownerAddr } });
 };
 
-// aws lambda function
-interface ThumbnailEvent {
-  detail: {
-    "channel-arn": string;
-    "recording-config-arn": string;
-  };
-}
-
 const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
   const recordingConfigArn =
     "arn:aws:ivs:us-west-2:500434899882:recording-configuration/vQ227qqHmVtp";
@@ -422,12 +423,11 @@ export const getChannelChatCommands = async (
   });
 };
 
-export const getChannelSharesEvent = async (
+export const getChannelSharesEvents = async (
   { id }: { id: number },
   ctx: Context
 ) => {
   return ctx.prisma.sharesEvent.findMany({
-    // where softDelete is false
     where: { channelId: Number(id), softDelete: false },
     // order by createdAt w latest first
     orderBy: { createdAt: "desc" },
@@ -443,5 +443,16 @@ export const getChannelUserRolesByChannel = async (
     where: {
       channelId: Number(id),
     },
+  });
+};
+
+export const getChannelSideBets = async (
+  { id }: { id: number },
+  ctx: Context
+) => {
+  return ctx.prisma.sideBet.findMany({
+    where: { channelId: Number(id), softDelete: false },
+    // order by createdAt w latest first
+    orderBy: { createdAt: "desc" },
   });
 };

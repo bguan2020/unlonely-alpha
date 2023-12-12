@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useChannelContext } from "../context/useChannel";
 import { Message } from "../../constants/types/chat";
 import {
-  ADD_REACTION_EVENT,
   APPOINT_USER_EVENT,
   BAN_USER_EVENT,
   CHAT_MESSAGE_EVENT,
@@ -116,7 +115,7 @@ export function useChannel(fixedChatName?: string) {
       // @ts-ignore
       await channel.history((err, result) => {
         setAllMessages(result.items);
-        let messageHistory = result.items.filter((message: any) => {
+        const messageHistory = result.items.filter((message: any) => {
           if (message.name !== CHAT_MESSAGE_EVENT) return false;
 
           const senderIsBanned = localBanList.includes(message.data.address);
@@ -133,16 +132,16 @@ export function useChannel(fixedChatName?: string) {
         setReceivedMessages(reverse);
 
         // iterate through result
-        result.items.forEach((message: any) => {
-          if (message.name === ADD_REACTION_EVENT) {
-            messageHistory = updateMessageHistoryReactions(
-              message,
-              messageHistory
-            );
-            const reverse = [...messageHistory, message].reverse();
-            setReceivedMessages(reverse);
-          }
-        });
+        // result.items.forEach((message: any) => {
+        //   if (message.name === ADD_REACTION_EVENT) {
+        //     messageHistory = updateMessageHistoryReactions(
+        //       message,
+        //       messageHistory
+        //     );
+        //     const reverse = [...messageHistory, message].reverse();
+        //     setReceivedMessages(reverse);
+        //   }
+        // });
         // Get index of last sent message from history
       });
       setMounted(true);
@@ -161,36 +160,36 @@ export function useChannel(fixedChatName?: string) {
   };
 }
 
-const updateMessageHistoryReactions = (
-  message: Ably.Types.Message,
-  messageHistory: Message[]
-) => {
-  const reaction = message;
-  const timeserial = reaction.data.extras.reference.timeserial;
-  const emojiType = reaction.data.body;
+// const updateMessageHistoryReactions = (
+//   message: Ably.Types.Message,
+//   messageHistory: Message[]
+// ) => {
+//   const reaction = message;
+//   const timeserial = reaction.data.extras.reference.timeserial;
+//   const emojiType = reaction.data.body;
 
-  // get index of message in filteredHistory array where timeserial matches
-  const index = messageHistory.findIndex(
-    (m) => m.extras.timeserial === timeserial
-  );
-  if (index === -1) return messageHistory;
+//   // get index of message in filteredHistory array where timeserial matches
+//   const index = messageHistory.findIndex(
+//     (m) => m.extras.timeserial === timeserial
+//   );
+//   if (index === -1) return messageHistory;
 
-  const messageToUpdate = messageHistory[index];
-  const emojisToUpdate = messageToUpdate.data.reactions;
-  const emojiIndex = emojisToUpdate.findIndex((e) => e.emojiType === emojiType);
+//   const messageToUpdate = messageHistory[index];
+//   const emojisToUpdate = messageToUpdate.data.reactions;
+//   const emojiIndex = emojisToUpdate.findIndex((e) => e.emojiType === emojiType);
 
-  // if found, increment count
-  if (emojiIndex !== -1) {
-    emojisToUpdate[emojiIndex].count += 1;
-  }
-  const updatedMessage = {
-    ...messageToUpdate,
-    data: {
-      ...messageToUpdate.data,
-      reactions: emojisToUpdate,
-    },
-  };
-  messageHistory[index] = updatedMessage;
+//   // if found, increment count
+//   if (emojiIndex !== -1) {
+//     emojisToUpdate[emojiIndex].count += 1;
+//   }
+//   const updatedMessage = {
+//     ...messageToUpdate,
+//     data: {
+//       ...messageToUpdate.data,
+//       reactions: emojisToUpdate,
+//     },
+//   };
+//   messageHistory[index] = updatedMessage;
 
-  return messageHistory;
-};
+//   return messageHistory;
+// };

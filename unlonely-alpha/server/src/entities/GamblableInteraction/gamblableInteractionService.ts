@@ -1,6 +1,12 @@
-import { Channel } from "@prisma/client";
+import { Channel, SharesEventState } from "@prisma/client";
 
 import { Context } from "../../context";
+
+enum EventType {
+  YAY_NAY_VOTE = "YAY_NAY_VOTE",
+  VIP_BADGE = "VIP_BADGE",
+  SIDE_BET = "SIDE_BET",
+}
 
 enum GamblableEvent {
   BET_CREATE = "BET_CREATE",
@@ -8,6 +14,8 @@ enum GamblableEvent {
   BET_NO_BUY = "BET_NO_BUY",
   BET_YES_SELL = "BET_YES_SELL",
   BET_NO_SELL = "BET_NO_SELL",
+  BET_CLAIM_PAYOUT = "BET_CLAIM_PAYOUT",
+  BADGE_CLAIM_PAYOUT = "BADGE_CLAIM_PAYOUT",
   BADGE_BUY = "BADGE_BUY",
   BADGE_SELL = "BADGE_SELL",
 }
@@ -24,12 +32,16 @@ export interface IGetBadgeHoldersByChannelInput {
 export interface IPostBetInput {
   channelId: string;
   userAddress: string;
+  eventId: number;
+  eventType: EventType;
 }
 
 export interface IPostBetTradeInput {
   channelId: string;
   chainId: number;
   userAddress: string;
+  eventId: number;
+  eventType: EventType;
   type: GamblableEvent;
   fees: number;
 }
@@ -38,8 +50,17 @@ export interface IPostBadgeTradeInput {
   channelId: string;
   chainId: number;
   userAddress: string;
+  eventId: number;
   isBuying: boolean;
   fees: number;
+}
+
+export interface IPostClaimPayoutInput {
+  channelId: string;
+  userAddress: string;
+  eventId: number;
+  eventType: EventType;
+  type: GamblableEvent;
 }
 
 export interface IGetBetsByChannelInput {
@@ -48,6 +69,12 @@ export interface IGetBetsByChannelInput {
 
 export interface IGetBetsByUserInput {
   userAddress: string;
+}
+
+export interface IGetUnclaimedEvents {
+  channelId?: string;
+  userAddress?: string;
+  chainId: number;
 }
 
 export interface IGetGamblableEventLeaderboardByChannelInput {
@@ -156,6 +183,8 @@ export const postBet = (data: IPostBetInput, ctx: Context) => {
           id: Number(data.channelId),
         },
       },
+      eventId: Number(data.eventId),
+      eventType: data.eventType,
       type: GamblableEvent.BET_CREATE,
       user: {
         connect: {
@@ -182,6 +211,8 @@ export const postBetTrade = async (data: IPostBetTradeInput, ctx: Context) => {
           id: Number(data.channelId),
         },
       },
+      eventId: data.eventId,
+      eventType: data.eventType,
       type: data.type,
       user: {
         connect: {
@@ -201,6 +232,8 @@ export const postBadgeTrade = async (
     where: {
       channelId: Number(data.channelId),
       userAddress: data.userAddress,
+      eventId: data.eventId,
+      eventType: EventType.VIP_BADGE,
       type: {
         in: [GamblableEvent.BADGE_BUY, GamblableEvent.BADGE_SELL],
       },
@@ -238,6 +271,8 @@ export const postBadgeTrade = async (
             id: Number(data.channelId),
           },
         },
+        eventId: data.eventId,
+        eventType: EventType.VIP_BADGE,
         type: data.isBuying
           ? GamblableEvent.BADGE_BUY
           : GamblableEvent.BADGE_SELL,
@@ -250,6 +285,30 @@ export const postBadgeTrade = async (
       },
     });
   }
+};
+
+export const postClaimPayout = async (
+  data: IPostClaimPayoutInput,
+  ctx: Context
+) => {
+  // Find an existing gamblable interaction that matches channelId, userAddress, sharesEventId, and type
+  return await ctx.prisma.gamblableInteraction.create({
+    data: {
+      channel: {
+        connect: {
+          id: Number(data.channelId),
+        },
+      },
+      eventId: data.eventId,
+      eventType: data.eventType,
+      type: data.type,
+      user: {
+        connect: {
+          address: data.userAddress,
+        },
+      },
+    },
+  });
 };
 
 export const getBadgeHoldersByChannel = async (
@@ -325,6 +384,7 @@ export const getBetsByChannel = async (
           GamblableEvent.BET_NO_BUY,
           GamblableEvent.BET_YES_SELL,
           GamblableEvent.BET_NO_SELL,
+          GamblableEvent.BET_CLAIM_PAYOUT,
         ],
       },
     },
@@ -349,6 +409,7 @@ export const getBetsByUser = async (
           GamblableEvent.BET_NO_BUY,
           GamblableEvent.BET_YES_SELL,
           GamblableEvent.BET_NO_SELL,
+          GamblableEvent.BET_CLAIM_PAYOUT,
         ],
       },
     },
@@ -358,4 +419,70 @@ export const getBetsByUser = async (
   });
 
   return bets;
+};
+
+export const getUnclaimedEvents = async (
+  data: IGetUnclaimedEvents,
+  ctx: Context
+) => {
+  // STEP 1: fetch for all ongoing shares events, if data.channelId is provided, filter by channelId, then get each event's id
+  const sharesQuery = {
+    where: {
+      ...(data.channelId
+        ? { channelId: Number(data.channelId), chainId: Number(data.chainId) }
+        : {}),
+      eventState: {
+        in: [SharesEventState.PAYOUT, SharesEventState.PAYOUT_PREVIOUS],
+      },
+      softDelete: false,
+    },
+    orderBy: { createdAt: "desc" as const },
+  };
+
+  const ongoingSharesEvents = await ctx.prisma.sharesEvent.findMany(
+    sharesQuery
+  );
+  const eventIds = ongoingSharesEvents.map((event) => event.id);
+
+  /* STEP 2: fetch for all gamblable interactions that match the userAddress, eventIds returned above, the eventType, and gamblableEvent types
+              this is us basically asking "give me all the buy and claim interactions that this user made for each of these ongoing events"
+  */
+  const userInteractions = await ctx.prisma.gamblableInteraction.findMany({
+    where: {
+      eventId: { in: eventIds },
+      eventType: EventType.YAY_NAY_VOTE,
+      userAddress: data.userAddress,
+      type: {
+        in: [
+          GamblableEvent.BET_YES_BUY,
+          GamblableEvent.BET_NO_BUY,
+          GamblableEvent.BET_CLAIM_PAYOUT,
+        ],
+      },
+      softDelete: false,
+    },
+  });
+
+  // STEP 3: we filter out the events that have already been claimed by the user, thus returning only the events the user had not claimed for
+  const unclaimedEvents = ongoingSharesEvents.filter((event) => {
+    // STEP 3a: we get the buy interactions for this event
+    const buys = userInteractions.filter(
+      (interaction) =>
+        interaction.eventId === event.id &&
+        (interaction.type === GamblableEvent.BET_YES_BUY ||
+          interaction.type === GamblableEvent.BET_NO_BUY)
+    );
+
+    // STEP 3b: we check if the user has already claimed the payout for this event
+    const hasClaimed = userInteractions.some(
+      (interaction) =>
+        interaction.eventId === event.id &&
+        interaction.type === GamblableEvent.BET_CLAIM_PAYOUT
+    );
+
+    // STEP 3c: if the user has made buys and has not claimed the payout for this event, we return true, else, return false
+    return buys.length > 0 && !hasClaimed;
+  });
+
+  return unclaimedEvents;
 };

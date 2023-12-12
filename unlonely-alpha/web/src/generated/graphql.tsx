@@ -106,6 +106,7 @@ export type Channel = {
   response: Scalars["String"];
   roles?: Maybe<Array<Maybe<ChannelUserRole>>>;
   sharesEvent?: Maybe<Array<Maybe<SharesEvent>>>;
+  sideBets?: Maybe<Array<Maybe<SideBet>>>;
   slug: Scalars["String"];
   thumbnailUrl?: Maybe<Scalars["String"]>;
   token?: Maybe<CreatorToken>;
@@ -175,6 +176,10 @@ export type ClipOutput = {
   url?: Maybe<Scalars["String"]>;
 };
 
+export type CloseSideBetInput = {
+  id: Scalars["ID"];
+};
+
 export type CreateClipInput = {
   channelArn: Scalars["String"];
   title: Scalars["String"];
@@ -216,9 +221,17 @@ export type DeviceToken = {
   updatedAt: Scalars["DateTime"];
 };
 
+export enum EventType {
+  SideBet = "SIDE_BET",
+  VipBadge = "VIP_BADGE",
+  YayNayVote = "YAY_NAY_VOTE",
+}
+
 export enum GamblableEvent {
   BadgeBuy = "BADGE_BUY",
+  BadgeClaimPayout = "BADGE_CLAIM_PAYOUT",
   BadgeSell = "BADGE_SELL",
+  BetClaimPayout = "BET_CLAIM_PAYOUT",
   BetCreate = "BET_CREATE",
   BetNoBuy = "BET_NO_BUY",
   BetNoSell = "BET_NO_SELL",
@@ -239,6 +252,8 @@ export type GamblableInteraction = {
   __typename?: "GamblableInteraction";
   channel: Channel;
   createdAt: Scalars["DateTime"];
+  eventId?: Maybe<Scalars["Int"]>;
+  eventType?: Maybe<EventType>;
   id: Scalars["ID"];
   softDelete?: Maybe<Scalars["Boolean"]>;
   type: GamblableEvent;
@@ -295,6 +310,12 @@ export type GetTokenHoldersInput = {
   offset?: InputMaybe<Scalars["Int"]>;
 };
 
+export type GetUnclaimedEvents = {
+  chainId: Scalars["Int"];
+  channelId?: InputMaybe<Scalars["ID"]>;
+  userAddress?: InputMaybe<Scalars["String"]>;
+};
+
 export type GetUserInput = {
   address?: InputMaybe<Scalars["String"]>;
 };
@@ -341,7 +362,8 @@ export type Mutation = {
   _empty?: Maybe<Scalars["String"]>;
   addChannelToSubscription?: Maybe<Subscription>;
   addSuggestedChannelsToSubscriptions?: Maybe<Array<Maybe<Subscription>>>;
-  closeSharesEvent?: Maybe<Channel>;
+  closeSharesEvents?: Maybe<UpdateManyResponse>;
+  closeSideBet?: Maybe<SideBet>;
   createClip?: Maybe<ClipNfcOutput>;
   createCreatorToken: CreatorToken;
   createLivepeerClip?: Maybe<ClipNfcOutput>;
@@ -352,10 +374,12 @@ export type Mutation = {
   postBet: GamblableInteraction;
   postBetTrade: GamblableInteraction;
   postChatByAwsId?: Maybe<Chat>;
+  postClaimPayout: GamblableInteraction;
   postDeviceToken?: Maybe<DeviceToken>;
   postFirstChat?: Maybe<Chat>;
   postNFC?: Maybe<Nfc>;
   postSharesEvent?: Maybe<Channel>;
+  postSideBet?: Maybe<SideBet>;
   postStreamInteraction?: Maybe<StreamInteraction>;
   postSubscription?: Maybe<Subscription>;
   postTask?: Maybe<Task>;
@@ -374,6 +398,7 @@ export type Mutation = {
   updateNFC?: Maybe<Nfc>;
   updateOpenseaLink?: Maybe<Nfc>;
   updateSharesEvent?: Maybe<Channel>;
+  updateSideBet?: Maybe<SideBet>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
 };
@@ -386,8 +411,12 @@ export type MutationAddSuggestedChannelsToSubscriptionsArgs = {
   data: AddSuggestedChannelsToSubscriptionsInput;
 };
 
-export type MutationCloseSharesEventArgs = {
-  data: PostCloseSharesEventInput;
+export type MutationCloseSharesEventsArgs = {
+  data: PostCloseSharesEventsInput;
+};
+
+export type MutationCloseSideBetArgs = {
+  data: CloseSideBetInput;
 };
 
 export type MutationCreateClipArgs = {
@@ -426,6 +455,10 @@ export type MutationPostChatByAwsIdArgs = {
   data: PostChatByAwsIdInput;
 };
 
+export type MutationPostClaimPayoutArgs = {
+  data: PostClaimPayoutInput;
+};
+
 export type MutationPostDeviceTokenArgs = {
   data: PostDeviceTokenInput;
 };
@@ -440,6 +473,10 @@ export type MutationPostNfcArgs = {
 
 export type MutationPostSharesEventArgs = {
   data: PostSharesEventInput;
+};
+
+export type MutationPostSideBetArgs = {
+  data: PostSideBetInput;
 };
 
 export type MutationPostStreamInteractionArgs = {
@@ -510,6 +547,10 @@ export type MutationUpdateSharesEventArgs = {
   data: UpdateSharesEventInput;
 };
 
+export type MutationUpdateSideBetArgs = {
+  data: UpdateSideBetInput;
+};
+
 export type MutationUpdateUserCreatorTokenQuantityArgs = {
   data: UpdateUserCreatorTokenQuantityInput;
 };
@@ -559,6 +600,7 @@ export type Poap = {
 export type PostBadgeTradeInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["ID"];
+  eventId: Scalars["Int"];
   fees: Scalars["Float"];
   isBuying: Scalars["Boolean"];
   userAddress: Scalars["String"];
@@ -570,12 +612,16 @@ export type PostBaseLeaderboardInput = {
 
 export type PostBetInput = {
   channelId: Scalars["ID"];
+  eventId: Scalars["Int"];
+  eventType: EventType;
   userAddress: Scalars["String"];
 };
 
 export type PostBetTradeInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["ID"];
+  eventId: Scalars["Int"];
+  eventType: EventType;
   fees: Scalars["Float"];
   type: GamblableEvent;
   userAddress: Scalars["String"];
@@ -591,8 +637,18 @@ export type PostChatInput = {
   text: Scalars["String"];
 };
 
-export type PostCloseSharesEventInput = {
-  id: Scalars["ID"];
+export type PostClaimPayoutInput = {
+  channelId: Scalars["ID"];
+  eventId: Scalars["Int"];
+  eventType: EventType;
+  type: GamblableEvent;
+  userAddress: Scalars["String"];
+};
+
+export type PostCloseSharesEventsInput = {
+  chainId: Scalars["Int"];
+  channelId: Scalars["ID"];
+  sharesEventIds: Array<Scalars["ID"]>;
 };
 
 export type PostDeviceTokenInput = {
@@ -610,9 +666,19 @@ export type PostNfcInput = {
 };
 
 export type PostSharesEventInput = {
+  chainId: Scalars["Int"];
   channelId: Scalars["ID"];
+  options?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
   sharesSubjectAddress?: InputMaybe<Scalars["String"]>;
   sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;
+};
+
+export type PostSideBetInput = {
+  chainId: Scalars["Int"];
+  channelId: Scalars["ID"];
+  creatorAddress?: InputMaybe<Scalars["String"]>;
+  opponentAddress?: InputMaybe<Scalars["String"]>;
+  wagerDescription?: InputMaybe<Scalars["String"]>;
 };
 
 export type PostStreamInteractionInput = {
@@ -683,11 +749,15 @@ export type Query = {
   getPoap?: Maybe<Poap>;
   getRecentChats?: Maybe<Array<Maybe<Chat>>>;
   getRecentStreamInteractionsByChannel?: Maybe<Array<Maybe<StreamInteraction>>>;
+  getSideBetByChannelId?: Maybe<SideBet>;
+  getSideBetById?: Maybe<SideBet>;
+  getSideBetByUser?: Maybe<SideBet>;
   getSubscriptionByEndpoint?: Maybe<Subscription>;
   getSubscriptionsByChannelId?: Maybe<Array<Maybe<Subscription>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
   getTokenHoldersByChannel: Array<UserCreatorToken>;
   getTokenLeaderboard: Array<CreatorToken>;
+  getUnclaimedEvents: Array<Maybe<SharesEvent>>;
   getUser?: Maybe<User>;
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
   getVideo?: Maybe<Video>;
@@ -764,6 +834,18 @@ export type QueryGetRecentStreamInteractionsByChannelArgs = {
   data?: InputMaybe<GetRecentStreamInteractionsByChannelInput>;
 };
 
+export type QueryGetSideBetByChannelIdArgs = {
+  id: Scalars["ID"];
+};
+
+export type QueryGetSideBetByIdArgs = {
+  id: Scalars["ID"];
+};
+
+export type QueryGetSideBetByUserArgs = {
+  userAddress: Scalars["String"];
+};
+
 export type QueryGetSubscriptionByEndpointArgs = {
   data: ToggleSubscriptionInput;
 };
@@ -778,6 +860,10 @@ export type QueryGetTaskFeedArgs = {
 
 export type QueryGetTokenHoldersByChannelArgs = {
   data?: InputMaybe<GetTokenHoldersInput>;
+};
+
+export type QueryGetUnclaimedEventsArgs = {
+  data?: InputMaybe<GetUnclaimedEvents>;
 };
 
 export type QueryGetUserArgs = {
@@ -808,9 +894,13 @@ export type SendAllNotificationsInput = {
 
 export type SharesEvent = {
   __typename?: "SharesEvent";
+  chainId?: Maybe<Scalars["Int"]>;
+  channelId?: Maybe<Scalars["ID"]>;
   createdAt: Scalars["DateTime"];
   eventState?: Maybe<SharesEventState>;
   id: Scalars["ID"];
+  options?: Maybe<Array<Maybe<Scalars["String"]>>>;
+  resultIndex?: Maybe<Scalars["Int"]>;
   sharesSubjectAddress?: Maybe<Scalars["String"]>;
   sharesSubjectQuestion?: Maybe<Scalars["String"]>;
   softDelete?: Maybe<Scalars["Boolean"]>;
@@ -820,7 +910,22 @@ export enum SharesEventState {
   Live = "LIVE",
   Lock = "LOCK",
   Payout = "PAYOUT",
+  PayoutCurrent = "PAYOUT_CURRENT",
+  PayoutPrevious = "PAYOUT_PREVIOUS",
+  Pending = "PENDING",
 }
+
+export type SideBet = {
+  __typename?: "SideBet";
+  chainId?: Maybe<Scalars["Int"]>;
+  createdAt: Scalars["DateTime"];
+  creatorAddress?: Maybe<Scalars["String"]>;
+  id: Scalars["ID"];
+  opponentAddress?: Maybe<Scalars["String"]>;
+  result?: Maybe<Scalars["Boolean"]>;
+  softDelete?: Maybe<Scalars["Boolean"]>;
+  wagerDescription?: Maybe<Scalars["String"]>;
+};
 
 export type SoftDeleteSubscriptionInput = {
   id: Scalars["ID"];
@@ -914,6 +1019,11 @@ export type UpdateDeviceInput = {
   token: Scalars["String"];
 };
 
+export type UpdateManyResponse = {
+  __typename?: "UpdateManyResponse";
+  count: Scalars["Int"];
+};
+
 export type UpdateNfcInput = {
   id: Scalars["ID"];
   openseaLink: Scalars["String"];
@@ -925,8 +1035,16 @@ export type UpdateNfcInput = {
 export type UpdateSharesEventInput = {
   eventState?: InputMaybe<SharesEventState>;
   id: Scalars["ID"];
+  resultIndex?: InputMaybe<Scalars["Int"]>;
   sharesSubjectAddress?: InputMaybe<Scalars["String"]>;
   sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;
+};
+
+export type UpdateSideBetInput = {
+  creatorAddress?: InputMaybe<Scalars["String"]>;
+  id: Scalars["ID"];
+  opponentAddress?: InputMaybe<Scalars["String"]>;
+  wagerDescription?: InputMaybe<Scalars["String"]>;
 };
 
 export type UpdateUserCreatorTokenQuantityInput = {
@@ -1020,6 +1138,26 @@ export type SendAllNotificationsQuery = {
   sendAllNotifications?: boolean | null;
 };
 
+export type GetUnclaimedEventsQueryVariables = Exact<{
+  data?: InputMaybe<GetUnclaimedEvents>;
+}>;
+
+export type GetUnclaimedEventsQuery = {
+  __typename?: "Query";
+  getUnclaimedEvents: Array<{
+    __typename?: "SharesEvent";
+    sharesSubjectQuestion?: string | null;
+    sharesSubjectAddress?: string | null;
+    resultIndex?: number | null;
+    options?: Array<string | null> | null;
+    id: string;
+    eventState?: SharesEventState | null;
+    createdAt: any;
+    chainId?: number | null;
+    channelId?: string | null;
+  } | null>;
+};
+
 export type GetTokenLeaderboardQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetTokenLeaderboardQuery = {
@@ -1064,9 +1202,23 @@ export type ChannelDetailQuery = {
       __typename?: "SharesEvent";
       sharesSubjectQuestion?: string | null;
       sharesSubjectAddress?: string | null;
+      options?: Array<string | null> | null;
+      chainId?: number | null;
+      channelId?: string | null;
       eventState?: SharesEventState | null;
       createdAt: any;
       id: string;
+      resultIndex?: number | null;
+    } | null> | null;
+    sideBets?: Array<{
+      __typename?: "SideBet";
+      id: string;
+      wagerDescription?: string | null;
+      creatorAddress?: string | null;
+      opponentAddress?: string | null;
+      chainId?: number | null;
+      createdAt: any;
+      result?: boolean | null;
     } | null> | null;
     owner: {
       __typename?: "User";
@@ -1220,6 +1372,28 @@ export type GetChannelFeedQuery = {
       FCImageUrl?: string | null;
       lensImageUrl?: string | null;
     };
+    sharesEvent?: Array<{
+      __typename?: "SharesEvent";
+      sharesSubjectQuestion?: string | null;
+      sharesSubjectAddress?: string | null;
+      options?: Array<string | null> | null;
+      chainId?: number | null;
+      channelId?: string | null;
+      eventState?: SharesEventState | null;
+      createdAt: any;
+      resultIndex?: number | null;
+      id: string;
+    } | null> | null;
+    sideBets?: Array<{
+      __typename?: "SideBet";
+      id: string;
+      wagerDescription?: string | null;
+      creatorAddress?: string | null;
+      opponentAddress?: string | null;
+      chainId?: number | null;
+      createdAt: any;
+      result?: boolean | null;
+    } | null> | null;
   } | null> | null;
 };
 
@@ -1302,9 +1476,13 @@ export type GetChannelsByNumberOfBadgeHoldersQuery = {
         __typename?: "SharesEvent";
         sharesSubjectQuestion?: string | null;
         sharesSubjectAddress?: string | null;
+        chainId?: number | null;
+        channelId?: string | null;
+        options?: Array<string | null> | null;
         eventState?: SharesEventState | null;
         createdAt: any;
         id: string;
+        resultIndex?: number | null;
       } | null> | null;
       owner: {
         __typename?: "User";
@@ -1435,13 +1613,16 @@ export type AddChannelToSubscriptionMutation = {
   addChannelToSubscription?: { __typename?: "Subscription"; id: string } | null;
 };
 
-export type CloseSharesEventMutationVariables = Exact<{
-  data: PostCloseSharesEventInput;
+export type CloseSharesEventsMutationVariables = Exact<{
+  data: PostCloseSharesEventsInput;
 }>;
 
-export type CloseSharesEventMutation = {
+export type CloseSharesEventsMutation = {
   __typename?: "Mutation";
-  closeSharesEvent?: { __typename?: "Channel"; id: string } | null;
+  closeSharesEvents?: {
+    __typename?: "UpdateManyResponse";
+    count: number;
+  } | null;
 };
 
 export type CreateClipMutationVariables = Exact<{
@@ -1451,6 +1632,21 @@ export type CreateClipMutationVariables = Exact<{
 export type CreateClipMutation = {
   __typename?: "Mutation";
   createClip?: {
+    __typename?: "ClipNFCOutput";
+    url?: string | null;
+    thumbnail?: string | null;
+    errorMessage?: string | null;
+    id: string;
+  } | null;
+};
+
+export type CreateLivepeerClipMutationVariables = Exact<{
+  data: CreateLivepeerClipInput;
+}>;
+
+export type CreateLivepeerClipMutation = {
+  __typename?: "Mutation";
+  createLivepeerClip?: {
     __typename?: "ClipNFCOutput";
     url?: string | null;
     thumbnail?: string | null;
@@ -1499,6 +1695,15 @@ export type PostChatByAwsIdMutationVariables = Exact<{
 export type PostChatByAwsIdMutation = {
   __typename?: "Mutation";
   postChatByAwsId?: { __typename?: "Chat"; id: string } | null;
+};
+
+export type PostClaimPayoutMutationVariables = Exact<{
+  data: PostClaimPayoutInput;
+}>;
+
+export type PostClaimPayoutMutation = {
+  __typename?: "Mutation";
+  postClaimPayout: { __typename?: "GamblableInteraction"; id: string };
 };
 
 export type PostFirstChatMutationVariables = Exact<{
@@ -1747,21 +1952,6 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
-export type CreateLivepeerClipMutationVariables = Exact<{
-  data: CreateLivepeerClipInput;
-}>;
-
-export type CreateLivepeerClipMutation = {
-  __typename?: "Mutation";
-  createLivepeerClip?: {
-    __typename?: "ClipNFCOutput";
-    url?: string | null;
-    thumbnail?: string | null;
-    errorMessage?: string | null;
-    id: string;
-  } | null;
-};
-
 export const QueryDocument = gql`
   query Query($data: GetUserTokenHoldingInput!) {
     getUserTokenHolding(data: $data)
@@ -1864,6 +2054,72 @@ export type SendAllNotificationsQueryResult = Apollo.QueryResult<
   SendAllNotificationsQuery,
   SendAllNotificationsQueryVariables
 >;
+export const GetUnclaimedEventsDocument = gql`
+  query GetUnclaimedEvents($data: GetUnclaimedEvents) {
+    getUnclaimedEvents(data: $data) {
+      sharesSubjectQuestion
+      sharesSubjectAddress
+      resultIndex
+      options
+      id
+      eventState
+      createdAt
+      chainId
+      channelId
+    }
+  }
+`;
+
+/**
+ * __useGetUnclaimedEventsQuery__
+ *
+ * To run a query within a React component, call `useGetUnclaimedEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUnclaimedEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUnclaimedEventsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetUnclaimedEventsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetUnclaimedEventsQuery,
+    GetUnclaimedEventsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetUnclaimedEventsQuery,
+    GetUnclaimedEventsQueryVariables
+  >(GetUnclaimedEventsDocument, options);
+}
+export function useGetUnclaimedEventsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetUnclaimedEventsQuery,
+    GetUnclaimedEventsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetUnclaimedEventsQuery,
+    GetUnclaimedEventsQueryVariables
+  >(GetUnclaimedEventsDocument, options);
+}
+export type GetUnclaimedEventsQueryHookResult = ReturnType<
+  typeof useGetUnclaimedEventsQuery
+>;
+export type GetUnclaimedEventsLazyQueryHookResult = ReturnType<
+  typeof useGetUnclaimedEventsLazyQuery
+>;
+export type GetUnclaimedEventsQueryResult = Apollo.QueryResult<
+  GetUnclaimedEventsQuery,
+  GetUnclaimedEventsQueryVariables
+>;
 export const GetTokenLeaderboardDocument = gql`
   query GetTokenLeaderboard {
     getTokenLeaderboard {
@@ -1950,9 +2206,22 @@ export const ChannelDetailDocument = gql`
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
+        options
+        chainId
+        channelId
         eventState
         createdAt
         id
+        resultIndex
+      }
+      sideBets {
+        id
+        wagerDescription
+        creatorAddress
+        opponentAddress
+        chainId
+        createdAt
+        result
       }
       owner {
         FCImageUrl
@@ -2529,6 +2798,26 @@ export const GetChannelFeedDocument = gql`
         FCImageUrl
         lensImageUrl
       }
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        options
+        chainId
+        channelId
+        eventState
+        createdAt
+        resultIndex
+        id
+      }
+      sideBets {
+        id
+        wagerDescription
+        creatorAddress
+        opponentAddress
+        chainId
+        createdAt
+        result
+      }
       thumbnailUrl
     }
   }
@@ -2783,9 +3072,13 @@ export const GetChannelsByNumberOfBadgeHoldersDocument = gql`
         sharesEvent {
           sharesSubjectQuestion
           sharesSubjectAddress
+          chainId
+          channelId
+          options
           eventState
           createdAt
           id
+          resultIndex
         }
         owner {
           FCImageUrl
@@ -3323,55 +3616,55 @@ export type AddChannelToSubscriptionMutationOptions =
     AddChannelToSubscriptionMutation,
     AddChannelToSubscriptionMutationVariables
   >;
-export const CloseSharesEventDocument = gql`
-  mutation CloseSharesEvent($data: PostCloseSharesEventInput!) {
-    closeSharesEvent(data: $data) {
-      id
+export const CloseSharesEventsDocument = gql`
+  mutation CloseSharesEvents($data: PostCloseSharesEventsInput!) {
+    closeSharesEvents(data: $data) {
+      count
     }
   }
 `;
-export type CloseSharesEventMutationFn = Apollo.MutationFunction<
-  CloseSharesEventMutation,
-  CloseSharesEventMutationVariables
+export type CloseSharesEventsMutationFn = Apollo.MutationFunction<
+  CloseSharesEventsMutation,
+  CloseSharesEventsMutationVariables
 >;
 
 /**
- * __useCloseSharesEventMutation__
+ * __useCloseSharesEventsMutation__
  *
- * To run a mutation, you first call `useCloseSharesEventMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCloseSharesEventMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCloseSharesEventsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCloseSharesEventsMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [closeSharesEventMutation, { data, loading, error }] = useCloseSharesEventMutation({
+ * const [closeSharesEventsMutation, { data, loading, error }] = useCloseSharesEventsMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useCloseSharesEventMutation(
+export function useCloseSharesEventsMutation(
   baseOptions?: Apollo.MutationHookOptions<
-    CloseSharesEventMutation,
-    CloseSharesEventMutationVariables
+    CloseSharesEventsMutation,
+    CloseSharesEventsMutationVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
-    CloseSharesEventMutation,
-    CloseSharesEventMutationVariables
-  >(CloseSharesEventDocument, options);
+    CloseSharesEventsMutation,
+    CloseSharesEventsMutationVariables
+  >(CloseSharesEventsDocument, options);
 }
-export type CloseSharesEventMutationHookResult = ReturnType<
-  typeof useCloseSharesEventMutation
+export type CloseSharesEventsMutationHookResult = ReturnType<
+  typeof useCloseSharesEventsMutation
 >;
-export type CloseSharesEventMutationResult =
-  Apollo.MutationResult<CloseSharesEventMutation>;
-export type CloseSharesEventMutationOptions = Apollo.BaseMutationOptions<
-  CloseSharesEventMutation,
-  CloseSharesEventMutationVariables
+export type CloseSharesEventsMutationResult =
+  Apollo.MutationResult<CloseSharesEventsMutation>;
+export type CloseSharesEventsMutationOptions = Apollo.BaseMutationOptions<
+  CloseSharesEventsMutation,
+  CloseSharesEventsMutationVariables
 >;
 export const CreateClipDocument = gql`
   mutation CreateClip($data: CreateClipInput!) {
@@ -3425,6 +3718,59 @@ export type CreateClipMutationResult =
 export type CreateClipMutationOptions = Apollo.BaseMutationOptions<
   CreateClipMutation,
   CreateClipMutationVariables
+>;
+export const CreateLivepeerClipDocument = gql`
+  mutation CreateLivepeerClip($data: CreateLivepeerClipInput!) {
+    createLivepeerClip(data: $data) {
+      url
+      thumbnail
+      errorMessage
+      id
+    }
+  }
+`;
+export type CreateLivepeerClipMutationFn = Apollo.MutationFunction<
+  CreateLivepeerClipMutation,
+  CreateLivepeerClipMutationVariables
+>;
+
+/**
+ * __useCreateLivepeerClipMutation__
+ *
+ * To run a mutation, you first call `useCreateLivepeerClipMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateLivepeerClipMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createLivepeerClipMutation, { data, loading, error }] = useCreateLivepeerClipMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateLivepeerClipMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CreateLivepeerClipMutation,
+    CreateLivepeerClipMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    CreateLivepeerClipMutation,
+    CreateLivepeerClipMutationVariables
+  >(CreateLivepeerClipDocument, options);
+}
+export type CreateLivepeerClipMutationHookResult = ReturnType<
+  typeof useCreateLivepeerClipMutation
+>;
+export type CreateLivepeerClipMutationResult =
+  Apollo.MutationResult<CreateLivepeerClipMutation>;
+export type CreateLivepeerClipMutationOptions = Apollo.BaseMutationOptions<
+  CreateLivepeerClipMutation,
+  CreateLivepeerClipMutationVariables
 >;
 export const LikeDocument = gql`
   mutation Like($data: HandleLikeInput!) {
@@ -3572,6 +3918,56 @@ export type PostChatByAwsIdMutationResult =
 export type PostChatByAwsIdMutationOptions = Apollo.BaseMutationOptions<
   PostChatByAwsIdMutation,
   PostChatByAwsIdMutationVariables
+>;
+export const PostClaimPayoutDocument = gql`
+  mutation PostClaimPayout($data: PostClaimPayoutInput!) {
+    postClaimPayout(data: $data) {
+      id
+    }
+  }
+`;
+export type PostClaimPayoutMutationFn = Apollo.MutationFunction<
+  PostClaimPayoutMutation,
+  PostClaimPayoutMutationVariables
+>;
+
+/**
+ * __usePostClaimPayoutMutation__
+ *
+ * To run a mutation, you first call `usePostClaimPayoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostClaimPayoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postClaimPayoutMutation, { data, loading, error }] = usePostClaimPayoutMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostClaimPayoutMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostClaimPayoutMutation,
+    PostClaimPayoutMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostClaimPayoutMutation,
+    PostClaimPayoutMutationVariables
+  >(PostClaimPayoutDocument, options);
+}
+export type PostClaimPayoutMutationHookResult = ReturnType<
+  typeof usePostClaimPayoutMutation
+>;
+export type PostClaimPayoutMutationResult =
+  Apollo.MutationResult<PostClaimPayoutMutation>;
+export type PostClaimPayoutMutationOptions = Apollo.BaseMutationOptions<
+  PostClaimPayoutMutation,
+  PostClaimPayoutMutationVariables
 >;
 export const PostFirstChatDocument = gql`
   mutation PostFirstChat($data: PostChatInput!) {
@@ -4636,57 +5032,4 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
->;
-export const CreateLivepeerClipDocument = gql`
-  mutation CreateLivepeerClip($data: CreateLivepeerClipInput!) {
-    createLivepeerClip(data: $data) {
-      url
-      thumbnail
-      errorMessage
-      id
-    }
-  }
-`;
-export type CreateLivepeerClipMutationFn = Apollo.MutationFunction<
-  CreateLivepeerClipMutation,
-  CreateLivepeerClipMutationVariables
->;
-
-/**
- * __useCreateLivepeerClipMutation__
- *
- * To run a mutation, you first call `useCreateLivepeerClipMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateLivepeerClipMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createLivepeerClipMutation, { data, loading, error }] = useCreateLivepeerClipMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useCreateLivepeerClipMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    CreateLivepeerClipMutation,
-    CreateLivepeerClipMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    CreateLivepeerClipMutation,
-    CreateLivepeerClipMutationVariables
-  >(CreateLivepeerClipDocument, options);
-}
-export type CreateLivepeerClipMutationHookResult = ReturnType<
-  typeof useCreateLivepeerClipMutation
->;
-export type CreateLivepeerClipMutationResult =
-  Apollo.MutationResult<CreateLivepeerClipMutation>;
-export type CreateLivepeerClipMutationOptions = Apollo.BaseMutationOptions<
-  CreateLivepeerClipMutation,
-  CreateLivepeerClipMutationVariables
 >;

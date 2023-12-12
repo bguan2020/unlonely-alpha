@@ -2,22 +2,17 @@ import {
   Flex,
   Box,
   Text,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Tr,
   Image,
   IconButton,
   Spinner,
   SimpleGrid,
   Stack,
-  Button,
 } from "@chakra-ui/react";
 import {
   CSSProperties,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -30,8 +25,6 @@ import { GetSubscriptionQuery } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import ChannelDesc from "../channels/ChannelDesc";
-import { getSortedLeaderboard } from "../../utils/getSortedLeaderboard";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { ChatReturnType, useChatBox, useChat } from "../../hooks/chat/useChat";
 import { ADD_REACTION_EVENT, InteractionType } from "../../constants";
 import MessageList from "../chat/MessageList";
@@ -40,11 +33,10 @@ import { GET_SUBSCRIPTION } from "../../constants/queries";
 import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubscription";
 import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChannelFromSubscription";
 import { BorderType, OuterBorder } from "../general/OuterBorder";
-import { Trade } from "../chat/ChatComponent";
-import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
-import { ChannelTournament } from "../channels/ChannelTournament";
 import Participants from "../presence/Participants";
+import Trade from "../channels/bet/Trade";
+import { VipBadgeBuy } from "../channels/VipBadgeBuy";
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -57,19 +49,15 @@ const StandaloneChatComponent = ({
   const { userAddress } = useUser();
   const { channelQueryData } = channelContext;
   const { chatChannel } = chatInfo;
-  const chat = useChat();
 
   const router = useRouter();
   const [isBellAnimating, setIsBellAnimating] = useState(false);
   const [showInfo, setShowInfo] = useState<boolean>(false);
-  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showVip, setShowVip] = useState<boolean>(false);
   const [endpoint, setEndpoint] = useState<string>("");
   const clickedOutsideInfo = useRef(false);
-  const clickedOutsideLeaderBoard = useRef(false);
   const clickedOutsideVip = useRef(false);
   const infoRef = useRef<HTMLDivElement>(null);
-  const leaderboardRef = useRef<HTMLDivElement>(null);
   const vipRef = useRef<HTMLDivElement>(null);
 
   useOnClickOutside(infoRef, () => {
@@ -77,16 +65,6 @@ const StandaloneChatComponent = ({
       setShowInfo(false);
       clickedOutsideInfo.current = true;
     }
-    clickedOutsideLeaderBoard.current = false;
-    clickedOutsideVip.current = false;
-  });
-
-  useOnClickOutside(leaderboardRef, () => {
-    if (showLeaderboard) {
-      setShowLeaderboard(false);
-      clickedOutsideLeaderBoard.current = true;
-    }
-    clickedOutsideInfo.current = false;
     clickedOutsideVip.current = false;
   });
 
@@ -95,7 +73,6 @@ const StandaloneChatComponent = ({
       setShowVip(false);
       clickedOutsideVip.current = true;
     }
-    clickedOutsideLeaderBoard.current = false;
     clickedOutsideInfo.current = false;
   });
 
@@ -248,27 +225,10 @@ const StandaloneChatComponent = ({
               icon={<Image src="/svg/mobile/share.svg" h="50%" />}
               onClick={share}
             />
-            <IconButton
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              minWidth="6"
-              aria-label="leaderboard"
-              bg="transparent"
-              icon={<Image src="/svg/mobile/leaderboard.svg" h="50%" />}
-              onClick={() => {
-                if (clickedOutsideLeaderBoard.current) {
-                  clickedOutsideLeaderBoard.current = false;
-                  return;
-                }
-                setShowLeaderboard(!showLeaderboard);
-              }}
-            />
-            <Text
-              pl="5px"
-              fontSize="20px"
-              cursor={"pointer"}
-              color="#8793FF"
+            <Flex
+              px="8px"
+              borderRadius="15px"
+              bg="rgba(255, 255, 255, 0.1)"
               onClick={() => {
                 if (clickedOutsideInfo.current) {
                   clickedOutsideInfo.current = false;
@@ -277,11 +237,14 @@ const StandaloneChatComponent = ({
                 setShowInfo(!showInfo);
               }}
             >
-              /{channelQueryData?.slug}
-            </Text>
+              <Text fontSize="20px" cursor={"pointer"} color="#8793FF">
+                /{channelQueryData?.slug}
+              </Text>
+            </Flex>
           </Flex>
           <Flex gap="10px">
             <IconButton
+              color="white"
               _hover={{}}
               _focus={{}}
               _active={{}}
@@ -308,27 +271,6 @@ const StandaloneChatComponent = ({
                 }
               }}
             />
-            <Button
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              px={"5px"}
-              bg={
-                "linear-gradient(163deg, rgba(255,255,255,1) 0%, rgba(255,227,143,1) 3%, rgba(255,213,86,1) 4%, rgba(246,190,45,1) 6%, #bb7205 7%, #daab0f 63%, #925a00 100%)"
-              }
-              boxShadow={"-2px -2px 2px white"}
-              onClick={() => {
-                if (clickedOutsideVip.current) {
-                  clickedOutsideVip.current = false;
-                  return;
-                }
-                setShowVip(!showVip);
-              }}
-            >
-              <Text fontFamily="LoRes15" fontSize="18px">
-                BUY VIP
-              </Text>
-            </Button>
           </Flex>
         </Flex>
       ) : (
@@ -347,16 +289,6 @@ const StandaloneChatComponent = ({
           />
         </Flex>
       )}
-      {showLeaderboard && (
-        <Flex ref={leaderboardRef}>
-          <LeaderboardComponent />
-        </Flex>
-      )}
-      {showVip && (
-        <Flex ref={vipRef}>
-          <VipTradeComponent chat={chat} />
-        </Flex>
-      )}
       <TabsComponent />
     </Flex>
   );
@@ -364,16 +296,16 @@ const StandaloneChatComponent = ({
 
 export const TabsComponent = () => {
   const { channel: channelContext, chat: chatContext } = useChannelContext();
-  const { channelQueryData, refetch } = channelContext;
+  const { ongoingBets, refetch } = channelContext;
   const { presenceChannel } = chatContext;
 
   const chat = useChat();
 
   const doesEventExist = useMemo(() => {
-    if (!channelQueryData?.sharesEvent?.[0]?.sharesSubjectAddress) return false;
-    if (!channelQueryData?.sharesEvent?.[0]?.id) return false;
+    if (!ongoingBets?.[0]?.sharesSubjectAddress) return false;
+    if (!ongoingBets?.[0]?.id) return false;
     return true;
-  }, [channelQueryData?.sharesEvent]);
+  }, [ongoingBets]);
 
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
@@ -475,7 +407,7 @@ export const TabsComponent = () => {
       )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}
-        {selectedTab === "trade" && <Trade chat={chat} />}
+        {selectedTab === "trade" && <Trade />}
         {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
       </Flex>
     </>
@@ -496,7 +428,6 @@ const InfoComponent = ({
     handleEventModal,
     handleEditModal,
     handleChatCommandModal,
-    handleBetModal,
     handleModeratorModal,
   } = ui;
   const { channelQueryData } = channelContext;
@@ -640,30 +571,6 @@ const InfoComponent = ({
                   </Box>
                 </Flex>
                 <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
-                  <Text textAlign="center">
-                    {channelQueryData?.sharesEvent?.[0]
-                      ? "🔴manage bet"
-                      : "create a bet"}
-                  </Text>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    borderRadius="10px"
-                    onClick={() => handleBetModal(true)}
-                    _hover={{
-                      cursor: "pointer",
-                      transform: "scale(1.1)",
-                      transitionDuration: "0.3s",
-                    }}
-                    _active={{
-                      transform: "scale(1)",
-                    }}
-                  >
-                    <Image src="/svg/bet.svg" width="100%" />
-                  </Box>
-                </Flex>
-                <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
                   <Text textAlign={"center"}>moderators</Text>
                   <Box
                     display="flex"
@@ -687,131 +594,6 @@ const InfoComponent = ({
             </Flex>
           </Stack>
         )}
-      </Flex>
-    </Flex>
-  );
-};
-
-const LeaderboardComponent = () => {
-  const { leaderboard: leaderboardContext } = useChannelContext();
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
-
-  const {
-    data: leaderboardData,
-    loading: leaderboardLoading,
-    error: leaderboardError,
-    refetchGamblableEventLeaderboard,
-  } = leaderboardContext;
-
-  const [leaderboard, setLeaderboard] = useState<
-    { name: string; totalFees: number }[]
-  >([]);
-
-  useEffect(() => {
-    refetchGamblableEventLeaderboard?.();
-  }, [localNetwork]);
-
-  useEffect(() => {
-    if (!leaderboardLoading && !leaderboardError && leaderboardData) {
-      const _leaderboard: { name: string; totalFees: number }[] =
-        getSortedLeaderboard(
-          leaderboardData.getGamblableEventLeaderboardByChannelId
-        );
-      setLeaderboard(_leaderboard);
-    }
-  }, [leaderboardLoading, leaderboardError, leaderboardData]);
-
-  return (
-    <Flex
-      borderRadius={"5px"}
-      p="1px"
-      position="absolute"
-      top="50px"
-      bottom="10px"
-      left="0"
-      width={"100%"}
-      zIndex={5}
-      style={{
-        border: "1px solid",
-        borderWidth: "1px",
-        borderImageSource:
-          "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
-        borderImageSlice: 1,
-        borderRadius: "5px",
-      }}
-    >
-      <Flex
-        direction="column"
-        bg={"rgba(19, 19, 35, 1)"}
-        borderRadius={"5px"}
-        width={"100%"}
-      >
-        <Text fontSize={"20px"} textAlign={"center"} fontFamily={"LoRes15"}>
-          leaderboard
-        </Text>
-        {!leaderboardLoading && leaderboard.length > 0 && (
-          <TableContainer overflowX={"auto"} overflowY="scroll">
-            <Table variant="unstyled">
-              <Tbody>
-                {leaderboard.map((holder, index) => (
-                  <Tr>
-                    <Td fontSize={"20px"} p="4px" textAlign="center">
-                      <Text fontSize="14px">{index + 1}</Text>
-                    </Td>
-                    <Td fontSize={"20px"} p="4px" textAlign="center">
-                      <Text fontSize="14px">{holder.name}</Text>
-                    </Td>
-                    <Td fontSize={"20px"} p="4px" textAlign="center" isNumeric>
-                      <Text fontSize="14px">
-                        {truncateValue(holder.totalFees, 2)}
-                      </Text>
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </TableContainer>
-        )}
-        {leaderboardLoading && (
-          <Flex justifyContent={"center"} p="20px">
-            <Spinner />
-          </Flex>
-        )}
-      </Flex>
-    </Flex>
-  );
-};
-
-const VipTradeComponent = ({ chat }: { chat: ChatReturnType }) => {
-  return (
-    <Flex
-      borderRadius={"5px"}
-      p="1px"
-      position="absolute"
-      top="50px"
-      bottom="10px"
-      left="0"
-      width={"100%"}
-      zIndex={5}
-      style={{
-        border: "1px solid",
-        borderWidth: "1px",
-        borderImageSource:
-          "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
-        borderImageSlice: 1,
-        borderRadius: "5px",
-      }}
-    >
-      <Flex
-        direction="column"
-        bg={"rgba(19, 19, 35, 1)"}
-        borderRadius={"5px"}
-        width={"100%"}
-        gap="5px"
-      >
-        {/* <TournamentPot chat={chat} /> */}
-        <ChannelTournament />
       </Flex>
     </Flex>
   );
@@ -864,11 +646,30 @@ const Chat = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        setContainerHeight(containerRef.current.offsetHeight);
+      }
+    };
+
+    updateHeight();
+
+    // Optional: Use ResizeObserver to handle dynamic content resizing
+    const resizeObserver = new ResizeObserver(() => {
+      updateHeight();
+    });
+
     if (containerRef.current) {
-      setContainerHeight(containerRef.current.offsetHeight);
+      resizeObserver.observe(containerRef.current);
     }
-  }, [containerRef]);
+
+    return () => {
+      if (containerRef.current) {
+        resizeObserver.unobserve(containerRef.current);
+      }
+    };
+  }, []);
 
   const handleAnimateReactionEmoji = (str: string) => {
     const id = Date.now();
@@ -884,7 +685,7 @@ const Chat = ({
     if (!chat.allMessages || chat.allMessages.length === 0) return;
     const latestMessage = chat.allMessages[chat.allMessages.length - 1];
     if (
-      Date.now() - latestMessage.timestamp < 2000 &&
+      Date.now() - latestMessage.timestamp < 12000 &&
       latestMessage.name === ADD_REACTION_EVENT &&
       latestMessage.data.body
     )
@@ -893,7 +694,6 @@ const Chat = ({
 
   return (
     <Flex
-      mt="10px"
       direction="column"
       minW="100%"
       width="100%"
@@ -906,6 +706,7 @@ const Chat = ({
           position: "absolute",
           pointerEvents: "none",
           height: "100%",
+          zIndex: 2,
         }}
         ref={containerRef}
       >
@@ -924,11 +725,12 @@ const Chat = ({
         ))}
       </div>
       {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
-        <>
+        <Flex direction="column">
           <Text textAlign={"center"}>
-            You must have at least one VIP badge to use this chat.
+            You must have a VIP badge to use this chat.
           </Text>
-        </>
+          <VipBadgeBuy />
+        </Flex>
       )}
       <Flex
         direction="column"
@@ -936,7 +738,6 @@ const Chat = ({
         height="100%"
         id={isVipChat ? "vip-chat" : "chat"}
         position="relative"
-        mt="8px"
       >
         {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
           <Flex

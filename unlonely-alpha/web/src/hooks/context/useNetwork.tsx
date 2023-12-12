@@ -6,9 +6,19 @@ import {
   useRef,
   useState,
 } from "react";
-import { useToast, ToastId, Box, Text } from "@chakra-ui/react";
+import {
+  useToast,
+  ToastId,
+  Box,
+  Button,
+  Flex,
+  Text,
+  IconButton,
+  Image,
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
+import { TbWorldExclamation } from "react-icons/tb";
 
 import { NETWORKS } from "../../constants/networks";
 import { Network } from "../../constants/types";
@@ -61,7 +71,7 @@ export const NetworkProvider = ({
   useEffect(() => {
     if (
       wallet &&
-      user &&
+      user?.address &&
       wallet?.chainId?.split(":")[1] &&
       wallet?.chainId?.split(":")[1] !== String(NETWORKS[0].config.chainId) &&
       !router.pathname.startsWith("/bridge")
@@ -72,16 +82,41 @@ export const NetworkProvider = ({
         isClosable: true,
         position: "top",
         render: () => (
-          <Box as="button" borderRadius="md" bg="#c21c1c" p="10px">
-            <Text>please connect to the base mainnet</Text>
-            <Text
-              textDecoration={"underline"}
-              onClick={async () => {
-                await wallet.switchChain(NETWORKS[0].config.chainId);
-              }}
-            >
-              click here to add or switch to base mainnet
-            </Text>
+          <Box borderRadius="md" bg="#c21c1c" p="10px">
+            <Flex direction={"column"}>
+              <Flex justifyContent={"space-between"} alignItems="center">
+                <Text textAlign="center" fontSize="18px">
+                  <Flex alignItems={"center"} gap="10px">
+                    <TbWorldExclamation /> wrong network
+                  </Flex>
+                </Text>
+                <IconButton
+                  aria-label="close"
+                  _hover={{}}
+                  _active={{}}
+                  _focus={{}}
+                  bg="transparent"
+                  icon={<Image alt="close" src="/svg/close.svg" width="20px" />}
+                  onClick={() => {
+                    if (toastIdRef.current) toast.close(toastIdRef.current);
+                  }}
+                />
+              </Flex>
+              <Button
+                borderRadius="25px"
+                bg={"#131323"}
+                _hover={{ transform: "scale(1.05)" }}
+                _focus={{}}
+                _active={{}}
+                color="white"
+                onClick={async () => {
+                  if (toastIdRef.current) toast.close(toastIdRef.current);
+                  await wallet.switchChain(NETWORKS[0].config.chainId);
+                }}
+              >
+                <Text fontSize="20px">switch to base</Text>
+              </Button>
+            </Flex>
           </Box>
         ),
       });
@@ -92,7 +127,7 @@ export const NetworkProvider = ({
       }
       setMatchingChain(true);
     }
-  }, [wallet, router.pathname]);
+  }, [wallet?.chainId, router.pathname]);
 
   const value = useMemo(() => {
     return {

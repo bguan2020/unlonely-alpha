@@ -241,7 +241,8 @@ const BridgePage = () => {
                       </>
                     ) : (
                       <Button
-                        disabled={!matchingChain}
+                        color="white"
+                        isDisabled={!matchingChain}
                         type="submit"
                         _hover={{
                           bg: "#13b14f",

@@ -124,6 +124,7 @@ export default function EditChannelModal({
           </Flex>
           <Flex>
             <Button
+              color="white"
               bg="#E09025"
               _hover={{}}
               _focus={{}}

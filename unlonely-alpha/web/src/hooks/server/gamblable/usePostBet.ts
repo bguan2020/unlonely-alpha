@@ -35,6 +35,8 @@ const usePostBet = ({ onError }: Props) => {
             data: {
               channelId: data.channelId,
               userAddress: data.userAddress,
+              eventId: data.eventId,
+              eventType: data.eventType,
             },
           },
         });

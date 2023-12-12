@@ -24,12 +24,15 @@ export enum BaseChatCommand {
   CLIP = "!clip",
 }
 
-export enum EventType {
+export enum EventTypeForContract {
   YAY_NAY_VOTE = 0,
   VIP_BADGE = 1,
+  SIDE_BET = 2,
 }
 
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const NULL_ADDRESSS_BYTES32 =
+  "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 export const USER_APPROVAL_AMOUNT = "10000";
 

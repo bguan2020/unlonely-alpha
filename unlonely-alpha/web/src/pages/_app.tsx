@@ -24,7 +24,7 @@ import { UserProvider } from "../hooks/context/useUser";
 import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
 import theme from "../styles/theme";
 import { NetworkProvider } from "../hooks/context/useNetwork";
-
+import { CacheProvider } from "../hooks/context/useCache";
 
 interface InitialProps {
   cookies: Cookies;
@@ -87,20 +87,22 @@ function App({ Component, pageProps, cookies }: Props) {
             <UserProvider>
               <ScreenAnimationsProvider>
                 <NetworkProvider>
-                  <LivepeerConfig
-                    client={livepeerClient}
-                    theme={{
-                      colors: {
-                        accent: "rgb(0, 145, 255)",
-                        containerBorderColor: "rgba(0, 145, 255, 0.9)",
-                      },
-                      fonts: {
-                        display: "Inter",
-                      },
-                    }}
-                  >
-                    <Component {...pageProps} />
-                  </LivepeerConfig>
+                  <CacheProvider>
+                    <LivepeerConfig
+                      client={livepeerClient}
+                      theme={{
+                        colors: {
+                          accent: "rgb(0, 145, 255)",
+                          containerBorderColor: "rgba(0, 145, 255, 0.9)",
+                        },
+                        fonts: {
+                          display: "Inter",
+                        },
+                      }}
+                    >
+                      <Component {...pageProps} />
+                    </LivepeerConfig>
+                  </CacheProvider>
                 </NetworkProvider>
               </ScreenAnimationsProvider>
             </UserProvider>

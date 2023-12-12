@@ -211,6 +211,7 @@ export const ChannelTournament = () => {
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
           isBuying: true,
+          eventId: 0,
           chainId: localNetwork.config.chainId,
           fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
@@ -374,6 +375,7 @@ export const ChannelTournament = () => {
               margin="auto"
             >
               <Button
+                color="white"
                 bg={isBuying ? "#46a800" : "transparent"}
                 border={!isBuying ? "1px solid #46a800" : undefined}
                 _focus={{}}
@@ -386,6 +388,7 @@ export const ChannelTournament = () => {
                 <Text fontSize="13px">BUY</Text>
               </Button>
               <Button
+                color="white"
                 bg={!isBuying ? "#fe2815" : "transparent"}
                 border={isBuying ? "1px solid #fe2815" : undefined}
                 _focus={{}}
@@ -440,13 +443,14 @@ export const ChannelTournament = () => {
               </Flex>
             </Flex>
             <Button
+              color="white"
               _focus={{}}
               _hover={{}}
               _active={{}}
               width="100%"
               bg={isBuying ? "#46a800" : "#fe2815"}
               onClick={() => (isBuying ? buyVipBadge?.() : sellVipBadge?.())}
-              disabled={
+              isDisabled={
                 (isBuying && !buyVipBadge) || (!isBuying && !sellVipBadge)
               }
             >
@@ -466,6 +470,7 @@ export const ChannelTournament = () => {
               <Text>{truncateValue(formatUnits(userPayout, 18))} ETH</Text>
             </Flex>
             <Button
+              color="white"
               _hover={{}}
               _focus={{}}
               _active={{}}

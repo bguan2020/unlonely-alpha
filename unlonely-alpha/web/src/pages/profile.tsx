@@ -14,6 +14,7 @@ import { CHECK_SUBSCRIPTION } from "../constants/queries";
 import usePostSubscription from "../hooks/server/usePostSubscription";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 import { NETWORKS } from "../constants/networks";
+import { getColorFromString } from "../styles/Colors";
 
 const Profile = () => {
   const { user } = useUser();
@@ -143,6 +144,7 @@ const Profile = () => {
                   name={user?.username ?? user?.address}
                   src={ipfsUrl}
                   size="md"
+                  bg={getColorFromString(user?.username ?? user?.address ?? "")}
                 />
                 {user?.username ? (
                   <Flex direction="column">
@@ -180,6 +182,7 @@ const Profile = () => {
                     borderRadius="10px"
                   >
                     <Button
+                      color="white"
                       _hover={{}}
                       _focus={{}}
                       _active={{}}

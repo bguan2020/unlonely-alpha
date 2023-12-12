@@ -85,7 +85,7 @@ export const TransactionModalTemplate = ({
             bg="transparent"
             icon={<Image alt="close" src="/svg/close.svg" width="20px" />}
             onClick={handleClose}
-            disabled={isModalLoading}
+            isDisabled={isModalLoading}
             position="absolute"
             left="5px"
             top="5px"
@@ -115,13 +115,14 @@ export const TransactionModalTemplate = ({
               <ModalFooter>
                 {needsApproval && (
                   <Button
+                    color="white"
                     bg="#CB520E"
                     _hover={{}}
                     _focus={{}}
                     _active={{}}
                     onClick={approve}
                     width="100%"
-                    disabled={!approve}
+                    isDisabled={!approve}
                     borderRadius="25px"
                   >
                     approve tokens transfer
@@ -129,13 +130,14 @@ export const TransactionModalTemplate = ({
                 )}
                 {!needsApproval && (
                   <Button
+                    color="white"
                     bg="#E09025"
                     _hover={{}}
                     _focus={{}}
                     _active={{}}
                     onClick={onSend}
                     width="100%"
-                    disabled={
+                    isDisabled={
                       !canSend ||
                       !user ||
                       !userAddress ||

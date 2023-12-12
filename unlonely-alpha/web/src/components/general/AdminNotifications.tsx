@@ -96,6 +96,7 @@ function AdminNotifications() {
         </Flex>
       </Flex>
       <Button
+        color="white"
         mt={"15px"}
         onClick={sendNotifications}
         isLoading={isSending}
@@ -110,7 +111,7 @@ function AdminNotifications() {
         borderRadius="10px"
         _focus={{}}
         width="100%"
-        disabled={isSending || body === "" || title === ""}
+        isDisabled={isSending || body === "" || title === ""}
       >
         <Text fontSize="30px">send</Text>
       </Button>

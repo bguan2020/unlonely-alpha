@@ -56,6 +56,13 @@ export const resolvers = {
     ) => {
       return gamblableInteractionService.getBetsByUser(data, ctx);
     },
+    getUnclaimedEvents: (
+      _: any,
+      { data }: { data: gamblableInteractionService.IGetUnclaimedEvents },
+      ctx: Context
+    ) => {
+      return gamblableInteractionService.getUnclaimedEvents(data, ctx);
+    },
   },
   Mutation: {
     postBet: (
@@ -87,6 +94,16 @@ export const resolvers = {
         throw new AuthenticationError("User is not authenticated");
       }
       return gamblableInteractionService.postBadgeTrade(data, ctx);
+    },
+    postClaimPayout: (
+      _: any,
+      { data }: { data: gamblableInteractionService.IPostClaimPayoutInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      return gamblableInteractionService.postClaimPayout(data, ctx);
     },
   },
 };

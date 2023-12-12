@@ -18,6 +18,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { CustomUser } from "../../constants/types";
 import { useGetBadges } from "../../hooks/internal/useGetBadges";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
+import { getColorFromString } from "../../styles/Colors";
 
 type Props = {
   user?: CustomUser;
@@ -72,6 +73,9 @@ const Participant = ({ user, mobile }: Props) => {
                 name={user.username ? user.username : user.address}
                 src={ipfsUrl}
                 size={"sm"}
+                bg={getColorFromString(
+                  user.username ? user.username : user.address
+                )}
               />
             </PopoverTrigger>
             <PopoverContent bg="gray.800" border="none" width="min" p="5px">

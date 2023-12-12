@@ -161,6 +161,7 @@ model Channel {
 
   gamblableInteractions GamblableInteraction[]
   gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
+  sideBets SideBet[]
 }
 
 model ChannelUserRole {
@@ -184,12 +185,20 @@ model CreatorToken {
   users     UserCreatorToken[]
 }
 
+enum EventType {
+  YAY_NAY_VOTE
+  VIP_BADGE
+  SIDE_BET
+}
+
 enum GamblableEvent {
   BET_CREATE
   BET_YES_BUY
   BET_NO_BUY
   BET_YES_SELL
   BET_NO_SELL
+  BET_CLAIM_PAYOUT
+  BADGE_CLAIM_PAYOUT
   BADGE_BUY
   BADGE_SELL
 }
@@ -201,6 +210,8 @@ model GamblableInteraction {
   channel   Channel  @relation(fields: [channelId], references: [id])
   userAddress  String
   user    User     @relation(fields: [userAddress], references: [address])
+  eventId Int?
+  eventType EventType?
   type GamblableEvent
   createdAt DateTime @default(now())
   softDelete Boolean @default(false)
@@ -229,9 +240,11 @@ model ChatCommand {
 }
 
 enum SharesEventState {
+  PENDING
   LIVE
   LOCK
   PAYOUT
+  PAYOUT_PREVIOUS
 }
 
 model SharesEvent {
@@ -239,6 +252,24 @@ model SharesEvent {
   sharesSubjectQuestion String
   sharesSubjectAddress String
   eventState SharesEventState?
+  chainId Int?
+  options String[]
+  resultIndex Int?
+
+  createdAt DateTime @default(now())
+  softDelete Boolean @default(false)
+
+  channel Channel @relation(fields: [channelId], references: [id])
+  channelId Int
+}
+
+model SideBet {
+  id        Int      @id @default(autoincrement())
+  wagerDescription String
+  creatorAddress String
+  opponentAddress String
+  chainId Int
+  result Boolean?
 
   createdAt DateTime @default(now())
   softDelete Boolean @default(false)

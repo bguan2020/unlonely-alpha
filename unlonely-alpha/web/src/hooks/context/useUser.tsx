@@ -2,7 +2,11 @@ import { gql } from "@apollo/client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
-import { usePrivy, WalletWithMetadata } from "@privy-io/react-auth";
+import {
+  ConnectedWallet,
+  usePrivy,
+  WalletWithMetadata,
+} from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { Box, Button, Flex, Text, IconButton, Image } from "@chakra-ui/react";
 import Link from "next/link";
@@ -46,6 +50,7 @@ const UserContext = createContext<{
   walletIsConnected: boolean;
   loginMethod?: string;
   initialNotificationsGranted: boolean;
+  activeWallet?: ConnectedWallet;
 }>({
   user: undefined,
   username: undefined,
@@ -53,6 +58,7 @@ const UserContext = createContext<{
   walletIsConnected: false,
   loginMethod: undefined,
   initialNotificationsGranted: false,
+  activeWallet: undefined,
 });
 
 export const UserProvider = ({
@@ -257,6 +263,7 @@ export const UserProvider = ({
       walletIsConnected,
       loginMethod,
       initialNotificationsGranted,
+      activeWallet,
     }),
     [
       user,
@@ -266,6 +273,7 @@ export const UserProvider = ({
       loginMethod,
       showTurnOnNotifications,
       initialNotificationsGranted,
+      activeWallet,
     ]
   );
 
@@ -297,6 +305,7 @@ export const UserProvider = ({
               start!
             </Text>
             <Button
+              color="white"
               bg="#257ce0"
               _hover={{}}
               _focus={{}}
