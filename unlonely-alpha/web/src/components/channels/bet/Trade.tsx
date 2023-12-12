@@ -622,15 +622,18 @@ const Trade = () => {
                 }
               >
                 <Text fontSize={"20px"} fontFamily="LoRes15">
-                  {doesEventExist &&
-                  isSharesEventPending &&
-                  eventEndTimestamp === BigInt(0)
-                    ? "continue creating bet"
-                    : !isSharesEventPayout &&
-                      doesEventExist &&
-                      votingPooledEth === BigInt(0)
-                    ? "replace bet"
-                    : "create bet"}
+                  {doesEventExist ? (
+                    <>
+                      {isSharesEventPending && eventEndTimestamp === BigInt(0)
+                        ? "continue creating bet"
+                        : (isSharesEventLive || isSharesEventLock) &&
+                          votingPooledEth === BigInt(0)
+                        ? "replace bet"
+                        : "create bet"}
+                    </>
+                  ) : (
+                    "create bet"
+                  )}
                 </Text>
               </Button>
             </>
