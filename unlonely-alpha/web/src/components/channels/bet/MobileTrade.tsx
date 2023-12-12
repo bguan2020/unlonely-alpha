@@ -44,7 +44,7 @@ import useCloseSharesEvent from "../../../hooks/server/useCloseSharesEvent";
 import useDebounce from "../../../hooks/internal/useDebounce";
 import useUserAgent from "../../../hooks/internal/useUserAgent";
 
-const Trade = () => {
+const MobileTrade = () => {
   const { userAddress, walletIsConnected, user } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, chat: chatContext, ui } = useChannelContext();
@@ -586,7 +586,6 @@ const Trade = () => {
     doesEventExist,
     isEventOver,
   ]);
-
   return (
     <Flex direction="column" height="100%" position={"relative"}>
       {tradeLoading && (
@@ -1016,4 +1015,4 @@ const Trade = () => {
   );
 };
 
-export default Trade;
+export default MobileTrade;

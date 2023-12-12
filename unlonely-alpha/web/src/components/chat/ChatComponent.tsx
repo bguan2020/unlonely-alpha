@@ -7,51 +7,19 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
-import Trade from "../channels/bet/Trade";
 import Chat from "./Chat";
 
 const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { isStandalone } = useUserAgent();
-  const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
-    "chat"
-  );
+  const [selectedTab, setSelectedTab] = useState<"chat" | "vip">("chat");
   const {
     channel: channelContext,
-    leaderboard: leaderboardContext,
     chat: chatContext,
     ui: uiContext,
   } = useChannelContext();
-  const { channelQueryData, refetch } = channelContext;
+  const { refetch } = channelContext;
   const { presenceChannel } = chatContext;
   const { handleTradeLoading } = uiContext;
-
-  // const { network } = useNetworkContext();
-  // const { localNetwork } = network;
-
-  // const {
-  //   data: leaderboardData,
-  //   loading: leaderboardLoading,
-  //   error: leaderboardError,
-  //   refetchGamblableEventLeaderboard,
-  // } = leaderboardContext;
-
-  // const [leaderboard, setLeaderboard] = useState<
-  //   { name: string; totalFees: number }[]
-  // >([]);
-  // const [leaderboardIsCollapsed, setLeaderboardIsCollapsed] = useState(true);
-  // useEffect(() => {
-  //   refetchGamblableEventLeaderboard?.();
-  // }, [localNetwork]);
-
-  // useEffect(() => {
-  //   if (!leaderboardLoading && !leaderboardError && leaderboardData) {
-  //     const _leaderboard: { name: string; totalFees: number }[] =
-  //       getSortedLeaderboard(
-  //         leaderboardData.getGamblableEventLeaderboardByChannelId
-  //       );
-  //     setLeaderboard(_leaderboard);
-  //   }
-  // }, [leaderboardLoading, leaderboardError, leaderboardData]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -105,35 +73,6 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                 </Text>
               </Flex>
             </OuterBorder>
-            {/* <OuterBorder
-              cursor={"pointer"}
-              type={BorderType.OCEAN}
-              zIndex={selectedTab === "trade" ? 4 : 2}
-              onClick={() => setSelectedTab("trade")}
-              noborder
-              pb={selectedTab === "trade" ? "0px" : undefined}
-            >
-              <Flex
-                bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
-                width="100%"
-                justifyContent={"center"}
-                alignItems={"center"}
-              >
-                {doesEventExist && (
-                  <Text className="zooming-text" fontSize="10px">
-                    🔴
-                  </Text>
-                )}
-                <Text
-                  alignItems={"center"}
-                  fontFamily="LoRes15"
-                  fontSize="20px"
-                  fontWeight={"bold"}
-                >
-                  vote
-                </Text>
-              </Flex>
-            </OuterBorder> */}
             <OuterBorder
               cursor={"pointer"}
               type={BorderType.OCEAN}
@@ -179,100 +118,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                   <Participants ablyPresenceChannel={presenceChannel} />
                 </Flex>
               )}
-              {/* <Flex
-                mt={"0.5rem"}
-                borderRadius={"5px"}
-                p="1px"
-                zIndex={3}
-                mb="30px"
-              >
-                <Flex
-                  direction="column"
-                  position="absolute"
-                  bg="rgba(24, 22, 47, 1)"
-                  left={"10px"}
-                  right={"10px"}
-                  border={"1px solid rgba(255, 255, 255, 0.1)"}
-                >
-                  <Text
-                    fontSize={"20px"}
-                    textAlign={"center"}
-                    fontFamily={"LoRes15"}
-                  >
-                    leaderboard
-                  </Text>
-                  <IconButton
-                    aria-label="show leaderboard"
-                    _hover={{}}
-                    _active={{}}
-                    _focus={{}}
-                    bg="transparent"
-                    icon={<ChevronDownIcon />}
-                    onClick={() => {
-                      setLeaderboardIsCollapsed(!leaderboardIsCollapsed);
-                    }}
-                    position="absolute"
-                    right="-10px"
-                    top="-10px"
-                    transform={!leaderboardIsCollapsed ? "rotate(180deg)" : ""}
-                  />
-                  {leaderboardIsCollapsed && (
-                    <Box
-                      position="absolute"
-                      bg={"linear-gradient(to bottom, transparent 75%, black)"}
-                      width="100%"
-                      height="100%"
-                      pointerEvents={"none"}
-                    />
-                  )}
-                  {leaderboard.length > 0 && (
-                    <TableContainer
-                      overflowY={leaderboardIsCollapsed ? "hidden" : "scroll"}
-                      height={leaderboardIsCollapsed ? "45px" : "150px"}
-                      transition={"max-height 0.2s ease-in-out"}
-                    >
-                      <Table variant="unstyled" size="xs">
-                        <Tbody>
-                          {leaderboard.map((holder, index) => (
-                            <Tr>
-                              <Td fontSize={"20px"} p="4px" textAlign="center">
-                                <Text fontSize="14px">{index + 1}</Text>
-                              </Td>
-                              <Td fontSize={"20px"} p="4px" textAlign="center">
-                                <Text fontSize="14px">{holder.name}</Text>
-                              </Td>
-                              <Td
-                                fontSize={"20px"}
-                                p="4px"
-                                textAlign="center"
-                                isNumeric
-                              >
-                                <Text fontSize="14px">
-                                  {truncateValue(holder.totalFees, 2)}
-                                </Text>
-                              </Td>
-                            </Tr>
-                          ))}
-                        </Tbody>
-                      </Table>
-                    </TableContainer>
-                  )}
-                  {leaderboard.length === 0 && (
-                    <Flex height="40px" justifyContent={"center"}>
-                      <Text fontSize="10px">
-                        no one is on the leaderboard for this channel yet! 👀
-                      </Text>
-                    </Flex>
-                  )}
-                  {leaderboardLoading && (
-                    <Flex justifyContent={"center"} p="20px">
-                      <Spinner />
-                    </Flex>
-                  )}
-                </Flex>
-              </Flex> */}
               {selectedTab === "chat" && <Chat chat={chat} />}
-              {selectedTab === "trade" && <Trade />}
               {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
             </Flex>
           </OuterBorder>

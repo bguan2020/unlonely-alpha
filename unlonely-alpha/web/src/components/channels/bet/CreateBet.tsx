@@ -174,6 +174,7 @@ export const CreateBet = ({
       userAddress,
       localNetwork.config.chainId,
       options,
+      pool,
     ]
   );
 

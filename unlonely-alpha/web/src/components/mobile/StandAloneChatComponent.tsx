@@ -49,19 +49,15 @@ const StandaloneChatComponent = ({
   const { userAddress } = useUser();
   const { channelQueryData } = channelContext;
   const { chatChannel } = chatInfo;
-  const chat = useChat();
 
   const router = useRouter();
   const [isBellAnimating, setIsBellAnimating] = useState(false);
   const [showInfo, setShowInfo] = useState<boolean>(false);
-  // const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [showVip, setShowVip] = useState<boolean>(false);
   const [endpoint, setEndpoint] = useState<string>("");
   const clickedOutsideInfo = useRef(false);
-  // const clickedOutsideLeaderBoard = useRef(false);
   const clickedOutsideVip = useRef(false);
   const infoRef = useRef<HTMLDivElement>(null);
-  // const leaderboardRef = useRef<HTMLDivElement>(null);
   const vipRef = useRef<HTMLDivElement>(null);
 
   useOnClickOutside(infoRef, () => {
@@ -69,25 +65,14 @@ const StandaloneChatComponent = ({
       setShowInfo(false);
       clickedOutsideInfo.current = true;
     }
-    // clickedOutsideLeaderBoard.current = false;
     clickedOutsideVip.current = false;
   });
-
-  // useOnClickOutside(leaderboardRef, () => {
-  //   if (showLeaderboard) {
-  //     setShowLeaderboard(false);
-  //     clickedOutsideLeaderBoard.current = true;
-  //   }
-  //   clickedOutsideInfo.current = false;
-  //   clickedOutsideVip.current = false;
-  // });
 
   useOnClickOutside(vipRef, () => {
     if (showVip) {
       setShowVip(false);
       clickedOutsideVip.current = true;
     }
-    // clickedOutsideLeaderBoard.current = false;
     clickedOutsideInfo.current = false;
   });
 
@@ -240,22 +225,6 @@ const StandaloneChatComponent = ({
               icon={<Image src="/svg/mobile/share.svg" h="50%" />}
               onClick={share}
             />
-            {/* <IconButton
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              minWidth="6"
-              aria-label="leaderboard"
-              bg="transparent"
-              icon={<Image src="/svg/mobile/leaderboard.svg" h="50%" />}
-              onClick={() => {
-                if (clickedOutsideLeaderBoard.current) {
-                  clickedOutsideLeaderBoard.current = false;
-                  return;
-                }
-                setShowLeaderboard(!showLeaderboard);
-              }}
-            /> */}
             <Flex
               px="8px"
               borderRadius="15px"
@@ -302,28 +271,6 @@ const StandaloneChatComponent = ({
                 }
               }}
             />
-            {/* <Button
-              color="white"
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              px={"5px"}
-              bg={
-                "linear-gradient(163deg, rgba(255,255,255,1) 0%, rgba(255,227,143,1) 3%, rgba(255,213,86,1) 4%, rgba(246,190,45,1) 6%, #bb7205 7%, #daab0f 63%, #925a00 100%)"
-              }
-              boxShadow={"-2px -2px 2px white"}
-              onClick={() => {
-                if (clickedOutsideVip.current) {
-                  clickedOutsideVip.current = false;
-                  return;
-                }
-                setShowVip(!showVip);
-              }}
-            >
-              <Text fontFamily="LoRes15" fontSize="18px">
-                BUY VIP
-              </Text>
-            </Button> */}
           </Flex>
         </Flex>
       ) : (
@@ -342,16 +289,6 @@ const StandaloneChatComponent = ({
           />
         </Flex>
       )}
-      {/* {showLeaderboard && (
-        <Flex ref={leaderboardRef}>
-          <LeaderboardComponent />
-        </Flex>
-      )} */}
-      {showVip && (
-        <Flex ref={vipRef}>
-          <VipTradeComponent chat={chat} />
-        </Flex>
-      )}
       <TabsComponent />
     </Flex>
   );
@@ -359,7 +296,7 @@ const StandaloneChatComponent = ({
 
 export const TabsComponent = () => {
   const { channel: channelContext, chat: chatContext } = useChannelContext();
-  const { channelQueryData, ongoingBets, refetch } = channelContext;
+  const { ongoingBets, refetch } = channelContext;
   const { presenceChannel } = chatContext;
 
   const chat = useChat();
@@ -657,131 +594,6 @@ const InfoComponent = ({
             </Flex>
           </Stack>
         )}
-      </Flex>
-    </Flex>
-  );
-};
-
-// const LeaderboardComponent = () => {
-//   const { leaderboard: leaderboardContext } = useChannelContext();
-//   const { network } = useNetworkContext();
-//   const { localNetwork } = network;
-
-//   const {
-//     data: leaderboardData,
-//     loading: leaderboardLoading,
-//     error: leaderboardError,
-//     refetchGamblableEventLeaderboard,
-//   } = leaderboardContext;
-
-//   const [leaderboard, setLeaderboard] = useState<
-//     { name: string; totalFees: number }[]
-//   >([]);
-
-//   useEffect(() => {
-//     refetchGamblableEventLeaderboard?.();
-//   }, [localNetwork]);
-
-//   useEffect(() => {
-//     if (!leaderboardLoading && !leaderboardError && leaderboardData) {
-//       const _leaderboard: { name: string; totalFees: number }[] =
-//         getSortedLeaderboard(
-//           leaderboardData.getGamblableEventLeaderboardByChannelId
-//         );
-//       setLeaderboard(_leaderboard);
-//     }
-//   }, [leaderboardLoading, leaderboardError, leaderboardData]);
-
-//   return (
-//     <Flex
-//       borderRadius={"5px"}
-//       p="1px"
-//       position="absolute"
-//       top="50px"
-//       bottom="10px"
-//       left="0"
-//       width={"100%"}
-//       zIndex={5}
-//       style={{
-//         border: "1px solid",
-//         borderWidth: "1px",
-//         borderImageSource:
-//           "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
-//         borderImageSlice: 1,
-//         borderRadius: "5px",
-//       }}
-//     >
-//       <Flex
-//         direction="column"
-//         bg={"rgba(19, 19, 35, 1)"}
-//         borderRadius={"5px"}
-//         width={"100%"}
-//       >
-//         <Text fontSize={"20px"} textAlign={"center"} fontFamily={"LoRes15"}>
-//           leaderboard
-//         </Text>
-//         {!leaderboardLoading && leaderboard.length > 0 && (
-//           <TableContainer overflowX={"auto"} overflowY="scroll">
-//             <Table variant="unstyled">
-//               <Tbody>
-//                 {leaderboard.map((holder, index) => (
-//                   <Tr>
-//                     <Td fontSize={"20px"} p="4px" textAlign="center">
-//                       <Text fontSize="14px">{index + 1}</Text>
-//                     </Td>
-//                     <Td fontSize={"20px"} p="4px" textAlign="center">
-//                       <Text fontSize="14px">{holder.name}</Text>
-//                     </Td>
-//                     <Td fontSize={"20px"} p="4px" textAlign="center" isNumeric>
-//                       <Text fontSize="14px">
-//                         {truncateValue(holder.totalFees, 2)}
-//                       </Text>
-//                     </Td>
-//                   </Tr>
-//                 ))}
-//               </Tbody>
-//             </Table>
-//           </TableContainer>
-//         )}
-//         {leaderboardLoading && (
-//           <Flex justifyContent={"center"} p="20px">
-//             <Spinner />
-//           </Flex>
-//         )}
-//       </Flex>
-//     </Flex>
-//   );
-// };
-
-const VipTradeComponent = ({ chat }: { chat: ChatReturnType }) => {
-  return (
-    <Flex
-      borderRadius={"5px"}
-      p="1px"
-      position="absolute"
-      top="50px"
-      bottom="10px"
-      left="0"
-      width={"100%"}
-      zIndex={5}
-      style={{
-        border: "1px solid",
-        borderWidth: "1px",
-        borderImageSource:
-          "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)",
-        borderImageSlice: 1,
-        borderRadius: "5px",
-      }}
-    >
-      <Flex
-        direction="column"
-        bg={"rgba(19, 19, 35, 1)"}
-        borderRadius={"5px"}
-        width={"100%"}
-        gap="5px"
-      >
-        {/* <TournamentPot chat={chat} /> */}
-        {/* <ChannelTournament /> */}
       </Flex>
     </Flex>
   );

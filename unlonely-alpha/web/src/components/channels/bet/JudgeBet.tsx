@@ -32,8 +32,7 @@ export const JudgeBet = ({
   );
   const toast = useToast();
 
-  const { updateSharesEvent, loading: updateSharesEventLoading } =
-    useUpdateSharesEvent({});
+  const { updateSharesEvent } = useUpdateSharesEvent({});
   const sufficientEthForGas = useMemo(
     () => ethBalance >= BigInt(1000000),
     [ethBalance]
@@ -201,7 +200,7 @@ export const JudgeBet = ({
             _focus={{}}
             _active={{}}
             bg="#0057bb"
-            isDisabled={!verifyEvent}
+            isDisabled={!verifyEvent || !matchingChain || verifyEventTxLoading}
             onClick={verifyEvent}
           >
             confirm {endDecision ? "yes" : "no"}
