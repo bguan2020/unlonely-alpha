@@ -37,7 +37,7 @@ import {
   GamblableEvent,
   SharesEventState,
 } from "../../../generated/graphql";
-import { CreateBet } from "./CreateBet2";
+import { CreateBet } from "./CreateBet";
 import { JudgeBet } from "./JudgeBet";
 import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
 import usePostClaimPayout from "../../../hooks/server/usePostClaimPayout";
@@ -471,6 +471,8 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
     ongoingBets?.[0]?.eventState === SharesEventState.Lock;
   const isSharesEventPayout =
     ongoingBets?.[0]?.eventState === SharesEventState.Payout;
+  const isSharesEventPayoutPrevious =
+    ongoingBets?.[0]?.eventState === SharesEventState.PayoutPrevious;
   const isOwner = userAddress === channelQueryData?.owner.address;
   const eventEndTimestampPassed = Number(eventEndTimestamp) * 1000 <= dateNow;
   const isEventOver =
@@ -597,7 +599,9 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
           bg={"rgba(255, 255, 255, 0.1)"}
           borderRadius="5px"
         >
-          {(isSharesEventPayout || votingPooledEth === BigInt(0)) && (
+          {(isSharesEventPayout ||
+            isSharesEventPayoutPrevious ||
+            votingPooledEth === BigInt(0)) && (
             <>
               <Button
                 color="white"
@@ -721,16 +725,26 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
             )}
         </Flex>
       )}
-      {doesEventExist && viewState !== "create" && (
-        <>
-          <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
-            {ongoingBets?.[0]?.sharesSubjectQuestion}
-          </Text>
-          <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
-            {truncateValue(formatUnits(votingPooledEth, 18), 4)} ETH in the pool
-          </Text>
-        </>
-      )}
+      {doesEventExist &&
+        viewState !== "create" &&
+        ongoingBets?.[0].eventState !== SharesEventState.PayoutPrevious && (
+          <Flex
+            direction={"column"}
+            gap="5px"
+            p="5px"
+            bg={"rgba(0, 0, 0, 0.4)"}
+            borderRadius="15px"
+            mt={"10px"}
+          >
+            <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
+              {ongoingBets?.[0]?.sharesSubjectQuestion}
+            </Text>
+            <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
+              {truncateValue(formatUnits(votingPooledEth, 18), 4)} ETH in the
+              pool
+            </Text>
+          </Flex>
+        )}
       {!doesEventExist && errorMessage && !isOwner && (
         <Text textAlign={"center"} color="red.400">
           {errorMessage}
@@ -924,8 +938,11 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                 </>
               ) : ongoingBets?.[0]?.eventState === "PAYOUT" && eventVerified ? (
                 <>
+                  <Text textAlign={"center"} fontSize="14px" mt="10px">
+                    This event is over
+                  </Text>
                   <Flex justifyContent="space-between">
-                    <Text fontSize="18px">event outcome</Text>
+                    <Text fontSize="18px">outcome</Text>
                     <Text
                       fontSize="18px"
                       fontWeight="bold"
@@ -940,7 +957,22 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                       {truncateValue(formatUnits(userPayout, 18))} ETH
                     </Text>
                   </Flex>
-                  {userPayout > BigInt(0) && (
+                  <Flex direction={"column"} gap="10px">
+                    {userPayout > BigInt(0) && (
+                      <Button
+                        color="white"
+                        _hover={{}}
+                        _focus={{}}
+                        _active={{}}
+                        bg={"#E09025"}
+                        borderRadius="25px"
+                        isDisabled={!claimVotePayout || tradeLoading}
+                        onClick={claimVotePayout}
+                        width="100%"
+                      >
+                        <Text fontSize="20px">get payout</Text>
+                      </Button>
+                    )}
                     <Button
                       color="white"
                       _hover={{}}
@@ -948,13 +980,14 @@ const Trade = ({ chat }: { chat: ChatReturnType }) => {
                       _active={{}}
                       bg={"#E09025"}
                       borderRadius="25px"
-                      isDisabled={!claimVotePayout || tradeLoading}
-                      onClick={claimVotePayout}
+                      onClick={() =>
+                        window.open(`${window.location.origin}/claim`, "_blank")
+                      }
                       width="100%"
                     >
-                      <Text fontSize="20px">get payout</Text>
+                      <Text fontSize="20px">go to claim page</Text>
                     </Button>
-                  )}
+                  </Flex>
                 </>
               ) : eventEndTimestamp === BigInt(0) &&
                 ongoingBets?.[0]?.eventState === "PENDING" ? (

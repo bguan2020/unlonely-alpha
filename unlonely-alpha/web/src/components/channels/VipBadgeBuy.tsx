@@ -177,20 +177,23 @@ export const VipBadgeBuy = () => {
 
   const isFetching = useRef(false);
 
-  setInterval(async () => {
-    if (isFetching.current) return;
-    isFetching.current = true;
-    try {
-      await Promise.all([
-        refetchBadgePrice(),
-        refetchBuyVipBadge(),
-        refetchUserEthBalance(),
-      ]);
-    } catch (err) {
-      console.log("VipBadgeBuy fetching error", err);
-    }
-    isFetching.current = false;
-  }, 30000);
+  useEffect(() => {
+    const init = async () => {
+      if (isFetching.current) return;
+      isFetching.current = true;
+      try {
+        await Promise.all([
+          refetchBadgePrice(),
+          refetchBuyVipBadge(),
+          refetchUserEthBalance(),
+        ]);
+      } catch (err) {
+        console.log("VipBadgeBuy fetching error", err);
+      }
+      isFetching.current = false;
+    };
+    init();
+  }, [blockNumber.data]);
 
   useEffect(() => {
     if (!walletIsConnected) {
@@ -223,7 +226,7 @@ export const VipBadgeBuy = () => {
         isDisabled={!buyVipBadge}
       >
         <Text fontSize="20px">
-          BUY 1 ({truncateValue(formatUnits(badgePrice, 18), 4)} ETH)
+          BUY 1 (costs {truncateValue(formatUnits(badgePrice, 18), 4)} ETH)
         </Text>
       </Button>
     </Flex>

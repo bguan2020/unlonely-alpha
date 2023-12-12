@@ -208,7 +208,6 @@ const ChatForm = ({
         style={{
           position: "relative",
           width: "100%",
-          marginBottom: isStandalone ? "15px" : undefined,
         }}
       >
         <Stack direction={"row"} spacing={"10px"}>

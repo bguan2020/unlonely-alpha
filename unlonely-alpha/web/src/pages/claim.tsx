@@ -64,7 +64,7 @@ const ClaimContent = () => {
             fontFamily={"LoRes15"}
             textAlign="center"
           >
-            claim payout
+            claim payouts
           </Text>
           <Flex gap="10px" mt="20px" justifyContent={"center"}>
             {claimableBets.length > 0 ? (
@@ -131,7 +131,7 @@ const EventsDashboard = ({
       <Flex direction="column">
         <>
           {claimableBets.length > 0 ? (
-            <SimpleGrid columns={[2, 3, 4, 4]} spacing={10}>
+            <SimpleGrid columns={[1, 3, 4, 4]} spacing={10}>
               {claimableBets.map((event, i) => (
                 <EventCard
                   channels={channels}
@@ -178,6 +178,8 @@ const EventCard = ({
   const { localNetwork, explorerUrl } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
   const toast = useToast();
+
+  const [calling, setCalling] = useState(false);
 
   const matchingChannel = useMemo(
     () => channels.find((channel) => channel.id === event.channelId),
@@ -233,6 +235,7 @@ const EventCard = ({
           isClosable: true,
           position: "top-right",
         });
+        setCalling(false);
       },
       onWriteError: (error) => {
         toast({
@@ -245,6 +248,7 @@ const EventCard = ({
             </Box>
           ),
         });
+        setCalling(false);
       },
       onTxSuccess: async (data) => {
         toast({
@@ -283,6 +287,7 @@ const EventCard = ({
           });
         }
         addPayoutToClaimedPayouts(event);
+        setCalling(false);
       },
       onTxError: (error) => {
         toast({
@@ -295,6 +300,7 @@ const EventCard = ({
           isClosable: true,
           position: "top-right",
         });
+        setCalling(false);
       },
     }
   );
@@ -366,16 +372,21 @@ const EventCard = ({
           ) : (
             <Button
               color="white"
-              _hover={{}}
+              _hover={{ transform: "scale(1.1)" }}
               _focus={{}}
               _active={{}}
               bg={"#E09025"}
               borderRadius="25px"
-              isDisabled={!claimVotePayout || claimVotePayoutTxLoading}
-              onClick={claimVotePayout}
+              isDisabled={
+                !claimVotePayout || claimVotePayoutTxLoading || calling
+              }
+              onClick={() => {
+                setCalling(true);
+                claimVotePayout?.();
+              }}
               width="100%"
             >
-              {claimVotePayoutTxLoading ? (
+              {claimVotePayoutTxLoading || calling ? (
                 <Spinner />
               ) : (
                 <Text fontSize="20px">
@@ -385,54 +396,6 @@ const EventCard = ({
             </Button>
           )}
         </>
-      </Flex>
-    </Flex>
-  );
-};
-
-const ChannelBlock = ({
-  channel,
-  selectedChannel,
-  callback,
-}: {
-  selectedChannel?: Channel;
-  channel: Channel;
-  callback: (channel: Channel) => void;
-}) => {
-  const imageUrl = channel?.owner?.FCImageUrl
-    ? channel?.owner.FCImageUrl
-    : channel?.owner?.lensImageUrl
-    ? channel?.owner.lensImageUrl
-    : anonUrl;
-  const ipfsUrl = imageUrl.startsWith("ipfs://")
-    ? `https://ipfs.io/ipfs/${imageUrl.slice(7)}`
-    : imageUrl;
-
-  return (
-    <Flex
-      p="10px"
-      bg={selectedChannel?.id === channel.id ? "#006080" : "unset"}
-      width="100%"
-      justifyContent={"space-between"}
-      onClick={() => callback(channel)}
-      _hover={{}}
-    >
-      <Flex gap="15px">
-        <Avatar
-          name={channel?.owner.username ?? channel?.owner.address}
-          src={ipfsUrl}
-          size="md"
-          bg={getColorFromString(
-            channel?.owner.username ?? channel?.owner.address
-          )}
-        />
-        <Flex direction="column">
-          <Text fontFamily="LoRes15">{channel.name}</Text>
-          <Text fontFamily="LoRes15" color="#9d9d9d">
-            {channel?.owner.username ??
-              centerEllipses(channel?.owner.address, 13)}
-          </Text>
-        </Flex>
       </Flex>
     </Flex>
   );

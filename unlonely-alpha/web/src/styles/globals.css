@@ -172,6 +172,34 @@ body {
   }
 }
 
+.hithere {
+  animation: hithere 5s ease infinite;
+}
+
+@keyframes hithere {
+  0%,
+  20% {
+    transform: scale(1); /* Start and end of actual animation */
+  }
+  6% {
+    transform: scale(1.6); /* Animation effect */
+  }
+  8%,
+  12% {
+    transform: rotate(-20deg) scale(1.6); /* Animation effect */
+  }
+  10% {
+    transform: rotate(20deg) scale(1.6); /* Animation effect */
+  }
+  14% {
+    transform: rotate(0deg) scale(1.6); /* Animation effect */
+  }
+  20%,
+  100% {
+    transform: scale(1); /* Delay for the rest of the duration */
+  }
+}
+
 @keyframes waveAnim {
   0%,
   80%,

@@ -1,16 +1,26 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
   Flex,
-  Input,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   useToast,
   Text,
+  Step,
+  StepIcon,
+  StepIndicator,
+  StepNumber,
+  StepSeparator,
+  StepStatus,
+  StepTitle,
+  Stepper,
+  useSteps,
+  Input,
   Spinner,
+  StepDescription,
 } from "@chakra-ui/react";
 import { useBlockNumber, usePublicClient } from "wagmi";
 import Link from "next/link";
@@ -30,9 +40,14 @@ import {
 } from "../../../constants";
 import { useOpenEvent } from "../../../hooks/contracts/useSharesContractV2";
 import { getHourAndMinutesFromMillis } from "../../../utils/time";
-import { EventType, SharesEventState } from "../../../generated/graphql";
+import {
+  EventType,
+  SharesEvent,
+  SharesEventState,
+} from "../../../generated/graphql";
 import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
 import useCloseSharesEvent from "../../../hooks/server/useCloseSharesEvent";
+import { ContractData } from "../../../constants/types";
 
 const MAX_CHARS = 8;
 
@@ -52,34 +67,38 @@ export const CreateBet = ({
   const { userAddress, user } = useUser();
   const publicClient = usePublicClient();
   const { network } = useNetworkContext();
-  const { matchingChain, localNetwork, explorerUrl } = network;
-  const { channel, chat } = useChannelContext();
-  const { addToChatbot } = chat;
+  const { matchingChain, localNetwork } = network;
+  const { channel } = useChannelContext();
   const {
     channelQueryData,
     refetch,
     loading: channelQueryLoading,
     ongoingBets,
   } = channel;
-  const toast = useToast();
-  const isOpeningEvent = useRef(false);
   const { postSharesEvent, loading: postSharesEventLoading } =
     usePostSharesEvent({});
 
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState<string[]>(["", ""]);
-  const [contractCallInProgress, setContractCallInProgress] = useState(false);
-  const [selectedEndTime, setSelectedEndTime] = useState<
-    "10" | "30" | "60" | "120"
-  >("60");
   const [loading, setLoading] = useState<string | undefined>("prepping");
   const [requiredGas, setRequiredGas] = useState<bigint>(BigInt(0));
 
   const pendingBet = useMemo(
     () =>
-      ongoingBets?.find((bet) => bet.eventState === SharesEventState.Pending),
-    [ongoingBets?.length]
+      ongoingBets?.[0]?.eventState === SharesEventState.Pending
+        ? ongoingBets?.[0]
+        : undefined,
+    [ongoingBets]
   );
+
+  const steps = [
+    { title: "Start", description: "create bet" },
+    { title: "Finish", description: "set time limit" },
+  ];
+  const { activeStep, setActiveStep } = useSteps({
+    index: 0,
+    count: steps.length,
+  });
 
   const [dateNow, setDateNow] = useState<number>(Date.now());
   const blockNumber = useBlockNumber({
@@ -97,47 +116,17 @@ export const CreateBet = ({
       (ongoingBets?.length ?? 0) > 0 &&
       pool > BigInt(0) &&
       ongoingBets?.[0].eventState !== SharesEventState.Payout &&
+      ongoingBets?.[0].eventState !== SharesEventState.PayoutPrevious &&
       ongoingBets?.[0].eventState !== SharesEventState.Pending,
     [pool, ongoingBets]
   );
-
-  const { updateSharesEvent, loading: updateSharesEventLoading } =
-    useUpdateSharesEvent({});
-
-  const { postBet } = usePostBet({
-    onError: (err) => {
-      console.log(err);
-    },
-  });
 
   const { closeSharesEvents } = useCloseSharesEvent({
     onError: (err) => {
       console.log(err);
     },
   });
-
-  const handleContractCallInProgress = useCallback((value: boolean) => {
-    setContractCallInProgress(value);
-  }, []);
-
-  const handleAnswerChange = (index: number, value: string) => {
-    const newOptions = [...options];
-    newOptions[index] = value;
-    setOptions(newOptions);
-  };
-
-  const _updateSharesEvent = useCallback(
-    async (eventState: SharesEventState) => {
-      if (!pendingBet) return;
-      await updateSharesEvent({
-        id: pendingBet?.id ?? "",
-        sharesSubjectQuestion: pendingBet?.sharesSubjectQuestion ?? "",
-        sharesSubjectAddress: pendingBet?.sharesSubjectAddress ?? "",
-        eventState,
-      });
-    },
-    [pendingBet]
-  );
+  const { updateSharesEvent } = useUpdateSharesEvent({});
 
   const _postSharesEvent = useCallback(
     async (sharesSubjectQuestion: string) => {
@@ -152,6 +141,18 @@ export const CreateBet = ({
           sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
         });
       }
+      if (
+        (ongoingBets?.length ?? 0) > 0 &&
+        ongoingBets?.[0].eventState === SharesEventState.Payout
+      ) {
+        await updateSharesEvent({
+          id: ongoingBets?.[0].id ?? "",
+          sharesSubjectQuestion: ongoingBets?.[0].sharesSubjectQuestion ?? "",
+          sharesSubjectAddress: ongoingBets?.[0].sharesSubjectAddress ?? "",
+          eventState: SharesEventState.PayoutPrevious,
+          resultIndex: ongoingBets?.[0].resultIndex ?? undefined,
+        });
+      }
       await postSharesEvent({
         id: channelQueryData?.id ?? "",
         sharesSubjectQuestion: sharesSubjectQuestion,
@@ -163,8 +164,7 @@ export const CreateBet = ({
         chainId: localNetwork.config.chainId,
       });
       await refetch();
-      handleContractCallInProgress(true);
-      setLoading(undefined);
+      handleLoading(undefined);
     },
     [
       ongoingBets?.length,
@@ -177,10 +177,250 @@ export const CreateBet = ({
     ]
   );
 
+  useEffect(() => {
+    if (!pendingBet) return;
+    setActiveStep(1);
+  }, [pendingBet]);
+
+  const handleAnswerChange = (index: number, value: string) => {
+    const newOptions = [...options];
+    newOptions[index] = value;
+    setOptions(newOptions);
+  };
+
+  const handleLoading = useCallback((value?: string) => {
+    setLoading(value);
+  }, []);
+
+  useEffect(() => {
+    const estimateGas = async () => {
+      const gas = await publicClient
+        .estimateContractGas({
+          address: contractData.address as `0x${string}`,
+          abi: contractData.abi,
+          functionName: "openEvent",
+          args: [
+            userAddress as `0x${string}`,
+            0,
+            EventTypeForContract.YAY_NAY_VOTE,
+            BigInt(String(Math.floor((dateNow + 60 * 60 * 1000) / 1000))),
+          ],
+          account: userAddress as `0x${string}`,
+        })
+        .then((data) => {
+          return data;
+        })
+        .catch((e) => {
+          console.log("calling error", e);
+          return BigInt(0);
+        });
+      const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
+      setRequiredGas(adjustedGas);
+    };
+    if (publicClient && contractData && channelQueryData && userAddress) {
+      estimateGas();
+    }
+  }, [publicClient, contractData, channelQueryData, userAddress, dateNow]);
+
+  useEffect(() => {
+    const init = async () => {
+      setDateNow(Date.now());
+      if (
+        loading === "prepping" &&
+        (generatedKey !== NULL_ADDRESSS_BYTES32 || ongoingBets?.length === 0)
+      )
+        handleLoading(undefined);
+    };
+    init();
+  }, [blockNumber.data]);
+
+  return (
+    <Flex direction="column" gap="10px" mt="10px">
+      <Stepper index={activeStep}>
+        {steps.map((step, index) => (
+          <Step key={index}>
+            <StepIndicator>
+              <StepStatus
+                complete={<StepIcon />}
+                incomplete={<StepNumber />}
+                active={<StepNumber />}
+              />
+            </StepIndicator>
+
+            <Box>
+              <StepTitle>
+                <Text fontFamily="LoRes15">{step.title}</Text>
+              </StepTitle>
+              <StepDescription>{step.description}</StepDescription>
+            </Box>
+
+            <StepSeparator />
+          </Step>
+        ))}
+      </Stepper>
+      {!isVerifier ? (
+        <Text textAlign={"center"} fontSize="13px" color="red.300">
+          You do not have access to this feature. Please DM @brianguan on
+          telegram to get access to live-betting.
+        </Text>
+      ) : !sufficientEthForGas ? (
+        <Text textAlign={"center"} fontSize="13px" color="red.300">
+          You do not have enough ETH to use this feature. Please send some ETH
+          to your wallet over Base network. We recommend having at least 0.01
+          ETH for most cases.
+        </Text>
+      ) : currentBetIsActiveAndHasFunds ? (
+        <Text textAlign={"center"} fontSize="13px" color="red.300">
+          The current bet already has ETH in the pool. Please select the winner
+          for it before creating a new one.
+        </Text>
+      ) : null}
+      {!matchingChain && (
+        <Text textAlign={"center"} fontSize="13px" color="red.300">
+          wrong network
+        </Text>
+      )}
+      {pendingBet ? (
+        <OpenEventInterface
+          isVerifier={isVerifier}
+          sufficientEthForGas={sufficientEthForGas}
+          currentBetIsActiveAndHasFunds={currentBetIsActiveAndHasFunds}
+          dateNow={dateNow}
+          pendingBet={pendingBet}
+          contractData={contractData}
+          loading={loading}
+          handleLoading={handleLoading}
+          handleClose={handleClose}
+        />
+      ) : (
+        <>
+          {loading || postSharesEventLoading || channelQueryLoading ? (
+            <Flex direction={"column"}>
+              <Flex justifyContent="center">
+                <Spinner />
+              </Flex>
+              <Text textAlign={"center"}>{loading ?? "loading"}</Text>
+            </Flex>
+          ) : (
+            <>
+              <Text color={question.length === 0 ? "red.300" : "unset"}>
+                enter the question for the event
+              </Text>
+              <Input
+                variant="glow"
+                placeholder={"Will I go on a second date?"}
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+              />
+              <Text>{`create options (up to ${MAX_CHARS} characters)`}</Text>
+              <Flex gap="1rem">
+                <Input
+                  variant="glow"
+                  placeholder={"YES"}
+                  textAlign="center"
+                  value={options[0]}
+                  onChange={(e) =>
+                    handleAnswerChange(0, e.target.value.slice(0, MAX_CHARS))
+                  }
+                />
+                <Input
+                  variant="glow"
+                  placeholder={"NO"}
+                  textAlign="center"
+                  value={options[1]}
+                  onChange={(e) =>
+                    handleAnswerChange(1, e.target.value.slice(0, MAX_CHARS))
+                  }
+                />
+              </Flex>
+              <Button
+                color="white"
+                bg="#E09025"
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                width="100%"
+                isDisabled={
+                  pendingBet ||
+                  question.length === 0 ||
+                  !isVerifier ||
+                  // !matchingChain || TODO: change back
+                  !sufficientEthForGas ||
+                  currentBetIsActiveAndHasFunds
+                }
+                onClick={async () => {
+                  setLoading("creating bet (1/2)");
+                  await _postSharesEvent(question);
+                }}
+              >
+                next
+              </Button>
+            </>
+          )}
+        </>
+      )}
+    </Flex>
+  );
+};
+
+const OpenEventInterface = ({
+  isVerifier,
+  sufficientEthForGas,
+  currentBetIsActiveAndHasFunds,
+  dateNow,
+  pendingBet,
+  contractData,
+  loading,
+  handleLoading,
+  handleClose,
+}: {
+  isVerifier: boolean;
+  sufficientEthForGas: boolean;
+  currentBetIsActiveAndHasFunds: boolean;
+  dateNow: number;
+  pendingBet: SharesEvent;
+  contractData: ContractData;
+  loading?: string;
+  handleLoading: (value?: string) => void;
+  handleClose: () => void;
+}) => {
+  const { userAddress, user } = useUser();
+  const { channel, chat } = useChannelContext();
+  const { addToChatbot } = chat;
+  const { channelQueryData, loading: channelQueryLoading } = channel;
+  const [selectedEndTime, setSelectedEndTime] = useState<
+    "10" | "30" | "60" | "120"
+  >("60");
+  const toast = useToast();
+  const { network } = useNetworkContext();
+  const { explorerUrl } = network;
+
+  const { postBet } = usePostBet({
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { updateSharesEvent, loading: updateSharesEventLoading } =
+    useUpdateSharesEvent({});
+
+  const _updateSharesEvent = useCallback(
+    async (eventState: SharesEventState) => {
+      if (!pendingBet) return;
+      await updateSharesEvent({
+        id: pendingBet?.id ?? "",
+        sharesSubjectQuestion: pendingBet?.sharesSubjectQuestion ?? "",
+        sharesSubjectAddress: pendingBet?.sharesSubjectAddress ?? "",
+        eventState,
+      });
+    },
+    [pendingBet]
+  );
+
   const { openEvent, openEventTxLoading } = useOpenEvent(
     {
       eventAddress: userAddress ?? NULL_ADDRESS,
-      eventId: (pendingBet?.id ?? 0) as number,
+      eventId: Number(pendingBet.id),
       endTimestamp: BigInt(
         String(
           Math.floor((dateNow + Number(selectedEndTime) * 60 * 1000) / 1000)
@@ -218,8 +458,7 @@ export const CreateBet = ({
             </Box>
           ),
         });
-        setContractCallInProgress(false);
-        isOpeningEvent.current = false;
+        handleLoading(undefined);
       },
       onTxSuccess: async (data) => {
         toast({
@@ -241,12 +480,10 @@ export const CreateBet = ({
         await postBet({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
-          eventId: (pendingBet?.id ?? 0) as number,
-          eventType: EventType.SideBet,
+          eventId: Number(pendingBet.id),
+          eventType: EventType.YayNayVote,
         });
         await _updateSharesEvent(SharesEventState.Live);
-        setQuestion("");
-        setContractCallInProgress(false);
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -254,7 +491,6 @@ export const CreateBet = ({
           title: "Event is live!",
           description: "event-live",
         });
-        isOpeningEvent.current = false;
         handleClose();
       },
       onTxError: (error) => {
@@ -268,95 +504,17 @@ export const CreateBet = ({
           isClosable: true,
           position: "top-right",
         });
-        isOpeningEvent.current = false;
-        setContractCallInProgress(false);
-        setLoading(undefined);
+        handleLoading(undefined);
       },
     }
   );
 
-  useEffect(() => {
-    const estimateGas = async () => {
-      const gas = await publicClient
-        .estimateContractGas({
-          address: contractData.address as `0x${string}`,
-          abi: contractData.abi,
-          functionName: "openEvent",
-          args: [
-            userAddress as `0x${string}`,
-            0,
-            EventTypeForContract.YAY_NAY_VOTE,
-            BigInt(String(Math.floor((dateNow + 60 * 60 * 1000) / 1000))),
-          ],
-          account: userAddress as `0x${string}`,
-        })
-        .then((data) => {
-          return data;
-        })
-        .catch((e) => {
-          console.log("calling error", e);
-          return BigInt(0);
-        });
-      const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
-      setRequiredGas(adjustedGas);
-    };
-    if (publicClient && contractData && channelQueryData && userAddress) {
-      estimateGas();
-    }
-  }, [publicClient, contractData, channelQueryData, userAddress, dateNow]);
-
-  useEffect(() => {
-    const c = async () => {
-      isOpeningEvent.current = true;
-      setLoading("opening bet (2/2)");
-      await openEvent?.();
-    };
-    if (
-      pendingBet &&
-      contractCallInProgress &&
-      openEvent &&
-      !isOpeningEvent.current
-    )
-      c();
-  }, [pendingBet, contractCallInProgress, openEvent]);
-
-  useEffect(() => {
-    const init = async () => {
-      if (!contractCallInProgress) setDateNow(Date.now());
-      if (generatedKey !== NULL_ADDRESSS_BYTES32 || ongoingBets?.length === 0)
-        setLoading(undefined);
-    };
-    init();
-  }, [blockNumber.data]);
-
   return (
-    <Flex direction="column" gap="10px" mt="10px">
-      {!isVerifier ? (
-        <Text textAlign={"center"} fontSize="13px" color="red.300">
-          You do not have access to this feature. Please DM @brianguan on
-          telegram to get access to live-betting.
-        </Text>
-      ) : !sufficientEthForGas ? (
-        <Text textAlign={"center"} fontSize="13px" color="red.300">
-          You do not have enough ETH to use this feature. Please send some ETH
-          to your wallet over Base network. We recommend having at least 0.01
-          ETH for most cases.
-        </Text>
-      ) : currentBetIsActiveAndHasFunds ? (
-        <Text textAlign={"center"} fontSize="13px" color="red.300">
-          The current bet already has ETH in the pool. Please select the winner
-          for it before creating a new one.
-        </Text>
-      ) : null}
-      {!matchingChain && (
-        <Text textAlign={"center"} fontSize="13px" color="red.300">
-          wrong network
-        </Text>
-      )}
+    <>
       {loading ||
-      postSharesEventLoading ||
       openEventTxLoading ||
-      channelQueryLoading ? (
+      channelQueryLoading ||
+      updateSharesEventLoading ? (
         <Flex direction={"column"}>
           <Flex justifyContent="center">
             <Spinner />
@@ -365,47 +523,10 @@ export const CreateBet = ({
         </Flex>
       ) : (
         <>
-          {pendingBet ? (
-            <Text textAlign={"center"} fontSize="13px">
-              Please continue the process to initiate your event
-            </Text>
-          ) : (
-            <>
-              <Text color={question.length === 0 ? "red.300" : "unset"}>
-                enter the question for the event
-              </Text>
-              <Input
-                variant="glow"
-                placeholder={"Will I go on a second date?"}
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-              />
-              <Text>{`create options (up to ${MAX_CHARS} characters)`}</Text>
-              <Flex gap="1rem">
-                <Input
-                  variant="glow"
-                  placeholder={"YES"}
-                  textAlign="center"
-                  value={options[0]}
-                  onChange={(e) =>
-                    handleAnswerChange(0, e.target.value.slice(0, MAX_CHARS))
-                  }
-                />
-                <Input
-                  variant="glow"
-                  placeholder={"NO"}
-                  textAlign="center"
-                  value={options[1]}
-                  onChange={(e) =>
-                    handleAnswerChange(1, e.target.value.slice(0, MAX_CHARS))
-                  }
-                />
-              </Flex>
-            </>
-          )}
           <Text>set event duration</Text>
           <Menu>
             <MenuButton
+              color="white"
               as={Button}
               rightIcon={<ChevronDownIcon />}
               bg={"#244FA7"}
@@ -473,31 +594,28 @@ export const CreateBet = ({
             </MenuList>
           </Menu>
           <Button
+            color="white"
             bg="#E09025"
             _hover={{}}
             _focus={{}}
             _active={{}}
             width="100%"
-            disabled={
-              (!pendingBet && question.length === 0) ||
+            isDisabled={
               !isVerifier ||
               // !matchingChain || TODO: change back
               !sufficientEthForGas ||
-              currentBetIsActiveAndHasFunds
+              currentBetIsActiveAndHasFunds ||
+              !openEvent
             }
             onClick={async () => {
-              setLoading(
-                pendingBet ? "opening bet (2/2)" : "creating bet (1/2)"
-              );
-              pendingBet
-                ? await openEvent?.()
-                : await _postSharesEvent(question);
+              handleLoading("opening bet (2/2)");
+              await openEvent?.();
             }}
           >
             confirm
           </Button>
         </>
       )}
-    </Flex>
+    </>
   );
 };

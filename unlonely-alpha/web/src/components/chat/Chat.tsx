@@ -110,7 +110,6 @@ const Chat = ({
 
   return (
     <Flex
-      // mt="40px"
       direction="column"
       minW="100%"
       width="100%"
@@ -155,7 +154,6 @@ const Chat = ({
         height="100%"
         id={isVipChat ? "vip-chat" : "chat"}
         position="relative"
-        // mt="40px"
       >
         {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
           <Flex

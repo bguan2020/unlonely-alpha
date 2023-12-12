@@ -1,13 +1,15 @@
-import { Button, Image, Flex, Text, Avatar } from "@chakra-ui/react";
+import { Button, Image, Flex, Text, Avatar, Badge } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
 import { anonUrl } from "../../components/presence/AnonUrl";
+import { useCacheContext } from "../../hooks/context/useCache";
 import { useUser } from "../../hooks/context/useUser";
 import { getColorFromString } from "../../styles/Colors";
 
 export const Navbar = () => {
   const router = useRouter();
   const { user } = useUser();
+  const { claimableBets } = useCacheContext();
 
   const imageUrl = user?.FCImageUrl
     ? user.FCImageUrl
@@ -104,7 +106,12 @@ export const Navbar = () => {
           router.push("/profile");
         }}
       >
-        <Flex direction="column" alignItems="center">
+        <Flex
+          direction="column"
+          alignItems="center"
+          borderRadius={"15px"}
+          p={claimableBets.length > 0 ? "0.5rem" : undefined}
+        >
           {user ? (
             <Avatar
               name={user?.username ?? user?.address}
@@ -122,7 +129,18 @@ export const Navbar = () => {
             />
           )}
           <Text fontFamily="LoRes15" fontWeight={"light"}>
-            profile
+            profile{" "}
+            {claimableBets.length > 0 && (
+              <Badge
+                className="hithere"
+                variant="solid"
+                ml="1"
+                colorScheme={"red"}
+                fontSize="0.7em"
+              >
+                {claimableBets.length > 99 ? "99+" : claimableBets.length}
+              </Badge>
+            )}
           </Text>
         </Flex>
       </Button>
