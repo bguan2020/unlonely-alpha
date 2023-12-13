@@ -109,7 +109,7 @@ const MessageBody = ({
       (eventTypes as string[]).includes(message.data.body.split(":")[0])
     ) {
       return {
-        bgGradient: "linear-gradient(0deg, #d16fce, #7655D2, #4173D6, #4ABBDF)",
+        bg: "rgba(63, 59, 253, 1)",
       };
     } else if (
       message.data.body &&
@@ -125,13 +125,11 @@ const MessageBody = ({
     ) {
       if (message.data.body?.split(":")[3] === "yay") {
         return {
-          bgGradient:
-            "linear-gradient(0deg, rgba(5,153,49,1) 0%, rgba(48,215,149,1) 100%)",
+          bg: "rgba(10, 179, 18, 1)",
         };
       } else {
         return {
-          bgGradient:
-            "linear-gradient(0deg, rgba(181,55,13,1) 0%, rgba(212,131,0,1) 100%)",
+          bg: "rgba(218, 58, 19, 1)",
         };
       }
     } else if (
@@ -190,9 +188,8 @@ const MessageBody = ({
           <Flex direction={"column"} width="100%">
             <Box
               key={index}
-              // borderRadius="10px"
+              borderRadius="10px"
               {...messageBg()}
-              py="5px"
               px="0.5rem"
               position="relative"
             >

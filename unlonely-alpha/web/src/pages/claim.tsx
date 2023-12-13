@@ -3,7 +3,6 @@ import {
   Flex,
   Box,
   Avatar,
-  Image,
   SimpleGrid,
   Button,
   useToast,
@@ -60,7 +59,7 @@ const ClaimContent = () => {
       {!feedLoading && !fetchingBets ? (
         <Flex direction="column">
           <Text
-            fontSize={["40px", "55px", "70px"]}
+            fontSize={["40px", "50px", "50px"]}
             fontFamily={"LoRes15"}
             textAlign="center"
           >
@@ -76,11 +75,7 @@ const ClaimContent = () => {
               />
             ) : (
               <Flex justifyContent={"center"} flexGrow={1} alignItems="center">
-                <Text
-                  textAlign={"center"}
-                  fontFamily={"LoRes15"}
-                  fontSize={"25px"}
-                >
+                <Text textAlign={"center"} fontSize={"12px"}>
                   We can't find any payouts waiting for you, please try again
                   later
                 </Text>
@@ -92,19 +87,11 @@ const ClaimContent = () => {
         <Flex
           alignItems={"center"}
           justifyContent={"center"}
-          direction="column"
           width="100%"
-          height="calc(100vh - 103px)"
+          height="calc(100vh - 64px)"
           fontSize="50px"
         >
-          <Image
-            src="/icons/icon-192x192.png"
-            borderRadius="10px"
-            height="96px"
-          />
-          <Flex>
-            <WavyText text="..." />
-          </Flex>
+          <WavyText text="loading..." />
         </Flex>
       )}
     </>
@@ -353,9 +340,15 @@ const EventCard = ({
               textAlign={"center"}
               fontSize="18px"
               fontWeight="bold"
-              color={event.resultIndex === 0 ? "#02f042" : "#ee6204"}
+              color={
+                event.resultIndex === 0
+                  ? "rgba(10, 179, 18, 1)"
+                  : "rgba(218, 58, 19, 1)"
+              }
             >
-              {event.resultIndex === 0 ? "Yes" : "No"}
+              {event.resultIndex === 0
+                ? event.options?.[0] ?? "Yes"
+                : event.options?.[1] ?? "No"}
             </Text>
           </Flex>
         )}

@@ -48,7 +48,7 @@ const Trade = () => {
   const { userAddress, walletIsConnected, user } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, chat: chatContext, ui } = useChannelContext();
-  const { channelQueryData, ongoingBets } = channel;
+  const { channelQueryData, ongoingBets, refetch } = channel;
   const { addToChatbot } = chatContext;
   const { tradeLoading } = ui;
 
@@ -76,6 +76,20 @@ const Trade = () => {
   });
 
   const toast = useToast();
+
+  useEffect(() => {
+    if (
+      userAddress === channelQueryData?.owner.address &&
+      ongoingBets?.[0]?.eventState === SharesEventState.Pending
+    ) {
+      setViewState("create");
+    } else {
+      setViewState("normal");
+    }
+  }, [
+    userAddress === channelQueryData?.owner.address,
+    ongoingBets?.[0]?.eventState === SharesEventState.Pending,
+  ]);
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
@@ -507,6 +521,7 @@ const Trade = () => {
           description: "event-lock",
         });
       }
+      await refetch();
     },
     [ongoingBets, user, userAddress]
   );
@@ -588,7 +603,12 @@ const Trade = () => {
   ]);
 
   return (
-    <Flex direction="column" height="100%" position={"relative"}>
+    <Flex
+      direction="column"
+      height="100%"
+      position={"relative"}
+      justifyContent="space-between"
+    >
       {tradeLoading && (
         <Text fontSize="12px" color="#1cfff0" position="absolute" top="-15px">
           <Spinner size="xs" /> updating interface...
@@ -604,40 +624,39 @@ const Trade = () => {
         >
           {(isSharesEventPayout ||
             isSharesEventPayoutPrevious ||
-            votingPooledEth === BigInt(0)) && (
-            <>
-              <Button
-                color="white"
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                bg={viewState === "create" ? "#1b9d9d" : "#E09025"}
-                p="5px !important"
-                w="100%"
-                isDisabled={tradeLoading}
-                onClick={() =>
-                  setViewState((prev) =>
-                    prev === "create" ? "normal" : "create"
-                  )
-                }
-              >
-                <Text fontSize={"20px"} fontFamily="LoRes15">
-                  {doesEventExist ? (
-                    <>
-                      {isSharesEventPending && eventEndTimestamp === BigInt(0)
-                        ? "continue creating bet"
-                        : (isSharesEventLive || isSharesEventLock) &&
-                          votingPooledEth === BigInt(0)
-                        ? "replace bet"
-                        : "create bet"}
-                    </>
-                  ) : (
-                    "create bet"
-                  )}
-                </Text>
-              </Button>
-            </>
-          )}
+            votingPooledEth === BigInt(0)) &&
+            !isSharesEventPending && (
+              <>
+                <Button
+                  color="white"
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  bg={viewState === "create" ? "#1b9d9d" : "#E09025"}
+                  p="5px !important"
+                  w="100%"
+                  isDisabled={tradeLoading}
+                  onClick={() =>
+                    setViewState((prev) =>
+                      prev === "create" ? "normal" : "create"
+                    )
+                  }
+                >
+                  <Text fontSize={"20px"} fontFamily="LoRes15">
+                    {doesEventExist ? (
+                      <>
+                        {(isSharesEventLive || isSharesEventLock) &&
+                        votingPooledEth === BigInt(0)
+                          ? "replace bet"
+                          : "create bet"}
+                      </>
+                    ) : (
+                      "create bet"
+                    )}
+                  </Text>
+                </Button>
+              </>
+            )}
           {doesEventExist &&
             isSharesEventLive &&
             !eventEndTimestampPassed &&
@@ -769,7 +788,7 @@ const Trade = () => {
                   target={isStandalone ? "_self" : "_blank"}
                   style={{ textDecoration: "underline" }}
                 >
-                  go to claim page
+                  <Text fontSize="12px"> go to claim page</Text>
                 </Link>
               </Flex>
             </>
@@ -912,11 +931,21 @@ const Trade = () => {
                 ongoingBets?.[0]?.eventState === "LIVE" ? (
                 <>
                   <Flex justifyContent={"space-evenly"} my="10px">
-                    <Text color="#35b657" fontWeight="bold" fontSize="25px">
-                      {truncateValue(String(yayVotesSupply), 0, true)} YES
+                    <Text
+                      color="rgba(10, 179, 18, 1)"
+                      fontWeight="bold"
+                      fontSize="25px"
+                    >
+                      {truncateValue(String(yayVotesSupply), 0, true)}{" "}
+                      {ongoingBets?.[0]?.options?.[0] ?? "YES"}
                     </Text>
-                    <Text color="#ff623b" fontWeight="bold" fontSize="25px">
-                      {truncateValue(String(nayVotesSupply), 0, true)} NO
+                    <Text
+                      color="rgba(218, 58, 19, 1)"
+                      fontWeight="bold"
+                      fontSize="25px"
+                    >
+                      {truncateValue(String(nayVotesSupply), 0, true)}{" "}
+                      {ongoingBets?.[0]?.options?.[1] ?? "NO"}
                     </Text>
                   </Flex>
                   <Text textAlign={"center"} fontSize="14px">
@@ -926,11 +955,21 @@ const Trade = () => {
               ) : ongoingBets?.[0]?.eventState === "LOCK" ? (
                 <>
                   <Flex justifyContent={"space-evenly"} my="10px">
-                    <Text color="#35b657" fontWeight="bold" fontSize="25px">
-                      {truncateValue(String(yayVotesSupply), 0, true)} YES
+                    <Text
+                      color="rgba(10, 179, 18, 1)"
+                      fontWeight="bold"
+                      fontSize="25px"
+                    >
+                      {truncateValue(String(yayVotesSupply), 0, true)}{" "}
+                      {ongoingBets?.[0]?.options?.[0] ?? "YES"}
                     </Text>
-                    <Text color="#ff623b" fontWeight="bold" fontSize="25px">
-                      {truncateValue(String(nayVotesSupply), 0, true)} NO
+                    <Text
+                      color="rgba(218, 58, 19, 1)"
+                      fontWeight="bold"
+                      fontSize="25px"
+                    >
+                      {truncateValue(String(nayVotesSupply), 0, true)}{" "}
+                      {ongoingBets?.[0]?.options?.[1] ?? "NO"}
                     </Text>
                   </Flex>
                   <Text textAlign={"center"} fontSize="14px" color="#e49c16">
@@ -949,7 +988,9 @@ const Trade = () => {
                       fontWeight="bold"
                       color={eventResult === true ? "#02f042" : "#ee6204"}
                     >
-                      {eventResult ? "Yes" : "No"}
+                      {eventResult
+                        ? ongoingBets?.[0]?.options?.[0] ?? "Yes"
+                        : ongoingBets?.[0]?.options?.[1] ?? "No"}
                     </Text>
                   </Flex>
                   <Flex justifyContent="space-between">
@@ -980,7 +1021,7 @@ const Trade = () => {
                         target={isStandalone ? "_self" : "_blank"}
                         style={{ textDecoration: "underline" }}
                       >
-                        go to claim page
+                        <Text fontSize="12px"> go to claim page</Text>
                       </Link>
                     </Flex>
                   </Flex>

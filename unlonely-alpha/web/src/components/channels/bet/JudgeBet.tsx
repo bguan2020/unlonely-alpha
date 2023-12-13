@@ -26,7 +26,7 @@ export const JudgeBet = ({
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { ongoingBets } = channel;
+  const { ongoingBets, refetch } = channel;
   const [endDecision, setEndDecision] = useState<boolean | undefined>(
     undefined
   );
@@ -108,10 +108,14 @@ export const JudgeBet = ({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.EVENT_PAYOUT,
-          title: `Event has ended, ${args.result ? "yes" : "no"} votes win!`,
+          title: `Event has ended, ${
+            args.result
+              ? ongoingBets?.[0]?.options?.[0] ?? "yes"
+              : ongoingBets?.[0]?.options?.[1] ?? "no"
+          } votes win!`,
           description: "event-end",
         });
-        handleClose();
+        await refetch().then(handleClose);
       },
       onTxError: (error) => {
         toast({
@@ -171,12 +175,12 @@ export const JudgeBet = ({
           _focus={{}}
           _active={{}}
           transform={endDecision !== false ? undefined : "scale(0.95)"}
-          bg={endDecision !== false ? "#009d2a" : "#909090"}
+          bg={endDecision !== false ? "rgba(10, 179, 18, 1)" : "#909090"}
           onClick={() => setEndDecision(true)}
           isDisabled={!isVerifier}
           w="100%"
         >
-          YES
+          {ongoingBets?.[0]?.options?.[0] ?? "YES"}
         </Button>
         <Button
           color="white"
@@ -184,12 +188,12 @@ export const JudgeBet = ({
           _focus={{}}
           _active={{}}
           transform={endDecision !== true ? undefined : "scale(0.95)"}
-          bg={endDecision !== true ? "#da3b14" : "#909090"}
+          bg={endDecision !== true ? "rgba(218, 58, 19, 1)" : "#909090"}
           onClick={() => setEndDecision(false)}
           isDisabled={!isVerifier}
           w="100%"
         >
-          NO
+          {ongoingBets?.[0]?.options?.[1] ?? "NO"}
         </Button>
       </Flex>
       {endDecision !== undefined && (
@@ -203,7 +207,10 @@ export const JudgeBet = ({
             isDisabled={!verifyEvent || !matchingChain || verifyEventTxLoading}
             onClick={verifyEvent}
           >
-            confirm {endDecision ? "yes" : "no"}
+            confirm{" "}
+            {endDecision
+              ? ongoingBets?.[0]?.options?.[0] ?? "yes"
+              : ongoingBets?.[0]?.options?.[1] ?? "no"}
           </Button>
         </Flex>
       )}

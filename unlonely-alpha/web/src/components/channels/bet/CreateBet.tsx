@@ -345,7 +345,7 @@ export const CreateBet = ({
                   pendingBet ||
                   question.length === 0 ||
                   !isVerifier ||
-                  // !matchingChain || TODO: change back
+                  !matchingChain ||
                   !sufficientEthForGas ||
                   currentBetIsActiveAndHasFunds
                 }
@@ -388,7 +388,7 @@ const OpenEventInterface = ({
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { channelQueryData, loading: channelQueryLoading } = channel;
+  const { channelQueryData, loading: channelQueryLoading, refetch } = channel;
   const [selectedEndTime, setSelectedEndTime] = useState<
     "10" | "30" | "60" | "120"
   >("60");
@@ -492,7 +492,7 @@ const OpenEventInterface = ({
           title: "Event is live!",
           description: "event-live",
         });
-        handleClose();
+        await refetch().then(handleClose);
       },
       onTxError: (error) => {
         toast({
@@ -603,7 +603,7 @@ const OpenEventInterface = ({
             width="100%"
             isDisabled={
               !isVerifier ||
-              // !matchingChain || TODO: change back
+              !matchingChain ||
               !sufficientEthForGas ||
               currentBetIsActiveAndHasFunds ||
               !openEvent
