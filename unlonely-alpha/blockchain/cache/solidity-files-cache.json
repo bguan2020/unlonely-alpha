@@ -1182,8 +1182,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelySideBetsV1.sol": {
-      "lastModificationDate": 1702058314345,
-      "contentHash": "9a89e5b84cc4a86d78c7a5479ab33005",
+      "lastModificationDate": 1702417172876,
+      "contentHash": "e5d24ee35d566525074b0e0fd1048860",
       "sourceName": "contracts/UnlonelySideBetsV1.sol",
       "solcConfig": {
         "version": "0.8.8",

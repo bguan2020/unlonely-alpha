@@ -61,8 +61,8 @@ export const Base: Network = {
         abi: UnlonelySharesV1,
       },
       unlonelySharesV2: {
-        // eslint-disable-next-line no-warning-comments
-        address: "0x1914DaD7Bf9dA8Cf40CD6bD8f6434F52eAD78980", // TODO: need to redeploy
+        address: "0x9bb73ca49b61F2Efe4b193e20df640862c8D3bB6",
+        // address: "0x1914DaD7Bf9dA8Cf40CD6bD8f6434F52eAD78980", // past contract
         abi: UnlonelySharesV2,
       },
       unlonelyTournament: {

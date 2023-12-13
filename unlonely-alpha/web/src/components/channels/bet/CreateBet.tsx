@@ -394,7 +394,7 @@ const OpenEventInterface = ({
   >("60");
   const toast = useToast();
   const { network } = useNetworkContext();
-  const { explorerUrl } = network;
+  const { explorerUrl, matchingChain } = network;
 
   const { postBet } = usePostBet({
     onError: (err) => {
