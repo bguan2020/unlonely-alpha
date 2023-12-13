@@ -142,15 +142,16 @@ const DesktopPage = ({
     const fetch = async () => {
       isFetching.current = true;
       try {
-        const [supply] = await Promise.all([
+        const calls: any[] = [
           publicClient.readContract({
             address: tournamentContract.address as `0x${string}`,
             abi: tournamentContract.abi,
             functionName: "vipBadgeSupply",
             args: [generatedKey],
           }),
-          refetchVipBadgeBalance(),
-        ]);
+        ];
+        if (userAddress) calls.concat([refetchVipBadgeBalance()]);
+        const [supply] = await Promise.all(calls);
         setVipBadgeSupply(BigInt(String(supply)));
       } catch (err) {
         console.log("channelTournament fetching error", err);
