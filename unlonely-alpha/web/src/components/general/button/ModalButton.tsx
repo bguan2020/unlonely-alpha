@@ -11,6 +11,7 @@ export const ModalButton: React.FC<ModalButtonProps> = ({
 }) => {
   return (
     <Button
+      color="white"
       {...rest}
       borderWidth="3px"
       borderRadius="25px"

@@ -313,10 +313,11 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                         shouldWrapChildren
                       >
                         <Button
+                          color="white"
                           className="zooming-text"
                           bg="#2977dd"
                           _hover={{}}
-                          disabled={!writeAsync}
+                          isDisabled={!writeAsync}
                           onClick={() => {
                             if (walletIsConnected) {
                               if (!uri || uri === "") {

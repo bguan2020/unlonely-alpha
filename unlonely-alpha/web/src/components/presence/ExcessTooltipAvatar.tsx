@@ -7,6 +7,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { CustomUser } from "../../constants/types";
 import { useGetBadges } from "../../hooks/internal/useGetBadges";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
+import { getColorFromString } from "../../styles/Colors";
 
 const ExcessTooltipAvatar = ({ user }: { user: CustomUser }) => {
   const { rankUrl } = useGetBadges(user.channelUserRank);
@@ -42,6 +43,9 @@ const ExcessTooltipAvatar = ({ user }: { user: CustomUser }) => {
             src={user.FCImageUrl ? user.FCImageUrl : ""}
             name={user.username ? user.username : user.address}
             size="sm"
+            bg={getColorFromString(
+              user.username ? user.username : user.address
+            )}
           />
           <Text fontSize="12px" textAlign={"center"}>
             {user.username ? user.username : centerEllipses(user.address, 8)}

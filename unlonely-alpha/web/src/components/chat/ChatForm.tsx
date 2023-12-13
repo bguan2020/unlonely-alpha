@@ -208,7 +208,6 @@ const ChatForm = ({
         style={{
           position: "relative",
           width: "100%",
-          marginBottom: isStandalone ? "15px" : undefined,
         }}
       >
         <Stack direction={"row"} spacing={"10px"}>
@@ -229,6 +228,7 @@ const ChatForm = ({
               </Text>
               <Flex gap="10px">
                 <Button
+                  color="white"
                   width="100%"
                   bg="#b82929"
                   onClick={() => copy(error)}
@@ -238,6 +238,7 @@ const ChatForm = ({
                   copy error
                 </Button>
                 <Button
+                  color="white"
                   opacity={"0.5"}
                   border={"1px solid white"}
                   bg={"transparent"}
@@ -262,6 +263,7 @@ const ChatForm = ({
                 >
                   {REACTION_EMOJIS.map((emoji) => (
                     <Button
+                      color="white"
                       minH="40px"
                       background="transparent"
                       p="5px"
@@ -367,7 +369,7 @@ const ChatForm = ({
                       </PopoverContent>
                     </Popover>
                   )}
-                  {isVipChat && (isOwner || isVip) && (
+                  {(isOwner || isVip) && (
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
@@ -413,6 +415,7 @@ const ChatForm = ({
                   />
                 </Flex>
                 <IconButton
+                  color="white"
                   icon={<BsFillHeartFill size={15} />}
                   bg="transparent"
                   aria-label="react"
@@ -463,7 +466,7 @@ const ChatForm = ({
                   <IconButton
                     size={"10px"}
                     type="submit"
-                    disabled={messageTextIsEmpty}
+                    isDisabled={messageTextIsEmpty}
                     icon={
                       blastMode ? (
                         <Image src="/svg/blast-send.svg" />

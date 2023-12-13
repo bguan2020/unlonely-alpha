@@ -1,5 +1,10 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
+  ChevronDownIcon,
+  ExternalLinkIcon,
+  WarningIcon,
+} from "@chakra-ui/icons";
+import {
+  Badge,
   Button,
   Flex,
   Menu,
@@ -11,26 +16,33 @@ import {
 } from "@chakra-ui/react";
 import { usePrivy } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
-import { useCallback, useState } from "react";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { HiDotsVertical } from "react-icons/hi";
+import Confetti from "react-confetti";
+import { useBalance, useFeeData } from "wagmi";
 
+import { useCacheContext } from "../../hooks/context/useCache";
 import { useUser } from "../../hooks/context/useUser";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 const ConnectWallet = () => {
-  const { user, loginMethod, userAddress } = useUser();
-  const { login, ready, linkWallet, logout } = usePrivy();
+  const router = useRouter();
+  const { user, loginMethod } = useUser();
+  const { isStandalone } = useUserAgent();
+  const { login, ready, linkWallet } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
-  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
 
-  const callLogout = useCallback(() => {
-    logout();
-    setIsCloseModalOpen(false);
-  }, []);
-
-  const redirectToBridge = () => {
-    window.open(`${window.location.origin}/bridge`, "_blank");
-  };
+  const redirectToBridge = useCallback(() => {
+    if (isStandalone) {
+      router.push("/bridge");
+    } else {
+      window.open(`${window.location.origin}/bridge`, "_blank");
+    }
+  }, [isStandalone, router]);
 
   return (
     <>
@@ -39,60 +51,7 @@ const ConnectWallet = () => {
           {user ? (
             loginMethod === "privy" ||
             (loginMethod && loginMethod !== "privy" && activeWallet) ? (
-              <>
-                <TransactionModalTemplate
-                  confirmButton="logout"
-                  title="are you sure you want to log out?"
-                  isOpen={isCloseModalOpen}
-                  canSend={true}
-                  onSend={callLogout}
-                  isModalLoading={false}
-                  handleClose={() => setIsCloseModalOpen(false)}
-                />
-                <Menu>
-                  <Flex
-                    p="1px"
-                    bg={
-                      "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-                    }
-                  >
-                    <MenuButton
-                      width={"100%"}
-                      as={Button}
-                      borderRadius="0"
-                      _hover={{ bg: "#020202" }}
-                      _focus={{}}
-                      _active={{}}
-                      px="10px"
-                      bg={"#131323"}
-                      rightIcon={<ChevronDownIcon />}
-                    >
-                      <Text fontFamily="LoRes15" fontSize="15px">
-                        {centerEllipses(userAddress, 13)}
-                      </Text>
-                    </MenuButton>
-                  </Flex>
-
-                  <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
-                    <MenuItem
-                      _hover={{ bg: "#1f1f3c" }}
-                      _focus={{}}
-                      _active={{}}
-                      onClick={redirectToBridge}
-                    >
-                      bridge to base ETH
-                    </MenuItem>
-                    <MenuItem
-                      _hover={{ bg: "#1f1f3c" }}
-                      _focus={{}}
-                      _active={{}}
-                      onClick={() => setIsCloseModalOpen(true)}
-                    >
-                      logout
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-              </>
+              <ConnectedDisplay />
             ) : (
               <Menu>
                 <Flex
@@ -102,6 +61,7 @@ const ConnectWallet = () => {
                   }
                 >
                   <MenuButton
+                    color="white"
                     width={"100%"}
                     as={Button}
                     borderRadius="0"
@@ -120,6 +80,7 @@ const ConnectWallet = () => {
 
                 <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
                   <MenuItem
+                    bg={"#131323"}
                     _hover={{ bg: "#1f1f3c" }}
                     _focus={{}}
                     _active={{}}
@@ -128,12 +89,14 @@ const ConnectWallet = () => {
                     connect
                   </MenuItem>
                   <MenuItem
+                    bg={"#131323"}
                     _hover={{ bg: "#1f1f3c" }}
                     _focus={{}}
                     _active={{}}
                     onClick={redirectToBridge}
                   >
-                    bridge to base ETH
+                    bridge ETH to base
+                    <ExternalLinkIcon />
                   </MenuItem>
                 </MenuList>
               </Menu>
@@ -147,6 +110,7 @@ const ConnectWallet = () => {
                 }
               >
                 <MenuButton
+                  color="white"
                   width={"100%"}
                   as={Button}
                   borderRadius="0"
@@ -165,6 +129,7 @@ const ConnectWallet = () => {
 
               <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
                 <MenuItem
+                  bg={"#131323"}
                   _hover={{ bg: "#1f1f3c" }}
                   _focus={{}}
                   _active={{}}
@@ -173,12 +138,14 @@ const ConnectWallet = () => {
                   login
                 </MenuItem>
                 <MenuItem
+                  bg={"#131323"}
                   _hover={{ bg: "#1f1f3c" }}
                   _focus={{}}
                   _active={{}}
                   onClick={redirectToBridge}
                 >
-                  bridge to base ETH
+                  bridge ETH to base
+                  <ExternalLinkIcon />
                 </MenuItem>
               </MenuList>
             </Menu>
@@ -192,3 +159,208 @@ const ConnectWallet = () => {
 };
 
 export default ConnectWallet;
+
+const ConnectedDisplay = () => {
+  const router = useRouter();
+
+  const { logout } = usePrivy();
+  const { userAddress } = useUser();
+  const { claimableBets } = useCacheContext();
+  const { network } = useNetworkContext();
+  const { matchingChain } = network;
+
+  const { isStandalone } = useUserAgent();
+
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+
+  const feeData = useFeeData({
+    watch: true,
+    chainId: 84531,
+  });
+
+  const { data: userEthBalance } = useBalance({
+    address: userAddress as `0x${string}`,
+    watch: true,
+  });
+
+  const isLowEthBalance = useMemo(() => {
+    if (!userEthBalance || !feeData || !matchingChain) {
+      return false;
+    }
+
+    return (
+      Number(feeData?.data?.formatted?.gasPrice ?? "0") >
+      Number(userEthBalance.formatted)
+    );
+  }, [feeData?.data?.formatted?.gasPrice, userEthBalance, matchingChain]);
+
+  const redirectToBridge = useCallback(() => {
+    if (isStandalone) {
+      router.push("/bridge");
+    } else {
+      window.open(`${window.location.origin}/bridge`, "_blank");
+    }
+  }, [isStandalone, router]);
+
+  const redirectToClaim = useCallback(() => {
+    if (isStandalone) {
+      router.push("/claim");
+    } else {
+      window.open(`${window.location.origin}/claim`, "_blank");
+    }
+  }, [isStandalone, router]);
+
+  const callLogout = useCallback(() => {
+    logout();
+    setIsCloseModalOpen(false);
+  }, []);
+
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const [parentWidth, setParentWidth] = useState(0);
+  const [parentHeight, setParentHeight] = useState(0);
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (parentRef.current) {
+        setParentWidth(parentRef.current.offsetWidth);
+        setParentHeight(parentRef.current.offsetHeight);
+      }
+    };
+
+    updateSize(); // Update width on mount
+
+    window.addEventListener("resize", updateSize); // Update width on window resize
+
+    return () => window.removeEventListener("resize", updateSize); // Cleanup listener
+  }, [claimableBets.length]);
+
+  return (
+    <>
+      <TransactionModalTemplate
+        confirmButton="logout"
+        title="are you sure you want to log out?"
+        isOpen={isCloseModalOpen}
+        canSend={true}
+        onSend={callLogout}
+        isModalLoading={false}
+        handleClose={() => setIsCloseModalOpen(false)}
+      />
+      <Menu>
+        <Flex
+          p="1px"
+          bg={
+            "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+          }
+        >
+          <MenuButton
+            ref={parentRef}
+            color="white"
+            width={"100%"}
+            as={Button}
+            borderRadius="0"
+            _hover={{
+              bg: claimableBets.length > 0 ? "#E09025" : "#020202",
+            }}
+            _focus={{}}
+            _active={{}}
+            px="10px"
+            bg={"#131323"}
+            rightIcon={<ChevronDownIcon />}
+            position="relative"
+          >
+            {claimableBets.length > 0 && (
+              <Confetti
+                width={parentWidth}
+                height={parentHeight}
+                style={{ zIndex: "2" }}
+                numberOfPieces={15}
+              />
+            )}
+            {isLowEthBalance && (
+              <Flex
+                className="attention"
+                position="absolute"
+                bottom="-1px"
+                alignItems="end"
+              >
+                <WarningIcon mr="2px" height="1em" />
+                <Text fontFamily="LoRes15">LOW ETH</Text>
+              </Flex>
+            )}
+            <Flex alignItems={"center"}>
+              <Text fontFamily="LoRes15" fontSize="15px">
+                {isStandalone ? (
+                  <HiDotsVertical />
+                ) : (
+                  centerEllipses(userAddress, 13)
+                )}{" "}
+              </Text>
+              {claimableBets.length > 0 && (
+                <Text>
+                  <Badge
+                    className="hithere"
+                    variant="solid"
+                    ml="1"
+                    colorScheme={"red"}
+                    fontSize="0.7em"
+                  >
+                    {claimableBets.length > 99 ? "99+" : claimableBets.length}
+                  </Badge>
+                </Text>
+              )}
+            </Flex>
+          </MenuButton>
+        </Flex>
+        <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
+          <MenuItem
+            bg={claimableBets.length > 0 ? "#E09025" : "#131323"}
+            _hover={{ bg: "#f07c1d" }}
+            _focus={{}}
+            _active={{}}
+            onClick={redirectToClaim}
+          >
+            claim payouts{" "}
+            {claimableBets.length > 0 && (
+              <Text>
+                <Badge
+                  variant="solid"
+                  ml="1"
+                  colorScheme={"red"}
+                  fontSize="0.7em"
+                >
+                  {claimableBets.length > 99 ? "99+" : claimableBets.length}
+                </Badge>
+              </Text>
+            )}
+            {!isStandalone && <ExternalLinkIcon />}
+          </MenuItem>
+          <MenuItem
+            bg={isLowEthBalance ? "#004b9c" : "#131323"}
+            _hover={{ bg: "#0056b1" }}
+            _focus={{}}
+            _active={{}}
+            onClick={redirectToBridge}
+          >
+            <Text>bridge ETH to base</Text>
+            {isLowEthBalance && (
+              <Text ml="1" className="attention">
+                <WarningIcon />
+              </Text>
+            )}
+            {!isStandalone && <ExternalLinkIcon />}
+          </MenuItem>
+          <MenuItem
+            bg={"#131323"}
+            _hover={{ bg: "#1f1f3c" }}
+            _focus={{}}
+            _active={{}}
+            onClick={() => setIsCloseModalOpen(true)}
+          >
+            logout
+          </MenuItem>
+        </MenuList>
+      </Menu>
+    </>
+  );
+};

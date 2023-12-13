@@ -146,6 +146,7 @@ const BaseLeaderboard = ({ count }: { count: number }) => {
                   }
                 >
                   <Button
+                    color="white"
                     bg={"#131323"}
                     _hover={{ opacity: 0.9 }}
                     _focus={{}}

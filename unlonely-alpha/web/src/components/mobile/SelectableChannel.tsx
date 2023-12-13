@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
 
 import { Channel } from "../../generated/graphql";
+import { getColorFromString } from "../../styles/Colors";
 import centerEllipses from "../../utils/centerEllipses";
 import { anonUrl } from "../presence/AnonUrl";
 
@@ -102,6 +103,9 @@ export const SelectableChannel = ({
               <Avatar
                 name={channel?.owner.username ?? channel?.owner.address}
                 src={ipfsUrl}
+                bg={getColorFromString(
+                  channel?.owner.username ?? channel?.owner.address
+                )}
                 size="md"
               />
               <Flex direction="column">
@@ -113,6 +117,7 @@ export const SelectableChannel = ({
               </Flex>
             </Flex>
             <IconButton
+              color="white"
               _hover={{}}
               _focus={{}}
               _active={{}}
@@ -167,6 +172,9 @@ export const SelectableChannel = ({
                 <Avatar
                   name={channel?.owner.username ?? channel?.owner.address}
                   src={ipfsUrl}
+                  bg={getColorFromString(
+                    channel?.owner.username ?? channel?.owner.address
+                  )}
                   size="md"
                 />
                 <Flex direction="column">
@@ -180,6 +188,7 @@ export const SelectableChannel = ({
                 </Flex>
               </Flex>
               <IconButton
+                color="white"
                 _hover={{}}
                 _focus={{}}
                 _active={{}}

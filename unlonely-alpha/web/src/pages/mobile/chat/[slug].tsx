@@ -6,7 +6,7 @@ import {
   useChannelContext,
 } from "../../../hooks/context/useChannel";
 import { WavyText } from "../../../components/general/WavyText";
-import MobileAblyChatComponent from "../../../components/mobile/MobileAblyChatComponent";
+import PopOutChatComponent from "../../../components/mobile/PopOutChatComponent";
 
 export default function Chat() {
   return (
@@ -23,7 +23,7 @@ const ChatComponent = () => {
   return (
     <>
       {chatChannel ? (
-        <MobileAblyChatComponent />
+        <PopOutChatComponent />
       ) : (
         <Container>
           <Flex

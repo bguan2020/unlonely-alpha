@@ -1,6 +1,12 @@
 import { useQuery } from "@apollo/client";
 import { GetServerSidePropsContext } from "next";
-import React, { useCallback, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Flex,
   IconButton,
@@ -9,11 +15,11 @@ import {
   Tooltip,
   Stack,
 } from "@chakra-ui/react";
+import { useBlockNumber, usePublicClient } from "wagmi";
 
 import { initializeApollo } from "../../apiClient/client";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
-import { ChannelTournament } from "../../components/channels/ChannelTournament";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
 import ChatComponent from "../../components/chat/ChatComponent";
 import { WavyText } from "../../components/general/WavyText";
@@ -37,6 +43,12 @@ import {
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChat } from "../../hooks/chat/useChat";
+import Trade from "../../components/channels/bet/Trade";
+import { useGenerateKey } from "../../hooks/contracts/useTournament";
+import { getContractFromNetwork } from "../../utils/contract";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
+import { useGetHolderBalance } from "../../hooks/contracts/useTournament";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
 const ChannelDetail = ({
   channelData,
@@ -66,14 +78,18 @@ const DesktopPage = ({
 }: {
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
-  const { channel, ui } = useChannelContext();
+  const { channel, leaderboard } = useChannelContext();
   const chat = useChat();
-
+  const { network } = useNetworkContext();
+  const { matchingChain, localNetwork, explorerUrl } = network;
   const {
     channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
+    handleTotalBadges,
   } = channel;
+  const { handleIsVip } = leaderboard;
+
   const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
 
   const { data } = useQuery<GetBadgeHoldersByChannelQuery>(
@@ -87,16 +103,74 @@ const DesktopPage = ({
     GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY
   );
 
-  // console.log(_data?.getChannelsByNumberOfBadgeHolders);
-
-  // console.log(data?.getBadgeHoldersByChannel);
-
-  const { userAddress } = useUser();
+  const { userAddress, walletIsConnected } = useUser();
+  const publicClient = usePublicClient();
 
   const isOwner = userAddress === channelQueryData?.owner.address;
   // const isOwner = true;
 
   const [previewStream, setPreviewStream] = useState<boolean>(false);
+
+  const tournamentContract = getContractFromNetwork(
+    "unlonelyTournament",
+    localNetwork
+  );
+
+  const blockNumber = useBlockNumber({
+    watch: true,
+  });
+  const isFetching = useRef(false);
+
+  const { key: generatedKey } = useGenerateKey(
+    channelQueryData?.owner?.address as `0x${string}`,
+    0,
+    tournamentContract
+  );
+
+  const [vipBadgeSupply, setVipBadgeSupply] = useState<bigint>(BigInt(0));
+
+  const { vipBadgeBalance, refetch: refetchVipBadgeBalance } =
+    useGetHolderBalance(
+      channelQueryData?.owner?.address as `0x${string}`,
+      0,
+      userAddress as `0x${string}`,
+      tournamentContract
+    );
+
+  useEffect(() => {
+    if (!blockNumber.data || isFetching.current || !publicClient) return;
+    const fetch = async () => {
+      isFetching.current = true;
+      try {
+        const [supply] = await Promise.all([
+          publicClient.readContract({
+            address: tournamentContract.address as `0x${string}`,
+            abi: tournamentContract.abi,
+            functionName: "vipBadgeSupply",
+            args: [generatedKey],
+          }),
+          refetchVipBadgeBalance(),
+        ]);
+        setVipBadgeSupply(BigInt(String(supply)));
+      } catch (err) {
+        console.log("channelTournament fetching error", err);
+      }
+      isFetching.current = false;
+    };
+    fetch();
+  }, [blockNumber.data]);
+
+  useEffect(() => {
+    if (Number(vipBadgeBalance) > 0) {
+      handleIsVip?.(true);
+    } else {
+      handleIsVip?.(false);
+    }
+  }, [vipBadgeBalance]);
+
+  useEffect(() => {
+    handleTotalBadges(truncateValue(Number(vipBadgeSupply), 0));
+  }, [vipBadgeSupply]);
 
   return (
     <>
@@ -117,7 +191,7 @@ const DesktopPage = ({
               direction={["column", "column", "row", "row"]}
             >
               <Stack direction="column" width={"100%"}>
-                {isOwner && !previewStream ? (
+                {isOwner && !previewStream && walletIsConnected ? (
                   <ChannelStreamerPerspective />
                 ) : (
                   <ChannelViewerPerspective />
@@ -155,7 +229,16 @@ const DesktopPage = ({
                 >
                   <ChannelDesc />
                   <Flex gap="1rem" mt="1rem" justifyContent={"flex-end"}>
-                    <ChannelTournament />
+                    {/* <ChannelTournament /> */}
+                    <Flex
+                      direction="column"
+                      bg={"#131323"}
+                      width="400px"
+                      borderRadius="0px"
+                      p="1rem"
+                    >
+                      <Trade />
+                    </Flex>
                   </Flex>
                 </Flex>
               </Stack>

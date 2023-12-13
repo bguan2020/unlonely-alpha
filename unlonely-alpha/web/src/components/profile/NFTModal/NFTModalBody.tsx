@@ -8,8 +8,8 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import centerEllipses from "../../../utils/centerEllipses";
 
+import centerEllipses from "../../../utils/centerEllipses";
 import NFTModalHeader from "./NFTModalHeader";
 
 export type NFTModalBodyProps = {
@@ -72,7 +72,7 @@ const NFTModalBody: React.FunctionComponent<NFTModalBodyProps> = ({
       <ModalBody sx={{ ...styles, ...NFTModalBodyStyles }}>
         {isLens && (
           <>
-            <Button bgColor="#befb5a" mb="1rem">
+            <Button color="white" bgColor="#befb5a" mb="1rem">
               <Image
                 src="/images/lens_logo.png"
                 width="20px"

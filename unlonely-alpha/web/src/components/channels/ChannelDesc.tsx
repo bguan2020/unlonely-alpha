@@ -5,6 +5,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { BorderType, OuterBorder } from "../general/OuterBorder";
+import { getColorFromString } from "../../styles/Colors";
 
 const ChannelDesc = () => {
   const { isStandalone } = useUserAgent();
@@ -31,6 +32,11 @@ const ChannelDesc = () => {
                 : channelQueryData?.owner.address
             }
             src={ipfsUrl}
+            bg={getColorFromString(
+              channelQueryData?.owner.username
+                ? channelQueryData?.owner.username
+                : channelQueryData?.owner.address ?? ""
+            )}
             size="md"
           />
         </Flex>

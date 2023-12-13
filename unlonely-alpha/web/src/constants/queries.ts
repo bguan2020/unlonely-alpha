@@ -12,6 +12,22 @@ export const SEND_ALL_NOTIFICATIONS_QUERY = gql`
   }
 `;
 
+export const GET_UNCLAIMED_EVENTS_QUERY = gql`
+  query GetUnclaimedEvents($data: GetUnclaimedEvents) {
+    getUnclaimedEvents(data: $data) {
+      sharesSubjectQuestion
+      sharesSubjectAddress
+      resultIndex
+      options
+      id
+      eventState
+      createdAt
+      chainId
+      channelId
+    }
+  }
+`;
+
 export const GET_TOKEN_LEADERBOARD_QUERY = gql`
   query GetTokenLeaderboard {
     getTokenLeaderboard {
@@ -49,9 +65,22 @@ export const CHANNEL_DETAIL_QUERY = gql`
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
+        options
+        chainId
+        channelId
         eventState
         createdAt
         id
+        resultIndex
+      }
+      sideBets {
+        id
+        wagerDescription
+        creatorAddress
+        opponentAddress
+        chainId
+        createdAt
+        result
       }
       owner {
         FCImageUrl
@@ -180,6 +209,26 @@ export const CHANNEL_FEED_QUERY = gql`
         FCImageUrl
         lensImageUrl
       }
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        options
+        chainId
+        channelId
+        eventState
+        createdAt
+        resultIndex
+        id
+      }
+      sideBets {
+        id
+        wagerDescription
+        creatorAddress
+        opponentAddress
+        chainId
+        createdAt
+        result
+      }
       thumbnailUrl
     }
   }
@@ -245,9 +294,13 @@ export const GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY = gql`
         sharesEvent {
           sharesSubjectQuestion
           sharesSubjectAddress
+          chainId
+          channelId
+          options
           eventState
           createdAt
           id
+          resultIndex
         }
         owner {
           FCImageUrl

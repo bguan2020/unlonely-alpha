@@ -129,6 +129,7 @@ export default function ChatCommandModal({
         {commandsData.length === 0 && (
           <>
             <Button
+              color="white"
               bg={"#36548f"}
               _hover={{
                 transform: "scale(1.05)",
@@ -175,6 +176,7 @@ export default function ChatCommandModal({
         ))}
         {commandsData.length > 0 && commandsData.length < 5 && (
           <Button
+            color="white"
             aria-label="add-chat-command"
             onClick={addCommand}
             height="12px"

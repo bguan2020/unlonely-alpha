@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
 
-import { EventType, NULL_ADDRESS } from "../../constants";
+import { EventTypeForContract, NULL_ADDRESS } from "../../constants";
 import { ContractData, WriteCallbacks } from "../../constants/types";
 import { createCallbackHandler } from "../../utils/contract";
 import { useUser } from "../context/useUser";
@@ -150,7 +150,12 @@ export const useReadMappings = (
         address: contract.address,
         abi: contract.abi,
         functionName: "getVotePayout",
-        args: [eventAddress, eventId, EventType.YAY_NAY_VOTE, userAddress],
+        args: [
+          eventAddress,
+          eventId,
+          EventTypeForContract.YAY_NAY_VOTE,
+          userAddress,
+        ],
       }),
     ]);
     setVotingPooledEth(BigInt(String(pooledEth)));
@@ -314,7 +319,7 @@ export const useGenerateKey = (
       address: contract.address,
       abi: contract.abi,
       functionName: "generateKey",
-      args: [eventAddress, eventId, EventType.YAY_NAY_VOTE],
+      args: [eventAddress, eventId, EventTypeForContract.YAY_NAY_VOTE],
     });
     setKey(String(key));
   }, [contract, publicClient, eventAddress, eventId]);
@@ -349,7 +354,7 @@ export const useOpenEvent = (
     [
       args.eventAddress,
       args.eventId,
-      EventType.YAY_NAY_VOTE,
+      EventTypeForContract.YAY_NAY_VOTE,
       args.endTimestamp,
     ],
     createCallbackHandler("useOpenEvent openEvent", callbacks)
@@ -380,7 +385,12 @@ export const useVerifyEvent = (
   } = useWrite(
     contract,
     "verifyEvent",
-    [args.eventAddress, args.eventId, EventType.YAY_NAY_VOTE, args.result],
+    [
+      args.eventAddress,
+      args.eventId,
+      EventTypeForContract.YAY_NAY_VOTE,
+      args.result,
+    ],
     createCallbackHandler("useVerifyEvent verifyEvent", callbacks)
   );
 
@@ -415,13 +425,25 @@ export const useGetHolderBalances = (
         address: contract.address,
         abi: contract.abi,
         functionName: "getHolderBalance",
-        args: [eventAddress, eventId, EventType.YAY_NAY_VOTE, isYay, holder],
+        args: [
+          eventAddress,
+          eventId,
+          EventTypeForContract.YAY_NAY_VOTE,
+          isYay,
+          holder,
+        ],
       }),
       publicClient.readContract({
         address: contract.address,
         abi: contract.abi,
         functionName: "getHolderBalance",
-        args: [eventAddress, eventId, EventType.YAY_NAY_VOTE, isYay, holder],
+        args: [
+          eventAddress,
+          eventId,
+          EventTypeForContract.YAY_NAY_VOTE,
+          isYay,
+          holder,
+        ],
       }),
     ]);
     setYayVotesBalance(String(yayVotesBalance));
@@ -467,7 +489,7 @@ export const useGetPrice = (
             args: [
               eventAddress,
               eventId,
-              EventType.YAY_NAY_VOTE,
+              EventTypeForContract.YAY_NAY_VOTE,
               isYay,
               amount,
             ],
@@ -479,7 +501,7 @@ export const useGetPrice = (
             args: [
               eventAddress,
               eventId,
-              EventType.YAY_NAY_VOTE,
+              EventTypeForContract.YAY_NAY_VOTE,
               isYay,
               amount,
             ],
@@ -525,7 +547,7 @@ export const useGetPriceAfterFee = (
             args: [
               eventAddress,
               eventId,
-              EventType.YAY_NAY_VOTE,
+              EventTypeForContract.YAY_NAY_VOTE,
               isYay,
               amount,
             ],
@@ -537,7 +559,7 @@ export const useGetPriceAfterFee = (
             args: [
               eventAddress,
               eventId,
-              EventType.YAY_NAY_VOTE,
+              EventTypeForContract.YAY_NAY_VOTE,
               isYay,
               amount,
             ],
@@ -579,7 +601,7 @@ export const useBuyVotes = (
     [
       args.eventAddress,
       args.eventId,
-      EventType.YAY_NAY_VOTE,
+      EventTypeForContract.YAY_NAY_VOTE,
       args.isYay,
       args.amountOfVotes,
     ],
@@ -620,7 +642,7 @@ export const useSellVotes = (
     [
       args.eventAddress,
       args.eventId,
-      EventType.YAY_NAY_VOTE,
+      EventTypeForContract.YAY_NAY_VOTE,
       args.isYay,
       args.amountOfVotes,
     ],
@@ -651,7 +673,7 @@ export const useClaimVotePayout = (
   } = useWrite(
     contract,
     "claimVotePayout",
-    [args.eventAddress, args.eventId, EventType.YAY_NAY_VOTE],
+    [args.eventAddress, args.eventId, EventTypeForContract.YAY_NAY_VOTE],
     createCallbackHandler("useClaimVotePayout claimVotePayout", callbacks)
   );
 

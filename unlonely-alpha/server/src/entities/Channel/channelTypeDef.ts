@@ -2,9 +2,11 @@ import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
   enum SharesEventState {
+    PENDING
     LIVE
     LOCK
     PAYOUT
+    PAYOUT_PREVIOUS
   }
 
   type ChatCommand {
@@ -12,11 +14,25 @@ export const typeDef = gql`
     response: String!
   }
 
+  type SideBet {
+    id: ID!
+    wagerDescription: String
+    creatorAddress: String
+    opponentAddress: String
+    chainId: Int
+    softDelete: Boolean
+    createdAt: DateTime!
+  }
+
   type SharesEvent {
     id: ID!
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
+    options: [String]
+    chainId: Int
+    channelId: ID
     eventState: SharesEventState
+    resultIndex: Int
     softDelete: Boolean
     createdAt: DateTime!
   }
@@ -51,6 +67,11 @@ export const typeDef = gql`
     chatCommands: [ChatCommand]
     sharesEvent: [SharesEvent]
     roles: [ChannelUserRole]
+    sideBets: [SideBet]
+  }
+
+  type UpdateManyResponse {
+    count: Int!
   }
 
   input ChannelFeedInput {
@@ -74,8 +95,10 @@ export const typeDef = gql`
 
   input PostSharesEventInput {
     channelId: ID!
+    chainId: Int!
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
+    options: [String]
   }
 
   input UpdateSharesEventInput {
@@ -83,10 +106,13 @@ export const typeDef = gql`
     sharesSubjectQuestion: String
     sharesSubjectAddress: String
     eventState: SharesEventState
+    resultIndex: Int
   }
 
-  input PostCloseSharesEventInput {
-    id: ID!
+  input PostCloseSharesEventsInput {
+    channelId: ID!
+    chainId: Int!
+    sharesEventIds: [ID!]!
   }
 
   input PostUserRoleForChannelInput {
@@ -104,7 +130,7 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    closeSharesEvent(data: PostCloseSharesEventInput!): Channel
+    closeSharesEvents(data: PostCloseSharesEventsInput!): UpdateManyResponse
     postSharesEvent(data: PostSharesEventInput!): Channel
     updateSharesEvent(data: UpdateSharesEventInput!): Channel
     updateChannelText(data: UpdateChannelTextInput!): Channel

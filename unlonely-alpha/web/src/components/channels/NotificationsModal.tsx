@@ -195,6 +195,7 @@ export default function NotificationsModal({
             />
           </Flex>
           <Button
+            color="white"
             mt={"15px"}
             onClick={sendNotifications}
             isLoading={isSending}
@@ -209,7 +210,9 @@ export default function NotificationsModal({
             borderRadius="10px"
             _focus={{}}
             width="100%"
-            disabled={isSending || (bodyLive === "" && selectedType === "live")}
+            isDisabled={
+              isSending || (bodyLive === "" && selectedType === "live")
+            }
           >
             <Text fontSize="30px">send</Text>
           </Button>

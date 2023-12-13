@@ -97,13 +97,50 @@ const MessageBody = ({
   }, [messageText, linkArray]);
 
   const messageBg = () => {
+    const eventTypes = [
+      InteractionType.EVENT_LIVE,
+      InteractionType.EVENT_END,
+      InteractionType.EVENT_LOCK,
+      InteractionType.EVENT_PAYOUT,
+    ];
+
     if (
       message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.CUSTOM
+      (eventTypes as string[]).includes(message.data.body.split(":")[0])
     ) {
       return {
-        bgGradient: "linear(to-r, #d16fce, #7655D2, #4173D6, #4ABBDF)",
+        bg: "rgba(63, 59, 253, 1)",
       };
+    } else if (
+      message.data.body &&
+      message.data.body.split(":")[0] === InteractionType.CLIP
+    ) {
+      return {
+        bgGradient:
+          "linear-gradient(138deg, rgba(0,0,0,1) 10%, rgba(125,125,125,1) 11%, rgba(125,125,125,1) 20%, rgba(0,0,0,1) 21%, rgba(0,0,0,1) 30%, rgba(125,125,125,1) 31%, rgba(125,125,125,1) 40%, rgba(0,0,0,1) 41%, rgba(0,0,0,1) 50%, rgba(125,125,125,1) 51%, rgba(125,125,125,1) 60%, rgba(0,0,0,1) 61%, rgba(0,0,0,1) 70%, rgba(125,125,125,1) 71%, rgba(125,125,125,1) 80%, rgba(0,0,0,1) 81%, rgba(0,0,0,1) 90%, rgba(125,125,125,1) 91%)",
+      };
+    } else if (
+      message.data.body &&
+      message.data.body.split(":")[0] === InteractionType.BUY_VOTES
+    ) {
+      if (message.data.body?.split(":")[3] === "yay") {
+        return {
+          bg: "rgba(10, 179, 18, 1)",
+        };
+      } else {
+        return {
+          bg: "rgba(218, 58, 19, 1)",
+        };
+      }
+    } else if (
+      message.data.body?.split(":")[0] === InteractionType.SELL_VOTES
+    ) {
+      return {};
+      // } else if (message.data.senderStatus === SenderStatus.VIP) {
+      //   return {
+      //     bgGradient:
+      //       "linear-gradient(90deg, rgba(144,99,0,1) 0%, rgba(212,170,0,1) 100%)",
+      //   };
     } else {
       return {
         // bg: "rgba(19, 18, 37, 1)",
@@ -153,7 +190,7 @@ const MessageBody = ({
               key={index}
               borderRadius="10px"
               {...messageBg()}
-              p="5px"
+              px="0.5rem"
               position="relative"
             >
               <ChatUserModal
@@ -190,6 +227,7 @@ const MessageBody = ({
                               m?.role === 2
                           ) ? (
                             <Button
+                              color="white"
                               mt="20px"
                               bg="#842007"
                               _hover={{}}
@@ -220,6 +258,7 @@ const MessageBody = ({
                       ) &&
                       !isAppointing && (
                         <Button
+                          color="white"
                           mt="20px"
                           bg="#074a84"
                           _hover={{}}
@@ -242,6 +281,7 @@ const MessageBody = ({
                         </Text>
                         <Flex justifyContent={"space-evenly"}>
                           <Button
+                            color="white"
                             bg="#b12805"
                             _hover={{}}
                             _focus={{}}
@@ -251,6 +291,7 @@ const MessageBody = ({
                             yes, do it
                           </Button>
                           <Button
+                            color="white"
                             opacity={"0.5"}
                             border={"1px solid white"}
                             bg={"transparent"}
@@ -284,6 +325,7 @@ const MessageBody = ({
                         </Text>
                         <Flex justifyContent={"space-evenly"}>
                           <Button
+                            color="white"
                             bg="#054db1"
                             _hover={{}}
                             _focus={{}}
@@ -293,6 +335,7 @@ const MessageBody = ({
                             yes, do it
                           </Button>
                           <Button
+                            color="white"
                             opacity={"0.5"}
                             border={"1px solid white"}
                             bg={"transparent"}

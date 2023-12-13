@@ -309,12 +309,13 @@ export default function MobileNotifications() {
                 </>
               ) : (
                 <Button
+                  color="white"
                   onClick={() => {
                     getAllUsers();
                   }}
                   isLoading={loading}
                   loadingText="fetching users"
-                  disabled={loading || isSending}
+                  isDisabled={loading || isSending}
                 >
                   fetch users
                 </Button>
@@ -381,6 +382,7 @@ export default function MobileNotifications() {
                   </TabPanels>
                 </Tabs>
                 <Button
+                  color="white"
                   onClick={() => {
                     getAllUsers();
                   }}
@@ -389,17 +391,18 @@ export default function MobileNotifications() {
                   colorScheme={"gray"}
                   mt={3}
                   mr={3}
-                  disabled={!data || loading || isSending}
+                  isDisabled={!data || loading || isSending}
                 >
                   refetch user list
                 </Button>
                 <Button
+                  color="white"
                   onClick={onOpen}
                   isLoading={loading}
                   loadingText="fetching users"
                   colorScheme={"blue"}
                   mt={3}
-                  disabled={!data || loading || isSending}
+                  isDisabled={!data || loading || isSending}
                 >
                   send to{" "}
                   {selectedType === "live"
@@ -471,22 +474,24 @@ export default function MobileNotifications() {
           </AlertDialogBody>
           <AlertDialogFooter>
             <Button
+              color="white"
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               ref={cancelRef}
               onClick={onClose}
-              disabled={isSending}
+              isDisabled={isSending}
             >
               cancel
             </Button>
             <Button
+              color="white"
               colorScheme="red"
               ml={3}
               onClick={() => {
                 setIsSending(true);
                 sendNotifications();
               }}
-              disabled={isSending}
+              isDisabled={isSending}
               isLoading={isSending}
               loadingText="sending..."
             >

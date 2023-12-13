@@ -89,6 +89,7 @@ export default function Commands({
             {matchingList.map((command, i) => {
               return (
                 <Button
+                  color="white"
                   key={i}
                   bg={"#36548f"}
                   _hover={{ bg: "#d16fce" }}

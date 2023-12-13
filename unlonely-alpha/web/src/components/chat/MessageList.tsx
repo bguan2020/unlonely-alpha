@@ -27,7 +27,12 @@ const MessageItem = memo(({ message, channel, index }: MessageItemProps) => {
   );
 
   return (
-    <div key={message.id || index}>
+    <div
+      key={message.id || index}
+      style={{
+        padding: "2px",
+      }}
+    >
       <MessageBody
         index={index}
         message={message}

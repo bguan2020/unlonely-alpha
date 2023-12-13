@@ -23,15 +23,15 @@ export const resolvers = {
     },
   },
   Mutation: {
-    closeSharesEvent: (
+    closeSharesEvents: (
       _: any,
-      { data }: { data: channelService.IPostCloseSharesEventInput },
+      { data }: { data: channelService.IPostCloseSharesEventsInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
-      return channelService.closeSharesEvent(data, ctx);
+      return channelService.closeSharesEvents(data, ctx);
     },
     postSharesEvent: (
       _: any,
@@ -98,10 +98,13 @@ export const resolvers = {
       return channelService.getChannelChatCommands({ id }, ctx);
     },
     sharesEvent: ({ id }: { id: number }, _: any, ctx: Context) => {
-      return channelService.getChannelSharesEvent({ id }, ctx);
+      return channelService.getChannelSharesEvents({ id }, ctx);
     },
     roles: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelUserRolesByChannel({ id }, ctx);
+    },
+    sideBets: ({ id }: { id: number }, _: any, ctx: Context) => {
+      return channelService.getChannelSideBets({ id }, ctx);
     },
   },
 };

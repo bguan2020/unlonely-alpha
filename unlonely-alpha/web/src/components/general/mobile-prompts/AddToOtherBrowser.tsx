@@ -35,6 +35,7 @@ export default function AddToOtherBrowser(props: Props) {
         </Text>
         <Link href={searchUrl} target="_blank">
           <Button
+            color="white"
             bg="#05b95f"
             _hover={{}}
             _focus={{}}
