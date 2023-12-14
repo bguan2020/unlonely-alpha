@@ -949,7 +949,8 @@ const Trade = () => {
                     </Text>
                   </Flex>
                   <Text textAlign={"center"} fontSize="14px">
-                    The time for voting has ended
+                    The time for voting has ended, the streamer will select a
+                    winner
                   </Text>
                 </>
               ) : ongoingBets?.[0]?.eventState === "LOCK" ? (
