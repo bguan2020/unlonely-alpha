@@ -55,7 +55,7 @@
     "react-virtuoso": "^4.4.2",
     "video.js": "^7.20.2",
     "viem": "^1.0.0",
-    "wagmi": "^1.1.1",
+    "wagmi": "1.4.12",
     "yup": "^0.32.11"
   },
   "devDependencies": {

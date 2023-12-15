@@ -403,7 +403,9 @@ export const TabsComponent = () => {
         </OuterBorder>
       </Flex>
       {presenceChannel && (
-        <Participants ablyPresenceChannel={presenceChannel} />
+        <Flex justifyContent={"center"} py="0.5rem">
+          <Participants ablyPresenceChannel={presenceChannel} />
+        </Flex>
       )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}

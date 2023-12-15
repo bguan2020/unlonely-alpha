@@ -114,7 +114,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
           >
             <Flex bg="rgba(24, 22, 47, 1)" width={"100%"} direction="column">
               {presenceChannel && (
-                <Flex justifyContent={"center"} pt="0.5rem">
+                <Flex justifyContent={"center"} py="0.5rem">
                   <Participants ablyPresenceChannel={presenceChannel} />
                 </Flex>
               )}
