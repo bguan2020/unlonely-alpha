@@ -1531,6 +1531,44 @@
     stream-browserify "^3.0.0"
     util "^0.12.4"
 
+"@decent.xyz/box-common@^1.0.0":
+  version "1.0.15"
+  resolved "https://registry.yarnpkg.com/@decent.xyz/box-common/-/box-common-1.0.15.tgz#5776b46da5cbaed7dc7976bae88683ffd941acd1"
+  integrity sha512-m1jYcxZdcoBmR2ncaMCHVCnOKMR4Xuk+qi+imnkWQsmE4FN4ZngZTgSw4rx6nfKXdlRVl04YUYoZqFIMDuLulg==
+
+"@decent.xyz/box-evm@^1.0.0":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@decent.xyz/box-evm/-/box-evm-1.0.6.tgz#617428d9920d52a34d6e77bf33cd581c8e9acedf"
+  integrity sha512-p46ycGFLoWbIF/GY0b4ZsBKtnU15ZAwtqtqj6a80zEDJQfmTyDCB22Yi4CZA9jzRF2TdKsgZvrV/pzxtHZhB8w==
+  dependencies:
+    "@decent.xyz/box-common" "^1.0.0"
+    "@decent.xyz/box-hooks" "^1.0.37"
+
+"@decent.xyz/box-hooks@^1.0.37":
+  version "1.0.47"
+  resolved "https://registry.yarnpkg.com/@decent.xyz/box-hooks/-/box-hooks-1.0.47.tgz#7ef34d1a7e5b8459de691d8da3bcf5fa83803307"
+  integrity sha512-0RCyDN75SAbHxDK6XS56vDo7bzeYjycrxSXkz9+hIzlvyPrvdrPjYn/Mv9CfhkhUA50d3NZXdXwG1WnKNKAUoA==
+  dependencies:
+    "@decent.xyz/box-common" "^1.0.0"
+
+"@decent.xyz/box-ui@^1.0.39":
+  version "1.0.45"
+  resolved "https://registry.yarnpkg.com/@decent.xyz/box-ui/-/box-ui-1.0.45.tgz#300f6b6fc86e442f9431cd3d85f31650e4a449ee"
+  integrity sha512-2veHdZTxLHoWpWp/mNxYLynBydRBozmNXh1UkOO64JZd5Svexzgz3Nz/RVYrxogkIsDPMKitTOYqxqMayBwyPg==
+  dependencies:
+    "@decent.xyz/box-common" "^1.0.0"
+    "@decent.xyz/box-hooks" "^1.0.37"
+
+"@decent.xyz/the-box@^1.1.64":
+  version "1.1.64"
+  resolved "https://registry.yarnpkg.com/@decent.xyz/the-box/-/the-box-1.1.64.tgz#ad68f46c5efef9500308d880e2cc9fa40eeebc71"
+  integrity sha512-yCXNMLuUf+KIVAx4tQBxqBehza7oSSCqkJHSs0c734Wve1zeFZKPXM23J5XEHrHl+b1HRvtuqQCBqn9f4aKySg==
+  dependencies:
+    "@decent.xyz/box-common" "^1.0.0"
+    "@decent.xyz/box-evm" "^1.0.0"
+    "@decent.xyz/box-hooks" "^1.0.37"
+    "@decent.xyz/box-ui" "^1.0.39"
+
 "@emotion/babel-plugin@^11.10.0":
   version "11.10.0"
   resolved "https://registry.yarnpkg.com/@emotion/babel-plugin/-/babel-plugin-11.10.0.tgz#ae545b8faa6b42d3a50ec86b70b758296f3c4467"
@@ -4389,7 +4427,7 @@
     abitype "0.8.7"
     eventemitter3 "^4.0.7"
 
-"@wagmi/core@1.4.12":
+"@wagmi/core@1.4.12", "@wagmi/core@^1.4.12":
   version "1.4.12"
   resolved "https://registry.yarnpkg.com/@wagmi/core/-/core-1.4.12.tgz#84558d1af746b2bcef02337dc3c46108242b1dd7"
   integrity sha512-bLcYmmGgjtl3jAGo8X3Sm6oUwsdjbVxFMu9SWnwHdE4S9JdYeWM57dEhQgq8SYul2yQ7yY2/gimBf1Or0Ky3dQ==
