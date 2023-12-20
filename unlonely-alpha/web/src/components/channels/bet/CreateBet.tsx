@@ -613,7 +613,7 @@ const OpenEventInterface = ({
               await openEvent?.();
             }}
           >
-            confirm
+            {!openEvent ? "tx simulation failed" : "confirm"}
           </Button>
         </>
       )}
