@@ -240,7 +240,7 @@ function DesktopPage({
                 my="2rem"
               >
                 <Text fontFamily={"LoRes15"}>
-                  an error has occurred when fetching channels: {error.message}
+                  an error has occurred when fetching channels
                 </Text>
               </Flex>
             ) : !channels || loading ? (
@@ -443,7 +443,7 @@ function MobilePage({
                 fontFamily={"LoRes15"}
                 fontSize={"25px"}
               >
-                an error has occurred when fetching channels: {error.message}
+                an error has occurred when fetching channels
               </Text>
             ) : sortedChannels && sortedChannels.length > 0 ? (
               <Virtuoso
@@ -515,6 +515,8 @@ export default function Page() {
   });
 
   const { isStandalone, ready } = useUserAgent();
+
+  if (error) console.error("channel feed query error:", error);
 
   return (
     <>
