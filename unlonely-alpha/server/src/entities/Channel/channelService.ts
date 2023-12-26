@@ -348,11 +348,6 @@ export const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
         }
       );
 
-      console.log(
-        "getLivepeerThumbnail response meta source",
-        response.data.meta.source
-      );
-
       const thumbnail = response.data.meta.source.find(
         (source: Source) => source.hrn === "Thumbnail (JPEG)"
       );
