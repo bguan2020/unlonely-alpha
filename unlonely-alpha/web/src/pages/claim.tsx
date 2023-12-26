@@ -379,7 +379,9 @@ const EventCard = ({
               }}
               width="100%"
             >
-              {claimVotePayoutTxLoading || calling ? (
+              {!claimVotePayout ? (
+                <Text fontSize="20px">tx simulation failed</Text>
+              ) : claimVotePayoutTxLoading || calling ? (
                 <Spinner />
               ) : (
                 <Text fontSize="20px">

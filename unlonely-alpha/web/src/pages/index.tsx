@@ -1,4 +1,4 @@
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
 import {
   Box,
   Button,
@@ -168,9 +168,11 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
 function DesktopPage({
   dataChannels,
   loading,
+  error,
 }: {
   dataChannels: any;
   loading: boolean;
+  error?: ApolloError;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -228,7 +230,20 @@ function DesktopPage({
                 </Button>
               </Flex>
             )}
-            {!channels || loading ? (
+            {error ? (
+              <Flex
+                alignItems={"center"}
+                justifyContent={"center"}
+                width="100%"
+                fontSize={"30px"}
+                gap="15px"
+                my="2rem"
+              >
+                <Text fontFamily={"LoRes15"}>
+                  an error has occurred when fetching channels
+                </Text>
+              </Flex>
+            ) : !channels || loading ? (
               <Flex
                 alignItems={"center"}
                 justifyContent={"center"}
@@ -245,7 +260,6 @@ function DesktopPage({
                 callback={() => setDirectingToChannel(true)}
               />
             )}
-            {/* <TournamentSection /> */}
           </Flex>
           <Flex p="16px">
             <Box
@@ -299,9 +313,11 @@ function DesktopPage({
 function MobilePage({
   dataChannels,
   loading,
+  error,
 }: {
   dataChannels: any;
   loading: boolean;
+  error?: ApolloError;
 }) {
   const { initialNotificationsGranted } = useUser();
   const router = useRouter();
@@ -421,7 +437,15 @@ function MobilePage({
               right="1rem"
               bottom="1rem"
             />
-            {sortedChannels && sortedChannels.length > 0 ? (
+            {error ? (
+              <Text
+                textAlign={"center"}
+                fontFamily={"LoRes15"}
+                fontSize={"25px"}
+              >
+                an error has occurred when fetching channels
+              </Text>
+            ) : sortedChannels && sortedChannels.length > 0 ? (
               <Virtuoso
                 followOutput={"auto"}
                 ref={scrollRef}
@@ -480,7 +504,11 @@ function MobilePage({
 }
 
 export default function Page() {
-  const { data: dataChannels, loading } = useQuery(CHANNEL_FEED_QUERY, {
+  const {
+    data: dataChannels,
+    loading,
+    error,
+  } = useQuery(CHANNEL_FEED_QUERY, {
     variables: {
       data: {},
     },
@@ -488,14 +516,24 @@ export default function Page() {
 
   const { isStandalone, ready } = useUserAgent();
 
+  if (error) console.error("channel feed query error:", error);
+
   return (
     <>
       {ready ? (
         <>
           {!isStandalone ? (
-            <DesktopPage dataChannels={dataChannels} loading={loading} />
+            <DesktopPage
+              dataChannels={dataChannels}
+              loading={loading}
+              error={error}
+            />
           ) : (
-            <MobilePage dataChannels={dataChannels} loading={loading} />
+            <MobilePage
+              dataChannels={dataChannels}
+              loading={loading}
+              error={error}
+            />
           )}
         </>
       ) : (

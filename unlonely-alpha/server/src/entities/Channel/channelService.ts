@@ -336,41 +336,31 @@ const getThumbnailUrl = async (channelArn: string): Promise<string | null> => {
 };
 
 export const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
-  let TRIES = 6;
   try {
-    while (TRIES > 0) {
-      const response = await axios.get(
-        `https://livepeer.studio/api/playback/${livepeerPlaybackId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
-          },
-        }
-      );
+    const response = await axios.get(
+      `https://livepeer.studio/api/playback/${livepeerPlaybackId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+        },
+      }
+    );
 
-      console.log(
-        "getLivepeerThumbnail response meta source",
-        response.data.meta.source
-      );
+    const thumbnail = response.data.meta.source.find(
+      (source: Source) => source.hrn === "Thumbnail (JPEG)"
+    );
 
-      const thumbnail = response.data.meta.source.find(
-        (source: Source) => source.hrn === "Thumbnail (JPEG)"
-      );
+    const thumbnails = response.data.meta.source.find(
+      (source: Source) => source.hrn === "Thumbnails"
+    );
 
-      const thumbnails = response.data.meta.source.find(
-        (source: Source) => source.hrn === "Thumbnails"
-      );
-
-      if (thumbnail) return thumbnail.url;
-      if (thumbnails)
-        return thumbnails.url
-          .split("/")
-          .slice(0, -1)
-          .concat("keyframes_0.jpg")
-          .join("/");
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      TRIES--;
-    }
+    if (thumbnail) return thumbnail.url;
+    if (thumbnails)
+      return thumbnails.url
+        .split("/")
+        .slice(0, -1)
+        .concat("keyframes_0.jpg")
+        .join("/");
     return null;
   } catch (error: any) {
     console.log("getLivepeerThumbnail error", error);
