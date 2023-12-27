@@ -398,11 +398,16 @@ export const getChannelSharesEvents = async (
   { id }: { id: number },
   ctx: Context
 ) => {
-  return ctx.prisma.sharesEvent.findMany({
-    where: { channelId: Number(id), softDelete: false },
-    // order by createdAt w latest first
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    return ctx.prisma.sharesEvent.findMany({
+      where: { channelId: Number(id), softDelete: false },
+      // order by createdAt w latest first
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error: any) {
+    console.log("getChannelSharesEvents error", error);
+    return [];
+  }
 };
 
 export const getChannelUserRolesByChannel = async (
@@ -421,9 +426,14 @@ export const getChannelSideBets = async (
   { id }: { id: number },
   ctx: Context
 ) => {
-  return ctx.prisma.sideBet.findMany({
-    where: { channelId: Number(id), softDelete: false },
-    // order by createdAt w latest first
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    return ctx.prisma.sideBet.findMany({
+      where: { channelId: Number(id), softDelete: false },
+      // order by createdAt w latest first
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error: any) {
+    console.log("getChannelSideBets error", error);
+    return [];
+  }
 };
