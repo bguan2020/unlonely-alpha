@@ -14,7 +14,7 @@ export const useWrite = (
   callbacks?: WriteCallbacks,
   overrides?: { value?: bigint; gas?: bigint }
 ) => {
-  const { config, refetch, isRefetching } = usePrepareContractWrite({
+  const prepObj = usePrepareContractWrite({
     address: contract.address,
     abi: contract.abi,
     functionName,
@@ -36,7 +36,7 @@ export const useWrite = (
     error: writeError,
     writeAsync,
   } = useContractWrite({
-    ...config,
+    ...prepObj.config,
     onSuccess(data: { hash: Hex }) {
       if (callbacks?.onWriteSuccess) callbacks?.onWriteSuccess(data);
     },
@@ -68,7 +68,8 @@ export const useWrite = (
     isTxSuccess,
     writeError,
     txError,
-    refetch,
-    isRefetching,
+    refetch: prepObj.refetch,
+    isRefetching: prepObj.isRefetching,
+    prepareError: prepObj.error,
   };
 };
