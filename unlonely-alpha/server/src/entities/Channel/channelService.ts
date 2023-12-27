@@ -188,58 +188,39 @@ export const getChannelFeed = async (
       });
 
     if (liveStreams.streams.length === 0 && livePlaybackIds.length === 0) {
-      // Update isLive field for all channels to false
-      await ctx.prisma.channel.updateMany({
-        where: { isLive: true },
-        data: { isLive: false },
+      // no live channels, return all channels as not live, and if data.isLive is true, return empty array
+      if (typeof data.isLive === "boolean" && data.isLive) return [];
+      return allChannels.map((channel) => {
+        return {
+          ...channel,
+          isLive: false,
+        };
       });
-
-      // Update the allChannels array with the updated isLive values
-      const updatedChannels = await ctx.prisma.channel.findMany();
-      return typeof data.isLive === "boolean"
-        ? updatedChannels.filter((channel) => channel.isLive === data.isLive)
-        : updatedChannels;
     }
 
     const liveChannelArns = liveStreams.streams.map(
       (stream) => stream.channelArn
     );
 
-    // Update isLive field for all channels
-    await Promise.all(
-      allChannels.map(async (channel) => {
-        const isLive =
-          liveChannelArns.includes(channel.channelArn) ||
-          livePlaybackIds.includes(channel.livepeerPlaybackId);
-        if (channel.isLive !== isLive) {
-          await ctx.prisma.channel.update({
-            where: { id: channel.id },
-            data: { isLive },
-          });
-        }
+    // Add isLive property to all channels, then sort by isLive
+    const sortedChannels = allChannels
+      .map((channel) => {
+        return {
+          ...channel,
+          isLive:
+            liveChannelArns.includes(channel.channelArn) ||
+            livePlaybackIds.includes(channel.livepeerPlaybackId),
+        };
       })
-    );
-
-    // Refetch all channels after updating isLive field
-    const updatedChannels: Channel[] = await ctx.prisma.channel.findMany();
-
-    const sortedChannels = updatedChannels.sort((a, b) => {
-      if (
-        (liveChannelArns.includes(a.channelArn) &&
-          liveChannelArns.includes(b.channelArn)) ||
-        (livePlaybackIds.includes(a.livepeerPlaybackId) &&
-          livePlaybackIds.includes(b.livepeerPlaybackId))
-      ) {
-        return 0; // both channels are live, maintain their original order
-      } else if (
-        liveChannelArns.includes(a.channelArn) ||
-        livePlaybackIds.includes(a.livepeerPlaybackId)
-      ) {
-        return -1; // a is live, put it before b
-      } else {
-        return 1; // a is not live, put it after b
-      }
-    });
+      .sort((a, b) => {
+        if (a.isLive && b.isLive) {
+          return 0; // both channels are live, maintain their original order
+        } else if (a.isLive) {
+          return -1; // a is live, put it before b
+        } else {
+          return 1; // a is not live, put it after b
+        }
+      });
 
     // Add getThumbnailUrl function call for live channels
     await Promise.all(
