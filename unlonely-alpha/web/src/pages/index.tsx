@@ -35,15 +35,12 @@ import {
   NfcFeedQuery,
 } from "../generated/graphql";
 import { SelectableChannel } from "../components/mobile/SelectableChannel";
-import {
-  CHANNEL_FEED_QUERY,
-  GET_SUBSCRIPTION,
-  NFC_FEED_QUERY,
-} from "../constants/queries";
+import { GET_SUBSCRIPTION, NFC_FEED_QUERY } from "../constants/queries";
 import useAddChannelToSubscription from "../hooks/server/useAddChannelToSubscription";
 import useRemoveChannelFromSubscription from "../hooks/server/useRemoveChannelFromSubscription";
 import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
+import { useCacheContext } from "../hooks/context/useCache";
 
 const FixedComponent = () => {
   return (
@@ -179,7 +176,7 @@ function DesktopPage({
 
   const [directingToChannel, setDirectingToChannel] = useState<boolean>(false);
 
-  const channels = dataChannels?.getChannelFeed;
+  const channels = dataChannels;
 
   const sideBarBreakpoints = useBreakpointValue({
     base: false,
@@ -333,7 +330,7 @@ function MobilePage({
       fetchPolicy: "network-only",
     });
 
-  const channels: Channel[] = dataChannels?.getChannelFeed;
+  const channels: Channel[] = dataChannels;
 
   const suggestedChannels =
     subscriptionData?.getSubscriptionByEndpoint?.allowedChannels;
@@ -504,19 +501,11 @@ function MobilePage({
 }
 
 export default function Page() {
-  const {
-    data: dataChannels,
-    loading,
-    error,
-  } = useQuery(CHANNEL_FEED_QUERY, {
-    variables: {
-      data: {},
-    },
-  });
+  const { channelFeed, feedLoading, feedError } = useCacheContext();
 
   const { isStandalone, ready } = useUserAgent();
 
-  if (error) console.error("channel feed query error:", error);
+  if (feedError) console.error("channel feed query error:", feedError);
 
   return (
     <>
@@ -524,15 +513,15 @@ export default function Page() {
         <>
           {!isStandalone ? (
             <DesktopPage
-              dataChannels={dataChannels}
-              loading={loading}
-              error={error}
+              dataChannels={channelFeed}
+              loading={feedLoading}
+              error={feedError}
             />
           ) : (
             <MobilePage
-              dataChannels={dataChannels}
-              loading={loading}
-              error={error}
+              dataChannels={channelFeed}
+              loading={feedLoading}
+              error={feedError}
             />
           )}
         </>

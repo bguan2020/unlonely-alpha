@@ -1,4 +1,4 @@
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
 import {
   createContext,
   useContext,
@@ -37,11 +37,13 @@ const CacheContext = createContext<{
   claimableBets: UnclaimedBet[];
   fetchingBets: boolean;
   feedLoading: boolean;
+  feedError?: ApolloError;
 }>({
   channelFeed: [],
   claimableBets: [],
   fetchingBets: true,
   feedLoading: true,
+  feedError: undefined,
 });
 
 export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
@@ -56,15 +58,16 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const { localNetwork } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
-  const { data: dataChannels, loading: feedLoading } = useQuery(
-    CHANNEL_FEED_QUERY,
-    {
-      variables: {
-        data: {},
-      },
-      fetchPolicy: "cache-first",
-    }
-  );
+  const {
+    data: dataChannels,
+    loading: feedLoading,
+    error,
+  } = useQuery(CHANNEL_FEED_QUERY, {
+    variables: {
+      data: {},
+    },
+    fetchPolicy: "cache-first",
+  });
 
   const ongoingBets = useMemo(() => {
     if (!dataChannels?.getChannelFeed) return [];
@@ -178,8 +181,15 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       fetchingBets,
       channelFeed: dataChannels?.getChannelFeed || [],
       feedLoading,
+      feedError: error,
     };
-  }, [claimableBets, fetchingBets, feedLoading, dataChannels?.getChannelFeed]);
+  }, [
+    claimableBets,
+    fetchingBets,
+    feedLoading,
+    dataChannels?.getChannelFeed,
+    error,
+  ]);
 
   return (
     <CacheContext.Provider value={value}>{children}</CacheContext.Provider>

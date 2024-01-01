@@ -183,7 +183,7 @@ export const getChannelFeed = async (
         return res.data.map((stream: any) => stream.playbackId);
       })
       .catch((err) => {
-        console.log("err", err);
+        console.log("getChannelFeed from livepeer error", err);
         return [];
       });
 
