@@ -73,15 +73,6 @@ export const CHANNEL_DETAIL_QUERY = gql`
         id
         resultIndex
       }
-      sideBets {
-        id
-        wagerDescription
-        creatorAddress
-        opponentAddress
-        chainId
-        createdAt
-        result
-      }
       owner {
         FCImageUrl
         lensImageUrl

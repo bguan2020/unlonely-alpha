@@ -1210,16 +1210,6 @@ export type ChannelDetailQuery = {
       id: string;
       resultIndex?: number | null;
     } | null> | null;
-    sideBets?: Array<{
-      __typename?: "SideBet";
-      id: string;
-      wagerDescription?: string | null;
-      creatorAddress?: string | null;
-      opponentAddress?: string | null;
-      chainId?: number | null;
-      createdAt: any;
-      result?: boolean | null;
-    } | null> | null;
     owner: {
       __typename?: "User";
       FCImageUrl?: string | null;
@@ -2191,15 +2181,6 @@ export const ChannelDetailDocument = gql`
         createdAt
         id
         resultIndex
-      }
-      sideBets {
-        id
-        wagerDescription
-        creatorAddress
-        opponentAddress
-        chainId
-        createdAt
-        result
       }
       owner {
         FCImageUrl
