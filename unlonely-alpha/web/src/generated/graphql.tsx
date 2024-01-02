@@ -1372,28 +1372,6 @@ export type GetChannelFeedQuery = {
       FCImageUrl?: string | null;
       lensImageUrl?: string | null;
     };
-    sharesEvent?: Array<{
-      __typename?: "SharesEvent";
-      sharesSubjectQuestion?: string | null;
-      sharesSubjectAddress?: string | null;
-      options?: Array<string | null> | null;
-      chainId?: number | null;
-      channelId?: string | null;
-      eventState?: SharesEventState | null;
-      createdAt: any;
-      resultIndex?: number | null;
-      id: string;
-    } | null> | null;
-    sideBets?: Array<{
-      __typename?: "SideBet";
-      id: string;
-      wagerDescription?: string | null;
-      creatorAddress?: string | null;
-      opponentAddress?: string | null;
-      chainId?: number | null;
-      createdAt: any;
-      result?: boolean | null;
-    } | null> | null;
   } | null> | null;
 };
 
@@ -2797,26 +2775,6 @@ export const GetChannelFeedDocument = gql`
         address
         FCImageUrl
         lensImageUrl
-      }
-      sharesEvent {
-        sharesSubjectQuestion
-        sharesSubjectAddress
-        options
-        chainId
-        channelId
-        eventState
-        createdAt
-        resultIndex
-        id
-      }
-      sideBets {
-        id
-        wagerDescription
-        creatorAddress
-        opponentAddress
-        chainId
-        createdAt
-        result
       }
       thumbnailUrl
     }

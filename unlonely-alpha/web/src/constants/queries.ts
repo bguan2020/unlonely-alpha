@@ -209,26 +209,6 @@ export const CHANNEL_FEED_QUERY = gql`
         FCImageUrl
         lensImageUrl
       }
-      sharesEvent {
-        sharesSubjectQuestion
-        sharesSubjectAddress
-        options
-        chainId
-        channelId
-        eventState
-        createdAt
-        resultIndex
-        id
-      }
-      sideBets {
-        id
-        wagerDescription
-        creatorAddress
-        opponentAddress
-        chainId
-        createdAt
-        result
-      }
       thumbnailUrl
     }
   }
