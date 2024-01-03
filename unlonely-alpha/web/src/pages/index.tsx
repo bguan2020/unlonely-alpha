@@ -382,15 +382,14 @@ function MobilePage({
   }, [initialNotificationsGranted]);
 
   useEffect(() => {
-    if (!suggestedChannels) return;
     const liveChannels = channels.filter((channel) => channel.isLive);
     const _suggestedNonLiveChannels = channels.filter(
       (channel) =>
-        suggestedChannels.includes(String(channel.id)) && !channel.isLive
+        suggestedChannels?.includes(String(channel.id)) && !channel.isLive
     );
     const otherChannels = channels.filter(
       (channel) =>
-        !suggestedChannels.includes(String(channel.id)) && !channel.isLive
+        !suggestedChannels?.includes(String(channel.id)) && !channel.isLive
     );
     const sortedLiveChannels = sortChannels(liveChannels);
     const sortedSuggestedNonLiveChannels = sortChannels(
