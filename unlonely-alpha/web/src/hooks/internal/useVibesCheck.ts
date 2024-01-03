@@ -7,7 +7,7 @@ import ERC1967Proxy from "../../constants/abi/ERC1967Proxy.json";
 import { VibeTokenTx } from "../../constants/types";
 import { GET_USER_QUERY } from "../../constants/queries";
 
-export const useVibeCheck = () => {
+export const useVibesCheck = () => {
   const publicClient = usePublicClient();
   const appending = useRef(false);
   const client = useApolloClient();

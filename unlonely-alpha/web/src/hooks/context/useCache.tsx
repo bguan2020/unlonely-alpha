@@ -19,7 +19,7 @@ import { GetUnclaimedEventsQuery, SharesEvent } from "../../generated/graphql";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "./useNetwork";
 import { useUser } from "./useUser";
-import { useVibeCheck } from "../internal/useVibeCheck";
+import { useVibesCheck } from "../internal/useVibesCheck";
 import { VibeTokenTx } from "../../constants/types";
 
 type UnclaimedBet = SharesEvent & {
@@ -58,7 +58,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const { localNetwork } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
-  const { tokenTxs } = useVibeCheck();
+  const { tokenTxs } = useVibesCheck();
 
   const {
     data: dataChannels,

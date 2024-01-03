@@ -1,10 +1,11 @@
 import { LineChart, Line, Tooltip, ResponsiveContainer } from "recharts";
-import { useMemo } from "react";
-import { Flex, Text } from "@chakra-ui/react";
+import { useMemo, useState } from "react";
+import { Button, Flex, Input, Text } from "@chakra-ui/react";
 import { isAddress } from "viem";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
+import { filteredInput } from "../../utils/validation/input";
 
 const VibesTokenExchange = () => {
   const { vibeTokenTxs } = useCacheContext();
@@ -20,12 +21,20 @@ const VibesTokenExchange = () => {
     });
   }, [vibeTokenTxs]);
 
+  const [amountOfVibes, setAmountOfVibes] = useState<string>("1");
+
+  const handleInputChange = (event: any) => {
+    const input = event.target.value;
+    const filtered = filteredInput(input);
+    setAmountOfVibes(filtered);
+  };
+
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
         <Flex
           direction="column"
-          bg="rgba(0, 0, 0, 0.2)"
+          bg="rgba(0, 0, 0, 0.5)"
           p="5px"
           borderRadius="15px"
         >
@@ -48,18 +57,44 @@ const VibesTokenExchange = () => {
   };
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={formattedData}>
-        <Tooltip content={<CustomTooltip />} />
-        <Line
-          type="monotone"
-          dataKey="newSupply"
-          stroke="#8884d8"
-          strokeWidth={2}
-          dot={false}
+    <>
+      <Text
+        position="absolute"
+        fontSize={"20px"}
+        color="#c6c3fc"
+        fontWeight="bold"
+      >
+        $VIBES
+      </Text>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={formattedData}>
+          <Tooltip content={<CustomTooltip />} />
+          <Line
+            type="monotone"
+            dataKey="newSupply"
+            stroke="#8884d8"
+            strokeWidth={2}
+            dot={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+      <Flex direction="column" justifyContent={"space-evenly"}>
+        <Input
+          variant="glow"
+          textAlign="center"
+          width={"70px"}
+          value={amountOfVibes}
+          onChange={handleInputChange}
+          mx="auto"
         />
-      </LineChart>
-    </ResponsiveContainer>
+        <Button color="white" _focus={{}} _hover={{}} _active={{}} bg="#46a800">
+          BUY
+        </Button>
+        <Button color="white" _focus={{}} _hover={{}} _active={{}} bg="#fe2815">
+          SELL
+        </Button>
+      </Flex>
+    </>
   );
 };
 
