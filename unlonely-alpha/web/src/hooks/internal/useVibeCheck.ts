@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { decodeEventLog } from "viem";
+import { decodeEventLog, parseAbi } from "viem";
 import { useContractEvent, usePublicClient } from "wagmi";
 import { useApolloClient } from "@apollo/client";
 
@@ -65,11 +65,29 @@ export const useVibeCheck = () => {
   useEffect(() => {
     if (!publicClient) return;
     const init = async () => {
-      const res = await fetch(
-        "https://api.basescan.org/api?module=logs&action=getLogs&address=0x4c4cE2C17593e9EE6DF6B159cfb45865bEf3d82F&fromBlock=8116522&toBlock=999999999&page=1&offset=1000"
-      );
-      const json = await res.json();
-      const decodedEvents = json.result.map((event: any) => {
+      const [mintLogs, burnLogs] = await Promise.all([
+        publicClient.getLogs({
+          address: "0x4c4cE2C17593e9EE6DF6B159cfb45865bEf3d82F",
+          events: parseAbi([
+            "event Mint(address indexed account, uint256 amount, uint256 newTotalSupply)",
+          ]),
+          fromBlock: BigInt(8116522),
+        }),
+        publicClient.getLogs({
+          address: "0x4c4cE2C17593e9EE6DF6B159cfb45865bEf3d82F",
+          events: parseAbi([
+            "event Burn(address indexed account, uint256 amount, uint256 newTotalSupply)",
+          ]),
+          fromBlock: BigInt(8116522),
+        }),
+      ]);
+      const logs = [...mintLogs, ...burnLogs];
+      logs.sort((a, b) => {
+        if (a.blockNumber < b.blockNumber) return -1;
+        if (a.blockNumber > b.blockNumber) return 1;
+        return 0;
+      });
+      const decodedEvents = logs.map((event: any) => {
         const decoded = decodeEventLog({
           abi: ERC1967Proxy,
           data: event.data,
@@ -77,19 +95,14 @@ export const useVibeCheck = () => {
         });
         return decoded;
       });
-      const _tokenTxs = decodedEvents
-        .filter(
-          (event: any) =>
-            event.eventName === "Mint" || event.eventName === "Burn"
-        )
-        .map((event: any) => {
-          return {
-            eventName: event.eventName,
-            user: event.args.account,
-            amount: event.args.amount,
-            supply: event.args.newTotalSupply,
-          };
-        });
+      const _tokenTxs = decodedEvents.map((event: any) => {
+        return {
+          eventName: event.eventName,
+          user: event.args.account,
+          amount: event.args.amount,
+          supply: event.args.newTotalSupply,
+        };
+      });
       const uniqueUsers = new Set();
       _tokenTxs.forEach((tx: any) => {
         uniqueUsers.add(tx.user);
