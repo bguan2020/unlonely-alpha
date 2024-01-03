@@ -8,6 +8,7 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
 import Chat from "./Chat";
+import VibesTokenExchange from "./VibesTokenExchange";
 
 const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { isStandalone } = useUserAgent();
@@ -113,6 +114,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
             pt="0px"
           >
             <Flex bg="rgba(24, 22, 47, 1)" width={"100%"} direction="column">
+              <VibesTokenExchange />
               {presenceChannel && (
                 <Flex justifyContent={"center"} py="0.5rem">
                   <Participants ablyPresenceChannel={presenceChannel} />

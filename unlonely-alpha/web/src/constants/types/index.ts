@@ -41,3 +41,10 @@ export type ContractData =
       abi: undefined;
       chainId: undefined;
     };
+
+export type VibeTokenTx = {
+  eventName: string;
+  user: string;
+  amount: bigint;
+  supply: bigint;
+};
