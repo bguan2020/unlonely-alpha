@@ -25,12 +25,8 @@ import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
-import {
-  CHANNEL_DETAIL_QUERY,
-} from "../../constants/queries";
-import {
-  ChannelDetailQuery,
-} from "../../generated/graphql";
+import { CHANNEL_DETAIL_QUERY } from "../../constants/queries";
+import { ChannelDetailQuery } from "../../generated/graphql";
 import {
   ChannelProvider,
   useChannelContext,
@@ -44,6 +40,7 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useGetHolderBalance } from "../../hooks/contracts/useTournament";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import VibesTokenExchange from "../../components/chat/VibesTokenExchange";
 
 const ChannelDetail = ({
   channelData,
@@ -244,6 +241,9 @@ const DesktopPage = ({
                 maxW={["100%", "100%", "380px", "380px"]}
                 gap="1rem"
               >
+                <Flex height="20vh">
+                  <VibesTokenExchange />
+                </Flex>
                 <ChatComponent chat={chat} />
                 {/* <TournamentPot chat={chat} /> */}
               </Stack>
