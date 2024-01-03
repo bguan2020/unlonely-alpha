@@ -383,14 +383,18 @@ function MobilePage({
 
   useEffect(() => {
     const liveChannels = channels.filter((channel) => channel.isLive);
-    const _suggestedNonLiveChannels = channels.filter(
-      (channel) =>
-        suggestedChannels?.includes(String(channel.id)) && !channel.isLive
-    );
-    const otherChannels = channels.filter(
-      (channel) =>
-        !suggestedChannels?.includes(String(channel.id)) && !channel.isLive
-    );
+    const _suggestedNonLiveChannels = suggestedChannels
+      ? channels.filter(
+          (channel) =>
+            suggestedChannels?.includes(String(channel.id)) && !channel.isLive
+        )
+      : [];
+    const otherChannels = suggestedChannels
+      ? channels.filter(
+          (channel) =>
+            !suggestedChannels?.includes(String(channel.id)) && !channel.isLive
+        )
+      : channels.filter((channel) => !channel.isLive);
     const sortedLiveChannels = sortChannels(liveChannels);
     const sortedSuggestedNonLiveChannels = sortChannels(
       _suggestedNonLiveChannels
