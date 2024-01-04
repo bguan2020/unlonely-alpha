@@ -418,12 +418,12 @@ const OpenEventInterface = ({
     [pendingBet]
   );
 
-  console.log("pendingBet", pendingBet, pendingBet?.id);
+  const pendingBetId = useMemo(() => pendingBet?.id, [pendingBet]);
 
   const { openEvent, openEventTxLoading } = useOpenEvent(
     {
       eventAddress: userAddress ?? NULL_ADDRESS,
-      eventId: Number(pendingBet.id),
+      eventId: Number(pendingBetId),
       endTimestamp: BigInt(
         String(
           Math.floor((dateNow + Number(selectedEndTime) * 60 * 1000) / 1000)
@@ -483,7 +483,7 @@ const OpenEventInterface = ({
         await postBet({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
-          eventId: Number(pendingBet.id),
+          eventId: Number(pendingBetId),
           eventType: EventType.YayNayVote,
         });
         await _updateSharesEvent(SharesEventState.Live);
