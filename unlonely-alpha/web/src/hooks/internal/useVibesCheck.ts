@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { decodeEventLog, parseAbi } from "viem";
+import { decodeEventLog, parseAbiItem } from "viem";
 import { useContractEvent, usePublicClient } from "wagmi";
 import { useApolloClient } from "@apollo/client";
 
@@ -70,21 +70,22 @@ export const useVibesCheck = () => {
       const [mintLogs, burnLogs] = await Promise.all([
         publicClient.getLogs({
           address: "0x4c4cE2C17593e9EE6DF6B159cfb45865bEf3d82F",
-          events: parseAbi([
-            "event Mint(address indexed account, uint256 amount, uint256 newTotalSupply)",
-          ]),
+          event: parseAbiItem(
+            "event Mint(address indexed account, uint256 amount, uint256 newTotalSupply)"
+          ),
           fromBlock: BigInt(8116522),
         }),
         publicClient.getLogs({
           address: "0x4c4cE2C17593e9EE6DF6B159cfb45865bEf3d82F",
-          events: parseAbi([
-            "event Burn(address indexed account, uint256 amount, uint256 newTotalSupply)",
-          ]),
+          event: parseAbiItem(
+            "event Burn(address indexed account, uint256 amount, uint256 newTotalSupply)"
+          ),
           fromBlock: BigInt(8116522),
         }),
       ]);
       const logs = [...mintLogs, ...burnLogs];
       logs.sort((a, b) => {
+        if (a.blockNumber === null || b.blockNumber === null) return 0;
         if (a.blockNumber < b.blockNumber) return -1;
         if (a.blockNumber > b.blockNumber) return 1;
         return 0;
