@@ -160,11 +160,7 @@ const Trade = () => {
     v2contract
   );
 
-  const {
-    buyVotes,
-    refetch: refetchBuyVotes,
-    isRefetchingBuyVotes,
-  } = useBuyVotes(
+  const { buyVotes } = useBuyVotes(
     {
       eventAddress:
         (ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`) ??
@@ -377,95 +373,94 @@ const Trade = () => {
   //   }
   // );
 
-  const { claimVotePayout, refetch: refetchClaimVotePayout } =
-    useClaimVotePayout(
-      {
-        eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
-        eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+  const { claimVotePayout } = useClaimVotePayout(
+    {
+      eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
+      eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+    },
+    v2contract,
+    {
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                claimVotePayout pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
       },
-      v2contract,
-      {
-        onWriteSuccess: (data) => {
-          toast({
-            render: () => (
-              <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-                <Link
-                  target="_blank"
-                  href={`${explorerUrl}/tx/${data.hash}`}
-                  passHref
-                >
-                  claimVotePayout pending, click to view
-                </Link>
-              </Box>
-            ),
-            duration: 9000,
-            isClosable: true,
-            position: "top-right",
-          });
-        },
-        onWriteError: (error) => {
-          toast({
-            duration: 9000,
-            isClosable: true,
-            position: "top-right",
-            render: () => (
-              <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-                claimVotePayout cancelled
-              </Box>
-            ),
-          });
-        },
-        onTxSuccess: async (data) => {
-          toast({
-            render: () => (
-              <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-                <Link
-                  target="_blank"
-                  href={`${explorerUrl}/tx/${data.transactionHash}`}
-                  passHref
-                >
-                  claimVotePayout success, click to view
-                </Link>
-              </Box>
-            ),
-            duration: 9000,
-            isClosable: true,
-            position: "top-right",
-          });
-          const topics = decodeEventLog({
-            abi: v2contract.abi,
-            data: data.logs[0].data,
-            topics: data.logs[0].topics,
-          });
-          const args: any = topics.args;
-          await postClaimPayout({
+      onWriteError: (error) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              claimVotePayout cancelled
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: async (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                claimVotePayout success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        const topics = decodeEventLog({
+          abi: v2contract.abi,
+          data: data.logs[0].data,
+          topics: data.logs[0].topics,
+        });
+        const args: any = topics.args;
+        await postClaimPayout({
+          channelId: channelQueryData?.id as string,
+          userAddress: userAddress as `0x${string}`,
+          eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+          eventType: EventType.YayNayVote,
+        });
+        if (args.votingPooledEth === BigInt(0)) {
+          await closeSharesEvents({
+            chainId: localNetwork.config.chainId,
             channelId: channelQueryData?.id as string,
-            userAddress: userAddress as `0x${string}`,
-            eventId: Number(ongoingBets?.[0]?.id ?? "0"),
-            eventType: EventType.YayNayVote,
+            sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
           });
-          if (args.votingPooledEth === BigInt(0)) {
-            await closeSharesEvents({
-              chainId: localNetwork.config.chainId,
-              channelId: channelQueryData?.id as string,
-              sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
-            });
-          }
-        },
-        onTxError: (error) => {
-          toast({
-            render: () => (
-              <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-                claimVotePayout error
-              </Box>
-            ),
-            duration: 9000,
-            isClosable: true,
-            position: "top-right",
-          });
-        },
-      }
-    );
+        }
+      },
+      onTxError: (error) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              claimVotePayout error
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+    }
+  );
 
   const blockNumber = useBlockNumber({
     watch: true,
@@ -532,7 +527,7 @@ const Trade = () => {
     if (doesEventExist && isSharesEventLive) {
       calls = calls.concat([
         refetchVotePrice(),
-        refetchBuyVotes(),
+        // refetchBuyVotes(),
         // refetchSellVotes(),
         refetchBalances(),
       ]);
@@ -541,7 +536,10 @@ const Trade = () => {
       calls = calls.concat([refetchBalances()]);
     }
     if (doesEventExist && isSharesEventPayout) {
-      calls = calls.concat([refetchBalances(), refetchClaimVotePayout()]);
+      calls = calls.concat([
+        refetchBalances(),
+        // , refetchClaimVotePayout()
+      ]);
     }
     const fetch = async () => {
       isFetching.current = true;
@@ -910,12 +908,12 @@ const Trade = () => {
                       onClick={() => (isBuying ? buyVotes?.() : undefined)}
                       isDisabled={
                         (isBuying && !buyVotes) ||
-                        isRefetchingBuyVotes ||
+                        // isRefetchingBuyVotes ||
                         tradeLoading
                       }
                     >
                       {(isBuying && !buyVotes) ||
-                      isRefetchingBuyVotes ||
+                      // isRefetchingBuyVotes ||
                       tradeLoading ? (
                         <Spinner />
                       ) : isBuying ? (

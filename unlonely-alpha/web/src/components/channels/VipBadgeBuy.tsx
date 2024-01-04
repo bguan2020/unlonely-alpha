@@ -136,7 +136,7 @@ export const VipBadgeBuy = () => {
       tournamentContract
     );
 
-  const { buyVipBadge, refetch: refetchBuyVipBadge } = useBuyVipBadge(
+  const { buyVipBadge } = useBuyVipBadge(
     {
       streamerAddress: channelQueryData?.owner?.address as `0x${string}`,
       eventId: 0,
@@ -183,7 +183,10 @@ export const VipBadgeBuy = () => {
       if (isFetching.current) return;
       isFetching.current = true;
       try {
-        await Promise.all([refetchBadgePrice(), refetchBuyVipBadge()]);
+        await Promise.all([
+          refetchBadgePrice(),
+          // refetchBuyVipBadge()
+        ]);
       } catch (err) {
         console.log("VipBadgeBuy fetching error", err);
       }

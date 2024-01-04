@@ -17,6 +17,7 @@ import {
   createReactClient,
   studioProvider,
 } from "@livepeer/react";
+import { BoxHooksContextProvider } from "@decent.xyz/box-hooks";
 
 import { Base, NETWORKS } from "../constants/networks";
 import { Cookies, useApollo } from "../apiClient/client";
@@ -88,20 +89,24 @@ function App({ Component, pageProps, cookies }: Props) {
               <ScreenAnimationsProvider>
                 <NetworkProvider>
                   <CacheProvider>
-                    <LivepeerConfig
-                      client={livepeerClient}
-                      theme={{
-                        colors: {
-                          accent: "rgb(0, 145, 255)",
-                          containerBorderColor: "rgba(0, 145, 255, 0.9)",
-                        },
-                        fonts: {
-                          display: "Inter",
-                        },
-                      }}
+                    <BoxHooksContextProvider
+                      apiKey={process.env.NEXT_PUBLIC_DECENT_API_KEY as string}
                     >
-                      <Component {...pageProps} />
-                    </LivepeerConfig>
+                      <LivepeerConfig
+                        client={livepeerClient}
+                        theme={{
+                          colors: {
+                            accent: "rgb(0, 145, 255)",
+                            containerBorderColor: "rgba(0, 145, 255, 0.9)",
+                          },
+                          fonts: {
+                            display: "Inter",
+                          },
+                        }}
+                      >
+                        <Component {...pageProps} />
+                      </LivepeerConfig>
+                    </BoxHooksContextProvider>
                   </CacheProvider>
                 </NetworkProvider>
               </ScreenAnimationsProvider>

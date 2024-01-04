@@ -1,6 +1,6 @@
 import { useBoxAction } from "@decent.xyz/box-hooks";
 import { ChainId } from "@decent.xyz/box-common";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { usePublicClient, useWaitForTransaction } from "wagmi";
 import { EstimateGasParameters, TransactionReceipt } from "viem";
 import { sendTransaction } from "@wagmi/core";
@@ -52,25 +52,36 @@ export const useWriteV2 = (
   const publicClient = usePublicClient();
   const [hash, setHash] = useState<string>();
 
-  const actionArgs = {
-    actionType: ActionType.NftMint,
-    actionConfig: {
-      chainId: getChainId(Number(contract.chainId ?? "1")),
-      contractAddress: contract.address as string,
-      cost: {
-        amount: overrides?.value ?? BigInt(0),
-        isNative: true as const,
+  const actionArgs = useMemo(() => {
+    return {
+      actionType: ActionType.NftMint,
+      actionConfig: {
+        chainId: getChainId(Number(contract.chainId ?? "1")),
+        contractAddress: contract.address as string,
+        cost: {
+          amount: overrides?.value ?? BigInt(0),
+          isNative: true as const,
+        },
+        signature: functionSignature,
+        args,
       },
-      signature: functionSignature,
-      args,
-    },
-    srcChainId: getChainId(Number(activeWallet?.chainId?.split(":")[1] ?? "1")),
-    sender: userAddress as string,
-    slippage: 0,
-    srcToken: NULL_ADDRESS,
-    dstToken: NULL_ADDRESS,
-    dstChainId: ChainId.BASE,
-  };
+      srcChainId: getChainId(
+        Number(activeWallet?.chainId?.split(":")[1] ?? "1")
+      ),
+      sender: userAddress as string,
+      slippage: 0,
+      srcToken: NULL_ADDRESS,
+      dstToken: NULL_ADDRESS,
+      dstChainId: ChainId.BASE,
+    };
+  }, [
+    contract.address,
+    functionSignature,
+    args,
+    userAddress,
+    activeWallet,
+    overrides,
+  ]);
 
   const { actionResponse, isLoading, error } = useBoxAction(actionArgs);
 
@@ -82,12 +93,7 @@ export const useWriteV2 = (
       ...tx,
     } as unknown as EstimateGasParameters);
     const { hash } = await sendTransaction({
-      to: tx.to,
-      data: tx.data,
-      maxFeePerGas: tx.maxFeePerGas,
-      maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
-      value: tx.value,
-      gasPrice: tx.gasPrice,
+      ...tx,
       gas,
     });
     setHash(hash);
@@ -110,6 +116,8 @@ export const useWriteV2 = (
 
   return {
     write,
+    isWriteLoading: isLoading,
+    writeError: error,
     txData,
     isTxLoading,
     isTxSuccess,

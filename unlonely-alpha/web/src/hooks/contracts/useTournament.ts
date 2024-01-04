@@ -6,7 +6,7 @@ import { EventTypeForContract, NULL_ADDRESS } from "../../constants";
 import { ContractData, WriteCallbacks } from "../../constants/types";
 import { createCallbackHandler } from "../../utils/contract";
 import { useUser } from "../context/useUser";
-import { useWrite } from "./useWrite";
+import { useWriteV2 } from "./useWriteV2";
 
 type Tournament = {
   isActive: boolean;
@@ -87,12 +87,12 @@ export const useReadPublic = (contract: ContractData) => {
         args: [],
       }),
     ]);
-    setTournament({
-      isActive: Boolean(tournament[0]),
-      isPayoutClaimable: Boolean(tournament[1]),
-      winningBadge: String(tournament[2]),
-      vipPooledEth: BigInt(String(tournament[3])),
-    });
+    // setTournament({
+    //   isActive: Boolean((tournament)[0]),
+    //   isPayoutClaimable: Boolean((tournament)[1]),
+    //   winningBadge: String((tournament)[2]),
+    //   vipPooledEth: BigInt(String((tournament)[3])),
+    // });
     setProtocolFeeDestination(String(protocolFeeDestination));
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
@@ -135,7 +135,7 @@ export const useReadMappings = (key: string, contract: ContractData) => {
     useState<boolean>(false);
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient) {
+    if (!contract.address || !contract.abi || !publicClient || !userAddress) {
       setVipBadgeSupply(BigInt(0));
       setIsTournamentCreator(false);
       return;
@@ -169,152 +169,152 @@ export const useReadMappings = (key: string, contract: ContractData) => {
   };
 };
 
-export const useSetFeeDestination = (
-  args: {
-    feeDestination: `0x${string}`;
-  },
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: setFeeDestination,
-    writeData: setFeeDestinationData,
-    txData: setFeeDestinationTxData,
-    isTxLoading: setFeeDestinationTxLoading,
-  } = useWrite(
-    contract,
-    "setFeeDestination",
-    [args.feeDestination],
-    createCallbackHandler("useSetFeeDestination setFeeDestination", callbacks)
-  );
+// export const useSetFeeDestination = (
+//   args: {
+//     feeDestination: `0x${string}`;
+//   },
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: setFeeDestination,
+//     writeData: setFeeDestinationData,
+//     txData: setFeeDestinationTxData,
+//     isTxLoading: setFeeDestinationTxLoading,
+//   } = useWrite(
+//     contract,
+//     "setFeeDestination",
+//     [args.feeDestination],
+//     createCallbackHandler("useSetFeeDestination setFeeDestination", callbacks)
+//   );
 
-  return {
-    setFeeDestination,
-    setFeeDestinationData,
-    setFeeDestinationTxData,
-    setFeeDestinationTxLoading,
-  };
-};
+//   return {
+//     setFeeDestination,
+//     setFeeDestinationData,
+//     setFeeDestinationTxData,
+//     setFeeDestinationTxLoading,
+//   };
+// };
 
-export const useSetProtocolFeePercent = (
-  args: {
-    feePercent: bigint;
-  },
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: setProtocolFeePercent,
-    writeData: setProtocolFeePercentData,
-    txData: setProtocolFeePercentTxData,
-    isTxLoading: setProtocolFeePercentTxLoading,
-  } = useWrite(
-    contract,
-    "setProtocolFeePercent",
-    [args.feePercent],
-    createCallbackHandler(
-      "useSetProtocolFeePercent setProtocolFeePercent",
-      callbacks
-    )
-  );
+// export const useSetProtocolFeePercent = (
+//   args: {
+//     feePercent: bigint;
+//   },
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: setProtocolFeePercent,
+//     writeData: setProtocolFeePercentData,
+//     txData: setProtocolFeePercentTxData,
+//     isTxLoading: setProtocolFeePercentTxLoading,
+//   } = useWrite(
+//     contract,
+//     "setProtocolFeePercent",
+//     [args.feePercent],
+//     createCallbackHandler(
+//       "useSetProtocolFeePercent setProtocolFeePercent",
+//       callbacks
+//     )
+//   );
 
-  return {
-    setProtocolFeePercent,
-    setProtocolFeePercentData,
-    setProtocolFeePercentTxData,
-    setProtocolFeePercentTxLoading,
-  };
-};
+//   return {
+//     setProtocolFeePercent,
+//     setProtocolFeePercentData,
+//     setProtocolFeePercentTxData,
+//     setProtocolFeePercentTxLoading,
+//   };
+// };
 
-export const useSetSubjectFeePercent = (
-  args: {
-    feePercent: bigint;
-  },
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: setSubjectFeePercent,
-    writeData: setSubjectFeePercentData,
-    txData: setSubjectFeePercentTxData,
-    isTxLoading: setSubjectFeePercentTxLoading,
-  } = useWrite(
-    contract,
-    "setSubjectFeePercent",
-    [args.feePercent],
-    createCallbackHandler(
-      "useSetSubjectFeePercent setSubjectFeePercent",
-      callbacks
-    )
-  );
+// export const useSetSubjectFeePercent = (
+//   args: {
+//     feePercent: bigint;
+//   },
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: setSubjectFeePercent,
+//     writeData: setSubjectFeePercentData,
+//     txData: setSubjectFeePercentTxData,
+//     isTxLoading: setSubjectFeePercentTxLoading,
+//   } = useWrite(
+//     contract,
+//     "setSubjectFeePercent",
+//     [args.feePercent],
+//     createCallbackHandler(
+//       "useSetSubjectFeePercent setSubjectFeePercent",
+//       callbacks
+//     )
+//   );
 
-  return {
-    setSubjectFeePercent,
-    setSubjectFeePercentData,
-    setSubjectFeePercentTxData,
-    setSubjectFeePercentTxLoading,
-  };
-};
+//   return {
+//     setSubjectFeePercent,
+//     setSubjectFeePercentData,
+//     setSubjectFeePercentTxData,
+//     setSubjectFeePercentTxLoading,
+//   };
+// };
 
-export const useSetTournamentFeePercent = (
-  args: {
-    feePercent: bigint;
-  },
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: setTournamentFeePercent,
-    writeData: setTournamentFeePercentData,
-    txData: setTournamentFeePercentTxData,
-    isTxLoading: setTournamentFeePercentTxLoading,
-  } = useWrite(
-    contract,
-    "setTournamentFeePercent",
-    [args.feePercent],
-    createCallbackHandler(
-      "useSetTournamentFeePercent setTournamentFeePercent",
-      callbacks
-    )
-  );
+// export const useSetTournamentFeePercent = (
+//   args: {
+//     feePercent: bigint;
+//   },
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: setTournamentFeePercent,
+//     writeData: setTournamentFeePercentData,
+//     txData: setTournamentFeePercentTxData,
+//     isTxLoading: setTournamentFeePercentTxLoading,
+//   } = useWrite(
+//     contract,
+//     "setTournamentFeePercent",
+//     [args.feePercent],
+//     createCallbackHandler(
+//       "useSetTournamentFeePercent setTournamentFeePercent",
+//       callbacks
+//     )
+//   );
 
-  return {
-    setTournamentFeePercent,
-    setTournamentFeePercentData,
-    setTournamentFeePercentTxData,
-    setTournamentFeePercentTxLoading,
-  };
-};
+//   return {
+//     setTournamentFeePercent,
+//     setTournamentFeePercentData,
+//     setTournamentFeePercentTxData,
+//     setTournamentFeePercentTxLoading,
+//   };
+// };
 
-export const useSetTournamentCreator = (
-  args: {
-    creator: string;
-    value: boolean;
-  },
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: setTournamentCreator,
-    writeData: setTournamentCreatorData,
-    txData: setTournamentCreatorTxData,
-    isTxLoading: setTournamentCreatorTxLoading,
-  } = useWrite(
-    contract,
-    "setTournamentCreator",
-    [args.creator, args.value],
-    createCallbackHandler(
-      "useSetTournamentCreator setTournamentCreator",
-      callbacks
-    )
-  );
-  return {
-    setTournamentCreator,
-    setTournamentCreatorData,
-    setTournamentCreatorTxData,
-    setTournamentCreatorTxLoading,
-  };
-};
+// export const useSetTournamentCreator = (
+//   args: {
+//     creator: string;
+//     value: boolean;
+//   },
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: setTournamentCreator,
+//     writeData: setTournamentCreatorData,
+//     txData: setTournamentCreatorTxData,
+//     isTxLoading: setTournamentCreatorTxLoading,
+//   } = useWrite(
+//     contract,
+//     "setTournamentCreator",
+//     [args.creator, args.value],
+//     createCallbackHandler(
+//       "useSetTournamentCreator setTournamentCreator",
+//       callbacks
+//     )
+//   );
+//   return {
+//     setTournamentCreator,
+//     setTournamentCreatorData,
+//     setTournamentCreatorTxData,
+//     setTournamentCreatorTxLoading,
+//   };
+// };
 
 export const useGenerateKey = (
   streamerAddress: string,
@@ -363,119 +363,119 @@ export const useGenerateKey = (
   };
 };
 
-export const useStartTournament = (
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: startTournament,
-    writeData: startTournamentData,
-    txData: startTournamentTxData,
-    isTxLoading: startTournamentTxLoading,
-    refetch: refetchStartTournament,
-  } = useWrite(
-    contract,
-    "startTournament",
-    [],
-    createCallbackHandler("useStartTournament startTournament", callbacks)
-  );
+// export const useStartTournament = (
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: startTournament,
+//     writeData: startTournamentData,
+//     txData: startTournamentTxData,
+//     isTxLoading: startTournamentTxLoading,
+//     refetch: refetchStartTournament,
+//   } = useWrite(
+//     contract,
+//     "startTournament",
+//     [],
+//     createCallbackHandler("useStartTournament startTournament", callbacks)
+//   );
 
-  return {
-    startTournament,
-    startTournamentData,
-    startTournamentTxData,
-    startTournamentTxLoading,
-    refetchStartTournament,
-  };
-};
+//   return {
+//     startTournament,
+//     startTournamentData,
+//     startTournamentTxData,
+//     startTournamentTxLoading,
+//     refetchStartTournament,
+//   };
+// };
 
-export const useSelectTournamentWinner = (
-  args: {
-    streamerAddress: `0x${string}`;
-    eventId: number;
-  },
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: selectTournamentWinner,
-    writeData: selectTournamentWinnerData,
-    txData: selectTournamentWinnerTxData,
-    isTxLoading: selectTournamentWinnerTxLoading,
-    refetch: refetchSelectTournamentWinner,
-  } = useWrite(
-    contract,
-    "selectTournamentWinner",
-    [args.streamerAddress, args.eventId, EventTypeForContract.VIP_BADGE],
-    createCallbackHandler(
-      "useSelectTournamentWinner selectTournamentWinner",
-      callbacks
-    )
-  );
+// export const useSelectTournamentWinner = (
+//   args: {
+//     streamerAddress: `0x${string}`;
+//     eventId: number;
+//   },
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: selectTournamentWinner,
+//     writeData: selectTournamentWinnerData,
+//     txData: selectTournamentWinnerTxData,
+//     isTxLoading: selectTournamentWinnerTxLoading,
+//     refetch: refetchSelectTournamentWinner,
+//   } = useWrite(
+//     contract,
+//     "selectTournamentWinner",
+//     [args.streamerAddress, args.eventId, EventTypeForContract.VIP_BADGE],
+//     createCallbackHandler(
+//       "useSelectTournamentWinner selectTournamentWinner",
+//       callbacks
+//     )
+//   );
 
-  return {
-    selectTournamentWinner,
-    selectTournamentWinnerData,
-    selectTournamentWinnerTxData,
-    selectTournamentWinnerTxLoading,
-    refetchSelectTournamentWinner,
-  };
-};
+//   return {
+//     selectTournamentWinner,
+//     selectTournamentWinnerData,
+//     selectTournamentWinnerTxData,
+//     selectTournamentWinnerTxLoading,
+//     refetchSelectTournamentWinner,
+//   };
+// };
 
-export const useClaimTournamentPayout = (
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: claimTournamentPayout,
-    writeData: claimTournamentPayoutData,
-    txData: claimTournamentPayoutTxData,
-    isTxLoading: claimTournamentPayoutTxLoading,
-    refetch: refetchClaimTournamentPayout,
-  } = useWrite(
-    contract,
-    "claimTournamentPayout",
-    [],
-    createCallbackHandler(
-      "useClaimTournamentPayout claimTournamentPayout",
-      callbacks
-    )
-  );
+// export const useClaimTournamentPayout = (
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: claimTournamentPayout,
+//     writeData: claimTournamentPayoutData,
+//     txData: claimTournamentPayoutTxData,
+//     isTxLoading: claimTournamentPayoutTxLoading,
+//     refetch: refetchClaimTournamentPayout,
+//   } = useWrite(
+//     contract,
+//     "claimTournamentPayout",
+//     [],
+//     createCallbackHandler(
+//       "useClaimTournamentPayout claimTournamentPayout",
+//       callbacks
+//     )
+//   );
 
-  return {
-    claimTournamentPayout,
-    claimTournamentPayoutData,
-    claimTournamentPayoutTxData,
-    claimTournamentPayoutTxLoading,
-    refetchClaimTournamentPayout,
-  };
-};
+//   return {
+//     claimTournamentPayout,
+//     claimTournamentPayoutData,
+//     claimTournamentPayoutTxData,
+//     claimTournamentPayoutTxLoading,
+//     refetchClaimTournamentPayout,
+//   };
+// };
 
-export const useEndTournament = (
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: endTournament,
-    writeData: endTournamentData,
-    txData: endTournamentTxData,
-    isTxLoading: endTournamentTxLoading,
-    refetch: refetchEndTournament,
-  } = useWrite(
-    contract,
-    "endTournament",
-    [],
-    createCallbackHandler("useEndTournament endTournament", callbacks)
-  );
+// export const useEndTournament = (
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: endTournament,
+//     writeData: endTournamentData,
+//     txData: endTournamentTxData,
+//     isTxLoading: endTournamentTxLoading,
+//     refetch: refetchEndTournament,
+//   } = useWrite(
+//     contract,
+//     "endTournament",
+//     [],
+//     createCallbackHandler("useEndTournament endTournament", callbacks)
+//   );
 
-  return {
-    endTournament,
-    endTournamentData,
-    endTournamentTxData,
-    endTournamentTxLoading,
-    refetchEndTournament,
-  };
-};
+//   return {
+//     endTournament,
+//     endTournamentData,
+//     endTournamentTxData,
+//     endTournamentTxLoading,
+//     refetchEndTournament,
+//   };
+// };
 
 export const useGetTournamentPayout = (
   address: `0x${string}`,
@@ -718,15 +718,32 @@ export const useBuyVipBadge = (
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
+  // const {
+  //   writeAsync: buyVipBadge,
+  //   writeData: buyVipBadgeData,
+  //   txData: buyVipBadgeTxData,
+  //   isTxLoading: buyVipBadgeTxLoading,
+  //   refetch,
+  // } = useWrite(
+  //   contract,
+  //   "buyVIPBadge",
+  //   [
+  //     args.streamerAddress,
+  //     args.eventId,
+  //     EventTypeForContract.VIP_BADGE,
+  //     args.amount,
+  //   ],
+  //   createCallbackHandler("useBuyVipBadge buyVipBadge", callbacks),
+  //   { value: args.value }
+  // );
+
   const {
-    writeAsync: buyVipBadge,
-    writeData: buyVipBadgeData,
+    write: buyVipBadge,
     txData: buyVipBadgeTxData,
     isTxLoading: buyVipBadgeTxLoading,
-    refetch,
-  } = useWrite(
+  } = useWriteV2(
     contract,
-    "buyVIPBadge",
+    "function buyVIPBadge(address streamerAddress, uint256 eventId, EventType eventType, uint256 amount)",
     [
       args.streamerAddress,
       args.eventId,
@@ -738,47 +755,45 @@ export const useBuyVipBadge = (
   );
 
   return {
-    refetch,
     buyVipBadge,
-    buyVipBadgeData,
     buyVipBadgeTxData,
     buyVipBadgeTxLoading,
   };
 };
 
-export const useSellVipBadge = (
-  args: {
-    streamerAddress: `0x${string}`;
-    eventId: number;
-    amount: bigint;
-    value: bigint;
-  },
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: sellVipBadge,
-    writeData: sellVipBadgeData,
-    txData: sellVipBadgeTxData,
-    isTxLoading: sellVipBadgeTxLoading,
-    refetch,
-  } = useWrite(
-    contract,
-    "sellVIPBadge",
-    [
-      args.streamerAddress,
-      args.eventId,
-      EventTypeForContract.VIP_BADGE,
-      args.amount,
-    ],
-    createCallbackHandler("useSellVipBadge sellVipBadge", callbacks)
-  );
+// export const useSellVipBadge = (
+//   args: {
+//     streamerAddress: `0x${string}`;
+//     eventId: number;
+//     amount: bigint;
+//     value: bigint;
+//   },
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: sellVipBadge,
+//     writeData: sellVipBadgeData,
+//     txData: sellVipBadgeTxData,
+//     isTxLoading: sellVipBadgeTxLoading,
+//     refetch,
+//   } = useWrite(
+//     contract,
+//     "sellVIPBadge",
+//     [
+//       args.streamerAddress,
+//       args.eventId,
+//       EventTypeForContract.VIP_BADGE,
+//       args.amount,
+//     ],
+//     createCallbackHandler("useSellVipBadge sellVipBadge", callbacks)
+//   );
 
-  return {
-    refetch,
-    sellVipBadge,
-    sellVipBadgeData,
-    sellVipBadgeTxData,
-    sellVipBadgeTxLoading,
-  };
-};
+//   return {
+//     refetch,
+//     sellVipBadge,
+//     sellVipBadgeData,
+//     sellVipBadgeTxData,
+//     sellVipBadgeTxLoading,
+//   };
+// };

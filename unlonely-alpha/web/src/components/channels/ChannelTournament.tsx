@@ -12,12 +12,12 @@ import { filteredInput } from "../../utils/validation/input";
 import {
   useGetPriceAfterFee,
   useBuyVipBadge,
-  useSellVipBadge,
+  // useSellVipBadge,
   useGenerateKey,
   useReadPublic,
   useReadMappings,
   useGetHolderBalance,
-  useClaimTournamentPayout,
+  // useClaimTournamentPayout,
   useGetTournamentPayout,
 } from "../../hooks/contracts/useTournament";
 import { useUser } from "../../hooks/context/useUser";
@@ -179,7 +179,7 @@ export const ChannelTournament = () => {
       tournamentContract
     );
 
-  const { buyVipBadge, refetch: refetchBuyVipBadge } = useBuyVipBadge(
+  const { buyVipBadge } = useBuyVipBadge(
     {
       streamerAddress: channelQueryData?.owner?.address as `0x${string}`,
       eventId: 0,
@@ -220,51 +220,51 @@ export const ChannelTournament = () => {
     })
   );
 
-  const { sellVipBadge, refetch: refetchSellVipBadge } = useSellVipBadge(
-    {
-      streamerAddress: channelQueryData?.owner?.address as `0x${string}`,
-      eventId: 0,
-      amount: BigInt(amountOfBadges),
-      value: badgePrice,
-    },
-    tournamentContract,
-    getCallbackHandlers("sellVipBadge", {
-      callbackOnTxSuccess: async (data: any) => {
-        const topics = decodeEventLog({
-          abi: tournamentContract.abi,
-          data: data.logs[0].data,
-          topics: data.logs[0].topics,
-        });
-        const args: any = topics.args;
-        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
-          args.trade.isBuy ? "bought" : "sold"
-        } ${args.trade.badgeAmount} badges!`;
-        addToChatbot({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType: InteractionType.SELL_BADGES,
-          title,
-          description: `${user?.username ?? centerEllipses(userAddress, 15)}:${
-            args.trade.badgeAmount
-          }`,
-        });
-        await postBadgeTrade({
-          channelId: channelQueryData?.id as string,
-          userAddress: userAddress as `0x${string}`,
-          isBuying: false,
-          chainId: localNetwork.config.chainId,
-          fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
-        });
-        setAmountOfBadges("0");
-      },
-    })
-  );
+  // const { sellVipBadge, refetch: refetchSellVipBadge } = useSellVipBadge(
+  //   {
+  //     streamerAddress: channelQueryData?.owner?.address as `0x${string}`,
+  //     eventId: 0,
+  //     amount: BigInt(amountOfBadges),
+  //     value: badgePrice,
+  //   },
+  //   tournamentContract,
+  //   getCallbackHandlers("sellVipBadge", {
+  //     callbackOnTxSuccess: async (data: any) => {
+  //       const topics = decodeEventLog({
+  //         abi: tournamentContract.abi,
+  //         data: data.logs[0].data,
+  //         topics: data.logs[0].topics,
+  //       });
+  //       const args: any = topics.args;
+  //       const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+  //         args.trade.isBuy ? "bought" : "sold"
+  //       } ${args.trade.badgeAmount} badges!`;
+  //       addToChatbot({
+  //         username: user?.username ?? "",
+  //         address: userAddress ?? "",
+  //         taskType: InteractionType.SELL_BADGES,
+  //         title,
+  //         description: `${user?.username ?? centerEllipses(userAddress, 15)}:${
+  //           args.trade.badgeAmount
+  //         }`,
+  //       });
+  //       await postBadgeTrade({
+  //         channelId: channelQueryData?.id as string,
+  //         userAddress: userAddress as `0x${string}`,
+  //         isBuying: false,
+  //         chainId: localNetwork.config.chainId,
+  //         fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
+  //       });
+  //       setAmountOfBadges("0");
+  //     },
+  //   })
+  // );
 
-  const { claimTournamentPayout, refetchClaimTournamentPayout } =
-    useClaimTournamentPayout(
-      tournamentContract,
-      getCallbackHandlers("useClaimTournamentPayout")
-    );
+  // const { claimTournamentPayout, refetchClaimTournamentPayout } =
+  //   useClaimTournamentPayout(
+  //     tournamentContract,
+  //     getCallbackHandlers("useClaimTournamentPayout")
+  //   );
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
@@ -284,10 +284,10 @@ export const ChannelTournament = () => {
           refetchVipBadgeBalance(),
           refetchPublic(),
           refetchBadgePrice(),
-          refetchBuyVipBadge(),
-          refetchSellVipBadge(),
+          // refetchBuyVipBadge(),
+          // refetchSellVipBadge(),
           refetchUserEthBalance(),
-          refetchClaimTournamentPayout(),
+          // refetchClaimTournamentPayout(),
           refetchMappings(),
         ]);
       } catch (err) {
@@ -449,9 +449,11 @@ export const ChannelTournament = () => {
               _active={{}}
               width="100%"
               bg={isBuying ? "#46a800" : "#fe2815"}
-              onClick={() => (isBuying ? buyVipBadge?.() : sellVipBadge?.())}
+              // onClick={() => (isBuying ? buyVipBadge?.() : sellVipBadge?.())}
+              onClick={() => buyVipBadge?.()}
               isDisabled={
-                (isBuying && !buyVipBadge) || (!isBuying && !sellVipBadge)
+                isBuying && !buyVipBadge
+                // || (!isBuying && !sellVipBadge)
               }
             >
               {isBuying ? "BUY" : "SELL"}
@@ -469,7 +471,7 @@ export const ChannelTournament = () => {
               <Text>your payout</Text>
               <Text>{truncateValue(formatUnits(userPayout, 18))} ETH</Text>
             </Flex>
-            <Button
+            {/* <Button
               color="white"
               _hover={{}}
               _focus={{}}
@@ -479,7 +481,7 @@ export const ChannelTournament = () => {
               onClick={claimTournamentPayout}
             >
               get payout
-            </Button>
+            </Button> */}
           </Flex>
         ) : null}
       </>

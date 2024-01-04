@@ -5,7 +5,7 @@ import { EventTypeForContract, NULL_ADDRESS } from "../../constants";
 import { ContractData, WriteCallbacks } from "../../constants/types";
 import { createCallbackHandler } from "../../utils/contract";
 import { useUser } from "../context/useUser";
-import { useWrite } from "./useWrite";
+import { useWriteV2 } from "./useWriteV2";
 
 export const useReadPublic = (contract: ContractData) => {
   const publicClient = usePublicClient();
@@ -83,7 +83,7 @@ export const useReadMappings = (
   const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient) {
+    if (!contract.address || !contract.abi || !publicClient || !userAddress) {
       setVotingPooledEth(BigInt(0));
       setYayVotesSupply(BigInt(0));
       setNayVotesSupply(BigInt(0));
@@ -185,117 +185,117 @@ export const useReadMappings = (
   };
 };
 
-export const useSetFeeDestination = (
-  args: {
-    feeDestination: `0x${string}`;
-  },
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: setFeeDestination,
-    writeData: setFeeDestinationData,
-    txData: setFeeDestinationTxData,
-    isTxLoading: setFeeDestinationTxLoading,
-  } = useWrite(
-    contract,
-    "setFeeDestination",
-    [args.feeDestination],
-    createCallbackHandler("useSetFeeDestination setFeeDestination", callbacks)
-  );
+// export const useSetFeeDestination = (
+//   args: {
+//     feeDestination: `0x${string}`;
+//   },
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: setFeeDestination,
+//     writeData: setFeeDestinationData,
+//     txData: setFeeDestinationTxData,
+//     isTxLoading: setFeeDestinationTxLoading,
+//   } = useWrite(
+//     contract,
+//     "setFeeDestination",
+//     [args.feeDestination],
+//     createCallbackHandler("useSetFeeDestination setFeeDestination", callbacks)
+//   );
 
-  return {
-    setFeeDestination,
-    setFeeDestinationData,
-    setFeeDestinationTxData,
-    setFeeDestinationTxLoading,
-  };
-};
+//   return {
+//     setFeeDestination,
+//     setFeeDestinationData,
+//     setFeeDestinationTxData,
+//     setFeeDestinationTxLoading,
+//   };
+// };
 
-export const useSetProtocolFeePercent = (
-  args: {
-    feePercent: bigint;
-  },
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: setProtocolFeePercent,
-    writeData: setProtocolFeePercentData,
-    txData: setProtocolFeePercentTxData,
-    isTxLoading: setProtocolFeePercentTxLoading,
-  } = useWrite(
-    contract,
-    "setProtocolFeePercent",
-    [args.feePercent],
-    createCallbackHandler(
-      "useSetProtocolFeePercent setProtocolFeePercent",
-      callbacks
-    )
-  );
+// export const useSetProtocolFeePercent = (
+//   args: {
+//     feePercent: bigint;
+//   },
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: setProtocolFeePercent,
+//     writeData: setProtocolFeePercentData,
+//     txData: setProtocolFeePercentTxData,
+//     isTxLoading: setProtocolFeePercentTxLoading,
+//   } = useWrite(
+//     contract,
+//     "setProtocolFeePercent",
+//     [args.feePercent],
+//     createCallbackHandler(
+//       "useSetProtocolFeePercent setProtocolFeePercent",
+//       callbacks
+//     )
+//   );
 
-  return {
-    setProtocolFeePercent,
-    setProtocolFeePercentData,
-    setProtocolFeePercentTxData,
-    setProtocolFeePercentTxLoading,
-  };
-};
+//   return {
+//     setProtocolFeePercent,
+//     setProtocolFeePercentData,
+//     setProtocolFeePercentTxData,
+//     setProtocolFeePercentTxLoading,
+//   };
+// };
 
-export const useSetSubjectFeePercent = (
-  args: {
-    feePercent: bigint;
-  },
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: setSubjectFeePercent,
-    writeData: setSubjectFeePercentData,
-    txData: setSubjectFeePercentTxData,
-    isTxLoading: setSubjectFeePercentTxLoading,
-  } = useWrite(
-    contract,
-    "setSubjectFeePercent",
-    [args.feePercent],
-    createCallbackHandler(
-      "useSetSubjectFeePercent setSubjectFeePercent",
-      callbacks
-    )
-  );
+// export const useSetSubjectFeePercent = (
+//   args: {
+//     feePercent: bigint;
+//   },
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: setSubjectFeePercent,
+//     writeData: setSubjectFeePercentData,
+//     txData: setSubjectFeePercentTxData,
+//     isTxLoading: setSubjectFeePercentTxLoading,
+//   } = useWrite(
+//     contract,
+//     "setSubjectFeePercent",
+//     [args.feePercent],
+//     createCallbackHandler(
+//       "useSetSubjectFeePercent setSubjectFeePercent",
+//       callbacks
+//     )
+//   );
 
-  return {
-    setSubjectFeePercent,
-    setSubjectFeePercentData,
-    setSubjectFeePercentTxData,
-    setSubjectFeePercentTxLoading,
-  };
-};
+//   return {
+//     setSubjectFeePercent,
+//     setSubjectFeePercentData,
+//     setSubjectFeePercentTxData,
+//     setSubjectFeePercentTxLoading,
+//   };
+// };
 
-export const useSetVerifier = (
-  args: { verifier: `0x${string}`; value: boolean },
-  contract: ContractData,
-  callbacks?: WriteCallbacks
-) => {
-  const {
-    writeAsync: setVerifier,
-    writeData: setVerifierData,
-    txData: setVerifierTxData,
-    isTxLoading: setVerifierTxLoading,
-  } = useWrite(
-    contract,
-    "setVerifier",
-    [args.verifier, args.value],
-    createCallbackHandler("useSetVerifier setVerifier", callbacks)
-  );
+// export const useSetVerifier = (
+//   args: { verifier: `0x${string}`; value: boolean },
+//   contract: ContractData,
+//   callbacks?: WriteCallbacks
+// ) => {
+//   const {
+//     writeAsync: setVerifier,
+//     writeData: setVerifierData,
+//     txData: setVerifierTxData,
+//     isTxLoading: setVerifierTxLoading,
+//   } = useWrite(
+//     contract,
+//     "setVerifier",
+//     [args.verifier, args.value],
+//     createCallbackHandler("useSetVerifier setVerifier", callbacks)
+//   );
 
-  return {
-    setVerifier,
-    setVerifierData,
-    setVerifierTxData,
-    setVerifierTxLoading,
-  };
-};
+//   return {
+//     setVerifier,
+//     setVerifierData,
+//     setVerifierTxData,
+//     setVerifierTxLoading,
+//   };
+// };
 
 export const useGenerateKey = (
   eventAddress: `0x${string}`,
@@ -343,14 +343,29 @@ export const useOpenEvent = (
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
+  // const {
+  //   writeAsync: openEvent,
+  //   writeData: openEventData,
+  //   txData: openEventTxData,
+  //   isTxLoading: openEventTxLoading,
+  // } = useWrite(
+  //   contract,
+  //   "openEvent",
+  //   [
+  //     args.eventAddress,
+  //     args.eventId,
+  //     EventTypeForContract.YAY_NAY_VOTE,
+  //     args.endTimestamp,
+  //   ],
+  //   createCallbackHandler("useOpenEvent openEvent", callbacks)
+  // );
   const {
-    writeAsync: openEvent,
-    writeData: openEventData,
+    write: openEvent,
     txData: openEventTxData,
     isTxLoading: openEventTxLoading,
-  } = useWrite(
+  } = useWriteV2(
     contract,
-    "openEvent",
+    "function openEvent(address eventAddress, uint256 eventId, EventType eventType, uint256 _eventEndTimestamp)",
     [
       args.eventAddress,
       args.eventId,
@@ -362,7 +377,6 @@ export const useOpenEvent = (
 
   return {
     openEvent,
-    openEventData,
     openEventTxData,
     openEventTxLoading,
   };
@@ -377,14 +391,30 @@ export const useVerifyEvent = (
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
+  // const {
+  //   writeAsync: verifyEvent,
+  //   writeData: verifyEventData,
+  //   txData: verifyEventTxData,
+  //   isTxLoading: verifyEventTxLoading,
+  // } = useWrite(
+  //   contract,
+  //   "verifyEvent",
+  //   [
+  //     args.eventAddress,
+  //     args.eventId,
+  //     EventTypeForContract.YAY_NAY_VOTE,
+  //     args.result,
+  //   ],
+  //   createCallbackHandler("useVerifyEvent verifyEvent", callbacks)
+  // );
+
   const {
-    writeAsync: verifyEvent,
-    writeData: verifyEventData,
+    write: verifyEvent,
     txData: verifyEventTxData,
     isTxLoading: verifyEventTxLoading,
-  } = useWrite(
+  } = useWriteV2(
     contract,
-    "verifyEvent",
+    "function verifyEvent(address eventAddress, uint256 eventId, EventType eventType, bool result)",
     [
       args.eventAddress,
       args.eventId,
@@ -396,7 +426,6 @@ export const useVerifyEvent = (
 
   return {
     verifyEvent,
-    verifyEventData,
     verifyEventTxData,
     verifyEventTxLoading,
   };
@@ -588,16 +617,34 @@ export const useBuyVotes = (
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
+  // const {
+  //   writeAsync: buyVotes,
+  //   writeData: buyVotesData,
+  //   txData: buyVotesTxData,
+  //   isTxLoading: buyVotesTxLoading,
+  //   refetch,
+  //   isRefetching: isRefetchingBuyVotes,
+  // } = useWrite(
+  //   contract,
+  //   "buyVotes",
+  //   [
+  //     args.eventAddress,
+  //     args.eventId,
+  //     EventTypeForContract.YAY_NAY_VOTE,
+  //     args.isYay,
+  //     args.amountOfVotes,
+  //   ],
+  //   createCallbackHandler("useBuyVotes buyVotes", callbacks),
+  //   { value: args.value }
+  // );
+
   const {
-    writeAsync: buyVotes,
-    writeData: buyVotesData,
+    write: buyVotes,
     txData: buyVotesTxData,
     isTxLoading: buyVotesTxLoading,
-    refetch,
-    isRefetching: isRefetchingBuyVotes,
-  } = useWrite(
+  } = useWriteV2(
     contract,
-    "buyVotes",
+    "function buyVotes(address eventAddress, uint256 eventId, EventType eventType, bool isYay, uint256 amount)",
     [
       args.eventAddress,
       args.eventId,
@@ -610,12 +657,9 @@ export const useBuyVotes = (
   );
 
   return {
-    refetch,
     buyVotes,
-    buyVotesData,
     buyVotesTxData,
     buyVotesTxLoading,
-    isRefetchingBuyVotes,
   };
 };
 
@@ -629,16 +673,33 @@ export const useSellVotes = (
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
+  // const {
+  //   writeAsync: sellVotes,
+  //   writeData: sellVotesData,
+  //   txData: sellVotesTxData,
+  //   isTxLoading: sellVotesTxLoading,
+  //   refetch,
+  //   isRefetching: isRefetchingSellVotes,
+  // } = useWrite(
+  //   contract,
+  //   "sellVotes",
+  //   [
+  //     args.eventAddress,
+  //     args.eventId,
+  //     EventTypeForContract.YAY_NAY_VOTE,
+  //     args.isYay,
+  //     args.amountOfVotes,
+  //   ],
+  //   createCallbackHandler("useSellVotes sellVotes", callbacks)
+  // );
+
   const {
-    writeAsync: sellVotes,
-    writeData: sellVotesData,
+    write: sellVotes,
     txData: sellVotesTxData,
     isTxLoading: sellVotesTxLoading,
-    refetch,
-    isRefetching: isRefetchingSellVotes,
-  } = useWrite(
+  } = useWriteV2(
     contract,
-    "sellVotes",
+    "function sellVotes(address eventAddress, uint256 eventId, EventType eventType, bool isYay, uint256 amount)",
     [
       args.eventAddress,
       args.eventId,
@@ -650,12 +711,9 @@ export const useSellVotes = (
   );
 
   return {
-    refetch,
     sellVotes,
-    sellVotesData,
     sellVotesTxData,
     sellVotesTxLoading,
-    isRefetchingSellVotes,
   };
 };
 
@@ -664,24 +722,33 @@ export const useClaimVotePayout = (
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
+  // const {
+  //   writeAsync: claimVotePayout,
+  //   writeData: claimVotePayoutData,
+  //   txData: claimVotePayoutTxData,
+  //   isTxLoading: claimVotePayoutTxLoading,
+  //   refetch,
+  // } = useWrite(
+  //   contract,
+  //   "claimVotePayout",
+  //   [args.eventAddress, args.eventId, EventTypeForContract.YAY_NAY_VOTE],
+  //   createCallbackHandler("useClaimVotePayout claimVotePayout", callbacks)
+  // );
+
   const {
-    writeAsync: claimVotePayout,
-    writeData: claimVotePayoutData,
+    write: claimVotePayout,
     txData: claimVotePayoutTxData,
     isTxLoading: claimVotePayoutTxLoading,
-    refetch,
-  } = useWrite(
+  } = useWriteV2(
     contract,
-    "claimVotePayout",
+    "function claimVotePayout(address eventAddress, uint256 eventId, EventType eventType)",
     [args.eventAddress, args.eventId, EventTypeForContract.YAY_NAY_VOTE],
     createCallbackHandler("useClaimVotePayout claimVotePayout", callbacks)
   );
 
   return {
     claimVotePayout,
-    claimVotePayoutData,
     claimVotePayoutTxData,
     claimVotePayoutTxLoading,
-    refetch,
   };
 };
