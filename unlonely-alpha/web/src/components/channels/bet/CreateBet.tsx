@@ -418,6 +418,8 @@ const OpenEventInterface = ({
     [pendingBet]
   );
 
+  console.log("pendingBet", pendingBet, pendingBet?.id);
+
   const { openEvent, openEventTxLoading } = useOpenEvent(
     {
       eventAddress: userAddress ?? NULL_ADDRESS,
