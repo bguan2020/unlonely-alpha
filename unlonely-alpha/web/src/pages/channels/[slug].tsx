@@ -1,4 +1,3 @@
-import { useQuery } from "@apollo/client";
 import { GetServerSidePropsContext } from "next";
 import React, {
   useCallback,
@@ -28,13 +27,9 @@ import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
 import {
   CHANNEL_DETAIL_QUERY,
-  GET_BADGE_HOLDERS_BY_CHANNEL_QUERY,
-  GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY,
 } from "../../constants/queries";
 import {
   ChannelDetailQuery,
-  GetBadgeHoldersByChannelQuery,
-  GetChannelsByNumberOfBadgeHoldersQuery,
 } from "../../generated/graphql";
 import {
   ChannelProvider,
@@ -92,16 +87,16 @@ const DesktopPage = ({
 
   const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
 
-  const { data } = useQuery<GetBadgeHoldersByChannelQuery>(
-    GET_BADGE_HOLDERS_BY_CHANNEL_QUERY,
-    {
-      variables: { data: { channelId: channelQueryData?.id } },
-    }
-  );
+  // const { data } = useQuery<GetBadgeHoldersByChannelQuery>(
+  //   GET_BADGE_HOLDERS_BY_CHANNEL_QUERY,
+  //   {
+  //     variables: { data: { channelId: channelQueryData?.id } },
+  //   }
+  // );
 
-  const { data: _data } = useQuery<GetChannelsByNumberOfBadgeHoldersQuery>(
-    GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY
-  );
+  // const { data: _data } = useQuery<GetChannelsByNumberOfBadgeHoldersQuery>(
+  //   GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY
+  // );
 
   const { userAddress, walletIsConnected } = useUser();
   const publicClient = usePublicClient();

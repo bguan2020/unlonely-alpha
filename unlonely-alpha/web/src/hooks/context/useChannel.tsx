@@ -7,11 +7,10 @@ import {
   useState,
   useCallback,
 } from "react";
-import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
+import { ApolloError, useQuery } from "@apollo/client";
 
 import {
   CHANNEL_DETAIL_QUERY,
-  GET_GAMBLABLE_EVENT_LEADERBOARD_BY_CHANNEL_ID_QUERY,
   GET_GAMBLABLE_EVENT_USER_RANK_QUERY,
 } from "../../constants/queries";
 import {
@@ -195,14 +194,14 @@ export const ChannelProvider = ({
     [userRankData]
   );
 
-  const [
-    getGamblableEventLeaderboard,
-    {
-      loading: leaderboardLoading,
-      error: leaderboardError,
-      data: leaderboardData,
-    },
-  ] = useLazyQuery(GET_GAMBLABLE_EVENT_LEADERBOARD_BY_CHANNEL_ID_QUERY);
+  // const [
+  //   getGamblableEventLeaderboard,
+  //   {
+  //     loading: leaderboardLoading,
+  //     error: leaderboardError,
+  //     data: leaderboardData,
+  //   },
+  // ] = useLazyQuery(GET_GAMBLABLE_EVENT_LEADERBOARD_BY_CHANNEL_ID_QUERY);
 
   const [ablyChatChannel, setAblyChatChannel] = useState<string | undefined>(
     undefined
@@ -248,16 +247,16 @@ export const ChannelProvider = ({
     }
   }, [channelQueryData]);
 
-  const handleRefetchGamblableEventLeaderboard = useCallback(async () => {
-    await getGamblableEventLeaderboard({
-      variables: {
-        data: {
-          channelId: channelQueryData?.id,
-          chainId: localNetwork.config.chainId,
-        },
-      },
-    });
-  }, [channelQueryData, localNetwork.config.chainId]);
+  // const handleRefetchGamblableEventLeaderboard = useCallback(async () => {
+  //   await getGamblableEventLeaderboard({
+  //     variables: {
+  //       data: {
+  //         channelId: channelQueryData?.id,
+  //         chainId: localNetwork.config.chainId,
+  //       },
+  //     },
+  //   });
+  // }, [channelQueryData, localNetwork.config.chainId]);
 
   useEffect(() => {
     if (textOverVideo.length > 0) {
@@ -347,11 +346,10 @@ export const ChannelProvider = ({
       leaderboard: {
         userRank,
         isVip,
-        data: leaderboardData,
-        loading: leaderboardLoading,
-        error: leaderboardError,
-        refetchGamblableEventLeaderboard:
-          handleRefetchGamblableEventLeaderboard,
+        data: undefined,
+        loading: true,
+        error: undefined,
+        refetchGamblableEventLeaderboard: undefined,
         handleIsVip,
       },
       ui: {
@@ -395,10 +393,10 @@ export const ChannelProvider = ({
       loading,
       userRank,
       isVip,
-      leaderboardData,
-      leaderboardLoading,
-      leaderboardError,
-      handleRefetchGamblableEventLeaderboard,
+      // leaderboardData,
+      // leaderboardLoading,
+      // leaderboardError,
+      // handleRefetchGamblableEventLeaderboard,
       handleIsVip,
       addToChatbot,
       handleEditModal,

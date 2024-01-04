@@ -1,4 +1,4 @@
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
 import {
   Box,
   Button,
@@ -35,15 +35,12 @@ import {
   NfcFeedQuery,
 } from "../generated/graphql";
 import { SelectableChannel } from "../components/mobile/SelectableChannel";
-import {
-  CHANNEL_FEED_QUERY,
-  GET_SUBSCRIPTION,
-  NFC_FEED_QUERY,
-} from "../constants/queries";
+import { GET_SUBSCRIPTION, NFC_FEED_QUERY } from "../constants/queries";
 import useAddChannelToSubscription from "../hooks/server/useAddChannelToSubscription";
 import useRemoveChannelFromSubscription from "../hooks/server/useRemoveChannelFromSubscription";
 import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
+import { useCacheContext } from "../hooks/context/useCache";
 
 const FixedComponent = () => {
   return (
@@ -168,16 +165,18 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
 function DesktopPage({
   dataChannels,
   loading,
+  error,
 }: {
   dataChannels: any;
   loading: boolean;
+  error?: ApolloError;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const [directingToChannel, setDirectingToChannel] = useState<boolean>(false);
 
-  const channels = dataChannels?.getChannelFeed;
+  const channels = dataChannels;
 
   const sideBarBreakpoints = useBreakpointValue({
     base: false,
@@ -228,7 +227,20 @@ function DesktopPage({
                 </Button>
               </Flex>
             )}
-            {!channels || loading ? (
+            {error ? (
+              <Flex
+                alignItems={"center"}
+                justifyContent={"center"}
+                width="100%"
+                fontSize={"30px"}
+                gap="15px"
+                my="2rem"
+              >
+                <Text fontFamily={"LoRes15"}>
+                  an error has occurred when fetching channels
+                </Text>
+              </Flex>
+            ) : !channels || loading ? (
               <Flex
                 alignItems={"center"}
                 justifyContent={"center"}
@@ -245,7 +257,6 @@ function DesktopPage({
                 callback={() => setDirectingToChannel(true)}
               />
             )}
-            {/* <TournamentSection /> */}
           </Flex>
           <Flex p="16px">
             <Box
@@ -299,9 +310,11 @@ function DesktopPage({
 function MobilePage({
   dataChannels,
   loading,
+  error,
 }: {
   dataChannels: any;
   loading: boolean;
+  error?: ApolloError;
 }) {
   const { initialNotificationsGranted } = useUser();
   const router = useRouter();
@@ -310,14 +323,13 @@ function MobilePage({
   const [loadingPage, setLoadingPage] = useState<boolean>(false);
   const [endpoint, setEndpoint] = useState<string>("");
   const [sortedChannels, setSortedChannels] = useState<Channel[]>([]);
-  const [isSorted, setIsSorted] = useState<boolean>(false);
 
   const [getSubscription, { data: subscriptionData }] =
     useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
       fetchPolicy: "network-only",
     });
 
-  const channels: Channel[] = dataChannels?.getChannelFeed;
+  const channels: Channel[] = dataChannels;
 
   const suggestedChannels =
     subscriptionData?.getSubscriptionByEndpoint?.allowedChannels;
@@ -370,17 +382,19 @@ function MobilePage({
   }, [initialNotificationsGranted]);
 
   useEffect(() => {
-    if (isSorted || !suggestedChannels || !channels) return;
     const liveChannels = channels.filter((channel) => channel.isLive);
-    const _suggestedNonLiveChannels = channels.filter(
-      (channel) =>
-        suggestedChannels.includes(String(channel.id)) && !channel.isLive
-    );
-    const otherChannels = channels.filter(
-      (channel) =>
-        !suggestedChannels.includes(String(channel.id)) && !channel.isLive
-    );
-
+    const _suggestedNonLiveChannels = suggestedChannels
+      ? channels.filter(
+          (channel) =>
+            suggestedChannels?.includes(String(channel.id)) && !channel.isLive
+        )
+      : [];
+    const otherChannels = suggestedChannels
+      ? channels.filter(
+          (channel) =>
+            !suggestedChannels?.includes(String(channel.id)) && !channel.isLive
+        )
+      : channels.filter((channel) => !channel.isLive);
     const sortedLiveChannels = sortChannels(liveChannels);
     const sortedSuggestedNonLiveChannels = sortChannels(
       _suggestedNonLiveChannels
@@ -391,8 +405,7 @@ function MobilePage({
       ...sortedSuggestedNonLiveChannels,
       ...sortedOtherChannels,
     ]);
-    setIsSorted(true);
-  }, [channels, isSorted, suggestedChannels]);
+  }, [channels, suggestedChannels]);
 
   return (
     <AppLayout isCustomHeader={false}>
@@ -421,7 +434,15 @@ function MobilePage({
               right="1rem"
               bottom="1rem"
             />
-            {sortedChannels && sortedChannels.length > 0 ? (
+            {error ? (
+              <Text
+                textAlign={"center"}
+                fontFamily={"LoRes15"}
+                fontSize={"25px"}
+              >
+                an error has occurred when fetching channels
+              </Text>
+            ) : sortedChannels && sortedChannels.length > 0 ? (
               <Virtuoso
                 followOutput={"auto"}
                 ref={scrollRef}
@@ -480,22 +501,28 @@ function MobilePage({
 }
 
 export default function Page() {
-  const { data: dataChannels, loading } = useQuery(CHANNEL_FEED_QUERY, {
-    variables: {
-      data: {},
-    },
-  });
+  const { channelFeed, feedLoading, feedError } = useCacheContext();
 
   const { isStandalone, ready } = useUserAgent();
+
+  if (feedError) console.error("channel feed query error:", feedError);
 
   return (
     <>
       {ready ? (
         <>
           {!isStandalone ? (
-            <DesktopPage dataChannels={dataChannels} loading={loading} />
+            <DesktopPage
+              dataChannels={channelFeed}
+              loading={feedLoading}
+              error={feedError}
+            />
           ) : (
-            <MobilePage dataChannels={dataChannels} loading={loading} />
+            <MobilePage
+              dataChannels={channelFeed}
+              loading={feedLoading}
+              error={feedError}
+            />
           )}
         </>
       ) : (

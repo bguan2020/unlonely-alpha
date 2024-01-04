@@ -1,4 +1,4 @@
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
 import {
   createContext,
   useContext,
@@ -16,7 +16,6 @@ import {
   GET_UNCLAIMED_EVENTS_QUERY,
 } from "../../constants/queries";
 import {
-  Channel,
   GetUnclaimedEventsQuery,
   SharesEvent,
 } from "../../generated/graphql";
@@ -37,11 +36,13 @@ const CacheContext = createContext<{
   claimableBets: UnclaimedBet[];
   fetchingBets: boolean;
   feedLoading: boolean;
+  feedError?: ApolloError;
 }>({
   channelFeed: [],
   claimableBets: [],
   fetchingBets: true,
   feedLoading: true,
+  feedError: undefined,
 });
 
 export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
@@ -56,24 +57,25 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const { localNetwork } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
-  const { data: dataChannels, loading: feedLoading } = useQuery(
-    CHANNEL_FEED_QUERY,
-    {
-      variables: {
-        data: {},
-      },
-      fetchPolicy: "cache-first",
-    }
-  );
+  const {
+    data: dataChannels,
+    loading: feedLoading,
+    error,
+  } = useQuery(CHANNEL_FEED_QUERY, {
+    variables: {
+      data: {},
+    },
+    fetchPolicy: "cache-first",
+  });
 
-  const ongoingBets = useMemo(() => {
-    if (!dataChannels?.getChannelFeed) return [];
-    const _channels: Channel[] = dataChannels?.getChannelFeed;
-    return _channels
-      .filter((channel) => channel.sharesEvent) // Filter out channels without sharesEvent
-      .flatMap((channel) => channel.sharesEvent) // Flatten the arrays of sharesEvent
-      .filter((event): event is SharesEvent => event !== null); // Filter out null values
-  }, [dataChannels?.getChannelFeed]);
+  // const ongoingBets = useMemo(() => {
+  //   if (!dataChannels?.getChannelFeed) return [];
+  //   const _channels: Channel[] = dataChannels?.getChannelFeed;
+  //   return _channels
+  //     .filter((channel) => channel.sharesEvent) // Filter out channels without sharesEvent
+  //     .flatMap((channel) => channel.sharesEvent) // Flatten the arrays of sharesEvent
+  //     .filter((event): event is SharesEvent => event !== null); // Filter out null values
+  // }, [dataChannels?.getChannelFeed]);
 
   const [getUnclaimedEvents] = useLazyQuery<GetUnclaimedEventsQuery>(
     GET_UNCLAIMED_EVENTS_QUERY,
@@ -89,7 +91,6 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
         (network) => network.config.chainId === Number(chainId)
       );
       if (
-        ongoingBets.length === 0 ||
         !_network ||
         !contractData.address ||
         isFetching.current ||
@@ -120,7 +121,6 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
           "claimpage fetching for unclaimed events failed, switching to fetching ongoing bets",
           err
         );
-        unclaimedBets = ongoingBets;
       }
       let payouts: any[] = [];
       try {
@@ -164,7 +164,6 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     contractData.address,
     activeWallet,
     walletIsConnected,
-    ongoingBets,
     counter,
   ]);
 
@@ -178,8 +177,15 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       fetchingBets,
       channelFeed: dataChannels?.getChannelFeed || [],
       feedLoading,
+      feedError: error,
     };
-  }, [claimableBets, fetchingBets, feedLoading, dataChannels?.getChannelFeed]);
+  }, [
+    claimableBets,
+    fetchingBets,
+    feedLoading,
+    dataChannels?.getChannelFeed,
+    error,
+  ]);
 
   return (
     <CacheContext.Provider value={value}>{children}</CacheContext.Provider>

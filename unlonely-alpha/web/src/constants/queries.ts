@@ -73,15 +73,6 @@ export const CHANNEL_DETAIL_QUERY = gql`
         id
         resultIndex
       }
-      sideBets {
-        id
-        wagerDescription
-        creatorAddress
-        opponentAddress
-        chainId
-        createdAt
-        result
-      }
       owner {
         FCImageUrl
         lensImageUrl
@@ -208,26 +199,6 @@ export const CHANNEL_FEED_QUERY = gql`
         address
         FCImageUrl
         lensImageUrl
-      }
-      sharesEvent {
-        sharesSubjectQuestion
-        sharesSubjectAddress
-        options
-        chainId
-        channelId
-        eventState
-        createdAt
-        resultIndex
-        id
-      }
-      sideBets {
-        id
-        wagerDescription
-        creatorAddress
-        opponentAddress
-        chainId
-        createdAt
-        result
       }
       thumbnailUrl
     }
