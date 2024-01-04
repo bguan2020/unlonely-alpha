@@ -13,6 +13,7 @@ export const useVibesCheck = () => {
   const client = useApolloClient();
 
   const [tokenTxs, setTokenTxs] = useState<VibeTokenTx[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const _getEnsName = async (address: `0x${string}`) => {
     try {
@@ -65,6 +66,7 @@ export const useVibesCheck = () => {
   useEffect(() => {
     if (!publicClient) return;
     const init = async () => {
+      setLoading(true);
       const [mintLogs, burnLogs] = await Promise.all([
         publicClient.getLogs({
           address: "0x4c4cE2C17593e9EE6DF6B159cfb45865bEf3d82F",
@@ -119,11 +121,12 @@ export const useVibesCheck = () => {
         };
       });
       setTokenTxs(namedTokenTx);
+      setLoading(false);
     };
     init();
   }, [publicClient]);
 
-  return { tokenTxs };
+  return { tokenTxs, loading };
 };
 
 function createHashmap<K, V>(keys: K[], values: V[]): Map<K, V> {

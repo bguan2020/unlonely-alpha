@@ -36,14 +36,16 @@ const CacheContext = createContext<{
   fetchingBets: boolean;
   feedLoading: boolean;
   feedError?: ApolloError;
-  vibeTokenTxs: VibeTokenTx[];
+  vibesTokenTxs: VibeTokenTx[];
+  vibesTokenLoading: boolean;
 }>({
   channelFeed: [],
   claimableBets: [],
   fetchingBets: true,
   feedLoading: true,
   feedError: undefined,
-  vibeTokenTxs: [],
+  vibesTokenTxs: [],
+  vibesTokenLoading: true,
 });
 
 export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
@@ -58,7 +60,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const { localNetwork } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
-  const { tokenTxs } = useVibesCheck();
+  const { tokenTxs, loading } = useVibesCheck();
 
   const {
     data: dataChannels,
@@ -172,7 +174,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       channelFeed: dataChannels?.getChannelFeed || [],
       feedLoading,
       feedError: error,
-      vibeTokenTxs: tokenTxs,
+      vibesTokenTxs: tokenTxs,
+      vibesTokenLoading: loading,
     };
   }, [
     claimableBets,
@@ -181,6 +184,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     error,
     dataChannels?.getChannelFeed,
     tokenTxs,
+    loading,
   ]);
 
   return (

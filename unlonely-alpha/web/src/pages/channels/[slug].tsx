@@ -241,7 +241,13 @@ const DesktopPage = ({
                 maxW={["100%", "100%", "380px", "380px"]}
                 gap="1rem"
               >
-                <Flex height="20vh" gap="5px" bg="#131323" p="5px">
+                <Flex
+                  height="20vh"
+                  gap="5px"
+                  justifyContent={"space-between"}
+                  bg="#131323"
+                  p="5px"
+                >
                   <VibesTokenExchange />
                 </Flex>
                 <ChatComponent chat={chat} />
