@@ -345,7 +345,7 @@ export const CreateBet = ({
                   pendingBet ||
                   question.length === 0 ||
                   !isVerifier ||
-                  !matchingChain ||
+                  (!matchingChain && !localNetwork.config.isTestnet) ||
                   !sufficientEthForGas ||
                   currentBetIsActiveAndHasFunds
                 }
@@ -394,7 +394,7 @@ const OpenEventInterface = ({
   >("60");
   const toast = useToast();
   const { network } = useNetworkContext();
-  const { explorerUrl, matchingChain } = network;
+  const { explorerUrl, matchingChain, localNetwork } = network;
 
   const { postBet } = usePostBet({
     onError: (err) => {
@@ -603,7 +603,7 @@ const OpenEventInterface = ({
             width="100%"
             isDisabled={
               !isVerifier ||
-              !matchingChain ||
+              (!matchingChain && !localNetwork.config.isTestnet) ||
               !sufficientEthForGas ||
               currentBetIsActiveAndHasFunds ||
               !openEvent

@@ -204,7 +204,11 @@ export const JudgeBet = ({
             _focus={{}}
             _active={{}}
             bg="#0057bb"
-            isDisabled={!verifyEvent || !matchingChain || verifyEventTxLoading}
+            isDisabled={
+              !verifyEvent ||
+              (!matchingChain && !localNetwork.config.isTestnet) ||
+              verifyEventTxLoading
+            }
             onClick={verifyEvent}
           >
             confirm{" "}
