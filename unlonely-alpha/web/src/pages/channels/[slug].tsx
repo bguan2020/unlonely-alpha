@@ -25,12 +25,8 @@ import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
-import {
-  CHANNEL_DETAIL_QUERY,
-} from "../../constants/queries";
-import {
-  ChannelDetailQuery,
-} from "../../generated/graphql";
+import { CHANNEL_DETAIL_QUERY } from "../../constants/queries";
+import { ChannelDetailQuery } from "../../generated/graphql";
 import {
   ChannelProvider,
   useChannelContext,
@@ -76,7 +72,7 @@ const DesktopPage = ({
   const { channel, leaderboard } = useChannelContext();
   const chat = useChat();
   const { network } = useNetworkContext();
-  const { matchingChain, localNetwork, explorerUrl } = network;
+  const { localNetwork } = network;
   const {
     channelQueryData,
     loading: channelDataLoading,
