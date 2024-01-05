@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { Text, Flex, Button, useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
 import { decodeEventLog } from "viem";
@@ -31,6 +31,7 @@ export const JudgeBet = ({
     undefined
   );
   const toast = useToast();
+  const canAddToChatbot = useRef(false);
 
   const { updateSharesEvent } = useUpdateSharesEvent({});
   const sufficientEthForGas = useMemo(
@@ -63,6 +64,7 @@ export const JudgeBet = ({
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot.current = true;
       },
       onWriteError: (error) => {
         toast({
@@ -75,8 +77,10 @@ export const JudgeBet = ({
             </Box>
           ),
         });
+        canAddToChatbot.current = false;
       },
       onTxSuccess: async (data) => {
+        if (!canAddToChatbot.current) return;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -115,6 +119,7 @@ export const JudgeBet = ({
           } votes win!`,
           description: "event-end",
         });
+        canAddToChatbot.current = false;
         await refetch().then(handleClose);
       },
       onTxError: (error) => {
@@ -128,6 +133,7 @@ export const JudgeBet = ({
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot.current = false;
       },
     }
   );

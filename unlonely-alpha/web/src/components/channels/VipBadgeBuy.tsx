@@ -27,6 +27,7 @@ export const VipBadgeBuy = () => {
   const { matchingChain, localNetwork, explorerUrl } = network;
 
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const canAddToChatbot = useRef(false);
 
   const blockNumber = useBlockNumber({
     watch: true,
@@ -145,7 +146,11 @@ export const VipBadgeBuy = () => {
     },
     tournamentContract,
     getCallbackHandlers("buyVipBadge", {
+      callbackOnWriteSuccess: async (data: any) => {
+        canAddToChatbot.current = true;
+      },
       callbackOnTxSuccess: async (data: any) => {
+        if (!canAddToChatbot.current) return;
         const topics = decodeEventLog({
           abi: tournamentContract.abi,
           data: data.logs[0].data,
@@ -172,6 +177,7 @@ export const VipBadgeBuy = () => {
           chainId: localNetwork.config.chainId,
           fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
+        canAddToChatbot.current = false;
       },
     })
   );
