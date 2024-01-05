@@ -38,7 +38,8 @@ contract VibesTokenV1 is ERC20, Ownable {
         streamerFeePercent = _feePercent;
     }
 
-    function mint(uint256 _amount, address streamerAddress) external payable requireFeeDestination {
+    function mint(uint256 _amount, address _streamerAddress) external payable requireFeeDestination {
+        require(_streamerAddress != address(0), "_streamerAddress is a zero address");
         uint256 cost = mintCost(_amount);
         uint256 protocolFee = cost * protocolFeePercent / 1 ether;
         uint256 subjectFee = cost * streamerFeePercent / 1 ether;
@@ -58,13 +59,14 @@ contract VibesTokenV1 is ERC20, Ownable {
         }
 
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
-        (bool success2, ) = streamerAddress.call{value: subjectFee}("");
+        (bool success2, ) = _streamerAddress.call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
 
-        emit Mint(msg.sender, _amount, streamerAddress, totalSupply());
+        emit Mint(msg.sender, _amount, _streamerAddress, totalSupply());
     }
 
-    function burn(uint256 _amount, address streamerAddress) external requireFeeDestination {
+    function burn(uint256 _amount, address _streamerAddress) external requireFeeDestination {
+        require(_streamerAddress != address(0), "_streamerAddress is a zero address");
         if (_amount > balanceOf(msg.sender)) {
             revert BurnAmountTooHigh(balanceOf(msg.sender), _amount);
         }
@@ -82,10 +84,10 @@ contract VibesTokenV1 is ERC20, Ownable {
         }
 
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
-        (bool success2, ) = streamerAddress.call{value: subjectFee}("");
+        (bool success2, ) = _streamerAddress.call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
 
-        emit Burn(msg.sender, _amount, streamerAddress, totalSupply());
+        emit Burn(msg.sender, _amount, _streamerAddress, totalSupply());
     }
 
     function mintCost(uint256 _amount) public view returns (uint256) {

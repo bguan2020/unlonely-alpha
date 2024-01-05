@@ -7,7 +7,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deploy("VibesTokenV1", {
     from: deployer,
-    args: [],
+    args: ["Vibes", "VIBES"],
     log: true
   })
 };
