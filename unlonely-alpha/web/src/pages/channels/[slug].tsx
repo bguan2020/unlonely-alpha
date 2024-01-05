@@ -73,7 +73,7 @@ const DesktopPage = ({
   const { channel, leaderboard } = useChannelContext();
   const chat = useChat();
   const { network } = useNetworkContext();
-  const { matchingChain, localNetwork, explorerUrl } = network;
+  const { localNetwork } = network;
   const {
     channelQueryData,
     loading: channelDataLoading,

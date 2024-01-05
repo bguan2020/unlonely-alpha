@@ -20,6 +20,7 @@ export type { UnlonelySharesV1 } from "./UnlonelySharesV1";
 export type { UnlonelySharesV2 } from "./UnlonelySharesV2";
 export type { UnlonelySideBetsV1 } from "./UnlonelySideBetsV1";
 export type { UnlonelyTournament } from "./UnlonelyTournament";
+export type { VibesTokenV1 } from "./VibesTokenV1";
 
 export { Ownable__factory } from "./factories/Ownable__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
@@ -40,3 +41,4 @@ export { UnlonelySharesV1__factory } from "./factories/UnlonelySharesV1__factory
 export { UnlonelySharesV2__factory } from "./factories/UnlonelySharesV2__factory";
 export { UnlonelySideBetsV1__factory } from "./factories/UnlonelySideBetsV1__factory";
 export { UnlonelyTournament__factory } from "./factories/UnlonelyTournament__factory";
+export { VibesTokenV1__factory } from "./factories/VibesTokenV1__factory";

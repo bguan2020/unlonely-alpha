@@ -345,7 +345,7 @@ export const CreateBet = ({
                   pendingBet ||
                   question.length === 0 ||
                   !isVerifier ||
-                  !matchingChain ||
+                  (!matchingChain && !localNetwork.config.isTestnet) ||
                   !sufficientEthForGas ||
                   currentBetIsActiveAndHasFunds
                 }
@@ -394,7 +394,7 @@ const OpenEventInterface = ({
   >("60");
   const toast = useToast();
   const { network } = useNetworkContext();
-  const { explorerUrl, matchingChain } = network;
+  const { explorerUrl, matchingChain, localNetwork } = network;
 
   const { postBet } = usePostBet({
     onError: (err) => {
@@ -418,10 +418,12 @@ const OpenEventInterface = ({
     [pendingBet]
   );
 
+  const pendingBetId = useMemo(() => pendingBet?.id, [pendingBet]);
+
   const { openEvent, openEventTxLoading } = useOpenEvent(
     {
       eventAddress: userAddress ?? NULL_ADDRESS,
-      eventId: Number(pendingBet.id),
+      eventId: Number(pendingBetId),
       endTimestamp: BigInt(
         String(
           Math.floor((dateNow + Number(selectedEndTime) * 60 * 1000) / 1000)
@@ -481,7 +483,7 @@ const OpenEventInterface = ({
         await postBet({
           channelId: channelQueryData?.id as string,
           userAddress: userAddress as `0x${string}`,
-          eventId: Number(pendingBet.id),
+          eventId: Number(pendingBetId),
           eventType: EventType.YayNayVote,
         });
         await _updateSharesEvent(SharesEventState.Live);
@@ -603,7 +605,7 @@ const OpenEventInterface = ({
             width="100%"
             isDisabled={
               !isVerifier ||
-              !matchingChain ||
+              (!matchingChain && !localNetwork.config.isTestnet) ||
               !sufficientEthForGas ||
               currentBetIsActiveAndHasFunds ||
               !openEvent
