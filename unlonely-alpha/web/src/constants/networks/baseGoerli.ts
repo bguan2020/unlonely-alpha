@@ -5,6 +5,7 @@ import UnlonelySharesV1 from "../abi/UnlonelySharesV1.json";
 import UnlonelySharesV2 from "../abi/UnlonelySharesV2.json";
 import UnlonelyTournament from "../abi/UnlonelyTournament.json";
 import UnlonelySideBetsV1 from "../abi/UnlonelySideBetsV1.json";
+import VibesTokenV1 from "../abi/VibesTokenV1.json";
 
 export const BaseGoerli: Network = {
   ...baseGoerli,
@@ -28,6 +29,10 @@ export const BaseGoerli: Network = {
       unlonelySideBetsV1: {
         address: "0xf2DA37B5C8c5742834bDcF320757d2CC3F655691",
         abi: UnlonelySideBetsV1,
+      },
+      vibesTokenV1: {
+        address: "0x994005256A268953C0620e8983DcB9900c097914",
+        abi: VibesTokenV1,
       },
     },
   },
