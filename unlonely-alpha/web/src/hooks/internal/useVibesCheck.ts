@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { parseAbiItem } from "viem";
-import { useContractEvent, usePublicClient } from "wagmi";
+import { useBlockNumber, useContractEvent, usePublicClient } from "wagmi";
 import { useApolloClient } from "@apollo/client";
 
 import VibesTokenV1 from "../../constants/abi/VibesTokenV1.json";
@@ -19,6 +19,13 @@ export const useVibesCheck = () => {
   const { localNetwork } = network;
   const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
   const [hashMapState, setHashMapState] = useState<Map<any, any>>(new Map());
+  const [chartTimeIndexes, setChartTimeIndexes] = useState<Map<string, number>>(
+    new Map()
+  );
+
+  const blockNumber = useBlockNumber({
+    watch: true,
+  });
 
   const _getEnsName = async (address: `0x${string}`) => {
     try {
@@ -50,6 +57,7 @@ export const useVibesCheck = () => {
           user,
           amount: log[0].args.amount,
           price,
+          blockNumber: log[0].blockNumber,
         };
         setTokenTxs((prev) => [...prev, eventTx]);
         appending.current = false;
@@ -76,6 +84,7 @@ export const useVibesCheck = () => {
           user,
           amount: log[0].args.amount,
           price,
+          blockNumber: log[0].blockNumber,
         };
         setTokenTxs((prev) => [...prev, eventTx]);
         appending.current = false;
@@ -119,6 +128,7 @@ export const useVibesCheck = () => {
           user: event.args.account,
           amount: event.args.amount,
           price,
+          blockNumber: event.blockNumber,
         };
       });
       const uniqueUsers = new Set();
@@ -143,7 +153,26 @@ export const useVibesCheck = () => {
     init();
   }, [publicClient, contract.address]);
 
-  return { tokenTxs, loading };
+  useEffect(() => {
+    if (!blockNumber.data || tokenTxs.length === 0) return;
+    const AVERAGE_BLOCK_TIME_SECS = 2;
+    const currentBlockNumber = blockNumber.data;
+    const blockNumberOneHourAgo =
+      currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60);
+    const blockNumberOneDayAgo =
+      currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
+
+    const hourIndex = binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
+    const dayIndex = binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
+    setChartTimeIndexes(
+      new Map([
+        ["hour", hourIndex],
+        ["day", dayIndex],
+      ])
+    );
+  }, [tokenTxs.length]);
+
+  return { tokenTxs, chartTimeIndexes, loading };
 };
 
 function createHashmap<K, V>(keys: K[], values: V[]): Map<K, V> {
@@ -157,4 +186,27 @@ function createHashmap<K, V>(keys: K[], values: V[]): Map<K, V> {
   });
 
   return map;
+}
+
+function binarySearchIndex(arr: VibesTokenTx[], target: bigint): number {
+  let left = 0;
+  let right = arr.length - 1;
+
+  while (left <= right) {
+    const mid = left + Math.floor((right - left) / 2);
+
+    if (arr[mid].blockNumber === target) {
+      // Target found, return its index
+      return mid;
+    } else if (arr[mid].blockNumber < target) {
+      // Search in the right half
+      left = mid + 1;
+    } else {
+      // Search in the left half
+      right = mid - 1;
+    }
+  }
+
+  // Target not found, return the insertion position
+  return left;
 }

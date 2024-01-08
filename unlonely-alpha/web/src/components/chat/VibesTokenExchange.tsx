@@ -9,7 +9,7 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { isAddress } from "viem";
+import { formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useBlockNumber } from "wagmi";
 
@@ -26,6 +26,7 @@ import useDebounce from "../../hooks/internal/useDebounce";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -46,7 +47,10 @@ const CustomTooltip = ({ active, payload }: any) => {
         >{`${payload[0].payload.event === "Mint" ? "Bought" : "Sold"} ${
           payload[0].payload.amount
         }`}</Text>
-        <Text>{`New price: ${payload[0].payload.price}`}</Text>
+        <Text>{`New price: ${truncateValue(
+          formatUnits(payload[0].payload.price, 18),
+          10
+        )} ETH`}</Text>
       </Flex>
     );
   }
@@ -55,7 +59,8 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const VibesTokenExchange = () => {
-  const { vibesTokenTxs, vibesTokenLoading } = useCacheContext();
+  const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
+    useCacheContext();
   const toast = useToast();
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
@@ -63,20 +68,30 @@ const VibesTokenExchange = () => {
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
 
+  const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">("1h");
+
   const blockNumber = useBlockNumber({
     watch: true,
   });
 
   const formattedData = useMemo(() => {
-    return vibesTokenTxs.map((tx) => {
+    const res = vibesTokenTxs.map((tx) => {
       return {
         user: tx.user,
         event: tx.eventName,
         amount: Number(tx.amount),
         price: tx.price,
+        blockNumber: tx.blockNumber,
       };
     });
-  }, [vibesTokenTxs]);
+    if (timeFilter === "1h") {
+      return res.slice(chartTimeIndexes.get("hour") as number);
+    }
+    if (timeFilter === "1d") {
+      return res.slice(chartTimeIndexes.get("day") as number);
+    }
+    return res;
+  }, [vibesTokenTxs, timeFilter, chartTimeIndexes]);
 
   const [amountOfVibes, setAmountOfVibes] = useState<string>("1");
   const debouncedAmountOfVotes = useDebounce(amountOfVibes, 300);
@@ -283,15 +298,48 @@ const VibesTokenExchange = () => {
           <Spinner size="md" />
         </Flex>
       ) : (
-        <>
-          <Text
-            position="absolute"
-            fontSize={"20px"}
-            color="#c6c3fc"
-            fontWeight="bold"
-          >
-            $VIBES
-          </Text>
+        <Flex direction="column" w="100%">
+          <Flex gap="1rem">
+            <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
+              $VIBES
+            </Text>
+            <Button
+              bg={timeFilter === "1h" ? "#8884d8" : "#403c7d"}
+              color="white"
+              p={0}
+              height={"100%"}
+              _focus={{}}
+              _active={{}}
+              _hover={{}}
+              onClick={() => setTimeFilter("1h")}
+            >
+              1h
+            </Button>
+            <Button
+              bg={timeFilter === "1d" ? "#8884d8" : "#403c7d"}
+              color="white"
+              p={0}
+              height={"100%"}
+              _focus={{}}
+              _active={{}}
+              _hover={{}}
+              onClick={() => setTimeFilter("1d")}
+            >
+              1d
+            </Button>
+            <Button
+              bg={timeFilter === "all" ? "#8884d8" : "#403c7d"}
+              color="white"
+              p={0}
+              height={"100%"}
+              _focus={{}}
+              _active={{}}
+              _hover={{}}
+              onClick={() => setTimeFilter("all")}
+            >
+              all time
+            </Button>
+          </Flex>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={formattedData}>
               <Tooltip content={<CustomTooltip />} />
@@ -304,7 +352,7 @@ const VibesTokenExchange = () => {
               />
             </LineChart>
           </ResponsiveContainer>
-        </>
+        </Flex>
       )}
       <Flex direction="column" justifyContent={"space-evenly"}>
         <Input
