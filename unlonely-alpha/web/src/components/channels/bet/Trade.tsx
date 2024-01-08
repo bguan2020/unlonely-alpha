@@ -70,9 +70,8 @@ const Trade = () => {
     [debouncedAmountOfVotes]
   );
 
-  const { data: userEthBalance } = useBalance({
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
-    watch: true,
   });
   const canAddToChatbotBuy = useRef(false);
   const canAddToChatbotClaim = useRef(false);
@@ -540,7 +539,7 @@ const Trade = () => {
 
   useEffect(() => {
     if (!blockNumber.data || isFetching.current) return;
-    let calls: any[] = [refetchMappings()];
+    let calls: any[] = [refetchMappings(), refetchUserEthBalance()];
     if (doesEventExist && isSharesEventLive) {
       calls = calls.concat([
         refetchVotePrice(),

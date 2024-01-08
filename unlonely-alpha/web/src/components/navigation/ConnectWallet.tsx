@@ -20,7 +20,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
 import Confetti from "react-confetti";
-import { useBalance, useFeeData } from "wagmi";
+import { useBalance, useBlockNumber, useFeeData } from "wagmi";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import { useUser } from "../../hooks/context/useUser";
@@ -173,15 +173,16 @@ const ConnectedDisplay = () => {
 
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
 
-  const feeData = useFeeData({
-    watch: true,
+  const { data: feeData, refetch } = useFeeData({
     chainId: 84531,
   });
-
-  const { data: userEthBalance } = useBalance({
-    address: userAddress as `0x${string}`,
+  const blockNumber = useBlockNumber({
     watch: true,
   });
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
+    address: userAddress as `0x${string}`,
+  });
+  const isFetching = useRef(false);
 
   const isLowEthBalance = useMemo(() => {
     if (!userEthBalance || !feeData || !matchingChain) {
@@ -189,10 +190,10 @@ const ConnectedDisplay = () => {
     }
 
     return (
-      Number(feeData?.data?.formatted?.gasPrice ?? "0") >
+      Number(feeData?.formatted?.gasPrice ?? "0") >
       Number(userEthBalance.formatted)
     );
-  }, [feeData?.data?.formatted?.gasPrice, userEthBalance, matchingChain]);
+  }, [feeData?.formatted?.gasPrice, userEthBalance, matchingChain]);
 
   const redirectToBridge = useCallback(() => {
     if (isStandalone) {
@@ -234,6 +235,21 @@ const ConnectedDisplay = () => {
 
     return () => window.removeEventListener("resize", updateSize); // Cleanup listener
   }, [claimableBets.length]);
+
+  useEffect(() => {
+    if (!blockNumber.data || isFetching.current) return;
+    const calls: any[] = [refetch(), refetchUserEthBalance()];
+    const fetch = async () => {
+      isFetching.current = true;
+      try {
+        await Promise.all(calls);
+      } catch (err) {
+        console.log("connect fetching error", err);
+      }
+      isFetching.current = false;
+    };
+    fetch();
+  }, [blockNumber.data]);
 
   return (
     <>
