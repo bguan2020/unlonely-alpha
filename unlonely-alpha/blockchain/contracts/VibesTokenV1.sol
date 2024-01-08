@@ -8,6 +8,7 @@ contract VibesTokenV1 is ERC20, Ownable {
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
     uint256 public streamerFeePercent;
+    uint256 public MAX_SUPPLY = 21_000_000;
 
     event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply);
     event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply);
@@ -40,6 +41,7 @@ contract VibesTokenV1 is ERC20, Ownable {
 
     function mint(uint256 _amount, address _streamerAddress) external payable requireFeeDestination {
         require(_streamerAddress != address(0), "_streamerAddress is a zero address");
+        require(totalSupply() + _amount <= MAX_SUPPLY, "Maximum supply exceeded");
         uint256 cost = mintCost(_amount);
         uint256 protocolFee = cost * protocolFeePercent / 1 ether;
         uint256 subjectFee = cost * streamerFeePercent / 1 ether;

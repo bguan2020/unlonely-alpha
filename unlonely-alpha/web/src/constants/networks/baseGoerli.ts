@@ -31,7 +31,7 @@ export const BaseGoerli: Network = {
         abi: UnlonelySideBetsV1,
       },
       vibesTokenV1: {
-        address: "0x994005256A268953C0620e8983DcB9900c097914",
+        address: "0x7D892A8eE506D185BB7dc09424D90653c035BeC7",
         abi: VibesTokenV1,
       },
     },

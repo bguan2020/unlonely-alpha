@@ -4,7 +4,7 @@ import { useContractEvent, usePublicClient } from "wagmi";
 import { useApolloClient } from "@apollo/client";
 
 import VibesTokenV1 from "../../constants/abi/VibesTokenV1.json";
-import { VibeTokenTx } from "../../constants/types";
+import { VibesTokenTx } from "../../constants/types";
 import { GET_USER_QUERY } from "../../constants/queries";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../context/useNetwork";
@@ -13,7 +13,7 @@ export const useVibesCheck = () => {
   const publicClient = usePublicClient();
   const appending = useRef(false);
   const client = useApolloClient();
-  const [tokenTxs, setTokenTxs] = useState<VibeTokenTx[]>([]);
+  const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
   const [loading, setLoading] = useState(false);
   const { network } = useNetworkContext();
   const { localNetwork } = network;
@@ -38,11 +38,13 @@ export const useVibesCheck = () => {
     listener(log: any) {
       if (appending.current) return;
       appending.current = true;
+      const n = Number(log[0].args.totalSupply);
+      const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
       const eventTx = {
         eventName: "Mint",
         user: log[0].args.account,
         amount: log[0].args.amount,
-        supply: log[0].args.totalSupply,
+        price,
       };
       setTokenTxs((prev) => [...prev, eventTx]);
       appending.current = false;
@@ -56,11 +58,13 @@ export const useVibesCheck = () => {
     listener(log: any) {
       if (appending.current) return;
       appending.current = true;
+      const n = Number(log[0].args.totalSupply);
+      const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
       const eventTx = {
         eventName: "Burn",
         user: log[0].args.account,
         amount: log[0].args.amount,
-        supply: log[0].args.totalSupply,
+        price,
       };
       setTokenTxs((prev) => [...prev, eventTx]);
       appending.current = false;
@@ -94,12 +98,14 @@ export const useVibesCheck = () => {
         if (a.blockNumber > b.blockNumber) return 1;
         return 0;
       });
-      const _tokenTxs = logs.map((event: any) => {
+      const _tokenTxs: VibesTokenTx[] = logs.map((event: any) => {
+        const n = Number(event.args.totalSupply);
+        const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
         return {
           eventName: event.eventName,
           user: event.args.account,
           amount: event.args.amount,
-          supply: event.args.totalSupply,
+          price,
         };
       });
       const uniqueUsers = new Set();

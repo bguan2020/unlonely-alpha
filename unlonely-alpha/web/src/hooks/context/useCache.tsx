@@ -20,7 +20,7 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "./useNetwork";
 import { useUser } from "./useUser";
 import { useVibesCheck } from "../internal/useVibesCheck";
-import { VibeTokenTx } from "../../constants/types";
+import { VibesTokenTx } from "../../constants/types";
 
 type UnclaimedBet = SharesEvent & {
   payout: bigint;
@@ -36,7 +36,7 @@ const CacheContext = createContext<{
   fetchingBets: boolean;
   feedLoading: boolean;
   feedError?: ApolloError;
-  vibesTokenTxs: VibeTokenTx[];
+  vibesTokenTxs: VibesTokenTx[];
   vibesTokenLoading: boolean;
 }>({
   channelFeed: [],

@@ -46,7 +46,7 @@ const CustomTooltip = ({ active, payload }: any) => {
         >{`${payload[0].payload.event === "Mint" ? "Bought" : "Sold"} ${
           payload[0].payload.amount
         }`}</Text>
-        <Text>{`New price: ${payload[0].payload.newSupply}`}</Text>
+        <Text>{`New price: ${payload[0].payload.price}`}</Text>
       </Flex>
     );
   }
@@ -73,7 +73,7 @@ const VibesTokenExchange = () => {
         user: tx.user,
         event: tx.eventName,
         amount: Number(tx.amount),
-        newSupply: Number(tx.supply),
+        price: tx.price,
       };
     });
   }, [vibesTokenTxs]);
@@ -297,7 +297,7 @@ const VibesTokenExchange = () => {
               <Tooltip content={<CustomTooltip />} />
               <Line
                 type="monotone"
-                dataKey="newSupply"
+                dataKey="price"
                 stroke="#8884d8"
                 strokeWidth={2}
                 dot={false}
