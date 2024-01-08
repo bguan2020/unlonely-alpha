@@ -11,7 +11,8 @@ import {
 } from "@chakra-ui/react";
 import { formatUnits, isAddress } from "viem";
 import Link from "next/link";
-import { useBlockNumber } from "wagmi";
+import { useBalance, useBlockNumber } from "wagmi";
+import { TbMoneybag } from "react-icons/tb";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
@@ -27,6 +28,7 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { useUser } from "../../hooks/context/useUser";
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -59,6 +61,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const VibesTokenExchange = () => {
+  const { userAddress } = useUser();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
     useCacheContext();
   const toast = useToast();
@@ -72,6 +75,11 @@ const VibesTokenExchange = () => {
 
   const blockNumber = useBlockNumber({
     watch: true,
+  });
+
+  const { data: vibesBalance, refetch } = useBalance({
+    address: userAddress,
+    token: getContractFromNetwork("vibesTokenV1", localNetwork).address,
   });
 
   const formattedData = useMemo(() => {
@@ -275,6 +283,7 @@ const VibesTokenExchange = () => {
           refetchBurn(),
           refetchMintCostAfterFees(),
           refetchBurnProceedsAfterFees(),
+          refetch(),
         ]);
       } catch (err) {
         console.log("vibes fetching error", err);
@@ -299,15 +308,15 @@ const VibesTokenExchange = () => {
         </Flex>
       ) : (
         <Flex direction="column" w="100%">
-          <Flex gap="1rem">
+          <Flex gap="1rem" alignItems={"center"}>
             <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
               $VIBES
             </Text>
             <Button
               bg={timeFilter === "1h" ? "#8884d8" : "#403c7d"}
               color="white"
-              p={0}
-              height={"100%"}
+              p={2}
+              height={"20px"}
               _focus={{}}
               _active={{}}
               _hover={{}}
@@ -318,8 +327,8 @@ const VibesTokenExchange = () => {
             <Button
               bg={timeFilter === "1d" ? "#8884d8" : "#403c7d"}
               color="white"
-              p={0}
-              height={"100%"}
+              p={2}
+              height={"20px"}
               _focus={{}}
               _active={{}}
               _hover={{}}
@@ -330,14 +339,14 @@ const VibesTokenExchange = () => {
             <Button
               bg={timeFilter === "all" ? "#8884d8" : "#403c7d"}
               color="white"
-              p={0}
-              height={"100%"}
+              p={2}
+              height={"20px"}
               _focus={{}}
               _active={{}}
               _hover={{}}
               onClick={() => setTimeFilter("all")}
             >
-              all time
+              all
             </Button>
           </Flex>
           <ResponsiveContainer width="100%" height="100%">
@@ -355,13 +364,26 @@ const VibesTokenExchange = () => {
         </Flex>
       )}
       <Flex direction="column" justifyContent={"space-evenly"}>
+        {vibesBalance?.formatted && (
+          <Flex
+            alignItems={"center"}
+            justifyContent={"center"}
+            color="#d0ceff"
+            fontSize="25px"
+          >
+            <TbMoneybag />
+            <Text fontFamily={"LoRes15"}>
+              {truncateValue(vibesBalance?.formatted, 0)}
+            </Text>
+          </Flex>
+        )}
         <Input
           variant="glow"
           textAlign="center"
-          width={"70px"}
           value={amountOfVibes}
           onChange={handleInputChange}
           mx="auto"
+          fontSize={"14px"}
         />
         <Button
           color="white"
