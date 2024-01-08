@@ -1,7 +1,8 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Text, Flex, Button, useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
 import { decodeEventLog } from "viem";
+import { usePublicClient } from "wagmi";
 
 import { getContractFromNetwork } from "../../../utils/contract";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
@@ -32,12 +33,15 @@ export const JudgeBet = ({
   );
   const toast = useToast();
   const canAddToChatbot = useRef(false);
+  const publicClient = usePublicClient();
+  const [requiredGas, setRequiredGas] = useState<bigint>(BigInt(0));
+
+  const sufficientEthForGas = useMemo(
+    () => ethBalance >= requiredGas,
+    [ethBalance, requiredGas]
+  );
 
   const { updateSharesEvent } = useUpdateSharesEvent({});
-  const sufficientEthForGas = useMemo(
-    () => ethBalance >= BigInt(1000000),
-    [ethBalance]
-  );
 
   const { verifyEvent, verifyEventTxLoading } = useVerifyEvent(
     {
@@ -150,6 +154,31 @@ export const JudgeBet = ({
     },
     [ongoingBets, user, userAddress]
   );
+
+  useEffect(() => {
+    const estimateGas = async () => {
+      const gas = await publicClient
+        .estimateContractGas({
+          address: contractData.address as `0x${string}`,
+          abi: contractData.abi,
+          functionName: "verifyEvent",
+          args: [userAddress as `0x${string}`, 0, true],
+          account: userAddress as `0x${string}`,
+        })
+        .then((data) => {
+          return data;
+        })
+        .catch((e) => {
+          console.log("calling error", e);
+          return BigInt(0);
+        });
+      const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
+      setRequiredGas(adjustedGas);
+    };
+    if (publicClient && contractData && userAddress) {
+      estimateGas();
+    }
+  }, [publicClient, contractData, userAddress]);
 
   return (
     <Flex direction="column" gap="10px">
