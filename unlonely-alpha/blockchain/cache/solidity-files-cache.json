@@ -1228,8 +1228,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\VibesTokenV1.sol": {
-      "lastModificationDate": 1704488381389,
-      "contentHash": "066a925a384a92f44847849434d47eb0",
+      "lastModificationDate": 1704735903237,
+      "contentHash": "ec8f675347d07e9f3e188af974103f33",
       "sourceName": "contracts/VibesTokenV1.sol",
       "solcConfig": {
         "version": "0.8.8",

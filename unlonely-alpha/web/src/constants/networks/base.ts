@@ -5,6 +5,7 @@ import unlonelyArcadeAbi from "../abi/UnlonelyArcadeContract.json";
 import UnlonelySharesV1 from "../abi/UnlonelySharesV1.json";
 import UnlonelySharesV2 from "../abi/UnlonelySharesV2.json";
 import UnlonelyTournament from "../abi/UnlonelyTournament.json";
+import VibesTokenV1 from "../abi/VibesTokenV1.json";
 
 const base = {
   id: 8453,
@@ -68,6 +69,10 @@ export const Base: Network = {
       unlonelyTournament: {
         address: "0xbDb1Af6F2f3879cAcc5Eb9A2b8c770f7c424a5C9",
         abi: UnlonelyTournament,
+      },
+      vibesTokenV1: {
+        address: "0xbc82454027d2a12700adC2370148Ccb3BD759Cae",
+        abi: VibesTokenV1,
       },
     },
   },

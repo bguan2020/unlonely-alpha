@@ -1,19 +1,23 @@
 import { useState, useEffect, useRef } from "react";
-import { decodeEventLog, parseAbiItem } from "viem";
+import { parseAbiItem } from "viem";
 import { useContractEvent, usePublicClient } from "wagmi";
 import { useApolloClient } from "@apollo/client";
 
-import ERC1967Proxy from "../../constants/abi/ERC1967Proxy.json";
+import VibesTokenV1 from "../../constants/abi/VibesTokenV1.json";
 import { VibeTokenTx } from "../../constants/types";
 import { GET_USER_QUERY } from "../../constants/queries";
+import { getContractFromNetwork } from "../../utils/contract";
+import { useNetworkContext } from "../context/useNetwork";
 
 export const useVibesCheck = () => {
   const publicClient = usePublicClient();
   const appending = useRef(false);
   const client = useApolloClient();
-
   const [tokenTxs, setTokenTxs] = useState<VibeTokenTx[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+  const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
 
   const _getEnsName = async (address: `0x${string}`) => {
     try {
@@ -28,8 +32,8 @@ export const useVibesCheck = () => {
   };
 
   useContractEvent({
-    address: "0x4c4cE2C17593e9EE6DF6B159cfb45865bEf3d82F",
-    abi: ERC1967Proxy,
+    address: contract.address,
+    abi: VibesTokenV1,
     eventName: "Mint",
     listener(log: any) {
       if (appending.current) return;
@@ -38,7 +42,7 @@ export const useVibesCheck = () => {
         eventName: "Mint",
         user: log[0].args.account,
         amount: log[0].args.amount,
-        supply: log[0].args.newTotalSupply,
+        supply: log[0].args.totalSupply,
       };
       setTokenTxs((prev) => [...prev, eventTx]);
       appending.current = false;
@@ -46,8 +50,8 @@ export const useVibesCheck = () => {
   });
 
   useContractEvent({
-    address: "0x4c4cE2C17593e9EE6DF6B159cfb45865bEf3d82F",
-    abi: ERC1967Proxy,
+    address: contract.address,
+    abi: VibesTokenV1,
     eventName: "Burn",
     listener(log: any) {
       if (appending.current) return;
@@ -56,7 +60,7 @@ export const useVibesCheck = () => {
         eventName: "Burn",
         user: log[0].args.account,
         amount: log[0].args.amount,
-        supply: log[0].args.newTotalSupply,
+        supply: log[0].args.totalSupply,
       };
       setTokenTxs((prev) => [...prev, eventTx]);
       appending.current = false;
@@ -64,23 +68,23 @@ export const useVibesCheck = () => {
   });
 
   useEffect(() => {
-    if (!publicClient) return;
+    if (!publicClient || !contract.address || loading) return;
     const init = async () => {
       setLoading(true);
       const [mintLogs, burnLogs] = await Promise.all([
         publicClient.getLogs({
-          address: "0x4c4cE2C17593e9EE6DF6B159cfb45865bEf3d82F",
+          address: contract.address,
           event: parseAbiItem(
-            "event Mint(address indexed account, uint256 amount, uint256 newTotalSupply)"
+            "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
           ),
-          fromBlock: BigInt(8116522),
+          fromBlock: BigInt(8972411),
         }),
         publicClient.getLogs({
-          address: "0x4c4cE2C17593e9EE6DF6B159cfb45865bEf3d82F",
+          address: contract.address,
           event: parseAbiItem(
-            "event Burn(address indexed account, uint256 amount, uint256 newTotalSupply)"
+            "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
           ),
-          fromBlock: BigInt(8116522),
+          fromBlock: BigInt(8972411),
         }),
       ]);
       const logs = [...mintLogs, ...burnLogs];
@@ -90,20 +94,12 @@ export const useVibesCheck = () => {
         if (a.blockNumber > b.blockNumber) return 1;
         return 0;
       });
-      const decodedEvents = logs.map((event: any) => {
-        const decoded = decodeEventLog({
-          abi: ERC1967Proxy,
-          data: event.data,
-          topics: event.topics,
-        });
-        return decoded;
-      });
-      const _tokenTxs = decodedEvents.map((event: any) => {
+      const _tokenTxs = logs.map((event: any) => {
         return {
           eventName: event.eventName,
           user: event.args.account,
           amount: event.args.amount,
-          supply: event.args.newTotalSupply,
+          supply: event.args.totalSupply,
         };
       });
       const uniqueUsers = new Set();
@@ -125,7 +121,7 @@ export const useVibesCheck = () => {
       setLoading(false);
     };
     init();
-  }, [publicClient]);
+  }, [publicClient, contract.address]);
 
   return { tokenTxs, loading };
 };

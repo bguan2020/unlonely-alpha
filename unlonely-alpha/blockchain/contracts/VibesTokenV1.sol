@@ -9,8 +9,8 @@ contract VibesTokenV1 is ERC20, Ownable {
     uint256 public protocolFeePercent;
     uint256 public streamerFeePercent;
 
-    event Mint(address indexed minter, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply);
-    event Burn(address indexed burner, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply);
+    event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply);
+    event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply);
 
     error InsufficientValue(uint256 minimumValue, uint256 value);
     error BurnAmountTooHigh(uint256 maximumAmount, uint256 amount);
@@ -92,18 +92,18 @@ contract VibesTokenV1 is ERC20, Ownable {
 
     function mintCost(uint256 _amount) public view returns (uint256) {
         // The sum of the prices of all tokens already minted
-        uint256 sumPricesCurrentTotalSupply = _sumOfPriceToNTokens(totalSupply());
+        uint256 sumPricesCurrentTotalSupply = sumOfPriceToNTokens(totalSupply());
         // The sum of the prices of all the tokens already minted + the tokens to be newly minted
-        uint256 sumPricesNewTotalSupply = _sumOfPriceToNTokens(totalSupply() + _amount);
+        uint256 sumPricesNewTotalSupply = sumOfPriceToNTokens(totalSupply() + _amount);
 
         return sumPricesNewTotalSupply - sumPricesCurrentTotalSupply;
     }
     
     function mintCostAfterFees(uint256 _amount) public view returns (uint256) {
         // The sum of the prices of all tokens already minted
-        uint256 sumPricesCurrentTotalSupply = _sumOfPriceToNTokens(totalSupply());
+        uint256 sumPricesCurrentTotalSupply = sumOfPriceToNTokens(totalSupply());
         // The sum of the prices of all the tokens already minted + the tokens to be newly minted
-        uint256 sumPricesNewTotalSupply = _sumOfPriceToNTokens(totalSupply() + _amount);
+        uint256 sumPricesNewTotalSupply = sumOfPriceToNTokens(totalSupply() + _amount);
         uint256 sumDiff = sumPricesNewTotalSupply - sumPricesCurrentTotalSupply;
 
         uint256 protocolFee = sumDiff * protocolFeePercent / 1 ether;
@@ -115,25 +115,34 @@ contract VibesTokenV1 is ERC20, Ownable {
 
     function burnProceeds(uint256 _amount) public view returns (uint256) {
         // The sum of the prices of all the tokens already minted
-        uint256 sumBeforeBurn = _sumOfPriceToNTokens(totalSupply());
+        uint256 sumBeforeBurn = sumOfPriceToNTokens(totalSupply());
         // The sum of the prices of all the tokens after burning _amount
-        uint256 sumAfterBurn = _sumOfPriceToNTokens(totalSupply() - _amount);
+        uint256 sumAfterBurn = sumOfPriceToNTokens(totalSupply() - _amount);
 
         return sumBeforeBurn - sumAfterBurn;
     }
 
     function burnProceedsAfterFees(uint256 _amount) public view returns (uint256) {
-        // The sum of the prices of all the tokens already minted
-        uint256 sumBeforeBurn = _sumOfPriceToNTokens(totalSupply());
-        // The sum of the prices of all the tokens after burning _amount
-        uint256 sumAfterBurn = _sumOfPriceToNTokens(totalSupply() - _amount);
+        if (_amount > totalSupply()) {
+            // If the amount to burn exceeds total supply, return 0 or some error value
+            return 0;
+        }
+
+        uint256 sumBeforeBurn = sumOfPriceToNTokens(totalSupply());
+        uint256 sumAfterBurn = sumOfPriceToNTokens(totalSupply() - _amount);
 
         uint256 sumDiff = sumBeforeBurn - sumAfterBurn;
 
         uint256 protocolFee = sumDiff * protocolFeePercent / 1 ether;
         uint256 subjectFee = sumDiff * streamerFeePercent / 1 ether;
-        uint256 proceeds = sumDiff - protocolFee - subjectFee;
 
+        // Check if sumDiff is less than the total fees
+        if (sumDiff < protocolFee + subjectFee) {
+            // Handle the scenario, such as returning 0 or a specific error value
+            return 0;
+        }
+
+        uint256 proceeds = sumDiff - protocolFee - subjectFee;
         return proceeds;
     }
 
@@ -142,7 +151,7 @@ contract VibesTokenV1 is ERC20, Ownable {
     }
 
     // The price of *all* tokens from number 1 to n.
-    function _sumOfPriceToNTokens(uint256 n_) internal pure returns (uint256) {
+    function sumOfPriceToNTokens(uint256 n_) pure public returns (uint256) {
         return n_ * (n_ + 1) * (2 * n_ + 1) / 6;
     }
 }
