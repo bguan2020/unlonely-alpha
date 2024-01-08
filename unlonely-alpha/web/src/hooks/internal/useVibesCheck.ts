@@ -18,6 +18,7 @@ export const useVibesCheck = () => {
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
+  const [hashMapState, setHashMapState] = useState<Map<any, any>>(new Map());
 
   const _getEnsName = async (address: `0x${string}`) => {
     try {
@@ -36,18 +37,24 @@ export const useVibesCheck = () => {
     abi: VibesTokenV1,
     eventName: "Mint",
     listener(log: any) {
-      if (appending.current) return;
-      appending.current = true;
-      const n = Number(log[0].args.totalSupply);
-      const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-      const eventTx = {
-        eventName: "Mint",
-        user: log[0].args.account,
-        amount: log[0].args.amount,
-        price,
+      const init = async () => {
+        if (appending.current || loading) return;
+        appending.current = true;
+        const n = Number(log[0].args.totalSupply);
+        const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+        const user =
+          hashMapState.get(log[0].args.account) ??
+          (await _getEnsName(log[0].args.account));
+        const eventTx = {
+          eventName: "Mint",
+          user,
+          amount: log[0].args.amount,
+          price,
+        };
+        setTokenTxs((prev) => [...prev, eventTx]);
+        appending.current = false;
       };
-      setTokenTxs((prev) => [...prev, eventTx]);
-      appending.current = false;
+      init();
     },
   });
 
@@ -56,18 +63,24 @@ export const useVibesCheck = () => {
     abi: VibesTokenV1,
     eventName: "Burn",
     listener(log: any) {
-      if (appending.current) return;
-      appending.current = true;
-      const n = Number(log[0].args.totalSupply);
-      const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-      const eventTx = {
-        eventName: "Burn",
-        user: log[0].args.account,
-        amount: log[0].args.amount,
-        price,
+      const init = async () => {
+        if (appending.current || loading) return;
+        appending.current = true;
+        const n = Number(log[0].args.totalSupply);
+        const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+        const user =
+          hashMapState.get(log[0].args.account) ??
+          (await _getEnsName(log[0].args.account));
+        const eventTx = {
+          eventName: "Burn",
+          user,
+          amount: log[0].args.amount,
+          price,
+        };
+        setTokenTxs((prev) => [...prev, eventTx]);
+        appending.current = false;
       };
-      setTokenTxs((prev) => [...prev, eventTx]);
-      appending.current = false;
+      init();
     },
   });
 
@@ -123,6 +136,7 @@ export const useVibesCheck = () => {
           user: nameHashMap.get(tx.user) ?? tx.user,
         };
       });
+      setHashMapState(nameHashMap);
       setTokenTxs(namedTokenTx);
       setLoading(false);
     };
