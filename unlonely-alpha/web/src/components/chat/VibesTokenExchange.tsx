@@ -61,7 +61,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const VibesTokenExchange = () => {
-  const { userAddress, username } = useUser();
+  const { userAddress, user } = useUser();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
     useCacheContext();
   const toast = useToast();
@@ -202,15 +202,15 @@ const VibesTokenExchange = () => {
           topics: data.logs[1].topics,
         });
         const args: any = topics.args;
-        const title = `${username ?? centerEllipses(args.account, 15)} bought ${
-          args.amount
-        } $VIBES!`;
+        const title = `${
+          user?.username ?? centerEllipses(args.account, 15)
+        } bought ${args.amount} $VIBES!`;
         addToChatbot({
-          username: username ?? "",
+          username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.BUY_VIBES,
           title,
-          description: `${username ?? centerEllipses(userAddress, 15)}:${
+          description: `${user?.username ?? centerEllipses(userAddress, 15)}:${
             args.amount
           }`,
         });
@@ -296,15 +296,15 @@ const VibesTokenExchange = () => {
           topics: data.logs[1].topics,
         });
         const args: any = topics.args;
-        const title = `${username ?? centerEllipses(args.account, 15)} sold ${
-          args.amount
-        } $VIBES!`;
+        const title = `${
+          user?.username ?? centerEllipses(args.account, 15)
+        } sold ${args.amount} $VIBES!`;
         addToChatbot({
-          username: username ?? "",
+          username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.SELL_VIBES,
           title,
-          description: `${username ?? centerEllipses(userAddress, 15)}:${
+          description: `${user?.username ?? centerEllipses(userAddress, 15)}:${
             args.amount
           }`,
         });
