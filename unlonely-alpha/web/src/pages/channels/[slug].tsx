@@ -40,6 +40,7 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useGetHolderBalance } from "../../hooks/contracts/useTournament";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import VibesTokenExchange from "../../components/chat/VibesTokenExchange";
 
 const ChannelDetail = ({
   channelData,
@@ -240,6 +241,15 @@ const DesktopPage = ({
                 maxW={["100%", "100%", "380px", "380px"]}
                 gap="1rem"
               >
+                <Flex
+                  height="20vh"
+                  gap="5px"
+                  justifyContent={"space-between"}
+                  bg="#131323"
+                  p="5px"
+                >
+                  <VibesTokenExchange />
+                </Flex>
                 <ChatComponent chat={chat} />
                 {/* <TournamentPot chat={chat} /> */}
               </Stack>

@@ -104,6 +104,10 @@ declare module "hardhat/types/runtime" {
       name: "UnlonelyTournament",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UnlonelyTournament__factory>;
+    getContractFactory(
+      name: "VibesTokenV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VibesTokenV1__factory>;
 
     getContractAt(
       name: "Ownable",
@@ -220,6 +224,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.UnlonelyTournament>;
+    getContractAt(
+      name: "VibesTokenV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VibesTokenV1>;
 
     // default types
     getContractFactory(

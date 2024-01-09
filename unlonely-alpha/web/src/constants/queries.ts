@@ -1,5 +1,27 @@
 import { gql } from "@apollo/client";
 
+export const GET_USER_QUERY = gql`
+  query getUser($data: GetUserInput!) {
+    getUser(data: $data) {
+      address
+      username
+      signature
+      bio
+      powerUserLvl
+      videoSavantLvl
+      nfcRank
+      FCImageUrl
+      isFCUser
+      isLensUser
+      lensHandle
+      lensImageUrl
+      channel {
+        slug
+      }
+    }
+  }
+`;
+
 export const GET_USER_TOKEN_HOLDING_QUERY = gql`
   query Query($data: GetUserTokenHoldingInput!) {
     getUserTokenHolding(data: $data)

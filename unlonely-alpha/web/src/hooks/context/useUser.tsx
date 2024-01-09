@@ -1,4 +1,3 @@
-import { gql } from "@apollo/client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useEnsName } from "wagmi";
 import { useQuery } from "@apollo/client";
@@ -16,28 +15,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 import usePostSubscription from "../server/usePostSubscription";
 import useUserAgent from "../internal/useUserAgent";
-/* eslint-disable */
-const GET_USER_QUERY = gql`
-  query getUser($data: GetUserInput!) {
-    getUser(data: $data) {
-      address
-      username
-      signature
-      bio
-      powerUserLvl
-      videoSavantLvl
-      nfcRank
-      FCImageUrl
-      isFCUser
-      isLensUser
-      lensHandle
-      lensImageUrl
-      channel {
-        slug
-      }
-    }
-  }
-`;
+import { GET_USER_QUERY } from "../../constants/queries";
 
 export const useUser = () => {
   return useContext(UserContext);

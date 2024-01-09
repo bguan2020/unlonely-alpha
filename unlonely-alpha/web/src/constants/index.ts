@@ -11,6 +11,8 @@ export enum InteractionType {
   SELL_VOTES = "sell-votes-interaction",
   BUY_BADGES = "buy-badges-interaction",
   SELL_BADGES = "sell-badges-interaction",
+  BUY_VIBES = "buy-vibes-interaction",
+  SELL_VIBES = "sell-vibes-interaction",
   EVENT_LIVE = "event-live-interaction",
   EVENT_LOCK = "event-lock-interaction",
   EVENT_PAYOUT = "event-payout-interaction",
