@@ -8,7 +8,7 @@ contract VibesTokenV1 is ERC20, Ownable {
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
     uint256 public streamerFeePercent;
-    uint256 public MAX_SUPPLY = 21_000_000;
+    uint256 public MAX_SUPPLY = 20_000_000;
 
     event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply);
     event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply);

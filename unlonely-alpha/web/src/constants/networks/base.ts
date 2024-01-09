@@ -71,7 +71,8 @@ export const Base: Network = {
         abi: UnlonelyTournament,
       },
       vibesTokenV1: {
-        address: "0xf93E317cF02217E1cc9b34DF5F969Da6574f44E6",
+        address: "0xEAB1fF15f26da850315b15AFebf12F0d42dE5421",
+        // address: "0xf93E317cF02217E1cc9b34DF5F969Da6574f44E6", // past test contract
         abi: VibesTokenV1,
       },
     },

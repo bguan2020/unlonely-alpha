@@ -9,10 +9,9 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { formatUnits, isAddress } from "viem";
+import { decodeEventLog, formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useBalance, useBlockNumber } from "wagmi";
-import { TbMoneybag } from "react-icons/tb";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
@@ -29,6 +28,7 @@ import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useUser } from "../../hooks/context/useUser";
+import { InteractionType } from "../../constants";
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -61,17 +61,18 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const VibesTokenExchange = () => {
-  const { userAddress } = useUser();
+  const { userAddress, username } = useUser();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
     useCacheContext();
   const toast = useToast();
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
   const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
-  const { channel } = useChannelContext();
+  const { chat, channel } = useChannelContext();
   const { channelQueryData } = channel;
+  const { addToChatbot } = chat;
 
-  const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">("1h");
+  const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">("1d");
 
   const blockNumber = useBlockNumber({
     watch: true,
@@ -82,7 +83,7 @@ const VibesTokenExchange = () => {
     token: getContractFromNetwork("vibesTokenV1", localNetwork).address,
   });
 
-  const formattedData = useMemo(() => {
+  const formattedHourData = useMemo(() => {
     const res = vibesTokenTxs.map((tx) => {
       return {
         user: tx.user,
@@ -92,14 +93,36 @@ const VibesTokenExchange = () => {
         blockNumber: tx.blockNumber,
       };
     });
-    if (timeFilter === "1h") {
-      return res.slice(chartTimeIndexes.get("hour") as number);
-    }
-    if (timeFilter === "1d") {
-      return res.slice(chartTimeIndexes.get("day") as number);
-    }
+    return res.slice(chartTimeIndexes.get("hour") as number);
+  }, [vibesTokenTxs, chartTimeIndexes]);
+
+  const formattedDayData = useMemo(() => {
+    const res = vibesTokenTxs.map((tx) => {
+      return {
+        user: tx.user,
+        event: tx.eventName,
+        amount: Number(tx.amount),
+        price: tx.price,
+        blockNumber: tx.blockNumber,
+      };
+    });
+    return res.slice(chartTimeIndexes.get("day") as number);
+  }, [vibesTokenTxs, chartTimeIndexes]);
+
+  const formattedData = useMemo(() => {
+    if (timeFilter === "1h") return formattedHourData;
+    if (timeFilter === "1d") return formattedDayData;
+    const res = vibesTokenTxs.map((tx) => {
+      return {
+        user: tx.user,
+        event: tx.eventName,
+        amount: Number(tx.amount),
+        price: tx.price,
+        blockNumber: tx.blockNumber,
+      };
+    });
     return res;
-  }, [vibesTokenTxs, timeFilter, chartTimeIndexes]);
+  }, [timeFilter, formattedHourData, formattedDayData, vibesTokenTxs]);
 
   const [amountOfVibes, setAmountOfVibes] = useState<string>("1");
   const debouncedAmountOfVotes = useDebounce(amountOfVibes, 300);
@@ -108,7 +131,6 @@ const VibesTokenExchange = () => {
     [debouncedAmountOfVotes]
   );
   const isFetching = useRef(false);
-
   const { mintCostAfterFees, refetch: refetchMintCostAfterFees } =
     useGetMintCostAfterFees(amount_votes_bigint, contract);
 
@@ -173,6 +195,24 @@ const VibesTokenExchange = () => {
           duration: 9000,
           isClosable: true,
           position: "top-right",
+        });
+        const topics = decodeEventLog({
+          abi: contract.abi,
+          data: data.logs[1].data,
+          topics: data.logs[1].topics,
+        });
+        const args: any = topics.args;
+        const title = `${username ?? centerEllipses(args.account, 15)} bought ${
+          args.amount
+        } $VIBES!`;
+        addToChatbot({
+          username: username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.BUY_VIBES,
+          title,
+          description: `${username ?? centerEllipses(userAddress, 15)}:${
+            args.amount
+          }`,
         });
         setAmountOfVibes("1");
       },
@@ -250,6 +290,24 @@ const VibesTokenExchange = () => {
           isClosable: true,
           position: "top-right",
         });
+        const topics = decodeEventLog({
+          abi: contract.abi,
+          data: data.logs[1].data,
+          topics: data.logs[1].topics,
+        });
+        const args: any = topics.args;
+        const title = `${username ?? centerEllipses(args.account, 15)} sold ${
+          args.amount
+        } $VIBES!`;
+        addToChatbot({
+          username: username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.SELL_VIBES,
+          title,
+          description: `${username ?? centerEllipses(userAddress, 15)}:${
+            args.amount
+          }`,
+        });
         setAmountOfVibes("1");
       },
       onTxError: (error) => {
@@ -307,14 +365,29 @@ const VibesTokenExchange = () => {
           <Spinner size="md" />
         </Flex>
       ) : (
-        <Flex direction="column" w="100%">
+        <Flex direction="column" w="100%" position="relative">
+          {formattedHourData.length === 0 && timeFilter === "1h" && (
+            <Text position="absolute" color="gray" top="50%">
+              no txs in last hour
+            </Text>
+          )}
+          {formattedDayData.length === 0 && timeFilter === "1d" && (
+            <Text position="absolute" color="gray" top="50%">
+              no txs in the past 24 hours
+            </Text>
+          )}
+          {formattedData.length === 0 && timeFilter === "all" && (
+            <Text position="absolute" color="gray" top="50%">
+              no txs
+            </Text>
+          )}
           <Flex gap="1rem" alignItems={"center"}>
             <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
               $VIBES
             </Text>
             <Button
-              bg={timeFilter === "1h" ? "#8884d8" : "#403c7d"}
-              color="white"
+              bg={timeFilter === "1h" ? "#7874c9" : "#403c7d"}
+              color="#c6c3fc"
               p={2}
               height={"20px"}
               _focus={{}}
@@ -325,8 +398,8 @@ const VibesTokenExchange = () => {
               1h
             </Button>
             <Button
-              bg={timeFilter === "1d" ? "#8884d8" : "#403c7d"}
-              color="white"
+              bg={timeFilter === "1d" ? "#7874c9" : "#403c7d"}
+              color="#c6c3fc"
               p={2}
               height={"20px"}
               _focus={{}}
@@ -337,8 +410,8 @@ const VibesTokenExchange = () => {
               1d
             </Button>
             <Button
-              bg={timeFilter === "all" ? "#8884d8" : "#403c7d"}
-              color="white"
+              bg={timeFilter === "all" ? "#7874c9" : "#403c7d"}
+              color="#c6c3fc"
               p={2}
               height={"20px"}
               _focus={{}}
@@ -363,28 +436,34 @@ const VibesTokenExchange = () => {
           </ResponsiveContainer>
         </Flex>
       )}
-      <Flex direction="column" justifyContent={"space-evenly"}>
-        {vibesBalance?.formatted && (
-          <Flex
-            alignItems={"center"}
-            justifyContent={"center"}
-            color="#d0ceff"
-            fontSize="25px"
+      <Flex direction="column" justifyContent={"flex-end"} gap="10px">
+        <Flex position="relative" gap="5px" alignItems={"center"}>
+          <Input
+            variant="glow"
+            textAlign="center"
+            value={amountOfVibes}
+            onChange={handleInputChange}
+            mx="auto"
+            p="1"
+            fontSize={"14px"}
+          />
+          <Button
+            bg={"#403c7d"}
+            color="white"
+            p={2}
+            height={"20px"}
+            _focus={{}}
+            _active={{}}
+            _hover={{
+              bg: "#8884d8",
+            }}
+            onClick={() => {
+              vibesBalance && setAmountOfVibes(vibesBalance.formatted);
+            }}
           >
-            <TbMoneybag />
-            <Text fontFamily={"LoRes15"}>
-              {truncateValue(vibesBalance?.formatted, 0)}
-            </Text>
-          </Flex>
-        )}
-        <Input
-          variant="glow"
-          textAlign="center"
-          value={amountOfVibes}
-          onChange={handleInputChange}
-          mx="auto"
-          fontSize={"14px"}
-        />
+            max
+          </Button>
+        </Flex>
         <Button
           color="white"
           _focus={{}}

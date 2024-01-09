@@ -92,26 +92,40 @@ export const useChat = (): ChatReturnType => {
         body.split(":")[0] === InteractionType.BUY_VOTES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        const isYay = body.split(":")[3] === "yay";
-        const amount = body.split(":")[2];
+        const votedOption = body.split(":")[3];
         emojiBlast(
           <Text fontSize="40px">
-            {isYay ? "📈" : "📉"}
-            {amount}
+            {"🚀"}
+            {votedOption}
+            {"🚀"}
           </Text>
         );
+        // } else if (
+        //   body.split(":")[0] === InteractionType.SELL_VOTES &&
+        //   Date.now() - latestMessage.timestamp < 12000
+        // ) {
+        //   const isYay = body.split(":")[3] === "yay";
+        //   const amount = body.split(":")[2];
+        //   emojiBlast(
+        //     <Text fontSize="40px">
+        //       {!isYay ? "📈" : "📉"}
+        //       {amount}
+        //     </Text>
+        //   );
       } else if (
-        body.split(":")[0] === InteractionType.SELL_VOTES &&
+        body.split(":")[0] === InteractionType.BUY_VIBES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        const isYay = body.split(":")[3] === "yay";
         const amount = body.split(":")[2];
-        emojiBlast(
-          <Text fontSize="40px">
-            {!isYay ? "📈" : "📉"}
-            {amount}
-          </Text>
-        );
+        const m = determineValue(Number(amount));
+        emojiBlast(<Text fontSize={`${20 + 20 * (m - 1)}px`}>{"📈"}</Text>);
+      } else if (
+        body.split(":")[0] === InteractionType.SELL_VIBES &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        const amount = body.split(":")[2];
+        const m = determineValue(Number(amount));
+        emojiBlast(<Text fontSize={`${20 + 20 * (m - 1)}px`}>{"📉"}</Text>);
       }
     }
   }, [receivedMessages]);
@@ -331,3 +345,7 @@ export const useChatBox = (
     sendChatMessage,
   };
 };
+
+function determineValue(M: number) {
+  return M > 0 ? Math.floor(Math.log10(M) / Math.log10(10)) + 1 : 1;
+}
