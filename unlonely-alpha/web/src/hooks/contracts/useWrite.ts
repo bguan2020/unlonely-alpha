@@ -4,6 +4,7 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
+import { useEffect } from "react";
 
 import { WriteCallbacks } from "../../constants/types";
 
@@ -59,6 +60,10 @@ export const useWrite = (
       if (callbacks?.onTxError) callbacks?.onTxError(error);
     },
   });
+
+  useEffect(() => {
+    prepObj.refetch();
+  }, [contract.address]);
 
   return {
     writeAsync,
