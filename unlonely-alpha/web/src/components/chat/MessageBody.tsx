@@ -44,7 +44,7 @@ const MessageBody = ({
 }: Props) => {
   const { channel: c, leaderboard } = useChannelContext();
   const { isVip } = leaderboard;
-  const { channelQueryData } = c;
+  const { channelQueryData, ongoingBets } = c;
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -123,7 +123,7 @@ const MessageBody = ({
       message.data.body &&
       message.data.body.split(":")[0] === InteractionType.BUY_VOTES
     ) {
-      if (message.data.body?.split(":")[3] === "yay") {
+      if (message.data.body?.split(":")[3] === ongoingBets?.[0]?.options?.[0]) {
         return {
           bg: "#1B9C9C",
         };
