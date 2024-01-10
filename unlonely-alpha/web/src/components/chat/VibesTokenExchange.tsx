@@ -314,6 +314,7 @@ const VibesTokenExchange = () => {
         setAmountOfVibes("1");
       },
       onTxError: (error) => {
+        console.log("burn error", error);
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
