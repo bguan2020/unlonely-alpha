@@ -606,6 +606,14 @@ const Trade = () => {
     isEventOver,
   ]);
 
+  console.log(
+    "ongoingBets",
+    ongoingBets,
+    eventEndTimestampPassed,
+    eventResult,
+    eventVerified
+  );
+
   return (
     <Flex
       direction="column"
