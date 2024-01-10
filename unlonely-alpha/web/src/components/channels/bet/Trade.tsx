@@ -609,9 +609,11 @@ const Trade = () => {
   console.log(
     "ongoingBets",
     ongoingBets,
+    doesEventExist,
+    eventEndTimestamp,
     eventEndTimestampPassed,
-    eventResult,
-    eventVerified
+    eventVerified,
+    eventResult
   );
 
   return (
