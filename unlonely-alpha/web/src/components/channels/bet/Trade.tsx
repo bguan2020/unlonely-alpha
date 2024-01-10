@@ -1049,7 +1049,10 @@ const Trade = () => {
                 </Text>
               ) : (
                 <Flex justifyContent="center">
-                  <Spinner />
+                  <Text textAlign={"center"}>
+                    This event and its details are not recognized by the app for
+                    unknown reasons
+                  </Text>
                 </Flex>
               )}
             </>
