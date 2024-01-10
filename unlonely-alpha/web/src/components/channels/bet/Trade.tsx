@@ -70,10 +70,11 @@ const Trade = () => {
     [debouncedAmountOfVotes]
   );
 
-  const { data: userEthBalance } = useBalance({
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
-    watch: true,
   });
+  const canAddToChatbotBuy = useRef(false);
+  const canAddToChatbotClaim = useRef(false);
 
   const toast = useToast();
 
@@ -193,6 +194,7 @@ const Trade = () => {
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbotBuy.current = true;
       },
       onWriteError: (error) => {
         toast({
@@ -205,8 +207,10 @@ const Trade = () => {
             </Box>
           ),
         });
+        canAddToChatbotBuy.current = false;
       },
       onTxSuccess: async (data) => {
+        if (!canAddToChatbotBuy.current) return;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -261,6 +265,7 @@ const Trade = () => {
           eventType: EventType.YayNayVote,
           fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
+        canAddToChatbotBuy.current = false;
       },
       onTxError: (error) => {
         toast({
@@ -273,6 +278,7 @@ const Trade = () => {
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbotBuy.current = false;
       },
     }
   );
@@ -406,6 +412,7 @@ const Trade = () => {
             isClosable: true,
             position: "top-right",
           });
+          canAddToChatbotClaim.current = true;
         },
         onWriteError: (error) => {
           toast({
@@ -418,8 +425,10 @@ const Trade = () => {
               </Box>
             ),
           });
+          canAddToChatbotClaim.current = false;
         },
         onTxSuccess: async (data) => {
+          if (!canAddToChatbotClaim.current) return;
           toast({
             render: () => (
               <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -455,6 +464,7 @@ const Trade = () => {
               sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
             });
           }
+          canAddToChatbotClaim.current = false;
         },
         onTxError: (error) => {
           toast({
@@ -467,6 +477,7 @@ const Trade = () => {
             isClosable: true,
             position: "top-right",
           });
+          canAddToChatbotClaim.current = false;
         },
       }
     );
@@ -532,7 +543,7 @@ const Trade = () => {
 
   useEffect(() => {
     if (!blockNumber.data || isFetching.current) return;
-    let calls: any[] = [refetchMappings()];
+    let calls: any[] = [refetchMappings(), refetchUserEthBalance()];
     if (doesEventExist && isSharesEventLive) {
       calls = calls.concat([
         refetchVotePrice(),
@@ -1038,7 +1049,10 @@ const Trade = () => {
                 </Text>
               ) : (
                 <Flex justifyContent="center">
-                  <Spinner />
+                  <Text textAlign={"center"}>
+                    This event and its details are not recognized by the app for
+                    unknown reasons
+                  </Text>
                 </Flex>
               )}
             </>

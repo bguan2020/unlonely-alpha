@@ -2,6 +2,7 @@ import { Box, Flex } from "@chakra-ui/react";
 
 import NextHead from "../layout/NextHead";
 import { TabsComponent } from "./StandAloneChatComponent";
+import VibesTokenExchange from "../chat/VibesTokenExchange";
 
 const styles = `
   html, body {
@@ -37,6 +38,15 @@ const PopOutChatComponent = () => {
         }}
       >
         <Flex bg={"#19162F"} h={"100%"} direction="column">
+          <Flex
+            height="20vh"
+            gap="5px"
+            justifyContent={"space-between"}
+            bg="#131323"
+            p="5px"
+          >
+            <VibesTokenExchange />
+          </Flex>
           <TabsComponent />
         </Flex>
       </div>

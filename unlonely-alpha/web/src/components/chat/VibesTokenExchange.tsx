@@ -61,12 +61,12 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const VibesTokenExchange = () => {
-  const { userAddress, user } = useUser();
+  const { walletIsConnected, userAddress, user } = useUser();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
     useCacheContext();
   const toast = useToast();
   const { network } = useNetworkContext();
-  const { localNetwork, explorerUrl } = network;
+  const { matchingChain, localNetwork, explorerUrl } = network;
   const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
   const { chat, channel } = useChannelContext();
   const { channelQueryData } = channel;
@@ -130,6 +130,8 @@ const VibesTokenExchange = () => {
     () => BigInt(debouncedAmountOfVotes as `${number}`),
     [debouncedAmountOfVotes]
   );
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const isFetching = useRef(false);
   const { mintCostAfterFees, refetch: refetchMintCostAfterFees } =
     useGetMintCostAfterFees(amount_votes_bigint, contract);
@@ -217,6 +219,7 @@ const VibesTokenExchange = () => {
         setAmountOfVibes("1");
       },
       onTxError: (error) => {
+        console.log("mint error", error);
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
@@ -311,6 +314,7 @@ const VibesTokenExchange = () => {
         setAmountOfVibes("1");
       },
       onTxError: (error) => {
+        console.log("burn error", error);
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
@@ -350,6 +354,16 @@ const VibesTokenExchange = () => {
     };
     fetch();
   }, [blockNumber.data]);
+
+  useEffect(() => {
+    if (!walletIsConnected) {
+      setErrorMessage("connect wallet first");
+    } else if (!matchingChain) {
+      setErrorMessage("wrong network");
+    } else {
+      setErrorMessage("");
+    }
+  }, [walletIsConnected, matchingChain, amountOfVibes]);
 
   return (
     <>

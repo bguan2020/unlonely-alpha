@@ -27,14 +27,14 @@ export const VipBadgeBuy = () => {
   const { matchingChain, localNetwork, explorerUrl } = network;
 
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const canAddToChatbot = useRef(false);
 
   const blockNumber = useBlockNumber({
     watch: true,
   });
 
-  const { data: userEthBalance } = useBalance({
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
-    watch: true,
   });
 
   const getCallbackHandlers = (
@@ -145,7 +145,11 @@ export const VipBadgeBuy = () => {
     },
     tournamentContract,
     getCallbackHandlers("buyVipBadge", {
+      callbackOnWriteSuccess: async (data: any) => {
+        canAddToChatbot.current = true;
+      },
       callbackOnTxSuccess: async (data: any) => {
+        if (!canAddToChatbot.current) return;
         const topics = decodeEventLog({
           abi: tournamentContract.abi,
           data: data.logs[0].data,
@@ -172,6 +176,7 @@ export const VipBadgeBuy = () => {
           chainId: localNetwork.config.chainId,
           fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
+        canAddToChatbot.current = false;
       },
     })
   );
@@ -183,7 +188,11 @@ export const VipBadgeBuy = () => {
       if (isFetching.current) return;
       isFetching.current = true;
       try {
-        await Promise.all([refetchBadgePrice(), refetchBuyVipBadge()]);
+        await Promise.all([
+          refetchBadgePrice(),
+          refetchBuyVipBadge(),
+          refetchUserEthBalance(),
+        ]);
       } catch (err) {
         console.log("VipBadgeBuy fetching error", err);
       }

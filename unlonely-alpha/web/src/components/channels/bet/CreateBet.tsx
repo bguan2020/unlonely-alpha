@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -394,6 +394,7 @@ const OpenEventInterface = ({
   >("60");
   const toast = useToast();
   const { network } = useNetworkContext();
+  const canAddToChatbot = useRef(false);
   const { explorerUrl, matchingChain, localNetwork } = network;
 
   const { postBet } = usePostBet({
@@ -449,6 +450,7 @@ const OpenEventInterface = ({
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot.current = true;
       },
       onWriteError: (error) => {
         toast({
@@ -462,8 +464,10 @@ const OpenEventInterface = ({
           ),
         });
         handleLoading(undefined);
+        canAddToChatbot.current = false;
       },
       onTxSuccess: async (data) => {
+        if (!canAddToChatbot.current) return;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -494,6 +498,7 @@ const OpenEventInterface = ({
           title: "Event is live!",
           description: "event-live",
         });
+        canAddToChatbot.current = false;
         await refetch().then(handleClose);
       },
       onTxError: (error) => {
@@ -507,6 +512,7 @@ const OpenEventInterface = ({
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot.current = false;
         handleLoading(undefined);
       },
     }

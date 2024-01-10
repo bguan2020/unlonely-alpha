@@ -131,12 +131,15 @@ export const useVibesCheck = () => {
       });
       const _tokenTxs: VibesTokenTx[] = logs.map((event: any) => {
         const n = Number(event.args.totalSupply);
-        const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+        const priceForAll = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+        const priceForOne = Math.floor(
+          priceForAll / Number(event.args.totalSupply)
+        );
         return {
           eventName: event.eventName,
           user: event.args.account,
           amount: event.args.amount,
-          price,
+          price: priceForOne,
           blockNumber: event.blockNumber,
         };
       });
