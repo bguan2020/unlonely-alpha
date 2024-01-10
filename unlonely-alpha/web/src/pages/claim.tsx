@@ -26,6 +26,7 @@ import useCloseSharesEvent from "../hooks/server/useCloseSharesEvent";
 import usePostClaimPayout from "../hooks/server/usePostClaimPayout";
 import { getColorFromString } from "../styles/Colors";
 import { useCacheContext } from "../hooks/context/useCache";
+
 export default function ClaimPage() {
   const { user, walletIsConnected } = useUser();
 

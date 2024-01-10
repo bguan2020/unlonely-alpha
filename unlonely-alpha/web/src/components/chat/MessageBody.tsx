@@ -125,25 +125,39 @@ const MessageBody = ({
     ) {
       if (message.data.body?.split(":")[3] === "yay") {
         return {
-          bg: "rgba(10, 179, 18, 1)",
+          bg: "#1B9C9C",
         };
       } else {
         return {
-          bg: "rgba(218, 58, 19, 1)",
+          bg: "#D343F7",
         };
       }
+      // } else if (
+      //   message.data.body?.split(":")[0] === InteractionType.SELL_VOTES
+      // ) {
+      //   return {};
+      //   } else if (message.data.senderStatus === SenderStatus.VIP) {
+      //     return {
+      //       bgGradient:
+      //         "linear-gradient(90deg, rgba(144,99,0,1) 0%, rgba(212,170,0,1) 100%)",
+      //     };
     } else if (
-      message.data.body?.split(":")[0] === InteractionType.SELL_VOTES
+      message.data.body &&
+      message.data.body.split(":")[0] === InteractionType.BUY_VIBES
     ) {
-      return {};
-      // } else if (message.data.senderStatus === SenderStatus.VIP) {
-      //   return {
-      //     bgGradient:
-      //       "linear-gradient(90deg, rgba(144,99,0,1) 0%, rgba(212,170,0,1) 100%)",
-      //   };
+      return {
+        bg: "rgba(10, 179, 18, 1)",
+      };
+    } else if (
+      message.data.body &&
+      message.data.body.split(":")[0] === InteractionType.SELL_VIBES
+    ) {
+      return {
+        bg: "rgba(218, 58, 19, 1)",
+      };
     } else {
       return {
-        // bg: "rgba(19, 18, 37, 1)",
+        bg: "rgba(19, 18, 37, 1)",
       };
     }
   };

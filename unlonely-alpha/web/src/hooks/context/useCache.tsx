@@ -15,13 +15,12 @@ import {
   CHANNEL_FEED_QUERY,
   GET_UNCLAIMED_EVENTS_QUERY,
 } from "../../constants/queries";
-import {
-  GetUnclaimedEventsQuery,
-  SharesEvent,
-} from "../../generated/graphql";
+import { GetUnclaimedEventsQuery, SharesEvent } from "../../generated/graphql";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "./useNetwork";
 import { useUser } from "./useUser";
+import { useVibesCheck } from "../internal/useVibesCheck";
+import { VibesTokenTx } from "../../constants/types";
 
 type UnclaimedBet = SharesEvent & {
   payout: bigint;
@@ -37,12 +36,18 @@ const CacheContext = createContext<{
   fetchingBets: boolean;
   feedLoading: boolean;
   feedError?: ApolloError;
+  vibesTokenTxs: VibesTokenTx[];
+  vibesTokenLoading: boolean;
+  chartTimeIndexes: Map<string, number>;
 }>({
   channelFeed: [],
   claimableBets: [],
   fetchingBets: true,
   feedLoading: true,
   feedError: undefined,
+  vibesTokenTxs: [],
+  vibesTokenLoading: true,
+  chartTimeIndexes: new Map(),
 });
 
 export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
@@ -57,6 +62,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const { localNetwork } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
+  const { tokenTxs, chartTimeIndexes, loading } = useVibesCheck();
+
   const {
     data: dataChannels,
     loading: feedLoading,
@@ -67,15 +74,6 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     },
     fetchPolicy: "cache-first",
   });
-
-  // const ongoingBets = useMemo(() => {
-  //   if (!dataChannels?.getChannelFeed) return [];
-  //   const _channels: Channel[] = dataChannels?.getChannelFeed;
-  //   return _channels
-  //     .filter((channel) => channel.sharesEvent) // Filter out channels without sharesEvent
-  //     .flatMap((channel) => channel.sharesEvent) // Flatten the arrays of sharesEvent
-  //     .filter((event): event is SharesEvent => event !== null); // Filter out null values
-  // }, [dataChannels?.getChannelFeed]);
 
   const [getUnclaimedEvents] = useLazyQuery<GetUnclaimedEventsQuery>(
     GET_UNCLAIMED_EVENTS_QUERY,
@@ -178,13 +176,19 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       channelFeed: dataChannels?.getChannelFeed || [],
       feedLoading,
       feedError: error,
+      vibesTokenTxs: tokenTxs,
+      vibesTokenLoading: loading,
+      chartTimeIndexes,
     };
   }, [
     claimableBets,
     fetchingBets,
     feedLoading,
-    dataChannels?.getChannelFeed,
     error,
+    dataChannels?.getChannelFeed,
+    tokenTxs,
+    loading,
+    chartTimeIndexes,
   ]);
 
   return (

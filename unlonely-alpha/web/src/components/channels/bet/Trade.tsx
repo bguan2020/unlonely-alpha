@@ -248,7 +248,11 @@ const Trade = () => {
           title,
           description: `${
             user?.username ?? centerEllipses(userAddress ?? "", 15)
-          }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}`,
+          }:${args.trade.shareAmount}:${
+            args.trade.isYay
+              ? ongoingBets?.[0]?.options?.[0] ?? "yay"
+              : ongoingBets?.[0]?.options?.[1] ?? "nay"
+          }`,
         });
         await postBetTrade({
           channelId: channelQueryData?.id as string,
@@ -612,6 +616,14 @@ const Trade = () => {
     doesEventExist,
     isEventOver,
   ]);
+
+  console.log(
+    "ongoingBets",
+    ongoingBets,
+    eventEndTimestampPassed,
+    eventResult,
+    eventVerified
+  );
 
   return (
     <Flex

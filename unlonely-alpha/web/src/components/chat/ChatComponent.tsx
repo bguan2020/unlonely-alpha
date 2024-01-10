@@ -49,7 +49,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
 
   return (
     <Flex
-      height={!isStandalone ? { base: "80vh" } : "100%"}
+      height={!isStandalone ? { base: "60vh" } : "100%"}
       position={"relative"}
     >
       <OuterBorder type={BorderType.OCEAN} p={"0"}>
