@@ -273,6 +273,20 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+@keyframes backgroundColorChange {
+  0%,
+  80% {
+    background-color: #1d68b8; /* Starting background color */
+  }
+  100% {
+    background-color: #c21c1c; /* Ending background color */
+  }
+}
+
+.background-change-element {
+  animation: backgroundColorChange 10s forwards;
+}
+
 .css-o4poyf:hover,
 .css-o4poyf:active {
   background-color: #717ba7 !important;

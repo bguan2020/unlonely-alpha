@@ -223,7 +223,6 @@ const EventCard = ({
           isClosable: true,
           position: "top-right",
         });
-        setCalling(false);
       },
       onWriteError: (error) => {
         toast({
@@ -239,6 +238,7 @@ const EventCard = ({
         setCalling(false);
       },
       onTxSuccess: async (data) => {
+        if (!calling) return;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -278,6 +278,7 @@ const EventCard = ({
         setCalling(false);
       },
       onTxError: (error) => {
+        if (!calling) return;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>

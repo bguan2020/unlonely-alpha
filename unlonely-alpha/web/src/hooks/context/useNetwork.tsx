@@ -78,7 +78,7 @@ export const NetworkProvider = ({
     ) {
       toastIdRef.current = toast({
         id: "network-warning",
-        duration: 9000,
+        duration: null,
         isClosable: true,
         position: "top",
         render: () => (

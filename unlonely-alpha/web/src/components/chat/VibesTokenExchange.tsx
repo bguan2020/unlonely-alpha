@@ -131,6 +131,8 @@ const VibesTokenExchange = () => {
     [debouncedAmountOfVotes]
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const canAddToChatbot_mint = useRef(false);
+  const canAddToChatbot_burn = useRef(false);
 
   const isFetching = useRef(false);
   const { mintCostAfterFees, refetch: refetchMintCostAfterFees } =
@@ -168,6 +170,7 @@ const VibesTokenExchange = () => {
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot_mint.current = true;
       },
       onWriteError: (error) => {
         toast({
@@ -180,8 +183,10 @@ const VibesTokenExchange = () => {
             </Box>
           ),
         });
+        canAddToChatbot_mint.current = false;
       },
       onTxSuccess: async (data) => {
+        if (!canAddToChatbot_mint.current) return;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -216,6 +221,7 @@ const VibesTokenExchange = () => {
             args.amount
           }`,
         });
+        canAddToChatbot_mint.current = false;
         setAmountOfVibes("1");
       },
       onTxError: (error) => {
@@ -223,13 +229,17 @@ const VibesTokenExchange = () => {
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              mint error
+              <Flex direction="column">
+                <Text>mint error</Text>
+                <Text fontSize="15px">{error?.message ?? "unknown error"}</Text>
+              </Flex>
             </Box>
           ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot_mint.current = false;
       },
     }
   );
@@ -263,6 +273,7 @@ const VibesTokenExchange = () => {
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot_burn.current = true;
       },
       onWriteError: (error) => {
         toast({
@@ -275,8 +286,10 @@ const VibesTokenExchange = () => {
             </Box>
           ),
         });
+        canAddToChatbot_burn.current = false;
       },
       onTxSuccess: async (data) => {
+        if (!canAddToChatbot_burn.current) return;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -311,6 +324,7 @@ const VibesTokenExchange = () => {
             args.amount
           }`,
         });
+        canAddToChatbot_burn.current = false;
         setAmountOfVibes("1");
       },
       onTxError: (error) => {
@@ -318,13 +332,17 @@ const VibesTokenExchange = () => {
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              burn error
+              <Flex direction="column">
+                <Text>burn error</Text>
+                <Text fontSize="15px">{error?.message ?? "unknown error"}</Text>
+              </Flex>
             </Box>
           ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot_burn.current = false;
       },
     }
   );

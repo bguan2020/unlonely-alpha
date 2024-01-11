@@ -7,6 +7,7 @@ import {
 import { useEffect } from "react";
 
 import { WriteCallbacks } from "../../constants/types";
+import { useCacheContext } from "../context/useCache";
 
 export const useWrite = (
   contract: { address?: `0x${string}`; abi?: any; chainId?: number },
@@ -15,6 +16,8 @@ export const useWrite = (
   callbacks?: WriteCallbacks,
   overrides?: { value?: bigint; gas?: bigint }
 ) => {
+  const { addAppError, popAppError } = useCacheContext();
+
   const prepObj = usePrepareContractWrite({
     address: contract.address,
     abi: contract.abi,
@@ -26,9 +29,11 @@ export const useWrite = (
     cacheTime: 0,
     onSuccess(data) {
       if (callbacks?.onPrepareSuccess) callbacks?.onPrepareSuccess(data);
+      popAppError("ConnectorNotFoundError");
     },
     onError(error: Error) {
       if (callbacks?.onPrepareError) callbacks?.onPrepareError(error);
+      if (error.message && error.name) addAppError(error, functionName);
     },
   });
 
