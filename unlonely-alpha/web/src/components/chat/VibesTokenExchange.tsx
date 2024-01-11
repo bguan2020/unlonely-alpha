@@ -78,6 +78,11 @@ const VibesTokenExchange = () => {
     watch: true,
   });
 
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
+    address: userAddress as `0x${string}`,
+    enabled: isAddress(userAddress as `0x${string}`),
+  });
+
   const { data: vibesBalance, refetch } = useBalance({
     address: userAddress,
     token: getContractFromNetwork("vibesTokenV1", localNetwork).address,
@@ -375,6 +380,7 @@ const VibesTokenExchange = () => {
           refetchMintCostAfterFees(),
           refetchBurnProceedsAfterFees(),
           refetch(),
+          refetchUserEthBalance(),
         ]);
       } catch (err) {
         console.log("vibes fetching error", err);
