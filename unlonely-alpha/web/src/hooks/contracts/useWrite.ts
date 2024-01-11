@@ -14,7 +14,7 @@ export const useWrite = (
   functionName: string,
   args: any[],
   callbacks?: WriteCallbacks,
-  overrides?: { value?: bigint; gas?: bigint }
+  overrides?: { value?: bigint; gas?: bigint; enabled?: boolean }
 ) => {
   const { addAppError, popAppError } = useCacheContext();
 
@@ -27,6 +27,7 @@ export const useWrite = (
     value: overrides?.value,
     gas: overrides?.gas,
     cacheTime: 0,
+    enabled: overrides?.enabled === undefined ? true : overrides?.enabled,
     onSuccess(data) {
       if (callbacks?.onPrepareSuccess) callbacks?.onPrepareSuccess(data);
       popAppError("ConnectorNotFoundError");

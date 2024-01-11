@@ -1,6 +1,6 @@
 import { Button, Flex, Box, useToast, Text, Input } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
-import { decodeEventLog, formatUnits } from "viem";
+import { decodeEventLog, formatUnits, isAddress } from "viem";
 import { useBalance, useBlockNumber } from "wagmi";
 import Link from "next/link";
 
@@ -144,6 +144,7 @@ export const ChannelTournament = () => {
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
+    enabled: isAddress(userAddress as `0x${string}`),
   });
 
   const {

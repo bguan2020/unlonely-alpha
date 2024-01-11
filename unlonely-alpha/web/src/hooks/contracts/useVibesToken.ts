@@ -154,7 +154,13 @@ export const useMint = (
     "mint",
     [args.amount, args.streamer],
     createCallbackHandler("useMint mint", callbacks),
-    { value: args.value }
+    {
+      value: args.value,
+      enabled:
+        args.streamer !== NULL_ADDRESS &&
+        contract.address !== NULL_ADDRESS &&
+        contract.abi !== null,
+    }
   );
 
   return {
@@ -171,7 +177,6 @@ export const useBurn = (
   args: {
     amount: bigint;
     streamer: string;
-    value: bigint;
   },
   contract: ContractData,
   callbacks?: WriteCallbacks
@@ -187,7 +192,13 @@ export const useBurn = (
     contract,
     "burn",
     [args.amount, args.streamer],
-    createCallbackHandler("useBurn burn", callbacks)
+    createCallbackHandler("useBurn burn", callbacks),
+    {
+      enabled:
+        args.streamer !== NULL_ADDRESS &&
+        contract.address !== NULL_ADDRESS &&
+        contract.abi !== null,
+    }
   );
 
   return {

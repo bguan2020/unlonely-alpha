@@ -28,7 +28,7 @@ export const createCallbackHandler = (
   callbacks?: WriteCallbacks
 ) => ({
   onPrepareSuccess: (data: any) => {
-    console.log(`${actionName} prepare success`, data);
+    // console.log(`${actionName} prepare success`, data);
     callbacks?.onPrepareSuccess?.(data);
   },
   onPrepareError: (error: any) => {

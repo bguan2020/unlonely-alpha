@@ -519,7 +519,13 @@ export const useGetHolderBalance = (
   const [vipBadgeBalance, setVipBadgeBalance] = useState<string>("0");
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient) {
+    if (
+      !contract.address ||
+      !contract.abi ||
+      !publicClient ||
+      !isAddress(streamerAddress) ||
+      !isAddress(holder)
+    ) {
       setVipBadgeBalance("0");
       return;
     }

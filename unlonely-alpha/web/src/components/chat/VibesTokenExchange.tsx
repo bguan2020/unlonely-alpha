@@ -1,4 +1,3 @@
-import { LineChart, Line, Tooltip, ResponsiveContainer } from "recharts";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
@@ -12,6 +11,7 @@ import {
 import { decodeEventLog, formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useBalance, useBlockNumber } from "wagmi";
+import { ResponsiveContainer, LineChart, Line, Tooltip } from "recharts";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
@@ -28,7 +28,7 @@ import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useUser } from "../../hooks/context/useUser";
-import { InteractionType } from "../../constants";
+import { InteractionType, NULL_ADDRESS } from "../../constants";
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -81,6 +81,12 @@ const VibesTokenExchange = () => {
   const { data: vibesBalance, refetch } = useBalance({
     address: userAddress,
     token: getContractFromNetwork("vibesTokenV1", localNetwork).address,
+    enabled:
+      isAddress(userAddress as `0x${string}`) &&
+      isAddress(
+        getContractFromNetwork("vibesTokenV1", localNetwork).address ??
+          NULL_ADDRESS
+      ),
   });
 
   const formattedHourData = useMemo(() => {
@@ -252,7 +258,6 @@ const VibesTokenExchange = () => {
     {
       streamer: channelQueryData?.owner.address as `0x${string}`,
       amount: amount_votes_bigint,
-      value: burnProceedsAfterFees,
     },
     contract,
     {
@@ -354,7 +359,13 @@ const VibesTokenExchange = () => {
   };
 
   useEffect(() => {
-    if (!blockNumber.data || isFetching.current) return;
+    if (
+      !blockNumber.data ||
+      isFetching.current ||
+      !contract.address ||
+      !userAddress
+    )
+      return;
     const fetch = async () => {
       isFetching.current = true;
       try {
@@ -371,7 +382,7 @@ const VibesTokenExchange = () => {
       isFetching.current = false;
     };
     fetch();
-  }, [blockNumber.data]);
+  }, [blockNumber.data, contract.address, userAddress]);
 
   useEffect(() => {
     if (!walletIsConnected) {
