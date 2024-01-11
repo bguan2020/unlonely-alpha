@@ -178,7 +178,8 @@ const Trade = () => {
       canBuy:
         (ongoingBets ?? []).length > 0 &&
         ongoingBets?.[0]?.eventState === SharesEventState.Live &&
-        ongoingBets?.[0]?.sharesSubjectAddress !== undefined,
+        ongoingBets?.[0]?.sharesSubjectAddress !== undefined &&
+        !isAddress(ongoingBets?.[0]?.sharesSubjectAddress ?? ""),
     },
     v2contract,
     {
