@@ -42,7 +42,7 @@ const CacheContext = createContext<{
   vibesTokenLoading: boolean;
   chartTimeIndexes: Map<string, number>;
   addAppError: (error: Error, source: string) => void;
-  popAppError: (errorName: string) => void;
+  popAppError: (errorName: string, field: string) => void;
 }>({
   channelFeed: [],
   claimableBets: [],
@@ -92,9 +92,9 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const popAppError = useCallback(
-    (errorName: string) => {
+    (errorName: string, field: string) => {
       setAppErrors((appErrors) =>
-        appErrors.filter((err) => err.name !== errorName)
+        appErrors.filter((err) => (err as any)[field] !== errorName)
       );
     },
     [appErrors]

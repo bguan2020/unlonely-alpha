@@ -218,10 +218,23 @@ export const CreateBet = ({
       const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
       setRequiredGas(adjustedGas);
     };
-    if (publicClient && contractData && channelQueryData && userAddress) {
+    if (
+      publicClient &&
+      contractData &&
+      channelQueryData &&
+      userAddress &&
+      isVerifier
+    ) {
       estimateGas();
     }
-  }, [publicClient, contractData, channelQueryData, userAddress, dateNow]);
+  }, [
+    publicClient,
+    contractData,
+    channelQueryData,
+    userAddress,
+    dateNow,
+    isVerifier,
+  ]);
 
   useEffect(() => {
     const init = async () => {

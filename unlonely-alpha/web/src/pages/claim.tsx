@@ -15,7 +15,12 @@ import Link from "next/link";
 import { WavyText } from "../components/general/WavyText";
 import AppLayout from "../components/layout/AppLayout";
 import { anonUrl } from "../components/presence/AnonUrl";
-import { Channel, EventType, SharesEvent } from "../generated/graphql";
+import {
+  Channel,
+  EventType,
+  SharesEvent,
+  SharesEventState,
+} from "../generated/graphql";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 import { useUser } from "../hooks/context/useUser";
 import { useClaimVotePayout } from "../hooks/contracts/useSharesContractV2";
@@ -203,6 +208,10 @@ const EventCard = ({
     {
       eventAddress: event.sharesSubjectAddress as `0x${string}`,
       eventId: Number(event.id ?? "0"),
+      canClaim:
+        (event.eventState === SharesEventState.PayoutPrevious ||
+          event.eventState === SharesEventState.Payout) &&
+        event.payout > BigInt(0),
     },
     contractData,
     {

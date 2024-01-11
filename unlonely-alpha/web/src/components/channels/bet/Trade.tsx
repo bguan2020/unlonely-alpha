@@ -397,6 +397,10 @@ const Trade = () => {
       {
         eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
         eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+        canClaim:
+          eventVerified &&
+          ongoingBets?.[0]?.eventState === SharesEventState.Payout &&
+          userPayout > BigInt(0),
       },
       v2contract,
       {

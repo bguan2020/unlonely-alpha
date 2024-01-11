@@ -30,7 +30,8 @@ export const useWrite = (
     enabled: overrides?.enabled === undefined ? true : overrides?.enabled,
     onSuccess(data) {
       if (callbacks?.onPrepareSuccess) callbacks?.onPrepareSuccess(data);
-      popAppError("ConnectorNotFoundError");
+      popAppError("ConnectorNotFoundError", "name");
+      popAppError(functionName, "functionName");
     },
     onError(error: Error) {
       if (callbacks?.onPrepareError) callbacks?.onPrepareError(error);

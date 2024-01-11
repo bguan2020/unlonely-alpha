@@ -703,7 +703,7 @@ export const useSellVotes = (
 };
 
 export const useClaimVotePayout = (
-  args: { eventAddress: `0x${string}`; eventId: number },
+  args: { eventAddress: `0x${string}`; eventId: number; canClaim: boolean },
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
@@ -723,7 +723,8 @@ export const useClaimVotePayout = (
         args.eventAddress !== NULL_ADDRESS &&
         args.eventId > 0 &&
         contract.address !== NULL_ADDRESS &&
-        contract.abi !== null,
+        contract.abi !== null &&
+        args.canClaim,
     }
   );
 

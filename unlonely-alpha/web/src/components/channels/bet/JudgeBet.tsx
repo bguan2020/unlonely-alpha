@@ -162,7 +162,7 @@ export const JudgeBet = ({
           address: contractData.address as `0x${string}`,
           abi: contractData.abi,
           functionName: "verifyEvent",
-          args: [userAddress as `0x${string}`, 0, true],
+          args: [userAddress as `0x${string}`, 0, 0, true],
           account: userAddress as `0x${string}`,
         })
         .then((data) => {
@@ -175,10 +175,10 @@ export const JudgeBet = ({
       const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
       setRequiredGas(adjustedGas);
     };
-    if (publicClient && contractData && userAddress) {
+    if (publicClient && contractData && userAddress && isVerifier) {
       estimateGas();
     }
-  }, [publicClient, contractData, userAddress]);
+  }, [publicClient, contractData, userAddress, isVerifier]);
 
   return (
     <Flex direction="column" gap="10px">
