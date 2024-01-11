@@ -46,9 +46,9 @@ const CustomTooltip = ({ active, payload }: any) => {
         }`}</Text>
         <Text
           color={payload[0].payload.event === "Mint" ? "#46a800" : "#fe2815"}
-        >{`${payload[0].payload.event === "Mint" ? "Bought" : "Sold"} ${
-          payload[0].payload.amount
-        }`}</Text>
+        >{`${
+          payload[0].payload.event === "Mint" ? "Bought" : "Sold"
+        } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
         <Text>{`New price: ${truncateValue(
           formatUnits(payload[0].payload.price, 18),
           10

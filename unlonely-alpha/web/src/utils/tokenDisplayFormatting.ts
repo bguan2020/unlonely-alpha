@@ -2,7 +2,7 @@ export const truncateValue = (
   value: number | string,
   decimals = 6,
   abbrev = true,
-  abbrevDecimals = 2
+  abbrevMaxDecimals = 2
 ): string => {
   if (typeof value === "number" && value === 0) return "0";
   if (typeof value === "string") {
@@ -17,7 +17,7 @@ export const truncateValue = (
 
   // if is nonzero whole number
   if (decimalIndex === -1) {
-    if (abbrev) return numberAbbreviate(str, abbrevDecimals);
+    if (abbrev) return numberAbbreviate(str, abbrevMaxDecimals);
     return str;
   }
 
@@ -26,7 +26,7 @@ export const truncateValue = (
   const truncatedStr = str.substring(0, cutoffIndex + 1);
   if (parseFloat(truncatedStr) === 0)
     return "< ".concat(`${truncatedStr.slice(0, -1)}1`);
-  if (abbrev) return numberAbbreviate(truncatedStr, abbrevDecimals);
+  if (abbrev) return numberAbbreviate(truncatedStr, abbrevMaxDecimals);
   return truncatedStr;
 };
 
@@ -77,7 +77,7 @@ const convertSciNotaToPrecise = (str: string): string => {
   return str;
 };
 
-const numberAbbreviate = (value: number | string, decimals = 2): string => {
+const numberAbbreviate = (value: number | string, maxDecimals = 2): string => {
   if (typeof value === "number" && value === 0) return "0";
   if (typeof value === "string" && BigInt(value.replace(".", "")) === BigInt(0))
     return "0";
@@ -98,14 +98,15 @@ const numberAbbreviate = (value: number | string, decimals = 2): string => {
   const abbrev = abbreviations[Math.ceil(wholeNumber.length / 3)];
   const cutoff = wholeNumber.length % 3 === 0 ? 3 : wholeNumber.length % 3;
   const a = wholeNumber.substring(0, cutoff);
-  const b = wholeNumber.substring(cutoff, cutoff + decimals);
-
-  if (decimals === 0) {
+  const b = wholeNumber.substring(cutoff, cutoff + maxDecimals);
+  if (maxDecimals === 0) {
     return `${a}${abbrev}`;
   }
   if (!abbrev) {
+    if (Number(b) === 0) return `${a}e${wholeNumber.length - cutoff}`;
     return `${a}.${b}e${wholeNumber.length - cutoff}`;
   }
+  if (Number(b) === 0) return `${a}${abbrev}`;
   return `${a}.${b}${abbrev}`;
 };
 
