@@ -123,7 +123,7 @@ const MessageBody = ({
       message.data.body &&
       message.data.body.split(":")[0] === InteractionType.BUY_VOTES
     ) {
-      if (message.data.body?.split(":")[3] === ongoingBets?.[0]?.options?.[0]) {
+      if (message.data.body?.split(":")[3] === "yay") {
         return {
           bg: "#1B9C9C",
         };
