@@ -1,6 +1,6 @@
 import { Button, Flex, Box, useToast, Text, Input } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
-import { decodeEventLog, formatUnits } from "viem";
+import { decodeEventLog, formatUnits, isAddress } from "viem";
 import { useBalance, useBlockNumber } from "wagmi";
 import Link from "next/link";
 
@@ -26,7 +26,7 @@ import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
 import centerEllipses from "../../utils/centerEllipses";
 
 export const ChannelTournament = () => {
-  const { userAddress, walletIsConnected } = useUser();
+  const { userAddress, walletIsConnected, user } = useUser();
   const { channel, chat, leaderboard, ui } = useChannelContext();
   const { channelQueryData, handleTotalBadges } = channel;
   const { handleIsVip } = leaderboard;
@@ -39,8 +39,6 @@ export const ChannelTournament = () => {
   const [amountOfBadges, setAmountOfBadges] = useState<string>("0");
   const [isBuying, setIsBuying] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string>("");
-
-  const { user } = useUser();
 
   const tournamentContract = getContractFromNetwork(
     "unlonelyTournament",
@@ -144,6 +142,7 @@ export const ChannelTournament = () => {
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
+    enabled: isAddress(userAddress as `0x${string}`),
   });
 
   const {

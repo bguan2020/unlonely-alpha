@@ -4,16 +4,20 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
+import { useEffect } from "react";
 
 import { WriteCallbacks } from "../../constants/types";
+import { useCacheContext } from "../context/useCache";
 
 export const useWrite = (
   contract: { address?: `0x${string}`; abi?: any; chainId?: number },
   functionName: string,
   args: any[],
   callbacks?: WriteCallbacks,
-  overrides?: { value?: bigint; gas?: bigint }
+  overrides?: { value?: bigint; gas?: bigint; enabled?: boolean }
 ) => {
+  const { addAppError, popAppError } = useCacheContext();
+
   const prepObj = usePrepareContractWrite({
     address: contract.address,
     abi: contract.abi,
@@ -23,11 +27,15 @@ export const useWrite = (
     value: overrides?.value,
     gas: overrides?.gas,
     cacheTime: 0,
+    enabled: overrides?.enabled === undefined ? true : overrides?.enabled,
     onSuccess(data) {
       if (callbacks?.onPrepareSuccess) callbacks?.onPrepareSuccess(data);
+      popAppError("ConnectorNotFoundError", "name");
+      popAppError(functionName, "functionName");
     },
     onError(error: Error) {
       if (callbacks?.onPrepareError) callbacks?.onPrepareError(error);
+      if (error.message && error.name) addAppError(error, functionName);
     },
   });
 
@@ -59,6 +67,10 @@ export const useWrite = (
       if (callbacks?.onTxError) callbacks?.onTxError(error);
     },
   });
+
+  useEffect(() => {
+    prepObj.refetch();
+  }, [contract.address]);
 
   return {
     writeAsync,

@@ -1,4 +1,3 @@
-import { LineChart, Line, Tooltip, ResponsiveContainer } from "recharts";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
@@ -12,6 +11,7 @@ import {
 import { decodeEventLog, formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useBalance, useBlockNumber } from "wagmi";
+import { ResponsiveContainer, LineChart, Line, Tooltip } from "recharts";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
@@ -28,7 +28,7 @@ import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useUser } from "../../hooks/context/useUser";
-import { InteractionType } from "../../constants";
+import { InteractionType, NULL_ADDRESS } from "../../constants";
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -78,9 +78,20 @@ const VibesTokenExchange = () => {
     watch: true,
   });
 
+  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
+    address: userAddress as `0x${string}`,
+    enabled: isAddress(userAddress as `0x${string}`),
+  });
+
   const { data: vibesBalance, refetch } = useBalance({
     address: userAddress,
     token: getContractFromNetwork("vibesTokenV1", localNetwork).address,
+    enabled:
+      isAddress(userAddress as `0x${string}`) &&
+      isAddress(
+        getContractFromNetwork("vibesTokenV1", localNetwork).address ??
+          NULL_ADDRESS
+      ),
   });
 
   const formattedHourData = useMemo(() => {
@@ -131,6 +142,8 @@ const VibesTokenExchange = () => {
     [debouncedAmountOfVotes]
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const canAddToChatbot_mint = useRef(false);
+  const canAddToChatbot_burn = useRef(false);
 
   const isFetching = useRef(false);
   const { mintCostAfterFees, refetch: refetchMintCostAfterFees } =
@@ -168,6 +181,7 @@ const VibesTokenExchange = () => {
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot_mint.current = true;
       },
       onWriteError: (error) => {
         toast({
@@ -180,8 +194,10 @@ const VibesTokenExchange = () => {
             </Box>
           ),
         });
+        canAddToChatbot_mint.current = false;
       },
       onTxSuccess: async (data) => {
+        if (!canAddToChatbot_mint.current) return;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -216,6 +232,7 @@ const VibesTokenExchange = () => {
             args.amount
           }`,
         });
+        canAddToChatbot_mint.current = false;
         setAmountOfVibes("1");
       },
       onTxError: (error) => {
@@ -223,13 +240,17 @@ const VibesTokenExchange = () => {
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              mint error
+              <Flex direction="column">
+                <Text>mint error</Text>
+                <Text fontSize="15px">{error?.message ?? "unknown error"}</Text>
+              </Flex>
             </Box>
           ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot_mint.current = false;
       },
     }
   );
@@ -242,7 +263,6 @@ const VibesTokenExchange = () => {
     {
       streamer: channelQueryData?.owner.address as `0x${string}`,
       amount: amount_votes_bigint,
-      value: burnProceedsAfterFees,
     },
     contract,
     {
@@ -263,6 +283,7 @@ const VibesTokenExchange = () => {
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot_burn.current = true;
       },
       onWriteError: (error) => {
         toast({
@@ -275,8 +296,10 @@ const VibesTokenExchange = () => {
             </Box>
           ),
         });
+        canAddToChatbot_burn.current = false;
       },
       onTxSuccess: async (data) => {
+        if (!canAddToChatbot_burn.current) return;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -311,6 +334,7 @@ const VibesTokenExchange = () => {
             args.amount
           }`,
         });
+        canAddToChatbot_burn.current = false;
         setAmountOfVibes("1");
       },
       onTxError: (error) => {
@@ -318,13 +342,17 @@ const VibesTokenExchange = () => {
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              burn error
+              <Flex direction="column">
+                <Text>burn error</Text>
+                <Text fontSize="15px">{error?.message ?? "unknown error"}</Text>
+              </Flex>
             </Box>
           ),
           duration: 9000,
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot_burn.current = false;
       },
     }
   );
@@ -336,7 +364,13 @@ const VibesTokenExchange = () => {
   };
 
   useEffect(() => {
-    if (!blockNumber.data || isFetching.current) return;
+    if (
+      !blockNumber.data ||
+      isFetching.current ||
+      !contract.address ||
+      !userAddress
+    )
+      return;
     const fetch = async () => {
       isFetching.current = true;
       try {
@@ -346,6 +380,7 @@ const VibesTokenExchange = () => {
           refetchMintCostAfterFees(),
           refetchBurnProceedsAfterFees(),
           refetch(),
+          refetchUserEthBalance(),
         ]);
       } catch (err) {
         console.log("vibes fetching error", err);
@@ -353,7 +388,7 @@ const VibesTokenExchange = () => {
       isFetching.current = false;
     };
     fetch();
-  }, [blockNumber.data]);
+  }, [blockNumber.data, contract.address, userAddress]);
 
   useEffect(() => {
     if (!walletIsConnected) {

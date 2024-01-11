@@ -8,19 +8,16 @@ import React, {
 } from "react";
 import {
   Flex,
-  IconButton,
   Text,
   Image,
-  Tooltip,
   Stack,
+  IconButton,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useBlockNumber, usePublicClient } from "wagmi";
 
 import { initializeApollo } from "../../apiClient/client";
-import ChannelDesc from "../../components/channels/ChannelDesc";
-import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
-import ChatComponent from "../../components/chat/ChatComponent";
 import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
@@ -34,13 +31,18 @@ import {
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChat } from "../../hooks/chat/useChat";
-import Trade from "../../components/channels/bet/Trade";
-import { useGenerateKey } from "../../hooks/contracts/useTournament";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
-import { useGetHolderBalance } from "../../hooks/contracts/useTournament";
+import {
+  useGetHolderBalance,
+  useGenerateKey,
+} from "../../hooks/contracts/useTournament";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import ChatComponent from "../../components/chat/ChatComponent";
 import VibesTokenExchange from "../../components/chat/VibesTokenExchange";
+import ChannelDesc from "../../components/channels/ChannelDesc";
+import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
+import Trade from "../../components/channels/bet/Trade";
 
 const ChannelDetail = ({
   channelData,
@@ -222,7 +224,6 @@ const DesktopPage = ({
                 >
                   <ChannelDesc />
                   <Flex gap="1rem" mt="1rem" justifyContent={"flex-end"}>
-                    {/* <ChannelTournament /> */}
                     <Flex
                       direction="column"
                       bg={"#131323"}

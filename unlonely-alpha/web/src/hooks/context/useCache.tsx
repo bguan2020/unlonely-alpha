@@ -1,6 +1,7 @@
 import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -8,6 +9,7 @@ import {
   useState,
 } from "react";
 import { createPublicClient, http } from "viem";
+import { ToastId, useToast, Box, Flex, Text, Spinner } from "@chakra-ui/react";
 
 import { EventTypeForContract } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
@@ -39,6 +41,8 @@ const CacheContext = createContext<{
   vibesTokenTxs: VibesTokenTx[];
   vibesTokenLoading: boolean;
   chartTimeIndexes: Map<string, number>;
+  addAppError: (error: Error, source: string) => void;
+  popAppError: (errorName: string, field: string) => void;
 }>({
   channelFeed: [],
   claimableBets: [],
@@ -48,21 +52,53 @@ const CacheContext = createContext<{
   vibesTokenTxs: [],
   vibesTokenLoading: true,
   chartTimeIndexes: new Map(),
+  addAppError: () => undefined,
+  popAppError: () => undefined,
 });
+
+type SourcedError = Error & {
+  source: string;
+};
 
 export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const isFetching = useRef(false);
   const [fetchingBets, setFetchingBets] = useState<boolean>(true);
   const [claimableBets, setClaimableBets] = useState<UnclaimedBet[]>([]);
   const [counter, setCounter] = useState(0);
+  const [appErrors, setAppErrors] = useState<SourcedError[]>([]);
+  const toast = useToast();
 
   const { userAddress, activeWallet, walletIsConnected } = useUser();
+  const toastIdRef = useRef<ToastId | undefined>();
 
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const { tokenTxs, chartTimeIndexes, loading } = useVibesCheck();
+
+  const addAppError = useCallback(
+    (error: Error, source: string) => {
+      const existingError = appErrors.find((err) => err.name === error.name);
+      if (!existingError) {
+        const sourcedError = {
+          ...error,
+          source,
+        };
+        setAppErrors((appErrors) => [...appErrors, sourcedError]);
+      }
+    },
+    [appErrors]
+  );
+
+  const popAppError = useCallback(
+    (errorName: string, field: string) => {
+      setAppErrors((appErrors) =>
+        appErrors.filter((err) => (err as any)[field] !== errorName)
+      );
+    },
+    [appErrors]
+  );
 
   const {
     data: dataChannels,
@@ -165,6 +201,47 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     counter,
   ]);
 
+  useEffect(() => {
+    if (
+      walletIsConnected &&
+      appErrors.filter((err) => err.name?.includes("ConnectorNotFoundError"))
+        .length > 0 &&
+      !toast.isActive("no-connector")
+    ) {
+      toastIdRef.current = toast({
+        id: "no-connector",
+        duration: null,
+        position: "top",
+        render: () => (
+          <Box
+            borderRadius="md"
+            className="background-change-element"
+            bg="#c21c1c"
+            p="10px"
+            zIndex="20"
+          >
+            <Flex direction={"column"}>
+              <Flex justifyContent={"space-between"} alignItems="center">
+                <Text textAlign="center" fontSize="18px">
+                  <Flex alignItems={"center"} gap="10px">
+                    <Spinner /> configuring wallet connection...
+                  </Flex>
+                  <Text fontSize="15px">
+                    refresh the app if this message persists
+                  </Text>
+                </Text>
+              </Flex>
+            </Flex>
+          </Box>
+        ),
+      });
+    } else {
+      if (toastIdRef.current) {
+        toast.close(toastIdRef.current);
+      }
+    }
+  }, [appErrors, walletIsConnected]);
+
   setInterval(() => {
     setCounter((counter) => counter + 1);
   }, 1000 * 60 * 8);
@@ -179,6 +256,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       vibesTokenTxs: tokenTxs,
       vibesTokenLoading: loading,
       chartTimeIndexes,
+      addAppError,
+      popAppError,
     };
   }, [
     claimableBets,
@@ -189,6 +268,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     tokenTxs,
     loading,
     chartTimeIndexes,
+    addAppError,
+    popAppError,
   ]);
 
   return (

@@ -1,7 +1,7 @@
 import { Button, Text, Box, useToast, Flex } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { decodeEventLog, formatUnits } from "viem";
+import { decodeEventLog, formatUnits, isAddress } from "viem";
 import { useBalance, useBlockNumber } from "wagmi";
 
 import { useUser } from "../../hooks/context/useUser";
@@ -35,6 +35,7 @@ export const VipBadgeBuy = () => {
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
+    enabled: isAddress(userAddress as `0x${string}`),
   });
 
   const getCallbackHandlers = (

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
+import { isAddress } from "viem";
 
 import { EventTypeForContract, NULL_ADDRESS } from "../../constants";
 import { ContractData, WriteCallbacks } from "../../constants/types";
@@ -83,7 +84,13 @@ export const useReadMappings = (
   const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient) {
+    if (
+      !contract.address ||
+      !contract.abi ||
+      !publicClient ||
+      !userAddress ||
+      !isAddress(eventAddress)
+    ) {
       setVotingPooledEth(BigInt(0));
       setYayVotesSupply(BigInt(0));
       setNayVotesSupply(BigInt(0));
@@ -357,7 +364,14 @@ export const useOpenEvent = (
       EventTypeForContract.YAY_NAY_VOTE,
       args.endTimestamp,
     ],
-    createCallbackHandler("useOpenEvent openEvent", callbacks)
+    createCallbackHandler("useOpenEvent openEvent", callbacks),
+    {
+      enabled:
+        args.eventAddress !== NULL_ADDRESS &&
+        args.eventId > 0 &&
+        contract.address !== NULL_ADDRESS &&
+        contract.abi !== null,
+    }
   );
 
   return {
@@ -391,7 +405,14 @@ export const useVerifyEvent = (
       EventTypeForContract.YAY_NAY_VOTE,
       args.result,
     ],
-    createCallbackHandler("useVerifyEvent verifyEvent", callbacks)
+    createCallbackHandler("useVerifyEvent verifyEvent", callbacks),
+    {
+      enabled:
+        args.eventAddress !== NULL_ADDRESS &&
+        args.eventId > 0 &&
+        contract.address !== NULL_ADDRESS &&
+        contract.abi !== null,
+    }
   );
 
   return {
@@ -415,7 +436,13 @@ export const useGetHolderBalances = (
   const [nayVotesBalance, setNayVotesBalance] = useState<string>("0");
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient) {
+    if (
+      !contract.address ||
+      !contract.abi ||
+      !publicClient ||
+      !isAddress(holder) ||
+      !isAddress(eventAddress)
+    ) {
       setYayVotesBalance("0");
       setNayVotesBalance("0");
       return;
@@ -584,6 +611,7 @@ export const useBuyVotes = (
     isYay: boolean;
     amountOfVotes: bigint;
     value: bigint;
+    canBuy: boolean;
   },
   contract: ContractData,
   callbacks?: WriteCallbacks
@@ -606,7 +634,15 @@ export const useBuyVotes = (
       args.amountOfVotes,
     ],
     createCallbackHandler("useBuyVotes buyVotes", callbacks),
-    { value: args.value }
+    {
+      value: args.value,
+      enabled:
+        args.eventAddress !== NULL_ADDRESS &&
+        args.eventId > 0 &&
+        contract.address !== NULL_ADDRESS &&
+        contract.abi !== null &&
+        args.canBuy,
+    }
   );
 
   return {
@@ -646,7 +682,14 @@ export const useSellVotes = (
       args.isYay,
       args.amountOfVotes,
     ],
-    createCallbackHandler("useSellVotes sellVotes", callbacks)
+    createCallbackHandler("useSellVotes sellVotes", callbacks),
+    {
+      enabled:
+        args.eventAddress !== NULL_ADDRESS &&
+        args.eventId > 0 &&
+        contract.address !== NULL_ADDRESS &&
+        contract.abi !== null,
+    }
   );
 
   return {
@@ -660,7 +703,7 @@ export const useSellVotes = (
 };
 
 export const useClaimVotePayout = (
-  args: { eventAddress: `0x${string}`; eventId: number },
+  args: { eventAddress: `0x${string}`; eventId: number; canClaim: boolean },
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
@@ -674,7 +717,15 @@ export const useClaimVotePayout = (
     contract,
     "claimVotePayout",
     [args.eventAddress, args.eventId, EventTypeForContract.YAY_NAY_VOTE],
-    createCallbackHandler("useClaimVotePayout claimVotePayout", callbacks)
+    createCallbackHandler("useClaimVotePayout claimVotePayout", callbacks),
+    {
+      enabled:
+        args.eventAddress !== NULL_ADDRESS &&
+        args.eventId > 0 &&
+        contract.address !== NULL_ADDRESS &&
+        contract.abi !== null &&
+        args.canClaim,
+    }
   );
 
   return {

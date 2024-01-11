@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { decodeEventLog, formatUnits } from "viem";
+import { decodeEventLog, formatUnits, isAddress } from "viem";
 import {
   Flex,
   Box,
@@ -72,6 +72,7 @@ const Trade = () => {
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
+    enabled: isAddress(userAddress as `0x${string}`),
   });
   const canAddToChatbotBuy = useRef(false);
   const canAddToChatbotClaim = useRef(false);
@@ -174,6 +175,11 @@ const Trade = () => {
       isYay,
       amountOfVotes: amount_bigint,
       value: votePrice,
+      canBuy:
+        (ongoingBets ?? []).length > 0 &&
+        ongoingBets?.[0]?.eventState === SharesEventState.Live &&
+        ongoingBets?.[0]?.sharesSubjectAddress !== undefined &&
+        !isAddress(ongoingBets?.[0]?.sharesSubjectAddress ?? ""),
     },
     v2contract,
     {
@@ -392,6 +398,10 @@ const Trade = () => {
       {
         eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
         eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+        canClaim:
+          eventVerified &&
+          ongoingBets?.[0]?.eventState === SharesEventState.Payout &&
+          userPayout > BigInt(0),
       },
       v2contract,
       {
