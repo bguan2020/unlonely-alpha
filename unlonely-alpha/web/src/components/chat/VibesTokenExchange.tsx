@@ -233,7 +233,7 @@ const VibesTokenExchange = () => {
           }`,
         });
         canAddToChatbot_mint.current = false;
-        setAmountOfVibes("1");
+        setAmountOfVibes("10000");
       },
       onTxError: (error) => {
         console.log("mint error", error);
@@ -335,7 +335,7 @@ const VibesTokenExchange = () => {
           }`,
         });
         canAddToChatbot_burn.current = false;
-        setAmountOfVibes("1");
+        setAmountOfVibes("10000");
       },
       onTxError: (error) => {
         console.log("burn error", error);
