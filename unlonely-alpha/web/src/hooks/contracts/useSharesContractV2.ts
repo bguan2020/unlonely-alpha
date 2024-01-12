@@ -78,10 +78,8 @@ export const useReadMappings = (
   const [eventVerified, setEventVerified] = useState<boolean>(false);
   const [eventResult, setEventResult] = useState<boolean>(false);
   const [eventEndTimestamp, setEventEndTimestamp] = useState<bigint>(BigInt(0));
-  const [isVerifier, setIsVerifier] = useState<boolean>(false);
 
   const [votingPooledEth, setVotingPooledEth] = useState<bigint>(BigInt(0));
-  const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
 
   const getData = useCallback(async () => {
     if (
@@ -97,8 +95,6 @@ export const useReadMappings = (
       setEventVerified(false);
       setEventResult(false);
       setEventEndTimestamp(BigInt(0));
-      setIsVerifier(false);
-      setUserPayout(BigInt(0));
       return;
     }
     const [
@@ -107,9 +103,7 @@ export const useReadMappings = (
       eventVerified,
       eventResult,
       eventEndTimestamp,
-      isVerifier,
       pooledEth,
-      userPayout,
     ] = await Promise.all([
       publicClient.readContract({
         address: contract.address,
@@ -144,25 +138,8 @@ export const useReadMappings = (
       publicClient.readContract({
         address: contract.address,
         abi: contract.abi,
-        functionName: "isVerifier",
-        args: [userAddress],
-      }),
-      publicClient.readContract({
-        address: contract.address,
-        abi: contract.abi,
         functionName: "votingPooledEth",
         args: [key],
-      }),
-      publicClient.readContract({
-        address: contract.address,
-        abi: contract.abi,
-        functionName: "getVotePayout",
-        args: [
-          eventAddress,
-          eventId,
-          EventTypeForContract.YAY_NAY_VOTE,
-          userAddress,
-        ],
       }),
     ]);
     setVotingPooledEth(BigInt(String(pooledEth)));
@@ -171,8 +148,6 @@ export const useReadMappings = (
     setEventVerified(Boolean(eventVerified));
     setEventResult(Boolean(eventResult));
     setEventEndTimestamp(BigInt(String(eventEndTimestamp)));
-    setIsVerifier(Boolean(isVerifier));
-    setUserPayout(BigInt(String(userPayout)));
   }, [contract, publicClient, userAddress, eventAddress, eventId, key]);
 
   useEffect(() => {
@@ -186,9 +161,82 @@ export const useReadMappings = (
     eventVerified,
     eventResult,
     eventEndTimestamp,
-    isVerifier,
     votingPooledEth,
+  };
+};
+
+export const useUserPayout = (
+  eventAddress: `0x${string}`,
+  eventId: number,
+  contract: ContractData
+) => {
+  const { userAddress } = useUser();
+  const publicClient = usePublicClient();
+
+  const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
+
+  const getData = useCallback(async () => {
+    if (
+      !contract.address ||
+      !contract.abi ||
+      !publicClient ||
+      !userAddress ||
+      !isAddress(eventAddress)
+    ) {
+      setUserPayout(BigInt(0));
+      return;
+    }
+    const userPayout = await publicClient.readContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: "getVotePayout",
+      args: [
+        eventAddress,
+        eventId,
+        EventTypeForContract.YAY_NAY_VOTE,
+        userAddress,
+      ],
+    });
+    setUserPayout(BigInt(String(userPayout)));
+  }, [contract, publicClient, userAddress, eventAddress, eventId]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
     userPayout,
+  };
+};
+
+export const useIsVerifier = (contract: ContractData) => {
+  const { userAddress } = useUser();
+  const publicClient = usePublicClient();
+
+  const [isVerifier, setIsVerifier] = useState<boolean>(false);
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient || !userAddress) {
+      setIsVerifier(false);
+      return;
+    }
+    const isVerifier = await publicClient.readContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: "isVerifier",
+      args: [userAddress],
+    });
+    setIsVerifier(Boolean(isVerifier));
+  }, [contract, publicClient, userAddress]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
+    isVerifier,
   };
 };
 
@@ -387,6 +435,7 @@ export const useVerifyEvent = (
     eventAddress: `0x${string}`;
     eventId: number;
     result: boolean;
+    enabled: boolean;
   },
   contract: ContractData,
   callbacks?: WriteCallbacks
@@ -411,7 +460,8 @@ export const useVerifyEvent = (
         args.eventAddress !== NULL_ADDRESS &&
         args.eventId > 0 &&
         contract.address !== NULL_ADDRESS &&
-        contract.abi !== null,
+        contract.abi !== null &&
+        args.enabled,
     }
   );
 

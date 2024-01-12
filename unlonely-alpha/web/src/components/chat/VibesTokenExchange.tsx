@@ -18,7 +18,6 @@ import centerEllipses from "../../utils/centerEllipses";
 import { filteredInput } from "../../utils/validation/input";
 import {
   useBurn,
-  useGetBurnProceedsAfterFees,
   useGetMintCostAfterFees,
   useMint,
 } from "../../hooks/contracts/useVibesToken";
@@ -76,11 +75,6 @@ const VibesTokenExchange = () => {
 
   const blockNumber = useBlockNumber({
     watch: true,
-  });
-
-  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
-    address: userAddress as `0x${string}`,
-    enabled: isAddress(userAddress as `0x${string}`),
   });
 
   const { data: vibesBalance, refetch } = useBalance({
@@ -149,8 +143,8 @@ const VibesTokenExchange = () => {
   const { mintCostAfterFees, refetch: refetchMintCostAfterFees } =
     useGetMintCostAfterFees(amount_votes_bigint, contract);
 
-  const { burnProceedsAfterFees, refetch: refetchBurnProceedsAfterFees } =
-    useGetBurnProceedsAfterFees(amount_votes_bigint, contract);
+  // const { burnProceedsAfterFees, refetch: refetchBurnProceedsAfterFees } =
+  //   useGetBurnProceedsAfterFees(amount_votes_bigint, contract);
 
   const {
     mint,
@@ -368,7 +362,8 @@ const VibesTokenExchange = () => {
       !blockNumber.data ||
       isFetching.current ||
       !contract.address ||
-      !userAddress
+      !userAddress ||
+      !walletIsConnected
     )
       return;
     const fetch = async () => {
@@ -378,9 +373,8 @@ const VibesTokenExchange = () => {
           refetchMint(),
           refetchBurn(),
           refetchMintCostAfterFees(),
-          refetchBurnProceedsAfterFees(),
+          // refetchBurnProceedsAfterFees(),
           refetch(),
-          refetchUserEthBalance(),
         ]);
       } catch (err) {
         console.log("vibes fetching error", err);
@@ -388,7 +382,7 @@ const VibesTokenExchange = () => {
       isFetching.current = false;
     };
     fetch();
-  }, [blockNumber.data, contract.address, userAddress]);
+  }, [blockNumber.data, contract.address, userAddress, walletIsConnected]);
 
   useEffect(() => {
     if (!walletIsConnected) {

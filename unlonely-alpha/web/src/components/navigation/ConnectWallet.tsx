@@ -168,14 +168,14 @@ const ConnectedDisplay = () => {
   const { userAddress } = useUser();
   const { claimableBets } = useCacheContext();
   const { network } = useNetworkContext();
-  const { matchingChain } = network;
+  const { matchingChain, localNetwork } = network;
 
   const { isStandalone } = useUserAgent();
 
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
 
   const { data: feeData, refetch } = useFeeData({
-    chainId: 84531,
+    chainId: localNetwork.config.chainId,
   });
   const blockNumber = useBlockNumber({
     watch: true,
@@ -185,7 +185,6 @@ const ConnectedDisplay = () => {
     enabled: isAddress(userAddress as `0x${string}`),
   });
   const isFetching = useRef(false);
-
   const isLowEthBalance = useMemo(() => {
     if (!userEthBalance || !feeData || !matchingChain) {
       return false;
@@ -240,14 +239,25 @@ const ConnectedDisplay = () => {
 
   useEffect(() => {
     if (!blockNumber.data || isFetching.current) return;
+    const startTime = Date.now();
+    let endTime = 0;
     const calls: any[] = [refetch(), refetchUserEthBalance()];
     const fetch = async () => {
       isFetching.current = true;
       try {
-        await Promise.all(calls);
+        await Promise.all(calls).then(() => {
+          endTime = Date.now();
+        });
       } catch (err) {
+        endTime = Date.now();
         console.log("connect fetching error", err);
       }
+      const MILLIS = 70000;
+      const timeToWait =
+        endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
+      await new Promise((resolve) => {
+        setTimeout(resolve, timeToWait);
+      });
       isFetching.current = false;
     };
     fetch();

@@ -15,10 +15,12 @@ import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
 export const JudgeBet = ({
   ethBalance,
   isVerifier,
+  eventVerified,
   handleClose,
 }: {
   ethBalance: bigint;
   isVerifier: boolean;
+  eventVerified: boolean;
   handleClose: () => void;
 }) => {
   const { userAddress, user } = useUser();
@@ -48,6 +50,7 @@ export const JudgeBet = ({
       eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
       eventId: Number(ongoingBets?.[0]?.id) ?? 0,
       result: endDecision ?? false,
+      enabled: !eventVerified,
     },
     contractData,
     {

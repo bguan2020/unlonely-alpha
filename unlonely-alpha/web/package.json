@@ -28,7 +28,7 @@
     "@hookform/resolvers": "^2.9.5",
     "@livepeer/react": "^3.0.2",
     "@privy-io/react-auth": "1.52.2",
-    "@privy-io/wagmi-connector": "0.1.0",
+    "@privy-io/wagmi-connector": "0.1.12",
     "@reduxjs/toolkit": "^1.8.5",
     "ably": "^1.2.39",
     "amazon-ivs-player": "^1.12.0",
