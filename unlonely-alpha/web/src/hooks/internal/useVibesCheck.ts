@@ -13,7 +13,7 @@ export const useVibesCheck = () => {
   // const appending = useRef(false);
   const client = useApolloClient();
   const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
@@ -98,7 +98,6 @@ export const useVibesCheck = () => {
       if (
         !publicClient ||
         !contract.address ||
-        loading ||
         fetching.current ||
         !blockNumber.data
       )

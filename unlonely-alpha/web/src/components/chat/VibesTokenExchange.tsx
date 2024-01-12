@@ -61,7 +61,13 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-const VibesTokenExchange = ({ vertical }: { vertical?: boolean }) => {
+const VibesTokenExchange = ({
+  vertical,
+  hideTooltip,
+}: {
+  vertical?: boolean;
+  hideTooltip?: boolean;
+}) => {
   const { walletIsConnected, userAddress, user } = useUser();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
     useCacheContext();
@@ -131,7 +137,7 @@ const VibesTokenExchange = ({ vertical }: { vertical?: boolean }) => {
     return res;
   }, [timeFilter, formattedHourData, formattedDayData, vibesTokenTxs]);
 
-  const [amountOfVibes, setAmountOfVibes] = useState<string>("1");
+  const [amountOfVibes, setAmountOfVibes] = useState<string>("10000");
   const debouncedAmountOfVotes = useDebounce(amountOfVibes, 300);
   const amount_votes_bigint = useMemo(
     () => BigInt(debouncedAmountOfVotes as `${number}`),
@@ -239,7 +245,7 @@ const VibesTokenExchange = ({ vertical }: { vertical?: boolean }) => {
         console.log("mint error", error);
         toast({
           render: () => (
-            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+            <Box as="button" borderRadius="md" bg="#b82929" px={4}>
               <Flex direction="column">
                 <Text>mint error</Text>
                 <Text fontSize="15px">{error?.message ?? "unknown error"}</Text>
@@ -343,7 +349,7 @@ const VibesTokenExchange = ({ vertical }: { vertical?: boolean }) => {
         console.log("burn error", error);
         toast({
           render: () => (
-            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+            <Box as="button" borderRadius="md" bg="#b82929" px={4}>
               <Flex direction="column">
                 <Text>burn error</Text>
                 <Text fontSize="15px">{error?.message ?? "unknown error"}</Text>
@@ -417,31 +423,22 @@ const VibesTokenExchange = ({ vertical }: { vertical?: boolean }) => {
           <Spinner size="md" />
         </Flex>
       ) : (
-        <Flex direction="column" w="100%" position="relative">
-          {formattedHourData.length === 0 && timeFilter === "1h" && (
-            <Text position="absolute" color="gray" top="50%">
-              no txs in last hour
-            </Text>
-          )}
-          {formattedDayData.length === 0 && timeFilter === "1d" && (
-            <Text position="absolute" color="gray" top="50%">
-              no txs in the past 24 hours
-            </Text>
-          )}
-          {formattedData.length === 0 && timeFilter === "all" && (
-            <Text position="absolute" color="gray" top="50%">
-              no txs
-            </Text>
-          )}
+        <Flex direction="column" justifyContent={"space-between"}>
           <Flex gap="1rem" alignItems={"center"}>
-            <ChakraTooltip
-              label="buy/sell this token depending on the vibes of this stream!"
-              shouldWrapChildren
-            >
+            {hideTooltip ? (
               <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
                 $VIBES
               </Text>
-            </ChakraTooltip>
+            ) : (
+              <ChakraTooltip
+                label="buy/sell this token depending on the vibes of this stream!"
+                shouldWrapChildren
+              >
+                <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
+                  $VIBES
+                </Text>
+              </ChakraTooltip>
+            )}
             <Button
               bg={timeFilter === "1h" ? "#7874c9" : "#403c7d"}
               color="#c6c3fc"
@@ -479,22 +476,90 @@ const VibesTokenExchange = ({ vertical }: { vertical?: boolean }) => {
               all
             </Button>
           </Flex>
-          <ResponsiveContainer
-            width="100%"
-            height={vertical ? "100px" : "100%"}
-          >
-            <LineChart data={formattedData}>
-              <Tooltip content={<CustomTooltip />} />
-              <Line
-                type="monotone"
-                dataKey="price"
-                stroke="#8884d8"
-                strokeWidth={2}
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-          {vertical && (
+          <Flex direction={vertical ? "column" : "row"} gap="10px" flex="1">
+            <Flex direction="column" w="100%" position="relative">
+              {formattedHourData.length === 0 && timeFilter === "1h" && (
+                <Text position="absolute" color="gray" top="50%">
+                  no txs in last hour
+                </Text>
+              )}
+              {formattedDayData.length === 0 && timeFilter === "1d" && (
+                <Text position="absolute" color="gray" top="50%">
+                  no txs in the past 24 hours
+                </Text>
+              )}
+              {formattedData.length === 0 && timeFilter === "all" && (
+                <Text position="absolute" color="gray" top="50%">
+                  no txs
+                </Text>
+              )}
+              <ResponsiveContainer width="100%" height={"100%"}>
+                <LineChart data={formattedData}>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line
+                    type="monotone"
+                    dataKey="price"
+                    stroke="#8884d8"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+              {vertical && (
+                <Flex direction="column" justifyContent={"flex-end"} gap="10px">
+                  <Flex position="relative" gap="5px" alignItems={"center"}>
+                    <Input
+                      variant="glow"
+                      textAlign="center"
+                      value={amountOfVibes}
+                      onChange={handleInputChange}
+                      mx="auto"
+                      p="1"
+                      fontSize={"14px"}
+                    />
+                    <Button
+                      bg={"#403c7d"}
+                      color="white"
+                      p={2}
+                      height={"20px"}
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{
+                        bg: "#8884d8",
+                      }}
+                      onClick={() => {
+                        vibesBalance &&
+                          setAmountOfVibes(vibesBalance.formatted);
+                      }}
+                    >
+                      max
+                    </Button>
+                  </Flex>
+                  <Button
+                    color="white"
+                    _focus={{}}
+                    _hover={{}}
+                    _active={{}}
+                    bg="#46a800"
+                    isDisabled={!mint}
+                    onClick={mint}
+                  >
+                    BUY
+                  </Button>
+                  <Button
+                    color="white"
+                    _focus={{}}
+                    _hover={{}}
+                    _active={{}}
+                    bg="#fe2815"
+                    isDisabled={!burn}
+                    onClick={burn}
+                  >
+                    SELL
+                  </Button>
+                </Flex>
+              )}
+            </Flex>
             <Flex direction="column" justifyContent={"flex-end"} gap="10px">
               <Flex position="relative" gap="5px" alignItems={"center"}>
                 <Input
@@ -546,60 +611,7 @@ const VibesTokenExchange = ({ vertical }: { vertical?: boolean }) => {
                 SELL
               </Button>
             </Flex>
-          )}
-        </Flex>
-      )}
-      {!vertical && (
-        <Flex direction="column" justifyContent={"flex-end"} gap="10px">
-          <Flex position="relative" gap="5px" alignItems={"center"}>
-            <Input
-              variant="glow"
-              textAlign="center"
-              value={amountOfVibes}
-              onChange={handleInputChange}
-              mx="auto"
-              p="1"
-              fontSize={"14px"}
-            />
-            <Button
-              bg={"#403c7d"}
-              color="white"
-              p={2}
-              height={"20px"}
-              _focus={{}}
-              _active={{}}
-              _hover={{
-                bg: "#8884d8",
-              }}
-              onClick={() => {
-                vibesBalance && setAmountOfVibes(vibesBalance.formatted);
-              }}
-            >
-              max
-            </Button>
           </Flex>
-          <Button
-            color="white"
-            _focus={{}}
-            _hover={{}}
-            _active={{}}
-            bg="#46a800"
-            isDisabled={!mint}
-            onClick={mint}
-          >
-            BUY
-          </Button>
-          <Button
-            color="white"
-            _focus={{}}
-            _hover={{}}
-            _active={{}}
-            bg="#fe2815"
-            isDisabled={!burn}
-            onClick={burn}
-          >
-            SELL
-          </Button>
         </Flex>
       )}
     </>

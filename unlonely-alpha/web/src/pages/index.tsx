@@ -441,7 +441,7 @@ function DesktopPage({
                     mb="10px"
                     borderRadius={"10px"}
                   >
-                    <VibesTokenExchange />
+                    <VibesTokenExchange hideTooltip />
                   </Flex>
                   <FixedComponent newHeightPercentage="70%" />
                 </Container>

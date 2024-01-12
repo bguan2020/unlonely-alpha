@@ -32,9 +32,8 @@ const ChannelCard = ({
   const [isBellAnimating, setIsBellAnimating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleAddChannelToSubscription = async (e: any) => {
+  const handleAddChannelToSubscription = async () => {
     if (!endpoint) return;
-    e.stopPropagation();
     setIsLoading(true);
     await addChannelToSubscription?.({
       endpoint,
@@ -45,8 +44,7 @@ const ChannelCard = ({
     setIsBellAnimating(true);
   };
 
-  const handleRemoveChannelFromSubscription = async (e: any) => {
-    e.stopPropagation();
+  const handleRemoveChannelFromSubscription = async () => {
     if (!endpoint) return;
     setIsLoading(true);
     await removeChannelFromSubscription?.({
@@ -158,10 +156,12 @@ const ChannelCard = ({
                 )
               }
               onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
                 if (subscribed) {
-                  handleRemoveChannelFromSubscription(e);
+                  handleRemoveChannelFromSubscription();
                 } else {
-                  handleAddChannelToSubscription(e);
+                  handleAddChannelToSubscription();
                 }
               }}
             />
