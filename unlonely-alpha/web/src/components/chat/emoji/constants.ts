@@ -2,9 +2,23 @@
 // @ts-ignore
 import unicodeMap from "emoji-unicode-map";
 
-const _unicodeEmojis = {
-  "crypto emojis": ["😂", "💰", "⛽️", "🌝", "📉", "🚀", "🔥"],
-  "rizz olympics emojis": ["👀", "🥵", "💀", "💘", "📈", "🫣", "💔"],
+export const _unicodeEmojis = {
+  "crypto emojis": [
+    "😂",
+    "💰",
+    "⛽️",
+    "🌝",
+    "📉",
+    "🚀",
+    "🔥",
+    "👀",
+    "🥵",
+    "💀",
+    "💘",
+    "📈",
+    "🫣",
+    "💔",
+  ],
 };
 
 export const gifsList = () => {
@@ -31,8 +45,6 @@ export const gifsList = () => {
   return originalGifs;
 };
 
-export const categoriesList = ["crypto emojis", "rizz olympics emojis"];
-
 export const REACTION_EMOJIS = [
   "⛽️",
   "😂",
@@ -45,7 +57,7 @@ export const REACTION_EMOJIS = [
   "🙈",
 ];
 
-export const unicodeEmojis = categoriesList.reduce(
+export const unicodeEmojis = Object.keys(_unicodeEmojis).reduce(
   (prevVal: any, category: string) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore

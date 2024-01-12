@@ -8,6 +8,7 @@ import {
   useToast,
   Input,
   Spinner,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useBalance, useBlockNumber } from "wagmi";
@@ -830,7 +831,10 @@ const Trade = () => {
           {!doesEventExist ||
           (doesEventExist &&
             ongoingBets?.[0].eventState === SharesEventState.PayoutPrevious) ? (
-            <>
+            <Tooltip
+              label="ask the streamer to start a voting event on stream to use this feature!"
+              shouldWrapChildren
+            >
               <Text textAlign={"center"}>there is no event at the moment</Text>
               <Flex justifyContent={"center"}>
                 <Link
@@ -841,7 +845,7 @@ const Trade = () => {
                   <Text fontSize="12px"> go to claim page</Text>
                 </Link>
               </Flex>
-            </>
+            </Tooltip>
           ) : (
             <>
               {!eventEndTimestampPassed &&
