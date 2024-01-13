@@ -130,41 +130,43 @@ const ChannelCard = ({
                   centerEllipses(channel.owner.address, 15)}
               </Text>
             </Flex>
-            <IconButton
-              position="absolute"
-              top="0px"
-              right="0px"
-              color="white"
-              _hover={{
-                transform: "scale(1.5)",
-              }}
-              _focus={{}}
-              _active={{}}
-              bg="transparent"
-              opacity={subscribed || isLoading ? 1 : 0.2}
-              aria-label="notify"
-              id={"bellring-desktop".concat(channel.id)}
-              className={isBellAnimating ? "bell" : ""}
-              width="unset"
-              icon={
-                isLoading ? (
-                  <Spinner />
-                ) : subscribed ? (
-                  <BiSolidBellRing height={"100%"} />
-                ) : (
-                  <BiSolidBellOff height={"100%"} />
-                )
-              }
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                if (subscribed) {
-                  handleRemoveChannelFromSubscription();
-                } else {
-                  handleAddChannelToSubscription();
+            {endpoint && (
+              <IconButton
+                position="absolute"
+                top="0px"
+                right="0px"
+                color="white"
+                _hover={{
+                  transform: "scale(1.5)",
+                }}
+                _focus={{}}
+                _active={{}}
+                bg="transparent"
+                opacity={subscribed || isLoading ? 1 : 0.2}
+                aria-label="notify"
+                id={"bellring-desktop".concat(channel.id)}
+                className={isBellAnimating ? "bell" : ""}
+                width="unset"
+                icon={
+                  isLoading ? (
+                    <Spinner />
+                  ) : subscribed ? (
+                    <BiSolidBellRing height={"100%"} />
+                  ) : (
+                    <BiSolidBellOff height={"100%"} />
+                  )
                 }
-              }}
-            />
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (subscribed) {
+                    handleRemoveChannelFromSubscription();
+                  } else {
+                    handleAddChannelToSubscription();
+                  }
+                }}
+              />
+            )}
           </Flex>
           <Flex flexDirection="column">
             <Text fontSize={16} fontWeight="bold" noOfLines={2}>
