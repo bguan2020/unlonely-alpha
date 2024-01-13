@@ -18,7 +18,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useRouter } from "next/router";
 import { BiRefresh } from "react-icons/bi";
@@ -194,6 +194,17 @@ const ScrollableComponent = ({
     <>
       {/* <TokenLeaderboard callback={callback} /> */}
       <Flex direction="column" width="100%">
+        <Flex
+          height="30%"
+          gap="5px"
+          justifyContent={"space-between"}
+          bg="#131323"
+          p="5px"
+          mb="10px"
+          borderRadius={"10px"}
+        >
+          <VibesTokenExchange hideTooltip />
+        </Flex>
         <Text
           fontSize={{ base: "30px", lg: "40px" }}
           lineHeight={{ base: "60px", lg: "80px" }}
@@ -202,9 +213,11 @@ const ScrollableComponent = ({
         >
           channels
         </Text>
-        <Text fontSize={"24px"} className="gradient-text" textAlign="center">
-          explore
-        </Text>
+        {sortedChannels.length > 0 && (
+          <Text fontSize={"24px"} className="gradient-text" textAlign="center">
+            {sortedChannels.length} streamers to explore
+          </Text>
+        )}
         {loading ? (
           <Flex
             direction="row"
@@ -432,7 +445,7 @@ function DesktopPage({
                 }}
               >
                 <Container height="100%">
-                  <Flex
+                  {/* <Flex
                     height="30%"
                     gap="5px"
                     justifyContent={"space-between"}
@@ -442,8 +455,8 @@ function DesktopPage({
                     borderRadius={"10px"}
                   >
                     <VibesTokenExchange hideTooltip />
-                  </Flex>
-                  <FixedComponent newHeightPercentage="70%" />
+                  </Flex> */}
+                  <FixedComponent />
                 </Container>
               </Box>
             )}
@@ -488,8 +501,10 @@ function MobilePage({
 
   const channels: Channel[] = dataChannels;
 
-  const suggestedChannels =
-    subscriptionData?.getSubscriptionByEndpoint?.allowedChannels;
+  const suggestedChannels = useMemo(
+    () => subscriptionData?.getSubscriptionByEndpoint?.allowedChannels,
+    [subscriptionData]
+  );
 
   const handleSelectChannel = useCallback((slug: string) => {
     setLoadingPage(true);
