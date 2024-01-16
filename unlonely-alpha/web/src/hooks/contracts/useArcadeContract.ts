@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
@@ -59,10 +59,6 @@ export const useReadPublic = (
     }
   }, [contract, creatorTokenAddress, publicClient]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     creatorToken,
@@ -104,10 +100,6 @@ export const useCalculateEthAmount = (
     }
   }, [contract, creatorTokenAddress, amountOut]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     amountIn,
@@ -146,10 +138,6 @@ export const useAdmins = (contract: ContractData) => {
     ]);
     setAdmins(admins as unknown as string[]);
   }, [contract, publicClient]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { usePublicClient } from "wagmi";
 
 import { EventTypeForContract, NULL_ADDRESS } from "../../constants";
@@ -58,10 +58,6 @@ export const useReadPublic = (contract: ContractData) => {
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
   }, [contract, publicClient]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,
@@ -123,10 +119,6 @@ export const useReadMappings = (key: string, contract: ContractData) => {
     setIsVerifier(Boolean(isVerifier));
   }, [contract, publicClient, userAddress, key]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     isVerifier,
@@ -161,10 +153,6 @@ export const useGenerateKey = (
     setKey(String(key));
   }, [contract, publicClient, eventAddress, eventId]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     key,
@@ -194,10 +182,6 @@ export const useGetOpeningAfterFee = (
     });
     setOpeningWagerAfterFee(BigInt(String(wager)));
   }, [contract, publicClient, amount]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,
@@ -236,10 +220,6 @@ export const useGetExistingWager = (
     setExistingWager(BigInt(String(wager)));
   }, [contract, publicClient, eventAddress, eventId]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     existingWager,
@@ -268,10 +248,6 @@ export const useIsSideBetAvailable = (
     });
     setIsAvailable(Boolean(isAvailable));
   }, [contract, publicClient, eventAddress, eventId]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,

@@ -156,7 +156,7 @@ const DesktopPage = ({
         endTime = Date.now();
         console.log("channelTournament fetching error", err);
       }
-      const MILLIS = 30000;
+      const MILLIS = 35000;
       const timeToWait =
         endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
       await new Promise((resolve) => {

@@ -12,7 +12,7 @@ import {
 import { decodeEventLog, formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useBalance, useBlockNumber } from "wagmi";
-import { ResponsiveContainer, LineChart, Line, Tooltip } from "recharts";
+import { ResponsiveContainer, LineChart, Line, Tooltip, YAxis } from "recharts";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
@@ -62,11 +62,13 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const VibesTokenExchange = ({
+  defaultTimeFilter,
   vertical,
-  hideTooltip,
+  allStreams,
 }: {
+  defaultTimeFilter?: "1h" | "1d" | "all";
   vertical?: boolean;
-  hideTooltip?: boolean;
+  allStreams?: boolean;
 }) => {
   const { walletIsConnected, userAddress, user } = useUser();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
@@ -79,13 +81,15 @@ const VibesTokenExchange = ({
   const { channelQueryData } = channel;
   const { addToChatbot } = chat;
 
-  const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">("1d");
+  const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">(
+    defaultTimeFilter ?? "1d"
+  );
 
   const blockNumber = useBlockNumber({
     watch: true,
   });
 
-  const { data: vibesBalance, refetch } = useBalance({
+  const { data: vibesBalance, refetch: refetchVibesBalance } = useBalance({
     address: userAddress,
     token: contract.address,
     enabled:
@@ -382,22 +386,33 @@ const VibesTokenExchange = ({
       return;
     const fetch = async () => {
       isFetching.current = true;
+      const startTime = Date.now();
+      let endTime = 0;
       try {
         await Promise.all([
           refetchMint(),
           refetchBurn(),
           refetchMintCostAfterFees(),
           // refetchBurnProceedsAfterFees(),
-          refetch(),
+          refetchVibesBalance(),
           refetchDest(),
-        ]);
+        ]).then(() => {
+          endTime = Date.now();
+        });
       } catch (err) {
+        endTime = Date.now();
         console.log("vibes fetching error", err);
       }
+      const MILLIS = 3000;
+      const timeToWait =
+        endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
+      await new Promise((resolve) => {
+        setTimeout(resolve, timeToWait);
+      });
       isFetching.current = false;
     };
     fetch();
-  }, [blockNumber.data, contract.address, userAddress, walletIsConnected]);
+  }, [blockNumber.data]);
 
   useEffect(() => {
     if (!walletIsConnected) {
@@ -425,20 +440,16 @@ const VibesTokenExchange = ({
       ) : (
         <Flex direction="column" justifyContent={"space-between"}>
           <Flex gap="1rem" alignItems={"center"}>
-            {hideTooltip ? (
+            <ChakraTooltip
+              label={`buy/sell this token depending on the vibes of ${
+                allStreams ? "the app!" : "this stream!"
+              }`}
+              shouldWrapChildren
+            >
               <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
                 $VIBES
               </Text>
-            ) : (
-              <ChakraTooltip
-                label="buy/sell this token depending on the vibes of this stream!"
-                shouldWrapChildren
-              >
-                <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
-                  $VIBES
-                </Text>
-              </ChakraTooltip>
-            )}
+            </ChakraTooltip>
             <Button
               bg={timeFilter === "1h" ? "#7874c9" : "#403c7d"}
               color="#c6c3fc"
@@ -495,6 +506,7 @@ const VibesTokenExchange = ({
               )}
               <ResponsiveContainer width="100%" height={"100%"}>
                 <LineChart data={formattedData}>
+                  <YAxis type="number" domain={["dataMin", "dataMax"]} hide />
                   <Tooltip content={<CustomTooltip />} />
                   <Line
                     type="monotone"

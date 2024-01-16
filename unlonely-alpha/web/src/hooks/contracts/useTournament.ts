@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
@@ -112,10 +112,6 @@ export const useReadPublic = (contract: ContractData) => {
     // }
   }, [contract.address, publicClient]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     tournament,
@@ -157,10 +153,6 @@ export const useReadMappings = (key: string, contract: ContractData) => {
     setVipBadgeSupply(BigInt(String(vipBadgeSupply)));
     setIsTournamentCreator(Boolean(isTournamentCreator));
   }, [contract.address, publicClient, userAddress, key]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,
@@ -353,10 +345,6 @@ export const useGenerateKey = (
     setKey(String(key));
   }, [contract.address, publicClient, streamerAddress, eventId]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     key,
@@ -498,10 +486,6 @@ export const useGetTournamentPayout = (
     setUserPayout(BigInt(String(userPayout)));
   }, [contract.address, publicClient]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     userPayout,
@@ -545,10 +529,6 @@ export const useGetHolderBalance = (
     setVipBadgeBalance(String(vipBadgeBalance));
   }, [contract.address, publicClient, streamerAddress, eventId, holder]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     vipBadgeBalance,
@@ -579,10 +559,6 @@ export const getSupply = (
     ]);
     setVipBadgeSupply(String(vipBadgeSupply));
   }, [contract.address, publicClient, streamerAddress, eventId]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,
@@ -642,10 +618,6 @@ export const useGetPrice = (
     isBuying,
   ]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     price,
@@ -703,10 +675,6 @@ export const useGetPriceAfterFee = (
     amount,
     isBuying,
   ]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,

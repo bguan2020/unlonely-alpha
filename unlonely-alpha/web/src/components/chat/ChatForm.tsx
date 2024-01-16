@@ -13,9 +13,10 @@ import {
   PopoverArrow,
   Input,
 } from "@chakra-ui/react";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
 import { BsFillHeartFill } from "react-icons/bs";
+import { GiTalk } from "react-icons/gi";
 
 import {
   ADD_REACTION_EVENT,
@@ -68,6 +69,7 @@ const ChatForm = ({
 
   const [messageText, setMessageText] = useState<string>("");
   const [commandsOpen, setCommandsOpen] = useState(false);
+  const [instantCommandSend, setInstantCommandSend] = useState(false);
   const [error, setError] = useState<string>("");
 
   const [blastMode, setBlastMode] = useState(false);
@@ -82,6 +84,12 @@ const ChatForm = ({
 
   const addEmoji = (emoji: EmojiType) => {
     setMessageText(`${messageText}${emoji.unicodeString}`);
+  };
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const focusInput = () => {
+    inputRef.current?.focus();
   };
 
   const sendGif = (gif: string) => {
@@ -369,6 +377,35 @@ const ChatForm = ({
                       </PopoverContent>
                     </Popover>
                   )}
+                  <Popover trigger="hover" placement="top" openDelay={500}>
+                    <PopoverTrigger>
+                      <IconButton
+                        color="white"
+                        icon={<GiTalk size={20} />}
+                        bg="transparent"
+                        aria-label="react"
+                        _focus={{}}
+                        _hover={{ transform: "scale(1.15)" }}
+                        _active={{ transform: "scale(1.3)" }}
+                        onClick={() => {
+                          setCommandsOpen(!commandsOpen);
+                          if (!commandsOpen) setInstantCommandSend(true);
+                        }}
+                        minWidth="auto"
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      bg="#925800"
+                      border="none"
+                      width="100%"
+                      p="2px"
+                    >
+                      <PopoverArrow bg="#925800" />
+                      <Text fontSize="12px" textAlign={"center"}>
+                        use chat commands for this stream!
+                      </Text>
+                    </PopoverContent>
+                  </Popover>
                   {(isOwner || isVip) && (
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
@@ -438,6 +475,7 @@ const ChatForm = ({
               >
                 <Flex alignItems="center" gap="5px">
                   <Input
+                    ref={inputRef}
                     variant="unstyled"
                     size="sm"
                     maxLength={500}
@@ -449,11 +487,10 @@ const ChatForm = ({
                         ? "blast a message to everyone watching!"
                         : "say something in chat!"
                     }
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
                     enterKeyHint="send"
                     onChange={(e) => {
                       if (e.target.value === "") {
+                        setInstantCommandSend(false);
                         setCommandsOpen(false);
                       }
                       setMessageText(e.target.value);
@@ -495,10 +532,23 @@ const ChatForm = ({
                   <Commands
                     chat={messageText}
                     open={commandsOpen}
-                    onClose={() => setCommandsOpen(false)}
-                    onCommandClick={(text: string) => {
-                      setMessageText(text);
+                    onClose={() => {
                       setCommandsOpen(false);
+                      setInstantCommandSend(false);
+                    }}
+                    onCommandClick={(text: string) => {
+                      if (instantCommandSend && !text.includes("!chatbot")) {
+                        sendChatMessage(
+                          text,
+                          false,
+                          isVipChat ? SenderStatus.VIP : SenderStatus.USER
+                        );
+                      } else {
+                        focusInput();
+                        setMessageText(text);
+                      }
+                      setCommandsOpen(false);
+                      setInstantCommandSend(false);
                     }}
                     additionalChatCommands={additionalChatCommands}
                   />

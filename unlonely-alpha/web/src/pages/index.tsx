@@ -195,7 +195,7 @@ const ScrollableComponent = ({
       {/* <TokenLeaderboard callback={callback} /> */}
       <Flex direction="column" width="100%">
         <Flex
-          height="30%"
+          height="300px"
           gap="5px"
           justifyContent={"space-between"}
           bg="#131323"
@@ -203,7 +203,7 @@ const ScrollableComponent = ({
           mb="10px"
           borderRadius={"10px"}
         >
-          <VibesTokenExchange hideTooltip />
+          <VibesTokenExchange defaultTimeFilter="all" allStreams />
         </Flex>
         <Text
           fontSize={{ base: "30px", lg: "40px" }}
@@ -213,11 +213,6 @@ const ScrollableComponent = ({
         >
           channels
         </Text>
-        {sortedChannels.length > 0 && (
-          <Text fontSize={"24px"} className="gradient-text" textAlign="center">
-            {sortedChannels.length} streamers to explore
-          </Text>
-        )}
         {loading ? (
           <Flex
             direction="row"

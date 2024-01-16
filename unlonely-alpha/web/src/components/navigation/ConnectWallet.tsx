@@ -174,7 +174,7 @@ const ConnectedDisplay = () => {
 
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
 
-  const { data: feeData, refetch } = useFeeData({
+  const { data: feeData, refetch: refetchFeeData } = useFeeData({
     chainId: localNetwork.config.chainId,
   });
   const blockNumber = useBlockNumber({
@@ -241,7 +241,7 @@ const ConnectedDisplay = () => {
     if (!blockNumber.data || isFetching.current) return;
     const startTime = Date.now();
     let endTime = 0;
-    const calls: any[] = [refetch(), refetchUserEthBalance()];
+    const calls: any[] = [refetchFeeData(), refetchUserEthBalance()];
     const fetch = async () => {
       isFetching.current = true;
       try {

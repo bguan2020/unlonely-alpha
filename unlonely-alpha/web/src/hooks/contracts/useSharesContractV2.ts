@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { usePublicClient } from "wagmi";
 import { isAddress } from "viem";
 
@@ -50,10 +50,6 @@ export const useReadPublic = (contract: ContractData) => {
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
   }, [contract, publicClient]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,
@@ -150,10 +146,6 @@ export const useReadMappings = (
     setEventEndTimestamp(BigInt(String(eventEndTimestamp)));
   }, [contract, publicClient, userAddress, eventAddress, eventId, key]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     yayVotesSupply,
@@ -200,10 +192,6 @@ export const useUserPayout = (
     setUserPayout(BigInt(String(userPayout)));
   }, [contract, publicClient, userAddress, eventAddress, eventId]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     userPayout,
@@ -229,10 +217,6 @@ export const useIsVerifier = (contract: ContractData) => {
     });
     setIsVerifier(Boolean(isVerifier));
   }, [contract, publicClient, userAddress]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,
@@ -379,10 +363,6 @@ export const useGenerateKey = (
     setKey(String(key));
   }, [contract, publicClient, eventAddress, eventId]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     key,
@@ -527,10 +507,6 @@ export const useGetHolderBalances = (
     setNayVotesBalance(String(nayVotesBalance));
   }, [contract, publicClient, eventAddress, eventId, holder, isYay]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     yayVotesBalance,
@@ -586,10 +562,6 @@ export const useGetPrice = (
     setPrice(BigInt(String(price)));
   }, [contract, publicClient, eventAddress, eventId, amount, isBuying, isYay]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     price,
@@ -643,10 +615,6 @@ export const useGetPriceAfterFee = (
           });
     setPriceAfterFee(BigInt(String(price)));
   }, [contract, publicClient, eventAddress, eventId, amount, isYay]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,
