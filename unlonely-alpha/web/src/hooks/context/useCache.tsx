@@ -131,8 +131,10 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
         !userAddress ||
         !walletIsConnected ||
         !activeWallet
-      )
+      ) {
+        setFetchingBets(false);
         return;
+      }
       setFetchingBets(true);
       isFetching.current = true;
       let unclaimedBets: SharesEvent[] = [];

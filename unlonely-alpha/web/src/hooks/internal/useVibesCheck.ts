@@ -8,16 +8,16 @@ import { GET_USER_QUERY } from "../../constants/queries";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../context/useNetwork";
 
+const CREATION_BLOCK = BigInt(9018023);
+
 export const useVibesCheck = () => {
   const publicClient = usePublicClient();
-  // const appending = useRef(false);
   const client = useApolloClient();
   const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
   const [loading, setLoading] = useState(true);
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
-  // const [hashMapState, setHashMapState] = useState<Map<any, any>>(new Map());
   const [chartTimeIndexes, setChartTimeIndexes] = useState<Map<string, number>>(
     new Map()
   );
@@ -100,8 +100,10 @@ export const useVibesCheck = () => {
         !contract.address ||
         fetching.current ||
         !blockNumber.data
-      )
+      ) {
+        fetching.current = false;
         return;
+      }
       const startTime = Date.now();
       let endTime = 0;
       fetching.current = true;
@@ -111,14 +113,14 @@ export const useVibesCheck = () => {
           event: parseAbiItem(
             "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
           ),
-          fromBlock: BigInt(9018023),
+          fromBlock: CREATION_BLOCK,
         }),
         publicClient.getLogs({
           address: contract.address,
           event: parseAbiItem(
             "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
           ),
-          fromBlock: BigInt(9018023),
+          fromBlock: CREATION_BLOCK,
         }),
       ]);
       const logs = [...mintLogs, ...burnLogs];
@@ -153,7 +155,7 @@ export const useVibesCheck = () => {
         return res;
       });
       const nameHashMap = createHashmap(Array.from(uniqueUsers), names);
-      const namedTokenTx = _tokenTxs.map((tx: any) => {
+      const namedTokenTxs = _tokenTxs.map((tx: any) => {
         return {
           ...tx,
           user: nameHashMap.get(tx.user) ?? tx.user,
@@ -166,8 +168,7 @@ export const useVibesCheck = () => {
         setTimeout(resolve, timeToWait);
       });
       fetching.current = false;
-      // setHashMapState(nameHashMap);
-      setTokenTxs(namedTokenTx);
+      setTokenTxs(namedTokenTxs);
       setLoading(false);
     };
     getVibesEvents();
@@ -215,10 +216,10 @@ function binarySearchIndex(arr: VibesTokenTx[], target: bigint): number {
   while (left <= right) {
     const mid = left + Math.floor((right - left) / 2);
 
-    if (arr[mid].blockNumber === target) {
+    if (arr[mid].blockNumber === Number(target)) {
       // Target found, return its index
       return mid;
-    } else if (arr[mid].blockNumber < target) {
+    } else if (arr[mid].blockNumber < Number(target)) {
       // Search in the right half
       left = mid + 1;
     } else {

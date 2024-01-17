@@ -440,17 +440,6 @@ function DesktopPage({
                 }}
               >
                 <Container height="100%">
-                  {/* <Flex
-                    height="30%"
-                    gap="5px"
-                    justifyContent={"space-between"}
-                    bg="#131323"
-                    p="5px"
-                    mb="10px"
-                    borderRadius={"10px"}
-                  >
-                    <VibesTokenExchange hideTooltip />
-                  </Flex> */}
                   <FixedComponent />
                 </Container>
               </Box>

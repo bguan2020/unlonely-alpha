@@ -31,7 +31,7 @@ export const truncateValue = (
 };
 
 // converts scientific notation like 1.2345e3 or 1.2345e-5 to precise number like 1234.5 or 0.000012345
-const convertSciNotaToPrecise = (str: string): string => {
+export const convertSciNotaToPrecise = (str: string): string => {
   // if string is in scientific notation, for example (1.2345e3, or 1.2345e-5), (2)
   if (str.includes("e")) {
     // get number left of 'e'

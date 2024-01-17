@@ -51,5 +51,14 @@ export type CommandData = {
   response: string;
 };
 
+export const MAX_VIBES_PRICE = 399999999934464;
+// export const MAX_VIBES_SUPPLY = 20000000;
+// export const MAX_VIBES_SUPPLY_MINUS_ONE = MAX_VIBES_SUPPLY - 1;
+// (MAX_VIBES_SUPPLY * (MAX_VIBES_SUPPLY + 1) * (2 * MAX_VIBES_SUPPLY + 1)) / 6 -
+// (MAX_VIBES_SUPPLY_MINUS_ONE *
+//   (MAX_VIBES_SUPPLY_MINUS_ONE + 1) *
+//   (2 * MAX_VIBES_SUPPLY_MINUS_ONE + 1)) /
+//   6;
+
 export const IPFS_PROJECT_ID = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
 export const IPFS_PROJECT_SECRET = "7d400aacc9bc6c0f0d6e59b65a83d764";

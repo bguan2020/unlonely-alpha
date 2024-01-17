@@ -8,11 +8,24 @@ import {
   Text,
   useToast,
   Tooltip as ChakraTooltip,
+  RangeSlider,
+  RangeSliderTrack,
+  RangeSliderFilledTrack,
+  RangeSliderThumb,
+  IconButton,
 } from "@chakra-ui/react";
-import { decodeEventLog, formatUnits, isAddress } from "viem";
+import { decodeEventLog, formatUnits, isAddress, parseUnits } from "viem";
 import Link from "next/link";
+import { FaCopy } from "react-icons/fa6";
 import { useBalance, useBlockNumber } from "wagmi";
-import { ResponsiveContainer, LineChart, Line, Tooltip, YAxis } from "recharts";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Tooltip,
+  YAxis,
+  ReferenceArea,
+} from "recharts";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
@@ -27,9 +40,17 @@ import useDebounce from "../../hooks/internal/useDebounce";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import {
+  convertSciNotaToPrecise,
+  truncateValue,
+} from "../../utils/tokenDisplayFormatting";
 import { useUser } from "../../hooks/context/useUser";
-import { InteractionType, NULL_ADDRESS } from "../../constants";
+import {
+  InteractionType,
+  MAX_VIBES_PRICE,
+  NULL_ADDRESS,
+} from "../../constants";
+import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -63,11 +84,9 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 const VibesTokenExchange = ({
   defaultTimeFilter,
-  vertical,
   allStreams,
 }: {
   defaultTimeFilter?: "1h" | "1d" | "all";
-  vertical?: boolean;
   allStreams?: boolean;
 }) => {
   const { walletIsConnected, userAddress, user } = useUser();
@@ -140,6 +159,20 @@ const VibesTokenExchange = ({
     });
     return res;
   }, [timeFilter, formattedHourData, formattedDayData, vibesTokenTxs]);
+
+  const formattedCurrentPrice = useMemo(
+    () =>
+      formattedData.length > 0
+        ? formatUnits(BigInt(formattedData[formattedData.length - 1].price), 18)
+        : "0",
+    [formattedData]
+  );
+
+  const [isZoneModalOpen, setIsZoneModalOpen] = useState(false);
+  const [sliderValue, setSliderValue] = useState<string[]>([
+    formattedCurrentPrice,
+    formattedCurrentPrice,
+  ]);
 
   const [amountOfVibes, setAmountOfVibes] = useState<string>("10000");
   const debouncedAmountOfVotes = useDebounce(amountOfVibes, 300);
@@ -486,8 +519,352 @@ const VibesTokenExchange = ({
             >
               all
             </Button>
+            {!allStreams && (
+              <>
+                <TransactionModalTemplate
+                  isOpen={isZoneModalOpen}
+                  handleClose={() => setIsZoneModalOpen(false)}
+                  title="set zones"
+                  hideFooter
+                  loadingText="setting zones..."
+                >
+                  <Flex direction="column" gap="16px">
+                    <Flex
+                      direction={"column"}
+                      gap="15px"
+                      bg="rgba(0, 0, 0, 0.6)"
+                      p="20px"
+                      borderRadius="10px"
+                    >
+                      <Text fontSize="14px" color="#bababa" textAlign="center">
+                        you can set green and red price range indicators to
+                        track $VIBES performance
+                      </Text>
+                      <Flex justifyContent={"space-between"}>
+                        <IconButton
+                          border={
+                            Number(formattedCurrentPrice) ===
+                            Number(sliderValue[0])
+                              ? undefined
+                              : "1px solid #ff3d3d"
+                          }
+                          aria-label="copy price to lower"
+                          icon={<FaCopy />}
+                          bg="transparent"
+                          _hover={{
+                            transform: "scale(1.1)",
+                          }}
+                          color={
+                            Number(formattedCurrentPrice) ===
+                            Number(sliderValue[0])
+                              ? "#636363"
+                              : "#ff3d3d"
+                          }
+                          _focus={{}}
+                          _active={{}}
+                          onClick={() =>
+                            setSliderValue((prev) => {
+                              return [formattedCurrentPrice, prev[1]];
+                            })
+                          }
+                        />
+                        <Text fontSize="20px" textAlign={"center"}>
+                          Current price in ETH
+                          <Text color="#f8f53b">{formattedCurrentPrice}</Text>
+                        </Text>
+                        <IconButton
+                          border={
+                            Number(formattedCurrentPrice) ===
+                            Number(sliderValue[1])
+                              ? undefined
+                              : "1px solid #46a800"
+                          }
+                          aria-label="copy price to higher"
+                          icon={<FaCopy />}
+                          bg="transparent"
+                          _hover={{
+                            transform: "scale(1.1)",
+                          }}
+                          color={
+                            Number(formattedCurrentPrice) ===
+                            Number(sliderValue[1])
+                              ? "#636363"
+                              : "#46a800"
+                          }
+                          _focus={{}}
+                          _active={{}}
+                          onClick={() =>
+                            setSliderValue((prev) => {
+                              return [prev[0], formattedCurrentPrice];
+                            })
+                          }
+                        />
+                      </Flex>
+                    </Flex>
+                    <RangeSlider
+                      aria-label={["min", "max"]}
+                      value={sliderValue.map((str) =>
+                        Number(
+                          parseUnits(
+                            convertSciNotaToPrecise(str) as `${number}`,
+                            18
+                          )
+                        )
+                      )}
+                      onChange={(val) =>
+                        setSliderValue(
+                          val.map((num) => formatUnits(BigInt(num), 18))
+                        )
+                      }
+                      min={0}
+                      max={MAX_VIBES_PRICE}
+                    >
+                      <RangeSliderTrack bg={"#403c7d"}>
+                        <RangeSliderFilledTrack bg={"#c4c1f5"} />
+                      </RangeSliderTrack>
+                      <RangeSliderThumb
+                        index={0}
+                        boxSize={"6"}
+                        sx={{ bg: "#ff3d3d" }}
+                      />
+                      <RangeSliderThumb
+                        index={1}
+                        boxSize={"6"}
+                        sx={{ bg: "#46a800" }}
+                      />
+                    </RangeSlider>
+                    <Flex gap="20px">
+                      <Flex direction="column">
+                        <Text>lower price zone</Text>
+                        <Text
+                          textAlign={"center"}
+                          fontSize="25px"
+                          noOfLines={1}
+                          color="#ff6161"
+                        >
+                          {truncateValue(
+                            formattedData.length > 0
+                              ? (Number(
+                                  parseUnits(
+                                    convertSciNotaToPrecise(
+                                      sliderValue[0]
+                                    ) as `${number}`,
+                                    18
+                                  )
+                                ) /
+                                  formattedData[formattedData.length - 1]
+                                    .price) *
+                                  100
+                              : 0,
+                            2
+                          )}
+                          %
+                        </Text>
+                        <Input
+                          variant={"redGlow"}
+                          value={sliderValue[0]}
+                          onChange={(e) =>
+                            setSliderValue((prev) => {
+                              return [
+                                filteredInput(e.target.value, true),
+                                prev[1],
+                              ];
+                            })
+                          }
+                        />
+                        <Flex
+                          justifyContent={"space-between"}
+                          gap="10px"
+                          mt="5px"
+                        >
+                          <Button
+                            p={2}
+                            height={"20px"}
+                            w="100%"
+                            color="white"
+                            bg="#133a75"
+                            _focus={{}}
+                            _active={{}}
+                            _hover={{}}
+                            onClick={() =>
+                              setSliderValue((prev) => {
+                                return [
+                                  convertSciNotaToPrecise(
+                                    String(
+                                      Math.max(
+                                        Number(prev[0]) -
+                                          Number(formattedCurrentPrice) * 0.05,
+                                        0
+                                      )
+                                    )
+                                  ),
+                                  prev[1],
+                                ];
+                              })
+                            }
+                          >
+                            -5%
+                          </Button>
+                          <Button
+                            p={2}
+                            height={"20px"}
+                            w="100%"
+                            color="white"
+                            bg="#133a75"
+                            _focus={{}}
+                            _active={{}}
+                            _hover={{}}
+                            onClick={() =>
+                              setSliderValue((prev) => {
+                                return [
+                                  convertSciNotaToPrecise(
+                                    String(
+                                      Math.min(
+                                        Number(prev[0]) +
+                                          Number(formattedCurrentPrice) * 0.05,
+                                        Number(
+                                          formatUnits(
+                                            BigInt(MAX_VIBES_PRICE),
+                                            18
+                                          )
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  prev[1],
+                                ];
+                              })
+                            }
+                          >
+                            +5%
+                          </Button>
+                        </Flex>
+                      </Flex>
+                      <Flex direction="column">
+                        <Text>higher price zone</Text>
+                        <Text
+                          textAlign={"center"}
+                          fontSize="25px"
+                          noOfLines={1}
+                          color="#60e601"
+                        >
+                          {truncateValue(
+                            formattedData.length > 0
+                              ? (Number(
+                                  parseUnits(
+                                    convertSciNotaToPrecise(
+                                      sliderValue[1]
+                                    ) as `${number}`,
+                                    18
+                                  )
+                                ) /
+                                  formattedData[formattedData.length - 1]
+                                    .price) *
+                                  100
+                              : 0,
+                            2
+                          )}
+                          %
+                        </Text>
+                        <Input
+                          variant={"greenGlow"}
+                          value={sliderValue[1]}
+                          onChange={(e) =>
+                            setSliderValue((prev) => {
+                              return [
+                                prev[0],
+                                filteredInput(e.target.value, true),
+                              ];
+                            })
+                          }
+                        />
+                        <Flex
+                          justifyContent={"space-between"}
+                          gap="10px"
+                          mt="5px"
+                        >
+                          <Button
+                            p={2}
+                            height={"20px"}
+                            w="100%"
+                            color="white"
+                            bg="#133a75"
+                            _focus={{}}
+                            _active={{}}
+                            _hover={{}}
+                            onClick={() =>
+                              setSliderValue((prev) => {
+                                return [
+                                  prev[0],
+                                  convertSciNotaToPrecise(
+                                    String(
+                                      Math.max(
+                                        Number(prev[1]) -
+                                          Number(formattedCurrentPrice) * 0.05,
+                                        0
+                                      )
+                                    )
+                                  ),
+                                ];
+                              })
+                            }
+                          >
+                            -5%
+                          </Button>
+                          <Button
+                            p={2}
+                            height={"20px"}
+                            w="100%"
+                            color="white"
+                            bg="#133a75"
+                            _focus={{}}
+                            _active={{}}
+                            _hover={{}}
+                            onClick={() =>
+                              setSliderValue((prev) => {
+                                return [
+                                  prev[0],
+                                  convertSciNotaToPrecise(
+                                    String(
+                                      Math.min(
+                                        Number(prev[1]) +
+                                          Number(formattedCurrentPrice) * 0.05,
+                                        Number(
+                                          formatUnits(
+                                            BigInt(MAX_VIBES_PRICE),
+                                            18
+                                          )
+                                        )
+                                      )
+                                    )
+                                  ),
+                                ];
+                              })
+                            }
+                          >
+                            +5%
+                          </Button>
+                        </Flex>
+                      </Flex>
+                    </Flex>
+                  </Flex>
+                </TransactionModalTemplate>
+                <Button
+                  color="white"
+                  bg="#CB520E"
+                  onClick={() => setIsZoneModalOpen(true)}
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  p={2}
+                  height={"20px"}
+                >
+                  set zones
+                </Button>
+              </>
+            )}
           </Flex>
-          <Flex direction={vertical ? "column" : "row"} gap="10px" flex="1">
+          <Flex direction={"row"} gap="10px" flex="1">
             <Flex direction="column" w="100%" position="relative">
               {formattedHourData.length === 0 && timeFilter === "1h" && (
                 <Text position="absolute" color="gray" top="50%">
@@ -506,8 +883,17 @@ const VibesTokenExchange = ({
               )}
               <ResponsiveContainer width="100%" height={"100%"}>
                 <LineChart data={formattedData}>
-                  <YAxis type="number" domain={["dataMin", "dataMax"]} hide />
+                  <YAxis hide domain={["dataMin", "dataMax"]} />
                   <Tooltip content={<CustomTooltip />} />
+                  {!allStreams && (
+                    <ReferenceArea
+                      fill="green"
+                      fillOpacity={0.2}
+                      y1={5804607846912}
+                      y2={Number.MAX_SAFE_INTEGER}
+                      ifOverflow="hidden"
+                    />
+                  )}
                   <Line
                     type="monotone"
                     dataKey="price"
@@ -515,62 +901,17 @@ const VibesTokenExchange = ({
                     strokeWidth={2}
                     dot={false}
                   />
+                  {!allStreams && (
+                    <ReferenceArea
+                      fill="red"
+                      fillOpacity={0.2}
+                      y1={0}
+                      y2={4904607846912}
+                      ifOverflow="hidden"
+                    />
+                  )}
                 </LineChart>
               </ResponsiveContainer>
-              {vertical && (
-                <Flex direction="column" justifyContent={"flex-end"} gap="10px">
-                  <Flex position="relative" gap="5px" alignItems={"center"}>
-                    <Input
-                      variant="glow"
-                      textAlign="center"
-                      value={amountOfVibes}
-                      onChange={handleInputChange}
-                      mx="auto"
-                      p="1"
-                      fontSize={"14px"}
-                    />
-                    <Button
-                      bg={"#403c7d"}
-                      color="white"
-                      p={2}
-                      height={"20px"}
-                      _focus={{}}
-                      _active={{}}
-                      _hover={{
-                        bg: "#8884d8",
-                      }}
-                      onClick={() => {
-                        vibesBalance &&
-                          setAmountOfVibes(vibesBalance.formatted);
-                      }}
-                    >
-                      max
-                    </Button>
-                  </Flex>
-                  <Button
-                    color="white"
-                    _focus={{}}
-                    _hover={{}}
-                    _active={{}}
-                    bg="#46a800"
-                    isDisabled={!mint}
-                    onClick={mint}
-                  >
-                    BUY
-                  </Button>
-                  <Button
-                    color="white"
-                    _focus={{}}
-                    _hover={{}}
-                    _active={{}}
-                    bg="#fe2815"
-                    isDisabled={!burn}
-                    onClick={burn}
-                  >
-                    SELL
-                  </Button>
-                </Flex>
-              )}
             </Flex>
             <Flex direction="column" justifyContent={"flex-end"} gap="10px">
               <Flex position="relative" gap="5px" alignItems={"center"}>
