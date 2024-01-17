@@ -61,6 +61,7 @@ const StandaloneChatComponent = ({
   const clickedOutsideVip = useRef(false);
   const infoRef = useRef<HTMLDivElement>(null);
   const vipRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useOnClickOutside(infoRef, () => {
     if (showInfo) {
@@ -92,19 +93,17 @@ const StandaloneChatComponent = ({
     }
   );
 
-  const { addChannelToSubscription, loading: addLoading } =
-    useAddChannelToSubscription({
-      onError: () => {
-        console.error("Failed to add channel to subscription.");
-      },
-    });
+  const { addChannelToSubscription } = useAddChannelToSubscription({
+    onError: () => {
+      console.error("Failed to add channel to subscription.");
+    },
+  });
 
-  const { removeChannelFromSubscription, loading: removeLoading } =
-    useRemoveChannelFromSubscription({
-      onError: () => {
-        console.error("Failed to remove channel from subscription.");
-      },
-    });
+  const { removeChannelFromSubscription } = useRemoveChannelFromSubscription({
+    onError: () => {
+      console.error("Failed to remove channel from subscription.");
+    },
+  });
 
   const handleGetSubscription = useCallback(async () => {
     await getSubscription({
@@ -145,20 +144,26 @@ const StandaloneChatComponent = ({
   }, []);
 
   const handleAddChannelToSubscription = async () => {
+    if (!endpoint) return;
+    setIsLoading(true);
     await addChannelToSubscription({
       endpoint,
       channelId,
     });
     await handleGetSubscription();
+    setIsLoading(false);
     setIsBellAnimating(true);
   };
 
   const handleRemoveChannelFromSubscription = async () => {
+    if (!endpoint) return;
+    setIsLoading(true);
     await removeChannelFromSubscription({
       endpoint,
       channelId,
     });
     await handleGetSubscription();
+    setIsLoading(false);
   };
 
   const share = async () => {
@@ -257,7 +262,7 @@ const StandaloneChatComponent = ({
               className={isBellAnimating ? "bell" : ""}
               width="unset"
               icon={
-                addLoading || removeLoading ? (
+                isLoading ? (
                   <Spinner />
                 ) : channelCanNotify ? (
                   <BiSolidBellRing height={"100%"} />

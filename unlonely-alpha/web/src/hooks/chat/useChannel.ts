@@ -74,9 +74,6 @@ export function useChannel(fixedChatName?: string) {
     const messageHistory = receivedMessages.filter(
       (m) => m.name === CHAT_MESSAGE_EVENT
     );
-    if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
-      console.log(VIBES_TOKEN_PRICE_RANGE_EVENT);
-    }
     if (
       message.name === APPOINT_USER_EVENT ||
       message.name === BAN_USER_EVENT ||
