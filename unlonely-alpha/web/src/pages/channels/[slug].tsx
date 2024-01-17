@@ -134,6 +134,8 @@ const DesktopPage = ({
   useEffect(() => {
     if (!blockNumber.data || isFetching.current || !publicClient) return;
     const fetch = async () => {
+      const startTime = Date.now();
+      let endTime = 0;
       isFetching.current = true;
       try {
         const calls: any[] = [
@@ -145,11 +147,21 @@ const DesktopPage = ({
           }),
         ];
         if (userAddress) calls.concat([refetchVipBadgeBalance()]);
-        const [supply] = await Promise.all(calls);
+        const [supply] = await Promise.all(calls).then((res) => {
+          endTime = Date.now();
+          return res;
+        });
         setVipBadgeSupply(BigInt(String(supply)));
       } catch (err) {
+        endTime = Date.now();
         console.log("channelTournament fetching error", err);
       }
+      const MILLIS = 35000;
+      const timeToWait =
+        endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
+      await new Promise((resolve) => {
+        setTimeout(resolve, timeToWait);
+      });
       isFetching.current = false;
     };
     fetch();

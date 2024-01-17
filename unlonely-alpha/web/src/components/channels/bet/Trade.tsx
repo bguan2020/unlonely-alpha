@@ -8,6 +8,7 @@ import {
   useToast,
   Input,
   Spinner,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useBalance, useBlockNumber } from "wagmi";
@@ -23,6 +24,8 @@ import {
   useGenerateKey,
   useGetHolderBalances,
   useClaimVotePayout,
+  useIsVerifier,
+  useUserPayout,
 } from "../../../hooks/contracts/useSharesContractV2";
 import usePostBetTrade from "../../../hooks/server/gamblable/usePostBetTrade";
 import { getContractFromNetwork } from "../../../utils/contract";
@@ -150,10 +153,8 @@ const Trade = () => {
     nayVotesSupply,
     eventEndTimestamp,
     votingPooledEth,
-    userPayout,
     eventVerified,
     eventResult,
-    isVerifier,
     refetch: refetchMappings,
   } = useReadMappings(
     generatedKey,
@@ -161,6 +162,14 @@ const Trade = () => {
     Number(ongoingBets?.[0]?.id ?? "0"),
     v2contract
   );
+
+  const { userPayout, refetch: refetchPayout } = useUserPayout(
+    (ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
+    Number(ongoingBets?.[0]?.id ?? "0"),
+    v2contract
+  );
+
+  const { refetch: refetchIsVerifier, isVerifier } = useIsVerifier(v2contract);
 
   const {
     buyVotes,
@@ -254,11 +263,7 @@ const Trade = () => {
           title,
           description: `${
             user?.username ?? centerEllipses(userAddress ?? "", 15)
-          }:${args.trade.shareAmount}:${
-            args.trade.isYay
-              ? ongoingBets?.[0]?.options?.[0] ?? "yay"
-              : ongoingBets?.[0]?.options?.[1] ?? "nay"
-          }`,
+          }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}`,
         });
         await postBetTrade({
           channelId: channelQueryData?.id as string,
@@ -553,20 +558,41 @@ const Trade = () => {
 
   useEffect(() => {
     if (!blockNumber.data || isFetching.current) return;
-    let calls: any[] = [refetchMappings(), refetchUserEthBalance()];
+    let calls: any[] = [];
+    if (isOwner) {
+      calls = calls.concat([refetchIsVerifier()]);
+    }
     if (doesEventExist && isSharesEventLive) {
-      calls = calls.concat([
-        refetchVotePrice(),
-        refetchBuyVotes(),
-        // refetchSellVotes(),
-        refetchBalances(),
-      ]);
+      if (eventEndTimestampPassed) {
+        calls = calls.concat([
+          refetchMappings(),
+          // refetchVotePrice(),
+          // refetchBuyVotes(),
+          // refetchSellVotes(),
+          refetchBalances(),
+          // refetchUserEthBalance(),
+        ]);
+      } else {
+        calls = calls.concat([
+          refetchMappings(),
+          refetchVotePrice(),
+          refetchBuyVotes(),
+          // refetchSellVotes(),
+          refetchBalances(),
+          refetchUserEthBalance(),
+        ]);
+      }
     }
     if (doesEventExist && isSharesEventLock) {
-      calls = calls.concat([refetchBalances()]);
+      calls = calls.concat([refetchMappings(), refetchBalances()]);
     }
     if (doesEventExist && isSharesEventPayout) {
-      calls = calls.concat([refetchBalances(), refetchClaimVotePayout()]);
+      calls = calls.concat([
+        refetchMappings(),
+        refetchBalances(),
+        refetchClaimVotePayout(),
+        refetchPayout(),
+      ]);
     }
     const fetch = async () => {
       isFetching.current = true;
@@ -805,7 +831,10 @@ const Trade = () => {
           {!doesEventExist ||
           (doesEventExist &&
             ongoingBets?.[0].eventState === SharesEventState.PayoutPrevious) ? (
-            <>
+            <Tooltip
+              label="ask the streamer to start a voting event on stream to use this feature!"
+              shouldWrapChildren
+            >
               <Text textAlign={"center"}>there is no event at the moment</Text>
               <Flex justifyContent={"center"}>
                 <Link
@@ -816,7 +845,7 @@ const Trade = () => {
                   <Text fontSize="12px"> go to claim page</Text>
                 </Link>
               </Flex>
-            </>
+            </Tooltip>
           ) : (
             <>
               {!eventEndTimestampPassed &&
@@ -1082,6 +1111,7 @@ const Trade = () => {
         <JudgeBet
           ethBalance={userEthBalance?.value ?? BigInt(0)}
           isVerifier={isVerifier}
+          eventVerified={eventVerified}
           handleClose={() => setViewState("normal")}
         />
       )}

@@ -1,5 +1,5 @@
 import { usePublicClient } from "wagmi";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 
 import { ContractData, WriteCallbacks } from "../../constants/types";
 import { NULL_ADDRESS } from "../../constants";
@@ -28,10 +28,6 @@ export const useReadPublic = (contract: ContractData) => {
     setProtocolFeeDestination(String(protocolFeeDestination));
   }, [contract, publicClient]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     protocolFeeDestination,
@@ -59,10 +55,6 @@ export const useGetMintCostAfterFees = (
     });
     setMintCostAfterFees(BigInt(String(res)));
   }, [contract, publicClient, amount]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,
@@ -94,10 +86,6 @@ export const useGetBurnProceedsAfterFees = (
     setBurnProceedsAfterFees(BigInt(String(res)));
   }, [contract, publicClient, amount]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
   return {
     refetch: getData,
     burnProceedsAfterFees,
@@ -122,10 +110,6 @@ export const useGetPrice = (amount: bigint, contract: ContractData) => {
     });
     setValue(BigInt(String(res)));
   }, [contract, publicClient, amount]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
 
   return {
     refetch: getData,

@@ -18,7 +18,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useRouter } from "next/router";
 import { BiRefresh } from "react-icons/bi";
@@ -41,8 +41,14 @@ import useRemoveChannelFromSubscription from "../hooks/server/useRemoveChannelFr
 import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
+import ChannelList from "../components/channels/ChannelList";
+import VibesTokenExchange from "../components/chat/VibesTokenExchange";
 
-const FixedComponent = () => {
+const FixedComponent = ({
+  newHeightPercentage,
+}: {
+  newHeightPercentage?: string;
+}) => {
   return (
     <Flex
       borderWidth="1px"
@@ -50,7 +56,7 @@ const FixedComponent = () => {
       bg={
         "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
       }
-      height="100%"
+      height={newHeightPercentage ?? "100%"}
       boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
       background={"#19162F"}
     >
@@ -68,7 +74,15 @@ const FixedComponent = () => {
   );
 };
 
-const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
+const ScrollableComponent = ({
+  channels,
+  loading,
+  callback,
+}: {
+  channels: Channel[];
+  loading: boolean;
+  callback?: () => void;
+}) => {
   const { data: dataNFCs, loading: loadingNFCs } = useQuery<NfcFeedQuery>(
     NFC_FEED_QUERY,
     {
@@ -80,6 +94,99 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
       },
     }
   );
+  const router = useRouter();
+  const { initialNotificationsGranted, userAddress } = useUser();
+  const [indexOfOwner, setIndexOfOwner] = useState<number>(-1);
+
+  const [endpoint, setEndpoint] = useState<string>("");
+  const [sortedChannels, setSortedChannels] = useState<Channel[]>([]);
+
+  const [getSubscription, { data: subscriptionData }] =
+    useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
+      fetchPolicy: "network-only",
+    });
+
+  const suggestedChannels =
+    subscriptionData?.getSubscriptionByEndpoint?.allowedChannels;
+
+  const handleSelectChannel = useCallback(
+    (slug: string, redirect?: boolean) => {
+      callback?.();
+      if (redirect === undefined || redirect) router.push(`/channels/${slug}`);
+    },
+    []
+  );
+
+  const { addChannelToSubscription } = useAddChannelToSubscription({
+    onError: () => {
+      console.error("Failed to add channel to subscription.");
+    },
+  });
+
+  const { removeChannelFromSubscription } = useRemoveChannelFromSubscription({
+    onError: () => {
+      console.error("Failed to remove channel from subscription.");
+    },
+  });
+
+  const handleGetSubscription = useCallback(async () => {
+    await getSubscription({
+      variables: { data: { endpoint } },
+    });
+  }, [endpoint]);
+
+  useEffect(() => {
+    if (endpoint) {
+      handleGetSubscription();
+    }
+  }, [endpoint]);
+
+  useEffect(() => {
+    const init = async () => {
+      if ("serviceWorker" in navigator) {
+        const registrationExists =
+          await navigator.serviceWorker.getRegistration("/");
+        if (registrationExists) {
+          const subscription =
+            await registrationExists.pushManager.getSubscription();
+          if (subscription) {
+            const endpoint = subscription.endpoint;
+            setEndpoint(endpoint);
+          }
+        }
+      }
+    };
+    init();
+  }, [initialNotificationsGranted]);
+
+  useEffect(() => {
+    const _suggestedChannels = suggestedChannels
+      ? channels.filter((channel) =>
+          suggestedChannels?.includes(String(channel.id))
+        )
+      : [];
+    const otherChannels = suggestedChannels
+      ? channels.filter(
+          (channel) => !suggestedChannels?.includes(String(channel.id))
+        )
+      : channels.filter((channel) => !channel.isLive);
+    const sortedSuggestedChannels = sortChannels(_suggestedChannels);
+    const sortedOtherChannels = sortChannels(otherChannels);
+    const sortedChannels = [...sortedSuggestedChannels, ...sortedOtherChannels];
+    const indexOfOwner = sortedChannels.findIndex(
+      (element) => element.owner.address === userAddress
+    );
+    const sortedChannelsWithOwnerInFront =
+      indexOfOwner === -1
+        ? sortedChannels
+        : [
+            sortedChannels[indexOfOwner],
+            ...sortedChannels.slice(0, indexOfOwner),
+            ...sortedChannels.slice(indexOfOwner + 1),
+          ];
+    setIndexOfOwner(indexOfOwner > -1 ? 0 : -1);
+    setSortedChannels(sortedChannelsWithOwnerInFront);
+  }, [channels, suggestedChannels, userAddress]);
 
   const nfcs = dataNFCs?.getNFCFeed;
 
@@ -87,6 +194,51 @@ const ScrollableComponent = ({ callback }: { callback?: () => void }) => {
     <>
       {/* <TokenLeaderboard callback={callback} /> */}
       <Flex direction="column" width="100%">
+        <Flex
+          height="300px"
+          gap="5px"
+          justifyContent={"space-between"}
+          bg="#131323"
+          p="5px"
+          mb="10px"
+          borderRadius={"10px"}
+        >
+          <VibesTokenExchange defaultTimeFilter="all" allStreams />
+        </Flex>
+        <Text
+          fontSize={{ base: "30px", lg: "40px" }}
+          lineHeight={{ base: "60px", lg: "80px" }}
+          textAlign="center"
+          fontFamily="LoRes15"
+        >
+          channels
+        </Text>
+        {loading ? (
+          <Flex
+            direction="row"
+            overflowX="scroll"
+            overflowY="clip"
+            width="100%"
+            height="18rem"
+          >
+            {[1, 2, 3, 4, 5].map((i) => (
+              <NfcCardSkeleton key={i} />
+            ))}
+          </Flex>
+        ) : (
+          <ChannelList
+            channels={sortedChannels}
+            suggestedChannels={
+              suggestedChannels === null ? undefined : suggestedChannels
+            }
+            addChannelToSubscription={addChannelToSubscription}
+            removeChannelFromSubscription={removeChannelFromSubscription}
+            handleGetSubscription={handleGetSubscription}
+            endpoint={endpoint}
+            indexOfOwner={indexOfOwner}
+            callback={handleSelectChannel}
+          />
+        )}
         <Text
           fontSize={{ base: "30px", lg: "40px" }}
           lineHeight={{ base: "60px", lg: "80px" }}
@@ -273,6 +425,8 @@ function DesktopPage({
                 gap="1rem"
               >
                 <ScrollableComponent
+                  channels={channels}
+                  loading={loading}
                   callback={() => setDirectingToChannel(true)}
                 />
               </Container>
@@ -331,8 +485,10 @@ function MobilePage({
 
   const channels: Channel[] = dataChannels;
 
-  const suggestedChannels =
-    subscriptionData?.getSubscriptionByEndpoint?.allowedChannels;
+  const suggestedChannels = useMemo(
+    () => subscriptionData?.getSubscriptionByEndpoint?.allowedChannels,
+    [subscriptionData]
+  );
 
   const handleSelectChannel = useCallback((slug: string) => {
     setLoadingPage(true);
