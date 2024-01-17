@@ -285,9 +285,14 @@ export const sendAllNotifications = async (
             : data.channelId
         );
 
+  console.log(
+    "sendAllNotifications subscriptions count",
+    subscriptions,
+    subscriptions.length
+  );
+
   const promises = subscriptions.map(async (subscription) => {
     const pushSubscription = toPushSubscription(subscription);
-    // console.log(pushSubscription);
     try {
       const notificationPayload = {
         notification: {
@@ -299,7 +304,6 @@ export const sendAllNotifications = async (
         pushSubscription,
         JSON.stringify(notificationPayload)
       );
-      // console.log("Successfully sent notification", result);
       return true; // Successfully sent
     } catch (error: any) {
       if (error.statusCode === 410) {
