@@ -79,7 +79,8 @@ export function useChannel(fixedChatName?: string) {
     }
     if (
       message.name === APPOINT_USER_EVENT ||
-      message.name === BAN_USER_EVENT
+      message.name === BAN_USER_EVENT ||
+      message.name === VIBES_TOKEN_PRICE_RANGE_EVENT
     ) {
       await refetch();
     }

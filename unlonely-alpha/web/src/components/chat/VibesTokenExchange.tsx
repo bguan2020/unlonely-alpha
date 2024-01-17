@@ -80,7 +80,7 @@ const VibesTokenExchange = ({
 }: {
   defaultTimeFilter?: "1h" | "1d" | "all";
   allStreams?: boolean;
-  ablyChannel: AblyChannelPromise;
+  ablyChannel?: AblyChannelPromise;
 }) => {
   const { walletIsConnected, userAddress, user } = useUser();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =

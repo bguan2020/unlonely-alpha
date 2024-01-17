@@ -29,7 +29,6 @@ import { filteredInput } from "../../utils/validation/input";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUpdateChannelVibesTokenPriceRange from "../../hooks/server/useUpdateChannelVibesTokenPriceRange";
-import { useUser } from "../../hooks/context/useUser";
 
 const VibesTokenZoneModal = ({
   formattedCurrentPrice,
@@ -40,16 +39,14 @@ const VibesTokenZoneModal = ({
   formattedCurrentPrice: `${number}`;
   isOpen: boolean;
   handleClose: () => void;
-  ablyChannel: AblyChannelPromise;
+  ablyChannel?: AblyChannelPromise;
 }) => {
-  const { user, userAddress } = useUser();
   const [sliderValue, setSliderValue] = useState<string[]>([
     formattedCurrentPrice,
     formattedCurrentPrice,
   ]);
-  const { channel, chat } = useChannelContext();
+  const { channel } = useChannelContext();
   const { channelQueryData } = channel;
-  const { addToChatbot } = chat;
   const mounting = useRef(true);
 
   const { updateChannelVibesTokenPriceRange, loading } =
@@ -60,7 +57,7 @@ const VibesTokenZoneModal = ({
       id: channelQueryData?.id,
       vibesTokenPriceRange: clear ? [] : sliderValue,
     });
-    ablyChannel.publish({
+    ablyChannel?.publish({
       name: VIBES_TOKEN_PRICE_RANGE_EVENT,
       data: { body: clear ? "" : sliderValue.join() },
     });
