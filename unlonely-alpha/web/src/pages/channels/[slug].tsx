@@ -26,6 +26,7 @@ import { CHANNEL_DETAIL_QUERY } from "../../constants/queries";
 import { ChannelDetailQuery } from "../../generated/graphql";
 import {
   ChannelProvider,
+  TransactionModals,
   useChannelContext,
 } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
@@ -191,6 +192,7 @@ const DesktopPage = ({
       >
         {!queryLoading && !channelDataError ? (
           <>
+            <TransactionModals ablyChannel={chat.channel} />
             <Stack
               mx={[0, 8, 4]}
               alignItems={["center", "initial"]}
@@ -326,6 +328,7 @@ const MobilePage = ({
       {!queryLoading && !channelDataError ? (
         <>
           {(previewStream || !isOwner) && <ChannelViewerPerspective mobile />}
+          <TransactionModals ablyChannel={chat.channel} />
           <StandaloneAblyChatComponent
             previewStream={previewStream}
             handleShowPreviewStream={handleShowPreviewStream}

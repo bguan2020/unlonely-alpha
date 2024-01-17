@@ -27,6 +27,7 @@ import EditChannelModal from "../../components/channels/EditChannelModal";
 import NotificationsModal from "../../components/channels/NotificationsModal";
 import ModeratorModal from "../../components/channels/ModeratorModal";
 import { useNetworkContext } from "./useNetwork";
+import { AblyChannelPromise } from "../../constants";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -423,16 +424,16 @@ export const ChannelProvider = ({
   );
 
   return (
-    <ChannelContext.Provider value={value}>
-      <TransactionModals />
-      {children}
-    </ChannelContext.Provider>
+    <ChannelContext.Provider value={value}>{children}</ChannelContext.Provider>
   );
 };
 
-const TransactionModals = () => {
-  const { ui, channel } = useChannelContext();
-  const { channelQueryData } = channel;
+export const TransactionModals = ({
+  ablyChannel,
+}: {
+  ablyChannel: AblyChannelPromise;
+}) => {
+  const { ui } = useChannelContext();
 
   const {
     handleEditModal,
@@ -453,6 +454,7 @@ const TransactionModals = () => {
         title={"manage moderators"}
         isOpen={showModeratorModal}
         handleClose={() => handleModeratorModal(false)}
+        ablyChannel={ablyChannel}
       />
       <ChatCommandModal
         title={"custom commands"}
