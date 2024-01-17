@@ -25,7 +25,7 @@ import { GetSubscriptionQuery } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import ChannelDesc from "../channels/ChannelDesc";
-import { ChatReturnType, useChatBox, useChat } from "../../hooks/chat/useChat";
+import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
 import { ADD_REACTION_EVENT, InteractionType } from "../../constants";
 import MessageList from "../chat/MessageList";
 import ChatForm from "../chat/ChatForm";
@@ -41,9 +41,11 @@ import { VipBadgeBuy } from "../channels/VipBadgeBuy";
 const StandaloneChatComponent = ({
   previewStream,
   handleShowPreviewStream,
+  chat,
 }: {
   previewStream?: boolean;
   handleShowPreviewStream: () => void;
+  chat: ChatReturnType;
 }) => {
   const { channel: channelContext, chat: chatInfo } = useChannelContext();
   const { userAddress } = useUser();
@@ -289,17 +291,16 @@ const StandaloneChatComponent = ({
           />
         </Flex>
       )}
-      <TabsComponent />
+      <TabsComponent chat={chat} />
     </Flex>
   );
 };
 
-export const TabsComponent = () => {
+export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
+  const { userAddress } = useUser();
   const { channel: channelContext, chat: chatContext } = useChannelContext();
-  const { ongoingBets, refetch } = channelContext;
+  const { channelQueryData, ongoingBets, refetch } = channelContext;
   const { presenceChannel } = chatContext;
-
-  const chat = useChat();
 
   const doesEventExist = useMemo(() => {
     if (!ongoingBets?.[0]?.sharesSubjectAddress) return false;
@@ -310,10 +311,11 @@ export const TabsComponent = () => {
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
   );
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   useEffect(() => {
     const fetch = async () => {
-      if (chat.receivedMessages.length > 0) {
+      if (chat.receivedMessages.length > 0 && !isOwner) {
         const latestMessage =
           chat.receivedMessages[chat.receivedMessages.length - 1];
         if (
@@ -323,9 +325,7 @@ export const TabsComponent = () => {
             latestMessage.data.body.split(":")[0] ===
               InteractionType.EVENT_LOCK ||
             latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_PAYOUT ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_END) &&
+              InteractionType.EVENT_PAYOUT) &&
           Date.now() - latestMessage.timestamp < 12000
         ) {
           await refetch();

@@ -111,6 +111,7 @@ export type Channel = {
   thumbnailUrl?: Maybe<Scalars["String"]>;
   token?: Maybe<CreatorToken>;
   updatedAt: Scalars["DateTime"];
+  vibesTokenPriceRange?: Maybe<Array<Maybe<Scalars["String"]>>>;
 };
 
 export type ChannelFeedInput = {
@@ -392,6 +393,7 @@ export type Mutation = {
   toggleSubscription?: Maybe<Subscription>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelText?: Maybe<Channel>;
+  updateChannelVibesTokenPriceRange?: Maybe<Channel>;
   updateCreatorTokenPrice: CreatorToken;
   updateDeleteChatCommands?: Maybe<Channel>;
   updateDeviceToken?: Maybe<DeviceToken>;
@@ -525,6 +527,10 @@ export type MutationUpdateChannelCustomButtonArgs = {
 
 export type MutationUpdateChannelTextArgs = {
   data: UpdateChannelTextInput;
+};
+
+export type MutationUpdateChannelVibesTokenPriceRangeArgs = {
+  data: UpdateChannelVibesTokenPriceRangeInput;
 };
 
 export type MutationUpdateCreatorTokenPriceArgs = {
@@ -1003,6 +1009,11 @@ export type UpdateChannelTextInput = {
   name: Scalars["String"];
 };
 
+export type UpdateChannelVibesTokenPriceRangeInput = {
+  id: Scalars["ID"];
+  vibesTokenPriceRange: Array<InputMaybe<Scalars["String"]>>;
+};
+
 export type UpdateCreatorTokenPriceInput = {
   price: Scalars["Float"];
   tokenAddress: Scalars["String"];
@@ -1120,6 +1131,29 @@ export type VideoFeedInput = {
   skip?: InputMaybe<Scalars["Int"]>;
 };
 
+export type GetUserQueryVariables = Exact<{
+  data: GetUserInput;
+}>;
+
+export type GetUserQuery = {
+  __typename?: "Query";
+  getUser?: {
+    __typename?: "User";
+    address: string;
+    username?: string | null;
+    signature?: string | null;
+    powerUserLvl: number;
+    videoSavantLvl: number;
+    nfcRank: number;
+    FCImageUrl?: string | null;
+    isFCUser: boolean;
+    isLensUser: boolean;
+    lensHandle?: string | null;
+    lensImageUrl?: string | null;
+    channel?: Array<{ __typename?: "Channel"; slug: string } | null> | null;
+  } | null;
+};
+
 export type QueryQueryVariables = Exact<{
   data: GetUserTokenHoldingInput;
 }>;
@@ -1190,13 +1224,12 @@ export type ChannelDetailQuery = {
     channelArn?: string | null;
     description?: string | null;
     livepeerPlaybackId?: string | null;
-    customButtonPrice?: number | null;
-    customButtonAction?: string | null;
     isLive?: boolean | null;
     id: string;
     name?: string | null;
     slug: string;
     allowNFCs?: boolean | null;
+    vibesTokenPriceRange?: Array<string | null> | null;
     playbackUrl?: string | null;
     sharesEvent?: Array<{
       __typename?: "SharesEvent";
@@ -1217,13 +1250,6 @@ export type ChannelDetailQuery = {
       username?: string | null;
       address: string;
     };
-    token?: {
-      __typename?: "CreatorToken";
-      id: string;
-      name: string;
-      symbol: string;
-      address: string;
-    } | null;
     roles?: Array<{
       __typename?: "ChannelUserRole";
       id: number;
@@ -1468,30 +1494,6 @@ export type GetChannelsByNumberOfBadgeHoldersQuery = {
       } | null;
     };
   } | null>;
-};
-
-export type GetUserQueryVariables = Exact<{
-  data: GetUserInput;
-}>;
-
-export type GetUserQuery = {
-  __typename?: "Query";
-  getUser?: {
-    __typename?: "User";
-    address: string;
-    username?: string | null;
-    signature?: string | null;
-    bio?: string | null;
-    powerUserLvl: number;
-    videoSavantLvl: number;
-    nfcRank: number;
-    FCImageUrl?: string | null;
-    isFCUser: boolean;
-    isLensUser: boolean;
-    lensHandle?: string | null;
-    lensImageUrl?: string | null;
-    channel?: Array<{ __typename?: "Channel"; slug: string } | null> | null;
-  } | null;
 };
 
 export type CreateCreatorTokenMutationVariables = Exact<{
@@ -1804,6 +1806,19 @@ export type UpdateChannelTextMutation = {
   } | null;
 };
 
+export type UpdateChannelVibesTokenPriceRangeMutationVariables = Exact<{
+  data: UpdateChannelVibesTokenPriceRangeInput;
+}>;
+
+export type UpdateChannelVibesTokenPriceRangeMutation = {
+  __typename?: "Mutation";
+  updateChannelVibesTokenPriceRange?: {
+    __typename?: "Channel";
+    vibesTokenPriceRange?: Array<string | null> | null;
+    id: string;
+  } | null;
+};
+
 export type UpdateNfcMutationVariables = Exact<{
   data: UpdateNfcInput;
 }>;
@@ -1920,6 +1935,67 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
+export const GetUserDocument = gql`
+  query getUser($data: GetUserInput!) {
+    getUser(data: $data) {
+      address
+      username
+      signature
+      powerUserLvl
+      videoSavantLvl
+      nfcRank
+      FCImageUrl
+      isFCUser
+      isLensUser
+      lensHandle
+      lensImageUrl
+      channel {
+        slug
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetUserQuery__
+ *
+ * To run a query within a React component, call `useGetUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetUserQuery(
+  baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    options
+  );
+}
+export function useGetUserLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    options
+  );
+}
+export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
+export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
+export type GetUserQueryResult = Apollo.QueryResult<
+  GetUserQuery,
+  GetUserQueryVariables
+>;
 export const QueryDocument = gql`
   query Query($data: GetUserTokenHoldingInput!) {
     getUserTokenHolding(data: $data)
@@ -2164,13 +2240,12 @@ export const ChannelDetailDocument = gql`
       channelArn
       description
       livepeerPlaybackId
-      customButtonPrice
-      customButtonAction
       isLive
       id
       name
       slug
       allowNFCs
+      vibesTokenPriceRange
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
@@ -2186,12 +2261,6 @@ export const ChannelDetailDocument = gql`
         FCImageUrl
         lensImageUrl
         username
-        address
-      }
-      token {
-        id
-        name
-        symbol
         address
       }
       roles {
@@ -3085,68 +3154,6 @@ export type GetChannelsByNumberOfBadgeHoldersLazyQueryHookResult = ReturnType<
 export type GetChannelsByNumberOfBadgeHoldersQueryResult = Apollo.QueryResult<
   GetChannelsByNumberOfBadgeHoldersQuery,
   GetChannelsByNumberOfBadgeHoldersQueryVariables
->;
-export const GetUserDocument = gql`
-  query getUser($data: GetUserInput!) {
-    getUser(data: $data) {
-      address
-      username
-      signature
-      bio
-      powerUserLvl
-      videoSavantLvl
-      nfcRank
-      FCImageUrl
-      isFCUser
-      isLensUser
-      lensHandle
-      lensImageUrl
-      channel {
-        slug
-      }
-    }
-  }
-`;
-
-/**
- * __useGetUserQuery__
- *
- * To run a query within a React component, call `useGetUserQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetUserQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useGetUserQuery(
-  baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(
-    GetUserDocument,
-    options
-  );
-}
-export function useGetUserLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(
-    GetUserDocument,
-    options
-  );
-}
-export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
-export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
-export type GetUserQueryResult = Apollo.QueryResult<
-  GetUserQuery,
-  GetUserQueryVariables
 >;
 export const CreateCreatorTokenDocument = gql`
   mutation CreateCreatorToken($data: CreateCreatorTokenInput!) {
@@ -4512,6 +4519,61 @@ export type UpdateChannelTextMutationOptions = Apollo.BaseMutationOptions<
   UpdateChannelTextMutation,
   UpdateChannelTextMutationVariables
 >;
+export const UpdateChannelVibesTokenPriceRangeDocument = gql`
+  mutation UpdateChannelVibesTokenPriceRange(
+    $data: UpdateChannelVibesTokenPriceRangeInput!
+  ) {
+    updateChannelVibesTokenPriceRange(data: $data) {
+      vibesTokenPriceRange
+      id
+    }
+  }
+`;
+export type UpdateChannelVibesTokenPriceRangeMutationFn =
+  Apollo.MutationFunction<
+    UpdateChannelVibesTokenPriceRangeMutation,
+    UpdateChannelVibesTokenPriceRangeMutationVariables
+  >;
+
+/**
+ * __useUpdateChannelVibesTokenPriceRangeMutation__
+ *
+ * To run a mutation, you first call `useUpdateChannelVibesTokenPriceRangeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChannelVibesTokenPriceRangeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChannelVibesTokenPriceRangeMutation, { data, loading, error }] = useUpdateChannelVibesTokenPriceRangeMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChannelVibesTokenPriceRangeMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateChannelVibesTokenPriceRangeMutation,
+    UpdateChannelVibesTokenPriceRangeMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateChannelVibesTokenPriceRangeMutation,
+    UpdateChannelVibesTokenPriceRangeMutationVariables
+  >(UpdateChannelVibesTokenPriceRangeDocument, options);
+}
+export type UpdateChannelVibesTokenPriceRangeMutationHookResult = ReturnType<
+  typeof useUpdateChannelVibesTokenPriceRangeMutation
+>;
+export type UpdateChannelVibesTokenPriceRangeMutationResult =
+  Apollo.MutationResult<UpdateChannelVibesTokenPriceRangeMutation>;
+export type UpdateChannelVibesTokenPriceRangeMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateChannelVibesTokenPriceRangeMutation,
+    UpdateChannelVibesTokenPriceRangeMutationVariables
+  >;
 export const UpdateNfcDocument = gql`
   mutation UpdateNFC($data: UpdateNFCInput!) {
     updateNFC(data: $data) {

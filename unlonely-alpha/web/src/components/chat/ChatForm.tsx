@@ -20,6 +20,7 @@ import { GiTalk } from "react-icons/gi";
 
 import {
   ADD_REACTION_EVENT,
+  AblyChannelPromise,
   CommandData,
   InteractionType,
 } from "../../constants";
@@ -46,7 +47,7 @@ type Props = {
   mobile?: boolean;
   additionalChatCommands?: CommandData[];
   allowPopout?: boolean;
-  channel?: any;
+  channel?: AblyChannelPromise;
 };
 
 const ChatForm = ({
@@ -200,6 +201,7 @@ const ChatForm = ({
   };
 
   const sendMessageReaction = (emoji: string, reactionEvent: string) => {
+    if (!channel) return;
     channel.publish(reactionEvent, {
       body: emoji,
       name: reactionEvent,

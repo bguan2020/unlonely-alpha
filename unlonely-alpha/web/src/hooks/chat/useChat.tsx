@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VirtuosoHandle } from "react-virtuoso";
 
 import {
+  AblyChannelPromise,
   BaseChatCommand,
   CHAT_MESSAGE_EVENT,
   InteractionType,
@@ -19,7 +20,7 @@ import { useScreenAnimationsContext } from "../context/useScreenAnimations";
 import { Message, SenderStatus } from "../../constants/types/chat";
 
 export type ChatReturnType = {
-  channel: any;
+  channel: AblyChannelPromise;
   hasMessagesLoaded: boolean;
   receivedMessages: Message[];
   allMessages: Message[];
@@ -166,7 +167,7 @@ export const useChatBox = (
   chatId: string,
   receivedMessages: Message[],
   hasMessagesLoaded: boolean,
-  channel: any,
+  channel: AblyChannelPromise,
   mobile?: boolean
 ) => {
   const scrollRef = useRef<VirtuosoHandle>(null);

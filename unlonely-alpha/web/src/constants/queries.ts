@@ -6,7 +6,6 @@ export const GET_USER_QUERY = gql`
       address
       username
       signature
-      bio
       powerUserLvl
       videoSavantLvl
       nfcRank
@@ -77,13 +76,12 @@ export const CHANNEL_DETAIL_QUERY = gql`
       channelArn
       description
       livepeerPlaybackId
-      customButtonPrice
-      customButtonAction
       isLive
       id
       name
       slug
       allowNFCs
+      vibesTokenPriceRange
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
@@ -99,12 +97,6 @@ export const CHANNEL_DETAIL_QUERY = gql`
         FCImageUrl
         lensImageUrl
         username
-        address
-      }
-      token {
-        id
-        name
-        symbol
         address
       }
       roles {

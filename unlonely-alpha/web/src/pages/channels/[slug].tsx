@@ -261,7 +261,7 @@ const DesktopPage = ({
                   bg="#131323"
                   p="5px"
                 >
-                  <VibesTokenExchange />
+                  <VibesTokenExchange ablyChannel={chat.channel} />
                 </Flex>
                 <ChatComponent chat={chat} />
                 {/* <TournamentPot chat={chat} /> */}
@@ -301,6 +301,7 @@ const MobilePage = ({
     loading: channelDataLoading,
     error: channelDataError,
   } = channel;
+  const chat = useChat();
 
   const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
 
@@ -328,6 +329,7 @@ const MobilePage = ({
           <StandaloneAblyChatComponent
             previewStream={previewStream}
             handleShowPreviewStream={handleShowPreviewStream}
+            chat={chat}
           />
         </>
       ) : (

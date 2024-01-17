@@ -1,3 +1,5 @@
+import Ably from "ably/promises";
+
 import { COLORS } from "../styles/Colors";
 
 export enum InteractionType {
@@ -16,7 +18,6 @@ export enum InteractionType {
   EVENT_LIVE = "event-live-interaction",
   EVENT_LOCK = "event-lock-interaction",
   EVENT_PAYOUT = "event-payout-interaction",
-  EVENT_END = "event-end-interaction",
 }
 
 export enum BaseChatCommand {
@@ -45,11 +46,14 @@ export const ADD_REACTION_EVENT = "add-reaction";
 export const CHAT_MESSAGE_EVENT = "chat-message";
 export const BAN_USER_EVENT = "ban-user";
 export const APPOINT_USER_EVENT = "appoint-user";
+export const VIBES_TOKEN_PRICE_RANGE_EVENT = "vibes-token-price-range";
 
 export type CommandData = {
   command: string;
   response: string;
 };
+
+export type AblyChannelPromise = Ably.Types.RealtimeChannelPromise;
 
 export const MAX_VIBES_PRICE = 399999999934464;
 // export const MAX_VIBES_SUPPLY = 20000000;
