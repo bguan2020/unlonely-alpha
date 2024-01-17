@@ -156,6 +156,7 @@ model Channel {
   token CreatorToken?
   customButtonAction String?
   customButtonPrice Int?
+  vibesTokenPriceRange String[]
   sharesEvent SharesEvent[]
   roles ChannelUserRole[]
 

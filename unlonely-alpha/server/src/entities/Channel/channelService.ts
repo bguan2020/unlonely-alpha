@@ -247,6 +247,23 @@ export const getChannelFeed = async (
   }
 };
 
+export interface IUpdateChannelVibesTokenPriceRangeInput {
+  id: number;
+  vibesTokenPriceRange: string[];
+}
+
+export const updateChannelVibesTokenPriceRange = async (
+  data: IUpdateChannelVibesTokenPriceRangeInput,
+  ctx: Context
+) => {
+  return ctx.prisma.channel.update({
+    where: { id: Number(data.id) },
+    data: {
+      vibesTokenPriceRange: data.vibesTokenPriceRange,
+    },
+  });
+};
+
 export const getChannelById = ({ id }: { id: number }, ctx: Context) => {
   return ctx.prisma.channel.findUnique({
     where: { id: Number(id) },
