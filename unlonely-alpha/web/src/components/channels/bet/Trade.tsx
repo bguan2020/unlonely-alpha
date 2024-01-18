@@ -20,12 +20,15 @@ import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import {
   useBuyVotes,
   useGetPriceAfterFee,
-  useReadMappings,
+  useReadSupplies,
   useGenerateKey,
   useGetHolderBalances,
   useClaimVotePayout,
   useIsVerifier,
   useUserPayout,
+  useVotingPooledEth,
+  useEventEndTimestamp,
+  useEventVerifyStatus,
 } from "../../../hooks/contracts/useSharesContractV2";
 import usePostBetTrade from "../../../hooks/server/gamblable/usePostBetTrade";
 import { getContractFromNetwork } from "../../../utils/contract";
@@ -151,17 +154,25 @@ const Trade = () => {
   const {
     yayVotesSupply,
     nayVotesSupply,
-    eventEndTimestamp,
-    votingPooledEth,
-    eventVerified,
-    eventResult,
-    refetch: refetchMappings,
-  } = useReadMappings(
+    refetch: refetchSupplies,
+  } = useReadSupplies(
     generatedKey,
     (ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
     Number(ongoingBets?.[0]?.id ?? "0"),
     v2contract
   );
+
+  const {
+    eventVerified,
+    eventResult,
+    refetch: refetchEventVerifyStatus,
+  } = useEventVerifyStatus(generatedKey, v2contract);
+
+  const { eventEndTimestamp, refetch: refetchEventEndTimestamp } =
+    useEventEndTimestamp(generatedKey, v2contract);
+
+  const { votingPooledEth, refetch: refetchVotingPooledEth } =
+    useVotingPooledEth(generatedKey, v2contract);
 
   const { userPayout, refetch: refetchPayout } = useUserPayout(
     (ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
@@ -569,7 +580,10 @@ const Trade = () => {
     if (doesEventExist && isSharesEventLive) {
       if (eventEndTimestampPassed) {
         calls = calls.concat([
-          refetchMappings(),
+          refetchSupplies(),
+          refetchEventEndTimestamp(),
+          refetchEventVerifyStatus(),
+          refetchVotingPooledEth(),
           // refetchVotePrice(),
           // refetchBuyVotes(),
           // refetchSellVotes(),
@@ -578,7 +592,10 @@ const Trade = () => {
         ]);
       } else {
         calls = calls.concat([
-          refetchMappings(),
+          refetchSupplies(),
+          refetchEventEndTimestamp(),
+          refetchEventVerifyStatus(),
+          refetchVotingPooledEth(),
           refetchVotePrice(),
           refetchBuyVotes(),
           // refetchSellVotes(),
@@ -588,11 +605,14 @@ const Trade = () => {
       }
     }
     if (doesEventExist && isSharesEventLock) {
-      calls = calls.concat([refetchMappings(), refetchBalances()]);
+      calls = calls.concat([refetchSupplies(), refetchBalances()]);
     }
     if (doesEventExist && isSharesEventPayout) {
       calls = calls.concat([
-        refetchMappings(),
+        refetchVotingPooledEth(),
+        refetchEventEndTimestamp(),
+        refetchEventVerifyStatus(),
+        refetchSupplies(),
         refetchBalances(),
         refetchClaimVotePayout(),
         refetchPayout(),

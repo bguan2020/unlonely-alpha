@@ -67,7 +67,7 @@ export const useReadPublic = (contract: ContractData) => {
   };
 };
 
-export const useReadMappings = (
+export const useReadSupplies = (
   key: string,
   eventAddress: `0x${string}`,
   eventId: number,
@@ -79,12 +79,6 @@ export const useReadMappings = (
   const [yayVotesSupply, setYayVotesSupply] = useState<bigint>(BigInt(0));
   const [nayVotesSupply, setNayVotesSupply] = useState<bigint>(BigInt(0));
 
-  const [eventVerified, setEventVerified] = useState<boolean>(false);
-  const [eventResult, setEventResult] = useState<boolean>(false);
-  const [eventEndTimestamp, setEventEndTimestamp] = useState<bigint>(BigInt(0));
-
-  const [votingPooledEth, setVotingPooledEth] = useState<bigint>(BigInt(0));
-
   const getData = useCallback(async () => {
     if (
       !contract.address ||
@@ -93,22 +87,11 @@ export const useReadMappings = (
       !userAddress ||
       !isAddress(eventAddress)
     ) {
-      setVotingPooledEth(BigInt(0));
       setYayVotesSupply(BigInt(0));
       setNayVotesSupply(BigInt(0));
-      setEventVerified(false);
-      setEventResult(false);
-      setEventEndTimestamp(BigInt(0));
       return;
     }
-    const [
-      yayVotesSupply,
-      nayVotesSupply,
-      eventVerified,
-      eventResult,
-      eventEndTimestamp,
-      pooledEth,
-    ] = await Promise.all([
+    const [yayVotesSupply, nayVotesSupply] = await Promise.all([
       publicClient.readContract({
         address: contract.address,
         abi: contract.abi,
@@ -121,6 +104,33 @@ export const useReadMappings = (
         functionName: "nayVotesSupply",
         args: [key],
       }),
+    ]);
+    setYayVotesSupply(BigInt(String(yayVotesSupply)));
+    setNayVotesSupply(BigInt(String(nayVotesSupply)));
+  }, [contract, publicClient, userAddress, eventAddress, eventId, key]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
+    yayVotesSupply,
+    nayVotesSupply,
+  };
+};
+
+export const useEventVerifyStatus = (key: string, contract: ContractData) => {
+  const publicClient = usePublicClient();
+  const [eventVerified, setEventVerified] = useState<boolean>(false);
+  const [eventResult, setEventResult] = useState<boolean>(false);
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setEventVerified(false);
+      return;
+    }
+    const [eventVerified, eventResult] = await Promise.all([
       publicClient.readContract({
         address: contract.address,
         abi: contract.abi,
@@ -133,26 +143,10 @@ export const useReadMappings = (
         functionName: "eventResult",
         args: [key],
       }),
-      publicClient.readContract({
-        address: contract.address,
-        abi: contract.abi,
-        functionName: "eventEndTimestamp",
-        args: [key],
-      }),
-      publicClient.readContract({
-        address: contract.address,
-        abi: contract.abi,
-        functionName: "votingPooledEth",
-        args: [key],
-      }),
     ]);
-    setVotingPooledEth(BigInt(String(pooledEth)));
-    setYayVotesSupply(BigInt(String(yayVotesSupply)));
-    setNayVotesSupply(BigInt(String(nayVotesSupply)));
     setEventVerified(Boolean(eventVerified));
     setEventResult(Boolean(eventResult));
-    setEventEndTimestamp(BigInt(String(eventEndTimestamp)));
-  }, [contract, publicClient, userAddress, eventAddress, eventId, key]);
+  }, [contract, publicClient, key]);
 
   useEffect(() => {
     getData();
@@ -160,11 +154,63 @@ export const useReadMappings = (
 
   return {
     refetch: getData,
-    yayVotesSupply,
-    nayVotesSupply,
     eventVerified,
     eventResult,
+  };
+};
+
+export const useEventEndTimestamp = (key: string, contract: ContractData) => {
+  const publicClient = usePublicClient();
+  const [eventEndTimestamp, setEventEndTimestamp] = useState<bigint>(BigInt(0));
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setEventEndTimestamp(BigInt(0));
+      return;
+    }
+    const eventEndTimestamp = await publicClient.readContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: "eventEndTimestamp",
+      args: [key],
+    });
+    setEventEndTimestamp(BigInt(String(eventEndTimestamp)));
+  }, [contract, publicClient, key]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
     eventEndTimestamp,
+  };
+};
+
+export const useVotingPooledEth = (key: string, contract: ContractData) => {
+  const publicClient = usePublicClient();
+  const [votingPooledEth, setVotingPooledEth] = useState<bigint>(BigInt(0));
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setVotingPooledEth(BigInt(0));
+      return;
+    }
+    const pooledEth = await publicClient.readContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: "votingPooledEth",
+      args: [key],
+    });
+    setVotingPooledEth(BigInt(String(pooledEth)));
+  }, [contract, publicClient, key]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
     votingPooledEth,
   };
 };

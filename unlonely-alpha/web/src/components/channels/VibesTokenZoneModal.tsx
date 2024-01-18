@@ -2,18 +2,14 @@ import {
   Button,
   Flex,
   Input,
-  Image,
   Text,
-  Tooltip as ChakraTooltip,
   RangeSlider,
   RangeSliderTrack,
   RangeSliderFilledTrack,
   RangeSliderThumb,
-  IconButton,
   Spinner,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
-import { FaCopy } from "react-icons/fa6";
 import { parseUnits, formatUnits } from "viem";
 
 import {
@@ -29,6 +25,7 @@ import { filteredInput } from "../../utils/validation/input";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUpdateChannelVibesTokenPriceRange from "../../hooks/server/useUpdateChannelVibesTokenPriceRange";
+import VibesTokenInterface from "../chat/VibesTokenInterface";
 
 const VibesTokenZoneModal = ({
   formattedCurrentPrice,
@@ -91,88 +88,431 @@ const VibesTokenZoneModal = ({
     <TransactionModalTemplate
       isOpen={isOpen}
       handleClose={_handleClose}
-      title="set zones"
+      title="set price zones"
       hideFooter
       loadingText="setting zones..."
     >
       <Flex direction="column" gap="16px">
-        <Text fontSize="14px" color="#bababa" textAlign="center">
-          set green and red price range indicators to track $VIBES performance
-        </Text>
-        <Text fontSize="14px" color="#bababa" textAlign={"center"}>
-          use the slider or plug in your own numbers
+        <Text fontSize="14px" color="#c7c7c7" textAlign="center">
+          set green and red price zones to track $VIBES performance for you and
+          your viewers!
         </Text>
         <Flex
-          direction={"column"}
           gap="15px"
           bg="rgba(0, 0, 0, 0.6)"
-          p="20px"
-          borderRadius="10px"
-        >
-          <Flex justifyContent={"space-between"}>
-            <IconButton
-              border={
-                Number(formattedCurrentPrice) === Number(sliderValue[0])
-                  ? undefined
-                  : "1px solid #ff3d3d"
-              }
-              aria-label="copy price to lower"
-              icon={<FaCopy />}
-              bg="transparent"
-              _hover={{
-                transform: "scale(1.1)",
-              }}
-              color={
-                Number(formattedCurrentPrice) === Number(sliderValue[0])
-                  ? "#636363"
-                  : "#ff3d3d"
-              }
-              _focus={{}}
-              _active={{}}
-              onClick={() =>
-                setSliderValue((prev) => {
-                  return [formattedCurrentPrice, prev[1]];
-                })
-              }
-            />
-            <Text fontSize="20px" textAlign={"center"}>
-              Current price in ETH
-              <Text color="#f8f53b">{formattedCurrentPrice}</Text>
-            </Text>
-            <IconButton
-              border={
-                Number(formattedCurrentPrice) === Number(sliderValue[1])
-                  ? undefined
-                  : "1px solid #46a800"
-              }
-              aria-label="copy price to higher"
-              icon={<FaCopy />}
-              bg="transparent"
-              _hover={{
-                transform: "scale(1.1)",
-              }}
-              color={
-                Number(formattedCurrentPrice) === Number(sliderValue[1])
-                  ? "#636363"
-                  : "#46a800"
-              }
-              _focus={{}}
-              _active={{}}
-              onClick={() =>
-                setSliderValue((prev) => {
-                  return [prev[0], formattedCurrentPrice];
-                })
-              }
-            />
-          </Flex>
-        </Flex>
-        <Flex
-          bg="rgba(0, 0, 0, 0.4)"
           p="5px"
           borderRadius="10px"
-          direction="column"
-          gap="5px"
+          height="200px"
         >
+          <VibesTokenInterface
+            defaultTimeFilter="all"
+            disableExchange
+            customLowerPrice={Number(
+              parseUnits(sliderValue[0] as `${number}`, 18)
+            )}
+            customHigherPrice={Number(
+              parseUnits(sliderValue[1] as `${number}`, 18)
+            )}
+            allStreams
+          />
+        </Flex>
+        <Flex
+          direction="column"
+          bg="rgba(0, 0, 0, 0.4)"
+          p="10px"
+          borderRadius="10px"
+          gap="12px"
+        >
+          <Flex gap="20px">
+            <Flex direction="column">
+              <Text textAlign={"center"} noOfLines={1} color="#d6d6d6">
+                lower price
+              </Text>
+              <Input
+                fontSize="20px"
+                variant={"redGlow"}
+                value={sliderValue[0]}
+                onChange={(e) =>
+                  setSliderValue((prev) => {
+                    return [filteredInput(e.target.value, true), prev[1]];
+                  })
+                }
+              />
+              <Text
+                textAlign={"center"}
+                fontSize="12px"
+                noOfLines={1}
+                color={
+                  Number(formattedCurrentPrice) === Number(sliderValue[0])
+                    ? "#b4b4b4"
+                    : "#ff6161"
+                }
+              >
+                {truncateValue(
+                  Number(formattedCurrentPrice) > 0
+                    ? (Number(
+                        parseUnits(
+                          convertSciNotaToPrecise(
+                            sliderValue[0]
+                          ) as `${number}`,
+                          18
+                        )
+                      ) /
+                        Number(parseUnits(formattedCurrentPrice, 18))) *
+                        100
+                    : 0,
+                  2
+                )}
+                % of current value
+              </Text>
+              <Flex justifyContent={"space-between"} gap="10px" mt="5px">
+                <Flex direction="column" gap="2px">
+                  <Button
+                    p={2}
+                    height={"20px"}
+                    w="100%"
+                    color="#d6d6d6"
+                    bg="#133a75"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{
+                      bg: "#3267b7",
+                    }}
+                    onClick={() =>
+                      setSliderValue((prev) => {
+                        return [
+                          convertSciNotaToPrecise(
+                            String(
+                              Math.max(
+                                Number(prev[0]) -
+                                  Number(formattedCurrentPrice) * 0.05,
+                                0
+                              )
+                            )
+                          ),
+                          prev[1],
+                        ];
+                      })
+                    }
+                  >
+                    -5%
+                  </Button>
+                  <Button
+                    p={2}
+                    height={"20px"}
+                    w="100%"
+                    color="#d6d6d6"
+                    bg="#133a75"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{
+                      bg: "#3267b7",
+                    }}
+                    onClick={() =>
+                      setSliderValue((prev) => {
+                        return [
+                          convertSciNotaToPrecise(
+                            String(
+                              Math.max(
+                                Number(prev[0]) -
+                                  Number(formattedCurrentPrice) * 0.01,
+                                0
+                              )
+                            )
+                          ),
+                          prev[1],
+                        ];
+                      })
+                    }
+                  >
+                    -1%
+                  </Button>
+                </Flex>
+                <Button
+                  p={2}
+                  w="100%"
+                  color={
+                    Number(formattedCurrentPrice) === Number(sliderValue[0])
+                      ? "#b8b8b8"
+                      : "#d6d6d6"
+                  }
+                  bg={
+                    Number(formattedCurrentPrice) === Number(sliderValue[0])
+                      ? "#525252"
+                      : "#133a75"
+                  }
+                  _focus={{}}
+                  _active={{}}
+                  _hover={{
+                    bg: "#3267b7",
+                  }}
+                  onClick={() =>
+                    setSliderValue((prev) => {
+                      return [formattedCurrentPrice, prev[1]];
+                    })
+                  }
+                >
+                  100%
+                </Button>
+                <Flex direction="column" gap="2px">
+                  <Button
+                    p={2}
+                    height={"20px"}
+                    w="100%"
+                    color="#d6d6d6"
+                    bg="#133a75"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{
+                      bg: "#3267b7",
+                    }}
+                    onClick={() =>
+                      setSliderValue((prev) => {
+                        return [
+                          convertSciNotaToPrecise(
+                            String(
+                              Math.min(
+                                Number(prev[0]) +
+                                  Number(formattedCurrentPrice) * 0.05,
+                                Number(formatUnits(BigInt(MAX_VIBES_PRICE), 18))
+                              )
+                            )
+                          ),
+                          prev[1],
+                        ];
+                      })
+                    }
+                  >
+                    +5%
+                  </Button>
+                  <Button
+                    p={2}
+                    height={"20px"}
+                    w="100%"
+                    color="#d6d6d6"
+                    bg="#133a75"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{
+                      bg: "#3267b7",
+                    }}
+                    onClick={() =>
+                      setSliderValue((prev) => {
+                        return [
+                          convertSciNotaToPrecise(
+                            String(
+                              Math.min(
+                                Number(prev[0]) +
+                                  Number(formattedCurrentPrice) * 0.01,
+                                Number(formatUnits(BigInt(MAX_VIBES_PRICE), 18))
+                              )
+                            )
+                          ),
+                          prev[1],
+                        ];
+                      })
+                    }
+                  >
+                    +1%
+                  </Button>
+                </Flex>
+              </Flex>
+            </Flex>
+            <Flex direction="column">
+              <Text textAlign={"center"} noOfLines={1} color="#d6d6d6">
+                higher price
+              </Text>
+              <Input
+                fontSize="20px"
+                variant={"greenGlow"}
+                value={sliderValue[1]}
+                onChange={(e) =>
+                  setSliderValue((prev) => {
+                    return [prev[0], filteredInput(e.target.value, true)];
+                  })
+                }
+              />
+              <Text
+                textAlign={"center"}
+                fontSize="12px"
+                noOfLines={1}
+                color={
+                  Number(formattedCurrentPrice) === Number(sliderValue[1])
+                    ? "#b4b4b4"
+                    : "#60e601"
+                }
+              >
+                {truncateValue(
+                  Number(formattedCurrentPrice) > 0
+                    ? (Number(
+                        parseUnits(
+                          convertSciNotaToPrecise(
+                            sliderValue[1]
+                          ) as `${number}`,
+                          18
+                        )
+                      ) /
+                        Number(parseUnits(formattedCurrentPrice, 18))) *
+                        100
+                    : 0,
+                  2
+                )}
+                % of current value
+              </Text>
+              <Flex justifyContent={"space-between"} gap="10px" mt="5px">
+                <Flex direction="column" gap="2px">
+                  <Button
+                    p={2}
+                    height={"20px"}
+                    w="100%"
+                    color="#d6d6d6"
+                    bg="#133a75"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{
+                      bg: "#3267b7",
+                    }}
+                    onClick={() =>
+                      setSliderValue((prev) => {
+                        return [
+                          prev[0],
+                          convertSciNotaToPrecise(
+                            String(
+                              Math.max(
+                                Number(prev[1]) -
+                                  Number(formattedCurrentPrice) * 0.05,
+                                0
+                              )
+                            )
+                          ),
+                        ];
+                      })
+                    }
+                  >
+                    -5%
+                  </Button>
+                  <Button
+                    p={2}
+                    height={"20px"}
+                    w="100%"
+                    color="#d6d6d6"
+                    bg="#133a75"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{
+                      bg: "#3267b7",
+                    }}
+                    onClick={() =>
+                      setSliderValue((prev) => {
+                        return [
+                          prev[0],
+                          convertSciNotaToPrecise(
+                            String(
+                              Math.max(
+                                Number(prev[1]) -
+                                  Number(formattedCurrentPrice) * 0.01,
+                                0
+                              )
+                            )
+                          ),
+                        ];
+                      })
+                    }
+                  >
+                    -1%
+                  </Button>
+                </Flex>
+                <Button
+                  p={2}
+                  w="100%"
+                  color={
+                    Number(formattedCurrentPrice) === Number(sliderValue[1])
+                      ? "#b8b8b8"
+                      : "#d6d6d6"
+                  }
+                  bg={
+                    Number(formattedCurrentPrice) === Number(sliderValue[1])
+                      ? "#525252"
+                      : "#133a75"
+                  }
+                  _focus={{}}
+                  _active={{}}
+                  _hover={{
+                    bg: "#3267b7",
+                  }}
+                  onClick={() =>
+                    setSliderValue((prev) => {
+                      return [prev[0], formattedCurrentPrice];
+                    })
+                  }
+                >
+                  100%
+                </Button>
+                <Flex direction="column" gap="2px">
+                  <Button
+                    p={2}
+                    height={"20px"}
+                    w="100%"
+                    color="#d6d6d6"
+                    bg="#133a75"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{
+                      bg: "#3267b7",
+                    }}
+                    onClick={() =>
+                      setSliderValue((prev) => {
+                        return [
+                          prev[0],
+                          convertSciNotaToPrecise(
+                            String(
+                              Math.min(
+                                Number(prev[1]) +
+                                  Number(formattedCurrentPrice) * 0.05,
+                                Number(formatUnits(BigInt(MAX_VIBES_PRICE), 18))
+                              )
+                            )
+                          ),
+                        ];
+                      })
+                    }
+                  >
+                    +5%
+                  </Button>
+                  <Button
+                    p={2}
+                    height={"20px"}
+                    w="100%"
+                    color="#d6d6d6"
+                    bg="#133a75"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{
+                      bg: "#3267b7",
+                    }}
+                    onClick={() =>
+                      setSliderValue((prev) => {
+                        return [
+                          prev[0],
+                          convertSciNotaToPrecise(
+                            String(
+                              Math.min(
+                                Number(prev[1]) +
+                                  Number(formattedCurrentPrice) * 0.01,
+                                Number(formatUnits(BigInt(MAX_VIBES_PRICE), 18))
+                              )
+                            )
+                          ),
+                        ];
+                      })
+                    }
+                  >
+                    +1%
+                  </Button>
+                </Flex>
+              </Flex>
+            </Flex>
+          </Flex>
           <RangeSlider
             aria-label={["min", "max"]}
             value={sliderValue.map((str) =>
@@ -192,214 +532,6 @@ const VibesTokenZoneModal = ({
             <RangeSliderThumb index={0} boxSize={"5"} sx={{ bg: "#ff3d3d" }} />
             <RangeSliderThumb index={1} boxSize={"5"} sx={{ bg: "#46a800" }} />
           </RangeSlider>
-        </Flex>
-        <Flex gap="20px" bg="rgba(0, 0, 0, 0.4)" p="10px" borderRadius="10px">
-          <Flex direction="column">
-            <Text textAlign={"center"} noOfLines={1}>
-              lower price
-              <ChakraTooltip
-                label="percentage of current price"
-                shouldWrapChildren
-              >
-                <Image src="/svg/info.svg" width="16px" height="16px" />
-              </ChakraTooltip>
-            </Text>
-            <Text
-              textAlign={"center"}
-              fontSize="25px"
-              noOfLines={1}
-              color="#ff6161"
-            >
-              {truncateValue(
-                Number(formattedCurrentPrice) > 0
-                  ? (Number(
-                      parseUnits(
-                        convertSciNotaToPrecise(sliderValue[0]) as `${number}`,
-                        18
-                      )
-                    ) /
-                      Number(parseUnits(formattedCurrentPrice, 18))) *
-                      100
-                  : 0,
-                2
-              )}
-              %
-            </Text>
-            <Input
-              variant={"redGlow"}
-              value={sliderValue[0]}
-              onChange={(e) =>
-                setSliderValue((prev) => {
-                  return [filteredInput(e.target.value, true), prev[1]];
-                })
-              }
-            />
-            <Flex justifyContent={"space-between"} gap="10px" mt="5px">
-              <Button
-                p={2}
-                height={"20px"}
-                w="100%"
-                color="white"
-                bg="#133a75"
-                _focus={{}}
-                _active={{}}
-                _hover={{
-                  bg: "#3267b7",
-                }}
-                onClick={() =>
-                  setSliderValue((prev) => {
-                    return [
-                      convertSciNotaToPrecise(
-                        String(
-                          Math.max(
-                            Number(prev[0]) -
-                              Number(formattedCurrentPrice) * 0.05,
-                            0
-                          )
-                        )
-                      ),
-                      prev[1],
-                    ];
-                  })
-                }
-              >
-                -5%
-              </Button>
-              <Button
-                p={2}
-                height={"20px"}
-                w="100%"
-                color="white"
-                bg="#133a75"
-                _focus={{}}
-                _active={{}}
-                _hover={{
-                  bg: "#3267b7",
-                }}
-                onClick={() =>
-                  setSliderValue((prev) => {
-                    return [
-                      convertSciNotaToPrecise(
-                        String(
-                          Math.min(
-                            Number(prev[0]) +
-                              Number(formattedCurrentPrice) * 0.05,
-                            Number(formatUnits(BigInt(MAX_VIBES_PRICE), 18))
-                          )
-                        )
-                      ),
-                      prev[1],
-                    ];
-                  })
-                }
-              >
-                +5%
-              </Button>
-            </Flex>
-          </Flex>
-          <Flex direction="column">
-            <Text textAlign={"center"} noOfLines={1}>
-              higher price
-              <ChakraTooltip
-                label="percentage of current price"
-                shouldWrapChildren
-              >
-                <Image src="/svg/info.svg" width="16px" height="16px" />
-              </ChakraTooltip>
-            </Text>
-            <Text
-              textAlign={"center"}
-              fontSize="25px"
-              noOfLines={1}
-              color="#60e601"
-            >
-              {truncateValue(
-                Number(formattedCurrentPrice) > 0
-                  ? (Number(
-                      parseUnits(
-                        convertSciNotaToPrecise(sliderValue[1]) as `${number}`,
-                        18
-                      )
-                    ) /
-                      Number(parseUnits(formattedCurrentPrice, 18))) *
-                      100
-                  : 0,
-                2
-              )}
-              %
-            </Text>
-            <Input
-              variant={"greenGlow"}
-              value={sliderValue[1]}
-              onChange={(e) =>
-                setSliderValue((prev) => {
-                  return [prev[0], filteredInput(e.target.value, true)];
-                })
-              }
-            />
-            <Flex justifyContent={"space-between"} gap="10px" mt="5px">
-              <Button
-                p={2}
-                height={"20px"}
-                w="100%"
-                color="white"
-                bg="#133a75"
-                _focus={{}}
-                _active={{}}
-                _hover={{
-                  bg: "#3267b7",
-                }}
-                onClick={() =>
-                  setSliderValue((prev) => {
-                    return [
-                      prev[0],
-                      convertSciNotaToPrecise(
-                        String(
-                          Math.max(
-                            Number(prev[1]) -
-                              Number(formattedCurrentPrice) * 0.05,
-                            0
-                          )
-                        )
-                      ),
-                    ];
-                  })
-                }
-              >
-                -5%
-              </Button>
-              <Button
-                p={2}
-                height={"20px"}
-                w="100%"
-                color="white"
-                bg="#133a75"
-                _focus={{}}
-                _active={{}}
-                _hover={{
-                  bg: "#3267b7",
-                }}
-                onClick={() =>
-                  setSliderValue((prev) => {
-                    return [
-                      prev[0],
-                      convertSciNotaToPrecise(
-                        String(
-                          Math.min(
-                            Number(prev[1]) +
-                              Number(formattedCurrentPrice) * 0.05,
-                            Number(formatUnits(BigInt(MAX_VIBES_PRICE), 18))
-                          )
-                        )
-                      ),
-                    ];
-                  })
-                }
-              >
-                +5%
-              </Button>
-            </Flex>
-          </Flex>
         </Flex>
         {!loading ? (
           <Flex direction="column" gap="10px">
@@ -429,6 +561,7 @@ const VibesTokenZoneModal = ({
                 color: "white",
               }}
               onClick={() => submit(true)}
+              isDisabled={channelQueryData?.vibesTokenPriceRange?.length === 0}
             >
               clear zones
             </Button>

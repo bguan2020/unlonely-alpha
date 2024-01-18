@@ -42,7 +42,7 @@ import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
 import ChannelList from "../components/channels/ChannelList";
-import VibesTokenExchange from "../components/chat/VibesTokenExchange";
+import VibesTokenInterface from "../components/chat/VibesTokenInterface";
 
 const FixedComponent = ({
   newHeightPercentage,
@@ -203,7 +203,7 @@ const ScrollableComponent = ({
           mb="10px"
           borderRadius={"10px"}
         >
-          <VibesTokenExchange defaultTimeFilter="all" allStreams />
+          <VibesTokenInterface defaultTimeFilter="all" allStreams />
         </Flex>
         <Text
           fontSize={{ base: "30px", lg: "40px" }}

@@ -2,7 +2,7 @@ import { Box, Flex } from "@chakra-ui/react";
 
 import NextHead from "../layout/NextHead";
 import { TabsComponent } from "./StandAloneChatComponent";
-import VibesTokenExchange from "../chat/VibesTokenExchange";
+import VibesTokenInterface from "../chat/VibesTokenInterface";
 import { useChat } from "../../hooks/chat/useChat";
 
 const styles = `
@@ -48,7 +48,7 @@ const PopOutChatComponent = () => {
             bg="#131323"
             p="5px"
           >
-            <VibesTokenExchange ablyChannel={chat.channel} />
+            <VibesTokenInterface ablyChannel={chat.channel} />
           </Flex>
           <TabsComponent chat={chat} />
         </Flex>

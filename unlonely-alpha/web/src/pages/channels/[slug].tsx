@@ -40,7 +40,7 @@ import {
 } from "../../hooks/contracts/useTournament";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import ChatComponent from "../../components/chat/ChatComponent";
-import VibesTokenExchange from "../../components/chat/VibesTokenExchange";
+import VibesTokenInterface from "../../components/chat/VibesTokenInterface";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import Trade from "../../components/channels/bet/Trade";
@@ -263,7 +263,7 @@ const DesktopPage = ({
                   bg="#131323"
                   p="5px"
                 >
-                  <VibesTokenExchange ablyChannel={chat.channel} />
+                  <VibesTokenInterface ablyChannel={chat.channel} />
                 </Flex>
                 <ChatComponent chat={chat} />
                 {/* <TournamentPot chat={chat} /> */}
