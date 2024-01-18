@@ -112,9 +112,9 @@ export const useReadPublic = (contract: ContractData) => {
     // }
   }, [contract.address, publicClient]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -545,9 +545,9 @@ export const useGetHolderBalance = (
     setVipBadgeBalance(String(vipBadgeBalance));
   }, [contract.address, publicClient, streamerAddress, eventId, holder]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -580,9 +580,9 @@ export const getSupply = (
     setVipBadgeSupply(String(vipBadgeSupply));
   }, [contract.address, publicClient, streamerAddress, eventId]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -642,9 +642,9 @@ export const useGetPrice = (
     isBuying,
   ]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -704,9 +704,9 @@ export const useGetPriceAfterFee = (
     isBuying,
   ]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,

@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { decodeEventLog, formatUnits, isAddress, parseUnits } from "viem";
 import Link from "next/link";
-import { useBalance, useBlockNumber } from "wagmi";
+import { useBalance } from "wagmi";
 import {
   ResponsiveContainer,
   LineChart,
@@ -96,10 +96,6 @@ const VibesTokenExchange = ({
   const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">(
     defaultTimeFilter ?? "1d"
   );
-
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
 
   const { data: vibesBalance, refetch: refetchVibesBalance } = useBalance({
     address: userAddress,
@@ -398,8 +394,9 @@ const VibesTokenExchange = ({
   };
 
   useEffect(() => {
+    console.log("vibesTokenExchange, tx length change detected");
     if (
-      !blockNumber.data ||
+      vibesTokenTxs.length === 0 ||
       isFetching.current ||
       !contract.address ||
       !userAddress ||
@@ -409,6 +406,7 @@ const VibesTokenExchange = ({
     const fetch = async () => {
       isFetching.current = true;
       const startTime = Date.now();
+      console.log("vibesTokenExchange, fetching", startTime);
       let endTime = 0;
       try {
         await Promise.all([
@@ -425,7 +423,9 @@ const VibesTokenExchange = ({
         endTime = Date.now();
         console.log("vibes fetching error", err);
       }
-      const MILLIS = 3000;
+      console.log("vibesTokenExchange, fetched", endTime);
+      // const MILLIS = 3000;
+      const MILLIS = 0;
       const timeToWait =
         endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
       await new Promise((resolve) => {
@@ -434,7 +434,7 @@ const VibesTokenExchange = ({
       isFetching.current = false;
     };
     fetch();
-  }, [blockNumber.data]);
+  }, [vibesTokenTxs.length]);
 
   useEffect(() => {
     if (!walletIsConnected) {

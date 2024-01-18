@@ -28,9 +28,9 @@ export const useReadPublic = (contract: ContractData) => {
     setProtocolFeeDestination(String(protocolFeeDestination));
   }, [contract, publicClient]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -60,9 +60,9 @@ export const useGetMintCostAfterFees = (
     setMintCostAfterFees(BigInt(String(res)));
   }, [contract, publicClient, amount]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,

@@ -257,7 +257,7 @@ const DesktopPage = ({
                 gap="1rem"
               >
                 <Flex
-                  height="20vh"
+                  minH="20vh"
                   gap="5px"
                   justifyContent={"space-between"}
                   bg="#131323"

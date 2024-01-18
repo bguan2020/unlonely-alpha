@@ -55,9 +55,9 @@ export const useReadPublic = (contract: ContractData) => {
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
   }, [contract, publicClient]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -154,9 +154,9 @@ export const useReadMappings = (
     setEventEndTimestamp(BigInt(String(eventEndTimestamp)));
   }, [contract, publicClient, userAddress, eventAddress, eventId, key]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -204,9 +204,9 @@ export const useUserPayout = (
     setUserPayout(BigInt(String(userPayout)));
   }, [contract, publicClient, userAddress, eventAddress, eventId]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -234,9 +234,9 @@ export const useIsVerifier = (contract: ContractData) => {
     setIsVerifier(Boolean(isVerifier));
   }, [contract, publicClient, userAddress]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -527,9 +527,9 @@ export const useGetHolderBalances = (
     setNayVotesBalance(String(nayVotesBalance));
   }, [contract, publicClient, eventAddress, eventId, holder, isYay]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -644,9 +644,9 @@ export const useGetPriceAfterFee = (
     setPriceAfterFee(BigInt(String(price)));
   }, [contract, publicClient, eventAddress, eventId, amount, isYay]);
 
-  // useEffect(() => {
-  //   getData();
-  // }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
