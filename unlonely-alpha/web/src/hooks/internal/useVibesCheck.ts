@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { parseAbiItem } from "viem";
-import { useBlockNumber, usePublicClient } from "wagmi";
+import { useBlockNumber, useContractEvent, usePublicClient } from "wagmi";
 import { useApolloClient } from "@apollo/client";
 
 import { VibesTokenTx } from "../../constants/types";
@@ -16,12 +16,15 @@ export const useVibesCheck = () => {
   const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
   const [loading, setLoading] = useState(true);
   const { network } = useNetworkContext();
-  const { localNetwork } = network;
+  const { localNetwork, matchingChain } = network;
   const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
   const [chartTimeIndexes, setChartTimeIndexes] = useState<Map<string, number>>(
     new Map()
   );
   const fetching = useRef(false);
+  const [hashMapState, setHashMapState] = useState<Map<string, string>>(
+    new Map()
+  );
 
   const blockNumber = useBlockNumber({
     watch: true,
@@ -39,71 +42,108 @@ export const useVibesCheck = () => {
     }
   };
 
-  // useContractEvent({
-  //   address: contract.address,
-  //   abi: VibesTokenV1,
-  //   eventName: "Mint",
-  //   listener(log: any) {
-  //     const init = async () => {
-  //       if (appending.current || loading) return;
-  //       appending.current = true;
-  //       const n = Number(log[0].args.totalSupply);
-  //       const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-  //       const user =
-  //         hashMapState.get(log[0].args.account) ??
-  //         (await _getEnsName(log[0].args.account));
-  //       const eventTx = {
-  //         eventName: "Mint",
-  //         user,
-  //         amount: log[0].args.amount,
-  //         price,
-  //         blockNumber: log[0].blockNumber,
-  //       };
-  //       setTokenTxs((prev) => [...prev, eventTx]);
-  //       appending.current = false;
-  //     };
-  //     init();
-  //   },
-  // });
+  useContractEvent({
+    address: contract.address,
+    abi: contract.abi,
+    eventName: loading ? undefined : "Mint",
+    listener(log: any) {
+      const init = async () => {
+        console.log("mint detected");
+        const n = Number(log[0].args.totalSupply);
+        const n_ = Math.max(n - 1, 0);
+        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+        const user =
+          hashMapState.get(log[0].args.account) ??
+          (await _getEnsName(log[0].args.account));
+        if (!hashMapState.get(log[0].args.account)) {
+          setHashMapState((prev) => {
+            return new Map([...prev, [log[0].args.account, user]]);
+          });
+        }
+        const eventTx = {
+          eventName: "Mint",
+          user,
+          amount: log[0].args.amount,
+          price: priceForCurrent - priceForPrevious,
+          blockNumber: log[0].blockNumber,
+        };
+        setTokenTxs((prev) => {
+          console.log("appending mint");
+          if (prev[prev.length - 1].blockNumber > eventTx.blockNumber) {
+            return [
+              ...prev.slice(0, prev.length - 1),
+              eventTx,
+              prev[prev.length - 1],
+            ];
+          }
+          return [...prev, eventTx];
+        });
+      };
+      init();
+    },
+  });
 
-  // useContractEvent({
-  //   address: contract.address,
-  //   abi: VibesTokenV1,
-  //   eventName: "Burn",
-  //   listener(log: any) {
-  //     const init = async () => {
-  //       if (appending.current || loading) return;
-  //       appending.current = true;
-  //       const n = Number(log[0].args.totalSupply);
-  //       const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-  //       const user =
-  //         hashMapState.get(log[0].args.account) ??
-  //         (await _getEnsName(log[0].args.account));
-  //       const eventTx = {
-  //         eventName: "Burn",
-  //         user,
-  //         amount: log[0].args.amount,
-  //         price,
-  //         blockNumber: log[0].blockNumber,
-  //       };
-  //       setTokenTxs((prev) => [...prev, eventTx]);
-  //       appending.current = false;
-  //     };
-  //     init();
-  //   },
-  // });
+  useContractEvent({
+    address: contract.address,
+    abi: contract.abi,
+    eventName: loading ? undefined : "Burn",
+    listener(log: any) {
+      const init = async () => {
+        console.log("burn detected");
+        const n = Number(log[0].args.totalSupply);
+        const n_ = Math.max(n - 1, 0);
+        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+        const user =
+          hashMapState.get(log[0].args.account) ??
+          (await _getEnsName(log[0].args.account));
+        if (!hashMapState.get(log[0].args.account)) {
+          setHashMapState((prev) => {
+            return new Map([...prev, [log[0].args.account, user]]);
+          });
+        }
+        const eventTx = {
+          eventName: "Burn",
+          user,
+          amount: log[0].args.amount,
+          price: priceForCurrent - priceForPrevious,
+          blockNumber: log[0].blockNumber,
+        };
+        setTokenTxs((prev) => {
+          console.log("appending burn");
+          if (prev[prev.length - 1].blockNumber > eventTx.blockNumber) {
+            return [
+              ...prev.slice(0, prev.length - 1),
+              eventTx,
+              prev[prev.length - 1],
+            ];
+          }
+          return [...prev, eventTx];
+        });
+      };
+      init();
+    },
+  });
 
   useEffect(() => {
     const getVibesEvents = async () => {
+      console.log(
+        "entering getVibesEvents"
+        // publicClient,
+        // contract.address,
+        // matchingChain
+      );
       if (
         !publicClient ||
         !contract.address ||
-        fetching.current ||
-        !blockNumber.data
+        !matchingChain ||
+        fetching.current
       ) {
         fetching.current = false;
         return;
       }
+      console.log("fetching vibes events");
       const startTime = Date.now();
       let endTime = 0;
       fetching.current = true;
@@ -143,8 +183,8 @@ export const useVibesCheck = () => {
           blockNumber: event.blockNumber,
         };
       });
-      const uniqueUsers = new Set();
-      _tokenTxs.forEach((tx: any) => {
+      const uniqueUsers = new Set<string>();
+      _tokenTxs.forEach((tx: VibesTokenTx) => {
         uniqueUsers.add(tx.user);
       });
       const promises = Array.from(uniqueUsers).map((u) =>
@@ -154,25 +194,31 @@ export const useVibesCheck = () => {
         endTime = Date.now();
         return res;
       });
-      const nameHashMap = createHashmap(Array.from(uniqueUsers), names);
-      const namedTokenTxs = _tokenTxs.map((tx: any) => {
+      const nameHashMap = createHashmap(
+        Array.from(uniqueUsers),
+        names as string[]
+      );
+      const namedTokenTxs = _tokenTxs.map((tx: VibesTokenTx) => {
         return {
           ...tx,
           user: nameHashMap.get(tx.user) ?? tx.user,
         };
       });
-      const MILLIS = 5000;
+      // const MILLIS = 5000;
+      const MILLIS = 0;
       const timeToWait =
         endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
       await new Promise((resolve) => {
         setTimeout(resolve, timeToWait);
       });
       fetching.current = false;
+      console.log("setting token txs,", namedTokenTxs.length, "count");
+      setHashMapState(nameHashMap);
       setTokenTxs(namedTokenTxs);
       setLoading(false);
     };
     getVibesEvents();
-  }, [blockNumber.data]);
+  }, [publicClient, contract.address, matchingChain]);
 
   useEffect(() => {
     if (!blockNumber.data || tokenTxs.length === 0) return;

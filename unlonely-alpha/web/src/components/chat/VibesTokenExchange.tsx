@@ -575,6 +575,7 @@ const VibesTokenExchange = ({
                     dataKey="price"
                     stroke="#8884d8"
                     strokeWidth={2}
+                    animationDuration={200}
                     dot={false}
                   />
                   {!allStreams &&
