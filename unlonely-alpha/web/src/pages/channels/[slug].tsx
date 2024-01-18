@@ -101,7 +101,7 @@ const DesktopPage = ({
   const { userAddress, walletIsConnected } = useUser();
   const publicClient = usePublicClient();
 
-  const isOwner = userAddress === channelQueryData?.owner.address;
+  const isOwner = userAddress === channelQueryData?.owner?.address;
   // const isOwner = true;
 
   const [previewStream, setPreviewStream] = useState<boolean>(false);

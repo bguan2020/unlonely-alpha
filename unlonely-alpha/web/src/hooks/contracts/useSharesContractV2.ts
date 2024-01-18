@@ -1,8 +1,12 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
 import { isAddress } from "viem";
 
-import { EventTypeForContract, NULL_ADDRESS } from "../../constants";
+import {
+  EventTypeForContract,
+  NULL_ADDRESS,
+  NULL_ADDRESS_BYTES32,
+} from "../../constants";
 import { ContractData, WriteCallbacks } from "../../constants/types";
 import { createCallbackHandler } from "../../utils/contract";
 import { useUser } from "../context/useUser";
@@ -50,6 +54,10 @@ export const useReadPublic = (contract: ContractData) => {
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
   }, [contract, publicClient]);
+
+  // useEffect(() => {
+  //   getData();
+  // }, [getData]);
 
   return {
     refetch: getData,
@@ -146,6 +154,10 @@ export const useReadMappings = (
     setEventEndTimestamp(BigInt(String(eventEndTimestamp)));
   }, [contract, publicClient, userAddress, eventAddress, eventId, key]);
 
+  // useEffect(() => {
+  //   getData();
+  // }, [getData]);
+
   return {
     refetch: getData,
     yayVotesSupply,
@@ -192,6 +204,10 @@ export const useUserPayout = (
     setUserPayout(BigInt(String(userPayout)));
   }, [contract, publicClient, userAddress, eventAddress, eventId]);
 
+  // useEffect(() => {
+  //   getData();
+  // }, [getData]);
+
   return {
     refetch: getData,
     userPayout,
@@ -217,6 +233,10 @@ export const useIsVerifier = (contract: ContractData) => {
     });
     setIsVerifier(Boolean(isVerifier));
   }, [contract, publicClient, userAddress]);
+
+  // useEffect(() => {
+  //   getData();
+  // }, [getData]);
 
   return {
     refetch: getData,
@@ -343,15 +363,11 @@ export const useGenerateKey = (
 ) => {
   const publicClient = usePublicClient();
 
-  const [key, setKey] = useState<string>(
-    "0x0000000000000000000000000000000000000000000000000000000000000000"
-  );
+  const [key, setKey] = useState<string>(NULL_ADDRESS_BYTES32);
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
-      setKey(
-        "0x0000000000000000000000000000000000000000000000000000000000000000"
-      );
+      setKey(NULL_ADDRESS_BYTES32);
       return;
     }
     const key = await publicClient.readContract({
@@ -362,6 +378,10 @@ export const useGenerateKey = (
     });
     setKey(String(key));
   }, [contract, publicClient, eventAddress, eventId]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -507,6 +527,10 @@ export const useGetHolderBalances = (
     setNayVotesBalance(String(nayVotesBalance));
   }, [contract, publicClient, eventAddress, eventId, holder, isYay]);
 
+  // useEffect(() => {
+  //   getData();
+  // }, [getData]);
+
   return {
     refetch: getData,
     yayVotesBalance,
@@ -562,6 +586,10 @@ export const useGetPrice = (
     setPrice(BigInt(String(price)));
   }, [contract, publicClient, eventAddress, eventId, amount, isBuying, isYay]);
 
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
   return {
     refetch: getData,
     price,
@@ -615,6 +643,10 @@ export const useGetPriceAfterFee = (
           });
     setPriceAfterFee(BigInt(String(price)));
   }, [contract, publicClient, eventAddress, eventId, amount, isYay]);
+
+  // useEffect(() => {
+  //   getData();
+  // }, [getData]);
 
   return {
     refetch: getData,

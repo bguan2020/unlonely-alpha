@@ -93,7 +93,7 @@ export const useChat = (): ChatReturnType => {
         body.split(":")[0] === InteractionType.BUY_VOTES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        const votedOption = body.split(":")[3];
+        const votedOption = body.split(":")[4];
         emojiBlast(
           <Text fontSize="40px">
             {"🚀"}

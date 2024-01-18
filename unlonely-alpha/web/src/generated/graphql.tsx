@@ -1264,21 +1264,67 @@ export type ChannelDetailQuery = {
   } | null;
 };
 
-export type GetRecentStreamInteractionsQueryVariables = Exact<{
-  data?: InputMaybe<GetRecentStreamInteractionsByChannelInput>;
+export type ChannelStaticQueryVariables = Exact<{
+  slug: Scalars["String"];
 }>;
 
-export type GetRecentStreamInteractionsQuery = {
+export type ChannelStaticQuery = {
   __typename?: "Query";
-  getRecentStreamInteractionsByChannel?: Array<{
-    __typename?: "StreamInteraction";
+  getChannelBySlug?: {
+    __typename?: "Channel";
+    awsId: string;
+    channelArn?: string | null;
+    description?: string | null;
+    livepeerPlaybackId?: string | null;
+    isLive?: boolean | null;
     id: string;
-    interactionType: string;
-    text?: string | null;
-    createdAt: any;
-    updatedAt: any;
-    owner: { __typename?: "User"; address: string };
-  } | null> | null;
+    name?: string | null;
+    slug: string;
+    allowNFCs?: boolean | null;
+    playbackUrl?: string | null;
+    owner: {
+      __typename?: "User";
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+      username?: string | null;
+      address: string;
+    };
+    chatCommands?: Array<{
+      __typename?: "ChatCommand";
+      command: string;
+      response: string;
+    } | null> | null;
+  } | null;
+};
+
+export type ChannelInteractableQueryVariables = Exact<{
+  slug: Scalars["String"];
+}>;
+
+export type ChannelInteractableQuery = {
+  __typename?: "Query";
+  getChannelBySlug?: {
+    __typename?: "Channel";
+    vibesTokenPriceRange?: Array<string | null> | null;
+    sharesEvent?: Array<{
+      __typename?: "SharesEvent";
+      sharesSubjectQuestion?: string | null;
+      sharesSubjectAddress?: string | null;
+      options?: Array<string | null> | null;
+      chainId?: number | null;
+      channelId?: string | null;
+      eventState?: SharesEventState | null;
+      createdAt: any;
+      id: string;
+      resultIndex?: number | null;
+    } | null> | null;
+    roles?: Array<{
+      __typename?: "ChannelUserRole";
+      id: number;
+      userAddress: string;
+      role: number;
+    } | null> | null;
+  } | null;
 };
 
 export type GetTokenHoldersByChannelQueryVariables = Exact<{
@@ -1494,6 +1540,39 @@ export type GetChannelsByNumberOfBadgeHoldersQuery = {
       } | null;
     };
   } | null>;
+};
+
+export type ChannelDetail2QueryVariables = Exact<{
+  slug: Scalars["String"];
+}>;
+
+export type ChannelDetail2Query = {
+  __typename?: "Query";
+  getChannelBySlug?: {
+    __typename?: "Channel";
+    awsId: string;
+    channelArn?: string | null;
+    description?: string | null;
+    livepeerPlaybackId?: string | null;
+    isLive?: boolean | null;
+    id: string;
+    name?: string | null;
+    slug: string;
+    allowNFCs?: boolean | null;
+    playbackUrl?: string | null;
+    owner: {
+      __typename?: "User";
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+      username?: string | null;
+      address: string;
+    };
+    chatCommands?: Array<{
+      __typename?: "ChatCommand";
+      command: string;
+      response: string;
+    } | null> | null;
+  } | null;
 };
 
 export type CreateCreatorTokenMutationVariables = Exact<{
@@ -2327,72 +2406,156 @@ export type ChannelDetailQueryResult = Apollo.QueryResult<
   ChannelDetailQuery,
   ChannelDetailQueryVariables
 >;
-export const GetRecentStreamInteractionsDocument = gql`
-  query GetRecentStreamInteractions(
-    $data: GetRecentStreamInteractionsByChannelInput
-  ) {
-    getRecentStreamInteractionsByChannel(data: $data) {
+export const ChannelStaticDocument = gql`
+  query ChannelStatic($slug: String!) {
+    getChannelBySlug(slug: $slug) {
+      awsId
+      channelArn
+      description
+      livepeerPlaybackId
+      isLive
       id
-      interactionType
-      text
-      createdAt
-      updatedAt
+      name
+      slug
+      allowNFCs
       owner {
+        FCImageUrl
+        lensImageUrl
+        username
         address
+      }
+      playbackUrl
+      chatCommands {
+        command
+        response
       }
     }
   }
 `;
 
 /**
- * __useGetRecentStreamInteractionsQuery__
+ * __useChannelStaticQuery__
  *
- * To run a query within a React component, call `useGetRecentStreamInteractionsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetRecentStreamInteractionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useChannelStaticQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChannelStaticQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetRecentStreamInteractionsQuery({
+ * const { data, loading, error } = useChannelStaticQuery({
  *   variables: {
- *      data: // value for 'data'
+ *      slug: // value for 'slug'
  *   },
  * });
  */
-export function useGetRecentStreamInteractionsQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
+export function useChannelStaticQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ChannelStaticQuery,
+    ChannelStaticQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ChannelStaticQuery, ChannelStaticQueryVariables>(
+    ChannelStaticDocument,
+    options
+  );
+}
+export function useChannelStaticLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ChannelStaticQuery,
+    ChannelStaticQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ChannelStaticQuery, ChannelStaticQueryVariables>(
+    ChannelStaticDocument,
+    options
+  );
+}
+export type ChannelStaticQueryHookResult = ReturnType<
+  typeof useChannelStaticQuery
+>;
+export type ChannelStaticLazyQueryHookResult = ReturnType<
+  typeof useChannelStaticLazyQuery
+>;
+export type ChannelStaticQueryResult = Apollo.QueryResult<
+  ChannelStaticQuery,
+  ChannelStaticQueryVariables
+>;
+export const ChannelInteractableDocument = gql`
+  query ChannelInteractable($slug: String!) {
+    getChannelBySlug(slug: $slug) {
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        options
+        chainId
+        channelId
+        eventState
+        createdAt
+        id
+        resultIndex
+      }
+      vibesTokenPriceRange
+      roles {
+        id
+        userAddress
+        role
+      }
+    }
+  }
+`;
+
+/**
+ * __useChannelInteractableQuery__
+ *
+ * To run a query within a React component, call `useChannelInteractableQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChannelInteractableQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChannelInteractableQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useChannelInteractableQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ChannelInteractableQuery,
+    ChannelInteractableQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
-  >(GetRecentStreamInteractionsDocument, options);
+    ChannelInteractableQuery,
+    ChannelInteractableQueryVariables
+  >(ChannelInteractableDocument, options);
 }
-export function useGetRecentStreamInteractionsLazyQuery(
+export function useChannelInteractableLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
+    ChannelInteractableQuery,
+    ChannelInteractableQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
-    GetRecentStreamInteractionsQuery,
-    GetRecentStreamInteractionsQueryVariables
-  >(GetRecentStreamInteractionsDocument, options);
+    ChannelInteractableQuery,
+    ChannelInteractableQueryVariables
+  >(ChannelInteractableDocument, options);
 }
-export type GetRecentStreamInteractionsQueryHookResult = ReturnType<
-  typeof useGetRecentStreamInteractionsQuery
+export type ChannelInteractableQueryHookResult = ReturnType<
+  typeof useChannelInteractableQuery
 >;
-export type GetRecentStreamInteractionsLazyQueryHookResult = ReturnType<
-  typeof useGetRecentStreamInteractionsLazyQuery
+export type ChannelInteractableLazyQueryHookResult = ReturnType<
+  typeof useChannelInteractableLazyQuery
 >;
-export type GetRecentStreamInteractionsQueryResult = Apollo.QueryResult<
-  GetRecentStreamInteractionsQuery,
-  GetRecentStreamInteractionsQueryVariables
+export type ChannelInteractableQueryResult = Apollo.QueryResult<
+  ChannelInteractableQuery,
+  ChannelInteractableQueryVariables
 >;
 export const GetTokenHoldersByChannelDocument = gql`
   query GetTokenHoldersByChannel($data: GetTokenHoldersInput) {
@@ -3154,6 +3317,83 @@ export type GetChannelsByNumberOfBadgeHoldersLazyQueryHookResult = ReturnType<
 export type GetChannelsByNumberOfBadgeHoldersQueryResult = Apollo.QueryResult<
   GetChannelsByNumberOfBadgeHoldersQuery,
   GetChannelsByNumberOfBadgeHoldersQueryVariables
+>;
+export const ChannelDetail2Document = gql`
+  query ChannelDetail2($slug: String!) {
+    getChannelBySlug(slug: $slug) {
+      awsId
+      channelArn
+      description
+      livepeerPlaybackId
+      isLive
+      id
+      name
+      slug
+      allowNFCs
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+      playbackUrl
+      chatCommands {
+        command
+        response
+      }
+    }
+  }
+`;
+
+/**
+ * __useChannelDetail2Query__
+ *
+ * To run a query within a React component, call `useChannelDetail2Query` and pass it any options that fit your needs.
+ * When your component renders, `useChannelDetail2Query` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChannelDetail2Query({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useChannelDetail2Query(
+  baseOptions: Apollo.QueryHookOptions<
+    ChannelDetail2Query,
+    ChannelDetail2QueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ChannelDetail2Query, ChannelDetail2QueryVariables>(
+    ChannelDetail2Document,
+    options
+  );
+}
+export function useChannelDetail2LazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ChannelDetail2Query,
+    ChannelDetail2QueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ChannelDetail2Query, ChannelDetail2QueryVariables>(
+    ChannelDetail2Document,
+    options
+  );
+}
+export type ChannelDetail2QueryHookResult = ReturnType<
+  typeof useChannelDetail2Query
+>;
+export type ChannelDetail2LazyQueryHookResult = ReturnType<
+  typeof useChannelDetail2LazyQuery
+>;
+export type ChannelDetail2QueryResult = Apollo.QueryResult<
+  ChannelDetail2Query,
+  ChannelDetail2QueryVariables
 >;
 export const CreateCreatorTokenDocument = gql`
   mutation CreateCreatorToken($data: CreateCreatorTokenInput!) {

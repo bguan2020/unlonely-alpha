@@ -8,13 +8,17 @@ import {
   useCallback,
 } from "react";
 import { ApolloError, useQuery } from "@apollo/client";
+import { merge } from "lodash";
 
 import {
-  CHANNEL_DETAIL_QUERY,
+  CHANNEL_STATIC_QUERY,
+  CHANNEL_INTERACTABLE_QUERY,
   GET_GAMBLABLE_EVENT_USER_RANK_QUERY,
 } from "../../constants/queries";
 import {
   ChannelDetailQuery,
+  ChannelInteractableQuery,
+  ChannelStaticQuery,
   GetGamblableEventLeaderboardByChannelIdQuery,
   SharesEvent,
 } from "../../generated/graphql";
@@ -37,7 +41,6 @@ const ChannelContext = createContext<{
   channel: {
     channelQueryData?: ChannelDetailQuery["getChannelBySlug"];
     ongoingBets?: SharesEvent[];
-    data?: ChannelDetailQuery;
     loading: boolean;
     error?: ApolloError;
     refetch: () => Promise<any>;
@@ -91,7 +94,6 @@ const ChannelContext = createContext<{
   channel: {
     channelQueryData: undefined,
     ongoingBets: undefined,
-    data: undefined,
     loading: true,
     error: undefined,
     refetch: () => Promise.resolve(undefined),
@@ -144,10 +146,8 @@ const ChannelContext = createContext<{
 });
 
 export const ChannelProvider = ({
-  mobile,
   children,
 }: {
-  mobile?: boolean;
   children: React.ReactNode;
 }) => {
   const { network } = useNetworkContext();
@@ -156,20 +156,44 @@ export const ChannelProvider = ({
   const router = useRouter();
   const { slug } = router.query;
 
+  // const {
+  //   loading: channelDataLoading,
+  //   error: channelDataError,
+  //   data: channelData,
+  //   refetch: refetchChannelData,
+  // } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
+  //   variables: { slug },
+  //   fetchPolicy: "network-only",
+  // });
+
   const {
-    loading: channelDataLoading,
-    error: channelDataError,
-    data: channelData,
-    refetch: refetchChannelData,
-  } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
+    loading: channelStaticLoading,
+    error: channelStaticError,
+    data: channelStatic,
+    refetch: refetchChannelStatic,
+  } = useQuery<ChannelStaticQuery>(CHANNEL_STATIC_QUERY, {
+    variables: { slug },
+    fetchPolicy: "cache-and-network",
+  });
+
+  const {
+    loading: channelInteractableLoading,
+    error: channelInteractableError,
+    data: channelInteractable,
+    refetch: refetchChannelInteractable,
+  } = useQuery<ChannelInteractableQuery>(CHANNEL_INTERACTABLE_QUERY, {
     variables: { slug },
     fetchPolicy: "network-only",
   });
 
-  const channelQueryData = useMemo(
-    () => channelData?.getChannelBySlug,
-    [channelData, mobile]
-  );
+  const channelQueryData: ChannelDetailQuery["getChannelBySlug"] =
+    useMemo(() => {
+      return merge(
+        {},
+        channelInteractable?.getChannelBySlug,
+        channelStatic?.getChannelBySlug
+      );
+    }, [channelStatic, channelInteractable]);
 
   const ongoingBets = useMemo(
     () =>
@@ -321,10 +345,9 @@ export const ChannelProvider = ({
       channel: {
         channelQueryData,
         ongoingBets: ongoingBets ?? undefined,
-        data: channelData,
-        loading: channelDataLoading,
-        error: channelDataError,
-        refetch: refetchChannelData,
+        loading: channelStaticLoading || channelInteractableLoading,
+        error: channelStaticError || channelInteractableError,
+        refetch: refetchChannelInteractable,
         totalBadges,
         handleTotalBadges,
       },
@@ -375,11 +398,12 @@ export const ChannelProvider = ({
     [
       channelQueryData,
       ongoingBets,
-      channelData,
-      channelDataLoading,
-      channelDataError,
+      channelStaticLoading,
+      channelStaticError,
+      channelInteractableLoading,
+      channelInteractableError,
       textOverVideo,
-      refetchChannelData,
+      refetchChannelInteractable,
       addToTextOverVideo,
       ablyChatChannel,
       ablyPresenceChannel,

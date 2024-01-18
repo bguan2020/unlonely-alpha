@@ -21,7 +21,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
 import Confetti from "react-confetti";
 import { useBalance, useBlockNumber, useFeeData } from "wagmi";
-import { isAddress } from "viem";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import { useUser } from "../../hooks/context/useUser";
@@ -176,13 +175,14 @@ const ConnectedDisplay = () => {
 
   const { data: feeData, refetch: refetchFeeData } = useFeeData({
     chainId: localNetwork.config.chainId,
+    enabled: false,
   });
   const blockNumber = useBlockNumber({
     watch: true,
   });
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
-    enabled: isAddress(userAddress as `0x${string}`),
+    enabled: false,
   });
   const isFetching = useRef(false);
   const isLowEthBalance = useMemo(() => {

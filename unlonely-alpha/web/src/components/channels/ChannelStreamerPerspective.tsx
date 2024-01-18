@@ -3,7 +3,7 @@ import { Flex, Stack, SimpleGrid, Box, Text, Image } from "@chakra-ui/react";
 import { useChannelContext } from "../../hooks/context/useChannel";
 
 const ChannelStreamerPerspective = () => {
-  const { ui, channel } = useChannelContext();
+  const { ui } = useChannelContext();
   const {
     handleNotificationsModal,
     handleEventModal,

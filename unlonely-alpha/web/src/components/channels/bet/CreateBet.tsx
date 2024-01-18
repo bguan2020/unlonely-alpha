@@ -36,7 +36,7 @@ import {
   EventTypeForContract,
   InteractionType,
   NULL_ADDRESS,
-  NULL_ADDRESSS_BYTES32,
+  NULL_ADDRESS_BYTES32,
 } from "../../../constants";
 import { useOpenEvent } from "../../../hooks/contracts/useSharesContractV2";
 import { getHourAndMinutesFromMillis } from "../../../utils/time";
@@ -132,17 +132,6 @@ export const CreateBet = ({
     async (sharesSubjectQuestion: string) => {
       if (
         (ongoingBets?.length ?? 0) > 0 &&
-        pool === BigInt(0) &&
-        ongoingBets?.[0].eventState !== SharesEventState.Pending
-      ) {
-        await closeSharesEvents({
-          chainId: localNetwork.config.chainId,
-          channelId: channelQueryData?.id as string,
-          sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
-        });
-      }
-      if (
-        (ongoingBets?.length ?? 0) > 0 &&
         ongoingBets?.[0].eventState === SharesEventState.Payout
       ) {
         await updateSharesEvent({
@@ -151,6 +140,17 @@ export const CreateBet = ({
           sharesSubjectAddress: ongoingBets?.[0].sharesSubjectAddress ?? "",
           eventState: SharesEventState.PayoutPrevious,
           resultIndex: ongoingBets?.[0].resultIndex ?? undefined,
+        });
+      }
+      if (
+        (ongoingBets?.length ?? 0) > 0 &&
+        pool === BigInt(0) &&
+        ongoingBets?.[0].eventState !== SharesEventState.Pending
+      ) {
+        await closeSharesEvents({
+          chainId: localNetwork.config.chainId,
+          channelId: channelQueryData?.id as string,
+          sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
         });
       }
       await postSharesEvent({
@@ -241,7 +241,7 @@ export const CreateBet = ({
       setDateNow(Date.now());
       if (
         loading === "prepping" &&
-        (generatedKey !== NULL_ADDRESSS_BYTES32 || ongoingBets?.length === 0)
+        (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets?.length === 0)
       )
         handleLoading(undefined);
     };

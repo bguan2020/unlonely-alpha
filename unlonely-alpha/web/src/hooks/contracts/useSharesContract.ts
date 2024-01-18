@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
 
 import { NULL_ADDRESS } from "../../constants";
@@ -50,6 +50,10 @@ export const useReadPublic = (contract: ContractData) => {
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
   }, [contract, publicClient]);
 
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
   return {
     refetch: getData,
     protocolFeeDestination,
@@ -89,6 +93,10 @@ export const useGetPrice = (
         });
     setPrice(BigInt(String(price)));
   }, [contract, publicClient]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -131,6 +139,10 @@ export const useGetPriceAfterFee = (
     setPriceAfterFee(BigInt(String(price)));
   }, [contract, publicClient]);
 
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
   return {
     refetch: getData,
     priceAfterFee,
@@ -170,6 +182,10 @@ export const useGetHolderSharesBalances = (
     setYaySharesBalance(String(yaySharesBalance));
     setNaySharesBalance(String(naySharesBalance));
   }, [contract, publicClient]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
@@ -266,6 +282,10 @@ export const useReadSharesSubject = (
     setIsVerifier(Boolean(isVerifier));
     setUserPayout(BigInt(String(userPayout)));
   }, [contract, publicClient, userAddress]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return {
     refetch: getData,
