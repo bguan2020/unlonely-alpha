@@ -187,16 +187,26 @@ export const VipBadgeBuy = () => {
   useEffect(() => {
     const init = async () => {
       if (isFetching.current) return;
+      const startTime = Date.now();
+      let endTime = 0;
       isFetching.current = true;
       try {
         await Promise.all([
           refetchBadgePrice(),
           refetchBuyVipBadge(),
           refetchUserEthBalance(),
-        ]);
+        ]).then(() => {
+          endTime = Date.now();
+        });
       } catch (err) {
         console.log("VipBadgeBuy fetching error", err);
       }
+      const MILLIS = 5000;
+      const timeToWait =
+        endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
+      await new Promise((resolve) => {
+        setTimeout(resolve, timeToWait);
+      });
       isFetching.current = false;
     };
     init();
