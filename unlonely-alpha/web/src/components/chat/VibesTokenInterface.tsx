@@ -58,6 +58,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 const VibesTokenInterface = ({
   defaultTimeFilter,
   allStreams,
+  previewMode,
   ablyChannel,
   disableExchange,
   customLowerPrice,
@@ -65,6 +66,7 @@ const VibesTokenInterface = ({
 }: {
   defaultTimeFilter?: "1h" | "1d" | "all";
   allStreams?: boolean;
+  previewMode?: boolean;
   ablyChannel?: AblyChannelPromise;
   disableExchange?: boolean;
   customLowerPrice?: number;
@@ -162,7 +164,7 @@ const VibesTokenInterface = ({
         )
       );
     }
-    return 0;
+    return Number.MAX_SAFE_INTEGER;
   }, [channelQueryData?.vibesTokenPriceRange?.[1], customHigherPrice]);
 
   return (
@@ -227,7 +229,7 @@ const VibesTokenInterface = ({
             >
               all
             </Button>
-            {!allStreams && isOwner && (
+            {!allStreams && !previewMode && isOwner && (
               <>
                 <VibesTokenZoneModal
                   isOpen={isZoneModalOpen}
@@ -271,15 +273,16 @@ const VibesTokenInterface = ({
                 <LineChart data={formattedData}>
                   <YAxis hide domain={["dataMin", "dataMax"]} />
                   <Tooltip content={<CustomTooltip />} />
-                  {!allStreams && higherPrice > 0 && (
-                    <ReferenceArea
-                      fill="green"
-                      fillOpacity={0.2}
-                      y1={higherPrice}
-                      y2={Number.MAX_SAFE_INTEGER}
-                      ifOverflow="hidden"
-                    />
-                  )}
+                  {(!allStreams || !previewMode) &&
+                    higherPrice < Number.MAX_SAFE_INTEGER && (
+                      <ReferenceArea
+                        fill="green"
+                        fillOpacity={0.2}
+                        y1={higherPrice}
+                        y2={Number.MAX_SAFE_INTEGER}
+                        ifOverflow="hidden"
+                      />
+                    )}
                   <Line
                     type="monotone"
                     dataKey="price"
@@ -298,7 +301,7 @@ const VibesTokenInterface = ({
                     animationDuration={200}
                     dot={false}
                   />
-                  {!allStreams && lowerPrice > 0 && (
+                  {(!allStreams || !previewMode) && lowerPrice > 0 && (
                     <ReferenceArea
                       fill="red"
                       fillOpacity={0.2}
