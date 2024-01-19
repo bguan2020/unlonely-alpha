@@ -254,7 +254,6 @@ const DesktopPage = ({
                   <VibesTokenInterface ablyChannel={chat.channel} />
                 </Flex>
                 <ChatComponent chat={chat} />
-                {/* <TournamentPot chat={chat} /> */}
               </Stack>
             </Stack>
           </>

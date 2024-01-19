@@ -227,16 +227,17 @@ export const useVibesCheck = () => {
     if (!blockNumber.data || tokenTxs.length === 0) return;
     const AVERAGE_BLOCK_TIME_SECS = 2;
     const currentBlockNumber = blockNumber.data;
-    const blockNumberOneHourAgo =
-      currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60);
+    // const blockNumberOneHourAgo =
+    //   currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60);
     const blockNumberOneDayAgo =
       currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
 
-    const hourIndex = binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
+    // const hourIndex = binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
     const dayIndex = binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
     setChartTimeIndexes(
       new Map([
-        ["hour", hourIndex],
+        // ["hour", hourIndex],
+        ["hour", 0],
         ["day", dayIndex],
       ])
     );

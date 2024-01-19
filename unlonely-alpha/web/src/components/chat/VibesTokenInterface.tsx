@@ -25,6 +25,8 @@ import { AblyChannelPromise } from "../../constants";
 import VibesTokenZoneModal from "../channels/VibesTokenZoneModal";
 import VibesTokenExchange from "./VibesTokenExchange";
 
+const ZONE_BREADTH = 0.05;
+
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -64,7 +66,7 @@ const VibesTokenInterface = ({
   customLowerPrice,
   customHigherPrice,
 }: {
-  defaultTimeFilter?: "1h" | "1d" | "all";
+  defaultTimeFilter?: "1d" | "all";
   allStreams?: boolean;
   previewMode?: boolean;
   ablyChannel?: AblyChannelPromise;
@@ -78,22 +80,24 @@ const VibesTokenInterface = ({
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
 
-  const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">(
+  const [timeFilter, setTimeFilter] = useState<"1d" | "all">(
     defaultTimeFilter ?? "1d"
   );
 
-  const formattedHourData = useMemo(() => {
-    const res = vibesTokenTxs.map((tx) => {
-      return {
-        user: tx.user,
-        event: tx.eventName,
-        amount: Number(tx.amount),
-        price: tx.price,
-        blockNumber: tx.blockNumber,
-      };
-    });
-    return res.slice(chartTimeIndexes.get("hour") as number);
-  }, [vibesTokenTxs, chartTimeIndexes]);
+  const [zonesOn, setZonesOn] = useState(true);
+
+  // const formattedHourData = useMemo(() => {
+  //   const res = vibesTokenTxs.map((tx) => {
+  //     return {
+  //       user: tx.user,
+  //       event: tx.eventName,
+  //       amount: Number(tx.amount),
+  //       price: tx.price,
+  //       blockNumber: tx.blockNumber,
+  //     };
+  //   });
+  //   return res.slice(chartTimeIndexes.get("hour") as number);
+  // }, [vibesTokenTxs, chartTimeIndexes]);
 
   const formattedDayData = useMemo(() => {
     const res = vibesTokenTxs.map((tx) => {
@@ -109,7 +113,7 @@ const VibesTokenInterface = ({
   }, [vibesTokenTxs, chartTimeIndexes]);
 
   const formattedData = useMemo(() => {
-    if (timeFilter === "1h") return formattedHourData;
+    // if (timeFilter === "zones") return formattedHourData;
     if (timeFilter === "1d") return formattedDayData;
     const res = vibesTokenTxs.map((tx) => {
       return {
@@ -121,7 +125,7 @@ const VibesTokenInterface = ({
       };
     });
     return res;
-  }, [timeFilter, formattedHourData, formattedDayData, vibesTokenTxs]);
+  }, [timeFilter, formattedDayData, vibesTokenTxs]);
 
   const formattedCurrentPrice = useMemo(
     () =>
@@ -193,18 +197,7 @@ const VibesTokenInterface = ({
                 $VIBES
               </Text>
             </ChakraTooltip>
-            <Button
-              bg={timeFilter === "1h" ? "#7874c9" : "#403c7d"}
-              color="#c6c3fc"
-              p={2}
-              height={"20px"}
-              _focus={{}}
-              _active={{}}
-              _hover={{}}
-              onClick={() => setTimeFilter("1h")}
-            >
-              1h
-            </Button>
+
             <Button
               bg={timeFilter === "1d" ? "#7874c9" : "#403c7d"}
               color="#c6c3fc"
@@ -229,6 +222,21 @@ const VibesTokenInterface = ({
             >
               all
             </Button>
+            <Button
+              bg={zonesOn ? "#1dc859" : "#004e1b"}
+              color="#ffffff"
+              p={2}
+              height={"20px"}
+              _focus={{}}
+              _active={{}}
+              _hover={{}}
+              onClick={() => setZonesOn((prev) => !prev)}
+              boxShadow={
+                zonesOn ? "0px 0px 16px rgba(53, 234, 95, 0.4)" : undefined
+              }
+            >
+              zones
+            </Button>
             {!allStreams && !previewMode && isOwner && (
               <>
                 <VibesTokenZoneModal
@@ -239,7 +247,7 @@ const VibesTokenInterface = ({
                 />
                 <Button
                   color="white"
-                  bg="#CB520E"
+                  bg="#0299ad"
                   onClick={() => setIsZoneModalOpen(true)}
                   _hover={{}}
                   _focus={{}}
@@ -254,11 +262,11 @@ const VibesTokenInterface = ({
           </Flex>
           <Flex direction={"row"} gap="10px" flex="1">
             <Flex direction="column" w="100%" position="relative">
-              {formattedHourData.length === 0 && timeFilter === "1h" && (
+              {/* {formattedHourData.length === 0 && timeFilter === "zones" && (
                 <Text position="absolute" color="gray" top="50%">
                   no txs in last hour
                 </Text>
-              )}
+              )} */}
               {formattedDayData.length === 0 && timeFilter === "1d" && (
                 <Text position="absolute" color="gray" top="50%">
                   no txs in the past 24 hours
@@ -271,7 +279,20 @@ const VibesTokenInterface = ({
               )}
               <ResponsiveContainer width="100%" height={"100%"}>
                 <LineChart data={formattedData}>
-                  <YAxis hide domain={["dataMin", "dataMax"]} />
+                  <YAxis
+                    hide
+                    domain={
+                      !allStreams &&
+                      zonesOn &&
+                      lowerPrice > 0 &&
+                      higherPrice > 0
+                        ? [
+                            lowerPrice * (1 - ZONE_BREADTH),
+                            higherPrice * (1 + ZONE_BREADTH),
+                          ]
+                        : ["dataMin", "dataMax"]
+                    }
+                  />
                   <Tooltip content={<CustomTooltip />} />
                   {(!allStreams || !previewMode) &&
                     higherPrice < Number.MAX_SAFE_INTEGER && (
