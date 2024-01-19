@@ -1,11 +1,5 @@
 import { GetServerSidePropsContext } from "next";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Flex,
   Text,
@@ -14,7 +8,7 @@ import {
   IconButton,
   Tooltip,
 } from "@chakra-ui/react";
-import { useBlockNumber, usePublicClient } from "wagmi";
+import { useContractEvent } from "wagmi";
 
 import { initializeApollo } from "../../apiClient/client";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
@@ -37,6 +31,7 @@ import { useNetworkContext } from "../../hooks/context/useNetwork";
 import {
   useGetHolderBalance,
   useGenerateKey,
+  useSupply,
 } from "../../hooks/contracts/useTournament";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import ChatComponent from "../../components/chat/ChatComponent";
@@ -99,7 +94,6 @@ const DesktopPage = ({
   // );
 
   const { userAddress, walletIsConnected } = useUser();
-  const publicClient = usePublicClient();
 
   const isOwner = userAddress === channelQueryData?.owner?.address;
   // const isOwner = true;
@@ -111,62 +105,56 @@ const DesktopPage = ({
     localNetwork
   );
 
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
-  const isFetching = useRef(false);
-
   const { key: generatedKey } = useGenerateKey(
     channelQueryData?.owner?.address as `0x${string}`,
     0,
     tournamentContract
   );
 
-  const [vipBadgeSupply, setVipBadgeSupply] = useState<bigint>(BigInt(0));
+  const { vipBadgeSupply, setVipBadgeSupply } = useSupply(
+    generatedKey,
+    tournamentContract
+  );
 
-  const { vipBadgeBalance, refetch: refetchVipBadgeBalance } =
-    useGetHolderBalance(
-      channelQueryData?.owner?.address as `0x${string}`,
-      0,
-      userAddress as `0x${string}`,
-      tournamentContract
-    );
+  const { vipBadgeBalance, setVipBadgeBalance } = useGetHolderBalance(
+    channelQueryData?.owner?.address as `0x${string}`,
+    0,
+    userAddress as `0x${string}`,
+    tournamentContract
+  );
+
+  const handleUpdate = (tradeEvent: any) => {
+    if (tradeEvent.eventByte !== generatedKey) return;
+    const trader = tradeEvent.trader;
+    setVipBadgeSupply(tradeEvent.supply as bigint);
+    if (trader === userAddress) {
+      setVipBadgeBalance((prev) =>
+        String(
+          Number(prev) +
+            (tradeEvent.isBuy ? 1 : -1) * Number(tradeEvent.badgeAmount)
+        )
+      );
+    }
+  };
+
+  const [incomingTrade, setIncomingTrade] = useState<any>(undefined);
+
+  useContractEvent({
+    address: tournamentContract.address,
+    abi: tournamentContract.abi,
+    eventName: "Trade",
+    listener(log: any) {
+      const init = async () => {
+        const tradeEvent = log[0].args.trade;
+        setIncomingTrade(tradeEvent);
+      };
+      init();
+    },
+  });
 
   useEffect(() => {
-    if (!blockNumber.data || isFetching.current || !publicClient) return;
-    const fetch = async () => {
-      const startTime = Date.now();
-      let endTime = 0;
-      isFetching.current = true;
-      try {
-        const calls: any[] = [
-          publicClient.readContract({
-            address: tournamentContract.address as `0x${string}`,
-            abi: tournamentContract.abi,
-            functionName: "vipBadgeSupply",
-            args: [generatedKey],
-          }),
-        ];
-        if (userAddress) calls.concat([refetchVipBadgeBalance()]);
-        const [supply] = await Promise.all(calls).then((res) => {
-          endTime = Date.now();
-          return res;
-        });
-        setVipBadgeSupply(BigInt(String(supply)));
-      } catch (err) {
-        endTime = Date.now();
-        console.log("channelTournament fetching error", err);
-      }
-      const MILLIS = 35000;
-      const timeToWait =
-        endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
-      await new Promise((resolve) => {
-        setTimeout(resolve, timeToWait);
-      });
-      isFetching.current = false;
-    };
-    fetch();
-  }, [blockNumber.data]);
+    if (incomingTrade) handleUpdate(incomingTrade);
+  }, [incomingTrade]);
 
   useEffect(() => {
     if (Number(vipBadgeBalance) > 0) {

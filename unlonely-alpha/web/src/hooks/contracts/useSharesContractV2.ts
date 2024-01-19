@@ -53,7 +53,7 @@ export const useReadPublic = (contract: ContractData) => {
     setProtocolFeeDestination(String(protocolFeeDestination));
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
-  }, [contract, publicClient]);
+  }, [contract.address, publicClient]);
 
   useEffect(() => {
     getData();
@@ -107,7 +107,7 @@ export const useReadSupplies = (
     ]);
     setYayVotesSupply(BigInt(String(yayVotesSupply)));
     setNayVotesSupply(BigInt(String(nayVotesSupply)));
-  }, [contract, publicClient, userAddress, eventAddress, eventId, key]);
+  }, [contract.address, publicClient, userAddress, eventAddress, eventId, key]);
 
   useEffect(() => {
     getData();
@@ -146,7 +146,7 @@ export const useEventVerifyStatus = (key: string, contract: ContractData) => {
     ]);
     setEventVerified(Boolean(eventVerified));
     setEventResult(Boolean(eventResult));
-  }, [contract, publicClient, key]);
+  }, [contract.address, publicClient, key]);
 
   useEffect(() => {
     getData();
@@ -175,7 +175,7 @@ export const useEventEndTimestamp = (key: string, contract: ContractData) => {
       args: [key],
     });
     setEventEndTimestamp(BigInt(String(eventEndTimestamp)));
-  }, [contract, publicClient, key]);
+  }, [contract.address, publicClient, key]);
 
   useEffect(() => {
     getData();
@@ -203,7 +203,7 @@ export const useVotingPooledEth = (key: string, contract: ContractData) => {
       args: [key],
     });
     setVotingPooledEth(BigInt(String(pooledEth)));
-  }, [contract, publicClient, key]);
+  }, [contract.address, publicClient, key]);
 
   useEffect(() => {
     getData();
@@ -248,7 +248,7 @@ export const useUserPayout = (
       ],
     });
     setUserPayout(BigInt(String(userPayout)));
-  }, [contract, publicClient, userAddress, eventAddress, eventId]);
+  }, [contract.address, publicClient, userAddress, eventAddress, eventId]);
 
   useEffect(() => {
     getData();
@@ -278,7 +278,7 @@ export const useIsVerifier = (contract: ContractData) => {
       args: [userAddress],
     });
     setIsVerifier(Boolean(isVerifier));
-  }, [contract, publicClient, userAddress]);
+  }, [contract.address, publicClient, userAddress]);
 
   useEffect(() => {
     getData();
@@ -423,7 +423,7 @@ export const useGenerateKey = (
       args: [eventAddress, eventId, EventTypeForContract.YAY_NAY_VOTE],
     });
     setKey(String(key));
-  }, [contract, publicClient, eventAddress, eventId]);
+  }, [contract.address, publicClient, eventAddress, eventId]);
 
   useEffect(() => {
     getData();
@@ -571,7 +571,7 @@ export const useGetHolderBalances = (
     ]);
     setYayVotesBalance(String(yayVotesBalance));
     setNayVotesBalance(String(nayVotesBalance));
-  }, [contract, publicClient, eventAddress, eventId, holder, isYay]);
+  }, [contract.address, publicClient, eventAddress, eventId, holder, isYay]);
 
   useEffect(() => {
     getData();
@@ -630,7 +630,15 @@ export const useGetPrice = (
             ],
           });
     setPrice(BigInt(String(price)));
-  }, [contract, publicClient, eventAddress, eventId, amount, isBuying, isYay]);
+  }, [
+    contract.address,
+    publicClient,
+    eventAddress,
+    eventId,
+    amount,
+    isBuying,
+    isYay,
+  ]);
 
   useEffect(() => {
     getData();
@@ -688,7 +696,7 @@ export const useGetPriceAfterFee = (
             ],
           });
     setPriceAfterFee(BigInt(String(price)));
-  }, [contract, publicClient, eventAddress, eventId, amount, isYay]);
+  }, [contract.address, publicClient, eventAddress, eventId, amount, isYay]);
 
   useEffect(() => {
     getData();

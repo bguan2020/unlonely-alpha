@@ -41,8 +41,11 @@ const VibesTokenExchange = () => {
   const canAddToChatbot_mint = useRef(false);
   const canAddToChatbot_burn = useRef(false);
   const isFetching = useRef(false);
-  const { mintCostAfterFees, refetch: refetchMintCostAfterFees } =
-    useGetMintCostAfterFees(amount_votes_bigint, contract);
+  const {
+    mintCostAfterFees,
+    refetch: refetchMintCostAfterFees,
+    loading: mintCostAfterFeesLoading,
+  } = useGetMintCostAfterFees(amount_votes_bigint, contract);
 
   const { data: vibesBalance, refetch: refetchVibesBalance } = useBalance({
     address: userAddress,
@@ -363,7 +366,7 @@ const VibesTokenExchange = () => {
         _hover={{}}
         _active={{}}
         bg="#46a800"
-        isDisabled={!mint}
+        isDisabled={!mint || mintCostAfterFeesLoading}
         onClick={mint}
       >
         BUY

@@ -40,6 +40,11 @@ export const useWrite = (
           popAppError("ConnectorNotFoundError", "name");
         }
         addAppError(error, functionName);
+      } else {
+        if (!(error as unknown as string).includes("ConnectorNotFoundError")) {
+          console.log("error string", error as unknown as string);
+          popAppError("ConnectorNotFoundError", "name");
+        }
       }
     },
   });

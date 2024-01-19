@@ -157,7 +157,7 @@ const MessageBody = ({
       };
     } else {
       return {
-        bg: "rgba(19, 18, 37, 1)",
+        // bg: "rgba(19, 18, 37, 1)",
       };
     }
   };

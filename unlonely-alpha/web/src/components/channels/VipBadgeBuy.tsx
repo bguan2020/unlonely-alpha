@@ -2,13 +2,14 @@ import { Button, Text, Box, useToast, Flex } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { decodeEventLog, formatUnits, isAddress } from "viem";
-import { useBalance, useBlockNumber } from "wagmi";
+import { useBalance, useBlockNumber, useContractEvent } from "wagmi";
 
 import { useUser } from "../../hooks/context/useUser";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
-import { InteractionType } from "../../constants";
+import { InteractionType, NULL_ADDRESS_BYTES32 } from "../../constants";
 import {
   useBuyVipBadge,
+  useGenerateKey,
   useGetPriceAfterFee,
 } from "../../hooks/contracts/useTournament";
 import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
@@ -120,6 +121,12 @@ export const VipBadgeBuy = () => {
     localNetwork
   );
 
+  const { key: generatedKey } = useGenerateKey(
+    channelQueryData?.owner?.address as `0x${string}`,
+    0,
+    tournamentContract
+  );
+
   const toast = useToast();
 
   const { postBadgeTrade } = usePostBadgeTrade({
@@ -184,9 +191,25 @@ export const VipBadgeBuy = () => {
 
   const isFetching = useRef(false);
 
+  const [incomingTrade, setIncomingTrade] = useState<any>(undefined);
+
+  useContractEvent({
+    address: tournamentContract.address,
+    abi: tournamentContract.abi,
+    eventName: "Trade",
+    listener(log: any) {
+      const init = async () => {
+        const tradeEvent = log[0].args.trade;
+        setIncomingTrade(tradeEvent);
+      };
+      init();
+    },
+  });
+
   useEffect(() => {
     const init = async () => {
-      if (isFetching.current) return;
+      if (isFetching.current || !incomingTrade) return;
+      if (incomingTrade.eventByte !== generatedKey) return;
       const startTime = Date.now();
       let endTime = 0;
       isFetching.current = true;
@@ -201,7 +224,7 @@ export const VipBadgeBuy = () => {
       } catch (err) {
         console.log("VipBadgeBuy fetching error", err);
       }
-      const MILLIS = 5000;
+      const MILLIS = 3000;
       const timeToWait =
         endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
       await new Promise((resolve) => {
@@ -210,7 +233,7 @@ export const VipBadgeBuy = () => {
       isFetching.current = false;
     };
     init();
-  }, [blockNumber.data]);
+  }, [incomingTrade]);
 
   useEffect(() => {
     if (!walletIsConnected) {
@@ -240,10 +263,15 @@ export const VipBadgeBuy = () => {
         _active={{}}
         borderRadius="0px"
         onClick={() => buyVipBadge?.()}
-        isDisabled={!buyVipBadge}
+        isDisabled={!buyVipBadge || generatedKey === NULL_ADDRESS_BYTES32}
       >
         <Text fontSize="20px">
-          BUY 1 (costs {truncateValue(formatUnits(badgePrice, 18), 4)} ETH)
+          {generatedKey === NULL_ADDRESS_BYTES32
+            ? "Key not generated"
+            : `BUY 1 (costs ${truncateValue(
+                formatUnits(badgePrice, 18),
+                4
+              )} ETH)`}
         </Text>
       </Button>
     </Flex>

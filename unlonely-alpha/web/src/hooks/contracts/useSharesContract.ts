@@ -48,7 +48,7 @@ export const useReadPublic = (contract: ContractData) => {
     setProtocolFeeDestination(String(protocolFeeDestination));
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
-  }, [contract, publicClient]);
+  }, [contract.address, publicClient]);
 
   useEffect(() => {
     getData();
@@ -92,7 +92,7 @@ export const useGetPrice = (
           args: [sharesSubject, amount, isYay],
         });
     setPrice(BigInt(String(price)));
-  }, [contract, publicClient]);
+  }, [contract.address, publicClient]);
 
   useEffect(() => {
     getData();
@@ -137,7 +137,7 @@ export const useGetPriceAfterFee = (
             args: [sharesSubject, amount, isYay],
           });
     setPriceAfterFee(BigInt(String(price)));
-  }, [contract, publicClient]);
+  }, [contract.address, publicClient]);
 
   useEffect(() => {
     getData();
@@ -181,7 +181,7 @@ export const useGetHolderSharesBalances = (
     ]);
     setYaySharesBalance(String(yaySharesBalance));
     setNaySharesBalance(String(naySharesBalance));
-  }, [contract, publicClient]);
+  }, [contract.address, publicClient]);
 
   useEffect(() => {
     getData();
@@ -281,7 +281,7 @@ export const useReadSharesSubject = (
     setEventResult(Boolean(eventResult));
     setIsVerifier(Boolean(isVerifier));
     setUserPayout(BigInt(String(userPayout)));
-  }, [contract, publicClient, userAddress]);
+  }, [contract.address, publicClient, userAddress]);
 
   useEffect(() => {
     getData();

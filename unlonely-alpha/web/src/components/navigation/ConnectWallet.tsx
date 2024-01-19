@@ -252,7 +252,7 @@ const ConnectedDisplay = () => {
         endTime = Date.now();
         console.log("connect fetching error", err);
       }
-      const MILLIS = 5000;
+      const MILLIS = 60000;
       const timeToWait =
         endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
       await new Promise((resolve) => {

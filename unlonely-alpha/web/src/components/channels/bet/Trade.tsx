@@ -14,7 +14,11 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useBalance, useBlockNumber } from "wagmi";
 import { AddIcon } from "@chakra-ui/icons";
 
-import { InteractionType, NULL_ADDRESS } from "../../../constants";
+import {
+  InteractionType,
+  NULL_ADDRESS,
+  NULL_ADDRESS_BYTES32,
+} from "../../../constants";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import {
@@ -989,12 +993,15 @@ const Trade = () => {
                       isDisabled={
                         (isBuying && !buyVotes) ||
                         isRefetchingBuyVotes ||
-                        tradeLoading
+                        tradeLoading ||
+                        generatedKey === NULL_ADDRESS_BYTES32
                       }
                     >
-                      {(isBuying && !buyVotes) ||
-                      isRefetchingBuyVotes ||
-                      tradeLoading ? (
+                      {generatedKey === NULL_ADDRESS_BYTES32 ? (
+                        "Key not generated"
+                      ) : (isBuying && !buyVotes) ||
+                        isRefetchingBuyVotes ||
+                        tradeLoading ? (
                         <Spinner />
                       ) : isBuying ? (
                         "BUY"

@@ -57,7 +57,7 @@ export const useReadPublic = (contract: ContractData) => {
     setProtocolFeeDestination(String(protocolFeeDestination));
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
     setSubjectFeePercent(BigInt(String(subjectFeePercent)));
-  }, [contract, publicClient]);
+  }, [contract.address, publicClient]);
 
   useEffect(() => {
     getData();
@@ -121,7 +121,7 @@ export const useReadMappings = (key: string, contract: ContractData) => {
       winner: String(sideBet[5]),
     });
     setIsVerifier(Boolean(isVerifier));
-  }, [contract, publicClient, userAddress, key]);
+  }, [contract.address, publicClient, userAddress, key]);
 
   useEffect(() => {
     getData();
@@ -159,7 +159,7 @@ export const useGenerateKey = (
       args: [eventAddress, eventId, EventTypeForContract.SIDE_BET],
     });
     setKey(String(key));
-  }, [contract, publicClient, eventAddress, eventId]);
+  }, [contract.address, publicClient, eventAddress, eventId]);
 
   useEffect(() => {
     getData();
@@ -193,7 +193,7 @@ export const useGetOpeningAfterFee = (
       args: [amount],
     });
     setOpeningWagerAfterFee(BigInt(String(wager)));
-  }, [contract, publicClient, amount]);
+  }, [contract.address, publicClient, amount]);
 
   useEffect(() => {
     getData();
@@ -234,7 +234,7 @@ export const useGetExistingWager = (
           args: [eventAddress, eventId, EventTypeForContract.SIDE_BET],
         });
     setExistingWager(BigInt(String(wager)));
-  }, [contract, publicClient, eventAddress, eventId]);
+  }, [contract.address, publicClient, eventAddress, eventId]);
 
   useEffect(() => {
     getData();
@@ -267,7 +267,7 @@ export const useIsSideBetAvailable = (
       args: [eventAddress, eventId, EventTypeForContract.SIDE_BET],
     });
     setIsAvailable(Boolean(isAvailable));
-  }, [contract, publicClient, eventAddress, eventId]);
+  }, [contract.address, publicClient, eventAddress, eventId]);
 
   useEffect(() => {
     getData();

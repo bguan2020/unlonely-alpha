@@ -7,10 +7,12 @@ import { VibesTokenTx } from "../../constants/types";
 import { GET_USER_QUERY } from "../../constants/queries";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../context/useNetwork";
+import useUserAgent from "./useUserAgent";
 
 const CREATION_BLOCK = BigInt(9018023);
 
 export const useVibesCheck = () => {
+  const { isStandalone } = useUserAgent();
   const publicClient = usePublicClient();
   const client = useApolloClient();
   const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
@@ -138,7 +140,8 @@ export const useVibesCheck = () => {
         !publicClient ||
         !contract.address ||
         !matchingChain ||
-        fetching.current
+        fetching.current ||
+        isStandalone
       ) {
         fetching.current = false;
         return;

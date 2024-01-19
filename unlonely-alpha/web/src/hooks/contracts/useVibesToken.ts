@@ -26,7 +26,7 @@ export const useReadPublic = (contract: ContractData) => {
       }),
     ]);
     setProtocolFeeDestination(String(protocolFeeDestination));
-  }, [contract, publicClient]);
+  }, [contract.address, publicClient]);
 
   useEffect(() => {
     getData();
@@ -45,12 +45,14 @@ export const useGetMintCostAfterFees = (
   const publicClient = usePublicClient();
 
   const [mintCostAfterFees, setMintCostAfterFees] = useState<bigint>(BigInt(0));
+  const [loading, setLoading] = useState<boolean>(false);
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
       setMintCostAfterFees(BigInt(0));
       return;
     }
+    setLoading(true);
     const res = await publicClient.readContract({
       address: contract.address,
       abi: contract.abi,
@@ -58,7 +60,8 @@ export const useGetMintCostAfterFees = (
       args: [amount],
     });
     setMintCostAfterFees(BigInt(String(res)));
-  }, [contract, publicClient, amount]);
+    setLoading(false);
+  }, [contract.address, publicClient, amount]);
 
   useEffect(() => {
     getData();
@@ -67,6 +70,7 @@ export const useGetMintCostAfterFees = (
   return {
     refetch: getData,
     mintCostAfterFees,
+    loading,
   };
 };
 
@@ -92,7 +96,7 @@ export const useGetBurnProceedsAfterFees = (
       args: [amount],
     });
     setBurnProceedsAfterFees(BigInt(String(res)));
-  }, [contract, publicClient, amount]);
+  }, [contract.address, publicClient, amount]);
 
   useEffect(() => {
     getData();
@@ -121,7 +125,7 @@ export const useGetPrice = (amount: bigint, contract: ContractData) => {
       args: [amount],
     });
     setValue(BigInt(String(res)));
-  }, [contract, publicClient, amount]);
+  }, [contract.address, publicClient, amount]);
 
   useEffect(() => {
     getData();
