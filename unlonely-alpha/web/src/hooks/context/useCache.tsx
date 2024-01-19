@@ -244,9 +244,13 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [appErrors, walletIsConnected]);
 
-  setInterval(() => {
-    setCounter((counter) => counter + 1);
-  }, 1000 * 60 * 8);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCounter((counter) => counter + 1);
+    }, 1000 * 60 * 8);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const value = useMemo(() => {
     return {
