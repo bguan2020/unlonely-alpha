@@ -238,7 +238,6 @@ export const CreateBet = ({
 
   useEffect(() => {
     const init = async () => {
-      setDateNow(Date.now());
       if (
         loading === "prepping" &&
         (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets?.length === 0)
@@ -247,6 +246,14 @@ export const CreateBet = ({
     };
     init();
   }, [blockNumber.data]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDateNow(Date.now());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Flex direction="column" gap="10px" mt="10px">
@@ -634,7 +641,7 @@ const OpenEventInterface = ({
               await openEvent?.();
             }}
           >
-            {!openEvent ? "tx simulation failed" : "confirm"}
+            {!openEvent ? <Spinner /> : "confirm"}
           </Button>
         </>
       )}
