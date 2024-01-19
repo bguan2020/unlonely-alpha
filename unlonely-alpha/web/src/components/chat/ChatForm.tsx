@@ -390,8 +390,10 @@ const ChatForm = ({
                         _hover={{ transform: "scale(1.15)" }}
                         _active={{ transform: "scale(1.3)" }}
                         onClick={() => {
-                          setCommandsOpen(!commandsOpen);
-                          if (!commandsOpen) setInstantCommandSend(true);
+                          setCommandsOpen((prev) => {
+                            if (!prev) setInstantCommandSend(true);
+                            return !prev;
+                          });
                         }}
                         minWidth="auto"
                       />

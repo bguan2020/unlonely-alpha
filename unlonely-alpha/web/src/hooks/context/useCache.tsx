@@ -246,7 +246,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCounter((counter) => counter + 1);
+      setCounter((prev) => prev + 1);
     }, 1000 * 60 * 8);
 
     return () => clearInterval(interval);
