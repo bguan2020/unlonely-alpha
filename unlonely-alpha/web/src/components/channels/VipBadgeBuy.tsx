@@ -2,7 +2,7 @@ import { Button, Text, Box, useToast, Flex } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { decodeEventLog, formatUnits, isAddress } from "viem";
-import { useBalance, useBlockNumber, useContractEvent } from "wagmi";
+import { useBalance, useContractEvent } from "wagmi";
 
 import { useUser } from "../../hooks/context/useUser";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
@@ -29,10 +29,6 @@ export const VipBadgeBuy = () => {
 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const canAddToChatbot = useRef(false);
-
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
@@ -189,10 +185,17 @@ export const VipBadgeBuy = () => {
     })
   );
 
-  const isFetching = useRef(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [incomingTrade, setIncomingTrade] = useState<any>(undefined);
+  const [debouncedTrade, setDebouncedTrade] = useState<any>(undefined);
 
+  /** once per trade, we fetch for new data asynchronously, 
+      we use debounce and timeout because only the data after the latest trade matters, 
+      all other previous data would be outdated already by the next trade,
+      however if the trade was created by this user, immediately fetch for new data
+      for the sake of responsiveness
+  */
   useContractEvent({
     address: tournamentContract.address,
     abi: tournamentContract.abi,
@@ -207,33 +210,39 @@ export const VipBadgeBuy = () => {
   });
 
   useEffect(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    const MILLIS_TO_WAIT = incomingTrade?.trader === userAddress ? 0 : 1000;
+
+    timeoutRef.current = setTimeout(() => {
+      setDebouncedTrade(incomingTrade);
+    }, MILLIS_TO_WAIT);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [incomingTrade]);
+
+  useEffect(() => {
     const init = async () => {
-      if (isFetching.current || !incomingTrade) return;
-      if (incomingTrade.eventByte !== generatedKey) return;
-      const startTime = Date.now();
-      let endTime = 0;
-      isFetching.current = true;
+      if (!debouncedTrade) return;
+      if (debouncedTrade.eventByte !== generatedKey) return;
       try {
         await Promise.all([
           refetchBadgePrice(),
-          refetchBuyVipBadge(),
           refetchUserEthBalance(),
-        ]).then(() => {
-          endTime = Date.now();
-        });
+          refetchBuyVipBadge(),
+        ]);
       } catch (err) {
         console.log("VipBadgeBuy fetching error", err);
       }
-      const MILLIS = 3000;
-      const timeToWait =
-        endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
-      await new Promise((resolve) => {
-        setTimeout(resolve, timeToWait);
-      });
-      isFetching.current = false;
     };
     init();
-  }, [incomingTrade]);
+  }, [debouncedTrade]);
 
   useEffect(() => {
     if (!walletIsConnected) {

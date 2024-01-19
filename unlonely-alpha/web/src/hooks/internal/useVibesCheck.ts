@@ -44,45 +44,24 @@ export const useVibesCheck = () => {
     }
   };
 
+  const eventQueueRef = useRef<any>([]);
+
+  /**
+   * These two useContractEvent calls are used to listen for mint and burn events
+   * Every call is inportant and every piece of information returned should be in
+   * the order they were initiated. Therefore, we will use a queue system to ensure
+   * that the events are in the correct order, regardless of the individual status
+   * per asynchronous call.
+   */
   useContractEvent({
     address: contract.address,
     abi: contract.abi,
     eventName: loading ? undefined : "Mint",
     listener(log: any) {
-      const init = async () => {
-        console.log("mint detected");
-        const n = Number(log[0].args.totalSupply);
-        const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
-        const user =
-          hashMapState.get(log[0].args.account) ??
-          (await _getEnsName(log[0].args.account));
-        if (!hashMapState.get(log[0].args.account)) {
-          setHashMapState((prev) => {
-            return new Map([...prev, [log[0].args.account, user]]);
-          });
-        }
-        const eventTx = {
-          eventName: "Mint",
-          user,
-          amount: log[0].args.amount,
-          price: priceForCurrent - priceForPrevious,
-          blockNumber: log[0].blockNumber,
-        };
-        setTokenTxs((prev) => {
-          console.log("appending mint");
-          if (prev[prev.length - 1].blockNumber > eventTx.blockNumber) {
-            return [
-              ...prev.slice(0, prev.length - 1),
-              eventTx,
-              prev[prev.length - 1],
-            ];
-          }
-          return [...prev, eventTx];
-        });
-      };
-      init();
+      eventQueueRef.current.push(log);
+      if (eventQueueRef.current.length === 1) {
+        processQueue();
+      }
     },
   });
 
@@ -91,51 +70,58 @@ export const useVibesCheck = () => {
     abi: contract.abi,
     eventName: loading ? undefined : "Burn",
     listener(log: any) {
-      const init = async () => {
-        console.log("burn detected");
-        const n = Number(log[0].args.totalSupply);
-        const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
-        const user =
-          hashMapState.get(log[0].args.account) ??
-          (await _getEnsName(log[0].args.account));
-        if (!hashMapState.get(log[0].args.account)) {
-          setHashMapState((prev) => {
-            return new Map([...prev, [log[0].args.account, user]]);
-          });
-        }
-        const eventTx = {
-          eventName: "Burn",
-          user,
-          amount: log[0].args.amount,
-          price: priceForCurrent - priceForPrevious,
-          blockNumber: log[0].blockNumber,
-        };
-        setTokenTxs((prev) => {
-          console.log("appending burn");
-          if (prev[prev.length - 1].blockNumber > eventTx.blockNumber) {
-            return [
-              ...prev.slice(0, prev.length - 1),
-              eventTx,
-              prev[prev.length - 1],
-            ];
-          }
-          return [...prev, eventTx];
-        });
-      };
-      init();
+      eventQueueRef.current.push(log);
+      if (eventQueueRef.current.length === 1) {
+        processQueue();
+      }
     },
   });
 
+  const processQueue = async () => {
+    while (eventQueueRef.current.length > 0) {
+      const log = eventQueueRef.current[0];
+      await handleEvent(log);
+      eventQueueRef.current.shift();
+    }
+  };
+
+  const handleEvent = async (log: any) => {
+    const eventName = log[0].eventName;
+    console.log("detected", eventName);
+    const n = Number(log[0].args.totalSupply);
+    const n_ = Math.max(n - 1, 0);
+    const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+    const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+    const user =
+      hashMapState.get(log[0].args.account) ??
+      (await _getEnsName(log[0].args.account));
+    if (!hashMapState.get(log[0].args.account)) {
+      setHashMapState((prev) => {
+        return new Map([...prev, [log[0].args.account, user]]);
+      });
+    }
+    const eventTx = {
+      eventName: eventName,
+      user,
+      amount: log[0].args.amount,
+      price: priceForCurrent - priceForPrevious,
+      blockNumber: log[0].blockNumber,
+    };
+    setTokenTxs((prev) => {
+      console.log("appending", eventName);
+      if (prev[prev.length - 1].blockNumber > eventTx.blockNumber) {
+        return [
+          ...prev.slice(0, prev.length - 1),
+          eventTx,
+          prev[prev.length - 1],
+        ];
+      }
+      return [...prev, eventTx];
+    });
+  };
+
   useEffect(() => {
     const getVibesEvents = async () => {
-      console.log(
-        "entering getVibesEvents"
-        // publicClient,
-        // contract.address,
-        // matchingChain
-      );
       if (
         !publicClient ||
         !contract.address ||
