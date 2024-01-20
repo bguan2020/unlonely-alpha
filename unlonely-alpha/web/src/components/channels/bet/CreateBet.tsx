@@ -240,6 +240,7 @@ export const CreateBet = ({
     const init = async () => {
       if (
         loading === "prepping" &&
+        loading !== undefined &&
         (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets?.length === 0)
       )
         handleLoading(undefined);
