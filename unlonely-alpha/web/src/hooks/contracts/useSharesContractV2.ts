@@ -117,6 +117,8 @@ export const useReadSupplies = (
     refetch: getData,
     yayVotesSupply,
     nayVotesSupply,
+    setYayVotesSupply,
+    setNayVotesSupply,
   };
 };
 
@@ -156,6 +158,8 @@ export const useEventVerifyStatus = (key: string, contract: ContractData) => {
     refetch: getData,
     eventVerified,
     eventResult,
+    setEventResult,
+    setEventVerified,
   };
 };
 
@@ -184,6 +188,7 @@ export const useEventEndTimestamp = (key: string, contract: ContractData) => {
   return {
     refetch: getData,
     eventEndTimestamp,
+    setEventEndTimestamp,
   };
 };
 
@@ -212,6 +217,7 @@ export const useVotingPooledEth = (key: string, contract: ContractData) => {
   return {
     refetch: getData,
     votingPooledEth,
+    setVotingPooledEth,
   };
 };
 
@@ -581,6 +587,8 @@ export const useGetHolderBalances = (
     refetch: getData,
     yayVotesBalance,
     nayVotesBalance,
+    setYayVotesBalance,
+    setNayVotesBalance,
   };
 };
 
