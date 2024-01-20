@@ -455,6 +455,8 @@ export const useOpenEvent = (
     writeData: openEventData,
     txData: openEventTxData,
     isTxLoading: openEventTxLoading,
+    refetch,
+    isRefetching,
   } = useWrite(
     contract,
     "openEvent",
@@ -479,6 +481,8 @@ export const useOpenEvent = (
     openEventData,
     openEventTxData,
     openEventTxLoading,
+    refetch,
+    isRefetching,
   };
 };
 
@@ -497,6 +501,8 @@ export const useVerifyEvent = (
     writeData: verifyEventData,
     txData: verifyEventTxData,
     isTxLoading: verifyEventTxLoading,
+    refetch,
+    isRefetching,
   } = useWrite(
     contract,
     "verifyEvent",
@@ -522,6 +528,8 @@ export const useVerifyEvent = (
     verifyEventData,
     verifyEventTxData,
     verifyEventTxLoading,
+    refetch,
+    isRefetching,
   };
 };
 
@@ -529,7 +537,6 @@ export const useGetHolderBalances = (
   eventAddress: `0x${string}`,
   eventId: number,
   holder: `0x${string}`,
-  isYay: boolean,
   contract: ContractData
 ) => {
   const publicClient = usePublicClient();
@@ -558,7 +565,7 @@ export const useGetHolderBalances = (
           eventAddress,
           eventId,
           EventTypeForContract.YAY_NAY_VOTE,
-          isYay,
+          true,
           holder,
         ],
       }),
@@ -570,14 +577,14 @@ export const useGetHolderBalances = (
           eventAddress,
           eventId,
           EventTypeForContract.YAY_NAY_VOTE,
-          isYay,
+          false,
           holder,
         ],
       }),
     ]);
     setYayVotesBalance(String(yayVotesBalance));
     setNayVotesBalance(String(nayVotesBalance));
-  }, [contract.address, publicClient, eventAddress, eventId, holder, isYay]);
+  }, [contract.address, publicClient, eventAddress, eventId, holder]);
 
   useEffect(() => {
     getData();
