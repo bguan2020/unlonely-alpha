@@ -22,7 +22,7 @@ import {
   Spinner,
   StepDescription,
 } from "@chakra-ui/react";
-import { useBlockNumber, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 import Link from "next/link";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 
@@ -103,9 +103,6 @@ export const CreateBet = ({
   });
 
   const [dateNow, setDateNow] = useState<number>(Date.now());
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const sufficientEthForGas = useMemo(

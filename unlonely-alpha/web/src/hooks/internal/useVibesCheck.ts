@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { parseAbiItem } from "viem";
-import { useBlockNumber, useContractEvent, usePublicClient } from "wagmi";
+import { useContractEvent, usePublicClient } from "wagmi";
 import { useApolloClient } from "@apollo/client";
 
 import { VibesTokenTx } from "../../constants/types";
@@ -27,10 +27,6 @@ export const useVibesCheck = () => {
   const [hashMapState, setHashMapState] = useState<Map<string, string>>(
     new Map()
   );
-
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
 
   const _getEnsName = async (address: `0x${string}`) => {
     try {
@@ -210,23 +206,26 @@ export const useVibesCheck = () => {
   }, [publicClient, contract.address, matchingChain]);
 
   useEffect(() => {
-    if (!blockNumber.data || tokenTxs.length === 0) return;
-    const AVERAGE_BLOCK_TIME_SECS = 2;
-    const currentBlockNumber = blockNumber.data;
-    // const blockNumberOneHourAgo =
-    //   currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60);
-    const blockNumberOneDayAgo =
-      currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
+    const init = async () => {
+      if (tokenTxs.length === 0) return;
+      const AVERAGE_BLOCK_TIME_SECS = 2;
+      const currentBlockNumber = await publicClient.getBlockNumber();
+      // const blockNumberOneHourAgo =
+      //   currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60);
+      const blockNumberOneDayAgo =
+        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
 
-    // const hourIndex = binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
-    const dayIndex = binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
-    setChartTimeIndexes(
-      new Map([
-        // ["hour", hourIndex],
-        ["hour", 0],
-        ["day", dayIndex],
-      ])
-    );
+      // const hourIndex = binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
+      const dayIndex = binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
+      setChartTimeIndexes(
+        new Map([
+          // ["hour", hourIndex],
+          ["hour", 0],
+          ["day", dayIndex],
+        ])
+      );
+    };
+    init();
   }, [tokenTxs.length]);
 
   return { tokenTxs, chartTimeIndexes, loading };
