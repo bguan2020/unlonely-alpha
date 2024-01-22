@@ -222,21 +222,25 @@ const VibesTokenInterface = ({
             >
               all
             </Button>
-            <Button
-              bg={zonesOn ? "#1dc859" : "#004e1b"}
-              color="#ffffff"
-              p={2}
-              height={"20px"}
-              _focus={{}}
-              _active={{}}
-              _hover={{}}
-              onClick={() => setZonesOn((prev) => !prev)}
-              boxShadow={
-                zonesOn ? "0px 0px 16px rgba(53, 234, 95, 0.4)" : undefined
-              }
-            >
-              zones
-            </Button>
+            {!allStreams &&
+              (previewMode ||
+                (!previewMode && lowerPrice > 0 && higherPrice > 0)) && (
+                <Button
+                  bg={zonesOn ? "#1dc859" : "#004e1b"}
+                  color="#ffffff"
+                  p={2}
+                  height={"20px"}
+                  _focus={{}}
+                  _active={{}}
+                  _hover={{}}
+                  onClick={() => setZonesOn((prev) => !prev)}
+                  boxShadow={
+                    zonesOn ? "0px 0px 16px rgba(53, 234, 95, 0.4)" : undefined
+                  }
+                >
+                  zones
+                </Button>
+              )}
             {!allStreams && !previewMode && isOwner && (
               <>
                 <VibesTokenZoneModal

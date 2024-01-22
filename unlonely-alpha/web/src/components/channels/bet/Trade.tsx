@@ -691,7 +691,7 @@ const Trade = () => {
         } else if (isSharesEventLive && !eventEndTimestampPassed) {
           calls.concat([refetchBuyVotes()]);
         } else if (isSharesEventLock) {
-        } else if (isSharesEventPayout) {
+        } else if (isSharesEventPayout && userPayout > BigInt(0)) {
           calls.concat([refetchClaimVotePayout()]);
         }
       }
