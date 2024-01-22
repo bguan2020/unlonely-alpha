@@ -24,6 +24,7 @@ import { useUser } from "../../hooks/context/useUser";
 import { AblyChannelPromise } from "../../constants";
 import VibesTokenZoneModal from "../channels/VibesTokenZoneModal";
 import VibesTokenExchange from "./VibesTokenExchange";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 const ZONE_BREADTH = 0.05;
 
@@ -75,6 +76,7 @@ const VibesTokenInterface = ({
   customHigherPrice?: number;
 }) => {
   const { userAddress } = useUser();
+  const { isStandalone } = useUserAgent();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
     useCacheContext();
   const { channel } = useChannelContext();
@@ -241,7 +243,7 @@ const VibesTokenInterface = ({
                   zones
                 </Button>
               )}
-            {!allStreams && !previewMode && isOwner && (
+            {!allStreams && !previewMode && isOwner && !isStandalone && (
               <>
                 <VibesTokenZoneModal
                   isOpen={isZoneModalOpen}
@@ -264,7 +266,7 @@ const VibesTokenInterface = ({
               </>
             )}
           </Flex>
-          <Flex direction={"row"} gap="10px" flex="1">
+          <Flex direction={isStandalone ? "column" : "row"} gap="10px" flex="1">
             <Flex direction="column" w="100%" position="relative">
               {/* {formattedHourData.length === 0 && timeFilter === "zones" && (
                 <Text position="absolute" color="gray" top="50%">

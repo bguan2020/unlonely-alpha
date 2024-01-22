@@ -35,8 +35,8 @@ import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChanne
 import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import Participants from "../presence/Participants";
-import Trade from "../channels/bet/Trade";
 import { VipBadgeBuy } from "../channels/VipBadgeBuy";
+import VibesTokenInterface from "../chat/VibesTokenInterface";
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -304,14 +304,8 @@ const StandaloneChatComponent = ({
 export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress } = useUser();
   const { channel: channelContext, chat: chatContext } = useChannelContext();
-  const { channelQueryData, ongoingBets, refetch } = channelContext;
+  const { channelQueryData, refetch } = channelContext;
   const { presenceChannel } = chatContext;
-
-  const doesEventExist = useMemo(() => {
-    if (!ongoingBets?.[0]?.sharesSubjectAddress) return false;
-    if (!ongoingBets?.[0]?.id) return false;
-    return true;
-  }, [ongoingBets]);
 
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
@@ -374,13 +368,8 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
             width="100%"
             justifyContent={"center"}
           >
-            {doesEventExist && (
-              <Text className="zooming-text" fontSize="8px">
-                🔴
-              </Text>
-            )}
             <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
-              vote
+              vibes
             </Text>
           </Flex>
         </OuterBorder>
@@ -414,7 +403,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
       )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}
-        {selectedTab === "trade" && <Trade />}
+        {selectedTab === "trade" && <VibesTokenInterface />}
         {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
       </Flex>
     </>

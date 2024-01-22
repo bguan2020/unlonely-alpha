@@ -296,7 +296,7 @@ const MobilePage = ({
 
   const { userAddress } = useUser();
 
-  const isOwner = userAddress === channelQueryData?.owner.address;
+  const isOwner = userAddress === channelQueryData?.owner?.address;
 
   const [previewStream, setPreviewStream] = useState<boolean>(false);
 
