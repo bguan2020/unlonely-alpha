@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { useBalance, useBlockNumber, useContractEvent } from "wagmi";
+import { useBalance, useContractEvent } from "wagmi";
 import { AddIcon } from "@chakra-ui/icons";
 
 import {
@@ -422,9 +422,6 @@ const Trade = () => {
       }
     );
 
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
   const { updateSharesEvent, loading: updateSharesEventLoading } =
     useUpdateSharesEvent({});
   const doesEventExist = useMemo(() => {
@@ -473,7 +470,6 @@ const Trade = () => {
     abi: v2contract.abi,
     eventName: "EventOpened",
     listener(log: any) {
-      console.log("EventOpened", log);
       setLatestEventOpenedLog(log);
     },
   });
@@ -630,7 +626,6 @@ const Trade = () => {
     abi: v2contract.abi,
     eventName: "Payout",
     listener(log: any) {
-      console.log("Payout", log);
       setLatestPayoutLog(log);
     },
   });
@@ -678,34 +673,36 @@ const Trade = () => {
     init();
   }, [debouncedPayoutFlagFetch]);
 
+  const fetch = async () => {
+    let calls: any[] = [];
+    if (isOwner) {
+      calls = calls.concat([refetchIsVerifier()]);
+    }
+    calls = calls.concat([refetchUserEthBalance()]);
+    if (doesEventExist) {
+      if (isSharesEventLive && eventEndTimestampPassed) {
+      } else if (isSharesEventLive && !eventEndTimestampPassed) {
+        calls.concat([refetchBuyVotes()]);
+      } else if (isSharesEventLock) {
+      } else if (isSharesEventPayout && userPayout > BigInt(0)) {
+        calls.concat([refetchClaimVotePayout()]);
+      }
+    }
+    try {
+      await Promise.all(calls);
+    } catch (err) {
+      console.log("block based data fetching error", err);
+    }
+    setDateNow(Date.now());
+  };
+
   useEffect(() => {
-    const fetch = async () => {
-      if (!blockNumber.data || isFetching.current) return;
-      let calls: any[] = [];
-      if (isOwner) {
-        calls = calls.concat([refetchIsVerifier()]);
-      }
-      calls = calls.concat([refetchUserEthBalance()]);
-      if (doesEventExist) {
-        if (isSharesEventLive && eventEndTimestampPassed) {
-        } else if (isSharesEventLive && !eventEndTimestampPassed) {
-          calls.concat([refetchBuyVotes()]);
-        } else if (isSharesEventLock) {
-        } else if (isSharesEventPayout && userPayout > BigInt(0)) {
-          calls.concat([refetchClaimVotePayout()]);
-        }
-      }
-      isFetching.current = true;
-      try {
-        await Promise.all(calls);
-      } catch (err) {
-        console.log("block based data fetching error", err);
-      }
-      setDateNow(Date.now());
-      isFetching.current = false;
-    };
-    fetch();
-  }, [blockNumber.data]);
+    const interval = setInterval(async () => {
+      await fetch();
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (!walletIsConnected) {

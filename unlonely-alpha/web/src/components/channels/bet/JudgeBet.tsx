@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Text, Flex, Button, useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
 import { decodeEventLog } from "viem";
-import { useBlockNumber, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 
 import { getContractFromNetwork } from "../../../utils/contract";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
@@ -43,9 +43,6 @@ export const JudgeBet = ({
     [ethBalance, requiredGas]
   );
 
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
   const isFetching = useRef(false);
 
   const { updateSharesEvent } = useUpdateSharesEvent({});
@@ -196,14 +193,12 @@ export const JudgeBet = ({
   }, [publicClient, contractData, userAddress, isVerifier]);
 
   useEffect(() => {
-    const fetch = async () => {
-      if (!blockNumber.data || isFetching.current) return;
-      isFetching.current = true;
+    const interval = setInterval(async () => {
       await refetchVerifyEvent();
-      isFetching.current = false;
-    };
-    fetch();
-  }, [blockNumber.data]);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Flex direction="column" gap="10px">
