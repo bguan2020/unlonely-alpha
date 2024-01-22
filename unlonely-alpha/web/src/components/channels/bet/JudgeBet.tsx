@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Text, Flex, Button, useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
 import { decodeEventLog } from "viem";
-import { usePublicClient } from "wagmi";
+import { useBlockNumber, usePublicClient } from "wagmi";
 
 import { getContractFromNetwork } from "../../../utils/contract";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
@@ -43,9 +43,18 @@ export const JudgeBet = ({
     [ethBalance, requiredGas]
   );
 
+  const blockNumber = useBlockNumber({
+    watch: true,
+  });
+  const isFetching = useRef(false);
+
   const { updateSharesEvent } = useUpdateSharesEvent({});
 
-  const { verifyEvent, verifyEventTxLoading } = useVerifyEvent(
+  const {
+    verifyEvent,
+    refetch: refetchVerifyEvent,
+    verifyEventTxLoading,
+  } = useVerifyEvent(
     {
       eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
       eventId: Number(ongoingBets?.[0]?.id) ?? 0,
@@ -182,6 +191,16 @@ export const JudgeBet = ({
       estimateGas();
     }
   }, [publicClient, contractData, userAddress, isVerifier]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (!blockNumber.data || isFetching.current) return;
+      isFetching.current = true;
+      await refetchVerifyEvent();
+      isFetching.current = false;
+    };
+    fetch();
+  }, [blockNumber.data]);
 
   return (
     <Flex direction="column" gap="10px">
