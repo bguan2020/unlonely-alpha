@@ -169,6 +169,8 @@ export const JudgeBet = ({
 
   useEffect(() => {
     const estimateGas = async () => {
+      if (isFetching.current) return;
+      isFetching.current = true;
       const gas = await publicClient
         .estimateContractGas({
           address: contractData.address as `0x${string}`,
@@ -186,6 +188,7 @@ export const JudgeBet = ({
         });
       const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
       setRequiredGas(adjustedGas);
+      isFetching.current = false;
     };
     if (publicClient && contractData && userAddress && isVerifier) {
       estimateGas();

@@ -20,7 +20,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
 import Confetti from "react-confetti";
-import { useBalance, useBlockNumber, useFeeData } from "wagmi";
+import { useBalance, useFeeData } from "wagmi";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import { useUser } from "../../hooks/context/useUser";
@@ -177,14 +177,10 @@ const ConnectedDisplay = () => {
     chainId: localNetwork.config.chainId,
     enabled: false,
   });
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
     enabled: false,
   });
-  const isFetching = useRef(false);
   const isLowEthBalance = useMemo(() => {
     if (!userEthBalance || !feeData || !matchingChain) {
       return false;
@@ -238,30 +234,20 @@ const ConnectedDisplay = () => {
   }, [claimableBets.length]);
 
   useEffect(() => {
-    if (!blockNumber.data || isFetching.current) return;
-    const startTime = Date.now();
-    let endTime = 0;
-    const calls: any[] = [refetchFeeData(), refetchUserEthBalance()];
-    const fetch = async () => {
-      isFetching.current = true;
-      try {
-        await Promise.all(calls).then(() => {
-          endTime = Date.now();
-        });
-      } catch (err) {
-        endTime = Date.now();
-        console.log("connect fetching error", err);
-      }
-      const MILLIS = 60000;
-      const timeToWait =
-        endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
-      await new Promise((resolve) => {
-        setTimeout(resolve, timeToWait);
-      });
-      isFetching.current = false;
-    };
-    fetch();
-  }, [blockNumber.data]);
+    const interval = setInterval(() => {
+      const calls: any[] = [refetchFeeData(), refetchUserEthBalance()];
+      const fetch = async () => {
+        try {
+          await Promise.all(calls);
+        } catch (err) {
+          console.log("connect fetching error", err);
+        }
+      };
+      fetch();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>

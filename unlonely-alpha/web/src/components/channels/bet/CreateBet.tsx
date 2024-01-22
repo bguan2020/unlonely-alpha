@@ -91,6 +91,8 @@ export const CreateBet = ({
     [ongoingBets]
   );
 
+  const isFetching = useRef(false);
+
   const steps = [
     { title: "Start", description: "create bet" },
     { title: "Finish", description: "set time limit" },
@@ -195,6 +197,8 @@ export const CreateBet = ({
 
   useEffect(() => {
     const estimateGas = async () => {
+      if (isFetching.current) return;
+      isFetching.current = true;
       const gas = await publicClient
         .estimateContractGas({
           address: contractData.address as `0x${string}`,
@@ -217,6 +221,7 @@ export const CreateBet = ({
         });
       const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
       setRequiredGas(adjustedGas);
+      isFetching.current = false;
     };
     if (
       publicClient &&
@@ -237,16 +242,20 @@ export const CreateBet = ({
   ]);
 
   useEffect(() => {
-    const init = async () => {
-      if (
-        loading === "prepping" &&
-        loading !== undefined &&
-        (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets?.length === 0)
-      )
-        handleLoading(undefined);
-    };
-    init();
-  }, [blockNumber.data]);
+    const interval = setInterval(() => {
+      const init = async () => {
+        if (
+          loading === "prepping" &&
+          loading !== undefined &&
+          (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets?.length === 0)
+        )
+          handleLoading(undefined);
+      };
+      init();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
