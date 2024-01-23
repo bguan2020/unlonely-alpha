@@ -1,9 +1,8 @@
 import { Box, Button, Flex, Spinner, Text } from "@chakra-ui/react";
 import { useMemo } from "react";
 
-import { APPOINT_USER_EVENT } from "../../constants";
+import { APPOINT_USER_EVENT, AblyChannelPromise } from "../../constants";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import usePostUserRoleForChannel from "../../hooks/server/usePostUserRoleForChannel";
 import centerEllipses from "../../utils/centerEllipses";
@@ -14,15 +13,15 @@ export default function ModeratorModal({
   isOpen,
   callback,
   handleClose,
+  ablyChannel,
 }: {
   title: string;
   isOpen: boolean;
   callback?: any;
   handleClose: () => void;
+  ablyChannel: AblyChannelPromise;
 }) {
-  const { userAddress, user } = useUser();
-  const { channel, chat } = useChannelContext();
-  const { addToChatbot } = chat;
+  const { channel } = useChannelContext();
   const { channelQueryData } = channel;
   const { isStandalone } = useUserAgent();
 
@@ -44,12 +43,11 @@ export default function ModeratorModal({
       userAddress: address,
     });
 
-    addToChatbot({
-      title: null,
-      username: user?.username ?? "",
-      address: userAddress ?? "",
-      taskType: APPOINT_USER_EVENT,
-      description: address,
+    ablyChannel?.publish({
+      name: APPOINT_USER_EVENT,
+      data: {
+        body: address,
+      },
     });
   };
 

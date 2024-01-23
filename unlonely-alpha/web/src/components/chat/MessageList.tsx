@@ -4,11 +4,11 @@ import { Virtuoso } from "react-virtuoso";
 
 import MessageBody from "./MessageBody";
 import { Message, SenderStatus } from "../../constants/types/chat";
-import { CHAT_MESSAGE_EVENT } from "../../constants";
+import { AblyChannelPromise, CHAT_MESSAGE_EVENT } from "../../constants";
 
 type MessageListProps = {
   messages: Message[];
-  channel: any;
+  channel: AblyChannelPromise;
   scrollRef: any;
   isAtBottomCallback: (value: boolean) => void;
   isVipChat?: boolean;
@@ -16,7 +16,7 @@ type MessageListProps = {
 
 type MessageItemProps = {
   message: Message;
-  channel: any;
+  channel: AblyChannelPromise;
   index: number;
 };
 

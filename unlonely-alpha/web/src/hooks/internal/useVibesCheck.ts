@@ -1,31 +1,32 @@
 import { useState, useEffect, useRef } from "react";
-import { parseAbiItem } from "viem";
-import { useBlockNumber, usePublicClient } from "wagmi";
+import { Log, parseAbiItem } from "viem";
+import { useContractEvent, usePublicClient } from "wagmi";
 import { useApolloClient } from "@apollo/client";
 
 import { VibesTokenTx } from "../../constants/types";
 import { GET_USER_QUERY } from "../../constants/queries";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../context/useNetwork";
+import useUserAgent from "./useUserAgent";
+
+const CREATION_BLOCK = BigInt(9018023);
 
 export const useVibesCheck = () => {
+  const { isStandalone } = useUserAgent();
   const publicClient = usePublicClient();
-  // const appending = useRef(false);
   const client = useApolloClient();
   const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { network } = useNetworkContext();
-  const { localNetwork } = network;
+  const { localNetwork, matchingChain } = network;
   const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
-  // const [hashMapState, setHashMapState] = useState<Map<any, any>>(new Map());
   const [chartTimeIndexes, setChartTimeIndexes] = useState<Map<string, number>>(
     new Map()
   );
   const fetching = useRef(false);
-
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
+  const [hashMapState, setHashMapState] = useState<Map<string, string>>(
+    new Map()
+  );
 
   const _getEnsName = async (address: `0x${string}`) => {
     try {
@@ -39,70 +40,102 @@ export const useVibesCheck = () => {
     }
   };
 
-  // useContractEvent({
-  //   address: contract.address,
-  //   abi: VibesTokenV1,
-  //   eventName: "Mint",
-  //   listener(log: any) {
-  //     const init = async () => {
-  //       if (appending.current || loading) return;
-  //       appending.current = true;
-  //       const n = Number(log[0].args.totalSupply);
-  //       const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-  //       const user =
-  //         hashMapState.get(log[0].args.account) ??
-  //         (await _getEnsName(log[0].args.account));
-  //       const eventTx = {
-  //         eventName: "Mint",
-  //         user,
-  //         amount: log[0].args.amount,
-  //         price,
-  //         blockNumber: log[0].blockNumber,
-  //       };
-  //       setTokenTxs((prev) => [...prev, eventTx]);
-  //       appending.current = false;
-  //     };
-  //     init();
-  //   },
-  // });
+  const eventQueueRef = useRef<Log[]>([]);
 
-  // useContractEvent({
-  //   address: contract.address,
-  //   abi: VibesTokenV1,
-  //   eventName: "Burn",
-  //   listener(log: any) {
-  //     const init = async () => {
-  //       if (appending.current || loading) return;
-  //       appending.current = true;
-  //       const n = Number(log[0].args.totalSupply);
-  //       const price = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-  //       const user =
-  //         hashMapState.get(log[0].args.account) ??
-  //         (await _getEnsName(log[0].args.account));
-  //       const eventTx = {
-  //         eventName: "Burn",
-  //         user,
-  //         amount: log[0].args.amount,
-  //         price,
-  //         blockNumber: log[0].blockNumber,
-  //       };
-  //       setTokenTxs((prev) => [...prev, eventTx]);
-  //       appending.current = false;
-  //     };
-  //     init();
-  //   },
-  // });
+  /**
+   * These two useContractEvent calls are used to listen for mint and burn events
+   * Every call is inportant and every piece of information returned should be in
+   * the order they were initiated. Therefore, we will use a queue system to ensure
+   * that the events are in the correct order, regardless of the individual status
+   * per asynchronous call.
+   */
+  useContractEvent({
+    address: contract.address,
+    abi: contract.abi,
+    eventName: loading ? undefined : "Mint",
+    listener(logs) {
+      console.log("Mint event detected", logs);
+      const sortedLogs = logs.sort(
+        (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
+      );
+      sortedLogs.forEach((log) => {
+        eventQueueRef.current.push(log);
+        if (eventQueueRef.current.length === 1) {
+          processQueue();
+        }
+      });
+    },
+  });
+
+  useContractEvent({
+    address: contract.address,
+    abi: contract.abi,
+    eventName: loading ? undefined : "Burn",
+    listener(logs) {
+      console.log("Burn event detected", logs);
+      const sortedLogs = logs.sort(
+        (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
+      );
+      sortedLogs.forEach((log) => {
+        eventQueueRef.current.push(log);
+        if (eventQueueRef.current.length === 1) {
+          processQueue();
+        }
+      });
+    },
+  });
+
+  const processQueue = async () => {
+    while (eventQueueRef.current.length > 0) {
+      const log = eventQueueRef.current[0];
+      await handleEvent(log);
+      eventQueueRef.current.shift();
+    }
+  };
+
+  const handleEvent = async (log: any) => {
+    const eventName = log?.eventName;
+    const n = Number(log?.args.totalSupply);
+    const n_ = Math.max(n - 1, 0);
+    const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+    const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+    const user =
+      hashMapState.get(log?.args.account) ??
+      (await _getEnsName(log?.args.account));
+    if (!hashMapState.get(log?.args.account)) {
+      setHashMapState((prev) => {
+        return new Map([...prev, [log?.args.account, user]]);
+      });
+    }
+    const eventTx = {
+      eventName: eventName,
+      user,
+      amount: log?.args.amount,
+      price: priceForCurrent - priceForPrevious,
+      blockNumber: log?.blockNumber,
+      supply: log?.args.totalSupply,
+    };
+    console.log("detected", eventName, eventTx);
+    setTokenTxs((prev) => {
+      const newTokenTxs = insertElementSorted(prev, eventTx);
+      console.log("newTokenTxs", newTokenTxs);
+      return newTokenTxs;
+    });
+  };
 
   useEffect(() => {
     const getVibesEvents = async () => {
       if (
         !publicClient ||
         !contract.address ||
-        loading ||
+        !matchingChain ||
         fetching.current ||
-        !blockNumber.data
-      )
+        isStandalone
+      ) {
+        fetching.current = false;
         return;
+      }
+      console.log("fetching vibes events");
       const startTime = Date.now();
       let endTime = 0;
       fetching.current = true;
@@ -112,14 +145,14 @@ export const useVibesCheck = () => {
           event: parseAbiItem(
             "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
           ),
-          fromBlock: BigInt(9018023),
+          fromBlock: CREATION_BLOCK,
         }),
         publicClient.getLogs({
           address: contract.address,
           event: parseAbiItem(
             "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
           ),
-          fromBlock: BigInt(9018023),
+          fromBlock: CREATION_BLOCK,
         }),
       ]);
       const logs = [...mintLogs, ...burnLogs];
@@ -140,10 +173,11 @@ export const useVibesCheck = () => {
           amount: event.args.amount,
           price: priceForCurrent - priceForPrevious,
           blockNumber: event.blockNumber,
+          supply: event.args.totalSupply,
         };
       });
-      const uniqueUsers = new Set();
-      _tokenTxs.forEach((tx: any) => {
+      const uniqueUsers = new Set<string>();
+      _tokenTxs.forEach((tx: VibesTokenTx) => {
         uniqueUsers.add(tx.user);
       });
       const promises = Array.from(uniqueUsers).map((u) =>
@@ -153,44 +187,53 @@ export const useVibesCheck = () => {
         endTime = Date.now();
         return res;
       });
-      const nameHashMap = createHashmap(Array.from(uniqueUsers), names);
-      const namedTokenTx = _tokenTxs.map((tx: any) => {
+      const nameHashMap = createHashmap(
+        Array.from(uniqueUsers),
+        names as string[]
+      );
+      const namedTokenTxs = _tokenTxs.map((tx: VibesTokenTx) => {
         return {
           ...tx,
           user: nameHashMap.get(tx.user) ?? tx.user,
         };
       });
-      const MILLIS = 5000;
+      // const MILLIS = 5000;
+      const MILLIS = 0;
       const timeToWait =
         endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
       await new Promise((resolve) => {
         setTimeout(resolve, timeToWait);
       });
       fetching.current = false;
-      // setHashMapState(nameHashMap);
-      setTokenTxs(namedTokenTx);
+      console.log("setting token txs,", namedTokenTxs.length, "count");
+      setHashMapState(nameHashMap);
+      setTokenTxs(namedTokenTxs);
       setLoading(false);
     };
     getVibesEvents();
-  }, [blockNumber.data]);
+  }, [publicClient, contract.address, matchingChain]);
 
   useEffect(() => {
-    if (!blockNumber.data || tokenTxs.length === 0) return;
-    const AVERAGE_BLOCK_TIME_SECS = 2;
-    const currentBlockNumber = blockNumber.data;
-    const blockNumberOneHourAgo =
-      currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60);
-    const blockNumberOneDayAgo =
-      currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
+    const init = async () => {
+      if (tokenTxs.length === 0) return;
+      const AVERAGE_BLOCK_TIME_SECS = 2;
+      const currentBlockNumber = await publicClient.getBlockNumber();
+      // const blockNumberOneHourAgo =
+      //   currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60);
+      const blockNumberOneDayAgo =
+        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
 
-    const hourIndex = binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
-    const dayIndex = binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
-    setChartTimeIndexes(
-      new Map([
-        ["hour", hourIndex],
-        ["day", dayIndex],
-      ])
-    );
+      // const hourIndex = binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
+      const dayIndex = binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
+      setChartTimeIndexes(
+        new Map([
+          // ["hour", hourIndex],
+          ["hour", 0],
+          ["day", dayIndex],
+        ])
+      );
+    };
+    init();
   }, [tokenTxs.length]);
 
   return { tokenTxs, chartTimeIndexes, loading };
@@ -216,10 +259,10 @@ function binarySearchIndex(arr: VibesTokenTx[], target: bigint): number {
   while (left <= right) {
     const mid = left + Math.floor((right - left) / 2);
 
-    if (arr[mid].blockNumber === target) {
+    if (arr[mid].blockNumber === Number(target)) {
       // Target found, return its index
       return mid;
-    } else if (arr[mid].blockNumber < target) {
+    } else if (arr[mid].blockNumber < Number(target)) {
       // Search in the right half
       left = mid + 1;
     } else {
@@ -230,4 +273,18 @@ function binarySearchIndex(arr: VibesTokenTx[], target: bigint): number {
 
   // Target not found, return the insertion position
   return left;
+}
+
+function insertElementSorted(arr: VibesTokenTx[], newElement: VibesTokenTx) {
+  // Find the insertion index
+  let insertIndex = arr.length;
+  for (let i = arr.length - 1; i >= 0; i--) {
+    if (arr[i].blockNumber <= newElement.blockNumber) {
+      // Found the position to insert
+      insertIndex = i + 1;
+      break;
+    }
+  }
+
+  return [...arr.slice(0, insertIndex), newElement, ...arr.slice(insertIndex)];
 }

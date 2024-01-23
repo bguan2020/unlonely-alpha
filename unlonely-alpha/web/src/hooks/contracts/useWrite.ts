@@ -35,7 +35,17 @@ export const useWrite = (
     },
     onError(error: Error) {
       if (callbacks?.onPrepareError) callbacks?.onPrepareError(error);
-      if (error.message && error.name) addAppError(error, functionName);
+      if (error.message && error.name) {
+        if (error.name === "ConnectorNotFoundError") {
+          popAppError("ConnectorNotFoundError", "name");
+        }
+        addAppError(error, functionName);
+      } else {
+        if (!(error as unknown as string).includes("ConnectorNotFoundError")) {
+          console.log("error string", error as unknown as string);
+          popAppError("ConnectorNotFoundError", "name");
+        }
+      }
     },
   });
 

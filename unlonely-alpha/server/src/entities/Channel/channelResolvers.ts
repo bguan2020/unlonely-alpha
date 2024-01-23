@@ -86,6 +86,19 @@ export const resolvers = {
 
       return channelService.postUserRoleForChannel(data, ctx);
     },
+    updateChannelVibesTokenPriceRange: (
+      _: any,
+      {
+        data,
+      }: { data: channelService.IUpdateChannelVibesTokenPriceRangeInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+
+      return channelService.updateChannelVibesTokenPriceRange(data, ctx);
+    },
   },
   Channel: {
     token: ({ id }: { id: number }, _: any, ctx: Context) => {

@@ -8,6 +8,7 @@ import {
   APPOINT_USER_EVENT,
   BAN_USER_EVENT,
   CHAT_MESSAGE_EVENT,
+  VIBES_TOKEN_PRICE_RANGE_EVENT,
 } from "../../constants";
 import { useUser } from "../context/useUser";
 
@@ -75,7 +76,8 @@ export function useChannel(fixedChatName?: string) {
     );
     if (
       message.name === APPOINT_USER_EVENT ||
-      message.name === BAN_USER_EVENT
+      message.name === BAN_USER_EVENT ||
+      message.name === VIBES_TOKEN_PRICE_RANGE_EVENT
     ) {
       await refetch();
     }
@@ -130,19 +132,6 @@ export function useChannel(fixedChatName?: string) {
         });
         const reverse = [...messageHistory].reverse();
         setReceivedMessages(reverse);
-
-        // iterate through result
-        // result.items.forEach((message: any) => {
-        //   if (message.name === ADD_REACTION_EVENT) {
-        //     messageHistory = updateMessageHistoryReactions(
-        //       message,
-        //       messageHistory
-        //     );
-        //     const reverse = [...messageHistory, message].reverse();
-        //     setReceivedMessages(reverse);
-        //   }
-        // });
-        // Get index of last sent message from history
       });
       setMounted(true);
     }
@@ -159,37 +148,3 @@ export function useChannel(fixedChatName?: string) {
     setReceivedMessages,
   };
 }
-
-// const updateMessageHistoryReactions = (
-//   message: Ably.Types.Message,
-//   messageHistory: Message[]
-// ) => {
-//   const reaction = message;
-//   const timeserial = reaction.data.extras.reference.timeserial;
-//   const emojiType = reaction.data.body;
-
-//   // get index of message in filteredHistory array where timeserial matches
-//   const index = messageHistory.findIndex(
-//     (m) => m.extras.timeserial === timeserial
-//   );
-//   if (index === -1) return messageHistory;
-
-//   const messageToUpdate = messageHistory[index];
-//   const emojisToUpdate = messageToUpdate.data.reactions;
-//   const emojiIndex = emojisToUpdate.findIndex((e) => e.emojiType === emojiType);
-
-//   // if found, increment count
-//   if (emojiIndex !== -1) {
-//     emojisToUpdate[emojiIndex].count += 1;
-//   }
-//   const updatedMessage = {
-//     ...messageToUpdate,
-//     data: {
-//       ...messageToUpdate.data,
-//       reactions: emojisToUpdate,
-//     },
-//   };
-//   messageHistory[index] = updatedMessage;
-
-//   return messageHistory;
-// };

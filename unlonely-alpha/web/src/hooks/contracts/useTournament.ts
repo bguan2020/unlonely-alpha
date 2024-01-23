@@ -126,6 +126,36 @@ export const useReadPublic = (contract: ContractData) => {
   };
 };
 
+export const useSupply = (key: string, contract: ContractData) => {
+  const publicClient = usePublicClient();
+
+  const [vipBadgeSupply, setVipBadgeSupply] = useState<bigint>(BigInt(0));
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setVipBadgeSupply(BigInt(0));
+      return;
+    }
+    const vipBadgeSupply = await publicClient.readContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: "vipBadgeSupply",
+      args: [key],
+    });
+    setVipBadgeSupply(BigInt(String(vipBadgeSupply)));
+  }, [contract.address, publicClient, key]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
+    vipBadgeSupply,
+    setVipBadgeSupply,
+  };
+};
+
 export const useReadMappings = (key: string, contract: ContractData) => {
   const { userAddress } = useUser();
   const publicClient = usePublicClient();
@@ -552,6 +582,7 @@ export const useGetHolderBalance = (
   return {
     refetch: getData,
     vipBadgeBalance,
+    setVipBadgeBalance,
   };
 };
 
@@ -711,6 +742,7 @@ export const useGetPriceAfterFee = (
   return {
     refetch: getData,
     priceAfterFee,
+    setPriceAfterFee,
   };
 };
 

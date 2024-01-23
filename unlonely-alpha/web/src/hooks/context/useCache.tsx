@@ -131,8 +131,10 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
         !userAddress ||
         !walletIsConnected ||
         !activeWallet
-      )
+      ) {
+        setFetchingBets(false);
         return;
+      }
       setFetchingBets(true);
       isFetching.current = true;
       let unclaimedBets: SharesEvent[] = [];
@@ -242,9 +244,13 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [appErrors, walletIsConnected]);
 
-  setInterval(() => {
-    setCounter((counter) => counter + 1);
-  }, 1000 * 60 * 8);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCounter((prev) => prev + 1);
+    }, 1000 * 60 * 8);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const value = useMemo(() => {
     return {

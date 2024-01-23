@@ -68,6 +68,7 @@ export const typeDef = gql`
     sharesEvent: [SharesEvent]
     roles: [ChannelUserRole]
     sideBets: [SideBet]
+    vibesTokenPriceRange: [String]
   }
 
   type UpdateManyResponse {
@@ -121,6 +122,11 @@ export const typeDef = gql`
     role: Int!
   }
 
+  input UpdateChannelVibesTokenPriceRangeInput {
+    id: ID!
+    vibesTokenPriceRange: [String]!
+  }
+
   extend type Query {
     getChannelFeed(data: ChannelFeedInput): [Channel]
     getChannelWithTokenById(id: ID!): Channel
@@ -136,5 +142,8 @@ export const typeDef = gql`
     updateChannelText(data: UpdateChannelTextInput!): Channel
     updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
     postUserRoleForChannel(data: PostUserRoleForChannelInput): ChannelUserRole
+    updateChannelVibesTokenPriceRange(
+      data: UpdateChannelVibesTokenPriceRangeInput!
+    ): Channel
   }
 `;

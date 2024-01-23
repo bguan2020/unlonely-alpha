@@ -25,7 +25,7 @@ import { GetSubscriptionQuery } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import ChannelDesc from "../channels/ChannelDesc";
-import { ChatReturnType, useChatBox, useChat } from "../../hooks/chat/useChat";
+import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
 import { ADD_REACTION_EVENT, InteractionType } from "../../constants";
 import MessageList from "../chat/MessageList";
 import ChatForm from "../chat/ChatForm";
@@ -35,15 +35,17 @@ import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChanne
 import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import Participants from "../presence/Participants";
-import Trade from "../channels/bet/Trade";
 import { VipBadgeBuy } from "../channels/VipBadgeBuy";
+import VibesTokenInterface from "../chat/VibesTokenInterface";
 
 const StandaloneChatComponent = ({
   previewStream,
   handleShowPreviewStream,
+  chat,
 }: {
   previewStream?: boolean;
   handleShowPreviewStream: () => void;
+  chat: ChatReturnType;
 }) => {
   const { channel: channelContext, chat: chatInfo } = useChannelContext();
   const { userAddress } = useUser();
@@ -59,6 +61,7 @@ const StandaloneChatComponent = ({
   const clickedOutsideVip = useRef(false);
   const infoRef = useRef<HTMLDivElement>(null);
   const vipRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useOnClickOutside(infoRef, () => {
     if (showInfo) {
@@ -90,19 +93,17 @@ const StandaloneChatComponent = ({
     }
   );
 
-  const { addChannelToSubscription, loading: addLoading } =
-    useAddChannelToSubscription({
-      onError: () => {
-        console.error("Failed to add channel to subscription.");
-      },
-    });
+  const { addChannelToSubscription } = useAddChannelToSubscription({
+    onError: () => {
+      console.error("Failed to add channel to subscription.");
+    },
+  });
 
-  const { removeChannelFromSubscription, loading: removeLoading } =
-    useRemoveChannelFromSubscription({
-      onError: () => {
-        console.error("Failed to remove channel from subscription.");
-      },
-    });
+  const { removeChannelFromSubscription } = useRemoveChannelFromSubscription({
+    onError: () => {
+      console.error("Failed to remove channel from subscription.");
+    },
+  });
 
   const handleGetSubscription = useCallback(async () => {
     await getSubscription({
@@ -143,20 +144,26 @@ const StandaloneChatComponent = ({
   }, []);
 
   const handleAddChannelToSubscription = async () => {
+    if (!endpoint) return;
+    setIsLoading(true);
     await addChannelToSubscription({
       endpoint,
       channelId,
     });
     await handleGetSubscription();
+    setIsLoading(false);
     setIsBellAnimating(true);
   };
 
   const handleRemoveChannelFromSubscription = async () => {
+    if (!endpoint) return;
+    setIsLoading(true);
     await removeChannelFromSubscription({
       endpoint,
       channelId,
     });
     await handleGetSubscription();
+    setIsLoading(false);
   };
 
   const share = async () => {
@@ -255,7 +262,7 @@ const StandaloneChatComponent = ({
               className={isBellAnimating ? "bell" : ""}
               width="unset"
               icon={
-                addLoading || removeLoading ? (
+                isLoading ? (
                   <Spinner />
                 ) : channelCanNotify ? (
                   <BiSolidBellRing height={"100%"} />
@@ -289,31 +296,25 @@ const StandaloneChatComponent = ({
           />
         </Flex>
       )}
-      <TabsComponent />
+      <TabsComponent chat={chat} />
     </Flex>
   );
 };
 
-export const TabsComponent = () => {
+export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
+  const { userAddress } = useUser();
   const { channel: channelContext, chat: chatContext } = useChannelContext();
-  const { ongoingBets, refetch } = channelContext;
+  const { channelQueryData, refetch } = channelContext;
   const { presenceChannel } = chatContext;
-
-  const chat = useChat();
-
-  const doesEventExist = useMemo(() => {
-    if (!ongoingBets?.[0]?.sharesSubjectAddress) return false;
-    if (!ongoingBets?.[0]?.id) return false;
-    return true;
-  }, [ongoingBets]);
 
   const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
     "chat"
   );
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   useEffect(() => {
     const fetch = async () => {
-      if (chat.receivedMessages.length > 0) {
+      if (chat.receivedMessages.length > 0 && !isOwner) {
         const latestMessage =
           chat.receivedMessages[chat.receivedMessages.length - 1];
         if (
@@ -323,9 +324,7 @@ export const TabsComponent = () => {
             latestMessage.data.body.split(":")[0] ===
               InteractionType.EVENT_LOCK ||
             latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_PAYOUT ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_END) &&
+              InteractionType.EVENT_PAYOUT) &&
           Date.now() - latestMessage.timestamp < 12000
         ) {
           await refetch();
@@ -369,13 +368,8 @@ export const TabsComponent = () => {
             width="100%"
             justifyContent={"center"}
           >
-            {doesEventExist && (
-              <Text className="zooming-text" fontSize="8px">
-                🔴
-              </Text>
-            )}
             <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
-              vote
+              vibes
             </Text>
           </Flex>
         </OuterBorder>
@@ -409,7 +403,7 @@ export const TabsComponent = () => {
       )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}
-        {selectedTab === "trade" && <Trade />}
+        {selectedTab === "trade" && <VibesTokenInterface />}
         {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
       </Flex>
     </>

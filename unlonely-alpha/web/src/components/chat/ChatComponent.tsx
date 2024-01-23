@@ -8,8 +8,10 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
 import Chat from "./Chat";
+import { useUser } from "../../hooks/context/useUser";
 
 const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
+  const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const [selectedTab, setSelectedTab] = useState<"chat" | "vip">("chat");
   const {
@@ -17,13 +19,14 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
     chat: chatContext,
     ui: uiContext,
   } = useChannelContext();
-  const { refetch } = channelContext;
+  const { channelQueryData, refetch } = channelContext;
   const { presenceChannel } = chatContext;
   const { handleTradeLoading } = uiContext;
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   useEffect(() => {
     const fetch = async () => {
-      if (chat.receivedMessages.length > 0) {
+      if (chat.receivedMessages.length > 0 && !isOwner) {
         const latestMessage =
           chat.receivedMessages[chat.receivedMessages.length - 1];
         if (
@@ -33,9 +36,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
             latestMessage.data.body.split(":")[0] ===
               InteractionType.EVENT_LOCK ||
             latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_PAYOUT ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_END) &&
+              InteractionType.EVENT_PAYOUT) &&
           Date.now() - latestMessage.timestamp < 12000
         ) {
           handleTradeLoading(true);

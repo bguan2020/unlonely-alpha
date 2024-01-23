@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VirtuosoHandle } from "react-virtuoso";
 
 import {
+  AblyChannelPromise,
   BaseChatCommand,
   CHAT_MESSAGE_EVENT,
   InteractionType,
@@ -14,12 +15,11 @@ import { useChannelContext } from "../context/useChannel";
 import { useUser } from "../context/useUser";
 import usePostFirstChat from "../server/usePostFirstChat";
 import { useChannel } from "./useChannel";
-import centerEllipses from "../../utils/centerEllipses";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
 import { Message, SenderStatus } from "../../constants/types/chat";
 
 export type ChatReturnType = {
-  channel: any;
+  channel: AblyChannelPromise;
   hasMessagesLoaded: boolean;
   receivedMessages: Message[];
   allMessages: Message[];
@@ -92,7 +92,7 @@ export const useChat = (): ChatReturnType => {
         body.split(":")[0] === InteractionType.BUY_VOTES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        const votedOption = body.split(":")[3];
+        const votedOption = body.split(":")[4];
         emojiBlast(
           <Text fontSize="40px">
             {"🚀"}
@@ -166,7 +166,7 @@ export const useChatBox = (
   chatId: string,
   receivedMessages: Message[],
   hasMessagesLoaded: boolean,
-  channel: any,
+  channel: AblyChannelPromise,
   mobile?: boolean
 ) => {
   const scrollRef = useRef<VirtuosoHandle>(null);
@@ -248,10 +248,7 @@ export const useChatBox = (
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
       if (channelQueryData?.allowNFCs || false) {
         handleIsClipUiOpen(true);
-        messageToPublish = `${
-          user?.username ?? centerEllipses(address, 15)
-        } has just clipped a highlight from this stream!`;
-        allowPublish = true;
+        allowPublish = false;
       } else {
         messageToPublish = "NFCs are not allowed on this channel.";
         allowPublish = true;

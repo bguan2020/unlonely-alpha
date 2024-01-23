@@ -26,6 +26,11 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.9.0.tgz#223572538f6bea336750039bb43a4016dcc8182d"
   integrity sha512-iowxq3U30sghZotgl4s/oJRci6WPBfNO5YYgk2cIOMCHr3LeGPcsZjCEr+33Q4N+oV3OABDAtA+pyvWjbvBifQ==
 
+"@adraffy/ens-normalize@1.9.4":
+  version "1.9.4"
+  resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.9.4.tgz#aae21cb858bbb0411949d5b7b3051f4209043f62"
+  integrity sha512-UK0bHA7hh9cR39V+4gl2/NnBBjoXIxkuWAPCaY4X7fbH4L/azIi7ilWOCjMUYfpJgraLUAqkRi2BqrjME8Rynw==
+
 "@ampproject/remapping@^2.1.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz#56c133824780de3174aed5ab6834f3026790154d"
@@ -4289,6 +4294,13 @@
   integrity sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==
   dependencies:
     "@types/node" "*"
+
+"@types/lodash.debounce@^4.0.9":
+  version "4.0.9"
+  resolved "https://registry.yarnpkg.com/@types/lodash.debounce/-/lodash.debounce-4.0.9.tgz#0f5f21c507bce7521b5e30e7a24440975ac860a5"
+  integrity sha512-Ma5JcgTREwpLRwMM+XwBR7DaWe96nC38uCBDFKZWbNKD+osjVzdpnUSwBcqCptrp16sSOLBAUb50Car5I0TCsQ==
+  dependencies:
+    "@types/lodash" "*"
 
 "@types/lodash.mergewith@4.6.6":
   version "4.6.6"
@@ -9273,6 +9285,11 @@ lodash._stringtopath@~4.8.0:
   dependencies:
     lodash._basetostring "~4.12.0"
 
+lodash.debounce@^4.0.8:
+  version "4.0.8"
+  resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
+  integrity sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==
+
 lodash.defaults@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/lodash.defaults/-/lodash.defaults-4.2.0.tgz#d09178716ffea4dde9e5fb7b37f6f0802274580c"
@@ -12373,20 +12390,19 @@ videojs-vtt.js@^0.15.5:
   dependencies:
     global "^4.3.1"
 
-viem@1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-1.0.6.tgz#804549d5d4b66de1b231a655ec5f7b15f97ffd86"
-  integrity sha512-NOVDREj8bWHajuP5Nw6edd0v3auuGWvLHGScmo9OOt1l7g3f1xMQxPA6JlhNmWXzoHjzzxt/5SorBn2DQ6N6Sg==
+viem@1.18.9:
+  version "1.18.9"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-1.18.9.tgz#8be8fe3148b1c6c3bccc853001df98f91a8aeb30"
+  integrity sha512-eAXtoTwAFA3YEgjTYMb5ZTQrDC0UPx5qyZ4sv90TirVKepcM9mBPksTkC1SSWya0UdxhBmhEBL/CiYMjmGCTWg==
   dependencies:
-    "@adraffy/ens-normalize" "1.9.0"
-    "@noble/curves" "1.0.0"
-    "@noble/hashes" "1.3.0"
-    "@scure/bip32" "1.3.0"
-    "@scure/bip39" "1.2.0"
-    "@wagmi/chains" "1.1.0"
-    abitype "0.8.7"
-    isomorphic-ws "5.0.0"
-    ws "8.12.0"
+    "@adraffy/ens-normalize" "1.9.4"
+    "@noble/curves" "1.2.0"
+    "@noble/hashes" "1.3.2"
+    "@scure/bip32" "1.3.2"
+    "@scure/bip39" "1.2.1"
+    abitype "0.9.8"
+    isows "1.0.3"
+    ws "8.13.0"
 
 viem@^1.0.0:
   version "1.0.0"

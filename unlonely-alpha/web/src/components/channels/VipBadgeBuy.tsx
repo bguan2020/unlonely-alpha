@@ -2,13 +2,15 @@ import { Button, Text, Box, useToast, Flex } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { decodeEventLog, formatUnits, isAddress } from "viem";
-import { useBalance, useBlockNumber } from "wagmi";
+import { useBalance, useContractEvent } from "wagmi";
+import type { Log } from "viem";
 
 import { useUser } from "../../hooks/context/useUser";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
-import { InteractionType } from "../../constants";
+import { InteractionType, NULL_ADDRESS_BYTES32 } from "../../constants";
 import {
   useBuyVipBadge,
+  useGenerateKey,
   useGetPriceAfterFee,
 } from "../../hooks/contracts/useTournament";
 import usePostBadgeTrade from "../../hooks/server/gamblable/usePostBadgeTrade";
@@ -28,10 +30,6 @@ export const VipBadgeBuy = () => {
 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const canAddToChatbot = useRef(false);
-
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
@@ -120,6 +118,12 @@ export const VipBadgeBuy = () => {
     localNetwork
   );
 
+  const { key: generatedKey } = useGenerateKey(
+    channelQueryData?.owner?.address as `0x${string}`,
+    0,
+    tournamentContract
+  );
+
   const toast = useToast();
 
   const { postBadgeTrade } = usePostBadgeTrade({
@@ -182,25 +186,69 @@ export const VipBadgeBuy = () => {
     })
   );
 
-  const isFetching = useRef(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [incomingTrades, setIncomingTrades] = useState<Log[]>([]);
+  const [debouncedTrades, setDebouncedTrades] = useState<Log[]>([]);
+
+  /** once per trade, we fetch for new data asynchronously, 
+      we use debounce and timeout because only the data after the latest trade matters, 
+      all other previous data would be outdated already by the next trade,
+      however if the trade was created by this user, immediately fetch for new data
+      for the sake of responsiveness
+  */
+  useContractEvent({
+    address: tournamentContract.address,
+    abi: tournamentContract.abi,
+    eventName: "Trade",
+    listener(logs) {
+      console.log("VipBadgeBuy Trade", logs);
+      const init = async () => {
+        setIncomingTrades(logs);
+      };
+      init();
+    },
+  });
+
+  useEffect(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    const MILLIS_TO_WAIT = 1000;
+
+    timeoutRef.current = setTimeout(() => {
+      setDebouncedTrades(incomingTrades);
+    }, MILLIS_TO_WAIT);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [incomingTrades]);
 
   useEffect(() => {
     const init = async () => {
-      if (isFetching.current) return;
-      isFetching.current = true;
-      try {
-        await Promise.all([
-          refetchBadgePrice(),
-          refetchBuyVipBadge(),
-          refetchUserEthBalance(),
-        ]);
-      } catch (err) {
-        console.log("VipBadgeBuy fetching error", err);
+      if (!debouncedTrades || debouncedTrades.length === 0) return;
+      if (
+        debouncedTrades.some(
+          (log: any) => log?.args?.trade?.eventByte === generatedKey
+        )
+      ) {
+        try {
+          await Promise.all([
+            refetchBadgePrice(),
+            refetchUserEthBalance(),
+            refetchBuyVipBadge(),
+          ]);
+        } catch (err) {
+          console.log("VipBadgeBuy fetching error", err);
+        }
       }
-      isFetching.current = false;
     };
     init();
-  }, [blockNumber.data]);
+  }, [debouncedTrades]);
 
   useEffect(() => {
     if (!walletIsConnected) {
@@ -230,10 +278,15 @@ export const VipBadgeBuy = () => {
         _active={{}}
         borderRadius="0px"
         onClick={() => buyVipBadge?.()}
-        isDisabled={!buyVipBadge}
+        isDisabled={!buyVipBadge || generatedKey === NULL_ADDRESS_BYTES32}
       >
         <Text fontSize="20px">
-          BUY 1 (costs {truncateValue(formatUnits(badgePrice, 18), 4)} ETH)
+          {generatedKey === NULL_ADDRESS_BYTES32
+            ? "Key not generated"
+            : `BUY 1 (costs ${truncateValue(
+                formatUnits(badgePrice, 18),
+                4
+              )} ETH)`}
         </Text>
       </Button>
     </Flex>

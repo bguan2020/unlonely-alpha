@@ -15,6 +15,7 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 import {
   APPOINT_USER_EVENT,
+  AblyChannelPromise,
   BAN_USER_EVENT,
   InteractionType,
 } from "../../constants";
@@ -30,7 +31,7 @@ type Props = {
   message: Message;
   messageText: string;
   linkArray: RegExpMatchArray | null;
-  channel: any;
+  channel: AblyChannelPromise;
 };
 
 // if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred
@@ -44,7 +45,7 @@ const MessageBody = ({
 }: Props) => {
   const { channel: c, leaderboard } = useChannelContext();
   const { isVip } = leaderboard;
-  const { channelQueryData, ongoingBets } = c;
+  const { channelQueryData } = c;
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -99,7 +100,6 @@ const MessageBody = ({
   const messageBg = () => {
     const eventTypes = [
       InteractionType.EVENT_LIVE,
-      InteractionType.EVENT_END,
       InteractionType.EVENT_LOCK,
       InteractionType.EVENT_PAYOUT,
     ];
@@ -157,7 +157,7 @@ const MessageBody = ({
       };
     } else {
       return {
-        bg: "rgba(19, 18, 37, 1)",
+        // bg: "rgba(19, 18, 37, 1)",
       };
     }
   };

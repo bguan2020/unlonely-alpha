@@ -1,4 +1,4 @@
-import { Avatar, Text, Flex } from "@chakra-ui/react";
+import { Avatar, Text, Flex, Tooltip } from "@chakra-ui/react";
 
 import { anonUrl } from "../presence/AnonUrl";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -47,10 +47,15 @@ const ChannelDesc = () => {
               "linear-gradient(163deg, rgba(231,204,126,1) 0%, rgba(203,167,60,1) 7%, rgba(201,149,13,1) 32%, rgba(195,128,27,1) 43%, rgba(167,103,0,1) 63%, rgba(112,53,0,1) 100%)"
             }
           >
-            <Text fontSize="14px" textAlign={"center"} fontFamily="LoRes15">
-              <Text fontSize="20px">{truncateValue(totalBadges, 0)}</Text>
-              badges
-            </Text>
+            <Tooltip
+              label="this shows how many VIP badges have been purchased on this channel!"
+              shouldWrapChildren
+            >
+              <Text fontSize="14px" textAlign={"center"} fontFamily="LoRes15">
+                <Text fontSize="20px">{truncateValue(totalBadges, 0)}</Text>
+                badges
+              </Text>
+            </Tooltip>
           </Flex>
         </OuterBorder>
       </Flex>

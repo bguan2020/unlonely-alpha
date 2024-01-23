@@ -1,7 +1,7 @@
 import React from "react";
 import { SimpleGrid, Flex, Text } from "@chakra-ui/react";
 
-import { unicodeEmojis, categoriesList, gifsList } from "./constants";
+import { unicodeEmojis, _unicodeEmojis, gifsList } from "./constants";
 import { EmojiType } from "../../../constants/types/chat";
 import Emoji from "./Emoji";
 import GifPicker from "./GifPicker";
@@ -46,7 +46,7 @@ const EmojiCategory = ({
 const EmojiPicker = ({ onSelectEmoji, onSelectGif }: Props) => {
   return (
     <Flex direction="column">
-      {categoriesList.map((category, i) => (
+      {Object.keys(_unicodeEmojis).map((category, i) => (
         <EmojiCategory
           key={i}
           onSelectEmoji={onSelectEmoji}

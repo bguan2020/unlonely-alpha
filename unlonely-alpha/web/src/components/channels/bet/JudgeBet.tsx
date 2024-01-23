@@ -43,9 +43,15 @@ export const JudgeBet = ({
     [ethBalance, requiredGas]
   );
 
+  const isFetching = useRef(false);
+
   const { updateSharesEvent } = useUpdateSharesEvent({});
 
-  const { verifyEvent, verifyEventTxLoading } = useVerifyEvent(
+  const {
+    verifyEvent,
+    refetch: refetchVerifyEvent,
+    verifyEventTxLoading,
+  } = useVerifyEvent(
     {
       eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
       eventId: Number(ongoingBets?.[0]?.id) ?? 0,
@@ -160,6 +166,8 @@ export const JudgeBet = ({
 
   useEffect(() => {
     const estimateGas = async () => {
+      if (isFetching.current) return;
+      isFetching.current = true;
       const gas = await publicClient
         .estimateContractGas({
           address: contractData.address as `0x${string}`,
@@ -177,11 +185,20 @@ export const JudgeBet = ({
         });
       const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
       setRequiredGas(adjustedGas);
+      isFetching.current = false;
     };
     if (publicClient && contractData && userAddress && isVerifier) {
       estimateGas();
     }
   }, [publicClient, contractData, userAddress, isVerifier]);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      await refetchVerifyEvent();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Flex direction="column" gap="10px">

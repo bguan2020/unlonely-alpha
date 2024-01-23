@@ -46,9 +46,8 @@ export const SelectableChannel = ({
   const [isBellAnimating, setIsBellAnimating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleAddChannelToSubscription = async (e: any) => {
+  const handleAddChannelToSubscription = async () => {
     if (!endpoint) return;
-    e.stopPropagation();
     setIsLoading(true);
     await addChannelToSubscription?.({
       endpoint,
@@ -59,8 +58,7 @@ export const SelectableChannel = ({
     setIsBellAnimating(true);
   };
 
-  const handleRemoveChannelFromSubscription = async (e: any) => {
-    e.stopPropagation();
+  const handleRemoveChannelFromSubscription = async () => {
     if (!endpoint) return;
     setIsLoading(true);
     await removeChannelFromSubscription?.({
@@ -137,10 +135,12 @@ export const SelectableChannel = ({
                 )
               }
               onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
                 if (subscribed) {
-                  handleRemoveChannelFromSubscription(e);
+                  handleRemoveChannelFromSubscription();
                 } else {
-                  handleAddChannelToSubscription(e);
+                  handleAddChannelToSubscription();
                 }
               }}
             />
@@ -208,13 +208,15 @@ export const SelectableChannel = ({
                   )
                 }
                 onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
                   if (subscribed) {
-                    handleRemoveChannelFromSubscription(e);
+                    handleRemoveChannelFromSubscription();
                   } else {
-                    handleAddChannelToSubscription(e);
+                    handleAddChannelToSubscription();
                   }
                 }}
-              />{" "}
+              />
             </Flex>
             <Flex
               position="absolute"

@@ -6,7 +6,6 @@ export const GET_USER_QUERY = gql`
       address
       username
       signature
-      bio
       powerUserLvl
       videoSavantLvl
       nfcRank
@@ -77,13 +76,12 @@ export const CHANNEL_DETAIL_QUERY = gql`
       channelArn
       description
       livepeerPlaybackId
-      customButtonPrice
-      customButtonAction
       isLive
       id
       name
       slug
       allowNFCs
+      vibesTokenPriceRange
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
@@ -101,12 +99,6 @@ export const CHANNEL_DETAIL_QUERY = gql`
         username
         address
       }
-      token {
-        id
-        name
-        symbol
-        address
-      }
       roles {
         id
         userAddress
@@ -121,18 +113,52 @@ export const CHANNEL_DETAIL_QUERY = gql`
   }
 `;
 
-export const GET_RECENT_STREAM_INTERACTIONS_BY_CHANNEL_QUERY = gql`
-  query GetRecentStreamInteractions(
-    $data: GetRecentStreamInteractionsByChannelInput
-  ) {
-    getRecentStreamInteractionsByChannel(data: $data) {
+export const CHANNEL_STATIC_QUERY = gql`
+  query ChannelStatic($slug: String!) {
+    getChannelBySlug(slug: $slug) {
+      awsId
+      channelArn
+      description
+      livepeerPlaybackId
+      isLive
       id
-      interactionType
-      text
-      createdAt
-      updatedAt
+      name
+      slug
+      allowNFCs
       owner {
+        FCImageUrl
+        lensImageUrl
+        username
         address
+      }
+      playbackUrl
+      chatCommands {
+        command
+        response
+      }
+    }
+  }
+`;
+
+export const CHANNEL_INTERACTABLE_QUERY = gql`
+  query ChannelInteractable($slug: String!) {
+    getChannelBySlug(slug: $slug) {
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        options
+        chainId
+        channelId
+        eventState
+        createdAt
+        id
+        resultIndex
+      }
+      vibesTokenPriceRange
+      roles {
+        id
+        userAddress
+        role
       }
     }
   }

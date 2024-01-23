@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { decodeEventLog, formatUnits, isAddress } from "viem";
+import { Log, decodeEventLog, formatUnits, isAddress } from "viem";
 import {
   Flex,
   Box,
@@ -8,23 +8,31 @@ import {
   useToast,
   Input,
   Spinner,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { useBalance, useBlockNumber } from "wagmi";
+import { useBalance, useContractEvent } from "wagmi";
 import { AddIcon } from "@chakra-ui/icons";
 
-import { InteractionType, NULL_ADDRESS } from "../../../constants";
+import {
+  InteractionType,
+  NULL_ADDRESS,
+  NULL_ADDRESS_BYTES32,
+} from "../../../constants";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import {
   useBuyVotes,
   useGetPriceAfterFee,
-  useReadMappings,
+  useReadSupplies,
   useGenerateKey,
   useGetHolderBalances,
   useClaimVotePayout,
   useIsVerifier,
   useUserPayout,
+  useVotingPooledEth,
+  useEventEndTimestamp,
+  useEventVerifyStatus,
 } from "../../../hooks/contracts/useSharesContractV2";
 import usePostBetTrade from "../../../hooks/server/gamblable/usePostBetTrade";
 import { getContractFromNetwork } from "../../../utils/contract";
@@ -120,14 +128,14 @@ const Trade = () => {
   const v2contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const {
-    refetch: refetchBalances,
     yayVotesBalance,
     nayVotesBalance,
+    setYayVotesBalance,
+    setNayVotesBalance,
   } = useGetHolderBalances(
     (ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
     Number(ongoingBets?.[0]?.id ?? "0"),
     userAddress as `0x${string}`,
-    isYay,
     v2contract
   );
 
@@ -150,17 +158,42 @@ const Trade = () => {
   const {
     yayVotesSupply,
     nayVotesSupply,
-    eventEndTimestamp,
-    votingPooledEth,
-    eventVerified,
-    eventResult,
-    refetch: refetchMappings,
-  } = useReadMappings(
+    setYayVotesSupply,
+    setNayVotesSupply,
+  } = useReadSupplies(
     generatedKey,
     (ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
     Number(ongoingBets?.[0]?.id ?? "0"),
     v2contract
   );
+
+  const { eventVerified, eventResult, setEventResult, setEventVerified } =
+    useEventVerifyStatus(generatedKey, v2contract);
+
+  const { eventEndTimestamp, setEventEndTimestamp } = useEventEndTimestamp(
+    generatedKey,
+    v2contract
+  );
+
+  const isSharesEventPending =
+    ongoingBets?.[0]?.eventState === SharesEventState.Pending;
+  const isSharesEventLive =
+    ongoingBets?.[0]?.eventState === SharesEventState.Live;
+  const isSharesEventLock =
+    ongoingBets?.[0]?.eventState === SharesEventState.Lock;
+  const isSharesEventPayout =
+    ongoingBets?.[0]?.eventState === SharesEventState.Payout;
+  const isSharesEventPayoutPrevious =
+    ongoingBets?.[0]?.eventState === SharesEventState.PayoutPrevious;
+  const isOwner = userAddress === channelQueryData?.owner.address;
+  const eventEndTimestampPassed = Number(eventEndTimestamp) * 1000 <= dateNow;
+  const isEventOver = eventEndTimestampPassed || isSharesEventPayout;
+
+  const {
+    votingPooledEth,
+    refetch: refetchVotingPooledEth,
+    setVotingPooledEth,
+  } = useVotingPooledEth(generatedKey, v2contract);
 
   const { userPayout, refetch: refetchPayout } = useUserPayout(
     (ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
@@ -183,11 +216,7 @@ const Trade = () => {
       isYay,
       amountOfVotes: amount_bigint,
       value: votePrice,
-      canBuy:
-        (ongoingBets ?? []).length > 0 &&
-        ongoingBets?.[0]?.eventState === SharesEventState.Live &&
-        ongoingBets?.[0]?.sharesSubjectAddress !== undefined &&
-        !isAddress(ongoingBets?.[0]?.sharesSubjectAddress ?? ""),
+      canBuy: true,
     },
     v2contract,
     {
@@ -262,7 +291,11 @@ const Trade = () => {
           title,
           description: `${
             user?.username ?? centerEllipses(userAddress ?? "", 15)
-          }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}`,
+          }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}:${
+            args.trade.isYay
+              ? ongoingBets?.[0]?.options?.[0] ?? "yes"
+              : ongoingBets?.[0]?.options?.[1] ?? "no"
+          }`,
         });
         await postBetTrade({
           channelId: channelQueryData?.id as string,
@@ -293,119 +326,12 @@ const Trade = () => {
     }
   );
 
-  // const {
-  //   sellVotes,
-  //   refetch: refetchSellVotes,
-  //   isRefetchingSellVotes,
-  // } = useSellVotes(
-  //   {
-  //     eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
-  //     eventId: Number(ongoingBets?.[0]?.id ?? "0"),
-  //     isYay,
-  //     amountOfVotes: amount_bigint,
-  //   },
-  //   v2contract,
-  //   {
-  //     onWriteSuccess: (data) => {
-  //       toast({
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-  //             <Link
-  //               target="_blank"
-  //               href={`${explorerUrl}/tx/${data.hash}`}
-  //               passHref
-  //             >
-  //               sellVotes pending, click to view
-  //             </Link>
-  //           </Box>
-  //         ),
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //     },
-  //     onWriteError: (error) => {
-  //       toast({
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-  //             sellVotes cancelled
-  //           </Box>
-  //         ),
-  //       });
-  //     },
-  //     onTxSuccess: async (data) => {
-  //       toast({
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-  //             <Link
-  //               target="_blank"
-  //               href={`${explorerUrl}/tx/${data.transactionHash}`}
-  //               passHref
-  //             >
-  //               sellVotes success, click to view
-  //             </Link>
-  //           </Box>
-  //         ),
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //       setAmountOfVotes("1");
-  //       const topics = decodeEventLog({
-  //         abi: v2contract.abi,
-  //         data: data.logs[0].data,
-  //         topics: data.logs[0].topics,
-  //       });
-  //       const args: any = topics.args;
-  //       const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
-  //         args.trade.isBuy ? "bought" : "sold"
-  //       } ${args.trade.shareAmount} ${args.trade.isYay ? "yes" : "no"} votes!`;
-  //       addToChatbot({
-  //         username: user?.username ?? "",
-  //         address: userAddress ?? "",
-  //         taskType: InteractionType.SELL_VOTES,
-  //         title,
-  //         description: `${
-  //           user?.username ?? centerEllipses(userAddress ?? "", 15)
-  //         }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}`,
-  //       });
-  //       await postBetTrade({
-  //         channelId: channelQueryData?.id as string,
-  //         userAddress: userAddress as `0x${string}`,
-  //         chainId: localNetwork.config.chainId,
-  //         type: args.trade.isYay
-  //           ? GamblableEvent.BetYesSell
-  //           : GamblableEvent.BetNoSell,
-  //         fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
-  //       });
-  //     },
-  //     onTxError: (error) => {
-  //       toast({
-  //         render: () => (
-  //           <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-  //             sellVotes error
-  //           </Box>
-  //         ),
-  //         duration: 9000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //     },
-  //   }
-  // );
-
   const { claimVotePayout, refetch: refetchClaimVotePayout } =
     useClaimVotePayout(
       {
         eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
         eventId: Number(ongoingBets?.[0]?.id ?? "0"),
-        canClaim:
-          eventVerified &&
-          ongoingBets?.[0]?.eventState === SharesEventState.Payout &&
-          userPayout > BigInt(0),
+        canClaim: true,
       },
       v2contract,
       {
@@ -496,9 +422,6 @@ const Trade = () => {
       }
     );
 
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
   const { updateSharesEvent, loading: updateSharesEventLoading } =
     useUpdateSharesEvent({});
   const doesEventExist = useMemo(() => {
@@ -507,22 +430,6 @@ const Trade = () => {
     if (!ongoingBets?.[0]?.id) return false;
     return true;
   }, [ongoingBets]);
-
-  const isSharesEventPending =
-    ongoingBets?.[0]?.eventState === SharesEventState.Pending;
-  const isSharesEventLive =
-    ongoingBets?.[0]?.eventState === SharesEventState.Live;
-  const isSharesEventLock =
-    ongoingBets?.[0]?.eventState === SharesEventState.Lock;
-  const isSharesEventPayout =
-    ongoingBets?.[0]?.eventState === SharesEventState.Payout;
-  const isSharesEventPayoutPrevious =
-    ongoingBets?.[0]?.eventState === SharesEventState.PayoutPrevious;
-  const isOwner = userAddress === channelQueryData?.owner.address;
-  const eventEndTimestampPassed = Number(eventEndTimestamp) * 1000 <= dateNow;
-  const isEventOver =
-    eventEndTimestampPassed ||
-    ongoingBets?.[0]?.eventState === SharesEventState.Payout;
 
   const _updateSharesEvent = useCallback(
     async (eventState: SharesEventState) => {
@@ -555,56 +462,252 @@ const Trade = () => {
     [ongoingBets, user, userAddress]
   );
 
+  const [latestEventOpenedLogs, setLatestEventOpenedLogs] = useState<Log[]>([]);
+
+  useContractEvent({
+    address: v2contract.address,
+    abi: v2contract.abi,
+    eventName: "EventOpened",
+    listener(logs) {
+      console.log("EventOpened", logs);
+      setLatestEventOpenedLogs(logs);
+    },
+  });
+
+  const handleEventOpened = async (logs: Log[]) => {
+    if (!logs || logs.length === 0) return;
+    const foundEvent = logs.find(
+      (log: any) => log?.args?.eventByte === generatedKey
+    );
+    if (foundEvent) {
+      setVotingPooledEth(BigInt(0));
+      setEventEndTimestamp((foundEvent as any).args.endTimestamp);
+      setNayVotesBalance("0");
+      setYayVotesBalance("0");
+      setNayVotesSupply(BigInt(0));
+      setYayVotesSupply(BigInt(0));
+      setEventVerified(false);
+    }
+  };
+
   useEffect(() => {
-    if (!blockNumber.data || isFetching.current) return;
+    if (latestEventOpenedLogs) handleEventOpened(latestEventOpenedLogs);
+  }, [latestEventOpenedLogs]);
+
+  const [latestTradeLogs, setLatestTradeLogs] = useState<Log[]>([]);
+  const [tradeFetchFlag, setTradeFetchFlag] = useState<Log[]>([]);
+  const [debouncedTradeFetchFlag, setDebouncedTradeFetchFlag] = useState<Log[]>(
+    []
+  );
+
+  useContractEvent({
+    address: v2contract.address,
+    abi: v2contract.abi,
+    eventName: "Trade",
+    listener(logs) {
+      console.log("Trade", logs);
+      setLatestTradeLogs(logs);
+    },
+  });
+
+  const handleTrade = async (tradeEvents: Log[]) => {
+    const sortedEvents = tradeEvents
+      .filter((event: any) => event?.args.trade.eventByte === generatedKey)
+      .sort((a, b) => Number(a.blockNumber) - Number(b.blockNumber));
+    if (sortedEvents.length === 0) return;
+    let newYayBalanceAddtion = BigInt(0);
+    let newNayBalanceAddtion = BigInt(0);
+    let newYaySupply = null;
+    let newNaySupply = null;
+    for (let i = 0; i < sortedEvents.length; i++) {
+      const event: any = sortedEvents[i];
+      const eventTriggeredByUser = event?.args.trade.trader === userAddress;
+      const newSupply = event?.args.trade.supply;
+      const amount = event?.args.trade.shareAmount;
+      const isYay = event?.args.trade.isYay;
+      if (isYay) {
+        newYaySupply = newSupply;
+        if (eventTriggeredByUser) newYayBalanceAddtion = amount;
+      } else {
+        newNaySupply = newSupply;
+        if (eventTriggeredByUser) newNayBalanceAddtion = amount;
+      }
+    }
+    if (newYaySupply !== null) setYayVotesSupply(newYaySupply);
+    if (newNaySupply !== null) setNayVotesSupply(newNaySupply);
+    setYayVotesBalance((prev) =>
+      String(Number(prev) + Number(newYayBalanceAddtion))
+    );
+    setNayVotesBalance((prev) =>
+      String(Number(prev) + Number(newNayBalanceAddtion))
+    );
+    setTradeFetchFlag(tradeEvents);
+  };
+
+  useEffect(() => {
+    if (latestTradeLogs) handleTrade(latestTradeLogs);
+  }, [latestTradeLogs]);
+
+  const tradeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    if (tradeTimeoutRef.current) {
+      clearTimeout(tradeTimeoutRef.current);
+    }
+
+    const MILLIS_TO_WAIT = 1000;
+
+    tradeTimeoutRef.current = setTimeout(() => {
+      setDebouncedTradeFetchFlag(tradeFetchFlag);
+    }, MILLIS_TO_WAIT);
+
+    return () => {
+      if (tradeTimeoutRef.current) {
+        clearTimeout(tradeTimeoutRef.current);
+      }
+    };
+  }, [tradeFetchFlag]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (!debouncedTradeFetchFlag) return;
+      let calls: any[] = [];
+      calls = calls.concat([refetchVotePrice(), refetchVotingPooledEth()]);
+      try {
+        await Promise.all(calls);
+      } catch (err) {
+        console.log("debouncedTradeFetchFlag error", err);
+      }
+    };
+    init();
+  }, [debouncedTradeFetchFlag]);
+
+  const [latestEventVerifiedLogs, setLatestEventVerifiedLogs] = useState<Log[]>(
+    []
+  );
+
+  useContractEvent({
+    address: v2contract.address,
+    abi: v2contract.abi,
+    eventName: "EventVerified",
+    listener(logs) {
+      console.log("EventVerified", logs);
+      setLatestEventVerifiedLogs(logs);
+    },
+  });
+
+  const handleEventVerified = async (logs: Log[]) => {
+    if (!logs || logs.length === 0) return;
+    const log = logs.find((log: any) => log?.args?.eventByte === generatedKey);
+    if (!log) return;
+    setEventResult((log as any).args.result);
+    setEventVerified(true);
+    await refetchPayout();
+  };
+
+  useEffect(() => {
+    handleEventVerified(latestEventVerifiedLogs);
+  }, [latestEventVerifiedLogs]);
+
+  const [latestPayoutLogs, setLatestPayoutLogs] = useState<Log[]>([]);
+  const [payoutFlagFetch, setPayoutFlagFetch] = useState<Log[]>([]);
+  const [debouncedPayoutFlagFetch, setDebouncedPayoutFlagFetch] = useState<
+    Log[]
+  >([]);
+
+  useContractEvent({
+    address: v2contract.address,
+    abi: v2contract.abi,
+    eventName: "Payout",
+    listener(logs) {
+      console.log("Payout", logs);
+      setLatestPayoutLogs(logs);
+    },
+  });
+
+  useEffect(() => {
+    if (latestPayoutLogs) setPayoutFlagFetch(latestPayoutLogs);
+  }, [latestPayoutLogs]);
+
+  const payoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (payoutTimeoutRef.current) {
+      clearTimeout(payoutTimeoutRef.current);
+    }
+
+    const MILLIS_TO_WAIT = 1000;
+
+    payoutTimeoutRef.current = setTimeout(() => {
+      setDebouncedPayoutFlagFetch(payoutFlagFetch);
+    }, MILLIS_TO_WAIT);
+
+    return () => {
+      if (payoutTimeoutRef.current) {
+        clearTimeout(payoutTimeoutRef.current);
+      }
+    };
+  }, [payoutFlagFetch]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (
+        !debouncedPayoutFlagFetch ||
+        debouncedPayoutFlagFetch.length === 0 ||
+        !isSharesEventPayout
+      )
+        return;
+      if (
+        debouncedPayoutFlagFetch.some(
+          (log: any) =>
+            log?.args?.voter.toLowerCase() === userAddress?.toLowerCase()
+        )
+      ) {
+        let calls: any[] = [];
+        calls = calls.concat([
+          refetchVotingPooledEth(),
+          refetchClaimVotePayout(),
+          refetchPayout(),
+        ]);
+        try {
+          await Promise.all(calls);
+        } catch (err) {
+          console.log("debouncedPayoutFlagFetch error", err);
+        }
+      }
+    };
+    init();
+  }, [debouncedPayoutFlagFetch]);
+
+  const fetch = async () => {
     let calls: any[] = [];
     if (isOwner) {
       calls = calls.concat([refetchIsVerifier()]);
     }
-    if (doesEventExist && isSharesEventLive) {
-      if (eventEndTimestampPassed) {
-        calls = calls.concat([
-          refetchMappings(),
-          // refetchVotePrice(),
-          // refetchBuyVotes(),
-          // refetchSellVotes(),
-          refetchBalances(),
-          // refetchUserEthBalance(),
-        ]);
-      } else {
-        calls = calls.concat([
-          refetchMappings(),
-          refetchVotePrice(),
-          refetchBuyVotes(),
-          // refetchSellVotes(),
-          refetchBalances(),
-          refetchUserEthBalance(),
-        ]);
+    calls = calls.concat([refetchUserEthBalance()]);
+    if (doesEventExist) {
+      if (isSharesEventLive && eventEndTimestampPassed) {
+      } else if (isSharesEventLive && !eventEndTimestampPassed) {
+        calls.concat([refetchBuyVotes()]);
+      } else if (isSharesEventLock) {
+      } else if (isSharesEventPayout && userPayout > BigInt(0)) {
+        calls.concat([refetchClaimVotePayout()]);
       }
     }
-    if (doesEventExist && isSharesEventLock) {
-      calls = calls.concat([refetchMappings(), refetchBalances()]);
+    try {
+      await Promise.all(calls);
+    } catch (err) {
+      console.log("block based data fetching error", err);
     }
-    if (doesEventExist && isSharesEventPayout) {
-      calls = calls.concat([
-        refetchMappings(),
-        refetchBalances(),
-        refetchClaimVotePayout(),
-        refetchPayout(),
-      ]);
-    }
-    const fetch = async () => {
-      isFetching.current = true;
-      try {
-        await Promise.all(calls);
-      } catch (err) {
-        console.log("vote fetching error", err);
-      }
-      setDateNow(Date.now());
-      isFetching.current = false;
-    };
-    fetch();
-  }, [blockNumber.data]);
+    setDateNow(Date.now());
+  };
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      await fetch();
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (!walletIsConnected) {
@@ -830,7 +933,10 @@ const Trade = () => {
           {!doesEventExist ||
           (doesEventExist &&
             ongoingBets?.[0].eventState === SharesEventState.PayoutPrevious) ? (
-            <>
+            <Tooltip
+              label="ask the streamer to start a voting event on stream to use this feature!"
+              shouldWrapChildren
+            >
               <Text textAlign={"center"}>there is no event at the moment</Text>
               <Flex justifyContent={"center"}>
                 <Link
@@ -841,7 +947,7 @@ const Trade = () => {
                   <Text fontSize="12px"> go to claim page</Text>
                 </Link>
               </Flex>
-            </>
+            </Tooltip>
           ) : (
             <>
               {!eventEndTimestampPassed &&
@@ -961,12 +1067,15 @@ const Trade = () => {
                       isDisabled={
                         (isBuying && !buyVotes) ||
                         isRefetchingBuyVotes ||
-                        tradeLoading
+                        tradeLoading ||
+                        generatedKey === NULL_ADDRESS_BYTES32
                       }
                     >
-                      {(isBuying && !buyVotes) ||
-                      isRefetchingBuyVotes ||
-                      tradeLoading ? (
+                      {generatedKey === NULL_ADDRESS_BYTES32 ? (
+                        "Key not generated"
+                      ) : (isBuying && !buyVotes) ||
+                        isRefetchingBuyVotes ||
+                        tradeLoading ? (
                         <Spinner />
                       ) : isBuying ? (
                         "BUY"
@@ -1027,55 +1136,63 @@ const Trade = () => {
                     voting disabled
                   </Text>
                 </>
-              ) : ongoingBets?.[0]?.eventState === "PAYOUT" && eventVerified ? (
+              ) : ongoingBets?.[0]?.eventState === "PAYOUT" ? (
                 <>
                   <Text textAlign={"center"} fontSize="14px" mt="10px">
                     This event is over
                   </Text>
-                  <Flex justifyContent="space-between">
-                    <Text fontSize="18px">outcome</Text>
-                    <Text
-                      fontSize="18px"
-                      fontWeight="bold"
-                      color={eventResult === true ? "#02f042" : "#ee6204"}
-                    >
-                      {eventResult
-                        ? ongoingBets?.[0]?.options?.[0] ?? "Yes"
-                        : ongoingBets?.[0]?.options?.[1] ?? "No"}
-                    </Text>
-                  </Flex>
-                  <Flex justifyContent="space-between">
-                    <Text fontSize="18px">your winnings</Text>
-                    <Text fontSize="18px">
-                      {truncateValue(formatUnits(userPayout, 18))} ETH
-                    </Text>
-                  </Flex>
-                  <Flex direction={"column"} gap="10px">
-                    {userPayout > BigInt(0) && (
-                      <Button
-                        color="white"
-                        _hover={{}}
-                        _focus={{}}
-                        _active={{}}
-                        bg={"#09b311"}
-                        borderRadius="25px"
-                        isDisabled={!claimVotePayout || tradeLoading}
-                        onClick={claimVotePayout}
-                        width="100%"
-                      >
-                        <Text fontSize="20px">get payout</Text>
-                      </Button>
-                    )}
+                  {eventVerified ? (
+                    <>
+                      <Flex justifyContent="space-between">
+                        <Text fontSize="18px">outcome</Text>
+                        <Text
+                          fontSize="18px"
+                          fontWeight="bold"
+                          color={eventResult === true ? "#02f042" : "#ee6204"}
+                        >
+                          {eventResult
+                            ? ongoingBets?.[0]?.options?.[0] ?? "Yes"
+                            : ongoingBets?.[0]?.options?.[1] ?? "No"}
+                        </Text>
+                      </Flex>
+                      <Flex justifyContent="space-between">
+                        <Text fontSize="18px">your winnings</Text>
+                        <Text fontSize="18px">
+                          {truncateValue(formatUnits(userPayout, 18))} ETH
+                        </Text>
+                      </Flex>
+                      <Flex direction={"column"} gap="10px">
+                        {userPayout > BigInt(0) && (
+                          <Button
+                            color="white"
+                            _hover={{}}
+                            _focus={{}}
+                            _active={{}}
+                            bg={"#09b311"}
+                            borderRadius="25px"
+                            isDisabled={!claimVotePayout || tradeLoading}
+                            onClick={claimVotePayout}
+                            width="100%"
+                          >
+                            <Text fontSize="20px">get payout</Text>
+                          </Button>
+                        )}
+                        <Flex justifyContent={"center"}>
+                          <Link
+                            href={"/claim"}
+                            target={isStandalone ? "_self" : "_blank"}
+                            style={{ textDecoration: "underline" }}
+                          >
+                            <Text fontSize="12px"> go to claim page</Text>
+                          </Link>
+                        </Flex>
+                      </Flex>
+                    </>
+                  ) : (
                     <Flex justifyContent={"center"}>
-                      <Link
-                        href={"/claim"}
-                        target={isStandalone ? "_self" : "_blank"}
-                        style={{ textDecoration: "underline" }}
-                      >
-                        <Text fontSize="12px"> go to claim page</Text>
-                      </Link>
+                      <Spinner />
                     </Flex>
-                  </Flex>
+                  )}
                 </>
               ) : eventEndTimestamp === BigInt(0) &&
                 ongoingBets?.[0]?.eventState === "PENDING" ? (

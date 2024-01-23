@@ -261,6 +261,20 @@ export default extendTheme({
             ...inputGlow,
           },
         },
+        greenGlow: {
+          field: {
+            ...inputGlow,
+            boxShadow: "0px 0px 8px #32a852",
+            borderColor: "#16f051",
+          },
+        },
+        redGlow: {
+          field: {
+            ...inputGlow,
+            boxShadow: "0px 0px 8px #a83232",
+            borderColor: "#ff5454",
+          },
+        },
       },
     },
     Modal: {

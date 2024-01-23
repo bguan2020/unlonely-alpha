@@ -57,7 +57,7 @@ export const useReadPublic = (
       if (tokenPrice !== BigInt(0)) setTokenPrice(BigInt(0));
       if (tokenOwner !== NULL_ADDRESS) setTokenOwner(NULL_ADDRESS);
     }
-  }, [contract, creatorTokenAddress, publicClient]);
+  }, [contract.address, creatorTokenAddress, publicClient]);
 
   useEffect(() => {
     getData();
@@ -102,7 +102,7 @@ export const useCalculateEthAmount = (
     } catch (error) {
       if (amountIn !== BigInt(0)) setAmountIn(BigInt(0));
     }
-  }, [contract, creatorTokenAddress, amountOut]);
+  }, [contract.address, creatorTokenAddress, amountOut]);
 
   useEffect(() => {
     getData();
@@ -145,7 +145,7 @@ export const useAdmins = (contract: ContractData) => {
       }),
     ]);
     setAdmins(admins as unknown as string[]);
-  }, [contract, publicClient]);
+  }, [contract.address, publicClient]);
 
   useEffect(() => {
     getData();

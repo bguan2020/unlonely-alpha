@@ -28,6 +28,7 @@ const commandList: Command[] = [
     value: BaseChatCommand.CHATBOT.concat(" "),
   },
 ];
+
 function useOutsideAlerter(ref: any, onClose: () => void) {
   useEffect(() => {
     function handleClickOutside(event: any) {
@@ -80,15 +81,18 @@ export default function Commands({
   return (
     <>
       {currentOpen && matchingList.length > 0 && (
-        <Flex ref={wrapperRef} zIndex={2} mb="20" w="75%">
+        <Flex ref={wrapperRef} zIndex={2} mb="20">
           <Stack
             style={{ background: "rgb(47, 47, 100)" }}
             borderRadius="10px"
             p="5px"
+            maxH="300px"
+            overflowY={"auto"}
           >
             {matchingList.map((command, i) => {
               return (
                 <Button
+                  minH="50px"
                   color="white"
                   key={i}
                   bg={"#36548f"}

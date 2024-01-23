@@ -2,7 +2,8 @@ import { Box, Flex } from "@chakra-ui/react";
 
 import NextHead from "../layout/NextHead";
 import { TabsComponent } from "./StandAloneChatComponent";
-import VibesTokenExchange from "../chat/VibesTokenExchange";
+import VibesTokenInterface from "../chat/VibesTokenInterface";
+import { useChat } from "../../hooks/chat/useChat";
 
 const styles = `
   html, body {
@@ -20,6 +21,8 @@ const styles = `
 `;
 
 const PopOutChatComponent = () => {
+  const chat = useChat();
+
   return (
     <Box flexDirection="column" height="100dvh" flexWrap="nowrap">
       <style>{styles}</style>
@@ -45,9 +48,9 @@ const PopOutChatComponent = () => {
             bg="#131323"
             p="5px"
           >
-            <VibesTokenExchange />
+            <VibesTokenInterface ablyChannel={chat.channel} />
           </Flex>
-          <TabsComponent />
+          <TabsComponent chat={chat} />
         </Flex>
       </div>
     </Box>

@@ -22,7 +22,7 @@ import {
   Spinner,
   StepDescription,
 } from "@chakra-ui/react";
-import { useBlockNumber, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 import Link from "next/link";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 
@@ -36,7 +36,7 @@ import {
   EventTypeForContract,
   InteractionType,
   NULL_ADDRESS,
-  NULL_ADDRESSS_BYTES32,
+  NULL_ADDRESS_BYTES32,
 } from "../../../constants";
 import { useOpenEvent } from "../../../hooks/contracts/useSharesContractV2";
 import { getHourAndMinutesFromMillis } from "../../../utils/time";
@@ -91,6 +91,8 @@ export const CreateBet = ({
     [ongoingBets]
   );
 
+  const isFetching = useRef(false);
+
   const steps = [
     { title: "Start", description: "create bet" },
     { title: "Finish", description: "set time limit" },
@@ -101,9 +103,6 @@ export const CreateBet = ({
   });
 
   const [dateNow, setDateNow] = useState<number>(Date.now());
-  const blockNumber = useBlockNumber({
-    watch: true,
-  });
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const sufficientEthForGas = useMemo(
@@ -132,17 +131,6 @@ export const CreateBet = ({
     async (sharesSubjectQuestion: string) => {
       if (
         (ongoingBets?.length ?? 0) > 0 &&
-        pool === BigInt(0) &&
-        ongoingBets?.[0].eventState !== SharesEventState.Pending
-      ) {
-        await closeSharesEvents({
-          chainId: localNetwork.config.chainId,
-          channelId: channelQueryData?.id as string,
-          sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
-        });
-      }
-      if (
-        (ongoingBets?.length ?? 0) > 0 &&
         ongoingBets?.[0].eventState === SharesEventState.Payout
       ) {
         await updateSharesEvent({
@@ -151,6 +139,17 @@ export const CreateBet = ({
           sharesSubjectAddress: ongoingBets?.[0].sharesSubjectAddress ?? "",
           eventState: SharesEventState.PayoutPrevious,
           resultIndex: ongoingBets?.[0].resultIndex ?? undefined,
+        });
+      }
+      if (
+        (ongoingBets?.length ?? 0) > 0 &&
+        pool === BigInt(0) &&
+        ongoingBets?.[0].eventState !== SharesEventState.Pending
+      ) {
+        await closeSharesEvents({
+          chainId: localNetwork.config.chainId,
+          channelId: channelQueryData?.id as string,
+          sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
         });
       }
       await postSharesEvent({
@@ -195,6 +194,8 @@ export const CreateBet = ({
 
   useEffect(() => {
     const estimateGas = async () => {
+      if (isFetching.current) return;
+      isFetching.current = true;
       const gas = await publicClient
         .estimateContractGas({
           address: contractData.address as `0x${string}`,
@@ -217,6 +218,7 @@ export const CreateBet = ({
         });
       const adjustedGas = BigInt(Math.round(Number(gas) * 1.5));
       setRequiredGas(adjustedGas);
+      isFetching.current = false;
     };
     if (
       publicClient &&
@@ -237,16 +239,28 @@ export const CreateBet = ({
   ]);
 
   useEffect(() => {
-    const init = async () => {
+    const interval = setInterval(() => {
+      const init = async () => {
+        if (
+          loading === "prepping" &&
+          loading !== undefined &&
+          (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets?.length === 0)
+        )
+          handleLoading(undefined);
+      };
+      init();
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
       setDateNow(Date.now());
-      if (
-        loading === "prepping" &&
-        (generatedKey !== NULL_ADDRESSS_BYTES32 || ongoingBets?.length === 0)
-      )
-        handleLoading(undefined);
-    };
-    init();
-  }, [blockNumber.data]);
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Flex direction="column" gap="10px" mt="10px">
@@ -634,7 +648,7 @@ const OpenEventInterface = ({
               await openEvent?.();
             }}
           >
-            {!openEvent ? "tx simulation failed" : "confirm"}
+            {!openEvent ? <Spinner /> : "confirm"}
           </Button>
         </>
       )}
