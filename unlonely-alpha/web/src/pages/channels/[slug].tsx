@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { useContractEvent } from "wagmi";
+import { Log } from "viem";
 
 import { initializeApollo } from "../../apiClient/client";
 import ChannelViewerPerspective from "../../components/channels/ChannelViewerPerspective";
@@ -123,38 +124,45 @@ const DesktopPage = ({
     tournamentContract
   );
 
-  const handleUpdate = (tradeEvent: any) => {
-    if (tradeEvent.eventByte !== generatedKey) return;
-    const trader = tradeEvent.trader;
-    setVipBadgeSupply(tradeEvent.supply as bigint);
-    if (trader === userAddress) {
-      setVipBadgeBalance((prev) =>
-        String(
-          Number(prev) +
-            (tradeEvent.isBuy ? 1 : -1) * Number(tradeEvent.badgeAmount)
-        )
-      );
+  const handleUpdate = (tradeEvents: Log[]) => {
+    const sortedEvents = tradeEvents
+      .filter((event: any) => event?.args.trade.eventByte === generatedKey)
+      .sort((a, b) => Number(a.blockNumber) - Number(b.blockNumber));
+    if (sortedEvents.length === 0) return;
+    let newBalanceAddition = 0;
+    for (let i = 0; i < sortedEvents.length; i++) {
+      const tradeEvent: any = sortedEvents[i];
+      const trader = tradeEvent?.args.trade.trader;
+      if (trader === userAddress) {
+        newBalanceAddition +=
+          (tradeEvent?.args.trade.isBuy ? 1 : -1) *
+          Number(tradeEvent?.args.trade.badgeAmount);
+      }
     }
+    if (sortedEvents.length > 0)
+      setVipBadgeSupply(
+        (sortedEvents[sortedEvents.length - 1] as any).args.trade.supply
+      );
+    setVipBadgeBalance((prev) => String(Number(prev) + newBalanceAddition));
   };
 
-  const [incomingTrade, setIncomingTrade] = useState<any>(undefined);
+  const [incomingTrades, setIncomingTrades] = useState<Log[]>([]);
 
   useContractEvent({
     address: tournamentContract.address,
     abi: tournamentContract.abi,
     eventName: "Trade",
-    listener(log: any) {
+    listener(logs) {
       const init = async () => {
-        const tradeEvent = log[0].args.trade;
-        setIncomingTrade(tradeEvent);
+        setIncomingTrades(logs);
       };
       init();
     },
   });
 
   useEffect(() => {
-    if (incomingTrade) handleUpdate(incomingTrade);
-  }, [incomingTrade]);
+    if (incomingTrades) handleUpdate(incomingTrades);
+  }, [incomingTrades]);
 
   useEffect(() => {
     if (Number(vipBadgeBalance) > 0) {

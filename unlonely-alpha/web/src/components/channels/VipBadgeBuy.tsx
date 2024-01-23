@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { decodeEventLog, formatUnits, isAddress } from "viem";
 import { useBalance, useContractEvent } from "wagmi";
+import type { Log } from "viem";
 
 import { useUser } from "../../hooks/context/useUser";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
@@ -187,8 +188,8 @@ export const VipBadgeBuy = () => {
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [incomingTrade, setIncomingTrade] = useState<any>(undefined);
-  const [debouncedTrade, setDebouncedTrade] = useState<any>(undefined);
+  const [incomingTrades, setIncomingTrades] = useState<Log[]>([]);
+  const [debouncedTrades, setDebouncedTrades] = useState<Log[]>([]);
 
   /** once per trade, we fetch for new data asynchronously, 
       we use debounce and timeout because only the data after the latest trade matters, 
@@ -200,11 +201,10 @@ export const VipBadgeBuy = () => {
     address: tournamentContract.address,
     abi: tournamentContract.abi,
     eventName: "Trade",
-    listener(log: any) {
-      console.log("VipBadgeBuy Trade", log);
+    listener(logs) {
+      console.log("VipBadgeBuy Trade", logs);
       const init = async () => {
-        const tradeEvent = log[0].args.trade;
-        setIncomingTrade(tradeEvent);
+        setIncomingTrades(logs);
       };
       init();
     },
@@ -215,10 +215,10 @@ export const VipBadgeBuy = () => {
       clearTimeout(timeoutRef.current);
     }
 
-    const MILLIS_TO_WAIT = incomingTrade?.trader === userAddress ? 0 : 1000;
+    const MILLIS_TO_WAIT = 1000;
 
     timeoutRef.current = setTimeout(() => {
-      setDebouncedTrade(incomingTrade);
+      setDebouncedTrades(incomingTrades);
     }, MILLIS_TO_WAIT);
 
     return () => {
@@ -226,24 +226,29 @@ export const VipBadgeBuy = () => {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [incomingTrade]);
+  }, [incomingTrades]);
 
   useEffect(() => {
     const init = async () => {
-      if (!debouncedTrade) return;
-      if (debouncedTrade.eventByte !== generatedKey) return;
-      try {
-        await Promise.all([
-          refetchBadgePrice(),
-          refetchUserEthBalance(),
-          refetchBuyVipBadge(),
-        ]);
-      } catch (err) {
-        console.log("VipBadgeBuy fetching error", err);
+      if (!debouncedTrades || debouncedTrades.length === 0) return;
+      if (
+        debouncedTrades.some(
+          (log: any) => log?.args?.trade?.eventByte === generatedKey
+        )
+      ) {
+        try {
+          await Promise.all([
+            refetchBadgePrice(),
+            refetchUserEthBalance(),
+            refetchBuyVipBadge(),
+          ]);
+        } catch (err) {
+          console.log("VipBadgeBuy fetching error", err);
+        }
       }
     };
     init();
-  }, [debouncedTrade]);
+  }, [debouncedTrades]);
 
   useEffect(() => {
     if (!walletIsConnected) {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { decodeEventLog, formatUnits, isAddress } from "viem";
+import { Log, decodeEventLog, formatUnits, isAddress } from "viem";
 import {
   Flex,
   Box,
@@ -462,87 +462,91 @@ const Trade = () => {
     [ongoingBets, user, userAddress]
   );
 
-  const [latestEventOpenedLog, setLatestEventOpenedLog] =
-    useState<any>(undefined);
+  const [latestEventOpenedLogs, setLatestEventOpenedLogs] = useState<Log[]>([]);
 
   useContractEvent({
     address: v2contract.address,
     abi: v2contract.abi,
     eventName: "EventOpened",
-    listener(log: any) {
-      console.log("EventOpened", log);
-      setLatestEventOpenedLog(log);
+    listener(logs) {
+      console.log("EventOpened", logs);
+      setLatestEventOpenedLogs(logs);
     },
   });
 
-  const handleEventOpened = async (log: any) => {
-    const eventByte = log[0].args.eventByte;
-    if (eventByte !== generatedKey) {
-      console.log(
-        "handleEventOpened, eventByte does not match",
-        eventByte,
-        generatedKey,
-        log[0].args.endTimestamp
-      );
-      return;
+  const handleEventOpened = async (logs: Log[]) => {
+    if (!logs || logs.length === 0) return;
+    const foundEvent = logs.find(
+      (log: any) => log?.args?.trade.eventByte === generatedKey
+    );
+    if (foundEvent) {
+      setVotingPooledEth(BigInt(0));
+      setEventEndTimestamp((foundEvent as any).args.endTimestamp);
+      setNayVotesBalance("0");
+      setYayVotesBalance("0");
+      setNayVotesSupply(BigInt(0));
+      setYayVotesSupply(BigInt(0));
+      setEventVerified(false);
     }
-    setVotingPooledEth(BigInt(0));
-    setEventEndTimestamp(log[0].args.endTimestamp);
-    setNayVotesBalance("0");
-    setYayVotesBalance("0");
-    setNayVotesSupply(BigInt(0));
-    setYayVotesSupply(BigInt(0));
-    setEventVerified(false);
   };
 
   useEffect(() => {
-    if (latestEventOpenedLog) handleEventOpened(latestEventOpenedLog);
-  }, [latestEventOpenedLog]);
+    if (latestEventOpenedLogs) handleEventOpened(latestEventOpenedLogs);
+  }, [latestEventOpenedLogs]);
 
-  const [latestTradeLog, setLatestTradeLog] = useState<any>(undefined);
-  const [tradeFetchFlag, setTradeFetchFlag] = useState<any>(undefined);
-  const [debouncedTradeFetchFlag, setDebouncedTradeFetchFlag] =
-    useState<any>(undefined);
+  const [latestTradeLogs, setLatestTradeLogs] = useState<Log[]>([]);
+  const [tradeFetchFlag, setTradeFetchFlag] = useState<Log[]>([]);
+  const [debouncedTradeFetchFlag, setDebouncedTradeFetchFlag] = useState<Log[]>(
+    []
+  );
 
   useContractEvent({
     address: v2contract.address,
     abi: v2contract.abi,
     eventName: "Trade",
-    listener(log: any) {
-      console.log("Trade", log);
-      setLatestTradeLog(log);
+    listener(logs) {
+      console.log("Trade", logs);
+      setLatestTradeLogs(logs);
     },
   });
 
-  const handleTrade = async (log: any) => {
-    const eventByte = log[0].args.trade.eventByte;
-    if (eventByte !== generatedKey) {
-      console.log(
-        "handleTrade, eventByte does not match",
-        eventByte,
-        generatedKey
-      );
-      return;
+  const handleTrade = async (tradeEvents: Log[]) => {
+    const sortedEvents = tradeEvents
+      .filter((event: any) => event?.args.trade.eventByte === generatedKey)
+      .sort((a, b) => Number(a.blockNumber) - Number(b.blockNumber));
+    if (sortedEvents.length === 0) return;
+    let newYayBalanceAddtion = BigInt(0);
+    let newNayBalanceAddtion = BigInt(0);
+    let newYaySupply = BigInt(0);
+    let newNaySupply = BigInt(0);
+    for (let i = 0; i < sortedEvents.length; i++) {
+      const event: any = sortedEvents[i];
+      const eventTriggeredByUser = event?.args.trade.trader === userAddress;
+      const newSupply = event?.args.trade.supply;
+      const amount = event?.args.trade.shareAmount;
+      const isYay = event?.args.trade.isYay;
+      if (isYay) {
+        newYaySupply = newSupply;
+        if (eventTriggeredByUser) newYayBalanceAddtion = amount;
+      } else {
+        newNaySupply = newSupply;
+        if (eventTriggeredByUser) newNayBalanceAddtion = amount;
+      }
     }
-    const eventTriggeredByUser = log[0].args.trade.trader === userAddress;
-    const newSupply = log[0].args.trade.supply;
-    const amount = log[0].args.trade.shareAmount;
-    const isYay = log[0].args.trade.isYay;
-    if (isYay) {
-      setYayVotesSupply(newSupply);
-      if (eventTriggeredByUser)
-        setYayVotesBalance((prev) => String(Number(prev) + Number(amount)));
-    } else {
-      setNayVotesSupply(newSupply);
-      if (eventTriggeredByUser)
-        setNayVotesBalance((prev) => String(Number(prev) + Number(amount)));
-    }
-    setTradeFetchFlag(log);
+    setYayVotesSupply(newYaySupply);
+    setNayVotesSupply(newNaySupply);
+    setYayVotesBalance((prev) =>
+      String(Number(prev) + Number(newYayBalanceAddtion))
+    );
+    setNayVotesBalance((prev) =>
+      String(Number(prev) + Number(newNayBalanceAddtion))
+    );
+    setTradeFetchFlag(tradeEvents);
   };
 
   useEffect(() => {
-    if (latestTradeLog) handleTrade(latestTradeLog);
-  }, [latestTradeLog]);
+    if (latestTradeLogs) handleTrade(latestTradeLogs);
+  }, [latestTradeLogs]);
 
   const tradeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
@@ -550,8 +554,7 @@ const Trade = () => {
       clearTimeout(tradeTimeoutRef.current);
     }
 
-    const MILLIS_TO_WAIT =
-      tradeFetchFlag?.[0].args?.trade?.trader === userAddress ? 0 : 1000;
+    const MILLIS_TO_WAIT = 1000;
 
     tradeTimeoutRef.current = setTimeout(() => {
       setDebouncedTradeFetchFlag(tradeFetchFlag);
@@ -567,10 +570,6 @@ const Trade = () => {
   useEffect(() => {
     const init = async () => {
       if (!debouncedTradeFetchFlag) return;
-      if (debouncedTradeFetchFlag[0].args.trade.eventByte !== generatedKey) {
-        console.log("debounced flag fetch does not match event byte");
-        return;
-      }
       let calls: any[] = [];
       calls = calls.concat([refetchVotePrice(), refetchVotingPooledEth()]);
       try {
@@ -582,59 +581,52 @@ const Trade = () => {
     init();
   }, [debouncedTradeFetchFlag]);
 
-  const [latestEventVerifiedLog, setLatestEventVerifiedLog] =
-    useState<any>(undefined);
+  const [latestEventVerifiedLogs, setLatestEventVerifiedLogs] = useState<Log[]>(
+    []
+  );
 
   useContractEvent({
     address: v2contract.address,
     abi: v2contract.abi,
     eventName: "EventVerified",
-    listener(log: any) {
-      console.log("EventVerified", log);
-      setLatestEventVerifiedLog(log);
+    listener(logs) {
+      console.log("EventVerified", logs);
+      setLatestEventVerifiedLogs(logs);
     },
   });
 
-  const handleEventVerified = async (log: any) => {
-    if (log) {
-      const eventByte = log[0].args.eventByte;
-      if (eventByte !== generatedKey) {
-        console.log(
-          "handleEventVerified, eventByte does not match",
-          eventByte,
-          generatedKey,
-          log[0].args.result
-        );
-        return;
-      }
-      setEventResult(log[0].args.result);
-      setEventVerified(true);
-      await refetchPayout();
-    }
+  const handleEventVerified = async (logs: Log[]) => {
+    if (!logs || logs.length === 0) return;
+    const log = logs.find((log: any) => log?.args?.eventByte === generatedKey);
+    if (!log) return;
+    setEventResult((log as any).args.result);
+    setEventVerified(true);
+    await refetchPayout();
   };
 
   useEffect(() => {
-    handleEventVerified(latestEventVerifiedLog);
-  }, [latestEventVerifiedLog]);
+    handleEventVerified(latestEventVerifiedLogs);
+  }, [latestEventVerifiedLogs]);
 
-  const [latestPayoutLog, setLatestPayoutLog] = useState<any>(undefined);
-  const [payoutFlagFetch, setPayoutFlagFetch] = useState<any>(undefined);
-  const [debouncedPayoutFlagFetch, setDebouncedPayoutFlagFetch] =
-    useState<any>(undefined);
+  const [latestPayoutLogs, setLatestPayoutLogs] = useState<Log[]>([]);
+  const [payoutFlagFetch, setPayoutFlagFetch] = useState<Log[]>([]);
+  const [debouncedPayoutFlagFetch, setDebouncedPayoutFlagFetch] = useState<
+    Log[]
+  >([]);
 
   useContractEvent({
     address: v2contract.address,
     abi: v2contract.abi,
     eventName: "Payout",
-    listener(log: any) {
-      console.log("Payout", log);
-      setLatestPayoutLog(log);
+    listener(logs) {
+      console.log("Payout", logs);
+      setLatestPayoutLogs(logs);
     },
   });
 
   useEffect(() => {
-    if (latestPayoutLog) setPayoutFlagFetch(latestPayoutLog);
-  }, [latestPayoutLog]);
+    if (latestPayoutLogs) setPayoutFlagFetch(latestPayoutLogs);
+  }, [latestPayoutLogs]);
 
   const payoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -643,8 +635,7 @@ const Trade = () => {
       clearTimeout(payoutTimeoutRef.current);
     }
 
-    const MILLIS_TO_WAIT =
-      payoutFlagFetch?.[0].args?.voter === userAddress ? 0 : 1000;
+    const MILLIS_TO_WAIT = 1000;
 
     payoutTimeoutRef.current = setTimeout(() => {
       setDebouncedPayoutFlagFetch(payoutFlagFetch);
@@ -659,17 +650,29 @@ const Trade = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (!debouncedPayoutFlagFetch || !isSharesEventPayout) return;
-      let calls: any[] = [];
-      calls = calls.concat([
-        refetchVotingPooledEth(),
-        refetchClaimVotePayout(),
-        refetchPayout(),
-      ]);
-      try {
-        await Promise.all(calls);
-      } catch (err) {
-        console.log("debouncedPayoutFlagFetch error", err);
+      if (
+        !debouncedPayoutFlagFetch ||
+        debouncedPayoutFlagFetch.length === 0 ||
+        !isSharesEventPayout
+      )
+        return;
+      if (
+        debouncedPayoutFlagFetch.some(
+          (log: any) =>
+            log?.args?.voter.toLowerCase() === userAddress?.toLowerCase()
+        )
+      ) {
+        let calls: any[] = [];
+        calls = calls.concat([
+          refetchVotingPooledEth(),
+          refetchClaimVotePayout(),
+          refetchPayout(),
+        ]);
+        try {
+          await Promise.all(calls);
+        } catch (err) {
+          console.log("debouncedPayoutFlagFetch error", err);
+        }
       }
     };
     init();

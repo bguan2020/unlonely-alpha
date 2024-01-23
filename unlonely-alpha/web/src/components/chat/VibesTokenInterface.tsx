@@ -88,21 +88,9 @@ const VibesTokenInterface = ({
 
   const [zonesOn, setZonesOn] = useState(true);
 
-  // const formattedHourData = useMemo(() => {
-  //   const res = vibesTokenTxs.map((tx) => {
-  //     return {
-  //       user: tx.user,
-  //       event: tx.eventName,
-  //       amount: Number(tx.amount),
-  //       price: tx.price,
-  //       blockNumber: tx.blockNumber,
-  //     };
-  //   });
-  //   return res.slice(chartTimeIndexes.get("hour") as number);
-  // }, [vibesTokenTxs, chartTimeIndexes]);
-
-  const formattedDayData = useMemo(() => {
-    const res = vibesTokenTxs.map((tx) => {
+  const txs = useMemo(() => {
+    console.log("running txs useMemo");
+    return vibesTokenTxs.map((tx) => {
       return {
         user: tx.user,
         event: tx.eventName,
@@ -111,23 +99,17 @@ const VibesTokenInterface = ({
         blockNumber: tx.blockNumber,
       };
     });
-    return res.slice(chartTimeIndexes.get("day") as number);
-  }, [vibesTokenTxs, chartTimeIndexes]);
+  }, [vibesTokenTxs]);
+
+  const formattedDayData = useMemo(
+    () => txs.slice(chartTimeIndexes.get("day") as number),
+    [txs, chartTimeIndexes]
+  );
 
   const formattedData = useMemo(() => {
-    // if (timeFilter === "zones") return formattedHourData;
     if (timeFilter === "1d") return formattedDayData;
-    const res = vibesTokenTxs.map((tx) => {
-      return {
-        user: tx.user,
-        event: tx.eventName,
-        amount: Number(tx.amount),
-        price: tx.price,
-        blockNumber: tx.blockNumber,
-      };
-    });
-    return res;
-  }, [timeFilter, formattedDayData, vibesTokenTxs]);
+    return txs;
+  }, [txs, timeFilter, formattedDayData]);
 
   const formattedCurrentPrice = useMemo(
     () =>

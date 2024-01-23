@@ -48,4 +48,5 @@ export type VibesTokenTx = {
   amount: bigint;
   price: number;
   blockNumber: number;
+  supply: bigint;
 };

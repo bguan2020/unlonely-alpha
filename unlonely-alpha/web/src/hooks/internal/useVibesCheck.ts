@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { parseAbiItem } from "viem";
+import { Log, parseAbiItem } from "viem";
 import { useContractEvent, usePublicClient } from "wagmi";
 import { useApolloClient } from "@apollo/client";
 
@@ -40,7 +40,7 @@ export const useVibesCheck = () => {
     }
   };
 
-  const eventQueueRef = useRef<any>([]);
+  const eventQueueRef = useRef<Log[]>([]);
 
   /**
    * These two useContractEvent calls are used to listen for mint and burn events
@@ -53,12 +53,17 @@ export const useVibesCheck = () => {
     address: contract.address,
     abi: contract.abi,
     eventName: loading ? undefined : "Mint",
-    listener(log: any) {
-      console.log("Mint event detected", log);
-      eventQueueRef.current.push(log);
-      if (eventQueueRef.current.length === 1) {
-        processQueue();
-      }
+    listener(logs) {
+      console.log("Mint event detected", logs);
+      const sortedLogs = logs.sort(
+        (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
+      );
+      sortedLogs.forEach((log) => {
+        eventQueueRef.current.push(log);
+        if (eventQueueRef.current.length === 1) {
+          processQueue();
+        }
+      });
     },
   });
 
@@ -66,12 +71,17 @@ export const useVibesCheck = () => {
     address: contract.address,
     abi: contract.abi,
     eventName: loading ? undefined : "Burn",
-    listener(log: any) {
-      console.log("Burn event detected", log);
-      eventQueueRef.current.push(log);
-      if (eventQueueRef.current.length === 1) {
-        processQueue();
-      }
+    listener(logs) {
+      console.log("Burn event detected", logs);
+      const sortedLogs = logs.sort(
+        (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
+      );
+      sortedLogs.forEach((log) => {
+        eventQueueRef.current.push(log);
+        if (eventQueueRef.current.length === 1) {
+          processQueue();
+        }
+      });
     },
   });
 
@@ -84,37 +94,32 @@ export const useVibesCheck = () => {
   };
 
   const handleEvent = async (log: any) => {
-    const eventName = log[0].eventName;
-    console.log("detected", eventName);
-    const n = Number(log[0].args.totalSupply);
+    const eventName = log?.eventName;
+    const n = Number(log?.args.totalSupply);
     const n_ = Math.max(n - 1, 0);
     const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
     const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
     const user =
-      hashMapState.get(log[0].args.account) ??
-      (await _getEnsName(log[0].args.account));
-    if (!hashMapState.get(log[0].args.account)) {
+      hashMapState.get(log?.args.account) ??
+      (await _getEnsName(log?.args.account));
+    if (!hashMapState.get(log?.args.account)) {
       setHashMapState((prev) => {
-        return new Map([...prev, [log[0].args.account, user]]);
+        return new Map([...prev, [log?.args.account, user]]);
       });
     }
     const eventTx = {
       eventName: eventName,
       user,
-      amount: log[0].args.amount,
+      amount: log?.args.amount,
       price: priceForCurrent - priceForPrevious,
-      blockNumber: log[0].blockNumber,
+      blockNumber: log?.blockNumber,
+      supply: log?.args.totalSupply,
     };
+    console.log("detected", eventName, eventTx);
     setTokenTxs((prev) => {
-      console.log("appending", eventName);
-      if (prev[prev.length - 1].blockNumber > eventTx.blockNumber) {
-        return [
-          ...prev.slice(0, prev.length - 1),
-          eventTx,
-          prev[prev.length - 1],
-        ];
-      }
-      return [...prev, eventTx];
+      const newTokenTxs = insertElementSorted(prev, eventTx);
+      console.log("newTokenTxs", newTokenTxs);
+      return newTokenTxs;
     });
   };
 
@@ -168,6 +173,7 @@ export const useVibesCheck = () => {
           amount: event.args.amount,
           price: priceForCurrent - priceForPrevious,
           blockNumber: event.blockNumber,
+          supply: event.args.totalSupply,
         };
       });
       const uniqueUsers = new Set<string>();
@@ -267,4 +273,18 @@ function binarySearchIndex(arr: VibesTokenTx[], target: bigint): number {
 
   // Target not found, return the insertion position
   return left;
+}
+
+function insertElementSorted(arr: VibesTokenTx[], newElement: VibesTokenTx) {
+  // Find the insertion index
+  let insertIndex = arr.length;
+  for (let i = arr.length - 1; i >= 0; i--) {
+    if (arr[i].blockNumber <= newElement.blockNumber) {
+      // Found the position to insert
+      insertIndex = i + 1;
+      break;
+    }
+  }
+
+  return [...arr.slice(0, insertIndex), newElement, ...arr.slice(insertIndex)];
 }
