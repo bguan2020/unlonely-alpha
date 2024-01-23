@@ -15,7 +15,6 @@ import { useChannelContext } from "../context/useChannel";
 import { useUser } from "../context/useUser";
 import usePostFirstChat from "../server/usePostFirstChat";
 import { useChannel } from "./useChannel";
-import centerEllipses from "../../utils/centerEllipses";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
 import { Message, SenderStatus } from "../../constants/types/chat";
 
@@ -249,10 +248,7 @@ export const useChatBox = (
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
       if (channelQueryData?.allowNFCs || false) {
         handleIsClipUiOpen(true);
-        messageToPublish = `${
-          user?.username ?? centerEllipses(address, 15)
-        } has just clipped a highlight from this stream!`;
-        allowPublish = true;
+        allowPublish = false;
       } else {
         messageToPublish = "NFCs are not allowed on this channel.";
         allowPublish = true;

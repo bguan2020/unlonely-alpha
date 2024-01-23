@@ -16,10 +16,14 @@ import copy from "copy-to-clipboard";
 import { PostNfcInput } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { postNfcSchema } from "../../utils/validation/validation";
+import { InteractionType } from "../../constants";
+import centerEllipses from "../../utils/centerEllipses";
+import { useUser } from "../../hooks/context/useUser";
 
 export const ChatClip = () => {
+  const { user, userAddress } = useUser();
   const { chat } = useChannelContext();
-  const { clipping } = chat;
+  const { clipping, addToChatbot } = chat;
   const {
     isClipUiOpen,
     handleIsClipUiOpen,
@@ -33,7 +37,7 @@ export const ChatClip = () => {
     defaultValues: {},
     resolver: yupResolver(postNfcSchema),
   });
-  const { register, formState, handleSubmit, watch } = form;
+  const { register, formState, handleSubmit } = form;
 
   const [title, setTitle] = useState<string>("");
   const [finalUrl, setFinalUrl] = useState<string>("");
@@ -57,8 +61,16 @@ export const ChatClip = () => {
 
   const _submitClip = async (data: { title: string }) => {
     const url = await handleCreateClip(data.title);
-    console.log("final", url);
     setTitle("");
+    addToChatbot({
+      username: user?.username ?? "",
+      address: user?.address ?? "",
+      taskType: InteractionType.CLIP,
+      title: `${
+        user?.username ?? centerEllipses(userAddress, 15)
+      } has just clipped a highlight from this stream!`,
+      description: "",
+    });
     if (url) setFinalUrl(url);
   };
 

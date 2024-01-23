@@ -470,6 +470,7 @@ const Trade = () => {
     abi: v2contract.abi,
     eventName: "EventOpened",
     listener(log: any) {
+      console.log("EventOpened", log);
       setLatestEventOpenedLog(log);
     },
   });
@@ -626,6 +627,7 @@ const Trade = () => {
     abi: v2contract.abi,
     eventName: "Payout",
     listener(log: any) {
+      console.log("Payout", log);
       setLatestPayoutLog(log);
     },
   });

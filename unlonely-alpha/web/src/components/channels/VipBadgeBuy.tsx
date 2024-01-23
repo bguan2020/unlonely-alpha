@@ -201,6 +201,7 @@ export const VipBadgeBuy = () => {
     abi: tournamentContract.abi,
     eventName: "Trade",
     listener(log: any) {
+      console.log("VipBadgeBuy Trade", log);
       const init = async () => {
         const tradeEvent = log[0].args.trade;
         setIncomingTrade(tradeEvent);

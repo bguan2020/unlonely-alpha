@@ -29,9 +29,7 @@ import { EmojiType, SenderStatus } from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import EmojiButton from "./emoji/EmojiButton";
-import centerEllipses from "../../utils/centerEllipses";
 import ConnectWallet from "../navigation/ConnectWallet";
-import useUserAgent from "../../hooks/internal/useUserAgent";
 import { ChatClip } from "./ChatClip";
 import { REACTION_EMOJIS } from "./emoji/constants";
 import EmojiDisplay from "./emoji/EmojiDisplay";
@@ -58,12 +56,11 @@ const ChatForm = ({
   isVipChat,
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
-  const { isStandalone } = useUserAgent();
 
   const toast = useToast();
   const { channel: channelContext, chat, leaderboard } = useChannelContext();
   const { isVip } = leaderboard;
-  const { clipping, addToChatbot } = chat;
+  const { clipping } = chat;
   const { handleIsClipUiOpen, loading: clipLoading } = clipping;
 
   const { channelQueryData } = channelContext;
@@ -322,15 +319,6 @@ const ChatForm = ({
                           onClick={() => {
                             if (user) {
                               handleIsClipUiOpen(true);
-                              addToChatbot({
-                                username: user?.username ?? "",
-                                address: user?.address ?? "",
-                                taskType: InteractionType.CLIP,
-                                title: `${
-                                  user?.username ?? centerEllipses(address, 15)
-                                } has just clipped a highlight from this stream!`,
-                                description: "",
-                              });
                             } else {
                               toastSignIn();
                             }

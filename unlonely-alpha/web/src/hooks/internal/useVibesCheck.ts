@@ -54,6 +54,7 @@ export const useVibesCheck = () => {
     abi: contract.abi,
     eventName: loading ? undefined : "Mint",
     listener(log: any) {
+      console.log("Mint event detected", log);
       eventQueueRef.current.push(log);
       if (eventQueueRef.current.length === 1) {
         processQueue();
@@ -66,6 +67,7 @@ export const useVibesCheck = () => {
     abi: contract.abi,
     eventName: loading ? undefined : "Burn",
     listener(log: any) {
+      console.log("Burn event detected", log);
       eventQueueRef.current.push(log);
       if (eventQueueRef.current.length === 1) {
         processQueue();
