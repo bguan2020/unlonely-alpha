@@ -477,7 +477,7 @@ const Trade = () => {
   const handleEventOpened = async (logs: Log[]) => {
     if (!logs || logs.length === 0) return;
     const foundEvent = logs.find(
-      (log: any) => log?.args?.trade.eventByte === generatedKey
+      (log: any) => log?.args?.eventByte === generatedKey
     );
     if (foundEvent) {
       setVotingPooledEth(BigInt(0));
@@ -517,8 +517,8 @@ const Trade = () => {
     if (sortedEvents.length === 0) return;
     let newYayBalanceAddtion = BigInt(0);
     let newNayBalanceAddtion = BigInt(0);
-    let newYaySupply = BigInt(0);
-    let newNaySupply = BigInt(0);
+    let newYaySupply = null;
+    let newNaySupply = null;
     for (let i = 0; i < sortedEvents.length; i++) {
       const event: any = sortedEvents[i];
       const eventTriggeredByUser = event?.args.trade.trader === userAddress;
@@ -533,8 +533,8 @@ const Trade = () => {
         if (eventTriggeredByUser) newNayBalanceAddtion = amount;
       }
     }
-    setYayVotesSupply(newYaySupply);
-    setNayVotesSupply(newNaySupply);
+    if (newYaySupply !== null) setYayVotesSupply(newYaySupply);
+    if (newNaySupply !== null) setNayVotesSupply(newNaySupply);
     setYayVotesBalance((prev) =>
       String(Number(prev) + Number(newYayBalanceAddtion))
     );
@@ -1136,55 +1136,63 @@ const Trade = () => {
                     voting disabled
                   </Text>
                 </>
-              ) : ongoingBets?.[0]?.eventState === "PAYOUT" && eventVerified ? (
+              ) : ongoingBets?.[0]?.eventState === "PAYOUT" ? (
                 <>
                   <Text textAlign={"center"} fontSize="14px" mt="10px">
                     This event is over
                   </Text>
-                  <Flex justifyContent="space-between">
-                    <Text fontSize="18px">outcome</Text>
-                    <Text
-                      fontSize="18px"
-                      fontWeight="bold"
-                      color={eventResult === true ? "#02f042" : "#ee6204"}
-                    >
-                      {eventResult
-                        ? ongoingBets?.[0]?.options?.[0] ?? "Yes"
-                        : ongoingBets?.[0]?.options?.[1] ?? "No"}
-                    </Text>
-                  </Flex>
-                  <Flex justifyContent="space-between">
-                    <Text fontSize="18px">your winnings</Text>
-                    <Text fontSize="18px">
-                      {truncateValue(formatUnits(userPayout, 18))} ETH
-                    </Text>
-                  </Flex>
-                  <Flex direction={"column"} gap="10px">
-                    {userPayout > BigInt(0) && (
-                      <Button
-                        color="white"
-                        _hover={{}}
-                        _focus={{}}
-                        _active={{}}
-                        bg={"#09b311"}
-                        borderRadius="25px"
-                        isDisabled={!claimVotePayout || tradeLoading}
-                        onClick={claimVotePayout}
-                        width="100%"
-                      >
-                        <Text fontSize="20px">get payout</Text>
-                      </Button>
-                    )}
+                  {eventVerified ? (
+                    <>
+                      <Flex justifyContent="space-between">
+                        <Text fontSize="18px">outcome</Text>
+                        <Text
+                          fontSize="18px"
+                          fontWeight="bold"
+                          color={eventResult === true ? "#02f042" : "#ee6204"}
+                        >
+                          {eventResult
+                            ? ongoingBets?.[0]?.options?.[0] ?? "Yes"
+                            : ongoingBets?.[0]?.options?.[1] ?? "No"}
+                        </Text>
+                      </Flex>
+                      <Flex justifyContent="space-between">
+                        <Text fontSize="18px">your winnings</Text>
+                        <Text fontSize="18px">
+                          {truncateValue(formatUnits(userPayout, 18))} ETH
+                        </Text>
+                      </Flex>
+                      <Flex direction={"column"} gap="10px">
+                        {userPayout > BigInt(0) && (
+                          <Button
+                            color="white"
+                            _hover={{}}
+                            _focus={{}}
+                            _active={{}}
+                            bg={"#09b311"}
+                            borderRadius="25px"
+                            isDisabled={!claimVotePayout || tradeLoading}
+                            onClick={claimVotePayout}
+                            width="100%"
+                          >
+                            <Text fontSize="20px">get payout</Text>
+                          </Button>
+                        )}
+                        <Flex justifyContent={"center"}>
+                          <Link
+                            href={"/claim"}
+                            target={isStandalone ? "_self" : "_blank"}
+                            style={{ textDecoration: "underline" }}
+                          >
+                            <Text fontSize="12px"> go to claim page</Text>
+                          </Link>
+                        </Flex>
+                      </Flex>
+                    </>
+                  ) : (
                     <Flex justifyContent={"center"}>
-                      <Link
-                        href={"/claim"}
-                        target={isStandalone ? "_self" : "_blank"}
-                        style={{ textDecoration: "underline" }}
-                      >
-                        <Text fontSize="12px"> go to claim page</Text>
-                      </Link>
+                      <Spinner />
                     </Flex>
-                  </Flex>
+                  )}
                 </>
               ) : eventEndTimestamp === BigInt(0) &&
                 ongoingBets?.[0]?.eventState === "PENDING" ? (

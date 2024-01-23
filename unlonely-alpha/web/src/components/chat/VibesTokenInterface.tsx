@@ -89,7 +89,6 @@ const VibesTokenInterface = ({
   const [zonesOn, setZonesOn] = useState(true);
 
   const txs = useMemo(() => {
-    console.log("running txs useMemo");
     return vibesTokenTxs.map((tx) => {
       return {
         user: tx.user,
