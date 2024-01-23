@@ -15,7 +15,6 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
-import { BsFillHeartFill } from "react-icons/bs";
 import { GiTalk } from "react-icons/gi";
 
 import {
@@ -443,7 +442,7 @@ const ChatForm = ({
                     onSelectGif={(gif) => sendGif(gif)}
                   />
                 </Flex>
-                <IconButton
+                {/* <IconButton
                   color="white"
                   icon={<BsFillHeartFill size={15} />}
                   bg="transparent"
@@ -455,7 +454,7 @@ const ChatForm = ({
                     setShowEmojiReactionList(!showEmojiReactionList)
                   }
                   minWidth="auto"
-                />
+                /> */}
               </Flex>
               <Flex
                 mt="5px"
