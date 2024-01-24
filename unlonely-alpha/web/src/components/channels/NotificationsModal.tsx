@@ -71,7 +71,7 @@ export default function NotificationsModal({
     if (channelQueryData?.id === undefined) return;
     setIsSending(true);
     try {
-      await call({
+      const res = await call({
         variables: {
           data: {
             title: selectedType === "live" ? titleLive : titleNFCs,
@@ -80,6 +80,7 @@ export default function NotificationsModal({
           },
         },
       });
+      console.log("send all notifications:", res);
       toast({
         id: new Date().getMilliseconds(),
         title: "notification pushed!",
