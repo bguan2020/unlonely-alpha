@@ -107,6 +107,7 @@ export const useVibesCheck = () => {
         return new Map([...prev, [log?.args.account, user]]);
       });
     }
+    const previousTx = tokenTxs[tokenTxs.length - 1];
     const eventTx = {
       eventName: eventName,
       user,
@@ -114,6 +115,10 @@ export const useVibesCheck = () => {
       price: priceForCurrent - priceForPrevious,
       blockNumber: log?.blockNumber,
       supply: log?.args.totalSupply,
+      priceChangePercentage:
+        tokenTxs.length === 0
+          ? 0
+          : ((priceForCurrent - previousTx.price) / previousTx.price) * 100,
     };
     console.log("detected", eventName, eventTx);
     setTokenTxs((prev) => {
@@ -135,9 +140,6 @@ export const useVibesCheck = () => {
         fetching.current = false;
         return;
       }
-      console.log("fetching vibes events");
-      const startTime = Date.now();
-      let endTime = 0;
       fetching.current = true;
       const [mintLogs, burnLogs] = await Promise.all([
         publicClient.getLogs({
@@ -162,29 +164,36 @@ export const useVibesCheck = () => {
         if (a.blockNumber > b.blockNumber) return 1;
         return 0;
       });
-      const _tokenTxs: VibesTokenTx[] = logs.map((event: any) => {
+      const _tokenTxs: VibesTokenTx[] = [];
+      const uniqueUsers = new Set<string>();
+      for (let i = 0; i < logs.length; i++) {
+        const event = logs[i];
         const n = Number(event.args.totalSupply);
         const n_ = Math.max(n - 1, 0);
         const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
         const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
-        return {
+        const newPrice = priceForCurrent - priceForPrevious;
+        const previousTxPrice =
+          _tokenTxs.length > 0 ? _tokenTxs[_tokenTxs.length - 1].price : 0;
+        const tx: VibesTokenTx = {
           eventName: event.eventName,
-          user: event.args.account,
-          amount: event.args.amount,
-          price: priceForCurrent - priceForPrevious,
-          blockNumber: event.blockNumber,
-          supply: event.args.totalSupply,
+          user: event.args.account as string,
+          amount: event.args.amount as bigint,
+          price: newPrice,
+          blockNumber: Number(event.blockNumber),
+          supply: event.args.totalSupply as bigint,
+          priceChangePercentage:
+            i > 0 && _tokenTxs.length > 0
+              ? ((newPrice - previousTxPrice) / previousTxPrice) * 100
+              : 0,
         };
-      });
-      const uniqueUsers = new Set<string>();
-      _tokenTxs.forEach((tx: VibesTokenTx) => {
+        _tokenTxs.push(tx);
         uniqueUsers.add(tx.user);
-      });
+      }
       const promises = Array.from(uniqueUsers).map((u) =>
         _getEnsName(u as `0x${string}`)
       );
       const names = await Promise.all(promises).then((res) => {
-        endTime = Date.now();
         return res;
       });
       const nameHashMap = createHashmap(
@@ -196,13 +205,6 @@ export const useVibesCheck = () => {
           ...tx,
           user: nameHashMap.get(tx.user) ?? tx.user,
         };
-      });
-      // const MILLIS = 5000;
-      const MILLIS = 0;
-      const timeToWait =
-        endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
-      await new Promise((resolve) => {
-        setTimeout(resolve, timeToWait);
       });
       fetching.current = false;
       console.log("setting token txs,", namedTokenTxs.length, "count");

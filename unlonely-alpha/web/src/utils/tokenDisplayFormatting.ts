@@ -2,7 +2,8 @@ export const truncateValue = (
   value: number | string,
   decimals = 6,
   abbrev = true,
-  abbrevMaxDecimals = 2
+  abbrevMaxDecimals = 2,
+  softTruncate = true
 ): string => {
   if (typeof value === "number" && value === 0) return "0";
   if (typeof value === "string") {
@@ -24,7 +25,7 @@ export const truncateValue = (
   // if is nonzero number with decimals
   const cutoffIndex = decimalIndex + decimals;
   const truncatedStr = str.substring(0, cutoffIndex + 1);
-  if (parseFloat(truncatedStr) === 0)
+  if (parseFloat(truncatedStr) === 0 && softTruncate)
     return "< ".concat(`${truncatedStr.slice(0, -1)}1`);
   if (abbrev) return numberAbbreviate(truncatedStr, abbrevMaxDecimals);
   return truncatedStr;

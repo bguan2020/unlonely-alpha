@@ -30,6 +30,9 @@ const ZONE_BREADTH = 0.05;
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
+    const percentage = Number(
+      truncateValue(payload[0].payload.priceChangePercentage, 2, true, 2, false)
+    );
     return (
       <Flex
         direction="column"
@@ -51,6 +54,17 @@ const CustomTooltip = ({ active, payload }: any) => {
           formatUnits(payload[0].payload.price, 18),
           10
         )} ETH`}</Text>
+        {percentage !== 0 && (
+          <Text
+            color={
+              payload[0].payload.priceChangePercentage > 0
+                ? "#46a800"
+                : "#fe2815"
+            }
+          >{`${
+            payload[0].payload.priceChangePercentage > 0 ? "+" : ""
+          }${percentage}%`}</Text>
+        )}
       </Flex>
     );
   }
@@ -96,6 +110,7 @@ const VibesTokenInterface = ({
         amount: Number(tx.amount),
         price: tx.price,
         blockNumber: tx.blockNumber,
+        priceChangePercentage: tx.priceChangePercentage,
       };
     });
   }, [vibesTokenTxs]);
@@ -249,11 +264,6 @@ const VibesTokenInterface = ({
           </Flex>
           <Flex direction={isStandalone ? "column" : "row"} gap="10px" flex="1">
             <Flex direction="column" w="100%" position="relative">
-              {/* {formattedHourData.length === 0 && timeFilter === "zones" && (
-                <Text position="absolute" color="gray" top="50%">
-                  no txs in last hour
-                </Text>
-              )} */}
               {formattedDayData.length === 0 && timeFilter === "1d" && (
                 <Text position="absolute" color="gray" top="50%">
                   no txs in the past 24 hours
