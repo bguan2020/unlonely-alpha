@@ -16,6 +16,7 @@ import {
   Image,
   Spinner,
   IconButton,
+  Input,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
@@ -563,6 +564,29 @@ function MobilePage({
     ]);
   }, [channels, suggestedChannels]);
 
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const debounceDelay = 200; // milliseconds
+
+  const filteredChannels = useMemo(() => {
+    return sortedChannels?.filter((c) =>
+      debouncedSearch.length > 0
+        ? (c.owner.username ?? c.owner.address).includes(debouncedSearch)
+        : c
+    );
+  }, [sortedChannels, debouncedSearch]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, debounceDelay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search, debounceDelay]);
+
   return (
     <AppLayout isCustomHeader={false}>
       {!loadingPage && !loading ? (
@@ -590,6 +614,15 @@ function MobilePage({
               right="1rem"
               bottom="1rem"
             />
+            <Input
+              variant="glow"
+              placeholder="search for a streamer"
+              width={"100%"}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              position={filteredChannels.length === 0 ? "absolute" : undefined}
+              top={filteredChannels.length === 0 ? "0" : undefined}
+            />
             {error ? (
               <Text
                 textAlign={"center"}
@@ -598,12 +631,12 @@ function MobilePage({
               >
                 an error has occurred when fetching channels
               </Text>
-            ) : sortedChannels && sortedChannels.length > 0 ? (
+            ) : filteredChannels && filteredChannels.length > 0 ? (
               <Virtuoso
                 followOutput={"auto"}
                 ref={scrollRef}
-                data={sortedChannels}
-                totalCount={sortedChannels.length}
+                data={filteredChannels}
+                totalCount={filteredChannels.length}
                 initialTopMostItemIndex={0}
                 itemContent={(index, data) => (
                   <SelectableChannel
