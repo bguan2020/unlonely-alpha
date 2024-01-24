@@ -28,54 +28,11 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 
 const ZONE_BREADTH = 0.05;
 
-const CustomTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    const percentage = Number(
-      truncateValue(payload[0].payload.priceChangePercentage, 2, true, 2, false)
-    );
-    return (
-      <Flex
-        direction="column"
-        bg="rgba(0, 0, 0, 0.5)"
-        p="5px"
-        borderRadius="15px"
-      >
-        <Text>{`${
-          isAddress(payload[0].payload.user)
-            ? centerEllipses(payload[0].payload.user, 13)
-            : payload[0].payload.user
-        }`}</Text>
-        <Text
-          color={payload[0].payload.event === "Mint" ? "#46a800" : "#fe2815"}
-        >{`${
-          payload[0].payload.event === "Mint" ? "Bought" : "Sold"
-        } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
-        <Text>{`New price: ${truncateValue(
-          formatUnits(payload[0].payload.price, 18),
-          10
-        )} ETH`}</Text>
-        {percentage !== 0 && (
-          <Text
-            color={
-              payload[0].payload.priceChangePercentage > 0
-                ? "#46a800"
-                : "#fe2815"
-            }
-          >{`${
-            payload[0].payload.priceChangePercentage > 0 ? "+" : ""
-          }${percentage}%`}</Text>
-        )}
-      </Flex>
-    );
-  }
-
-  return null;
-};
-
 const VibesTokenInterface = ({
   defaultTimeFilter,
   allStreams,
   previewMode,
+  isFullChart,
   ablyChannel,
   disableExchange,
   customLowerPrice,
@@ -84,11 +41,62 @@ const VibesTokenInterface = ({
   defaultTimeFilter?: "1d" | "all";
   allStreams?: boolean;
   previewMode?: boolean;
+  isFullChart?: boolean;
   ablyChannel?: AblyChannelPromise;
   disableExchange?: boolean;
   customLowerPrice?: number;
   customHigherPrice?: number;
 }) => {
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const percentage = Number(
+        truncateValue(
+          payload[0].payload.priceChangePercentage,
+          2,
+          true,
+          2,
+          false
+        )
+      );
+      return (
+        <Flex
+          direction="column"
+          bg="rgba(0, 0, 0, 0.5)"
+          p="5px"
+          borderRadius="15px"
+        >
+          <Text>{`${
+            isAddress(payload[0].payload.user)
+              ? centerEllipses(payload[0].payload.user, 13)
+              : payload[0].payload.user
+          }`}</Text>
+          <Text
+            color={payload[0].payload.event === "Mint" ? "#46a800" : "#fe2815"}
+          >{`${
+            payload[0].payload.event === "Mint" ? "Bought" : "Sold"
+          } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
+          <Text>{`New price: ${truncateValue(
+            formatUnits(payload[0].payload.price, 18),
+            10
+          )} ETH`}</Text>
+          {percentage !== 0 && isFullChart && (
+            <Text
+              color={
+                payload[0].payload.priceChangePercentage > 0
+                  ? "#46a800"
+                  : "#fe2815"
+              }
+            >{`${
+              payload[0].payload.priceChangePercentage > 0 ? "+" : ""
+            }${percentage}%`}</Text>
+          )}
+        </Flex>
+      );
+    }
+
+    return null;
+  };
+
   const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
@@ -135,7 +143,7 @@ const VibesTokenInterface = ({
 
   const [isZoneModalOpen, setIsZoneModalOpen] = useState(false);
 
-  const isOwner = userAddress === channelQueryData?.owner.address;
+  const isOwner = userAddress === channelQueryData?.owner?.address;
 
   const lowerPrice = useMemo(() => {
     if (customLowerPrice !== undefined) return customLowerPrice;
@@ -262,7 +270,7 @@ const VibesTokenInterface = ({
               </>
             )}
           </Flex>
-          <Flex direction={isStandalone ? "column" : "row"} gap="10px" flex="1">
+          <Flex direction={"row"} gap="10px" flex="1">
             <Flex direction="column" w="100%" position="relative">
               {formattedDayData.length === 0 && timeFilter === "1d" && (
                 <Text position="absolute" color="gray" top="50%">
@@ -292,7 +300,8 @@ const VibesTokenInterface = ({
                   />
                   <Tooltip content={<CustomTooltip />} />
                   {(!allStreams || !previewMode) &&
-                    higherPrice < Number.MAX_SAFE_INTEGER && (
+                    higherPrice < Number.MAX_SAFE_INTEGER &&
+                    zonesOn && (
                       <ReferenceArea
                         fill="green"
                         fillOpacity={0.2}
@@ -319,19 +328,32 @@ const VibesTokenInterface = ({
                     animationDuration={200}
                     dot={false}
                   />
-                  {(!allStreams || !previewMode) && lowerPrice > 0 && (
-                    <ReferenceArea
-                      fill="red"
-                      fillOpacity={0.2}
-                      y1={0}
-                      y2={lowerPrice}
-                      ifOverflow="hidden"
-                    />
-                  )}
+                  {(!allStreams || !previewMode) &&
+                    lowerPrice > 0 &&
+                    zonesOn && (
+                      <ReferenceArea
+                        fill="red"
+                        fillOpacity={0.2}
+                        y1={0}
+                        y2={lowerPrice}
+                        ifOverflow="hidden"
+                      />
+                    )}
                 </LineChart>
               </ResponsiveContainer>
+              {(isStandalone || isFullChart) && disableExchange !== true && (
+                <VibesTokenExchange
+                  allStreams={allStreams}
+                  isFullChart={isFullChart}
+                />
+              )}
             </Flex>
-            {disableExchange !== true && <VibesTokenExchange />}
+            {!isStandalone && !isFullChart && disableExchange !== true && (
+              <VibesTokenExchange
+                allStreams={allStreams}
+                isFullChart={isFullChart}
+              />
+            )}
           </Flex>
         </Flex>
       )}

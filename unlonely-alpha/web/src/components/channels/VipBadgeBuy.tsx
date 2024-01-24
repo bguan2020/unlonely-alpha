@@ -215,7 +215,7 @@ export const VipBadgeBuy = () => {
       clearTimeout(timeoutRef.current);
     }
 
-    const MILLIS_TO_WAIT = 1000;
+    const MILLIS_TO_WAIT = 400;
 
     timeoutRef.current = setTimeout(() => {
       setDebouncedTrades(incomingTrades);

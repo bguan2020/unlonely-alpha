@@ -83,21 +83,9 @@ const DesktopPage = ({
 
   const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
 
-  // const { data } = useQuery<GetBadgeHoldersByChannelQuery>(
-  //   GET_BADGE_HOLDERS_BY_CHANNEL_QUERY,
-  //   {
-  //     variables: { data: { channelId: channelQueryData?.id } },
-  //   }
-  // );
-
-  // const { data: _data } = useQuery<GetChannelsByNumberOfBadgeHoldersQuery>(
-  //   GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY
-  // );
-
   const { userAddress, walletIsConnected } = useUser();
 
   const isOwner = userAddress === channelQueryData?.owner?.address;
-  // const isOwner = true;
 
   const [previewStream, setPreviewStream] = useState<boolean>(false);
 

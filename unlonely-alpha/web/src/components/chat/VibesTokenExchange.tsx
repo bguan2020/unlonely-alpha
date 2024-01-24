@@ -1,4 +1,17 @@
-import { Flex, Input, Button, Box, useToast, Text } from "@chakra-ui/react";
+import {
+  Flex,
+  Input,
+  Button,
+  Box,
+  useToast,
+  Image,
+  Text,
+  IconButton,
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
+} from "@chakra-ui/react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { decodeEventLog, isAddress } from "viem";
 import Link from "next/link";
@@ -19,8 +32,15 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useUser } from "../../hooks/context/useUser";
 import { getContractFromNetwork } from "../../utils/contract";
+import { useWindowSize } from "../../hooks/internal/useWindowSize";
 
-const VibesTokenExchange = () => {
+const VibesTokenExchange = ({
+  isFullChart,
+  allStreams,
+}: {
+  isFullChart?: boolean;
+  allStreams?: boolean;
+}) => {
   const { walletIsConnected, userAddress, user } = useUser();
   const { vibesTokenTxs } = useCacheContext();
   const toast = useToast();
@@ -58,6 +78,8 @@ const VibesTokenExchange = () => {
   const { protocolFeeDestination, refetch: refetchDest } =
     useReadPublic(contract);
 
+  const windowSize = useWindowSize();
+
   // const { burnProceedsAfterFees, refetch: refetchBurnProceedsAfterFees } =
   //   useGetBurnProceedsAfterFees(amount_votes_bigint, contract);
 
@@ -68,7 +90,7 @@ const VibesTokenExchange = () => {
   } = useMint(
     {
       streamer:
-        (channelQueryData?.owner.address as `0x${string}`) ??
+        (channelQueryData?.owner?.address as `0x${string}`) ??
         protocolFeeDestination,
       amount: amount_votes_bigint,
       value: mintCostAfterFees,
@@ -175,7 +197,7 @@ const VibesTokenExchange = () => {
   } = useBurn(
     {
       streamer:
-        (channelQueryData?.owner.address as `0x${string}`) ??
+        (channelQueryData?.owner?.address as `0x${string}`) ??
         protocolFeeDestination,
       amount: amount_votes_bigint,
     },
@@ -331,8 +353,42 @@ const VibesTokenExchange = () => {
     }
   }, [walletIsConnected, matchingChain, amountOfVibes]);
 
+  const openVibesPopout = () => {
+    if (!channelQueryData) return;
+    const windowFeatures = `width=${windowSize[0] + 100},height=${
+      windowSize[1] + 100
+    },menubar=yes,toolbar=yes`;
+    window.open(
+      `${window.location.origin}/vibes/${channelQueryData?.slug}`,
+      "_blank",
+      windowFeatures
+    );
+  };
+
   return (
     <Flex direction="column" justifyContent={"flex-end"} gap="10px">
+      {!isFullChart && !allStreams && (
+        <Popover trigger="hover" placement="top" openDelay={500}>
+          <PopoverTrigger>
+            <IconButton
+              onClick={openVibesPopout}
+              aria-label="vibes-popout"
+              _focus={{}}
+              _hover={{ transform: "scale(1.15)" }}
+              _active={{ transform: "scale(1.3)" }}
+              icon={<Image src="/svg/pop-out.svg" height={"20px"} />}
+              bg="transparent"
+              minWidth="auto"
+            />
+          </PopoverTrigger>
+          <PopoverContent bg="#5d12c6" border="none" width="100%" p="2px">
+            <PopoverArrow bg="#5d12c6" />
+            <Text fontSize="12px" textAlign={"center"}>
+              pop out full chart in a new window!
+            </Text>
+          </PopoverContent>
+        </Popover>
+      )}
       <Flex position="relative" gap="5px" alignItems={"center"}>
         <Input
           variant="glow"

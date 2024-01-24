@@ -37,6 +37,8 @@ import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import Participants from "../presence/Participants";
 import { VipBadgeBuy } from "../channels/VipBadgeBuy";
 import VibesTokenInterface from "../chat/VibesTokenInterface";
+import useUserAgent from "../../hooks/internal/useUserAgent";
+import Trade from "../channels/bet/Trade";
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -306,10 +308,11 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { channel: channelContext, chat: chatContext } = useChannelContext();
   const { channelQueryData, refetch } = channelContext;
   const { presenceChannel } = chatContext;
+  const { isStandalone } = useUserAgent();
 
-  const [selectedTab, setSelectedTab] = useState<"chat" | "trade" | "vip">(
-    "chat"
-  );
+  const [selectedTab, setSelectedTab] = useState<
+    "chat" | "trade" | "vibes" | "vip"
+  >("chat");
   const isOwner = userAddress === channelQueryData?.owner.address;
 
   useEffect(() => {
@@ -355,15 +358,35 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
             </Text>
           </Flex>
         </OuterBorder>
+        {!isStandalone && (
+          <OuterBorder
+            type={BorderType.OCEAN}
+            zIndex={selectedTab === "trade" ? 4 : 2}
+            onClick={() => setSelectedTab("trade")}
+            noborder
+            pb={selectedTab === "trade" ? "0px" : undefined}
+          >
+            <Flex
+              bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+              py="0.3rem"
+              width="100%"
+              justifyContent={"center"}
+            >
+              <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
+                vote
+              </Text>
+            </Flex>
+          </OuterBorder>
+        )}
         <OuterBorder
           type={BorderType.OCEAN}
-          zIndex={selectedTab === "trade" ? 4 : 2}
-          onClick={() => setSelectedTab("trade")}
+          zIndex={selectedTab === "vibes" ? 4 : 2}
+          onClick={() => setSelectedTab("vibes")}
           noborder
-          pb={selectedTab === "trade" ? "0px" : undefined}
+          pb={selectedTab === "vibes" ? "0px" : undefined}
         >
           <Flex
-            bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+            bg={selectedTab === "vibes" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
             py="0.3rem"
             width="100%"
             justifyContent={"center"}
@@ -403,7 +426,12 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
       )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}
-        {selectedTab === "trade" && <VibesTokenInterface />}
+        {selectedTab === "trade" && <Trade />}
+        {selectedTab === "vibes" && (
+          <Flex h="100%" justifyContent={"space-between"}>
+            <VibesTokenInterface isFullChart />
+          </Flex>
+        )}
         {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
       </Flex>
     </>
