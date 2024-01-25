@@ -3,6 +3,7 @@ import { User } from "@prisma/client";
 
 import { Context } from "../../context";
 import { lensClient, LENS_GET_DEFAULT_PROFILE } from "../../utils/lens/client";
+import { getEnsName } from "../../utils/ens";
 
 export const getLeaderboard = (ctx: Context) => {
   return ctx.prisma.user.findMany({
@@ -201,6 +202,56 @@ export const updateAllUsers = async (ctx: Context) => {
       }
     }
   }
+};
+
+export interface IUpdateUserInput {
+  address: string;
+}
+
+export const updateUser = async (data: IUpdateUserInput, ctx: Context) => {
+  const [fetchedUsername, fcStatus, lensRes] = await Promise.all([
+    getEnsName(data.address),
+    axios.get(
+      `https://searchcaster.xyz/api/profiles?connected_address=${data.address}`
+    ),
+    lensClient.query({
+      query: LENS_GET_DEFAULT_PROFILE,
+      variables: {
+        ethereumAddress: data.address,
+      },
+    }),
+  ]);
+  const { data: lensData } = lensRes;
+  const newData: any = {};
+  if (fetchedUsername) {
+    newData.username = fetchedUsername;
+  }
+  if (fcStatus.data.length > 0) {
+    newData.FCImageUrl = fcStatus.data[0].body.avatarUrl;
+    newData.isFCUser = true;
+  } else {
+    newData.FCImageUrl = null;
+    newData.isFCUser = false;
+  }
+  if (lensData && lensData.defaultProfile) {
+    newData.lensHandle = lensData.defaultProfile.handle;
+    newData.lensImageUrl =
+      lensData.defaultProfile.picture === null
+        ? null
+        : lensData.defaultProfile.picture.original.url;
+    newData.isLensUser = true;
+  } else {
+    newData.lensHandle = null;
+    newData.lensImageUrl = null;
+    newData.isLensUser = false;
+  }
+  console.log("updateUser", newData);
+  return ctx.prisma.user.update({
+    where: {
+      address: data.address,
+    },
+    data: newData,
+  });
 };
 
 export interface IUpdateUserNotificationsInput {

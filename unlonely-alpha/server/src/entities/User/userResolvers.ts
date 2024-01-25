@@ -1,4 +1,5 @@
 import { AuthenticationError } from "apollo-server-express";
+
 import { Context } from "../../context";
 import { authMessage } from "../../utils/auth";
 import * as userService from "./userService";
@@ -68,6 +69,17 @@ export const resolvers = {
       }
 
       return userService.updateUserNotifications(data, ctx.user, ctx);
+    },
+    updateUser: (
+      _: any,
+      { data }: { data: userService.IUpdateUserInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user) {
+        throw new AuthenticationError("Not authenticated");
+      }
+
+      return userService.updateUser(data, ctx);
     },
   },
 };
