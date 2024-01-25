@@ -528,10 +528,16 @@ const Trade = () => {
       const isYay = event?.args.trade.isYay;
       if (isYay) {
         newYaySupply = newSupply;
-        if (eventTriggeredByUser) newYayBalanceAddtion = amount;
+        if (eventTriggeredByUser)
+          newYayBalanceAddtion = BigInt(
+            Number(amount) + Number(newYayBalanceAddtion)
+          );
       } else {
         newNaySupply = newSupply;
-        if (eventTriggeredByUser) newNayBalanceAddtion = amount;
+        if (eventTriggeredByUser)
+          newNayBalanceAddtion = BigInt(
+            Number(amount) + Number(newNayBalanceAddtion)
+          );
       }
     }
     if (newYaySupply !== null) setYayVotesSupply(newYaySupply);
