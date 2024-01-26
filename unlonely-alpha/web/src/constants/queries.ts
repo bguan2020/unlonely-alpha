@@ -137,6 +137,11 @@ export const CHANNEL_STATIC_QUERY = gql`
         command
         response
       }
+      roles {
+        id
+        userAddress
+        role
+      }
     }
   }
 `;
@@ -154,11 +159,6 @@ export const CHANNEL_INTERACTABLE_QUERY = gql`
         createdAt
         id
         resultIndex
-      }
-      roles {
-        id
-        userAddress
-        role
       }
     }
   }

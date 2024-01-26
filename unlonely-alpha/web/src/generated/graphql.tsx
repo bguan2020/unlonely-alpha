@@ -1304,6 +1304,12 @@ export type ChannelStaticQuery = {
       command: string;
       response: string;
     } | null> | null;
+    roles?: Array<{
+      __typename?: "ChannelUserRole";
+      id: number;
+      userAddress: string;
+      role: number;
+    } | null> | null;
   } | null;
 };
 
@@ -1326,12 +1332,6 @@ export type ChannelInteractableQuery = {
       createdAt: any;
       id: string;
       resultIndex?: number | null;
-    } | null> | null;
-    roles?: Array<{
-      __typename?: "ChannelUserRole";
-      id: number;
-      userAddress: string;
-      role: number;
     } | null> | null;
   } | null;
 };
@@ -2421,6 +2421,11 @@ export const ChannelStaticDocument = gql`
         command
         response
       }
+      roles {
+        id
+        userAddress
+        role
+      }
     }
   }
 `;
@@ -2488,11 +2493,6 @@ export const ChannelInteractableDocument = gql`
         createdAt
         id
         resultIndex
-      }
-      roles {
-        id
-        userAddress
-        role
       }
     }
   }
