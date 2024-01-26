@@ -1,12 +1,5 @@
-import { gql } from "apollo-boost";
-export const GET_SOCIAL = gql`
-  query GetSocial(
-    $identity: Identity!
-    $identity: Identity!
-    $blockchain: TokenBlockchain!
-    $_eq: SocialDappName
-    $_eq1: SocialDappName
-  ) {
+export const GET_SOCIAL = `
+  query GetSocial($identity: Identity!, $blockchain: TokenBlockchain!) {
     Wallet(input: { identity: $identity, blockchain: $blockchain }) {
       addresses
       primaryDomain {
@@ -25,7 +18,7 @@ export const GET_SOCIAL = gql`
         createdAtBlockTimestamp
       }
       farcasterSocials: socials(
-        input: { filter: { dappName: { _eq: $_eq } } }
+        input: { filter: { dappName: { _eq: farcaster } } }
       ) {
         isDefault
         blockchain
@@ -42,7 +35,7 @@ export const GET_SOCIAL = gql`
           }
         }
       }
-      lensSocials: socials(input: { filter: { dappName: { _eq: $_eq1 } } }) {
+      lensSocials: socials(input: { filter: { dappName: { _eq: lens } } }) {
         isDefault
         blockchain
         profileName

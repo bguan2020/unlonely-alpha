@@ -1,9 +1,10 @@
 import axios from "axios";
 import { User } from "@prisma/client";
+import { init, fetchQuery } from "@airstack/node";
 
 import { Context } from "../../context";
 import { lensClient, LENS_GET_DEFAULT_PROFILE } from "../../utils/lens/client";
-import { getEnsName } from "../../utils/ens";
+import { GET_SOCIAL } from "../../utils/identityResolver";
 
 export const getLeaderboard = (ctx: Context) => {
   return ctx.prisma.user.findMany({
@@ -209,43 +210,39 @@ export interface IUpdateUserInput {
 }
 
 export const updateUser = async (data: IUpdateUserInput, ctx: Context) => {
-  const [fetchedUsername, fcStatus, lensRes] = await Promise.all([
-    getEnsName(data.address),
-    axios.get(
-      `https://searchcaster.xyz/api/profiles?connected_address=${data.address}`
-    ),
-    lensClient.query({
-      query: LENS_GET_DEFAULT_PROFILE,
-      variables: {
-        ethereumAddress: data.address,
-      },
-    }),
-  ]);
-  const { data: lensData } = lensRes;
-  const newData: any = {};
-  if (fetchedUsername) {
-    newData.username = fetchedUsername;
+  init(String(process.env.AIRSTACK_API_KEY));
+
+  const { data: res, error } = await fetchQuery(GET_SOCIAL, {
+    identity: data.address,
+    blockchain: "ethereum",
+  });
+  if (error) {
+    console.log("updateUser error", error);
+    return;
   }
-  if (fcStatus.data.length > 0) {
-    newData.FCImageUrl = fcStatus.data[0].body.avatarUrl;
+  const ens = res.Wallet.primaryDomain.name;
+  const fc = res.Wallet.farcasterSocials[0];
+  const lens = res.Wallet.lensSocials[0];
+  const newData: any = {};
+  if (ens !== null) {
+    newData.username = ens;
+  }
+  if (fc !== null) {
+    newData.FCImageUrl = fc.profileImageContentValue.image.small;
     newData.isFCUser = true;
   } else {
-    newData.FCImageUrl = null;
+    newData.FCImageUrl = "";
     newData.isFCUser = false;
   }
-  if (lensData && lensData.defaultProfile) {
-    newData.lensHandle = lensData.defaultProfile.handle;
-    newData.lensImageUrl =
-      lensData.defaultProfile.picture === null
-        ? null
-        : lensData.defaultProfile.picture.original.url;
+  if (lens !== null) {
+    newData.lensHandle = lens.profileHandle;
+    newData.lensImageUrl = lens.profileImageContentValue.image.small;
     newData.isLensUser = true;
   } else {
-    newData.lensHandle = null;
-    newData.lensImageUrl = null;
+    newData.lensHandle = "";
+    newData.lensImageUrl = "";
     newData.isLensUser = false;
   }
-  console.log("updateUser", newData);
   return ctx.prisma.user.update({
     where: {
       address: data.address,

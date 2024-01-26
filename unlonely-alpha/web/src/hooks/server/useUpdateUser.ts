@@ -15,7 +15,10 @@ type Props = {
 const UPDATE_USER_MUTATION = gql`
   mutation UpdateUser($data: UpdateUserInput!) {
     updateUser(data: $data) {
-      id
+      address
+      lensHandle
+      FCImageUrl
+      username
     }
   }
 `;
@@ -42,7 +45,7 @@ const useUpdateUser = ({ onError }: Props) => {
         const res = mutationResult?.data?.updateUser;
 
         if (res) {
-          console.log("updateUser success");
+          console.log("updateUser success:", res);
         } else {
           onError && onError();
         }

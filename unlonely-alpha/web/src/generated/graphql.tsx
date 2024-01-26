@@ -1898,7 +1898,13 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = {
   __typename?: "Mutation";
-  updateUser?: { __typename?: "User"; id: string } | null;
+  updateUser?: {
+    __typename?: "User";
+    address: string;
+    lensHandle?: string | null;
+    FCImageUrl?: string | null;
+    username?: string | null;
+  } | null;
 };
 
 export type UpdateUserNotificationsMutationVariables = Exact<{
@@ -4824,7 +4830,10 @@ export type UpdateSharesEventMutationOptions = Apollo.BaseMutationOptions<
 export const UpdateUserDocument = gql`
   mutation UpdateUser($data: UpdateUserInput!) {
     updateUser(data: $data) {
-      id
+      address
+      lensHandle
+      FCImageUrl
+      username
     }
   }
 `;
