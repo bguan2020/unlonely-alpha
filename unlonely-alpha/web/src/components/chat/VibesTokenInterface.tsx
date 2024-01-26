@@ -104,8 +104,9 @@ const VibesTokenInterface = ({
   const { isStandalone } = useUserAgent();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
     useCacheContext();
-  const { channel } = useChannelContext();
+  const { channel, ui } = useChannelContext();
   const { channelQueryData } = channel;
+  const { vibesTokenPriceRange } = ui;
   const windowSize = useWindowSize();
 
   const [timeFilter, setTimeFilter] = useState<"1d" | "all">(
@@ -155,34 +156,24 @@ const VibesTokenInterface = ({
   const lowerPrice = useMemo(() => {
     if (customLowerPrice !== undefined) return customLowerPrice;
     if (
-      channelQueryData?.vibesTokenPriceRange?.[0] !== null &&
-      channelQueryData?.vibesTokenPriceRange?.[0] !== undefined
+      vibesTokenPriceRange[0] !== null &&
+      vibesTokenPriceRange[0] !== undefined
     ) {
-      return Number(
-        parseUnits(
-          channelQueryData?.vibesTokenPriceRange?.[0] as `${number}`,
-          18
-        )
-      );
+      return Number(parseUnits(vibesTokenPriceRange[0] as `${number}`, 18));
     }
     return 0;
-  }, [channelQueryData?.vibesTokenPriceRange?.[0], customLowerPrice]);
+  }, [vibesTokenPriceRange[0], customLowerPrice]);
 
   const higherPrice = useMemo(() => {
     if (customHigherPrice !== undefined) return customHigherPrice;
     if (
-      channelQueryData?.vibesTokenPriceRange?.[1] !== null &&
-      channelQueryData?.vibesTokenPriceRange?.[1] !== undefined
+      vibesTokenPriceRange[1] !== null &&
+      vibesTokenPriceRange[1] !== undefined
     ) {
-      return Number(
-        parseUnits(
-          channelQueryData?.vibesTokenPriceRange?.[1] as `${number}`,
-          18
-        )
-      );
+      return Number(parseUnits(vibesTokenPriceRange[1] as `${number}`, 18));
     }
     return Number.MAX_SAFE_INTEGER;
-  }, [channelQueryData?.vibesTokenPriceRange?.[1], customHigherPrice]);
+  }, [vibesTokenPriceRange[1], customHigherPrice]);
 
   const openVibesPopout = () => {
     if (!channelQueryData) return;

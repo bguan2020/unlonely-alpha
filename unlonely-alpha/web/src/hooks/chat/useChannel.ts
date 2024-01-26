@@ -45,9 +45,10 @@ export function useAblyChannel(
 
 export function useChannel(fixedChatName?: string) {
   const { userAddress } = useUser();
-  const { channel: c, chat } = useChannelContext();
+  const { channel: c, chat, ui } = useChannelContext();
   const { channelQueryData, refetch } = c;
   const { chatChannel } = chat;
+  const { handleVibesTokenPriceRange } = ui;
 
   const channelName =
     fixedChatName ??
@@ -76,10 +77,13 @@ export function useChannel(fixedChatName?: string) {
     );
     if (
       message.name === APPOINT_USER_EVENT ||
-      message.name === BAN_USER_EVENT ||
-      message.name === VIBES_TOKEN_PRICE_RANGE_EVENT
+      message.name === BAN_USER_EVENT
     ) {
       await refetch();
+    }
+    if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
+      const newSliderValue = JSON.parse(message.data.body);
+      handleVibesTokenPriceRange(newSliderValue);
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (localBanList.length === 0) {

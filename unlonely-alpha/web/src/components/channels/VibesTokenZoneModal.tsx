@@ -38,34 +38,31 @@ const VibesTokenZoneModal = ({
     formattedCurrentPrice,
   ]);
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
-  const { channel } = useChannelContext();
+  const { channel, ui } = useChannelContext();
   const { channelQueryData } = channel;
+  const { vibesTokenPriceRange } = ui;
   const mounting = useRef(true);
 
   const { updateChannelVibesTokenPriceRange, loading } =
     useUpdateChannelVibesTokenPriceRange({});
 
   const submit = async (clear?: boolean) => {
+    const obj = clear ? [] : sliderValue;
     await updateChannelVibesTokenPriceRange({
       id: channelQueryData?.id,
-      vibesTokenPriceRange: clear ? [] : sliderValue,
+      vibesTokenPriceRange: obj,
     });
     ablyChannel?.publish({
       name: VIBES_TOKEN_PRICE_RANGE_EVENT,
-      data: { body: clear ? "" : sliderValue.join() },
+      data: { body: JSON.stringify(obj) },
     });
     handleClose();
   };
 
   const _handleClose = () => {
-    if (channelQueryData?.vibesTokenPriceRange?.length === 0)
+    if (vibesTokenPriceRange.length === 0)
       setSliderValue([formattedCurrentPrice, formattedCurrentPrice]);
-    if (channelQueryData?.vibesTokenPriceRange?.length === 2)
-      setSliderValue(
-        channelQueryData?.vibesTokenPriceRange.filter(
-          (str): str is string => str !== null
-        )
-      );
+    if (vibesTokenPriceRange.length === 2) setSliderValue(vibesTokenPriceRange);
     handleClose();
   };
 
@@ -77,15 +74,8 @@ const VibesTokenZoneModal = ({
   }, [formattedCurrentPrice]);
 
   useEffect(() => {
-    if (channelQueryData?.vibesTokenPriceRange) {
-      const filteredArray = channelQueryData?.vibesTokenPriceRange.filter(
-        (str): str is string => str !== null
-      );
-      if (filteredArray?.length === 2) {
-        setSliderValue(filteredArray);
-      }
-    }
-  }, [channelQueryData?.vibesTokenPriceRange]);
+    if (vibesTokenPriceRange.length === 2) setSliderValue(vibesTokenPriceRange);
+  }, [vibesTokenPriceRange]);
 
   const handleSliderPercentage = useCallback(
     (val: number, price: "green" | "red", direction: "up" | "down") => {
@@ -230,10 +220,8 @@ const VibesTokenZoneModal = ({
               }}
               isDisabled={
                 Number(sliderValue[0]) > Number(sliderValue[1]) ||
-                (Number(sliderValue[0]) ===
-                  Number(channelQueryData?.vibesTokenPriceRange?.[0]) &&
-                  Number(sliderValue[1]) ===
-                    Number(channelQueryData?.vibesTokenPriceRange?.[1]))
+                (Number(sliderValue[0]) === Number(vibesTokenPriceRange[0]) &&
+                  Number(sliderValue[1]) === Number(vibesTokenPriceRange[1]))
               }
               onClick={() => submit()}
             >
@@ -252,7 +240,7 @@ const VibesTokenZoneModal = ({
                 color: "white",
               }}
               onClick={() => submit(true)}
-              isDisabled={channelQueryData?.vibesTokenPriceRange?.length === 0}
+              isDisabled={vibesTokenPriceRange.length === 0}
             >
               clear zones
             </Button>
