@@ -9,6 +9,7 @@ import {
   Flex,
   Menu,
   MenuButton,
+  useToast,
   MenuItem,
   MenuList,
   Spinner,
@@ -169,6 +170,8 @@ const ConnectedDisplay = () => {
   const { claimableBets } = useCacheContext();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork } = network;
+
+  const toast = useToast();
 
   const { isStandalone } = useUserAgent();
 
@@ -338,7 +341,25 @@ const ConnectedDisplay = () => {
               _focus={{}}
               _active={{}}
               onClick={async () =>
-                await updateUser({ address: userAddress }).then(fetchUser)
+                await updateUser({ address: userAddress }).then(async (res) => {
+                  await fetchUser();
+                  const socials = [];
+                  socials.push([
+                    res?.res?.username ? true : false,
+                    res?.res?.FCImageUrl ? true : false,
+                    res?.res?.lensHandle ? true : false,
+                  ]);
+                  toast({
+                    title: "Profile updated",
+                    description:
+                      `ENS name ${res?.res?.username ? "✅" : "❌"} ` +
+                      `Farcaster ${res?.res?.FCImageUrl ? "✅" : "❌"} ` +
+                      `Lens ${res?.res?.lensHandle ? "✅" : "❌"}`,
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                })
               }
             >
               <Text>update profile</Text>

@@ -686,7 +686,6 @@ const Trade = () => {
   }, [debouncedPayoutFlagFetch]);
 
   const fetch = async () => {
-    console.log("fetching new trade");
     let calls: any[] = [];
     if (isOwner) {
       calls = calls.concat([refetchIsVerifier()]);
