@@ -36,9 +36,7 @@ const useUpdateUser = ({ onError }: Props) => {
         setLoading(true);
         const mutationResult = await mutate({
           variables: {
-            data: {
-              address: data.address,
-            },
+            data,
           },
         });
 
@@ -54,7 +52,7 @@ const useUpdateUser = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("updateUser", JSON.stringify(e, null, 2));
+        console.log("updateUser error", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]

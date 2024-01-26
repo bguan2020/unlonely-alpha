@@ -217,24 +217,24 @@ export const updateUser = async (data: IUpdateUserInput, ctx: Context) => {
     blockchain: "ethereum",
   });
   if (error) {
-    console.log("updateUser error", error);
+    console.log("updateUser error", data.address, error);
     return;
   }
-  const ens = res.Wallet.primaryDomain.name;
-  const fc = res.Wallet.farcasterSocials[0];
-  const lens = res.Wallet.lensSocials[0];
+  const ens = res?.Wallet?.primaryDomain?.name;
+  const fc = res?.Wallet?.farcasterSocials?.[0];
+  const lens = res?.Wallet?.lensSocials?.[0];
   const newData: any = {};
-  if (ens !== null) {
+  if (ens !== null && ens !== undefined) {
     newData.username = ens;
   }
-  if (fc !== null) {
+  if (fc !== null && fc !== undefined) {
     newData.FCImageUrl = fc.profileImageContentValue.image.small;
     newData.isFCUser = true;
   } else {
     newData.FCImageUrl = "";
     newData.isFCUser = false;
   }
-  if (lens !== null) {
+  if (lens !== null && lens !== undefined) {
     newData.lensHandle = lens.profileHandle;
     newData.lensImageUrl = lens.profileImageContentValue.image.small;
     newData.isLensUser = true;
