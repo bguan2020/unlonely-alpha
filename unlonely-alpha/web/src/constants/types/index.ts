@@ -51,3 +51,8 @@ export type VibesTokenTx = {
   supply: bigint;
   priceChangePercentage: number;
 };
+
+export type Role = {
+  address: string;
+  role: number;
+};

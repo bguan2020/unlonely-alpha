@@ -22,7 +22,7 @@ import {
   GetGamblableEventLeaderboardByChannelIdQuery,
   SharesEvent,
 } from "../../generated/graphql";
-import { ChatBot } from "../../constants/types";
+import { ChatBot, Role } from "../../constants/types";
 import { useUser } from "./useUser";
 import { useClip } from "../chat/useClip";
 import CalendarEventModal from "../../components/channels/CalendarEventModal";
@@ -45,7 +45,13 @@ const ChannelContext = createContext<{
     error?: ApolloError;
     refetch: () => Promise<any>;
     totalBadges: string;
+    channelRoles: Role[];
     handleTotalBadges: (value: string) => void;
+    handleChannelRoles: (
+      address: string,
+      role: number,
+      isAdding: boolean
+    ) => void;
   };
   chat: {
     chatChannel?: string;
@@ -100,7 +106,9 @@ const ChannelContext = createContext<{
     error: undefined,
     refetch: () => Promise.resolve(undefined),
     totalBadges: "0",
+    channelRoles: [],
     handleTotalBadges: () => undefined,
+    handleChannelRoles: () => undefined,
   },
   chat: {
     chatChannel: undefined,
@@ -243,6 +251,7 @@ export const ChannelProvider = ({
   const [vipPool, setVipPool] = useState<string>("0");
   const [tournamentActive, setTournamentActive] = useState<boolean>(false);
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
+  const [channelRoles, setChannelRoles] = useState<Role[]>([]);
 
   const {
     handleCreateClip,
@@ -270,6 +279,28 @@ export const ChannelProvider = ({
       }
     }
   }, [channelQueryData?.vibesTokenPriceRange]);
+
+  useEffect(() => {
+    if (channelQueryData?.roles) {
+      const filteredArray = channelQueryData?.roles.filter(
+        (
+          role
+        ): role is {
+          id: number;
+          userAddress: string;
+          role: number;
+        } => role !== null
+      );
+      setChannelRoles(
+        filteredArray.map((r) => {
+          return {
+            address: r.userAddress,
+            role: r.role,
+          };
+        })
+      );
+    }
+  }, [channelQueryData?.roles]);
 
   useEffect(() => {
     if (textOverVideo.length > 0) {
@@ -332,6 +363,19 @@ export const ChannelProvider = ({
     setTradeLoading(value);
   }, []);
 
+  const handleChannelRoles = useCallback(
+    (address: string, role: number, isAdding: boolean) => {
+      if (isAdding) {
+        setChannelRoles((prev) => [...prev, { address, role }]);
+      } else {
+        setChannelRoles((prev) =>
+          prev.filter((r) => r.address !== address && r.role !== role)
+        );
+      }
+    },
+    []
+  );
+
   const value = useMemo(
     () => ({
       channel: {
@@ -342,6 +386,8 @@ export const ChannelProvider = ({
         refetch: refetchChannelInteractable,
         totalBadges,
         handleTotalBadges,
+        channelRoles: channelRoles,
+        handleChannelRoles,
       },
       chat: {
         chatChannel: ablyChatChannel,
@@ -390,6 +436,7 @@ export const ChannelProvider = ({
       },
     }),
     [
+      channelRoles,
       channelQueryData,
       ongoingBets,
       channelStaticLoading,
@@ -436,6 +483,7 @@ export const ChannelProvider = ({
       tradeLoading,
       handleTradeLoading,
       handleVibesTokenPriceRange,
+      handleChannelRoles,
     ]
   );
 

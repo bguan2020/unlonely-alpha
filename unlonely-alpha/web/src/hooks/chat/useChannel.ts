@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import { useChannelContext } from "../context/useChannel";
 import { Message } from "../../constants/types/chat";
 import {
-  APPOINT_USER_EVENT,
-  BAN_USER_EVENT,
+  CHANGE_USER_ROLE_EVENT,
   CHAT_MESSAGE_EVENT,
   VIBES_TOKEN_PRICE_RANGE_EVENT,
 } from "../../constants";
@@ -46,7 +45,7 @@ export function useAblyChannel(
 export function useChannel(fixedChatName?: string) {
   const { userAddress } = useUser();
   const { channel: c, chat, ui } = useChannelContext();
-  const { channelQueryData, refetch } = c;
+  const { channelRoles, handleChannelRoles } = c;
   const { chatChannel } = chat;
   const { handleVibesTokenPriceRange } = ui;
 
@@ -75,11 +74,9 @@ export function useChannel(fixedChatName?: string) {
     const messageHistory = receivedMessages.filter(
       (m) => m.name === CHAT_MESSAGE_EVENT
     );
-    if (
-      message.name === APPOINT_USER_EVENT ||
-      message.name === BAN_USER_EVENT
-    ) {
-      await refetch();
+    if (message.name === CHANGE_USER_ROLE_EVENT) {
+      const body = JSON.parse(message.data.body);
+      handleChannelRoles(body.address, body.role, body.isAdding);
     }
     if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
       const newSliderValue = JSON.parse(message.data.body);
@@ -104,15 +101,15 @@ export function useChannel(fixedChatName?: string) {
   });
 
   useEffect(() => {
-    if (!channelQueryData) {
+    if (!channelRoles) {
       setLocalBanList(undefined);
       return;
     }
-    const filteredUsersToBan = (channelQueryData.roles ?? [])
+    const filteredUsersToBan = (channelRoles ?? [])
       .filter((user) => user?.role === 1)
-      .map((user) => user?.userAddress) as string[];
+      .map((user) => user?.address) as string[];
     setLocalBanList(filteredUsersToBan);
-  }, [channelQueryData]);
+  }, [channelRoles]);
 
   useEffect(() => {
     async function getMessages() {

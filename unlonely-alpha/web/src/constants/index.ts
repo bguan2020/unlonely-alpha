@@ -44,8 +44,7 @@ export const RANDOM_CHAT_COLOR =
 
 export const ADD_REACTION_EVENT = "add-reaction";
 export const CHAT_MESSAGE_EVENT = "chat-message";
-export const BAN_USER_EVENT = "ban-user";
-export const APPOINT_USER_EVENT = "appoint-user";
+export const CHANGE_USER_ROLE_EVENT = "change-user-role";
 export const VIBES_TOKEN_PRICE_RANGE_EVENT = "vibes-token-price-range";
 
 export type CommandData = {
@@ -56,13 +55,6 @@ export type CommandData = {
 export type AblyChannelPromise = Ably.Types.RealtimeChannelPromise;
 
 export const MAX_VIBES_PRICE = 399999999934464;
-// export const MAX_VIBES_SUPPLY = 20000000;
-// export const MAX_VIBES_SUPPLY_MINUS_ONE = MAX_VIBES_SUPPLY - 1;
-// (MAX_VIBES_SUPPLY * (MAX_VIBES_SUPPLY + 1) * (2 * MAX_VIBES_SUPPLY + 1)) / 6 -
-// (MAX_VIBES_SUPPLY_MINUS_ONE *
-//   (MAX_VIBES_SUPPLY_MINUS_ONE + 1) *
-//   (2 * MAX_VIBES_SUPPLY_MINUS_ONE + 1)) /
-//   6;
 
 export const IPFS_PROJECT_ID = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
 export const IPFS_PROJECT_SECRET = "7d400aacc9bc6c0f0d6e59b65a83d764";

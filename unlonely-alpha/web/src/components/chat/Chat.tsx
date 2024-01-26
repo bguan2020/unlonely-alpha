@@ -24,7 +24,7 @@ const Chat = ({
   isVipChat?: boolean;
 }) => {
   const { channel, leaderboard } = useChannelContext();
-  const { channelQueryData } = channel;
+  const { channelQueryData, channelRoles } = channel;
   const { isVip } = leaderboard;
   const { user } = useUser();
 
@@ -35,10 +35,8 @@ const Chat = ({
 
   const userIsModerator = useMemo(
     () =>
-      channelQueryData?.roles?.some(
-        (m) => m?.userAddress === user?.address && m?.role === 2
-      ),
-    [user, channelQueryData]
+      channelRoles?.some((m) => m?.address === user?.address && m?.role === 2),
+    [user, channelRoles]
   );
 
   const {
