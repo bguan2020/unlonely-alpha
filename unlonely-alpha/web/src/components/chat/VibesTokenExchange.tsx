@@ -13,7 +13,10 @@ import {
 } from "../../hooks/contracts/useVibesToken";
 import useDebounce from "../../hooks/internal/useDebounce";
 import centerEllipses from "../../utils/centerEllipses";
-import { filteredInput } from "../../utils/validation/input";
+import {
+  filteredInput,
+  formatIncompleteNumber,
+} from "../../utils/validation/input";
 import { useCacheContext } from "../../hooks/context/useCache";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
@@ -341,7 +344,11 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         alignSelf={isFullChart ? "center" : undefined}
       >
         <Input
-          variant="glow"
+          variant={
+            Number(formatIncompleteNumber(amountOfVibes)) <= 0
+              ? "redGlow"
+              : "glow"
+          }
           textAlign="center"
           value={amountOfVibes}
           onChange={handleInputChange}
@@ -377,7 +384,11 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           _hover={{}}
           _active={{}}
           bg="#46a800"
-          isDisabled={!mint || mintCostAfterFeesLoading}
+          isDisabled={
+            !mint ||
+            mintCostAfterFeesLoading ||
+            Number(formatIncompleteNumber(amountOfVibes)) <= 0
+          }
           onClick={mint}
           px={isFullChart ? "10%" : undefined}
         >
@@ -389,7 +400,9 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           _hover={{}}
           _active={{}}
           bg="#fe2815"
-          isDisabled={!burn}
+          isDisabled={
+            !burn || Number(formatIncompleteNumber(amountOfVibes)) <= 0
+          }
           onClick={burn}
           px={isFullChart ? "10%" : undefined}
         >

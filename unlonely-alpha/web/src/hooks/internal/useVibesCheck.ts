@@ -99,6 +99,8 @@ export const useVibesCheck = () => {
     const n_ = Math.max(n - 1, 0);
     const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
     const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+    const newPrice = priceForCurrent - priceForPrevious;
+
     const user =
       hashMapState.get(log?.args.account) ??
       (await _getEnsName(log?.args.account));
@@ -107,18 +109,19 @@ export const useVibesCheck = () => {
         return new Map([...prev, [log?.args.account, user]]);
       });
     }
-    const previousTx = tokenTxs[tokenTxs.length - 1];
+    const previousTxPrice =
+      tokenTxs.length > 0 ? tokenTxs[tokenTxs.length - 1].price : 0;
     const eventTx = {
       eventName: eventName,
       user,
       amount: log?.args.amount,
-      price: priceForCurrent - priceForPrevious,
+      price: newPrice,
       blockNumber: log?.blockNumber,
       supply: log?.args.totalSupply,
       priceChangePercentage:
         tokenTxs.length === 0
           ? 0
-          : ((priceForCurrent - previousTx.price) / previousTx.price) * 100,
+          : ((newPrice - previousTxPrice) / previousTxPrice) * 100,
     };
     console.log("detected", eventName, eventTx);
     setTokenTxs((prev) => {
@@ -218,20 +221,13 @@ export const useVibesCheck = () => {
   useEffect(() => {
     const init = async () => {
       if (tokenTxs.length === 0) return;
+
       const AVERAGE_BLOCK_TIME_SECS = 2;
       const currentBlockNumber = await publicClient.getBlockNumber();
       const blockNumberOneDayAgo =
         currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
-
-      // const hourIndex = binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
       const dayIndex = binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
-      setChartTimeIndexes(
-        new Map([
-          // ["hour", hourIndex],
-          ["hour", 0],
-          ["day", dayIndex],
-        ])
-      );
+      setChartTimeIndexes(new Map([["day", dayIndex]]));
     };
     init();
   }, [tokenTxs.length]);

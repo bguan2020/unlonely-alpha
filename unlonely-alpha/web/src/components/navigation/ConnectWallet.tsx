@@ -370,7 +370,7 @@ const ConnectedDisplay = () => {
                 });
               }}
             >
-              <Text>update profile</Text>
+              <Text>update ENS/socials</Text>
             </MenuItem>
           )}
           <MenuItem

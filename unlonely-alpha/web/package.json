@@ -33,6 +33,7 @@
     "@types/lodash.debounce": "^4.0.9",
     "ably": "^1.2.39",
     "amazon-ivs-player": "^1.12.0",
+    "aws-sdk": "^2.1546.0",
     "axios": "^0.27.2",
     "connectkit": "1.4.0",
     "cookie-cutter": "^0.2.0",

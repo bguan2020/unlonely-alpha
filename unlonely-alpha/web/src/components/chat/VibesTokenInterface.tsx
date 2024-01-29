@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Button,
   Flex,
@@ -17,6 +17,7 @@ import {
   YAxis,
   ReferenceArea,
 } from "recharts";
+import * as AWS from "aws-sdk";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
@@ -117,6 +118,12 @@ const VibesTokenInterface = ({
   const [zoneData, setZoneData] = useState<"red" | "green" | undefined>(
     undefined
   );
+  const [lowerTokensThreshold, setLowerTokensThreshold] = useState<
+    number | undefined
+  >(undefined);
+  const [higherTokensThreshold, setHigherTokensThreshold] = useState<
+    number | undefined
+  >(undefined);
 
   const txs = useMemo(() => {
     return vibesTokenTxs.map((tx) => {
@@ -186,6 +193,75 @@ const VibesTokenInterface = ({
       windowFeatures
     );
   };
+
+  useEffect(() => {
+    const calculateTokens = async () => {
+      if (
+        vibesTokenTxs.length === 0 ||
+        vibesTokenPriceRange.length === 0 ||
+        !isFullChart
+      )
+        return;
+      const lambda = new AWS.Lambda({
+        region: "us-west-2",
+        accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
+        secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
+      });
+
+      const lowerParams = {
+        FunctionName: "calcNumTokensToReachPrice",
+        Payload: JSON.stringify({
+          detail: {
+            current_token_supply: Number(
+              vibesTokenTxs[vibesTokenTxs.length - 1].supply
+            ),
+            new_eth_price: Number(vibesTokenPriceRange[0]),
+          },
+        }),
+      };
+
+      const higherParams = {
+        FunctionName: "calcNumTokensToReachPrice",
+        Payload: JSON.stringify({
+          detail: {
+            current_token_supply: Number(
+              vibesTokenTxs[vibesTokenTxs.length - 1].supply
+            ),
+            new_eth_price: Number(vibesTokenPriceRange[1]),
+          },
+        }),
+      };
+
+      const [lowerThreshold, higherThreshold] = await Promise.all([
+        lambda.invoke(lowerParams).promise(),
+        lambda.invoke(higherParams).promise(),
+      ]);
+      const responseForLower = JSON.parse(lowerThreshold.Payload as any);
+      const responseForHigher = JSON.parse(higherThreshold.Payload as any);
+      if (responseForLower.errorMessage) {
+        console.error(
+          "lambda calculate lower error:",
+          responseForLower.errorMessage
+        );
+        setLowerTokensThreshold(-1);
+      } else {
+        const numTokensForLower = responseForLower.body.numOfTokens;
+        setLowerTokensThreshold(numTokensForLower);
+      }
+      if (responseForHigher.errorMessage) {
+        console.error(
+          "lambda calculate higher error:",
+          responseForHigher.errorMessage
+        );
+        setHigherTokensThreshold(-1);
+      } else {
+        const numTokensForHigher = responseForHigher.body.numOfTokens;
+        setHigherTokensThreshold(numTokensForHigher);
+      }
+    };
+    calculateTokens();
+  }, [vibesTokenTxs, vibesTokenPriceRange]);
+
   return (
     <>
       {vibesTokenLoading ? (
@@ -307,14 +383,40 @@ const VibesTokenInterface = ({
                   bottom={zoneData === "red" ? "0" : undefined}
                 >
                   {zoneData === "red" && (
-                    <Text>
-                      lower price: {formatUnits(BigInt(lowerPrice), 18)} ETH
-                    </Text>
+                    <Flex direction="column">
+                      <Text>
+                        lower price: {formatUnits(BigInt(lowerPrice), 18)} ETH
+                      </Text>
+                      {Number(formattedCurrentPrice) >
+                        Number(formatUnits(BigInt(lowerPrice), 18)) && (
+                        <Text>
+                          tokens to sell:{" "}
+                          {lowerTokensThreshold !== undefined
+                            ? lowerTokensThreshold >= 0
+                              ? truncateValue(lowerTokensThreshold, 0)
+                              : "error fetching tokens"
+                            : "calculating..."}
+                        </Text>
+                      )}
+                    </Flex>
                   )}
                   {zoneData === "green" && (
-                    <Text>
-                      higher price: {formatUnits(BigInt(higherPrice), 18)} ETH
-                    </Text>
+                    <Flex direction="column">
+                      <Text>
+                        higher price: {formatUnits(BigInt(higherPrice), 18)} ETH
+                      </Text>
+                      {Number(formattedCurrentPrice) <
+                        Number(formatUnits(BigInt(higherPrice), 18)) && (
+                        <Text>
+                          tokens to buy:{" "}
+                          {higherTokensThreshold !== undefined
+                            ? higherTokensThreshold >= 0
+                              ? truncateValue(higherTokensThreshold, 0)
+                              : "error fetching tokens"
+                            : "calculating..."}
+                        </Text>
+                      )}
+                    </Flex>
                   )}
                 </Flex>
               )}
