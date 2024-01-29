@@ -401,6 +401,7 @@ export type Mutation = {
   updateOpenseaLink?: Maybe<Nfc>;
   updateSharesEvent?: Maybe<Channel>;
   updateSideBet?: Maybe<SideBet>;
+  updateUser?: Maybe<User>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
 };
@@ -555,6 +556,10 @@ export type MutationUpdateSharesEventArgs = {
 
 export type MutationUpdateSideBetArgs = {
   data: UpdateSideBetInput;
+};
+
+export type MutationUpdateUserArgs = {
+  data: UpdateUserInput;
 };
 
 export type MutationUpdateUserCreatorTokenQuantityArgs = {
@@ -1063,6 +1068,10 @@ export type UpdateUserCreatorTokenQuantityInput = {
   tokenAddress: Scalars["String"];
 };
 
+export type UpdateUserInput = {
+  address?: InputMaybe<Scalars["String"]>;
+};
+
 export type UpdateUserNotificationsInput = {
   notificationsLive?: InputMaybe<Scalars["Boolean"]>;
   notificationsNFCs?: InputMaybe<Scalars["Boolean"]>;
@@ -1281,6 +1290,7 @@ export type ChannelStaticQuery = {
     name?: string | null;
     slug: string;
     allowNFCs?: boolean | null;
+    vibesTokenPriceRange?: Array<string | null> | null;
     playbackUrl?: string | null;
     owner: {
       __typename?: "User";
@@ -1294,6 +1304,12 @@ export type ChannelStaticQuery = {
       command: string;
       response: string;
     } | null> | null;
+    roles?: Array<{
+      __typename?: "ChannelUserRole";
+      id: number;
+      userAddress: string;
+      role: number;
+    } | null> | null;
   } | null;
 };
 
@@ -1305,7 +1321,6 @@ export type ChannelInteractableQuery = {
   __typename?: "Query";
   getChannelBySlug?: {
     __typename?: "Channel";
-    vibesTokenPriceRange?: Array<string | null> | null;
     sharesEvent?: Array<{
       __typename?: "SharesEvent";
       sharesSubjectQuestion?: string | null;
@@ -1317,12 +1332,6 @@ export type ChannelInteractableQuery = {
       createdAt: any;
       id: string;
       resultIndex?: number | null;
-    } | null> | null;
-    roles?: Array<{
-      __typename?: "ChannelUserRole";
-      id: number;
-      userAddress: string;
-      role: number;
     } | null> | null;
   } | null;
 };
@@ -1540,39 +1549,6 @@ export type GetChannelsByNumberOfBadgeHoldersQuery = {
       } | null;
     };
   } | null>;
-};
-
-export type ChannelDetail2QueryVariables = Exact<{
-  slug: Scalars["String"];
-}>;
-
-export type ChannelDetail2Query = {
-  __typename?: "Query";
-  getChannelBySlug?: {
-    __typename?: "Channel";
-    awsId: string;
-    channelArn?: string | null;
-    description?: string | null;
-    livepeerPlaybackId?: string | null;
-    isLive?: boolean | null;
-    id: string;
-    name?: string | null;
-    slug: string;
-    allowNFCs?: boolean | null;
-    playbackUrl?: string | null;
-    owner: {
-      __typename?: "User";
-      FCImageUrl?: string | null;
-      lensImageUrl?: string | null;
-      username?: string | null;
-      address: string;
-    };
-    chatCommands?: Array<{
-      __typename?: "ChatCommand";
-      command: string;
-      response: string;
-    } | null> | null;
-  } | null;
 };
 
 export type CreateCreatorTokenMutationVariables = Exact<{
@@ -1914,6 +1890,21 @@ export type UpdateSharesEventMutationVariables = Exact<{
 export type UpdateSharesEventMutation = {
   __typename?: "Mutation";
   updateSharesEvent?: { __typename?: "Channel"; id: string } | null;
+};
+
+export type UpdateUserMutationVariables = Exact<{
+  data: UpdateUserInput;
+}>;
+
+export type UpdateUserMutation = {
+  __typename?: "Mutation";
+  updateUser?: {
+    __typename?: "User";
+    address: string;
+    lensHandle?: string | null;
+    FCImageUrl?: string | null;
+    username?: string | null;
+  } | null;
 };
 
 export type UpdateUserNotificationsMutationVariables = Exact<{
@@ -2418,6 +2409,7 @@ export const ChannelStaticDocument = gql`
       name
       slug
       allowNFCs
+      vibesTokenPriceRange
       owner {
         FCImageUrl
         lensImageUrl
@@ -2428,6 +2420,11 @@ export const ChannelStaticDocument = gql`
       chatCommands {
         command
         response
+      }
+      roles {
+        id
+        userAddress
+        role
       }
     }
   }
@@ -2496,12 +2493,6 @@ export const ChannelInteractableDocument = gql`
         createdAt
         id
         resultIndex
-      }
-      vibesTokenPriceRange
-      roles {
-        id
-        userAddress
-        role
       }
     }
   }
@@ -3317,83 +3308,6 @@ export type GetChannelsByNumberOfBadgeHoldersLazyQueryHookResult = ReturnType<
 export type GetChannelsByNumberOfBadgeHoldersQueryResult = Apollo.QueryResult<
   GetChannelsByNumberOfBadgeHoldersQuery,
   GetChannelsByNumberOfBadgeHoldersQueryVariables
->;
-export const ChannelDetail2Document = gql`
-  query ChannelDetail2($slug: String!) {
-    getChannelBySlug(slug: $slug) {
-      awsId
-      channelArn
-      description
-      livepeerPlaybackId
-      isLive
-      id
-      name
-      slug
-      allowNFCs
-      owner {
-        FCImageUrl
-        lensImageUrl
-        username
-        address
-      }
-      playbackUrl
-      chatCommands {
-        command
-        response
-      }
-    }
-  }
-`;
-
-/**
- * __useChannelDetail2Query__
- *
- * To run a query within a React component, call `useChannelDetail2Query` and pass it any options that fit your needs.
- * When your component renders, `useChannelDetail2Query` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useChannelDetail2Query({
- *   variables: {
- *      slug: // value for 'slug'
- *   },
- * });
- */
-export function useChannelDetail2Query(
-  baseOptions: Apollo.QueryHookOptions<
-    ChannelDetail2Query,
-    ChannelDetail2QueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<ChannelDetail2Query, ChannelDetail2QueryVariables>(
-    ChannelDetail2Document,
-    options
-  );
-}
-export function useChannelDetail2LazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    ChannelDetail2Query,
-    ChannelDetail2QueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<ChannelDetail2Query, ChannelDetail2QueryVariables>(
-    ChannelDetail2Document,
-    options
-  );
-}
-export type ChannelDetail2QueryHookResult = ReturnType<
-  typeof useChannelDetail2Query
->;
-export type ChannelDetail2LazyQueryHookResult = ReturnType<
-  typeof useChannelDetail2LazyQuery
->;
-export type ChannelDetail2QueryResult = Apollo.QueryResult<
-  ChannelDetail2Query,
-  ChannelDetail2QueryVariables
 >;
 export const CreateCreatorTokenDocument = gql`
   mutation CreateCreatorToken($data: CreateCreatorTokenInput!) {
@@ -4912,6 +4826,59 @@ export type UpdateSharesEventMutationResult =
 export type UpdateSharesEventMutationOptions = Apollo.BaseMutationOptions<
   UpdateSharesEventMutation,
   UpdateSharesEventMutationVariables
+>;
+export const UpdateUserDocument = gql`
+  mutation UpdateUser($data: UpdateUserInput!) {
+    updateUser(data: $data) {
+      address
+      lensHandle
+      FCImageUrl
+      username
+    }
+  }
+`;
+export type UpdateUserMutationFn = Apollo.MutationFunction<
+  UpdateUserMutation,
+  UpdateUserMutationVariables
+>;
+
+/**
+ * __useUpdateUserMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserMutation, { data, loading, error }] = useUpdateUserMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateUserMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateUserMutation,
+    UpdateUserMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(
+    UpdateUserDocument,
+    options
+  );
+}
+export type UpdateUserMutationHookResult = ReturnType<
+  typeof useUpdateUserMutation
+>;
+export type UpdateUserMutationResult =
+  Apollo.MutationResult<UpdateUserMutation>;
+export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<
+  UpdateUserMutation,
+  UpdateUserMutationVariables
 >;
 export const UpdateUserNotificationsDocument = gql`
   mutation updateUserNotifications($data: UpdateUserNotificationsInput!) {

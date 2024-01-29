@@ -1,7 +1,7 @@
 import { Box, Button, Flex, Spinner, Text } from "@chakra-ui/react";
 import { useMemo } from "react";
 
-import { APPOINT_USER_EVENT, AblyChannelPromise } from "../../constants";
+import { CHANGE_USER_ROLE_EVENT, AblyChannelPromise } from "../../constants";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import usePostUserRoleForChannel from "../../hooks/server/usePostUserRoleForChannel";
@@ -22,7 +22,7 @@ export default function ModeratorModal({
   ablyChannel: AblyChannelPromise;
 }) {
   const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
+  const { channelQueryData, channelRoles } = channel;
   const { isStandalone } = useUserAgent();
 
   const { postUserRoleForChannel, loading } = usePostUserRoleForChannel({
@@ -32,8 +32,8 @@ export default function ModeratorModal({
   });
 
   const moderators = useMemo(
-    () => channelQueryData?.roles?.filter((role) => role?.role === 2),
-    [channelQueryData]
+    () => channelRoles.filter((role) => role?.role === 2),
+    [channelRoles]
   );
 
   const undoAppointment = async (address: string) => {
@@ -44,9 +44,13 @@ export default function ModeratorModal({
     });
 
     ablyChannel?.publish({
-      name: APPOINT_USER_EVENT,
+      name: CHANGE_USER_ROLE_EVENT,
       data: {
-        body: address,
+        body: JSON.stringify({
+          address,
+          role: 2,
+          isAdding: false,
+        }),
       },
     });
   };
@@ -60,12 +64,12 @@ export default function ModeratorModal({
       hideFooter
     >
       {!loading ? (
-        <>
+        <Flex direction="column" gap="5px">
           {moderators?.map((moderator, i) => (
             <Box key={i}>
               <Flex justifyContent={"space-between"} alignItems="center">
                 <Text color="#9d9d9d">
-                  {centerEllipses(moderator?.userAddress, 13)}
+                  {centerEllipses(moderator?.address, 13)}
                 </Text>
                 <Button
                   color="white"
@@ -73,9 +77,7 @@ export default function ModeratorModal({
                   _hover={{}}
                   _active={{}}
                   _focus={{}}
-                  onClick={() =>
-                    undoAppointment(String(moderator?.userAddress))
-                  }
+                  onClick={() => undoAppointment(String(moderator?.address))}
                 >
                   remove
                 </Button>
@@ -88,7 +90,7 @@ export default function ModeratorModal({
               No moderators yet, add some users from the chat to help you out!
             </Text>
           )}
-        </>
+        </Flex>
       ) : (
         <Flex justifyContent={"center"}>
           <Spinner />

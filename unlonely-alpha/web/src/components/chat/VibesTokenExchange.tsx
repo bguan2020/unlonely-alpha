@@ -20,7 +20,7 @@ import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useUser } from "../../hooks/context/useUser";
 import { getContractFromNetwork } from "../../utils/contract";
 
-const VibesTokenExchange = () => {
+const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { walletIsConnected, userAddress, user } = useUser();
   const { vibesTokenTxs } = useCacheContext();
   const toast = useToast();
@@ -68,7 +68,7 @@ const VibesTokenExchange = () => {
   } = useMint(
     {
       streamer:
-        (channelQueryData?.owner.address as `0x${string}`) ??
+        (channelQueryData?.owner?.address as `0x${string}`) ??
         protocolFeeDestination,
       amount: amount_votes_bigint,
       value: mintCostAfterFees,
@@ -175,7 +175,7 @@ const VibesTokenExchange = () => {
   } = useBurn(
     {
       streamer:
-        (channelQueryData?.owner.address as `0x${string}`) ??
+        (channelQueryData?.owner?.address as `0x${string}`) ??
         protocolFeeDestination,
       amount: amount_votes_bigint,
     },
@@ -333,7 +333,13 @@ const VibesTokenExchange = () => {
 
   return (
     <Flex direction="column" justifyContent={"flex-end"} gap="10px">
-      <Flex position="relative" gap="5px" alignItems={"center"}>
+      <Flex
+        position="relative"
+        gap="5px"
+        alignItems={"center"}
+        width={isFullChart ? "40%" : "auto"}
+        alignSelf={isFullChart ? "center" : undefined}
+      >
         <Input
           variant="glow"
           textAlign="center"
@@ -360,28 +366,36 @@ const VibesTokenExchange = () => {
           max
         </Button>
       </Flex>
-      <Button
-        color="white"
-        _focus={{}}
-        _hover={{}}
-        _active={{}}
-        bg="#46a800"
-        isDisabled={!mint || mintCostAfterFeesLoading}
-        onClick={mint}
+      <Flex
+        direction={isFullChart ? "row" : "column"}
+        gap="5px"
+        justifyContent={"center"}
       >
-        BUY
-      </Button>
-      <Button
-        color="white"
-        _focus={{}}
-        _hover={{}}
-        _active={{}}
-        bg="#fe2815"
-        isDisabled={!burn}
-        onClick={burn}
-      >
-        SELL
-      </Button>
+        <Button
+          color="white"
+          _focus={{}}
+          _hover={{}}
+          _active={{}}
+          bg="#46a800"
+          isDisabled={!mint || mintCostAfterFeesLoading}
+          onClick={mint}
+          px={isFullChart ? "10%" : undefined}
+        >
+          BUY
+        </Button>
+        <Button
+          color="white"
+          _focus={{}}
+          _hover={{}}
+          _active={{}}
+          bg="#fe2815"
+          isDisabled={!burn}
+          onClick={burn}
+          px={isFullChart ? "10%" : undefined}
+        >
+          SELL
+        </Button>
+      </Flex>
     </Flex>
   );
 };

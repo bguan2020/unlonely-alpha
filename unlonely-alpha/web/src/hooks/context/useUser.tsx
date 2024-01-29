@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useEnsName } from "wagmi";
-import { useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import {
   ConnectedWallet,
   usePrivy,
@@ -29,6 +29,7 @@ const UserContext = createContext<{
   loginMethod?: string;
   initialNotificationsGranted: boolean;
   activeWallet?: ConnectedWallet;
+  fetchUser: () => void;
 }>({
   user: undefined,
   username: undefined,
@@ -37,6 +38,7 @@ const UserContext = createContext<{
   loginMethod: undefined,
   initialNotificationsGranted: false,
   activeWallet: undefined,
+  fetchUser: () => undefined,
 });
 
 export const UserProvider = ({
@@ -78,12 +80,15 @@ export const UserProvider = ({
     () => privyUser?.wallet?.address,
     [privyUser?.wallet?.address]
   );
-
-  // ignore console log build error for now
-  //
-  const { data } = useQuery(GET_USER_QUERY, {
+  const [fetchUser, { data }] = useLazyQuery(GET_USER_QUERY, {
     variables: { data: { address } },
+    fetchPolicy: "network-only",
   });
+
+  useEffect(() => {
+    if (!address) return;
+    fetchUser();
+  }, [address]);
 
   const { data: ensData } = useEnsName({
     address: address as `0x${string}`,
@@ -242,6 +247,7 @@ export const UserProvider = ({
       loginMethod,
       initialNotificationsGranted,
       activeWallet,
+      fetchUser,
     }),
     [
       user,
@@ -252,6 +258,7 @@ export const UserProvider = ({
       showTurnOnNotifications,
       initialNotificationsGranted,
       activeWallet,
+      fetchUser,
     ]
   );
 

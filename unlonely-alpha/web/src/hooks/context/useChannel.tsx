@@ -22,7 +22,7 @@ import {
   GetGamblableEventLeaderboardByChannelIdQuery,
   SharesEvent,
 } from "../../generated/graphql";
-import { ChatBot } from "../../constants/types";
+import { ChatBot, Role } from "../../constants/types";
 import { useUser } from "./useUser";
 import { useClip } from "../chat/useClip";
 import CalendarEventModal from "../../components/channels/CalendarEventModal";
@@ -45,7 +45,13 @@ const ChannelContext = createContext<{
     error?: ApolloError;
     refetch: () => Promise<any>;
     totalBadges: string;
+    channelRoles: Role[];
     handleTotalBadges: (value: string) => void;
+    handleChannelRoles: (
+      address: string,
+      role: number,
+      isAdding: boolean
+    ) => void;
   };
   chat: {
     chatChannel?: string;
@@ -85,10 +91,12 @@ const ChannelContext = createContext<{
     showModeratorModal: boolean;
     vipPool: string;
     tournamentActive: boolean;
+    vibesTokenPriceRange: string[];
     handleTournamentActive: (value: boolean) => void;
     handleVipPool: (value: string) => void;
     tradeLoading: boolean;
     handleTradeLoading: (value: boolean) => void;
+    handleVibesTokenPriceRange: (value: string[]) => void;
   };
 }>({
   channel: {
@@ -98,7 +106,9 @@ const ChannelContext = createContext<{
     error: undefined,
     refetch: () => Promise.resolve(undefined),
     totalBadges: "0",
+    channelRoles: [],
     handleTotalBadges: () => undefined,
+    handleChannelRoles: () => undefined,
   },
   chat: {
     chatChannel: undefined,
@@ -137,11 +147,13 @@ const ChannelContext = createContext<{
     showChatCommandModal: false,
     showModeratorModal: false,
     vipPool: "0",
+    vibesTokenPriceRange: [],
     tournamentActive: false,
     handleTournamentActive: () => undefined,
     handleVipPool: () => undefined,
     tradeLoading: false,
     handleTradeLoading: () => undefined,
+    handleVibesTokenPriceRange: () => undefined,
   },
 });
 
@@ -155,16 +167,6 @@ export const ChannelProvider = ({
   const { user } = useUser();
   const router = useRouter();
   const { slug } = router.query;
-
-  // const {
-  //   loading: channelDataLoading,
-  //   error: channelDataError,
-  //   data: channelData,
-  //   refetch: refetchChannelData,
-  // } = useQuery<ChannelDetailQuery>(CHANNEL_DETAIL_QUERY, {
-  //   variables: { slug },
-  //   fetchPolicy: "network-only",
-  // });
 
   const {
     loading: channelStaticLoading,
@@ -219,15 +221,6 @@ export const ChannelProvider = ({
     [userRankData]
   );
 
-  // const [
-  //   getGamblableEventLeaderboard,
-  //   {
-  //     loading: leaderboardLoading,
-  //     error: leaderboardError,
-  //     data: leaderboardData,
-  //   },
-  // ] = useLazyQuery(GET_GAMBLABLE_EVENT_LEADERBOARD_BY_CHANNEL_ID_QUERY);
-
   const [ablyChatChannel, setAblyChatChannel] = useState<string | undefined>(
     undefined
   );
@@ -243,6 +236,9 @@ export const ChannelProvider = ({
   }, []);
 
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
+  const [vibesTokenPriceRange, setVibesTokenPriceRange] = useState<string[]>(
+    []
+  );
 
   const [showChatCommandModal, setChatCommandModal] = useState<boolean>(false);
   const [showEditModal, setEditModal] = useState<boolean>(false);
@@ -255,6 +251,7 @@ export const ChannelProvider = ({
   const [vipPool, setVipPool] = useState<string>("0");
   const [tournamentActive, setTournamentActive] = useState<boolean>(false);
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
+  const [channelRoles, setChannelRoles] = useState<Role[]>([]);
 
   const {
     handleCreateClip,
@@ -272,16 +269,38 @@ export const ChannelProvider = ({
     }
   }, [channelQueryData]);
 
-  // const handleRefetchGamblableEventLeaderboard = useCallback(async () => {
-  //   await getGamblableEventLeaderboard({
-  //     variables: {
-  //       data: {
-  //         channelId: channelQueryData?.id,
-  //         chainId: localNetwork.config.chainId,
-  //       },
-  //     },
-  //   });
-  // }, [channelQueryData, localNetwork.config.chainId]);
+  useEffect(() => {
+    if (channelQueryData?.vibesTokenPriceRange) {
+      const filteredArray = channelQueryData?.vibesTokenPriceRange.filter(
+        (str): str is string => str !== null
+      );
+      if (filteredArray.length === 2) {
+        setVibesTokenPriceRange(filteredArray);
+      }
+    }
+  }, [channelQueryData?.vibesTokenPriceRange]);
+
+  useEffect(() => {
+    if (channelQueryData?.roles) {
+      const filteredArray = channelQueryData?.roles.filter(
+        (
+          role
+        ): role is {
+          id: number;
+          userAddress: string;
+          role: number;
+        } => role !== null
+      );
+      setChannelRoles(
+        filteredArray.map((r) => {
+          return {
+            address: r.userAddress,
+            role: r.role,
+          };
+        })
+      );
+    }
+  }, [channelQueryData?.roles]);
 
   useEffect(() => {
     if (textOverVideo.length > 0) {
@@ -291,6 +310,10 @@ export const ChannelProvider = ({
       return () => clearTimeout(timer);
     }
   }, [textOverVideo]);
+
+  const handleVibesTokenPriceRange = useCallback((value: string[]) => {
+    setVibesTokenPriceRange(value);
+  }, []);
 
   const addToTextOverVideo = useCallback((message: string) => {
     setTextOverVideo((prev) => [...prev, message]);
@@ -340,6 +363,19 @@ export const ChannelProvider = ({
     setTradeLoading(value);
   }, []);
 
+  const handleChannelRoles = useCallback(
+    (address: string, role: number, isAdding: boolean) => {
+      if (isAdding) {
+        setChannelRoles((prev) => [...prev, { address, role }]);
+      } else {
+        setChannelRoles((prev) =>
+          prev.filter((r) => r.address !== address && r.role !== role)
+        );
+      }
+    },
+    []
+  );
+
   const value = useMemo(
     () => ({
       channel: {
@@ -350,6 +386,8 @@ export const ChannelProvider = ({
         refetch: refetchChannelInteractable,
         totalBadges,
         handleTotalBadges,
+        channelRoles: channelRoles,
+        handleChannelRoles,
       },
       chat: {
         chatChannel: ablyChatChannel,
@@ -388,14 +426,17 @@ export const ChannelProvider = ({
         showChatCommandModal,
         showModeratorModal,
         vipPool,
+        vibesTokenPriceRange,
         tournamentActive,
         handleTournamentActive,
         handleVipPool,
         tradeLoading,
         handleTradeLoading,
+        handleVibesTokenPriceRange,
       },
     }),
     [
+      channelRoles,
       channelQueryData,
       ongoingBets,
       channelStaticLoading,
@@ -418,10 +459,7 @@ export const ChannelProvider = ({
       loading,
       userRank,
       isVip,
-      // leaderboardData,
-      // leaderboardLoading,
-      // leaderboardError,
-      // handleRefetchGamblableEventLeaderboard,
+      vibesTokenPriceRange,
       handleIsVip,
       addToChatbot,
       handleEditModal,
@@ -444,6 +482,8 @@ export const ChannelProvider = ({
       handleVipPool,
       tradeLoading,
       handleTradeLoading,
+      handleVibesTokenPriceRange,
+      handleChannelRoles,
     ]
   );
 

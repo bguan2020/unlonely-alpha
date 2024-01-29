@@ -14,9 +14,8 @@ import React, { useMemo, useState } from "react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 import {
-  APPOINT_USER_EVENT,
   AblyChannelPromise,
-  BAN_USER_EVENT,
+  CHANGE_USER_ROLE_EVENT,
   InteractionType,
 } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
@@ -45,7 +44,7 @@ const MessageBody = ({
 }: Props) => {
   const { channel: c, leaderboard } = useChannelContext();
   const { isVip } = leaderboard;
-  const { channelQueryData } = c;
+  const { channelQueryData, channelRoles } = c;
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -65,10 +64,8 @@ const MessageBody = ({
 
   const userIsModerator = useMemo(
     () =>
-      channelQueryData?.roles?.some(
-        (m) => m?.userAddress === user?.address && m?.role === 2
-      ),
-    [user, channelQueryData]
+      channelRoles?.some((m) => m?.address === user?.address && m?.role === 2),
+    [user, channelRoles]
   );
 
   const fragments = useMemo(() => {
@@ -169,8 +166,14 @@ const MessageBody = ({
       role: 1,
     });
     channel.publish({
-      name: BAN_USER_EVENT,
-      data: { body: message.data.address },
+      name: CHANGE_USER_ROLE_EVENT,
+      data: {
+        body: JSON.stringify({
+          address: message.data.address,
+          role: 1,
+          isAdding: true,
+        }),
+      },
     });
     setIsBanning(false);
     setIsOpen(false);
@@ -183,8 +186,14 @@ const MessageBody = ({
       role: 2,
     });
     channel.publish({
-      name: APPOINT_USER_EVENT,
-      data: { body: message.data.address },
+      name: CHANGE_USER_ROLE_EVENT,
+      data: {
+        body: JSON.stringify({
+          address: message.data.address,
+          role: 2,
+          isAdding: true,
+        }),
+      },
     });
     setIsAppointing(false);
     setIsOpen(false);
@@ -235,9 +244,9 @@ const MessageBody = ({
                       message.data.address !== user?.address &&
                       !isBanning && (
                         <>
-                          {!channelQueryData?.roles?.some(
+                          {!channelRoles?.some(
                             (m) =>
-                              m?.userAddress === message.data.address &&
+                              m?.address === message.data.address &&
                               m?.role === 2
                           ) ? (
                             <Button
@@ -265,10 +274,9 @@ const MessageBody = ({
                       )}
                     {userIsChannelOwner &&
                       message.data.address !== user?.address &&
-                      !channelQueryData?.roles?.some(
+                      !channelRoles.some(
                         (m) =>
-                          m?.userAddress === message.data.address &&
-                          m?.role === 2
+                          m?.address === message.data.address && m?.role === 2
                       ) &&
                       !isAppointing && (
                         <Button

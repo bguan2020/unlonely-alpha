@@ -9,6 +9,7 @@ import {
   Flex,
   Menu,
   MenuButton,
+  useToast,
   MenuItem,
   MenuList,
   Spinner,
@@ -28,6 +29,7 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
+import useUpdateUser from "../../hooks/server/useUpdateUser";
 
 const ConnectWallet = () => {
   const router = useRouter();
@@ -164,10 +166,12 @@ const ConnectedDisplay = () => {
   const router = useRouter();
 
   const { logout } = usePrivy();
-  const { userAddress } = useUser();
+  const { userAddress, fetchUser } = useUser();
   const { claimableBets } = useCacheContext();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork } = network;
+
+  const toast = useToast();
 
   const { isStandalone } = useUserAgent();
 
@@ -181,6 +185,9 @@ const ConnectedDisplay = () => {
     address: userAddress as `0x${string}`,
     enabled: false,
   });
+
+  const { updateUser } = useUpdateUser({});
+
   const isLowEthBalance = useMemo(() => {
     if (!userEthBalance || !feeData || !matchingChain) {
       return false;
@@ -327,6 +334,37 @@ const ConnectedDisplay = () => {
           </MenuButton>
         </Flex>
         <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
+          {userAddress && (
+            <MenuItem
+              bg={"#131323"}
+              _hover={{ bg: "#1f1f3c" }}
+              _focus={{}}
+              _active={{}}
+              onClick={async () =>
+                await updateUser({ address: userAddress }).then(async (res) => {
+                  await fetchUser();
+                  const socials = [];
+                  socials.push([
+                    res?.res?.username ? true : false,
+                    res?.res?.FCImageUrl ? true : false,
+                    res?.res?.lensHandle ? true : false,
+                  ]);
+                  toast({
+                    title: "Profile updated",
+                    description:
+                      `ENS name ${res?.res?.username ? "✅" : "❌"} ` +
+                      `Farcaster ${res?.res?.FCImageUrl ? "✅" : "❌"} ` +
+                      `Lens ${res?.res?.lensHandle ? "✅" : "❌"}`,
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                })
+              }
+            >
+              <Text>update profile</Text>
+            </MenuItem>
+          )}
           <MenuItem
             bg={claimableBets.length > 0 ? "#E09025" : "#131323"}
             _hover={{ bg: "#f07c1d" }}

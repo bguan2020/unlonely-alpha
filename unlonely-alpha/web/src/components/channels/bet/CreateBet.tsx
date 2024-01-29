@@ -162,8 +162,7 @@ export const CreateBet = ({
         ],
         chainId: localNetwork.config.chainId,
       });
-      await refetch();
-      handleLoading(undefined);
+      await refetch().then(() => handleLoading(undefined));
     },
     [
       ongoingBets?.length,
@@ -377,7 +376,7 @@ export const CreateBet = ({
                   currentBetIsActiveAndHasFunds
                 }
                 onClick={async () => {
-                  setLoading("creating bet (1/2)");
+                  handleLoading("creating bet (1/2)");
                   await _postSharesEvent(question);
                 }}
               >

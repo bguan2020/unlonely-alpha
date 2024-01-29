@@ -487,6 +487,7 @@ const Trade = () => {
       setNayVotesSupply(BigInt(0));
       setYayVotesSupply(BigInt(0));
       setEventVerified(false);
+      await Promise.all([refetchBuyVotes(), refetchVotePrice()]);
     }
   };
 
@@ -527,10 +528,16 @@ const Trade = () => {
       const isYay = event?.args.trade.isYay;
       if (isYay) {
         newYaySupply = newSupply;
-        if (eventTriggeredByUser) newYayBalanceAddtion = amount;
+        if (eventTriggeredByUser)
+          newYayBalanceAddtion = BigInt(
+            Number(amount) + Number(newYayBalanceAddtion)
+          );
       } else {
         newNaySupply = newSupply;
-        if (eventTriggeredByUser) newNayBalanceAddtion = amount;
+        if (eventTriggeredByUser)
+          newNayBalanceAddtion = BigInt(
+            Number(amount) + Number(newNayBalanceAddtion)
+          );
       }
     }
     if (newYaySupply !== null) setYayVotesSupply(newYaySupply);
@@ -554,7 +561,7 @@ const Trade = () => {
       clearTimeout(tradeTimeoutRef.current);
     }
 
-    const MILLIS_TO_WAIT = 1000;
+    const MILLIS_TO_WAIT = 400;
 
     tradeTimeoutRef.current = setTimeout(() => {
       setDebouncedTradeFetchFlag(tradeFetchFlag);
@@ -601,7 +608,7 @@ const Trade = () => {
     if (!log) return;
     setEventResult((log as any).args.result);
     setEventVerified(true);
-    await refetchPayout();
+    await Promise.all([refetchPayout(), refetchClaimVotePayout()]);
   };
 
   useEffect(() => {
@@ -635,7 +642,7 @@ const Trade = () => {
       clearTimeout(payoutTimeoutRef.current);
     }
 
-    const MILLIS_TO_WAIT = 1000;
+    const MILLIS_TO_WAIT = 400;
 
     payoutTimeoutRef.current = setTimeout(() => {
       setDebouncedPayoutFlagFetch(payoutFlagFetch);
@@ -756,12 +763,7 @@ const Trade = () => {
   ]);
 
   return (
-    <Flex
-      direction="column"
-      height="100%"
-      position={"relative"}
-      justifyContent="space-between"
-    >
+    <Flex direction="column" height="100%" position={"relative"} gap="10px">
       {tradeLoading && (
         <Text fontSize="12px" color="#1cfff0" position="absolute" top="-15px">
           <Spinner size="xs" /> updating interface...

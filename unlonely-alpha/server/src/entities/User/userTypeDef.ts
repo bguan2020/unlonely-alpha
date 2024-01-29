@@ -30,6 +30,10 @@ export const typeDef = gql`
     address: String
   }
 
+  input UpdateUserInput {
+    address: String
+  }
+
   input GetUserTokenHoldingInput {
     userAddress: String
     tokenAddress: String
@@ -55,5 +59,6 @@ export const typeDef = gql`
 
   extend type Mutation {
     updateUserNotifications(data: UpdateUserNotificationsInput!): User
+    updateUser(data: UpdateUserInput!): User
   }
 `;

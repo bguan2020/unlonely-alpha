@@ -125,6 +125,7 @@ export const CHANNEL_STATIC_QUERY = gql`
       name
       slug
       allowNFCs
+      vibesTokenPriceRange
       owner {
         FCImageUrl
         lensImageUrl
@@ -135,6 +136,11 @@ export const CHANNEL_STATIC_QUERY = gql`
       chatCommands {
         command
         response
+      }
+      roles {
+        id
+        userAddress
+        role
       }
     }
   }
@@ -153,12 +159,6 @@ export const CHANNEL_INTERACTABLE_QUERY = gql`
         createdAt
         id
         resultIndex
-      }
-      vibesTokenPriceRange
-      roles {
-        id
-        userAddress
-        role
       }
     }
   }
