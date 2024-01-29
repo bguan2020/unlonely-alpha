@@ -202,6 +202,21 @@ const Trade = () => {
   );
 
   const { refetch: refetchIsVerifier, isVerifier } = useIsVerifier(v2contract);
+  const [verifierFetchFlag, setVerifierFetchFlag] = useState<Log[]>([]);
+
+  useContractEvent({
+    address: v2contract.address,
+    abi: v2contract.abi,
+    eventName: "setVerifier",
+    listener(logs) {
+      setVerifierFetchFlag(logs);
+    },
+  });
+
+  useEffect(() => {
+    if (verifierFetchFlag.length === 0 || !isOwner) return;
+    refetchIsVerifier();
+  }, [verifierFetchFlag]);
 
   const {
     buyVotes,
@@ -687,9 +702,6 @@ const Trade = () => {
 
   const fetch = async () => {
     let calls: any[] = [];
-    if (isOwner) {
-      calls = calls.concat([refetchIsVerifier()]);
-    }
     calls = calls.concat([refetchUserEthBalance()]);
     if (doesEventExist) {
       if (isSharesEventLive && eventEndTimestampPassed) {

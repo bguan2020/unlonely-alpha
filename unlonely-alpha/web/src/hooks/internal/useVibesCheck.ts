@@ -220,8 +220,6 @@ export const useVibesCheck = () => {
       if (tokenTxs.length === 0) return;
       const AVERAGE_BLOCK_TIME_SECS = 2;
       const currentBlockNumber = await publicClient.getBlockNumber();
-      // const blockNumberOneHourAgo =
-      //   currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60);
       const blockNumberOneDayAgo =
         currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
 
