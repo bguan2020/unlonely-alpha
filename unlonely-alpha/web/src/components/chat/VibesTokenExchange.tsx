@@ -336,13 +336,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
 
   return (
     <Flex direction="column" justifyContent={"flex-end"} gap="10px">
-      <Flex
-        position="relative"
-        gap="5px"
-        alignItems={"center"}
-        width={isFullChart ? "40%" : "auto"}
-        alignSelf={isFullChart ? "center" : undefined}
-      >
+      <Flex position="relative" gap="5px" alignItems={"center"}>
         <Input
           variant={
             Number(formatIncompleteNumber(amountOfVibes)) <= 0
@@ -354,13 +348,13 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           onChange={handleInputChange}
           mx="auto"
           p="1"
-          fontSize={"14px"}
+          fontSize={isFullChart ? "2rem" : "14px"}
         />
         <Button
           bg={"#403c7d"}
           color="white"
           p={2}
-          height={"20px"}
+          height={isFullChart ? "unset" : "20px"}
           _focus={{}}
           _active={{}}
           _hover={{
@@ -373,12 +367,9 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           max
         </Button>
       </Flex>
-      <Flex
-        direction={isFullChart ? "row" : "column"}
-        gap="5px"
-        justifyContent={"center"}
-      >
+      <Flex gap="5px" justifyContent={"center"} direction="column">
         <Button
+          w="100%"
           color="white"
           _focus={{}}
           _hover={{}}
@@ -390,11 +381,12 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
             Number(formatIncompleteNumber(amountOfVibes)) <= 0
           }
           onClick={mint}
-          px={isFullChart ? "10%" : undefined}
+          p={isFullChart ? "10%" : undefined}
         >
           BUY
         </Button>
         <Button
+          w="100%"
           color="white"
           _focus={{}}
           _hover={{}}
@@ -404,7 +396,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
             !burn || Number(formatIncompleteNumber(amountOfVibes)) <= 0
           }
           onClick={burn}
-          px={isFullChart ? "10%" : undefined}
+          p={isFullChart ? "10%" : undefined}
         >
           SELL
         </Button>

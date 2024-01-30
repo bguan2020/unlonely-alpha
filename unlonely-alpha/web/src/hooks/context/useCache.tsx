@@ -23,6 +23,7 @@ import { useNetworkContext } from "./useNetwork";
 import { useUser } from "./useUser";
 import { useVibesCheck } from "../internal/useVibesCheck";
 import { VibesTokenTx } from "../../constants/types";
+import { getCoingeckoTokenPrice } from "../../utils/coingecko";
 
 type UnclaimedBet = SharesEvent & {
   payout: bigint;
@@ -43,6 +44,7 @@ const CacheContext = createContext<{
   chartTimeIndexes: Map<string, number>;
   addAppError: (error: Error, source: string) => void;
   popAppError: (errorName: string, field: string) => void;
+  ethPriceInUsd?: string;
 }>({
   channelFeed: [],
   claimableBets: [],
@@ -54,6 +56,7 @@ const CacheContext = createContext<{
   chartTimeIndexes: new Map(),
   addAppError: () => undefined,
   popAppError: () => undefined,
+  ethPriceInUsd: undefined,
 });
 
 type SourcedError = Error & {
@@ -76,6 +79,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const { tokenTxs, chartTimeIndexes, loading } = useVibesCheck();
+  const [ethPriceInUsd, setEthPriceInUsd] = useState<string | undefined>("0");
 
   const addAppError = useCallback(
     (error: Error, source: string) => {
@@ -204,6 +208,33 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   ]);
 
   useEffect(() => {
+    const init = async () => {
+      if (typeof window === "undefined") return;
+      const value = localStorage.getItem("unlonely-eth-price-usd-v0");
+      const dateNow = new Date().getTime();
+      if (value) {
+        const parsedValue = JSON.parse(value);
+        const price = parsedValue.price;
+        const timestamp = parsedValue.timestamp;
+        if (dateNow - timestamp < 1000 * 60 * 60 * 12) {
+          setEthPriceInUsd(price);
+          return;
+        }
+      }
+      const res = await getCoingeckoTokenPrice("ethereum", "usd");
+      localStorage.setItem(
+        "unlonely-eth-price-usd-v0",
+        JSON.stringify({
+          price: res,
+          timestamp: dateNow,
+        })
+      );
+      setEthPriceInUsd(res);
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
     if (
       walletIsConnected &&
       appErrors.filter((err) => err.name?.includes("ConnectorNotFoundError"))
@@ -264,6 +295,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       chartTimeIndexes,
       addAppError,
       popAppError,
+      ethPriceInUsd,
     };
   }, [
     claimableBets,
@@ -276,6 +308,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     chartTimeIndexes,
     addAppError,
     popAppError,
+    ethPriceInUsd,
   ]);
 
   return (
