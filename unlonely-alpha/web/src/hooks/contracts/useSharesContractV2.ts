@@ -73,7 +73,6 @@ export const useReadSupplies = (
   eventId: number,
   contract: ContractData
 ) => {
-  const { userAddress } = useUser();
   const publicClient = usePublicClient();
 
   const [yayVotesSupply, setYayVotesSupply] = useState<bigint>(BigInt(0));
@@ -84,7 +83,6 @@ export const useReadSupplies = (
       !contract.address ||
       !contract.abi ||
       !publicClient ||
-      !userAddress ||
       !isAddress(eventAddress)
     ) {
       setYayVotesSupply(BigInt(0));
@@ -107,7 +105,7 @@ export const useReadSupplies = (
     ]);
     setYayVotesSupply(BigInt(String(yayVotesSupply)));
     setNayVotesSupply(BigInt(String(nayVotesSupply)));
-  }, [contract.address, publicClient, userAddress, eventAddress, eventId, key]);
+  }, [contract.address, publicClient, eventAddress, eventId, key]);
 
   useEffect(() => {
     getData();
