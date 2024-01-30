@@ -73,9 +73,6 @@ const VibesTokenZoneModalControls = ({
     >
       <Flex gap="25px">
         <Flex direction="column" ref={lowPriceRef}>
-          {/* <Text textAlign={"center"} noOfLines={1} color="#d6d6d6">
-          lower price
-        </Text> */}
           <Input
             fontSize="20px"
             variant={"redGlow"}
@@ -178,9 +175,6 @@ const VibesTokenZoneModalControls = ({
           </Flex>
         </Flex>
         <Flex direction="column" ref={highPriceRef}>
-          {/* <Text textAlign={"center"} noOfLines={1} color="#d6d6d6">
-          higher price
-        </Text> */}
           <Input
             fontSize="20px"
             variant={"greenGlow"}

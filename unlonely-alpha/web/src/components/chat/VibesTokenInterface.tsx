@@ -130,6 +130,9 @@ const VibesTokenInterface = ({
   const [higherPriceInUsd, setHigherPriceInUsd] = useState<string | undefined>(
     undefined
   );
+  const [currentPriceInUsd, setCurrentPriceInUsd] = useState<
+    string | undefined
+  >(undefined);
 
   const txs = useMemo(() => {
     return vibesTokenTxs.map((tx) => {
@@ -273,7 +276,7 @@ const VibesTokenInterface = ({
       truncateValue(
         Number(formatUnits(BigInt(lowerPrice), 18)) *
           (ethPriceInUsd ? Number(ethPriceInUsd) : 0),
-        3
+        4
       )
     );
   }, [lowerPrice, ethPriceInUsd]);
@@ -283,10 +286,20 @@ const VibesTokenInterface = ({
       truncateValue(
         Number(formatUnits(BigInt(higherPrice), 18)) *
           (ethPriceInUsd ? Number(ethPriceInUsd) : 0),
-        3
+        4
       )
     );
   }, [higherPrice, ethPriceInUsd]);
+
+  useEffect(() => {
+    setCurrentPriceInUsd(
+      truncateValue(
+        Number(formattedCurrentPrice) *
+          (ethPriceInUsd ? Number(ethPriceInUsd) : 0),
+        4
+      )
+    );
+  }, [formattedCurrentPrice, ethPriceInUsd]);
 
   return (
     <>
@@ -313,7 +326,7 @@ const VibesTokenInterface = ({
                   gap="2rem"
                 >
                   <Flex direction="column">
-                    <Text opacity="0.8">higher price:</Text>
+                    <Text opacity="0.8">green zone price:</Text>
                     <Text color="#b0efb2" fontSize="2rem">
                       ${higherPriceInUsd}
                     </Text>
@@ -345,6 +358,19 @@ const VibesTokenInterface = ({
                     )}
                   </Flex>
                 </Flex>
+                <Flex direction="column" gap="10px">
+                  <Flex direction="column">
+                    <Text opacity="0.8">current price:</Text>
+                    <Text color="#f3d584" fontSize="2rem">
+                      ${currentPriceInUsd}
+                    </Text>
+                    <Text whiteSpace={"nowrap"} opacity="0.3" fontSize="14px">
+                      {formattedCurrentPrice} ETH
+                    </Text>
+                  </Flex>
+
+                  <VibesTokenExchange isFullChart />
+                </Flex>
                 <Flex
                   direction="column"
                   bg="rgba(0, 0, 0, 0.5)"
@@ -352,7 +378,7 @@ const VibesTokenInterface = ({
                   gap="2rem"
                 >
                   <Flex direction="column">
-                    <Text opacity="0.8">lower price:</Text>
+                    <Text opacity="0.8">red zone price:</Text>
                     <Text
                       fontSize={
                         lowerTokensThreshold !== undefined &&
@@ -384,7 +410,6 @@ const VibesTokenInterface = ({
                     )}
                   </Flex>
                 </Flex>
-                <VibesTokenExchange isFullChart />
               </Flex>
             </Container>
           )}
