@@ -26,7 +26,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import ChannelDesc from "../channels/ChannelDesc";
 import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
-import { ADD_REACTION_EVENT, InteractionType } from "../../constants";
+import { ADD_REACTION_EVENT } from "../../constants";
 import MessageList from "../chat/MessageList";
 import ChatForm from "../chat/ChatForm";
 import { GET_SUBSCRIPTION } from "../../constants/queries";
@@ -304,38 +304,13 @@ const StandaloneChatComponent = ({
 };
 
 export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
-  const { userAddress } = useUser();
-  const { channel: channelContext, chat: chatContext } = useChannelContext();
-  const { channelQueryData, refetch } = channelContext;
+  const { chat: chatContext } = useChannelContext();
   const { presenceChannel } = chatContext;
   const { isStandalone } = useUserAgent();
 
   const [selectedTab, setSelectedTab] = useState<
     "chat" | "trade" | "vibes" | "vip"
   >("chat");
-  const isOwner = userAddress === channelQueryData?.owner.address;
-
-  useEffect(() => {
-    const fetch = async () => {
-      if (chat.receivedMessages.length > 0 && !isOwner) {
-        const latestMessage =
-          chat.receivedMessages[chat.receivedMessages.length - 1];
-        if (
-          latestMessage.data.body &&
-          (latestMessage.data.body.split(":")[0] ===
-            InteractionType.EVENT_LIVE ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_LOCK ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_PAYOUT) &&
-          Date.now() - latestMessage.timestamp < 12000
-        ) {
-          await refetch();
-        }
-      }
-    };
-    fetch();
-  }, [chat.receivedMessages]);
 
   return (
     <>

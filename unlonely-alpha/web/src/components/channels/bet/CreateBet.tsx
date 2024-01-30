@@ -68,13 +68,14 @@ export const CreateBet = ({
   const publicClient = usePublicClient();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork } = network;
-  const { channel } = useChannelContext();
+  const { channel, ui } = useChannelContext();
   const {
     channelQueryData,
     refetch,
     loading: channelQueryLoading,
     ongoingBets,
   } = channel;
+  const { localSharesEventState } = ui;
   const { postSharesEvent, loading: postSharesEventLoading } =
     usePostSharesEvent({});
 
@@ -85,10 +86,11 @@ export const CreateBet = ({
 
   const pendingBet = useMemo(
     () =>
-      ongoingBets?.[0]?.eventState === SharesEventState.Pending
-        ? ongoingBets?.[0]
+      localSharesEventState === SharesEventState.Pending &&
+      ongoingBets.length > 0
+        ? ongoingBets[0]
         : undefined,
-    [ongoingBets]
+    [ongoingBets, localSharesEventState]
   );
 
   const isFetching = useRef(false);
@@ -112,12 +114,13 @@ export const CreateBet = ({
 
   const currentBetIsActiveAndHasFunds = useMemo(
     () =>
-      (ongoingBets?.length ?? 0) > 0 &&
+      localSharesEventState !== undefined &&
+      ongoingBets?.length > 0 &&
       pool > BigInt(0) &&
-      ongoingBets?.[0].eventState !== SharesEventState.Payout &&
-      ongoingBets?.[0].eventState !== SharesEventState.PayoutPrevious &&
-      ongoingBets?.[0].eventState !== SharesEventState.Pending,
-    [pool, ongoingBets]
+      localSharesEventState !== SharesEventState.Payout &&
+      localSharesEventState !== SharesEventState.PayoutPrevious &&
+      localSharesEventState !== SharesEventState.Pending,
+    [pool, ongoingBets, localSharesEventState]
   );
 
   const { closeSharesEvents } = useCloseSharesEvent({
@@ -129,27 +132,28 @@ export const CreateBet = ({
 
   const _postSharesEvent = useCallback(
     async (sharesSubjectQuestion: string) => {
+      console.log(ongoingBets, localSharesEventState);
       if (
-        (ongoingBets?.length ?? 0) > 0 &&
-        ongoingBets?.[0].eventState === SharesEventState.Payout
+        ongoingBets.length > 0 &&
+        localSharesEventState === SharesEventState.Payout
       ) {
         await updateSharesEvent({
-          id: ongoingBets?.[0].id ?? "",
-          sharesSubjectQuestion: ongoingBets?.[0].sharesSubjectQuestion ?? "",
-          sharesSubjectAddress: ongoingBets?.[0].sharesSubjectAddress ?? "",
+          id: ongoingBets[0].id ?? "",
+          sharesSubjectQuestion: ongoingBets[0].sharesSubjectQuestion ?? "",
+          sharesSubjectAddress: ongoingBets[0].sharesSubjectAddress ?? "",
           eventState: SharesEventState.PayoutPrevious,
-          resultIndex: ongoingBets?.[0].resultIndex ?? undefined,
+          resultIndex: ongoingBets[0].resultIndex ?? undefined,
         });
       }
       if (
-        (ongoingBets?.length ?? 0) > 0 &&
+        ongoingBets.length > 0 &&
         pool === BigInt(0) &&
-        ongoingBets?.[0].eventState !== SharesEventState.Pending
+        localSharesEventState !== SharesEventState.Pending
       ) {
         await closeSharesEvents({
           chainId: localNetwork.config.chainId,
           channelId: channelQueryData?.id as string,
-          sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
+          sharesEventIds: [Number(ongoingBets[0]?.id ?? "0")],
         });
       }
       await postSharesEvent({
@@ -165,7 +169,8 @@ export const CreateBet = ({
       await refetch().then(() => handleLoading(undefined));
     },
     [
-      ongoingBets?.length,
+      ongoingBets.length,
+      localSharesEventState,
       channelQueryData,
       question,
       user,
@@ -237,21 +242,29 @@ export const CreateBet = ({
     isVerifier,
   ]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const init = async () => {
-        if (
-          loading === "prepping" &&
-          loading !== undefined &&
-          (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets?.length === 0)
-        )
-          handleLoading(undefined);
-      };
-      init();
-    }, 1000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const init = async () => {
+  //       console.log(generatedKey, ongoingBets, loading);
 
-    return () => clearInterval(interval);
-  }, []);
+  //       if (
+  //         loading === "prepping" &&
+  //         loading !== undefined &&
+  //         (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets?.length === 0)
+  //       )
+  //         handleLoading(undefined);
+  //     };
+  //     init();
+  //   }, 1000);
+
+  //   return () => clearInterval(interval);
+  // }, []);
+
+  useEffect(() => {
+    if (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets.length === 0) {
+      handleLoading(undefined);
+    }
+  }, [generatedKey, ongoingBets]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -525,7 +538,7 @@ const OpenEventInterface = ({
           description: "event-live",
         });
         canAddToChatbot.current = false;
-        await refetch().then(handleClose);
+        handleClose();
       },
       onTxError: (error) => {
         toast({

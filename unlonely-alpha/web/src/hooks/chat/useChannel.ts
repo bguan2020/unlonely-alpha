@@ -3,13 +3,15 @@ import { Types } from "ably";
 import { useEffect, useState } from "react";
 
 import { useChannelContext } from "../context/useChannel";
-import { Message } from "../../constants/types/chat";
+import { Message, SenderStatus } from "../../constants/types/chat";
 import {
   CHANGE_USER_ROLE_EVENT,
   CHAT_MESSAGE_EVENT,
+  InteractionType,
   VIBES_TOKEN_PRICE_RANGE_EVENT,
 } from "../../constants";
 import { useUser } from "../context/useUser";
+import { SharesEventState } from "../../generated/graphql";
 
 const ably = new Ably.Realtime.Promise({ authUrl: "/api/createTokenRequest" });
 
@@ -45,9 +47,9 @@ export function useAblyChannel(
 export function useChannel(fixedChatName?: string) {
   const { userAddress } = useUser();
   const { channel: c, chat, ui } = useChannelContext();
-  const { channelRoles, handleChannelRoles } = c;
+  const { channelRoles, handleChannelRoles, refetch } = c;
   const { chatChannel } = chat;
-  const { handleVibesTokenPriceRange } = ui;
+  const { handleVibesTokenPriceRange, handleLocalSharesEventState } = ui;
 
   const channelName =
     fixedChatName ??
@@ -83,6 +85,21 @@ export function useChannel(fixedChatName?: string) {
       handleVibesTokenPriceRange(newSliderValue);
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
+      if (message.data.senderStatus === SenderStatus.CHATBOT) {
+        const chatbotTaskType = message.data.body.split(":")[0];
+        if (chatbotTaskType === InteractionType.EVENT_LIVE) {
+          await refetch();
+        }
+        if (chatbotTaskType === InteractionType.EVENT_LOCK) {
+          handleLocalSharesEventState(SharesEventState.Lock);
+        }
+        if (chatbotTaskType === InteractionType.EVENT_UNLOCK) {
+          handleLocalSharesEventState(SharesEventState.Live);
+        }
+        if (chatbotTaskType === InteractionType.EVENT_PAYOUT) {
+          handleLocalSharesEventState(SharesEventState.Payout);
+        }
+      }
       if (localBanList.length === 0) {
         setReceivedMessages([...messageHistory, message]);
       } else {

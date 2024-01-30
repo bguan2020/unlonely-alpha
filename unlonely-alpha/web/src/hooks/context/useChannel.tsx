@@ -21,6 +21,7 @@ import {
   ChannelStaticQuery,
   GetGamblableEventLeaderboardByChannelIdQuery,
   SharesEvent,
+  SharesEventState,
 } from "../../generated/graphql";
 import { ChatBot, Role } from "../../constants/types";
 import { useUser } from "./useUser";
@@ -40,7 +41,7 @@ export const useChannelContext = () => {
 const ChannelContext = createContext<{
   channel: {
     channelQueryData?: ChannelDetailQuery["getChannelBySlug"];
-    ongoingBets?: SharesEvent[];
+    ongoingBets: SharesEvent[];
     loading: boolean;
     error?: ApolloError;
     refetch: () => Promise<any>;
@@ -97,11 +98,13 @@ const ChannelContext = createContext<{
     tradeLoading: boolean;
     handleTradeLoading: (value: boolean) => void;
     handleVibesTokenPriceRange: (value: string[]) => void;
+    localSharesEventState?: SharesEventState;
+    handleLocalSharesEventState: (value: SharesEventState) => void;
   };
 }>({
   channel: {
     channelQueryData: undefined,
-    ongoingBets: undefined,
+    ongoingBets: [],
     loading: true,
     error: undefined,
     refetch: () => Promise.resolve(undefined),
@@ -154,6 +157,8 @@ const ChannelContext = createContext<{
     tradeLoading: false,
     handleTradeLoading: () => undefined,
     handleVibesTokenPriceRange: () => undefined,
+    localSharesEventState: undefined,
+    handleLocalSharesEventState: () => undefined,
   },
 });
 
@@ -172,7 +177,6 @@ export const ChannelProvider = ({
     loading: channelStaticLoading,
     error: channelStaticError,
     data: channelStatic,
-    refetch: refetchChannelStatic,
   } = useQuery<ChannelStaticQuery>(CHANNEL_STATIC_QUERY, {
     variables: { slug },
     fetchPolicy: "cache-and-network",
@@ -202,7 +206,7 @@ export const ChannelProvider = ({
       channelQueryData?.sharesEvent?.filter(
         (event): event is SharesEvent =>
           event !== null && event?.chainId === localNetwork.config.chainId
-      ),
+      ) ?? [],
     [channelQueryData?.sharesEvent, localNetwork.config.chainId]
   );
 
@@ -230,6 +234,9 @@ export const ChannelProvider = ({
   const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
   const [isClipUiOpen, setIsClipUiOpen] = useState<boolean>(false);
   const [isVip, setIsVip] = useState<boolean>(false);
+  const [localSharesEventState, setLocalSharesEventState] = useState<
+    SharesEventState | undefined
+  >(undefined);
 
   const handleIsClipUiOpen = useCallback((isClipUiOpen: boolean) => {
     setIsClipUiOpen(isClipUiOpen);
@@ -301,6 +308,14 @@ export const ChannelProvider = ({
       );
     }
   }, [channelQueryData?.roles]);
+
+  useEffect(() => {
+    if (!ongoingBets || ongoingBets.length === 0) return;
+    const latestBet = ongoingBets[0];
+    const eventState = latestBet?.eventState;
+    if (eventState !== undefined && eventState !== null)
+      setLocalSharesEventState(eventState);
+  }, [ongoingBets]);
 
   useEffect(() => {
     if (textOverVideo.length > 0) {
@@ -376,6 +391,10 @@ export const ChannelProvider = ({
     []
   );
 
+  const handleLocalSharesEventState = useCallback((value: SharesEventState) => {
+    setLocalSharesEventState(value);
+  }, []);
+
   const value = useMemo(
     () => ({
       channel: {
@@ -433,6 +452,8 @@ export const ChannelProvider = ({
         tradeLoading,
         handleTradeLoading,
         handleVibesTokenPriceRange,
+        localSharesEventState,
+        handleLocalSharesEventState,
       },
     }),
     [
@@ -484,6 +505,8 @@ export const ChannelProvider = ({
       handleTradeLoading,
       handleVibesTokenPriceRange,
       handleChannelRoles,
+      localSharesEventState,
+      handleLocalSharesEventState,
     ]
   );
 
