@@ -56,7 +56,7 @@ export const JudgeBet = ({
       eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
       eventId: Number(ongoingBets?.[0]?.id) ?? 0,
       result: endDecision ?? false,
-      enabled: !eventVerified,
+      enabled: !eventVerified && ongoingBets.length > 0,
     },
     contractData,
     {
@@ -133,7 +133,7 @@ export const JudgeBet = ({
           description: "event-end",
         });
         canAddToChatbot.current = false;
-        await refetch().then(handleClose);
+        handleClose();
       },
       onTxError: (error) => {
         toast({

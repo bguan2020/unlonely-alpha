@@ -58,9 +58,9 @@ const Trade = () => {
   const { userAddress, walletIsConnected, user } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, chat: chatContext, ui } = useChannelContext();
-  const { channelQueryData, ongoingBets, refetch } = channel;
+  const { channelQueryData, ongoingBets } = channel;
   const { addToChatbot } = chatContext;
-  const { tradeLoading } = ui;
+  const { tradeLoading, localSharesEventState } = ui;
 
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
@@ -74,7 +74,6 @@ const Trade = () => {
   const debouncedAmountOfVotes = useDebounce(amountOfVotes, 300);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [dateNow, setDateNow] = useState<number>(Date.now());
-  const isFetching = useRef(false);
   const amount_bigint = useMemo(
     () => BigInt(debouncedAmountOfVotes as `${number}`),
     [debouncedAmountOfVotes]
@@ -92,16 +91,13 @@ const Trade = () => {
   useEffect(() => {
     if (
       userAddress === channelQueryData?.owner.address &&
-      ongoingBets?.[0]?.eventState === SharesEventState.Pending
+      localSharesEventState === SharesEventState.Pending
     ) {
       setViewState("create");
     } else {
       setViewState("normal");
     }
-  }, [
-    userAddress === channelQueryData?.owner.address,
-    ongoingBets?.[0]?.eventState === SharesEventState.Pending,
-  ]);
+  }, [userAddress, localSharesEventState]);
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
@@ -176,15 +172,12 @@ const Trade = () => {
   );
 
   const isSharesEventPending =
-    ongoingBets?.[0]?.eventState === SharesEventState.Pending;
-  const isSharesEventLive =
-    ongoingBets?.[0]?.eventState === SharesEventState.Live;
-  const isSharesEventLock =
-    ongoingBets?.[0]?.eventState === SharesEventState.Lock;
-  const isSharesEventPayout =
-    ongoingBets?.[0]?.eventState === SharesEventState.Payout;
+    localSharesEventState === SharesEventState.Pending;
+  const isSharesEventLive = localSharesEventState === SharesEventState.Live;
+  const isSharesEventLock = localSharesEventState === SharesEventState.Lock;
+  const isSharesEventPayout = localSharesEventState === SharesEventState.Payout;
   const isSharesEventPayoutPrevious =
-    ongoingBets?.[0]?.eventState === SharesEventState.PayoutPrevious;
+    localSharesEventState === SharesEventState.PayoutPrevious;
   const isOwner = userAddress === channelQueryData?.owner.address;
   const eventEndTimestampPassed = Number(eventEndTimestamp) * 1000 <= dateNow;
   const isEventOver = eventEndTimestampPassed || isSharesEventPayout;
@@ -458,9 +451,9 @@ const Trade = () => {
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
-          taskType: InteractionType.EVENT_LIVE,
-          title: "Event is live!",
-          description: "event-live",
+          taskType: InteractionType.EVENT_UNLOCK,
+          title: "Event is unlocked!",
+          description: "event-unlock",
         });
       }
       if (eventState === SharesEventState.Lock) {
@@ -472,7 +465,6 @@ const Trade = () => {
           description: "event-lock",
         });
       }
-      await refetch();
     },
     [ongoingBets, user, userAddress]
   );
@@ -919,7 +911,7 @@ const Trade = () => {
       )}
       {doesEventExist &&
         viewState !== "create" &&
-        ongoingBets?.[0].eventState !== SharesEventState.PayoutPrevious && (
+        !isSharesEventPayoutPrevious && (
           <Flex
             direction={"column"}
             gap="5px"
@@ -945,8 +937,7 @@ const Trade = () => {
       {viewState === "normal" && (
         <>
           {!doesEventExist ||
-          (doesEventExist &&
-            ongoingBets?.[0].eventState === SharesEventState.PayoutPrevious) ? (
+          (doesEventExist && isSharesEventPayoutPrevious) ? (
             <Tooltip
               label="ask the streamer to start a voting event on stream to use this feature!"
               shouldWrapChildren
@@ -966,7 +957,7 @@ const Trade = () => {
             <>
               {!eventEndTimestampPassed &&
               eventEndTimestamp > BigInt(0) &&
-              ongoingBets?.[0]?.eventState === "LIVE" ? (
+              isSharesEventLive ? (
                 <>
                   <Flex justifyContent={"space-around"} gap="5px">
                     <Flex gap="5px" w="100%">
@@ -1101,7 +1092,7 @@ const Trade = () => {
                 </>
               ) : eventEndTimestampPassed &&
                 eventEndTimestamp > BigInt(0) &&
-                ongoingBets?.[0]?.eventState === "LIVE" ? (
+                isSharesEventLive ? (
                 <>
                   <Flex justifyContent={"space-evenly"} my="10px">
                     <Text
@@ -1126,7 +1117,7 @@ const Trade = () => {
                     winner
                   </Text>
                 </>
-              ) : ongoingBets?.[0]?.eventState === "LOCK" ? (
+              ) : isSharesEventLock ? (
                 <>
                   <Flex justifyContent={"space-evenly"} my="10px">
                     <Text
@@ -1150,7 +1141,7 @@ const Trade = () => {
                     voting disabled
                   </Text>
                 </>
-              ) : ongoingBets?.[0]?.eventState === "PAYOUT" ? (
+              ) : isSharesEventPayout ? (
                 <>
                   <Text textAlign={"center"} fontSize="14px" mt="10px">
                     This event is over
@@ -1208,17 +1199,16 @@ const Trade = () => {
                     </Flex>
                   )}
                 </>
-              ) : eventEndTimestamp === BigInt(0) &&
-                ongoingBets?.[0]?.eventState === "PENDING" ? (
+              ) : eventEndTimestamp === BigInt(0) && isSharesEventPending ? (
                 <Text textAlign={"center"}>
                   The streamer is currently setting up the new bet, please wait
                 </Text>
               ) : (
-                <Flex justifyContent="center">
-                  <Text textAlign={"center"}>
-                    This event and its details are not recognized by the app for
-                    unknown reasons
-                  </Text>
+                <Flex direction="column">
+                  <Flex justifyContent="center">
+                    <Spinner />
+                  </Flex>
+                  <Text textAlign={"center"}>Loading event details</Text>
                 </Flex>
               )}
             </>

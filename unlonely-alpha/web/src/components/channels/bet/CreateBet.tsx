@@ -68,13 +68,14 @@ export const CreateBet = ({
   const publicClient = usePublicClient();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork } = network;
-  const { channel } = useChannelContext();
+  const { channel, ui } = useChannelContext();
   const {
     channelQueryData,
     refetch,
     loading: channelQueryLoading,
     ongoingBets,
   } = channel;
+  const { localSharesEventState } = ui;
   const { postSharesEvent, loading: postSharesEventLoading } =
     usePostSharesEvent({});
 
@@ -85,10 +86,11 @@ export const CreateBet = ({
 
   const pendingBet = useMemo(
     () =>
-      ongoingBets?.[0]?.eventState === SharesEventState.Pending
+      localSharesEventState === SharesEventState.Pending &&
+      ongoingBets.length > 0
         ? ongoingBets?.[0]
         : undefined,
-    [ongoingBets]
+    [ongoingBets, localSharesEventState]
   );
 
   const isFetching = useRef(false);
@@ -112,12 +114,13 @@ export const CreateBet = ({
 
   const currentBetIsActiveAndHasFunds = useMemo(
     () =>
-      (ongoingBets?.length ?? 0) > 0 &&
+      localSharesEventState !== undefined &&
+      ongoingBets?.length > 0 &&
       pool > BigInt(0) &&
-      ongoingBets?.[0].eventState !== SharesEventState.Payout &&
-      ongoingBets?.[0].eventState !== SharesEventState.PayoutPrevious &&
-      ongoingBets?.[0].eventState !== SharesEventState.Pending,
-    [pool, ongoingBets]
+      localSharesEventState !== SharesEventState.Payout &&
+      localSharesEventState !== SharesEventState.PayoutPrevious &&
+      localSharesEventState !== SharesEventState.Pending,
+    [pool, ongoingBets, localSharesEventState]
   );
 
   const { closeSharesEvents } = useCloseSharesEvent({
@@ -129,9 +132,10 @@ export const CreateBet = ({
 
   const _postSharesEvent = useCallback(
     async (sharesSubjectQuestion: string) => {
+      console.log(ongoingBets, localSharesEventState);
       if (
-        (ongoingBets?.length ?? 0) > 0 &&
-        ongoingBets?.[0].eventState === SharesEventState.Payout
+        ongoingBets.length > 0 &&
+        localSharesEventState === SharesEventState.Payout
       ) {
         await updateSharesEvent({
           id: ongoingBets?.[0].id ?? "",
@@ -142,9 +146,9 @@ export const CreateBet = ({
         });
       }
       if (
-        (ongoingBets?.length ?? 0) > 0 &&
+        ongoingBets.length > 0 &&
         pool === BigInt(0) &&
-        ongoingBets?.[0].eventState !== SharesEventState.Pending
+        localSharesEventState !== SharesEventState.Pending
       ) {
         await closeSharesEvents({
           chainId: localNetwork.config.chainId,
@@ -165,7 +169,8 @@ export const CreateBet = ({
       await refetch().then(() => handleLoading(undefined));
     },
     [
-      ongoingBets?.length,
+      ongoingBets.length,
+      localSharesEventState,
       channelQueryData,
       question,
       user,
@@ -238,20 +243,10 @@ export const CreateBet = ({
   ]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const init = async () => {
-        if (
-          loading === "prepping" &&
-          loading !== undefined &&
-          (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets?.length === 0)
-        )
-          handleLoading(undefined);
-      };
-      init();
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
+    if (generatedKey !== NULL_ADDRESS_BYTES32) {
+      handleLoading(undefined);
+    }
+  }, [generatedKey]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -414,7 +409,7 @@ const OpenEventInterface = ({
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { channelQueryData, loading: channelQueryLoading, refetch } = channel;
+  const { channelQueryData, loading: channelQueryLoading } = channel;
   const [selectedEndTime, setSelectedEndTime] = useState<
     "10" | "30" | "60" | "120"
   >("60");
@@ -525,7 +520,7 @@ const OpenEventInterface = ({
           description: "event-live",
         });
         canAddToChatbot.current = false;
-        await refetch().then(handleClose);
+        handleClose();
       },
       onTxError: (error) => {
         toast({
