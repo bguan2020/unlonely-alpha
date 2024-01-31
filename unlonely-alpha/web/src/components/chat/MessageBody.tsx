@@ -98,6 +98,7 @@ const MessageBody = ({
     const eventTypes = [
       InteractionType.EVENT_LIVE,
       InteractionType.EVENT_LOCK,
+      InteractionType.EVENT_UNLOCK,
       InteractionType.EVENT_PAYOUT,
     ];
 

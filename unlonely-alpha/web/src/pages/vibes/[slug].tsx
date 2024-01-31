@@ -16,7 +16,7 @@ const FullVibesChart = () => {
   const chat = useChat();
 
   return (
-    <Flex h="100vh" justifyContent={"space-between"} bg="#131323" p="20px">
+    <Flex h="100vh" justifyContent={"space-between"} bg="#131323" p="0.5rem">
       <VibesTokenInterface isFullChart ablyChannel={chat.channel} />
     </Flex>
   );

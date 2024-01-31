@@ -32,9 +32,7 @@ const PopOutChatComponent = () => {
         />
       </NextHead>
       <div
-        // chat area wrapper
         style={{
-          // backgroundColor: "red",
           height: "100svh",
           position: "relative",
         }}

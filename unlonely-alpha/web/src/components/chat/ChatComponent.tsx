@@ -1,52 +1,18 @@
 import { Flex, Text, Container, Image, Tooltip } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { InteractionType } from "../../constants";
 import { ChatReturnType } from "../../hooks/chat/useChat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
 import Chat from "./Chat";
-import { useUser } from "../../hooks/context/useUser";
 
 const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
-  const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const [selectedTab, setSelectedTab] = useState<"chat" | "vip">("chat");
-  const {
-    channel: channelContext,
-    chat: chatContext,
-    ui: uiContext,
-  } = useChannelContext();
-  const { channelQueryData, refetch } = channelContext;
+  const { chat: chatContext } = useChannelContext();
   const { presenceChannel } = chatContext;
-  const { handleTradeLoading } = uiContext;
-  const isOwner = userAddress === channelQueryData?.owner.address;
-
-  useEffect(() => {
-    const fetch = async () => {
-      if (chat.receivedMessages.length > 0 && !isOwner) {
-        const latestMessage =
-          chat.receivedMessages[chat.receivedMessages.length - 1];
-        if (
-          latestMessage.data.body &&
-          (latestMessage.data.body.split(":")[0] ===
-            InteractionType.EVENT_LIVE ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_LOCK ||
-            latestMessage.data.body.split(":")[0] ===
-              InteractionType.EVENT_PAYOUT) &&
-          Date.now() - latestMessage.timestamp < 12000
-        ) {
-          handleTradeLoading(true);
-          await refetch();
-          handleTradeLoading(false);
-        }
-      }
-    };
-    fetch();
-  }, [chat.receivedMessages]);
 
   return (
     <Flex

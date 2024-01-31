@@ -13,7 +13,10 @@ import {
 } from "../../hooks/contracts/useVibesToken";
 import useDebounce from "../../hooks/internal/useDebounce";
 import centerEllipses from "../../utils/centerEllipses";
-import { filteredInput } from "../../utils/validation/input";
+import {
+  filteredInput,
+  formatIncompleteNumber,
+} from "../../utils/validation/input";
 import { useCacheContext } from "../../hooks/context/useCache";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
@@ -333,27 +336,25 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
 
   return (
     <Flex direction="column" justifyContent={"flex-end"} gap="10px">
-      <Flex
-        position="relative"
-        gap="5px"
-        alignItems={"center"}
-        width={isFullChart ? "40%" : "auto"}
-        alignSelf={isFullChart ? "center" : undefined}
-      >
+      <Flex position="relative" gap="5px" alignItems={"center"}>
         <Input
-          variant="glow"
+          variant={
+            Number(formatIncompleteNumber(amountOfVibes)) <= 0
+              ? "redGlow"
+              : "glow"
+          }
           textAlign="center"
           value={amountOfVibes}
           onChange={handleInputChange}
           mx="auto"
           p="1"
-          fontSize={"14px"}
+          fontSize={isFullChart ? "2rem" : "14px"}
         />
         <Button
           bg={"#403c7d"}
           color="white"
           p={2}
-          height={"20px"}
+          height={isFullChart ? "unset" : "20px"}
           _focus={{}}
           _active={{}}
           _hover={{
@@ -366,34 +367,38 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           max
         </Button>
       </Flex>
-      <Flex
-        direction={isFullChart ? "row" : "column"}
-        gap="5px"
-        justifyContent={"center"}
-      >
+      <Flex gap="5px" justifyContent={"center"} direction="column">
         <Button
+          w="100%"
           color="white"
           _focus={{}}
           _hover={{}}
           _active={{}}
           bg="#46a800"
-          isDisabled={!mint || mintCostAfterFeesLoading}
+          isDisabled={
+            !mint ||
+            mintCostAfterFeesLoading ||
+            Number(formatIncompleteNumber(amountOfVibes)) <= 0
+          }
           onClick={mint}
-          px={isFullChart ? "10%" : undefined}
+          p={isFullChart ? "10%" : undefined}
         >
-          BUY
+          <Text fontSize={isFullChart ? "25px" : "unset"}>BUY</Text>
         </Button>
         <Button
+          w="100%"
           color="white"
           _focus={{}}
           _hover={{}}
           _active={{}}
           bg="#fe2815"
-          isDisabled={!burn}
+          isDisabled={
+            !burn || Number(formatIncompleteNumber(amountOfVibes)) <= 0
+          }
           onClick={burn}
-          px={isFullChart ? "10%" : undefined}
+          p={isFullChart ? "10%" : undefined}
         >
-          SELL
+          <Text fontSize={isFullChart ? "25px" : "unset"}>SELL</Text>
         </Button>
       </Flex>
     </Flex>

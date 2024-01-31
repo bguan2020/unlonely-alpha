@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Button,
   Flex,
@@ -7,6 +7,7 @@ import {
   Tooltip as ChakraTooltip,
   IconButton,
   Image,
+  Container,
 } from "@chakra-ui/react";
 import { formatUnits, isAddress, parseUnits } from "viem";
 import {
@@ -17,6 +18,7 @@ import {
   YAxis,
   ReferenceArea,
 } from "recharts";
+import * as AWS from "aws-sdk";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
@@ -28,6 +30,7 @@ import VibesTokenZoneModal from "../channels/VibesTokenZoneModal";
 import VibesTokenExchange from "./VibesTokenExchange";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
+import ConnectWallet from "../navigation/ConnectWallet";
 
 const ZONE_BREADTH = 0.05;
 
@@ -78,10 +81,20 @@ const VibesTokenInterface = ({
           >{`${
             payload[0].payload.event === "Mint" ? "Bought" : "Sold"
           } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
-          <Text>{`New price: ${truncateValue(
-            formatUnits(payload[0].payload.price, 18),
-            10
-          )} ETH`}</Text>
+          {payload[0].payload.priceInUsd !== undefined ? (
+            <>
+              <Text>{`$${payload[0].payload.priceInUsd}`}</Text>
+              <Text fontSize="10px" opacity="0.75">{`${truncateValue(
+                formatUnits(payload[0].payload.price, 18),
+                10
+              )} ETH`}</Text>
+            </>
+          ) : (
+            <Text>{`${truncateValue(
+              formatUnits(payload[0].payload.price, 18),
+              10
+            )} ETH`}</Text>
+          )}
           {percentage !== 0 && isFullChart && (
             <Text
               color={
@@ -100,13 +113,14 @@ const VibesTokenInterface = ({
     return null;
   };
 
-  const { userAddress } = useUser();
+  const { userAddress, walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
     useCacheContext();
   const { channel, ui } = useChannelContext();
   const { channelQueryData } = channel;
   const { vibesTokenPriceRange } = ui;
+  const { ethPriceInUsd } = useCacheContext();
   const windowSize = useWindowSize();
 
   const [timeFilter, setTimeFilter] = useState<"1d" | "all">(
@@ -114,9 +128,22 @@ const VibesTokenInterface = ({
   );
 
   const [zonesOn, setZonesOn] = useState(true);
-  const [zoneData, setZoneData] = useState<"red" | "green" | undefined>(
+  const [lowerTokensThreshold, setLowerTokensThreshold] = useState<
+    number | undefined
+  >(undefined);
+  const [higherTokensThreshold, setHigherTokensThreshold] = useState<
+    number | undefined
+  >(undefined);
+
+  const [lowerPriceInUsd, setLowerPriceInUsd] = useState<string | undefined>(
     undefined
   );
+  const [higherPriceInUsd, setHigherPriceInUsd] = useState<string | undefined>(
+    undefined
+  );
+  const [currentPriceInUsd, setCurrentPriceInUsd] = useState<
+    string | undefined
+  >(undefined);
 
   const txs = useMemo(() => {
     return vibesTokenTxs.map((tx) => {
@@ -125,11 +152,19 @@ const VibesTokenInterface = ({
         event: tx.eventName,
         amount: Number(tx.amount),
         price: tx.price,
+        priceInUsd:
+          ethPriceInUsd !== undefined
+            ? truncateValue(
+                Number(ethPriceInUsd) *
+                  Number(formatUnits(BigInt(tx.price), 18)),
+                4
+              )
+            : undefined,
         blockNumber: tx.blockNumber,
         priceChangePercentage: tx.priceChangePercentage,
       };
     });
-  }, [vibesTokenTxs]);
+  }, [vibesTokenTxs, ethPriceInUsd]);
 
   const formattedDayData = useMemo(
     () => txs.slice(chartTimeIndexes.get("day") as number),
@@ -186,6 +221,102 @@ const VibesTokenInterface = ({
       windowFeatures
     );
   };
+
+  useEffect(() => {
+    const calculateTokens = async () => {
+      if (
+        vibesTokenTxs.length === 0 ||
+        vibesTokenPriceRange.length === 0 ||
+        !isFullChart
+      )
+        return;
+      const lambda = new AWS.Lambda({
+        region: "us-west-2",
+        accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
+        secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
+      });
+
+      const lowerParams = {
+        FunctionName: "calcNumTokensToReachPrice",
+        Payload: JSON.stringify({
+          detail: {
+            current_token_supply: Number(
+              vibesTokenTxs[vibesTokenTxs.length - 1].supply
+            ),
+            new_eth_price: Number(vibesTokenPriceRange[0]),
+          },
+        }),
+      };
+
+      const higherParams = {
+        FunctionName: "calcNumTokensToReachPrice",
+        Payload: JSON.stringify({
+          detail: {
+            current_token_supply: Number(
+              vibesTokenTxs[vibesTokenTxs.length - 1].supply
+            ),
+            new_eth_price: Number(vibesTokenPriceRange[1]),
+          },
+        }),
+      };
+
+      const [lowerThreshold, higherThreshold] = await Promise.all([
+        lambda.invoke(lowerParams).promise(),
+        lambda.invoke(higherParams).promise(),
+      ]);
+      const responseForLower = JSON.parse(lowerThreshold.Payload as any);
+      const responseForHigher = JSON.parse(higherThreshold.Payload as any);
+      if (responseForLower.errorMessage) {
+        console.error(
+          "lambda calculate lower error:",
+          responseForLower.errorMessage
+        );
+        setLowerTokensThreshold(-1);
+      } else {
+        const numTokensForLower = responseForLower.body.numOfTokens;
+        setLowerTokensThreshold(numTokensForLower);
+      }
+      if (responseForHigher.errorMessage) {
+        console.error(
+          "lambda calculate higher error:",
+          responseForHigher.errorMessage
+        );
+        setHigherTokensThreshold(-1);
+      } else {
+        const numTokensForHigher = responseForHigher.body.numOfTokens;
+        setHigherTokensThreshold(numTokensForHigher);
+      }
+    };
+    calculateTokens();
+  }, [vibesTokenTxs, vibesTokenPriceRange]);
+
+  useEffect(() => {
+    if (ethPriceInUsd === undefined) return;
+    setLowerPriceInUsd(
+      truncateValue(
+        Number(formatUnits(BigInt(lowerPrice), 18)) * Number(ethPriceInUsd),
+        4
+      )
+    );
+  }, [lowerPrice, ethPriceInUsd]);
+
+  useEffect(() => {
+    if (ethPriceInUsd === undefined) return;
+    setHigherPriceInUsd(
+      truncateValue(
+        Number(formatUnits(BigInt(higherPrice), 18)) * Number(ethPriceInUsd),
+        4
+      )
+    );
+  }, [higherPrice, ethPriceInUsd]);
+
+  useEffect(() => {
+    if (ethPriceInUsd === undefined) return;
+    setCurrentPriceInUsd(
+      truncateValue(Number(formattedCurrentPrice) * Number(ethPriceInUsd), 4)
+    );
+  }, [formattedCurrentPrice, ethPriceInUsd]);
+
   return (
     <>
       {vibesTokenLoading ? (
@@ -200,208 +331,339 @@ const VibesTokenInterface = ({
           <Spinner size="md" />
         </Flex>
       ) : (
-        <Flex direction="column" justifyContent={"space-between"} width="100%">
-          <Flex justifyContent={"space-between"} alignItems={"center"}>
-            <Flex gap="5px" alignItems={"center"}>
-              <ChakraTooltip
-                label={`buy/sell this token depending on the vibes of ${
-                  allStreams ? "the app!" : "this stream!"
-                }`}
-                shouldWrapChildren
-              >
-                <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
-                  $VIBES
-                </Text>
-              </ChakraTooltip>
-              <Button
-                bg={timeFilter === "1d" ? "#7874c9" : "#403c7d"}
-                color="#c6c3fc"
-                p={2}
-                height={"20px"}
-                _focus={{}}
-                _active={{}}
-                _hover={{}}
-                onClick={() => setTimeFilter("1d")}
-              >
-                1d
-              </Button>
-              <Button
-                bg={timeFilter === "all" ? "#7874c9" : "#403c7d"}
-                color="#c6c3fc"
-                p={2}
-                height={"20px"}
-                _focus={{}}
-                _active={{}}
-                _hover={{}}
-                onClick={() => setTimeFilter("all")}
-              >
-                all
-              </Button>
-              {!allStreams &&
-                (previewMode ||
-                  (!previewMode && lowerPrice > 0 && higherPrice > 0)) && (
-                  <Button
-                    bg={zonesOn ? "#1dc859" : "#004e1b"}
-                    color="#ffffff"
-                    p={2}
-                    height={"20px"}
-                    _focus={{}}
-                    _active={{}}
-                    _hover={{}}
-                    onClick={() => setZonesOn((prev) => !prev)}
-                    boxShadow={
-                      zonesOn
-                        ? "0px 0px 16px rgba(53, 234, 95, 0.4)"
-                        : undefined
-                    }
-                  >
-                    zones
-                  </Button>
-                )}
-              {!allStreams && !previewMode && isOwner && !isStandalone && (
-                <>
-                  <VibesTokenZoneModal
-                    isOpen={isZoneModalOpen}
-                    handleClose={() => setIsZoneModalOpen(false)}
-                    formattedCurrentPrice={formattedCurrentPrice as `${number}`}
-                    ablyChannel={ablyChannel}
-                  />
-                  <Button
-                    color="white"
-                    bg="#0299ad"
-                    onClick={() => setIsZoneModalOpen(true)}
-                    _hover={{}}
-                    _focus={{}}
-                    _active={{}}
-                    p={2}
-                    height={"20px"}
-                  >
-                    set zones
-                  </Button>
-                </>
-              )}
-            </Flex>
-            {!isFullChart && !allStreams && (
-              <IconButton
-                height={"20px"}
-                onClick={openVibesPopout}
-                aria-label="vibes-popout"
-                _focus={{}}
-                _hover={{ transform: "scale(1.15)" }}
-                _active={{ transform: "scale(1.3)" }}
-                icon={<Image src="/svg/pop-out.svg" height={"20px"} />}
-                bg="transparent"
-                minWidth="auto"
-              />
-            )}
-          </Flex>
-          <Flex direction={"row"} gap="10px" flex="1">
-            <Flex direction="column" w="100%" position="relative">
-              {isFullChart && zoneData !== undefined && (
+        <>
+          {(isStandalone || isFullChart) && disableExchange !== true && (
+            <Container overflowY="auto" maxW="300px">
+              <Flex direction="column" justifyContent={"flex-end"} gap="2rem">
                 <Flex
-                  bg="rgba(0, 0, 0, 0.5)"
-                  p="5px"
-                  borderRadius="15px"
-                  position="absolute"
-                  top={zoneData === "green" ? "0" : undefined}
-                  bottom={zoneData === "red" ? "0" : undefined}
+                  direction="column"
+                  bg="rgba(40, 129, 43, 0.5)"
+                  p="0.5rem"
+                  gap="1rem"
                 >
-                  {zoneData === "red" && (
-                    <Text>
-                      lower price: {formatUnits(BigInt(lowerPrice), 18)} ETH
+                  <Flex direction="column">
+                    <Text opacity="0.8">green zone price:</Text>
+                    {higherPriceInUsd !== undefined ? (
+                      <>
+                        <Text color="#b0efb2" fontSize="1.5rem">
+                          ${higherPriceInUsd}
+                        </Text>
+                        <Text
+                          whiteSpace={"nowrap"}
+                          opacity="0.3"
+                          fontSize="14px"
+                        >
+                          {formatUnits(BigInt(higherPrice), 18)} ETH
+                        </Text>
+                      </>
+                    ) : (
+                      <Text whiteSpace={"nowrap"} fontSize="1rem">
+                        {formatUnits(BigInt(higherPrice), 18)} ETH
+                      </Text>
+                    )}
+                  </Flex>
+                  <Flex direction="column">
+                    <Text opacity="0.8">tokens to buy:</Text>
+                    <Text
+                      color="#b0efb2"
+                      fontSize={
+                        higherTokensThreshold !== undefined &&
+                        higherTokensThreshold >= 0
+                          ? "1.5rem"
+                          : "unset"
+                      }
+                    >
+                      {higherTokensThreshold !== undefined
+                        ? higherTokensThreshold >= 0
+                          ? `${
+                              Number(formattedCurrentPrice) >
+                              Number(formatUnits(BigInt(higherPrice), 18))
+                                ? "-"
+                                : ""
+                            }${truncateValue(higherTokensThreshold, 0)}`
+                          : "error fetching tokens"
+                        : "calculating..."}
                     </Text>
-                  )}
-                  {zoneData === "green" && (
-                    <Text>
-                      higher price: {formatUnits(BigInt(higherPrice), 18)} ETH
-                    </Text>
+                  </Flex>
+                </Flex>
+                <Flex direction="column" gap="10px">
+                  <Flex direction="column">
+                    <Text opacity="0.8">current price:</Text>
+                    {currentPriceInUsd !== undefined ? (
+                      <>
+                        <Text color="#f3d584" fontSize="2rem">
+                          ${currentPriceInUsd}
+                        </Text>
+                        <Text
+                          whiteSpace={"nowrap"}
+                          opacity="0.3"
+                          fontSize="14px"
+                        >
+                          {formattedCurrentPrice} ETH
+                        </Text>
+                      </>
+                    ) : (
+                      <Text whiteSpace={"nowrap"} fontSize="1rem">
+                        {formattedCurrentPrice} ETH
+                      </Text>
+                    )}
+                  </Flex>
+                  {walletIsConnected ? (
+                    <VibesTokenExchange isFullChart />
+                  ) : (
+                    <Flex direction="column">
+                      <Text>you must sign in to trade</Text>
+                      <ConnectWallet />
+                    </Flex>
                   )}
                 </Flex>
-              )}
-              {formattedDayData.length === 0 && timeFilter === "1d" && (
-                <Text position="absolute" color="gray" top="50%">
-                  no txs in the past 24 hours
-                </Text>
-              )}
-              {formattedData.length === 0 && timeFilter === "all" && (
-                <Text position="absolute" color="gray" top="50%">
-                  no txs
-                </Text>
-              )}
-              <ResponsiveContainer width="100%" height={"100%"}>
-                <LineChart data={formattedData}>
-                  <YAxis
-                    hide
-                    domain={
-                      !allStreams &&
-                      zonesOn &&
-                      lowerPrice > 0 &&
-                      higherPrice > 0
-                        ? [
-                            lowerPrice * (1 - ZONE_BREADTH),
-                            higherPrice * (1 + ZONE_BREADTH),
-                          ]
-                        : ["dataMin", "dataMax"]
-                    }
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  {(!allStreams || !previewMode) &&
-                    higherPrice < Number.MAX_SAFE_INTEGER &&
-                    zonesOn && (
-                      <ReferenceArea
-                        fill="green"
-                        fillOpacity={0.2}
-                        y1={higherPrice}
-                        y2={Number.MAX_SAFE_INTEGER}
-                        ifOverflow="hidden"
-                        onMouseEnter={() => setZoneData("green")}
-                        onMouseLeave={() => setZoneData(undefined)}
-                      />
+                <Flex
+                  direction="column"
+                  bg="rgba(155, 15, 15, 0.5)"
+                  p="0.5rem"
+                  gap="1rem"
+                >
+                  <Flex direction="column">
+                    <Text opacity="0.8">red zone price:</Text>
+                    {lowerPriceInUsd !== undefined ? (
+                      <>
+                        <Text
+                          fontSize={
+                            lowerTokensThreshold !== undefined &&
+                            lowerTokensThreshold >= 0
+                              ? "1.5rem"
+                              : "unset"
+                          }
+                          color="#efc7b0"
+                        >
+                          ${lowerPriceInUsd}
+                        </Text>
+                        <Text
+                          whiteSpace={"nowrap"}
+                          opacity="0.3"
+                          fontSize="14px"
+                        >
+                          {formatUnits(BigInt(lowerPrice), 18)} ETH
+                        </Text>
+                      </>
+                    ) : (
+                      <Text whiteSpace={"nowrap"} fontSize="1rem">
+                        {formatUnits(BigInt(lowerPrice), 18)} ETH
+                      </Text>
                     )}
-                  <Line
-                    type="monotone"
-                    dataKey="price"
-                    stroke={
-                      Number(formattedCurrentPrice) >
-                        Number(formatUnits(BigInt(higherPrice), 18)) &&
-                      zonesOn &&
-                      higherPrice > 0
-                        ? "green"
-                        : Number(formattedCurrentPrice) <
-                            Number(formatUnits(BigInt(lowerPrice), 18)) &&
-                          zonesOn &&
-                          lowerPrice > 0
-                        ? "red"
-                        : "#8884d8"
-                    }
-                    strokeWidth={2}
-                    animationDuration={200}
-                    dot={false}
-                  />
-                  {(!allStreams || !previewMode) &&
-                    lowerPrice > 0 &&
-                    zonesOn && (
-                      <ReferenceArea
-                        fill="red"
-                        fillOpacity={0.2}
-                        y1={0}
-                        y2={lowerPrice}
-                        ifOverflow="hidden"
-                        onMouseEnter={() => setZoneData("red")}
-                        onMouseLeave={() => setZoneData(undefined)}
-                      />
-                    )}
-                </LineChart>
-              </ResponsiveContainer>
-            </Flex>
-            {!isStandalone && !isFullChart && disableExchange !== true && (
-              <VibesTokenExchange />
-            )}
-          </Flex>
-          {(isStandalone || isFullChart) && disableExchange !== true && (
-            <VibesTokenExchange isFullChart />
+                  </Flex>
+                  <Flex direction="column">
+                    <Text opacity="0.8">tokens to sell:</Text>
+                    <Text
+                      color="#efc7b0"
+                      fontSize={
+                        lowerTokensThreshold !== undefined &&
+                        lowerTokensThreshold >= 0
+                          ? "1.5rem"
+                          : "unset"
+                      }
+                    >
+                      {lowerTokensThreshold !== undefined
+                        ? lowerTokensThreshold >= 0
+                          ? `${
+                              Number(formattedCurrentPrice) <
+                              Number(formatUnits(BigInt(lowerPrice), 18))
+                                ? "-"
+                                : ""
+                            }${truncateValue(lowerTokensThreshold, 0)}`
+                          : "error fetching tokens"
+                        : "calculating..."}
+                    </Text>
+                  </Flex>
+                </Flex>
+              </Flex>
+            </Container>
           )}
-        </Flex>
+          <Flex
+            direction="column"
+            justifyContent={"space-between"}
+            width="100%"
+          >
+            <Flex justifyContent={"space-between"} alignItems={"center"}>
+              <Flex gap="5px" alignItems={"center"}>
+                <ChakraTooltip
+                  label={`buy/sell this token depending on the vibes of ${
+                    allStreams ? "the app!" : "this stream!"
+                  }`}
+                  shouldWrapChildren
+                >
+                  <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
+                    $VIBES
+                  </Text>
+                </ChakraTooltip>
+                <Button
+                  bg={timeFilter === "1d" ? "#7874c9" : "#403c7d"}
+                  color="#c6c3fc"
+                  p={2 * (isStandalone || isFullChart ? 1.5 : 1)}
+                  height={`${20 * (isStandalone || isFullChart ? 1.5 : 1)}px`}
+                  _focus={{}}
+                  _active={{}}
+                  _hover={{}}
+                  onClick={() => setTimeFilter("1d")}
+                >
+                  1d
+                </Button>
+                <Button
+                  bg={timeFilter === "all" ? "#7874c9" : "#403c7d"}
+                  color="#c6c3fc"
+                  p={2 * (isStandalone || isFullChart ? 1.5 : 1)}
+                  height={`${20 * (isStandalone || isFullChart ? 1.5 : 1)}px`}
+                  _focus={{}}
+                  _active={{}}
+                  _hover={{}}
+                  onClick={() => setTimeFilter("all")}
+                >
+                  all
+                </Button>
+                {!allStreams &&
+                  (previewMode ||
+                    (!previewMode && lowerPrice > 0 && higherPrice > 0)) && (
+                    <Button
+                      bg={zonesOn ? "#1dc859" : "#004e1b"}
+                      color="#ffffff"
+                      p={2 * (isStandalone || isFullChart ? 1.5 : 1)}
+                      height={`${
+                        20 * (isStandalone || isFullChart ? 1.5 : 1)
+                      }px`}
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{}}
+                      onClick={() => setZonesOn((prev) => !prev)}
+                      boxShadow={
+                        zonesOn
+                          ? "0px 0px 16px rgba(53, 234, 95, 0.4)"
+                          : undefined
+                      }
+                    >
+                      zones
+                    </Button>
+                  )}
+                {!allStreams && !previewMode && isOwner && !isStandalone && (
+                  <>
+                    <VibesTokenZoneModal
+                      isOpen={isZoneModalOpen}
+                      handleClose={() => setIsZoneModalOpen(false)}
+                      formattedCurrentPrice={
+                        formattedCurrentPrice as `${number}`
+                      }
+                      ablyChannel={ablyChannel}
+                    />
+                    <Button
+                      color="white"
+                      bg="#0299ad"
+                      onClick={() => setIsZoneModalOpen(true)}
+                      _hover={{}}
+                      _focus={{}}
+                      _active={{}}
+                      p={2 * (isStandalone || isFullChart ? 1.5 : 1)}
+                      height={`${
+                        20 * (isStandalone || isFullChart ? 1.5 : 1)
+                      }px`}
+                    >
+                      set zones
+                    </Button>
+                  </>
+                )}
+              </Flex>
+              {!isFullChart && !allStreams && (
+                <IconButton
+                  height={"20px"}
+                  onClick={openVibesPopout}
+                  aria-label="vibes-popout"
+                  _focus={{}}
+                  _hover={{ transform: "scale(1.15)" }}
+                  _active={{ transform: "scale(1.3)" }}
+                  icon={<Image src="/svg/pop-out.svg" height={"20px"} />}
+                  bg="transparent"
+                  minWidth="auto"
+                />
+              )}
+            </Flex>
+            <Flex direction={"row"} gap="10px" flex="1">
+              <Flex direction="column" w="100%" position="relative">
+                {formattedDayData.length === 0 && timeFilter === "1d" && (
+                  <Text position="absolute" color="gray" top="50%">
+                    no txs in the past 24 hours
+                  </Text>
+                )}
+                {formattedData.length === 0 && timeFilter === "all" && (
+                  <Text position="absolute" color="gray" top="50%">
+                    no txs
+                  </Text>
+                )}
+                <ResponsiveContainer width="100%" height={"100%"}>
+                  <LineChart data={formattedData}>
+                    <YAxis
+                      hide
+                      domain={
+                        !allStreams &&
+                        zonesOn &&
+                        lowerPrice > 0 &&
+                        higherPrice > 0
+                          ? [
+                              lowerPrice * (1 - ZONE_BREADTH),
+                              higherPrice * (1 + ZONE_BREADTH),
+                            ]
+                          : ["dataMin", "dataMax"]
+                      }
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    {(!allStreams || !previewMode) &&
+                      higherPrice < Number.MAX_SAFE_INTEGER &&
+                      zonesOn && (
+                        <ReferenceArea
+                          fill="green"
+                          fillOpacity={0.2}
+                          y1={higherPrice}
+                          y2={Number.MAX_SAFE_INTEGER}
+                          ifOverflow="hidden"
+                        />
+                      )}
+                    <Line
+                      type="monotone"
+                      dataKey="price"
+                      stroke={
+                        Number(formattedCurrentPrice) >
+                          Number(formatUnits(BigInt(higherPrice), 18)) &&
+                        zonesOn &&
+                        higherPrice > 0
+                          ? "green"
+                          : Number(formattedCurrentPrice) <
+                              Number(formatUnits(BigInt(lowerPrice), 18)) &&
+                            zonesOn &&
+                            lowerPrice > 0
+                          ? "red"
+                          : "#8884d8"
+                      }
+                      strokeWidth={2}
+                      animationDuration={200}
+                      dot={false}
+                    />
+                    {(!allStreams || !previewMode) &&
+                      lowerPrice > 0 &&
+                      zonesOn && (
+                        <ReferenceArea
+                          fill="red"
+                          fillOpacity={0.2}
+                          y1={0}
+                          y2={lowerPrice}
+                          ifOverflow="hidden"
+                        />
+                      )}
+                  </LineChart>
+                </ResponsiveContainer>
+              </Flex>
+              {!isStandalone && !isFullChart && disableExchange !== true && (
+                <VibesTokenExchange />
+              )}
+            </Flex>
+          </Flex>
+        </>
       )}
     </>
   );

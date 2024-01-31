@@ -17,6 +17,7 @@ import {
   truncateValue,
 } from "../../utils/tokenDisplayFormatting";
 import { filteredInput } from "../../utils/validation/input";
+import { useCacheContext } from "../../hooks/context/useCache";
 
 const VibesTokenZoneModalControls = ({
   formattedCurrentPrice,
@@ -36,6 +37,7 @@ const VibesTokenZoneModalControls = ({
     direction: "up" | "down"
   ) => void;
 }) => {
+  const { ethPriceInUsd } = useCacheContext();
   const lowPriceRef = useRef<HTMLDivElement>(null);
   const highPriceRef = useRef<HTMLDivElement>(null);
 
@@ -73,9 +75,6 @@ const VibesTokenZoneModalControls = ({
     >
       <Flex gap="25px">
         <Flex direction="column" ref={lowPriceRef}>
-          {/* <Text textAlign={"center"} noOfLines={1} color="#d6d6d6">
-          lower price
-        </Text> */}
           <Input
             fontSize="20px"
             variant={"redGlow"}
@@ -87,6 +86,21 @@ const VibesTokenZoneModalControls = ({
               )
             }
           />
+          {ethPriceInUsd !== undefined && (
+            <Text
+              textAlign={"center"}
+              fontSize="14px"
+              noOfLines={1}
+              color={"#d6d6d6"}
+            >
+              $
+              {truncateValue(
+                Number(convertSciNotaToPrecise(sliderValue[0]) as `${number}`) *
+                  Number(ethPriceInUsd),
+                4
+              )}
+            </Text>
+          )}
           <Text
             textAlign={"center"}
             fontSize="12px"
@@ -178,9 +192,6 @@ const VibesTokenZoneModalControls = ({
           </Flex>
         </Flex>
         <Flex direction="column" ref={highPriceRef}>
-          {/* <Text textAlign={"center"} noOfLines={1} color="#d6d6d6">
-          higher price
-        </Text> */}
           <Input
             fontSize="20px"
             variant={"greenGlow"}
@@ -192,6 +203,21 @@ const VibesTokenZoneModalControls = ({
               )
             }
           />
+          {ethPriceInUsd !== undefined && (
+            <Text
+              textAlign={"center"}
+              fontSize="14px"
+              noOfLines={1}
+              color={"#d6d6d6"}
+            >
+              $
+              {truncateValue(
+                Number(convertSciNotaToPrecise(sliderValue[1]) as `${number}`) *
+                  Number(ethPriceInUsd),
+                4
+              )}
+            </Text>
+          )}
           <Text
             textAlign={"center"}
             fontSize="12px"

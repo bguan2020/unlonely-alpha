@@ -30,6 +30,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import useUpdateUser from "../../hooks/server/useUpdateUser";
+import trailString from "../../utils/trailString";
 
 const ConnectWallet = () => {
   const router = useRouter();
@@ -166,7 +167,7 @@ const ConnectedDisplay = () => {
   const router = useRouter();
 
   const { logout } = usePrivy();
-  const { userAddress, fetchUser } = useUser();
+  const { user, userAddress, fetchUser } = useUser();
   const { claimableBets } = useCacheContext();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork } = network;
@@ -176,6 +177,7 @@ const ConnectedDisplay = () => {
   const { isStandalone } = useUserAgent();
 
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { data: feeData, refetch: refetchFeeData } = useFeeData({
     chainId: localNetwork.config.chainId,
@@ -311,8 +313,12 @@ const ConnectedDisplay = () => {
             )}
             <Flex alignItems={"center"}>
               <Text fontFamily="LoRes15" fontSize="15px">
-                {isStandalone ? (
+                {loading ? (
+                  <Spinner />
+                ) : isStandalone ? (
                   <HiDotsVertical />
+                ) : user?.username ? (
+                  trailString(user?.username)
                 ) : (
                   centerEllipses(userAddress, 13)
                 )}{" "}
@@ -340,7 +346,8 @@ const ConnectedDisplay = () => {
               _hover={{ bg: "#1f1f3c" }}
               _focus={{}}
               _active={{}}
-              onClick={async () =>
+              onClick={async () => {
+                setLoading(true);
                 await updateUser({ address: userAddress }).then(async (res) => {
                   await fetchUser();
                   const socials = [];
@@ -359,10 +366,11 @@ const ConnectedDisplay = () => {
                     duration: 3000,
                     isClosable: true,
                   });
-                })
-              }
+                  setLoading(false);
+                });
+              }}
             >
-              <Text>update profile</Text>
+              <Text>update ENS/socials</Text>
             </MenuItem>
           )}
           <MenuItem
