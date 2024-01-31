@@ -79,7 +79,9 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const { tokenTxs, chartTimeIndexes, loading } = useVibesCheck();
-  const [ethPriceInUsd, setEthPriceInUsd] = useState<string | undefined>("0");
+  const [ethPriceInUsd, setEthPriceInUsd] = useState<string | undefined>(
+    undefined
+  );
 
   const addAppError = useCallback(
     (error: Error, source: string) => {
@@ -221,15 +223,19 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
       }
-      const res = await getCoingeckoTokenPrice("ethereum", "usd");
-      localStorage.setItem(
-        "unlonely-eth-price-usd-v0",
-        JSON.stringify({
-          price: res,
-          timestamp: dateNow,
-        })
-      );
-      setEthPriceInUsd(res);
+      try {
+        const res = await getCoingeckoTokenPrice("ethereum", "usd");
+        localStorage.setItem(
+          "unlonely-eth-price-usd-v0",
+          JSON.stringify({
+            price: res,
+            timestamp: dateNow,
+          })
+        );
+        setEthPriceInUsd(res);
+      } catch (e) {
+        console.log("error fetching eth price", e);
+      }
     };
     init();
   }, []);

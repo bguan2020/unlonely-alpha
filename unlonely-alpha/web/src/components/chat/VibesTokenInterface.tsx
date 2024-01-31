@@ -80,10 +80,20 @@ const VibesTokenInterface = ({
           >{`${
             payload[0].payload.event === "Mint" ? "Bought" : "Sold"
           } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
-          <Text>{`New price: ${truncateValue(
-            formatUnits(payload[0].payload.price, 18),
-            10
-          )} ETH`}</Text>
+          {payload[0].payload.priceInUsd !== undefined ? (
+            <>
+              <Text>{`$${payload[0].payload.priceInUsd}`}</Text>
+              <Text fontSize="10px" opacity="0.75">{`${truncateValue(
+                formatUnits(payload[0].payload.price, 18),
+                10
+              )} ETH`}</Text>
+            </>
+          ) : (
+            <Text>{`${truncateValue(
+              formatUnits(payload[0].payload.price, 18),
+              10
+            )} ETH`}</Text>
+          )}
           {percentage !== 0 && isFullChart && (
             <Text
               color={
@@ -141,11 +151,19 @@ const VibesTokenInterface = ({
         event: tx.eventName,
         amount: Number(tx.amount),
         price: tx.price,
+        priceInUsd:
+          ethPriceInUsd !== undefined
+            ? truncateValue(
+                Number(ethPriceInUsd) *
+                  Number(formatUnits(BigInt(tx.price), 18)),
+                4
+              )
+            : undefined,
         blockNumber: tx.blockNumber,
         priceChangePercentage: tx.priceChangePercentage,
       };
     });
-  }, [vibesTokenTxs]);
+  }, [vibesTokenTxs, ethPriceInUsd]);
 
   const formattedDayData = useMemo(
     () => txs.slice(chartTimeIndexes.get("day") as number),
@@ -272,32 +290,29 @@ const VibesTokenInterface = ({
   }, [vibesTokenTxs, vibesTokenPriceRange]);
 
   useEffect(() => {
+    if (ethPriceInUsd === undefined) return;
     setLowerPriceInUsd(
       truncateValue(
-        Number(formatUnits(BigInt(lowerPrice), 18)) *
-          (ethPriceInUsd ? Number(ethPriceInUsd) : 0),
+        Number(formatUnits(BigInt(lowerPrice), 18)) * Number(ethPriceInUsd),
         4
       )
     );
   }, [lowerPrice, ethPriceInUsd]);
 
   useEffect(() => {
+    if (ethPriceInUsd === undefined) return;
     setHigherPriceInUsd(
       truncateValue(
-        Number(formatUnits(BigInt(higherPrice), 18)) *
-          (ethPriceInUsd ? Number(ethPriceInUsd) : 0),
+        Number(formatUnits(BigInt(higherPrice), 18)) * Number(ethPriceInUsd),
         4
       )
     );
   }, [higherPrice, ethPriceInUsd]);
 
   useEffect(() => {
+    if (ethPriceInUsd === undefined) return;
     setCurrentPriceInUsd(
-      truncateValue(
-        Number(formattedCurrentPrice) *
-          (ethPriceInUsd ? Number(ethPriceInUsd) : 0),
-        4
-      )
+      truncateValue(Number(formattedCurrentPrice) * Number(ethPriceInUsd), 4)
     );
   }, [formattedCurrentPrice, ethPriceInUsd]);
 
@@ -327,12 +342,24 @@ const VibesTokenInterface = ({
                 >
                   <Flex direction="column">
                     <Text opacity="0.8">green zone price:</Text>
-                    <Text color="#b0efb2" fontSize="2rem">
-                      ${higherPriceInUsd}
-                    </Text>
-                    <Text whiteSpace={"nowrap"} opacity="0.3" fontSize="14px">
-                      {formatUnits(BigInt(higherPrice), 18)} ETH
-                    </Text>
+                    {higherPriceInUsd !== undefined ? (
+                      <>
+                        <Text color="#b0efb2" fontSize="2rem">
+                          ${higherPriceInUsd}
+                        </Text>
+                        <Text
+                          whiteSpace={"nowrap"}
+                          opacity="0.3"
+                          fontSize="14px"
+                        >
+                          {formatUnits(BigInt(higherPrice), 18)} ETH
+                        </Text>
+                      </>
+                    ) : (
+                      <Text whiteSpace={"nowrap"} fontSize="1rem">
+                        {formatUnits(BigInt(higherPrice), 18)} ETH
+                      </Text>
+                    )}
                   </Flex>
                   <Flex direction="column">
                     {Number(formattedCurrentPrice) <
@@ -361,14 +388,25 @@ const VibesTokenInterface = ({
                 <Flex direction="column" gap="10px">
                   <Flex direction="column">
                     <Text opacity="0.8">current price:</Text>
-                    <Text color="#f3d584" fontSize="2rem">
-                      ${currentPriceInUsd}
-                    </Text>
-                    <Text whiteSpace={"nowrap"} opacity="0.3" fontSize="14px">
-                      {formattedCurrentPrice} ETH
-                    </Text>
+                    {currentPriceInUsd !== undefined ? (
+                      <>
+                        <Text color="#f3d584" fontSize="2rem">
+                          ${currentPriceInUsd}
+                        </Text>
+                        <Text
+                          whiteSpace={"nowrap"}
+                          opacity="0.3"
+                          fontSize="14px"
+                        >
+                          {formattedCurrentPrice} ETH
+                        </Text>
+                      </>
+                    ) : (
+                      <Text whiteSpace={"nowrap"} fontSize="1rem">
+                        {formattedCurrentPrice} ETH
+                      </Text>
+                    )}
                   </Flex>
-
                   <VibesTokenExchange isFullChart />
                 </Flex>
                 <Flex
@@ -379,20 +417,32 @@ const VibesTokenInterface = ({
                 >
                   <Flex direction="column">
                     <Text opacity="0.8">red zone price:</Text>
-                    <Text
-                      fontSize={
-                        lowerTokensThreshold !== undefined &&
-                        lowerTokensThreshold >= 0
-                          ? "2rem"
-                          : "unset"
-                      }
-                      color="#efc7b0"
-                    >
-                      ${lowerPriceInUsd}
-                    </Text>
-                    <Text whiteSpace={"nowrap"} opacity="0.3" fontSize="14px">
-                      {formatUnits(BigInt(lowerPrice), 18)} ETH
-                    </Text>
+                    {lowerPriceInUsd !== undefined ? (
+                      <>
+                        <Text
+                          fontSize={
+                            lowerTokensThreshold !== undefined &&
+                            lowerTokensThreshold >= 0
+                              ? "2rem"
+                              : "unset"
+                          }
+                          color="#efc7b0"
+                        >
+                          ${lowerPriceInUsd}
+                        </Text>
+                        <Text
+                          whiteSpace={"nowrap"}
+                          opacity="0.3"
+                          fontSize="14px"
+                        >
+                          {formatUnits(BigInt(lowerPrice), 18)} ETH
+                        </Text>
+                      </>
+                    ) : (
+                      <Text whiteSpace={"nowrap"} fontSize="1rem">
+                        {formatUnits(BigInt(lowerPrice), 18)} ETH
+                      </Text>
+                    )}
                   </Flex>
                   <Flex direction="column">
                     {Number(formattedCurrentPrice) >
