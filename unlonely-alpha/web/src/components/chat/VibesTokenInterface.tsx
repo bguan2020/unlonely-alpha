@@ -362,27 +362,27 @@ const VibesTokenInterface = ({
                     )}
                   </Flex>
                   <Flex direction="column">
-                    {Number(formattedCurrentPrice) <
-                      Number(formatUnits(BigInt(higherPrice), 18)) && (
-                      <>
-                        <Text opacity="0.8">tokens to buy:</Text>
-                        <Text
-                          color="#b0efb2"
-                          fontSize={
-                            higherTokensThreshold !== undefined &&
-                            higherTokensThreshold >= 0
-                              ? "2rem"
-                              : "unset"
-                          }
-                        >
-                          {higherTokensThreshold !== undefined
-                            ? higherTokensThreshold >= 0
-                              ? truncateValue(higherTokensThreshold, 0)
-                              : "error fetching tokens"
-                            : "calculating..."}
-                        </Text>
-                      </>
-                    )}
+                    <Text opacity="0.8">tokens to buy:</Text>
+                    <Text
+                      color="#b0efb2"
+                      fontSize={
+                        higherTokensThreshold !== undefined &&
+                        higherTokensThreshold >= 0
+                          ? "2rem"
+                          : "unset"
+                      }
+                    >
+                      {higherTokensThreshold !== undefined
+                        ? higherTokensThreshold >= 0
+                          ? `${
+                              Number(formattedCurrentPrice) >
+                              Number(formatUnits(BigInt(higherPrice), 18))
+                                ? "-"
+                                : ""
+                            }${truncateValue(higherTokensThreshold, 0)}`
+                          : "error fetching tokens"
+                        : "calculating..."}
+                    </Text>
                   </Flex>
                 </Flex>
                 <Flex direction="column" gap="10px">
@@ -445,19 +445,27 @@ const VibesTokenInterface = ({
                     )}
                   </Flex>
                   <Flex direction="column">
-                    {Number(formattedCurrentPrice) >
-                      Number(formatUnits(BigInt(lowerPrice), 18)) && (
-                      <>
-                        <Text opacity="0.8">tokens to sell:</Text>
-                        <Text fontSize="1.8rem" color="#efc7b0">
-                          {lowerTokensThreshold !== undefined
-                            ? lowerTokensThreshold >= 0
-                              ? truncateValue(lowerTokensThreshold, 0)
-                              : "error fetching tokens"
-                            : "calculating..."}
-                        </Text>
-                      </>
-                    )}
+                    <Text opacity="0.8">tokens to sell:</Text>
+                    <Text
+                      color="#efc7b0"
+                      fontSize={
+                        lowerTokensThreshold !== undefined &&
+                        lowerTokensThreshold >= 0
+                          ? "2rem"
+                          : "unset"
+                      }
+                    >
+                      {lowerTokensThreshold !== undefined
+                        ? lowerTokensThreshold >= 0
+                          ? `${
+                              Number(formattedCurrentPrice) <
+                              Number(formatUnits(BigInt(lowerPrice), 18))
+                                ? "-"
+                                : ""
+                            }${truncateValue(lowerTokensThreshold, 0)}`
+                          : "error fetching tokens"
+                        : "calculating..."}
+                    </Text>
                   </Flex>
                 </Flex>
               </Flex>
