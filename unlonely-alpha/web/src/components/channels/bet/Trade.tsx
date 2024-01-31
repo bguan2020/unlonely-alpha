@@ -911,7 +911,7 @@ const Trade = () => {
       )}
       {doesEventExist &&
         viewState !== "create" &&
-        localSharesEventState !== SharesEventState.PayoutPrevious && (
+        !isSharesEventPayoutPrevious && (
           <Flex
             direction={"column"}
             gap="5px"

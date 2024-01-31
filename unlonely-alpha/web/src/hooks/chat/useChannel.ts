@@ -47,7 +47,7 @@ export function useAblyChannel(
 export function useChannel(fixedChatName?: string) {
   const { userAddress } = useUser();
   const { channel: c, chat, ui } = useChannelContext();
-  const { channelRoles, handleChannelRoles, refetch } = c;
+  const { channelQueryData, channelRoles, handleChannelRoles, refetch } = c;
   const { chatChannel } = chat;
   const { handleVibesTokenPriceRange, handleLocalSharesEventState } = ui;
 
@@ -64,6 +64,7 @@ export function useChannel(fixedChatName?: string) {
   const [localBanList, setLocalBanList] = useState<string[] | undefined>(
     undefined
   );
+  const isOwner = userAddress === channelQueryData?.owner?.address;
 
   const [channel, ably] = useAblyChannel(channelName, async (message) => {
     setHasMessagesLoaded(false);
@@ -88,7 +89,11 @@ export function useChannel(fixedChatName?: string) {
       if (message.data.senderStatus === SenderStatus.CHATBOT) {
         const chatbotTaskType = message.data.body.split(":")[0];
         if (chatbotTaskType === InteractionType.EVENT_LIVE) {
-          await refetch();
+          if (isOwner) {
+            handleLocalSharesEventState(SharesEventState.Live);
+          } else {
+            await refetch();
+          }
         }
         if (chatbotTaskType === InteractionType.EVENT_LOCK) {
           handleLocalSharesEventState(SharesEventState.Lock);

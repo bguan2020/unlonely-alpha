@@ -88,7 +88,7 @@ export const CreateBet = ({
     () =>
       localSharesEventState === SharesEventState.Pending &&
       ongoingBets.length > 0
-        ? ongoingBets[0]
+        ? ongoingBets?.[0]
         : undefined,
     [ongoingBets, localSharesEventState]
   );
@@ -138,11 +138,11 @@ export const CreateBet = ({
         localSharesEventState === SharesEventState.Payout
       ) {
         await updateSharesEvent({
-          id: ongoingBets[0].id ?? "",
-          sharesSubjectQuestion: ongoingBets[0].sharesSubjectQuestion ?? "",
-          sharesSubjectAddress: ongoingBets[0].sharesSubjectAddress ?? "",
+          id: ongoingBets?.[0].id ?? "",
+          sharesSubjectQuestion: ongoingBets?.[0].sharesSubjectQuestion ?? "",
+          sharesSubjectAddress: ongoingBets?.[0].sharesSubjectAddress ?? "",
           eventState: SharesEventState.PayoutPrevious,
-          resultIndex: ongoingBets[0].resultIndex ?? undefined,
+          resultIndex: ongoingBets?.[0].resultIndex ?? undefined,
         });
       }
       if (
@@ -153,7 +153,7 @@ export const CreateBet = ({
         await closeSharesEvents({
           chainId: localNetwork.config.chainId,
           channelId: channelQueryData?.id as string,
-          sharesEventIds: [Number(ongoingBets[0]?.id ?? "0")],
+          sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
         });
       }
       await postSharesEvent({
@@ -242,29 +242,11 @@ export const CreateBet = ({
     isVerifier,
   ]);
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     const init = async () => {
-  //       console.log(generatedKey, ongoingBets, loading);
-
-  //       if (
-  //         loading === "prepping" &&
-  //         loading !== undefined &&
-  //         (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets?.length === 0)
-  //       )
-  //         handleLoading(undefined);
-  //     };
-  //     init();
-  //   }, 1000);
-
-  //   return () => clearInterval(interval);
-  // }, []);
-
   useEffect(() => {
-    if (generatedKey !== NULL_ADDRESS_BYTES32 || ongoingBets.length === 0) {
+    if (generatedKey !== NULL_ADDRESS_BYTES32) {
       handleLoading(undefined);
     }
-  }, [generatedKey, ongoingBets]);
+  }, [generatedKey]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -427,7 +409,7 @@ const OpenEventInterface = ({
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { channelQueryData, loading: channelQueryLoading, refetch } = channel;
+  const { channelQueryData, loading: channelQueryLoading } = channel;
   const [selectedEndTime, setSelectedEndTime] = useState<
     "10" | "30" | "60" | "120"
   >("60");
