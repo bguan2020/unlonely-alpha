@@ -30,6 +30,7 @@ import VibesTokenZoneModal from "../channels/VibesTokenZoneModal";
 import VibesTokenExchange from "./VibesTokenExchange";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
+import ConnectWallet from "../navigation/ConnectWallet";
 
 const ZONE_BREADTH = 0.05;
 
@@ -112,7 +113,7 @@ const VibesTokenInterface = ({
     return null;
   };
 
-  const { userAddress } = useUser();
+  const { userAddress, walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
     useCacheContext();
@@ -333,18 +334,18 @@ const VibesTokenInterface = ({
         <>
           {(isStandalone || isFullChart) && disableExchange !== true && (
             <Container overflowY="auto" maxW="300px">
-              <Flex direction="column" justifyContent={"flex-end"} gap="1rem">
+              <Flex direction="column" justifyContent={"flex-end"} gap="2rem">
                 <Flex
                   direction="column"
-                  bg="rgba(0, 0, 0, 0.5)"
+                  bg="rgba(40, 129, 43, 0.5)"
                   p="0.5rem"
-                  gap="2rem"
+                  gap="1rem"
                 >
                   <Flex direction="column">
                     <Text opacity="0.8">green zone price:</Text>
                     {higherPriceInUsd !== undefined ? (
                       <>
-                        <Text color="#b0efb2" fontSize="2rem">
+                        <Text color="#b0efb2" fontSize="1.5rem">
                           ${higherPriceInUsd}
                         </Text>
                         <Text
@@ -368,7 +369,7 @@ const VibesTokenInterface = ({
                       fontSize={
                         higherTokensThreshold !== undefined &&
                         higherTokensThreshold >= 0
-                          ? "2rem"
+                          ? "1.5rem"
                           : "unset"
                       }
                     >
@@ -407,13 +408,20 @@ const VibesTokenInterface = ({
                       </Text>
                     )}
                   </Flex>
-                  <VibesTokenExchange isFullChart />
+                  {walletIsConnected ? (
+                    <VibesTokenExchange isFullChart />
+                  ) : (
+                    <Flex direction="column">
+                      <Text>you must sign in to trade</Text>
+                      <ConnectWallet />
+                    </Flex>
+                  )}
                 </Flex>
                 <Flex
                   direction="column"
-                  bg="rgba(0, 0, 0, 0.5)"
+                  bg="rgba(155, 15, 15, 0.5)"
                   p="0.5rem"
-                  gap="2rem"
+                  gap="1rem"
                 >
                   <Flex direction="column">
                     <Text opacity="0.8">red zone price:</Text>
@@ -423,7 +431,7 @@ const VibesTokenInterface = ({
                           fontSize={
                             lowerTokensThreshold !== undefined &&
                             lowerTokensThreshold >= 0
-                              ? "2rem"
+                              ? "1.5rem"
                               : "unset"
                           }
                           color="#efc7b0"
@@ -451,7 +459,7 @@ const VibesTokenInterface = ({
                       fontSize={
                         lowerTokensThreshold !== undefined &&
                         lowerTokensThreshold >= 0
-                          ? "2rem"
+                          ? "1.5rem"
                           : "unset"
                       }
                     >

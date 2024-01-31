@@ -18,7 +18,6 @@ import copy from "copy-to-clipboard";
 import { GiTalk } from "react-icons/gi";
 
 import {
-  ADD_REACTION_EVENT,
   AblyChannelPromise,
   CommandData,
   InteractionType,
@@ -30,8 +29,6 @@ import { useUser } from "../../hooks/context/useUser";
 import EmojiButton from "./emoji/EmojiButton";
 import ConnectWallet from "../navigation/ConnectWallet";
 import { ChatClip } from "./ChatClip";
-import { REACTION_EMOJIS } from "./emoji/constants";
-import EmojiDisplay from "./emoji/EmojiDisplay";
 
 type Props = {
   sendChatMessage: (
@@ -72,7 +69,6 @@ const ChatForm = ({
   const [blastMode, setBlastMode] = useState(false);
   const [blastDisabled, setBlastDisabled] = useState(false);
 
-  const [showEmojiReactionList, setShowEmojiReactionList] = useState(false);
   const [reactionDisabled, setReactionDisabled] = useState<boolean>(false);
   const isOwner = address === channelQueryData?.owner.address;
 
@@ -260,44 +256,6 @@ const ChatForm = ({
             </Flex>
           ) : (
             <Flex direction="column" width="100%">
-              {showEmojiReactionList && (
-                <Flex
-                  flexWrap="wrap"
-                  background={"rgba(255, 255, 255, 0.2)"}
-                  borderRadius={"10px"}
-                  justifyContent="space-between"
-                >
-                  {REACTION_EMOJIS.map((emoji) => (
-                    <Button
-                      color="white"
-                      minH="40px"
-                      background="transparent"
-                      p="5px"
-                      key={emoji}
-                      style={{
-                        cursor: reactionDisabled ? "not-allowed" : "pointer",
-                      }}
-                      _focus={{}}
-                      _active={{}}
-                      _hover={{ transform: "scale(1.15)" }}
-                      onClick={() => {
-                        // setReactionDisabled(true);
-                        sendMessageReaction(emoji, ADD_REACTION_EVENT);
-                        // setTimeout(() => {
-                        //   setReactionDisabled(false);
-                        // }, 2000);
-                      }}
-                    >
-                      <EmojiDisplay
-                        emoji={emoji}
-                        fontSize={"18px"}
-                        buttonDisabled={reactionDisabled}
-                        setButtonDisabled={setReactionDisabled}
-                      />
-                    </Button>
-                  ))}
-                </Flex>
-              )}
               <Flex justifyContent={"space-between"}>
                 <Flex gap="1rem">
                   {clipLoading ? (
@@ -442,19 +400,6 @@ const ChatForm = ({
                     onSelectGif={(gif) => sendGif(gif)}
                   />
                 </Flex>
-                {/* <IconButton
-                  color="white"
-                  icon={<BsFillHeartFill size={15} />}
-                  bg="transparent"
-                  aria-label="react"
-                  _focus={{}}
-                  _hover={{ transform: "scale(1.15)" }}
-                  _active={{ transform: "scale(1.3)" }}
-                  onClick={() =>
-                    setShowEmojiReactionList(!showEmojiReactionList)
-                  }
-                  minWidth="auto"
-                /> */}
               </Flex>
               <Flex
                 mt="5px"

@@ -383,7 +383,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           onClick={mint}
           p={isFullChart ? "10%" : undefined}
         >
-          BUY
+          <Text fontSize={isFullChart ? "25px" : "unset"}>BUY</Text>
         </Button>
         <Button
           w="100%"
@@ -398,7 +398,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           onClick={burn}
           p={isFullChart ? "10%" : undefined}
         >
-          SELL
+          <Text fontSize={isFullChart ? "25px" : "unset"}>SELL</Text>
         </Button>
       </Flex>
     </Flex>
