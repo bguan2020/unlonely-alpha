@@ -1208,7 +1208,7 @@ const Trade = () => {
                   <Flex justifyContent="center">
                     <Spinner />
                   </Flex>
-                  <Text textAlign={"center"}>Loading event details</Text>
+                  <Text textAlign={"center"}>loading event details</Text>
                 </Flex>
               )}
             </>

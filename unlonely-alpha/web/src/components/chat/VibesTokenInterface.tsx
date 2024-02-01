@@ -337,7 +337,7 @@ const VibesTokenInterface = ({
         </Flex>
       ) : (
         <>
-          {(isStandalone || isFullChart) && disableExchange !== true && (
+          {isFullChart && disableExchange !== true && (
             <Container overflowY="auto" maxW="300px">
               <Flex direction="column" justifyContent={"flex-end"} gap="2rem">
                 <Flex
@@ -594,7 +594,7 @@ const VibesTokenInterface = ({
               gap="10px"
               flex="1"
             >
-              <Flex direction="column" w="100%" position="relative">
+              <Flex direction="column" w="100%" position="relative" h="100%">
                 {!matchingChain && (
                   <Text position="absolute" color="gray" top="50%">
                     wrong network, switch to Base chain
@@ -614,7 +614,7 @@ const VibesTokenInterface = ({
                       no txs
                     </Text>
                   )}
-                <ResponsiveContainer width="100%" height={"100%"}>
+                <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={formattedData}>
                     <YAxis
                       hide
@@ -676,7 +676,7 @@ const VibesTokenInterface = ({
                   </LineChart>
                 </ResponsiveContainer>
               </Flex>
-              {!isStandalone && !isFullChart && disableExchange !== true && (
+              {!isFullChart && disableExchange !== true && (
                 <VibesTokenExchange />
               )}
             </Flex>
