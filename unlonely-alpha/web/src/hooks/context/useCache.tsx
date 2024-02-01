@@ -210,47 +210,51 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   ]);
 
   useEffect(() => {
-    const init = async () => {
-      if (typeof window === "undefined") return;
-      const value = localStorage.getItem("unlonely-eth-price-usd-v0");
-      const dateNow = new Date().getTime();
-      if (value) {
-        const parsedValue = JSON.parse(value);
-        const price = parsedValue.price;
-        const timestamp = parsedValue.timestamp;
-        if (dateNow - timestamp < 1000 * 60 * 5) {
-          setEthPriceInUsd(price);
-          return;
+    const interval = setInterval(() => {
+      const init = async () => {
+        if (typeof window === "undefined") return;
+        const value = localStorage.getItem("unlonely-eth-price-usd-v0");
+        const dateNow = new Date().getTime();
+        if (value) {
+          const parsedValue = JSON.parse(value);
+          const price = parsedValue.price;
+          const timestamp = parsedValue.timestamp;
+          if (dateNow - timestamp < 1000 * 60 * 5) {
+            setEthPriceInUsd(price);
+            return;
+          }
         }
-      }
-      try {
-        const lambda = new AWS.Lambda({
-          region: "us-west-2",
-          accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
-          secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-        });
+        try {
+          const lambda = new AWS.Lambda({
+            region: "us-west-2",
+            accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
+            secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
+          });
 
-        const params = {
-          FunctionName: "getTokenPrices",
-          Payload: JSON.stringify({}),
-        };
+          const params = {
+            FunctionName: "getTokenPrices",
+            Payload: JSON.stringify({}),
+          };
 
-        const response = await lambda.invoke(params).promise();
-        const parsedResponse = JSON.parse(response.Payload as any);
-        const price = String(JSON.parse(parsedResponse.body).ethereum);
-        localStorage.setItem(
-          "unlonely-eth-price-usd-v0",
-          JSON.stringify({
-            price,
-            timestamp: dateNow,
-          })
-        );
-        setEthPriceInUsd(price);
-      } catch (e) {
-        console.log("error fetching eth price", e);
-      }
-    };
-    init();
+          const response = await lambda.invoke(params).promise();
+          const parsedResponse = JSON.parse(response.Payload as any);
+          const price = String(JSON.parse(parsedResponse.body).ethereum);
+          localStorage.setItem(
+            "unlonely-eth-price-usd-v0",
+            JSON.stringify({
+              price,
+              timestamp: dateNow,
+            })
+          );
+          setEthPriceInUsd(price);
+        } catch (e) {
+          console.log("error fetching eth price", e);
+        }
+      };
+      init();
+    }, 120000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
