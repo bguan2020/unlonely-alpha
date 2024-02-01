@@ -65,6 +65,8 @@ type SourcedError = Error & {
 
 export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const isFetching = useRef(false);
+  const isFetchingPrice = useRef(false);
+
   const [fetchingBets, setFetchingBets] = useState<boolean>(true);
   const [claimableBets, setClaimableBets] = useState<UnclaimedBet[]>([]);
   const [counter, setCounter] = useState(0);
@@ -212,7 +214,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       const init = async () => {
-        if (typeof window === "undefined") return;
+        if (typeof window === "undefined" || isFetchingPrice.current) return;
+        isFetchingPrice.current = true;
         const value = localStorage.getItem("unlonely-eth-price-usd-v0");
         const dateNow = new Date().getTime();
         if (value) {
@@ -221,6 +224,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
           const timestamp = parsedValue.timestamp;
           if (dateNow - timestamp < 1000 * 60 * 5) {
             setEthPriceInUsd(price);
+            isFetchingPrice.current = false;
             return;
           }
         }
@@ -250,9 +254,10 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
         } catch (e) {
           console.log("error fetching eth price", e);
         }
+        isFetchingPrice.current = false;
       };
       init();
-    }, 120000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
