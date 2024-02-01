@@ -24,6 +24,7 @@ import { useNetworkContext } from "./useNetwork";
 import { useUser } from "./useUser";
 import { useVibesCheck } from "../internal/useVibesCheck";
 import { VibesTokenTx } from "../../constants/types";
+import { getCoingeckoTokenPrice } from "../../utils/coingecko";
 
 type UnclaimedBet = SharesEvent & {
   payout: bigint;
@@ -252,7 +253,20 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
           );
           setEthPriceInUsd(price);
         } catch (e) {
-          console.log("error fetching eth price", e);
+          console.log("error fetching eth price, switching to coingecko", e);
+          try {
+            const price = await getCoingeckoTokenPrice("ethereum", "usd");
+            localStorage.setItem(
+              "unlonely-eth-price-usd-v0",
+              JSON.stringify({
+                price,
+                timestamp: dateNow,
+              })
+            );
+            setEthPriceInUsd(price);
+          } catch (e) {
+            console.log("error fetching eth price from coingecko", e);
+          }
         }
         isFetchingPrice.current = false;
       };
