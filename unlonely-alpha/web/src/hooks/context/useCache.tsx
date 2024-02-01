@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createPublicClient, http } from "viem";
 import { ToastId, useToast, Box, Flex, Text, Spinner } from "@chakra-ui/react";
+import * as AWS from "aws-sdk";
 
 import { EventTypeForContract } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
@@ -23,7 +24,6 @@ import { useNetworkContext } from "./useNetwork";
 import { useUser } from "./useUser";
 import { useVibesCheck } from "../internal/useVibesCheck";
 import { VibesTokenTx } from "../../constants/types";
-import { getCoingeckoTokenPrice } from "../../utils/coingecko";
 
 type UnclaimedBet = SharesEvent & {
   payout: bigint;
@@ -211,31 +211,46 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const init = async () => {
-      if (typeof window === "undefined") return;
-      const value = localStorage.getItem("unlonely-eth-price-usd-v0");
-      const dateNow = new Date().getTime();
-      if (value) {
-        const parsedValue = JSON.parse(value);
-        const price = parsedValue.price;
-        const timestamp = parsedValue.timestamp;
-        if (dateNow - timestamp < 1000 * 60 * 60 * 12) {
-          setEthPriceInUsd(price);
-          return;
-        }
-      }
-      try {
-        const res = await getCoingeckoTokenPrice("ethereum", "usd");
-        localStorage.setItem(
-          "unlonely-eth-price-usd-v0",
-          JSON.stringify({
-            price: res,
-            timestamp: dateNow,
-          })
-        );
-        setEthPriceInUsd(res);
-      } catch (e) {
-        console.log("error fetching eth price", e);
-      }
+      const lambda = new AWS.Lambda({
+        region: "us-west-2",
+        accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
+        secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
+      });
+
+      const params = {
+        FunctionName: "getTokenPrices",
+        Payload: JSON.stringify({}),
+      };
+
+      const response = await lambda.invoke(params).promise();
+      const parsedResponse = JSON.parse(response.Payload as any);
+      setEthPriceInUsd(String(JSON.parse(parsedResponse.body).ethereum));
+
+      // if (typeof window === "undefined") return;
+      // const value = localStorage.getItem("unlonely-eth-price-usd-v0");
+      // const dateNow = new Date().getTime();
+      // if (value) {
+      //   const parsedValue = JSON.parse(value);
+      //   const price = parsedValue.price;
+      //   const timestamp = parsedValue.timestamp;
+      //   if (dateNow - timestamp < 1000 * 60 * 60 * 12) {
+      //     setEthPriceInUsd(price);
+      //     return;
+      //   }
+      // }
+      // try {
+      //   const res = await getCoingeckoTokenPrice("ethereum", "usd");
+      //   localStorage.setItem(
+      //     "unlonely-eth-price-usd-v0",
+      //     JSON.stringify({
+      //       price: res,
+      //       timestamp: dateNow,
+      //     })
+      //   );
+      //   setEthPriceInUsd(res);
+      // } catch (e) {
+      //   console.log("error fetching eth price", e);
+      // }
     };
     init();
   }, []);

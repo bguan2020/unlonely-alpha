@@ -1,25 +1,24 @@
-import { useState, useEffect, useRef } from "react";
-import { Log, parseAbiItem } from "viem";
-import { useContractEvent, usePublicClient } from "wagmi";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { Log, createPublicClient, parseAbiItem, http } from "viem";
+import { useContractEvent } from "wagmi";
 import { useApolloClient } from "@apollo/client";
+import { base } from "viem/chains";
 
 import { VibesTokenTx } from "../../constants/types";
 import { GET_USER_QUERY } from "../../constants/queries";
 import { getContractFromNetwork } from "../../utils/contract";
-import { useNetworkContext } from "../context/useNetwork";
 import useUserAgent from "./useUserAgent";
+import { NETWORKS } from "../../constants/networks";
 
 const CREATION_BLOCK = BigInt(9018023);
 
 export const useVibesCheck = () => {
   const { isStandalone } = useUserAgent();
-  const publicClient = usePublicClient();
+  // const publicClient = usePublicClient();
   const client = useApolloClient();
   const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
   const [loading, setLoading] = useState(true);
-  const { network } = useNetworkContext();
-  const { localNetwork, matchingChain } = network;
-  const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
+  const contract = getContractFromNetwork("vibesTokenV1", NETWORKS[0]);
   const [chartTimeIndexes, setChartTimeIndexes] = useState<Map<string, number>>(
     new Map()
   );
@@ -41,6 +40,17 @@ export const useVibesCheck = () => {
   };
 
   const eventQueueRef = useRef<Log[]>([]);
+
+  const baseClient = useMemo(
+    () =>
+      createPublicClient({
+        chain: base,
+        transport: http(
+          "https://base-mainnet.g.alchemy.com/v2/aR93M6MdEC4lgh4VjPXLaMnfBveve1fC"
+        ),
+      }),
+    []
+  );
 
   /**
    * These two useContractEvent calls are used to listen for mint and burn events
@@ -134,9 +144,8 @@ export const useVibesCheck = () => {
   useEffect(() => {
     const getVibesEvents = async () => {
       if (
-        !publicClient ||
+        !baseClient ||
         !contract.address ||
-        !matchingChain ||
         fetching.current ||
         isStandalone
       ) {
@@ -145,14 +154,14 @@ export const useVibesCheck = () => {
       }
       fetching.current = true;
       const [mintLogs, burnLogs] = await Promise.all([
-        publicClient.getLogs({
+        baseClient.getLogs({
           address: contract.address,
           event: parseAbiItem(
             "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
           ),
           fromBlock: CREATION_BLOCK,
         }),
-        publicClient.getLogs({
+        baseClient.getLogs({
           address: contract.address,
           event: parseAbiItem(
             "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
@@ -216,14 +225,14 @@ export const useVibesCheck = () => {
       setLoading(false);
     };
     getVibesEvents();
-  }, [publicClient, contract.address, matchingChain]);
+  }, [baseClient, contract.address]);
 
   useEffect(() => {
     const init = async () => {
       if (tokenTxs.length === 0) return;
 
       const AVERAGE_BLOCK_TIME_SECS = 2;
-      const currentBlockNumber = await publicClient.getBlockNumber();
+      const currentBlockNumber = await baseClient.getBlockNumber();
       const blockNumberOneDayAgo =
         currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
       const dayIndex = binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
