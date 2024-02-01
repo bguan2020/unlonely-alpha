@@ -36,7 +36,6 @@ import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import Participants from "../presence/Participants";
 import { VipBadgeBuy } from "../channels/VipBadgeBuy";
-import VibesTokenInterface from "../chat/VibesTokenInterface";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import Trade from "../channels/bet/Trade";
 
@@ -353,7 +352,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
             </Flex>
           </OuterBorder>
         )}
-        <OuterBorder
+        {/* <OuterBorder
           type={BorderType.OCEAN}
           zIndex={selectedTab === "vibes" ? 4 : 2}
           onClick={() => setSelectedTab("vibes")}
@@ -370,7 +369,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
               vibes
             </Text>
           </Flex>
-        </OuterBorder>
+        </OuterBorder> */}
         <OuterBorder
           type={BorderType.OCEAN}
           zIndex={selectedTab === "vip" ? 4 : 2}
@@ -402,11 +401,11 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}
         {selectedTab === "trade" && <Trade />}
-        {selectedTab === "vibes" && (
+        {/* {selectedTab === "vibes" && (
           <Flex h="100%" justifyContent={"space-between"}>
-            <VibesTokenInterface isFullChart />
+            <VibesTokenInterface isExchangeColumn />
           </Flex>
-        )}
+        )} */}
         {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
       </Flex>
     </>

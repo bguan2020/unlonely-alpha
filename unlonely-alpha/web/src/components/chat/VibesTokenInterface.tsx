@@ -39,6 +39,7 @@ const VibesTokenInterface = ({
   allStreams,
   previewMode,
   isFullChart,
+  isExchangeColumn,
   ablyChannel,
   disableExchange,
   customLowerPrice,
@@ -48,6 +49,7 @@ const VibesTokenInterface = ({
   allStreams?: boolean;
   previewMode?: boolean;
   isFullChart?: boolean;
+  isExchangeColumn?: boolean;
   ablyChannel?: AblyChannelPromise;
   disableExchange?: boolean;
   customLowerPrice?: number;
@@ -584,7 +586,11 @@ const VibesTokenInterface = ({
                 />
               )}
             </Flex>
-            <Flex direction={"row"} gap="10px" flex="1">
+            <Flex
+              direction={isExchangeColumn ? "column" : "row"}
+              gap="10px"
+              flex="1"
+            >
               <Flex direction="column" w="100%" position="relative">
                 {formattedDayData.length === 0 && timeFilter === "1d" && (
                   <Text position="absolute" color="gray" top="50%">
