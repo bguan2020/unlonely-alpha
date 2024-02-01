@@ -243,6 +243,9 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
 
           const response = await lambda.invoke(params).promise();
           const parsedResponse = JSON.parse(response.Payload as any);
+          if (parsedResponse.statusCode !== 200) {
+            throw new Error("error fetching eth price from lambda");
+          }
           const price = String(JSON.parse(parsedResponse.body).ethereum);
           localStorage.setItem(
             "unlonely-eth-price-usd-v0",
