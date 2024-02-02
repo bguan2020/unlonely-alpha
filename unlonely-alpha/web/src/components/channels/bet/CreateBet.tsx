@@ -71,7 +71,7 @@ export const CreateBet = ({
   const { channel, ui } = useChannelContext();
   const {
     channelQueryData,
-    refetch,
+    refetchChannel,
     loading: channelQueryLoading,
     ongoingBets,
   } = channel;
@@ -166,7 +166,7 @@ export const CreateBet = ({
         ],
         chainId: localNetwork.config.chainId,
       });
-      await refetch().then(() => handleLoading(undefined));
+      await refetchChannel().then(() => handleLoading(undefined));
     },
     [
       ongoingBets.length,
@@ -409,7 +409,11 @@ const OpenEventInterface = ({
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { channelQueryData, loading: channelQueryLoading, refetch } = channel;
+  const {
+    channelQueryData,
+    loading: channelQueryLoading,
+    refetchChannel,
+  } = channel;
   const [selectedEndTime, setSelectedEndTime] = useState<
     "10" | "30" | "60" | "120"
   >("60");
@@ -683,7 +687,7 @@ const OpenEventInterface = ({
                 channelId: channelQueryData?.id as string,
                 sharesEventIds: [Number(pendingBet?.id ?? "0")],
               }).then(async () => {
-                await refetch();
+                await refetchChannel();
               });
             }}
           >

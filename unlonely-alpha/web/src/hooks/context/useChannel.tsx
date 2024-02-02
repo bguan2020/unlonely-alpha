@@ -44,7 +44,7 @@ const ChannelContext = createContext<{
     ongoingBets: SharesEvent[];
     loading: boolean;
     error?: ApolloError;
-    refetch: () => Promise<any>;
+    refetchChannel: () => Promise<any>;
     totalBadges: string;
     channelRoles: Role[];
     handleTotalBadges: (value: string) => void;
@@ -107,7 +107,7 @@ const ChannelContext = createContext<{
     ongoingBets: [],
     loading: true,
     error: undefined,
-    refetch: () => Promise.resolve(undefined),
+    refetchChannel: () => Promise.resolve(undefined),
     totalBadges: "0",
     channelRoles: [],
     handleTotalBadges: () => undefined,
@@ -402,7 +402,7 @@ export const ChannelProvider = ({
         ongoingBets: ongoingBets ?? undefined,
         loading: channelStaticLoading || channelInteractableLoading,
         error: channelStaticError || channelInteractableError,
-        refetch: refetchChannelInteractable,
+        refetchChannel: refetchChannelInteractable,
         totalBadges,
         handleTotalBadges,
         channelRoles: channelRoles,
