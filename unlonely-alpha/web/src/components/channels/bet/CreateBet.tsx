@@ -409,7 +409,7 @@ const OpenEventInterface = ({
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { channelQueryData, loading: channelQueryLoading } = channel;
+  const { channelQueryData, loading: channelQueryLoading, refetch } = channel;
   const [selectedEndTime, setSelectedEndTime] = useState<
     "10" | "30" | "60" | "120"
   >("60");
@@ -426,6 +426,8 @@ const OpenEventInterface = ({
 
   const { updateSharesEvent, loading: updateSharesEventLoading } =
     useUpdateSharesEvent({});
+
+  const { closeSharesEvents, loading: closeLoading } = useCloseSharesEvent({});
 
   const _updateSharesEvent = useCallback(
     async (eventState: SharesEventState) => {
@@ -553,6 +555,27 @@ const OpenEventInterface = ({
         </Flex>
       ) : (
         <>
+          <Flex direction="column" p="5px" bg="rgba(0, 0, 0, 0.5)">
+            <Text textAlign={"center"} fontWeight={"bold"}>
+              {pendingBet.sharesSubjectQuestion}
+            </Text>
+            <Flex justifyContent={"space-evenly"}>
+              <Text
+                fontSize="15px"
+                fontWeight="bold"
+                color="rgba(10, 179, 18, 1)"
+              >
+                {pendingBet?.options?.[0]}
+              </Text>
+              <Text
+                fontSize="15px"
+                fontWeight="bold"
+                color="rgba(218, 58, 19, 1)"
+              >
+                {pendingBet?.options?.[1]}
+              </Text>
+            </Flex>
+          </Flex>
           <Text>set event duration</Text>
           <Menu>
             <MenuButton
@@ -643,6 +666,28 @@ const OpenEventInterface = ({
             }}
           >
             {!openEvent ? <Spinner /> : "confirm"}
+          </Button>
+          <Button
+            bg="transparent"
+            border="1px solid #ff5653"
+            color="#ff5653"
+            _focus={{}}
+            _active={{}}
+            _hover={{
+              bg: "#ff5653",
+              color: "white",
+            }}
+            onClick={async () => {
+              await closeSharesEvents({
+                chainId: localNetwork.config.chainId,
+                channelId: channelQueryData?.id as string,
+                sharesEventIds: [Number(pendingBet?.id ?? "0")],
+              }).then(async () => {
+                await refetch();
+              });
+            }}
+          >
+            {closeLoading ? <Spinner /> : "cancel event"}
           </Button>
         </>
       )}
