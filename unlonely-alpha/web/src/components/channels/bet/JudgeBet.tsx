@@ -29,7 +29,7 @@ export const JudgeBet = ({
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { ongoingBets, refetch } = channel;
+  const { ongoingBets } = channel;
   const [endDecision, setEndDecision] = useState<boolean | undefined>(
     undefined
   );
