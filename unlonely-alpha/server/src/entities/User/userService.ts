@@ -1,10 +1,9 @@
 import axios from "axios";
 import { User } from "@prisma/client";
-import { init, fetchQuery } from "@airstack/node";
 
 import { Context } from "../../context";
 import { lensClient, LENS_GET_DEFAULT_PROFILE } from "../../utils/lens/client";
-import { GET_SOCIAL } from "../../utils/identityResolver";
+import { fetchSocial } from "../../utils/identityResolver";
 
 export const getLeaderboard = (ctx: Context) => {
   return ctx.prisma.user.findMany({
@@ -210,44 +209,12 @@ export interface IUpdateUserInput {
 }
 
 export const updateUser = async (data: IUpdateUserInput, ctx: Context) => {
-  init(String(process.env.AIRSTACK_API_KEY));
-
-  const { data: res, error } = await fetchQuery(GET_SOCIAL, {
-    identity: data.address,
-    blockchain: "ethereum",
-  });
-  if (error) {
-    console.log("updateUser error", data.address, error);
-    return;
-  }
-  const ens = res?.Wallet?.primaryDomain?.name;
-  const fc = res?.Wallet?.farcasterSocials?.[0];
-  const lens = res?.Wallet?.lensSocials?.[0];
-  const newData: any = {};
-  if (ens !== null && ens !== undefined) {
-    newData.username = ens;
-  }
-  if (fc !== null && fc !== undefined) {
-    newData.FCImageUrl = fc.profileImageContentValue.image.small;
-    newData.isFCUser = true;
-  } else {
-    newData.FCImageUrl = "";
-    newData.isFCUser = false;
-  }
-  if (lens !== null && lens !== undefined) {
-    newData.lensHandle = lens.profileHandle;
-    newData.lensImageUrl = lens.profileImageContentValue.image.small;
-    newData.isLensUser = true;
-  } else {
-    newData.lensHandle = "";
-    newData.lensImageUrl = "";
-    newData.isLensUser = false;
-  }
+  const socials = await fetchSocial(data.address, "ethereum");
   return ctx.prisma.user.update({
     where: {
       address: data.address,
     },
-    data: newData,
+    data: socials,
   });
 };
 
