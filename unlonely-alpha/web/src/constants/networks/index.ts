@@ -1,4 +1,3 @@
-import { BaseGoerli } from "./baseGoerli";
 import { Goerli } from "./goerli";
 import { Mainnet } from "./mainnet";
 import { Base } from "./base";
@@ -8,4 +7,4 @@ export * from "./goerli";
 export * from "./baseGoerli";
 export * from "./base";
 
-export const NETWORKS = [Base, Mainnet, Goerli, BaseGoerli];
+export const NETWORKS = [Base, Mainnet, Goerli];
