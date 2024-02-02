@@ -490,11 +490,18 @@ const VibesTokenInterface = ({
             width="100%"
           >
             <Flex justifyContent={"space-between"} alignItems={"center"}>
-              <Flex gap="5px" alignItems={"center"}>
+              <Flex gap="10px" alignItems={"center"}>
                 <ChakraTooltip
-                  label={`buy/sell this token depending on the vibes of ${
-                    allStreams ? "the app!" : "this stream!"
-                  }`}
+                  label={
+                    <Flex direction="column" gap="5px">
+                      <Text>{`buy/sell this token depending on the vibes of ${
+                        allStreams ? "the app!" : "this stream!"
+                      }`}</Text>
+                      <Text fontSize="12px" color="#e0ed70">
+                        all buys and sells come with a 4% fee
+                      </Text>
+                    </Flex>
+                  }
                   shouldWrapChildren
                 >
                   <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
