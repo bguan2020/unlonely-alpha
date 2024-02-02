@@ -31,6 +31,7 @@ import VibesTokenExchange from "./VibesTokenExchange";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 import ConnectWallet from "../navigation/ConnectWallet";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 const ZONE_BREADTH = 0.05;
 
@@ -39,6 +40,7 @@ const VibesTokenInterface = ({
   allStreams,
   previewMode,
   isFullChart,
+  isExchangeColumn,
   ablyChannel,
   disableExchange,
   customLowerPrice,
@@ -48,6 +50,7 @@ const VibesTokenInterface = ({
   allStreams?: boolean;
   previewMode?: boolean;
   isFullChart?: boolean;
+  isExchangeColumn?: boolean;
   ablyChannel?: AblyChannelPromise;
   disableExchange?: boolean;
   customLowerPrice?: number;
@@ -122,6 +125,8 @@ const VibesTokenInterface = ({
   const { vibesTokenPriceRange } = ui;
   const { ethPriceInUsd } = useCacheContext();
   const windowSize = useWindowSize();
+  const { network } = useNetworkContext();
+  const { matchingChain } = network;
 
   const [timeFilter, setTimeFilter] = useState<"1d" | "all">(
     defaultTimeFilter ?? "1d"
@@ -332,7 +337,7 @@ const VibesTokenInterface = ({
         </Flex>
       ) : (
         <>
-          {(isStandalone || isFullChart) && disableExchange !== true && (
+          {isFullChart && disableExchange !== true && (
             <Container overflowY="auto" maxW="300px">
               <Flex direction="column" justifyContent={"flex-end"} gap="2rem">
                 <Flex
@@ -584,19 +589,32 @@ const VibesTokenInterface = ({
                 />
               )}
             </Flex>
-            <Flex direction={"row"} gap="10px" flex="1">
-              <Flex direction="column" w="100%" position="relative">
-                {formattedDayData.length === 0 && timeFilter === "1d" && (
+            <Flex
+              direction={isExchangeColumn ? "column" : "row"}
+              gap="10px"
+              flex="1"
+            >
+              <Flex direction="column" w="100%" position="relative" h="100%">
+                {!matchingChain && (
                   <Text position="absolute" color="gray" top="50%">
-                    no txs in the past 24 hours
+                    wrong network, switch to Base chain
                   </Text>
                 )}
-                {formattedData.length === 0 && timeFilter === "all" && (
-                  <Text position="absolute" color="gray" top="50%">
-                    no txs
-                  </Text>
-                )}
-                <ResponsiveContainer width="100%" height={"100%"}>
+                {formattedDayData.length === 0 &&
+                  timeFilter === "1d" &&
+                  matchingChain && (
+                    <Text position="absolute" color="gray" top="50%">
+                      no txs in the past 24 hours
+                    </Text>
+                  )}
+                {formattedData.length === 0 &&
+                  timeFilter === "all" &&
+                  matchingChain && (
+                    <Text position="absolute" color="gray" top="50%">
+                      no txs
+                    </Text>
+                  )}
+                <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={formattedData}>
                     <YAxis
                       hide
@@ -658,7 +676,7 @@ const VibesTokenInterface = ({
                   </LineChart>
                 </ResponsiveContainer>
               </Flex>
-              {!isStandalone && !isFullChart && disableExchange !== true && (
+              {!isFullChart && disableExchange !== true && (
                 <VibesTokenExchange />
               )}
             </Flex>

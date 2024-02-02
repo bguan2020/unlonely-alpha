@@ -192,126 +192,119 @@ const ScrollableComponent = ({
   const nfcs = dataNFCs?.getNFCFeed;
 
   return (
-    <>
-      {/* <TokenLeaderboard callback={callback} /> */}
-      <Flex direction="column" width="100%">
-        <Flex
-          height="300px"
-          gap="5px"
-          justifyContent={"space-between"}
-          bg="#131323"
-          p="5px"
-          mb="10px"
-          borderRadius={"10px"}
-        >
-          <VibesTokenInterface defaultTimeFilter="all" allStreams />
-        </Flex>
-        <Text
-          fontSize={{ base: "30px", lg: "40px" }}
-          lineHeight={{ base: "60px", lg: "80px" }}
-          textAlign="center"
-          fontFamily="LoRes15"
-        >
-          channels
-        </Text>
-        {loading ? (
-          <Flex
-            direction="row"
-            overflowX="scroll"
-            overflowY="clip"
-            width="100%"
-            height="18rem"
-          >
-            {[1, 2, 3, 4, 5].map((i) => (
-              <NfcCardSkeleton key={i} />
-            ))}
-          </Flex>
-        ) : (
-          <ChannelList
-            channels={sortedChannels}
-            suggestedChannels={
-              suggestedChannels === null ? undefined : suggestedChannels
-            }
-            addChannelToSubscription={addChannelToSubscription}
-            removeChannelFromSubscription={removeChannelFromSubscription}
-            handleGetSubscription={handleGetSubscription}
-            endpoint={endpoint}
-            indexOfOwner={indexOfOwner}
-            callback={handleSelectChannel}
-          />
-        )}
-        <Text
-          fontSize={{ base: "30px", lg: "40px" }}
-          lineHeight={{ base: "60px", lg: "80px" }}
-          textAlign="center"
-          fontFamily="LoRes15"
-        >
-          non-fungible clips
-        </Text>
-        <Text fontSize={"24px"} className="gradient-text" textAlign="center">
-          catch up on recent unlonely streams
-        </Text>
-        {!nfcs || loadingNFCs ? (
-          <Flex
-            direction="row"
-            overflowX="scroll"
-            overflowY="clip"
-            width="100%"
-            height="18rem"
-          >
-            {[1, 2, 3, 4, 5].map((i) => (
-              <NfcCardSkeleton key={i} />
-            ))}
-          </Flex>
-        ) : (
-          <NfcList nfcs={nfcs} />
-        )}
-        <Flex
-          justifyContent={"space-between"}
-          my="6"
-          direction={["column", "row", "row", "row"]}
-        >
-          <Stack direction="row" spacing={["3", "8", "10", "16"]}>
-            <Link
-              href="https://www.unlonely.app/privacy"
-              passHref
-              target="_blank"
-            >
-              <Text fontFamily="LoRes15">privacy</Text>
-            </Link>
-            <Link
-              href="https://super-okra-6ad.notion.site/Unlonely-Terms-of-Service-b3c0ea0272c943e98e3120243955cd75?pvs=4"
-              passHref
-              target="_blank"
-            >
-              <Text fontFamily="LoRes15">terms</Text>
-            </Link>
-            <Link href="https://bit.ly/unlonelyFAQs" passHref target="_blank">
-              <Text fontFamily="LoRes15">about</Text>
-            </Link>
-          </Stack>
-          <Stack direction="row" spacing={["3", "8", "10", "16"]}>
-            <Link
-              href="https://twitter.com/unlonely_app"
-              passHref
-              target="_blank"
-            >
-              <Text fontFamily="LoRes15">twitter</Text>
-            </Link>
-            <Link href="https://warpcast.com/unlonely" passHref target="_blank">
-              <Text fontFamily="LoRes15">farcaster</Text>
-            </Link>
-            <Link
-              href="https://t.me/+IE_BA-tyLIA5MzZh"
-              passHref
-              target="_blank"
-            >
-              <Text fontFamily="LoRes15">telegram</Text>
-            </Link>
-          </Stack>
-        </Flex>
+    <Flex direction="column" width="100%">
+      <Flex
+        height="300px"
+        gap="5px"
+        justifyContent={"space-between"}
+        bg="#131323"
+        p="5px"
+        mb="10px"
+        borderRadius={"10px"}
+      >
+        <VibesTokenInterface defaultTimeFilter="all" allStreams />
       </Flex>
-    </>
+      <Text
+        fontSize={{ base: "30px", lg: "40px" }}
+        lineHeight={{ base: "60px", lg: "80px" }}
+        textAlign="center"
+        fontFamily="LoRes15"
+      >
+        channels
+      </Text>
+      {loading ? (
+        <Flex
+          direction="row"
+          overflowX="scroll"
+          overflowY="clip"
+          width="100%"
+          height="18rem"
+        >
+          {[1, 2, 3, 4, 5].map((i) => (
+            <NfcCardSkeleton key={i} />
+          ))}
+        </Flex>
+      ) : (
+        <ChannelList
+          channels={sortedChannels}
+          suggestedChannels={
+            suggestedChannels === null ? undefined : suggestedChannels
+          }
+          addChannelToSubscription={addChannelToSubscription}
+          removeChannelFromSubscription={removeChannelFromSubscription}
+          handleGetSubscription={handleGetSubscription}
+          endpoint={endpoint}
+          indexOfOwner={indexOfOwner}
+          callback={handleSelectChannel}
+        />
+      )}
+      <Text
+        fontSize={{ base: "30px", lg: "40px" }}
+        lineHeight={{ base: "60px", lg: "80px" }}
+        textAlign="center"
+        fontFamily="LoRes15"
+      >
+        non-fungible clips
+      </Text>
+      <Text fontSize={"24px"} className="gradient-text" textAlign="center">
+        catch up on recent unlonely streams
+      </Text>
+      {!nfcs || loadingNFCs ? (
+        <Flex
+          direction="row"
+          overflowX="scroll"
+          overflowY="clip"
+          width="100%"
+          height="18rem"
+        >
+          {[1, 2, 3, 4, 5].map((i) => (
+            <NfcCardSkeleton key={i} />
+          ))}
+        </Flex>
+      ) : (
+        <NfcList nfcs={nfcs} />
+      )}
+      <Flex
+        justifyContent={"space-between"}
+        my="6"
+        direction={["column", "row", "row", "row"]}
+      >
+        <Stack direction="row" spacing={["3", "8", "10", "16"]}>
+          <Link
+            href="https://www.unlonely.app/privacy"
+            passHref
+            target="_blank"
+          >
+            <Text fontFamily="LoRes15">privacy</Text>
+          </Link>
+          <Link
+            href="https://super-okra-6ad.notion.site/Unlonely-Terms-of-Service-b3c0ea0272c943e98e3120243955cd75?pvs=4"
+            passHref
+            target="_blank"
+          >
+            <Text fontFamily="LoRes15">terms</Text>
+          </Link>
+          <Link href="https://bit.ly/unlonelyFAQs" passHref target="_blank">
+            <Text fontFamily="LoRes15">about</Text>
+          </Link>
+        </Stack>
+        <Stack direction="row" spacing={["3", "8", "10", "16"]}>
+          <Link
+            href="https://twitter.com/unlonely_app"
+            passHref
+            target="_blank"
+          >
+            <Text fontFamily="LoRes15">twitter</Text>
+          </Link>
+          <Link href="https://warpcast.com/unlonely" passHref target="_blank">
+            <Text fontFamily="LoRes15">farcaster</Text>
+          </Link>
+          <Link href="https://t.me/+IE_BA-tyLIA5MzZh" passHref target="_blank">
+            <Text fontFamily="LoRes15">telegram</Text>
+          </Link>
+        </Stack>
+      </Flex>
+    </Flex>
   );
 };
 

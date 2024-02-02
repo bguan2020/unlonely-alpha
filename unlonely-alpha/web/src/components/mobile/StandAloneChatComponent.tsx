@@ -36,9 +36,9 @@ import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import Participants from "../presence/Participants";
 import { VipBadgeBuy } from "../channels/VipBadgeBuy";
-import VibesTokenInterface from "../chat/VibesTokenInterface";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import Trade from "../channels/bet/Trade";
+import VibesTokenInterface from "../chat/VibesTokenInterface";
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -404,7 +404,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
         {selectedTab === "trade" && <Trade />}
         {selectedTab === "vibes" && (
           <Flex h="100%" justifyContent={"space-between"}>
-            <VibesTokenInterface isFullChart />
+            <VibesTokenInterface isExchangeColumn />
           </Flex>
         )}
         {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
