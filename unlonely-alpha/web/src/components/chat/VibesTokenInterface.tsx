@@ -4,10 +4,13 @@ import {
   Flex,
   Spinner,
   Text,
-  Tooltip as ChakraTooltip,
   IconButton,
   Image,
   Container,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
 } from "@chakra-ui/react";
 import { formatUnits, isAddress, parseUnits } from "viem";
 import {
@@ -19,6 +22,7 @@ import {
   ReferenceArea,
 } from "recharts";
 import * as AWS from "aws-sdk";
+import Link from "next/link";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
@@ -338,7 +342,7 @@ const VibesTokenInterface = ({
       ) : (
         <>
           {isFullChart && disableExchange !== true && (
-            <Container overflowY="auto" maxW="300px">
+            <Container overflowY="auto" maxW="300px" overflowX={"hidden"}>
               <Flex direction="column" justifyContent={"flex-end"} gap="2rem">
                 <Flex
                   direction="column"
@@ -490,24 +494,67 @@ const VibesTokenInterface = ({
             width="100%"
           >
             <Flex justifyContent={"space-between"} alignItems={"center"}>
-              <Flex gap="10px" alignItems={"center"}>
-                <ChakraTooltip
-                  label={
-                    <Flex direction="column" gap="5px">
-                      <Text>{`buy/sell this token depending on the vibes of ${
-                        allStreams ? "the app!" : "this stream!"
-                      }`}</Text>
-                      <Text fontSize="12px" color="#e0ed70">
-                        all buys and sells come with a 4% fee
-                      </Text>
-                    </Flex>
-                  }
-                  shouldWrapChildren
-                >
-                  <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
-                    $VIBES
-                  </Text>
-                </ChakraTooltip>
+              <Flex gap="5px" alignItems={"center"}>
+                <Popover trigger="hover" placement="bottom" openDelay={300}>
+                  <PopoverTrigger>
+                    <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
+                      $VIBES
+                    </Text>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    bg="gray.800"
+                    border="none"
+                    width="200px"
+                    p="2px"
+                  >
+                    <PopoverArrow bg="gray.800" />
+                    {allStreams ? (
+                      <Flex direction="column" gap="10px" p="5px">
+                        <Text fontSize="13px">
+                          buy or sell $VIBES, an ERC-20 token priced on a
+                          bonding curve, depending on the vibes on this app!
+                        </Text>
+                        <Text fontSize="13px">
+                          streamers and the protocol earn a 2% fee on txns.
+                        </Text>
+                        <Link
+                          href="https://bit.ly/unlonelyFAQs"
+                          target="_blank"
+                        >
+                          <Text
+                            fontSize="13px"
+                            color="#3cd8ff"
+                            textAlign={"center"}
+                          >
+                            read more
+                          </Text>
+                        </Link>
+                      </Flex>
+                    ) : (
+                      <Flex direction="column" gap="10px" p="5px">
+                        <Text fontSize="13px">
+                          buy or sell $VIBES, an ERC-20 token priced on a
+                          bonding curve, depending on the vibes on this stream!
+                        </Text>
+                        <Text fontSize="13px">
+                          streamers and the protocol earn a 2% fee on txns.
+                        </Text>
+                        <Link
+                          href="https://bit.ly/unlonelyFAQs"
+                          target="_blank"
+                        >
+                          <Text
+                            fontSize="13px"
+                            color="#3cd8ff"
+                            textAlign={"center"}
+                          >
+                            read more
+                          </Text>
+                        </Link>
+                      </Flex>
+                    )}
+                  </PopoverContent>
+                </Popover>
                 <Button
                   bg={timeFilter === "1d" ? "#7874c9" : "#403c7d"}
                   color="#c6c3fc"
@@ -583,17 +630,31 @@ const VibesTokenInterface = ({
                 )}
               </Flex>
               {!isFullChart && !allStreams && (
-                <IconButton
-                  height={"20px"}
-                  onClick={openVibesPopout}
-                  aria-label="vibes-popout"
-                  _focus={{}}
-                  _hover={{ transform: "scale(1.15)" }}
-                  _active={{ transform: "scale(1.3)" }}
-                  icon={<Image src="/svg/pop-out.svg" height={"20px"} />}
-                  bg="transparent"
-                  minWidth="auto"
-                />
+                <Popover trigger="hover" placement="top" openDelay={500}>
+                  <PopoverTrigger>
+                    <IconButton
+                      onClick={openVibesPopout}
+                      aria-label="vibes-popout"
+                      _focus={{}}
+                      _hover={{ transform: "scale(1.15)" }}
+                      _active={{ transform: "scale(1.3)" }}
+                      icon={<Image src="/svg/pop-out.svg" height={"20px"} />}
+                      bg="transparent"
+                      minWidth="auto"
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent
+                    bg="#008d75"
+                    border="none"
+                    width="100%"
+                    p="2px"
+                  >
+                    <PopoverArrow bg="#008d75" />
+                    <Text fontSize="12px" textAlign={"center"}>
+                      pop out chart in a new window!
+                    </Text>
+                  </PopoverContent>
+                </Popover>
               )}
             </Flex>
             <Flex
@@ -602,11 +663,6 @@ const VibesTokenInterface = ({
               flex="1"
             >
               <Flex direction="column" w="100%" position="relative" h="100%">
-                {!matchingChain && (
-                  <Text position="absolute" color="gray" top="50%">
-                    wrong network, switch to Base chain
-                  </Text>
-                )}
                 {formattedDayData.length === 0 &&
                   timeFilter === "1d" &&
                   matchingChain && (
@@ -684,7 +740,16 @@ const VibesTokenInterface = ({
                 </ResponsiveContainer>
               </Flex>
               {!isFullChart && disableExchange !== true && (
-                <VibesTokenExchange />
+                <>
+                  {walletIsConnected ? (
+                    <VibesTokenExchange />
+                  ) : (
+                    <Flex direction="column">
+                      <Text fontSize="12px">you must sign in to trade</Text>
+                      <ConnectWallet />
+                    </Flex>
+                  )}
+                </>
               )}
             </Flex>
           </Flex>
