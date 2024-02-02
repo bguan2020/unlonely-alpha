@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 import { fetchSocial } from "./identityResolver";
+import { getEnsName } from "./ens";
 
 const prisma = new PrismaClient();
 
@@ -22,13 +23,17 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
     }
 
     // Otherwise, create a new user and store the promise in the map
-    const socials = await fetchSocial(address, "ethereum");
+    const socials = await fetchSocial(address, "ethereum").catch(async (e) => {
+      console.log("error fetching socials, switching to getEnsName", e);
+      const username = await getEnsName(address);
+      return { username };
+    });
     console.log("new user socials", socials);
     const userCreationPromise = (async () => {
       try {
         user = await prisma.user.create({
           data: {
-            address: address,
+            address,
             ...socials,
           },
         });
@@ -36,7 +41,7 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
         console.log("findOrCreateUser error", e);
         user = await prisma.user.create({
           data: {
-            address: address,
+            address,
             ...socials,
           },
         });
