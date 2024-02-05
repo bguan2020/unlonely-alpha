@@ -336,7 +336,6 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         console.log("vibes fetching error", err);
       }
       console.log("vibesTokenInterface, fetched", endTime);
-      // const MILLIS = 3000;
       const MILLIS = 0;
       const timeToWait =
         endTime >= startTime + MILLIS ? 0 : MILLIS - (endTime - startTime);
