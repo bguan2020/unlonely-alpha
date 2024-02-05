@@ -69,7 +69,6 @@ const ChatForm = ({
   const [blastMode, setBlastMode] = useState(false);
   const [blastDisabled, setBlastDisabled] = useState(false);
 
-  const [reactionDisabled, setReactionDisabled] = useState<boolean>(false);
   const isOwner = address === channelQueryData?.owner.address;
 
   const messageTextIsEmpty =
@@ -190,15 +189,6 @@ const ChatForm = ({
       "_blank",
       windowFeatures
     );
-  };
-
-  const sendMessageReaction = (emoji: string, reactionEvent: string) => {
-    if (!channel) return;
-    channel.publish(reactionEvent, {
-      body: emoji,
-      name: reactionEvent,
-    });
-    // setShowEmojiReactionList(false);
   };
 
   return (

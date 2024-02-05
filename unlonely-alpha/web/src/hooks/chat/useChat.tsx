@@ -117,15 +117,17 @@ export const useChat = (): ChatReturnType => {
         Date.now() - latestMessage.timestamp < 12000
       ) {
         const amount = body.split(":")[2];
+        if (Number(amount) < 1000) return;
         const m = determineValue(Number(amount));
-        emojiBlast(<Text fontSize={`${20 + 20 * (m - 1)}px`}>{"📈"}</Text>);
+        emojiBlast(<Text fontSize={`${10 + 25 * (m - 1)}px`}>{"📈"}</Text>);
       } else if (
         body.split(":")[0] === InteractionType.SELL_VIBES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
         const amount = body.split(":")[2];
+        if (Number(amount) < 1000) return;
         const m = determineValue(Number(amount));
-        emojiBlast(<Text fontSize={`${20 + 20 * (m - 1)}px`}>{"📉"}</Text>);
+        emojiBlast(<Text fontSize={`${10 + 25 * (m - 1)}px`}>{"📉"}</Text>);
       }
     }
   }, [receivedMessages]);

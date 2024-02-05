@@ -24,6 +24,7 @@ type Props = {
   image?: string | null;
   isCustomHeader: boolean;
   pageUrl?: string | null;
+  noHeader?: boolean;
 };
 
 const AppLayout: React.FC<Props> = ({
@@ -35,6 +36,7 @@ const AppLayout: React.FC<Props> = ({
   description,
   isCustomHeader,
   pageUrl,
+  noHeader,
 }) => {
   const { isStandalone, ready } = useUserAgent();
   const router = useRouter();
@@ -50,7 +52,7 @@ const AppLayout: React.FC<Props> = ({
     <Box background="rgba(0, 0, 0, 0.65)">
       {isCustomHeader === false && (
         <NextHead
-          title=""
+          title={title ? title : ""}
           image={image ? image : ""}
           description={description ? description : ""}
           pageUrl={pageUrl ? pageUrl : ""}
@@ -60,7 +62,7 @@ const AppLayout: React.FC<Props> = ({
         <>
           {!isStandalone ? (
             <>
-              <Header />
+              {!noHeader && <Header />}
               {!router.pathname.startsWith("/nfc") && <AddToHomeScreen />}
               <Box
                 minW="100%"
@@ -76,7 +78,11 @@ const AppLayout: React.FC<Props> = ({
                     <AlertDescription>{error.toString()}</AlertDescription>
                   </Alert>
                 )}
-                <Skeleton isLoaded={!loading} overflowX="hidden" pb="20px">
+                <Skeleton
+                  isLoaded={!loading}
+                  overflowX="hidden"
+                  pb={noHeader ? "0px" : "20px"}
+                >
                   {children}
                 </Skeleton>
               </Box>

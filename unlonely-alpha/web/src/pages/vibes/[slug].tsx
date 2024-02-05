@@ -3,12 +3,15 @@ import { Flex } from "@chakra-ui/react";
 import VibesTokenInterface from "../../components/chat/VibesTokenInterface";
 import { ChannelProvider } from "../../hooks/context/useChannel";
 import { useChat } from "../../hooks/chat/useChat";
+import AppLayout from "../../components/layout/AppLayout";
 
 const FullVibesChartPage = () => {
   return (
-    <ChannelProvider>
-      <FullVibesChart />
-    </ChannelProvider>
+    <AppLayout isCustomHeader={false} noHeader>
+      <ChannelProvider>
+        <FullVibesChart />
+      </ChannelProvider>
+    </AppLayout>
   );
 };
 

@@ -83,12 +83,15 @@ export const useGetBurnProceedsAfterFees = (
   const [burnProceedsAfterFees, setBurnProceedsAfterFees] = useState<bigint>(
     BigInt(0)
   );
+  const [loading, setLoading] = useState<boolean>(false);
 
   const getData = useCallback(async () => {
     if (!contract.address || !contract.abi || !publicClient) {
       setBurnProceedsAfterFees(BigInt(0));
       return;
     }
+    setLoading(true);
+
     const res = await publicClient.readContract({
       address: contract.address,
       abi: contract.abi,
@@ -96,6 +99,7 @@ export const useGetBurnProceedsAfterFees = (
       args: [amount],
     });
     setBurnProceedsAfterFees(BigInt(String(res)));
+    setLoading(false);
   }, [contract.address, publicClient, amount]);
 
   useEffect(() => {
@@ -105,6 +109,7 @@ export const useGetBurnProceedsAfterFees = (
   return {
     refetch: getData,
     burnProceedsAfterFees,
+    loading,
   };
 };
 
