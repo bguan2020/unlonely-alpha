@@ -22,7 +22,6 @@ import {
   useMint,
   useBurn,
   useReadPublic,
-  useGetBurnProceedsAfterFees,
 } from "../../hooks/contracts/useVibesToken";
 import useDebounce from "../../hooks/internal/useDebounce";
 import centerEllipses from "../../utils/centerEllipses";
@@ -82,11 +81,11 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { protocolFeeDestination, refetch: refetchDest } =
     useReadPublic(contract);
 
-  const {
-    burnProceedsAfterFees,
-    refetch: refetchBurnProceedsAfterFees,
-    loading: burnProceedsAfterFeesLoading,
-  } = useGetBurnProceedsAfterFees(amount_votes_bigint, contract);
+  // const {
+  //   burnProceedsAfterFees,
+  //   refetch: refetchBurnProceedsAfterFees,
+  //   loading: burnProceedsAfterFeesLoading,
+  // } = useGetBurnProceedsAfterFees(amount_votes_bigint, contract);
 
   const {
     mint,
@@ -325,7 +324,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           refetchMint(),
           refetchBurn(),
           refetchMintCostAfterFees(),
-          refetchBurnProceedsAfterFees(),
+          // refetchBurnProceedsAfterFees(),
           refetchVibesBalance(),
           refetchUserEthBalance(),
           refetchDest(),
@@ -460,7 +459,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         >
           <Text fontSize={isFullChart ? "25px" : "unset"}>BUY</Text>
         </Button>
-        {!matchingChain ? (
+        {/* {!matchingChain ? (
           <Text
             fontSize={isFullChart || isStandalone ? "unset" : "12px"}
             noOfLines={1}
@@ -492,7 +491,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           >
             insufficient $VIBES
           </Text>
-        )}
+        )} */}
         <Button
           w="100%"
           color="white"
