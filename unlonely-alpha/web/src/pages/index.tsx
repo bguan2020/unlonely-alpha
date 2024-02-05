@@ -192,7 +192,7 @@ const ScrollableComponent = ({
   const nfcs = dataNFCs?.getNFCFeed;
 
   return (
-    <Flex direction="column" width="100%">
+    <Flex direction="column" width="100%" overflowX={"hidden"}>
       <Flex
         height="300px"
         gap="5px"
