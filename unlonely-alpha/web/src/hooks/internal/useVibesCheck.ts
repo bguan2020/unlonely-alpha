@@ -169,6 +169,8 @@ export const useVibesCheck = () => {
           fromBlock: CREATION_BLOCK,
         }),
       ]);
+      console.log("mintLogs length", mintLogs.length);
+      console.log("burnLogs length", burnLogs.length);
       const logs = [...mintLogs, ...burnLogs];
       logs.sort((a, b) => {
         if (a.blockNumber === null || b.blockNumber === null) return 0;

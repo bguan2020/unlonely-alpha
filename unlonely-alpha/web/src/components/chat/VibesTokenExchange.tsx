@@ -352,10 +352,15 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
       setErrorMessage("wrong network");
     } else if (Number(formatIncompleteNumber(amountOfVibes)) <= 0) {
       setErrorMessage("enter amount first");
+    } else if (
+      userEthBalance?.value &&
+      mintCostAfterFees > userEthBalance?.value
+    ) {
+      setErrorMessage("insufficient ETH");
     } else {
       setErrorMessage("");
     }
-  }, [matchingChain, amountOfVibes]);
+  }, [matchingChain, amountOfVibes, userEthBalance?.value, mintCostAfterFees]);
 
   return (
     <Flex direction="column" justifyContent={"flex-end"} gap="10px">
@@ -368,7 +373,8 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         >
           <Input
             variant={
-              Number(formatIncompleteNumber(amountOfVibes)) <= 0
+              Number(formatIncompleteNumber(amountOfVibes)) <= 0 ||
+              !matchingChain
                 ? "redGlow"
                 : "glow"
             }
@@ -408,41 +414,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         </Popover>
       </Flex>
       <Flex gap="2px" justifyContent={"center"} direction="column">
-        {!matchingChain ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="red.300"
-          >
-            wrong network
-          </Text>
-        ) : isRefetchingMint || mintCostAfterFeesLoading ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="blue.300"
-          >
-            calculating...
-          </Text>
-        ) : userEthBalance?.value &&
-          mintCostAfterFees <= userEthBalance?.value ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-          >
-            cost: {truncateValue(formatUnits(mintCostAfterFees, 18), 4)} ETH
-          </Text>
-        ) : (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="red.300"
-          >
-            insufficient ETH
-          </Text>
-        )}
         <Button
-          w="100%"
           color="white"
           _focus={{}}
           _hover={{}}
@@ -454,43 +426,20 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
             Number(formatIncompleteNumber(amountOfVibes)) <= 0
           }
           onClick={mint}
-          p={isFullChart ? "10%" : undefined}
+          p={isFullChart ? "10%" : "0px"}
+          w="100%"
         >
-          <Text fontSize={isFullChart ? "25px" : "unset"}>BUY</Text>
+          <Flex direction="column">
+            <Text fontSize={isFullChart ? "25px" : "unset"}>BUY</Text>
+            <Text
+              fontSize={isFullChart || isStandalone ? "unset" : "12px"}
+              noOfLines={1}
+              color="#eeeeee"
+            >
+              {`(${truncateValue(formatUnits(mintCostAfterFees, 18), 4)} ETH)`}
+            </Text>
+          </Flex>
         </Button>
-        {/* {!matchingChain ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="red.300"
-          >
-            wrong network
-          </Text>
-        ) : isRefetchingBurn || burnProceedsAfterFeesLoading ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="blue.300"
-          >
-            calculating...
-          </Text>
-        ) : Number(vibesBalance?.formatted) >= Number(amountOfVibes) ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-          >
-            yield: {truncateValue(formatUnits(burnProceedsAfterFees, 18), 4)}{" "}
-            ETH
-          </Text>
-        ) : (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="red.300"
-          >
-            insufficient $VIBES
-          </Text>
-        )} */}
         <Button
           w="100%"
           color="white"
