@@ -81,7 +81,7 @@ const ConnectWallet = () => {
                   </MenuButton>
                 </Flex>
 
-                <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
+                <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
                   <MenuItem
                     bg={"#131323"}
                     _hover={{ bg: "#1f1f3c" }}
@@ -130,7 +130,7 @@ const ConnectWallet = () => {
                 </MenuButton>
               </Flex>
 
-              <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
+              <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
                 <MenuItem
                   bg={"#131323"}
                   _hover={{ bg: "#1f1f3c" }}
@@ -339,7 +339,7 @@ const ConnectedDisplay = () => {
             </Flex>
           </MenuButton>
         </Flex>
-        <MenuList zIndex={5} bg={"#131323"} borderRadius="0">
+        <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
           {userAddress && (
             <MenuItem
               bg={"#131323"}
