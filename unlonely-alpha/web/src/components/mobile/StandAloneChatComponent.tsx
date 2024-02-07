@@ -40,6 +40,8 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import Trade from "../channels/bet/Trade";
 import VibesTokenInterface from "../chat/VibesTokenInterface";
 
+export const EXCLUDED_SLUGS = ["loveonleverage"];
+
 const StandaloneChatComponent = ({
   previewStream,
   handleShowPreviewStream,
@@ -304,9 +306,14 @@ const StandaloneChatComponent = ({
 };
 
 export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
-  const { chat: chatContext } = useChannelContext();
+  const { userAddress } = useUser();
+  const { chat: chatContext, channel } = useChannelContext();
   const { presenceChannel } = chatContext;
   const { isStandalone } = useUserAgent();
+
+  const { channelQueryData } = channel;
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   const [selectedTab, setSelectedTab] = useState<
     "chat" | "trade" | "vibes" | "vip"
@@ -394,11 +401,13 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
           </Flex>
         </OuterBorder>
       </Flex>
-      {presenceChannel && (
-        <Flex justifyContent={"center"} py="0.5rem">
-          <Participants ablyPresenceChannel={presenceChannel} />
-        </Flex>
-      )}
+      {presenceChannel &&
+        (!EXCLUDED_SLUGS.includes(channelQueryData?.slug as string) ||
+          !isOwner) && (
+          <Flex justifyContent={"center"} py="0.5rem">
+            <Participants ablyPresenceChannel={presenceChannel} />
+          </Flex>
+        )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}
         {selectedTab === "trade" && <Trade />}

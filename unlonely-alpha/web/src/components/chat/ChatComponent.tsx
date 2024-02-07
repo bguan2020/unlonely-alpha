@@ -7,12 +7,19 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
 import Chat from "./Chat";
+import { useUser } from "../../hooks/context/useUser";
+
+export const EXCLUDED_SLUGS = ["loveonleverage"];
 
 const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
+  const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const [selectedTab, setSelectedTab] = useState<"chat" | "vip">("chat");
-  const { chat: chatContext } = useChannelContext();
+  const { chat: chatContext, channel } = useChannelContext();
   const { presenceChannel } = chatContext;
+  const { channelQueryData } = channel;
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   return (
     <Flex
@@ -80,11 +87,13 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
             pt="0px"
           >
             <Flex bg="rgba(24, 22, 47, 1)" width={"100%"} direction="column">
-              {presenceChannel && (
-                <Flex justifyContent={"center"} py="0.5rem">
-                  <Participants ablyPresenceChannel={presenceChannel} />
-                </Flex>
-              )}
+              {presenceChannel &&
+                (!EXCLUDED_SLUGS.includes(channelQueryData?.slug as string) ||
+                  !isOwner) && (
+                  <Flex justifyContent={"center"} py="0.5rem">
+                    <Participants ablyPresenceChannel={presenceChannel} />
+                  </Flex>
+                )}
               {selectedTab === "chat" && <Chat chat={chat} />}
               {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
             </Flex>
