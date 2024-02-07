@@ -50,7 +50,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { channelQueryData } = channel;
   const { addToChatbot } = chat;
 
-  const [amountOfVibes, setAmountOfVibes] = useState<string>("10000");
+  const [amountOfVibes, setAmountOfVibes] = useState<string>("1000");
   const debouncedAmountOfVotes = useDebounce(amountOfVibes, 300);
   const amount_votes_bigint = useMemo(
     () => BigInt(debouncedAmountOfVotes as `${number}`),
@@ -173,7 +173,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           });
         }
         canAddToChatbot_mint.current = false;
-        setAmountOfVibes("10000");
+        setAmountOfVibes("1000");
       },
       onTxError: (error) => {
         console.log("mint error", error);
@@ -277,7 +277,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           }`,
         });
         canAddToChatbot_burn.current = false;
-        setAmountOfVibes("10000");
+        setAmountOfVibes("1000");
       },
       onTxError: (error) => {
         console.log("burn error", error);
