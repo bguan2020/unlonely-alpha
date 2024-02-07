@@ -373,12 +373,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           bg="red.600"
         >
           <Input
-            variant={
-              Number(formatIncompleteNumber(amountOfVibes)) <= 0 ||
-              !matchingChain
-                ? "redGlow"
-                : "glow"
-            }
+            variant={errorMessage.length > 0 ? "redGlow" : "glow"}
             textAlign="center"
             value={amountOfVibes}
             onChange={handleInputChange}
