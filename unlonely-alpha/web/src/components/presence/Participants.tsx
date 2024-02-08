@@ -26,6 +26,7 @@ configureAbly({
 type Props = {
   ablyPresenceChannel?: string;
   mobile?: boolean;
+  show?: boolean
 };
 
 type Presence = {
@@ -39,7 +40,7 @@ type Presence = {
 
 const limit = 6;
 
-const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
+const Participants = ({ ablyPresenceChannel, mobile, show }: Props) => {
   const { user } = useUser();
   const { isStandalone } = useUserAgent();
   const { leaderboard } = useChannelContext();
@@ -115,7 +116,8 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
 
   // make Participant overlap each other a bit and show a max of 6, with the last one being a count of the rest
   return (
-    <Flex direction="row" maxW="100%" justifyContent="center">
+    <>
+    {show && <Flex direction="row" maxW="100%" justifyContent="center">
       <Flex flexDirection="row-reverse" alignItems="center" ml={4}>
         {!!participantOrder.slice(limit).length && (
           <Flex>
@@ -171,7 +173,8 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
             </Flex>
           ))}
       </Flex>
-    </Flex>
+    </Flex>}
+    </>
   );
 };
 

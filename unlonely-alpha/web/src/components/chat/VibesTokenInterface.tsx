@@ -344,7 +344,7 @@ const VibesTokenInterface = ({
           {isFullChart && disableExchange !== true && (
             <Container overflowY="auto" maxW="300px" overflowX={"hidden"}>
               <Flex direction="column" justifyContent={"flex-end"} gap="2rem">
-                <Flex
+                {higherPrice < Number.MAX_SAFE_INTEGER && <Flex
                   direction="column"
                   bg="rgba(40, 129, 43, 0.5)"
                   p="0.5rem"
@@ -394,7 +394,7 @@ const VibesTokenInterface = ({
                         : "calculating..."}
                     </Text>
                   </Flex>
-                </Flex>
+                </Flex>}
                 <Flex direction="column" gap="10px">
                   <Flex direction="column">
                     <Text opacity="0.8">current price:</Text>
@@ -426,7 +426,7 @@ const VibesTokenInterface = ({
                     </Flex>
                   )}
                 </Flex>
-                <Flex
+                {lowerPrice > 0 && <Flex
                   direction="column"
                   bg="rgba(155, 15, 15, 0.5)"
                   p="0.5rem"
@@ -484,7 +484,7 @@ const VibesTokenInterface = ({
                         : "calculating..."}
                     </Text>
                   </Flex>
-                </Flex>
+                </Flex>}
               </Flex>
             </Container>
           )}

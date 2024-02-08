@@ -1,4 +1,4 @@
-import { Flex, Text, Container, Image, Tooltip } from "@chakra-ui/react";
+import { Flex, Text, Container, Image, Tooltip, Button } from "@chakra-ui/react";
 import { useState } from "react";
 
 import { ChatReturnType } from "../../hooks/chat/useChat";
@@ -18,6 +18,8 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { chat: chatContext, channel } = useChannelContext();
   const { presenceChannel } = chatContext;
   const { channelQueryData } = channel;
+
+  const [ showParticipants, setShowParticipants ] = useState(true);
 
   const isOwner = userAddress === channelQueryData?.owner.address;
 
@@ -87,11 +89,28 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
             pt="0px"
           >
             <Flex bg="rgba(24, 22, 47, 1)" width={"100%"} direction="column">
-              {presenceChannel &&
+              {/* {presenceChannel &&
                 (!EXCLUDED_SLUGS.includes(channelQueryData?.slug as string) ||
                   !isOwner) && (
                   <Flex justifyContent={"center"} py="0.5rem">
                     <Participants ablyPresenceChannel={presenceChannel} />
+                  </Flex>
+                )} */}
+                {presenceChannel && (
+                  <Flex justifyContent={"center"} py="0.5rem" gap='5px' alignItems={"center"}>
+                    {EXCLUDED_SLUGS.includes(channelQueryData?.slug as string) && isOwner && <Button onClick={() => setShowParticipants(prev => !prev)}
+                      bg={"#403c7d"}
+                      p={2}
+                      height={"20px"}
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{
+                        bg: "#8884d8",
+                      }}
+                    >
+                      <Text fontSize="14px" color="white">{showParticipants ? "hide" : "show"}</Text>
+                    </Button>}
+                    <Participants ablyPresenceChannel={presenceChannel} show={showParticipants} />
                   </Flex>
                 )}
               {selectedTab === "chat" && <Chat chat={chat} />}
