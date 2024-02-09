@@ -999,6 +999,7 @@ const Trade = () => {
                         </Text>
                         <Flex alignItems={"center"} gap="5px">
                           <Input
+                            fontSize={isStandalone ? "16px" : "unset"}
                             textAlign="center"
                             width={"70px"}
                             value={amountOfVotes}

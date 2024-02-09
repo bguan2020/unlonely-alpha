@@ -379,7 +379,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
             onChange={handleInputChange}
             mx="auto"
             p="1"
-            fontSize={isFullChart ? "2rem" : "14px"}
+            fontSize={isStandalone ? "16px" : isFullChart ? "2rem" : "14px"}
           />
         </Tooltip>
         <Popover trigger="hover" placement="top" openDelay={500}>

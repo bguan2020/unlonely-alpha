@@ -29,6 +29,7 @@ import { useUser } from "../../hooks/context/useUser";
 import EmojiButton from "./emoji/EmojiButton";
 import ConnectWallet from "../navigation/ConnectWallet";
 import { ChatClip } from "./ChatClip";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 type Props = {
   sendChatMessage: (
@@ -52,6 +53,7 @@ const ChatForm = ({
   isVipChat,
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
+  const { isStandalone } = useUserAgent()
 
   const toast = useToast();
   const { channel: channelContext, chat, leaderboard } = useChannelContext();
@@ -402,6 +404,7 @@ const ChatForm = ({
                 <Flex alignItems="center" gap="5px">
                   <Input
                     ref={inputRef}
+                    fontSize={isStandalone ? "16px" : "unset"}
                     variant="unstyled"
                     size="sm"
                     maxLength={500}

@@ -677,7 +677,7 @@ const VibesTokenInterface = ({
                   </>
                 )}
               </Flex>
-              {!isFullChart && !allStreams && (
+              {!isFullChart && !allStreams && !isStandalone && (
                 <Popover trigger="hover" placement="top" openDelay={500}>
                   <PopoverTrigger>
                     <IconButton
@@ -729,7 +729,7 @@ const VibesTokenInterface = ({
                   <LineChart
                     data={formattedData}
                     margin={
-                      isFullChart ? { left: 30, top: 10, bottom: 10 } : {}
+                      isFullChart ? { left: 30, top: 10, bottom: 10 } : isStandalone ? {top: 10, bottom: 10} : {}
                     }
                   >
                     <YAxis

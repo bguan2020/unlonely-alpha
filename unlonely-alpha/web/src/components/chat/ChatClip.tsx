@@ -19,9 +19,11 @@ import { postNfcSchema } from "../../utils/validation/validation";
 import { InteractionType } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { useUser } from "../../hooks/context/useUser";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 export const ChatClip = () => {
   const { user, userAddress } = useUser();
+  const { isStandalone } = useUserAgent()
   const { chat } = useChannelContext();
   const { clipping, addToChatbot } = chat;
   const {
@@ -227,6 +229,7 @@ export const ChatClip = () => {
                       fontWeight="medium"
                       w="100%"
                       padding="auto"
+                      fontSize={isStandalone ? "16px" : "unset"}
                       {...register("title")}
                       onChange={(e) => setTitle(e.target.value)}
                     />

@@ -464,6 +464,7 @@ function MobilePage({
   loading: boolean;
   error?: ApolloError;
 }) {
+  const { isStandalone } = useUserAgent();
   const { initialNotificationsGranted } = useUser();
   const router = useRouter();
   const scrollRef = useRef<VirtuosoHandle>(null);
@@ -608,6 +609,7 @@ function MobilePage({
               bottom="1rem"
             />
             <Input
+              fontSize={isStandalone ? "16px" : "unset"}
               variant="glow"
               placeholder="search for a streamer"
               width={"100%"}
@@ -626,7 +628,6 @@ function MobilePage({
               </Text>
             ) : filteredChannels && filteredChannels.length > 0 ? (
               <Virtuoso
-                followOutput={"auto"}
                 ref={scrollRef}
                 data={filteredChannels}
                 totalCount={filteredChannels.length}
