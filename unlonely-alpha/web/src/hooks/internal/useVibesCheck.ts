@@ -126,7 +126,7 @@ export const useVibesCheck = () => {
       user,
       amount: log?.args.amount,
       price: newPrice,
-      blockNumber: log?.blockNumber,
+      blockNumber: Number(log?.blockNumber),
       supply: log?.args.totalSupply,
       priceChangePercentage:
         tokenTxs.length === 0

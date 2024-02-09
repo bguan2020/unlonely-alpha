@@ -21,6 +21,7 @@ import {
   YAxis,
   ReferenceArea,
   ReferenceLine,
+  XAxis,
 } from "recharts";
 import * as AWS from "aws-sdk";
 import Link from "next/link";
@@ -756,13 +757,13 @@ const VibesTokenInterface = ({
                         : {}
                     }
                   >
-                    {/* <XAxis
+                    <XAxis
                       hide
                       dataKey="blockNumber"
                       type="number"
                       domain={["dataMin", "dataMax"]}
                       allowDataOverflow={false}
-                    /> */}
+                    />
                     <YAxis
                       tickFormatter={formatYAxisTick}
                       hide={isFullChart === true ? false : true}
