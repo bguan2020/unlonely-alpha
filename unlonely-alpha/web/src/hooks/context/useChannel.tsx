@@ -33,6 +33,7 @@ import NotificationsModal from "../../components/channels/NotificationsModal";
 import ModeratorModal from "../../components/channels/ModeratorModal";
 import { useNetworkContext } from "./useNetwork";
 import { AblyChannelPromise } from "../../constants";
+import { SelectedUser } from "../../constants/types/chat";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -99,6 +100,8 @@ const ChannelContext = createContext<{
     handleTradeLoading: (value: boolean) => void;
     handleVibesTokenPriceRange: (value: string[]) => void;
     localSharesEventState?: SharesEventState;
+    selectedUserInChat?: SelectedUser;
+    handleSelectedUserInChat: (value?: SelectedUser) => void;
     handleLocalSharesEventState: (value: SharesEventState) => void;
   };
 }>({
@@ -159,6 +162,8 @@ const ChannelContext = createContext<{
     handleVibesTokenPriceRange: () => undefined,
     localSharesEventState: undefined,
     handleLocalSharesEventState: () => undefined,
+    selectedUserInChat: undefined,
+    handleSelectedUserInChat: () => undefined,
   },
 });
 
@@ -246,6 +251,9 @@ export const ChannelProvider = ({
   const [vibesTokenPriceRange, setVibesTokenPriceRange] = useState<string[]>(
     []
   );
+  const [selectedUserInChat, setSelectedUserInChat] = useState<
+    SelectedUser | undefined
+  >(undefined);
 
   const [showChatCommandModal, setChatCommandModal] = useState<boolean>(false);
   const [showEditModal, setEditModal] = useState<boolean>(false);
@@ -395,6 +403,10 @@ export const ChannelProvider = ({
     setLocalSharesEventState(value);
   }, []);
 
+  const handleSelectedUserInChat = useCallback((value?: SelectedUser) => {
+    setSelectedUserInChat(value);
+  }, []);
+
   const value = useMemo(
     () => ({
       channel: {
@@ -453,6 +465,8 @@ export const ChannelProvider = ({
         handleTradeLoading,
         handleVibesTokenPriceRange,
         localSharesEventState,
+        selectedUserInChat,
+        handleSelectedUserInChat,
         handleLocalSharesEventState,
       },
     }),
@@ -507,6 +521,8 @@ export const ChannelProvider = ({
       handleChannelRoles,
       localSharesEventState,
       handleLocalSharesEventState,
+      selectedUserInChat,
+      handleSelectedUserInChat,
     ]
   );
 
@@ -515,7 +531,7 @@ export const ChannelProvider = ({
   );
 };
 
-export const TransactionModals = ({
+export const ChannelWideModals = ({
   ablyChannel,
 }: {
   ablyChannel: AblyChannelPromise;

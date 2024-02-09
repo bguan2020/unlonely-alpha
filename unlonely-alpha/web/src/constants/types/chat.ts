@@ -12,6 +12,8 @@ export enum SenderStatus {
 
 export type EmojiTypes = { emojiType: "unicode" | string; count: number }[];
 
+export type SelectedUser = { address?: string; username?: string }
+
 export type Message = {
   clientId: string;
   connectionId: string;

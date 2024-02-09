@@ -8,11 +8,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { createPublicClient, http } from "viem";
+import { Log, createPublicClient, http, isAddress } from "viem";
 import { ToastId, useToast, Box, Flex, Text, Spinner } from "@chakra-ui/react";
 import * as AWS from "aws-sdk";
 
-import { EventTypeForContract } from "../../constants";
+import { EventTypeForContract, NULL_ADDRESS } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import {
   CHANNEL_FEED_QUERY,
@@ -23,8 +23,9 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "./useNetwork";
 import { useUser } from "./useUser";
 import { useVibesCheck } from "../internal/useVibesCheck";
-import { VibesTokenTx } from "../../constants/types";
+import { FetchBalanceResult, VibesTokenTx } from "../../constants/types";
 import { getCoingeckoTokenPrice } from "../../utils/coingecko";
+import { useBalance, useContractEvent } from "wagmi";
 
 type UnclaimedBet = SharesEvent & {
   payout: bigint;
@@ -40,9 +41,13 @@ const CacheContext = createContext<{
   fetchingBets: boolean;
   feedLoading: boolean;
   feedError?: ApolloError;
+  userVibesBalance?: FetchBalanceResult;
   vibesTokenTxs: VibesTokenTx[];
   vibesTokenLoading: boolean;
-  chartTimeIndexes: Map<string, {index: number | undefined, blockNumber: number | undefined}>;
+  chartTimeIndexes: Map<
+    string,
+    { index: number | undefined; blockNumber: number | undefined }
+  >;
   addAppError: (error: Error, source: string) => void;
   popAppError: (errorName: string, field: string) => void;
   ethPriceInUsd: string;
@@ -54,6 +59,7 @@ const CacheContext = createContext<{
   feedError: undefined,
   vibesTokenTxs: [],
   vibesTokenLoading: true,
+  userVibesBalance: undefined,
   chartTimeIndexes: new Map(),
   addAppError: () => undefined,
   popAppError: () => undefined,
@@ -82,9 +88,40 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const { tokenTxs, chartTimeIndexes, loading } = useVibesCheck();
-  const [ethPriceInUsd, setEthPriceInUsd] = useState<string>(
-    "0"
-  );
+  const [ethPriceInUsd, setEthPriceInUsd] = useState<string>("0");
+
+  const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
+  const { data: vibesBalance, refetch: refetchVibesBalance } = useBalance({
+    address: userAddress,
+    token: contract.address,
+    enabled:
+      isAddress(userAddress as `0x${string}`) &&
+      isAddress(contract.address ?? NULL_ADDRESS),
+  });
+
+  const [transferLogs, setTransferLogs] = useState<Log[]>([]);
+
+  useContractEvent({
+    address: contract.address,
+    abi: contract.abi,
+    eventName: "Transfer",
+    listener(logs) {
+      setTransferLogs(logs);
+    },
+  });
+
+  useEffect(() => {
+    if (transferLogs.length > 0) {
+      const includesUser = transferLogs.some(
+        (log: any) =>
+          log?.args?.from === userAddress || log?.args?.to === userAddress
+      );
+      if (includesUser) {
+        console.log("Detected vibes transfer event", transferLogs);
+        refetchVibesBalance();
+      }
+    }
+  }, [transferLogs]);
 
   const addAppError = useCallback(
     (error: Error, source: string) => {
@@ -337,6 +374,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       feedError: error,
       vibesTokenTxs: tokenTxs,
       vibesTokenLoading: loading,
+      userVibesBalance: vibesBalance,
       chartTimeIndexes,
       addAppError,
       popAppError,
@@ -354,6 +392,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     addAppError,
     popAppError,
     ethPriceInUsd,
+    vibesBalance,
   ]);
 
   return (

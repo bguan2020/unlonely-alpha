@@ -10,21 +10,18 @@ import {
   PopoverArrow,
   PopoverTrigger,
 } from "@chakra-ui/react";
-import Link from "next/link";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 import { anonUrl } from "./AnonUrl";
 import centerEllipses from "../../utils/centerEllipses";
 import { CustomUser } from "../../constants/types";
 import { useGetBadges } from "../../hooks/internal/useGetBadges";
-import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { getColorFromString } from "../../styles/Colors";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 type Props = {
   user?: CustomUser;
-  mobile?: boolean;
 };
-const Participant = ({ user, mobile }: Props) => {
+const Participant = ({ user }: Props) => {
   const imageUrl = user?.FCImageUrl
     ? user.FCImageUrl
     : user?.lensImageUrl
@@ -36,33 +33,9 @@ const Participant = ({ user, mobile }: Props) => {
     : imageUrl;
 
   const { rankUrl } = useGetBadges(user?.channelUserRank);
-  const { network } = useNetworkContext();
-  const { explorerUrl } = network;
+  const { ui } = useChannelContext();
+  const { handleSelectedUserInChat } = ui;
 
-  const toolTipMessage = (user: CustomUser) => {
-    return (
-      <>
-        <Flex direction="column">
-          <Text>
-            {user.username ? user.username : centerEllipses(user.address, 8)}
-          </Text>
-          <Flex direction="row">
-            {rankUrl && (
-              <Image src={rankUrl} width="20px" height="20px" mr="5px" />
-            )}
-            {user.isFCUser ? (
-              <Image
-                src="/images/farcaster_logo.png"
-                width="20px"
-                height="20px"
-                mr="5px"
-              />
-            ) : null}
-          </Flex>
-        </Flex>
-      </>
-    );
-  };
   return (
     <>
       {user ? (
@@ -80,12 +53,20 @@ const Participant = ({ user, mobile }: Props) => {
             </PopoverTrigger>
             <PopoverContent bg="gray.800" border="none" width="min" p="5px">
               <PopoverArrow bg="gray.800" />
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/address/${
-                  user?.address ? user.address : ""
-                }`}
-                passHref
+              <Flex
+                direction="column"
+                onClick={() =>
+                  handleSelectedUserInChat({
+                    address: user.address,
+                    username: user.username ?? undefined,
+                  })
+                }
+                _hover={{
+                  cursor: "pointer",
+                  bg: "gray.700",
+                }}
+                borderRadius="5px"
+                p="5px"
               >
                 <Flex gap="5px">
                   <Text fontSize="12px" textAlign={"center"}>
@@ -93,7 +74,6 @@ const Participant = ({ user, mobile }: Props) => {
                       ? user.username
                       : centerEllipses(user.address, 8)}
                   </Text>
-                  <ExternalLinkIcon />
                 </Flex>
                 <Flex direction="row" justifyContent={"center"}>
                   {rankUrl && (
@@ -108,7 +88,7 @@ const Participant = ({ user, mobile }: Props) => {
                     />
                   )}
                 </Flex>
-              </Link>
+              </Flex>
             </PopoverContent>
           </Popover>
         </>

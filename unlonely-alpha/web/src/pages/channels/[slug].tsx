@@ -21,7 +21,7 @@ import { CHANNEL_DETAIL_QUERY } from "../../constants/queries";
 import { ChannelDetailQuery } from "../../generated/graphql";
 import {
   ChannelProvider,
-  TransactionModals,
+  ChannelWideModals,
   useChannelContext,
 } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
@@ -113,9 +113,9 @@ const DesktopPage = ({
   );
 
   const handleUpdate = (tradeEvents: Log[]) => {
-    const sortedEvents = tradeEvents
-      .filter((event: any) => event?.args.trade.eventByte === generatedKey)
-      .sort((a, b) => Number(a.blockNumber) - Number(b.blockNumber));
+    const sortedEvents = tradeEvents.filter(
+      (event: any) => event?.args.trade.eventByte === generatedKey
+    );
     if (sortedEvents.length === 0) return;
     let newBalanceAddition = 0;
     for (let i = 0; i < sortedEvents.length; i++) {
@@ -127,10 +127,9 @@ const DesktopPage = ({
           Number(tradeEvent?.args.trade.badgeAmount);
       }
     }
-    if (sortedEvents.length > 0)
-      setVipBadgeSupply(
-        (sortedEvents[sortedEvents.length - 1] as any).args.trade.supply
-      );
+    setVipBadgeSupply(
+      (sortedEvents[sortedEvents.length - 1] as any).args.trade.supply
+    );
     setVipBadgeBalance((prev) => String(Number(prev) + newBalanceAddition));
   };
 
@@ -176,7 +175,7 @@ const DesktopPage = ({
       >
         {!queryLoading && !channelDataError ? (
           <>
-            <TransactionModals ablyChannel={chat.channel} />
+            <ChannelWideModals ablyChannel={chat.channel} />
             <Stack
               mx={[0, 8, 4]}
               alignItems={["center", "initial"]}
@@ -304,49 +303,49 @@ const MobilePage = ({
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}
       <AppLayout
-      title={channelSSR?.name}
-      image={channelSSR?.owner?.FCImageUrl}
-      pageUrl={`/channels/${channelSSR?.slug}`}
-      description={channelSSR?.description}
-      isCustomHeader={true}
-    >
-      {!queryLoading && !channelDataError ? (
-        <>
-          {(previewStream || !isOwner) && <ChannelViewerPerspective mobile />}
-          <TransactionModals ablyChannel={chat.channel} />
-          <StandaloneAblyChatComponent
-            previewStream={previewStream}
-            handleShowPreviewStream={handleShowPreviewStream}
-            chat={chat}
-          />
-        </>
-      ) : (
-        <Flex
-          alignItems={"center"}
-          justifyContent={"center"}
-          direction="column"
-          width="100%"
-          height="100vh"
-          fontSize="50px"
-        >
-          {!channelDataError ? (
-            <>
-              <Image
-                src="/icons/icon-192x192.png"
-                borderRadius="10px"
-                height="96px"
-              />
-              <Flex>
-                <WavyText text="..." />
-              </Flex>
-            </>
-          ) : (
-            <Text fontFamily="LoRes15">
-              server error, please try again later
-            </Text>
-          )}
-        </Flex>
-      )}
+        title={channelSSR?.name}
+        image={channelSSR?.owner?.FCImageUrl}
+        pageUrl={`/channels/${channelSSR?.slug}`}
+        description={channelSSR?.description}
+        isCustomHeader={true}
+      >
+        {!queryLoading && !channelDataError ? (
+          <>
+            {(previewStream || !isOwner) && <ChannelViewerPerspective mobile />}
+            <ChannelWideModals ablyChannel={chat.channel} />
+            <StandaloneAblyChatComponent
+              previewStream={previewStream}
+              handleShowPreviewStream={handleShowPreviewStream}
+              chat={chat}
+            />
+          </>
+        ) : (
+          <Flex
+            alignItems={"center"}
+            justifyContent={"center"}
+            direction="column"
+            width="100%"
+            height="100vh"
+            fontSize="50px"
+          >
+            {!channelDataError ? (
+              <>
+                <Image
+                  src="/icons/icon-192x192.png"
+                  borderRadius="10px"
+                  height="96px"
+                />
+                <Flex>
+                  <WavyText text="..." />
+                </Flex>
+              </>
+            ) : (
+              <Text fontFamily="LoRes15">
+                server error, please try again later
+              </Text>
+            )}
+          </Flex>
+        )}
       </AppLayout>
     </>
   );

@@ -16,7 +16,7 @@ import { decodeEventLog, formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useBalance } from "wagmi";
 
-import { InteractionType, NULL_ADDRESS } from "../../constants";
+import { InteractionType } from "../../constants";
 import {
   useGetMintCostAfterFees,
   useMint,
@@ -41,7 +41,7 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { isStandalone } = useUserAgent();
   const { walletIsConnected, userAddress, user } = useUser();
-  const { vibesTokenTxs } = useCacheContext();
+  const { vibesTokenTxs, userVibesBalance } = useCacheContext();
   const toast = useToast();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
@@ -65,14 +65,6 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
     refetch: refetchMintCostAfterFees,
     loading: mintCostAfterFeesLoading,
   } = useGetMintCostAfterFees(amount_votes_bigint, contract);
-
-  const { data: vibesBalance, refetch: refetchVibesBalance } = useBalance({
-    address: userAddress,
-    token: contract.address,
-    enabled:
-      isAddress(userAddress as `0x${string}`) &&
-      isAddress(contract.address ?? NULL_ADDRESS),
-  });
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
@@ -326,7 +318,6 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           refetchBurn(),
           refetchMintCostAfterFees(),
           refetchBurnProceedsAfterFees(),
-          refetchVibesBalance(),
           refetchUserEthBalance(),
           refetchDest(),
         ]).then(() => {
@@ -395,7 +386,8 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
                 bg: "#8884d8",
               }}
               onClick={() => {
-                vibesBalance && setAmountOfVibes(vibesBalance.formatted);
+                userVibesBalance &&
+                  setAmountOfVibes(userVibesBalance.formatted);
               }}
             >
               max

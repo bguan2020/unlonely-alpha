@@ -5,7 +5,11 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { InteractionType } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
-import { Message, SenderStatus } from "../../constants/types/chat";
+import {
+  Message,
+  SelectedUser,
+  SenderStatus,
+} from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import Badges from "./Badges";
 
@@ -14,7 +18,7 @@ type Props = {
   message: Message;
   messageText: string;
   linkArray: RegExpMatchArray | null;
-  handleOpen: (message: Message) => void;
+  handleOpen: (value?: SelectedUser) => void;
 };
 
 // if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred
@@ -157,7 +161,10 @@ const MessageBody = ({
                   as="span"
                   onClick={() => {
                     if (message.data.username !== "chatbot🤖")
-                      handleOpen(message);
+                      handleOpen({
+                        address: message.data.address,
+                        username: message.data.username,
+                      });
                   }}
                   _hover={{ cursor: "pointer" }}
                   fontSize="12px"
