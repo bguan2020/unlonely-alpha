@@ -316,7 +316,9 @@ export const ChatUserModal = ({
                   borderRadius="15px"
                   justifyContent={"center"}
                 >
-                  <Text color="#c7dbff">{targetUser.address}</Text>
+                  <Text color="#c7dbff" fontSize="13px">
+                    {targetUser.address}
+                  </Text>
                   <ExternalLinkIcon />
                 </Flex>
               </Link>
