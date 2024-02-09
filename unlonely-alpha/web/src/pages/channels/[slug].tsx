@@ -153,9 +153,9 @@ const DesktopPage = ({
 
   useEffect(() => {
     if (Number(vipBadgeBalance) > 0) {
-      handleIsVip?.(true);
+      handleIsVip(true);
     } else {
-      handleIsVip?.(false);
+      handleIsVip(false);
     }
   }, [vipBadgeBalance]);
 

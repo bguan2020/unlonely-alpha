@@ -34,8 +34,9 @@ export const useChat = (): ChatReturnType => {
     mounted,
   } = useChannel();
   const { username, userAddress: address } = useUser();
-  const { chat } = useChannelContext();
+  const { chat, leaderboard } = useChannelContext();
   const { chatBot } = chat;
+  const { handleIsVip } = leaderboard;
 
   const mountingMessages = useRef(true);
   const { emojiBlast, fireworks } = useScreenAnimationsContext();
@@ -128,6 +129,15 @@ export const useChat = (): ChatReturnType => {
         if (Number(amount) < 1000) return;
         const m = determineValue(Number(amount));
         emojiBlast(<Text fontSize={`${10 + 25 * (m - 1)}px`}>{"📉"}</Text>);
+      } else if (
+        body.split(":")[0] === InteractionType.BUY_BADGES &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        const buyer = body.split(":")[1];
+        const amount = body.split(":")[2];
+        if ((buyer === address || buyer === username) && Number(amount) > 0) {
+          handleIsVip(true);
+        }
       }
     }
   }, [receivedMessages]);

@@ -78,7 +78,7 @@ const ChannelContext = createContext<{
     loading: boolean;
     error?: ApolloError;
     refetchGamblableEventLeaderboard?: () => Promise<void>;
-    handleIsVip?: (value: boolean) => void;
+    handleIsVip: (value: boolean) => void;
   };
   ui: {
     handleEditModal: (value: boolean) => void;

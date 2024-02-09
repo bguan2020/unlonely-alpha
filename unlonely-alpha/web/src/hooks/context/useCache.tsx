@@ -119,6 +119,31 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       if (includesUser) {
         console.log("Detected vibes transfer event", transferLogs);
         refetchVibesBalance();
+        const incomingReceives = transferLogs.filter(
+          (log: any) =>
+            log?.args?.from !== NULL_ADDRESS && log?.args?.to === userAddress
+        );
+        if (incomingReceives.length > 0) {
+          toast({
+            duration: 5000,
+            isClosable: true,
+            render: () => (
+              <Box borderRadius="md" bg="#8e64dd" px={4} h={8}>
+                <Flex justifyContent="center" alignItems="center">
+                  <Text fontSize="16px" color="white">
+                    Some people sent you vibes! 🎉
+                  </Text>
+                  <Text>
+                    Got{" "}
+                    {incomingReceives.reduce((acc, cv: any) => {
+                      return acc + Number(cv?.args?.value);
+                    }, 0)}
+                  </Text>
+                </Flex>
+              </Box>
+            ),
+          });
+        }
       }
     }
   }, [transferLogs]);
