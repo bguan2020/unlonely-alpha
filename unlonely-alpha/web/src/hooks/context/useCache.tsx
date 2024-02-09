@@ -45,7 +45,7 @@ const CacheContext = createContext<{
   chartTimeIndexes: Map<string, number | undefined>;
   addAppError: (error: Error, source: string) => void;
   popAppError: (errorName: string, field: string) => void;
-  ethPriceInUsd?: string;
+  ethPriceInUsd: string;
 }>({
   channelFeed: [],
   claimableBets: [],
@@ -57,7 +57,7 @@ const CacheContext = createContext<{
   chartTimeIndexes: new Map(),
   addAppError: () => undefined,
   popAppError: () => undefined,
-  ethPriceInUsd: undefined,
+  ethPriceInUsd: "0",
 });
 
 type SourcedError = Error & {
@@ -82,8 +82,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
   const { tokenTxs, chartTimeIndexes, loading } = useVibesCheck();
-  const [ethPriceInUsd, setEthPriceInUsd] = useState<string | undefined>(
-    undefined
+  const [ethPriceInUsd, setEthPriceInUsd] = useState<string>(
+    "0"
   );
 
   const addAppError = useCallback(
@@ -266,7 +266,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
                 timestamp: dateNow,
               })
             );
-            setEthPriceInUsd(price);
+            if (price !== undefined) setEthPriceInUsd(price);
           } catch (e) {
             console.log("error fetching eth price from coingecko", e);
           }

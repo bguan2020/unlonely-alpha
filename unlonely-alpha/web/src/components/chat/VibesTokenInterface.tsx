@@ -101,7 +101,7 @@ const VibesTokenInterface = ({
           } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
           {payload[0].payload.priceInUsd !== undefined ? (
             <>
-              <Text>{`$${payload[0].payload.priceInUsd}`}</Text>
+              <Text>{`$${truncateValue(payload[0].payload.priceInUsd, 4)}`}</Text>
               <Text fontSize="10px" opacity="0.75">{`${truncateValue(
                 formatUnits(payload[0].payload.price, 18),
                 10
@@ -174,13 +174,7 @@ const VibesTokenInterface = ({
         price: tx.price,
         priceInUsd:
           ethPriceInUsd !== undefined
-            ? Number(
-                truncateValue(
-                  Number(ethPriceInUsd) *
-                    Number(formatUnits(BigInt(tx.price), 18)),
-                  4
-                )
-              )
+            ? Number(String(Number(ethPriceInUsd) * Number(formatUnits(BigInt(tx.price), 18))))
             : 0,
         blockNumber: tx.blockNumber,
         priceChangePercentage: tx.priceChangePercentage,
