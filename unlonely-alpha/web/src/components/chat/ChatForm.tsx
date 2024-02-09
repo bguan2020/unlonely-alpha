@@ -53,7 +53,7 @@ const ChatForm = ({
   isVipChat,
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
-  const { isStandalone } = useUserAgent()
+  const { isStandalone } = useUserAgent();
 
   const toast = useToast();
   const { channel: channelContext, chat, leaderboard } = useChannelContext();
@@ -205,7 +205,7 @@ const ChatForm = ({
         }}
       >
         <Stack direction={"row"} spacing={"10px"}>
-          {!walletIsConnected ? (
+          {!walletIsConnected || !user ? (
             <Flex
               justifyContent={"center"}
               direction="column"
