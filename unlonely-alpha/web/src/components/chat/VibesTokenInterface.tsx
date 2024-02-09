@@ -72,6 +72,16 @@ const VibesTokenInterface = ({
     );
   };
 
+  const CustomDot = (props: any) => {
+    const { cx, cy, stroke, payload } = props;
+      // Change the dot stroke color based on the value
+      const dotStroke = payload.event === "Mint" ? "#00ff0d" : "#ff0000";
+
+      return (
+        <circle cx={cx} cy={cy} r={3} fill={stroke} stroke={dotStroke} strokeWidth={2} />
+      );
+  };
+
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const percentage = Number(
@@ -865,7 +875,7 @@ const VibesTokenInterface = ({
                       }
                       strokeWidth={2}
                       animationDuration={200}
-                      dot={false}
+                      dot={isFullChart ? <CustomDot /> : false}
                     />
                     {(!allStreams || !previewMode) &&
                       lowerPrice > 0 &&
