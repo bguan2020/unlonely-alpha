@@ -121,7 +121,7 @@ export const useVibesCheck = () => {
     }
     const previousTxPrice =
       tokenTxs.length > 0 ? tokenTxs[tokenTxs.length - 1].price : 0;
-    const eventTx = {
+    const eventTx: VibesTokenTx = {
       eventName: eventName,
       user,
       amount: log?.args.amount,
