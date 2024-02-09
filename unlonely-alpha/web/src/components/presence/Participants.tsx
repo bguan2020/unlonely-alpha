@@ -170,7 +170,7 @@ const Participants = ({ ablyPresenceChannel, mobile, show }: Props) => {
               .reverse()
               .map((member, index) => (
                 <Flex key={index} ml={-4}>
-                  <Participant mobile={mobile} user={member.data?.user} />
+                  <Participant user={member.data?.user} />
                 </Flex>
               ))}
           </Flex>
