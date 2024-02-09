@@ -279,12 +279,17 @@ const MobilePage = ({
 }: {
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
-  const { channel } = useChannelContext();
+  const { channel, leaderboard } = useChannelContext();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
   const {
     channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
+    handleTotalBadges,
   } = channel;
+  const { handleIsVip } = leaderboard;
+
   const chat = useChat();
 
   const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
@@ -298,6 +303,80 @@ const MobilePage = ({
   const handleShowPreviewStream = useCallback(() => {
     setPreviewStream((prev) => !prev);
   }, []);
+
+  const tournamentContract = getContractFromNetwork(
+    "unlonelyTournament",
+    localNetwork
+  );
+
+  const { key: generatedKey } = useGenerateKey(
+    channelQueryData?.owner?.address as `0x${string}`,
+    0,
+    tournamentContract
+  );
+
+  const { vipBadgeSupply, setVipBadgeSupply } = useSupply(
+    generatedKey,
+    tournamentContract
+  );
+
+  const { vipBadgeBalance, setVipBadgeBalance } = useGetHolderBalance(
+    channelQueryData?.owner?.address as `0x${string}`,
+    0,
+    userAddress as `0x${string}`,
+    tournamentContract
+  );
+
+  const handleUpdate = (tradeEvents: Log[]) => {
+    const sortedEvents = tradeEvents.filter(
+      (event: any) => event?.args.trade.eventByte === generatedKey
+    );
+    if (sortedEvents.length === 0) return;
+    let newBalanceAddition = 0;
+    for (let i = 0; i < sortedEvents.length; i++) {
+      const tradeEvent: any = sortedEvents[i];
+      const trader = tradeEvent?.args.trade.trader;
+      if (trader === userAddress) {
+        newBalanceAddition +=
+          (tradeEvent?.args.trade.isBuy ? 1 : -1) *
+          Number(tradeEvent?.args.trade.badgeAmount);
+      }
+    }
+    setVipBadgeSupply(
+      (sortedEvents[sortedEvents.length - 1] as any).args.trade.supply
+    );
+    setVipBadgeBalance((prev) => String(Number(prev) + newBalanceAddition));
+  };
+
+  const [incomingTrades, setIncomingTrades] = useState<Log[]>([]);
+
+  useContractEvent({
+    address: tournamentContract.address,
+    abi: tournamentContract.abi,
+    eventName: "Trade",
+    listener(logs) {
+      const init = async () => {
+        setIncomingTrades(logs);
+      };
+      init();
+    },
+  });
+
+  useEffect(() => {
+    if (incomingTrades) handleUpdate(incomingTrades);
+  }, [incomingTrades]);
+
+  useEffect(() => {
+    if (Number(vipBadgeBalance) > 0) {
+      handleIsVip(true);
+    } else {
+      handleIsVip(false);
+    }
+  }, [vipBadgeBalance]);
+
+  useEffect(() => {
+    handleTotalBadges(truncateValue(Number(vipBadgeSupply), 0));
+  }, [vipBadgeSupply]);
 
   return (
     <>
