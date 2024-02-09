@@ -344,7 +344,7 @@ const VibesTokenInterface = ({
 
   const formatYAxisTick = (tick: number) => {
     return `$${truncateValue(
-      Number(formatUnits(BigInt(Math.floor(tick)), 18)) * Number(ethPriceInUsd),
+      Number(formatUnits(BigInt(Math.floor(tick)), 18)) * Number(ethPriceInUsd ?? "0"),
       2
     )}`;
   };
