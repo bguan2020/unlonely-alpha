@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Flex, Image } from "@chakra-ui/react";
+import { Text, Flex, Image, Button } from "@chakra-ui/react";
 import { FaBars } from "react-icons/fa";
 
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
@@ -17,9 +17,7 @@ export default function AddToSamsung(props: Props) {
       isModalLoading={false}
       isOpen={true}
       handleClose={closePrompt}
-      confirmButton={"close"}
-      onSend={closePrompt}
-      canSend={true}
+      hideFooter
       bg="#e7e7e7"
     >
       <Flex direction="column" alignItems={"center"} gap="10px">
@@ -27,18 +25,6 @@ export default function AddToSamsung(props: Props) {
         <Text color="black" fontFamily="LoRes15" fontSize="25px" mb="10px">
           add to home screen
         </Text>
-        {/* <Flex alignItems={"center"} gap="5px">
-          <p>Click the</p> <FaBars /> <p>icon</p>
-        </Flex>
-        <Flex alignItems={"center"} gap="5px">
-          <p>
-            Scroll down and then click <TfiPlus />
-          </p>
-        </Flex>
-        <Flex direction="column">
-          <Text textAlign={"center"}>Then click</Text>
-          <Text textAlign={"center"}>“Home Screen”</Text>
-        </Flex> */}
         <Flex alignItems={"center"} gap="5px" color="black">
           <p>1. click </p> <FaBars />
         </Flex>
@@ -55,6 +41,17 @@ export default function AddToSamsung(props: Props) {
           an in-app browser!)
         </Text>
       </Flex>
+      <Button
+        color="white"
+        bg="#E09025"
+        _hover={{}}
+        _focus={{}}
+        _active={{}}
+        onClick={closePrompt}
+        width="100%"
+      >
+        close
+      </Button>
     </TransactionModalTemplate>
   );
 }

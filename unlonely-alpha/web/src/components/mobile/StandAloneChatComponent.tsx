@@ -7,6 +7,7 @@ import {
   Spinner,
   SimpleGrid,
   Stack,
+  Button,
 } from "@chakra-ui/react";
 import {
   CSSProperties,
@@ -39,6 +40,8 @@ import { VipBadgeBuy } from "../channels/VipBadgeBuy";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import Trade from "../channels/bet/Trade";
 import VibesTokenInterface from "../chat/VibesTokenInterface";
+
+export const EXCLUDED_SLUGS = ["loveonleverage"];
 
 const StandaloneChatComponent = ({
   previewStream,
@@ -304,9 +307,15 @@ const StandaloneChatComponent = ({
 };
 
 export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
-  const { chat: chatContext } = useChannelContext();
+  const { userAddress } = useUser();
+  const { chat: chatContext, channel } = useChannelContext();
   const { presenceChannel } = chatContext;
   const { isStandalone } = useUserAgent();
+
+  const { channelQueryData } = channel;
+  const [showParticipants, setShowParticipants] = useState(true);
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   const [selectedTab, setSelectedTab] = useState<
     "chat" | "trade" | "vibes" | "vip"
@@ -395,10 +404,36 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
         </OuterBorder>
       </Flex>
       {presenceChannel && (
-        <Flex justifyContent={"center"} py="0.5rem">
-          <Participants ablyPresenceChannel={presenceChannel} />
-        </Flex>
-      )}
+                <Flex
+                  justifyContent={"center"}
+                  py="0.5rem"
+                  gap="5px"
+                  alignItems={"center"}
+                >
+                  {EXCLUDED_SLUGS.includes(channelQueryData?.slug as string) &&
+                    isOwner && (
+                      <Button
+                        onClick={() => setShowParticipants((prev) => !prev)}
+                        bg={"#403c7d"}
+                        p={2}
+                        height={"20px"}
+                        _focus={{}}
+                        _active={{}}
+                        _hover={{
+                          bg: "#8884d8",
+                        }}
+                      >
+                        <Text fontSize="14px" color="white">
+                          {showParticipants ? "hide" : "show"}
+                        </Text>
+                      </Button>
+                    )}
+                  <Participants
+                    ablyPresenceChannel={presenceChannel}
+                    show={showParticipants}
+                  />
+                </Flex>
+              )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}
         {selectedTab === "trade" && <Trade />}

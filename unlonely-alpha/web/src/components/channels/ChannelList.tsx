@@ -3,6 +3,7 @@ import { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import { Channel } from "../../generated/graphql";
 import ChannelCard from "./ChannelCard";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 type Props = {
   channels: Channel[];
@@ -26,6 +27,7 @@ const ChannelList = memo(
     callback,
     indexOfOwner,
   }: Props) => {
+    const {isStandalone} = useUserAgent();
     const fullWidthSearchbar = useBreakpointValue({
       base: true,
       sm: true,
@@ -79,6 +81,7 @@ const ChannelList = memo(
           placeholder="search for a streamer"
           width={fullWidthSearchbar ? "100%" : "300px"}
           value={search}
+          fontSize={isStandalone ? "16px" : "unset"}
           onChange={(e) => setSearch(e.target.value)}
         />
         <Flex

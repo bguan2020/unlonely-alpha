@@ -16,12 +16,13 @@ import { decodeEventLog, formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useBalance } from "wagmi";
 
-import { InteractionType, NULL_ADDRESS } from "../../constants";
+import { InteractionType } from "../../constants";
 import {
   useGetMintCostAfterFees,
   useMint,
   useBurn,
   useReadPublic,
+  useGetBurnProceedsAfterFees,
 } from "../../hooks/contracts/useVibesToken";
 import useDebounce from "../../hooks/internal/useDebounce";
 import centerEllipses from "../../utils/centerEllipses";
@@ -40,7 +41,7 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { isStandalone } = useUserAgent();
   const { walletIsConnected, userAddress, user } = useUser();
-  const { vibesTokenTxs } = useCacheContext();
+  const { vibesTokenTxs, userVibesBalance } = useCacheContext();
   const toast = useToast();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
@@ -49,7 +50,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { channelQueryData } = channel;
   const { addToChatbot } = chat;
 
-  const [amountOfVibes, setAmountOfVibes] = useState<string>("10000");
+  const [amountOfVibes, setAmountOfVibes] = useState<string>("1000");
   const debouncedAmountOfVotes = useDebounce(amountOfVibes, 300);
   const amount_votes_bigint = useMemo(
     () => BigInt(debouncedAmountOfVotes as `${number}`),
@@ -65,14 +66,6 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
     loading: mintCostAfterFeesLoading,
   } = useGetMintCostAfterFees(amount_votes_bigint, contract);
 
-  const { data: vibesBalance, refetch: refetchVibesBalance } = useBalance({
-    address: userAddress,
-    token: contract.address,
-    enabled:
-      isAddress(userAddress as `0x${string}`) &&
-      isAddress(contract.address ?? NULL_ADDRESS),
-  });
-
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
     enabled: isAddress(userAddress as `0x${string}`),
@@ -81,11 +74,11 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { protocolFeeDestination, refetch: refetchDest } =
     useReadPublic(contract);
 
-  // const {
-  //   burnProceedsAfterFees,
-  //   refetch: refetchBurnProceedsAfterFees,
-  //   loading: burnProceedsAfterFeesLoading,
-  // } = useGetBurnProceedsAfterFees(amount_votes_bigint, contract);
+  const {
+    burnProceedsAfterFees,
+    refetch: refetchBurnProceedsAfterFees,
+    loading: burnProceedsAfterFeesLoading,
+  } = useGetBurnProceedsAfterFees(amount_votes_bigint, contract);
 
   const {
     mint,
@@ -172,7 +165,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           });
         }
         canAddToChatbot_mint.current = false;
-        setAmountOfVibes("10000");
+        setAmountOfVibes("1000");
       },
       onTxError: (error) => {
         console.log("mint error", error);
@@ -276,7 +269,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           }`,
         });
         canAddToChatbot_burn.current = false;
-        setAmountOfVibes("10000");
+        setAmountOfVibes("1000");
       },
       onTxError: (error) => {
         console.log("burn error", error);
@@ -324,8 +317,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           refetchMint(),
           refetchBurn(),
           refetchMintCostAfterFees(),
-          // refetchBurnProceedsAfterFees(),
-          refetchVibesBalance(),
+          refetchBurnProceedsAfterFees(),
           refetchUserEthBalance(),
           refetchDest(),
         ]).then(() => {
@@ -352,10 +344,15 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
       setErrorMessage("wrong network");
     } else if (Number(formatIncompleteNumber(amountOfVibes)) <= 0) {
       setErrorMessage("enter amount first");
+    } else if (
+      userEthBalance?.value &&
+      mintCostAfterFees > userEthBalance?.value
+    ) {
+      setErrorMessage("insufficient ETH");
     } else {
       setErrorMessage("");
     }
-  }, [matchingChain, amountOfVibes]);
+  }, [matchingChain, amountOfVibes, userEthBalance?.value, mintCostAfterFees]);
 
   return (
     <Flex direction="column" justifyContent={"flex-end"} gap="10px">
@@ -367,17 +364,13 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           bg="red.600"
         >
           <Input
-            variant={
-              Number(formatIncompleteNumber(amountOfVibes)) <= 0
-                ? "redGlow"
-                : "glow"
-            }
+            variant={errorMessage.length > 0 ? "redGlow" : "glow"}
             textAlign="center"
             value={amountOfVibes}
             onChange={handleInputChange}
             mx="auto"
             p="1"
-            fontSize={isFullChart ? "2rem" : "14px"}
+            fontSize={isStandalone ? "16px" : isFullChart ? "2rem" : "14px"}
           />
         </Tooltip>
         <Popover trigger="hover" placement="top" openDelay={500}>
@@ -393,7 +386,8 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
                 bg: "#8884d8",
               }}
               onClick={() => {
-                vibesBalance && setAmountOfVibes(vibesBalance.formatted);
+                userVibesBalance &&
+                  setAmountOfVibes(userVibesBalance.formatted);
               }}
             >
               max
@@ -408,41 +402,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         </Popover>
       </Flex>
       <Flex gap="2px" justifyContent={"center"} direction="column">
-        {!matchingChain ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="red.300"
-          >
-            wrong network
-          </Text>
-        ) : isRefetchingMint || mintCostAfterFeesLoading ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="blue.300"
-          >
-            calculating...
-          </Text>
-        ) : userEthBalance?.value &&
-          mintCostAfterFees <= userEthBalance?.value ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-          >
-            cost: {truncateValue(formatUnits(mintCostAfterFees, 18), 4)} ETH
-          </Text>
-        ) : (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="red.300"
-          >
-            insufficient ETH
-          </Text>
-        )}
         <Button
-          w="100%"
           color="white"
           _focus={{}}
           _hover={{}}
@@ -454,57 +414,48 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
             Number(formatIncompleteNumber(amountOfVibes)) <= 0
           }
           onClick={mint}
-          p={isFullChart ? "10%" : undefined}
-        >
-          <Text fontSize={isFullChart ? "25px" : "unset"}>BUY</Text>
-        </Button>
-        {/* {!matchingChain ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="red.300"
-          >
-            wrong network
-          </Text>
-        ) : isRefetchingBurn || burnProceedsAfterFeesLoading ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="blue.300"
-          >
-            calculating...
-          </Text>
-        ) : Number(vibesBalance?.formatted) >= Number(amountOfVibes) ? (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-          >
-            yield: {truncateValue(formatUnits(burnProceedsAfterFees, 18), 4)}{" "}
-            ETH
-          </Text>
-        ) : (
-          <Text
-            fontSize={isFullChart || isStandalone ? "unset" : "12px"}
-            noOfLines={1}
-            color="red.300"
-          >
-            insufficient $VIBES
-          </Text>
-        )} */}
-        <Button
+          p={isFullChart ? "10%" : "0px"}
           w="100%"
+        >
+          <Flex direction="column">
+            <Text fontSize={isFullChart ? "25px" : "unset"}>BUY</Text>
+            <Text
+              fontSize={isFullChart || isStandalone ? "unset" : "12px"}
+              noOfLines={1}
+              color="#eeeeee"
+            >
+              {`(${truncateValue(formatUnits(mintCostAfterFees, 18), 4)} ETH)`}
+            </Text>
+          </Flex>
+        </Button>
+        <Button
           color="white"
           _focus={{}}
           _hover={{}}
           _active={{}}
           bg="#fe2815"
           isDisabled={
-            !burn || Number(formatIncompleteNumber(amountOfVibes)) <= 0
+            !burn ||
+            burnProceedsAfterFeesLoading ||
+            Number(formatIncompleteNumber(amountOfVibes)) <= 0
           }
           onClick={burn}
           p={isFullChart ? "10%" : undefined}
+          w="100%"
         >
-          <Text fontSize={isFullChart ? "25px" : "unset"}>SELL</Text>
+          <Flex direction="column">
+            <Text fontSize={isFullChart ? "25px" : "unset"}>SELL</Text>
+            <Text
+              fontSize={isFullChart || isStandalone ? "unset" : "12px"}
+              noOfLines={1}
+              color="#eeeeee"
+            >
+              {`(${truncateValue(
+                formatUnits(burnProceedsAfterFees, 18),
+                4
+              )} ETH)`}
+            </Text>
+          </Flex>
         </Button>
       </Flex>
     </Flex>

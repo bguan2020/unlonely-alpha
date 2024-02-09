@@ -18,9 +18,7 @@ export default function AddToOtherBrowser(props: Props) {
       isModalLoading={false}
       isOpen={true}
       handleClose={closePrompt}
-      confirmButton={"close"}
-      onSend={closePrompt}
-      canSend={true}
+      hideFooter
       blur
       bg="#e7e7e7"
     >
@@ -47,6 +45,17 @@ export default function AddToOtherBrowser(props: Props) {
           </Button>
         </Link>
       </Flex>
+      <Button
+        color="white"
+        bg="#E09025"
+        _hover={{}}
+        _focus={{}}
+        _active={{}}
+        onClick={closePrompt}
+        width="100%"
+      >
+        close
+      </Button>
     </TransactionModalTemplate>
   );
 }

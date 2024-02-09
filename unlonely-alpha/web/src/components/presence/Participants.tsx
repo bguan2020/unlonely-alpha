@@ -26,6 +26,7 @@ configureAbly({
 type Props = {
   ablyPresenceChannel?: string;
   mobile?: boolean;
+  show?: boolean;
 };
 
 type Presence = {
@@ -39,7 +40,7 @@ type Presence = {
 
 const limit = 6;
 
-const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
+const Participants = ({ ablyPresenceChannel, mobile, show }: Props) => {
   const { user } = useUser();
   const { isStandalone } = useUserAgent();
   const { leaderboard } = useChannelContext();
@@ -115,63 +116,67 @@ const Participants = ({ ablyPresenceChannel, mobile }: Props) => {
 
   // make Participant overlap each other a bit and show a max of 6, with the last one being a count of the rest
   return (
-    <Flex direction="row" maxW="100%" justifyContent="center">
-      <Flex flexDirection="row-reverse" alignItems="center" ml={4}>
-        {!!participantOrder.slice(limit).length && (
-          <Flex>
-            <Popover trigger={!isStandalone ? "hover" : "click"}>
-              <PopoverTrigger>
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  fontSize="14px"
-                  bg="black"
-                  borderRadius="10px"
-                  width={"10"}
-                  height={"8"}
-                >
-                  {`+${truncateValue(
-                    participantOrder.slice(limit).length,
-                    0,
-                    true,
-                    0
-                  )}`}
-                </Box>
-              </PopoverTrigger>
-              <PopoverContent
-                bg="gray.800"
-                border="none"
-                height="400px"
-                overflowY="scroll"
-              >
-                <PopoverArrow bg="gray.800" />
-                {participantOrder.map((member, index) => {
-                  if (member.data?.user) {
-                    return (
-                      <ExcessTooltipAvatar
-                        key={index}
-                        user={member.data.user}
-                      />
-                    );
-                  } else {
-                    return <AnonExcessTooltipAvatar key={index} />;
-                  }
-                })}
-              </PopoverContent>
-            </Popover>
+    <>
+      {show && (
+        <Flex direction="row" maxW="100%" justifyContent="center">
+          <Flex flexDirection="row-reverse" alignItems="center" ml={4}>
+            {!!participantOrder.slice(limit).length && (
+              <Flex>
+                <Popover trigger={!isStandalone ? "hover" : "click"}>
+                  <PopoverTrigger>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      fontSize="14px"
+                      bg="black"
+                      borderRadius="10px"
+                      width={"10"}
+                      height={"8"}
+                    >
+                      {`+${truncateValue(
+                        participantOrder.slice(limit).length,
+                        0,
+                        true,
+                        0
+                      )}`}
+                    </Box>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    bg="gray.800"
+                    border="none"
+                    height="400px"
+                    overflowY="scroll"
+                  >
+                    <PopoverArrow bg="gray.800" />
+                    {participantOrder.map((member, index) => {
+                      if (member.data?.user) {
+                        return (
+                          <ExcessTooltipAvatar
+                            key={index}
+                            user={member.data.user}
+                          />
+                        );
+                      } else {
+                        return <AnonExcessTooltipAvatar key={index} />;
+                      }
+                    })}
+                  </PopoverContent>
+                </Popover>
+              </Flex>
+            )}
+            {participantOrder
+              .slice(0, limit)
+              .reverse()
+              .map((member, index) => (
+                <Flex key={index} ml={-4}>
+                  <Participant user={member.data?.user} />
+                </Flex>
+              ))}
           </Flex>
-        )}
-        {participantOrder
-          .slice(0, limit)
-          .reverse()
-          .map((member, index) => (
-            <Flex key={index} ml={-4}>
-              <Participant mobile={mobile} user={member.data?.user} />
-            </Flex>
-          ))}
-      </Flex>
-    </Flex>
+        </Flex>
+      )}
+    </>
   );
 };
 

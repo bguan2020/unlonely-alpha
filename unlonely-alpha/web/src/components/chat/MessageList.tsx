@@ -3,8 +3,14 @@ import React, { memo, useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 
 import MessageBody from "./MessageBody";
-import { Message, SenderStatus } from "../../constants/types/chat";
+import {
+  Message,
+  SelectedUser,
+  SenderStatus,
+} from "../../constants/types/chat";
 import { AblyChannelPromise, CHAT_MESSAGE_EVENT } from "../../constants";
+import { ChatUserModal } from "../channels/ChatUserModal";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 type MessageListProps = {
   messages: Message[];
@@ -16,11 +22,11 @@ type MessageListProps = {
 
 type MessageItemProps = {
   message: Message;
-  channel: AblyChannelPromise;
   index: number;
+  handleOpen: (value?: SelectedUser) => void;
 };
 
-const MessageItem = memo(({ message, channel, index }: MessageItemProps) => {
+const MessageItem = memo(({ message, handleOpen, index }: MessageItemProps) => {
   const messageText = message.data.messageText;
   const linkArray: RegExpMatchArray | null = messageText.match(
     /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
@@ -38,7 +44,7 @@ const MessageItem = memo(({ message, channel, index }: MessageItemProps) => {
         message={message}
         messageText={messageText}
         linkArray={linkArray}
-        channel={channel}
+        handleOpen={handleOpen}
       />
     </div>
   );
@@ -51,6 +57,8 @@ const MessageList = memo(
     isAtBottomCallback,
     isVipChat,
   }: MessageListProps) => {
+    const { ui } = useChannelContext();
+    const { selectedUserInChat, handleSelectedUserInChat } = ui;
     const chatMessages = useMemo(
       () =>
         messages
@@ -66,6 +74,14 @@ const MessageList = memo(
 
     return (
       <>
+        <ChatUserModal
+          isOpen={selectedUserInChat !== undefined}
+          targetUser={selectedUserInChat}
+          channel={channel}
+          handleClose={() => {
+            handleSelectedUserInChat(undefined);
+          }}
+        />
         {chatMessages.length > 0 ? (
           <Virtuoso
             followOutput={"auto"}
@@ -82,7 +98,7 @@ const MessageList = memo(
               <MessageItem
                 key={data.id || index}
                 message={data}
-                channel={channel}
+                handleOpen={handleSelectedUserInChat}
                 index={index}
               />
             )}

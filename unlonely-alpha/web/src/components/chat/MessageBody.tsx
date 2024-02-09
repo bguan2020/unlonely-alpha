@@ -1,28 +1,16 @@
-import {
-  Box,
-  Image,
-  Flex,
-  Link,
-  Text,
-  Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  Spinner,
-} from "@chakra-ui/react";
-import React, { useMemo, useState } from "react";
+import { Box, Image, Flex, Link, Text } from "@chakra-ui/react";
+import React, { useMemo } from "react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
-import {
-  AblyChannelPromise,
-  CHANGE_USER_ROLE_EVENT,
-  InteractionType,
-} from "../../constants";
+import { InteractionType } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
-import { Message, SenderStatus } from "../../constants/types/chat";
+import {
+  Message,
+  SelectedUser,
+  SenderStatus,
+} from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import usePostUserRoleForChannel from "../../hooks/server/usePostUserRoleForChannel";
 import Badges from "./Badges";
 
 type Props = {
@@ -30,7 +18,7 @@ type Props = {
   message: Message;
   messageText: string;
   linkArray: RegExpMatchArray | null;
-  channel: AblyChannelPromise;
+  handleOpen: (value?: SelectedUser) => void;
 };
 
 // if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred
@@ -40,22 +28,12 @@ const MessageBody = ({
   index,
   messageText,
   linkArray,
-  channel,
+  handleOpen,
 }: Props) => {
   const { channel: c, leaderboard } = useChannelContext();
   const { isVip } = leaderboard;
   const { channelQueryData, channelRoles } = c;
   const { user } = useUser();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-
-  const { postUserRoleForChannel, loading } = usePostUserRoleForChannel({
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-
-  const [isBanning, setIsBanning] = useState<boolean>(false);
-  const [isAppointing, setIsAppointing] = useState<boolean>(false);
 
   const userIsChannelOwner = useMemo(
     () => user?.address === channelQueryData?.owner.address,
@@ -160,46 +138,6 @@ const MessageBody = ({
     }
   };
 
-  const ban = async () => {
-    await postUserRoleForChannel({
-      channelId: channelQueryData?.id,
-      userAddress: message.data.address,
-      role: 1,
-    });
-    channel.publish({
-      name: CHANGE_USER_ROLE_EVENT,
-      data: {
-        body: JSON.stringify({
-          address: message.data.address,
-          role: 1,
-          isAdding: true,
-        }),
-      },
-    });
-    setIsBanning(false);
-    setIsOpen(false);
-  };
-
-  const appoint = async () => {
-    await postUserRoleForChannel({
-      channelId: channelQueryData?.id,
-      userAddress: message.data.address,
-      role: 2,
-    });
-    channel.publish({
-      name: CHANGE_USER_ROLE_EVENT,
-      data: {
-        body: JSON.stringify({
-          address: message.data.address,
-          role: 2,
-          isAdding: true,
-        }),
-      },
-    });
-    setIsAppointing(false);
-    setIsOpen(false);
-  };
-
   return (
     <>
       <Flex direction="column">
@@ -217,174 +155,16 @@ const MessageBody = ({
               px="0.5rem"
               position="relative"
             >
-              <ChatUserModal
-                isOpen={isOpen}
-                handleClose={() => {
-                  setIsBanning(false);
-                  setIsAppointing(false);
-                  setIsOpen(false);
-                }}
-              >
-                {!isBanning && !isAppointing && (
-                  <>
-                    <Text
-                      _hover={{ cursor: "pointer" }}
-                      fontSize="16px"
-                      color={message.data.chatColor}
-                      fontWeight="bold"
-                    >
-                      {message.data.username
-                        ? message.data.username
-                        : centerEllipses(message.data.address, 10)}
-                      :
-                    </Text>
-                    {message.data.address}
-                    {(userIsChannelOwner || userIsModerator) &&
-                      message.data.address !==
-                        channelQueryData?.owner.address &&
-                      message.data.address !== user?.address &&
-                      !isBanning && (
-                        <>
-                          {!channelRoles?.some(
-                            (m) =>
-                              m?.address === message.data.address &&
-                              m?.role === 2
-                          ) ? (
-                            <Button
-                              color="white"
-                              mt="20px"
-                              bg="#842007"
-                              _hover={{}}
-                              _focus={{}}
-                              _active={{}}
-                              onClick={() => setIsBanning(true)}
-                            >
-                              ban user from chat
-                            </Button>
-                          ) : (
-                            <Text
-                              textAlign={"center"}
-                              fontSize="14px"
-                              color="#db9719"
-                            >
-                              Cannot ban this user because they are a moderator,
-                              remove their status on your dashboard first
-                            </Text>
-                          )}
-                        </>
-                      )}
-                    {userIsChannelOwner &&
-                      message.data.address !== user?.address &&
-                      !channelRoles.some(
-                        (m) =>
-                          m?.address === message.data.address && m?.role === 2
-                      ) &&
-                      !isAppointing && (
-                        <Button
-                          color="white"
-                          mt="20px"
-                          bg="#074a84"
-                          _hover={{}}
-                          _focus={{}}
-                          _active={{}}
-                          onClick={() => setIsAppointing(true)}
-                        >
-                          appoint user as chat moderator
-                        </Button>
-                      )}
-                  </>
-                )}
-                {isBanning && (
-                  <>
-                    {!loading ? (
-                      <Flex direction="column" gap="10px">
-                        <Text textAlign="center">
-                          are you sure you want to ban this user from chatting
-                          on your channel and all their chat messages?
-                        </Text>
-                        <Flex justifyContent={"space-evenly"}>
-                          <Button
-                            color="white"
-                            bg="#b12805"
-                            _hover={{}}
-                            _focus={{}}
-                            _active={{}}
-                            onClick={ban}
-                          >
-                            yes, do it
-                          </Button>
-                          <Button
-                            color="white"
-                            opacity={"0.5"}
-                            border={"1px solid white"}
-                            bg={"transparent"}
-                            _hover={{}}
-                            _focus={{}}
-                            _active={{}}
-                            onClick={() => setIsBanning(false)}
-                          >
-                            maybe not...
-                          </Button>
-                        </Flex>
-                      </Flex>
-                    ) : (
-                      <Flex justifyContent={"center"}>
-                        <Spinner size="xl" />
-                      </Flex>
-                    )}
-                  </>
-                )}
-                {isAppointing && (
-                  <>
-                    {!loading ? (
-                      <Flex direction="column" gap="10px">
-                        <Text textAlign="center">
-                          are you sure you want to make this user a chat
-                          moderator?
-                        </Text>
-                        <Text textAlign="center" color="#8ced15">
-                          you can always remove their status through your
-                          dashboard
-                        </Text>
-                        <Flex justifyContent={"space-evenly"}>
-                          <Button
-                            color="white"
-                            bg="#054db1"
-                            _hover={{}}
-                            _focus={{}}
-                            _active={{}}
-                            onClick={appoint}
-                          >
-                            yes, do it
-                          </Button>
-                          <Button
-                            color="white"
-                            opacity={"0.5"}
-                            border={"1px solid white"}
-                            bg={"transparent"}
-                            _hover={{}}
-                            _focus={{}}
-                            _active={{}}
-                            onClick={() => setIsAppointing(false)}
-                          >
-                            maybe not...
-                          </Button>
-                        </Flex>
-                      </Flex>
-                    ) : (
-                      <Flex justifyContent={"center"}>
-                        <Spinner size="xl" />
-                      </Flex>
-                    )}
-                  </>
-                )}
-              </ChatUserModal>
               <Text as="span">
                 <Badges user={user} message={message} />
                 <Text
                   as="span"
                   onClick={() => {
-                    if (message.data.username !== "chatbot🤖") setIsOpen(true);
+                    if (message.data.username !== "chatbot🤖")
+                      handleOpen({
+                        address: message.data.address,
+                        username: message.data.username,
+                      });
                   }}
                   _hover={{ cursor: "pointer" }}
                   fontSize="12px"
@@ -481,31 +261,6 @@ const MessageBody = ({
         </Flex>
       </Flex>
     </>
-  );
-};
-
-const ChatUserModal = ({
-  isOpen,
-  handleClose,
-  children,
-}: {
-  isOpen: boolean;
-  handleClose: () => void;
-  children?: React.ReactNode;
-}) => {
-  return (
-    <Modal isCentered isOpen={isOpen} onClose={handleClose}>
-      <ModalOverlay backgroundColor="#282828e6" />
-      <ModalContent
-        maxW="500px"
-        boxShadow="0px 8px 28px #0a061c40"
-        padding="12px"
-        borderRadius="5px"
-        bg="#3A3A3A"
-      >
-        {children}
-      </ModalContent>
-    </Modal>
   );
 };
 

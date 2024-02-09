@@ -26,7 +26,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 
-const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
+const unlonelyAvatar = "/icons/icon-192x192.png";
 
 const auth = `Basic ${Buffer.from(
   `${IPFS_PROJECT_ID}:${IPFS_PROJECT_SECRET}`

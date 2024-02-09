@@ -219,3 +219,41 @@ export const useBurn = (
     isRefetchingBurn,
   };
 };
+
+export const useTransfer = (
+  args: {
+    to: string;
+    amount: bigint;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: transfer,
+    writeData: transferData,
+    txData: transferTxData,
+    isTxLoading: transferTxLoading,
+    refetch,
+    isRefetching: isRefetchingTransfer,
+  } = useWrite(
+    contract,
+    "transfer",
+    [args.to, args.amount],
+    createCallbackHandler("useTransfer transfer", callbacks),
+    {
+      enabled:
+        args.to !== NULL_ADDRESS &&
+        contract.address !== NULL_ADDRESS &&
+        contract.abi !== null,
+    }
+  );
+
+  return {
+    refetch,
+    transfer,
+    transferData,
+    transferTxData,
+    transferTxLoading,
+    isRefetchingTransfer,
+  };
+}

@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { useEnsName } from "wagmi";
 import { useLazyQuery } from "@apollo/client";
 import {
   ConnectedWallet,
@@ -9,13 +8,14 @@ import {
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { Box, Button, Flex, Text, IconButton, Image } from "@chakra-ui/react";
 import Link from "next/link";
+import { isAddress } from "viem";
 
 import { User } from "../../generated/graphql";
-import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 import usePostSubscription from "../server/usePostSubscription";
 import useUserAgent from "../internal/useUserAgent";
 import { GET_USER_QUERY } from "../../constants/queries";
+import centerEllipses from "../../utils/centerEllipses";
 
 export const useUser = () => {
   return useContext(UserContext);
@@ -76,10 +76,7 @@ export const UserProvider = ({
     return wallet.walletClientType;
   }, [privyUser]);
 
-  const address = useMemo(
-    () => privyUser?.wallet?.address,
-    [privyUser?.wallet?.address]
-  );
+  const address = useMemo(() => privyUser?.wallet?.address, [privyUser]);
   const [fetchUser, { data }] = useLazyQuery(GET_USER_QUERY, {
     variables: { data: { address } },
     fetchPolicy: "network-only",
@@ -89,10 +86,6 @@ export const UserProvider = ({
     if (!address) return;
     fetchUser();
   }, [address]);
-
-  const { data: ensData } = useEnsName({
-    address: address as `0x${string}`,
-  });
 
   const walletIsConnected = useMemo(() => {
     const auth =
@@ -187,31 +180,17 @@ export const UserProvider = ({
   };
 
   useEffect(() => {
-    const fetchEns = async () => {
-      if (address) {
-        const username = ensData ?? centerEllipses(address, 9);
-        setUsername(username);
-      }
-    };
-
-    fetchEns();
-  }, [address, ensData]);
-
-  useEffect(() => {
     setUser(data?.getUser);
-  }, [data]);
+    setUsername(data?.getUser?.username ?? centerEllipses(address, 9));
+  }, [data, address]);
 
   useEffect(() => {
     const f = async () => {
-      if (
-        user?.address &&
-        activeWallet?.address &&
-        activeWallet?.address !== user?.address
-      ) {
-        setDifferentWallet(true);
-      } else {
-        setDifferentWallet(false);
-      }
+      const isUsingDifferentWallet =
+        user?.address !== undefined &&
+        isAddress(activeWallet?.address as `${string}`) &&
+        activeWallet?.address !== user?.address;
+      setDifferentWallet(isUsingDifferentWallet);
     };
     f();
   }, [activeWallet, user]);
@@ -328,8 +307,8 @@ export const UserProvider = ({
         size="sm"
         blur
       >
-        <Flex direction={"column"} gap="16px">
-          <Text textAlign={"center"} fontSize="15px" color="#BABABA">
+        <Flex direction={"column"} gap="5px">
+          <Text textAlign={"center"} fontSize="13px" color="#BABABA">
             our app thinks you're using two different wallet addresses, this can
             occur when you change wallet accounts while logged in
           </Text>
@@ -347,7 +326,7 @@ export const UserProvider = ({
               connected {activeWallet?.address}
             </Text>
           </Box>
-          <Text textAlign={"center"} fontSize="20px">
+          <Text textAlign={"center"} fontSize="15px">
             to resolve, switch back to the original wallet account or logout
           </Text>
         </Flex>

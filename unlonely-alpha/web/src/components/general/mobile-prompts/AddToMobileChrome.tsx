@@ -1,4 +1,4 @@
-import { Text, Flex, Image } from "@chakra-ui/react";
+import { Text, Flex, Image, Button } from "@chakra-ui/react";
 import React from "react";
 import { HiDotsVertical } from "react-icons/hi";
 
@@ -17,9 +17,7 @@ export default function AddToMobileChrome(props: Props) {
       isModalLoading={false}
       isOpen={true}
       handleClose={closePrompt}
-      confirmButton={"close"}
-      onSend={closePrompt}
-      canSend={true}
+      hideFooter
       blur
       bg="#e7e7e7"
     >
@@ -44,6 +42,17 @@ export default function AddToMobileChrome(props: Props) {
           an in-app browser!)
         </Text>
       </Flex>
+      <Button
+        color="white"
+        bg="#E09025"
+        _hover={{}}
+        _focus={{}}
+        _active={{}}
+        onClick={closePrompt}
+        width="100%"
+      >
+        close
+      </Button>
     </TransactionModalTemplate>
   );
 }
