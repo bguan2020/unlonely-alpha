@@ -21,7 +21,6 @@ import {
   YAxis,
   ReferenceArea,
   ReferenceLine,
-  XAxis,
 } from "recharts";
 import * as AWS from "aws-sdk";
 import Link from "next/link";
@@ -74,12 +73,19 @@ const VibesTokenInterface = ({
 
   const CustomDot = (props: any) => {
     const { cx, cy, stroke, payload } = props;
-      // Change the dot stroke color based on the value
-      const dotStroke = payload.event === "Mint" ? "#00ff0d" : "#ff0000";
+    // Change the dot stroke color based on the value
+    const dotStroke = payload.event === "Mint" ? "#00ff0d" : "#ff0000";
 
-      return (
-        <circle cx={cx} cy={cy} r={3} fill={stroke} stroke={dotStroke} strokeWidth={2} />
-      );
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={3}
+        fill={stroke}
+        stroke={dotStroke}
+        strokeWidth={2}
+      />
+    );
   };
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -112,7 +118,10 @@ const VibesTokenInterface = ({
           } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
           {payload[0].payload.priceInUsd !== undefined ? (
             <>
-              <Text>{`$${truncateValue(payload[0].payload.priceInUsd, 4)}`}</Text>
+              <Text>{`$${truncateValue(
+                payload[0].payload.priceInUsd,
+                4
+              )}`}</Text>
               <Text fontSize="10px" opacity="0.75">{`${truncateValue(
                 formatUnits(payload[0].payload.price, 18),
                 10
@@ -185,7 +194,12 @@ const VibesTokenInterface = ({
         price: tx.price,
         priceInUsd:
           ethPriceInUsd !== undefined
-            ? Number(String(Number(ethPriceInUsd) * Number(formatUnits(BigInt(tx.price), 18))))
+            ? Number(
+                String(
+                  Number(ethPriceInUsd) *
+                    Number(formatUnits(BigInt(tx.price), 18))
+                )
+              )
             : 0,
         blockNumber: tx.blockNumber,
         priceChangePercentage: tx.priceChangePercentage,
@@ -349,7 +363,8 @@ const VibesTokenInterface = ({
 
   const formatYAxisTick = (tick: number) => {
     return `$${truncateValue(
-      Number(formatUnits(BigInt(Math.floor(tick)), 18)) * Number(ethPriceInUsd ?? "0"),
+      Number(formatUnits(BigInt(Math.floor(tick)), 18)) *
+        Number(ethPriceInUsd ?? "0"),
       2
     )}`;
   };
@@ -734,10 +749,20 @@ const VibesTokenInterface = ({
                   <LineChart
                     data={formattedData}
                     margin={
-                      isFullChart ? { left: 30, top: 10, bottom: 10 } : isStandalone ? {top: 10, bottom: 10} : {}
+                      isFullChart
+                        ? { left: 30, top: 10, bottom: 10 }
+                        : isStandalone
+                        ? { top: 10, bottom: 10 }
+                        : {}
                     }
                   >
-                    <XAxis hide dataKey="blockNumber" type="number" domain={["dataMin", "dataMax"]} allowDataOverflow={false} />
+                    {/* <XAxis
+                      hide
+                      dataKey="blockNumber"
+                      type="number"
+                      domain={["dataMin", "dataMax"]}
+                      allowDataOverflow={false}
+                    /> */}
                     <YAxis
                       tickFormatter={formatYAxisTick}
                       hide={isFullChart === true ? false : true}
@@ -770,7 +795,9 @@ const VibesTokenInterface = ({
                         {chartTimeIndexes.get("day") !== undefined && (
                           <ReferenceLine
                             strokeDasharray="3 3"
-                            x={chartTimeIndexes.get("day")?.blockNumber as number}
+                            x={
+                              chartTimeIndexes.get("day")?.blockNumber as number
+                            }
                             stroke="#00d3c1"
                             label={<CustomLabel value="~1d" />}
                           />
@@ -778,7 +805,10 @@ const VibesTokenInterface = ({
                         {chartTimeIndexes.get("7day") !== undefined && (
                           <ReferenceLine
                             strokeDasharray="3 3"
-                            x={chartTimeIndexes.get("7day")?.blockNumber as number}
+                            x={
+                              chartTimeIndexes.get("7day")
+                                ?.blockNumber as number
+                            }
                             stroke="#00d3c1"
                             label={<CustomLabel value="~7d" />}
                           />
@@ -786,7 +816,10 @@ const VibesTokenInterface = ({
                         {chartTimeIndexes.get("14day") !== undefined && (
                           <ReferenceLine
                             strokeDasharray="3 3"
-                            x={chartTimeIndexes.get("14day")?.blockNumber as number}
+                            x={
+                              chartTimeIndexes.get("14day")
+                                ?.blockNumber as number
+                            }
                             stroke="#00d3c1"
                             label={<CustomLabel value="~14d" />}
                           />
@@ -794,7 +827,10 @@ const VibesTokenInterface = ({
                         {chartTimeIndexes.get("30day") !== undefined && (
                           <ReferenceLine
                             strokeDasharray="3 3"
-                            x={chartTimeIndexes.get("30day")?.blockNumber as number}
+                            x={
+                              chartTimeIndexes.get("30day")
+                                ?.blockNumber as number
+                            }
                             stroke="#00d3c1"
                             label={<CustomLabel value="~30d" />}
                           />
@@ -802,7 +838,10 @@ const VibesTokenInterface = ({
                         {chartTimeIndexes.get("60day") !== undefined && (
                           <ReferenceLine
                             strokeDasharray="3 3"
-                            x={chartTimeIndexes.get("60day")?.blockNumber as number}
+                            x={
+                              chartTimeIndexes.get("60day")
+                                ?.blockNumber as number
+                            }
                             stroke="#00d3c1"
                             label={<CustomLabel value="~60d" />}
                           />
@@ -815,7 +854,8 @@ const VibesTokenInterface = ({
                           <ReferenceLine
                             strokeDasharray="3 3"
                             x={
-                              (chartTimeIndexes.get("18hour")?.blockNumber as number) -
+                              (chartTimeIndexes.get("18hour")
+                                ?.blockNumber as number) -
                               (txs.length - formattedDayData.length)
                             }
                             stroke="#00d3c1"
@@ -826,7 +866,8 @@ const VibesTokenInterface = ({
                           <ReferenceLine
                             strokeDasharray="3 3"
                             x={
-                              (chartTimeIndexes.get("12hour")?.blockNumber as number) -
+                              (chartTimeIndexes.get("12hour")
+                                ?.blockNumber as number) -
                               (txs.length - formattedDayData.length)
                             }
                             stroke="#00d3c1"
@@ -837,7 +878,8 @@ const VibesTokenInterface = ({
                           <ReferenceLine
                             strokeDasharray="3 3"
                             x={
-                              (chartTimeIndexes.get("6hour")?.blockNumber as number) -
+                              (chartTimeIndexes.get("6hour")
+                                ?.blockNumber as number) -
                               (txs.length - formattedDayData.length)
                             }
                             stroke="#00d3c1"
@@ -848,7 +890,8 @@ const VibesTokenInterface = ({
                           <ReferenceLine
                             strokeDasharray="3 3"
                             x={
-                              (chartTimeIndexes.get("1hour")?.blockNumber as number) -
+                              (chartTimeIndexes.get("1hour")
+                                ?.blockNumber as number) -
                               (txs.length - formattedDayData.length)
                             }
                             stroke="#00d3c1"
