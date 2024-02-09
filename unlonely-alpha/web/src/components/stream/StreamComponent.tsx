@@ -63,6 +63,7 @@ const StreamComponent = () => {
       flexDirection="row"
       justifyContent="center"
       width="100%"
+      position="relative"
       height={!isStandalone ? { base: "80vh" } : "25vh"}
     >
       <Flex width="100%">

@@ -8,6 +8,7 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
       direction="column"
       width={"100%"}
       position={mobile ? "fixed" : "unset"}
+      zIndex={5}
     >
       <Flex width={"100%"} position="relative">
         <StreamComponent />
