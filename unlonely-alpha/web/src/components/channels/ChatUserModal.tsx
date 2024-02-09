@@ -320,11 +320,26 @@ export const ChatUserModal = ({
                   <ExternalLinkIcon />
                 </Flex>
               </Link>
-              {targetVibesBalance?.formatted !== undefined && (
-                <Text color="#c6c3fc" fontWeight="bold">
-                  $VIBES: {targetVibesBalance?.formatted}
-                </Text>
-              )}
+              <Flex justifyContent={"space-evenly"}>
+                {userVibesBalance?.formatted !== undefined &&
+                  (isSendingVibes || targetUser.address === user?.address) && (
+                    <Text color="#e5fc92">
+                      your $VIBES:{" "}
+                      <Text as="span" color="#e5fc92" fontWeight="bold">
+                        {userVibesBalance?.formatted}
+                      </Text>
+                    </Text>
+                  )}
+                {targetUser.address !== user?.address &&
+                  targetVibesBalance?.formatted !== undefined && (
+                    <Text color="#c6c3fc">
+                      their $VIBES:{" "}
+                      <Text as="span" color="#c6c3fc" fontWeight="bold">
+                        {targetVibesBalance?.formatted}
+                      </Text>
+                    </Text>
+                  )}
+              </Flex>
               {targetUser.address !== user?.address && (
                 <>
                   {!isSendingVibes ? (
@@ -357,33 +372,21 @@ export const ChatUserModal = ({
                         />
                       </Tooltip>
                       <Flex direction="column">
-                        <Text>
+                        <Text whiteSpace="nowrap">
                           ~$
                           {truncateValue(
                             previewedBurnProceeds * Number(ethPriceInUsd),
                             4
                           )}
                         </Text>
-                        <Text fontSize="10px" color="#c6c3fc">
+                        <Text
+                          fontSize="10px"
+                          color="#c6c3fc"
+                          whiteSpace="nowrap"
+                        >
                           ~{truncateValue(previewedBurnProceeds, 4)} ETH
                         </Text>
                       </Flex>
-                      <Button
-                        bg={"#5852a3"}
-                        color="white"
-                        p={2}
-                        _focus={{}}
-                        _active={{}}
-                        _hover={{
-                          bg: "#8884d8",
-                        }}
-                        onClick={() => {
-                          userVibesBalance &&
-                            setAmountOfVibesToSend(userVibesBalance.formatted);
-                        }}
-                      >
-                        max
-                      </Button>
                       <Button
                         bg={"#5852a3"}
                         color="white"
