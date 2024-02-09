@@ -42,7 +42,7 @@ const CacheContext = createContext<{
   feedError?: ApolloError;
   vibesTokenTxs: VibesTokenTx[];
   vibesTokenLoading: boolean;
-  chartTimeIndexes: Map<string, number | undefined>;
+  chartTimeIndexes: Map<string, {index: number | undefined, blockNumber: number | undefined}>;
   addAppError: (error: Error, source: string) => void;
   popAppError: (errorName: string, field: string) => void;
   ethPriceInUsd: string;

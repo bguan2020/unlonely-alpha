@@ -20,7 +20,7 @@ export const useVibesCheck = () => {
   const [loading, setLoading] = useState(true);
   const contract = getContractFromNetwork("vibesTokenV1", NETWORKS[0]);
   const [chartTimeIndexes, setChartTimeIndexes] = useState<
-    Map<string, number | undefined>
+    Map<string, {index: number | undefined, blockNumber: number | undefined}>
   >(new Map());
   const fetching = useRef(false);
   const [hashMapState, setHashMapState] = useState<Map<string, string>>(
@@ -304,15 +304,15 @@ export const useVibesCheck = () => {
 
       setChartTimeIndexes(
         new Map([
-          ["day", dayIndex],
-          ["7day", sevenDayIndex],
-          ["14day", fourteenDayIndex],
-          ["30day", thirtyDayIndex],
-          ["60day", sixtyDayIndex],
-          ["18hour", eighteenHourIndex],
-          ["12hour", twelveHourIndex],
-          ["6hour", sixHourIndex],
-          ["1hour", oneHourIndex],
+          ["day", {index: dayIndex, blockNumber: Number(blockNumberOneDayAgo)}],
+          ["7day", {index: sevenDayIndex, blockNumber: Number(blockNumberOneWeekAgo)}],
+          ["14day", {index: fourteenDayIndex, blockNumber: Number(blockNumberTwoWeeksAgo)}],
+          ["30day", {index: thirtyDayIndex, blockNumber: Number(blockNumberThirtyDaysAgo)}],
+          ["60day", {index: sixtyDayIndex, blockNumber: Number(blockNumberSixtyDaysAgo)}],
+          ["18hour", {index: eighteenHourIndex, blockNumber: Number(blockNumberEighteenHoursAgo)}],
+          ["12hour", {index: twelveHourIndex, blockNumber: Number(blockNumberTwelveHoursAgo)}],
+          ["6hour", {index: sixHourIndex, blockNumber: Number(blockNumberSixHoursAgo)}],
+          ["1hour", {index: oneHourIndex, blockNumber: Number(blockNumberOneHourAgo)}],
         ])
       );
     };
