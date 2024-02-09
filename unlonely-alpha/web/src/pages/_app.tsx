@@ -77,7 +77,7 @@ function App({ Component, pageProps, cookies }: Props) {
           appearance: {
             theme: "#19162F",
             accentColor: "#6cff67",
-            logo: "https://i.imgur.com/MNArpwV.png",
+            logo: "/icons/icon-192x192.png",
             showWalletLoginFirst: false,
           },
         }}

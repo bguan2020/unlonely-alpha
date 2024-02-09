@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Channel } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
 
-const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
+const unlonelyAvatar = "/icons/icon-192x192.png";
 
 type Props = {
   channel: Channel;

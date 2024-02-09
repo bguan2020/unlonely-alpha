@@ -4,7 +4,7 @@ import Link from "next/link";
 import centerEllipses from "../../utils/centerEllipses";
 import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
 
-const unlonelyAvatar = "https://i.imgur.com/MNArpwV.png";
+const unlonelyAvatar = "/icons/icon-192x192.png";
 
 const NfcCard = ({ nfc }: any) => {
   const handleOpenSeaLink = () => {
