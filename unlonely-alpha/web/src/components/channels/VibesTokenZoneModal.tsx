@@ -27,11 +27,13 @@ const VibesTokenZoneModal = ({
   isOpen,
   handleClose,
   ablyChannel,
+  isFullChart,
 }: {
   formattedCurrentPrice: `${number}`;
   isOpen: boolean;
   handleClose: () => void;
   ablyChannel?: AblyChannelPromise;
+  isFullChart?: boolean;
 }) => {
   const [sliderValue, setSliderValue] = useState<string[]>([
     formattedCurrentPrice,
@@ -199,6 +201,7 @@ const VibesTokenZoneModal = ({
               parseUnits(sliderValue[1] as `${number}`, 18)
             )}
             previewMode
+            isFullChart={isFullChart}
           />
         </Flex>
         <VibesTokenZoneModalControls

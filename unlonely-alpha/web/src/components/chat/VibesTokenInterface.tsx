@@ -20,6 +20,7 @@ import {
   Tooltip,
   YAxis,
   ReferenceArea,
+  ReferenceLine,
 } from "recharts";
 import * as AWS from "aws-sdk";
 import Link from "next/link";
@@ -60,6 +61,16 @@ const VibesTokenInterface = ({
   customLowerPrice?: number;
   customHigherPrice?: number;
 }) => {
+  const CustomLabel = (props: any) => {
+    return (
+      <g>
+        <text x={props.viewBox.x} y={props.viewBox.y} fill="#00d3c1" dy={20}>
+          {props.value}
+        </text>
+      </g>
+    );
+  };
+
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const percentage = Number(
@@ -163,12 +174,14 @@ const VibesTokenInterface = ({
         price: tx.price,
         priceInUsd:
           ethPriceInUsd !== undefined
-            ? truncateValue(
-                Number(ethPriceInUsd) *
-                  Number(formatUnits(BigInt(tx.price), 18)),
-                4
+            ? Number(
+                truncateValue(
+                  Number(ethPriceInUsd) *
+                    Number(formatUnits(BigInt(tx.price), 18)),
+                  4
+                )
               )
-            : undefined,
+            : 0,
         blockNumber: tx.blockNumber,
         priceChangePercentage: tx.priceChangePercentage,
       };
@@ -176,7 +189,10 @@ const VibesTokenInterface = ({
   }, [vibesTokenTxs, ethPriceInUsd]);
 
   const formattedDayData = useMemo(
-    () => txs.slice(chartTimeIndexes.get("day") as number),
+    () =>
+      chartTimeIndexes.get("day") !== undefined
+        ? txs.slice(chartTimeIndexes.get("day") as number)
+        : txs,
     [txs, chartTimeIndexes]
   );
 
@@ -326,6 +342,13 @@ const VibesTokenInterface = ({
     );
   }, [formattedCurrentPrice, ethPriceInUsd]);
 
+  const formatYAxisTick = (tick: number) => {
+    return `$${truncateValue(
+      Number(formatUnits(BigInt(Math.floor(tick)), 18)) * Number(ethPriceInUsd),
+      2
+    )}`;
+  };
+
   return (
     <>
       {vibesTokenLoading ? (
@@ -344,57 +367,59 @@ const VibesTokenInterface = ({
           {isFullChart && disableExchange !== true && (
             <Container overflowY="auto" maxW="300px" overflowX={"hidden"}>
               <Flex direction="column" justifyContent={"flex-end"} gap="2rem">
-                {higherPrice < Number.MAX_SAFE_INTEGER && <Flex
-                  direction="column"
-                  bg="rgba(40, 129, 43, 0.5)"
-                  p="0.5rem"
-                  gap="1rem"
-                >
-                  <Flex direction="column">
-                    <Text opacity="0.8">green zone price:</Text>
-                    {higherPriceInUsd !== undefined ? (
-                      <>
-                        <Text color="#b0efb2" fontSize="1.5rem">
-                          ${higherPriceInUsd}
-                        </Text>
-                        <Text
-                          whiteSpace={"nowrap"}
-                          opacity="0.3"
-                          fontSize="14px"
-                        >
+                {higherPrice < Number.MAX_SAFE_INTEGER && (
+                  <Flex
+                    direction="column"
+                    bg="rgba(40, 129, 43, 0.5)"
+                    p="0.5rem"
+                    gap="1rem"
+                  >
+                    <Flex direction="column">
+                      <Text opacity="0.8">green zone price:</Text>
+                      {higherPriceInUsd !== undefined ? (
+                        <>
+                          <Text color="#b0efb2" fontSize="1.5rem">
+                            ${higherPriceInUsd}
+                          </Text>
+                          <Text
+                            whiteSpace={"nowrap"}
+                            opacity="0.3"
+                            fontSize="14px"
+                          >
+                            {formatUnits(BigInt(higherPrice), 18)} ETH
+                          </Text>
+                        </>
+                      ) : (
+                        <Text whiteSpace={"nowrap"} fontSize="1rem">
                           {formatUnits(BigInt(higherPrice), 18)} ETH
                         </Text>
-                      </>
-                    ) : (
-                      <Text whiteSpace={"nowrap"} fontSize="1rem">
-                        {formatUnits(BigInt(higherPrice), 18)} ETH
+                      )}
+                    </Flex>
+                    <Flex direction="column">
+                      <Text opacity="0.8">tokens to buy:</Text>
+                      <Text
+                        color="#b0efb2"
+                        fontSize={
+                          higherTokensThreshold !== undefined &&
+                          higherTokensThreshold >= 0
+                            ? "1.5rem"
+                            : "unset"
+                        }
+                      >
+                        {higherTokensThreshold !== undefined
+                          ? higherTokensThreshold >= 0
+                            ? `${
+                                Number(formattedCurrentPrice) >
+                                Number(formatUnits(BigInt(higherPrice), 18))
+                                  ? "-"
+                                  : ""
+                              }${truncateValue(higherTokensThreshold, 0)}`
+                            : "error fetching tokens"
+                          : "calculating..."}
                       </Text>
-                    )}
+                    </Flex>
                   </Flex>
-                  <Flex direction="column">
-                    <Text opacity="0.8">tokens to buy:</Text>
-                    <Text
-                      color="#b0efb2"
-                      fontSize={
-                        higherTokensThreshold !== undefined &&
-                        higherTokensThreshold >= 0
-                          ? "1.5rem"
-                          : "unset"
-                      }
-                    >
-                      {higherTokensThreshold !== undefined
-                        ? higherTokensThreshold >= 0
-                          ? `${
-                              Number(formattedCurrentPrice) >
-                              Number(formatUnits(BigInt(higherPrice), 18))
-                                ? "-"
-                                : ""
-                            }${truncateValue(higherTokensThreshold, 0)}`
-                          : "error fetching tokens"
-                        : "calculating..."}
-                    </Text>
-                  </Flex>
-                </Flex>}
+                )}
                 <Flex direction="column" gap="10px">
                   <Flex direction="column">
                     <Text opacity="0.8">current price:</Text>
@@ -426,65 +451,67 @@ const VibesTokenInterface = ({
                     </Flex>
                   )}
                 </Flex>
-                {lowerPrice > 0 && <Flex
-                  direction="column"
-                  bg="rgba(155, 15, 15, 0.5)"
-                  p="0.5rem"
-                  gap="1rem"
-                >
-                  <Flex direction="column">
-                    <Text opacity="0.8">red zone price:</Text>
-                    {lowerPriceInUsd !== undefined ? (
-                      <>
-                        <Text
-                          fontSize={
-                            lowerTokensThreshold !== undefined &&
-                            lowerTokensThreshold >= 0
-                              ? "1.5rem"
-                              : "unset"
-                          }
-                          color="#efc7b0"
-                        >
-                          ${lowerPriceInUsd}
-                        </Text>
-                        <Text
-                          whiteSpace={"nowrap"}
-                          opacity="0.3"
-                          fontSize="14px"
-                        >
+                {lowerPrice > 0 && (
+                  <Flex
+                    direction="column"
+                    bg="rgba(155, 15, 15, 0.5)"
+                    p="0.5rem"
+                    gap="1rem"
+                  >
+                    <Flex direction="column">
+                      <Text opacity="0.8">red zone price:</Text>
+                      {lowerPriceInUsd !== undefined ? (
+                        <>
+                          <Text
+                            fontSize={
+                              lowerTokensThreshold !== undefined &&
+                              lowerTokensThreshold >= 0
+                                ? "1.5rem"
+                                : "unset"
+                            }
+                            color="#efc7b0"
+                          >
+                            ${lowerPriceInUsd}
+                          </Text>
+                          <Text
+                            whiteSpace={"nowrap"}
+                            opacity="0.3"
+                            fontSize="14px"
+                          >
+                            {formatUnits(BigInt(lowerPrice), 18)} ETH
+                          </Text>
+                        </>
+                      ) : (
+                        <Text whiteSpace={"nowrap"} fontSize="1rem">
                           {formatUnits(BigInt(lowerPrice), 18)} ETH
                         </Text>
-                      </>
-                    ) : (
-                      <Text whiteSpace={"nowrap"} fontSize="1rem">
-                        {formatUnits(BigInt(lowerPrice), 18)} ETH
+                      )}
+                    </Flex>
+                    <Flex direction="column">
+                      <Text opacity="0.8">tokens to sell:</Text>
+                      <Text
+                        color="#efc7b0"
+                        fontSize={
+                          lowerTokensThreshold !== undefined &&
+                          lowerTokensThreshold >= 0
+                            ? "1.5rem"
+                            : "unset"
+                        }
+                      >
+                        {lowerTokensThreshold !== undefined
+                          ? lowerTokensThreshold >= 0
+                            ? `${
+                                Number(formattedCurrentPrice) <
+                                Number(formatUnits(BigInt(lowerPrice), 18))
+                                  ? "-"
+                                  : ""
+                              }${truncateValue(lowerTokensThreshold, 0)}`
+                            : "error fetching tokens"
+                          : "calculating..."}
                       </Text>
-                    )}
+                    </Flex>
                   </Flex>
-                  <Flex direction="column">
-                    <Text opacity="0.8">tokens to sell:</Text>
-                    <Text
-                      color="#efc7b0"
-                      fontSize={
-                        lowerTokensThreshold !== undefined &&
-                        lowerTokensThreshold >= 0
-                          ? "1.5rem"
-                          : "unset"
-                      }
-                    >
-                      {lowerTokensThreshold !== undefined
-                        ? lowerTokensThreshold >= 0
-                          ? `${
-                              Number(formattedCurrentPrice) <
-                              Number(formatUnits(BigInt(lowerPrice), 18))
-                                ? "-"
-                                : ""
-                            }${truncateValue(lowerTokensThreshold, 0)}`
-                          : "error fetching tokens"
-                        : "calculating..."}
-                    </Text>
-                  </Flex>
-                </Flex>}
+                )}
               </Flex>
             </Container>
           )}
@@ -558,8 +585,14 @@ const VibesTokenInterface = ({
                 <Button
                   bg={timeFilter === "1d" ? "#7874c9" : "#403c7d"}
                   color="#c6c3fc"
-                  p={2 * (isStandalone || isFullChart ? 1.5 : 1)}
-                  height={`${20 * (isStandalone || isFullChart ? 1.5 : 1)}px`}
+                  p={
+                    2 *
+                    ((isStandalone || isFullChart) && !previewMode ? 1.5 : 1)
+                  }
+                  height={`${
+                    20 *
+                    ((isStandalone || isFullChart) && !previewMode ? 1.5 : 1)
+                  }px`}
                   _focus={{}}
                   _active={{}}
                   _hover={{}}
@@ -570,8 +603,14 @@ const VibesTokenInterface = ({
                 <Button
                   bg={timeFilter === "all" ? "#7874c9" : "#403c7d"}
                   color="#c6c3fc"
-                  p={2 * (isStandalone || isFullChart ? 1.5 : 1)}
-                  height={`${20 * (isStandalone || isFullChart ? 1.5 : 1)}px`}
+                  p={
+                    2 *
+                    ((isStandalone || isFullChart) && !previewMode ? 1.5 : 1)
+                  }
+                  height={`${
+                    20 *
+                    ((isStandalone || isFullChart) && !previewMode ? 1.5 : 1)
+                  }px`}
                   _focus={{}}
                   _active={{}}
                   _hover={{}}
@@ -585,9 +624,17 @@ const VibesTokenInterface = ({
                     <Button
                       bg={zonesOn ? "#1dc859" : "#004e1b"}
                       color="#ffffff"
-                      p={2 * (isStandalone || isFullChart ? 1.5 : 1)}
+                      p={
+                        2 *
+                        ((isStandalone || isFullChart) && !previewMode
+                          ? 1.5
+                          : 1)
+                      }
                       height={`${
-                        20 * (isStandalone || isFullChart ? 1.5 : 1)
+                        20 *
+                        ((isStandalone || isFullChart) && !previewMode
+                          ? 1.5
+                          : 1)
                       }px`}
                       _focus={{}}
                       _active={{}}
@@ -611,6 +658,7 @@ const VibesTokenInterface = ({
                         formattedCurrentPrice as `${number}`
                       }
                       ablyChannel={ablyChannel}
+                      isFullChart={isFullChart}
                     />
                     <Button
                       color="white"
@@ -678,9 +726,15 @@ const VibesTokenInterface = ({
                     </Text>
                   )}
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={formattedData}>
+                  <LineChart
+                    data={formattedData}
+                    margin={
+                      isFullChart ? { left: 30, top: 10, bottom: 10 } : {}
+                    }
+                  >
                     <YAxis
-                      hide
+                      tickFormatter={formatYAxisTick}
+                      hide={isFullChart === true ? false : true}
                       domain={
                         !allStreams &&
                         zonesOn &&
@@ -705,6 +759,98 @@ const VibesTokenInterface = ({
                           ifOverflow="hidden"
                         />
                       )}
+                    {timeFilter === "all" && isFullChart && !previewMode && (
+                      <>
+                        {chartTimeIndexes.get("day") !== undefined && (
+                          <ReferenceLine
+                            strokeDasharray="3 3"
+                            x={chartTimeIndexes.get("day") as number}
+                            stroke="#00d3c1"
+                            label={<CustomLabel value="~1d" />}
+                          />
+                        )}
+                        {chartTimeIndexes.get("7day") !== undefined && (
+                          <ReferenceLine
+                            strokeDasharray="3 3"
+                            x={chartTimeIndexes.get("7day") as number}
+                            stroke="#00d3c1"
+                            label={<CustomLabel value="~7d" />}
+                          />
+                        )}
+                        {chartTimeIndexes.get("14day") !== undefined && (
+                          <ReferenceLine
+                            strokeDasharray="3 3"
+                            x={chartTimeIndexes.get("14day") as number}
+                            stroke="#00d3c1"
+                            label={<CustomLabel value="~14d" />}
+                          />
+                        )}
+                        {chartTimeIndexes.get("30day") !== undefined && (
+                          <ReferenceLine
+                            strokeDasharray="3 3"
+                            x={chartTimeIndexes.get("30day") as number}
+                            stroke="#00d3c1"
+                            label={<CustomLabel value="~30d" />}
+                          />
+                        )}
+                        {chartTimeIndexes.get("60day") !== undefined && (
+                          <ReferenceLine
+                            strokeDasharray="3 3"
+                            x={chartTimeIndexes.get("60day") as number}
+                            stroke="#00d3c1"
+                            label={<CustomLabel value="~60d" />}
+                          />
+                        )}
+                      </>
+                    )}
+                    {timeFilter === "1d" && isFullChart && !previewMode && (
+                      <>
+                        {chartTimeIndexes.get("18hour") !== undefined && (
+                          <ReferenceLine
+                            strokeDasharray="3 3"
+                            x={
+                              (chartTimeIndexes.get("18hour") as number) -
+                              (txs.length - formattedDayData.length)
+                            }
+                            stroke="#00d3c1"
+                            label={<CustomLabel value="~18h" />}
+                          />
+                        )}
+                        {chartTimeIndexes.get("12hour") !== undefined && (
+                          <ReferenceLine
+                            strokeDasharray="3 3"
+                            x={
+                              (chartTimeIndexes.get("12hour") as number) -
+                              (txs.length - formattedDayData.length)
+                            }
+                            stroke="#00d3c1"
+                            label={<CustomLabel value="~12h" />}
+                          />
+                        )}
+                        {chartTimeIndexes.get("6hour") !== undefined && (
+                          <ReferenceLine
+                            strokeDasharray="3 3"
+                            x={
+                              (chartTimeIndexes.get("6hour") as number) -
+                              (txs.length - formattedDayData.length)
+                            }
+                            stroke="#00d3c1"
+                            label={<CustomLabel value="~6h" />}
+                          />
+                        )}
+                        {chartTimeIndexes.get("1hour") !== undefined && (
+                          <ReferenceLine
+                            strokeDasharray="3 3"
+                            x={
+                              (chartTimeIndexes.get("1hour") as number) -
+                              (txs.length - formattedDayData.length)
+                            }
+                            stroke="#00d3c1"
+                            label={<CustomLabel value="~1h" />}
+                          />
+                        )}
+                      </>
+                    )}
                     <Line
                       type="monotone"
                       dataKey="price"

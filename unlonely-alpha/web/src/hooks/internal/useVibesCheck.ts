@@ -19,9 +19,9 @@ export const useVibesCheck = () => {
   const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
   const [loading, setLoading] = useState(true);
   const contract = getContractFromNetwork("vibesTokenV1", NETWORKS[0]);
-  const [chartTimeIndexes, setChartTimeIndexes] = useState<Map<string, number>>(
-    new Map()
-  );
+  const [chartTimeIndexes, setChartTimeIndexes] = useState<
+    Map<string, number | undefined>
+  >(new Map());
   const fetching = useRef(false);
   const [hashMapState, setHashMapState] = useState<Map<string, string>>(
     new Map()
@@ -235,10 +235,86 @@ export const useVibesCheck = () => {
 
       const AVERAGE_BLOCK_TIME_SECS = 2;
       const currentBlockNumber = await baseClient.getBlockNumber();
+
+      const blockNumberSixtyDaysAgo =
+        currentBlockNumber -
+        BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 30);
+      const sixtyDayIndex =
+        blockNumberSixtyDaysAgo < CREATION_BLOCK
+          ? undefined
+          : binarySearchIndex(tokenTxs, blockNumberSixtyDaysAgo);
+
+      const blockNumberThirtyDaysAgo =
+        currentBlockNumber -
+        BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 30);
+      const thirtyDayIndex =
+        blockNumberThirtyDaysAgo < CREATION_BLOCK
+          ? undefined
+          : binarySearchIndex(tokenTxs, blockNumberThirtyDaysAgo);
+
+      const blockNumberTwoWeeksAgo =
+        currentBlockNumber -
+        BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 14);
+      const fourteenDayIndex =
+        blockNumberTwoWeeksAgo < CREATION_BLOCK
+          ? undefined
+          : binarySearchIndex(tokenTxs, blockNumberTwoWeeksAgo);
+
+      const blockNumberOneWeekAgo =
+        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 7);
+      const sevenDayIndex =
+        blockNumberOneWeekAgo < CREATION_BLOCK
+          ? undefined
+          : binarySearchIndex(tokenTxs, blockNumberOneWeekAgo);
+
       const blockNumberOneDayAgo =
         currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
-      const dayIndex = binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
-      setChartTimeIndexes(new Map([["day", dayIndex]]));
+      const dayIndex =
+        blockNumberOneDayAgo < CREATION_BLOCK
+          ? undefined
+          : binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
+
+      const blockNumberEighteenHoursAgo =
+        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 18);
+      const eighteenHourIndex =
+        blockNumberEighteenHoursAgo < CREATION_BLOCK
+          ? undefined
+          : binarySearchIndex(tokenTxs, blockNumberEighteenHoursAgo);
+
+      const blockNumberTwelveHoursAgo =
+        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 12);
+      const twelveHourIndex =
+        blockNumberTwelveHoursAgo < CREATION_BLOCK
+          ? undefined
+          : binarySearchIndex(tokenTxs, blockNumberTwelveHoursAgo);
+
+      const blockNumberSixHoursAgo =
+        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 6);
+      const sixHourIndex =
+        blockNumberSixHoursAgo < CREATION_BLOCK
+          ? undefined
+          : binarySearchIndex(tokenTxs, blockNumberSixHoursAgo);
+
+      const blockNumberOneHourAgo =
+        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60);
+      const oneHourIndex =
+        blockNumberOneHourAgo < CREATION_BLOCK
+          ? undefined
+          : binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
+
+      setChartTimeIndexes(
+        new Map([
+          ["day", dayIndex],
+          ["7day", sevenDayIndex],
+          ["14day", fourteenDayIndex],
+          ["30day", thirtyDayIndex],
+          ["60day", sixtyDayIndex],
+          ["18hour", eighteenHourIndex],
+          ["12hour", twelveHourIndex],
+          ["6hour", sixHourIndex],
+          ["1hour", oneHourIndex],
+        ])
+      );
     };
     init();
   }, [tokenTxs.length]);
