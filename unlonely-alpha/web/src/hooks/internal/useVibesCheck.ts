@@ -239,33 +239,33 @@ export const useVibesCheck = () => {
       const blockNumberSixtyDaysAgo =
         currentBlockNumber -
         BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 30);
-      const sixtyDayIndex =
-        blockNumberSixtyDaysAgo < CREATION_BLOCK
-          ? undefined
-          : binarySearchIndex(tokenTxs, blockNumberSixtyDaysAgo);
+      // const sixtyDayIndex =
+      //   blockNumberSixtyDaysAgo < CREATION_BLOCK
+      //     ? undefined
+      //     : binarySearchIndex(tokenTxs, blockNumberSixtyDaysAgo);
 
       const blockNumberThirtyDaysAgo =
         currentBlockNumber -
         BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 30);
-      const thirtyDayIndex =
-        blockNumberThirtyDaysAgo < CREATION_BLOCK
-          ? undefined
-          : binarySearchIndex(tokenTxs, blockNumberThirtyDaysAgo);
+      // const thirtyDayIndex =
+      //   blockNumberThirtyDaysAgo < CREATION_BLOCK
+      //     ? undefined
+      //     : binarySearchIndex(tokenTxs, blockNumberThirtyDaysAgo);
 
       const blockNumberTwoWeeksAgo =
         currentBlockNumber -
         BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 14);
-      const fourteenDayIndex =
-        blockNumberTwoWeeksAgo < CREATION_BLOCK
-          ? undefined
-          : binarySearchIndex(tokenTxs, blockNumberTwoWeeksAgo);
+      // const fourteenDayIndex =
+      //   blockNumberTwoWeeksAgo < CREATION_BLOCK
+      //     ? undefined
+      //     : binarySearchIndex(tokenTxs, blockNumberTwoWeeksAgo);
 
       const blockNumberOneWeekAgo =
         currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 7);
-      const sevenDayIndex =
-        blockNumberOneWeekAgo < CREATION_BLOCK
-          ? undefined
-          : binarySearchIndex(tokenTxs, blockNumberOneWeekAgo);
+      // const sevenDayIndex =
+      //   blockNumberOneWeekAgo < CREATION_BLOCK
+      //     ? undefined
+      //     : binarySearchIndex(tokenTxs, blockNumberOneWeekAgo);
 
       const blockNumberOneDayAgo =
         currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
@@ -276,43 +276,43 @@ export const useVibesCheck = () => {
 
       const blockNumberEighteenHoursAgo =
         currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 18);
-      const eighteenHourIndex =
-        blockNumberEighteenHoursAgo < CREATION_BLOCK
-          ? undefined
-          : binarySearchIndex(tokenTxs, blockNumberEighteenHoursAgo);
+      // const eighteenHourIndex =
+      //   blockNumberEighteenHoursAgo < CREATION_BLOCK
+      //     ? undefined
+      //     : binarySearchIndex(tokenTxs, blockNumberEighteenHoursAgo);
 
       const blockNumberTwelveHoursAgo =
         currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 12);
-      const twelveHourIndex =
-        blockNumberTwelveHoursAgo < CREATION_BLOCK
-          ? undefined
-          : binarySearchIndex(tokenTxs, blockNumberTwelveHoursAgo);
+      // const twelveHourIndex =
+      //   blockNumberTwelveHoursAgo < CREATION_BLOCK
+      //     ? undefined
+      //     : binarySearchIndex(tokenTxs, blockNumberTwelveHoursAgo);
 
       const blockNumberSixHoursAgo =
         currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 6);
-      const sixHourIndex =
-        blockNumberSixHoursAgo < CREATION_BLOCK
-          ? undefined
-          : binarySearchIndex(tokenTxs, blockNumberSixHoursAgo);
+      // const sixHourIndex =
+      //   blockNumberSixHoursAgo < CREATION_BLOCK
+      //     ? undefined
+      //     : binarySearchIndex(tokenTxs, blockNumberSixHoursAgo);
 
       const blockNumberOneHourAgo =
         currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60);
-      const oneHourIndex =
-        blockNumberOneHourAgo < CREATION_BLOCK
-          ? undefined
-          : binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
+      // const oneHourIndex =
+      //   blockNumberOneHourAgo < CREATION_BLOCK
+      //     ? undefined
+      //     : binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
 
       setChartTimeIndexes(
         new Map([
           ["day", {index: dayIndex, blockNumber: Number(blockNumberOneDayAgo)}],
-          ["7day", {index: sevenDayIndex, blockNumber: Number(blockNumberOneWeekAgo)}],
-          ["14day", {index: fourteenDayIndex, blockNumber: Number(blockNumberTwoWeeksAgo)}],
-          ["30day", {index: thirtyDayIndex, blockNumber: Number(blockNumberThirtyDaysAgo)}],
-          ["60day", {index: sixtyDayIndex, blockNumber: Number(blockNumberSixtyDaysAgo)}],
-          ["18hour", {index: eighteenHourIndex, blockNumber: Number(blockNumberEighteenHoursAgo)}],
-          ["12hour", {index: twelveHourIndex, blockNumber: Number(blockNumberTwelveHoursAgo)}],
-          ["6hour", {index: sixHourIndex, blockNumber: Number(blockNumberSixHoursAgo)}],
-          ["1hour", {index: oneHourIndex, blockNumber: Number(blockNumberOneHourAgo)}],
+          ["7day", {index: undefined, blockNumber: Number(blockNumberOneWeekAgo)}],
+          ["14day", {index: undefined, blockNumber: Number(blockNumberTwoWeeksAgo)}],
+          ["30day", {index: undefined, blockNumber: Number(blockNumberThirtyDaysAgo)}],
+          ["60day", {index: undefined, blockNumber: Number(blockNumberSixtyDaysAgo)}],
+          ["18hour", {index: undefined, blockNumber: Number(blockNumberEighteenHoursAgo)}],
+          ["12hour", {index: undefined, blockNumber: Number(blockNumberTwelveHoursAgo)}],
+          ["6hour", {index: undefined, blockNumber: Number(blockNumberSixHoursAgo)}],
+          ["1hour", {index: undefined, blockNumber: Number(blockNumberOneHourAgo)}],
         ])
       );
     };

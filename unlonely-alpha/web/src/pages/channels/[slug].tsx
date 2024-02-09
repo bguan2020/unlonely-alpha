@@ -301,7 +301,9 @@ const MobilePage = ({
   }, []);
 
   return (
-    <AppLayout
+    <>
+      {channelSSR && <ChannelNextHead channel={channelSSR} />}
+      <AppLayout
       title={channelSSR?.name}
       image={channelSSR?.owner?.FCImageUrl}
       pageUrl={`/channels/${channelSSR?.slug}`}
@@ -345,7 +347,8 @@ const MobilePage = ({
           )}
         </Flex>
       )}
-    </AppLayout>
+      </AppLayout>
+    </>
   );
 };
 
