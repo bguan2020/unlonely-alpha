@@ -242,7 +242,7 @@ const StandaloneChatComponent = ({
       position={"relative"}
       marginTop={
         newTop !== "unset"
-          ? `${newTop}px`
+          ? `calc(${newTop}px + ${MOBILE_VIDEO_VH}vh)`
           : !previewStream && isOwner
           ? "0"
           : `${MOBILE_VIDEO_VH}vh`
