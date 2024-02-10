@@ -1,7 +1,8 @@
 import { Flex, Text, Button, Stack } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import { BaseChatCommand, CommandData } from "../../constants";
+import { BaseChatCommand } from "../../constants";
+import { CommandData } from "../../constants/types/chat";
 interface Command {
   name: string;
   description?: string;

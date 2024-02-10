@@ -2,12 +2,13 @@ import { AddIcon } from "@chakra-ui/icons";
 import { Button, Flex, IconButton, Input, Text, Image } from "@chakra-ui/react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
-import { BaseChatCommand, CommandData } from "../../constants";
+import { BaseChatCommand } from "../../constants";
 import { ChatCommand } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import useUpdateDeleteChatCommands from "../../hooks/server/updateDeleteChatCommands";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
+import { CommandData } from "../../constants/types/chat";
 
 export default function ChatCommandModal({
   title,

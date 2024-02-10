@@ -41,3 +41,9 @@ export type Message = {
     timeserial: string;
   };
 };
+
+
+export type CommandData = {
+  command: string;
+  response: string;
+};

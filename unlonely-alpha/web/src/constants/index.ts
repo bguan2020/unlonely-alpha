@@ -48,10 +48,10 @@ export const CHAT_MESSAGE_EVENT = "chat-message";
 export const CHANGE_USER_ROLE_EVENT = "change-user-role";
 export const VIBES_TOKEN_PRICE_RANGE_EVENT = "vibes-token-price-range";
 
-export type CommandData = {
-  command: string;
-  response: string;
-};
+export const MOBILE_VIDEO_VH = 25;
+export const MOBILE_CHAT_VH = 75;
+
+export const DESKTOP_VIDEO_VH = 80;
 
 export type AblyChannelPromise = Ably.Types.RealtimeChannelPromise;
 

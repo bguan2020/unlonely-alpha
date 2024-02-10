@@ -17,19 +17,20 @@ import React, { useCallback, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
 import { GiTalk } from "react-icons/gi";
 
-import {
-  AblyChannelPromise,
-  CommandData,
-  InteractionType,
-} from "../../constants";
+import { AblyChannelPromise, InteractionType } from "../../constants";
 import Commands from "./Commands";
-import { EmojiType, SenderStatus } from "../../constants/types/chat";
+import {
+  CommandData,
+  EmojiType,
+  SenderStatus,
+} from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import EmojiButton from "./emoji/EmojiButton";
 import ConnectWallet from "../navigation/ConnectWallet";
 import { ChatClip } from "./ChatClip";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useCacheContext } from "../../hooks/context/useCache";
 
 type Props = {
   sendChatMessage: (
@@ -62,6 +63,8 @@ const ChatForm = ({
   const { handleIsClipUiOpen, loading: clipLoading } = clipping;
 
   const { channelQueryData } = channelContext;
+
+  const { handleIsFocusedOnInput } = useCacheContext();
 
   const [messageText, setMessageText] = useState<string>("");
   const [commandsOpen, setCommandsOpen] = useState(false);
@@ -416,6 +419,8 @@ const ChatForm = ({
                         ? "blast a message to everyone watching!"
                         : "say something in chat!"
                     }
+                    onFocus={() => handleIsFocusedOnInput(true)}
+                    onBlur={() => handleIsFocusedOnInput(false)}
                     enterKeyHint="send"
                     onChange={(e) => {
                       if (e.target.value === "") {

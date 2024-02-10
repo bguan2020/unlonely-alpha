@@ -51,6 +51,8 @@ const CacheContext = createContext<{
   addAppError: (error: Error, source: string) => void;
   popAppError: (errorName: string, field: string) => void;
   ethPriceInUsd: string;
+  isFocusedOnInput: boolean;
+  handleIsFocusedOnInput: (value: boolean) => void;
 }>({
   channelFeed: [],
   claimableBets: [],
@@ -64,6 +66,8 @@ const CacheContext = createContext<{
   addAppError: () => undefined,
   popAppError: () => undefined,
   ethPriceInUsd: "0",
+  isFocusedOnInput: false,
+  handleIsFocusedOnInput: () => undefined,
 });
 
 type SourcedError = Error & {
@@ -100,6 +104,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const [transferLogs, setTransferLogs] = useState<Log[]>([]);
+  const [isFocusedOnInput, setIsFocusedOnInput] = useState(false); // for detecting mobile input focus
 
   useContractEvent({
     address: contract.address,
@@ -170,6 +175,10 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     },
     [appErrors]
   );
+
+  const handleIsFocusedOnInput = useCallback((value: boolean) => {
+    setIsFocusedOnInput(value);
+  }, []);
 
   const {
     data: dataChannels,
@@ -404,6 +413,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       addAppError,
       popAppError,
       ethPriceInUsd,
+      isFocusedOnInput,
+      handleIsFocusedOnInput,
     };
   }, [
     claimableBets,
@@ -418,6 +429,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     popAppError,
     ethPriceInUsd,
     vibesBalance,
+    isFocusedOnInput,
+    handleIsFocusedOnInput,
   ]);
 
   return (
