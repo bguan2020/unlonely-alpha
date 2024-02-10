@@ -51,7 +51,12 @@ const AppLayout: React.FC<Props> = ({
   });
 
   return (
-    <Box background="rgba(0, 0, 0, 0.65)">
+    <Box
+      background="rgba(0, 0, 0, 0.65)"
+      overflowY={
+        mobileSizes.keyboardVisible || isFocusedOnInput ? "hidden" : "unset"
+      }
+    >
       {isCustomHeader === false && (
         <NextHead
           title={title ? title : ""}
@@ -90,17 +95,7 @@ const AppLayout: React.FC<Props> = ({
               </Box>
             </>
           ) : (
-            <Box
-              minW="100%"
-              as="main"
-              minH="100vh"
-              gridColumnStart={2}
-              overflowY={
-                mobileSizes.keyboardVisible || isFocusedOnInput
-                  ? "hidden"
-                  : "unset"
-              }
-            >
+            <Box minW="100%" as="main" minH="100vh" gridColumnStart={2}>
               <Box
                 background={"#19162F"}
                 h={
