@@ -75,9 +75,18 @@ const AppLayout: React.FC<Props> = ({
       isStandalone &&
       window
     ) {
+      const scrollHeight = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.offsetHeight,
+        document.body.clientHeight,
+        document.documentElement.clientHeight,
+        window.screen.height
+      );
       setTimeout(() => {
         window.scrollTo({
-          top: document.body.scrollHeight,
+          top: scrollHeight,
           behavior: "smooth",
         });
       }, 1000);
