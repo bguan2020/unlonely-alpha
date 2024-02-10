@@ -94,7 +94,8 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
         <StreamComponent />
         <div>
           <p>
-            visual viewport supported: {window.visualViewport ? true : false}
+            visual viewport supported:{" "}
+            {window.visualViewport !== null ? "true" : "false"}
           </p>
           <p>Viewport Height: {sizes.viewport.height}px</p>
           <p>Screen Height: {sizes.screen.height}px</p>
