@@ -65,6 +65,9 @@ const AppLayout: React.FC<Props> = ({
     document.removeEventListener("touchmove", preventTouchMove);
   };
 
+  /* when the keyboard is visible on the channel page, scroll to the bottom of the page
+  to keep the input and video component in view, please refer to the video component for more details
+  */
   useEffect(() => {
     if (
       (mobileSizes.keyboardVisible || isFocusedOnInput) &&
@@ -72,10 +75,12 @@ const AppLayout: React.FC<Props> = ({
       isStandalone &&
       window
     ) {
-      window.scrollTo({
-        top: document.body.scrollHeight + 50,
-        behavior: "smooth",
-      });
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 1000);
       disableScroll();
     } else {
       enableScroll();
