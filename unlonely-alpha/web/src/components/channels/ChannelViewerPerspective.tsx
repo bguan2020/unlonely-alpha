@@ -92,12 +92,13 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
     >
       <Flex width={"100%"} position="relative">
         <StreamComponent />
-        {/* <div>
+        <div>
+          <p>visual viewport supported: {window.visualViewport}</p>
           <p>Viewport Height: {sizes.viewport.height}px</p>
           <p>Screen Height: {sizes.screen.height}px</p>
           <p>window innerHeight: {window.innerHeight}px </p>
           <p>Keyboard Visible: {sizes.keyboardVisible ? "Yes" : "No"}</p>
-        </div> */}
+        </div>
       </Flex>
     </Stack>
   );
