@@ -51,20 +51,34 @@ const AppLayout: React.FC<Props> = ({
     xl: false,
   });
 
+  const preventTouchMove = (e: any) => {
+    e.preventDefault();
+  };
+
+  const disableScroll = () => {
+    document.addEventListener("touchmove", preventTouchMove, {
+      passive: false,
+    });
+  };
+
+  const enableScroll = () => {
+    document.removeEventListener("touchmove", preventTouchMove);
+  };
+
   useEffect(() => {
-    // if (
-    //   (mobileSizes.keyboardVisible || isFocusedOnInput) &&
-    //   router.pathname.startsWith("/channels") &&
-    //   isStandalone
-    // ) {
-    document.body.style.overflowY = "hidden";
-    // } else {
-    //   document.body.style.overflowY = "";
-    // }
+    if (
+      (mobileSizes.keyboardVisible || isFocusedOnInput) &&
+      router.pathname.startsWith("/channels") &&
+      isStandalone
+    ) {
+      disableScroll();
+    } else {
+      enableScroll();
+    }
   }, [isFocusedOnInput, mobileSizes, router.pathname, isStandalone]);
 
   return (
-    <Box background="rgba(0, 0, 0, 0.65)" overflowY={"hidden"}>
+    <Box background="rgba(0, 0, 0, 0.65)">
       {isCustomHeader === false && (
         <NextHead
           title={title ? title : ""}
@@ -103,15 +117,8 @@ const AppLayout: React.FC<Props> = ({
               </Box>
             </>
           ) : (
-            <Box
-              minW="100%"
-              as="main"
-              minH="100vh"
-              gridColumnStart={2}
-              overflowY={"hidden"}
-            >
+            <Box minW="100%" as="main" minH="100vh" gridColumnStart={2}>
               <Box
-                overflowY={"hidden"}
                 background={"#19162F"}
                 h={
                   !router.pathname.startsWith("/channels")
