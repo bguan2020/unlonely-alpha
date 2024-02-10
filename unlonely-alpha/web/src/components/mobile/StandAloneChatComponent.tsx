@@ -233,7 +233,9 @@ const StandaloneChatComponent = ({
     <Flex
       direction="column"
       h={
-        !previewStream && isOwner
+        mobileSizes.keyboardVisible || isFocusedOnInput
+          ? `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh)`
+          : !previewStream && isOwner
           ? `${MOBILE_CHAT_VH + MOBILE_VIDEO_VH}vh`
           : `${MOBILE_CHAT_VH}vh`
       }
