@@ -4,12 +4,12 @@ import { MobileViewSizes } from "../../constants/types";
 export function useMobileViewSize() {
     const [sizes, setSizes] = useState<MobileViewSizes>({
         viewport: {
-          width: window.innerWidth,
-          height: window.innerHeight,
+          width: 0,
+          height: 0,
         },
         screen: {
-          width: window.screen.width,
-          height: window.screen.height,
+          width: 0,
+          height: 0,
         },
         keyboardVisible: false,
       });
