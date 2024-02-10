@@ -90,7 +90,17 @@ const AppLayout: React.FC<Props> = ({
               </Box>
             </>
           ) : (
-            <Box minW="100%" as="main" minH="100vh" gridColumnStart={2}>
+            <Box
+              minW="100%"
+              as="main"
+              minH="100vh"
+              gridColumnStart={2}
+              overflowY={
+                mobileSizes.keyboardVisible || isFocusedOnInput
+                  ? "hidden"
+                  : "unset"
+              }
+            >
               <Box
                 background={"#19162F"}
                 h={
@@ -99,11 +109,6 @@ const AppLayout: React.FC<Props> = ({
                     : "100vh"
                 }
                 overflowX="hidden"
-                overflowY={
-                  mobileSizes.keyboardVisible || isFocusedOnInput
-                    ? "hidden"
-                    : "unset"
-                }
               >
                 {children}
               </Box>
