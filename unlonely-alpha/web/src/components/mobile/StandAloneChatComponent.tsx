@@ -44,7 +44,6 @@ import { VipBadgeBuy } from "../channels/VipBadgeBuy";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import Trade from "../channels/bet/Trade";
 import VibesTokenInterface from "../chat/VibesTokenInterface";
-import { useCacheContext } from "../../hooks/context/useCache";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
@@ -61,7 +60,6 @@ const StandaloneChatComponent = ({
   const { userAddress } = useUser();
   const { channelQueryData } = channelContext;
   const { chatChannel } = chatInfo;
-  const { isFocusedOnInput } = useCacheContext();
 
   const router = useRouter();
   const [isBellAnimating, setIsBellAnimating] = useState(false);
@@ -217,8 +215,6 @@ const StandaloneChatComponent = ({
       h={
         !previewStream && isOwner
           ? `${MOBILE_CHAT_VH + MOBILE_VIDEO_VH}vh`
-          : isFocusedOnInput
-          ? "200px"
           : `${MOBILE_CHAT_VH}vh`
       }
       p="5px"

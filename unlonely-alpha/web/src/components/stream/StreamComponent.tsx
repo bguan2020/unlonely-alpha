@@ -6,7 +6,6 @@ import useScript from "../../hooks/internal/useScript";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import LivepeerPlayer from "./LivepeerPlayer";
-import { useCacheContext } from "../../hooks/context/useCache";
 import { DESKTOP_VIDEO_VH, MOBILE_VIDEO_VH } from "../../constants";
 
 const StreamComponent = () => {
@@ -14,7 +13,6 @@ const StreamComponent = () => {
   const { channel } = useChannelContext();
   const { channelQueryData, loading: channelLoading } = channel;
 
-  const { isFocusedOnInput } = useCacheContext();
   const playbackUrl = useMemo(
     () =>
       channelQueryData?.playbackUrl == null
