@@ -233,9 +233,10 @@ const StandaloneChatComponent = ({
     <Flex
       direction="column"
       h={
-        mobileSizes.keyboardVisible || isFocusedOnInput
-          ? `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh)`
-          : !previewStream && isOwner
+        // mobileSizes.keyboardVisible || isFocusedOnInput
+        //   ? `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh)`
+        //   :
+        !previewStream && isOwner
           ? `${MOBILE_CHAT_VH + MOBILE_VIDEO_VH}vh`
           : `${MOBILE_CHAT_VH}vh`
       }
@@ -243,11 +244,10 @@ const StandaloneChatComponent = ({
       id="chat"
       position={"relative"}
       marginTop={
-        mobileSizes.keyboardVisible || isFocusedOnInput
-          ? `calc(${newTop}px + ${MOBILE_VIDEO_VH}vh + ${MOBILE_VIDEO_VH}vh)`
-          : !previewStream && isOwner
-          ? "0"
-          : `${MOBILE_VIDEO_VH}vh`
+        // mobileSizes.keyboardVisible || isFocusedOnInput
+        //   ? `calc(${newTop}px + ${MOBILE_VIDEO_VH}vh + ${MOBILE_VIDEO_VH}vh)`
+        //   :
+        !previewStream && isOwner ? "0" : `${MOBILE_VIDEO_VH}vh`
       }
     >
       {chatChannel?.includes("channel") ? (

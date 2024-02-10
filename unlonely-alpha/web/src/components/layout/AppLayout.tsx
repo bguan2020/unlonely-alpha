@@ -95,7 +95,7 @@ const AppLayout: React.FC<Props> = ({
           behavior: "smooth",
         });
       }, 1000);
-      // disableScroll();
+      disableScroll();
     } else {
       enableScroll();
     }
