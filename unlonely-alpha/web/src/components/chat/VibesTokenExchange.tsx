@@ -359,7 +359,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
       <Flex position="relative" gap="5px" alignItems={"center"}>
         <Tooltip
           label={errorMessage}
-          placement="top"
+          placement="bottom"
           isOpen={errorMessage !== undefined}
           bg="red.600"
         >
