@@ -6,13 +6,12 @@ import { useMemo } from "react";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 
 const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
-  const { isFocusedOnInput, mobileSizes, keyboardVisible, videoTop } =
-    useCacheContext();
+  const { isFocusedOnInput, mobileSizes } = useCacheContext();
   const { isIOS } = useUserAgent();
 
   const newTop = useMemo(() => {
-    if (isIOS && (isFocusedOnInput || keyboardVisible)) {
-      return `${videoTop}px`;
+    if (isIOS && isFocusedOnInput) {
+      return `${mobileSizes.screen.height - window.innerHeight}px`;
     }
     if (!isIOS && mobileSizes.keyboardVisible) {
       return `${
@@ -21,7 +20,7 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
       }px`;
     }
     return "unset";
-  }, [isIOS, isFocusedOnInput, mobileSizes, keyboardVisible, videoTop]);
+  }, [isIOS, isFocusedOnInput, mobileSizes]);
 
   return (
     <Stack
@@ -37,9 +36,10 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
           <p>Viewport Height: {mobileSizes.viewport.height}px</p>
           <p>Screen Height: {mobileSizes.screen.height}px</p>
           <p>window innerHeight: {window.innerHeight}px </p>
-          <p>Visible 1: {keyboardVisible ? "Yes" : "No"}</p>
-          <p>Visible 2: {mobileSizes.keyboardVisible ? "Yes" : "No"}</p>
+          <p>Visible keyboard: {mobileSizes.keyboardVisible ? "Yes" : "No"}</p>
           <p>isFocusedOnInput: {isFocusedOnInput ? "Yes" : "No"}</p>
+          <p>isIOS: {isIOS ? "Yes" : "No"}</p>
+          <p>newTop: {newTop}px</p>
         </div>
       </Flex>
     </Stack>

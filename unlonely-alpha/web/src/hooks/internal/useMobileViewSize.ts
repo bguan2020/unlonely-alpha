@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { MobileViewSizes } from "../../constants/types";
 
 export function useMobileViewSize() {
@@ -13,11 +13,6 @@ export function useMobileViewSize() {
         },
         keyboardVisible: false,
       });
-
-      const containerRef = useRef<HTMLDivElement>(null); // Ref for the element to observe
-      const [keyboardVisible, setKeyboardVisible] = useState(false);
-      const [videoTop, setVideoTop] = useState(0); // State to manage video's top position
-    
 
       useEffect(() => {
         // Handler to call on visual viewport resize
@@ -76,34 +71,6 @@ export function useMobileViewSize() {
         };
       }, []);
 
-      useEffect(() => {
-        // Ensure ResizeObserver is supported
-        if (typeof ResizeObserver === "undefined") return;
-      
-        const observer = new ResizeObserver(entries => {
-          for (const entry of entries) {
-            const { height } = entry.contentRect;
-            const keyboardIsVisible = height < window.innerHeight;
-            setKeyboardVisible(keyboardIsVisible);
-      
-            if (keyboardIsVisible) {
-              // Assuming the keyboard takes up roughly half the screen,
-              // adjust the video to be positioned at the top of the visible viewport area.
-              // This calculation might need tweaking based on actual keyboard size.
-              const estimatedKeyboardHeight = window.innerHeight - height;
-              setVideoTop(estimatedKeyboardHeight);
-            } else {
-              setVideoTop(0); // Reset position when keyboard is not visible
-            }
-          }
-        });
-      
-        if (containerRef.current) {
-          observer.observe(containerRef.current);
-        }
-      
-        return () => observer.disconnect(); // Clean up observer on component unmount
-      }, []);
     
-      return { sizes, keyboardVisible, containerRef, videoTop}
+      return { sizes}
 }
