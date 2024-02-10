@@ -15,6 +15,7 @@ import Header from "../navigation/Header";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { Navbar } from "../mobile/Navbar";
 import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
+import { useCacheContext } from "../../hooks/context/useCache";
 
 type Props = {
   loading?: boolean;
@@ -40,6 +41,7 @@ const AppLayout: React.FC<Props> = ({
 }) => {
   const { isStandalone, ready } = useUserAgent();
   const router = useRouter();
+  const { mobileSizes, isFocusedOnInput } = useCacheContext();
 
   const smallestDevice = useBreakpointValue({
     base: true,
@@ -97,6 +99,11 @@ const AppLayout: React.FC<Props> = ({
                     : "100vh"
                 }
                 overflowX="hidden"
+                overflowY={
+                  mobileSizes.keyboardVisible || isFocusedOnInput
+                    ? "hidden"
+                    : "unset"
+                }
               >
                 {children}
               </Box>
