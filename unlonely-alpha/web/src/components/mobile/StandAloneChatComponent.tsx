@@ -241,7 +241,7 @@ const StandaloneChatComponent = ({
       id="chat"
       position={"relative"}
       marginTop={
-        newTop !== "unset"
+        mobileSizes.keyboardVisible || isFocusedOnInput
           ? `calc(${newTop}px + ${MOBILE_VIDEO_VH}vh)`
           : !previewStream && isOwner
           ? "0"
