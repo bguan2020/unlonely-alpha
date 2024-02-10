@@ -6,12 +6,16 @@ import { useMemo } from "react";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 
 const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
-  const { isFocusedOnInput, mobileSizes } = useCacheContext();
+  const { isFocusedOnInput, mobileSizes, initialWindowInnerHeight } =
+    useCacheContext();
   const { isIOS } = useUserAgent();
 
   const newTop = useMemo(() => {
     if (isIOS && isFocusedOnInput) {
-      return `${mobileSizes.screen.height - window.innerHeight}px`;
+      return `${
+        mobileSizes.viewport.height -
+        (mobileSizes.screen.height - initialWindowInnerHeight)
+      }px`;
     }
     if (!isIOS && mobileSizes.keyboardVisible) {
       return `${
@@ -20,7 +24,7 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
       }px`;
     }
     return "unset";
-  }, [isIOS, isFocusedOnInput, mobileSizes]);
+  }, [isIOS, isFocusedOnInput, mobileSizes, initialWindowInnerHeight]);
 
   return (
     <Stack

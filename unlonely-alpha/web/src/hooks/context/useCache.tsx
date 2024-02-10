@@ -59,6 +59,7 @@ const CacheContext = createContext<{
   isFocusedOnInput: boolean;
   handleIsFocusedOnInput: (value: boolean) => void;
   mobileSizes: MobileViewSizes;
+  initialWindowInnerHeight: number;
 }>({
   channelFeed: [],
   claimableBets: [],
@@ -85,6 +86,7 @@ const CacheContext = createContext<{
     },
     keyboardVisible: false,
   },
+  initialWindowInnerHeight: 0,
 });
 
 type SourcedError = Error & {
@@ -123,7 +125,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const [transferLogs, setTransferLogs] = useState<Log[]>([]);
   const [isFocusedOnInput, setIsFocusedOnInput] = useState(false); // for detecting mobile input focus
 
-  const { sizes } = useMobileViewSize();
+  const { sizes, initialWindowInnerHeight } = useMobileViewSize();
 
   useContractEvent({
     address: contract.address,
@@ -435,6 +437,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       isFocusedOnInput,
       handleIsFocusedOnInput,
       mobileSizes: sizes,
+      initialWindowInnerHeight,
     };
   }, [
     claimableBets,
@@ -452,6 +455,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     isFocusedOnInput,
     handleIsFocusedOnInput,
     sizes,
+    initialWindowInnerHeight,
   ]);
 
   return (

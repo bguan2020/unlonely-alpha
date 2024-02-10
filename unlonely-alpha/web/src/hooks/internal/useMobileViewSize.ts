@@ -14,6 +14,8 @@ export function useMobileViewSize() {
         keyboardVisible: false,
       });
 
+      const [initialWindowInnerHeight, setInitialWindowInnerHeight] = useState(0);
+
       useEffect(() => {
         // Handler to call on visual viewport resize
         const handleResize = () => {
@@ -55,6 +57,8 @@ export function useMobileViewSize() {
           // Fallback to using the window's resize event
           window.addEventListener("resize", handleResize);
         }
+
+        if (window) setInitialWindowInnerHeight(window.innerHeight);
     
         // Call the handler right away to set initial size
         handleResize();
@@ -72,5 +76,5 @@ export function useMobileViewSize() {
       }, []);
 
     
-      return { sizes}
+      return { sizes, initialWindowInnerHeight}
 }
