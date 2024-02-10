@@ -40,6 +40,7 @@ import VibesTokenInterface from "../../components/chat/VibesTokenInterface";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import Trade from "../../components/channels/bet/Trade";
+import { useCacheContext } from "../../hooks/context/useCache";
 
 const ChannelDetail = ({
   channelData,
@@ -279,6 +280,7 @@ const MobilePage = ({
 }: {
   channelSSR: ChannelDetailQuery["getChannelBySlug"];
 }) => {
+  const { mobileSizes, isFocusedOnInput } = useCacheContext();
   const { channel, leaderboard } = useChannelContext();
   const { network } = useNetworkContext();
   const { localNetwork } = network;
@@ -389,7 +391,14 @@ const MobilePage = ({
         isCustomHeader={true}
       >
         {!queryLoading && !channelDataError ? (
-          <>
+          <div
+            style={{
+              overflowY:
+                isFocusedOnInput || mobileSizes.keyboardVisible
+                  ? "hidden"
+                  : "unset",
+            }}
+          >
             {(previewStream || !isOwner) && <ChannelViewerPerspective mobile />}
             <ChannelWideModals ablyChannel={chat.channel} />
             <StandaloneAblyChatComponent
@@ -397,7 +406,7 @@ const MobilePage = ({
               handleShowPreviewStream={handleShowPreviewStream}
               chat={chat}
             />
-          </>
+          </div>
         ) : (
           <Flex
             alignItems={"center"}
