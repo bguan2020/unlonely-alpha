@@ -16,6 +16,7 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { Navbar } from "../mobile/Navbar";
 import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
 import { useCacheContext } from "../../hooks/context/useCache";
+import { useEffect } from "react";
 
 type Props = {
   loading?: boolean;
@@ -50,13 +51,19 @@ const AppLayout: React.FC<Props> = ({
     xl: false,
   });
 
+  useEffect(() => {
+    if (
+      (mobileSizes.keyboardVisible || isFocusedOnInput) &&
+      router.pathname.startsWith("/channels")
+    ) {
+      document.body.style.overflowY = "hidden";
+    } else {
+      document.body.style.overflowY = "";
+    }
+  }, [isFocusedOnInput, mobileSizes, router.pathname]);
+
   return (
-    <Box
-      background="rgba(0, 0, 0, 0.65)"
-      overflowY={
-        mobileSizes.keyboardVisible || isFocusedOnInput ? "hidden" : "unset"
-      }
-    >
+    <Box background="rgba(0, 0, 0, 0.65)">
       {isCustomHeader === false && (
         <NextHead
           title={title ? title : ""}
