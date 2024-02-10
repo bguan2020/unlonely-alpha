@@ -56,8 +56,8 @@ const CacheContext = createContext<{
   addAppError: (error: Error, source: string) => void;
   popAppError: (errorName: string, field: string) => void;
   ethPriceInUsd: string;
-  isFocusedOnInput: boolean;
-  handleIsFocusedOnInput: (value: boolean) => void;
+  isFocusedOnInput?: string;
+  handleIsFocusedOnInput: (value?: string) => void;
   mobileSizes: MobileViewSizes;
   initialWindowInnerHeight: number;
 }>({
@@ -73,7 +73,7 @@ const CacheContext = createContext<{
   addAppError: () => undefined,
   popAppError: () => undefined,
   ethPriceInUsd: "0",
-  isFocusedOnInput: false,
+  isFocusedOnInput: undefined,
   handleIsFocusedOnInput: () => undefined,
   mobileSizes: {
     viewport: {
@@ -123,7 +123,9 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const [transferLogs, setTransferLogs] = useState<Log[]>([]);
-  const [isFocusedOnInput, setIsFocusedOnInput] = useState(false); // for detecting mobile input focus
+  const [isFocusedOnInput, setIsFocusedOnInput] = useState<string | undefined>(
+    undefined
+  ); // for detecting mobile input focus
 
   const { sizes, initialWindowInnerHeight } = useMobileViewSize();
 
@@ -197,7 +199,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     [appErrors]
   );
 
-  const handleIsFocusedOnInput = useCallback((value: boolean) => {
+  const handleIsFocusedOnInput = useCallback((value?: string) => {
     setIsFocusedOnInput(value);
   }, []);
 

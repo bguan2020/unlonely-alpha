@@ -64,7 +64,7 @@ export const ChatClip = () => {
   };
 
   const _submitClip = async (data: { title: string }) => {
-    handleIsFocusedOnInput(false);
+    handleIsFocusedOnInput(undefined);
     const url = await handleCreateClip(data.title);
     setTitle("");
     addToChatbot({
@@ -142,7 +142,7 @@ export const ChatClip = () => {
                     handleIsClipUiOpen(false);
                     setFinalUrl("");
                     setTitle("");
-                    handleIsFocusedOnInput(false);
+                    handleIsFocusedOnInput(undefined);
                   }}
                   _focus={{}}
                   _hover={{ opacity: "1" }}
@@ -231,7 +231,7 @@ export const ChatClip = () => {
                       borderRadius="10px"
                       minHeight="2rem"
                       fontWeight="medium"
-                      onFocus={() => handleIsFocusedOnInput(true)}
+                      onFocus={() => handleIsFocusedOnInput("clipping")}
                       w="100%"
                       padding="auto"
                       fontSize={isStandalone ? "16px" : "unset"}

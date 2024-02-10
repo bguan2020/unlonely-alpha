@@ -419,8 +419,8 @@ const ChatForm = ({
                         ? "blast a message to everyone watching!"
                         : "say something in chat!"
                     }
-                    onFocus={() => handleIsFocusedOnInput(true)}
-                    onBlur={() => handleIsFocusedOnInput(false)}
+                    onFocus={() => handleIsFocusedOnInput("chatting")}
+                    onBlur={() => handleIsFocusedOnInput(undefined)}
                     enterKeyHint="send"
                     onChange={(e) => {
                       if (e.target.value === "") {

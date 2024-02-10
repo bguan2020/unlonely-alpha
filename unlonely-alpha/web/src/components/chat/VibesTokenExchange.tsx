@@ -370,8 +370,8 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
             value={amountOfVibes}
             onChange={handleInputChange}
             mx="auto"
-            onFocus={() => handleIsFocusedOnInput(true)}
-            onBlur={() => handleIsFocusedOnInput(false)}
+            onFocus={() => handleIsFocusedOnInput("vibesTokenExchange")}
+            onBlur={() => handleIsFocusedOnInput(undefined)}
             p="1"
             fontSize={isStandalone ? "16px" : isFullChart ? "2rem" : "14px"}
           />
