@@ -94,7 +94,7 @@ const AppLayout: React.FC<Props> = ({
     } else {
       enableScroll();
     }
-  }, [isFocusedOnInput, mobileSizes, router.pathname, isStandalone]);
+  }, [isFocusedOnInput, mobileSizes, router, isStandalone]);
 
   return (
     <Box background="rgba(0, 0, 0, 0.65)">
