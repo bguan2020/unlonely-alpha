@@ -83,7 +83,7 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
       position={mobile ? "fixed" : "unset"}
       zIndex={5}
       top={
-        sizes.keyboardVisible
+        sizes.keyboardVisible || isFocusedOnInput
           ? `${
               sizes.viewport.height - (sizes.screen.height - window.innerHeight)
             }px`
