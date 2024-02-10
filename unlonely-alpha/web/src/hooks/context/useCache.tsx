@@ -1,5 +1,6 @@
 import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
 import {
+  RefObject,
   createContext,
   useCallback,
   useContext,
@@ -23,9 +24,14 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "./useNetwork";
 import { useUser } from "./useUser";
 import { useVibesCheck } from "../internal/useVibesCheck";
-import { FetchBalanceResult, VibesTokenTx } from "../../constants/types";
+import {
+  FetchBalanceResult,
+  MobileViewSizes,
+  VibesTokenTx,
+} from "../../constants/types";
 import { getCoingeckoTokenPrice } from "../../utils/coingecko";
 import { useBalance, useContractEvent } from "wagmi";
+import { useMobileViewSize } from "../internal/useMobileViewSize";
 
 type UnclaimedBet = SharesEvent & {
   payout: bigint;
@@ -53,6 +59,10 @@ const CacheContext = createContext<{
   ethPriceInUsd: string;
   isFocusedOnInput: boolean;
   handleIsFocusedOnInput: (value: boolean) => void;
+  mobileSizes: MobileViewSizes;
+  videoTop: number;
+  keyboardVisible: boolean;
+  containerRef?: RefObject<HTMLDivElement>;
 }>({
   channelFeed: [],
   claimableBets: [],
@@ -68,6 +78,20 @@ const CacheContext = createContext<{
   ethPriceInUsd: "0",
   isFocusedOnInput: false,
   handleIsFocusedOnInput: () => undefined,
+  mobileSizes: {
+    viewport: {
+      width: 0,
+      height: 0,
+    },
+    screen: {
+      width: 0,
+      height: 0,
+    },
+    keyboardVisible: false,
+  },
+  videoTop: 0,
+  keyboardVisible: false,
+  containerRef: undefined,
 });
 
 type SourcedError = Error & {
@@ -105,6 +129,9 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [transferLogs, setTransferLogs] = useState<Log[]>([]);
   const [isFocusedOnInput, setIsFocusedOnInput] = useState(false); // for detecting mobile input focus
+
+  const { sizes, keyboardVisible, containerRef, videoTop } =
+    useMobileViewSize();
 
   useContractEvent({
     address: contract.address,
@@ -415,6 +442,10 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       ethPriceInUsd,
       isFocusedOnInput,
       handleIsFocusedOnInput,
+      mobileSizes: sizes,
+      videoTop,
+      keyboardVisible,
+      containerRef,
     };
   }, [
     claimableBets,
@@ -431,6 +462,10 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     vibesBalance,
     isFocusedOnInput,
     handleIsFocusedOnInput,
+    sizes,
+    containerRef,
+    keyboardVisible,
+    videoTop,
   ]);
 
   return (

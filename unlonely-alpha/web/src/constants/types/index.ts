@@ -56,3 +56,15 @@ export type Role = {
   address: string;
   role: number;
 };
+
+export type MobileViewSizes = {
+  viewport: {
+    width: number,
+    height: number,
+  },
+  screen: {
+    width: number,
+    height: number,
+  },
+  keyboardVisible: boolean,
+}
