@@ -44,6 +44,7 @@ import { VipBadgeBuy } from "../channels/VipBadgeBuy";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import Trade from "../channels/bet/Trade";
 import VibesTokenInterface from "../chat/VibesTokenInterface";
+import { useCacheContext } from "../../hooks/context/useCache";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
@@ -60,6 +61,9 @@ const StandaloneChatComponent = ({
   const { userAddress } = useUser();
   const { channelQueryData } = channelContext;
   const { chatChannel } = chatInfo;
+  const { isFocusedOnInput, mobileSizes, initialWindowInnerHeight } =
+    useCacheContext();
+  const { isIOS } = useUserAgent();
 
   const router = useRouter();
   const [isBellAnimating, setIsBellAnimating] = useState(false);
@@ -71,6 +75,22 @@ const StandaloneChatComponent = ({
   const infoRef = useRef<HTMLDivElement>(null);
   const vipRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const newTop = useMemo(() => {
+    if (isIOS && isFocusedOnInput) {
+      return `${
+        mobileSizes.viewport.height -
+        (mobileSizes.screen.height - initialWindowInnerHeight)
+      }px`;
+    }
+    if (!isIOS && mobileSizes.keyboardVisible) {
+      return `${
+        mobileSizes.viewport.height -
+        (mobileSizes.screen.height - window.innerHeight)
+      }px`;
+    }
+    return "unset";
+  }, [isIOS, isFocusedOnInput, mobileSizes, initialWindowInnerHeight]);
 
   useOnClickOutside(infoRef, () => {
     if (showInfo) {
@@ -220,7 +240,13 @@ const StandaloneChatComponent = ({
       p="5px"
       id="chat"
       position={"relative"}
-      marginTop={!previewStream && isOwner ? "0" : `${MOBILE_VIDEO_VH}vh`}
+      marginTop={
+        newTop !== "unset"
+          ? `${newTop}px`
+          : !previewStream && isOwner
+          ? "0"
+          : `${MOBILE_VIDEO_VH}vh`
+      }
     >
       {chatChannel?.includes("channel") ? (
         <Flex justifyContent={"space-between"} py="2px">

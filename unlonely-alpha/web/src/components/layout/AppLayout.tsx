@@ -16,7 +16,7 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { Navbar } from "../mobile/Navbar";
 import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
 import { useCacheContext } from "../../hooks/context/useCache";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 type Props = {
   loading?: boolean;
@@ -52,9 +52,9 @@ const AppLayout: React.FC<Props> = ({
     xl: false,
   });
 
-  const preventTouchMove = (e: any) => {
+  const preventTouchMove = useCallback((e: any) => {
     e.preventDefault();
-  };
+  }, []);
 
   const disableScroll = () => {
     document.addEventListener("touchmove", preventTouchMove, {
