@@ -73,7 +73,7 @@ const AppLayout: React.FC<Props> = ({
       window
     ) {
       window.scrollTo({
-        top: document.body.scrollHeight,
+        top: document.body.scrollHeight + 50,
         behavior: "smooth",
       });
       disableScroll();
