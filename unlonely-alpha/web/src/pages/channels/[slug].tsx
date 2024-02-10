@@ -379,7 +379,7 @@ const MobilePage = ({
   }, [vipBadgeSupply]);
 
   return (
-    <>
+    <div style={{ overflowY: "hidden" }}>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}
       <AppLayout
         title={channelSSR?.name}
@@ -426,7 +426,7 @@ const MobilePage = ({
           </Flex>
         )}
       </AppLayout>
-    </>
+    </div>
   );
 };
 

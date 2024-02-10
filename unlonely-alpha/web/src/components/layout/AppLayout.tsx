@@ -52,18 +52,19 @@ const AppLayout: React.FC<Props> = ({
   });
 
   useEffect(() => {
-    if (
-      (mobileSizes.keyboardVisible || isFocusedOnInput) &&
-      router.pathname.startsWith("/channels")
-    ) {
-      document.body.style.overflowY = "hidden";
-    } else {
-      document.body.style.overflowY = "";
-    }
-  }, [isFocusedOnInput, mobileSizes, router.pathname]);
+    // if (
+    //   (mobileSizes.keyboardVisible || isFocusedOnInput) &&
+    //   router.pathname.startsWith("/channels") &&
+    //   isStandalone
+    // ) {
+    document.body.style.overflowY = "hidden";
+    // } else {
+    //   document.body.style.overflowY = "";
+    // }
+  }, [isFocusedOnInput, mobileSizes, router.pathname, isStandalone]);
 
   return (
-    <Box background="rgba(0, 0, 0, 0.65)">
+    <Box background="rgba(0, 0, 0, 0.65)" overflowY={"hidden"}>
       {isCustomHeader === false && (
         <NextHead
           title={title ? title : ""}
@@ -102,8 +103,15 @@ const AppLayout: React.FC<Props> = ({
               </Box>
             </>
           ) : (
-            <Box minW="100%" as="main" minH="100vh" gridColumnStart={2}>
+            <Box
+              minW="100%"
+              as="main"
+              minH="100vh"
+              gridColumnStart={2}
+              overflowY={"hidden"}
+            >
               <Box
+                overflowY={"hidden"}
                 background={"#19162F"}
                 h={
                   !router.pathname.startsWith("/channels")
