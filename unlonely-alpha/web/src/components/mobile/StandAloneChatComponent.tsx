@@ -27,11 +27,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import ChannelDesc from "../channels/ChannelDesc";
 import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
-import {
-  ADD_REACTION_EVENT,
-  MOBILE_CHAT_VH,
-  MOBILE_VIDEO_VH,
-} from "../../constants";
+import { ADD_REACTION_EVENT, MOBILE_VIDEO_VH } from "../../constants";
 import MessageList from "../chat/MessageList";
 import ChatForm from "../chat/ChatForm";
 import { GET_SUBSCRIPTION } from "../../constants/queries";
@@ -236,18 +232,20 @@ const StandaloneChatComponent = ({
         // mobileSizes.keyboardVisible || isFocusedOnInput
         //   ? `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh)`
         //   :
-        !previewStream && isOwner
-          ? `${MOBILE_CHAT_VH + MOBILE_VIDEO_VH}vh`
-          : `${MOBILE_CHAT_VH}vh`
+        // !previewStream && isOwner
+        //   ? `${MOBILE_CHAT_VH + MOBILE_VIDEO_VH}vh`
+        //   : `${MOBILE_CHAT_VH}vh`
+        `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh)`
       }
       p="5px"
       id="chat"
       position={"relative"}
       marginTop={
         // mobileSizes.keyboardVisible || isFocusedOnInput
-        //   ? `calc(${newTop}px + ${MOBILE_VIDEO_VH}vh + ${MOBILE_VIDEO_VH}vh)`
+        //   ? `calc(${newTop}px + ${MOBILE_VIDEO_VH}vh)`
         //   :
-        !previewStream && isOwner ? "0" : `${MOBILE_VIDEO_VH}vh`
+        // !previewStream && isOwner ? "0" : `${MOBILE_VIDEO_VH}vh`
+        `calc(${newTop}px + ${MOBILE_VIDEO_VH}vh)`
       }
     >
       {chatChannel?.includes("channel") ? (
