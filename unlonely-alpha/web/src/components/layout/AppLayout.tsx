@@ -69,8 +69,13 @@ const AppLayout: React.FC<Props> = ({
     if (
       (mobileSizes.keyboardVisible || isFocusedOnInput) &&
       router.pathname.startsWith("/channels") &&
-      isStandalone
+      isStandalone &&
+      window
     ) {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth",
+      });
       disableScroll();
     } else {
       enableScroll();
