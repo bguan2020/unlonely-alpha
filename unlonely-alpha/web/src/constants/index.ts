@@ -61,3 +61,11 @@ export const IPFS_PROJECT_ID = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
 export const IPFS_PROJECT_SECRET = "7d400aacc9bc6c0f0d6e59b65a83d764";
 
 export const CREATION_BLOCK = BigInt(9018023);
+
+export const SECONDS_IN_A_MINUTE = 60;
+export const MINUTES_IN_AN_HOUR = 60;
+export const HOURS_IN_A_DAY = 24;
+export const DAYS_IN_A_WEEK = 7;
+export const AVERAGE_BLOCK_TIME_SECS = 2;
+export const SECONDS_PER_HOUR = MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE;
+export const SECONDS_PER_DAY = HOURS_IN_A_DAY * SECONDS_PER_HOUR;

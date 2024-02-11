@@ -135,8 +135,8 @@ const VibesTokenInterface = ({
 
   const formattedDayData = useMemo(
     () =>
-      chartTimeIndexes.get("day") !== undefined
-        ? txs.slice(chartTimeIndexes.get("day")?.index as number)
+      chartTimeIndexes.get("1d") !== undefined
+        ? txs.slice(chartTimeIndexes.get("1d")?.index as number)
         : txs,
     [txs, chartTimeIndexes]
   );
@@ -908,112 +908,40 @@ const VibesTokenInterface = ({
                       )}
                     {timeFilter === "all" && isFullChart && !previewMode && (
                       <>
-                        {chartTimeIndexes.get("day") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              chartTimeIndexes.get("day")?.blockNumber as number
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~1d" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("7day") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              chartTimeIndexes.get("7day")
-                                ?.blockNumber as number
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~7d" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("14day") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              chartTimeIndexes.get("14day")
-                                ?.blockNumber as number
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~14d" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("30day") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              chartTimeIndexes.get("30day")
-                                ?.blockNumber as number
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~30d" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("60day") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              chartTimeIndexes.get("60day")
-                                ?.blockNumber as number
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~60d" />}
-                          />
-                        )}
+                        {Array.from(chartTimeIndexes.keys())
+                          .filter((i) => i.includes("d"))
+                          .map((key) => {
+                            return (
+                              <ReferenceLine
+                                strokeDasharray="3 3"
+                                x={
+                                  chartTimeIndexes.get(key)
+                                    ?.blockNumber as number
+                                }
+                                stroke="#00d3c1"
+                                label={<CustomLabel value={`~${key}`} />}
+                              />
+                            );
+                          })}
                       </>
                     )}
                     {timeFilter === "1d" && isFullChart && !previewMode && (
                       <>
-                        {chartTimeIndexes.get("18hour") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              (chartTimeIndexes.get("18hour")
-                                ?.blockNumber as number) -
-                              (txs.length - formattedDayData.length)
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~18h" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("12hour") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              (chartTimeIndexes.get("12hour")
-                                ?.blockNumber as number) -
-                              (txs.length - formattedDayData.length)
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~12h" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("6hour") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              (chartTimeIndexes.get("6hour")
-                                ?.blockNumber as number) -
-                              (txs.length - formattedDayData.length)
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~6h" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("1hour") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              (chartTimeIndexes.get("1hour")
-                                ?.blockNumber as number) -
-                              (txs.length - formattedDayData.length)
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~1h" />}
-                          />
-                        )}
+                        {Array.from(chartTimeIndexes.keys())
+                          .filter((i) => i.includes("h"))
+                          .map((key) => {
+                            return (
+                              <ReferenceLine
+                                strokeDasharray="3 3"
+                                x={
+                                  chartTimeIndexes.get(key)
+                                    ?.blockNumber as number
+                                }
+                                stroke="#00d3c1"
+                                label={<CustomLabel value={`~${key}`} />}
+                              />
+                            );
+                          })}
                       </>
                     )}
                     <Line

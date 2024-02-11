@@ -9,17 +9,16 @@ import { GET_USER_QUERY } from "../../constants/queries";
 import { getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "./useUserAgent";
 import { NETWORKS } from "../../constants/networks";
-import { CREATION_BLOCK } from "../../constants";
+import { AVERAGE_BLOCK_TIME_SECS, CREATION_BLOCK, SECONDS_PER_HOUR } from "../../constants";
 
 export const useVibesCheck = () => {
   const { isStandalone } = useUserAgent();
-  // const publicClient = usePublicClient();
   const client = useApolloClient();
   const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
   const [loading, setLoading] = useState(true);
   const contract = getContractFromNetwork("vibesTokenV1", NETWORKS[0]);
   const [chartTimeIndexes, setChartTimeIndexes] = useState<
-    Map<string, {index: number | undefined, blockNumber: number | undefined}>
+    Map<string, {index: number | undefined, blockNumber: number}>
   >(new Map());
   const fetching = useRef(false);
   const [hashMapState, setHashMapState] = useState<Map<string, string>>(
@@ -232,56 +231,33 @@ export const useVibesCheck = () => {
     const init = async () => {
       if (tokenTxs.length === 0) return;
 
-      const SECONDS_IN_A_MINUTE = 60;
-      const MINUTES_IN_AN_HOUR = 60;
-      const HOURS_IN_A_DAY = 24;
-      const DAYS_IN_A_WEEK = 7;
-      const AVERAGE_BLOCK_TIME_SECS = 2;
+
+      const daysArr = [1, 7, 14, 21, 28, 30, 60, 90, 180, 365];
       const currentBlockNumber = await baseClient.getBlockNumber();
 
-      const blockNumberSixtyDaysAgo =
-        currentBlockNumber -
-        BigInt(60 * HOURS_IN_A_DAY * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE / AVERAGE_BLOCK_TIME_SECS);
-
-      const blockNumberThirtyDaysAgo =
-        currentBlockNumber -
-        BigInt(30 * HOURS_IN_A_DAY * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE / AVERAGE_BLOCK_TIME_SECS);
-
-      const blockNumberTwoWeeksAgo =
-        currentBlockNumber -
-        BigInt((2 * DAYS_IN_A_WEEK * HOURS_IN_A_DAY * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
-
-      const blockNumberOneWeekAgo =
-        currentBlockNumber - BigInt((DAYS_IN_A_WEEK * HOURS_IN_A_DAY * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
-
-      const blockNumberOneDayAgo = currentBlockNumber - BigInt((HOURS_IN_A_DAY * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
+      const daysAgoArr = daysArr.map((days) => blockNumberDaysAgo(days, currentBlockNumber));
 
       const dayIndex =
-        blockNumberOneDayAgo < CREATION_BLOCK
+        daysAgoArr[0] < CREATION_BLOCK
           ? undefined
-          : binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
+          : binarySearchIndex(tokenTxs, BigInt(daysAgoArr[0]));
 
-      const blockNumberEighteenHoursAgo = currentBlockNumber - BigInt((18 * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
+      const hoursArr = [18, 12, 6, 1];
+      const hoursAgoArr = hoursArr.map((hours) => blockNumberHoursAgo(hours, currentBlockNumber));
 
-      const blockNumberTwelveHoursAgo = currentBlockNumber - BigInt((12 * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
-
-      const blockNumberSixHoursAgo = currentBlockNumber - BigInt((6 * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
-
-      const blockNumberOneHourAgo = currentBlockNumber - BigInt((MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
-
-      setChartTimeIndexes(
-        new Map([
-          ["day", {index: dayIndex, blockNumber: Number(blockNumberOneDayAgo)}],
-          ["7day", {index: undefined, blockNumber: Number(blockNumberOneWeekAgo)}],
-          ["14day", {index: undefined, blockNumber: Number(blockNumberTwoWeeksAgo)}],
-          ["30day", {index: undefined, blockNumber: Number(blockNumberThirtyDaysAgo)}],
-          ["60day", {index: undefined, blockNumber: Number(blockNumberSixtyDaysAgo)}],
-          ["18hour", {index: undefined, blockNumber: Number(blockNumberEighteenHoursAgo)}],
-          ["12hour", {index: undefined, blockNumber: Number(blockNumberTwelveHoursAgo)}],
-          ["6hour", {index: undefined, blockNumber: Number(blockNumberSixHoursAgo)}],
-          ["1hour", {index: undefined, blockNumber: Number(blockNumberOneHourAgo)}],
-        ])
-      );
+      // adding 1day separately to account for day index
+      setChartTimeIndexes(new Map<string, { index: number | undefined; blockNumber: number }>(
+        [
+          [`${daysArr[0]}d`, { index: dayIndex, blockNumber: Number(daysAgoArr[0]) }],
+          ...daysAgoArr.slice(1).map<[string, { index: undefined; blockNumber: number }]>((blockNumber, slicedIndex) => {
+            const index = slicedIndex + 1;
+            return [`${daysArr[index]}d`, { index: undefined, blockNumber: Number(blockNumber) }];
+          }),
+          ...hoursAgoArr.map<[string, { index: undefined; blockNumber: number }]>((blockNumber, index) => {
+            return [`${hoursArr[index]}h`, { index: undefined, blockNumber: Number(blockNumber) }];
+          }),
+        ]
+      ));
     };
     init();
   }, [tokenTxs.length]);
@@ -337,4 +313,13 @@ function insertElementSorted(arr: VibesTokenTx[], newElement: VibesTokenTx) {
   }
 
   return [...arr.slice(0, insertIndex), newElement, ...arr.slice(insertIndex)];
+}
+
+function blockNumberHoursAgo(hours: number, currentBlockNumber: bigint) {
+return currentBlockNumber - BigInt((hours * SECONDS_PER_HOUR) / AVERAGE_BLOCK_TIME_SECS);
+}
+
+function blockNumberDaysAgo(days: number, currentBlockNumber: bigint) {
+  const hours = days * 24;
+  return blockNumberHoursAgo(hours, currentBlockNumber);
 }
