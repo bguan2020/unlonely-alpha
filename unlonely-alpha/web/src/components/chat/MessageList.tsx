@@ -90,7 +90,7 @@ const MessageList = memo(
               height: "100%",
               overflowY: "scroll",
             }}
-            className="hide-scrollbar"
+            className="hide-scrollbar always-allow-touchmove"
             data={chatMessages}
             atBottomStateChange={(isAtBottom) => isAtBottomCallback(isAtBottom)}
             initialTopMostItemIndex={chatMessages.length - 1}

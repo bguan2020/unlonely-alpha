@@ -239,7 +239,7 @@ const StandaloneChatComponent = ({
       direction="column"
       h={
         mobileSizes.keyboardVisible || isFocusedOnInput
-          ? `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh)`
+          ? `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh + ${mobileSizes.screen.height}px - ${window.innerHeight}px)`
           : !previewStream && isOwner
           ? `${MOBILE_CHAT_VH + MOBILE_VIDEO_VH}vh`
           : `${MOBILE_CHAT_VH}vh`
