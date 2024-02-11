@@ -233,74 +233,42 @@ export const useVibesCheck = () => {
     const init = async () => {
       if (tokenTxs.length === 0) return;
 
+      const SECONDS_IN_A_MINUTE = 60;
+      const MINUTES_IN_AN_HOUR = 60;
+      const HOURS_IN_A_DAY = 24;
+      const DAYS_IN_A_WEEK = 7;
       const AVERAGE_BLOCK_TIME_SECS = 2;
       const currentBlockNumber = await baseClient.getBlockNumber();
 
       const blockNumberSixtyDaysAgo =
         currentBlockNumber -
-        BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 30);
-      // const sixtyDayIndex =
-      //   blockNumberSixtyDaysAgo < CREATION_BLOCK
-      //     ? undefined
-      //     : binarySearchIndex(tokenTxs, blockNumberSixtyDaysAgo);
+        BigInt(60 * HOURS_IN_A_DAY * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE / AVERAGE_BLOCK_TIME_SECS);
 
       const blockNumberThirtyDaysAgo =
         currentBlockNumber -
-        BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 30);
-      // const thirtyDayIndex =
-      //   blockNumberThirtyDaysAgo < CREATION_BLOCK
-      //     ? undefined
-      //     : binarySearchIndex(tokenTxs, blockNumberThirtyDaysAgo);
+        BigInt(30 * HOURS_IN_A_DAY * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE / AVERAGE_BLOCK_TIME_SECS);
 
       const blockNumberTwoWeeksAgo =
         currentBlockNumber -
-        BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 14);
-      // const fourteenDayIndex =
-      //   blockNumberTwoWeeksAgo < CREATION_BLOCK
-      //     ? undefined
-      //     : binarySearchIndex(tokenTxs, blockNumberTwoWeeksAgo);
+        BigInt((2 * DAYS_IN_A_WEEK * HOURS_IN_A_DAY * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
 
       const blockNumberOneWeekAgo =
-        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24 * 7);
-      // const sevenDayIndex =
-      //   blockNumberOneWeekAgo < CREATION_BLOCK
-      //     ? undefined
-      //     : binarySearchIndex(tokenTxs, blockNumberOneWeekAgo);
+        currentBlockNumber - BigInt((DAYS_IN_A_WEEK * HOURS_IN_A_DAY * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
 
-      const blockNumberOneDayAgo =
-        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 24);
+      const blockNumberOneDayAgo = currentBlockNumber - BigInt((HOURS_IN_A_DAY * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
+
       const dayIndex =
         blockNumberOneDayAgo < CREATION_BLOCK
           ? undefined
           : binarySearchIndex(tokenTxs, blockNumberOneDayAgo);
 
-      const blockNumberEighteenHoursAgo =
-        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 18);
-      // const eighteenHourIndex =
-      //   blockNumberEighteenHoursAgo < CREATION_BLOCK
-      //     ? undefined
-      //     : binarySearchIndex(tokenTxs, blockNumberEighteenHoursAgo);
+      const blockNumberEighteenHoursAgo = currentBlockNumber - BigInt((18 * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
 
-      const blockNumberTwelveHoursAgo =
-        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 12);
-      // const twelveHourIndex =
-      //   blockNumberTwelveHoursAgo < CREATION_BLOCK
-      //     ? undefined
-      //     : binarySearchIndex(tokenTxs, blockNumberTwelveHoursAgo);
+      const blockNumberTwelveHoursAgo = currentBlockNumber - BigInt((12 * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
 
-      const blockNumberSixHoursAgo =
-        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60 * 6);
-      // const sixHourIndex =
-      //   blockNumberSixHoursAgo < CREATION_BLOCK
-      //     ? undefined
-      //     : binarySearchIndex(tokenTxs, blockNumberSixHoursAgo);
+      const blockNumberSixHoursAgo = currentBlockNumber - BigInt((6 * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
 
-      const blockNumberOneHourAgo =
-        currentBlockNumber - BigInt(AVERAGE_BLOCK_TIME_SECS * 30 * 60);
-      // const oneHourIndex =
-      //   blockNumberOneHourAgo < CREATION_BLOCK
-      //     ? undefined
-      //     : binarySearchIndex(tokenTxs, blockNumberOneHourAgo);
+      const blockNumberOneHourAgo = currentBlockNumber - BigInt((MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE) / AVERAGE_BLOCK_TIME_SECS);
 
       setChartTimeIndexes(
         new Map([
