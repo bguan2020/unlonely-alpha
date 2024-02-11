@@ -360,7 +360,7 @@ export const ChatUserModal = ({
                     <Flex alignItems="center" gap="10px">
                       <Tooltip
                         label={errorMessage}
-                        placement="top"
+                        placement="bottom"
                         isOpen={errorMessage !== undefined}
                         bg="red.600"
                       >

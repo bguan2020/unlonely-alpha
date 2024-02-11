@@ -90,7 +90,7 @@ const numberAbbreviate = (value: number | string, maxDecimals = 2): string => {
   }
   if (wholeNumber.length <= 3) return str;
 
-  const abbreviations: any = {
+  const abbreviations: {[key: number] : string} = {
     [2]: "K",
     [3]: "M",
     [4]: "B",

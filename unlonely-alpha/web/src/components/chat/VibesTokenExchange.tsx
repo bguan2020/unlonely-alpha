@@ -153,8 +153,8 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           });
           const args: any = topics.args;
           const title = `${
-            user?.username ?? centerEllipses(args.account, 15)
-          } bought ${args.amount} $VIBES!`;
+            user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
+          } bought ${Number(args.amount as bigint)} $VIBES!`;
           addToChatbot({
             username: user?.username ?? "",
             address: userAddress ?? "",
@@ -162,7 +162,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
             title,
             description: `${
               user?.username ?? centerEllipses(userAddress, 15)
-            }:${args.amount}`,
+            }:${Number(args.amount as bigint)}`,
           });
         }
         canAddToChatbot_mint.current = false;
@@ -258,16 +258,16 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         });
         const args: any = topics.args;
         const title = `${
-          user?.username ?? centerEllipses(args.account, 15)
-        } sold ${args.amount} $VIBES!`;
+          user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
+        } sold ${Number(args.amount as bigint)} $VIBES!`;
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.SELL_VIBES,
           title,
-          description: `${user?.username ?? centerEllipses(userAddress, 15)}:${
-            args.amount
-          }`,
+          description: `${
+            user?.username ?? centerEllipses(userAddress, 15)
+          }:${Number(args.amount as bigint)}`,
         });
         canAddToChatbot_burn.current = false;
         setAmountOfVibes("1000");
@@ -360,7 +360,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
       <Flex position="relative" gap="5px" alignItems={"center"}>
         <Tooltip
           label={errorMessage}
-          placement="top"
+          placement="bottom"
           isOpen={errorMessage !== undefined}
           bg="red.600"
         >

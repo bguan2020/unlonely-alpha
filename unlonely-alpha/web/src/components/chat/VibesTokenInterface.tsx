@@ -11,6 +11,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverArrow,
+  Tooltip as CharkaTooltip,
 } from "@chakra-ui/react";
 import { formatUnits, isAddress, parseUnits } from "viem";
 import {
@@ -18,6 +19,7 @@ import {
   LineChart,
   Line,
   Tooltip,
+  Brush,
   YAxis,
   ReferenceArea,
   ReferenceLine,
@@ -25,6 +27,7 @@ import {
 } from "recharts";
 import * as AWS from "aws-sdk";
 import Link from "next/link";
+import { FaMagnifyingGlassChart } from "react-icons/fa6";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
@@ -38,6 +41,21 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 import ConnectWallet from "../navigation/ConnectWallet";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
+import { FaPause } from "react-icons/fa";
+import {
+  blockNumberDaysAgo,
+  blockNumberHoursAgo,
+} from "../../hooks/internal/useVibesCheck";
+
+type ChartTokenTx = {
+  user: string;
+  event: string;
+  amount: number;
+  price: number;
+  priceInUsd: number;
+  priceChangePercentage: number;
+  blockNumber: number;
+};
 
 const ZONE_BREADTH = 0.05;
 
@@ -62,96 +80,6 @@ const VibesTokenInterface = ({
   customLowerPrice?: number;
   customHigherPrice?: number;
 }) => {
-  const CustomLabel = (props: any) => {
-    return (
-      <g>
-        <text x={props.viewBox.x} y={props.viewBox.y} fill="#00d3c1" dy={20}>
-          {props.value}
-        </text>
-      </g>
-    );
-  };
-
-  const CustomDot = (props: any) => {
-    const { cx, cy, stroke, payload } = props;
-    // Change the dot stroke color based on the value
-    const dotStroke = payload.event === "Mint" ? "#00ff0d" : "#ff0000";
-
-    return (
-      <circle
-        cx={cx}
-        cy={cy}
-        r={3}
-        fill={stroke}
-        stroke={dotStroke}
-        strokeWidth={2}
-      />
-    );
-  };
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const percentage = Number(
-        truncateValue(
-          payload[0].payload.priceChangePercentage,
-          2,
-          true,
-          2,
-          false
-        )
-      );
-      return (
-        <Flex
-          direction="column"
-          bg="rgba(0, 0, 0, 0.5)"
-          p="5px"
-          borderRadius="15px"
-        >
-          <Text>{`${
-            isAddress(payload[0].payload.user)
-              ? centerEllipses(payload[0].payload.user, 13)
-              : payload[0].payload.user
-          }`}</Text>
-          <Text
-            color={payload[0].payload.event === "Mint" ? "#46a800" : "#fe2815"}
-          >{`${
-            payload[0].payload.event === "Mint" ? "Bought" : "Sold"
-          } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
-          {payload[0].payload.priceInUsd !== undefined ? (
-            <>
-              <Text>{`$${truncateValue(
-                payload[0].payload.priceInUsd,
-                4
-              )}`}</Text>
-              <Text fontSize="10px" opacity="0.75">{`${truncateValue(
-                formatUnits(payload[0].payload.price, 18),
-                10
-              )} ETH`}</Text>
-            </>
-          ) : (
-            <Text>{`${truncateValue(
-              formatUnits(payload[0].payload.price, 18),
-              10
-            )} ETH`}</Text>
-          )}
-          {percentage !== 0 && isFullChart && (
-            <Text
-              color={
-                payload[0].payload.priceChangePercentage > 0
-                  ? "#46a800"
-                  : "#fe2815"
-              }
-            >{`${
-              payload[0].payload.priceChangePercentage > 0 ? "+" : ""
-            }${percentage}%`}</Text>
-          )}
-        </Flex>
-      );
-    }
-
-    return null;
-  };
-
   const { userAddress, walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
@@ -159,7 +87,7 @@ const VibesTokenInterface = ({
   const { channel, ui } = useChannelContext();
   const { channelQueryData } = channel;
   const { vibesTokenPriceRange } = ui;
-  const { ethPriceInUsd } = useCacheContext();
+  const { ethPriceInUsd, currentBlockNumberForVibes } = useCacheContext();
   const windowSize = useWindowSize();
   const { network } = useNetworkContext();
   const { matchingChain } = network;
@@ -186,7 +114,9 @@ const VibesTokenInterface = ({
     string | undefined
   >(undefined);
 
-  const txs = useMemo(() => {
+  const [isChartPaused, setIsChartPaused] = useState(false);
+
+  const txs: ChartTokenTx[] = useMemo(() => {
     return vibesTokenTxs.map((tx) => {
       return {
         user: tx.user,
@@ -210,8 +140,8 @@ const VibesTokenInterface = ({
 
   const formattedDayData = useMemo(
     () =>
-      chartTimeIndexes.get("day") !== undefined
-        ? txs.slice(chartTimeIndexes.get("day")?.index as number)
+      chartTimeIndexes.get("1d") !== undefined
+        ? txs.slice(chartTimeIndexes.get("1d")?.index as number)
         : txs,
     [txs, chartTimeIndexes]
   );
@@ -220,6 +150,29 @@ const VibesTokenInterface = ({
     if (timeFilter === "1d") return formattedDayData;
     return txs;
   }, [txs, timeFilter, formattedDayData]);
+
+  const [pausedDataForAllTime, setPausedDataForAllTime] = useState<
+    ChartTokenTx[]
+  >([]);
+  const [pausedDataFor1Day, setPausedDataFor1Day] = useState<ChartTokenTx[]>(
+    []
+  );
+
+  useEffect(() => {
+    if (!isChartPaused) {
+      setPausedDataForAllTime(txs);
+    } else {
+      setPausedDataForAllTime((prev) => prependStartMarker(prev));
+    }
+  }, [isChartPaused, txs]);
+
+  useEffect(() => {
+    if (!isChartPaused) {
+      setPausedDataFor1Day(formattedDayData);
+    } else {
+      setPausedDataFor1Day((prev) => prependStartMarker(prev));
+    }
+  }, [isChartPaused, formattedDayData]);
 
   const formattedCurrentPrice = useMemo(
     () =>
@@ -368,6 +321,125 @@ const VibesTokenInterface = ({
         Number(ethPriceInUsd ?? "0"),
       2
     )}`;
+  };
+
+  const CustomLabel = (props: any) => {
+    return (
+      <g>
+        <text x={props.viewBox.x} y={props.viewBox.y} fill="#00d3c1" dy={20}>
+          {props.value}
+        </text>
+      </g>
+    );
+  };
+
+  const CustomDot = (props: any) => {
+    const { cx, cy, stroke, payload } = props;
+    // Change the dot stroke color based on the value
+    const dotStroke =
+      payload.event === "Mint"
+        ? "#00ff0d"
+        : payload.event === "Burn"
+        ? "#ff0000"
+        : "#ffffff";
+
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={3}
+        fill={stroke}
+        stroke={dotStroke}
+        strokeWidth={2}
+      />
+    );
+  };
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const percentage = Number(
+        truncateValue(
+          payload[0].payload.priceChangePercentage,
+          2,
+          true,
+          2,
+          false
+        )
+      );
+      return (
+        <Flex
+          direction="column"
+          bg="rgba(0, 0, 0, 0.5)"
+          p="5px"
+          borderRadius="15px"
+        >
+          <Text>{`${
+            isAddress(payload[0].payload.user)
+              ? centerEllipses(payload[0].payload.user, 13)
+              : payload[0].payload.user
+          }`}</Text>
+          {payload[0].payload.event !== "" && (
+            <>
+              <Text
+                color={
+                  payload[0].payload.event === "Mint" ? "#46a800" : "#fe2815"
+                }
+              >{`${
+                payload[0].payload.event === "Mint" ? "Bought" : "Sold"
+              } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
+              {payload[0].payload.priceInUsd !== undefined ? (
+                <>
+                  <Text>{`$${truncateValue(
+                    payload[0].payload.priceInUsd,
+                    4
+                  )}`}</Text>
+                  <Text fontSize="10px" opacity="0.75">{`${truncateValue(
+                    formatUnits(payload[0].payload.price, 18),
+                    10
+                  )} ETH`}</Text>
+                </>
+              ) : (
+                <Text>{`${truncateValue(
+                  formatUnits(payload[0].payload.price, 18),
+                  10
+                )} ETH`}</Text>
+              )}
+              {percentage !== 0 && isFullChart && (
+                <Text
+                  color={
+                    payload[0].payload.priceChangePercentage > 0
+                      ? "#46a800"
+                      : "#fe2815"
+                  }
+                >{`${
+                  payload[0].payload.priceChangePercentage > 0 ? "+" : ""
+                }${percentage}%`}</Text>
+              )}
+            </>
+          )}
+        </Flex>
+      );
+    }
+
+    return null;
+  };
+
+  const customBrushFormatter = (blockNumber: number) => {
+    if (vibesTokenTxs.length === 0) return 0;
+    const latestBlockNumber =
+      vibesTokenTxs[vibesTokenTxs.length - 1].blockNumber;
+    const AVERAGE_BLOCK_TIME = 2;
+    const timeDifferenceInSeconds =
+      (latestBlockNumber - blockNumber) * AVERAGE_BLOCK_TIME;
+    if (timeFilter === "all") {
+      const timeDifferenceInDays = Math.floor(
+        timeDifferenceInSeconds / 60 / 60 / 24
+      );
+      return `~${timeDifferenceInDays}d ago`;
+    }
+
+    const timeDifferenceInHours = Math.floor(timeDifferenceInSeconds / 60 / 60);
+    return `~${timeDifferenceInHours}h ago`;
   };
 
   return (
@@ -543,7 +615,7 @@ const VibesTokenInterface = ({
           >
             <Flex justifyContent={"space-between"} alignItems={"center"}>
               <Flex gap="5px" alignItems={"center"}>
-                <Popover trigger="hover" placement="bottom" openDelay={300}>
+                <Popover trigger="hover" placement="bottom" openDelay={200}>
                   <PopoverTrigger>
                     <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
                       $VIBES
@@ -670,6 +742,35 @@ const VibesTokenInterface = ({
                       zones
                     </Button>
                   )}
+                {isFullChart && !previewMode && (
+                  <CharkaTooltip
+                    label="toggle chart zooming, will pause live updates when enabled"
+                    shouldWrapChildren
+                    openDelay={300}
+                  >
+                    <Button
+                      color="#ffffff"
+                      bg={isChartPaused ? "rgb(173, 169, 249)" : "#4741c1"}
+                      _hover={{
+                        transform: "scale(1.15)",
+                      }}
+                      _focus={{}}
+                      _active={{}}
+                      p={2 * (isStandalone || isFullChart ? 1.5 : 1)}
+                      height={`${
+                        20 * (isStandalone || isFullChart ? 1.5 : 1)
+                      }px`}
+                      onClick={() => setIsChartPaused((prev) => !prev)}
+                      boxShadow={
+                        isChartPaused
+                          ? "0px 0px 25px rgba(173, 169, 249, 0.847)"
+                          : undefined
+                      }
+                    >
+                      {<FaMagnifyingGlassChart />}
+                    </Button>
+                  </CharkaTooltip>
+                )}
                 {!allStreams && !previewMode && isOwner && !isStandalone && (
                   <>
                     <VibesTokenZoneModal
@@ -746,11 +847,32 @@ const VibesTokenInterface = ({
                       no txs
                     </Text>
                   )}
+                {isChartPaused && (
+                  <Text
+                    position="absolute"
+                    color="#626262"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%)"
+                    fontSize={"6rem"}
+                    fontWeight={"bold"}
+                    textAlign={"center"}
+                    opacity="0.5"
+                  >
+                    <FaPause />
+                  </Text>
+                )}
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
-                    data={formattedData}
+                    data={
+                      isChartPaused
+                        ? timeFilter === "all"
+                          ? pausedDataForAllTime
+                          : pausedDataFor1Day
+                        : formattedData
+                    }
                     margin={
-                      isFullChart
+                      isFullChart && !previewMode
                         ? { left: 30, top: 10, bottom: 10 }
                         : isStandalone
                         ? { top: 10, bottom: 10 }
@@ -766,7 +888,9 @@ const VibesTokenInterface = ({
                     />
                     <YAxis
                       tickFormatter={formatYAxisTick}
-                      hide={isFullChart === true ? false : true}
+                      hide={
+                        (isFullChart && !previewMode) === true ? false : true
+                      }
                       domain={
                         !allStreams &&
                         zonesOn &&
@@ -793,112 +917,85 @@ const VibesTokenInterface = ({
                       )}
                     {timeFilter === "all" && isFullChart && !previewMode && (
                       <>
-                        {chartTimeIndexes.get("day") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              chartTimeIndexes.get("day")?.blockNumber as number
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~1d" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("7day") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              chartTimeIndexes.get("7day")
-                                ?.blockNumber as number
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~7d" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("14day") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              chartTimeIndexes.get("14day")
-                                ?.blockNumber as number
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~14d" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("30day") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              chartTimeIndexes.get("30day")
-                                ?.blockNumber as number
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~30d" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("60day") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              chartTimeIndexes.get("60day")
-                                ?.blockNumber as number
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~60d" />}
-                          />
-                        )}
+                        {Array.from(chartTimeIndexes.keys())
+                          .filter((i) => i.includes("d"))
+                          .map((key) => {
+                            return (
+                              <ReferenceLine
+                                key={key}
+                                strokeDasharray="3 3"
+                                x={
+                                  chartTimeIndexes.get(key)
+                                    ?.blockNumber as number
+                                }
+                                stroke="rgb(0, 211, 193)"
+                                label={<CustomLabel value={`~${key}`} />}
+                              />
+                            );
+                          })}
+                        {[...Array(30).keys()]
+                          .map((i) => i + 1)
+                          .filter(
+                            (d) =>
+                              chartTimeIndexes.get(`${d}d`)?.blockNumber ===
+                              undefined
+                          )
+                          .map((key) => {
+                            return (
+                              <ReferenceLine
+                                key={key}
+                                strokeDasharray="1 1"
+                                x={Number(
+                                  blockNumberDaysAgo(
+                                    key,
+                                    currentBlockNumberForVibes
+                                  )
+                                )}
+                                stroke="rgba(0, 211, 193, 0.2)"
+                              />
+                            );
+                          })}
                       </>
                     )}
                     {timeFilter === "1d" && isFullChart && !previewMode && (
                       <>
-                        {chartTimeIndexes.get("18hour") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              (chartTimeIndexes.get("18hour")
-                                ?.blockNumber as number) -
-                              (txs.length - formattedDayData.length)
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~18h" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("12hour") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              (chartTimeIndexes.get("12hour")
-                                ?.blockNumber as number) -
-                              (txs.length - formattedDayData.length)
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~12h" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("6hour") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              (chartTimeIndexes.get("6hour")
-                                ?.blockNumber as number) -
-                              (txs.length - formattedDayData.length)
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~6h" />}
-                          />
-                        )}
-                        {chartTimeIndexes.get("1hour") !== undefined && (
-                          <ReferenceLine
-                            strokeDasharray="3 3"
-                            x={
-                              (chartTimeIndexes.get("1hour")
-                                ?.blockNumber as number) -
-                              (txs.length - formattedDayData.length)
-                            }
-                            stroke="#00d3c1"
-                            label={<CustomLabel value="~1h" />}
-                          />
-                        )}
+                        {Array.from(chartTimeIndexes.keys())
+                          .filter((i) => i.includes("h"))
+                          .map((key) => {
+                            return (
+                              <ReferenceLine
+                                strokeDasharray="3 3"
+                                x={
+                                  chartTimeIndexes.get(key)
+                                    ?.blockNumber as number
+                                }
+                                stroke="#00d3c1"
+                                label={<CustomLabel value={`~${key}`} />}
+                              />
+                            );
+                          })}
+                        {[...Array(24).keys()]
+                          .map((i) => i + 1)
+                          .filter(
+                            (h) =>
+                              chartTimeIndexes.get(`${h}h`)?.blockNumber ===
+                              undefined
+                          )
+                          .map((key) => {
+                            return (
+                              <ReferenceLine
+                                key={key}
+                                strokeDasharray="1 1"
+                                x={Number(
+                                  blockNumberHoursAgo(
+                                    key,
+                                    currentBlockNumberForVibes
+                                  )
+                                )}
+                                stroke="rgba(0, 211, 193, 0.2)"
+                              />
+                            );
+                          })}
                       </>
                     )}
                     <Line
@@ -919,7 +1016,7 @@ const VibesTokenInterface = ({
                       }
                       strokeWidth={2}
                       animationDuration={200}
-                      dot={isFullChart ? <CustomDot /> : false}
+                      dot={isFullChart && !previewMode ? <CustomDot /> : false}
                     />
                     {(!allStreams || !previewMode) &&
                       lowerPrice > 0 &&
@@ -932,6 +1029,15 @@ const VibesTokenInterface = ({
                           ifOverflow="hidden"
                         />
                       )}
+                    {isFullChart && !previewMode && isChartPaused && (
+                      <Brush
+                        dataKey="blockNumber"
+                        height={30}
+                        fill={isChartPaused ? "#2c2970" : "transparent"}
+                        stroke={isChartPaused ? "#ada9f9" : "#5e5e6a"}
+                        tickFormatter={(tick) => customBrushFormatter(tick)}
+                      />
+                    )}
                   </LineChart>
                 </ResponsiveContainer>
               </Flex>
@@ -954,5 +1060,20 @@ const VibesTokenInterface = ({
     </>
   );
 };
+
+function prependStartMarker(data: ChartTokenTx[]): ChartTokenTx[] {
+  if (data.length === 0 || data[0].event === "") return data;
+  const firstBlockNumber = data.length > 0 ? data[0].blockNumber : 0;
+  const firstElement: ChartTokenTx = {
+    user: "Start",
+    event: "",
+    amount: 0,
+    price: 0,
+    priceInUsd: 0,
+    priceChangePercentage: 0,
+    blockNumber: firstBlockNumber,
+  };
+  return [firstElement, ...data];
+}
 
 export default VibesTokenInterface;

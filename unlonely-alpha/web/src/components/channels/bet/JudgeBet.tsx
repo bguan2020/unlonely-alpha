@@ -126,7 +126,7 @@ export const JudgeBet = ({
           address: userAddress ?? "",
           taskType: InteractionType.EVENT_PAYOUT,
           title: `Event has ended, ${
-            args.result
+            (args.result as boolean)
               ? ongoingBets?.[0]?.options?.[0] ?? "yes"
               : ongoingBets?.[0]?.options?.[1] ?? "no"
           } votes win!`,

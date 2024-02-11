@@ -233,7 +233,7 @@ export const VipBadgeBuy = () => {
       if (!debouncedTrades || debouncedTrades.length === 0) return;
       if (
         debouncedTrades.some(
-          (log: any) => log?.args?.trade?.eventByte === generatedKey
+          (log: any) => (log?.args?.trade?.eventByte as string) === generatedKey
         )
       ) {
         try {

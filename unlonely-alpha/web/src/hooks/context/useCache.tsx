@@ -53,6 +53,7 @@ const CacheContext = createContext<{
     string,
     { index: number | undefined; blockNumber: number | undefined }
   >;
+  currentBlockNumberForVibes: bigint;
   addAppError: (error: Error, source: string) => void;
   popAppError: (errorName: string, field: string) => void;
   ethPriceInUsd: string;
@@ -73,6 +74,7 @@ const CacheContext = createContext<{
   addAppError: () => undefined,
   popAppError: () => undefined,
   ethPriceInUsd: "0",
+  currentBlockNumberForVibes: BigInt(0),
   isFocusedOnInput: undefined,
   handleIsFocusedOnInput: () => undefined,
   mobileSizes: {
@@ -110,7 +112,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const { localNetwork } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
-  const { tokenTxs, chartTimeIndexes, loading } = useVibesCheck();
+  const { tokenTxs, chartTimeIndexes, loading, currentBlockNumberForVibes } =
+    useVibesCheck();
   const [ethPriceInUsd, setEthPriceInUsd] = useState<string>("0");
 
   const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
@@ -142,14 +145,16 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     if (transferLogs.length > 0) {
       const includesUser = transferLogs.some(
         (log: any) =>
-          log?.args?.from === userAddress || log?.args?.to === userAddress
+          (log?.args?.from as `0x${string}`) === userAddress ||
+          (log?.args?.to as `0x${string}`) === userAddress
       );
       if (includesUser) {
         console.log("Detected vibes transfer event", transferLogs);
         refetchVibesBalance();
         const incomingReceives = transferLogs.filter(
           (log: any) =>
-            log?.args?.from !== NULL_ADDRESS && log?.args?.to === userAddress
+            (log?.args?.from as `0x${string}`) !== NULL_ADDRESS &&
+            (log?.args?.to as `0x${string}`) === userAddress
         );
         if (incomingReceives.length > 0) {
           toast({
@@ -164,7 +169,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
                   <Text>
                     Got{" "}
                     {incomingReceives.reduce((acc, cv: any) => {
-                      return acc + Number(cv?.args?.value);
+                      return acc + Number(cv?.args?.value as bigint);
                     }, 0)}
                   </Text>
                 </Flex>
@@ -435,6 +440,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       chartTimeIndexes,
       addAppError,
       popAppError,
+      currentBlockNumberForVibes,
       ethPriceInUsd,
       isFocusedOnInput,
       handleIsFocusedOnInput,
@@ -453,6 +459,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     addAppError,
     popAppError,
     ethPriceInUsd,
+    currentBlockNumberForVibes,
     vibesBalance,
     isFocusedOnInput,
     handleIsFocusedOnInput,
