@@ -9,8 +9,7 @@ import { GET_USER_QUERY } from "../../constants/queries";
 import { getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "./useUserAgent";
 import { NETWORKS } from "../../constants/networks";
-
-const CREATION_BLOCK = BigInt(9018023);
+import { CREATION_BLOCK } from "../../constants";
 
 export const useVibesCheck = () => {
   const { isStandalone } = useUserAgent();
