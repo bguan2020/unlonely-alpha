@@ -229,6 +229,11 @@ const StandaloneChatComponent = ({
     }
   }, [isBellAnimating]);
 
+  /**
+   * The margin top and its new height of the chat component is calculated based on the height of the virtual keyboard.
+   *
+   * If the virtual keyboard is open, the chat component must be pushed downward into the viewport, but also must be under the video's height
+   */
   return (
     <Flex
       direction="column"

@@ -291,7 +291,6 @@ const MobilePage = ({
   const { handleIsVip } = leaderboard;
 
   const chat = useChat();
-
   const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
 
   const { userAddress } = useUser();
