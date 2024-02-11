@@ -61,8 +61,7 @@ const StandaloneChatComponent = ({
   const { userAddress } = useUser();
   const { channelQueryData } = channelContext;
   const { chatChannel } = chatInfo;
-  const { isFocusedOnInput, mobileSizes, initialWindowInnerHeight } =
-    useCacheContext();
+  const { mobileSizes, initialWindowInnerHeight } = useCacheContext();
   const { isIOS } = useUserAgent();
 
   const router = useRouter();
@@ -77,7 +76,7 @@ const StandaloneChatComponent = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const newTop = useMemo(() => {
-    if (isIOS && isFocusedOnInput) {
+    if (isIOS && mobileSizes.keyboardVisible) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - initialWindowInnerHeight)
@@ -90,7 +89,7 @@ const StandaloneChatComponent = ({
       }px`;
     }
     return "unset";
-  }, [isIOS, isFocusedOnInput, mobileSizes, initialWindowInnerHeight]);
+  }, [isIOS, mobileSizes, initialWindowInnerHeight]);
 
   useOnClickOutside(infoRef, () => {
     if (showInfo) {
@@ -238,8 +237,8 @@ const StandaloneChatComponent = ({
     <Flex
       direction="column"
       h={
-        mobileSizes.keyboardVisible || isFocusedOnInput
-          ? `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh)`
+        mobileSizes.keyboardVisible
+          ? `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh + ${mobileSizes.screen.height}px - ${window.innerHeight}px)`
           : !previewStream && isOwner
           ? `${MOBILE_CHAT_VH + MOBILE_VIDEO_VH}vh`
           : `${MOBILE_CHAT_VH}vh`
@@ -248,7 +247,7 @@ const StandaloneChatComponent = ({
       id="chat"
       position={"relative"}
       marginTop={
-        mobileSizes.keyboardVisible || isFocusedOnInput
+        mobileSizes.keyboardVisible
           ? `calc(${
               newTop === "unset" ? "0px" : newTop
             } + ${MOBILE_VIDEO_VH}vh)`
@@ -354,7 +353,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { chat: chatContext, channel } = useChannelContext();
   const { presenceChannel } = chatContext;
   const { isStandalone } = useUserAgent();
-  const { isFocusedOnInput, mobileSizes } = useCacheContext();
+  const { mobileSizes } = useCacheContext();
   const { channelQueryData } = channel;
   const [showParticipants, setShowParticipants] = useState(true);
 
@@ -366,7 +365,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
 
   return (
     <>
-      {!isFocusedOnInput && !mobileSizes.keyboardVisible && (
+      {!mobileSizes.keyboardVisible && (
         <Flex width="100%" pb="0.5rem">
           <OuterBorder
             type={BorderType.OCEAN}
@@ -448,7 +447,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
           </OuterBorder>
         </Flex>
       )}
-      {presenceChannel && !isFocusedOnInput && !mobileSizes.keyboardVisible && (
+      {presenceChannel && !mobileSizes.keyboardVisible && (
         <Flex
           justifyContent={"center"}
           py="0.5rem"

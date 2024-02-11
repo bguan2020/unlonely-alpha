@@ -42,8 +42,7 @@ const AppLayout: React.FC<Props> = ({
 }) => {
   const { isStandalone, ready } = useUserAgent();
   const router = useRouter();
-  const { mobileSizes, isFocusedOnInput, handleIsFocusedOnInput } =
-    useCacheContext();
+  const { mobileSizes } = useCacheContext();
 
   const smallestDevice = useBreakpointValue({
     base: true,
@@ -66,16 +65,12 @@ const AppLayout: React.FC<Props> = ({
     document.removeEventListener("touchmove", preventTouchMove);
   };
 
-  useEffect(() => {
-    handleIsFocusedOnInput(undefined);
-  }, [router.pathname]);
-
   /* when the keyboard is visible on the channel page, scroll to the bottom of the page, and disable scroll
   to keep the input and video component in view, please refer to the video component for more details
   */
   useEffect(() => {
     if (
-      (mobileSizes.keyboardVisible || isFocusedOnInput) &&
+      mobileSizes.keyboardVisible &&
       router.pathname.startsWith("/channels") &&
       isStandalone &&
       window
@@ -95,11 +90,11 @@ const AppLayout: React.FC<Props> = ({
           behavior: "smooth",
         });
       }, 200);
-      // disableScroll();
+      disableScroll();
     } else {
       enableScroll();
     }
-  }, [isFocusedOnInput, mobileSizes, router, isStandalone]);
+  }, [mobileSizes, router, isStandalone]);
 
   return (
     <Box background="rgba(0, 0, 0, 0.65)">

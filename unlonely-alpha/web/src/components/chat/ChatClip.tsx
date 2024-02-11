@@ -20,7 +20,6 @@ import { InteractionType } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import { useCacheContext } from "../../hooks/context/useCache";
 
 export const ChatClip = () => {
   const { user, userAddress } = useUser();
@@ -35,7 +34,6 @@ export const ChatClip = () => {
     clipError,
     clipUrl,
   } = clipping;
-  const { handleIsFocusedOnInput } = useCacheContext();
 
   const form = useForm<PostNfcInput>({
     defaultValues: {},
@@ -64,7 +62,6 @@ export const ChatClip = () => {
   };
 
   const _submitClip = async (data: { title: string }) => {
-    handleIsFocusedOnInput(undefined);
     const url = await handleCreateClip(data.title);
     setTitle("");
     addToChatbot({
@@ -142,7 +139,6 @@ export const ChatClip = () => {
                     handleIsClipUiOpen(false);
                     setFinalUrl("");
                     setTitle("");
-                    handleIsFocusedOnInput(undefined);
                   }}
                   _focus={{}}
                   _hover={{ opacity: "1" }}
@@ -231,7 +227,6 @@ export const ChatClip = () => {
                       borderRadius="10px"
                       minHeight="2rem"
                       fontWeight="medium"
-                      onFocus={() => handleIsFocusedOnInput("clipping")}
                       w="100%"
                       padding="auto"
                       fontSize={isStandalone ? "16px" : "unset"}

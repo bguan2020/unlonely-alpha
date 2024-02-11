@@ -30,7 +30,6 @@ import EmojiButton from "./emoji/EmojiButton";
 import ConnectWallet from "../navigation/ConnectWallet";
 import { ChatClip } from "./ChatClip";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import { useCacheContext } from "../../hooks/context/useCache";
 
 type Props = {
   sendChatMessage: (
@@ -63,8 +62,6 @@ const ChatForm = ({
   const { handleIsClipUiOpen, loading: clipLoading } = clipping;
 
   const { channelQueryData } = channelContext;
-
-  const { handleIsFocusedOnInput } = useCacheContext();
 
   const [messageText, setMessageText] = useState<string>("");
   const [commandsOpen, setCommandsOpen] = useState(false);
@@ -419,8 +416,6 @@ const ChatForm = ({
                         ? "blast a message to everyone watching!"
                         : "say something in chat!"
                     }
-                    onFocus={() => handleIsFocusedOnInput("chatting")}
-                    onBlur={() => handleIsFocusedOnInput(undefined)}
                     enterKeyHint="send"
                     onChange={(e) => {
                       if (e.target.value === "") {
