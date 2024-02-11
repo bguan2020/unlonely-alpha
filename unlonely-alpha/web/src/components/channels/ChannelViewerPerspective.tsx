@@ -42,7 +42,11 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
       width={"100%"}
       position={mobile ? "fixed" : "unset"}
       zIndex={5}
-      top={newTop}
+      top={
+        isFocusedOnInput === "chatting" || isFocusedOnInput === "clipping"
+          ? newTop
+          : "unset"
+      }
     >
       <Flex width={"100%"} position="relative">
         <StreamComponent />
