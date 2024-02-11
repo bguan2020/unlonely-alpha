@@ -246,7 +246,7 @@ const StandaloneChatComponent = ({
         isFocusedOnInput === "clipping"
           ? `calc(${
               mobileSizes.viewport.height * 2
-            }px - ${MOBILE_VIDEO_VH}vh + ${
+            }px - ${MOBILE_VIDEO_VH}vh - ${
               newTop === "unset" ? "0px" : newTop
             })`
           : !previewStream && isOwner
