@@ -276,7 +276,7 @@ const EventCard = ({
           eventId: Number(event.id),
           eventType: EventType.YayNayVote,
         });
-        if (args.votingPooledEth === BigInt(0)) {
+        if ((args.votingPooledEth as bigint) === BigInt(0)) {
           await closeSharesEvents({
             chainId: localNetwork.config.chainId,
             channelId: event.channelId as string,

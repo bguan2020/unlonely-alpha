@@ -114,21 +114,21 @@ const DesktopPage = ({
 
   const handleUpdate = (tradeEvents: Log[]) => {
     const sortedEvents = tradeEvents.filter(
-      (event: any) => event?.args.trade.eventByte === generatedKey
+      (event: any) => (event?.args.trade.eventByte as string) === generatedKey
     );
     if (sortedEvents.length === 0) return;
     let newBalanceAddition = 0;
     for (let i = 0; i < sortedEvents.length; i++) {
       const tradeEvent: any = sortedEvents[i];
-      const trader = tradeEvent?.args.trade.trader;
+      const trader = tradeEvent?.args.trade.trader as `0x${string}`;
       if (trader === userAddress) {
         newBalanceAddition +=
-          (tradeEvent?.args.trade.isBuy ? 1 : -1) *
-          Number(tradeEvent?.args.trade.badgeAmount);
+          ((tradeEvent?.args.trade.isBuy as boolean) ? 1 : -1) *
+          Number(tradeEvent?.args.trade.badgeAmount as bigint);
       }
     }
     setVipBadgeSupply(
-      (sortedEvents[sortedEvents.length - 1] as any).args.trade.supply
+      (sortedEvents[sortedEvents.length - 1] as any).args.trade.supply as bigint
     );
     setVipBadgeBalance((prev) => String(Number(prev) + newBalanceAddition));
   };
@@ -329,21 +329,21 @@ const MobilePage = ({
 
   const handleUpdate = (tradeEvents: Log[]) => {
     const sortedEvents = tradeEvents.filter(
-      (event: any) => event?.args.trade.eventByte === generatedKey
+      (event: any) => (event?.args.trade.eventByte as string) === generatedKey
     );
     if (sortedEvents.length === 0) return;
     let newBalanceAddition = 0;
     for (let i = 0; i < sortedEvents.length; i++) {
       const tradeEvent: any = sortedEvents[i];
-      const trader = tradeEvent?.args.trade.trader;
+      const trader = tradeEvent?.args.trade.trader as `0x${string}`;
       if (trader === userAddress) {
         newBalanceAddition +=
-          (tradeEvent?.args.trade.isBuy ? 1 : -1) *
-          Number(tradeEvent?.args.trade.badgeAmount);
+          ((tradeEvent?.args.trade.isBuy as boolean) ? 1 : -1) *
+          Number(tradeEvent?.args.trade.badgeAmount as bigint);
       }
     }
     setVipBadgeSupply(
-      (sortedEvents[sortedEvents.length - 1] as any).args.trade.supply
+      (sortedEvents[sortedEvents.length - 1] as any).args.trade.supply as bigint
     );
     setVipBadgeBalance((prev) => String(Number(prev) + newBalanceAddition));
   };

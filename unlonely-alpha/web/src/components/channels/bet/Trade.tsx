@@ -286,12 +286,12 @@ const Trade = () => {
         });
         const args: any = topics.args;
         const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
-          args.trade.isBuy ? "bought" : "sold"
+          (args.trade.isBuy as boolean) ? "bought" : "sold"
         } ${args.trade.shareAmount} ${
-          args.trade.isYay
+          (args.trade.isYay as boolean)
             ? ongoingBets?.[0]?.options?.[0] ?? "yes"
             : ongoingBets?.[0]?.options?.[1] ?? "no"
-        } vote${Number(args.trade.shareAmount) > 1 ? "s" : ""}!`;
+        } vote${Number(args.trade.shareAmount as bigint) > 1 ? "s" : ""}!`;
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -299,8 +299,10 @@ const Trade = () => {
           title,
           description: `${
             user?.username ?? centerEllipses(userAddress ?? "", 15)
-          }:${args.trade.shareAmount}:${args.trade.isYay ? "yay" : "nay"}:${
-            args.trade.isYay
+          }:${Number(args.trade.shareAmount as bigint)}:${
+            (args.trade.isYay as boolean) ? "yay" : "nay"
+          }:${
+            (args.trade.isYay as boolean)
               ? ongoingBets?.[0]?.options?.[0] ?? "yes"
               : ongoingBets?.[0]?.options?.[1] ?? "no"
           }`,
@@ -405,7 +407,7 @@ const Trade = () => {
             eventId: Number(ongoingBets?.[0]?.id ?? "0"),
             eventType: EventType.YayNayVote,
           });
-          if (args.votingPooledEth === BigInt(0)) {
+          if ((args.votingPooledEth as bigint) === BigInt(0)) {
             await closeSharesEvents({
               chainId: localNetwork.config.chainId,
               channelId: channelQueryData?.id as string,
@@ -484,11 +486,11 @@ const Trade = () => {
   const handleEventOpened = async (logs: Log[]) => {
     if (!logs || logs.length === 0) return;
     const foundEvent = logs.find(
-      (log: any) => log?.args?.eventByte === generatedKey
+      (log: any) => (log?.args?.eventByte as string) === generatedKey
     );
     if (foundEvent) {
       setVotingPooledEth(BigInt(0));
-      setEventEndTimestamp((foundEvent as any).args.endTimestamp);
+      setEventEndTimestamp((foundEvent as any).args.endTimestamp as bigint);
       setNayVotesBalance("0");
       setYayVotesBalance("0");
       setNayVotesSupply(BigInt(0));
@@ -520,7 +522,9 @@ const Trade = () => {
 
   const handleTrade = async (tradeEvents: Log[]) => {
     const sortedEvents = tradeEvents
-      .filter((event: any) => event?.args.trade.eventByte === generatedKey)
+      .filter(
+        (event: any) => (event?.args.trade.eventByte as string) === generatedKey
+      )
       .sort((a, b) => Number(a.blockNumber) - Number(b.blockNumber));
     if (sortedEvents.length === 0) return;
     let newYayBalanceAddtion = BigInt(0);
@@ -529,10 +533,11 @@ const Trade = () => {
     let newNaySupply = null;
     for (let i = 0; i < sortedEvents.length; i++) {
       const event: any = sortedEvents[i];
-      const eventTriggeredByUser = event?.args.trade.trader === userAddress;
-      const newSupply = event?.args.trade.supply;
-      const amount = event?.args.trade.shareAmount;
-      const isYay = event?.args.trade.isYay;
+      const eventTriggeredByUser =
+        (event?.args.trade.trader as `0x${string}`) === userAddress;
+      const newSupply = event?.args.trade.supply as bigint;
+      const amount = event?.args.trade.shareAmount as bigint;
+      const isYay = event?.args.trade.isYay as boolean;
       if (isYay) {
         newYaySupply = newSupply;
         if (eventTriggeredByUser)
@@ -611,9 +616,11 @@ const Trade = () => {
 
   const handleEventVerified = async (logs: Log[]) => {
     if (!logs || logs.length === 0) return;
-    const log = logs.find((log: any) => log?.args?.eventByte === generatedKey);
+    const log = logs.find(
+      (log: any) => (log?.args?.eventByte as string) === generatedKey
+    );
     if (!log) return;
-    setEventResult((log as any).args.result);
+    setEventResult((log as any).args.result as boolean);
     setEventVerified(true);
     await Promise.all([refetchPayout(), refetchClaimVotePayout()]);
   };
@@ -673,7 +680,8 @@ const Trade = () => {
       if (
         debouncedPayoutFlagFetch.some(
           (log: any) =>
-            log?.args?.voter.toLowerCase() === userAddress?.toLowerCase()
+            (log?.args?.voter as `0x${string}`).toLowerCase() ===
+            userAddress?.toLowerCase()
         )
       ) {
         let calls: any[] = [];

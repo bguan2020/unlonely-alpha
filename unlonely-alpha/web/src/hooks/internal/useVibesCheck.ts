@@ -104,18 +104,18 @@ export const useVibesCheck = () => {
 
   const handleEvent = async (log: any) => {
     const eventName = log?.eventName;
-    const n = Number(log?.args.totalSupply);
+    const n = Number(log?.args.totalSupply as bigint);
     const n_ = Math.max(n - 1, 0);
     const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
     const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
     const newPrice = priceForCurrent - priceForPrevious;
 
     const user =
-      hashMapState.get(log?.args.account) ??
-      (await _getEnsName(log?.args.account));
-    if (!hashMapState.get(log?.args.account)) {
+      hashMapState.get(log?.args.account as `0x${string}`) ??
+      (await _getEnsName(log?.args.account as `0x${string}`));
+    if (!hashMapState.get(log?.args.account as `0x${string}`)) {
       setHashMapState((prev) => {
-        return new Map([...prev, [log?.args.account, user]]);
+        return new Map([...prev, [log?.args.account as `0x${string}`, user]]);
       });
     }
     const previousTxPrice =
@@ -123,10 +123,10 @@ export const useVibesCheck = () => {
     const eventTx: VibesTokenTx = {
       eventName: eventName,
       user,
-      amount: log?.args.amount,
+      amount: log?.args.amount as bigint,
       price: newPrice,
-      blockNumber: Number(log?.blockNumber),
-      supply: log?.args.totalSupply,
+      blockNumber: Number(log?.blockNumber as bigint),
+      supply: log?.args.totalSupply as bigint,
       priceChangePercentage:
         tokenTxs.length === 0
           ? 0
@@ -181,7 +181,7 @@ export const useVibesCheck = () => {
       const uniqueUsers = new Set<string>();
       for (let i = 0; i < logs.length; i++) {
         const event = logs[i];
-        const n = Number(event.args.totalSupply);
+        const n = Number(event.args.totalSupply as bigint);
         const n_ = Math.max(n - 1, 0);
         const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
         const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
@@ -190,7 +190,7 @@ export const useVibesCheck = () => {
           _tokenTxs.length > 0 ? _tokenTxs[_tokenTxs.length - 1].price : 0;
         const tx: VibesTokenTx = {
           eventName: event.eventName,
-          user: event.args.account as string,
+          user: event.args.account as `0x${string}`,
           amount: event.args.amount as bigint,
           price: newPrice,
           blockNumber: Number(event.blockNumber),
