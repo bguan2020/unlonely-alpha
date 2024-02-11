@@ -77,7 +77,10 @@ const StandaloneChatComponent = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const newTop = useMemo(() => {
-    if (isIOS && isFocusedOnInput) {
+    if (
+      isIOS &&
+      (isFocusedOnInput === "chatting" || isFocusedOnInput === "clipping")
+    ) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - initialWindowInnerHeight)
@@ -238,8 +241,14 @@ const StandaloneChatComponent = ({
     <Flex
       direction="column"
       h={
-        mobileSizes.keyboardVisible || isFocusedOnInput
-          ? `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh + ${mobileSizes.screen.height}px - ${window.innerHeight}px)`
+        mobileSizes.keyboardVisible ||
+        isFocusedOnInput === "chatting" ||
+        isFocusedOnInput === "clipping"
+          ? `calc(${
+              mobileSizes.viewport.height * 2
+            }px - ${MOBILE_VIDEO_VH}vh + ${
+              newTop === "unset" ? "0px" : newTop
+            })`
           : !previewStream && isOwner
           ? `${MOBILE_CHAT_VH + MOBILE_VIDEO_VH}vh`
           : `${MOBILE_CHAT_VH}vh`
@@ -248,7 +257,9 @@ const StandaloneChatComponent = ({
       id="chat"
       position={"relative"}
       marginTop={
-        mobileSizes.keyboardVisible || isFocusedOnInput
+        mobileSizes.keyboardVisible ||
+        isFocusedOnInput === "chatting" ||
+        isFocusedOnInput === "clipping"
           ? `calc(${
               newTop === "unset" ? "0px" : newTop
             } + ${MOBILE_VIDEO_VH}vh)`
