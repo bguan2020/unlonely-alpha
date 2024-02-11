@@ -84,12 +84,11 @@ const AppLayout: React.FC<Props> = ({
         document.documentElement.clientHeight,
         window.screen.height
       );
-      setTimeout(() => {
-        window.scrollTo({
-          top: scrollHeight,
-          behavior: "smooth",
-        });
-      }, 200);
+      enableScroll();
+      window.scrollTo({
+        top: scrollHeight,
+        behavior: "smooth",
+      });
       disableScroll();
     } else {
       enableScroll();
