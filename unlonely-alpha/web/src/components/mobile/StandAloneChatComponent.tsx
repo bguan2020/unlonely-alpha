@@ -349,7 +349,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { chat: chatContext, channel } = useChannelContext();
   const { presenceChannel } = chatContext;
   const { isStandalone } = useUserAgent();
-
+  const { isFocusedOnInput, mobileSizes } = useCacheContext();
   const { channelQueryData } = channel;
   const [showParticipants, setShowParticipants] = useState(true);
 
@@ -361,87 +361,89 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
 
   return (
     <>
-      <Flex width="100%" pb="0.5rem">
-        <OuterBorder
-          type={BorderType.OCEAN}
-          zIndex={selectedTab === "chat" ? 4 : 2}
-          onClick={() => setSelectedTab("chat")}
-          noborder
-          pb={selectedTab === "chat" ? "0px" : undefined}
-        >
-          <Flex
-            bg={selectedTab === "chat" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
-            py="0.3rem"
-            width="100%"
-            justifyContent={"center"}
-          >
-            <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
-              chat
-            </Text>
-          </Flex>
-        </OuterBorder>
-        {!isStandalone && (
+      {!isFocusedOnInput && !mobileSizes.keyboardVisible && (
+        <Flex width="100%" pb="0.5rem">
           <OuterBorder
             type={BorderType.OCEAN}
-            zIndex={selectedTab === "trade" ? 4 : 2}
-            onClick={() => setSelectedTab("trade")}
+            zIndex={selectedTab === "chat" ? 4 : 2}
+            onClick={() => setSelectedTab("chat")}
             noborder
-            pb={selectedTab === "trade" ? "0px" : undefined}
+            pb={selectedTab === "chat" ? "0px" : undefined}
           >
             <Flex
-              bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+              bg={selectedTab === "chat" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
               py="0.3rem"
               width="100%"
               justifyContent={"center"}
             >
               <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
-                vote
+                chat
               </Text>
             </Flex>
           </OuterBorder>
-        )}
-        <OuterBorder
-          type={BorderType.OCEAN}
-          zIndex={selectedTab === "vibes" ? 4 : 2}
-          onClick={() => setSelectedTab("vibes")}
-          noborder
-          pb={selectedTab === "vibes" ? "0px" : undefined}
-        >
-          <Flex
-            bg={selectedTab === "vibes" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
-            py="0.3rem"
-            width="100%"
-            justifyContent={"center"}
+          {!isStandalone && (
+            <OuterBorder
+              type={BorderType.OCEAN}
+              zIndex={selectedTab === "trade" ? 4 : 2}
+              onClick={() => setSelectedTab("trade")}
+              noborder
+              pb={selectedTab === "trade" ? "0px" : undefined}
+            >
+              <Flex
+                bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+                py="0.3rem"
+                width="100%"
+                justifyContent={"center"}
+              >
+                <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
+                  vote
+                </Text>
+              </Flex>
+            </OuterBorder>
+          )}
+          <OuterBorder
+            type={BorderType.OCEAN}
+            zIndex={selectedTab === "vibes" ? 4 : 2}
+            onClick={() => setSelectedTab("vibes")}
+            noborder
+            pb={selectedTab === "vibes" ? "0px" : undefined}
           >
-            <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
-              vibes
-            </Text>
-          </Flex>
-        </OuterBorder>
-        <OuterBorder
-          type={BorderType.OCEAN}
-          zIndex={selectedTab === "vip" ? 4 : 2}
-          onClick={() => setSelectedTab("vip")}
-          noborder
-          pb={selectedTab === "vip" ? "0px" : undefined}
-        >
-          <Flex
-            bg={
-              selectedTab === "vip"
-                ? "#1b9d9d"
-                : "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 13%, rgba(255,213,86,1) 14%, rgba(246,190,45,1) 16%, rgba(249,163,32,1) 27%, rgba(231,143,0,1) 28%, #2e1405 30%, #603208 100%)"
-            }
-            py="0.3rem"
-            width="100%"
-            justifyContent={"center"}
+            <Flex
+              bg={selectedTab === "vibes" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+              py="0.3rem"
+              width="100%"
+              justifyContent={"center"}
+            >
+              <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
+                vibes
+              </Text>
+            </Flex>
+          </OuterBorder>
+          <OuterBorder
+            type={BorderType.OCEAN}
+            zIndex={selectedTab === "vip" ? 4 : 2}
+            onClick={() => setSelectedTab("vip")}
+            noborder
+            pb={selectedTab === "vip" ? "0px" : undefined}
           >
-            <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
-              vip
-            </Text>
-          </Flex>
-        </OuterBorder>
-      </Flex>
-      {presenceChannel && (
+            <Flex
+              bg={
+                selectedTab === "vip"
+                  ? "#1b9d9d"
+                  : "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 13%, rgba(255,213,86,1) 14%, rgba(246,190,45,1) 16%, rgba(249,163,32,1) 27%, rgba(231,143,0,1) 28%, #2e1405 30%, #603208 100%)"
+              }
+              py="0.3rem"
+              width="100%"
+              justifyContent={"center"}
+            >
+              <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
+                vip
+              </Text>
+            </Flex>
+          </OuterBorder>
+        </Flex>
+      )}
+      {presenceChannel && !isFocusedOnInput && !mobileSizes.keyboardVisible && (
         <Flex
           justifyContent={"center"}
           py="0.5rem"
