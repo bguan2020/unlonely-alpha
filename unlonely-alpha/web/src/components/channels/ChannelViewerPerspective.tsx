@@ -16,11 +16,12 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
  * iOS and Android, so we need to account for that and employ two separate strategies.
  */
 const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
-  const { mobileSizes, initialWindowInnerHeight } = useCacheContext();
+  const { isFocusedOnInput, mobileSizes, initialWindowInnerHeight } =
+    useCacheContext();
   const { isIOS } = useUserAgent();
 
   const newTop = useMemo(() => {
-    if (isIOS && mobileSizes.keyboardVisible) {
+    if (isIOS && isFocusedOnInput) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - initialWindowInnerHeight)
@@ -33,7 +34,7 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
       }px`;
     }
     return "unset";
-  }, [isIOS, mobileSizes, initialWindowInnerHeight]);
+  }, [isIOS, isFocusedOnInput, mobileSizes, initialWindowInnerHeight]);
 
   return (
     <Stack
@@ -45,14 +46,15 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
     >
       <Flex width={"100%"} position="relative">
         <StreamComponent />
-        {/* <div>
+        <div>
           <p>Viewport Height: {mobileSizes.viewport.height}px</p>
           <p>Screen Height: {mobileSizes.screen.height}px</p>
           <p>window innerHeight: {window.innerHeight}px </p>
           <p>Visible keyboard: {mobileSizes.keyboardVisible ? "Yes" : "No"}</p>
+          <p>isFocusedOnInput: {isFocusedOnInput ? "Yes" : "No"}</p>
           <p>isIOS: {isIOS ? "Yes" : "No"}</p>
           <p>newTop: {newTop}px</p>
-        </div> */}
+        </div>
       </Flex>
     </Stack>
   );

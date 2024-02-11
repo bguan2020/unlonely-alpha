@@ -41,7 +41,8 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { isStandalone } = useUserAgent();
   const { walletIsConnected, userAddress, user } = useUser();
-  const { vibesTokenTxs, userVibesBalance } = useCacheContext();
+  const { vibesTokenTxs, userVibesBalance, handleIsFocusedOnInput } =
+    useCacheContext();
   const toast = useToast();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
@@ -369,6 +370,8 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
             value={amountOfVibes}
             onChange={handleInputChange}
             mx="auto"
+            onFocus={() => handleIsFocusedOnInput("vibesTokenExchange")}
+            onBlur={() => handleIsFocusedOnInput(undefined)}
             p="1"
             fontSize={isStandalone ? "16px" : isFullChart ? "2rem" : "14px"}
           />

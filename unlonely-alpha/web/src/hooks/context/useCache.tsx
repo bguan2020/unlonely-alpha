@@ -57,6 +57,8 @@ const CacheContext = createContext<{
   addAppError: (error: Error, source: string) => void;
   popAppError: (errorName: string, field: string) => void;
   ethPriceInUsd: string;
+  isFocusedOnInput?: string;
+  handleIsFocusedOnInput: (value?: string) => void;
   mobileSizes: MobileViewSizes;
   initialWindowInnerHeight: number;
 }>({
@@ -73,6 +75,8 @@ const CacheContext = createContext<{
   popAppError: () => undefined,
   ethPriceInUsd: "0",
   currentBlockNumberForVibes: BigInt(0),
+  isFocusedOnInput: undefined,
+  handleIsFocusedOnInput: () => undefined,
   mobileSizes: {
     viewport: {
       width: 0,
@@ -122,6 +126,10 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const [transferLogs, setTransferLogs] = useState<Log[]>([]);
+  const [isFocusedOnInput, setIsFocusedOnInput] = useState<string | undefined>(
+    undefined
+  ); // for detecting mobile input focus
+
   const { sizes, initialWindowInnerHeight } = useMobileViewSize();
 
   useContractEvent({
@@ -195,6 +203,10 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     },
     [appErrors]
   );
+
+  const handleIsFocusedOnInput = useCallback((value?: string) => {
+    setIsFocusedOnInput(value);
+  }, []);
 
   const {
     data: dataChannels,
@@ -430,6 +442,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       popAppError,
       currentBlockNumberForVibes,
       ethPriceInUsd,
+      isFocusedOnInput,
+      handleIsFocusedOnInput,
       mobileSizes: sizes,
       initialWindowInnerHeight,
     };
@@ -447,6 +461,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     ethPriceInUsd,
     currentBlockNumberForVibes,
     vibesBalance,
+    isFocusedOnInput,
+    handleIsFocusedOnInput,
     sizes,
     initialWindowInnerHeight,
   ]);
