@@ -27,6 +27,7 @@ import {
 } from "recharts";
 import * as AWS from "aws-sdk";
 import Link from "next/link";
+import { FaMagnifyingGlassChart } from "react-icons/fa6";
 
 import { useCacheContext } from "../../hooks/context/useCache";
 import centerEllipses from "../../utils/centerEllipses";
@@ -40,7 +41,11 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 import ConnectWallet from "../navigation/ConnectWallet";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
-import { FaPause, FaPlay } from "react-icons/fa";
+import { FaPause } from "react-icons/fa";
+import {
+  blockNumberDaysAgo,
+  blockNumberHoursAgo,
+} from "../../hooks/internal/useVibesCheck";
 
 type ChartTokenTx = {
   user: string;
@@ -82,7 +87,7 @@ const VibesTokenInterface = ({
   const { channel, ui } = useChannelContext();
   const { channelQueryData } = channel;
   const { vibesTokenPriceRange } = ui;
-  const { ethPriceInUsd } = useCacheContext();
+  const { ethPriceInUsd, currentBlockNumberForVibes } = useCacheContext();
   const windowSize = useWindowSize();
   const { network } = useNetworkContext();
   const { matchingChain } = network;
@@ -610,7 +615,7 @@ const VibesTokenInterface = ({
           >
             <Flex justifyContent={"space-between"} alignItems={"center"}>
               <Flex gap="5px" alignItems={"center"}>
-                <Popover trigger="hover" placement="bottom" openDelay={300}>
+                <Popover trigger="hover" placement="bottom" openDelay={200}>
                   <PopoverTrigger>
                     <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
                       $VIBES
@@ -737,16 +742,18 @@ const VibesTokenInterface = ({
                       zones
                     </Button>
                   )}
-                {isFullChart && (
+                {isFullChart && !previewMode && (
                   <CharkaTooltip
-                    label="toggle live chart updates, disabling enables chart zooming"
+                    label="toggle chart zooming, will pause live updates when enabled"
                     shouldWrapChildren
                     openDelay={300}
                   >
                     <Button
                       color="#ffffff"
-                      bg={isChartPaused ? "#e21818" : "#317603"}
-                      _hover={{}}
+                      bg={isChartPaused ? "rgb(173, 169, 249)" : "#4741c1"}
+                      _hover={{
+                        transform: "scale(1.15)",
+                      }}
                       _focus={{}}
                       _active={{}}
                       p={2 * (isStandalone || isFullChart ? 1.5 : 1)}
@@ -756,11 +763,11 @@ const VibesTokenInterface = ({
                       onClick={() => setIsChartPaused((prev) => !prev)}
                       boxShadow={
                         isChartPaused
-                          ? "0px 0px 25px rgba(255, 0, 0, 0.847)"
+                          ? "0px 0px 25px rgba(173, 169, 249, 0.847)"
                           : undefined
                       }
                     >
-                      {isChartPaused ? <FaPause /> : <FaPlay />}
+                      {<FaMagnifyingGlassChart />}
                     </Button>
                   </CharkaTooltip>
                 )}
@@ -865,7 +872,7 @@ const VibesTokenInterface = ({
                         : formattedData
                     }
                     margin={
-                      isFullChart
+                      isFullChart && !previewMode
                         ? { left: 30, top: 10, bottom: 10 }
                         : isStandalone
                         ? { top: 10, bottom: 10 }
@@ -881,7 +888,9 @@ const VibesTokenInterface = ({
                     />
                     <YAxis
                       tickFormatter={formatYAxisTick}
-                      hide={isFullChart === true ? false : true}
+                      hide={
+                        (isFullChart && !previewMode) === true ? false : true
+                      }
                       domain={
                         !allStreams &&
                         zonesOn &&
@@ -913,13 +922,36 @@ const VibesTokenInterface = ({
                           .map((key) => {
                             return (
                               <ReferenceLine
+                                key={key}
                                 strokeDasharray="3 3"
                                 x={
                                   chartTimeIndexes.get(key)
                                     ?.blockNumber as number
                                 }
-                                stroke="#00d3c1"
+                                stroke="rgb(0, 211, 193)"
                                 label={<CustomLabel value={`~${key}`} />}
+                              />
+                            );
+                          })}
+                        {[...Array(30).keys()]
+                          .map((i) => i + 1)
+                          .filter(
+                            (d) =>
+                              chartTimeIndexes.get(`${d}d`)?.blockNumber ===
+                              undefined
+                          )
+                          .map((key) => {
+                            return (
+                              <ReferenceLine
+                                key={key}
+                                strokeDasharray="1 1"
+                                x={Number(
+                                  blockNumberDaysAgo(
+                                    key,
+                                    currentBlockNumberForVibes
+                                  )
+                                )}
+                                stroke="rgba(0, 211, 193, 0.2)"
                               />
                             );
                           })}
@@ -939,6 +971,28 @@ const VibesTokenInterface = ({
                                 }
                                 stroke="#00d3c1"
                                 label={<CustomLabel value={`~${key}`} />}
+                              />
+                            );
+                          })}
+                        {[...Array(24).keys()]
+                          .map((i) => i + 1)
+                          .filter(
+                            (h) =>
+                              chartTimeIndexes.get(`${h}h`)?.blockNumber ===
+                              undefined
+                          )
+                          .map((key) => {
+                            return (
+                              <ReferenceLine
+                                key={key}
+                                strokeDasharray="1 1"
+                                x={Number(
+                                  blockNumberHoursAgo(
+                                    key,
+                                    currentBlockNumberForVibes
+                                  )
+                                )}
+                                stroke="rgba(0, 211, 193, 0.2)"
                               />
                             );
                           })}

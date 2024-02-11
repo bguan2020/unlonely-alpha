@@ -24,6 +24,7 @@ export const useVibesCheck = () => {
   const [hashMapState, setHashMapState] = useState<Map<string, string>>(
     new Map()
   );
+  const [currentBlockNumberForVibes, setCurrentBlockNumberForVibes] = useState<bigint>(BigInt(0));
 
   const _getEnsName = async (address: `0x${string}`) => {
     try {
@@ -231,11 +232,10 @@ export const useVibesCheck = () => {
     const init = async () => {
       if (tokenTxs.length === 0) return;
 
-
       const daysArr = [1, 7, 14, 21, 28, 30, 60, 90, 180, 365];
-      const currentBlockNumber = await baseClient.getBlockNumber();
+      const currentBlockNumberForVibes = await baseClient.getBlockNumber();
 
-      const daysAgoArr = daysArr.map((days) => blockNumberDaysAgo(days, currentBlockNumber));
+      const daysAgoArr = daysArr.map((days) => blockNumberDaysAgo(days, currentBlockNumberForVibes));
 
       const dayIndex =
         daysAgoArr[0] < CREATION_BLOCK
@@ -243,14 +243,15 @@ export const useVibesCheck = () => {
           : binarySearchIndex(tokenTxs, BigInt(daysAgoArr[0]));
 
       const hoursArr = [18, 12, 6, 1];
-      const hoursAgoArr = hoursArr.map((hours) => blockNumberHoursAgo(hours, currentBlockNumber));
-
+      const hoursAgoArr = hoursArr.map((hours) => blockNumberHoursAgo(hours, currentBlockNumberForVibes));
+      setCurrentBlockNumberForVibes(currentBlockNumberForVibes)
       // adding 1day separately to account for day index
+      const offset = 1
       setChartTimeIndexes(new Map<string, { index: number | undefined; blockNumber: number }>(
         [
           [`${daysArr[0]}d`, { index: dayIndex, blockNumber: Number(daysAgoArr[0]) }],
-          ...daysAgoArr.slice(1).map<[string, { index: undefined; blockNumber: number }]>((blockNumber, slicedIndex) => {
-            const index = slicedIndex + 1;
+          ...daysAgoArr.slice(offset).map<[string, { index: undefined; blockNumber: number }]>((blockNumber, slicedIndex) => {
+            const index = slicedIndex + offset;
             return [`${daysArr[index]}d`, { index: undefined, blockNumber: Number(blockNumber) }];
           }),
           ...hoursAgoArr.map<[string, { index: undefined; blockNumber: number }]>((blockNumber, index) => {
@@ -262,7 +263,7 @@ export const useVibesCheck = () => {
     init();
   }, [tokenTxs.length]);
 
-  return { tokenTxs, chartTimeIndexes, loading };
+  return { tokenTxs, chartTimeIndexes, loading, currentBlockNumberForVibes};
 };
 
 function createHashmap<K, V>(keys: K[], values: V[]): Map<K, V> {
@@ -315,11 +316,11 @@ function insertElementSorted(arr: VibesTokenTx[], newElement: VibesTokenTx) {
   return [...arr.slice(0, insertIndex), newElement, ...arr.slice(insertIndex)];
 }
 
-function blockNumberHoursAgo(hours: number, currentBlockNumber: bigint) {
+export function blockNumberHoursAgo(hours: number, currentBlockNumber: bigint) {
 return currentBlockNumber - BigInt((hours * SECONDS_PER_HOUR) / AVERAGE_BLOCK_TIME_SECS);
 }
 
-function blockNumberDaysAgo(days: number, currentBlockNumber: bigint) {
+export function blockNumberDaysAgo(days: number, currentBlockNumber: bigint) {
   const hours = days * 24;
   return blockNumberHoursAgo(hours, currentBlockNumber);
 }

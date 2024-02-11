@@ -48,6 +48,7 @@ const CacheContext = createContext<{
     string,
     { index: number | undefined; blockNumber: number | undefined }
   >;
+  currentBlockNumberForVibes: bigint;
   addAppError: (error: Error, source: string) => void;
   popAppError: (errorName: string, field: string) => void;
   ethPriceInUsd: string;
@@ -64,6 +65,7 @@ const CacheContext = createContext<{
   addAppError: () => undefined,
   popAppError: () => undefined,
   ethPriceInUsd: "0",
+  currentBlockNumberForVibes: BigInt(0),
 });
 
 type SourcedError = Error & {
@@ -87,7 +89,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const { localNetwork } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
-  const { tokenTxs, chartTimeIndexes, loading } = useVibesCheck();
+  const { tokenTxs, chartTimeIndexes, loading, currentBlockNumberForVibes } =
+    useVibesCheck();
   const [ethPriceInUsd, setEthPriceInUsd] = useState<string>("0");
 
   const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
@@ -403,6 +406,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       chartTimeIndexes,
       addAppError,
       popAppError,
+      currentBlockNumberForVibes,
       ethPriceInUsd,
     };
   }, [
@@ -417,6 +421,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     addAppError,
     popAppError,
     ethPriceInUsd,
+    currentBlockNumberForVibes,
     vibesBalance,
   ]);
 
