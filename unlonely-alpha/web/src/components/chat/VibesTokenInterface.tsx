@@ -11,6 +11,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverArrow,
+  Tooltip as CharkaTooltip,
 } from "@chakra-ui/react";
 import { formatUnits, isAddress, parseUnits } from "viem";
 import {
@@ -18,6 +19,7 @@ import {
   LineChart,
   Line,
   Tooltip,
+  Brush,
   YAxis,
   ReferenceArea,
   ReferenceLine,
@@ -38,6 +40,17 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 import ConnectWallet from "../navigation/ConnectWallet";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
+import { FaPause, FaPlay } from "react-icons/fa";
+
+type ChartTokenTx = {
+  user: string;
+  event: string;
+  amount: number;
+  price: number;
+  priceInUsd: number;
+  priceChangePercentage: number;
+  blockNumber: number;
+};
 
 const ZONE_BREADTH = 0.05;
 
@@ -62,96 +75,6 @@ const VibesTokenInterface = ({
   customLowerPrice?: number;
   customHigherPrice?: number;
 }) => {
-  const CustomLabel = (props: any) => {
-    return (
-      <g>
-        <text x={props.viewBox.x} y={props.viewBox.y} fill="#00d3c1" dy={20}>
-          {props.value}
-        </text>
-      </g>
-    );
-  };
-
-  const CustomDot = (props: any) => {
-    const { cx, cy, stroke, payload } = props;
-    // Change the dot stroke color based on the value
-    const dotStroke = payload.event === "Mint" ? "#00ff0d" : "#ff0000";
-
-    return (
-      <circle
-        cx={cx}
-        cy={cy}
-        r={3}
-        fill={stroke}
-        stroke={dotStroke}
-        strokeWidth={2}
-      />
-    );
-  };
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const percentage = Number(
-        truncateValue(
-          payload[0].payload.priceChangePercentage,
-          2,
-          true,
-          2,
-          false
-        )
-      );
-      return (
-        <Flex
-          direction="column"
-          bg="rgba(0, 0, 0, 0.5)"
-          p="5px"
-          borderRadius="15px"
-        >
-          <Text>{`${
-            isAddress(payload[0].payload.user)
-              ? centerEllipses(payload[0].payload.user, 13)
-              : payload[0].payload.user
-          }`}</Text>
-          <Text
-            color={payload[0].payload.event === "Mint" ? "#46a800" : "#fe2815"}
-          >{`${
-            payload[0].payload.event === "Mint" ? "Bought" : "Sold"
-          } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
-          {payload[0].payload.priceInUsd !== undefined ? (
-            <>
-              <Text>{`$${truncateValue(
-                payload[0].payload.priceInUsd,
-                4
-              )}`}</Text>
-              <Text fontSize="10px" opacity="0.75">{`${truncateValue(
-                formatUnits(payload[0].payload.price, 18),
-                10
-              )} ETH`}</Text>
-            </>
-          ) : (
-            <Text>{`${truncateValue(
-              formatUnits(payload[0].payload.price, 18),
-              10
-            )} ETH`}</Text>
-          )}
-          {percentage !== 0 && isFullChart && (
-            <Text
-              color={
-                payload[0].payload.priceChangePercentage > 0
-                  ? "#46a800"
-                  : "#fe2815"
-              }
-            >{`${
-              payload[0].payload.priceChangePercentage > 0 ? "+" : ""
-            }${percentage}%`}</Text>
-          )}
-        </Flex>
-      );
-    }
-
-    return null;
-  };
-
   const { userAddress, walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
@@ -186,7 +109,9 @@ const VibesTokenInterface = ({
     string | undefined
   >(undefined);
 
-  const txs = useMemo(() => {
+  const [isChartPaused, setIsChartPaused] = useState(false);
+
+  const txs: ChartTokenTx[] = useMemo(() => {
     return vibesTokenTxs.map((tx) => {
       return {
         user: tx.user,
@@ -220,6 +145,29 @@ const VibesTokenInterface = ({
     if (timeFilter === "1d") return formattedDayData;
     return txs;
   }, [txs, timeFilter, formattedDayData]);
+
+  const [pausedDataForAllTime, setPausedDataForAllTime] = useState<
+    ChartTokenTx[]
+  >([]);
+  const [pausedDataFor1Day, setPausedDataFor1Day] = useState<ChartTokenTx[]>(
+    []
+  );
+
+  useEffect(() => {
+    if (!isChartPaused) {
+      setPausedDataForAllTime(txs);
+    } else {
+      setPausedDataForAllTime((prev) => prependStartMarker(prev));
+    }
+  }, [isChartPaused, txs]);
+
+  useEffect(() => {
+    if (!isChartPaused) {
+      setPausedDataFor1Day(formattedDayData);
+    } else {
+      setPausedDataFor1Day((prev) => prependStartMarker(prev));
+    }
+  }, [isChartPaused, formattedDayData]);
 
   const formattedCurrentPrice = useMemo(
     () =>
@@ -368,6 +316,125 @@ const VibesTokenInterface = ({
         Number(ethPriceInUsd ?? "0"),
       2
     )}`;
+  };
+
+  const CustomLabel = (props: any) => {
+    return (
+      <g>
+        <text x={props.viewBox.x} y={props.viewBox.y} fill="#00d3c1" dy={20}>
+          {props.value}
+        </text>
+      </g>
+    );
+  };
+
+  const CustomDot = (props: any) => {
+    const { cx, cy, stroke, payload } = props;
+    // Change the dot stroke color based on the value
+    const dotStroke =
+      payload.event === "Mint"
+        ? "#00ff0d"
+        : payload.event === "Burn"
+        ? "#ff0000"
+        : "#ffffff";
+
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={3}
+        fill={stroke}
+        stroke={dotStroke}
+        strokeWidth={2}
+      />
+    );
+  };
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const percentage = Number(
+        truncateValue(
+          payload[0].payload.priceChangePercentage,
+          2,
+          true,
+          2,
+          false
+        )
+      );
+      return (
+        <Flex
+          direction="column"
+          bg="rgba(0, 0, 0, 0.5)"
+          p="5px"
+          borderRadius="15px"
+        >
+          <Text>{`${
+            isAddress(payload[0].payload.user)
+              ? centerEllipses(payload[0].payload.user, 13)
+              : payload[0].payload.user
+          }`}</Text>
+          {payload[0].payload.event !== "" && (
+            <>
+              <Text
+                color={
+                  payload[0].payload.event === "Mint" ? "#46a800" : "#fe2815"
+                }
+              >{`${
+                payload[0].payload.event === "Mint" ? "Bought" : "Sold"
+              } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
+              {payload[0].payload.priceInUsd !== undefined ? (
+                <>
+                  <Text>{`$${truncateValue(
+                    payload[0].payload.priceInUsd,
+                    4
+                  )}`}</Text>
+                  <Text fontSize="10px" opacity="0.75">{`${truncateValue(
+                    formatUnits(payload[0].payload.price, 18),
+                    10
+                  )} ETH`}</Text>
+                </>
+              ) : (
+                <Text>{`${truncateValue(
+                  formatUnits(payload[0].payload.price, 18),
+                  10
+                )} ETH`}</Text>
+              )}
+              {percentage !== 0 && isFullChart && (
+                <Text
+                  color={
+                    payload[0].payload.priceChangePercentage > 0
+                      ? "#46a800"
+                      : "#fe2815"
+                  }
+                >{`${
+                  payload[0].payload.priceChangePercentage > 0 ? "+" : ""
+                }${percentage}%`}</Text>
+              )}
+            </>
+          )}
+        </Flex>
+      );
+    }
+
+    return null;
+  };
+
+  const customBrushFormatter = (blockNumber: number) => {
+    if (vibesTokenTxs.length === 0) return 0;
+    const latestBlockNumber =
+      vibesTokenTxs[vibesTokenTxs.length - 1].blockNumber;
+    const AVERAGE_BLOCK_TIME = 2;
+    const timeDifferenceInSeconds =
+      (latestBlockNumber - blockNumber) * AVERAGE_BLOCK_TIME;
+    if (timeFilter === "all") {
+      const timeDifferenceInDays = Math.floor(
+        timeDifferenceInSeconds / 60 / 60 / 24
+      );
+      return `~${timeDifferenceInDays}d ago`;
+    }
+
+    const timeDifferenceInHours = Math.floor(timeDifferenceInSeconds / 60 / 60);
+    return `~${timeDifferenceInHours}h ago`;
   };
 
   return (
@@ -670,6 +737,33 @@ const VibesTokenInterface = ({
                       zones
                     </Button>
                   )}
+                {isFullChart && (
+                  <CharkaTooltip
+                    label="toggle live chart updates, disabling enables chart zooming"
+                    shouldWrapChildren
+                    openDelay={300}
+                  >
+                    <Button
+                      color="#ffffff"
+                      bg={isChartPaused ? "#e21818" : "#317603"}
+                      _hover={{}}
+                      _focus={{}}
+                      _active={{}}
+                      p={2 * (isStandalone || isFullChart ? 1.5 : 1)}
+                      height={`${
+                        20 * (isStandalone || isFullChart ? 1.5 : 1)
+                      }px`}
+                      onClick={() => setIsChartPaused((prev) => !prev)}
+                      boxShadow={
+                        isChartPaused
+                          ? "0px 0px 25px rgba(255, 0, 0, 0.847)"
+                          : undefined
+                      }
+                    >
+                      {isChartPaused ? <FaPause /> : <FaPlay />}
+                    </Button>
+                  </CharkaTooltip>
+                )}
                 {!allStreams && !previewMode && isOwner && !isStandalone && (
                   <>
                     <VibesTokenZoneModal
@@ -746,9 +840,30 @@ const VibesTokenInterface = ({
                       no txs
                     </Text>
                   )}
+                {isChartPaused && (
+                  <Text
+                    position="absolute"
+                    color="#626262"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%)"
+                    fontSize={"6rem"}
+                    fontWeight={"bold"}
+                    textAlign={"center"}
+                    opacity="0.5"
+                  >
+                    <FaPause />
+                  </Text>
+                )}
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
-                    data={formattedData}
+                    data={
+                      isChartPaused
+                        ? timeFilter === "all"
+                          ? pausedDataForAllTime
+                          : pausedDataFor1Day
+                        : formattedData
+                    }
                     margin={
                       isFullChart
                         ? { left: 30, top: 10, bottom: 10 }
@@ -919,7 +1034,7 @@ const VibesTokenInterface = ({
                       }
                       strokeWidth={2}
                       animationDuration={200}
-                      dot={isFullChart ? <CustomDot /> : false}
+                      dot={isFullChart && !previewMode ? <CustomDot /> : false}
                     />
                     {(!allStreams || !previewMode) &&
                       lowerPrice > 0 &&
@@ -932,6 +1047,15 @@ const VibesTokenInterface = ({
                           ifOverflow="hidden"
                         />
                       )}
+                    {isFullChart && !previewMode && isChartPaused && (
+                      <Brush
+                        dataKey="blockNumber"
+                        height={30}
+                        fill={isChartPaused ? "#2c2970" : "transparent"}
+                        stroke={isChartPaused ? "#ada9f9" : "#5e5e6a"}
+                        tickFormatter={(tick) => customBrushFormatter(tick)}
+                      />
+                    )}
                   </LineChart>
                 </ResponsiveContainer>
               </Flex>
@@ -954,5 +1078,20 @@ const VibesTokenInterface = ({
     </>
   );
 };
+
+function prependStartMarker(data: ChartTokenTx[]): ChartTokenTx[] {
+  if (data.length === 0 || data[0].event === "") return data;
+  const firstBlockNumber = data.length > 0 ? data[0].blockNumber : 0;
+  const firstElement: ChartTokenTx = {
+    user: "Start",
+    event: "",
+    amount: 0,
+    price: 0,
+    priceInUsd: 0,
+    priceChangePercentage: 0,
+    blockNumber: firstBlockNumber,
+  };
+  return [firstElement, ...data];
+}
 
 export default VibesTokenInterface;
