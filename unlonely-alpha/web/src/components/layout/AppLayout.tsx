@@ -16,7 +16,7 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { Navbar } from "../mobile/Navbar";
 import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
 import { useCacheContext } from "../../hooks/context/useCache";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 
 type Props = {
   loading?: boolean;
@@ -52,18 +52,34 @@ const AppLayout: React.FC<Props> = ({
     xl: false,
   });
 
-  const preventTouchMove = useCallback((e: any) => {
-    e.preventDefault();
-  }, []);
+  // const preventTouchMove = useCallback((e: any) => {
+  //   e.preventDefault();
+  // }, []);
+
+  // const disableScroll = () => {
+  //   document.addEventListener("touchmove", preventTouchMove, {
+  //     passive: false,
+  //   });
+  // };
+
+  // const enableScroll = () => {
+  //   document.removeEventListener("touchmove", preventTouchMove);
+  // };
+
+  let scrollTop = 0; // Variable to hold scroll position
 
   const disableScroll = () => {
-    document.addEventListener("touchmove", preventTouchMove, {
-      passive: false,
-    });
+    scrollTop = window.scrollY || document.documentElement.scrollTop;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollTop}px`;
+    document.body.style.width = "100%";
   };
 
   const enableScroll = () => {
-    document.removeEventListener("touchmove", preventTouchMove);
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.width = "";
+    window.scrollTo(0, scrollTop); // Scrolls back to the original position
   };
 
   useEffect(() => {
