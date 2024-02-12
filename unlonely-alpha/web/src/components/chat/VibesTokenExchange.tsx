@@ -343,7 +343,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
     if (!matchingChain) {
       setErrorMessage("wrong network");
     } else if (Number(formatIncompleteNumber(amountOfVibes)) <= 0) {
-      setErrorMessage("enter amount first");
+      setErrorMessage("enter amount");
     } else if (
       userEthBalance?.value &&
       mintCostAfterFees > userEthBalance?.value
@@ -359,7 +359,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
       <Flex position="relative" gap="5px" alignItems={"center"}>
         <Tooltip
           label={errorMessage}
-          placement="bottom"
+          placement="bottom-start"
           isOpen={errorMessage !== undefined}
           bg="red.600"
         >
