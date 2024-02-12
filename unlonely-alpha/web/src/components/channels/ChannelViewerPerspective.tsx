@@ -34,7 +34,8 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
   );
 
   const newTop = useMemo(() => {
-    if (currentMobileTab !== "chat" || !isStandalone) return "unset";
+    if (!["chat", "vip"].includes(currentMobileTab) || !isStandalone)
+      return "unset";
     if (iosKeyboardDetected) {
       return `${
         mobileSizes.viewport.height -

@@ -92,7 +92,8 @@ const StandaloneChatComponent = ({
   );
 
   const newTop = useMemo(() => {
-    if (currentMobileTab !== "chat" || !isStandalone) return "unset";
+    if (!["chat", "vip"].includes(currentMobileTab) || !isStandalone)
+      return "unset";
     if (iosKeyboardDetected) {
       return `${
         mobileSizes.viewport.height -
@@ -281,7 +282,7 @@ const StandaloneChatComponent = ({
   */
   useEffect(() => {
     if (
-      currentMobileTab === "chat" &&
+      ["chat", "vip"].includes(currentMobileTab) &&
       (iosKeyboardDetected || androidKeyboardDetected) &&
       router.pathname.startsWith("/channels") &&
       isStandalone &&
@@ -301,7 +302,7 @@ const StandaloneChatComponent = ({
           top: scrollHeight,
           behavior: "smooth",
         });
-      }, 200);
+      }, 100);
       disableScroll();
     } else {
       enableScroll();
@@ -324,12 +325,8 @@ const StandaloneChatComponent = ({
       direction="column"
       h={
         (iosKeyboardDetected || androidKeyboardDetected) &&
-        currentMobileTab === "chat"
-          ? `calc(${
-              mobileSizes.viewport.height * 2
-            }px - ${MOBILE_VIDEO_VH}vh - ${
-              newTop === "unset" ? "0px" : newTop
-            })`
+        ["chat", "vip"].includes(currentMobileTab)
+          ? `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh)`
           : !previewStream && isOwner
           ? `${MOBILE_CHAT_VH + MOBILE_VIDEO_VH}vh`
           : `${MOBILE_CHAT_VH}vh`
@@ -339,7 +336,7 @@ const StandaloneChatComponent = ({
       position={"relative"}
       marginTop={
         (iosKeyboardDetected || androidKeyboardDetected) &&
-        currentMobileTab === "chat"
+        ["chat", "vip"].includes(currentMobileTab)
           ? `calc(${
               newTop === "unset" ? "0px" : newTop
             } + ${MOBILE_VIDEO_VH}vh)`
@@ -464,7 +461,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
 
   return (
     <>
-      {(currentMobileTab !== "chat" ||
+      {(!["chat", "vip"].includes(currentMobileTab) ||
         (!iosKeyboardDetected && !androidKeyboardDetected)) && (
         <Flex width="100%" pb="0.5rem">
           <OuterBorder
@@ -556,7 +553,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
         </Flex>
       )}
       {presenceChannel &&
-        (currentMobileTab !== "chat" ||
+        (!["chat", "vip"].includes(currentMobileTab) ||
           (!iosKeyboardDetected && !androidKeyboardDetected)) && (
           <Flex
             justifyContent={"center"}
