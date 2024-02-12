@@ -70,7 +70,7 @@ const VibesTokenInterface = ({
   customLowerPrice,
   customHigherPrice,
 }: {
-  defaultTimeFilter?: "1d" | "all";
+  defaultTimeFilter?: "1h" | "1d" | "all";
   allStreams?: boolean;
   previewMode?: boolean;
   isFullChart?: boolean;
@@ -92,8 +92,8 @@ const VibesTokenInterface = ({
   const { network } = useNetworkContext();
   const { matchingChain } = network;
 
-  const [timeFilter, setTimeFilter] = useState<"1d" | "all">(
-    defaultTimeFilter ?? "1d"
+  const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">(
+    defaultTimeFilter ?? "1h"
   );
 
   const [zonesOn, setZonesOn] = useState(true);
@@ -138,6 +138,14 @@ const VibesTokenInterface = ({
     });
   }, [vibesTokenTxs, ethPriceInUsd]);
 
+  const formattedHourData = useMemo(
+    () =>
+      chartTimeIndexes.get("1h") !== undefined
+        ? txs.slice(chartTimeIndexes.get("1h")?.index as number)
+        : txs,
+    [txs, chartTimeIndexes]
+  );
+
   const formattedDayData = useMemo(
     () =>
       chartTimeIndexes.get("1d") !== undefined
@@ -147,14 +155,18 @@ const VibesTokenInterface = ({
   );
 
   const formattedData = useMemo(() => {
+    if (timeFilter === "1h") return formattedHourData;
     if (timeFilter === "1d") return formattedDayData;
     return txs;
-  }, [txs, timeFilter, formattedDayData]);
+  }, [txs, timeFilter, formattedHourData, formattedDayData]);
 
   const [pausedDataForAllTime, setPausedDataForAllTime] = useState<
     ChartTokenTx[]
   >([]);
   const [pausedDataFor1Day, setPausedDataFor1Day] = useState<ChartTokenTx[]>(
+    []
+  );
+  const [pausedDataFor1Hour, setPausedDataFor1Hour] = useState<ChartTokenTx[]>(
     []
   );
 
@@ -173,6 +185,14 @@ const VibesTokenInterface = ({
       setPausedDataFor1Day((prev) => prependStartMarker(prev));
     }
   }, [isChartPaused, formattedDayData]);
+
+  useEffect(() => {
+    if (!isChartPaused) {
+      setPausedDataFor1Hour(formattedHourData);
+    } else {
+      setPausedDataFor1Hour((prev) => prependStartMarker(prev));
+    }
+  }, [isChartPaused, formattedHourData]);
 
   const formattedCurrentPrice = useMemo(
     () =>
@@ -676,7 +696,7 @@ const VibesTokenInterface = ({
                   </PopoverContent>
                 </Popover>
                 <Button
-                  bg={timeFilter === "1d" ? "#7874c9" : "#403c7d"}
+                  bg={timeFilter === "1h" ? "#7874c9" : "#403c7d"}
                   color="#c6c3fc"
                   p={
                     2 *
@@ -689,10 +709,30 @@ const VibesTokenInterface = ({
                   _focus={{}}
                   _active={{}}
                   _hover={{}}
-                  onClick={() => setTimeFilter("1d")}
+                  onClick={() => setTimeFilter("1h")}
                 >
-                  1d
+                  1h
                 </Button>
+                {isFullChart && (
+                  <Button
+                    bg={timeFilter === "1d" ? "#7874c9" : "#403c7d"}
+                    color="#c6c3fc"
+                    p={
+                      2 *
+                      ((isStandalone || isFullChart) && !previewMode ? 1.5 : 1)
+                    }
+                    height={`${
+                      20 *
+                      ((isStandalone || isFullChart) && !previewMode ? 1.5 : 1)
+                    }px`}
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
+                    onClick={() => setTimeFilter("1d")}
+                  >
+                    1d
+                  </Button>
+                )}
                 <Button
                   bg={timeFilter === "all" ? "#7874c9" : "#403c7d"}
                   color="#c6c3fc"
@@ -833,8 +873,8 @@ const VibesTokenInterface = ({
               flex="1"
             >
               <Flex direction="column" w="100%" position="relative" h="100%">
-                {formattedDayData.length === 0 &&
-                  timeFilter === "1d" &&
+                {formattedHourData.length === 0 &&
+                  timeFilter === "1h" &&
                   matchingChain && (
                     <Text position="absolute" color="gray" top="50%">
                       no txs in the past 24 hours
@@ -868,7 +908,9 @@ const VibesTokenInterface = ({
                       isChartPaused
                         ? timeFilter === "all"
                           ? pausedDataForAllTime
-                          : pausedDataFor1Day
+                          : timeFilter === "1d"
+                          ? pausedDataFor1Day
+                          : pausedDataFor1Hour
                         : formattedData
                     }
                     margin={
