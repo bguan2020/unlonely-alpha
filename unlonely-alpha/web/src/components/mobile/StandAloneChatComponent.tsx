@@ -327,23 +327,41 @@ const StandaloneChatComponent = ({
     handleIsFocusedOnInput(undefined);
   }, [router.pathname]);
 
-  document.addEventListener("visibilitychange", () => {
-    // if (isScrollDisabled.current) {
-    const scrollHeight = Math.max(
-      document.body.scrollHeight,
-      document.documentElement.scrollHeight,
-      document.body.offsetHeight,
-      document.documentElement.offsetHeight,
-      document.body.clientHeight,
-      document.documentElement.clientHeight,
-      window.screen.height
-    );
-    window.scrollTo({
-      top: scrollHeight,
-      behavior: "smooth",
-    });
-    // }
-  });
+  // document.addEventListener("visibilitychange", () => {
+  //   if (isScrollDisabled.current) {
+  //   const scrollHeight = Math.max(
+  //     document.body.scrollHeight,
+  //     document.documentElement.scrollHeight,
+  //     document.body.offsetHeight,
+  //     document.documentElement.offsetHeight,
+  //     document.body.clientHeight,
+  //     document.documentElement.clientHeight,
+  //     window.screen.height
+  //   );
+  //   window.scrollTo({
+  //     top: scrollHeight,
+  //     behavior: "smooth",
+  //   });
+  //   }
+  // });
+
+  // useEffect(() => {
+  //   if (isScrollDisabled.current) {
+  //     const scrollHeight = Math.max(
+  //       document.body.scrollHeight,
+  //       document.documentElement.scrollHeight,
+  //       document.body.offsetHeight,
+  //       document.documentElement.offsetHeight,
+  //       document.body.clientHeight,
+  //       document.documentElement.clientHeight,
+  //       window.screen.height
+  //     );
+  //     window.scrollTo({
+  //       top: scrollHeight,
+  //       behavior: "smooth",
+  //     });
+  //   }
+  // }, []);
 
   /* when the keyboard is visible on the channel page, scroll to the bottom of the page, and disable scroll
   to keep the input and video component in view, please refer to the video component for more details
