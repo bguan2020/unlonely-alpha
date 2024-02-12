@@ -82,8 +82,8 @@ const StandaloneChatComponent = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const iosKeyboardDetected = useMemo(
-    () => isIOS && isFocusedOnInput,
-    [isIOS, isFocusedOnInput]
+    () => isIOS && isFocusedOnInput && mobileSizes.keyboardVisible,
+    [isIOS, isFocusedOnInput, mobileSizes]
   );
 
   const androidKeyboardDetected = useMemo(
@@ -309,28 +309,29 @@ const StandaloneChatComponent = ({
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (
-  //     ["chat", "vip"].includes(currentMobileTab) &&
-  //     (iosKeyboardDetected || androidKeyboardDetected) &&
-  //     isStandalone &&
-  //     window
-  //   ) {
-  //     const scrollHeight = Math.max(
-  //       document.body.scrollHeight,
-  //       document.documentElement.scrollHeight,
-  //       document.body.offsetHeight,
-  //       document.documentElement.offsetHeight,
-  //       document.body.clientHeight,
-  //       document.documentElement.clientHeight,
-  //       window.screen.height
-  //     );
-  //     window.scrollTo({
-  //       top: scrollHeight,
-  //       behavior: "smooth",
-  //     });
-  //   }
-  // }, []);
+  // IOS only, this allows the PWA to auto-scroll to the bottom of the page when the app does from the background to foreground
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      const isTabApplicable = ["chat", "vip"].includes(currentMobileTab);
+      const showKeyboard = iosKeyboardDetected || androidKeyboardDetected;
+      if (showKeyboard && isTabApplicable) {
+        const scrollHeight = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight,
+          document.body.offsetHeight,
+          document.documentElement.offsetHeight,
+          document.body.clientHeight,
+          document.documentElement.clientHeight,
+          window.screen.height
+        );
+        window.scrollTo({
+          top: scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    } else {
+    }
+  });
 
   const disableScroll = () => {
     document.addEventListener("touchmove", preventTouchMove, {
