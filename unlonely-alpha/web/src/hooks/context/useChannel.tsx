@@ -103,6 +103,8 @@ const ChannelContext = createContext<{
     selectedUserInChat?: SelectedUser;
     handleSelectedUserInChat: (value?: SelectedUser) => void;
     handleLocalSharesEventState: (value: SharesEventState) => void;
+    currentMobileTab: "chat" | "trade" | "vibes" | "vip";
+    handleCurrentMobileTab: (value: "chat" | "trade" | "vibes" | "vip") => void;
   };
 }>({
   channel: {
@@ -164,6 +166,8 @@ const ChannelContext = createContext<{
     handleLocalSharesEventState: () => undefined,
     selectedUserInChat: undefined,
     handleSelectedUserInChat: () => undefined,
+    currentMobileTab: "chat",
+    handleCurrentMobileTab: () => undefined,
   },
 });
 
@@ -242,6 +246,9 @@ export const ChannelProvider = ({
   const [localSharesEventState, setLocalSharesEventState] = useState<
     SharesEventState | undefined
   >(undefined);
+  const [currentMobileTab, setCurrentMobileTab] = useState<
+    "chat" | "trade" | "vibes" | "vip"
+  >("chat");
 
   const handleIsClipUiOpen = useCallback((isClipUiOpen: boolean) => {
     setIsClipUiOpen(isClipUiOpen);
@@ -386,6 +393,13 @@ export const ChannelProvider = ({
     setTradeLoading(value);
   }, []);
 
+  const handleCurrentMobileTab = useCallback(
+    (value: "chat" | "trade" | "vibes" | "vip") => {
+      setCurrentMobileTab(value);
+    },
+    []
+  );
+
   const handleChannelRoles = useCallback(
     (address: string, role: number, isAdding: boolean) => {
       if (isAdding) {
@@ -468,6 +482,8 @@ export const ChannelProvider = ({
         selectedUserInChat,
         handleSelectedUserInChat,
         handleLocalSharesEventState,
+        currentMobileTab,
+        handleCurrentMobileTab,
       },
     }),
     [
@@ -523,6 +539,8 @@ export const ChannelProvider = ({
       handleLocalSharesEventState,
       selectedUserInChat,
       handleSelectedUserInChat,
+      currentMobileTab,
+      handleCurrentMobileTab,
     ]
   );
 

@@ -81,9 +81,7 @@ const AppLayout: React.FC<Props> = ({
   */
   useEffect(() => {
     if (
-      (mobileSizes.keyboardVisible ||
-        isFocusedOnInput === "chatting" ||
-        isFocusedOnInput === "clipping") &&
+      (mobileSizes.keyboardVisible || isFocusedOnInput) &&
       router.pathname.startsWith("/channels") &&
       isStandalone &&
       window

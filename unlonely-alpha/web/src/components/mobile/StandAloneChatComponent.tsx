@@ -57,10 +57,11 @@ const StandaloneChatComponent = ({
   handleShowPreviewStream: () => void;
   chat: ChatReturnType;
 }) => {
-  const { channel: channelContext, chat: chatInfo } = useChannelContext();
+  const { channel: channelContext, chat: chatInfo, ui } = useChannelContext();
   const { userAddress } = useUser();
   const { channelQueryData } = channelContext;
   const { chatChannel } = chatInfo;
+  const { currentMobileTab } = ui;
   const { isFocusedOnInput, mobileSizes, initialWindowInnerHeight } =
     useCacheContext();
   const { isIOS } = useUserAgent();
@@ -77,10 +78,7 @@ const StandaloneChatComponent = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const newTop = useMemo(() => {
-    if (
-      isIOS &&
-      (isFocusedOnInput === "chatting" || isFocusedOnInput === "clipping")
-    ) {
+    if (isIOS && isFocusedOnInput) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - initialWindowInnerHeight)
@@ -241,9 +239,8 @@ const StandaloneChatComponent = ({
     <Flex
       direction="column"
       h={
-        mobileSizes.keyboardVisible ||
-        isFocusedOnInput === "chatting" ||
-        isFocusedOnInput === "clipping"
+        (mobileSizes.keyboardVisible || isFocusedOnInput) &&
+        currentMobileTab === "chat"
           ? `calc(${
               mobileSizes.viewport.height * 2
             }px - ${MOBILE_VIDEO_VH}vh - ${
@@ -257,9 +254,8 @@ const StandaloneChatComponent = ({
       id="chat"
       position={"relative"}
       marginTop={
-        mobileSizes.keyboardVisible ||
-        isFocusedOnInput === "chatting" ||
-        isFocusedOnInput === "clipping"
+        (mobileSizes.keyboardVisible || isFocusedOnInput) &&
+        currentMobileTab === "chat"
           ? `calc(${
               newTop === "unset" ? "0px" : newTop
             } + ${MOBILE_VIDEO_VH}vh)`
@@ -362,8 +358,9 @@ const StandaloneChatComponent = ({
 
 export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress } = useUser();
-  const { chat: chatContext, channel } = useChannelContext();
+  const { chat: chatContext, channel, ui } = useChannelContext();
   const { presenceChannel } = chatContext;
+  const { currentMobileTab, handleCurrentMobileTab } = ui;
   const { isStandalone } = useUserAgent();
   const { isFocusedOnInput, mobileSizes } = useCacheContext();
   const { channelQueryData } = channel;
@@ -371,23 +368,21 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
 
   const isOwner = userAddress === channelQueryData?.owner.address;
 
-  const [selectedTab, setSelectedTab] = useState<
-    "chat" | "trade" | "vibes" | "vip"
-  >("chat");
-
   return (
     <>
       {!isFocusedOnInput && !mobileSizes.keyboardVisible && (
         <Flex width="100%" pb="0.5rem">
           <OuterBorder
             type={BorderType.OCEAN}
-            zIndex={selectedTab === "chat" ? 4 : 2}
-            onClick={() => setSelectedTab("chat")}
+            zIndex={currentMobileTab === "chat" ? 4 : 2}
+            onClick={() => handleCurrentMobileTab("chat")}
             noborder
-            pb={selectedTab === "chat" ? "0px" : undefined}
+            pb={currentMobileTab === "chat" ? "0px" : undefined}
           >
             <Flex
-              bg={selectedTab === "chat" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+              bg={
+                currentMobileTab === "chat" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"
+              }
               py="0.3rem"
               width="100%"
               justifyContent={"center"}
@@ -400,13 +395,17 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
           {!isStandalone && (
             <OuterBorder
               type={BorderType.OCEAN}
-              zIndex={selectedTab === "trade" ? 4 : 2}
-              onClick={() => setSelectedTab("trade")}
+              zIndex={currentMobileTab === "trade" ? 4 : 2}
+              onClick={() => handleCurrentMobileTab("trade")}
               noborder
-              pb={selectedTab === "trade" ? "0px" : undefined}
+              pb={currentMobileTab === "trade" ? "0px" : undefined}
             >
               <Flex
-                bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+                bg={
+                  currentMobileTab === "trade"
+                    ? "#1b9d9d"
+                    : "rgba(19, 18, 37, 1)"
+                }
                 py="0.3rem"
                 width="100%"
                 justifyContent={"center"}
@@ -419,13 +418,15 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
           )}
           <OuterBorder
             type={BorderType.OCEAN}
-            zIndex={selectedTab === "vibes" ? 4 : 2}
-            onClick={() => setSelectedTab("vibes")}
+            zIndex={currentMobileTab === "vibes" ? 4 : 2}
+            onClick={() => handleCurrentMobileTab("vibes")}
             noborder
-            pb={selectedTab === "vibes" ? "0px" : undefined}
+            pb={currentMobileTab === "vibes" ? "0px" : undefined}
           >
             <Flex
-              bg={selectedTab === "vibes" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
+              bg={
+                currentMobileTab === "vibes" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"
+              }
               py="0.3rem"
               width="100%"
               justifyContent={"center"}
@@ -437,14 +438,14 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
           </OuterBorder>
           <OuterBorder
             type={BorderType.OCEAN}
-            zIndex={selectedTab === "vip" ? 4 : 2}
-            onClick={() => setSelectedTab("vip")}
+            zIndex={currentMobileTab === "vip" ? 4 : 2}
+            onClick={() => handleCurrentMobileTab("vip")}
             noborder
-            pb={selectedTab === "vip" ? "0px" : undefined}
+            pb={currentMobileTab === "vip" ? "0px" : undefined}
           >
             <Flex
               bg={
-                selectedTab === "vip"
+                currentMobileTab === "vip"
                   ? "#1b9d9d"
                   : "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 13%, rgba(255,213,86,1) 14%, rgba(246,190,45,1) 16%, rgba(249,163,32,1) 27%, rgba(231,143,0,1) 28%, #2e1405 30%, #603208 100%)"
               }
@@ -491,14 +492,14 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
         </Flex>
       )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
-        {selectedTab === "chat" && <Chat chat={chat} />}
-        {selectedTab === "trade" && <Trade />}
-        {selectedTab === "vibes" && (
+        {currentMobileTab === "chat" && <Chat chat={chat} />}
+        {currentMobileTab === "trade" && <Trade />}
+        {currentMobileTab === "vibes" && (
           <Flex h="100%" justifyContent={"space-between"}>
             <VibesTokenInterface isExchangeColumn />
           </Flex>
         )}
-        {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
+        {currentMobileTab === "vip" && <Chat chat={chat} isVipChat />}
       </Flex>
     </>
   );

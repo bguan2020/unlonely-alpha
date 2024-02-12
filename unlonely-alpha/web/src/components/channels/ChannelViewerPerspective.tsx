@@ -4,6 +4,7 @@ import StreamComponent from "../stream/StreamComponent";
 import { useCacheContext } from "../../hooks/context/useCache";
 import { useMemo } from "react";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 /**
  * If the virtual keyboard is open on mobile devices, the page is usually
@@ -19,12 +20,12 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
   const { isFocusedOnInput, mobileSizes, initialWindowInnerHeight } =
     useCacheContext();
   const { isIOS } = useUserAgent();
+  const { ui } = useChannelContext();
+  const { currentMobileTab } = ui;
 
   const newTop = useMemo(() => {
-    if (
-      isIOS &&
-      (isFocusedOnInput === "chatting" || isFocusedOnInput === "clipping")
-    ) {
+    if (currentMobileTab !== "chat" || !mobile) return "unset";
+    if (isIOS && isFocusedOnInput) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - initialWindowInnerHeight)
@@ -37,7 +38,14 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
       }px`;
     }
     return "unset";
-  }, [isIOS, isFocusedOnInput, mobileSizes, initialWindowInnerHeight]);
+  }, [
+    isIOS,
+    isFocusedOnInput,
+    mobileSizes,
+    initialWindowInnerHeight,
+    currentMobileTab,
+    mobile,
+  ]);
 
   return (
     <Stack
@@ -50,13 +58,12 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
       <Flex width={"100%"} position="relative">
         <StreamComponent />
         <div>
-          <p>Viewport Height: {mobileSizes.viewport.height}px</p>
-          <p>Screen Height: {mobileSizes.screen.height}px</p>
-          <p>window innerHeight: {window.innerHeight}px </p>
-          <p>Visible keyboard: {mobileSizes.keyboardVisible ? "Yes" : "No"}</p>
+          <p>Viewport Height: {Math.floor(mobileSizes.viewport.height)}</p>
+          <p>Screen Height: {Math.floor(mobileSizes.screen.height)}</p>
+          <p>Window innerHeight: {Math.floor(window.innerHeight)}</p>
+          <p>keyboard?: {mobileSizes.keyboardVisible ? "Y" : "N"}</p>
           <p>isFocusedOnInput: {isFocusedOnInput}</p>
-          <p>isIOS: {isIOS ? "Yes" : "No"}</p>
-          <p>newTop: {newTop}px</p>
+          <p>newTop: {newTop}</p>
         </div>
       </Flex>
     </Stack>
