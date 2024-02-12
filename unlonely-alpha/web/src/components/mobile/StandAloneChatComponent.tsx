@@ -309,31 +309,29 @@ const StandaloneChatComponent = ({
     }
   }, []);
 
-  // IOS only, this allows the PWA to auto-scroll to the bottom of the page when the app does from the background to foreground
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-      const isTabApplicable = ["chat", "vip"].includes(currentMobileTab);
-      const showKeyboard = iosKeyboardDetected || androidKeyboardDetected;
-      if (showKeyboard && isTabApplicable) {
-        const scrollHeight = Math.max(
-          document.body.scrollHeight,
-          document.documentElement.scrollHeight,
-          document.body.offsetHeight,
-          document.documentElement.offsetHeight,
-          document.body.clientHeight,
-          document.documentElement.clientHeight,
-          window.screen.height
-        );
-        enableScroll();
-        window.scrollTo({
-          top: scrollHeight,
-          behavior: "smooth",
-        });
-        disableScroll();
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const isTabApplicable = ["chat", "vip"].includes(currentMobileTab);
+        const showKeyboard = iosKeyboardDetected || androidKeyboardDetected;
+        if (showKeyboard && isTabApplicable && isStandalone && window) {
+          window.scrollTo(0, Number.MAX_SAFE_INTEGER);
+        }
       }
-    } else {
-    }
-  });
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Cleanup function to remove the event listener
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [
+    currentMobileTab,
+    iosKeyboardDetected,
+    androidKeyboardDetected,
+    isStandalone,
+  ]);
 
   const disableScroll = () => {
     document.addEventListener("touchmove", preventTouchMove, {
