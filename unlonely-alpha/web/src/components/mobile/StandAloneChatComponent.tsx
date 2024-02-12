@@ -116,6 +116,52 @@ const StandaloneChatComponent = ({
     androidKeyboardDetected,
   ]);
 
+  const chatHeight = useMemo(() => {
+    const shouldShowFullHeight =
+      !previewStream && userAddress === channelQueryData?.owner.address;
+    const isTabApplicable = ["chat", "vip"].includes(currentMobileTab);
+    const showKeyboard = iosKeyboardDetected || androidKeyboardDetected;
+    if (showKeyboard && isTabApplicable) {
+      return `calc(${mobileSizes.viewport.height}px - ${
+        shouldShowFullHeight ? 0 : MOBILE_VIDEO_VH
+      }vh)`;
+    } else {
+      return `${
+        MOBILE_CHAT_VH + (shouldShowFullHeight ? MOBILE_VIDEO_VH : 0)
+      }vh`;
+    }
+  }, [
+    iosKeyboardDetected,
+    androidKeyboardDetected,
+    currentMobileTab,
+    mobileSizes.viewport.height,
+    previewStream,
+    userAddress,
+    channelQueryData?.owner.address,
+  ]);
+
+  const chatMarginTop = useMemo(() => {
+    const shouldShowFullHeight =
+      !previewStream && userAddress === channelQueryData?.owner.address;
+    const isTabApplicable = ["chat", "vip"].includes(currentMobileTab);
+    const showKeyboard = iosKeyboardDetected || androidKeyboardDetected;
+    if (showKeyboard && isTabApplicable) {
+      return `calc(${newTop === "unset" ? "0px" : newTop} + ${
+        shouldShowFullHeight ? 0 : MOBILE_VIDEO_VH
+      }vh)`;
+    } else {
+      return `${shouldShowFullHeight ? 0 : MOBILE_VIDEO_VH}vh`;
+    }
+  }, [
+    iosKeyboardDetected,
+    androidKeyboardDetected,
+    currentMobileTab,
+    newTop,
+    previewStream,
+    userAddress,
+    channelQueryData?.owner.address,
+  ]);
+
   useOnClickOutside(infoRef, () => {
     if (showInfo) {
       setShowInfo(false);
@@ -321,27 +367,11 @@ const StandaloneChatComponent = ({
   return (
     <Flex
       direction="column"
-      h={
-        (iosKeyboardDetected || androidKeyboardDetected) &&
-        ["chat", "vip"].includes(currentMobileTab)
-          ? `calc(${mobileSizes.viewport.height}px - ${MOBILE_VIDEO_VH}vh)`
-          : !previewStream && isOwner
-          ? `${MOBILE_CHAT_VH + MOBILE_VIDEO_VH}vh`
-          : `${MOBILE_CHAT_VH}vh`
-      }
+      h={chatHeight}
       p="5px"
       id="chat"
       position={"relative"}
-      marginTop={
-        (iosKeyboardDetected || androidKeyboardDetected) &&
-        ["chat", "vip"].includes(currentMobileTab)
-          ? `calc(${
-              newTop === "unset" ? "0px" : newTop
-            } + ${MOBILE_VIDEO_VH}vh)`
-          : !previewStream && isOwner
-          ? "0"
-          : `${MOBILE_VIDEO_VH}vh`
-      }
+      marginTop={chatMarginTop}
     >
       {chatChannel?.includes("channel") ? (
         <Flex justifyContent={"space-between"} py="2px">
