@@ -876,21 +876,42 @@ const VibesTokenInterface = ({
                 {formattedHourData.length === 0 &&
                   timeFilter === "1h" &&
                   matchingChain && (
-                    <Text position="absolute" color="gray" top="50%">
+                    <Text
+                      textAlign="center"
+                      position="absolute"
+                      color="gray"
+                      top="50%"
+                      left="50%"
+                      transform="translate(-50%, -50%)"
+                    >
                       no txs in the past hour
                     </Text>
                   )}
                 {formattedDayData.length === 0 &&
                   timeFilter === "1d" &&
                   matchingChain && (
-                    <Text position="absolute" color="gray" top="50%">
+                    <Text
+                      textAlign="center"
+                      position="absolute"
+                      color="gray"
+                      top="50%"
+                      left="50%"
+                      transform="translate(-50%, -50%)"
+                    >
                       no txs in the past 24 hours
                     </Text>
                   )}
                 {formattedData.length === 0 &&
                   timeFilter === "all" &&
                   matchingChain && (
-                    <Text position="absolute" color="gray" top="50%">
+                    <Text
+                      textAlign="center"
+                      position="absolute"
+                      color="gray"
+                      top="50%"
+                      left="50%"
+                      transform="translate(-50%, -50%)"
+                    >
                       no txs
                     </Text>
                   )}
