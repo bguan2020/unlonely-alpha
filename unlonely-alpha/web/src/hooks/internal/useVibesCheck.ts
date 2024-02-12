@@ -235,27 +235,31 @@ export const useVibesCheck = () => {
       const daysArr = [1, 7, 14, 21, 28, 30, 60, 90, 180, 365];
       const currentBlockNumberForVibes = await baseClient.getBlockNumber();
 
-      const daysAgoArr = daysArr.map((days) => blockNumberDaysAgo(days, currentBlockNumberForVibes));
+      const blockNumbersInDaysAgoArr = daysArr.map((days) => blockNumberDaysAgo(days, currentBlockNumberForVibes));
 
       const dayIndex =
-        daysAgoArr[0] < CREATION_BLOCK
+      blockNumbersInDaysAgoArr[0] < CREATION_BLOCK
           ? undefined
-          : binarySearchIndex(tokenTxs, BigInt(daysAgoArr[0]));
+          : binarySearchIndex(tokenTxs, BigInt(blockNumbersInDaysAgoArr[0]));
 
-      const hoursArr = [18, 12, 6, 1];
-      const hoursAgoArr = hoursArr.map((hours) => blockNumberHoursAgo(hours, currentBlockNumberForVibes));
+      const hoursArr = [1, 6, 12, 18];
+      const blockNumbersInHoursAgoArr = hoursArr.map((hours) => blockNumberHoursAgo(hours, currentBlockNumberForVibes));
+
+      const hourIndex = blockNumbersInHoursAgoArr[0] < CREATION_BLOCK ? undefined : binarySearchIndex(tokenTxs, BigInt(blockNumbersInHoursAgoArr[0]));
       setCurrentBlockNumberForVibes(currentBlockNumberForVibes)
       // adding 1day separately to account for day index
       const offset = 1
       setChartTimeIndexes(new Map<string, { index: number | undefined; blockNumber: number }>(
         [
-          [`${daysArr[0]}d`, { index: dayIndex, blockNumber: Number(daysAgoArr[0]) }],
-          ...daysAgoArr.slice(offset).map<[string, { index: undefined; blockNumber: number }]>((blockNumber, slicedIndex) => {
+          [`${hoursArr[0]}h`, { index: hourIndex, blockNumber: Number(blockNumbersInHoursAgoArr[0]) }],
+          ...blockNumbersInHoursAgoArr.slice(offset).map<[string, { index: undefined; blockNumber: number }]>((blockNumber, slicedIndex) => {
+            const index = slicedIndex + offset;
+            return [`${hoursArr[index]}h`, { index: undefined, blockNumber: Number(blockNumber) }];
+          }),
+          [`${daysArr[0]}d`, { index: dayIndex, blockNumber: Number(blockNumbersInDaysAgoArr[0]) }],
+          ...blockNumbersInDaysAgoArr.slice(offset).map<[string, { index: undefined; blockNumber: number }]>((blockNumber, slicedIndex) => {
             const index = slicedIndex + offset;
             return [`${daysArr[index]}d`, { index: undefined, blockNumber: Number(blockNumber) }];
-          }),
-          ...hoursAgoArr.map<[string, { index: undefined; blockNumber: number }]>((blockNumber, index) => {
-            return [`${hoursArr[index]}h`, { index: undefined, blockNumber: Number(blockNumber) }];
           }),
         ]
       ));
