@@ -82,8 +82,8 @@ const StandaloneChatComponent = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const iosKeyboardDetected = useMemo(
-    () => isIOS && isFocusedOnInput && mobileSizes.keyboardVisible,
-    [isIOS, isFocusedOnInput, mobileSizes]
+    () => isIOS && isFocusedOnInput,
+    [isIOS, isFocusedOnInput]
   );
 
   const androidKeyboardDetected = useMemo(
@@ -324,10 +324,12 @@ const StandaloneChatComponent = ({
           document.documentElement.clientHeight,
           window.screen.height
         );
+        enableScroll();
         window.scrollTo({
           top: scrollHeight,
           behavior: "smooth",
         });
+        disableScroll();
       }
     } else {
     }
