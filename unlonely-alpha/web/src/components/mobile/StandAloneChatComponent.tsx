@@ -107,10 +107,10 @@ const StandaloneChatComponent = ({
     }
     return "unset";
   }, [
-    isStandalone,
     mobileSizes,
     initialWindowInnerHeight,
-    isFocusedOnInput,
+    currentMobileTab,
+    isStandalone,
     iosKeyboardDetected,
     androidKeyboardDetected,
   ]);
@@ -306,7 +306,13 @@ const StandaloneChatComponent = ({
     } else {
       enableScroll();
     }
-  }, [mobileSizes, router, isStandalone]);
+  }, [
+    router,
+    isStandalone,
+    currentMobileTab,
+    iosKeyboardDetected,
+    androidKeyboardDetected,
+  ]);
 
   /**
    * The margin top and its new height of the chat component is calculated based on the height of the virtual keyboard.
