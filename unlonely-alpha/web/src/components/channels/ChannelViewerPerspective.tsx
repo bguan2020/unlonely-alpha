@@ -19,20 +19,29 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
   const { isFocusedOnInput, mobileSizes, initialWindowInnerHeight } =
     useCacheContext();
-  const { isIOS } = useUserAgent();
+  const { isIOS, isStandalone } = useUserAgent();
   const { ui } = useChannelContext();
   const { currentMobileTab } = ui;
 
+  const iosKeyboardDetected = useMemo(
+    () => isIOS && isFocusedOnInput,
+    [isIOS, isFocusedOnInput]
+  );
+
+  const androidKeyboardDetected = useMemo(
+    () => !isIOS && mobileSizes.keyboardVisible,
+    [isIOS, mobileSizes]
+  );
+
   const newTop = useMemo(() => {
-    if (currentMobileTab !== "chat" || !mobile || !mobileSizes.keyboardVisible)
-      return "unset";
-    if (isIOS) {
+    if (currentMobileTab !== "chat" || !isStandalone) return "unset";
+    if (iosKeyboardDetected) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - initialWindowInnerHeight)
       }px`;
     }
-    if (!isIOS) {
+    if (androidKeyboardDetected) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - window.innerHeight)
@@ -40,12 +49,12 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
     }
     return "unset";
   }, [
-    isIOS,
-    isFocusedOnInput,
     mobileSizes,
     initialWindowInnerHeight,
     currentMobileTab,
-    mobile,
+    isStandalone,
+    iosKeyboardDetected,
+    androidKeyboardDetected,
   ]);
 
   return (
@@ -59,11 +68,12 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
       <Flex width={"100%"} position="relative">
         <StreamComponent />
         <div>
-          <p>Viewport Height: {Math.floor(mobileSizes.viewport.height)}</p>
-          <p>Screen Height: {Math.floor(mobileSizes.screen.height)}</p>
-          <p>Window innerHeight: {Math.floor(window.innerHeight)}</p>
-          <p>keyboard?: {mobileSizes.keyboardVisible ? "Y" : "N"}</p>
-          <p>isFocusedOnInput: {isFocusedOnInput}</p>
+          <p>S: {Math.floor(mobileSizes.screen.height)}</p>
+          <p>V: {Math.floor(mobileSizes.viewport.height)}</p>
+          <p>W: {Math.floor(window.innerHeight)}</p>
+          <p>I: {Math.floor(initialWindowInnerHeight)}</p>
+          <p>K: {mobileSizes.keyboardVisible ? "Y" : "N"}</p>
+          <p>F: {isFocusedOnInput}</p>
           <p>newTop: {newTop}</p>
         </div>
       </Flex>

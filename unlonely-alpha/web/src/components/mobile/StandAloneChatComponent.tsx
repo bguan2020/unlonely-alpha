@@ -62,8 +62,12 @@ const StandaloneChatComponent = ({
   const { channelQueryData } = channelContext;
   const { chatChannel } = chatInfo;
   const { currentMobileTab } = ui;
-  const { handleIsFocusedOnInput, mobileSizes, initialWindowInnerHeight } =
-    useCacheContext();
+  const {
+    isFocusedOnInput,
+    handleIsFocusedOnInput,
+    mobileSizes,
+    initialWindowInnerHeight,
+  } = useCacheContext();
   const { isIOS, isStandalone } = useUserAgent();
 
   const router = useRouter();
@@ -77,27 +81,39 @@ const StandaloneChatComponent = ({
   const vipRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const iosKeyboardDetected = useMemo(
+    () => isIOS && isFocusedOnInput,
+    [isIOS, isFocusedOnInput]
+  );
+
+  const androidKeyboardDetected = useMemo(
+    () => !isIOS && mobileSizes.keyboardVisible,
+    [isIOS, mobileSizes]
+  );
+
   const newTop = useMemo(() => {
-    if (
-      currentMobileTab !== "chat" ||
-      !isStandalone ||
-      !mobileSizes.keyboardVisible
-    )
-      return "unset";
-    if (isIOS) {
+    if (currentMobileTab !== "chat" || !isStandalone) return "unset";
+    if (iosKeyboardDetected) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - initialWindowInnerHeight)
       }px`;
     }
-    if (!isIOS) {
+    if (androidKeyboardDetected) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - window.innerHeight)
       }px`;
     }
     return "unset";
-  }, [isIOS, isStandalone, mobileSizes, initialWindowInnerHeight]);
+  }, [
+    isStandalone,
+    mobileSizes,
+    initialWindowInnerHeight,
+    isFocusedOnInput,
+    iosKeyboardDetected,
+    androidKeyboardDetected,
+  ]);
 
   useOnClickOutside(infoRef, () => {
     if (showInfo) {
@@ -266,7 +282,7 @@ const StandaloneChatComponent = ({
   useEffect(() => {
     if (
       currentMobileTab === "chat" &&
-      mobileSizes.keyboardVisible &&
+      (iosKeyboardDetected || androidKeyboardDetected) &&
       router.pathname.startsWith("/channels") &&
       isStandalone &&
       window
@@ -301,7 +317,8 @@ const StandaloneChatComponent = ({
     <Flex
       direction="column"
       h={
-        mobileSizes.keyboardVisible && currentMobileTab === "chat"
+        (iosKeyboardDetected || androidKeyboardDetected) &&
+        currentMobileTab === "chat"
           ? `calc(${
               mobileSizes.viewport.height * 2
             }px - ${MOBILE_VIDEO_VH}vh - ${
@@ -315,7 +332,8 @@ const StandaloneChatComponent = ({
       id="chat"
       position={"relative"}
       marginTop={
-        mobileSizes.keyboardVisible && currentMobileTab === "chat"
+        (iosKeyboardDetected || androidKeyboardDetected) &&
+        currentMobileTab === "chat"
           ? `calc(${
               newTop === "unset" ? "0px" : newTop
             } + ${MOBILE_VIDEO_VH}vh)`
@@ -421,16 +439,27 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { chat: chatContext, channel, ui } = useChannelContext();
   const { presenceChannel } = chatContext;
   const { currentMobileTab, handleCurrentMobileTab } = ui;
-  const { isStandalone } = useUserAgent();
+  const { isStandalone, isIOS } = useUserAgent();
   const { isFocusedOnInput, mobileSizes } = useCacheContext();
   const { channelQueryData } = channel;
   const [showParticipants, setShowParticipants] = useState(true);
 
   const isOwner = userAddress === channelQueryData?.owner.address;
 
+  const iosKeyboardDetected = useMemo(
+    () => isIOS && isFocusedOnInput,
+    [isIOS, isFocusedOnInput]
+  );
+
+  const androidKeyboardDetected = useMemo(
+    () => !isIOS && mobileSizes.keyboardVisible,
+    [isIOS, mobileSizes]
+  );
+
   return (
     <>
-      {(currentMobileTab !== "chat" || !mobileSizes.keyboardVisible) && (
+      {(currentMobileTab !== "chat" ||
+        (!iosKeyboardDetected && !androidKeyboardDetected)) && (
         <Flex width="100%" pb="0.5rem">
           <OuterBorder
             type={BorderType.OCEAN}
@@ -521,7 +550,8 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
         </Flex>
       )}
       {presenceChannel &&
-        (currentMobileTab !== "chat" || !mobileSizes.keyboardVisible) && (
+        (currentMobileTab !== "chat" ||
+          (!iosKeyboardDetected && !androidKeyboardDetected)) && (
           <Flex
             justifyContent={"center"}
             py="0.5rem"
