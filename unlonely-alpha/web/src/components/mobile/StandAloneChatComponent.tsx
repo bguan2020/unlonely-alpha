@@ -297,12 +297,10 @@ const StandaloneChatComponent = ({
         document.documentElement.clientHeight,
         window.screen.height
       );
-      setTimeout(() => {
-        window.scrollTo({
-          top: scrollHeight,
-          behavior: "smooth",
-        });
-      }, 100);
+      window.scrollTo({
+        top: scrollHeight,
+        behavior: "smooth",
+      });
       disableScroll();
     } else {
       enableScroll();
