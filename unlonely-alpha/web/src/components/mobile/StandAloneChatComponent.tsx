@@ -309,37 +309,36 @@ const StandaloneChatComponent = ({
     }
   }, []);
 
-  const isScrollDisabled = useRef(false);
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-      if (isScrollDisabled.current) {
-        const scrollHeight = Math.max(
-          document.body.scrollHeight,
-          document.documentElement.scrollHeight,
-          document.body.offsetHeight,
-          document.documentElement.offsetHeight,
-          document.body.clientHeight,
-          document.documentElement.clientHeight,
-          window.screen.height
-        );
-        window.scrollTo({
-          top: scrollHeight,
-          behavior: "smooth",
-        });
-      }
-    }
-  });
+  // useEffect(() => {
+  //   if (
+  //     ["chat", "vip"].includes(currentMobileTab) &&
+  //     (iosKeyboardDetected || androidKeyboardDetected) &&
+  //     isStandalone &&
+  //     window
+  //   ) {
+  //     const scrollHeight = Math.max(
+  //       document.body.scrollHeight,
+  //       document.documentElement.scrollHeight,
+  //       document.body.offsetHeight,
+  //       document.documentElement.offsetHeight,
+  //       document.body.clientHeight,
+  //       document.documentElement.clientHeight,
+  //       window.screen.height
+  //     );
+  //     window.scrollTo({
+  //       top: scrollHeight,
+  //       behavior: "smooth",
+  //     });
+  //   }
+  // }, []);
 
   const disableScroll = () => {
-    isScrollDisabled.current = true;
     document.addEventListener("touchmove", preventTouchMove, {
       passive: false,
     });
   };
 
   const enableScroll = () => {
-    isScrollDisabled.current = false;
     document.removeEventListener("touchmove", preventTouchMove);
   };
 
