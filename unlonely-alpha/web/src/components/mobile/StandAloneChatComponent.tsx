@@ -124,7 +124,7 @@ const StandaloneChatComponent = ({
     if (showKeyboard && isTabApplicable) {
       return `calc(${mobileSizes.viewport.height}px - ${
         shouldShowFullHeight ? 0 : MOBILE_VIDEO_VH
-      }vh`;
+      }vh)`;
     } else {
       return `${
         MOBILE_CHAT_VH + (shouldShowFullHeight ? MOBILE_VIDEO_VH : 0)
@@ -309,59 +309,19 @@ const StandaloneChatComponent = ({
     }
   }, []);
 
-  const isScrollDisabled = useRef(false);
-
   const disableScroll = () => {
-    isScrollDisabled.current = true;
     document.addEventListener("touchmove", preventTouchMove, {
       passive: false,
     });
   };
 
   const enableScroll = () => {
-    isScrollDisabled.current = false;
     document.removeEventListener("touchmove", preventTouchMove);
   };
 
   useEffect(() => {
     handleIsFocusedOnInput(undefined);
   }, [router.pathname]);
-
-  // document.addEventListener("visibilitychange", () => {
-  //   if (isScrollDisabled.current) {
-  //   const scrollHeight = Math.max(
-  //     document.body.scrollHeight,
-  //     document.documentElement.scrollHeight,
-  //     document.body.offsetHeight,
-  //     document.documentElement.offsetHeight,
-  //     document.body.clientHeight,
-  //     document.documentElement.clientHeight,
-  //     window.screen.height
-  //   );
-  //   window.scrollTo({
-  //     top: scrollHeight,
-  //     behavior: "smooth",
-  //   });
-  //   }
-  // });
-
-  // useEffect(() => {
-  //   if (isScrollDisabled.current) {
-  //     const scrollHeight = Math.max(
-  //       document.body.scrollHeight,
-  //       document.documentElement.scrollHeight,
-  //       document.body.offsetHeight,
-  //       document.documentElement.offsetHeight,
-  //       document.body.clientHeight,
-  //       document.documentElement.clientHeight,
-  //       window.screen.height
-  //     );
-  //     window.scrollTo({
-  //       top: scrollHeight,
-  //       behavior: "smooth",
-  //     });
-  //   }
-  // }, []);
 
   /* when the keyboard is visible on the channel page, scroll to the bottom of the page, and disable scroll
   to keep the input and video component in view, please refer to the video component for more details
