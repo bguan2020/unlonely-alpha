@@ -971,7 +971,7 @@ const VibesTokenInterface = ({
                                     ?.blockNumber as number
                                 }
                                 stroke="rgb(0, 211, 193)"
-                                label={<CustomLabel value={`~${key}`} />}
+                                label={<CustomLabel value={`~${key} ago`} />}
                               />
                             );
                           })}
@@ -1012,7 +1012,7 @@ const VibesTokenInterface = ({
                                     ?.blockNumber as number
                                 }
                                 stroke="#00d3c1"
-                                label={<CustomLabel value={`~${key}`} />}
+                                label={<CustomLabel value={`~${key} ago`} />}
                               />
                             );
                           })}
