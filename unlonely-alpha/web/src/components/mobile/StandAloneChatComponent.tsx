@@ -124,7 +124,7 @@ const StandaloneChatComponent = ({
     if (showKeyboard && isTabApplicable) {
       return `calc(${mobileSizes.viewport.height}px - ${
         shouldShowFullHeight ? 0 : MOBILE_VIDEO_VH
-      }vh + ${mobileSizes.screen.height - window.innerHeight}px)`;
+      }vh`;
     } else {
       return `${
         MOBILE_CHAT_VH + (shouldShowFullHeight ? MOBILE_VIDEO_VH : 0)
@@ -328,21 +328,21 @@ const StandaloneChatComponent = ({
   }, [router.pathname]);
 
   document.addEventListener("visibilitychange", () => {
-    if (isScrollDisabled.current) {
-      const scrollHeight = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-        document.body.offsetHeight,
-        document.documentElement.offsetHeight,
-        document.body.clientHeight,
-        document.documentElement.clientHeight,
-        window.screen.height
-      );
-      window.scrollTo({
-        top: scrollHeight,
-        behavior: "smooth",
-      });
-    }
+    // if (isScrollDisabled.current) {
+    const scrollHeight = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight,
+      document.body.clientHeight,
+      document.documentElement.clientHeight,
+      window.screen.height
+    );
+    window.scrollTo({
+      top: scrollHeight,
+      behavior: "smooth",
+    });
+    // }
   });
 
   /* when the keyboard is visible on the channel page, scroll to the bottom of the page, and disable scroll
