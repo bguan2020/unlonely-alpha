@@ -309,29 +309,35 @@ const StandaloneChatComponent = ({
     }
   }, []);
 
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        const isTabApplicable = ["chat", "vip"].includes(currentMobileTab);
-        const showKeyboard = iosKeyboardDetected || androidKeyboardDetected;
-        if (showKeyboard && isTabApplicable && isStandalone && window) {
-          window.scrollTo(0, Number.MAX_SAFE_INTEGER);
-        }
-      }
-    };
+  useEffect(
+    () => {
+      const handleVisibilityChange = () => {
+        // if (document.visibilityState === "visible") {
+        //   const isTabApplicable = ["chat", "vip"].includes(currentMobileTab);
+        //   const showKeyboard = iosKeyboardDetected || androidKeyboardDetected;
+        // if (showKeyboard && isTabApplicable && isStandalone && window) {
+        window.scrollTo(0, Number.MAX_SAFE_INTEGER);
+        // }
+        // }
+      };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Cleanup function to remove the event listener
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [
-    currentMobileTab,
-    iosKeyboardDetected,
-    androidKeyboardDetected,
-    isStandalone,
-  ]);
+      // Cleanup function to remove the event listener
+      return () => {
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange
+        );
+      };
+    },
+    [
+      // currentMobileTab,
+      // iosKeyboardDetected,
+      // androidKeyboardDetected,
+      // isStandalone,
+    ]
+  );
 
   const disableScroll = () => {
     document.addEventListener("touchmove", preventTouchMove, {
@@ -358,19 +364,7 @@ const StandaloneChatComponent = ({
       isStandalone &&
       window
     ) {
-      const scrollHeight = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-        document.body.offsetHeight,
-        document.documentElement.offsetHeight,
-        document.body.clientHeight,
-        document.documentElement.clientHeight,
-        window.screen.height
-      );
-      window.scrollTo({
-        top: scrollHeight,
-        behavior: "smooth",
-      });
+      window.scrollTo(0, Number.MAX_SAFE_INTEGER);
       disableScroll();
     } else {
       enableScroll();
