@@ -15,8 +15,6 @@ import Header from "../navigation/Header";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { Navbar } from "../mobile/Navbar";
 import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
-import { useCacheContext } from "../../hooks/context/useCache";
-import { useCallback, useEffect } from "react";
 
 type Props = {
   loading?: boolean;
@@ -42,8 +40,6 @@ const AppLayout: React.FC<Props> = ({
 }) => {
   const { isStandalone, ready } = useUserAgent();
   const router = useRouter();
-  const { mobileSizes, isFocusedOnInput, handleIsFocusedOnInput } =
-    useCacheContext();
 
   const smallestDevice = useBreakpointValue({
     base: true,
@@ -51,61 +47,6 @@ const AppLayout: React.FC<Props> = ({
     md: false,
     xl: false,
   });
-
-  const preventTouchMove = useCallback((e: any) => {
-    // Check if the target of the touchmove event is the body or a child you want to disable
-    if (
-      !e.target.matches(".always-allow-touchmove, .always-allow-touchmove *")
-    ) {
-      // Prevent scrolling.
-      e.preventDefault();
-    }
-  }, []);
-
-  const disableScroll = () => {
-    document.addEventListener("touchmove", preventTouchMove, {
-      passive: false,
-    });
-  };
-
-  const enableScroll = () => {
-    document.removeEventListener("touchmove", preventTouchMove);
-  };
-
-  useEffect(() => {
-    handleIsFocusedOnInput(undefined);
-  }, [router.pathname]);
-
-  /* when the keyboard is visible on the channel page, scroll to the bottom of the page, and disable scroll
-  to keep the input and video component in view, please refer to the video component for more details
-  */
-  useEffect(() => {
-    if (
-      (mobileSizes.keyboardVisible || isFocusedOnInput) &&
-      router.pathname.startsWith("/channels") &&
-      isStandalone &&
-      window
-    ) {
-      const scrollHeight = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-        document.body.offsetHeight,
-        document.documentElement.offsetHeight,
-        document.body.clientHeight,
-        document.documentElement.clientHeight,
-        window.screen.height
-      );
-      setTimeout(() => {
-        window.scrollTo({
-          top: scrollHeight,
-          behavior: "smooth",
-        });
-      }, 200);
-      disableScroll();
-    } else {
-      enableScroll();
-    }
-  }, [isFocusedOnInput, mobileSizes, router, isStandalone]);
 
   return (
     <Box background="rgba(0, 0, 0, 0.65)">

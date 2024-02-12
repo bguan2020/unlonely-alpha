@@ -62,9 +62,9 @@ const StandaloneChatComponent = ({
   const { channelQueryData } = channelContext;
   const { chatChannel } = chatInfo;
   const { currentMobileTab } = ui;
-  const { isFocusedOnInput, mobileSizes, initialWindowInnerHeight } =
+  const { handleIsFocusedOnInput, mobileSizes, initialWindowInnerHeight } =
     useCacheContext();
-  const { isIOS } = useUserAgent();
+  const { isIOS, isStandalone } = useUserAgent();
 
   const router = useRouter();
   const [isBellAnimating, setIsBellAnimating] = useState(false);
@@ -78,20 +78,26 @@ const StandaloneChatComponent = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const newTop = useMemo(() => {
-    if (isIOS && isFocusedOnInput) {
+    if (
+      currentMobileTab !== "chat" ||
+      !isStandalone ||
+      !mobileSizes.keyboardVisible
+    )
+      return "unset";
+    if (isIOS) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - initialWindowInnerHeight)
       }px`;
     }
-    if (!isIOS && mobileSizes.keyboardVisible) {
+    if (!isIOS) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - window.innerHeight)
       }px`;
     }
     return "unset";
-  }, [isIOS, isFocusedOnInput, mobileSizes, initialWindowInnerHeight]);
+  }, [isIOS, isStandalone, mobileSizes, initialWindowInnerHeight]);
 
   useOnClickOutside(infoRef, () => {
     if (showInfo) {
@@ -230,6 +236,62 @@ const StandaloneChatComponent = ({
     }
   }, [isBellAnimating]);
 
+  const preventTouchMove = useCallback((e: any) => {
+    // Check if the target of the touchmove event is the body or a child you want to disable
+    if (
+      !e.target.matches(".always-allow-touchmove, .always-allow-touchmove *")
+    ) {
+      // Prevent scrolling.
+      e.preventDefault();
+    }
+  }, []);
+
+  const disableScroll = () => {
+    document.addEventListener("touchmove", preventTouchMove, {
+      passive: false,
+    });
+  };
+
+  const enableScroll = () => {
+    document.removeEventListener("touchmove", preventTouchMove);
+  };
+
+  useEffect(() => {
+    handleIsFocusedOnInput(undefined);
+  }, [router.pathname]);
+
+  /* when the keyboard is visible on the channel page, scroll to the bottom of the page, and disable scroll
+  to keep the input and video component in view, please refer to the video component for more details
+  */
+  useEffect(() => {
+    if (
+      currentMobileTab === "chat" &&
+      mobileSizes.keyboardVisible &&
+      router.pathname.startsWith("/channels") &&
+      isStandalone &&
+      window
+    ) {
+      const scrollHeight = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.offsetHeight,
+        document.body.clientHeight,
+        document.documentElement.clientHeight,
+        window.screen.height
+      );
+      setTimeout(() => {
+        window.scrollTo({
+          top: scrollHeight,
+          behavior: "smooth",
+        });
+      }, 200);
+      disableScroll();
+    } else {
+      enableScroll();
+    }
+  }, [mobileSizes, router, isStandalone]);
+
   /**
    * The margin top and its new height of the chat component is calculated based on the height of the virtual keyboard.
    *
@@ -239,8 +301,7 @@ const StandaloneChatComponent = ({
     <Flex
       direction="column"
       h={
-        (mobileSizes.keyboardVisible || isFocusedOnInput) &&
-        currentMobileTab === "chat"
+        mobileSizes.keyboardVisible && currentMobileTab === "chat"
           ? `calc(${
               mobileSizes.viewport.height * 2
             }px - ${MOBILE_VIDEO_VH}vh - ${
@@ -254,8 +315,7 @@ const StandaloneChatComponent = ({
       id="chat"
       position={"relative"}
       marginTop={
-        (mobileSizes.keyboardVisible || isFocusedOnInput) &&
-        currentMobileTab === "chat"
+        mobileSizes.keyboardVisible && currentMobileTab === "chat"
           ? `calc(${
               newTop === "unset" ? "0px" : newTop
             } + ${MOBILE_VIDEO_VH}vh)`
@@ -370,7 +430,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
 
   return (
     <>
-      {!isFocusedOnInput && !mobileSizes.keyboardVisible && (
+      {(currentMobileTab !== "chat" || !mobileSizes.keyboardVisible) && (
         <Flex width="100%" pb="0.5rem">
           <OuterBorder
             type={BorderType.OCEAN}
@@ -460,37 +520,38 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
           </OuterBorder>
         </Flex>
       )}
-      {presenceChannel && !isFocusedOnInput && !mobileSizes.keyboardVisible && (
-        <Flex
-          justifyContent={"center"}
-          py="0.5rem"
-          gap="5px"
-          alignItems={"center"}
-        >
-          {EXCLUDED_SLUGS.includes(channelQueryData?.slug as string) &&
-            isOwner && (
-              <Button
-                onClick={() => setShowParticipants((prev) => !prev)}
-                bg={"#403c7d"}
-                p={2}
-                height={"20px"}
-                _focus={{}}
-                _active={{}}
-                _hover={{
-                  bg: "#8884d8",
-                }}
-              >
-                <Text fontSize="14px" color="white">
-                  {showParticipants ? "hide" : "show"}
-                </Text>
-              </Button>
-            )}
-          <Participants
-            ablyPresenceChannel={presenceChannel}
-            show={showParticipants}
-          />
-        </Flex>
-      )}
+      {presenceChannel &&
+        (currentMobileTab !== "chat" || !mobileSizes.keyboardVisible) && (
+          <Flex
+            justifyContent={"center"}
+            py="0.5rem"
+            gap="5px"
+            alignItems={"center"}
+          >
+            {EXCLUDED_SLUGS.includes(channelQueryData?.slug as string) &&
+              isOwner && (
+                <Button
+                  onClick={() => setShowParticipants((prev) => !prev)}
+                  bg={"#403c7d"}
+                  p={2}
+                  height={"20px"}
+                  _focus={{}}
+                  _active={{}}
+                  _hover={{
+                    bg: "#8884d8",
+                  }}
+                >
+                  <Text fontSize="14px" color="white">
+                    {showParticipants ? "hide" : "show"}
+                  </Text>
+                </Button>
+              )}
+            <Participants
+              ablyPresenceChannel={presenceChannel}
+              show={showParticipants}
+            />
+          </Flex>
+        )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {currentMobileTab === "chat" && <Chat chat={chat} />}
         {currentMobileTab === "trade" && <Trade />}

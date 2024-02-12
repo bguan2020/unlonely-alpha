@@ -24,14 +24,15 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
   const { currentMobileTab } = ui;
 
   const newTop = useMemo(() => {
-    if (currentMobileTab !== "chat" || !mobile) return "unset";
-    if (isIOS && isFocusedOnInput) {
+    if (currentMobileTab !== "chat" || !mobile || !mobileSizes.keyboardVisible)
+      return "unset";
+    if (isIOS) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - initialWindowInnerHeight)
       }px`;
     }
-    if (!isIOS && mobileSizes.keyboardVisible) {
+    if (!isIOS) {
       return `${
         mobileSizes.viewport.height -
         (mobileSizes.screen.height - window.innerHeight)
