@@ -346,7 +346,13 @@ const VibesTokenInterface = ({
   const CustomLabel = (props: any) => {
     return (
       <g>
-        <text x={props.viewBox.x} y={props.viewBox.y} fill="#00d3c1" dy={20}>
+        <text
+          x={props.viewBox.x}
+          y={props.viewBox.y}
+          fill="#00d3c1"
+          dy={10}
+          fontSize={12}
+        >
           {props.value}
         </text>
       </g>
@@ -999,7 +1005,7 @@ const VibesTokenInterface = ({
                                     ?.blockNumber as number
                                 }
                                 stroke="rgb(0, 211, 193)"
-                                label={<CustomLabel value={`~${key} ago`} />}
+                                label={<CustomLabel value={`~${key}`} />}
                               />
                             );
                           })}
@@ -1040,7 +1046,7 @@ const VibesTokenInterface = ({
                                     ?.blockNumber as number
                                 }
                                 stroke="#00d3c1"
-                                label={<CustomLabel value={`~${key} ago`} />}
+                                label={<CustomLabel value={`~${key}`} />}
                               />
                             );
                           })}
