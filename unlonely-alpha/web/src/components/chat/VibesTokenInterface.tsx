@@ -877,6 +877,13 @@ const VibesTokenInterface = ({
                   timeFilter === "1h" &&
                   matchingChain && (
                     <Text position="absolute" color="gray" top="50%">
+                      no txs in the past hour
+                    </Text>
+                  )}
+                {formattedDayData.length === 0 &&
+                  timeFilter === "1d" &&
+                  matchingChain && (
+                    <Text position="absolute" color="gray" top="50%">
                       no txs in the past 24 hours
                     </Text>
                   )}
