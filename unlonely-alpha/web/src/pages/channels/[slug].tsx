@@ -17,8 +17,8 @@ import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
-import { CHANNEL_DETAIL_QUERY } from "../../constants/queries";
-import { ChannelDetailQuery } from "../../generated/graphql";
+import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
+import { ChannelStaticQuery } from "../../generated/graphql";
 import {
   ChannelProvider,
   ChannelWideModals,
@@ -40,11 +40,14 @@ import VibesTokenInterface from "../../components/chat/VibesTokenInterface";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import Trade from "../../components/channels/bet/Trade";
+import { ApolloError } from "@apollo/client";
 
 const ChannelDetail = ({
   channelData,
+  channelDataError,
 }: {
-  channelData: ChannelDetailQuery;
+  channelData: ChannelStaticQuery;
+  channelDataError?: ApolloError;
 }) => {
   const { isStandalone } = useUserAgent();
 
@@ -56,9 +59,15 @@ const ChannelDetail = ({
   return (
     <ChannelProvider>
       {!isStandalone ? (
-        <DesktopPage channelSSR={channelSSR} />
+        <DesktopPage
+          channelSSR={channelSSR}
+          channelSSRDataError={channelDataError}
+        />
       ) : (
-        <MobilePage channelSSR={channelSSR} />
+        <MobilePage
+          channelSSR={channelSSR}
+          channelSSRDataError={channelDataError}
+        />
       )}
     </ChannelProvider>
   );
@@ -66,8 +75,10 @@ const ChannelDetail = ({
 
 const DesktopPage = ({
   channelSSR,
+  channelSSRDataError,
 }: {
-  channelSSR: ChannelDetailQuery["getChannelBySlug"];
+  channelSSR: ChannelStaticQuery["getChannelBySlug"];
+  channelSSRDataError?: ApolloError;
 }) => {
   const { channel, leaderboard } = useChannelContext();
   const chat = useChat();
@@ -78,6 +89,7 @@ const DesktopPage = ({
     loading: channelDataLoading,
     error: channelDataError,
     handleTotalBadges,
+    handleChannelStaticData,
   } = channel;
   const { handleIsVip } = leaderboard;
 
@@ -93,6 +105,10 @@ const DesktopPage = ({
     "unlonelyTournament",
     localNetwork
   );
+
+  useEffect(() => {
+    if (channelSSR) handleChannelStaticData(channelSSR);
+  }, [channelSSR]);
 
   const { key: generatedKey } = useGenerateKey(
     channelQueryData?.owner?.address as `0x${string}`,
@@ -173,7 +189,7 @@ const DesktopPage = ({
         description={channelSSR?.description}
         isCustomHeader={true}
       >
-        {!queryLoading && !channelDataError ? (
+        {!queryLoading && !channelDataError && !channelSSRDataError ? (
           <>
             <ChannelWideModals ablyChannel={chat.channel} />
             <Stack
@@ -276,8 +292,10 @@ const DesktopPage = ({
 
 const MobilePage = ({
   channelSSR,
+  channelSSRDataError,
 }: {
-  channelSSR: ChannelDetailQuery["getChannelBySlug"];
+  channelSSR: ChannelStaticQuery["getChannelBySlug"];
+  channelSSRDataError?: ApolloError;
 }) => {
   const { channel, leaderboard } = useChannelContext();
   const { network } = useNetworkContext();
@@ -287,6 +305,7 @@ const MobilePage = ({
     loading: channelDataLoading,
     error: channelDataError,
     handleTotalBadges,
+    handleChannelStaticData,
   } = channel;
   const { handleIsVip } = leaderboard;
 
@@ -303,6 +322,10 @@ const MobilePage = ({
   const handleShowPreviewStream = useCallback(() => {
     setPreviewStream((prev) => !prev);
   }, []);
+
+  useEffect(() => {
+    if (channelSSR) handleChannelStaticData(channelSSR);
+  }, [channelSSR]);
 
   const tournamentContract = getContractFromNetwork(
     "unlonelyTournament",
@@ -388,7 +411,7 @@ const MobilePage = ({
         description={channelSSR?.description}
         isCustomHeader={true}
       >
-        {!queryLoading && !channelDataError ? (
+        {!queryLoading && !channelDataError && !channelSSRDataError ? (
           <>
             {(previewStream || !isOwner) && <ChannelViewerPerspective mobile />}
             <ChannelWideModals ablyChannel={chat.channel} />
@@ -440,9 +463,11 @@ export async function getServerSideProps(
   const apolloClient = initializeApollo(null, context.req.cookies, true);
 
   const { data, error } = await apolloClient.query({
-    query: CHANNEL_DETAIL_QUERY,
+    query: CHANNEL_STATIC_QUERY,
     variables: { slug },
   });
 
-  return { props: { channelData: data } };
+  console.log("serverside data", data, "error", error);
+
+  return { props: { channelData: data, channelDataError: error } };
 }

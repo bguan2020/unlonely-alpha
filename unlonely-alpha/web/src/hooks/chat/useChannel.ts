@@ -90,6 +90,20 @@ export function useChannel(fixedChatName?: string) {
       if (message.data.senderStatus === SenderStatus.CHATBOT) {
         const chatbotTaskType = message?.data?.body?.split(":")[0];
         if (chatbotTaskType === InteractionType.EVENT_LIVE) {
+          const betId = message.data.body.split(":")[1];
+          const sharesSubjectQuestion = message.data.body.split(":")[2];
+          const sharesSubjectAddress = message.data.body.split(":")[3];
+          const optionA = message.data.body.split(":")[4];
+          const optionB = message.data.body.split(":")[5];
+          const chainId = message.data.body.split(":")[6];
+          const channelId = message.data.body.split(":")[7];
+          console.log("sharesSubjectQuestion", sharesSubjectQuestion);
+          console.log("sharesSubjectAddress", sharesSubjectAddress);
+          console.log("optionA", optionA);
+          console.log("optionB", optionB);
+          console.log("chainId", chainId);
+          console.log("channelId", channelId);
+          console.log("betId", betId);
           if (isOwner) {
             handleLocalSharesEventState(SharesEventState.Live);
           } else {

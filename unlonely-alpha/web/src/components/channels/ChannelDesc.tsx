@@ -28,13 +28,13 @@ const ChannelDesc = () => {
           <Avatar
             name={
               channelQueryData?.owner.username
-                ? channelQueryData?.owner.username
-                : channelQueryData?.owner.address
+                ? channelQueryData?.owner.username ?? ""
+                : channelQueryData?.owner.address ?? ""
             }
             src={ipfsUrl}
             bg={getColorFromString(
               channelQueryData?.owner.username
-                ? channelQueryData?.owner.username
+                ? channelQueryData?.owner.username ?? ""
                 : channelQueryData?.owner.address ?? ""
             )}
             size="md"
