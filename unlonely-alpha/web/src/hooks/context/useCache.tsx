@@ -8,11 +8,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { Log, createPublicClient, http, isAddress } from "viem";
+import { createPublicClient, http } from "viem";
 import { ToastId, useToast, Box, Flex, Text, Spinner } from "@chakra-ui/react";
 import * as AWS from "aws-sdk";
 
-import { EventTypeForContract, NULL_ADDRESS } from "../../constants";
+import { EventTypeForContract } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import {
   CHANNEL_FEED_QUERY,
@@ -25,7 +25,6 @@ import { useUser } from "./useUser";
 import { useVibesCheck } from "../internal/useVibesCheck";
 import { FetchBalanceResult, VibesTokenTx } from "../../constants/types";
 import { getCoingeckoTokenPrice } from "../../utils/coingecko";
-import { useBalance, useContractEvent } from "wagmi";
 
 type UnclaimedBet = SharesEvent & {
   payout: bigint;
@@ -89,69 +88,14 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const { localNetwork } = network;
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
 
-  const { tokenTxs, chartTimeIndexes, loading, currentBlockNumberForVibes } =
-    useVibesCheck();
+  const {
+    vibesBalance,
+    tokenTxs,
+    chartTimeIndexes,
+    loading,
+    currentBlockNumberForVibes,
+  } = useVibesCheck();
   const [ethPriceInUsd, setEthPriceInUsd] = useState<string>("0");
-
-  const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
-  const { data: vibesBalance, refetch: refetchVibesBalance } = useBalance({
-    address: userAddress,
-    token: contract.address,
-    enabled:
-      isAddress(userAddress as `0x${string}`) &&
-      isAddress(contract.address ?? NULL_ADDRESS),
-  });
-
-  const [transferLogs, setTransferLogs] = useState<Log[]>([]);
-
-  useContractEvent({
-    address: contract.address,
-    abi: contract.abi,
-    eventName: "Transfer",
-    listener(logs) {
-      setTransferLogs(logs);
-    },
-  });
-
-  useEffect(() => {
-    if (transferLogs.length > 0) {
-      const includesUser = transferLogs.some(
-        (log: any) =>
-          (log?.args?.from as `0x${string}`) === userAddress ||
-          (log?.args?.to as `0x${string}`) === userAddress
-      );
-      if (includesUser) {
-        console.log("Detected vibes transfer event", transferLogs);
-        refetchVibesBalance();
-        const incomingReceives = transferLogs.filter(
-          (log: any) =>
-            (log?.args?.from as `0x${string}`) !== NULL_ADDRESS &&
-            (log?.args?.to as `0x${string}`) === userAddress
-        );
-        if (incomingReceives.length > 0) {
-          toast({
-            duration: 5000,
-            isClosable: true,
-            render: () => (
-              <Box borderRadius="md" bg="#8e64dd" px={4} h={8}>
-                <Flex justifyContent="center" alignItems="center">
-                  <Text fontSize="16px" color="white">
-                    Some people sent you vibes! 🎉
-                  </Text>
-                  <Text>
-                    Got{" "}
-                    {incomingReceives.reduce((acc, cv: any) => {
-                      return acc + Number(cv?.args?.value as bigint);
-                    }, 0)}
-                  </Text>
-                </Flex>
-              </Box>
-            ),
-          });
-        }
-      }
-    }
-  }, [transferLogs]);
 
   const addAppError = useCallback(
     (error: Error, source: string) => {
