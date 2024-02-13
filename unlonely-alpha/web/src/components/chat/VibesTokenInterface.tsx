@@ -71,6 +71,8 @@ const VibesTokenInterface = ({
   disableExchange,
   customLowerPrice,
   customHigherPrice,
+  customLoading,
+  noChannelData,
 }: {
   defaultTimeFilter?: "1h" | "1d" | "all";
   allStreams?: boolean;
@@ -81,6 +83,8 @@ const VibesTokenInterface = ({
   disableExchange?: boolean;
   customLowerPrice?: number;
   customHigherPrice?: number;
+  customLoading?: boolean;
+  noChannelData?: boolean;
 }) => {
   const { userAddress, walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
@@ -406,7 +410,6 @@ const VibesTokenInterface = ({
                 variables: { data: { address: payload[0].payload.user } },
               })
               .then(({ data }) => {
-                console.log(data);
                 setLoading(false);
                 setAsyncData(
                   data?.getUser?.username ?? payload[0].payload.user
@@ -437,22 +440,25 @@ const VibesTokenInterface = ({
           p="5px"
           borderRadius="15px"
         >
-          <Text>
-            {loading ? (
-              <Flex alignItems={"center"}>
-                <Spinner size="sm" />
-                <Text>{centerEllipses(payload[0].payload.user, 10)}</Text>
-              </Flex>
-            ) : asyncData !== null ? (
-              isAddress(asyncData) ? (
-                centerEllipses(asyncData, 10)
-              ) : (
-                asyncData
-              )
+          <>
+            {asyncData !== null ? (
+              <>
+                {isAddress(asyncData) ? (
+                  <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
+                    {centerEllipses(asyncData, 10)}
+                  </Text>
+                ) : (
+                  <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
+                    {asyncData}
+                  </Text>
+                )}
+              </>
             ) : (
-              payload[0].payload.user
+              <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
+                {centerEllipses(payload[0].payload.user, 10)}
+              </Text>
             )}
-          </Text>
+          </>
           {payload[0].payload.event !== "" && (
             <>
               <Text
@@ -519,7 +525,7 @@ const VibesTokenInterface = ({
 
   return (
     <>
-      {vibesTokenLoading ? (
+      {vibesTokenLoading || customLoading ? (
         <Flex
           direction="column"
           alignItems="center"
@@ -928,6 +934,18 @@ const VibesTokenInterface = ({
               flex="1"
             >
               <Flex direction="column" w="100%" position="relative" h="100%">
+                {noChannelData && (
+                  <Text
+                    textAlign="center"
+                    position="absolute"
+                    color="gray"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%)"
+                  >
+                    could not fetch channel data
+                  </Text>
+                )}
                 {formattedHourData.length === 0 &&
                   timeFilter === "1h" &&
                   matchingChain && (

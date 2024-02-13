@@ -58,7 +58,7 @@ const Trade = () => {
   const { userAddress, walletIsConnected, user } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, chat: chatContext, ui } = useChannelContext();
-  const { channelQueryData, ongoingBets } = channel;
+  const { channelQueryData, latestBet } = channel;
   const { addToChatbot } = chatContext;
   const { tradeLoading, localSharesEventState } = ui;
 
@@ -129,8 +129,8 @@ const Trade = () => {
     setYayVotesBalance,
     setNayVotesBalance,
   } = useGetHolderBalances(
-    (ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
-    Number(ongoingBets?.[0]?.id ?? "0"),
+    (latestBet?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
+    Number(latestBet?.id ?? "0"),
     userAddress as `0x${string}`,
     v2contract
   );
@@ -138,7 +138,7 @@ const Trade = () => {
   const { priceAfterFee: votePrice, refetch: refetchVotePrice } =
     useGetPriceAfterFee(
       channelQueryData?.owner?.address as `0x${string}`,
-      Number(ongoingBets?.[0]?.id ?? "0"),
+      Number(latestBet?.id ?? "0"),
       amount_bigint,
       isYay,
       isBuying,
@@ -147,7 +147,7 @@ const Trade = () => {
 
   const { key: generatedKey } = useGenerateKey(
     channelQueryData?.owner?.address as `0x${string}`,
-    Number(ongoingBets?.[0]?.id ?? "0"),
+    Number(latestBet?.id ?? "0"),
     v2contract
   );
 
@@ -158,8 +158,8 @@ const Trade = () => {
     setNayVotesSupply,
   } = useReadSupplies(
     generatedKey,
-    (ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
-    Number(ongoingBets?.[0]?.id ?? "0"),
+    (latestBet?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
+    Number(latestBet?.id ?? "0"),
     v2contract
   );
 
@@ -189,8 +189,8 @@ const Trade = () => {
   } = useVotingPooledEth(generatedKey, v2contract);
 
   const { userPayout, refetch: refetchPayout } = useUserPayout(
-    (ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
-    Number(ongoingBets?.[0]?.id ?? "0"),
+    (latestBet?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
+    Number(latestBet?.id ?? "0"),
     v2contract
   );
 
@@ -218,9 +218,8 @@ const Trade = () => {
   } = useBuyVotes(
     {
       eventAddress:
-        (ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`) ??
-        NULL_ADDRESS,
-      eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+        (latestBet?.sharesSubjectAddress as `0x${string}`) ?? NULL_ADDRESS,
+      eventId: Number(latestBet?.id ?? "0"),
       isYay,
       amountOfVotes: amount_bigint,
       value: votePrice,
@@ -289,8 +288,8 @@ const Trade = () => {
           (args.trade.isBuy as boolean) ? "bought" : "sold"
         } ${args.trade.shareAmount} ${
           (args.trade.isYay as boolean)
-            ? ongoingBets?.[0]?.options?.[0] ?? "yes"
-            : ongoingBets?.[0]?.options?.[1] ?? "no"
+            ? latestBet?.options?.[0] ?? "yes"
+            : latestBet?.options?.[1] ?? "no"
         } vote${Number(args.trade.shareAmount as bigint) > 1 ? "s" : ""}!`;
         addToChatbot({
           username: user?.username ?? "",
@@ -303,8 +302,8 @@ const Trade = () => {
             (args.trade.isYay as boolean) ? "yay" : "nay"
           }:${
             (args.trade.isYay as boolean)
-              ? ongoingBets?.[0]?.options?.[0] ?? "yes"
-              : ongoingBets?.[0]?.options?.[1] ?? "no"
+              ? latestBet?.options?.[0] ?? "yes"
+              : latestBet?.options?.[1] ?? "no"
           }`,
         });
         await postBetTrade({
@@ -314,7 +313,7 @@ const Trade = () => {
           type: args.trade.isYay
             ? GamblableEvent.BetYesBuy
             : GamblableEvent.BetNoBuy,
-          eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+          eventId: Number(latestBet?.id ?? "0"),
           eventType: EventType.YayNayVote,
           fees: Number(formatUnits(args.trade.subjectEthAmount, 18)),
         });
@@ -339,8 +338,8 @@ const Trade = () => {
   const { claimVotePayout, refetch: refetchClaimVotePayout } =
     useClaimVotePayout(
       {
-        eventAddress: ongoingBets?.[0]?.sharesSubjectAddress as `0x${string}`,
-        eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+        eventAddress: latestBet?.sharesSubjectAddress as `0x${string}`,
+        eventId: Number(latestBet?.id ?? "0"),
         canClaim: true,
       },
       v2contract,
@@ -404,14 +403,14 @@ const Trade = () => {
           await postClaimPayout({
             channelId: channelQueryData?.id as string,
             userAddress: userAddress as `0x${string}`,
-            eventId: Number(ongoingBets?.[0]?.id ?? "0"),
+            eventId: Number(latestBet?.id ?? "0"),
             eventType: EventType.YayNayVote,
           });
           if ((args.votingPooledEth as bigint) === BigInt(0)) {
             await closeSharesEvents({
               chainId: localNetwork.config.chainId,
               channelId: channelQueryData?.id as string,
-              sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
+              sharesEventIds: [Number(latestBet?.id ?? "0")],
             });
           }
           canAddToChatbotClaim.current = false;
@@ -435,18 +434,17 @@ const Trade = () => {
   const { updateSharesEvent, loading: updateSharesEventLoading } =
     useUpdateSharesEvent({});
   const doesEventExist = useMemo(() => {
-    if (!ongoingBets) return false;
-    if (!ongoingBets?.[0]?.sharesSubjectAddress) return false;
-    if (!ongoingBets?.[0]?.id) return false;
+    if (!latestBet?.sharesSubjectAddress) return false;
+    if (!latestBet?.id) return false;
     return true;
-  }, [ongoingBets]);
+  }, [latestBet]);
 
   const _updateSharesEvent = useCallback(
     async (eventState: SharesEventState) => {
       await updateSharesEvent({
-        id: ongoingBets?.[0]?.id ?? "",
-        sharesSubjectQuestion: ongoingBets?.[0]?.sharesSubjectQuestion ?? "",
-        sharesSubjectAddress: ongoingBets?.[0]?.sharesSubjectAddress ?? "",
+        id: latestBet?.id ?? "",
+        sharesSubjectQuestion: latestBet?.sharesSubjectQuestion ?? "",
+        sharesSubjectAddress: latestBet?.sharesSubjectAddress ?? "",
         eventState,
       });
       if (eventState === SharesEventState.Live) {
@@ -468,7 +466,7 @@ const Trade = () => {
         });
       }
     },
-    [ongoingBets, user, userAddress]
+    [latestBet, user, userAddress]
   );
 
   const [latestEventOpenedLogs, setLatestEventOpenedLogs] = useState<Log[]>([]);
@@ -929,7 +927,7 @@ const Trade = () => {
             mb={"10px"}
           >
             <Text textAlign={"center"} fontSize={"20px"} fontWeight={"bold"}>
-              {ongoingBets?.[0]?.sharesSubjectQuestion}
+              {latestBet?.sharesSubjectQuestion}
             </Text>
             <Text textAlign={"center"} fontSize="14px" color="#f8f53b">
               {truncateValue(formatUnits(votingPooledEth, 18), 4)} ETH in the
@@ -980,7 +978,7 @@ const Trade = () => {
                         w="100%"
                       >
                         <Flex alignItems={"center"} gap="2px">
-                          <Text>{ongoingBets?.[0]?.options?.[0] ?? "YES"}</Text>
+                          <Text>{latestBet?.options?.[0] ?? "YES"}</Text>
                         </Flex>
                       </Button>
                       <Button
@@ -994,7 +992,7 @@ const Trade = () => {
                         w="100%"
                       >
                         <Flex alignItems={"center"} gap="2px">
-                          <Text>{ongoingBets?.[0]?.options?.[1] ?? "NO"}</Text>
+                          <Text>{latestBet?.options?.[1] ?? "NO"}</Text>
                         </Flex>
                       </Button>
                     </Flex>
@@ -1110,7 +1108,7 @@ const Trade = () => {
                       fontSize="25px"
                     >
                       {truncateValue(String(yayVotesSupply), 0, true)}{" "}
-                      {ongoingBets?.[0]?.options?.[0] ?? "YES"}
+                      {latestBet?.options?.[0] ?? "YES"}
                     </Text>
                     <Text
                       color="rgba(218, 58, 19, 1)"
@@ -1118,7 +1116,7 @@ const Trade = () => {
                       fontSize="25px"
                     >
                       {truncateValue(String(nayVotesSupply), 0, true)}{" "}
-                      {ongoingBets?.[0]?.options?.[1] ?? "NO"}
+                      {latestBet?.options?.[1] ?? "NO"}
                     </Text>
                   </Flex>
                   <Text textAlign={"center"} fontSize="14px">
@@ -1135,7 +1133,7 @@ const Trade = () => {
                       fontSize="25px"
                     >
                       {truncateValue(String(yayVotesSupply), 0, true)}{" "}
-                      {ongoingBets?.[0]?.options?.[0] ?? "YES"}
+                      {latestBet?.options?.[0] ?? "YES"}
                     </Text>
                     <Text
                       color="rgba(218, 58, 19, 1)"
@@ -1143,7 +1141,7 @@ const Trade = () => {
                       fontSize="25px"
                     >
                       {truncateValue(String(nayVotesSupply), 0, true)}{" "}
-                      {ongoingBets?.[0]?.options?.[1] ?? "NO"}
+                      {latestBet?.options?.[1] ?? "NO"}
                     </Text>
                   </Flex>
                   <Text textAlign={"center"} fontSize="14px" color="#e49c16">
@@ -1165,8 +1163,8 @@ const Trade = () => {
                           color={eventResult === true ? "#02f042" : "#ee6204"}
                         >
                           {eventResult
-                            ? ongoingBets?.[0]?.options?.[0] ?? "Yes"
-                            : ongoingBets?.[0]?.options?.[1] ?? "No"}
+                            ? latestBet?.options?.[0] ?? "Yes"
+                            : latestBet?.options?.[1] ?? "No"}
                         </Text>
                       </Flex>
                       <Flex justifyContent="space-between">
@@ -1218,6 +1216,9 @@ const Trade = () => {
                     <Spinner />
                   </Flex>
                   <Text textAlign={"center"}>loading event details</Text>
+                  <Text textAlign={"center"}>
+                    if this is taking a while, details may not be found
+                  </Text>
                 </Flex>
               )}
             </>

@@ -42,6 +42,7 @@ const ChannelContext = createContext<{
   channel: {
     channelQueryData?: ChannelDetailQuery["getChannelBySlug"];
     ongoingBets: SharesEvent[];
+    latestBet?: SharesEvent;
     loading: boolean;
     error?: ApolloError;
     refetchChannel: () => Promise<any>;
@@ -110,6 +111,7 @@ const ChannelContext = createContext<{
   channel: {
     channelQueryData: undefined,
     ongoingBets: [],
+    latestBet: undefined,
     loading: true,
     error: undefined,
     refetchChannel: () => Promise.resolve(undefined),
@@ -181,15 +183,6 @@ export const ChannelProvider = ({
   const router = useRouter();
   const { slug } = router.query;
 
-  // const {
-  //   loading: channelStaticLoading,
-  //   error: channelStaticError,
-  //   data: channelStatic,
-  // } = useQuery<ChannelStaticQuery>(CHANNEL_STATIC_QUERY, {
-  //   variables: { slug },
-  //   fetchPolicy: "cache-and-network",
-  // });
-
   const {
     loading: channelInteractableLoading,
     error: channelInteractableError,
@@ -246,7 +239,6 @@ export const ChannelProvider = ({
   const [ablyPresenceChannel, setAblyPresenceChannel] = useState<
     string | undefined
   >(undefined);
-  const [textOverVideo, setTextOverVideo] = useState<string[]>([]);
   const [isClipUiOpen, setIsClipUiOpen] = useState<boolean>(false);
   const [isVip, setIsVip] = useState<boolean>(false);
   const [localSharesEventState, setLocalSharesEventState] = useState<
@@ -277,6 +269,9 @@ export const ChannelProvider = ({
   const [tournamentActive, setTournamentActive] = useState<boolean>(false);
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
   const [channelRoles, setChannelRoles] = useState<Role[]>([]);
+  const [latestBet, setLatestBet] = useState<SharesEvent | undefined>(
+    undefined
+  );
 
   const {
     handleCreateClip,
@@ -331,25 +326,13 @@ export const ChannelProvider = ({
     if (!ongoingBets || ongoingBets.length === 0) return;
     const latestBet = ongoingBets[0];
     const eventState = latestBet?.eventState;
+    setLatestBet(latestBet);
     if (eventState !== undefined && eventState !== null)
       handleLocalSharesEventState(eventState);
   }, [ongoingBets]);
 
-  useEffect(() => {
-    if (textOverVideo.length > 0) {
-      const timer = setTimeout(() => {
-        setTextOverVideo((prev) => prev.slice(2));
-      }, 120000);
-      return () => clearTimeout(timer);
-    }
-  }, [textOverVideo]);
-
   const handleVibesTokenPriceRange = useCallback((value: string[]) => {
     setVibesTokenPriceRange(value);
-  }, []);
-
-  const addToTextOverVideo = useCallback((message: string) => {
-    setTextOverVideo((prev) => [...prev, message]);
   }, []);
 
   const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
@@ -428,6 +411,7 @@ export const ChannelProvider = ({
     () => ({
       channel: {
         channelQueryData,
+        latestBet,
         ongoingBets: ongoingBets ?? undefined,
         loading: channelInteractableLoading || channelStatic?.id === "-1",
         error: channelInteractableError,
@@ -492,12 +476,11 @@ export const ChannelProvider = ({
       channelRoles,
       channelQueryData,
       ongoingBets,
+      latestBet,
       handleChannelStaticData,
       channelInteractableLoading,
       channelInteractableError,
-      textOverVideo,
       refetchChannelInteractable,
-      addToTextOverVideo,
       ablyChatChannel,
       ablyPresenceChannel,
       userRank,

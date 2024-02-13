@@ -73,6 +73,7 @@ export const CreateBet = ({
     channelQueryData,
     refetchChannel,
     loading: channelQueryLoading,
+    latestBet,
     ongoingBets,
   } = channel;
   const { localSharesEventState } = ui;
@@ -87,10 +88,11 @@ export const CreateBet = ({
   const pendingBet = useMemo(
     () =>
       localSharesEventState === SharesEventState.Pending &&
-      ongoingBets.length > 0
-        ? ongoingBets?.[0]
+      ongoingBets.length > 0 &&
+      latestBet
+        ? latestBet
         : undefined,
-    [ongoingBets, localSharesEventState]
+    [ongoingBets, localSharesEventState, latestBet]
   );
 
   const isFetching = useRef(false);
@@ -132,17 +134,16 @@ export const CreateBet = ({
 
   const _postSharesEvent = useCallback(
     async (sharesSubjectQuestion: string) => {
-      console.log(ongoingBets, localSharesEventState);
       if (
         ongoingBets.length > 0 &&
         localSharesEventState === SharesEventState.Payout
       ) {
         await updateSharesEvent({
-          id: ongoingBets?.[0].id ?? "",
-          sharesSubjectQuestion: ongoingBets?.[0].sharesSubjectQuestion ?? "",
-          sharesSubjectAddress: ongoingBets?.[0].sharesSubjectAddress ?? "",
+          id: latestBet?.id ?? "",
+          sharesSubjectQuestion: latestBet?.sharesSubjectQuestion ?? "",
+          sharesSubjectAddress: latestBet?.sharesSubjectAddress ?? "",
           eventState: SharesEventState.PayoutPrevious,
-          resultIndex: ongoingBets?.[0].resultIndex ?? undefined,
+          resultIndex: latestBet?.resultIndex ?? undefined,
         });
       }
       if (
@@ -153,7 +154,7 @@ export const CreateBet = ({
         await closeSharesEvents({
           chainId: localNetwork.config.chainId,
           channelId: channelQueryData?.id as string,
-          sharesEventIds: [Number(ongoingBets?.[0]?.id ?? "0")],
+          sharesEventIds: [Number(latestBet?.id ?? "0")],
         });
       }
       await postSharesEvent({
