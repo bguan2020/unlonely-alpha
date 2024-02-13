@@ -29,7 +29,7 @@ export const JudgeBet = ({
   const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
-  const { ongoingBets, latestBet } = channel;
+  const { latestBet } = channel;
   const [endDecision, setEndDecision] = useState<boolean | undefined>(
     undefined
   );
@@ -56,7 +56,7 @@ export const JudgeBet = ({
       eventAddress: latestBet?.sharesSubjectAddress as `0x${string}`,
       eventId: Number(latestBet?.id) ?? 0,
       result: endDecision ?? false,
-      enabled: !eventVerified && ongoingBets.length > 0,
+      enabled: !eventVerified && latestBet !== undefined,
     },
     contractData,
     {
@@ -161,7 +161,7 @@ export const JudgeBet = ({
         resultIndex: result ? 0 : 1,
       });
     },
-    [ongoingBets, user, userAddress]
+    [latestBet, user, userAddress]
   );
 
   useEffect(() => {

@@ -47,7 +47,7 @@ export function useAblyChannel(
 export function useChannel(fixedChatName?: string) {
   const { userAddress } = useUser();
   const { channel: c, chat, ui } = useChannelContext();
-  const { channelQueryData, channelRoles, handleChannelRoles, refetchChannel } =
+  const { channelQueryData, channelRoles, handleChannelRoles, handleLatestBet } =
     c;
   const { chatChannel } = chat;
   const { handleVibesTokenPriceRange, handleLocalSharesEventState } = ui;
@@ -97,18 +97,23 @@ export function useChannel(fixedChatName?: string) {
           const optionB = message.data.body.split(":")[5];
           const chainId = message.data.body.split(":")[6];
           const channelId = message.data.body.split(":")[7];
-          console.log("sharesSubjectQuestion", sharesSubjectQuestion);
-          console.log("sharesSubjectAddress", sharesSubjectAddress);
-          console.log("optionA", optionA);
-          console.log("optionB", optionB);
-          console.log("chainId", chainId);
-          console.log("channelId", channelId);
-          console.log("betId", betId);
-          if (isOwner) {
-            handleLocalSharesEventState(SharesEventState.Live);
-          } else {
-            await refetchChannel();
-          }
+          console.log("sharesSubjectQuestion", typeof sharesSubjectQuestion);
+          console.log("sharesSubjectAddress", typeof sharesSubjectAddress);
+          console.log("optionA", typeof optionA);
+          console.log("optionB", typeof optionB);
+          console.log("chainId", typeof chainId);
+          console.log("channelId", typeof channelId);
+          console.log("betId", typeof betId);
+          handleLatestBet({
+            id: (betId as string),
+            sharesSubjectQuestion: (sharesSubjectQuestion as string),
+            sharesSubjectAddress: (sharesSubjectAddress as string),
+            options: [(optionA as string), (optionB as string)],
+            chainId: Number(chainId as string),
+            channelId: (channelId as string),
+            createdAt: new Date().toISOString(),
+            eventState: SharesEventState.Live,
+          });
         }
         if (chatbotTaskType === InteractionType.EVENT_LOCK) {
           handleLocalSharesEventState(SharesEventState.Lock);

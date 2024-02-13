@@ -41,8 +41,8 @@ export const useChannelContext = () => {
 const ChannelContext = createContext<{
   channel: {
     channelQueryData?: ChannelDetailQuery["getChannelBySlug"];
-    ongoingBets: SharesEvent[];
     latestBet?: SharesEvent;
+    handleLatestBet: (value: SharesEvent) => void;
     loading: boolean;
     error?: ApolloError;
     refetchChannel: () => Promise<any>;
@@ -102,7 +102,6 @@ const ChannelContext = createContext<{
     tradeLoading: boolean;
     handleTradeLoading: (value: boolean) => void;
     handleVibesTokenPriceRange: (value: string[]) => void;
-    localSharesEventState?: SharesEventState;
     selectedUserInChat?: SelectedUser;
     handleSelectedUserInChat: (value?: SelectedUser) => void;
     handleLocalSharesEventState: (value: SharesEventState) => void;
@@ -110,8 +109,8 @@ const ChannelContext = createContext<{
 }>({
   channel: {
     channelQueryData: undefined,
-    ongoingBets: [],
     latestBet: undefined,
+    handleLatestBet: () => undefined,
     loading: true,
     error: undefined,
     refetchChannel: () => Promise.resolve(undefined),
@@ -165,7 +164,6 @@ const ChannelContext = createContext<{
     tradeLoading: false,
     handleTradeLoading: () => undefined,
     handleVibesTokenPriceRange: () => undefined,
-    localSharesEventState: undefined,
     handleLocalSharesEventState: () => undefined,
     selectedUserInChat: undefined,
     handleSelectedUserInChat: () => undefined,
@@ -241,9 +239,6 @@ export const ChannelProvider = ({
   >(undefined);
   const [isClipUiOpen, setIsClipUiOpen] = useState<boolean>(false);
   const [isVip, setIsVip] = useState<boolean>(false);
-  const [localSharesEventState, setLocalSharesEventState] = useState<
-    SharesEventState | undefined
-  >(undefined);
 
   const handleIsClipUiOpen = useCallback((isClipUiOpen: boolean) => {
     setIsClipUiOpen(isClipUiOpen);
@@ -322,13 +317,12 @@ export const ChannelProvider = ({
     }
   }, [channelQueryData?.roles]);
 
+  console.log(latestBet);
+
   useEffect(() => {
     if (!ongoingBets || ongoingBets.length === 0) return;
     const latestBet = ongoingBets[0];
-    const eventState = latestBet?.eventState;
     setLatestBet(latestBet);
-    if (eventState !== undefined && eventState !== null)
-      handleLocalSharesEventState(eventState);
   }, [ongoingBets]);
 
   const handleVibesTokenPriceRange = useCallback((value: string[]) => {
@@ -400,11 +394,24 @@ export const ChannelProvider = ({
   );
 
   const handleLocalSharesEventState = useCallback((value: SharesEventState) => {
-    setLocalSharesEventState(value);
+    // setLocalSharesEventState(value);
+    setLatestBet((prev) => {
+      if (prev) {
+        return {
+          ...prev,
+          eventState: value,
+        };
+      }
+      return prev;
+    });
   }, []);
 
   const handleSelectedUserInChat = useCallback((value?: SelectedUser) => {
     setSelectedUserInChat(value);
+  }, []);
+
+  const handleLatestBet = useCallback((value: SharesEvent) => {
+    setLatestBet(value);
   }, []);
 
   const value = useMemo(
@@ -412,7 +419,7 @@ export const ChannelProvider = ({
       channel: {
         channelQueryData,
         latestBet,
-        ongoingBets: ongoingBets ?? undefined,
+        handleLatestBet,
         loading: channelInteractableLoading || channelStatic?.id === "-1",
         error: channelInteractableError,
         refetchChannel: refetchChannelInteractable,
@@ -466,7 +473,6 @@ export const ChannelProvider = ({
         tradeLoading,
         handleTradeLoading,
         handleVibesTokenPriceRange,
-        localSharesEventState,
         selectedUserInChat,
         handleSelectedUserInChat,
         handleLocalSharesEventState,
@@ -475,8 +481,8 @@ export const ChannelProvider = ({
     [
       channelRoles,
       channelQueryData,
-      ongoingBets,
       latestBet,
+      handleLatestBet,
       handleChannelStaticData,
       channelInteractableLoading,
       channelInteractableError,
@@ -519,7 +525,6 @@ export const ChannelProvider = ({
       handleTradeLoading,
       handleVibesTokenPriceRange,
       handleChannelRoles,
-      localSharesEventState,
       handleLocalSharesEventState,
       selectedUserInChat,
       handleSelectedUserInChat,
