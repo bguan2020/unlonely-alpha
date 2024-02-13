@@ -46,6 +46,8 @@ import {
   blockNumberDaysAgo,
   blockNumberHoursAgo,
 } from "../../hooks/internal/useVibesCheck";
+import { GET_USER_QUERY } from "../../constants/queries";
+import { useApolloClient } from "@apollo/client";
 
 type ChartTokenTx = {
   user: string;
@@ -91,6 +93,7 @@ const VibesTokenInterface = ({
   const windowSize = useWindowSize();
   const { network } = useNetworkContext();
   const { matchingChain } = network;
+  const client = useApolloClient();
 
   const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">(
     defaultTimeFilter ?? "1h"
@@ -383,6 +386,41 @@ const VibesTokenInterface = ({
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
+      const [asyncData, setAsyncData] = useState(null);
+      const [loading, setLoading] = useState(false);
+      const [lastDataKey, setLastDataKey] = useState<`0x${string}` | null>(
+        null
+      );
+
+      useEffect(() => {
+        setLoading(true);
+        const handler = setTimeout(async () => {
+          if (active && payload && payload.length && payload[0].payload.user) {
+            if (payload[0].payload.user === lastDataKey) {
+              setLoading(false);
+              return;
+            }
+            await client
+              .query({
+                query: GET_USER_QUERY,
+                variables: { data: { address: payload[0].payload.user } },
+              })
+              .then(({ data }) => {
+                console.log(data);
+                setLoading(false);
+                setAsyncData(
+                  data?.getUser?.username ?? payload[0].payload.user
+                );
+              });
+            setLastDataKey(payload[0].payload.user);
+          }
+        }, 300);
+
+        return () => {
+          clearTimeout(handler);
+        };
+      }, [payload]);
+
       const percentage = Number(
         truncateValue(
           payload[0].payload.priceChangePercentage,
@@ -399,11 +437,22 @@ const VibesTokenInterface = ({
           p="5px"
           borderRadius="15px"
         >
-          <Text>{`${
-            isAddress(payload[0].payload.user)
-              ? centerEllipses(payload[0].payload.user, 13)
-              : payload[0].payload.user
-          }`}</Text>
+          <Text>
+            {loading ? (
+              <Flex alignItems={"center"}>
+                <Spinner size="sm" />
+                <Text>{centerEllipses(payload[0].payload.user, 10)}</Text>
+              </Flex>
+            ) : asyncData !== null ? (
+              isAddress(asyncData) ? (
+                centerEllipses(asyncData, 10)
+              ) : (
+                asyncData
+              )
+            ) : (
+              payload[0].payload.user
+            )}
+          </Text>
           {payload[0].payload.event !== "" && (
             <>
               <Text
