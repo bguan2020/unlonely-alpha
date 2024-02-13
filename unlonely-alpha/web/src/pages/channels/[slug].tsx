@@ -17,8 +17,8 @@ import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
-import { CHANNEL_DETAIL_QUERY } from "../../constants/queries";
-import { ChannelDetailQuery } from "../../generated/graphql";
+import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
+import { ChannelStaticQuery } from "../../generated/graphql";
 import {
   ChannelProvider,
   ChannelWideModals,
@@ -40,11 +40,16 @@ import VibesTokenInterface from "../../components/chat/VibesTokenInterface";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import Trade from "../../components/channels/bet/Trade";
+import { ApolloError } from "@apollo/client";
 
 const ChannelDetail = ({
   channelData,
+  channelDataLoading,
+  channelDataError,
 }: {
-  channelData: ChannelDetailQuery;
+  channelData: ChannelStaticQuery;
+  channelDataLoading: boolean;
+  channelDataError?: ApolloError;
 }) => {
   const { isStandalone } = useUserAgent();
 
@@ -56,9 +61,17 @@ const ChannelDetail = ({
   return (
     <ChannelProvider>
       {!isStandalone ? (
-        <DesktopPage channelSSR={channelSSR} />
+        <DesktopPage
+          channelSSR={channelSSR}
+          channelSSRDataLoading={channelDataLoading}
+          channelSSRDataError={channelDataError}
+        />
       ) : (
-        <MobilePage channelSSR={channelSSR} />
+        <MobilePage
+          channelSSR={channelSSR}
+          channelSSRDataLoading={channelDataLoading}
+          channelSSRDataError={channelDataError}
+        />
       )}
     </ChannelProvider>
   );
@@ -66,8 +79,12 @@ const ChannelDetail = ({
 
 const DesktopPage = ({
   channelSSR,
+  channelSSRDataLoading,
+  channelSSRDataError,
 }: {
-  channelSSR: ChannelDetailQuery["getChannelBySlug"];
+  channelSSR: ChannelStaticQuery["getChannelBySlug"];
+  channelSSRDataLoading: boolean;
+  channelSSRDataError?: ApolloError;
 }) => {
   const { channel, leaderboard } = useChannelContext();
   const chat = useChat();
@@ -78,10 +95,9 @@ const DesktopPage = ({
     loading: channelDataLoading,
     error: channelDataError,
     handleTotalBadges,
+    handleChannelStaticData,
   } = channel;
   const { handleIsVip } = leaderboard;
-
-  const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
 
   const { userAddress, walletIsConnected } = useUser();
 
@@ -93,6 +109,10 @@ const DesktopPage = ({
     "unlonelyTournament",
     localNetwork
   );
+
+  useEffect(() => {
+    if (channelSSR) handleChannelStaticData(channelSSR);
+  }, [channelSSR]);
 
   const { key: generatedKey } = useGenerateKey(
     channelQueryData?.owner?.address as `0x${string}`,
@@ -173,7 +193,10 @@ const DesktopPage = ({
         description={channelSSR?.description}
         isCustomHeader={true}
       >
-        {!queryLoading && !channelDataError ? (
+        {!channelDataLoading &&
+        !channelDataError &&
+        !channelSSRDataError &&
+        !channelSSRDataLoading ? (
           <>
             <ChannelWideModals ablyChannel={chat.channel} />
             <Stack
@@ -260,7 +283,7 @@ const DesktopPage = ({
             height="calc(100vh - 64px)"
             fontSize="50px"
           >
-            {!channelDataError ? (
+            {!channelDataError && !channelSSRDataError ? (
               <WavyText text="loading..." />
             ) : (
               <Text fontFamily="LoRes15">
@@ -276,8 +299,12 @@ const DesktopPage = ({
 
 const MobilePage = ({
   channelSSR,
+  channelSSRDataLoading,
+  channelSSRDataError,
 }: {
-  channelSSR: ChannelDetailQuery["getChannelBySlug"];
+  channelSSR: ChannelStaticQuery["getChannelBySlug"];
+  channelSSRDataLoading: boolean;
+  channelSSRDataError?: ApolloError;
 }) => {
   const { channel, leaderboard } = useChannelContext();
   const { network } = useNetworkContext();
@@ -287,12 +314,11 @@ const MobilePage = ({
     loading: channelDataLoading,
     error: channelDataError,
     handleTotalBadges,
+    handleChannelStaticData,
   } = channel;
   const { handleIsVip } = leaderboard;
 
   const chat = useChat();
-
-  const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
 
   const { userAddress } = useUser();
 
@@ -303,6 +329,10 @@ const MobilePage = ({
   const handleShowPreviewStream = useCallback(() => {
     setPreviewStream((prev) => !prev);
   }, []);
+
+  useEffect(() => {
+    if (channelSSR) handleChannelStaticData(channelSSR);
+  }, [channelSSR]);
 
   const tournamentContract = getContractFromNetwork(
     "unlonelyTournament",
@@ -388,7 +418,10 @@ const MobilePage = ({
         description={channelSSR?.description}
         isCustomHeader={true}
       >
-        {!queryLoading && !channelDataError ? (
+        {!channelDataLoading &&
+        !channelDataError &&
+        !channelSSRDataError &&
+        !channelSSRDataLoading ? (
           <>
             {(previewStream || !isOwner) && <ChannelViewerPerspective mobile />}
             <ChannelWideModals ablyChannel={chat.channel} />
@@ -407,7 +440,7 @@ const MobilePage = ({
             height="100vh"
             fontSize="50px"
           >
-            {!channelDataError ? (
+            {!channelDataError && !channelSSRDataError ? (
               <>
                 <Image
                   src="/icons/icon-192x192.png"
@@ -439,10 +472,16 @@ export async function getServerSideProps(
 
   const apolloClient = initializeApollo(null, context.req.cookies, true);
 
-  const { data, error } = await apolloClient.query({
-    query: CHANNEL_DETAIL_QUERY,
+  const { data, loading, error } = await apolloClient.query({
+    query: CHANNEL_STATIC_QUERY,
     variables: { slug },
   });
 
-  return { props: { channelData: data } };
+  return {
+    props: {
+      channelData: data ?? null,
+      channelDataLoading: loading,
+      channelDataError: error ?? null,
+    },
+  };
 }

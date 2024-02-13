@@ -1,25 +1,43 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Log, createPublicClient, parseAbiItem, http } from "viem";
-import { useContractEvent } from "wagmi";
+import { Log, createPublicClient, parseAbiItem, http, isAddress } from "viem";
+import { useBalance, useContractEvent } from "wagmi";
 import { base } from "viem/chains";
 
 import { VibesTokenTx } from "../../constants/types";
 import { getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "./useUserAgent";
 import { NETWORKS } from "../../constants/networks";
-import { AVERAGE_BLOCK_TIME_SECS, CREATION_BLOCK, SECONDS_PER_HOUR } from "../../constants";
+import {
+  AVERAGE_BLOCK_TIME_SECS,
+  CREATION_BLOCK,
+  NULL_ADDRESS,
+  SECONDS_PER_HOUR,
+} from "../../constants";
+import { Flex, Box, Text, useToast } from "@chakra-ui/react";
+import { useUser } from "../context/useUser";
 
 export const useVibesCheck = () => {
+  const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
   const [loading, setLoading] = useState(true);
   const contract = getContractFromNetwork("vibesTokenV1", NETWORKS[0]);
   const [chartTimeIndexes, setChartTimeIndexes] = useState<
-    Map<string, {index: number | undefined, blockNumber: number}>
+    Map<string, { index: number | undefined; blockNumber: number }>
   >(new Map());
   const fetching = useRef(false);
+  const toast = useToast();
 
-  const [currentBlockNumberForVibes, setCurrentBlockNumberForVibes] = useState<bigint>(BigInt(0));
+  const { data: vibesBalance, refetch: refetchVibesBalance } = useBalance({
+    address: userAddress,
+    token: contract.address,
+    enabled:
+      isAddress(userAddress as `0x${string}`) &&
+      isAddress(contract.address ?? NULL_ADDRESS),
+  });
+
+  const [currentBlockNumberForVibes, setCurrentBlockNumberForVibes] =
+    useState<bigint>(BigInt(0));
 
   const eventQueueRef = useRef<Log[]>([]);
 
@@ -96,7 +114,7 @@ export const useVibesCheck = () => {
       tokenTxs.length > 0 ? tokenTxs[tokenTxs.length - 1].price : 0;
     const eventTx: VibesTokenTx = {
       eventName: eventName,
-      user: (log?.args.account as `0x${string}`),
+      user: log?.args.account as `0x${string}`,
       amount: log?.args.amount as bigint,
       price: newPrice,
       blockNumber: Number(log?.blockNumber as bigint),
@@ -190,53 +208,130 @@ export const useVibesCheck = () => {
       const daysArr = [1, 7, 14, 21, 28, 30, 60, 90, 180, 365];
       const currentBlockNumberForVibes = await baseClient.getBlockNumber();
 
-      const blockNumbersInDaysAgoArr = daysArr.map((days) => blockNumberDaysAgo(days, currentBlockNumberForVibes));
+      const blockNumbersInDaysAgoArr = daysArr.map((days) =>
+        blockNumberDaysAgo(days, currentBlockNumberForVibes)
+      );
 
       const dayIndex =
-      blockNumbersInDaysAgoArr[0] < CREATION_BLOCK
+        blockNumbersInDaysAgoArr[0] < CREATION_BLOCK
           ? undefined
           : binarySearchIndex(tokenTxs, BigInt(blockNumbersInDaysAgoArr[0]));
 
       const hoursArr = [1, 6, 12, 18];
-      const blockNumbersInHoursAgoArr = hoursArr.map((hours) => blockNumberHoursAgo(hours, currentBlockNumberForVibes));
+      const blockNumbersInHoursAgoArr = hoursArr.map((hours) =>
+        blockNumberHoursAgo(hours, currentBlockNumberForVibes)
+      );
 
-      const hourIndex = blockNumbersInHoursAgoArr[0] < CREATION_BLOCK ? undefined : binarySearchIndex(tokenTxs, BigInt(blockNumbersInHoursAgoArr[0]));
-      setCurrentBlockNumberForVibes(currentBlockNumberForVibes)
+      const hourIndex =
+        blockNumbersInHoursAgoArr[0] < CREATION_BLOCK
+          ? undefined
+          : binarySearchIndex(tokenTxs, BigInt(blockNumbersInHoursAgoArr[0]));
+      setCurrentBlockNumberForVibes(currentBlockNumberForVibes);
       // adding 1day separately to account for day index
-      const offset = 1
-      setChartTimeIndexes(new Map<string, { index: number | undefined; blockNumber: number }>(
-        [
-          [`${hoursArr[0]}h`, { index: hourIndex, blockNumber: Number(blockNumbersInHoursAgoArr[0]) }],
-          ...blockNumbersInHoursAgoArr.slice(offset).map<[string, { index: undefined; blockNumber: number }]>((blockNumber, slicedIndex) => {
-            const index = slicedIndex + offset;
-            return [`${hoursArr[index]}h`, { index: undefined, blockNumber: Number(blockNumber) }];
-          }),
-          [`${daysArr[0]}d`, { index: dayIndex, blockNumber: Number(blockNumbersInDaysAgoArr[0]) }],
-          ...blockNumbersInDaysAgoArr.slice(offset).map<[string, { index: undefined; blockNumber: number }]>((blockNumber, slicedIndex) => {
-            const index = slicedIndex + offset;
-            return [`${daysArr[index]}d`, { index: undefined, blockNumber: Number(blockNumber) }];
-          }),
-        ]
-      ));
+      const offset = 1;
+      setChartTimeIndexes(
+        new Map<string, { index: number | undefined; blockNumber: number }>([
+          [
+            `${hoursArr[0]}h`,
+            {
+              index: hourIndex,
+              blockNumber: Number(blockNumbersInHoursAgoArr[0]),
+            },
+          ],
+          ...blockNumbersInHoursAgoArr
+            .slice(offset)
+            .map<[string, { index: undefined; blockNumber: number }]>(
+              (blockNumber, slicedIndex) => {
+                const index = slicedIndex + offset;
+                return [
+                  `${hoursArr[index]}h`,
+                  { index: undefined, blockNumber: Number(blockNumber) },
+                ];
+              }
+            ),
+          [
+            `${daysArr[0]}d`,
+            {
+              index: dayIndex,
+              blockNumber: Number(blockNumbersInDaysAgoArr[0]),
+            },
+          ],
+          ...blockNumbersInDaysAgoArr
+            .slice(offset)
+            .map<[string, { index: undefined; blockNumber: number }]>(
+              (blockNumber, slicedIndex) => {
+                const index = slicedIndex + offset;
+                return [
+                  `${daysArr[index]}d`,
+                  { index: undefined, blockNumber: Number(blockNumber) },
+                ];
+              }
+            ),
+        ])
+      );
     };
     init();
   }, [tokenTxs.length]);
 
-  return { tokenTxs, chartTimeIndexes, loading, currentBlockNumberForVibes};
-};
+  const [transferLogs, setTransferLogs] = useState<Log[]>([]);
 
-function createHashmap<K, V>(keys: K[], values: V[]): Map<K, V> {
-  if (keys.length !== values.length) {
-    throw new Error("Keys and values arrays must be of the same length");
-  }
-
-  const map = new Map<K, V>();
-  keys.forEach((key, index) => {
-    map.set(key, values[index]);
+  useContractEvent({
+    address: contract.address,
+    abi: contract.abi,
+    eventName: "Transfer",
+    listener(logs) {
+      setTransferLogs(logs);
+    },
   });
 
-  return map;
-}
+  useEffect(() => {
+    if (transferLogs.length > 0) {
+      const includesUser = transferLogs.some(
+        (log: any) =>
+          (log?.args?.from as `0x${string}`) === userAddress ||
+          (log?.args?.to as `0x${string}`) === userAddress
+      );
+      if (includesUser) {
+        console.log("Detected vibes transfer event", transferLogs);
+        refetchVibesBalance();
+        const incomingReceives = transferLogs.filter(
+          (log: any) =>
+            (log?.args?.from as `0x${string}`) !== NULL_ADDRESS &&
+            (log?.args?.to as `0x${string}`) === userAddress
+        );
+        if (incomingReceives.length > 0) {
+          toast({
+            duration: 5000,
+            isClosable: true,
+            render: () => (
+              <Box borderRadius="md" bg="#8e64dd" px={4} h={8}>
+                <Flex justifyContent="center" alignItems="center">
+                  <Text fontSize="16px" color="white">
+                    Some people sent you vibes! 🎉
+                  </Text>
+                  <Text>
+                    Got{" "}
+                    {incomingReceives.reduce((acc, cv: any) => {
+                      return acc + Number(cv?.args?.value as bigint);
+                    }, 0)}
+                  </Text>
+                </Flex>
+              </Box>
+            ),
+          });
+        }
+      }
+    }
+  }, [transferLogs]);
+
+  return {
+    vibesBalance,
+    tokenTxs,
+    chartTimeIndexes,
+    loading,
+    currentBlockNumberForVibes,
+  };
+};
 
 function binarySearchIndex(arr: VibesTokenTx[], target: bigint): number {
   let left = 0;
@@ -276,7 +371,10 @@ function insertElementSorted(arr: VibesTokenTx[], newElement: VibesTokenTx) {
 }
 
 export function blockNumberHoursAgo(hours: number, currentBlockNumber: bigint) {
-return currentBlockNumber - BigInt((hours * SECONDS_PER_HOUR) / AVERAGE_BLOCK_TIME_SECS);
+  return (
+    currentBlockNumber -
+    BigInt((hours * SECONDS_PER_HOUR) / AVERAGE_BLOCK_TIME_SECS)
+  );
 }
 
 export function blockNumberDaysAgo(days: number, currentBlockNumber: bigint) {

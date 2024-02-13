@@ -331,10 +331,6 @@ function DesktopPage({
     xl: true,
   });
 
-  if (typeof (globalThis as any).EdgeRuntime !== "string") {
-    console.log("not edge runtime");
-  }
-
   return (
     <AppLayout isCustomHeader={false}>
       {!directingToChannel ? (

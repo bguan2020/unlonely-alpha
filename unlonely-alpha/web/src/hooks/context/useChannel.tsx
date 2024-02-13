@@ -11,7 +11,6 @@ import { ApolloError, useQuery } from "@apollo/client";
 import { merge } from "lodash";
 
 import {
-  CHANNEL_STATIC_QUERY,
   CHANNEL_INTERACTABLE_QUERY,
   GET_GAMBLABLE_EVENT_USER_RANK_QUERY,
 } from "../../constants/queries";
@@ -53,6 +52,9 @@ const ChannelContext = createContext<{
       address: string,
       role: number,
       isAdding: boolean
+    ) => void;
+    handleChannelStaticData: (
+      value: ChannelDetailQuery["getChannelBySlug"]
     ) => void;
   };
   chat: {
@@ -115,6 +117,7 @@ const ChannelContext = createContext<{
     channelRoles: [],
     handleTotalBadges: () => undefined,
     handleChannelRoles: () => undefined,
+    handleChannelStaticData: () => undefined,
   },
   chat: {
     chatChannel: undefined,
@@ -178,14 +181,14 @@ export const ChannelProvider = ({
   const router = useRouter();
   const { slug } = router.query;
 
-  const {
-    loading: channelStaticLoading,
-    error: channelStaticError,
-    data: channelStatic,
-  } = useQuery<ChannelStaticQuery>(CHANNEL_STATIC_QUERY, {
-    variables: { slug },
-    fetchPolicy: "cache-and-network",
-  });
+  // const {
+  //   loading: channelStaticLoading,
+  //   error: channelStaticError,
+  //   data: channelStatic,
+  // } = useQuery<ChannelStaticQuery>(CHANNEL_STATIC_QUERY, {
+  //   variables: { slug },
+  //   fetchPolicy: "cache-and-network",
+  // });
 
   const {
     loading: channelInteractableLoading,
@@ -197,13 +200,20 @@ export const ChannelProvider = ({
     fetchPolicy: "network-only",
   });
 
+  const [channelStatic, setChannelStatic] = useState<
+    ChannelStaticQuery["getChannelBySlug"]
+  >({
+    awsId: "",
+    id: "-1",
+    slug: "",
+    owner: {
+      address: "",
+    },
+  });
+
   const channelQueryData: ChannelDetailQuery["getChannelBySlug"] =
     useMemo(() => {
-      return merge(
-        {},
-        channelInteractable?.getChannelBySlug,
-        channelStatic?.getChannelBySlug
-      );
+      return merge({}, channelInteractable?.getChannelBySlug, channelStatic);
     }, [channelStatic, channelInteractable]);
 
   const ongoingBets = useMemo(
@@ -399,6 +409,13 @@ export const ChannelProvider = ({
     []
   );
 
+  const handleChannelStaticData = useCallback(
+    (value: ChannelDetailQuery["getChannelBySlug"]) => {
+      setChannelStatic(value);
+    },
+    []
+  );
+
   const handleLocalSharesEventState = useCallback((value: SharesEventState) => {
     setLocalSharesEventState(value);
   }, []);
@@ -412,13 +429,14 @@ export const ChannelProvider = ({
       channel: {
         channelQueryData,
         ongoingBets: ongoingBets ?? undefined,
-        loading: channelStaticLoading || channelInteractableLoading,
-        error: channelStaticError || channelInteractableError,
+        loading: channelInteractableLoading || channelStatic?.id === "-1",
+        error: channelInteractableError,
         refetchChannel: refetchChannelInteractable,
         totalBadges,
         handleTotalBadges,
         channelRoles: channelRoles,
         handleChannelRoles,
+        handleChannelStaticData,
       },
       chat: {
         chatChannel: ablyChatChannel,
@@ -474,8 +492,7 @@ export const ChannelProvider = ({
       channelRoles,
       channelQueryData,
       ongoingBets,
-      channelStaticLoading,
-      channelStaticError,
+      handleChannelStaticData,
       channelInteractableLoading,
       channelInteractableError,
       textOverVideo,
