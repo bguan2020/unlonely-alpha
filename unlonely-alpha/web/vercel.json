@@ -1,8 +1,8 @@
 {
-    "version": 2,
+    "version": "2.0",
     "functions": {
       "pages/channels/**/*": {
-        "runtime": "edge",
+        "runtime": "nodejs18.x",
         "maxDuration": 200
       }
     }
