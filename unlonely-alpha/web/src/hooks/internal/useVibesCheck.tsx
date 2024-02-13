@@ -138,6 +138,7 @@ export const useVibesCheck = () => {
     const getVibesEvents = async () => {
       const pathnameAccepted =
         router.pathname.startsWith("/channels") ||
+        router.pathname.startsWith("/mobile") ||
         router.pathname.startsWith("/vibes") ||
         router.pathname === "/";
       if (
