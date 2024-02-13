@@ -1,5 +1,7 @@
 import { Flex } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 import VibesTokenInterface from "../../components/chat/VibesTokenInterface";
 import {
@@ -9,9 +11,7 @@ import {
 import { useChat } from "../../hooks/chat/useChat";
 import AppLayout from "../../components/layout/AppLayout";
 import { ChannelStaticQuery } from "../../generated/graphql";
-import { useRouter } from "next/router";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
-import { useEffect } from "react";
 
 const FullVibesChartPage = () => {
   return (
