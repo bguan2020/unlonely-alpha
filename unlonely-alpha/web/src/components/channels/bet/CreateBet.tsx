@@ -68,15 +68,13 @@ export const CreateBet = ({
   const publicClient = usePublicClient();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork } = network;
-  const { channel, ui } = useChannelContext();
+  const { channel } = useChannelContext();
   const {
     channelQueryData,
     refetchChannel,
     loading: channelQueryLoading,
     latestBet,
-    ongoingBets,
   } = channel;
-  const { localSharesEventState } = ui;
   const { postSharesEvent, loading: postSharesEventLoading } =
     usePostSharesEvent({});
 
@@ -87,12 +85,10 @@ export const CreateBet = ({
 
   const pendingBet = useMemo(
     () =>
-      localSharesEventState === SharesEventState.Pending &&
-      ongoingBets.length > 0 &&
-      latestBet
+      latestBet && latestBet.eventState === SharesEventState.Pending
         ? latestBet
         : undefined,
-    [ongoingBets, localSharesEventState, latestBet]
+    [latestBet]
   );
 
   const isFetching = useRef(false);
@@ -116,13 +112,12 @@ export const CreateBet = ({
 
   const currentBetIsActiveAndHasFunds = useMemo(
     () =>
-      localSharesEventState !== undefined &&
-      ongoingBets?.length > 0 &&
+      latestBet?.eventState !== undefined &&
       pool > BigInt(0) &&
-      localSharesEventState !== SharesEventState.Payout &&
-      localSharesEventState !== SharesEventState.PayoutPrevious &&
-      localSharesEventState !== SharesEventState.Pending,
-    [pool, ongoingBets, localSharesEventState]
+      latestBet?.eventState !== SharesEventState.Payout &&
+      latestBet?.eventState !== SharesEventState.PayoutPrevious &&
+      latestBet?.eventState !== SharesEventState.Pending,
+    [pool, latestBet]
   );
 
   const { closeSharesEvents } = useCloseSharesEvent({
@@ -134,10 +129,7 @@ export const CreateBet = ({
 
   const _postSharesEvent = useCallback(
     async (sharesSubjectQuestion: string) => {
-      if (
-        ongoingBets.length > 0 &&
-        localSharesEventState === SharesEventState.Payout
-      ) {
+      if (latestBet?.eventState === SharesEventState.Payout) {
         await updateSharesEvent({
           id: latestBet?.id ?? "",
           sharesSubjectQuestion: latestBet?.sharesSubjectQuestion ?? "",
@@ -147,9 +139,9 @@ export const CreateBet = ({
         });
       }
       if (
-        ongoingBets.length > 0 &&
+        latestBet &&
         pool === BigInt(0) &&
-        localSharesEventState !== SharesEventState.Pending
+        latestBet?.eventState !== SharesEventState.Pending
       ) {
         await closeSharesEvents({
           chainId: localNetwork.config.chainId,
@@ -170,8 +162,7 @@ export const CreateBet = ({
       await refetchChannel().then(() => handleLoading(undefined));
     },
     [
-      ongoingBets.length,
-      localSharesEventState,
+      latestBet,
       channelQueryData,
       question,
       user,

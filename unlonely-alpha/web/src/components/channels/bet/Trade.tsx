@@ -60,7 +60,7 @@ const Trade = () => {
   const { channel, chat: chatContext, ui } = useChannelContext();
   const { channelQueryData, latestBet } = channel;
   const { addToChatbot } = chatContext;
-  const { tradeLoading, localSharesEventState } = ui;
+  const { tradeLoading } = ui;
 
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
@@ -91,13 +91,13 @@ const Trade = () => {
   useEffect(() => {
     if (
       userAddress === channelQueryData?.owner.address &&
-      localSharesEventState === SharesEventState.Pending
+      latestBet?.eventState === SharesEventState.Pending
     ) {
       setViewState("create");
     } else {
       setViewState("normal");
     }
-  }, [userAddress, localSharesEventState]);
+  }, [userAddress, latestBet]);
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
@@ -172,12 +172,12 @@ const Trade = () => {
   );
 
   const isSharesEventPending =
-    localSharesEventState === SharesEventState.Pending;
-  const isSharesEventLive = localSharesEventState === SharesEventState.Live;
-  const isSharesEventLock = localSharesEventState === SharesEventState.Lock;
-  const isSharesEventPayout = localSharesEventState === SharesEventState.Payout;
+    latestBet?.eventState === SharesEventState.Pending;
+  const isSharesEventLive = latestBet?.eventState === SharesEventState.Live;
+  const isSharesEventLock = latestBet?.eventState === SharesEventState.Lock;
+  const isSharesEventPayout = latestBet?.eventState === SharesEventState.Payout;
   const isSharesEventPayoutPrevious =
-    localSharesEventState === SharesEventState.PayoutPrevious;
+    latestBet?.eventState === SharesEventState.PayoutPrevious;
   const isOwner = userAddress === channelQueryData?.owner.address;
   const eventEndTimestampPassed = Number(eventEndTimestamp) * 1000 <= dateNow;
   const isEventOver = eventEndTimestampPassed || isSharesEventPayout;
