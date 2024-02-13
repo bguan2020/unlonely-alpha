@@ -25,7 +25,7 @@ import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
 import theme from "../styles/theme";
 import { NetworkProvider } from "../hooks/context/useNetwork";
 import { CacheProvider } from "../hooks/context/useCache";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+// import { SpeedInsights } from "@vercel/speed-insights/next";
 
 interface InitialProps {
   cookies: Cookies;
@@ -102,7 +102,7 @@ function App({ Component, pageProps, cookies }: Props) {
                       }}
                     >
                       <Component {...pageProps} />
-                      <SpeedInsights />
+                      {/* <SpeedInsights /> */}
                     </LivepeerConfig>
                   </CacheProvider>
                 </NetworkProvider>
