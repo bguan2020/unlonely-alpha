@@ -1,0 +1,9 @@
+{
+    "version": 2,
+    "functions": {
+      "pages/channels/**/*": {
+        "runtime": "edge",
+        "maxDuration": 200
+      }
+    }
+  }

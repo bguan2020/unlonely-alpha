@@ -523,7 +523,7 @@ const OpenEventInterface = ({
           address: userAddress ?? "",
           taskType: InteractionType.EVENT_LIVE,
           title: "Event is live!",
-          description: "event-live",
+          description: `${pendingBetId}:${pendingBet?.sharesSubjectQuestion}:${pendingBet?.sharesSubjectAddress}:${pendingBet?.options?.[0]}:${pendingBet?.options?.[1]}:${pendingBet?.chainId}:${pendingBet.channelId}`,
         });
         canAddToChatbot.current = false;
         handleClose();
