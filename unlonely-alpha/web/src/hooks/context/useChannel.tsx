@@ -322,7 +322,7 @@ export const ChannelProvider = ({
     const latestBet = ongoingBets[0];
     const eventState = latestBet?.eventState;
     if (eventState !== undefined && eventState !== null)
-      setLocalSharesEventState(eventState);
+      handleLocalSharesEventState(eventState);
   }, [ongoingBets]);
 
   useEffect(() => {
