@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Log, createPublicClient, parseAbiItem, http } from "viem";
 import { useContractEvent } from "wagmi";
-import { useApolloClient } from "@apollo/client";
 import { base } from "viem/chains";
 
 import { VibesTokenTx } from "../../constants/types";
-import { GET_USER_QUERY } from "../../constants/queries";
 import { getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "./useUserAgent";
 import { NETWORKS } from "../../constants/networks";
@@ -13,7 +11,6 @@ import { AVERAGE_BLOCK_TIME_SECS, CREATION_BLOCK, SECONDS_PER_HOUR } from "../..
 
 export const useVibesCheck = () => {
   const { isStandalone } = useUserAgent();
-  const client = useApolloClient();
   const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
   const [loading, setLoading] = useState(true);
   const contract = getContractFromNetwork("vibesTokenV1", NETWORKS[0]);
@@ -21,22 +18,8 @@ export const useVibesCheck = () => {
     Map<string, {index: number | undefined, blockNumber: number}>
   >(new Map());
   const fetching = useRef(false);
-  const [hashMapState, setHashMapState] = useState<Map<string, string>>(
-    new Map()
-  );
-  const [currentBlockNumberForVibes, setCurrentBlockNumberForVibes] = useState<bigint>(BigInt(0));
 
-  const _getEnsName = async (address: `0x${string}`) => {
-    try {
-      const { data } = await client.query({
-        query: GET_USER_QUERY,
-        variables: { data: { address } },
-      });
-      return data.getUser.username ?? data.getUser.address;
-    } catch (e) {
-      return address;
-    }
-  };
+  const [currentBlockNumberForVibes, setCurrentBlockNumberForVibes] = useState<bigint>(BigInt(0));
 
   const eventQueueRef = useRef<Log[]>([]);
 
@@ -109,20 +92,11 @@ export const useVibesCheck = () => {
     const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
     const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
     const newPrice = priceForCurrent - priceForPrevious;
-
-    const user =
-      hashMapState.get(log?.args.account as `0x${string}`) ??
-      (await _getEnsName(log?.args.account as `0x${string}`));
-    if (!hashMapState.get(log?.args.account as `0x${string}`)) {
-      setHashMapState((prev) => {
-        return new Map([...prev, [log?.args.account as `0x${string}`, user]]);
-      });
-    }
     const previousTxPrice =
       tokenTxs.length > 0 ? tokenTxs[tokenTxs.length - 1].price : 0;
     const eventTx: VibesTokenTx = {
       eventName: eventName,
-      user,
+      user: (log?.args.account as `0x${string}`),
       amount: log?.args.amount as bigint,
       price: newPrice,
       blockNumber: Number(log?.blockNumber as bigint),
@@ -178,7 +152,6 @@ export const useVibesCheck = () => {
         return 0;
       });
       const _tokenTxs: VibesTokenTx[] = [];
-      const uniqueUsers = new Set<string>();
       for (let i = 0; i < logs.length; i++) {
         const event = logs[i];
         const n = Number(event.args.totalSupply as bigint);
@@ -201,28 +174,10 @@ export const useVibesCheck = () => {
               : 0,
         };
         _tokenTxs.push(tx);
-        uniqueUsers.add(tx.user);
       }
-      const promises = Array.from(uniqueUsers).map((u) =>
-        _getEnsName(u as `0x${string}`)
-      );
-      const names = await Promise.all(promises).then((res) => {
-        return res;
-      });
-      const nameHashMap = createHashmap(
-        Array.from(uniqueUsers),
-        names as string[]
-      );
-      const namedTokenTxs = _tokenTxs.map((tx: VibesTokenTx) => {
-        return {
-          ...tx,
-          user: nameHashMap.get(tx.user) ?? tx.user,
-        };
-      });
       fetching.current = false;
-      console.log("setting token txs,", namedTokenTxs.length, "count");
-      setHashMapState(nameHashMap);
-      setTokenTxs(namedTokenTxs);
+      console.log("setting token txs,", _tokenTxs.length, "count");
+      setTokenTxs(_tokenTxs);
       setLoading(false);
     };
     getVibesEvents();
