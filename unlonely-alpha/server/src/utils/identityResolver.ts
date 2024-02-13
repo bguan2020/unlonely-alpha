@@ -93,14 +93,14 @@ export const fetchSocial = async (
     if (ens !== null && ens !== undefined) {
       newData.username = ens;
     }
-    if (fc !== null && fc !== undefined) {
-      newData.FCImageUrl = fc.profileImageContentValue.image.small;
-      newData.isFCUser = true;
+    if (fc !== null && fc !== undefined && fc?.profileImageContentValue?.image?.small !== null && fc?.profileImageContentValue?.image?.small !== undefined) {
+        newData.FCImageUrl = fc.profileImageContentValue.image.small;
+        newData.isFCUser = true;
     } else {
       newData.FCImageUrl = "";
       newData.isFCUser = false;
     }
-    if (lens !== null && lens !== undefined) {
+    if (lens !== null && lens !== undefined && lens?.profileHandle !== null && lens?.profileHandle !== undefined && lens?.profileImageContentValue?.image?.small !== null && lens?.profileImageContentValue?.image?.small !== undefined) {
       newData.lensHandle = lens.profileHandle;
       newData.lensImageUrl = lens.profileImageContentValue.image.small;
       newData.isLensUser = true;
