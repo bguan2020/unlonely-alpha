@@ -266,7 +266,15 @@ const ChatForm = ({
                           _active={{ transform: "scale(1.3)" }}
                           minWidth="auto"
                           onClick={() => {
-                            if (user) {
+                            if (!channelQueryData?.allowNFCs) {
+                              toast({
+                                title: "Clipping is disabled for this stream.",
+                                status: "warning",
+                                duration: 9000,
+                                isClosable: true,
+                                position: "bottom",
+                              });
+                            } else if (user) {
                               handleIsClipUiOpen(true);
                             } else {
                               toastSignIn();

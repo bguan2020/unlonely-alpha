@@ -252,7 +252,7 @@ export const useChatBox = (
         handleIsClipUiOpen(true);
         allowPublish = false;
       } else {
-        messageToPublish = "NFCs are not allowed on this channel.";
+        messageToPublish = "Clipping is disabled for this stream.";
         allowPublish = true;
       }
     } else if (messageText.startsWith(BaseChatCommand.RULES)) {
