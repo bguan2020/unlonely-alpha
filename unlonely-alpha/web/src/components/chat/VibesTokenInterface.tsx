@@ -389,120 +389,115 @@ const VibesTokenInterface = ({
   };
 
   const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const [asyncData, setAsyncData] = useState(null);
-      const [loading, setLoading] = useState(false);
-      const [lastDataKey, setLastDataKey] = useState<`0x${string}` | null>(
-        null
-      );
+    const [asyncData, setAsyncData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [lastDataKey, setLastDataKey] = useState<`0x${string}` | null>(null);
 
-      useEffect(() => {
+    useEffect(() => {
+      // Early return if not active or payload is not as expected
+      if (!(active && payload && payload.length && payload[0].payload.user)) {
+        setLoading(false);
+        return;
+      }
+      const handler = setTimeout(async () => {
         setLoading(true);
-        const handler = setTimeout(async () => {
-          if (active && payload && payload.length && payload[0].payload.user) {
-            if (payload[0].payload.user === lastDataKey) {
-              setLoading(false);
-              return;
-            }
-            await client
-              .query({
-                query: GET_USER_QUERY,
-                variables: { data: { address: payload[0].payload.user } },
-              })
-              .then(({ data }) => {
-                setLoading(false);
-                setAsyncData(
-                  data?.getUser?.username ?? payload[0].payload.user
-                );
-              });
+        if (payload[0].payload.user === lastDataKey) {
+          setLoading(false);
+          return;
+        }
+
+        await client
+          .query({
+            query: GET_USER_QUERY,
+            variables: { data: { address: payload[0].payload.user } },
+          })
+          .then(({ data }) => {
+            setAsyncData(data?.getUser?.username ?? payload[0].payload.user);
             setLastDataKey(payload[0].payload.user);
-          }
-        }, 300);
+            setLoading(false);
+          });
+      }, 300);
 
-        return () => {
-          clearTimeout(handler);
-        };
-      }, [payload]);
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [active, payload, lastDataKey]);
 
-      const percentage = Number(
-        truncateValue(
-          payload[0].payload.priceChangePercentage,
-          2,
-          true,
-          2,
-          false
-        )
-      );
-      return (
-        <Flex
-          direction="column"
-          bg="rgba(0, 0, 0, 0.5)"
-          p="5px"
-          borderRadius="15px"
-        >
-          <>
-            {asyncData !== null ? (
-              <>
-                {isAddress(asyncData) ? (
-                  <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
-                    {centerEllipses(asyncData, 10)}
-                  </Text>
-                ) : (
-                  <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
-                    {asyncData}
-                  </Text>
-                )}
-              </>
-            ) : (
-              <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
-                {centerEllipses(payload[0].payload.user, 10)}
-              </Text>
-            )}
-          </>
-          {payload[0].payload.event !== "" && (
+    // Conditional rendering moved outside of hook logic
+    if (!(active && payload && payload.length)) {
+      return null;
+    }
+
+    const percentage = Number(
+      truncateValue(payload[0].payload.priceChangePercentage, 2, true, 2, false)
+    );
+    return (
+      <Flex
+        direction="column"
+        bg="rgba(0, 0, 0, 0.5)"
+        p="5px"
+        borderRadius="15px"
+      >
+        <>
+          {asyncData !== null ? (
             <>
-              <Text
-                color={
-                  payload[0].payload.event === "Mint" ? "#46a800" : "#fe2815"
-                }
-              >{`${
-                payload[0].payload.event === "Mint" ? "Bought" : "Sold"
-              } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
-              {payload[0].payload.priceInUsd !== undefined ? (
-                <>
-                  <Text>{`$${truncateValue(
-                    payload[0].payload.priceInUsd,
-                    4
-                  )}`}</Text>
-                  <Text fontSize="10px" opacity="0.75">{`${truncateValue(
-                    formatUnits(payload[0].payload.price, 18),
-                    10
-                  )} ETH`}</Text>
-                </>
+              {isAddress(asyncData) ? (
+                <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
+                  {centerEllipses(asyncData, 10)}
+                </Text>
               ) : (
-                <Text>{`${truncateValue(
+                <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
+                  {asyncData}
+                </Text>
+              )}
+            </>
+          ) : (
+            <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
+              {centerEllipses(payload[0].payload.user, 10)}
+            </Text>
+          )}
+        </>
+        {payload[0].payload.event !== "" && (
+          <>
+            <Text
+              color={
+                payload[0].payload.event === "Mint" ? "#46a800" : "#fe2815"
+              }
+            >{`${
+              payload[0].payload.event === "Mint" ? "Bought" : "Sold"
+            } ${truncateValue(payload[0].payload.amount, 0)}`}</Text>
+            {payload[0].payload.priceInUsd !== undefined ? (
+              <>
+                <Text>{`$${truncateValue(
+                  payload[0].payload.priceInUsd,
+                  4
+                )}`}</Text>
+                <Text fontSize="10px" opacity="0.75">{`${truncateValue(
                   formatUnits(payload[0].payload.price, 18),
                   10
                 )} ETH`}</Text>
-              )}
-              {percentage !== 0 && isFullChart && (
-                <Text
-                  color={
-                    payload[0].payload.priceChangePercentage > 0
-                      ? "#46a800"
-                      : "#fe2815"
-                  }
-                >{`${
-                  payload[0].payload.priceChangePercentage > 0 ? "+" : ""
-                }${percentage}%`}</Text>
-              )}
-            </>
-          )}
-        </Flex>
-      );
-    }
-
-    return null;
+              </>
+            ) : (
+              <Text>{`${truncateValue(
+                formatUnits(payload[0].payload.price, 18),
+                10
+              )} ETH`}</Text>
+            )}
+            {percentage !== 0 && isFullChart && (
+              <Text
+                color={
+                  payload[0].payload.priceChangePercentage > 0
+                    ? "#46a800"
+                    : "#fe2815"
+                }
+              >{`${
+                payload[0].payload.priceChangePercentage > 0 ? "+" : ""
+              }${percentage}%`}</Text>
+            )}
+          </>
+        )}
+      </Flex>
+    );
   };
 
   const customBrushFormatter = (blockNumber: number) => {
@@ -1107,6 +1102,7 @@ const VibesTokenInterface = ({
                           .map((key) => {
                             return (
                               <ReferenceLine
+                                key={key}
                                 strokeDasharray="3 3"
                                 x={
                                   chartTimeIndexes.get(key)
