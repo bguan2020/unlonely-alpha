@@ -44,9 +44,11 @@ import { ApolloError } from "@apollo/client";
 
 const ChannelDetail = ({
   channelData,
+  channelDataLoading,
   channelDataError,
 }: {
   channelData: ChannelStaticQuery;
+  channelDataLoading: boolean;
   channelDataError?: ApolloError;
 }) => {
   const { isStandalone } = useUserAgent();
@@ -61,11 +63,13 @@ const ChannelDetail = ({
       {!isStandalone ? (
         <DesktopPage
           channelSSR={channelSSR}
+          channelSSRDataLoading={channelDataLoading}
           channelSSRDataError={channelDataError}
         />
       ) : (
         <MobilePage
           channelSSR={channelSSR}
+          channelSSRDataLoading={channelDataLoading}
           channelSSRDataError={channelDataError}
         />
       )}
@@ -75,9 +79,11 @@ const ChannelDetail = ({
 
 const DesktopPage = ({
   channelSSR,
+  channelSSRDataLoading,
   channelSSRDataError,
 }: {
   channelSSR: ChannelStaticQuery["getChannelBySlug"];
+  channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
   const { channel, leaderboard } = useChannelContext();
@@ -92,8 +98,6 @@ const DesktopPage = ({
     handleChannelStaticData,
   } = channel;
   const { handleIsVip } = leaderboard;
-
-  const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
 
   const { userAddress, walletIsConnected } = useUser();
 
@@ -189,7 +193,10 @@ const DesktopPage = ({
         description={channelSSR?.description}
         isCustomHeader={true}
       >
-        {!queryLoading && !channelDataError && !channelSSRDataError ? (
+        {!channelDataLoading &&
+        !channelDataError &&
+        !channelSSRDataError &&
+        !channelSSRDataLoading ? (
           <>
             <ChannelWideModals ablyChannel={chat.channel} />
             <Stack
@@ -276,7 +283,7 @@ const DesktopPage = ({
             height="calc(100vh - 64px)"
             fontSize="50px"
           >
-            {!channelDataError ? (
+            {!channelDataError && !channelSSRDataError ? (
               <WavyText text="loading..." />
             ) : (
               <Text fontFamily="LoRes15">
@@ -292,9 +299,11 @@ const DesktopPage = ({
 
 const MobilePage = ({
   channelSSR,
+  channelSSRDataLoading,
   channelSSRDataError,
 }: {
   channelSSR: ChannelStaticQuery["getChannelBySlug"];
+  channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
   const { channel, leaderboard } = useChannelContext();
@@ -310,8 +319,6 @@ const MobilePage = ({
   const { handleIsVip } = leaderboard;
 
   const chat = useChat();
-
-  const queryLoading = useMemo(() => channelDataLoading, [channelDataLoading]);
 
   const { userAddress } = useUser();
 
@@ -411,7 +418,10 @@ const MobilePage = ({
         description={channelSSR?.description}
         isCustomHeader={true}
       >
-        {!queryLoading && !channelDataError && !channelSSRDataError ? (
+        {!channelDataLoading &&
+        !channelDataError &&
+        !channelSSRDataError &&
+        !channelSSRDataLoading ? (
           <>
             {(previewStream || !isOwner) && <ChannelViewerPerspective mobile />}
             <ChannelWideModals ablyChannel={chat.channel} />
@@ -430,7 +440,7 @@ const MobilePage = ({
             height="100vh"
             fontSize="50px"
           >
-            {!channelDataError ? (
+            {!channelDataError && !channelSSRDataError ? (
               <>
                 <Image
                   src="/icons/icon-192x192.png"
@@ -462,12 +472,16 @@ export async function getServerSideProps(
 
   const apolloClient = initializeApollo(null, context.req.cookies, true);
 
-  const { data, error } = await apolloClient.query({
+  const { data, loading, error } = await apolloClient.query({
     query: CHANNEL_STATIC_QUERY,
     variables: { slug },
   });
 
-  console.log("serverside data", data, "error", error);
-
-  return { props: { channelData: data, channelDataError: error } };
+  return {
+    props: {
+      channelData: data ?? null,
+      channelDataLoading: loading,
+      channelDataError: error ?? null,
+    },
+  };
 }
