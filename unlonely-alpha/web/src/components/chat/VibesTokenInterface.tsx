@@ -444,13 +444,19 @@ const VibesTokenInterface = ({
             {asyncData !== null ? (
               <>
                 {isAddress(asyncData) ? (
-                  <Text>{centerEllipses(asyncData, 10)}</Text>
+                  <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
+                    {centerEllipses(asyncData, 10)}
+                  </Text>
                 ) : (
-                  <Text>{asyncData}</Text>
+                  <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
+                    {asyncData}
+                  </Text>
                 )}
               </>
             ) : (
-              <Text>{centerEllipses(payload[0].payload.user, 10)}</Text>
+              <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
+                {centerEllipses(payload[0].payload.user, 10)}
+              </Text>
             )}
           </>
           {payload[0].payload.event !== "" && (
@@ -516,8 +522,6 @@ const VibesTokenInterface = ({
     const timeDifferenceInHours = Math.floor(timeDifferenceInSeconds / 60 / 60);
     return `~${timeDifferenceInHours}h ago`;
   };
-
-  console.log(lowerPrice, higherPrice, "lower and higher price");
 
   return (
     <>

@@ -15,6 +15,7 @@ import {
 } from "../../constants";
 import { Flex, Box, Text, useToast } from "@chakra-ui/react";
 import { useUser } from "../context/useUser";
+import { useRouter } from "next/router";
 
 export const useVibesCheck = () => {
   const { userAddress } = useUser();
@@ -27,6 +28,7 @@ export const useVibesCheck = () => {
   >(new Map());
   const fetching = useRef(false);
   const toast = useToast();
+  const router = useRouter();
 
   const { data: vibesBalance, refetch: refetchVibesBalance } = useBalance({
     address: userAddress,
@@ -134,10 +136,16 @@ export const useVibesCheck = () => {
 
   useEffect(() => {
     const getVibesEvents = async () => {
+      const pathnameAccepted =
+        router.pathname.startsWith("/channels") ||
+        router.pathname.startsWith("/vibes") ||
+        router.pathname === "/";
       if (
         !baseClient ||
         !contract.address ||
         fetching.current ||
+        !pathnameAccepted ||
+        tokenTxs.length > 0 ||
         isStandalone
       ) {
         fetching.current = false;
@@ -199,7 +207,7 @@ export const useVibesCheck = () => {
       setLoading(false);
     };
     getVibesEvents();
-  }, [baseClient, contract.address]);
+  }, [baseClient, contract.address, router]);
 
   useEffect(() => {
     const init = async () => {
