@@ -1,10 +1,11 @@
-import { usePublicClient } from "wagmi";
+import { useContractWrite, usePublicClient, useWaitForTransaction } from "wagmi";
 import { useState, useCallback, useEffect } from "react";
 
 import { ContractData, WriteCallbacks } from "../../constants/types";
 import { NULL_ADDRESS } from "../../constants";
 import { useWrite } from "./useWrite";
 import { createCallbackHandler } from "../../utils/contract";
+import { Hex, TransactionReceipt } from "viem";
 
 export const useReadPublic = (contract: ContractData) => {
   const publicClient = usePublicClient();
@@ -255,5 +256,109 @@ export const useTransfer = (
     transferTxData,
     transferTxLoading,
     isRefetchingTransfer,
+  };
+}
+
+export const useUnpreparedMint = (
+  args: {
+    amount: bigint;
+    streamer: string;
+    value: bigint;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks,
+  overrides?: { value?: bigint; gas?: bigint; }
+) => {
+  const {
+    data: writeData,
+    error: writeError,
+    write
+    } = useContractWrite({
+    ...contract,
+    functionName: "mint",
+    args: [args.amount, args.streamer],
+    gas: overrides?.gas,
+    value: args.value,
+    onSuccess(data: { hash: Hex }) {
+      if (callbacks?.onWriteSuccess) callbacks?.onWriteSuccess(data);
+    },
+    onError(error: Error) {
+      if (callbacks?.onWriteError) callbacks?.onWriteError(error);
+    }}
+  );
+
+  const {
+    data: txData,
+    error: txError,
+    isLoading: isTxLoading,
+    isSuccess: isTxSuccess,
+  } = useWaitForTransaction({
+    hash: writeData?.hash,
+    onSuccess(data: TransactionReceipt) {
+      if (callbacks?.onTxSuccess) callbacks?.onTxSuccess(data);
+    },
+    onError(error: Error) {
+      if (callbacks?.onTxError) callbacks?.onTxError(error);
+    },
+  });
+
+  return {
+    write,
+    writeData,
+    txData,
+    isTxLoading,
+    isTxSuccess,
+    writeError,
+    txError,
+  };
+}
+
+export const useUnpreparedBurn = (
+  args: {
+    amount: bigint;
+    streamer: string;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks,
+) => {
+  const {
+    data: writeData,
+    error: writeError,
+    write
+    } = useContractWrite({
+    ...contract,
+    functionName: "burn",
+    args: [args.amount, args.streamer],
+    onSuccess(data: { hash: Hex }) {
+      if (callbacks?.onWriteSuccess) callbacks?.onWriteSuccess(data);
+    },
+    onError(error: Error) {
+      if (callbacks?.onWriteError) callbacks?.onWriteError(error);
+    }}
+  );
+
+  const {
+    data: txData,
+    error: txError,
+    isLoading: isTxLoading,
+    isSuccess: isTxSuccess,
+  } = useWaitForTransaction({
+    hash: writeData?.hash,
+    onSuccess(data: TransactionReceipt) {
+      if (callbacks?.onTxSuccess) callbacks?.onTxSuccess(data);
+    },
+    onError(error: Error) {
+      if (callbacks?.onTxError) callbacks?.onTxError(error);
+    },
+  });
+
+  return {
+    write,
+    writeData,
+    txData,
+    isTxLoading,
+    isTxSuccess,
+    writeError,
+    txError,
   };
 }

@@ -38,6 +38,18 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 
+const mintErrors: { [key: string]: string } = {
+  InsufficientValue:
+    "The price you want to buy at has changed, please try again",
+  EtherTransferFailed: "An internal transfer of ETH failed, please try again",
+};
+
+const burnErrors: { [key: string]: string } = {
+  BurnAmountTooHigh:
+    "You are trying to sell more $VIBES than what you actually have",
+  EtherTransferFailed: "An internal transfer of ETH failed, please try again",
+};
+
 const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { isStandalone } = useUserAgent();
   const { walletIsConnected, userAddress, user } = useUser();
@@ -114,6 +126,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         canAddToChatbot_mint.current = true;
       },
       onWriteError: (error) => {
+        console.log("mint write error", error);
         toast({
           duration: 9000,
           isClosable: true,
@@ -169,12 +182,19 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
       },
       onTxError: (error) => {
         console.log("mint error", error);
+        let message =
+          "Unknown error, please check the explorer for more details";
+        Object.keys(mintErrors).forEach((key) => {
+          if (String(error).includes(key)) {
+            message = mintErrors[key];
+          }
+        });
         toast({
           render: () => (
-            <Box as="button" borderRadius="md" bg="#b82929" px={4}>
+            <Box as="button" borderRadius="md" bg="#b82929" p={2}>
               <Flex direction="column">
                 <Text>mint error</Text>
-                <Text fontSize="15px">{error?.message ?? "unknown error"}</Text>
+                <Text fontSize="15px">{message}</Text>
               </Flex>
             </Box>
           ),
@@ -220,6 +240,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         canAddToChatbot_burn.current = true;
       },
       onWriteError: (error) => {
+        console.log("burn write error", error);
         toast({
           duration: 9000,
           isClosable: true,
@@ -273,12 +294,19 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
       },
       onTxError: (error) => {
         console.log("burn error", error);
+        let message =
+          "Unknown error, please check the explorer for more details";
+        Object.keys(burnErrors).forEach((key) => {
+          if (String(error).includes(key)) {
+            message = burnErrors[key];
+          }
+        });
         toast({
           render: () => (
-            <Box as="button" borderRadius="md" bg="#b82929" px={4}>
+            <Box as="button" borderRadius="md" bg="#b82929" p={2}>
               <Flex direction="column">
                 <Text>burn error</Text>
-                <Text fontSize="15px">{error?.message ?? "unknown error"}</Text>
+                <Text fontSize="15px">{message}</Text>
               </Flex>
             </Box>
           ),
