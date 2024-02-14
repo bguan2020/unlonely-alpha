@@ -317,8 +317,6 @@ export const ChannelProvider = ({
     }
   }, [channelQueryData?.roles]);
 
-  console.log(latestBet);
-
   useEffect(() => {
     if (!ongoingBets || ongoingBets.length === 0) return;
     const latestBet = ongoingBets[0];

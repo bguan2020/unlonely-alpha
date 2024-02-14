@@ -1,4 +1,4 @@
-import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
+import { ApolloError, useLazyQuery } from "@apollo/client";
 import {
   createContext,
   useCallback,
@@ -18,13 +18,18 @@ import {
   CHANNEL_FEED_QUERY,
   GET_UNCLAIMED_EVENTS_QUERY,
 } from "../../constants/queries";
-import { GetUnclaimedEventsQuery, SharesEvent } from "../../generated/graphql";
+import {
+  GetChannelFeedQuery,
+  GetUnclaimedEventsQuery,
+  SharesEvent,
+} from "../../generated/graphql";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "./useNetwork";
 import { useUser } from "./useUser";
 import { useVibesCheck } from "../internal/useVibesCheck";
 import { FetchBalanceResult, VibesTokenTx } from "../../constants/types";
 import { getCoingeckoTokenPrice } from "../../utils/coingecko";
+import { useRouter } from "next/router";
 
 type UnclaimedBet = SharesEvent & {
   payout: bigint;
@@ -96,6 +101,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     currentBlockNumberForVibes,
   } = useVibesCheck();
   const [ethPriceInUsd, setEthPriceInUsd] = useState<string>("0");
+  const router = useRouter();
 
   const addAppError = useCallback(
     (error: Error, source: string) => {
@@ -120,16 +126,13 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     [appErrors]
   );
 
-  const {
-    data: dataChannels,
-    loading: feedLoading,
-    error,
-  } = useQuery(CHANNEL_FEED_QUERY, {
-    variables: {
-      data: {},
-    },
-    fetchPolicy: "cache-first",
-  });
+  const [getChannelFeed, { data: dataChannels, loading: feedLoading, error }] =
+    useLazyQuery<GetChannelFeedQuery>(CHANNEL_FEED_QUERY, {
+      variables: {
+        data: {},
+      },
+      fetchPolicy: "cache-first",
+    });
 
   const [getUnclaimedEvents] = useLazyQuery<GetUnclaimedEventsQuery>(
     GET_UNCLAIMED_EVENTS_QUERY,
@@ -137,6 +140,15 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       fetchPolicy: "network-only",
     }
   );
+
+  useEffect(() => {
+    const getChannelFeedData = async () => {
+      const pathnameAccepted =
+        router.pathname.startsWith("/claim") || router.pathname === "/";
+      if (!dataChannels && pathnameAccepted) getChannelFeed();
+    };
+    getChannelFeedData();
+  }, [router]);
 
   useEffect(() => {
     const init = async () => {
