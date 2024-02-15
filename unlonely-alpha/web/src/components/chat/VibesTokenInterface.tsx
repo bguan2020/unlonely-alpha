@@ -439,22 +439,28 @@ const VibesTokenInterface = ({
         borderRadius="15px"
       >
         <>
-          {asyncData !== null ? (
+          {loading ? (
+            <Text color={"#ffffff"}>
+              {centerEllipses(payload[0].payload.user, 10)}
+            </Text>
+          ) : (
             <>
-              {isAddress(asyncData) ? (
-                <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
-                  {centerEllipses(asyncData, 10)}
-                </Text>
+              {asyncData !== null ? (
+                <>
+                  {isAddress(asyncData) ? (
+                    <Text color={"#d7a7ff"}>
+                      {centerEllipses(asyncData, 10)}
+                    </Text>
+                  ) : (
+                    <Text color={"#d7a7ff"}>{asyncData}</Text>
+                  )}
+                </>
               ) : (
-                <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
-                  {asyncData}
+                <Text color={"#d7a7ff"}>
+                  {centerEllipses(payload[0].payload.user, 10)}
                 </Text>
               )}
             </>
-          ) : (
-            <Text color={!loading ? "#d7a7ff" : "#ffffff"}>
-              {centerEllipses(payload[0].payload.user, 10)}
-            </Text>
           )}
         </>
         {payload[0].payload.event !== "" && (
