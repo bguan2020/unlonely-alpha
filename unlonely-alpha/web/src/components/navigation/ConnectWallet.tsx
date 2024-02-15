@@ -80,14 +80,21 @@ const ConnectWallet = () => {
                     </Text>
                   </MenuButton>
                 </Flex>
-
                 <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
                   <MenuItem
                     bg={"#131323"}
                     _hover={{ bg: "#1f1f3c" }}
                     _focus={{}}
                     _active={{}}
-                    onClick={linkWallet}
+                    onClick={async () => {
+                      try {
+                        linkWallet();
+                      } catch (e) {
+                        console.log("linkWallet error, logging in first", e);
+                        login();
+                        linkWallet();
+                      }
+                    }}
                   >
                     connect
                   </MenuItem>
