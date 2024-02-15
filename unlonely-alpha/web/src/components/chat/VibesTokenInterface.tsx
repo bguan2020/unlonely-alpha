@@ -1213,8 +1213,8 @@ function prependStartMarker(data: ChartTokenTx[]): ChartTokenTx[] {
     user: "Start",
     event: "",
     amount: 0,
-    price: 0,
-    priceInUsd: 0,
+    price: data[0].price,
+    priceInUsd: data[0].priceInUsd,
     priceChangePercentage: 0,
     blockNumber: firstBlockNumber,
   };
