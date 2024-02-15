@@ -1207,11 +1207,13 @@ const VibesTokenInterface = ({
 };
 
 function prependStartMarker(data: ChartTokenTx[]): ChartTokenTx[] {
-  if (data.length === 0 || data[0].event === "") return data;
+  const eventNameForStartMarker = "Start"; // cannot be "Mint" or "Burn"
+  if (data.length === 0 || data[0].event === eventNameForStartMarker)
+    return data;
   const firstBlockNumber = data.length > 0 ? data[0].blockNumber : 0;
   const firstElement: ChartTokenTx = {
-    user: "Start",
-    event: "",
+    user: eventNameForStartMarker,
+    event: eventNameForStartMarker,
     amount: 0,
     price: data[0].price,
     priceInUsd: data[0].priceInUsd,
