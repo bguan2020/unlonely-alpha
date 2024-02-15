@@ -3,6 +3,7 @@ import { useLazyQuery } from "@apollo/client";
 import {
   ConnectedWallet,
   usePrivy,
+  useWallets,
   WalletWithMetadata,
 } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
@@ -51,6 +52,7 @@ export const UserProvider = ({
   const [username, setUsername] = useState<string | undefined>();
   const { ready, authenticated, user: privyUser, logout, login } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
+  const { wallets } = useWallets();
   const [differentWallet, setDifferentWallet] = useState(false);
   const [showTurnOnNotifications, setShowTurnOnNotificationsModal] = useState<
     "off" | "start" | "loading" | "granted" | "denied"
@@ -76,7 +78,29 @@ export const UserProvider = ({
     return wallet.walletClientType;
   }, [privyUser]);
 
-  const address = useMemo(() => privyUser?.wallet?.address, [privyUser]);
+  const address = useMemo(() => {
+    const filteredWallets = wallets?.filter(
+      (wallet) => wallet.walletClientType !== "privy"
+    );
+    const firstWallet = filteredWallets?.[0];
+    const isInLinkedAccounts = privyUser?.linkedAccounts?.find(
+      (account) =>
+        account.type === "wallet" && account.address === firstWallet?.address
+    );
+    if (isInLinkedAccounts) return firstWallet?.address;
+
+    const firstWalletFromFullArray = wallets?.[0];
+    const isInLinkedAccountsFromFullArray = privyUser?.linkedAccounts?.find(
+      (account) =>
+        account.type === "wallet" &&
+        account.address === firstWalletFromFullArray?.address
+    );
+    if (isInLinkedAccountsFromFullArray)
+      return firstWalletFromFullArray?.address;
+
+    return wallets?.[0]?.address;
+  }, [wallets, privyUser?.linkedAccounts]);
+
   const [fetchUser, { data }] = useLazyQuery(GET_USER_QUERY, {
     variables: { data: { address } },
     fetchPolicy: "network-only",
