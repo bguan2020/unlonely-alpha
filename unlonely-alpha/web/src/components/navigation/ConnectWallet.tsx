@@ -36,7 +36,7 @@ const ConnectWallet = () => {
   const router = useRouter();
   const { user, loginMethod } = useUser();
   const { isStandalone } = useUserAgent();
-  const { login, ready, linkWallet } = usePrivy();
+  const { login, ready, connectWallet, user: privyUser } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
 
   const redirectToBridge = useCallback(() => {
@@ -86,14 +86,8 @@ const ConnectWallet = () => {
                     _hover={{ bg: "#1f1f3c" }}
                     _focus={{}}
                     _active={{}}
-                    onClick={async () => {
-                      try {
-                        linkWallet();
-                      } catch (e) {
-                        console.log("linkWallet error, logging in first", e);
-                        login();
-                        linkWallet();
-                      }
+                    onClick={() => {
+                      privyUser ? connectWallet() : login();
                     }}
                   >
                     connect
@@ -143,7 +137,9 @@ const ConnectWallet = () => {
                   _hover={{ bg: "#1f1f3c" }}
                   _focus={{}}
                   _active={{}}
-                  onClick={login}
+                  onClick={() => {
+                    privyUser ? connectWallet() : login();
+                  }}
                 >
                   login
                 </MenuItem>
