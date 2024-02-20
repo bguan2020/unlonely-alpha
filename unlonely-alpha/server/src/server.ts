@@ -15,6 +15,14 @@ app.use(bodyParser.json());
 
 app.get("/", (_, res) => res.sendStatus(200));
 
+// Define a route to handle incoming webhook data
+app.post("/livepeer-webhook", (req, res) => {
+  const payload = req.body;
+  console.log("Received livepeer webhook data:", payload);
+  // Handle the webhook data here
+  res.sendStatus(200);
+});
+
 const startServer = async () => {
   const apolloServer = new ApolloServer({
     schema: graphqlSchema,
