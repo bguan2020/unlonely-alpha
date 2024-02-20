@@ -36,6 +36,7 @@ const LivepeerPlayer = memo(
             borderStyles: { containerBorderStyle: undefined },
             radii: { containerBorderRadius: "10px" },
           }}
+          autoPlay
         />
       </Flex>
     );
