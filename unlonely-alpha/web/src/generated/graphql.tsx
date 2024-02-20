@@ -101,6 +101,7 @@ export type Channel = {
   isLive?: Maybe<Scalars["Boolean"]>;
   livepeerPlaybackId?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
+  nfcs?: Maybe<Array<Maybe<Nfc>>>;
   owner: User;
   playbackUrl?: Maybe<Scalars["String"]>;
   response: Scalars["String"];
@@ -108,6 +109,7 @@ export type Channel = {
   sharesEvent?: Maybe<Array<Maybe<SharesEvent>>>;
   sideBets?: Maybe<Array<Maybe<SideBet>>>;
   slug: Scalars["String"];
+  softDelete?: Maybe<Scalars["Boolean"]>;
   thumbnailUrl?: Maybe<Scalars["String"]>;
   token?: Maybe<CreatorToken>;
   updatedAt: Scalars["DateTime"];
@@ -183,6 +185,7 @@ export type CloseSideBetInput = {
 
 export type CreateClipInput = {
   channelArn: Scalars["String"];
+  channelId: Scalars["ID"];
   title: Scalars["String"];
 };
 
@@ -195,6 +198,7 @@ export type CreateCreatorTokenInput = {
 };
 
 export type CreateLivepeerClipInput = {
+  channelId: Scalars["ID"];
   livepeerPlaybackId: Scalars["String"];
   title: Scalars["String"];
 };
@@ -353,6 +357,12 @@ export enum LikeObj {
   Nfc = "NFC",
 }
 
+export type MigrateChannelToLivepeerInput = {
+  canRecord?: InputMaybe<Scalars["Boolean"]>;
+  ownerAddress: Scalars["String"];
+  slug: Scalars["String"];
+};
+
 export type MoveChannelAlongSubscriptionInput = {
   channelId: Scalars["ID"];
   endpoint: Scalars["String"];
@@ -369,11 +379,13 @@ export type Mutation = {
   createCreatorToken: CreatorToken;
   createLivepeerClip?: Maybe<ClipNfcOutput>;
   handleLike?: Maybe<Likable>;
+  migrateChannelToLivepeer?: Maybe<Channel>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
   postBadgeTrade: GamblableInteraction;
   postBaseLeaderboard: BaseLeaderboard;
   postBet: GamblableInteraction;
   postBetTrade: GamblableInteraction;
+  postChannel?: Maybe<Channel>;
   postChatByAwsId?: Maybe<Chat>;
   postClaimPayout: GamblableInteraction;
   postDeviceToken?: Maybe<DeviceToken>;
@@ -438,6 +450,10 @@ export type MutationHandleLikeArgs = {
   data: HandleLikeInput;
 };
 
+export type MutationMigrateChannelToLivepeerArgs = {
+  data: MigrateChannelToLivepeerInput;
+};
+
 export type MutationPostBadgeTradeArgs = {
   data: PostBadgeTradeInput;
 };
@@ -452,6 +468,10 @@ export type MutationPostBetArgs = {
 
 export type MutationPostBetTradeArgs = {
   data: PostBetTradeInput;
+};
+
+export type MutationPostChannelArgs = {
+  data: PostChannelInput;
 };
 
 export type MutationPostChatByAwsIdArgs = {
@@ -572,6 +592,7 @@ export type MutationUpdateUserNotificationsArgs = {
 
 export type Nfc = Likable & {
   __typename?: "NFC";
+  channel: Channel;
   createdAt: Scalars["DateTime"];
   disliked?: Maybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
@@ -638,6 +659,15 @@ export type PostBetTradeInput = {
   userAddress: Scalars["String"];
 };
 
+export type PostChannelInput = {
+  allowNfcs?: InputMaybe<Scalars["Boolean"]>;
+  canRecord?: InputMaybe<Scalars["Boolean"]>;
+  description?: InputMaybe<Scalars["String"]>;
+  name?: InputMaybe<Scalars["String"]>;
+  ownerAddress: Scalars["String"];
+  slug: Scalars["String"];
+};
+
 export type PostChatByAwsIdInput = {
   awsId: Scalars["String"];
   text: Scalars["String"];
@@ -670,6 +700,7 @@ export type PostDeviceTokenInput = {
 };
 
 export type PostNfcInput = {
+  channelId: Scalars["ID"];
   openseaLink: Scalars["String"];
   title: Scalars["String"];
   videoLink: Scalars["String"];

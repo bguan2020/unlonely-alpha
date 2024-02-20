@@ -45,6 +45,7 @@ export const useClip = (
     handleIsClipUiOpen(false);
     const { res } = await createClip({
       title,
+      channelId: channelQueryData.id,
       livepeerPlaybackId: channelQueryData.livepeerPlaybackId,
       channelArn: channelQueryData.channelArn,
     });
@@ -68,6 +69,7 @@ export const useClip = (
       videoLink: clipUrl,
       videoThumbnail: clipThumbnail,
       title,
+      channelId: channelQueryData.id,
       openseaLink: "",
     });
     setLoading(false);
