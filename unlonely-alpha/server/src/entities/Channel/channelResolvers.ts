@@ -23,6 +23,23 @@ export const resolvers = {
     },
   },
   Mutation: {
+    postChannel: (
+      _: any,
+      { data }: { data: channelService.IPostChannelInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      return channelService.postChannel(data, ctx);
+    },
+    migrateChannelToLivepeer: (
+      _: any,
+      { data }: { data: channelService.IMigrateChannelToLivepeerInput },
+      ctx: Context
+    ) => {
+      return channelService.migrateChannelToLivepeer(data, ctx);
+    },
     closeSharesEvents: (
       _: any,
       { data }: { data: channelService.IPostCloseSharesEventsInput },
@@ -115,6 +132,9 @@ export const resolvers = {
     },
     roles: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelUserRolesByChannel({ id }, ctx);
+    },
+    nfcs: ({ id }: { id: number }, _: any, ctx: Context) => {
+      return channelService.getChannelNfcs({ id }, ctx);
     },
     sideBets: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelSideBets({ id }, ctx);

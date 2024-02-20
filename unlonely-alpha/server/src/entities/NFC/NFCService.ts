@@ -35,13 +35,8 @@ interface ClipResponse {
   };
 }
 
-type Source = {
-  hrn: string;
-  url: string;
-  type: string;
-};
-
 export interface IPostNFCInput {
+  channelId: string;
   title: string;
   videoLink: string;
   videoThumbnail: string;
@@ -58,11 +53,13 @@ export interface IUpdateNFCInput {
 
 export interface ICreateClipInput {
   title: string;
+  channelId: string;
   channelArn: string;
 }
 
 export interface ICreateLivepeerClipInput {
   title: string;
+  channelId: string;
   livepeerPlaybackId: string;
 }
 
@@ -80,6 +77,11 @@ export const postNFC = async (
       owner: {
         connect: {
           address: user.address,
+        },
+      },
+      channel: {
+        connect: {
+          id: Number(data.channelId),
         },
       },
     },
@@ -183,6 +185,7 @@ export const createClip = async (
         videoLink: url,
         videoThumbnail: thumbnail,
         openseaLink: "",
+        channelId: data.channelId,
       },
       ctx,
       user
@@ -274,6 +277,7 @@ export const createLivepeerClip = async (
         videoLink: playBackUrl,
         videoThumbnail: thumbNailUrl,
         openseaLink: "",
+        channelId: data.channelId,
       },
       ctx,
       user

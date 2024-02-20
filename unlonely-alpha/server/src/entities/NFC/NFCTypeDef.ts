@@ -13,6 +13,16 @@ export const typeDef = gql`
     owner: User!
     createdAt: DateTime!
     updatedAt: DateTime!
+    channel: Channel!
+  }
+
+  type Channel {
+    id: ID!
+    name: String
+    description: String
+    playbackUrl: String
+    owner: User!
+    slug: String!
   }
 
   type ClipOutput {
@@ -45,6 +55,7 @@ export const typeDef = gql`
   }
 
   input PostNFCInput {
+    channelId: ID!
     title: String!
     videoLink: String!
     videoThumbnail: String!
@@ -61,11 +72,13 @@ export const typeDef = gql`
 
   input CreateClipInput {
     title: String!
+    channelId: ID!
     channelArn: String!
   }
 
   input CreateLivepeerClipInput {
     title: String!
+    channelId: ID!
     livepeerPlaybackId: String!
   }
 

@@ -29,6 +29,118 @@ enum SharesEventState {
   PAYOUT_PREVIOUS = "PAYOUT_PREVIOUS",
 }
 
+const createLivepeerStream = async (name: string, canRecord?: boolean) => {
+  const headers = {
+    Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+    "Content-Type": "application/json",
+  };
+  try {
+    const creationResponse = await axios.post(
+      "https://livepeer.studio/api/stream",
+      {
+        name,
+        record: canRecord,
+      },
+      { headers }
+    );
+    return creationResponse.data.playbackId;
+  } catch (error: any) {
+    console.log("createLivepeerStream error", error);
+    return null;
+  }
+}
+
+export interface IPostChannelInput {
+  slug: string;
+  ownerAddress: string;
+  name?: string;
+  description?: string;
+  canRecord?: boolean;
+  allowNfcs?: boolean;
+}
+
+export const postChannel = async (
+  data: IPostChannelInput,
+  ctx: Context
+) => {
+  try {
+  const existingChannel = await ctx.prisma.channel.findFirst({
+    where: {
+      OR: [
+        { slug: data.slug },
+        { ownerAddr: data.ownerAddress },
+      ],
+    },
+  });
+
+  if (existingChannel) {
+    if (existingChannel.slug === data.slug) {
+      throw new Error("Channel with this slug already exists");
+    }
+    if (existingChannel.ownerAddr === data.ownerAddress) {
+      throw new Error("Channel with this address already exists");
+    }
+  }
+
+  const livepeerPlaybackId = await createLivepeerStream(data.slug, data.canRecord);
+
+  if (livepeerPlaybackId === null || livepeerPlaybackId === undefined || livepeerPlaybackId === "") {
+    throw new Error("Failed to create livepeer stream");
+  }
+
+  return ctx.prisma.channel.create({
+    data: {
+      slug: data.slug,
+      name: data.name ?? "",
+      description: data.description ?? "",
+      allowNFCs: data.allowNfcs,
+      channelArn: "",
+      playbackUrl: "",
+      ownerAddr: data.ownerAddress,
+      awsId: data.slug,
+      livepeerPlaybackId,
+    },
+  });
+  } catch (error: any) {
+  console.log("postChannel error", error);
+  throw error;
+  }
+};
+
+export interface IMigrateChannelToLivepeerInput {
+  slug: string;
+  ownerAddress: string;
+  canRecord?: boolean;
+}
+
+export const migrateChannelToLivepeer = async (data: IMigrateChannelToLivepeerInput, ctx: Context) => {
+  const existingChannel = await ctx.prisma.channel.findFirst({
+    where: {
+      OR: [
+        { slug: data.slug },
+        { ownerAddr: data.ownerAddress },
+      ],
+    },
+  });
+
+  if (!existingChannel) {
+    throw new Error("Channel not found");
+  }
+
+  const livepeerPlaybackId = await createLivepeerStream(data.slug);
+
+  if (livepeerPlaybackId === null || livepeerPlaybackId === undefined || livepeerPlaybackId === "") {
+    throw new Error("Failed to create livepeer stream");
+  }
+
+  return ctx.prisma.channel.update({
+    where: { id: existingChannel.id },
+    data: {
+      livepeerPlaybackId,
+    },
+  });
+}
+
 export const updateChannelText = (
   data: IPostChannelTextInput,
   ctx: Context
@@ -158,7 +270,9 @@ export const getChannelFeed = async (
   data: IGetChannelFeedInput,
   ctx: Context
 ) => {
-  const allChannels: Channel[] = await ctx.prisma.channel.findMany();
+  const allChannels: Channel[] = await ctx.prisma.channel.findMany({
+    where: { softDelete: false },
+  });
 
   // aws-sdk to find out whos currently live
   AWS.config.update({
@@ -438,6 +552,15 @@ export const getChannelUserRolesByChannel = async (
     },
   });
 };
+
+export const getChannelNfcs = async (
+  { id }: { id: number },
+  ctx: Context
+) => {
+  return ctx.prisma.nFC.findMany({
+    where: { channelId: Number(id) },
+  });
+}
 
 export const getChannelSideBets = async (
   { id }: { id: number },
