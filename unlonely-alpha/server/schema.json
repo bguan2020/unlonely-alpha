@@ -5203,18 +5203,6 @@
             "deprecationReason": null
           },
           {
-            "name": "playbackUrl",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "owner",
             "description": null,
             "args": [],
@@ -5276,6 +5264,18 @@
           },
           {
             "name": "livepeerPlaybackId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "playbackUrl",
             "description": null,
             "args": [],
             "type": {

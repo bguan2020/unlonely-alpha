@@ -20,7 +20,6 @@ export const typeDef = gql`
     id: ID!
     name: String
     description: String
-    playbackUrl: String
     owner: User!
     slug: String!
   }
