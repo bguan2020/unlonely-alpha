@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useChannelContext } from "../context/useChannel";
 import { Message, SenderStatus } from "../../constants/types/chat";
 import {
+  CHANGE_CHANNEL_DETAILS_EVENT,
   CHANGE_USER_ROLE_EVENT,
   CHAT_MESSAGE_EVENT,
   InteractionType,
@@ -47,7 +48,7 @@ export function useAblyChannel(
 export function useChannel(fixedChatName?: string) {
   const { userAddress } = useUser();
   const { channel: c, chat, ui } = useChannelContext();
-  const { channelQueryData, channelRoles, handleChannelRoles, handleLatestBet } =
+  const { channelRoles, handleChannelRoles, handleLatestBet, handleChannelDetails } =
     c;
   const { chatChannel } = chat;
   const { handleVibesTokenPriceRange, handleLocalSharesEventState } = ui;
@@ -65,7 +66,6 @@ export function useChannel(fixedChatName?: string) {
   const [localBanList, setLocalBanList] = useState<string[] | undefined>(
     undefined
   );
-  const isOwner = userAddress === channelQueryData?.owner?.address;
 
   const [channel, ably] = useAblyChannel(channelName, async (message) => {
     setHasMessagesLoaded(false);
@@ -82,6 +82,11 @@ export function useChannel(fixedChatName?: string) {
       const body = JSON.parse(message.data.body);
       handleChannelRoles(body.address, body.role, body.isAdding);
     }
+    if (message.name === CHANGE_CHANNEL_DETAILS_EVENT) {
+      console.log("message.data.body", message.data.body)
+      const body = JSON.parse(message.data.body);
+      handleChannelDetails(body.channelName, body.channelDescription);
+    }
     if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
       const newSliderValue = JSON.parse(message.data.body);
       handleVibesTokenPriceRange(newSliderValue);
@@ -97,13 +102,6 @@ export function useChannel(fixedChatName?: string) {
           const optionB = message.data.body.split(":")[5];
           const chainId = message.data.body.split(":")[6];
           const channelId = message.data.body.split(":")[7];
-          console.log("sharesSubjectQuestion", typeof sharesSubjectQuestion);
-          console.log("sharesSubjectAddress", typeof sharesSubjectAddress);
-          console.log("optionA", typeof optionA);
-          console.log("optionB", typeof optionB);
-          console.log("chainId", typeof chainId);
-          console.log("channelId", typeof channelId);
-          console.log("betId", typeof betId);
           handleLatestBet({
             id: (betId as string),
             sharesSubjectQuestion: (sharesSubjectQuestion as string),

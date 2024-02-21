@@ -15,17 +15,23 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import useUpdateChannelText from "../../hooks/server/useUpdateChannelText";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
+import {
+  AblyChannelPromise,
+  CHANGE_CHANNEL_DETAILS_EVENT,
+} from "../../constants";
 
 export default function EditChannelModal({
   title,
   isOpen,
   callback,
   handleClose,
+  ablyChannel,
 }: {
   title: string;
   isOpen: boolean;
   callback?: any;
   handleClose: () => void;
+  ablyChannel: AblyChannelPromise;
 }) {
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
@@ -43,11 +49,20 @@ export default function EditChannelModal({
     },
   });
 
-  const onSubmit = (data: UpdateChannelTextInput) => {
-    updateChannelText({
+  const onSubmit = async (data: UpdateChannelTextInput) => {
+    await updateChannelText({
       id: channelQueryData?.id,
       name: data.name,
       description: data.description,
+    });
+    ablyChannel?.publish({
+      name: CHANGE_CHANNEL_DETAILS_EVENT,
+      data: {
+        body: JSON.stringify({
+          channelName: data.name,
+          channelDescription: data.description,
+        }),
+      },
     });
     handleClose();
   };

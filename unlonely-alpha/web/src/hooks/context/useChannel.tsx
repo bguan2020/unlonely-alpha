@@ -47,6 +47,10 @@ const ChannelContext = createContext<{
     error?: ApolloError;
     refetchChannel: () => Promise<any>;
     totalBadges: string;
+    channelDetails: {
+      channelName: string;
+      channelDescription: string;
+    };
     channelRoles: Role[];
     handleTotalBadges: (value: string) => void;
     handleChannelRoles: (
@@ -56,6 +60,10 @@ const ChannelContext = createContext<{
     ) => void;
     handleChannelStaticData: (
       value: ChannelDetailQuery["getChannelBySlug"]
+    ) => void;
+    handleChannelDetails: (
+      channelName: string,
+      channelDescription: string
     ) => void;
   };
   chat: {
@@ -115,10 +123,15 @@ const ChannelContext = createContext<{
     error: undefined,
     refetchChannel: () => Promise.resolve(undefined),
     totalBadges: "0",
+    channelDetails: {
+      channelName: "",
+      channelDescription: "",
+    },
     channelRoles: [],
     handleTotalBadges: () => undefined,
     handleChannelRoles: () => undefined,
     handleChannelStaticData: () => undefined,
+    handleChannelDetails: () => undefined,
   },
   chat: {
     chatChannel: undefined,
@@ -263,6 +276,13 @@ export const ChannelProvider = ({
   const [vipPool, setVipPool] = useState<string>("0");
   const [tournamentActive, setTournamentActive] = useState<boolean>(false);
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
+  const [channelDetails, setChannelDetails] = useState<{
+    channelName: string;
+    channelDescription: string;
+  }>({
+    channelName: "",
+    channelDescription: "",
+  });
   const [channelRoles, setChannelRoles] = useState<Role[]>([]);
   const [latestBet, setLatestBet] = useState<SharesEvent | undefined>(
     undefined
@@ -322,6 +342,15 @@ export const ChannelProvider = ({
     const latestBet = ongoingBets[0];
     setLatestBet(latestBet);
   }, [ongoingBets]);
+
+  useEffect(() => {
+    if (channelQueryData) {
+      setChannelDetails({
+        channelName: channelQueryData.name ?? "",
+        channelDescription: channelQueryData.description ?? "",
+      });
+    }
+  }, [channelQueryData]);
 
   const handleVibesTokenPriceRange = useCallback((value: string[]) => {
     setVibesTokenPriceRange(value);
@@ -384,6 +413,15 @@ export const ChannelProvider = ({
     []
   );
 
+  const handleChannelDetails = useCallback(
+    (channelName: string, channelDescription: string) => {
+      if (channelQueryData) {
+        setChannelDetails({ channelName, channelDescription });
+      }
+    },
+    [channelQueryData]
+  );
+
   const handleChannelStaticData = useCallback(
     (value: ChannelDetailQuery["getChannelBySlug"]) => {
       setChannelStatic(value);
@@ -423,9 +461,11 @@ export const ChannelProvider = ({
         refetchChannel: refetchChannelInteractable,
         totalBadges,
         handleTotalBadges,
+        channelDetails,
         channelRoles: channelRoles,
         handleChannelRoles,
         handleChannelStaticData,
+        handleChannelDetails,
       },
       chat: {
         chatChannel: ablyChatChannel,
@@ -477,11 +517,13 @@ export const ChannelProvider = ({
       },
     }),
     [
+      channelDetails,
       channelRoles,
       channelQueryData,
       latestBet,
       handleLatestBet,
       handleChannelStaticData,
+      handleChannelDetails,
       channelInteractableLoading,
       channelInteractableError,
       refetchChannelInteractable,
@@ -571,6 +613,7 @@ export const ChannelWideModals = ({
         title={"edit title / description"}
         isOpen={showEditModal}
         handleClose={() => handleEditModal(false)}
+        ablyChannel={ablyChannel}
       />
       <NotificationsModal
         title={"send notifications"}

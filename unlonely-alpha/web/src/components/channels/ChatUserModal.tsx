@@ -54,6 +54,8 @@ export const ChatUserModal = ({
 
   const [isBanning, setIsBanning] = useState<boolean>(false);
   const [isAppointing, setIsAppointing] = useState<boolean>(false);
+  const [isRemovingModerator, setIsRemovingModerator] =
+    useState<boolean>(false);
   const [isSendingVibes, setIsSendingVibes] = useState<boolean>(false);
   const [amountOfVibesToSend, setAmountOfVibesToSend] = useState<string>("10");
   const contract = getContractFromNetwork("vibesTokenV1", NETWORKS[0]);
@@ -155,6 +157,10 @@ export const ChatUserModal = ({
     [user, channelRoles]
   );
 
+  const isNormalUi = useMemo(() => {
+    return !isBanning && !isAppointing && !isRemovingModerator;
+  }, [isBanning, isAppointing, isRemovingModerator]);
+
   const previewedBurnProceeds = useMemo(() => {
     return vibesTokenTxs.length > 0
       ? Number(
@@ -203,6 +209,25 @@ export const ChatUserModal = ({
           address: targetUser?.address,
           role: 1,
           isAdding: true,
+        }),
+      },
+    });
+    handleClose();
+  };
+
+  const removeAsModerator = async () => {
+    await postUserRoleForChannel({
+      channelId: channelQueryData?.id,
+      userAddress: targetUser?.address,
+      role: 2,
+    });
+    channel.publish({
+      name: CHANGE_USER_ROLE_EVENT,
+      data: {
+        body: JSON.stringify({
+          address: targetUser?.address,
+          role: 2,
+          isAdding: false,
         }),
       },
     });
@@ -270,6 +295,7 @@ export const ChatUserModal = ({
     if (!isOpen) {
       setIsBanning(false);
       setIsAppointing(false);
+      setIsRemovingModerator(false);
       setIsSendingVibes(false);
       setAmountOfVibesToSend("10");
     }
@@ -290,7 +316,7 @@ export const ChatUserModal = ({
           borderRadius="5px"
           bg="#3A3A3A"
         >
-          {!isBanning && !isAppointing && (
+          {isNormalUi && (
             <>
               <Text
                 _hover={{ cursor: "pointer" }}
@@ -342,122 +368,143 @@ export const ChatUserModal = ({
                     </Text>
                   )}
               </Flex>
-              {targetUser.address !== user?.address && (
-                <>
-                  {!isSendingVibes ? (
-                    <Button
-                      color="white"
-                      mt="20px"
-                      bg="#6862e9"
-                      _hover={{}}
-                      _focus={{}}
-                      _active={{}}
-                      onClick={() => setIsSendingVibes(true)}
-                    >
-                      send $VIBES to user
-                    </Button>
-                  ) : (
-                    <Flex alignItems="center" gap="10px">
-                      <Tooltip
-                        label={errorMessage}
-                        placement="bottom"
-                        isOpen={errorMessage !== undefined}
-                        bg="red.600"
-                      >
-                        <Input
-                          variant={errorMessage.length > 0 ? "redGlow" : "glow"}
-                          textAlign="center"
-                          value={amountOfVibesToSend}
-                          onChange={handleInputChange}
-                          fontSize={isStandalone ? "16px" : "unset"}
-                          placeholder="enter amount to send"
-                        />
-                      </Tooltip>
-                      <Flex direction="column">
-                        <Text whiteSpace="nowrap">
-                          ~$
-                          {truncateValue(
-                            previewedBurnProceeds * Number(ethPriceInUsd),
-                            4
-                          )}
-                        </Text>
-                        <Text
-                          fontSize="10px"
-                          color="#c6c3fc"
-                          whiteSpace="nowrap"
-                        >
-                          ~{truncateValue(previewedBurnProceeds, 4)} ETH
-                        </Text>
-                      </Flex>
-                      <Button
-                        bg={"#5852a3"}
-                        color="white"
-                        p={2}
-                        _focus={{}}
-                        _active={{}}
-                        _hover={{
-                          bg: "#8884d8",
-                        }}
-                        isDisabled={errorMessage.length > 0 || !transfer}
-                        onClick={transfer}
-                      >
-                        send
-                      </Button>
-                    </Flex>
-                  )}
-                </>
-              )}
-              {userIsChannelOwner &&
-                targetUser.address !== user?.address &&
-                !channelRoles.some(
-                  (m) => m?.address === targetUser.address && m?.role === 2
-                ) &&
-                !isAppointing &&
-                !isSendingVibes && (
-                  <Button
-                    color="white"
-                    mt="20px"
-                    bg="#074a84"
-                    _hover={{}}
-                    _focus={{}}
-                    _active={{}}
-                    onClick={() => setIsAppointing(true)}
-                  >
-                    appoint user as chat moderator
-                  </Button>
-                )}
-              {(userIsChannelOwner || userIsModerator) &&
-                targetUser.address !== channelQueryData?.owner.address &&
-                targetUser.address !== user?.address &&
-                !isBanning &&
-                !isSendingVibes && (
+              <Flex direction="column" gap="10px">
+                {targetUser.address !== user?.address && (
                   <>
-                    {!channelRoles?.some(
-                      (m) => m?.address === targetUser.address && m?.role === 2
-                    ) ? (
+                    {!isSendingVibes ? (
                       <Button
                         color="white"
                         mt="20px"
-                        bg="#842007"
+                        bg="#6862e9"
                         _hover={{}}
                         _focus={{}}
                         _active={{}}
-                        onClick={() => setIsBanning(true)}
+                        onClick={() => setIsSendingVibes(true)}
                       >
-                        ban user from chat
+                        send $VIBES to user
                       </Button>
                     ) : (
-                      <Text
-                        textAlign={"center"}
-                        fontSize="14px"
-                        color="#db9719"
-                      >
-                        Cannot ban this user because they are a moderator,
-                        remove their status on your dashboard first
-                      </Text>
+                      <Flex alignItems="center" gap="10px">
+                        <Tooltip
+                          label={errorMessage}
+                          placement="bottom"
+                          isOpen={errorMessage !== undefined}
+                          bg="red.600"
+                        >
+                          <Input
+                            variant={
+                              errorMessage.length > 0 ? "redGlow" : "glow"
+                            }
+                            textAlign="center"
+                            value={amountOfVibesToSend}
+                            onChange={handleInputChange}
+                            fontSize={isStandalone ? "16px" : "unset"}
+                            placeholder="enter amount to send"
+                          />
+                        </Tooltip>
+                        <Flex direction="column">
+                          <Text whiteSpace="nowrap">
+                            ~$
+                            {truncateValue(
+                              previewedBurnProceeds * Number(ethPriceInUsd),
+                              4
+                            )}
+                          </Text>
+                          <Text
+                            fontSize="10px"
+                            color="#c6c3fc"
+                            whiteSpace="nowrap"
+                          >
+                            ~{truncateValue(previewedBurnProceeds, 4)} ETH
+                          </Text>
+                        </Flex>
+                        <Button
+                          bg={"#5852a3"}
+                          color="white"
+                          p={2}
+                          _focus={{}}
+                          _active={{}}
+                          _hover={{
+                            bg: "#8884d8",
+                          }}
+                          isDisabled={errorMessage.length > 0 || !transfer}
+                          onClick={transfer}
+                        >
+                          send
+                        </Button>
+                      </Flex>
                     )}
                   </>
                 )}
+                {userIsChannelOwner &&
+                  targetUser.address !== user?.address &&
+                  !channelRoles.some(
+                    (m) => m?.address === targetUser.address && m?.role === 2
+                  ) &&
+                  isNormalUi &&
+                  !isSendingVibes && (
+                    <Button
+                      color="white"
+                      bg="#074a84"
+                      _hover={{}}
+                      _focus={{}}
+                      _active={{}}
+                      onClick={() => setIsAppointing(true)}
+                    >
+                      appoint user as chat moderator
+                    </Button>
+                  )}
+                {userIsChannelOwner &&
+                  targetUser.address !== user?.address &&
+                  channelRoles.some(
+                    (m) => m?.address === targetUser.address && m?.role === 2
+                  ) &&
+                  isNormalUi &&
+                  !isSendingVibes && (
+                    <Button
+                      color="white"
+                      bg="#dc5d0e"
+                      _hover={{}}
+                      _focus={{}}
+                      _active={{}}
+                      onClick={() => setIsRemovingModerator(true)}
+                    >
+                      remove user as chat moderator
+                    </Button>
+                  )}
+                {(userIsChannelOwner || userIsModerator) &&
+                  targetUser.address !== channelQueryData?.owner.address &&
+                  targetUser.address !== user?.address &&
+                  isNormalUi &&
+                  !isSendingVibes && (
+                    <>
+                      {!channelRoles?.some(
+                        (m) =>
+                          m?.address === targetUser.address && m?.role === 2
+                      ) ? (
+                        <Button
+                          color="white"
+                          bg="#842007"
+                          _hover={{}}
+                          _focus={{}}
+                          _active={{}}
+                          onClick={() => setIsBanning(true)}
+                        >
+                          ban user from chat
+                        </Button>
+                      ) : (
+                        <Text
+                          textAlign={"center"}
+                          fontSize="14px"
+                          color="#db9719"
+                        >
+                          Cannot ban this user because they are a moderator,
+                          remove their status first
+                        </Text>
+                      )}
+                    </>
+                  )}
+              </Flex>
             </>
           )}
           {isBanning && (
@@ -508,7 +555,7 @@ export const ChatUserModal = ({
                     are you sure you want to make this user a chat moderator?
                   </Text>
                   <Text textAlign="center" color="#8ced15">
-                    you can always remove their status through your dashboard
+                    you can always remove their status through the chat
                   </Text>
                   <Flex justifyContent={"space-evenly"}>
                     <Button
@@ -530,6 +577,46 @@ export const ChatUserModal = ({
                       _focus={{}}
                       _active={{}}
                       onClick={() => setIsAppointing(false)}
+                    >
+                      maybe not...
+                    </Button>
+                  </Flex>
+                </Flex>
+              ) : (
+                <Flex justifyContent={"center"}>
+                  <Spinner size="xl" />
+                </Flex>
+              )}
+            </>
+          )}
+          {isRemovingModerator && (
+            <>
+              {!loading ? (
+                <Flex direction="column" gap="10px">
+                  <Text textAlign="center">
+                    are you sure you want to remove this user as a chat
+                    moderator?
+                  </Text>
+                  <Flex justifyContent={"space-evenly"}>
+                    <Button
+                      color="white"
+                      bg="#054db1"
+                      _hover={{}}
+                      _focus={{}}
+                      _active={{}}
+                      onClick={removeAsModerator}
+                    >
+                      yes, do it
+                    </Button>
+                    <Button
+                      color="white"
+                      opacity={"0.5"}
+                      border={"1px solid white"}
+                      bg={"transparent"}
+                      _hover={{}}
+                      _focus={{}}
+                      _active={{}}
+                      onClick={() => setIsRemovingModerator(false)}
                     >
                       maybe not...
                     </Button>

@@ -17,8 +17,6 @@ const EmojiDisplay = ({
   fontSize,
   buttonDisabled,
   setButtonDisabled,
-  channel,
-  timeserial,
 }: Props) => {
   // check if emoji contains "https://i.imgur.com/" to determine if it is a gif
   const isGif =
@@ -35,7 +33,6 @@ const EmojiDisplay = ({
             setButtonDisabled={setButtonDisabled}
             size={"20px"}
             padding={"0px"}
-            channel={channel}
           />
         ) : (
           <Flex fontSize={fontSize}>{emoji}</Flex>

@@ -1,4 +1,4 @@
-import { Avatar, Text, Flex, Tooltip } from "@chakra-ui/react";
+import { Avatar, Text, Flex, Tooltip, IconButton } from "@chakra-ui/react";
 
 import { anonUrl } from "../presence/AnonUrl";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -6,11 +6,13 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { getColorFromString } from "../../styles/Colors";
+import { FaPencilAlt } from "react-icons/fa";
 
 const ChannelDesc = () => {
   const { isStandalone } = useUserAgent();
-  const { channel } = useChannelContext();
-  const { channelQueryData, totalBadges } = channel;
+  const { channel, ui } = useChannelContext();
+  const { channelQueryData, totalBadges, channelDetails } = channel;
+  const { handleEditModal } = ui;
 
   const imageUrl = channelQueryData?.owner?.FCImageUrl
     ? channelQueryData?.owner.FCImageUrl
@@ -64,7 +66,7 @@ const ChannelDesc = () => {
           maxH="400px"
           justifyContent="left"
           flexDirection="row"
-          alignItems={"baseline"}
+          alignItems={"center"}
           gap="1rem"
           wordBreak={"break-all"}
         >
@@ -75,14 +77,27 @@ const ChannelDesc = () => {
             wordBreak={"break-word"}
             width={isStandalone ? "70%" : "unset"}
           >
-            {channelQueryData?.name}
+            {channelDetails.channelName}
           </Text>
+          {
+            <IconButton
+              aria-label="edit channel title"
+              _focus={{}}
+              _active={{}}
+              _hover={{
+                transform: "scale(1.2)",
+              }}
+              icon={<FaPencilAlt color="white" />}
+              bg="transparent"
+              onClick={() => handleEditModal(true)}
+            />
+          }
         </Flex>
         <Text
           fontSize={["0.5rem", "0.8rem"]}
           width={isStandalone ? "70%" : "unset"}
         >
-          {channelQueryData?.description}
+          {channelDetails.channelDescription}
         </Text>
       </Flex>
     </Flex>

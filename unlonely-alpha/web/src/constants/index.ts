@@ -43,9 +43,9 @@ export const USER_APPROVAL_AMOUNT = "10000";
 export const RANDOM_CHAT_COLOR =
   COLORS[Math.floor(Math.random() * COLORS.length)];
 
-export const ADD_REACTION_EVENT = "add-reaction";
 export const CHAT_MESSAGE_EVENT = "chat-message";
 export const CHANGE_USER_ROLE_EVENT = "change-user-role";
+export const CHANGE_CHANNEL_DETAILS_EVENT = "change-channel-details";
 export const VIBES_TOKEN_PRICE_RANGE_EVENT = "vibes-token-price-range";
 
 export type CommandData = {
