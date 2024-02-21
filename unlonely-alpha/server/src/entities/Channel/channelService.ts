@@ -77,9 +77,6 @@ export const postChannel = async (
     if (existingChannel.slug === data.slug) {
       throw new Error("Channel with this slug already exists");
     }
-    if (existingChannel.ownerAddr === data.ownerAddress) {
-      throw new Error("Channel with this address already exists");
-    }
   }
 
   const livepeerPlaybackId = await createLivepeerStream(data.slug, data.canRecord);
