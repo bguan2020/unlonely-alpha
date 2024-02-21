@@ -21,6 +21,9 @@ export const resolvers = {
     getChannelByAwsId(_: any, { awsId }: { awsId: string }, ctx: Context) {
       return channelService.getChannelByAwsId({ awsId }, ctx);
     },
+    getChannelSearchResults(_: any, { data }: { data: channelService.IGetChannelSearchResultsInput }, ctx: Context) {
+      return channelService.getChannelSearchResults(data, ctx);
+    }
   },
   Mutation: {
     postChannel: (

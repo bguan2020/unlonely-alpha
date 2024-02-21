@@ -65,6 +65,8 @@ export const typeDef = gql`
     awsId: String!
     channelArn: String
     livepeerPlaybackId: String
+    streamKey: String
+    livepeerStreamId: String
     name: String
     description: String
     playbackUrl: String
@@ -158,7 +160,14 @@ export const typeDef = gql`
     vibesTokenPriceRange: [String]!
   }
 
+  input ChannelSearchInput {
+    query: String
+    skip: Int
+    limit: Int
+  }
+
   extend type Query {
+    getChannelSearchResults(data: ChannelSearchInput!): [Channel]
     getChannelFeed(data: ChannelFeedInput): [Channel]
     getChannelWithTokenById(id: ID!): Channel
     getChannelById(id: ID!): Channel

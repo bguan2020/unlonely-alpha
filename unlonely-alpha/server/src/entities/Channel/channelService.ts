@@ -87,7 +87,7 @@ export const postChannel = async (
       throw new Error("Failed to create livepeer stream");
     }
 
-    await ctx.prisma.channel.create({
+    return await ctx.prisma.channel.create({
       data: {
         slug: data.slug,
         name: data.name ?? "",
@@ -102,17 +102,10 @@ export const postChannel = async (
         streamKey
       },
     });
-    return {
-      streamKey,
-      playbackId,
-      slug: data.slug
-    }
   } catch (error: any) {
-  console.log("postChannel error", error);
-  return {
-    errorMessage: error
+    console.log("postChannel error", error);
+    throw new Error(error)
   }
-}
 };
 
 export interface IMigrateChannelToLivepeerInput {
@@ -143,7 +136,7 @@ export const migrateChannelToLivepeer = async (data: IMigrateChannelToLivepeerIn
       throw new Error("Failed to create livepeer stream");
     }
 
-    await ctx.prisma.channel.update({
+    return await ctx.prisma.channel.update({
       where: { id: existingChannel.id },
       data: {
         livepeerPlaybackId: playbackId,
@@ -151,16 +144,9 @@ export const migrateChannelToLivepeer = async (data: IMigrateChannelToLivepeerIn
         livepeerStreamId: id
       },
     });
-    return {
-      streamKey,
-      playbackId,
-      slug: data.slug
-    }
   } catch (error: any) {
     console.log("migrateChannelToLivepeer error", error);
-    return {
-      errorMessage: error
-    }
+    throw new Error(error)
   }
 }
 
@@ -382,6 +368,29 @@ export const getChannelFeed = async (
     console.log(`getChannelFeed Error: ${error.message}`);
     throw error;
   }
+};
+
+export interface IGetChannelSearchResultsInput {
+  query: string;
+  skip?: number;
+  take?: number;
+}
+
+export const getChannelSearchResults = async (
+  data: IGetChannelSearchResultsInput,
+  ctx: Context
+) => {
+  return await ctx.prisma.channel.findMany({
+    where: {
+      OR: [
+        { slug: { contains: data.query } },
+        { name: { contains: data.query } },
+        { description: { contains: data.query } },
+      ],
+    },
+    skip: data.skip,
+    take: data.take
+  });
 };
 
 export interface IUpdateChannelVibesTokenPriceRangeInput {

@@ -74,7 +74,11 @@ const ClaimContent = () => {
           <Flex gap="10px" mt="20px" justifyContent={"center"}>
             {claimableBets.length > 0 ? (
               <EventsDashboard
-                channels={channels}
+                channels={
+                  channels?.filter(
+                    (channel): channel is Channel => channel !== null
+                  ) ?? []
+                }
                 claimableBets={claimableBets}
                 claimedPayouts={claimedPayouts}
                 addPayoutToClaimedPayouts={addPayoutToClaimedPayouts}

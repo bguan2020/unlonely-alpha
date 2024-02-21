@@ -13,6 +13,12 @@ const POST_CHANNEL_MUTATION = gql`
     mutation PostChannel($data: PostChannelInput!) {
       postChannel(data: $data) {
         id
+        streamKey
+        livepeerPlaybackId
+        livepeerStreamId
+        slug
+        name
+        description
       }
     }
 `;

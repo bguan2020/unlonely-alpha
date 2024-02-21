@@ -40,7 +40,7 @@ export const useCacheContext = () => {
 };
 
 const CacheContext = createContext<{
-  channelFeed: any[];
+  channelFeed: GetChannelFeedQuery["getChannelFeed"];
   claimableBets: UnclaimedBet[];
   fetchingBets: boolean;
   feedLoading: boolean;
@@ -144,7 +144,9 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const getChannelFeedData = async () => {
       const pathnameAccepted =
-        router.pathname.startsWith("/claim") || router.pathname === "/";
+        router.pathname.startsWith("/claim") ||
+        router.pathname === "/" ||
+        router.pathname.startsWith("/onboard");
       if (!dataChannels && pathnameAccepted) getChannelFeed();
     };
     getChannelFeedData();
@@ -355,7 +357,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     return {
       claimableBets,
       fetchingBets,
-      channelFeed: dataChannels?.getChannelFeed || [],
+      channelFeed: dataChannels?.getChannelFeed ?? [],
       feedLoading,
       feedError: error,
       vibesTokenTxs: tokenTxs,

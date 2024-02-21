@@ -100,6 +100,7 @@ export type Channel = {
   id: Scalars["ID"];
   isLive?: Maybe<Scalars["Boolean"]>;
   livepeerPlaybackId?: Maybe<Scalars["String"]>;
+  livepeerStreamId?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
   nfcs?: Maybe<Array<Maybe<Nfc>>>;
   owner: User;
@@ -110,6 +111,7 @@ export type Channel = {
   sideBets?: Maybe<Array<Maybe<SideBet>>>;
   slug: Scalars["String"];
   softDelete?: Maybe<Scalars["Boolean"]>;
+  streamKey?: Maybe<Scalars["String"]>;
   thumbnailUrl?: Maybe<Scalars["String"]>;
   token?: Maybe<CreatorToken>;
   updatedAt: Scalars["DateTime"];
@@ -1735,6 +1737,15 @@ export type LikeMutation = {
     | null;
 };
 
+export type MigrateChannelToLivepeerMutationVariables = Exact<{
+  data: MigrateChannelToLivepeerInput;
+}>;
+
+export type MigrateChannelToLivepeerMutation = {
+  __typename?: "Mutation";
+  migrateChannelToLivepeer?: { __typename?: "Channel"; id: string } | null;
+};
+
 export type PostBaseLeaderboardMutationVariables = Exact<{
   data: PostBaseLeaderboardInput;
 }>;
@@ -1742,6 +1753,24 @@ export type PostBaseLeaderboardMutationVariables = Exact<{
 export type PostBaseLeaderboardMutation = {
   __typename?: "Mutation";
   postBaseLeaderboard: { __typename?: "BaseLeaderboard"; id: string };
+};
+
+export type PostChannelMutationVariables = Exact<{
+  data: PostChannelInput;
+}>;
+
+export type PostChannelMutation = {
+  __typename?: "Mutation";
+  postChannel?: {
+    __typename?: "Channel";
+    id: string;
+    streamKey?: string | null;
+    livepeerPlaybackId?: string | null;
+    livepeerStreamId?: string | null;
+    slug: string;
+    name?: string | null;
+    description?: string | null;
+  } | null;
 };
 
 export type PostChatByAwsIdMutationVariables = Exact<{
@@ -2034,24 +2063,6 @@ export type FetchCurrentUserQuery = {
     signature?: string | null;
     sigTimestamp?: any | null;
   } | null;
-};
-
-export type MigrateChannelToLivepeerMutationVariables = Exact<{
-  data: MigrateChannelToLivepeerInput;
-}>;
-
-export type MigrateChannelToLivepeerMutation = {
-  __typename?: "Mutation";
-  migrateChannelToLivepeer?: { __typename?: "Channel"; id: string } | null;
-};
-
-export type PostChannelMutationVariables = Exact<{
-  data: PostChannelInput;
-}>;
-
-export type PostChannelMutation = {
-  __typename?: "Mutation";
-  postChannel?: { __typename?: "Channel"; id: string } | null;
 };
 
 export const GetUserDocument = gql`
@@ -3968,6 +3979,57 @@ export type LikeMutationOptions = Apollo.BaseMutationOptions<
   LikeMutation,
   LikeMutationVariables
 >;
+export const MigrateChannelToLivepeerDocument = gql`
+  mutation MigrateChannelToLivepeer($data: MigrateChannelToLivepeerInput!) {
+    migrateChannelToLivepeer(data: $data) {
+      id
+    }
+  }
+`;
+export type MigrateChannelToLivepeerMutationFn = Apollo.MutationFunction<
+  MigrateChannelToLivepeerMutation,
+  MigrateChannelToLivepeerMutationVariables
+>;
+
+/**
+ * __useMigrateChannelToLivepeerMutation__
+ *
+ * To run a mutation, you first call `useMigrateChannelToLivepeerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMigrateChannelToLivepeerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [migrateChannelToLivepeerMutation, { data, loading, error }] = useMigrateChannelToLivepeerMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useMigrateChannelToLivepeerMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    MigrateChannelToLivepeerMutation,
+    MigrateChannelToLivepeerMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    MigrateChannelToLivepeerMutation,
+    MigrateChannelToLivepeerMutationVariables
+  >(MigrateChannelToLivepeerDocument, options);
+}
+export type MigrateChannelToLivepeerMutationHookResult = ReturnType<
+  typeof useMigrateChannelToLivepeerMutation
+>;
+export type MigrateChannelToLivepeerMutationResult =
+  Apollo.MutationResult<MigrateChannelToLivepeerMutation>;
+export type MigrateChannelToLivepeerMutationOptions =
+  Apollo.BaseMutationOptions<
+    MigrateChannelToLivepeerMutation,
+    MigrateChannelToLivepeerMutationVariables
+  >;
 export const PostBaseLeaderboardDocument = gql`
   mutation PostBaseLeaderboard($data: PostBaseLeaderboardInput!) {
     postBaseLeaderboard(data: $data) {
@@ -4017,6 +4079,62 @@ export type PostBaseLeaderboardMutationResult =
 export type PostBaseLeaderboardMutationOptions = Apollo.BaseMutationOptions<
   PostBaseLeaderboardMutation,
   PostBaseLeaderboardMutationVariables
+>;
+export const PostChannelDocument = gql`
+  mutation PostChannel($data: PostChannelInput!) {
+    postChannel(data: $data) {
+      id
+      streamKey
+      livepeerPlaybackId
+      livepeerStreamId
+      slug
+      name
+      description
+    }
+  }
+`;
+export type PostChannelMutationFn = Apollo.MutationFunction<
+  PostChannelMutation,
+  PostChannelMutationVariables
+>;
+
+/**
+ * __usePostChannelMutation__
+ *
+ * To run a mutation, you first call `usePostChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postChannelMutation, { data, loading, error }] = usePostChannelMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostChannelMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostChannelMutation,
+    PostChannelMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<PostChannelMutation, PostChannelMutationVariables>(
+    PostChannelDocument,
+    options
+  );
+}
+export type PostChannelMutationHookResult = ReturnType<
+  typeof usePostChannelMutation
+>;
+export type PostChannelMutationResult =
+  Apollo.MutationResult<PostChannelMutation>;
+export type PostChannelMutationOptions = Apollo.BaseMutationOptions<
+  PostChannelMutation,
+  PostChannelMutationVariables
 >;
 export const PostChatByAwsIdDocument = gql`
   mutation PostChatByAwsId($data: PostChatByAwsIdInput!) {
@@ -5289,105 +5407,4 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
->;
-export const MigrateChannelToLivepeerDocument = gql`
-  mutation MigrateChannelToLivepeer($data: MigrateChannelToLivepeerInput!) {
-    migrateChannelToLivepeer(data: $data) {
-      id
-    }
-  }
-`;
-export type MigrateChannelToLivepeerMutationFn = Apollo.MutationFunction<
-  MigrateChannelToLivepeerMutation,
-  MigrateChannelToLivepeerMutationVariables
->;
-
-/**
- * __useMigrateChannelToLivepeerMutation__
- *
- * To run a mutation, you first call `useMigrateChannelToLivepeerMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useMigrateChannelToLivepeerMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [migrateChannelToLivepeerMutation, { data, loading, error }] = useMigrateChannelToLivepeerMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useMigrateChannelToLivepeerMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    MigrateChannelToLivepeerMutation,
-    MigrateChannelToLivepeerMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    MigrateChannelToLivepeerMutation,
-    MigrateChannelToLivepeerMutationVariables
-  >(MigrateChannelToLivepeerDocument, options);
-}
-export type MigrateChannelToLivepeerMutationHookResult = ReturnType<
-  typeof useMigrateChannelToLivepeerMutation
->;
-export type MigrateChannelToLivepeerMutationResult =
-  Apollo.MutationResult<MigrateChannelToLivepeerMutation>;
-export type MigrateChannelToLivepeerMutationOptions =
-  Apollo.BaseMutationOptions<
-    MigrateChannelToLivepeerMutation,
-    MigrateChannelToLivepeerMutationVariables
-  >;
-export const PostChannelDocument = gql`
-  mutation PostChannel($data: PostChannelInput!) {
-    postChannel(data: $data) {
-      id
-    }
-  }
-`;
-export type PostChannelMutationFn = Apollo.MutationFunction<
-  PostChannelMutation,
-  PostChannelMutationVariables
->;
-
-/**
- * __usePostChannelMutation__
- *
- * To run a mutation, you first call `usePostChannelMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostChannelMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postChannelMutation, { data, loading, error }] = usePostChannelMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostChannelMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostChannelMutation,
-    PostChannelMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<PostChannelMutation, PostChannelMutationVariables>(
-    PostChannelDocument,
-    options
-  );
-}
-export type PostChannelMutationHookResult = ReturnType<
-  typeof usePostChannelMutation
->;
-export type PostChannelMutationResult =
-  Apollo.MutationResult<PostChannelMutation>;
-export type PostChannelMutationOptions = Apollo.BaseMutationOptions<
-  PostChannelMutation,
-  PostChannelMutationVariables
 >;
