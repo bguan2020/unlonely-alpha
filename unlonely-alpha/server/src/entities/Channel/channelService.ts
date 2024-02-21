@@ -43,6 +43,7 @@ const createLivepeerStream = async (name: string, canRecord?: boolean) => {
       },
       { headers }
     );
+    console.log("createLivepeerStream response", creationResponse.data)
     return creationResponse.data.playbackId;
   } catch (error: any) {
     console.log("createLivepeerStream error", error);
@@ -66,10 +67,7 @@ export const postChannel = async (
   try {
   const existingChannel = await ctx.prisma.channel.findFirst({
     where: {
-      OR: [
-        { slug: data.slug },
-        { ownerAddr: data.ownerAddress },
-      ],
+      slug: data.slug
     },
   });
 
@@ -79,23 +77,23 @@ export const postChannel = async (
     }
   }
 
-  const livepeerPlaybackId = await createLivepeerStream(data.slug, data.canRecord);
+  // const livepeerPlaybackId = await createLivepeerStream(data.slug, data.canRecord);
 
-  if (livepeerPlaybackId === null || livepeerPlaybackId === undefined || livepeerPlaybackId === "") {
-    throw new Error("Failed to create livepeer stream");
-  }
+  // if (livepeerPlaybackId === null || livepeerPlaybackId === undefined || livepeerPlaybackId === "") {
+  //   throw new Error("Failed to create livepeer stream");
+  // }
 
-  return ctx.prisma.channel.create({
+  return await ctx.prisma.channel.create({
     data: {
       slug: data.slug,
       name: data.name ?? "",
       description: data.description ?? "",
       allowNFCs: data.allowNfcs,
-      channelArn: "",
-      playbackUrl: "",
+      channelArn: data.slug.concat("-", new Date(Date.now()).toDateString()),
+      playbackUrl: data.slug.concat("-", new Date(Date.now()).toDateString()),
       ownerAddr: data.ownerAddress,
-      awsId: data.slug,
-      livepeerPlaybackId,
+      awsId: data.slug.concat("-", new Date(Date.now()).toDateString()),
+      // livepeerPlaybackId,
     },
   });
   } catch (error: any) {
@@ -122,6 +120,10 @@ export const migrateChannelToLivepeer = async (data: IMigrateChannelToLivepeerIn
 
   if (!existingChannel) {
     throw new Error("Channel not found");
+  }
+
+  if (existingChannel.livepeerPlaybackId) {
+    throw new Error("Channel already migrated to Livepeer");
   }
 
   const livepeerPlaybackId = await createLivepeerStream(data.slug);
