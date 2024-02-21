@@ -56,6 +56,7 @@ const useCreateClip = ({ onError }: Props) => {
             data: {
               title: data.title,
               livepeerPlaybackId: data.livepeerPlaybackId,
+              channelId: data.channelId,
             },
           },
         });
@@ -65,6 +66,7 @@ const useCreateClip = ({ onError }: Props) => {
           variables: {
             data: {
               title: data.title,
+              channelId: data.channelId,
               channelArn: data.channelArn,
             },
           },

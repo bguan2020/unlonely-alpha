@@ -14,6 +14,20 @@ export const typeDef = gql`
     response: String!
   }
 
+  type NFC implements Likable {
+    id: ID!
+    title: String
+    videoLink: String
+    videoThumbnail: String
+    openseaLink: String
+    score: Int!
+    liked: Boolean
+    disliked: Boolean
+    owner: User!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }    
+
   type SideBet {
     id: ID!
     wagerDescription: String
@@ -60,6 +74,7 @@ export const typeDef = gql`
     owner: User!
     token: CreatorToken
     slug: String!
+    softDelete: Boolean
     customButtonAction: String
     customButtonPrice: Int
     createdAt: DateTime!
@@ -67,12 +82,28 @@ export const typeDef = gql`
     chatCommands: [ChatCommand]
     sharesEvent: [SharesEvent]
     roles: [ChannelUserRole]
+    nfcs: [NFC]
     sideBets: [SideBet]
     vibesTokenPriceRange: [String]
   }
 
   type UpdateManyResponse {
     count: Int!
+  }
+
+  input PostChannelInput {
+    slug: String!
+    ownerAddress: String!
+    name: String
+    description: String
+    canRecord: Boolean
+    allowNfcs: Boolean
+  }
+
+  input MigrateChannelToLivepeerInput {
+    slug: String!
+    ownerAddress: String!
+    canRecord: Boolean
   }
 
   input ChannelFeedInput {
@@ -136,6 +167,8 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
+    postChannel(data: PostChannelInput!): Channel
+    migrateChannelToLivepeer(data: MigrateChannelToLivepeerInput!): Channel
     closeSharesEvents(data: PostCloseSharesEventsInput!): UpdateManyResponse
     postSharesEvent(data: PostSharesEventInput!): Channel
     updateSharesEvent(data: UpdateSharesEventInput!): Channel
