@@ -44,12 +44,13 @@ const createLivepeerStream = async (name: string, canRecord?: boolean) => {
       { headers }
     );
     console.log("createLivepeerStream response", creationResponse.data)
-    return {playbackId: creationResponse.data.playbackId, streamKey: creationResponse.data.streamKey};
+    return {playbackId: creationResponse.data.playbackId, streamKey: creationResponse.data.streamKey, id: creationResponse.data.id};
   } catch (error: any) {
     console.log("createLivepeerStream error", error);
     return {
       playbackId: null,
       streamKey: null,
+      id: null
     };
   }
 }
@@ -80,7 +81,7 @@ export const postChannel = async (
       }
     }
 
-    const { playbackId, streamKey } = await createLivepeerStream(data.slug, data.canRecord);
+    const { playbackId, streamKey, id } = await createLivepeerStream(data.slug, data.canRecord);
 
     if (playbackId === null || playbackId === undefined || playbackId === "") {
       throw new Error("Failed to create livepeer stream");
@@ -97,10 +98,13 @@ export const postChannel = async (
         ownerAddr: data.ownerAddress,
         awsId: data.slug.concat("-", new Date(Date.now()).toDateString()),
         livepeerPlaybackId: playbackId,
+        livepeerStreamId: id,
+        streamKey
       },
     });
     return {
       streamKey,
+      playbackId,
       slug: data.slug
     }
   } catch (error: any) {
@@ -133,7 +137,7 @@ export const migrateChannelToLivepeer = async (data: IMigrateChannelToLivepeerIn
       throw new Error("Channel already using Livepeer");
     }
 
-    const {playbackId, streamKey} = await createLivepeerStream(data.slug);
+    const {playbackId, streamKey, id} = await createLivepeerStream(data.slug);
 
     if (playbackId === null || playbackId === undefined || playbackId === "") {
       throw new Error("Failed to create livepeer stream");
@@ -143,10 +147,13 @@ export const migrateChannelToLivepeer = async (data: IMigrateChannelToLivepeerIn
       where: { id: existingChannel.id },
       data: {
         livepeerPlaybackId: playbackId,
+        streamKey,
+        livepeerStreamId: id
       },
     });
     return {
       streamKey,
+      playbackId,
       slug: data.slug
     }
   } catch (error: any) {
