@@ -113,7 +113,7 @@ model NFC {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  channelId Int
+  channelId Int?
   channel Channel? @relation(fields: [channelId], references: [id])
 }
 
