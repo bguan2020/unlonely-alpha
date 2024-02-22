@@ -7,6 +7,7 @@ import { FaRegCopy } from "react-icons/fa";
 import copy from "copy-to-clipboard";
 import LivepeerPlayer from "../stream/LivepeerPlayer";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import LivepeerBroadcast from "../stream/LivepeerBroadcast";
 
 const instructions = [
   {
@@ -31,6 +32,7 @@ const ChannelStreamerPerspective = () => {
 
   const [isBrowserBroadcastSelected, setIsBrowserBroadcastSelected] =
     useState(false);
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
 
   const [showStreamKey, setShowStreamKey] = useState(false);
   const [showRTMPIngest, setShowRTMPIngest] = useState(false);
@@ -77,7 +79,11 @@ const ChannelStreamerPerspective = () => {
         >
           <Text fontFamily={"LoRes15"}>PREVIEW</Text>
         </Flex>
-        <LivepeerPlayer playbackId={playbackId} />
+        {isBroadcasting ? (
+          <LivepeerBroadcast streamKey={streamKey} />
+        ) : (
+          <LivepeerPlayer playbackId={playbackId} />
+        )}
       </Flex>
       <Flex bg="#131323" p="10px" borderRadius="10px" h="20%">
         <Flex gap="20px" width={"100%"}>
@@ -289,6 +295,18 @@ const ChannelStreamerPerspective = () => {
               >
                 GO <ExternalLinkIcon ml="2px" />
               </Button>
+              {/* <Button
+                bg="#06aa53"
+                color={"white"}
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                onClick={() => {
+                  setIsBroadcasting((prev) => !prev);
+                }}
+              >
+                GO
+              </Button> */}
             </Flex>
           )}
         </Flex>
