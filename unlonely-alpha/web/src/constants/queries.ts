@@ -76,6 +76,8 @@ export const CHANNEL_DETAIL_QUERY = gql`
       channelArn
       description
       livepeerPlaybackId
+      livepeerStreamId
+      streamKey
       isLive
       id
       name
@@ -120,6 +122,8 @@ export const CHANNEL_STATIC_QUERY = gql`
       channelArn
       description
       livepeerPlaybackId
+      livepeerStreamId
+      streamKey
       isLive
       id
       name

@@ -1266,6 +1266,8 @@ export type ChannelDetailQuery = {
     channelArn?: string | null;
     description?: string | null;
     livepeerPlaybackId?: string | null;
+    livepeerStreamId?: string | null;
+    streamKey?: string | null;
     isLive?: boolean | null;
     id: string;
     name?: string | null;
@@ -1318,6 +1320,8 @@ export type ChannelStaticQuery = {
     channelArn?: string | null;
     description?: string | null;
     livepeerPlaybackId?: string | null;
+    livepeerStreamId?: string | null;
+    streamKey?: string | null;
     isLive?: boolean | null;
     id: string;
     name?: string | null;
@@ -2370,6 +2374,8 @@ export const ChannelDetailDocument = gql`
       channelArn
       description
       livepeerPlaybackId
+      livepeerStreamId
+      streamKey
       isLive
       id
       name
@@ -2464,6 +2470,8 @@ export const ChannelStaticDocument = gql`
       channelArn
       description
       livepeerPlaybackId
+      livepeerStreamId
+      streamKey
       isLive
       id
       name

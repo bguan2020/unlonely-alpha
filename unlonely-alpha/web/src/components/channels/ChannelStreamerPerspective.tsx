@@ -1,123 +1,262 @@
-import { Flex, Stack } from "@chakra-ui/react";
-
+import {
+  Flex,
+  Stack,
+  Button,
+  Text,
+  IconButton,
+  useToast,
+} from "@chakra-ui/react";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import { useEffect, useMemo, useState } from "react";
+import { IoMdEye } from "react-icons/io";
+import { IoMdEyeOff } from "react-icons/io";
+import { FaRegCopy } from "react-icons/fa";
+import copy from "copy-to-clipboard";
+import LivepeerBroadcast from "../stream/LivepeerBroadcast";
+
+const instructions = [
+  "Copy and paste the stream key into your streaming software. Use either the RTMP or SRT ingest, depending on your use-case. The RTMP ingest is more common with OBS users.",
+  "Check that your camera and microphone inputs are properly working before clicking the Go live button above.",
+];
 
 const ChannelStreamerPerspective = () => {
-  const { ui } = useChannelContext();
-  const {
-    handleNotificationsModal,
-    handleEventModal,
-    handleEditModal,
-    handleChatCommandModal,
-    handleModeratorModal,
-  } = ui;
+  const toast = useToast();
+
+  const { channel } = useChannelContext();
+  const { channelQueryData } = channel;
+
+  const [isBrowserBroadcastSelected, setIsBrowserBroadcastSelected] =
+    useState(true);
+
+  const [showStreamKey, setShowStreamKey] = useState(false);
+  const [showRTMPIngest, setShowRTMPIngest] = useState(false);
+  const [showSRTIngest, setShowSRTIngest] = useState(false);
+
+  const streamKey = useMemo(() => {
+    return channelQueryData?.streamKey ?? "";
+  }, [channelQueryData]);
+
+  const playbackId = useMemo(() => {
+    return channelQueryData?.livepeerPlaybackId;
+  }, [channelQueryData]);
+
+  const handleCopy = () => {
+    toast({
+      title: "copied to clipboard",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+
+  useEffect(() => {
+    setShowStreamKey(false);
+    setShowRTMPIngest(false);
+    setShowSRTIngest(false);
+  }, [isBrowserBroadcastSelected]);
 
   return (
     <Flex direction="column" width={"100%"}>
-      <Stack direction="column" width={"100%"} justifyContent="center">
-        <Flex width={"100%"} position="relative" justifyContent={"center"}>
-          {/* <SimpleGrid columns={3} spacing={10}>
-            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
-              <Text textAlign="center">send notifications</Text>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="10px"
-                onClick={() => handleNotificationsModal(true)}
+      <Stack direction="column" width={"100%"} h="80vh">
+        <Flex
+          width={"100%"}
+          position="relative"
+          justifyContent={"center"}
+          h="80%"
+        >
+          <LivepeerBroadcast streamKey={streamKey} />
+        </Flex>
+        <Flex bg="#131323" p="10px" borderRadius="10px" h="20%">
+          <Flex gap="20px" width={"100%"} justifyContent={"space-between"}>
+            <Flex direction="column" justifyContent={"space-evenly"}>
+              <Text>How to Stream</Text>
+              <Button
+                bg={isBrowserBroadcastSelected ? "#0c7fc1" : "transparent"}
+                color="white"
+                _active={{}}
+                _focus={{}}
                 _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transitionDuration: "0.3s",
+                  bg: "rgb(22, 93, 134)",
                 }}
-                _active={{
-                  transform: "scale(1)",
-                }}
+                onClick={() => setIsBrowserBroadcastSelected(true)}
               >
-                <Image src="/svg/notifications.svg" width="100%" />
-              </Box>
-            </Flex>
-            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
-              <Text textAlign="center">add event</Text>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="10px"
-                onClick={() => handleEventModal(true)}
+                browser
+              </Button>
+              <Button
+                bg={isBrowserBroadcastSelected ? "transparent" : "#0c7fc1"}
+                color="white"
+                _active={{}}
+                _focus={{}}
                 _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transitionDuration: "0.3s",
+                  bg: "rgb(22, 93, 134)",
                 }}
-                _active={{
-                  transform: "scale(1)",
-                }}
+                onClick={() => setIsBrowserBroadcastSelected(false)}
               >
-                <Image src="/svg/calendar.svg" width="100%" />
-              </Box>
+                streaming software
+              </Button>
             </Flex>
-            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
-              <Text textAlign="center">edit channel title / description</Text>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="10px"
-                onClick={() => handleEditModal(true)}
-                _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transitionDuration: "0.3s",
-                }}
-                _active={{
-                  transform: "scale(1)",
-                }}
-              >
-                <Image src="/svg/edit.svg" width="100%" />
-              </Box>
+            <Flex>
+              <Text fontSize="14px">
+                {isBrowserBroadcastSelected ? instructions[1] : instructions[0]}
+              </Text>
             </Flex>
-            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
-              <Text textAlign="center">custom commands</Text>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="10px"
-                onClick={() => handleChatCommandModal(true)}
-                _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transitionDuration: "0.3s",
-                }}
-                _active={{
-                  transform: "scale(1)",
-                }}
-              >
-                <Image src="/svg/custom-commands.svg" width="100%" />
-              </Box>
-            </Flex>
-            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
-              <Text textAlign={"center"}>moderators</Text>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="10px"
-                onClick={() => handleModeratorModal(true)}
-                _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transitionDuration: "0.3s",
-                }}
-                _active={{
-                  transform: "scale(1)",
-                }}
-              >
-                <Image src="/svg/mods.svg" width="100%" />
-              </Box>
-            </Flex>
-          </SimpleGrid> */}
+            {!isBrowserBroadcastSelected && (
+              <Flex direction="column" gap="5px">
+                <Flex direction="column">
+                  <Text fontSize="12px">Stream Key</Text>
+                  <Flex alignItems={"center"}>
+                    <input
+                      style={{
+                        border: "1px solid #5e5e5e",
+                        background: "transparent",
+                        color: "#a3a3a3",
+                        padding: "5px",
+                        height: "20px",
+                        fontSize: "11px",
+                      }}
+                      readOnly
+                      type={showStreamKey ? "text" : "password"}
+                      value={streamKey}
+                    />
+                    <IconButton
+                      aria-label="show-stream-key"
+                      color="white"
+                      icon={
+                        showStreamKey ? (
+                          <IoMdEye size="20" />
+                        ) : (
+                          <IoMdEyeOff size="20" />
+                        )
+                      }
+                      height="20px"
+                      bg="transparent"
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{}}
+                      onClick={() => setShowStreamKey((prev) => !prev)}
+                    />
+                    <IconButton
+                      aria-label="copy-stream-key"
+                      color="white"
+                      icon={<FaRegCopy />}
+                      height="20px"
+                      minWidth={"20px"}
+                      bg="transparent"
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{}}
+                      onClick={() => {
+                        copy(streamKey);
+                        handleCopy();
+                      }}
+                    />
+                  </Flex>
+                </Flex>
+                <Flex direction="column">
+                  <Text fontSize="12px">RTMP ingest</Text>
+                  <Flex alignItems="center">
+                    <input
+                      style={{
+                        border: "1px solid #5e5e5e",
+                        background: "transparent",
+                        color: "#a3a3a3",
+                        padding: "5px",
+                        height: "20px",
+                        fontSize: "11px",
+                      }}
+                      readOnly
+                      type={showRTMPIngest ? "text" : "password"}
+                      value={"rtmp://rtmp.livepeer.com/live"}
+                    />
+                    <IconButton
+                      aria-label="show-rtmp-ingest"
+                      color="white"
+                      icon={
+                        showRTMPIngest ? (
+                          <IoMdEye size="20" />
+                        ) : (
+                          <IoMdEyeOff size="20" />
+                        )
+                      }
+                      height="20px"
+                      bg="transparent"
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{}}
+                      onClick={() => setShowRTMPIngest((prev) => !prev)}
+                    />
+                    <IconButton
+                      aria-label="copy-rtmp-ingest"
+                      color="white"
+                      icon={<FaRegCopy />}
+                      height="20px"
+                      minWidth={"20px"}
+                      bg="transparent"
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{}}
+                      onClick={() => {
+                        copy("rtmp://rtmp.livepeer.com/live");
+                        handleCopy();
+                      }}
+                    />
+                  </Flex>
+                </Flex>
+                <Flex direction="column">
+                  <Text fontSize="12px">SRT ingest</Text>
+                  <Flex alignItems={"center"}>
+                    <input
+                      style={{
+                        border: "1px solid #5e5e5e",
+                        background: "transparent",
+                        color: "#a3a3a3",
+                        padding: "5px",
+                        height: "20px",
+                        fontSize: "11px",
+                      }}
+                      readOnly
+                      type={showSRTIngest ? "text" : "password"}
+                      value={`srt://rtmp.livepeer.com:2935?streamid=${streamKey}`}
+                    />
+                    <IconButton
+                      aria-label="show-srt-ingest"
+                      color="white"
+                      icon={
+                        showSRTIngest ? (
+                          <IoMdEye size="20" />
+                        ) : (
+                          <IoMdEyeOff size="20" />
+                        )
+                      }
+                      height="20px"
+                      bg="transparent"
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{}}
+                      onClick={() => setShowSRTIngest((prev) => !prev)}
+                    />
+                    <IconButton
+                      aria-label="copy-srt-ingest"
+                      color="white"
+                      icon={<FaRegCopy />}
+                      height="20px"
+                      minWidth={"20px"}
+                      bg="transparent"
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{}}
+                      onClick={() => {
+                        copy(
+                          `srt://rtmp.livepeer.com:2935?streamid=${streamKey}`
+                        );
+                        handleCopy();
+                      }}
+                    />
+                  </Flex>
+                </Flex>
+              </Flex>
+            )}
+          </Flex>
         </Flex>
       </Stack>
     </Flex>
