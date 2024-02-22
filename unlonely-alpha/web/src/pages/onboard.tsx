@@ -13,10 +13,12 @@ import { useUser } from "../hooks/context/useUser";
 import usePostChannel from "../hooks/server/usePostChannel";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { usePrivy } from "@privy-io/react-auth";
 
 const Onboard = () => {
-  const { user } = useUser();
+  const { user, walletIsConnected } = useUser();
   const { channelFeed } = useCacheContext();
+  const { login, connectWallet, user: privyUser } = usePrivy();
 
   const { postChannel } = usePostChannel({
     onError: () => {
@@ -90,94 +92,170 @@ const Onboard = () => {
 
   return (
     <AppLayout isCustomHeader={false}>
-      <Flex>
-        <Flex direction="column" p="1rem" gap="40px" margin={"auto"}>
-          {!success ? (
-            <>
-              <Flex direction={"column"} gap="10px">
-                <Text fontSize="20px" fontWeight="bold">
-                  required
-                </Text>
-                <Tooltip
-                  label={errorMessage}
-                  placement="bottom"
-                  isOpen={errorMessage !== undefined}
-                  bg="red.600"
-                >
-                  <Input
-                    placeholder={"channel handle"}
-                    variant={isSlugValid ? "glow" : "redGlow"}
-                    onChange={(e) => setNewSlug(e.target.value)}
-                    value={newSlug}
-                  />
-                </Tooltip>
-              </Flex>
-              <Flex direction={"column"} gap="10px">
-                <Text fontSize="20px" fontWeight="bold">
-                  optional (can change later)
-                </Text>
-                <Input
-                  placeholder={"channel name"}
-                  onChange={(e) => setNewName(e.target.value)}
-                  value={newName}
-                />
-                <Input
-                  placeholder={"channel description"}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                  value={newDescription}
-                />
-                <Flex alignItems={"center"} justifyContent={"space-between"}>
-                  <Text>allow recording</Text>
-                  <Switch
-                    isChecked={newCanRecord}
-                    onChange={() => setNewCanRecord((prev) => !prev)}
-                  />
-                </Flex>
-                <Flex alignItems={"center"} justifyContent={"space-between"}>
-                  <Text>allow clipping</Text>
-                  <Switch
-                    isChecked={newAllowNfcs}
-                    onChange={() => setNewAllowNfcs((prev) => !prev)}
-                  />
-                </Flex>
-              </Flex>
-              <Flex direction="column">
-                <Button
-                  isDisabled={!isSlugValid || newSlug.length === 0 || loading}
-                  onClick={submitChannel}
-                >
-                  {loading ? (
-                    <Spinner />
-                  ) : newSlug.length === 0 ? (
-                    "channel handle is required"
-                  ) : (
-                    "create channel"
-                  )}
-                </Button>
-              </Flex>
-            </>
-          ) : (
-            <>
-              <Text textAlign="center" fontSize={"3rem"} fontFamily="LoRes15">
-                You're all set! Welcome to Unlonely!
-              </Text>
-              <Text textAlign="center" fontSize="15px">
-                Redirecting you to your new channel page shortly. If you're
-                still not redirected, click{" "}
-                <Link href={`/channels/${returnedSlug}`}>
-                  <Text as="span" color="#08c7edff">
-                    here
-                  </Text>
-                </Link>
-                .
-              </Text>
-              <Flex justifyContent="center">
-                <Spinner size="lg" />
-              </Flex>
-            </>
-          )}
+      {!user?.address || !walletIsConnected ? (
+        <Flex
+          alignItems={"center"}
+          justifyContent={"center"}
+          width="100%"
+          height="calc(70vh)"
+          direction="column"
+          gap="10px"
+        >
+          <Text fontSize="20px">You must sign in to create a channel</Text>
+          <Button
+            color="white"
+            bg="#2562db"
+            _hover={{
+              bg: "#1c4d9e",
+            }}
+            _focus={{}}
+            _active={{}}
+            onClick={() => {
+              privyUser ? connectWallet() : login();
+            }}
+          >
+            Sign in now
+          </Button>
         </Flex>
-      </Flex>
+      ) : (
+        <Flex>
+          <Flex
+            direction="column"
+            p="1rem"
+            gap="40px"
+            margin={"auto"}
+            bg="#131323"
+            width={"400px"}
+          >
+            {!success ? (
+              <>
+                <Flex direction={"column"} gap="10px">
+                  <Text fontSize="25px" fontFamily="LoRes15" color="#f5b6ff">
+                    required
+                  </Text>
+                  <Flex direction={"column"} gap="2px">
+                    <Text fontSize="12px" color="#c2c2c2">
+                      how will your viewers search for you?
+                    </Text>
+                    <Tooltip
+                      label={errorMessage}
+                      placement="bottom"
+                      isOpen={errorMessage !== undefined}
+                      bg="red.600"
+                    >
+                      <Input
+                        placeholder={"channel URL handle"}
+                        variant={isSlugValid ? "glow" : "redGlow"}
+                        onChange={(e) => setNewSlug(e.target.value)}
+                        value={newSlug}
+                      />
+                    </Tooltip>
+                  </Flex>
+                  <Input
+                    value={`${window.location.origin}/channels/${
+                      newSlug || "*your handle*"
+                    }`}
+                    fontSize={"12px"}
+                    readOnly={true}
+                    color="#17d058"
+                  />
+                </Flex>
+                <Flex direction={"column"} gap="18px">
+                  <Text fontSize="25px" fontFamily="LoRes15" color="#f5b6ff">
+                    optional (can set later)
+                  </Text>
+                  <Flex direction={"column"} gap="2px">
+                    <Text fontSize="12px" color="#c2c2c2">
+                      what are you streaming?
+                    </Text>
+                    <Input
+                      placeholder={"channel name"}
+                      onChange={(e) => setNewName(e.target.value)}
+                      value={newName}
+                    />
+                  </Flex>
+                  <Flex direction={"column"} gap="2px">
+                    <Text fontSize="12px" color="#c2c2c2">
+                      add anything else you'd like
+                    </Text>
+                    <Input
+                      placeholder={"channel description"}
+                      onChange={(e) => setNewDescription(e.target.value)}
+                      value={newDescription}
+                    />
+                  </Flex>
+                  <Flex direction={"column"} gap="2px">
+                    <Text fontSize="12px" color="#c2c2c2">
+                      by default, we record and store your past streams
+                    </Text>
+                    <Flex
+                      alignItems={"center"}
+                      justifyContent={"space-between"}
+                    >
+                      <Text>allow recording</Text>
+                      <Switch
+                        isChecked={newCanRecord}
+                        onChange={() => setNewCanRecord((prev) => !prev)}
+                      />
+                    </Flex>
+                  </Flex>
+                  <Flex direction={"column"} gap="2px">
+                    <Text fontSize="12px" color="#c2c2c2">
+                      by default, your viewers may create highlight clips of
+                      your streams to share
+                    </Text>
+                    <Flex
+                      alignItems={"center"}
+                      justifyContent={"space-between"}
+                    >
+                      <Text>allow clipping</Text>
+                      <Switch
+                        isChecked={newAllowNfcs}
+                        onChange={() => setNewAllowNfcs((prev) => !prev)}
+                      />
+                    </Flex>
+                  </Flex>
+                </Flex>
+                <Flex direction="column">
+                  <Button
+                    color="white"
+                    bg="#2562db"
+                    isDisabled={!isSlugValid || newSlug.length === 0 || loading}
+                    onClick={submitChannel}
+                  >
+                    {loading ? (
+                      <Spinner />
+                    ) : newSlug.length === 0 ? (
+                      "channel URL handle is required"
+                    ) : (
+                      "create channel"
+                    )}
+                  </Button>
+                </Flex>
+              </>
+            ) : (
+              <>
+                <Text textAlign="center" fontSize={"3rem"} fontFamily="LoRes15">
+                  You're all set! Welcome to Unlonely!
+                </Text>
+                <Text textAlign="center" fontSize="15px">
+                  Redirecting you to your new channel page shortly. If you're
+                  still not redirected, click{" "}
+                  <Link href={`/channels/${returnedSlug}`}>
+                    <Text as="span" color="#08c7edff">
+                      here
+                    </Text>
+                  </Link>
+                  .
+                </Text>
+                <Flex justifyContent="center">
+                  <Spinner size="lg" />
+                </Flex>
+              </>
+            )}
+          </Flex>
+        </Flex>
+      )}
     </AppLayout>
   );
 };
