@@ -34,7 +34,7 @@ export default function EditChannelModal({
   ablyChannel: AblyChannelPromise;
 }) {
   const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
+  const { channelQueryData, channelDetails } = channel;
   const { isStandalone } = useUserAgent();
 
   const [formError, setFormError] = useState<string[]>([]);
@@ -61,6 +61,7 @@ export default function EditChannelModal({
         body: JSON.stringify({
           channelName: data.name,
           channelDescription: data.description,
+          chatCommands: channelDetails.chatCommands,
         }),
       },
     });

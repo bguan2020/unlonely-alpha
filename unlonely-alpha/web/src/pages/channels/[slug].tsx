@@ -1,13 +1,6 @@
 import { GetServerSidePropsContext } from "next";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Flex,
-  Text,
-  Image,
-  Stack,
-  IconButton,
-  Tooltip,
-} from "@chakra-ui/react";
+import { Flex, Text, Image, Stack } from "@chakra-ui/react";
 import { useContractEvent } from "wagmi";
 import { Log } from "viem";
 
@@ -102,8 +95,6 @@ const DesktopPage = ({
   const { userAddress, walletIsConnected } = useUser();
 
   const isOwner = userAddress === channelQueryData?.owner?.address;
-
-  const [previewStream, setPreviewStream] = useState<boolean>(false);
 
   const tournamentContract = getContractFromNetwork(
     "unlonelyTournament",
@@ -206,36 +197,10 @@ const DesktopPage = ({
               direction={["column", "column", "row", "row"]}
             >
               <Stack direction="column" width={"100%"}>
-                {isOwner && !previewStream && walletIsConnected ? (
+                {isOwner && walletIsConnected ? (
                   <ChannelStreamerPerspective />
                 ) : (
                   <ChannelViewerPerspective />
-                )}
-                {isOwner && (
-                  <Flex justifyContent={"center"} gap="10px">
-                    <Tooltip
-                      label={`${previewStream ? "hide" : "preview"} stream`}
-                    >
-                      <IconButton
-                        onClick={() => setPreviewStream((prev) => !prev)}
-                        aria-label="preview"
-                        _hover={{}}
-                        _active={{}}
-                        _focus={{}}
-                        icon={
-                          <Image
-                            src="/svg/preview-video.svg"
-                            height={12}
-                            style={{
-                              filter: previewStream
-                                ? "grayscale(100%)"
-                                : "none",
-                            }}
-                          />
-                        }
-                      />
-                    </Tooltip>
-                  </Flex>
                 )}
                 <Flex
                   gap={4}

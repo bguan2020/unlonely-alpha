@@ -1,4 +1,4 @@
-import { Flex, Stack, SimpleGrid, Box, Text, Image } from "@chakra-ui/react";
+import { Flex, Stack } from "@chakra-ui/react";
 
 import { useChannelContext } from "../../hooks/context/useChannel";
 
@@ -16,7 +16,7 @@ const ChannelStreamerPerspective = () => {
     <Flex direction="column" width={"100%"}>
       <Stack direction="column" width={"100%"} justifyContent="center">
         <Flex width={"100%"} position="relative" justifyContent={"center"}>
-          <SimpleGrid columns={3} spacing={10}>
+          {/* <SimpleGrid columns={3} spacing={10}>
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">send notifications</Text>
               <Box
@@ -57,7 +57,7 @@ const ChannelStreamerPerspective = () => {
                 <Image src="/svg/calendar.svg" width="100%" />
               </Box>
             </Flex>
-            {/* <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">edit channel title / description</Text>
               <Box
                 display="flex"
@@ -76,7 +76,7 @@ const ChannelStreamerPerspective = () => {
               >
                 <Image src="/svg/edit.svg" width="100%" />
               </Box>
-            </Flex> */}
+            </Flex>
             <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign="center">custom commands</Text>
               <Box
@@ -97,7 +97,7 @@ const ChannelStreamerPerspective = () => {
                 <Image src="/svg/custom-commands.svg" width="100%" />
               </Box>
             </Flex>
-            {/* <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
+            <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
               <Text textAlign={"center"}>moderators</Text>
               <Box
                 display="flex"
@@ -116,8 +116,8 @@ const ChannelStreamerPerspective = () => {
               >
                 <Image src="/svg/mods.svg" width="100%" />
               </Box>
-            </Flex> */}
-          </SimpleGrid>
+            </Flex>
+          </SimpleGrid> */}
         </Flex>
       </Stack>
     </Flex>

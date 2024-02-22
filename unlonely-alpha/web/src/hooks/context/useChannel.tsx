@@ -31,7 +31,7 @@ import EditChannelModal from "../../components/channels/EditChannelModal";
 import NotificationsModal from "../../components/channels/NotificationsModal";
 import ModeratorModal from "../../components/channels/ModeratorModal";
 import { useNetworkContext } from "./useNetwork";
-import { AblyChannelPromise } from "../../constants";
+import { AblyChannelPromise, CommandData } from "../../constants";
 import { SelectedUser } from "../../constants/types/chat";
 
 export const useChannelContext = () => {
@@ -50,6 +50,7 @@ const ChannelContext = createContext<{
     channelDetails: {
       channelName: string;
       channelDescription: string;
+      chatCommands: CommandData[];
     };
     channelRoles: Role[];
     handleTotalBadges: (value: string) => void;
@@ -63,7 +64,8 @@ const ChannelContext = createContext<{
     ) => void;
     handleChannelDetails: (
       channelName: string,
-      channelDescription: string
+      channelDescription: string,
+      chatCommands: CommandData[]
     ) => void;
   };
   chat: {
@@ -126,6 +128,7 @@ const ChannelContext = createContext<{
     channelDetails: {
       channelName: "",
       channelDescription: "",
+      chatCommands: [],
     },
     channelRoles: [],
     handleTotalBadges: () => undefined,
@@ -279,9 +282,11 @@ export const ChannelProvider = ({
   const [channelDetails, setChannelDetails] = useState<{
     channelName: string;
     channelDescription: string;
+    chatCommands: CommandData[];
   }>({
     channelName: "",
     channelDescription: "",
+    chatCommands: [],
   });
   const [channelRoles, setChannelRoles] = useState<Role[]>([]);
   const [latestBet, setLatestBet] = useState<SharesEvent | undefined>(
@@ -348,6 +353,10 @@ export const ChannelProvider = ({
       setChannelDetails({
         channelName: channelQueryData.name ?? "",
         channelDescription: channelQueryData.description ?? "",
+        chatCommands:
+          channelQueryData?.chatCommands?.filter(
+            (command): command is CommandData => command !== null
+          ) ?? [],
       });
     }
   }, [channelQueryData]);
@@ -414,12 +423,14 @@ export const ChannelProvider = ({
   );
 
   const handleChannelDetails = useCallback(
-    (channelName: string, channelDescription: string) => {
-      if (channelQueryData) {
-        setChannelDetails({ channelName, channelDescription });
-      }
+    (
+      channelName: string,
+      channelDescription: string,
+      chatCommands: CommandData[]
+    ) => {
+      setChannelDetails({ channelName, channelDescription, chatCommands });
     },
-    [channelQueryData]
+    []
   );
 
   const handleChannelStaticData = useCallback(
@@ -608,6 +619,7 @@ export const ChannelWideModals = ({
         title={"custom commands"}
         isOpen={showChatCommandModal}
         handleClose={() => handleChatCommandModal(false)}
+        ablyChannel={ablyChannel}
       />
       <EditChannelModal
         title={"edit title / description"}
