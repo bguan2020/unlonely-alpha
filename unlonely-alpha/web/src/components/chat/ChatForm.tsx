@@ -16,6 +16,7 @@ import {
 import React, { useCallback, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
 import { GiTalk } from "react-icons/gi";
+import { IoIosHelpCircle } from "react-icons/io";
 
 import {
   AblyChannelPromise,
@@ -30,6 +31,8 @@ import EmojiButton from "./emoji/EmojiButton";
 import ConnectWallet from "../navigation/ConnectWallet";
 import { ChatClip } from "./ChatClip";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useTour } from "@reactour/tour";
+import { streamerTourSteps, viewerTourSteps } from "../../pages/_app";
 
 type Props = {
   sendChatMessage: (
@@ -54,6 +57,7 @@ const ChatForm = ({
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
   const { isStandalone } = useUserAgent();
+  const { setIsOpen: setIsTourOpen, setSteps: setTourSteps } = useTour();
 
   const toast = useToast();
   const { channel: channelContext, chat, leaderboard } = useChannelContext();
@@ -258,6 +262,7 @@ const ChatForm = ({
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
+                          data-tour="step-1"
                           icon={<Image src="/svg/cut.svg" height={"20px"} />}
                           aria-label="clip stream"
                           bg="transparent"
@@ -299,6 +304,7 @@ const ChatForm = ({
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
+                          data-tour="step-2"
                           onClick={openChatPopout}
                           aria-label="chat-popout"
                           _focus={{}}
@@ -327,6 +333,7 @@ const ChatForm = ({
                   <Popover trigger="hover" placement="top" openDelay={500}>
                     <PopoverTrigger>
                       <IconButton
+                        data-tour="step-3"
                         color="white"
                         icon={<GiTalk size={20} />}
                         bg="transparent"
@@ -395,6 +402,37 @@ const ChatForm = ({
                       </PopoverContent>
                     </Popover>
                   )}
+                  <Popover trigger="hover" placement="top" openDelay={500}>
+                    <PopoverTrigger>
+                      <IconButton
+                        color="white"
+                        icon={<IoIosHelpCircle size={20} />}
+                        bg="transparent"
+                        aria-label="react"
+                        _focus={{}}
+                        _hover={{ transform: "scale(1.15)" }}
+                        _active={{ transform: "scale(1.3)" }}
+                        onClick={() => {
+                          setTourSteps?.(
+                            isOwner ? streamerTourSteps : viewerTourSteps
+                          );
+                          setIsTourOpen(true);
+                        }}
+                        minWidth="auto"
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      bg="#925800"
+                      border="none"
+                      width="100%"
+                      p="2px"
+                    >
+                      <PopoverArrow bg="#925800" />
+                      <Text fontSize="12px" textAlign={"center"}>
+                        tour around the app!
+                      </Text>
+                    </PopoverContent>
+                  </Popover>
                   <EmojiButton
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
                     onSelectGif={(gif) => sendGif(gif)}

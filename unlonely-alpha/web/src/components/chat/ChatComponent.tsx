@@ -110,6 +110,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                   <Popover trigger="hover" placement="bottom" openDelay={500}>
                     <PopoverTrigger>
                       <IconButton
+                        data-tour="step-2.5"
                         _focus={{}}
                         _active={{}}
                         _hover={{
