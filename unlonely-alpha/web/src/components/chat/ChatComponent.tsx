@@ -106,89 +106,91 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
           >
             <Flex bg="rgba(24, 22, 47, 1)" width={"100%"} direction="column">
               <Flex position="relative" justifyContent={"center"}>
-                <Flex left="0" position="absolute" top="1">
-                  <Popover trigger="hover" placement="bottom" openDelay={500}>
-                    <PopoverTrigger>
-                      <IconButton
-                        data-tour="step-2.5"
-                        _focus={{}}
-                        _active={{}}
-                        _hover={{
-                          transform: "scale(1.2)",
-                        }}
-                        icon={<HiUserGroup size={20} color="white" />}
-                        bg="transparent"
-                        aria-label="moderators"
-                        onClick={() => handleModeratorModal(true)}
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent
-                      bg="#0a9216"
-                      border="none"
-                      width="100%"
-                      p="2px"
-                    >
-                      <PopoverArrow bg="#0a9216" />
-                      <Text fontSize="12px" textAlign={"center"}>
-                        manage moderators!
-                      </Text>
-                    </PopoverContent>
-                  </Popover>
-                  <Popover trigger="hover" placement="bottom" openDelay={500}>
-                    <PopoverTrigger>
-                      <IconButton
-                        _focus={{}}
-                        _active={{}}
-                        _hover={{
-                          transform: "scale(1.2)",
-                        }}
-                        icon={<MdEvent size={20} color="white" />}
-                        bg="transparent"
-                        aria-label="add-event"
-                        onClick={() => {
-                          window.open("https://lu.ma/unlonely", "_blank");
-                        }}
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent
-                      bg="#343dbb"
-                      border="none"
-                      width="100%"
-                      p="2px"
-                    >
-                      <PopoverArrow bg="#343dbb" />
-                      <Text fontSize="12px" textAlign={"center"}>
-                        add an event!
-                      </Text>
-                    </PopoverContent>
-                  </Popover>
-                  <Popover trigger="hover" placement="bottom" openDelay={500}>
-                    <PopoverTrigger>
-                      <IconButton
-                        _focus={{}}
-                        _active={{}}
-                        _hover={{
-                          transform: "scale(1.2)",
-                        }}
-                        icon={<AiFillNotification size={20} color="white" />}
-                        bg="transparent"
-                        aria-label="add-event"
-                        onClick={() => handleNotificationsModal(true)}
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent
-                      bg="#6e9f04"
-                      border="none"
-                      width="100%"
-                      p="2px"
-                    >
-                      <PopoverArrow bg="#6e9f04" />
-                      <Text fontSize="12px" textAlign={"center"}>
-                        send notifications!
-                      </Text>
-                    </PopoverContent>
-                  </Popover>
-                </Flex>
+                {isOwner && (
+                  <Flex left="0" position="absolute" top="1">
+                    <Popover trigger="hover" placement="bottom" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          data-tour="step-2.5"
+                          _focus={{}}
+                          _active={{}}
+                          _hover={{
+                            transform: "scale(1.2)",
+                          }}
+                          icon={<HiUserGroup size={20} color="white" />}
+                          bg="transparent"
+                          aria-label="moderators"
+                          onClick={() => handleModeratorModal(true)}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#0a9216"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#0a9216" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          manage moderators!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                    <Popover trigger="hover" placement="bottom" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          _focus={{}}
+                          _active={{}}
+                          _hover={{
+                            transform: "scale(1.2)",
+                          }}
+                          icon={<MdEvent size={20} color="white" />}
+                          bg="transparent"
+                          aria-label="add-event"
+                          onClick={() => {
+                            window.open("https://lu.ma/unlonely", "_blank");
+                          }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#343dbb"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#343dbb" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          add an event!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                    <Popover trigger="hover" placement="bottom" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          _focus={{}}
+                          _active={{}}
+                          _hover={{
+                            transform: "scale(1.2)",
+                          }}
+                          icon={<AiFillNotification size={20} color="white" />}
+                          bg="transparent"
+                          aria-label="add-event"
+                          onClick={() => handleNotificationsModal(true)}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#6e9f04"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#6e9f04" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          send notifications!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                  </Flex>
+                )}
                 {presenceChannel && (
                   <Flex
                     justifyContent={"center"}

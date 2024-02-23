@@ -7,12 +7,16 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { getColorFromString } from "../../styles/Colors";
 import { FaPencilAlt } from "react-icons/fa";
+import { useUser } from "../../hooks/context/useUser";
 
 const ChannelDesc = () => {
+  const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, ui } = useChannelContext();
   const { channelQueryData, totalBadges, channelDetails } = channel;
   const { handleEditModal } = ui;
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   const imageUrl = channelQueryData?.owner?.FCImageUrl
     ? channelQueryData?.owner.FCImageUrl
@@ -79,7 +83,7 @@ const ChannelDesc = () => {
           >
             {channelDetails.channelName}
           </Text>
-          {
+          {isOwner && (
             <IconButton
               aria-label="edit channel title"
               _focus={{}}
@@ -91,7 +95,7 @@ const ChannelDesc = () => {
               bg="transparent"
               onClick={() => handleEditModal(true)}
             />
-          }
+          )}
         </Flex>
         <Text
           fontSize={["0.5rem", "0.8rem"]}
