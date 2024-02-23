@@ -61,6 +61,9 @@ const ChannelStreamerPerspective = ({
   const [showRTMPIngest, setShowRTMPIngest] = useState(false);
   const [showSRTIngest, setShowSRTIngest] = useState(false);
 
+  const [selectedVideoDeviceId, setSelectedVideoDeviceId] = useState("");
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+
   const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
     GET_LIVEPEER_STREAM_DATA_QUERY,
     {
@@ -136,6 +139,41 @@ const ChannelStreamerPerspective = ({
     setShowRTMPIngest(false);
     setShowSRTIngest(false);
   }, [isBrowserBroadcastSelected]);
+
+  useEffect(() => {
+    // Fetch available video devices
+    async function fetchDevices() {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(
+        (device) => device.kind === "videoinput"
+      );
+      setVideoDevices(videoDevices);
+      if (videoDevices.length > 0) {
+        setSelectedVideoDeviceId(videoDevices[0].deviceId); // Default to the first camera
+      }
+    }
+
+    fetchDevices();
+  }, []);
+
+  useEffect(() => {
+    // Change the video source
+    async function changeVideoSource() {
+      if (selectedVideoDeviceId) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: { exact: selectedVideoDeviceId } },
+        });
+        const videoElement = document.querySelector<HTMLVideoElement>(
+          '[aria-label="Video player"]'
+        );
+        if (videoElement) {
+          videoElement.srcObject = stream;
+        }
+      }
+    }
+
+    changeVideoSource();
+  }, [selectedVideoDeviceId]);
 
   return (
     <Flex width={"100%"} direction={"column"} gap="10px" h="80vh">
@@ -416,17 +454,17 @@ const ChannelStreamerPerspective = ({
                   GO <ExternalLinkIcon ml="2px" />
                 </Button>
                 {/* <Button
-                bg="#06aa53"
-                color={"white"}
-                _hover={{}}
-                _focus={{}}
-                _active={{}}
-                onClick={() => {
-                  setIsBroadcasting((prev) => !prev);
-                }}
-              >
-                GO
-              </Button> */}
+                  bg="#06aa53"
+                  color={"white"}
+                  _hover={{}}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={() => {
+                    setIsBroadcasting((prev) => !prev);
+                  }}
+                >
+                  GO
+                </Button> */}
               </Flex>
             )}
           </Flex>
