@@ -93,7 +93,7 @@ const Onboard = () => {
 
     if (livepeerStreamId && livepeerPlaybackId && streamKey && returnedSlug) {
       setSuccess(true);
-      timeout = setTimeout(redirectToNewChannelPage, 3000);
+      timeout = setTimeout(redirectToNewChannelPage, 2000);
     }
     return () => clearTimeout(timeout);
   }, [livepeerStreamId, livepeerPlaybackId, streamKey, returnedSlug]);
@@ -261,7 +261,7 @@ const Onboard = () => {
                   </Flex>
                   <Flex direction={"column"} gap="2px">
                     <Text fontSize="12px" color="#c2c2c2">
-                      by default, we record and store your past streams
+                      we record and store your streams for future use
                     </Text>
                     <Flex
                       alignItems={"center"}
@@ -276,8 +276,8 @@ const Onboard = () => {
                   </Flex>
                   <Flex direction={"column"} gap="2px">
                     <Text fontSize="12px" color="#c2c2c2">
-                      by default, your viewers may create highlight clips of
-                      your streams to share
+                      your viewers may create highlight clips of your streams to
+                      share
                     </Text>
                     <Flex
                       alignItems={"center"}
