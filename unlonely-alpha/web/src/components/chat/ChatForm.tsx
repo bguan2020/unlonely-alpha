@@ -65,7 +65,7 @@ const ChatForm = ({
   const { clipping } = chat;
   const { handleIsClipUiOpen, loading: clipLoading } = clipping;
 
-  const { channelQueryData } = channelContext;
+  const { channelQueryData, channelDetails } = channelContext;
 
   const [messageText, setMessageText] = useState<string>("");
   const [commandsOpen, setCommandsOpen] = useState(false);
@@ -271,7 +271,7 @@ const ChatForm = ({
                           _active={{ transform: "scale(1.3)" }}
                           minWidth="auto"
                           onClick={() => {
-                            if (!channelQueryData?.allowNFCs) {
+                            if (!channelDetails?.allowNfcs) {
                               toast({
                                 title: "Clipping is disabled for this stream.",
                                 status: "warning",

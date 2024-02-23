@@ -51,6 +51,7 @@ const ChannelContext = createContext<{
       channelName: string;
       channelDescription: string;
       chatCommands: CommandData[];
+      allowNfcs: boolean;
     };
     channelRoles: Role[];
     handleTotalBadges: (value: string) => void;
@@ -65,7 +66,8 @@ const ChannelContext = createContext<{
     handleChannelDetails: (
       channelName: string,
       channelDescription: string,
-      chatCommands: CommandData[]
+      chatCommands: CommandData[],
+      allowNfcs: boolean
     ) => void;
   };
   chat: {
@@ -129,6 +131,7 @@ const ChannelContext = createContext<{
       channelName: "",
       channelDescription: "",
       chatCommands: [],
+      allowNfcs: true,
     },
     channelRoles: [],
     handleTotalBadges: () => undefined,
@@ -283,10 +286,12 @@ export const ChannelProvider = ({
     channelName: string;
     channelDescription: string;
     chatCommands: CommandData[];
+    allowNfcs: boolean;
   }>({
     channelName: "",
     channelDescription: "",
     chatCommands: [],
+    allowNfcs: true,
   });
   const [channelRoles, setChannelRoles] = useState<Role[]>([]);
   const [latestBet, setLatestBet] = useState<SharesEvent | undefined>(
@@ -357,6 +362,7 @@ export const ChannelProvider = ({
           channelQueryData?.chatCommands?.filter(
             (command): command is CommandData => command !== null
           ) ?? [],
+        allowNfcs: channelQueryData?.allowNFCs ?? false,
       });
     }
   }, [channelQueryData]);
@@ -426,9 +432,15 @@ export const ChannelProvider = ({
     (
       channelName: string,
       channelDescription: string,
-      chatCommands: CommandData[]
+      chatCommands: CommandData[],
+      allowNfcs: boolean
     ) => {
-      setChannelDetails({ channelName, channelDescription, chatCommands });
+      setChannelDetails({
+        channelName,
+        channelDescription,
+        chatCommands,
+        allowNfcs,
+      });
     },
     []
   );

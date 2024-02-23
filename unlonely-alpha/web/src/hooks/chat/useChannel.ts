@@ -84,7 +84,8 @@ export function useChannel(fixedChatName?: string) {
     }
     if (message.name === CHANGE_CHANNEL_DETAILS_EVENT) {
       const body = JSON.parse(message.data.body);
-      handleChannelDetails(body.channelName, body.channelDescription, body.chatCommands);
+      console.log("body", body);
+      handleChannelDetails(body.channelName, body.channelDescription, body.chatCommands, body.allowNfcs);
     }
     if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
       const newSliderValue = JSON.parse(message.data.body);

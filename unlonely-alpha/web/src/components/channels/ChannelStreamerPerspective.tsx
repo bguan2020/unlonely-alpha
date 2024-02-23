@@ -5,6 +5,7 @@ import {
   IconButton,
   useToast,
   Spinner,
+  Switch,
 } from "@chakra-ui/react";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useEffect, useMemo, useState } from "react";
@@ -16,6 +17,15 @@ import LivepeerPlayer from "../stream/LivepeerPlayer";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import LivepeerBroadcast from "../stream/LivepeerBroadcast";
 import useMigrateChannelToLivepeer from "../../hooks/server/useMigrateChannelToLivepeer";
+import useUpdateChannelClipping from "../../hooks/server/useUpdateChannelClipping";
+import {
+  AblyChannelPromise,
+  CHANGE_CHANNEL_DETAILS_EVENT,
+} from "../../constants";
+import useUpdateLivepeerStreamData from "../../hooks/server/useUpdateLivepeerStreamData";
+import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../constants/queries";
+import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
+import { useLazyQuery } from "@apollo/client";
 
 const instructions = [
   {
@@ -32,19 +42,37 @@ const instructions = [
   },
 ];
 
-const ChannelStreamerPerspective = () => {
+const ChannelStreamerPerspective = ({
+  ablyChannel,
+}: {
+  ablyChannel: AblyChannelPromise;
+}) => {
   const toast = useToast();
 
   const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
+  const { channelQueryData, channelDetails } = channel;
 
   const [isBrowserBroadcastSelected, setIsBrowserBroadcastSelected] =
     useState(false);
   const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [canLivepeerRecord, setCanLivepeerRecord] = useState(true);
 
   const [showStreamKey, setShowStreamKey] = useState(false);
   const [showRTMPIngest, setShowRTMPIngest] = useState(false);
   const [showSRTIngest, setShowSRTIngest] = useState(false);
+
+  const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
+    GET_LIVEPEER_STREAM_DATA_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
+  );
+
+  const { updateLivepeerStreamData, loading: updateLivepeerStreamDataLoading } =
+    useUpdateLivepeerStreamData({});
+
+  const { updateChannelClipping, loading: updateChannelClippingLoading } =
+    useUpdateChannelClipping({});
 
   const streamKey = useMemo(() => {
     return channelQueryData?.streamKey ?? "";
@@ -62,6 +90,46 @@ const ChannelStreamerPerspective = () => {
       isClosable: true,
     });
   };
+
+  const callNfcsChange = async (newNfcs: boolean) => {
+    const res = await updateChannelClipping({
+      id: channelQueryData?.id,
+      allowNfcs: newNfcs,
+    });
+    ablyChannel?.publish({
+      name: CHANGE_CHANNEL_DETAILS_EVENT,
+      data: {
+        body: JSON.stringify({
+          channelName: channelDetails?.channelName,
+          channelDescription: channelDetails?.channelDescription,
+          chatCommands: channelDetails?.chatCommands,
+          allowNfcs: res?.res?.allowNFCs ?? false,
+        }),
+      },
+    });
+  };
+
+  const callUpdateLivepeerStreamData = async (canRecord: boolean) => {
+    const res = await updateLivepeerStreamData({
+      streamId: channelQueryData?.livepeerStreamId,
+      canRecord,
+    });
+    setCanLivepeerRecord(res?.res?.record ?? false);
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      if (channelQueryData?.livepeerStreamId) {
+        const res = await getLivepeerStreamData({
+          variables: {
+            data: { streamId: channelQueryData?.livepeerStreamId },
+          },
+        });
+        setCanLivepeerRecord(res.data?.getLivepeerStreamData?.record ?? false);
+      }
+    };
+    init();
+  }, [channelQueryData?.livepeerStreamId]);
 
   useEffect(() => {
     setShowStreamKey(false);
@@ -130,7 +198,7 @@ const ChannelStreamerPerspective = () => {
                 browser
               </Button>
             </Flex>
-            <Flex direction="column" gap="5px">
+            <Flex direction="column" gap="5px" justifyContent={"space-between"}>
               {isBrowserBroadcastSelected
                 ? instructions[1].text.map((t) => {
                     return <Text fontSize="14px">{t}</Text>;
@@ -138,6 +206,42 @@ const ChannelStreamerPerspective = () => {
                 : instructions[0].text.map((t) => {
                     return <Text fontSize="14px">{t}</Text>;
                   })}
+              <Flex gap="2px" justifyContent={"space-evenly"}>
+                <Flex
+                  direction={"column"}
+                  alignItems={"center"}
+                  justifyContent={"space-between"}
+                >
+                  <Text fontSize="12px">allow recording</Text>
+                  {updateLivepeerStreamDataLoading ? (
+                    <Spinner />
+                  ) : (
+                    <Switch
+                      isChecked={canLivepeerRecord}
+                      onChange={() => {
+                        callUpdateLivepeerStreamData(!canLivepeerRecord);
+                      }}
+                    />
+                  )}
+                </Flex>
+                <Flex
+                  direction={"column"}
+                  alignItems={"center"}
+                  justifyContent={"space-between"}
+                >
+                  <Text fontSize="12px">allow clipping</Text>
+                  {updateChannelClippingLoading ? (
+                    <Spinner />
+                  ) : (
+                    <Switch
+                      isChecked={channelDetails?.allowNfcs}
+                      onChange={() => {
+                        callNfcsChange(!channelDetails?.allowNfcs);
+                      }}
+                    />
+                  )}
+                </Flex>
+              </Flex>
             </Flex>
             {!isBrowserBroadcastSelected ? (
               <Flex direction="column" gap="5px">

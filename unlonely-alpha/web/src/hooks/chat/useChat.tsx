@@ -242,7 +242,7 @@ export const useChatBox = (
       messageToPublish = `${data}`;
       allowPublish = true;
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
-      if (channelQueryData?.allowNFCs || false) {
+      if (channelDetails?.allowNfcs || false) {
         handleIsClipUiOpen(true);
         allowPublish = false;
       } else {

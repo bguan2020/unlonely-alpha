@@ -62,6 +62,7 @@ export default function ChatCommandModal({
           channelName: channelDetails.channelName,
           channelDescription: channelDetails.channelDescription,
           chatCommands: commandsData,
+          allowNfcs: channelDetails.allowNfcs,
         }),
       },
     });

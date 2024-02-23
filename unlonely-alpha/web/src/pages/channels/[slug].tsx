@@ -198,7 +198,7 @@ const DesktopPage = ({
             >
               <Stack direction="column" width={"100%"}>
                 {isOwner && walletIsConnected ? (
-                  <ChannelStreamerPerspective />
+                  <ChannelStreamerPerspective ablyChannel={chat.channel} />
                 ) : (
                   <ChannelViewerPerspective />
                 )}
