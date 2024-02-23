@@ -23,6 +23,9 @@ export const resolvers = {
     },
     getChannelSearchResults(_: any, { data }: { data: channelService.IGetChannelSearchResultsInput }, ctx: Context) {
       return channelService.getChannelSearchResults(data, ctx);
+    },
+    getLivepeerStreamData(_: any, { data }: { data: channelService.IGetLivepeerStreamDataInput }, ctx: Context) {
+      return channelService.getLivepeerStreamData(data);
     }
   },
   Mutation: {
@@ -83,6 +86,26 @@ export const resolvers = {
       }
 
       return channelService.updateChannelText(data, ctx);
+    },
+    updateChannelClipping: (
+      _: any,
+      { data }: { data: channelService.IUpdateChannelClippingInput },
+      ctx: Context
+    ) => {
+      // if (!ctx.user || !ctx.userIsAuthed) {
+      //   throw new AuthenticationError("User is not authenticated");
+      // }
+
+      return channelService.updateChannelClipping(data, ctx);
+    },
+    updateLivepeerStreamData: (
+      _: any,
+      { data }: { data: channelService.IUpdateLivepeerStreamDataInput }, ctx: Context
+    ) => {
+      // if (!ctx.user || !ctx.userIsAuthed) {
+      //   throw new AuthenticationError("User is not authenticated");
+      // }
+      return channelService.updateLivepeerStreamData(data);
     },
     updateChannelCustomButton: (
       _: any,

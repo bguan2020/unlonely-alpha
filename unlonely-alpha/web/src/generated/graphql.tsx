@@ -125,6 +125,12 @@ export type ChannelFeedInput = {
   orderBy?: InputMaybe<SortBy>;
 };
 
+export type ChannelSearchInput = {
+  limit?: InputMaybe<Scalars["Int"]>;
+  query?: InputMaybe<Scalars["String"]>;
+  skip?: InputMaybe<Scalars["Int"]>;
+};
+
 export type ChannelUserRole = {
   __typename?: "ChannelUserRole";
   channelId: Scalars["Int"];
@@ -299,6 +305,10 @@ export type GetGamblableEventUserRankInput = {
   userAddress: Scalars["String"];
 };
 
+export type GetLivepeerStreamDataInput = {
+  streamId?: InputMaybe<Scalars["String"]>;
+};
+
 export type GetPoapInput = {
   date: Scalars["String"];
 };
@@ -359,6 +369,14 @@ export enum LikeObj {
   Nfc = "NFC",
 }
 
+export type LivepeerStreamData = {
+  __typename?: "LivepeerStreamData";
+  isActive?: Maybe<Scalars["Boolean"]>;
+  playbackId?: Maybe<Scalars["String"]>;
+  record?: Maybe<Scalars["Boolean"]>;
+  streamKey?: Maybe<Scalars["String"]>;
+};
+
 export type MigrateChannelToLivepeerInput = {
   canRecord?: InputMaybe<Scalars["Boolean"]>;
   ownerAddress: Scalars["String"];
@@ -405,12 +423,14 @@ export type Mutation = {
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   toggleSubscription?: Maybe<Subscription>;
+  updateChannelClipping?: Maybe<Channel>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelText?: Maybe<Channel>;
   updateChannelVibesTokenPriceRange?: Maybe<Channel>;
   updateCreatorTokenPrice: CreatorToken;
   updateDeleteChatCommands?: Maybe<Channel>;
   updateDeviceToken?: Maybe<DeviceToken>;
+  updateLivepeerStreamData?: Maybe<LivepeerStreamData>;
   updateNFC?: Maybe<Nfc>;
   updateOpenseaLink?: Maybe<Nfc>;
   updateSharesEvent?: Maybe<Channel>;
@@ -544,6 +564,10 @@ export type MutationToggleSubscriptionArgs = {
   data: ToggleSubscriptionInput;
 };
 
+export type MutationUpdateChannelClippingArgs = {
+  data: UpdateChannelClippingInput;
+};
+
 export type MutationUpdateChannelCustomButtonArgs = {
   data: UpdateChannelCustomButtonInput;
 };
@@ -566,6 +590,10 @@ export type MutationUpdateDeleteChatCommandsArgs = {
 
 export type MutationUpdateDeviceTokenArgs = {
   data: UpdateDeviceInput;
+};
+
+export type MutationUpdateLivepeerStreamDataArgs = {
+  data: UpdateLivepeerStreamDataInput;
 };
 
 export type MutationUpdateNfcArgs = {
@@ -782,12 +810,14 @@ export type Query = {
   getChannelById?: Maybe<Channel>;
   getChannelBySlug?: Maybe<Channel>;
   getChannelFeed?: Maybe<Array<Maybe<Channel>>>;
+  getChannelSearchResults?: Maybe<Array<Maybe<Channel>>>;
   getChannelWithTokenById?: Maybe<Channel>;
   getChannelsByNumberOfBadgeHolders: Array<Maybe<NumberOfHolders>>;
   getDeviceByToken?: Maybe<DeviceToken>;
   getGamblableEventLeaderboardByChannelId: Array<GamblableEventLeaderboard>;
   getGamblableEventUserRank: Scalars["Int"];
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
+  getLivepeerStreamData?: Maybe<LivepeerStreamData>;
   getNFC?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
   getPoap?: Maybe<Poap>;
@@ -842,6 +872,10 @@ export type QueryGetChannelFeedArgs = {
   data?: InputMaybe<ChannelFeedInput>;
 };
 
+export type QueryGetChannelSearchResultsArgs = {
+  data: ChannelSearchInput;
+};
+
 export type QueryGetChannelWithTokenByIdArgs = {
   id: Scalars["ID"];
 };
@@ -856,6 +890,10 @@ export type QueryGetGamblableEventLeaderboardByChannelIdArgs = {
 
 export type QueryGetGamblableEventUserRankArgs = {
   data?: InputMaybe<GetGamblableEventUserRankInput>;
+};
+
+export type QueryGetLivepeerStreamDataArgs = {
+  data: GetLivepeerStreamDataInput;
 };
 
 export type QueryGetNfcArgs = {
@@ -1035,6 +1073,11 @@ export type ToggleSubscriptionInput = {
   endpoint: Scalars["String"];
 };
 
+export type UpdateChannelClippingInput = {
+  allowNfcs?: InputMaybe<Scalars["Boolean"]>;
+  id: Scalars["ID"];
+};
+
 export type UpdateChannelCustomButtonInput = {
   customButtonAction: Scalars["String"];
   customButtonPrice: Scalars["Int"];
@@ -1066,6 +1109,11 @@ export type UpdateDeviceInput = {
   notificationsLive: Scalars["Boolean"];
   notificationsNFCs: Scalars["Boolean"];
   token: Scalars["String"];
+};
+
+export type UpdateLivepeerStreamDataInput = {
+  canRecord?: InputMaybe<Scalars["Boolean"]>;
+  streamId?: InputMaybe<Scalars["String"]>;
 };
 
 export type UpdateManyResponse = {
@@ -1526,6 +1574,21 @@ export type GetBaseLeaderboardQuery = {
       lensImageUrl?: string | null;
     } | null;
   }>;
+};
+
+export type GetLivepeerStreamDataQueryVariables = Exact<{
+  data: GetLivepeerStreamDataInput;
+}>;
+
+export type GetLivepeerStreamDataQuery = {
+  __typename?: "Query";
+  getLivepeerStreamData?: {
+    __typename?: "LivepeerStreamData";
+    streamKey?: string | null;
+    record?: boolean | null;
+    playbackId?: string | null;
+    isActive?: boolean | null;
+  } | null;
 };
 
 export type GetBadgeHoldersByChannelQueryVariables = Exact<{
@@ -2073,6 +2136,34 @@ export type FetchCurrentUserQuery = {
     __typename?: "User";
     signature?: string | null;
     sigTimestamp?: any | null;
+  } | null;
+};
+
+export type UpdateChannelClippingMutationVariables = Exact<{
+  data: UpdateChannelClippingInput;
+}>;
+
+export type UpdateChannelClippingMutation = {
+  __typename?: "Mutation";
+  updateChannelClipping?: {
+    __typename?: "Channel";
+    allowNFCs?: boolean | null;
+    id: string;
+  } | null;
+};
+
+export type UpdateLivepeerStreamDataMutationVariables = Exact<{
+  data: UpdateLivepeerStreamDataInput;
+}>;
+
+export type UpdateLivepeerStreamDataMutation = {
+  __typename?: "Mutation";
+  updateLivepeerStreamData?: {
+    __typename?: "LivepeerStreamData";
+    streamKey?: string | null;
+    record?: boolean | null;
+    playbackId?: string | null;
+    isActive?: boolean | null;
   } | null;
 };
 
@@ -3235,6 +3326,67 @@ export type GetBaseLeaderboardLazyQueryHookResult = ReturnType<
 export type GetBaseLeaderboardQueryResult = Apollo.QueryResult<
   GetBaseLeaderboardQuery,
   GetBaseLeaderboardQueryVariables
+>;
+export const GetLivepeerStreamDataDocument = gql`
+  query GetLivepeerStreamData($data: GetLivepeerStreamDataInput!) {
+    getLivepeerStreamData(data: $data) {
+      streamKey
+      record
+      playbackId
+      isActive
+    }
+  }
+`;
+
+/**
+ * __useGetLivepeerStreamDataQuery__
+ *
+ * To run a query within a React component, call `useGetLivepeerStreamDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLivepeerStreamDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLivepeerStreamDataQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetLivepeerStreamDataQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetLivepeerStreamDataQuery,
+    GetLivepeerStreamDataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetLivepeerStreamDataQuery,
+    GetLivepeerStreamDataQueryVariables
+  >(GetLivepeerStreamDataDocument, options);
+}
+export function useGetLivepeerStreamDataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetLivepeerStreamDataQuery,
+    GetLivepeerStreamDataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetLivepeerStreamDataQuery,
+    GetLivepeerStreamDataQueryVariables
+  >(GetLivepeerStreamDataDocument, options);
+}
+export type GetLivepeerStreamDataQueryHookResult = ReturnType<
+  typeof useGetLivepeerStreamDataQuery
+>;
+export type GetLivepeerStreamDataLazyQueryHookResult = ReturnType<
+  typeof useGetLivepeerStreamDataLazyQuery
+>;
+export type GetLivepeerStreamDataQueryResult = Apollo.QueryResult<
+  GetLivepeerStreamDataQuery,
+  GetLivepeerStreamDataQueryVariables
 >;
 export const GetBadgeHoldersByChannelDocument = gql`
   query GetBadgeHoldersByChannel($data: GetBadgeHoldersByChannelInput!) {
@@ -5427,3 +5579,108 @@ export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
 >;
+export const UpdateChannelClippingDocument = gql`
+  mutation UpdateChannelClipping($data: UpdateChannelClippingInput!) {
+    updateChannelClipping(data: $data) {
+      allowNFCs
+      id
+    }
+  }
+`;
+export type UpdateChannelClippingMutationFn = Apollo.MutationFunction<
+  UpdateChannelClippingMutation,
+  UpdateChannelClippingMutationVariables
+>;
+
+/**
+ * __useUpdateChannelClippingMutation__
+ *
+ * To run a mutation, you first call `useUpdateChannelClippingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChannelClippingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChannelClippingMutation, { data, loading, error }] = useUpdateChannelClippingMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChannelClippingMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateChannelClippingMutation,
+    UpdateChannelClippingMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateChannelClippingMutation,
+    UpdateChannelClippingMutationVariables
+  >(UpdateChannelClippingDocument, options);
+}
+export type UpdateChannelClippingMutationHookResult = ReturnType<
+  typeof useUpdateChannelClippingMutation
+>;
+export type UpdateChannelClippingMutationResult =
+  Apollo.MutationResult<UpdateChannelClippingMutation>;
+export type UpdateChannelClippingMutationOptions = Apollo.BaseMutationOptions<
+  UpdateChannelClippingMutation,
+  UpdateChannelClippingMutationVariables
+>;
+export const UpdateLivepeerStreamDataDocument = gql`
+  mutation UpdateLivepeerStreamData($data: UpdateLivepeerStreamDataInput!) {
+    updateLivepeerStreamData(data: $data) {
+      streamKey
+      record
+      playbackId
+      isActive
+    }
+  }
+`;
+export type UpdateLivepeerStreamDataMutationFn = Apollo.MutationFunction<
+  UpdateLivepeerStreamDataMutation,
+  UpdateLivepeerStreamDataMutationVariables
+>;
+
+/**
+ * __useUpdateLivepeerStreamDataMutation__
+ *
+ * To run a mutation, you first call `useUpdateLivepeerStreamDataMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateLivepeerStreamDataMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateLivepeerStreamDataMutation, { data, loading, error }] = useUpdateLivepeerStreamDataMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateLivepeerStreamDataMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateLivepeerStreamDataMutation,
+    UpdateLivepeerStreamDataMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateLivepeerStreamDataMutation,
+    UpdateLivepeerStreamDataMutationVariables
+  >(UpdateLivepeerStreamDataDocument, options);
+}
+export type UpdateLivepeerStreamDataMutationHookResult = ReturnType<
+  typeof useUpdateLivepeerStreamDataMutation
+>;
+export type UpdateLivepeerStreamDataMutationResult =
+  Apollo.MutationResult<UpdateLivepeerStreamDataMutation>;
+export type UpdateLivepeerStreamDataMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateLivepeerStreamDataMutation,
+    UpdateLivepeerStreamDataMutationVariables
+  >;

@@ -294,6 +294,17 @@ export const GET_BASE_LEADERBOARD_QUERY = gql`
   }
 `;
 
+export const GET_LIVEPEER_STREAM_DATA_QUERY = gql`
+  query GetLivepeerStreamData($data: GetLivepeerStreamDataInput!) {
+    getLivepeerStreamData(data: $data) {
+      streamKey
+      record
+      playbackId
+      isActive
+    }
+  }
+`;
+
 export const GET_BADGE_HOLDERS_BY_CHANNEL_QUERY = gql`
   query GetBadgeHoldersByChannel($data: GetBadgeHoldersByChannelInput!) {
     getBadgeHoldersByChannel(data: $data)

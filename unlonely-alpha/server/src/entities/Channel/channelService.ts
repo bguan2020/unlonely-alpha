@@ -150,6 +150,32 @@ export const migrateChannelToLivepeer = async (data: IMigrateChannelToLivepeerIn
   }
 }
 
+export interface IUpdateChannelClippingInput {
+  id: number;
+  allowNfcs: boolean;
+}
+
+export const updateChannelClipping = async (
+  data: IUpdateChannelClippingInput,
+  ctx: Context
+) => {
+
+  const existingChannel = await ctx.prisma.channel.findUnique({
+    where: { id: Number(data.id) },
+  });
+
+  if (!existingChannel) {
+    throw new Error("Channel not found");
+  }
+
+  return await ctx.prisma.channel.update({
+    where: { id: Number(data.id)},
+    data: {
+      allowNFCs: data.allowNfcs,
+    },
+  });
+}
+
 export const updateChannelText = (
   data: IPostChannelTextInput,
   ctx: Context
@@ -511,6 +537,59 @@ export const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
     return null;
   }
 };
+
+export interface IGetLivepeerStreamDataInput {
+  streamId: string;
+}
+
+export const getLivepeerStreamData = async (data: IGetLivepeerStreamDataInput) => {
+  try {
+    const response = await axios.get(
+      `https://livepeer.studio/api/stream/${data.streamId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+        },
+      }
+    );
+    return {
+      playbackId: response.data.playbackId,
+      streamKey: response.data.streamKey,
+      record: response.data.record,
+      isActive: response.data.isActive,
+    };
+  } catch (error: any) {
+    console.log("getLivepeerLivestreamData error", error);
+    throw error;
+  }
+}
+
+export interface IUpdateLivepeerStreamDataInput {
+  streamId: string;
+  canRecord: boolean;
+}
+
+export const updateLivepeerStreamData = async (data: IUpdateLivepeerStreamDataInput) => {
+  try {
+    await axios.patch(
+      `https://livepeer.studio/api/stream/${data.streamId}`,
+      {
+        record: data.canRecord,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return await getLivepeerStreamData({ streamId: data.streamId });
+  } catch (error) {
+    console.log("updateLivepeerLivestreamData error", error);
+    throw error;
+  }
+}
+
 
 export interface IPostUserRoleForChannelInput {
   channelId: number;
