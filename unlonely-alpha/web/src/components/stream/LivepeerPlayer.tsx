@@ -1,21 +1,24 @@
 import { Player } from "@livepeer/react";
 import { memo } from "react";
+import { Flex } from "@chakra-ui/react";
 
 const LivepeerPlayer = memo(
   ({ playbackId }: { playbackId: string | null | undefined }) => {
     return (
-      <Player
-        playbackId={playbackId}
-        aspectRatio="16to9"
-        controls={{
-          autohide: 3000,
-        }}
-        theme={{
-          borderStyles: { containerBorderStyle: undefined },
-          radii: { containerBorderRadius: "10px" },
-        }}
-        autoPlay
-      />
+      <Flex direction="column" width="100%" position="relative">
+        <Player
+          playbackId={playbackId}
+          aspectRatio="16to9"
+          controls={{
+            autohide: 3000,
+          }}
+          theme={{
+            borderStyles: { containerBorderStyle: undefined },
+            radii: { containerBorderRadius: "10px" },
+          }}
+          autoPlay
+        />
+      </Flex>
     );
   },
   (prevProps, nextProps) => {
