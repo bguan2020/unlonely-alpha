@@ -197,9 +197,7 @@ const DesktopPage = ({
               direction={["column", "column", "row", "row"]}
             >
               <Stack direction="column" width={"100%"}>
-                {isOwner &&
-                walletIsConnected &&
-                channelQueryData?.livepeerPlaybackId ? (
+                {isOwner && walletIsConnected ? (
                   <ChannelStreamerPerspective />
                 ) : (
                   <ChannelViewerPerspective />

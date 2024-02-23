@@ -1747,7 +1747,14 @@ export type MigrateChannelToLivepeerMutationVariables = Exact<{
 
 export type MigrateChannelToLivepeerMutation = {
   __typename?: "Mutation";
-  migrateChannelToLivepeer?: { __typename?: "Channel"; id: string } | null;
+  migrateChannelToLivepeer?: {
+    __typename?: "Channel";
+    id: string;
+    streamKey?: string | null;
+    livepeerPlaybackId?: string | null;
+    livepeerStreamId?: string | null;
+    slug: string;
+  } | null;
 };
 
 export type PostBaseLeaderboardMutationVariables = Exact<{
@@ -3991,6 +3998,10 @@ export const MigrateChannelToLivepeerDocument = gql`
   mutation MigrateChannelToLivepeer($data: MigrateChannelToLivepeerInput!) {
     migrateChannelToLivepeer(data: $data) {
       id
+      streamKey
+      livepeerPlaybackId
+      livepeerStreamId
+      slug
     }
   }
 `;

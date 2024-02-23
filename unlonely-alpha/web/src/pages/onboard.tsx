@@ -6,6 +6,8 @@ import {
   Switch,
   Text,
   Tooltip,
+  useToast,
+  IconButton,
 } from "@chakra-ui/react";
 import AppLayout from "../components/layout/AppLayout";
 import { useCacheContext } from "../hooks/context/useCache";
@@ -14,11 +16,14 @@ import usePostChannel from "../hooks/server/usePostChannel";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePrivy } from "@privy-io/react-auth";
+import { FaRegCopy } from "react-icons/fa";
+import copy from "copy-to-clipboard";
 
 const Onboard = () => {
   const { user, walletIsConnected } = useUser();
   const { channelFeed } = useCacheContext();
   const { login, connectWallet, user: privyUser } = usePrivy();
+  const toast = useToast();
 
   const { postChannel } = usePostChannel({
     onError: () => {
@@ -40,6 +45,16 @@ const Onboard = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
+  const handleCopy = () => {
+    toast({
+      title: "copied to clipboard",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
 
   const submitChannel = async () => {
     if (user?.address) {
@@ -59,6 +74,7 @@ const Onboard = () => {
         setReturnedSlug(res?.res?.slug || "");
       } catch (e) {
         console.error(e);
+        setError(String(e));
       }
       setLoading(false);
     }
@@ -127,7 +143,66 @@ const Onboard = () => {
             bg="#131323"
             width={"400px"}
           >
-            {!success ? (
+            {error ? (
+              <>
+                <Text textAlign="center" fontSize={"3rem"} fontFamily="LoRes15">
+                  Something went wrong on our end...
+                </Text>
+                <Text textAlign="center" fontSize="15px">
+                  Please reach out to us and send the following error message as
+                  well as info about the channel you wanted to create:{" "}
+                </Text>
+                <Flex
+                  direction="column"
+                  p="15px"
+                  bg="rgba(0, 0, 0, 0.5)"
+                  gap="10px"
+                >
+                  <Text
+                    textAlign="center"
+                    fontSize="15px"
+                    noOfLines={1}
+                    color="red.300"
+                  >
+                    {error}
+                  </Text>
+                  <IconButton
+                    aria-label="copy-onboard-error"
+                    color="white"
+                    icon={<FaRegCopy size="25px" />}
+                    height="20px"
+                    minWidth={"20px"}
+                    bg="transparent"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
+                    onClick={() => {
+                      copy(error);
+                      handleCopy();
+                    }}
+                  />
+                </Flex>
+              </>
+            ) : success ? (
+              <>
+                <Text textAlign="center" fontSize={"3rem"} fontFamily="LoRes15">
+                  You're all set! Welcome to Unlonely!
+                </Text>
+                <Text textAlign="center" fontSize="15px">
+                  Redirecting you to your new channel page shortly. If you're
+                  still not redirected, click{" "}
+                  <Link href={`/channels/${returnedSlug}`}>
+                    <Text as="span" color="#08c7edff">
+                      here
+                    </Text>
+                  </Link>
+                  .
+                </Text>
+                <Flex justifyContent="center">
+                  <Spinner size="lg" />
+                </Flex>
+              </>
+            ) : (
               <>
                 <Flex direction={"column"} gap="10px">
                   <Text fontSize="25px" fontFamily="LoRes15" color="#f5b6ff">
@@ -231,25 +306,6 @@ const Onboard = () => {
                       "create channel"
                     )}
                   </Button>
-                </Flex>
-              </>
-            ) : (
-              <>
-                <Text textAlign="center" fontSize={"3rem"} fontFamily="LoRes15">
-                  You're all set! Welcome to Unlonely!
-                </Text>
-                <Text textAlign="center" fontSize="15px">
-                  Redirecting you to your new channel page shortly. If you're
-                  still not redirected, click{" "}
-                  <Link href={`/channels/${returnedSlug}`}>
-                    <Text as="span" color="#08c7edff">
-                      here
-                    </Text>
-                  </Link>
-                  .
-                </Text>
-                <Flex justifyContent="center">
-                  <Spinner size="lg" />
                 </Flex>
               </>
             )}

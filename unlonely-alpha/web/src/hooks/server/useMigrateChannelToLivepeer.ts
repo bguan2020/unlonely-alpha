@@ -13,11 +13,15 @@ const MIGRATE_CHANNEL_TO_LIVEPEER_MUTATION = gql`
     mutation MigrateChannelToLivepeer($data: MigrateChannelToLivepeerInput!) {
       migrateChannelToLivepeer(data: $data) {
         id
+        streamKey
+        livepeerPlaybackId
+        livepeerStreamId
+        slug
       }
     }
 `;
 
-const useMigrateChannelToLivepeerMutation = ({ onError }: Props) => {
+const useMigrateChannelToLivepeer = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<MigrateChannelToLivepeerMutation, MigrateChannelToLivepeerMutationVariables>(MIGRATE_CHANNEL_TO_LIVEPEER_MUTATION);
 
@@ -56,4 +60,4 @@ const useMigrateChannelToLivepeerMutation = ({ onError }: Props) => {
   return { migrateChannelToLivepeer, loading };
 };
 
-export default useMigrateChannelToLivepeerMutation;
+export default useMigrateChannelToLivepeer;
