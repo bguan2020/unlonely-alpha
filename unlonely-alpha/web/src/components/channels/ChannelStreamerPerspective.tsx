@@ -13,8 +13,6 @@ import { IoMdEye } from "react-icons/io";
 import { IoMdEyeOff } from "react-icons/io";
 import { FaRegCopy } from "react-icons/fa";
 import copy from "copy-to-clipboard";
-import LivepeerPlayer from "../stream/LivepeerPlayer";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
 import LivepeerBroadcast from "../stream/LivepeerBroadcast";
 import useMigrateChannelToLivepeer from "../../hooks/server/useMigrateChannelToLivepeer";
 import useUpdateChannelClipping from "../../hooks/server/useUpdateChannelClipping";
@@ -26,6 +24,7 @@ import useUpdateLivepeerStreamData from "../../hooks/server/useUpdateLivepeerStr
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../constants/queries";
 import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
 import { useLazyQuery } from "@apollo/client";
+import { Livepeer } from "livepeer";
 
 const instructions = [
   {
@@ -36,8 +35,7 @@ const instructions = [
   },
   {
     text: [
-      'Check that your camera and microphone inputs are working before clicking "Go" button.',
-      "Be mindful that this feature is experimental and may not work properly sometimes.",
+      "Check that your camera and microphone inputs are working before starting.",
     ],
   },
 ];
@@ -47,6 +45,9 @@ const ChannelStreamerPerspective = ({
 }: {
   ablyChannel: AblyChannelPromise;
 }) => {
+  const livepeer = new Livepeer({
+    apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
+  });
   const toast = useToast();
 
   const { channel } = useChannelContext();
@@ -54,15 +55,11 @@ const ChannelStreamerPerspective = ({
 
   const [isBrowserBroadcastSelected, setIsBrowserBroadcastSelected] =
     useState(false);
-  const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [canLivepeerRecord, setCanLivepeerRecord] = useState(true);
 
   const [showStreamKey, setShowStreamKey] = useState(false);
   const [showRTMPIngest, setShowRTMPIngest] = useState(false);
   const [showSRTIngest, setShowSRTIngest] = useState(false);
-
-  const [selectedVideoDeviceId, setSelectedVideoDeviceId] = useState("");
-  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
 
   const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
     GET_LIVEPEER_STREAM_DATA_QUERY,
@@ -140,41 +137,6 @@ const ChannelStreamerPerspective = ({
     setShowSRTIngest(false);
   }, [isBrowserBroadcastSelected]);
 
-  useEffect(() => {
-    // Fetch available video devices
-    async function fetchDevices() {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(
-        (device) => device.kind === "videoinput"
-      );
-      setVideoDevices(videoDevices);
-      if (videoDevices.length > 0) {
-        setSelectedVideoDeviceId(videoDevices[0].deviceId); // Default to the first camera
-      }
-    }
-
-    fetchDevices();
-  }, []);
-
-  useEffect(() => {
-    // Change the video source
-    async function changeVideoSource() {
-      if (selectedVideoDeviceId) {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { deviceId: { exact: selectedVideoDeviceId } },
-        });
-        const videoElement = document.querySelector<HTMLVideoElement>(
-          '[aria-label="Video player"]'
-        );
-        if (videoElement) {
-          videoElement.srcObject = stream;
-        }
-      }
-    }
-
-    changeVideoSource();
-  }, [selectedVideoDeviceId]);
-
   return (
     <Flex width={"100%"} direction={"column"} gap="10px" h="80vh">
       <Flex
@@ -183,21 +145,7 @@ const ChannelStreamerPerspective = ({
         justifyContent={"center"}
         h="80%"
       >
-        <Flex
-          zIndex={2}
-          position="absolute"
-          top="0"
-          left={"0"}
-          p="2"
-          bg="rgba(0, 0, 0, 0.5)"
-        >
-          <Text fontFamily={"LoRes15"}>PREVIEW</Text>
-        </Flex>
-        {isBroadcasting ? (
-          <LivepeerBroadcast streamKey={streamKey} />
-        ) : (
-          <LivepeerPlayer playbackId={playbackId} />
-        )}
+        <LivepeerBroadcast streamKey={streamKey} />
       </Flex>
       <Flex
         bg="#131323"
@@ -438,7 +386,7 @@ const ChannelStreamerPerspective = ({
               </Flex>
             ) : (
               <Flex direction="column">
-                <Button
+                {/* <Button
                   bg="#06aa53"
                   color={"white"}
                   _hover={{}}
@@ -452,7 +400,7 @@ const ChannelStreamerPerspective = ({
                   }}
                 >
                   GO <ExternalLinkIcon ml="2px" />
-                </Button>
+                </Button> */}
                 {/* <Button
                   bg="#06aa53"
                   color={"white"}

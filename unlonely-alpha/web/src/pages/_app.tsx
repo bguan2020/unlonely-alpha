@@ -12,11 +12,11 @@ import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { PrivyWagmiConnector } from "@privy-io/wagmi-connector";
-import {
-  LivepeerConfig,
-  createReactClient,
-  studioProvider,
-} from "@livepeer/react";
+// import {
+//   LivepeerConfig,
+//   createReactClient,
+//   studioProvider,
+// } from "@livepeer/react";
 import { FaArrowRight } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa";
 
@@ -114,11 +114,11 @@ function App({ Component, pageProps, cookies }: Props) {
     ]
   );
 
-  const livepeerClient = createReactClient({
-    provider: studioProvider({
-      apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
-    }),
-  });
+  // const livepeerClient = createReactClient({
+  //   provider: studioProvider({
+  //     apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
+  //   }),
+  // });
 
   return (
     <ChakraProvider theme={theme}>
@@ -202,7 +202,7 @@ function App({ Component, pageProps, cookies }: Props) {
                 <ScreenAnimationsProvider>
                   <NetworkProvider>
                     <CacheProvider>
-                      <LivepeerConfig
+                      {/* <LivepeerConfig
                         client={livepeerClient}
                         theme={{
                           colors: {
@@ -213,10 +213,10 @@ function App({ Component, pageProps, cookies }: Props) {
                             display: "Inter",
                           },
                         }}
-                      >
-                        <Component {...pageProps} />
-                        {/* <SpeedInsights /> */}
-                      </LivepeerConfig>
+                      > */}
+                      <Component {...pageProps} />
+                      {/* <SpeedInsights /> */}
+                      {/* </LivepeerConfig> */}
                     </CacheProvider>
                   </NetworkProvider>
                 </ScreenAnimationsProvider>
