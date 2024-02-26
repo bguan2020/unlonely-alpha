@@ -10,18 +10,20 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import AppLayout from "../components/layout/AppLayout";
-import { useCacheContext } from "../hooks/context/useCache";
 import { useUser } from "../hooks/context/useUser";
 import usePostChannel from "../hooks/server/usePostChannel";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePrivy } from "@privy-io/react-auth";
 import { FaRegCopy } from "react-icons/fa";
 import copy from "copy-to-clipboard";
+import { useLazyQuery } from "@apollo/client";
+import { GET_CHANNEL_SEARCH_RESULTS_QUERY } from "../constants/queries";
+import { GetChannelSearchResultsQuery } from "../generated/graphql";
+import { alphanumericInput } from "../utils/validation/input";
 
 const Onboard = () => {
   const { user, walletIsConnected } = useUser();
-  const { channelFeed } = useCacheContext();
   const { login, connectWallet, user: privyUser } = usePrivy();
   const toast = useToast();
 
@@ -32,6 +34,8 @@ const Onboard = () => {
   });
 
   const [newSlug, setNewSlug] = useState<string>("");
+  const [debouncedNewSlug, setDebouncedNewSlug] = useState<string>("");
+
   const [newName, setNewName] = useState<string>("");
   const [newDescription, setNewDescription] = useState<string>("");
   const [newCanRecord, setNewCanRecord] = useState<boolean>(true);
@@ -41,11 +45,19 @@ const Onboard = () => {
   const [livepeerPlaybackId, setLivepeerPlaybackId] = useState<string>("");
   const [streamKey, setStreamKey] = useState<string>("");
   const [returnedSlug, setReturnedSlug] = useState<string>("");
+  const [isSlugAvailable, setIsSlugAvailable] = useState<boolean>(true);
 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+
+  const [getChannelSearchResults] = useLazyQuery<GetChannelSearchResultsQuery>(
+    GET_CHANNEL_SEARCH_RESULTS_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
+  );
 
   const handleCopy = () => {
     toast({
@@ -80,10 +92,6 @@ const Onboard = () => {
     }
   };
 
-  const isSlugValid = useMemo(() => {
-    return !channelFeed?.find((c) => c !== null && c.slug === newSlug);
-  }, [newSlug, channelFeed]);
-
   const redirectToNewChannelPage = useCallback(() => {
     window.open(`${window.location.origin}/channels/${returnedSlug}`, "_self");
   }, [returnedSlug]);
@@ -99,12 +107,47 @@ const Onboard = () => {
   }, [livepeerStreamId, livepeerPlaybackId, streamKey, returnedSlug]);
 
   useEffect(() => {
-    if (!isSlugValid) {
+    if (!isSlugAvailable) {
       setErrorMessage("channel handle is taken");
     } else {
       setErrorMessage("");
     }
-  }, [isSlugValid, newSlug]);
+  }, [isSlugAvailable, newSlug]);
+
+  useEffect(() => {
+    setLoading(true);
+    const handler = setTimeout(() => {
+      setDebouncedNewSlug(newSlug);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [newSlug]);
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      if (debouncedNewSlug.length === 0) {
+        setLoading(false);
+        setIsSlugAvailable(true);
+        return;
+      }
+      const res = await getChannelSearchResults({
+        variables: {
+          data: { query: newSlug, slugOnly: true },
+        },
+      });
+      setLoading(false);
+      setIsSlugAvailable(res.data?.getChannelSearchResults?.length === 0);
+    };
+    init();
+  }, [debouncedNewSlug]);
+
+  useEffect(() => {
+    setNewName(`${newSlug}'s unlonely channel :)`);
+    setNewDescription("gm & welcome!");
+  }, [newSlug]);
 
   return (
     <AppLayout isCustomHeader={false}>
@@ -209,8 +252,8 @@ const Onboard = () => {
                     required
                   </Text>
                   <Flex direction={"column"} gap="2px">
-                    <Text fontSize="12px" color="#c2c2c2">
-                      how will your viewers search for you?
+                    <Text fontSize="11px" color="#c2c2c2">
+                      how will your viewers search for you? (only A-Z, 0-9)
                     </Text>
                     <Tooltip
                       label={errorMessage}
@@ -220,16 +263,17 @@ const Onboard = () => {
                     >
                       <Input
                         placeholder={"channel URL handle"}
-                        variant={isSlugValid ? "glow" : "redGlow"}
-                        onChange={(e) => setNewSlug(e.target.value)}
+                        variant={isSlugAvailable ? "glow" : "redGlow"}
+                        onChange={(e) =>
+                          setNewSlug(alphanumericInput(e.target.value))
+                        }
                         value={newSlug}
                       />
                     </Tooltip>
                   </Flex>
                   <Input
-                    value={`${window.location.origin}/channels/${
-                      newSlug || "*your handle*"
-                    }`}
+                    textAlign={"center"}
+                    value={`unlonely.app/.../${newSlug || "*handle*"}`}
                     fontSize={"12px"}
                     readOnly={true}
                     color="#17d058"
@@ -239,7 +283,7 @@ const Onboard = () => {
                   <Text fontSize="25px" fontFamily="LoRes15" color="#f5b6ff">
                     optional (can set later)
                   </Text>
-                  <Flex direction={"column"} gap="2px">
+                  {/* <Flex direction={"column"} gap="2px">
                     <Text fontSize="12px" color="#c2c2c2">
                       what are you streaming?
                     </Text>
@@ -258,9 +302,9 @@ const Onboard = () => {
                       onChange={(e) => setNewDescription(e.target.value)}
                       value={newDescription}
                     />
-                  </Flex>
+                  </Flex> */}
                   <Flex direction={"column"} gap="2px">
-                    <Text fontSize="12px" color="#c2c2c2">
+                    <Text fontSize="11px" color="#c2c2c2">
                       we record and store your streams for future use
                     </Text>
                     <Flex
@@ -269,13 +313,29 @@ const Onboard = () => {
                     >
                       <Text>allow recording</Text>
                       <Switch
+                        sx={{
+                          // Customizing the track
+                          ".chakra-switch__track": {
+                            bg: "#cccccc", // Default background color
+                            _checked: {
+                              bg: "#17d058", // Background color when checked
+                            },
+                          },
+                          // Customizing the thumb
+                          ".chakra-switch__thumb": {
+                            bg: "#ffffff", // Thumb color
+                            _checked: {
+                              bg: "#ffffff", // Thumb color when checked (optional if you want the same color)
+                            },
+                          },
+                        }}
                         isChecked={newCanRecord}
                         onChange={() => setNewCanRecord((prev) => !prev)}
                       />
                     </Flex>
                   </Flex>
                   <Flex direction={"column"} gap="2px">
-                    <Text fontSize="12px" color="#c2c2c2">
+                    <Text fontSize="11px" color="#c2c2c2">
                       your viewers may create highlight clips of your streams to
                       share
                     </Text>
@@ -285,6 +345,22 @@ const Onboard = () => {
                     >
                       <Text>allow clipping</Text>
                       <Switch
+                        sx={{
+                          // Customizing the track
+                          ".chakra-switch__track": {
+                            bg: "#cccccc", // Default background color
+                            _checked: {
+                              bg: "#17d058", // Background color when checked
+                            },
+                          },
+                          // Customizing the thumb
+                          ".chakra-switch__thumb": {
+                            bg: "#ffffff", // Thumb color
+                            _checked: {
+                              bg: "#ffffff", // Thumb color when checked (optional if you want the same color)
+                            },
+                          },
+                        }}
                         isChecked={newAllowNfcs}
                         onChange={() => setNewAllowNfcs((prev) => !prev)}
                       />
@@ -295,12 +371,19 @@ const Onboard = () => {
                   <Button
                     color="white"
                     bg="#2562db"
-                    isDisabled={!isSlugValid || newSlug.length === 0 || loading}
-                    onClick={submitChannel}
+                    isDisabled={
+                      !isSlugAvailable ||
+                      debouncedNewSlug.length === 0 ||
+                      loading
+                    }
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
+                    onClick={isSlugAvailable ? submitChannel : undefined}
                   >
                     {loading ? (
                       <Spinner />
-                    ) : newSlug.length === 0 ? (
+                    ) : debouncedNewSlug.length === 0 ? (
                       "channel URL handle is required"
                     ) : (
                       "create channel"

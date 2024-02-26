@@ -171,6 +171,8 @@ export const typeDef = gql`
     query: String
     skip: Int
     limit: Int
+    containsSlug: Boolean
+    slugOnly: Boolean
   }
 
   input UpdateChannelClippingInput {

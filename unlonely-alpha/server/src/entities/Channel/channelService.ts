@@ -81,7 +81,7 @@ export const postChannel = async (
       }
     }
 
-    const { playbackId, streamKey, id } = await createLivepeerStream(data.slug, data.canRecord);
+    const { playbackId, streamKey, id } = await createLivepeerStream(data.slug.concat(process.env.DEVELOPMENT ? "-test" : ""), data.canRecord);
 
     if (playbackId === null || playbackId === undefined || playbackId === "") {
       throw new Error("Failed to create livepeer stream");
@@ -130,7 +130,7 @@ export const migrateChannelToLivepeer = async (data: IMigrateChannelToLivepeerIn
       throw new Error("Channel already using Livepeer");
     }
 
-    const {playbackId, streamKey, id} = await createLivepeerStream(data.slug);
+    const {playbackId, streamKey, id} = await createLivepeerStream(data.slug.concat(process.env.DEVELOPMENT ? "-test" : ""), true);
 
     if (playbackId === null || playbackId === undefined || playbackId === "") {
       throw new Error("Failed to create livepeer stream");
@@ -400,12 +400,33 @@ export interface IGetChannelSearchResultsInput {
   query: string;
   skip?: number;
   take?: number;
+  containsSlug?: boolean;
+  slugOnly?: boolean;
 }
 
 export const getChannelSearchResults = async (
   data: IGetChannelSearchResultsInput,
   ctx: Context
 ) => {
+
+  if (data.slugOnly) {
+    const uniqueResult = await ctx.prisma.channel.findUnique({
+      where: {
+        slug: data.query
+      }
+    });
+    // Ensure the result is always an array
+    return uniqueResult ? [uniqueResult] : [];
+  }
+
+  if (data.containsSlug) return await ctx.prisma.channel.findMany({
+    where: {
+        slug: { contains: data.query }
+    },
+    skip: data.skip,
+    take: data.take
+  });
+
   return await ctx.prisma.channel.findMany({
     where: {
       OR: [

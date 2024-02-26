@@ -305,6 +305,25 @@ export const GET_LIVEPEER_STREAM_DATA_QUERY = gql`
   }
 `;
 
+export const GET_CHANNEL_SEARCH_RESULTS_QUERY = gql`
+  query GetChannelSearchResults($data: ChannelSearchInput!) {
+    getChannelSearchResults(data: $data) {
+      id
+      isLive
+      name
+      description
+      slug
+      owner {
+        username
+        address
+        FCImageUrl
+        lensImageUrl
+      }
+      thumbnailUrl
+    }
+  }
+`;
+
 export const GET_BADGE_HOLDERS_BY_CHANNEL_QUERY = gql`
   query GetBadgeHoldersByChannel($data: GetBadgeHoldersByChannelInput!) {
     getBadgeHoldersByChannel(data: $data)

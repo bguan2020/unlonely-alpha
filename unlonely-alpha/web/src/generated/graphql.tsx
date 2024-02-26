@@ -126,9 +126,11 @@ export type ChannelFeedInput = {
 };
 
 export type ChannelSearchInput = {
+  containsSlug?: InputMaybe<Scalars["Boolean"]>;
   limit?: InputMaybe<Scalars["Int"]>;
   query?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;
+  slugOnly?: InputMaybe<Scalars["Boolean"]>;
 };
 
 export type ChannelUserRole = {
@@ -1589,6 +1591,30 @@ export type GetLivepeerStreamDataQuery = {
     playbackId?: string | null;
     isActive?: boolean | null;
   } | null;
+};
+
+export type GetChannelSearchResultsQueryVariables = Exact<{
+  data: ChannelSearchInput;
+}>;
+
+export type GetChannelSearchResultsQuery = {
+  __typename?: "Query";
+  getChannelSearchResults?: Array<{
+    __typename?: "Channel";
+    id: string;
+    isLive?: boolean | null;
+    name?: string | null;
+    description?: string | null;
+    slug: string;
+    thumbnailUrl?: string | null;
+    owner: {
+      __typename?: "User";
+      username?: string | null;
+      address: string;
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+    };
+  } | null> | null;
 };
 
 export type GetBadgeHoldersByChannelQueryVariables = Exact<{
@@ -3387,6 +3413,75 @@ export type GetLivepeerStreamDataLazyQueryHookResult = ReturnType<
 export type GetLivepeerStreamDataQueryResult = Apollo.QueryResult<
   GetLivepeerStreamDataQuery,
   GetLivepeerStreamDataQueryVariables
+>;
+export const GetChannelSearchResultsDocument = gql`
+  query GetChannelSearchResults($data: ChannelSearchInput!) {
+    getChannelSearchResults(data: $data) {
+      id
+      isLive
+      name
+      description
+      slug
+      owner {
+        username
+        address
+        FCImageUrl
+        lensImageUrl
+      }
+      thumbnailUrl
+    }
+  }
+`;
+
+/**
+ * __useGetChannelSearchResultsQuery__
+ *
+ * To run a query within a React component, call `useGetChannelSearchResultsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelSearchResultsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelSearchResultsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetChannelSearchResultsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetChannelSearchResultsQuery,
+    GetChannelSearchResultsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetChannelSearchResultsQuery,
+    GetChannelSearchResultsQueryVariables
+  >(GetChannelSearchResultsDocument, options);
+}
+export function useGetChannelSearchResultsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetChannelSearchResultsQuery,
+    GetChannelSearchResultsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetChannelSearchResultsQuery,
+    GetChannelSearchResultsQueryVariables
+  >(GetChannelSearchResultsDocument, options);
+}
+export type GetChannelSearchResultsQueryHookResult = ReturnType<
+  typeof useGetChannelSearchResultsQuery
+>;
+export type GetChannelSearchResultsLazyQueryHookResult = ReturnType<
+  typeof useGetChannelSearchResultsLazyQuery
+>;
+export type GetChannelSearchResultsQueryResult = Apollo.QueryResult<
+  GetChannelSearchResultsQuery,
+  GetChannelSearchResultsQueryVariables
 >;
 export const GetBadgeHoldersByChannelDocument = gql`
   query GetBadgeHoldersByChannel($data: GetBadgeHoldersByChannelInput!) {
