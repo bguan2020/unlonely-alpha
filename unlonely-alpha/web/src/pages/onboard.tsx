@@ -111,7 +111,11 @@ const Onboard = () => {
   }, [livepeerStreamId, livepeerPlaybackId, streamKey, returnedSlug]);
 
   useEffect(() => {
-    if (!isSlugAvailable) {
+    if (newSlug.length > 15) {
+      setErrorMessage("channel handle must be 15 characters or less");
+    } else if (newSlug.length > 0 && newSlug.length < 3) {
+      setErrorMessage("channel handle must be at least 3 characters");
+    } else if (!isSlugAvailable) {
       setErrorMessage("channel handle is taken");
     } else {
       setErrorMessage("");
@@ -132,7 +136,7 @@ const Onboard = () => {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      if (debouncedNewSlug.length === 0) {
+      if (debouncedNewSlug.length < 3) {
         setLoading(false);
         setIsSlugAvailable(true);
         return;
@@ -185,7 +189,7 @@ const Onboard = () => {
           <Flex
             direction="column"
             p="1rem"
-            gap="40px"
+            gap="30px"
             margin={"auto"}
             bg="#131323"
             width={"400px"}
@@ -287,30 +291,7 @@ const Onboard = () => {
                   <Text fontSize="25px" fontFamily="LoRes15" color="#f5b6ff">
                     optional (can set later)
                   </Text>
-                  {/* <Flex direction={"column"} gap="2px">
-                    <Text fontSize="12px" color="#c2c2c2">
-                      what are you streaming?
-                    </Text>
-                    <Input
-                      placeholder={"channel name"}
-                      onChange={(e) => setNewName(e.target.value)}
-                      value={newName}
-                    />
-                  </Flex>
                   <Flex direction={"column"} gap="2px">
-                    <Text fontSize="12px" color="#c2c2c2">
-                      add anything else you'd like
-                    </Text>
-                    <Input
-                      placeholder={"channel description"}
-                      onChange={(e) => setNewDescription(e.target.value)}
-                      value={newDescription}
-                    />
-                  </Flex> */}
-                  <Flex direction={"column"} gap="2px">
-                    <Text fontSize="11px" color="#c2c2c2">
-                      we record and store your streams for future use
-                    </Text>
                     <Flex
                       alignItems={"center"}
                       justifyContent={"space-between"}
@@ -337,12 +318,11 @@ const Onboard = () => {
                         onChange={() => setNewCanRecord((prev) => !prev)}
                       />
                     </Flex>
+                    <Text fontSize="11px" color="#c2c2c2">
+                      we record and store your streams for future use
+                    </Text>
                   </Flex>
                   <Flex direction={"column"} gap="2px">
-                    <Text fontSize="11px" color="#c2c2c2">
-                      your viewers may create highlight clips of your streams to
-                      share
-                    </Text>
                     <Flex
                       alignItems={"center"}
                       justifyContent={"space-between"}
@@ -369,6 +349,9 @@ const Onboard = () => {
                         onChange={() => setNewAllowNfcs((prev) => !prev)}
                       />
                     </Flex>
+                    <Text fontSize="11px" color="#c2c2c2">
+                      viewers can make short clips of your streams to share
+                    </Text>
                   </Flex>
                 </Flex>
                 <Flex direction="column">
@@ -376,17 +359,20 @@ const Onboard = () => {
                     color="white"
                     bg="#2562db"
                     isDisabled={
-                      !isSlugAvailable ||
+                      errorMessage.length > 0 ||
                       debouncedNewSlug.length === 0 ||
                       loading
                     }
                     _focus={{}}
                     _active={{}}
                     _hover={{}}
-                    onClick={isSlugAvailable ? submitChannel : undefined}
+                    onClick={!errorMessage ? submitChannel : undefined}
                   >
                     {loading ? (
-                      <Spinner />
+                      <Flex alignItems={"center"} gap="5px">
+                        <Spinner size="sm" />
+                        <Text>checking...</Text>
+                      </Flex>
                     ) : debouncedNewSlug.length === 0 ? (
                       "channel URL handle is required"
                     ) : (
