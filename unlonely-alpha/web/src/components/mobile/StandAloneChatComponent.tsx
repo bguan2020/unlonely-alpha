@@ -34,15 +34,7 @@ import VibesTokenInterface from "../chat/VibesTokenInterface";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
-const StandaloneChatComponent = ({
-  previewStream,
-  handleShowPreviewStream,
-  chat,
-}: {
-  previewStream?: boolean;
-  handleShowPreviewStream: () => void;
-  chat: ChatReturnType;
-}) => {
+const StandaloneChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { channel: channelContext, chat: chatInfo } = useChannelContext();
   const { userAddress } = useUser();
   const { channelQueryData } = channelContext;
@@ -199,11 +191,11 @@ const StandaloneChatComponent = ({
   return (
     <Flex
       direction="column"
-      h={!previewStream && isOwner ? "100vh" : "75vh"}
+      h={"75vh"}
       p="5px"
       id="chat"
       position={"relative"}
-      marginTop={!previewStream && isOwner ? "0" : "25vh"}
+      marginTop={"25vh"}
     >
       {chatChannel?.includes("channel") ? (
         <Flex justifyContent={"space-between"} py="2px">
@@ -286,10 +278,7 @@ const StandaloneChatComponent = ({
       )}
       {showInfo && (
         <Flex ref={infoRef}>
-          <InfoComponent
-            previewStream={previewStream}
-            handleShowPreviewStream={handleShowPreviewStream}
-          />
+          <InfoComponent />
         </Flex>
       )}
       <TabsComponent chat={chat} />
@@ -439,13 +428,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
   );
 };
 
-const InfoComponent = ({
-  previewStream,
-  handleShowPreviewStream,
-}: {
-  previewStream?: boolean;
-  handleShowPreviewStream: () => void;
-}) => {
+const InfoComponent = () => {
   const { userAddress } = useUser();
   const { channel: channelContext, ui } = useChannelContext();
   const {
@@ -485,24 +468,6 @@ const InfoComponent = ({
       >
         <Flex justifyContent={"space-between"}>
           <ChannelDesc />
-          {isOwner && (
-            <IconButton
-              onClick={handleShowPreviewStream}
-              aria-label="preview"
-              _hover={{}}
-              _active={{}}
-              _focus={{}}
-              icon={
-                <Image
-                  src="/svg/preview-video.svg"
-                  height={12}
-                  style={{
-                    filter: previewStream ? "grayscale(100%)" : "none",
-                  }}
-                />
-              }
-            />
-          )}
         </Flex>
         {isOwner && (
           <Stack

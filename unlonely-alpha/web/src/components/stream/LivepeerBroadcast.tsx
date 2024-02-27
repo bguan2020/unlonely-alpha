@@ -15,14 +15,11 @@ import { CheckIcon, ChevronDownIcon } from "@chakra-ui/icons";
 
 const LivepeerBroadcast = memo(
   ({ streamKey }: { streamKey: string }) => {
+    console.log("streamKey", streamKey);
+
     return (
       <Flex direction="column" width="100%" position="relative">
-        <Broadcast.Root
-          audio={false}
-          video={false}
-          aspectRatio={null}
-          ingestUrl={getIngest(streamKey)}
-        >
+        <Broadcast.Root aspectRatio={null} ingestUrl={getIngest(streamKey)}>
           <Broadcast.Container
             style={{
               backgroundColor: "black",

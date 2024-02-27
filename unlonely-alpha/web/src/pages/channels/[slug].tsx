@@ -1,5 +1,5 @@
 import { GetServerSidePropsContext } from "next";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Flex, Text, Image, Stack } from "@chakra-ui/react";
 import { useContractEvent } from "wagmi";
 import { Log } from "viem";
@@ -289,12 +289,6 @@ const MobilePage = ({
 
   const isOwner = userAddress === channelQueryData?.owner?.address;
 
-  const [previewStream, setPreviewStream] = useState<boolean>(false);
-
-  const handleShowPreviewStream = useCallback(() => {
-    setPreviewStream((prev) => !prev);
-  }, []);
-
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
   }, [channelSSR]);
@@ -388,13 +382,13 @@ const MobilePage = ({
         !channelSSRDataError &&
         !channelSSRDataLoading ? (
           <>
-            {(previewStream || !isOwner) && <ChannelViewerPerspective mobile />}
+            {isOwner ? (
+              <ChannelStreamerPerspective ablyChannel={chat.channel} />
+            ) : (
+              <ChannelViewerPerspective mobile />
+            )}
             <ChannelWideModals ablyChannel={chat.channel} />
-            <StandaloneAblyChatComponent
-              previewStream={previewStream}
-              handleShowPreviewStream={handleShowPreviewStream}
-              chat={chat}
-            />
+            <StandaloneAblyChatComponent chat={chat} />
           </>
         ) : (
           <Flex
