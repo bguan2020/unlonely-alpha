@@ -113,23 +113,23 @@ const DesktopPage = ({
   );
 
   useEffect(() => {
-    if (router.query[NEW_STREAMER_URL_QUERY_PARAM]) {
+    if (router.query[NEW_STREAMER_URL_QUERY_PARAM] && isOwner) {
       setWelcomeStreamerModal(true);
       setWelcomeStreamer(true);
-    }
-    const newPath = router.pathname;
-    const newQuery = { ...router.query };
-    delete newQuery[NEW_STREAMER_URL_QUERY_PARAM];
+      const newPath = router.pathname;
+      const newQuery = { ...router.query };
+      delete newQuery[NEW_STREAMER_URL_QUERY_PARAM];
 
-    router.replace(
-      {
-        pathname: newPath,
-        query: newQuery,
-      },
-      undefined,
-      { shallow: true }
-    );
-  }, [router]);
+      router.replace(
+        {
+          pathname: newPath,
+          query: newQuery,
+        },
+        undefined,
+        { shallow: true }
+      );
+    }
+  }, [router, isOwner]);
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);

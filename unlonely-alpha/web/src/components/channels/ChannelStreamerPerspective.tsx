@@ -6,6 +6,10 @@ import {
   useToast,
   Spinner,
   Switch,
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
 } from "@chakra-ui/react";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useEffect, useMemo, useState } from "react";
@@ -24,6 +28,8 @@ import useUpdateLivepeerStreamData from "../../hooks/server/useUpdateLivepeerStr
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../constants/queries";
 import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
 import { useLazyQuery } from "@apollo/client";
+import { LuClapperboard } from "react-icons/lu";
+import { BiVideoRecording } from "react-icons/bi";
 
 const instructions = [
   {
@@ -134,284 +140,238 @@ const ChannelStreamerPerspective = ({
   }, [isBrowserBroadcastSelected]);
 
   return (
-    <Flex width={"100%"} direction={"column"} gap="10px" h="80vh">
+    <Flex
+      width={"100%"}
+      direction={"column"}
+      gap="10px"
+      h="80vh"
+      data-tour="s-step-1"
+    >
       <Flex
         width={"100%"}
         position="relative"
         justifyContent={"center"}
-        h="80%"
+        h="90%"
       >
         <LivepeerBroadcast streamKey={streamKey} />
       </Flex>
       <Flex
-        data-tour="s-step-1"
         bg="#131323"
         p="10px"
         borderRadius="10px"
-        h="20%"
+        h="10%"
         width="100%"
         justifyContent={"center"}
       >
         {playbackId ? (
-          <Flex gap="20px" width={"100%"}>
-            <Flex direction="column" justifyContent={"space-evenly"}>
-              <Text>How to Stream</Text>
-              <Button
-                bg={isBrowserBroadcastSelected ? "transparent" : "#0c7fc1"}
-                color="white"
-                _active={{}}
-                _focus={{}}
-                _hover={{
-                  bg: "rgb(22, 93, 134)",
-                }}
-                onClick={() => setIsBrowserBroadcastSelected(false)}
-              >
-                streaming software
-              </Button>
-              <Button
-                bg={isBrowserBroadcastSelected ? "#0c7fc1" : "transparent"}
-                color="white"
-                _active={{}}
-                _focus={{}}
-                _hover={{
-                  bg: "rgb(22, 93, 134)",
-                }}
-                onClick={() => setIsBrowserBroadcastSelected(true)}
-              >
-                browser
-              </Button>
-            </Flex>
-            <Flex direction="column" gap="5px" justifyContent={"space-between"}>
-              {isBrowserBroadcastSelected
-                ? instructions[1].text.map((t) => {
-                    return <Text fontSize="14px">{t}</Text>;
-                  })
-                : instructions[0].text.map((t) => {
-                    return <Text fontSize="14px">{t}</Text>;
-                  })}
-              <Flex gap="2px" justifyContent={"space-evenly"}>
-                <Flex
-                  direction={"column"}
-                  alignItems={"center"}
-                  justifyContent={"space-between"}
-                >
-                  <Text fontSize="12px">allow recording</Text>
-                  {updateLivepeerStreamDataLoading ? (
-                    <Spinner />
-                  ) : (
-                    <Switch
-                      isChecked={canLivepeerRecord}
-                      onChange={() => {
-                        callUpdateLivepeerStreamData(!canLivepeerRecord);
-                      }}
-                    />
-                  )}
-                </Flex>
-                <Flex
-                  direction={"column"}
-                  alignItems={"center"}
-                  justifyContent={"space-between"}
-                >
-                  <Text fontSize="12px">allow clipping</Text>
-                  {updateChannelClippingLoading ? (
-                    <Spinner />
-                  ) : (
-                    <Switch
-                      isChecked={channelDetails?.allowNfcs}
-                      onChange={() => {
-                        callNfcsChange(!channelDetails?.allowNfcs);
-                      }}
-                    />
-                  )}
-                </Flex>
-              </Flex>
-            </Flex>
-            {!isBrowserBroadcastSelected ? (
-              <Flex direction="column" gap="5px">
-                <Flex direction="column">
-                  <Text fontSize="12px">Stream Key</Text>
-                  <Flex alignItems={"center"}>
-                    <input
-                      style={{
-                        border: "1px solid #5e5e5e",
-                        background: "transparent",
-                        color: "#a3a3a3",
-                        padding: "5px",
-                        height: "20px",
-                        fontSize: "11px",
-                      }}
-                      readOnly
-                      type={showStreamKey ? "text" : "password"}
-                      value={streamKey}
-                    />
-                    <IconButton
-                      aria-label="show-stream-key"
-                      color="white"
-                      icon={
-                        showStreamKey ? (
-                          <IoMdEye size="20" />
-                        ) : (
-                          <IoMdEyeOff size="20" />
-                        )
-                      }
-                      height="20px"
-                      bg="transparent"
-                      _focus={{}}
-                      _active={{}}
-                      _hover={{}}
-                      onClick={() => setShowStreamKey((prev) => !prev)}
-                    />
-                    <IconButton
-                      aria-label="copy-stream-key"
-                      color="white"
-                      icon={<FaRegCopy />}
-                      height="20px"
-                      minWidth={"20px"}
-                      bg="transparent"
-                      _focus={{}}
-                      _active={{}}
-                      _hover={{}}
-                      onClick={() => {
-                        copy(streamKey);
-                        handleCopy();
-                      }}
-                    />
-                  </Flex>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="12px">RTMP ingest</Text>
-                  <Flex alignItems="center">
-                    <input
-                      style={{
-                        border: "1px solid #5e5e5e",
-                        background: "transparent",
-                        color: "#a3a3a3",
-                        padding: "5px",
-                        height: "20px",
-                        fontSize: "11px",
-                      }}
-                      readOnly
-                      type={showRTMPIngest ? "text" : "password"}
-                      value={"rtmp://rtmp.livepeer.com/live"}
-                    />
-                    <IconButton
-                      aria-label="show-rtmp-ingest"
-                      color="white"
-                      icon={
-                        showRTMPIngest ? (
-                          <IoMdEye size="20" />
-                        ) : (
-                          <IoMdEyeOff size="20" />
-                        )
-                      }
-                      height="20px"
-                      bg="transparent"
-                      _focus={{}}
-                      _active={{}}
-                      _hover={{}}
-                      onClick={() => setShowRTMPIngest((prev) => !prev)}
-                    />
-                    <IconButton
-                      aria-label="copy-rtmp-ingest"
-                      color="white"
-                      icon={<FaRegCopy />}
-                      height="20px"
-                      minWidth={"20px"}
-                      bg="transparent"
-                      _focus={{}}
-                      _active={{}}
-                      _hover={{}}
-                      onClick={() => {
-                        copy("rtmp://rtmp.livepeer.com/live");
-                        handleCopy();
-                      }}
-                    />
-                  </Flex>
-                </Flex>
-                <Flex direction="column">
-                  <Text fontSize="12px">SRT ingest</Text>
-                  <Flex alignItems={"center"}>
-                    <input
-                      style={{
-                        border: "1px solid #5e5e5e",
-                        background: "transparent",
-                        color: "#a3a3a3",
-                        padding: "5px",
-                        height: "20px",
-                        fontSize: "11px",
-                      }}
-                      readOnly
-                      type={showSRTIngest ? "text" : "password"}
-                      value={`srt://rtmp.livepeer.com:2935?streamid=${streamKey}`}
-                    />
-                    <IconButton
-                      aria-label="show-srt-ingest"
-                      color="white"
-                      icon={
-                        showSRTIngest ? (
-                          <IoMdEye size="20" />
-                        ) : (
-                          <IoMdEyeOff size="20" />
-                        )
-                      }
-                      height="20px"
-                      bg="transparent"
-                      _focus={{}}
-                      _active={{}}
-                      _hover={{}}
-                      onClick={() => setShowSRTIngest((prev) => !prev)}
-                    />
-                    <IconButton
-                      aria-label="copy-srt-ingest"
-                      color="white"
-                      icon={<FaRegCopy />}
-                      height="20px"
-                      minWidth={"20px"}
-                      bg="transparent"
-                      _focus={{}}
-                      _active={{}}
-                      _hover={{}}
-                      onClick={() => {
-                        copy(
-                          `srt://rtmp.livepeer.com:2935?streamid=${streamKey}`
-                        );
-                        handleCopy();
-                      }}
-                    />
-                  </Flex>
-                </Flex>
-              </Flex>
-            ) : (
+          <Flex
+            gap="20px"
+            width={"100%"}
+            alignItems={"center"}
+            justifyContent={"space-evenly"}
+          >
+            <Flex gap="5px">
               <Flex direction="column">
-                {/* <Button
-                  bg="#06aa53"
-                  color={"white"}
-                  _hover={{}}
-                  _focus={{}}
-                  _active={{}}
-                  onClick={() => {
-                    window.open(
-                      `https://lvpr.tv/broadcast/${streamKey}`,
-                      "_blank"
-                    );
-                  }}
-                >
-                  GO <ExternalLinkIcon ml="2px" />
-                </Button> */}
-                {/* <Button
-                  bg="#06aa53"
-                  color={"white"}
-                  _hover={{}}
-                  _focus={{}}
-                  _active={{}}
-                  onClick={() => {
-                    setIsBroadcasting((prev) => !prev);
-                  }}
-                >
-                  GO
-                </Button> */}
+                <Text fontSize="12px">Stream Key</Text>
+                <Flex alignItems={"center"}>
+                  <input
+                    style={{
+                      border: "1px solid #5e5e5e",
+                      background: "transparent",
+                      color: "#a3a3a3",
+                      padding: "5px",
+                      height: "20px",
+                      fontSize: "11px",
+                    }}
+                    readOnly
+                    type={showStreamKey ? "text" : "password"}
+                    value={streamKey}
+                  />
+                  <IconButton
+                    aria-label="show-stream-key"
+                    color="white"
+                    icon={
+                      showStreamKey ? (
+                        <IoMdEye size="20" />
+                      ) : (
+                        <IoMdEyeOff size="20" />
+                      )
+                    }
+                    height="20px"
+                    bg="transparent"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
+                    onClick={() => setShowStreamKey((prev) => !prev)}
+                  />
+                  <IconButton
+                    aria-label="copy-stream-key"
+                    color="white"
+                    icon={<FaRegCopy />}
+                    height="20px"
+                    minWidth={"20px"}
+                    bg="transparent"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
+                    onClick={() => {
+                      copy(streamKey);
+                      handleCopy();
+                    }}
+                  />
+                </Flex>
               </Flex>
-            )}
+              <Flex direction="column">
+                <Text fontSize="12px">RTMP ingest</Text>
+                <Flex alignItems="center">
+                  <input
+                    style={{
+                      border: "1px solid #5e5e5e",
+                      background: "transparent",
+                      color: "#a3a3a3",
+                      padding: "5px",
+                      height: "20px",
+                      fontSize: "11px",
+                    }}
+                    readOnly
+                    type={showRTMPIngest ? "text" : "password"}
+                    value={"rtmp://rtmp.livepeer.com/live"}
+                  />
+                  <IconButton
+                    aria-label="show-rtmp-ingest"
+                    color="white"
+                    icon={
+                      showRTMPIngest ? (
+                        <IoMdEye size="20" />
+                      ) : (
+                        <IoMdEyeOff size="20" />
+                      )
+                    }
+                    height="20px"
+                    bg="transparent"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
+                    onClick={() => setShowRTMPIngest((prev) => !prev)}
+                  />
+                  <IconButton
+                    aria-label="copy-rtmp-ingest"
+                    color="white"
+                    icon={<FaRegCopy />}
+                    height="20px"
+                    minWidth={"20px"}
+                    bg="transparent"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
+                    onClick={() => {
+                      copy("rtmp://rtmp.livepeer.com/live");
+                      handleCopy();
+                    }}
+                  />
+                </Flex>
+              </Flex>
+              <Flex direction="column">
+                <Text fontSize="12px">SRT ingest</Text>
+                <Flex alignItems={"center"}>
+                  <input
+                    style={{
+                      border: "1px solid #5e5e5e",
+                      background: "transparent",
+                      color: "#a3a3a3",
+                      padding: "5px",
+                      height: "20px",
+                      fontSize: "11px",
+                    }}
+                    readOnly
+                    type={showSRTIngest ? "text" : "password"}
+                    value={`srt://rtmp.livepeer.com:2935?streamid=${streamKey}`}
+                  />
+                  <IconButton
+                    aria-label="show-srt-ingest"
+                    color="white"
+                    icon={
+                      showSRTIngest ? (
+                        <IoMdEye size="20" />
+                      ) : (
+                        <IoMdEyeOff size="20" />
+                      )
+                    }
+                    height="20px"
+                    bg="transparent"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
+                    onClick={() => setShowSRTIngest((prev) => !prev)}
+                  />
+                  <IconButton
+                    aria-label="copy-srt-ingest"
+                    color="white"
+                    icon={<FaRegCopy />}
+                    height="20px"
+                    minWidth={"20px"}
+                    bg="transparent"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
+                    onClick={() => {
+                      copy(
+                        `srt://rtmp.livepeer.com:2935?streamid=${streamKey}`
+                      );
+                      handleCopy();
+                    }}
+                  />
+                </Flex>
+              </Flex>
+            </Flex>
+            <Flex gap="1rem" justifyContent={"space-evenly"} direction="column">
+              <Popover trigger="hover" placement="right" openDelay={300}>
+                <PopoverTrigger>
+                  <Flex alignItems={"center"} gap="0.5rem">
+                    <LuClapperboard size={20} />
+                    {updateLivepeerStreamDataLoading ? (
+                      <Spinner />
+                    ) : (
+                      <Switch
+                        isChecked={canLivepeerRecord}
+                        onChange={() => {
+                          callUpdateLivepeerStreamData(!canLivepeerRecord);
+                        }}
+                      />
+                    )}
+                  </Flex>
+                </PopoverTrigger>
+                <PopoverContent bg="#343dbb" border="none" width="100%" p="2px">
+                  <PopoverArrow bg="#343dbb" />
+                  <Text fontSize="12px" textAlign={"center"}>
+                    toggle recording
+                  </Text>
+                </PopoverContent>
+              </Popover>
+              <Popover trigger="hover" placement="right" openDelay={300}>
+                <PopoverTrigger>
+                  <Flex alignItems={"center"} gap="0.5rem">
+                    <BiVideoRecording size={20} />
+                    {updateChannelClippingLoading ? (
+                      <Spinner />
+                    ) : (
+                      <Switch
+                        isChecked={channelDetails?.allowNfcs}
+                        onChange={() => {
+                          callNfcsChange(!channelDetails?.allowNfcs);
+                        }}
+                      />
+                    )}
+                  </Flex>
+                </PopoverTrigger>
+                <PopoverContent bg="#343dbb" border="none" width="100%" p="2px">
+                  <PopoverArrow bg="#343dbb" />
+                  <Text fontSize="12px" textAlign={"center"}>
+                    toggle clipping
+                  </Text>
+                </PopoverContent>
+              </Popover>
+            </Flex>
           </Flex>
         ) : (
           <MigrateToLivePeer />

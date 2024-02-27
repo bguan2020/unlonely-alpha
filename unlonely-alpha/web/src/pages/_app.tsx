@@ -52,11 +52,16 @@ export const streamerTourSteps = [
       return (
         <Flex direction="column" gap="10px">
           <Text>
-            New to streaming? You can do it directly from your browser!
+            New to streaming? You can do it directly from your browser using the
+            broadcaster here!
           </Text>
           <Text>
             Or if you are a seasoned streamer using OBS or other streaming
             software, get your stream key here!
+          </Text>
+          <Text>
+            You can also change whether you want your stream to be recorded or
+            clipped!
           </Text>
         </Flex>
       );
