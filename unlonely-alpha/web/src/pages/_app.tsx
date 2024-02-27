@@ -53,11 +53,11 @@ export const streamerTourSteps = [
         <Flex direction="column" gap="10px">
           <Text>
             New to streaming? You can do it directly from your browser using the
-            broadcaster here!
+            broadcaster here! (Make sure your camera and microphone are working)
           </Text>
           <Text>
-            Or if you are a seasoned streamer using OBS or other streaming
-            software, get your stream key here!
+            Or if you are a seasoned streamer using OBS or other software, get
+            your stream key here!
           </Text>
           <Text>
             You can also change whether you want your stream to be recorded or
@@ -102,7 +102,7 @@ export const streamerTourSteps = [
   {
     selector: '[data-tour="s-step-6"]',
     content:
-      "When you're live, send notifications to every subscribed to your channel on mobile!",
+      "When you're live, send notifications to everyone subscribed to your channel on mobile!",
   },
   {
     selector: '[data-tour="s-step-7"]',
@@ -138,7 +138,7 @@ export const streamerTourSteps = [
               href={"https://calendly.com/grace-unlonely/30min"}
               target="_blank"
             >
-              <Text as="span" color="#3cd8ff">
+              <Text as="span" color="#3cd8ff" textDecoration={"underline"}>
                 Grace
               </Text>
             </Link>

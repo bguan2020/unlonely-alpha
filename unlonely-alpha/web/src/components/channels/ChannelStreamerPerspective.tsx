@@ -170,10 +170,10 @@ const ChannelStreamerPerspective = ({
             alignItems={"center"}
             justifyContent={"space-evenly"}
           >
-            <Flex gap="5px">
-              <Flex direction="column">
-                <Text fontSize="12px">Stream Key</Text>
-                <Flex alignItems={"center"}>
+            <Flex gap="15px">
+              <Flex>
+                <Flex direction="column" gap="5px">
+                  <Text fontSize="12px">Stream Key</Text>
                   <input
                     style={{
                       border: "1px solid #5e5e5e",
@@ -187,6 +187,8 @@ const ChannelStreamerPerspective = ({
                     type={showStreamKey ? "text" : "password"}
                     value={streamKey}
                   />
+                </Flex>
+                <Flex direction="column" gap="5px">
                   <IconButton
                     aria-label="show-stream-key"
                     color="white"
@@ -221,9 +223,9 @@ const ChannelStreamerPerspective = ({
                   />
                 </Flex>
               </Flex>
-              <Flex direction="column">
-                <Text fontSize="12px">RTMP ingest</Text>
-                <Flex alignItems="center">
+              <Flex>
+                <Flex direction="column" gap="5px">
+                  <Text fontSize="12px">RTMP ingest</Text>
                   <input
                     style={{
                       border: "1px solid #5e5e5e",
@@ -237,6 +239,8 @@ const ChannelStreamerPerspective = ({
                     type={showRTMPIngest ? "text" : "password"}
                     value={"rtmp://rtmp.livepeer.com/live"}
                   />
+                </Flex>
+                <Flex direction="column" gap="5px">
                   <IconButton
                     aria-label="show-rtmp-ingest"
                     color="white"
@@ -271,9 +275,9 @@ const ChannelStreamerPerspective = ({
                   />
                 </Flex>
               </Flex>
-              <Flex direction="column">
-                <Text fontSize="12px">SRT ingest</Text>
-                <Flex alignItems={"center"}>
+              <Flex>
+                <Flex direction="column" gap="5px">
+                  <Text fontSize="12px">SRT ingest</Text>
                   <input
                     style={{
                       border: "1px solid #5e5e5e",
@@ -287,6 +291,8 @@ const ChannelStreamerPerspective = ({
                     type={showSRTIngest ? "text" : "password"}
                     value={`srt://rtmp.livepeer.com:2935?streamid=${streamKey}`}
                   />
+                </Flex>
+                <Flex direction="column" gap="5px">
                   <IconButton
                     aria-label="show-srt-ingest"
                     color="white"
