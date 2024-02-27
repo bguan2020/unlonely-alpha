@@ -3,6 +3,7 @@ import {
   DisableVideoIcon,
   EnableAudioIcon,
   EnableVideoIcon,
+  PlayIcon,
   StartScreenshareIcon,
   StopIcon,
   StopScreenshareIcon,
@@ -65,9 +66,14 @@ const LivepeerBroadcast = memo(
                     }}
                   >
                     <Broadcast.EnabledIndicator asChild matcher={false}>
-                      <EnableVideoIcon />
+                      <PlayIcon />
                     </Broadcast.EnabledIndicator>
-                    <Broadcast.EnabledIndicator asChild>
+                    <Broadcast.EnabledIndicator
+                      asChild
+                      style={{
+                        color: "#ff6868",
+                      }}
+                    >
                       <StopIcon />
                     </Broadcast.EnabledIndicator>
                   </Broadcast.EnabledTrigger>
@@ -78,11 +84,17 @@ const LivepeerBroadcast = memo(
                       height: 25,
                     }}
                   >
-                    <Broadcast.VideoEnabledIndicator asChild matcher={false}>
-                      <EnableVideoIcon />
+                    <Broadcast.VideoEnabledIndicator
+                      asChild
+                      matcher={false}
+                      style={{
+                        color: "#ff6868",
+                      }}
+                    >
+                      <DisableVideoIcon />
                     </Broadcast.VideoEnabledIndicator>
                     <Broadcast.VideoEnabledIndicator asChild>
-                      <DisableVideoIcon />
+                      <EnableVideoIcon />
                     </Broadcast.VideoEnabledIndicator>
                   </Broadcast.VideoEnabledTrigger>
 
@@ -92,11 +104,17 @@ const LivepeerBroadcast = memo(
                       height: 25,
                     }}
                   >
-                    <Broadcast.AudioEnabledIndicator asChild matcher={false}>
-                      <EnableAudioIcon />
+                    <Broadcast.AudioEnabledIndicator
+                      asChild
+                      matcher={false}
+                      style={{
+                        color: "#ff6868",
+                      }}
+                    >
+                      <DisableAudioIcon />
                     </Broadcast.AudioEnabledIndicator>
                     <Broadcast.AudioEnabledIndicator asChild>
-                      <DisableAudioIcon />
+                      <EnableAudioIcon />
                     </Broadcast.AudioEnabledIndicator>
                   </Broadcast.AudioEnabledTrigger>
 
@@ -109,7 +127,12 @@ const LivepeerBroadcast = memo(
                     <Broadcast.ScreenshareIndicator asChild matcher={false}>
                       <StartScreenshareIcon />
                     </Broadcast.ScreenshareIndicator>
-                    <Broadcast.ScreenshareIndicator asChild>
+                    <Broadcast.ScreenshareIndicator
+                      asChild
+                      style={{
+                        color: "#68acff",
+                      }}
+                    >
                       <StopScreenshareIcon />
                     </Broadcast.ScreenshareIndicator>
                   </Broadcast.ScreenshareTrigger>
@@ -138,28 +161,46 @@ const LivepeerBroadcast = memo(
               <Flex p="5px">
                 <Broadcast.StatusIndicator
                   matcher="live"
-                  style={{ display: "flex", alignItems: "center", gap: 5 }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    zIndex: 1,
+                    backgroundColor: "rgba(0, 0, 0, 0.7)",
+                  }}
                 >
                   <div
                     style={{
                       backgroundColor: "#ef4444",
-                      height: 8,
-                      width: 8,
+                      height: 10,
+                      width: 10,
                       borderRadius: 9999,
                     }}
                   />
-                  <span style={{ fontSize: 12, userSelect: "none" }}>LIVE</span>
+                  <span style={{ fontSize: 22, userSelect: "none" }}>LIVE</span>
                 </Broadcast.StatusIndicator>
 
                 <Broadcast.StatusIndicator
-                  style={{ display: "flex", alignItems: "center", gap: 5 }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    zIndex: 1,
+                    backgroundColor: "rgba(0, 0, 0, 0.7)",
+                  }}
                   matcher="pending"
                 >
                   <Spinner />
                 </Broadcast.StatusIndicator>
 
                 <Broadcast.StatusIndicator
-                  style={{ display: "flex", alignItems: "center", gap: 5 }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    zIndex: 1,
+                    backgroundColor: "rgba(0, 0, 0, 0.7)",
+                  }}
                   matcher="idle"
                 >
                   <div
@@ -170,7 +211,7 @@ const LivepeerBroadcast = memo(
                       borderRadius: 9999,
                     }}
                   />
-                  <span style={{ fontSize: 12, userSelect: "none" }}>IDLE</span>
+                  <span style={{ fontSize: 22, userSelect: "none" }}>IDLE</span>
                 </Broadcast.StatusIndicator>
               </Flex>
             </Broadcast.LoadingIndicator>

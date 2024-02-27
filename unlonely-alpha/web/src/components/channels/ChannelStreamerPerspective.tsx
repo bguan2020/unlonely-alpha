@@ -144,6 +144,7 @@ const ChannelStreamerPerspective = ({
         <LivepeerBroadcast streamKey={streamKey} />
       </Flex>
       <Flex
+        data-tour="s-step-1"
         bg="#131323"
         p="10px"
         borderRadius="10px"

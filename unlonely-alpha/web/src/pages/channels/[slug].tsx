@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext } from "next";
 import React, { useEffect, useMemo, useState } from "react";
-import { Flex, Text, Image, Stack } from "@chakra-ui/react";
+import { Flex, Text, Image, Stack, Button } from "@chakra-ui/react";
 import { useContractEvent } from "wagmi";
 import { Log } from "viem";
 
@@ -34,6 +34,11 @@ import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import Trade from "../../components/channels/bet/Trade";
 import { ApolloError } from "@apollo/client";
+import { useRouter } from "next/router";
+import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
+import { useTour } from "@reactour/tour";
+import { streamerTourSteps, viewerTourSteps } from "../_app";
+import { NEW_STREAMER_URL_QUERY_PARAM } from "../../constants";
 
 const ChannelDetail = ({
   channelData,
@@ -92,6 +97,12 @@ const DesktopPage = ({
   } = channel;
   const { handleIsVip } = leaderboard;
 
+  const router = useRouter();
+
+  const { setIsOpen: setIsTourOpen, setSteps: setTourSteps } = useTour();
+  const [welcomeStreamer, setWelcomeStreamer] = useState(false);
+  const [welcomeStreamerModal, setWelcomeStreamerModal] = useState(false);
+
   const { userAddress, walletIsConnected } = useUser();
 
   const isOwner = userAddress === channelQueryData?.owner?.address;
@@ -100,6 +111,25 @@ const DesktopPage = ({
     "unlonelyTournament",
     localNetwork
   );
+
+  useEffect(() => {
+    if (router.query[NEW_STREAMER_URL_QUERY_PARAM]) {
+      setWelcomeStreamerModal(true);
+      setWelcomeStreamer(true);
+    }
+    const newPath = router.pathname;
+    const newQuery = { ...router.query };
+    delete newQuery[NEW_STREAMER_URL_QUERY_PARAM];
+
+    router.replace(
+      {
+        pathname: newPath,
+        query: newQuery,
+      },
+      undefined,
+      { shallow: true }
+    );
+  }, [router]);
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
@@ -177,6 +207,40 @@ const DesktopPage = ({
   return (
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}
+      <TransactionModalTemplate
+        isOpen={welcomeStreamerModal}
+        handleClose={() => setWelcomeStreamerModal(false)}
+        cannotClose
+        hideFooter
+      >
+        <Flex direction="column" gap="10px">
+          <Text fontSize={"2rem"} textAlign="center" fontFamily="LoRes15">
+            Welcome streamer!
+          </Text>
+          <Text fontSize={"1rem"} textAlign="center">
+            You can now start your stream and interact with your viewers
+          </Text>
+          <Text textAlign="center">
+            We've also prepared a small guide for how to use this page!
+          </Text>
+          <Button
+            bg="#cd34e8"
+            color={"white"}
+            _focus={{}}
+            _hover={{
+              transform: "scale(1.05)",
+            }}
+            _active={{}}
+            onClick={() => {
+              setWelcomeStreamerModal(false);
+              setTourSteps?.(isOwner ? streamerTourSteps : viewerTourSteps);
+              setIsTourOpen(true);
+            }}
+          >
+            Start tour
+          </Button>
+        </Flex>
+      </TransactionModalTemplate>
       <AppLayout
         title={channelSSR?.name}
         image={channelSSR?.owner?.FCImageUrl}
@@ -189,7 +253,6 @@ const DesktopPage = ({
         !channelSSRDataError &&
         !channelSSRDataLoading ? (
           <>
-            <ChannelWideModals ablyChannel={chat.channel} />
             <Stack
               mx={[0, 8, 4]}
               alignItems={["center", "initial"]}
@@ -198,7 +261,10 @@ const DesktopPage = ({
             >
               <Stack direction="column" width={"100%"}>
                 {isOwner && walletIsConnected ? (
-                  <ChannelStreamerPerspective ablyChannel={chat.channel} />
+                  <>
+                    <ChannelWideModals ablyChannel={chat.channel} />
+                    <ChannelStreamerPerspective ablyChannel={chat.channel} />
+                  </>
                 ) : (
                   <ChannelViewerPerspective />
                 )}
@@ -233,6 +299,7 @@ const DesktopPage = ({
                   justifyContent={"space-between"}
                   bg="#131323"
                   p="5px"
+                  data-tour="s-step-9"
                 >
                   <VibesTokenInterface ablyChannel={chat.channel} />
                 </Flex>
@@ -383,11 +450,13 @@ const MobilePage = ({
         !channelSSRDataLoading ? (
           <>
             {isOwner ? (
-              <ChannelStreamerPerspective ablyChannel={chat.channel} />
+              <>
+                <ChannelWideModals ablyChannel={chat.channel} />
+                <ChannelStreamerPerspective ablyChannel={chat.channel} />
+              </>
             ) : (
               <ChannelViewerPerspective mobile />
             )}
-            <ChannelWideModals ablyChannel={chat.channel} />
             <StandaloneAblyChatComponent chat={chat} />
           </>
         ) : (

@@ -65,7 +65,13 @@ const ChannelDesc = () => {
           </Flex>
         </OuterBorder>
       </Flex>
-      <Flex direction="column" gap={["4px", "16px"]} width="100%" pl="30px">
+      <Flex
+        direction="column"
+        gap={["4px", "16px"]}
+        width="100%"
+        pl="30px"
+        data-tour="s-step-2"
+      >
         <Flex
           maxH="400px"
           justifyContent="left"

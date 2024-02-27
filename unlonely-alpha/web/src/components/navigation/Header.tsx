@@ -56,7 +56,9 @@ const Header: React.FC = () => {
             margin="auto"
             width="100%"
           >
-            <ConnectWallet />
+            <div data-tour="s-step-10">
+              <ConnectWallet />
+            </div>
           </Flex>
         </Spacer>
       </Flex>

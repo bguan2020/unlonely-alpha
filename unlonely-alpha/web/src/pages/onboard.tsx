@@ -21,6 +21,7 @@ import { useLazyQuery } from "@apollo/client";
 import { GET_CHANNEL_SEARCH_RESULTS_QUERY } from "../constants/queries";
 import { GetChannelSearchResultsQuery } from "../generated/graphql";
 import { alphanumericInput } from "../utils/validation/input";
+import { NEW_STREAMER_URL_QUERY_PARAM } from "../constants";
 
 const Onboard = () => {
   const { user, walletIsConnected } = useUser();
@@ -93,7 +94,10 @@ const Onboard = () => {
   };
 
   const redirectToNewChannelPage = useCallback(() => {
-    window.open(`${window.location.origin}/channels/${returnedSlug}`, "_self");
+    window.open(
+      `${window.location.origin}/channels/${returnedSlug}?${NEW_STREAMER_URL_QUERY_PARAM}=true`,
+      "_self"
+    );
   }, [returnedSlug]);
 
   useEffect(() => {

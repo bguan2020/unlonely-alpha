@@ -262,7 +262,6 @@ const ChatForm = ({
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
-                          data-tour="step-1"
                           icon={<Image src="/svg/cut.svg" height={"20px"} />}
                           aria-label="clip stream"
                           bg="transparent"
@@ -304,7 +303,6 @@ const ChatForm = ({
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
-                          data-tour="step-2"
                           onClick={openChatPopout}
                           aria-label="chat-popout"
                           _focus={{}}
@@ -333,7 +331,7 @@ const ChatForm = ({
                   <Popover trigger="hover" placement="top" openDelay={500}>
                     <PopoverTrigger>
                       <IconButton
-                        data-tour="step-3"
+                        data-tour="s-step-4"
                         color="white"
                         icon={<GiTalk size={20} />}
                         bg="transparent"
@@ -405,6 +403,7 @@ const ChatForm = ({
                   <Popover trigger="hover" placement="top" openDelay={500}>
                     <PopoverTrigger>
                       <IconButton
+                        data-tour="s-step-11"
                         color="white"
                         icon={<IoIosHelpCircle size={20} />}
                         bg="transparent"

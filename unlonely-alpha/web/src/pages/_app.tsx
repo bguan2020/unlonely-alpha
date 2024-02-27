@@ -2,7 +2,7 @@ import "../styles/globals.css";
 import "../styles/fireworks.css";
 import "../styles/bell.css";
 
-import { ChakraProvider, IconButton, Text } from "@chakra-ui/react";
+import { ChakraProvider, Flex, IconButton, Text } from "@chakra-ui/react";
 import { ApolloProvider } from "@apollo/client";
 import { configureChains } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
@@ -23,6 +23,7 @@ import theme from "../styles/theme";
 import { NetworkProvider } from "../hooks/context/useNetwork";
 import { CacheProvider } from "../hooks/context/useCache";
 import { TourProvider } from "@reactour/tour";
+import Link from "next/link";
 
 const tourStyles = {
   highlightedArea: (base: any, { x, y }: any) => ({
@@ -46,20 +47,120 @@ const tourStyles = {
 
 export const streamerTourSteps = [
   {
-    selector: '[data-tour="step-1"]',
-    content: "step 1 Lorem ipsum dolor sit amet",
+    selector: '[data-tour="s-step-1"]',
+    content: () => {
+      return (
+        <Flex direction="column" gap="10px">
+          <Text>
+            New to streaming? You can do it directly from your browser!
+          </Text>
+          <Text>
+            Or if you are a seasoned streamer using OBS or other streaming
+            software, get your stream key here!
+          </Text>
+        </Flex>
+      );
+    },
   },
   {
-    selector: '[data-tour="step-2"]',
-    content: "step 2 Lorem ipsum dolor sit amet",
+    selector: '[data-tour="s-step-2"]',
+    content: () => {
+      return (
+        <Flex direction="column" gap="10px">
+          <Text>
+            Have an idea of what your stream will be about? Give it a short,
+            recognizable title!
+          </Text>
+          <Text>
+            You can also provide extra details in the description or include
+            bios of yourself and guests!
+          </Text>
+        </Flex>
+      );
+    },
   },
   {
-    selector: '[data-tour="step-2.5"]',
-    content: "step 2.5 Lorem ipsum dolor sit amet",
+    selector: '[data-tour="s-step-3"]',
+    content:
+      "If you want to create bets during streams for viewers to vote on (& earn 5% fees on all voting transactions), DM @brianguan98 for access!",
   },
   {
-    selector: '[data-tour="step-3"]',
-    content: "step 3 Lorem ipsum dolor sit amet",
+    selector: '[data-tour="s-step-4"]',
+    content:
+      "You can manage chat commands here! Great for FAQs or other helpful information!",
+  },
+  {
+    selector: '[data-tour="s-step-5"]',
+    content:
+      "Add upcoming stream(s) to our calendar to show up on our home page. Include your channel URL for extra visibility!",
+  },
+  {
+    selector: '[data-tour="s-step-6"]',
+    content:
+      "When you're live, send notifications to every subscribed to your channel on mobile!",
+  },
+  {
+    selector: '[data-tour="s-step-7"]',
+    content: () => {
+      return (
+        <Flex direction="column" gap="10px">
+          <Text>
+            You can see your chat moderators here! Great for keeping your chat
+            in check!
+          </Text>
+          <Text>
+            You can also add new moderators or ban users by clicking on someone
+            in the chat!
+          </Text>
+        </Flex>
+      );
+    },
+  },
+  {
+    selector: '[data-tour="s-step-8"]',
+    content:
+      "Viewers who purchase a VIP badge and chat moderators get access to the VIP only chat. As the channel owner, you are automatically a VIP!",
+  },
+  {
+    selector: '[data-tour="s-step-9"]',
+    content: () => {
+      return (
+        <Flex direction="column" gap="10px">
+          <Text>
+            For ideas on how to leverage $VIBES in your content, please speak
+            with{" "}
+            <Link
+              href={"https://calendly.com/grace-unlonely/30min"}
+              target="_blank"
+            >
+              <Text as="span" color="#3cd8ff">
+                Grace
+              </Text>
+            </Link>
+            .
+          </Text>
+          <Text>You earn 2% fees on transactions made on your channel!</Text>
+        </Flex>
+      );
+    },
+  },
+  {
+    selector: '[data-tour="s-step-10"]',
+    content: () => {
+      return (
+        <Flex direction="column" gap="10px">
+          <Text>
+            We have more options here where you can update your socials here
+            (ENS, PFP, Farcaster), claim payouts, and bridge ETH to base!
+          </Text>
+        </Flex>
+      );
+    },
+  },
+  {
+    selector: '[data-tour="s-step-11"]',
+    content:
+      "To view these steps again later in the future, click this button!",
   },
 ];
 

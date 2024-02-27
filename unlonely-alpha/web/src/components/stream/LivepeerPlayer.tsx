@@ -99,8 +99,7 @@ const LivepeerPlayer = memo(
                     Stream is offline
                   </Text>
                   <Text textAlign="center">
-                    Playback will start automatically once the stream has
-                    started
+                    Refresh for the latest streaming updates
                   </Text>
                 </Flex>
               </Flex>
