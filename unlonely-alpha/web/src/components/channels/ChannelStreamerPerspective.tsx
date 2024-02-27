@@ -24,7 +24,6 @@ import useUpdateLivepeerStreamData from "../../hooks/server/useUpdateLivepeerStr
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../constants/queries";
 import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
 import { useLazyQuery } from "@apollo/client";
-import { Livepeer } from "livepeer";
 
 const instructions = [
   {
@@ -45,9 +44,6 @@ const ChannelStreamerPerspective = ({
 }: {
   ablyChannel: AblyChannelPromise;
 }) => {
-  const livepeer = new Livepeer({
-    apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
-  });
   const toast = useToast();
 
   const { channel } = useChannelContext();

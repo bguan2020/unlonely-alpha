@@ -9,182 +9,177 @@ import {
 } from "@livepeer/react/assets";
 import * as Broadcast from "@livepeer/react/broadcast";
 import { getIngest } from "@livepeer/react/external";
-import { memo, forwardRef } from "react";
+import { forwardRef } from "react";
 import { Flex, Spinner } from "@chakra-ui/react";
 import { CheckIcon, ChevronDownIcon } from "@chakra-ui/icons";
 
-const LivepeerBroadcast = memo(
-  ({ streamKey }: { streamKey: string }) => {
-    console.log("streamKey", streamKey);
-
-    return (
-      <Flex direction="column" width="100%" position="relative">
-        <Broadcast.Root aspectRatio={null} ingestUrl={getIngest(streamKey)}>
-          <Broadcast.Container
+const LivepeerBroadcast = ({ streamKey }: { streamKey: string }) => {
+  return (
+    <Flex direction="column" width="100%" position="relative">
+      <Broadcast.Root
+        // aspectRatio={null}
+        // video={false}
+        // audio={false}
+        ingestUrl={getIngest(streamKey)}
+      >
+        <Broadcast.Container
+        // style={{
+        //   backgroundColor: "black",
+        //   width: "100%",
+        //   height: "100%",
+        // }}
+        >
+          <Broadcast.Video
             style={{
-              backgroundColor: "black",
-              width: "100%",
               height: "100%",
+              margin: "auto",
+              objectFit: "contain",
+            }}
+          />
+
+          <Broadcast.Controls
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6))",
+              padding: "0.5rem 1rem",
+              display: "flex",
+              flexDirection: "column-reverse",
+              gap: 5,
             }}
           >
-            <Broadcast.Video
+            <div
               style={{
-                height: "100%",
-                margin: "auto",
-                objectFit: "contain",
-              }}
-            />
-
-            <Broadcast.Controls
-              style={{
-                background:
-                  "linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6))",
-                padding: "0.5rem 1rem",
                 display: "flex",
-                flexDirection: "column-reverse",
-                gap: 5,
+                justifyContent: "between",
+                gap: 20,
               }}
             >
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "between",
-                  gap: 20,
+                  flex: 1,
+                  alignItems: "center",
+                  gap: 15,
                 }}
+              >
+                <Broadcast.EnabledTrigger
+                  style={{
+                    width: 25,
+                    height: 25,
+                  }}
+                >
+                  <Broadcast.EnabledIndicator asChild matcher={false}>
+                    <EnableVideoIcon />
+                  </Broadcast.EnabledIndicator>
+                  <Broadcast.EnabledIndicator asChild>
+                    <StopIcon />
+                  </Broadcast.EnabledIndicator>
+                </Broadcast.EnabledTrigger>
+
+                <Broadcast.VideoEnabledTrigger
+                  style={{
+                    width: 25,
+                    height: 25,
+                  }}
+                >
+                  <Broadcast.VideoEnabledIndicator asChild matcher={false}>
+                    <EnableVideoIcon />
+                  </Broadcast.VideoEnabledIndicator>
+                  <Broadcast.VideoEnabledIndicator asChild>
+                    <DisableVideoIcon />
+                  </Broadcast.VideoEnabledIndicator>
+                </Broadcast.VideoEnabledTrigger>
+
+                <Broadcast.AudioEnabledTrigger
+                  style={{
+                    width: 25,
+                    height: 25,
+                  }}
+                >
+                  <Broadcast.AudioEnabledIndicator asChild matcher={false}>
+                    <EnableAudioIcon />
+                  </Broadcast.AudioEnabledIndicator>
+                  <Broadcast.AudioEnabledIndicator asChild>
+                    <DisableAudioIcon />
+                  </Broadcast.AudioEnabledIndicator>
+                </Broadcast.AudioEnabledTrigger>
+
+                <Broadcast.ScreenshareTrigger
+                  style={{
+                    width: 25,
+                    height: 25,
+                  }}
+                >
+                  <Broadcast.ScreenshareIndicator asChild matcher={false}>
+                    <StartScreenshareIcon />
+                  </Broadcast.ScreenshareIndicator>
+                  <Broadcast.ScreenshareIndicator asChild>
+                    <StopScreenshareIcon />
+                  </Broadcast.ScreenshareIndicator>
+                </Broadcast.ScreenshareTrigger>
+                <div
+                  style={{
+                    left: 20,
+                    bottom: 20,
+                    display: "flex",
+                    gap: 10,
+                  }}
+                >
+                  <SourceSelectComposed name="cameraSource" type="videoinput" />
+                  <SourceSelectComposed
+                    name="microphoneSource"
+                    type="audioinput"
+                  />
+                </div>
+              </div>
+            </div>
+          </Broadcast.Controls>
+
+          <Broadcast.LoadingIndicator asChild matcher={false}>
+            <Flex p="5px">
+              <Broadcast.StatusIndicator
+                matcher="live"
+                style={{ display: "flex", alignItems: "center", gap: 5 }}
               >
                 <div
                   style={{
-                    display: "flex",
-                    flex: 1,
-                    alignItems: "center",
-                    gap: 15,
+                    backgroundColor: "#ef4444",
+                    height: 8,
+                    width: 8,
+                    borderRadius: 9999,
                   }}
-                >
-                  <Broadcast.EnabledTrigger
-                    style={{
-                      width: 25,
-                      height: 25,
-                    }}
-                  >
-                    <Broadcast.EnabledIndicator asChild matcher={false}>
-                      <EnableVideoIcon />
-                    </Broadcast.EnabledIndicator>
-                    <Broadcast.EnabledIndicator asChild>
-                      <StopIcon />
-                    </Broadcast.EnabledIndicator>
-                  </Broadcast.EnabledTrigger>
+                />
+                <span style={{ fontSize: 12, userSelect: "none" }}>LIVE</span>
+              </Broadcast.StatusIndicator>
 
-                  <Broadcast.VideoEnabledTrigger
-                    style={{
-                      width: 25,
-                      height: 25,
-                    }}
-                  >
-                    <Broadcast.VideoEnabledIndicator asChild matcher={false}>
-                      <EnableVideoIcon />
-                    </Broadcast.VideoEnabledIndicator>
-                    <Broadcast.VideoEnabledIndicator asChild>
-                      <DisableVideoIcon />
-                    </Broadcast.VideoEnabledIndicator>
-                  </Broadcast.VideoEnabledTrigger>
+              <Broadcast.StatusIndicator
+                style={{ display: "flex", alignItems: "center", gap: 5 }}
+                matcher="pending"
+              >
+                <Spinner />
+              </Broadcast.StatusIndicator>
 
-                  <Broadcast.AudioEnabledTrigger
-                    style={{
-                      width: 25,
-                      height: 25,
-                    }}
-                  >
-                    <Broadcast.AudioEnabledIndicator asChild matcher={false}>
-                      <EnableAudioIcon />
-                    </Broadcast.AudioEnabledIndicator>
-                    <Broadcast.AudioEnabledIndicator asChild>
-                      <DisableAudioIcon />
-                    </Broadcast.AudioEnabledIndicator>
-                  </Broadcast.AudioEnabledTrigger>
-
-                  <Broadcast.ScreenshareTrigger
-                    style={{
-                      width: 25,
-                      height: 25,
-                    }}
-                  >
-                    <Broadcast.ScreenshareIndicator asChild matcher={false}>
-                      <StartScreenshareIcon />
-                    </Broadcast.ScreenshareIndicator>
-                    <Broadcast.ScreenshareIndicator asChild>
-                      <StopScreenshareIcon />
-                    </Broadcast.ScreenshareIndicator>
-                  </Broadcast.ScreenshareTrigger>
-                  <div
-                    style={{
-                      left: 20,
-                      bottom: 20,
-                      display: "flex",
-                      gap: 10,
-                    }}
-                  >
-                    <SourceSelectComposed
-                      name="cameraSource"
-                      type="videoinput"
-                    />
-                    <SourceSelectComposed
-                      name="microphoneSource"
-                      type="audioinput"
-                    />
-                  </div>
-                </div>
-              </div>
-            </Broadcast.Controls>
-
-            <Broadcast.LoadingIndicator asChild matcher={false}>
-              <Flex p="5px">
-                <Broadcast.StatusIndicator
-                  matcher="live"
-                  style={{ display: "flex", alignItems: "center", gap: 5 }}
-                >
-                  <div
-                    style={{
-                      backgroundColor: "#ef4444",
-                      height: 8,
-                      width: 8,
-                      borderRadius: 9999,
-                    }}
-                  />
-                  <span style={{ fontSize: 12, userSelect: "none" }}>LIVE</span>
-                </Broadcast.StatusIndicator>
-
-                <Broadcast.StatusIndicator
-                  style={{ display: "flex", alignItems: "center", gap: 5 }}
-                  matcher="pending"
-                >
-                  <Spinner />
-                </Broadcast.StatusIndicator>
-
-                <Broadcast.StatusIndicator
-                  style={{ display: "flex", alignItems: "center", gap: 5 }}
-                  matcher="idle"
-                >
-                  <div
-                    style={{
-                      backgroundColor: "#aaaaaa",
-                      height: 8,
-                      width: 8,
-                      borderRadius: 9999,
-                    }}
-                  />
-                  <span style={{ fontSize: 12, userSelect: "none" }}>IDLE</span>
-                </Broadcast.StatusIndicator>
-              </Flex>
-            </Broadcast.LoadingIndicator>
-          </Broadcast.Container>
-        </Broadcast.Root>
-      </Flex>
-    );
-  },
-  (prevProps, nextProps) => {
-    return prevProps.streamKey === nextProps.streamKey;
-  }
-);
+              <Broadcast.StatusIndicator
+                style={{ display: "flex", alignItems: "center", gap: 5 }}
+                matcher="idle"
+              >
+                <div
+                  style={{
+                    backgroundColor: "#aaaaaa",
+                    height: 8,
+                    width: 8,
+                    borderRadius: 9999,
+                  }}
+                />
+                <span style={{ fontSize: 12, userSelect: "none" }}>IDLE</span>
+              </Broadcast.StatusIndicator>
+            </Flex>
+          </Broadcast.LoadingIndicator>
+        </Broadcast.Container>
+      </Broadcast.Root>
+    </Flex>
+  );
+};
 
 const SourceSelectComposed = forwardRef(
   (

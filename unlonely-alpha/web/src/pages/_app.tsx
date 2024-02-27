@@ -12,11 +12,6 @@ import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { PrivyWagmiConnector } from "@privy-io/wagmi-connector";
-// import {
-//   LivepeerConfig,
-//   createReactClient,
-//   studioProvider,
-// } from "@livepeer/react";
 import { FaArrowRight } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa";
 
@@ -114,12 +109,6 @@ function App({ Component, pageProps, cookies }: Props) {
     ]
   );
 
-  // const livepeerClient = createReactClient({
-  //   provider: studioProvider({
-  //     apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
-  //   }),
-  // });
-
   return (
     <ChakraProvider theme={theme}>
       <PrivyProvider
@@ -202,21 +191,7 @@ function App({ Component, pageProps, cookies }: Props) {
                 <ScreenAnimationsProvider>
                   <NetworkProvider>
                     <CacheProvider>
-                      {/* <LivepeerConfig
-                        client={livepeerClient}
-                        theme={{
-                          colors: {
-                            accent: "rgb(0, 145, 255)",
-                            containerBorderColor: "rgba(0, 145, 255, 0.9)",
-                          },
-                          fonts: {
-                            display: "Inter",
-                          },
-                        }}
-                      > */}
                       <Component {...pageProps} />
-                      {/* <SpeedInsights /> */}
-                      {/* </LivepeerConfig> */}
                     </CacheProvider>
                   </NetworkProvider>
                 </ScreenAnimationsProvider>
