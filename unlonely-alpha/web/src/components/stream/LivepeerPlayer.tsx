@@ -46,6 +46,7 @@ const LivepeerPlayer = memo(
             }}
           >
             <Player.Video
+              muted
               style={{
                 height: "100%",
                 margin: "auto",

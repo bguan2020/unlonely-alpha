@@ -17,12 +17,7 @@ const LivepeerBroadcast = memo(
   ({ streamKey }: { streamKey: string }) => {
     return (
       <Flex direction="column" width="100%" position="relative">
-        <Broadcast.Root
-          aspectRatio={null}
-          video={false}
-          audio={false}
-          ingestUrl={getIngest(streamKey)}
-        >
+        <Broadcast.Root aspectRatio={null} ingestUrl={getIngest(streamKey)}>
           <Broadcast.Container
             style={{
               backgroundColor: "black",
