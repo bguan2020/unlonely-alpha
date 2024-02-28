@@ -30,6 +30,7 @@ import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
 import { useLazyQuery } from "@apollo/client";
 import { LuClapperboard } from "react-icons/lu";
 import { BiVideoRecording } from "react-icons/bi";
+import StreamComponent from "../stream/StreamComponent";
 
 const ChannelStreamerPerspective = ({
   ablyChannel,
@@ -129,14 +130,18 @@ const ChannelStreamerPerspective = ({
         width={"100%"}
         position="relative"
         justifyContent={"center"}
-        h={["75%", "75%", "75%", "90%"]}
+        h={playbackId ? ["75%", "75%", "75%", "90%"] : "80%"}
       >
-        <LivepeerBroadcast streamKey={streamKey} />
+        {playbackId ? (
+          <LivepeerBroadcast streamKey={streamKey} />
+        ) : (
+          <StreamComponent isStreamer />
+        )}
       </Flex>
       <Flex
         bg="#131323"
         p="10px"
-        h={["25%", "25%", "25%", "10%"]}
+        h={playbackId ? ["25%", "25%", "25%", "10%"] : "20%"}
         width="100%"
         justifyContent={"center"}
       >

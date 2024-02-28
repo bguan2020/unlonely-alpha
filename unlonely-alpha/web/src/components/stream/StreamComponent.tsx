@@ -10,7 +10,7 @@ import { Livepeer } from "livepeer";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { getSrc } from "@livepeer/react/external";
 
-const StreamComponent = () => {
+const StreamComponent = ({ isStreamer }: { isStreamer?: boolean }) => {
   const { isStandalone } = useUserAgent();
   const { channel } = useChannelContext();
   const { channelQueryData, loading: channelLoading } = channel;
@@ -85,7 +85,7 @@ const StreamComponent = () => {
       flexDirection="row"
       justifyContent="center"
       width="100%"
-      height={!isStandalone ? { base: "80vh" } : "25vh"}
+      height={!isStandalone ? { base: isStreamer ? "unset" : "80vh" } : "25vh"}
     >
       <Flex width="100%">
         {livepeerPlaybackId ? (
