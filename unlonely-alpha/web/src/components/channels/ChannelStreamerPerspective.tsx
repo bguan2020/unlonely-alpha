@@ -31,20 +31,6 @@ import { useLazyQuery } from "@apollo/client";
 import { LuClapperboard } from "react-icons/lu";
 import { BiVideoRecording } from "react-icons/bi";
 
-const instructions = [
-  {
-    text: [
-      "Copy and paste the stream key into your streaming software.",
-      "Use either the RTMP or SRT ingest. The RTMP ingest is more common with OBS users.",
-    ],
-  },
-  {
-    text: [
-      "Check that your camera and microphone inputs are working before starting.",
-    ],
-  },
-];
-
 const ChannelStreamerPerspective = ({
   ablyChannel,
 }: {
@@ -55,8 +41,6 @@ const ChannelStreamerPerspective = ({
   const { channel } = useChannelContext();
   const { channelQueryData, channelDetails } = channel;
 
-  const [isBrowserBroadcastSelected, setIsBrowserBroadcastSelected] =
-    useState(false);
   const [canLivepeerRecord, setCanLivepeerRecord] = useState(true);
 
   const [showStreamKey, setShowStreamKey] = useState(false);
@@ -133,12 +117,6 @@ const ChannelStreamerPerspective = ({
     init();
   }, [channelQueryData?.livepeerStreamId]);
 
-  useEffect(() => {
-    setShowStreamKey(false);
-    setShowRTMPIngest(false);
-    setShowSRTIngest(false);
-  }, [isBrowserBroadcastSelected]);
-
   return (
     <Flex
       width={"100%"}
@@ -151,15 +129,14 @@ const ChannelStreamerPerspective = ({
         width={"100%"}
         position="relative"
         justifyContent={"center"}
-        h="90%"
+        h={["75%", "75%", "75%", "90%"]}
       >
         <LivepeerBroadcast streamKey={streamKey} />
       </Flex>
       <Flex
         bg="#131323"
         p="10px"
-        borderRadius="10px"
-        h="10%"
+        h={["25%", "25%", "25%", "10%"]}
         width="100%"
         justifyContent={"center"}
       >
@@ -170,7 +147,7 @@ const ChannelStreamerPerspective = ({
             alignItems={"center"}
             justifyContent={"space-evenly"}
           >
-            <Flex gap="15px">
+            <Flex gap="15px" direction={["column", "column", "column", "row"]}>
               <Flex>
                 <Flex direction="column" gap="5px">
                   <Text fontSize="12px">Stream Key</Text>

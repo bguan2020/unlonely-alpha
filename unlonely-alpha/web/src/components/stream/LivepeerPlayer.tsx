@@ -68,6 +68,31 @@ const LivepeerPlayer = memo(
               </Flex>
             </Player.LoadingIndicator>
 
+            <Flex
+              style={{
+                position: "absolute",
+                transform: "translate(-50%, -50%)",
+                top: "50%",
+                left: "50%",
+              }}
+            >
+              <Player.PlayingIndicator asChild matcher={false}>
+                <PlayIcon
+                  style={{
+                    width: 100,
+                    height: 100,
+                  }}
+                />
+              </Player.PlayingIndicator>
+              <Player.VolumeIndicator asChild matcher={false}>
+                <MuteIcon
+                  style={{
+                    width: 100,
+                    height: 100,
+                  }}
+                />
+              </Player.VolumeIndicator>
+            </Flex>
             <Player.ErrorIndicator
               matcher="all"
               asChild

@@ -35,9 +35,8 @@ const LivepeerBroadcast = memo(
             />
 
             <Broadcast.Controls
+              autoHide={0}
               style={{
-                background:
-                  "linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6))",
                 padding: "0.5rem 1rem",
                 display: "flex",
                 flexDirection: "column-reverse",
@@ -49,6 +48,8 @@ const LivepeerBroadcast = memo(
                   display: "flex",
                   justifyContent: "between",
                   gap: 20,
+                  backgroundColor: "rgba(0, 0, 0, 0.7)",
+                  padding: 10,
                 }}
               >
                 <div
@@ -247,7 +248,6 @@ const SourceSelectComposed = forwardRef(
                 padding: 10,
                 borderRadius: 5,
                 outline: "white solid 1px",
-                backgroundColor: "rgba(0, 0, 0, 0.7)",
               }}
               aria-label={type === "audioinput" ? "Audio input" : "Video input"}
             >
