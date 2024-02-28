@@ -85,7 +85,13 @@ const StreamComponent = ({ isStreamer }: { isStreamer?: boolean }) => {
       flexDirection="row"
       justifyContent="center"
       width="100%"
-      height={!isStandalone ? { base: isStreamer ? "unset" : "80vh" } : "25vh"}
+      height={
+        !isStandalone
+          ? { base: isStreamer ? "unset" : "80vh" }
+          : isStreamer
+          ? "unset"
+          : "25vh"
+      }
     >
       <Flex width="100%">
         {livepeerPlaybackId ? (

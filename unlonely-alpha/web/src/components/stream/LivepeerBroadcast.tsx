@@ -13,9 +13,12 @@ import { getIngest } from "@livepeer/react/external";
 import { memo, forwardRef } from "react";
 import { Flex, Spinner } from "@chakra-ui/react";
 import { CheckIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 const LivepeerBroadcast = memo(
   ({ streamKey }: { streamKey: string }) => {
+    const { isStandalone } = useUserAgent();
+
     return (
       <Flex direction="column" width="100%" position="relative">
         <Broadcast.Root aspectRatio={null} ingestUrl={getIngest(streamKey)}>
@@ -60,83 +63,92 @@ const LivepeerBroadcast = memo(
                     gap: 15,
                   }}
                 >
-                  <Broadcast.EnabledTrigger
+                  <div
                     style={{
-                      width: 25,
-                      height: 25,
+                      display: "flex",
+                      flex: 1,
+                      alignItems: "center",
+                      gap: 15,
                     }}
                   >
-                    <Broadcast.EnabledIndicator asChild matcher={false}>
-                      <PlayIcon />
-                    </Broadcast.EnabledIndicator>
-                    <Broadcast.EnabledIndicator
-                      asChild
+                    <Broadcast.EnabledTrigger
                       style={{
-                        color: "#ff6868",
+                        width: 25,
+                        height: 25,
                       }}
                     >
-                      <StopIcon />
-                    </Broadcast.EnabledIndicator>
-                  </Broadcast.EnabledTrigger>
+                      <Broadcast.EnabledIndicator asChild matcher={false}>
+                        <PlayIcon />
+                      </Broadcast.EnabledIndicator>
+                      <Broadcast.EnabledIndicator
+                        asChild
+                        style={{
+                          color: "#ff6868",
+                        }}
+                      >
+                        <StopIcon />
+                      </Broadcast.EnabledIndicator>
+                    </Broadcast.EnabledTrigger>
 
-                  <Broadcast.VideoEnabledTrigger
-                    style={{
-                      width: 25,
-                      height: 25,
-                    }}
-                  >
-                    <Broadcast.VideoEnabledIndicator
-                      asChild
-                      matcher={false}
+                    <Broadcast.VideoEnabledTrigger
                       style={{
-                        color: "#ff6868",
+                        width: 25,
+                        height: 25,
                       }}
                     >
-                      <DisableVideoIcon />
-                    </Broadcast.VideoEnabledIndicator>
-                    <Broadcast.VideoEnabledIndicator asChild>
-                      <EnableVideoIcon />
-                    </Broadcast.VideoEnabledIndicator>
-                  </Broadcast.VideoEnabledTrigger>
+                      <Broadcast.VideoEnabledIndicator
+                        asChild
+                        matcher={false}
+                        style={{
+                          color: "#ff6868",
+                        }}
+                      >
+                        <DisableVideoIcon />
+                      </Broadcast.VideoEnabledIndicator>
+                      <Broadcast.VideoEnabledIndicator asChild>
+                        <EnableVideoIcon />
+                      </Broadcast.VideoEnabledIndicator>
+                    </Broadcast.VideoEnabledTrigger>
 
-                  <Broadcast.AudioEnabledTrigger
-                    style={{
-                      width: 25,
-                      height: 25,
-                    }}
-                  >
-                    <Broadcast.AudioEnabledIndicator
-                      asChild
-                      matcher={false}
+                    <Broadcast.AudioEnabledTrigger
                       style={{
-                        color: "#ff6868",
+                        width: 25,
+                        height: 25,
                       }}
                     >
-                      <DisableAudioIcon />
-                    </Broadcast.AudioEnabledIndicator>
-                    <Broadcast.AudioEnabledIndicator asChild>
-                      <EnableAudioIcon />
-                    </Broadcast.AudioEnabledIndicator>
-                  </Broadcast.AudioEnabledTrigger>
+                      <Broadcast.AudioEnabledIndicator
+                        asChild
+                        matcher={false}
+                        style={{
+                          color: "#ff6868",
+                        }}
+                      >
+                        <DisableAudioIcon />
+                      </Broadcast.AudioEnabledIndicator>
+                      <Broadcast.AudioEnabledIndicator asChild>
+                        <EnableAudioIcon />
+                      </Broadcast.AudioEnabledIndicator>
+                    </Broadcast.AudioEnabledTrigger>
 
-                  <Broadcast.ScreenshareTrigger
-                    style={{
-                      width: 25,
-                      height: 25,
-                    }}
-                  >
-                    <Broadcast.ScreenshareIndicator asChild matcher={false}>
-                      <StartScreenshareIcon />
-                    </Broadcast.ScreenshareIndicator>
-                    <Broadcast.ScreenshareIndicator
-                      asChild
+                    <Broadcast.ScreenshareTrigger
                       style={{
-                        color: "#68acff",
+                        width: 25,
+                        height: 25,
                       }}
                     >
-                      <StopScreenshareIcon />
-                    </Broadcast.ScreenshareIndicator>
-                  </Broadcast.ScreenshareTrigger>
+                      <Broadcast.ScreenshareIndicator asChild matcher={false}>
+                        <StartScreenshareIcon />
+                      </Broadcast.ScreenshareIndicator>
+                      <Broadcast.ScreenshareIndicator
+                        asChild
+                        style={{
+                          color: "#68acff",
+                        }}
+                      >
+                        <StopScreenshareIcon />
+                      </Broadcast.ScreenshareIndicator>
+                    </Broadcast.ScreenshareTrigger>
+                  </div>
                   <div
                     style={{
                       left: 20,
@@ -149,10 +161,12 @@ const LivepeerBroadcast = memo(
                       name="cameraSource"
                       type="videoinput"
                     />
-                    <SourceSelectComposed
-                      name="microphoneSource"
-                      type="audioinput"
-                    />
+                    {!isStandalone && (
+                      <SourceSelectComposed
+                        name="microphoneSource"
+                        type="audioinput"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
