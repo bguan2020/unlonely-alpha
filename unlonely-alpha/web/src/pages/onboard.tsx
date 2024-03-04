@@ -452,7 +452,7 @@ const LoggedInOnboard = () => {
           </>
         ) : (
           <>
-            <Flex direction={"column"} gap="10px">
+            <Flex direction={"column"} gap="18px">
               <Text fontSize="25px" fontFamily="LoRes15" color="#f5b6ff">
                 required
               </Text>
@@ -476,13 +476,6 @@ const LoggedInOnboard = () => {
                   />
                 </Tooltip>
               </Flex>
-              <Input
-                textAlign={"center"}
-                value={`unlonely.app/.../${newSlug || "*handle*"}`}
-                fontSize={"12px"}
-                readOnly={true}
-                color="#17d058"
-              />
               {amount_vibes_needed_bigint > BigInt(0) && (
                 <Flex direction={"column"} gap="2px">
                   <Text fontSize="11px" color="#c2c2c2">
@@ -632,7 +625,10 @@ const LoggedInOnboard = () => {
                 </Text>
               </Flex>
             </Flex>
-            <Flex direction="column">
+            <Flex direction={"column"} gap="18px">
+              <Text fontSize="25px" fontFamily="LoRes15" color="#f5b6ff">
+                finish
+              </Text>
               <Tooltip
                 label={errorMessage}
                 placement="bottom"
