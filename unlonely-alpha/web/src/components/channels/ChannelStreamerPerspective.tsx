@@ -329,7 +329,7 @@ const ChannelStreamerPerspective = ({
                 </Flex>
               </Flex>
               <Flex
-                gap="1rem"
+                gap="0.5rem"
                 justifyContent={"space-evenly"}
                 direction="column"
               >

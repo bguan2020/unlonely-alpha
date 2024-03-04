@@ -27,7 +27,7 @@ const ChannelList = memo(
     callback,
     indexOfOwner,
   }: Props) => {
-    const {isStandalone} = useUserAgent();
+    const { isStandalone } = useUserAgent();
     const fullWidthSearchbar = useBreakpointValue({
       base: true,
       sm: true,
@@ -45,7 +45,9 @@ const ChannelList = memo(
     const filteredChannels = useMemo(() => {
       return channels?.filter((c) =>
         debouncedSearch.length > 0
-          ? (c.owner.username ?? c.owner.address).includes(debouncedSearch)
+          ? (
+              c.owner.username?.toLowerCase() ?? c.owner.address.toLowerCase()
+            ).includes(debouncedSearch?.toLowerCase())
           : c
       );
     }, [channels, debouncedSearch]);

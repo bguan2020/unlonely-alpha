@@ -37,7 +37,7 @@ import { ApolloError } from "@apollo/client";
 import { useRouter } from "next/router";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 import { useTour } from "@reactour/tour";
-import { streamerTourSteps, viewerTourSteps } from "../_app";
+import { streamerTourSteps } from "../_app";
 import { NEW_STREAMER_URL_QUERY_PARAM } from "../../constants";
 
 const ChannelDetail = ({
@@ -233,11 +233,25 @@ const DesktopPage = ({
             _active={{}}
             onClick={() => {
               setWelcomeStreamerModal(false);
-              setTourSteps?.(isOwner ? streamerTourSteps : viewerTourSteps);
+              setTourSteps?.(streamerTourSteps);
               setIsTourOpen(true);
             }}
           >
             Start tour
+          </Button>
+          <Button
+            bg="transparent"
+            color={"#a3a3a3"}
+            _focus={{}}
+            _hover={{
+              transform: "scale(1.05)",
+            }}
+            _active={{}}
+            onClick={() => {
+              setWelcomeStreamerModal(false);
+            }}
+          >
+            No thanks
           </Button>
         </Flex>
       </TransactionModalTemplate>

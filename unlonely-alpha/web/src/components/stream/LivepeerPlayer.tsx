@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Flex, Spinner, Text } from "@chakra-ui/react";
+import { Flex, IconButton, Spinner, Text } from "@chakra-ui/react";
 import { Src } from "@livepeer/react";
 import * as Player from "@livepeer/react/player";
 import {
@@ -11,6 +11,7 @@ import {
   PlayIcon,
   UnmuteIcon,
 } from "@livepeer/react/assets";
+import { BiRefresh } from "react-icons/bi";
 
 const LivepeerPlayer = memo(
   ({ src }: { src: Src[] | null }) => {
@@ -114,7 +115,8 @@ const LivepeerPlayer = memo(
                   direction="column"
                   margin="auto"
                   alignItems={"center"}
-                  p="5"
+                  p="5px"
+                  gap="10px"
                 >
                   <Text
                     textAlign="center"
@@ -126,6 +128,20 @@ const LivepeerPlayer = memo(
                   <Text textAlign="center">
                     Refresh for the latest streaming updates
                   </Text>
+                  <IconButton
+                    color="white"
+                    aria-label="refresh"
+                    icon={<BiRefresh size="30px" />}
+                    bg="rgb(0, 0, 0, 0.5)"
+                    onClick={() => window?.location?.reload()}
+                    _hover={{
+                      bg: "rgb(255,255,255, 0.1)",
+                    }}
+                    _focus={{}}
+                    _active={{}}
+                    borderWidth="1px"
+                    zIndex="1"
+                  />{" "}
                 </Flex>
               </Flex>
             </Player.ErrorIndicator>

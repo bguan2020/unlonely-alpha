@@ -32,7 +32,7 @@ import ConnectWallet from "../navigation/ConnectWallet";
 import { ChatClip } from "./ChatClip";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useTour } from "@reactour/tour";
-import { streamerTourSteps, viewerTourSteps } from "../../pages/_app";
+import { streamerTourSteps } from "../../pages/_app";
 
 type Props = {
   sendChatMessage: (
@@ -400,38 +400,38 @@ const ChatForm = ({
                       </PopoverContent>
                     </Popover>
                   )}
-                  <Popover trigger="hover" placement="top" openDelay={500}>
-                    <PopoverTrigger>
-                      <IconButton
-                        data-tour="s-step-11"
-                        color="white"
-                        icon={<IoIosHelpCircle size={20} />}
-                        bg="transparent"
-                        aria-label="react"
-                        _focus={{}}
-                        _hover={{ transform: "scale(1.15)" }}
-                        _active={{ transform: "scale(1.3)" }}
-                        onClick={() => {
-                          setTourSteps?.(
-                            isOwner ? streamerTourSteps : viewerTourSteps
-                          );
-                          setIsTourOpen(true);
-                        }}
-                        minWidth="auto"
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent
-                      bg="#925800"
-                      border="none"
-                      width="100%"
-                      p="2px"
-                    >
-                      <PopoverArrow bg="#925800" />
-                      <Text fontSize="12px" textAlign={"center"}>
-                        tour around the app!
-                      </Text>
-                    </PopoverContent>
-                  </Popover>
+                  {isOwner && (
+                    <Popover trigger="hover" placement="top" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          data-tour="s-step-11"
+                          color="white"
+                          icon={<IoIosHelpCircle size={20} />}
+                          bg="transparent"
+                          aria-label="react"
+                          _focus={{}}
+                          _hover={{ transform: "scale(1.15)" }}
+                          _active={{ transform: "scale(1.3)" }}
+                          onClick={() => {
+                            setTourSteps?.(streamerTourSteps);
+                            setIsTourOpen(true);
+                          }}
+                          minWidth="auto"
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#925800"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#925800" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          tour around the app!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                  )}
                   <EmojiButton
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
                     onSelectGif={(gif) => sendGif(gif)}

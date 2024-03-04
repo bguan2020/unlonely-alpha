@@ -249,54 +249,61 @@ const SourceSelectComposed = forwardRef(
       {(devices) =>
         devices ? (
           <>
-            <Broadcast.SelectTrigger
-              ref={ref}
-              style={{
-                minWidth: 120,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                height: 30,
-                fontSize: 12,
-                gap: 5,
-                padding: 10,
-                borderRadius: 5,
-                outline: "white solid 1px",
-              }}
-              aria-label={type === "audioinput" ? "Audio input" : "Video input"}
-            >
-              <Broadcast.SelectValue
-                placeholder={
-                  type === "audioinput"
-                    ? "Select audio input"
-                    : "Select video input"
-                }
-              />
-              <Broadcast.SelectIcon>
-                <ChevronDownIcon style={{ width: 14, height: 14 }} />
-              </Broadcast.SelectIcon>
-            </Broadcast.SelectTrigger>
-            <Broadcast.SelectPortal>
-              <Broadcast.SelectContent
-                style={{
-                  borderRadius: 5,
-                  backgroundColor: "black",
-                }}
-              >
-                <Broadcast.SelectViewport style={{ padding: 5 }}>
-                  <Broadcast.SelectGroup>
-                    {devices?.map((device) => (
-                      <SourceSelectItem
-                        key={device.deviceId}
-                        value={device.deviceId}
-                      >
-                        {device.friendlyName}
-                      </SourceSelectItem>
-                    ))}
-                  </Broadcast.SelectGroup>
-                </Broadcast.SelectViewport>
-              </Broadcast.SelectContent>
-            </Broadcast.SelectPortal>
+            {devices.length > 0 ? (
+              <>
+                <Broadcast.SelectTrigger
+                  ref={ref}
+                  style={{
+                    minWidth: 120,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    height: 30,
+                    fontSize: 12,
+                    gap: 5,
+                    padding: 10,
+                    borderRadius: 5,
+                    outline: "white solid 1px",
+                  }}
+                  aria-label={
+                    type === "audioinput" ? "Audio input" : "Video input"
+                  }
+                >
+                  <Broadcast.SelectValue
+                    placeholder={
+                      type === "audioinput"
+                        ? "Select audio input"
+                        : "Select video input"
+                    }
+                  />
+                  <Broadcast.SelectIcon>
+                    <ChevronDownIcon style={{ width: 14, height: 14 }} />
+                  </Broadcast.SelectIcon>
+                </Broadcast.SelectTrigger>
+                <Broadcast.SelectPortal>
+                  <Broadcast.SelectContent
+                    style={{
+                      borderRadius: 5,
+                      zIndex: 5,
+                      backgroundColor: "black",
+                    }}
+                  >
+                    <Broadcast.SelectViewport style={{ padding: 5 }}>
+                      <Broadcast.SelectGroup>
+                        {devices?.map((device) => (
+                          <SourceSelectItem
+                            key={device.deviceId}
+                            value={device.deviceId}
+                          >
+                            {device.friendlyName}
+                          </SourceSelectItem>
+                        ))}
+                      </Broadcast.SelectGroup>
+                    </Broadcast.SelectViewport>
+                  </Broadcast.SelectContent>
+                </Broadcast.SelectPortal>
+              </>
+            ) : null}
           </>
         ) : (
           <span>There was an error fetching the available devices.</span>

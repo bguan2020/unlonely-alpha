@@ -51,17 +51,9 @@ export const streamerTourSteps = [
     content: () => {
       return (
         <Flex direction="column" gap="10px">
+          <Text>Stream directly using the broadcaster here!</Text>
           <Text>
-            New to streaming? You can do it directly from your browser using the
-            broadcaster here! (Make sure your camera and microphone are working)
-          </Text>
-          <Text>
-            Or if you are a seasoned streamer using OBS or other software, get
-            your stream key here!
-          </Text>
-          <Text>
-            You can also change whether you want your stream to be recorded or
-            clipped!
+            Or if you using a streaming software, get your stream key here!
           </Text>
         </Flex>
       );
@@ -72,14 +64,8 @@ export const streamerTourSteps = [
     content: () => {
       return (
         <Flex direction="column" gap="10px">
-          <Text>
-            Have an idea of what your stream will be about? Give it a short,
-            recognizable title!
-          </Text>
-          <Text>
-            You can also provide extra details in the description or include
-            bios of yourself and guests!
-          </Text>
+          <Text>What is your stream about? Give it a title!</Text>
+          <Text>Provide extra details in the description!</Text>
         </Flex>
       );
     },
@@ -114,8 +100,8 @@ export const streamerTourSteps = [
             in check!
           </Text>
           <Text>
-            You can also add new moderators or ban users by clicking on someone
-            in the chat!
+            You can also add new moderators or ban users by clicking on them in
+            the chat!
           </Text>
         </Flex>
       );
@@ -144,7 +130,7 @@ export const streamerTourSteps = [
             </Link>
             .
           </Text>
-          <Text>You earn 2% fees on transactions made on your channel!</Text>
+          <Text>You earn fees from transactions made on your channel!</Text>
         </Flex>
       );
     },
@@ -169,21 +155,6 @@ export const streamerTourSteps = [
   },
 ];
 
-export const viewerTourSteps = [
-  {
-    selector: '[data-tour="step-1"]',
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    selector: '[data-tour="step-2"]',
-    content: "viewer step 2 Lorem ipsum dolor sit amet",
-  },
-  {
-    selector: '[data-tour="step-3"]',
-    content: "viewer step 3 Lorem ipsum dolor sit amet",
-  },
-];
 interface InitialProps {
   cookies: Cookies;
 }
@@ -237,7 +208,7 @@ function App({ Component, pageProps, cookies }: Props) {
         <PrivyWagmiConnector wagmiChainsConfig={configureChainsConfig}>
           <ApolloProvider client={apolloClient}>
             <TourProvider
-              steps={viewerTourSteps}
+              steps={streamerTourSteps}
               styles={tourStyles}
               prevButton={({ currentStep, setCurrentStep, steps }) => {
                 const first = currentStep === 0;
