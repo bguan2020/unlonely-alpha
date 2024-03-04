@@ -233,7 +233,10 @@ const StandaloneChatComponent = ({ chat }: { chat: ChatReturnType }) => {
               }}
             >
               <Text fontSize="20px" cursor={"pointer"} color="#8793FF">
-                /{channelQueryData?.slug}
+                /
+                {(channelQueryData?.slug?.length ?? 0) > 10
+                  ? channelQueryData?.slug.substring(0, 10).concat("...")
+                  : channelQueryData?.slug}
               </Text>
             </Flex>
           </Flex>

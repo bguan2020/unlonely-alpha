@@ -38,6 +38,9 @@ export const useVibesCheck = () => {
       isAddress(contract.address ?? NULL_ADDRESS),
   });
 
+  const [lastChainInteractionTimestamp, setLastChainInteractionTimestamp] =
+    useState<number>(0);
+
   const [currentBlockNumberForVibes, setCurrentBlockNumberForVibes] =
     useState<bigint>(BigInt(0));
 
@@ -70,6 +73,7 @@ export const useVibesCheck = () => {
       const sortedLogs = logs.sort(
         (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
       );
+      setLastChainInteractionTimestamp(Date.now());
       sortedLogs.forEach((log) => {
         eventQueueRef.current.push(log);
         if (eventQueueRef.current.length === 1) {
@@ -88,6 +92,7 @@ export const useVibesCheck = () => {
       const sortedLogs = logs.sort(
         (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
       );
+      setLastChainInteractionTimestamp(Date.now());
       sortedLogs.forEach((log) => {
         eventQueueRef.current.push(log);
         if (eventQueueRef.current.length === 1) {
@@ -339,6 +344,7 @@ export const useVibesCheck = () => {
     chartTimeIndexes,
     loading,
     currentBlockNumberForVibes,
+    lastChainInteractionTimestamp,
   };
 };
 

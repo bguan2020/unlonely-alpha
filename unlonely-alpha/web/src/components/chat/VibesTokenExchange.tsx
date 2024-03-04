@@ -38,13 +38,13 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 
-const mintErrors: { [key: string]: string } = {
+export const mintErrors: { [key: string]: string } = {
   InsufficientValue:
     "The price you want to buy at has changed, please try again",
   EtherTransferFailed: "An internal transfer of ETH failed, please try again",
 };
 
-const burnErrors: { [key: string]: string } = {
+export const burnErrors: { [key: string]: string } = {
   BurnAmountTooHigh:
     "You are trying to sell more $VIBES than what you actually have",
   EtherTransferFailed: "An internal transfer of ETH failed, please try again",

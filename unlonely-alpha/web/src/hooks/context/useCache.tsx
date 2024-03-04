@@ -53,6 +53,7 @@ const CacheContext = createContext<{
     { index: number | undefined; blockNumber: number | undefined }
   >;
   currentBlockNumberForVibes: bigint;
+  lastChainInteractionTimestamp: number;
   addAppError: (error: Error, source: string) => void;
   popAppError: (errorName: string, field: string) => void;
   ethPriceInUsd: string;
@@ -69,6 +70,7 @@ const CacheContext = createContext<{
   addAppError: () => undefined,
   popAppError: () => undefined,
   ethPriceInUsd: "0",
+  lastChainInteractionTimestamp: 0,
   currentBlockNumberForVibes: BigInt(0),
 });
 
@@ -99,6 +101,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     chartTimeIndexes,
     loading,
     currentBlockNumberForVibes,
+    lastChainInteractionTimestamp,
   } = useVibesCheck();
   const [ethPriceInUsd, setEthPriceInUsd] = useState<string>("0");
   const router = useRouter();
@@ -367,6 +370,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       addAppError,
       popAppError,
       currentBlockNumberForVibes,
+      lastChainInteractionTimestamp,
       ethPriceInUsd,
     };
   }, [
@@ -382,6 +386,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     popAppError,
     ethPriceInUsd,
     currentBlockNumberForVibes,
+    lastChainInteractionTimestamp,
     vibesBalance,
   ]);
 
