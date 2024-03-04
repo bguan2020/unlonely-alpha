@@ -150,7 +150,7 @@ const ChannelStreamerPerspective = ({
         </Flex>
       )}
       {isStandalone && !playbackId && <MigrateToLivePeer />}
-      {!isStandalone && (
+      {!isStandalone && streamKey && (
         <Flex
           bg="#131323"
           p="10px"
