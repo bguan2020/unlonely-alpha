@@ -46,6 +46,8 @@ import { truncateValue } from "../utils/tokenDisplayFormatting";
 
 const REQUIRED_NUMBER_OF_VIBES = 500;
 
+const SLUG_MAX_CHARS = 25;
+
 const Onboard = () => {
   const { user, walletIsConnected } = useUser();
 
@@ -319,8 +321,10 @@ const LoggedInOnboard = () => {
   }, [livepeerStreamId, livepeerPlaybackId, streamKey, returnedSlug]);
 
   useEffect(() => {
-    if (newSlug.length > 15) {
-      setHandleErrorMessage("channel handle must be 15 characters or less");
+    if (newSlug.length > SLUG_MAX_CHARS) {
+      setHandleErrorMessage(
+        `channel handle must be ${SLUG_MAX_CHARS} characters or less`
+      );
     } else if (newSlug.length > 0 && newSlug.length < 3) {
       setHandleErrorMessage("channel handle must be at least 3 characters");
     } else if (!isSlugAvailable) {
@@ -479,8 +483,8 @@ const LoggedInOnboard = () => {
               {amount_vibes_needed_bigint > BigInt(0) && (
                 <Flex direction={"column"} gap="2px">
                   <Text fontSize="11px" color="#c2c2c2">
-                    you must own {REQUIRED_NUMBER_OF_VIBES} $VIBES to create a
-                    channel.{" "}
+                    to create a channel, you must own {REQUIRED_NUMBER_OF_VIBES}{" "}
+                    $VIBES.{" "}
                     <Popover trigger="hover" placement="top" openDelay={200}>
                       <PopoverTrigger>
                         <Text as="span" color="#17d058">
@@ -495,9 +499,9 @@ const LoggedInOnboard = () => {
                       >
                         <PopoverArrow bg="#343dbb" />
                         <Text fontSize="12px" textAlign={"center"}>
-                          This is not a fee, it helps us know that you are a
-                          real person who wants to stream. These tokens can
-                          immediately be traded after channel creation.
+                          This is not a fee. This helps us know that you are a
+                          real person. These tokens can immediately be traded
+                          after channel creation.
                         </Text>
                       </PopoverContent>
                     </Popover>
