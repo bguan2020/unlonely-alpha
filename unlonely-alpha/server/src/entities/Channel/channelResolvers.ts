@@ -39,6 +39,16 @@ export const resolvers = {
       }
       return channelService.postChannel(data, ctx);
     },
+    deleteChannel: (
+      _: any,
+      { data }: { data: channelService.IDeleteChannelInput },
+      ctx: Context
+    ) => {
+      // if (!ctx.user || !ctx.userIsAuthed) {
+      //   throw new AuthenticationError("User is not authenticated");
+      // }
+      return channelService.deleteChannel(data, ctx);
+    },
     migrateChannelToLivepeer: (
       _: any,
       { data }: { data: channelService.IMigrateChannelToLivepeerInput },
@@ -92,9 +102,9 @@ export const resolvers = {
       { data }: { data: channelService.IUpdateChannelClippingInput },
       ctx: Context
     ) => {
-      // if (!ctx.user || !ctx.userIsAuthed) {
-      //   throw new AuthenticationError("User is not authenticated");
-      // }
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
 
       return channelService.updateChannelClipping(data, ctx);
     },
@@ -102,9 +112,10 @@ export const resolvers = {
       _: any,
       { data }: { data: channelService.IUpdateLivepeerStreamDataInput }, ctx: Context
     ) => {
-      // if (!ctx.user || !ctx.userIsAuthed) {
-      //   throw new AuthenticationError("User is not authenticated");
-      // }
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      
       return channelService.updateLivepeerStreamData(data);
     },
     updateChannelCustomButton: (

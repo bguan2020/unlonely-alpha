@@ -55,6 +55,24 @@ const createLivepeerStream = async (name: string, canRecord?: boolean) => {
   }
 }
 
+const terminateLivepeerStream = async (streamId: string) => {
+  const headers = {
+    Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+    "Content-Type": "application/json",
+  };
+  try {
+    const terminationResponse = await axios.delete(
+      `https://livepeer.studio/api/stream/${streamId}`,
+      { headers }
+    );
+    console.log("terminateLivepeerStream response", terminationResponse.data)
+    return terminationResponse.data;
+  } catch (error: any) {
+    console.log("terminateLivepeerStream error", error);
+    return null;
+  }
+}
+
 export interface IPostChannelInput {
   slug: string;
   ownerAddress: string;
@@ -107,6 +125,45 @@ export const postChannel = async (
     throw new Error(error)
   }
 };
+
+export interface IDeleteChannelInput {
+  slug: string
+  softDelete?: boolean
+}
+
+export const deleteChannel = async (data: IDeleteChannelInput, ctx: Context) => {
+  try {
+    const existingChannel = await ctx.prisma.channel.findUnique({
+      where: {
+        slug: data.slug 
+      },
+    });
+
+    if (!existingChannel) {
+      throw new Error("Channel not found");
+    }
+
+    if (!data.softDelete) {
+      await terminateLivepeerStream(existingChannel.livepeerStreamId ?? "");
+      return await ctx.prisma.channel.delete({
+        where: { id: existingChannel.id },
+
+      });
+    } else {
+      return await ctx.prisma.channel.update({
+        where: { id: existingChannel.id },
+        data: {
+          softDelete: true
+        },
+      });
+    }
+
+
+  } catch (error: any) {
+    console.log("deleteChannel error", error);
+    throw new Error(error)
+  }
+}
 
 export interface IMigrateChannelToLivepeerInput {
   slug: string;

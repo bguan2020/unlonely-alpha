@@ -225,6 +225,11 @@ export type CreatorToken = {
   users: Array<UserCreatorToken>;
 };
 
+export type DeleteChannelInput = {
+  slug: Scalars["String"];
+  softDelete?: InputMaybe<Scalars["Boolean"]>;
+};
+
 export type DeviceToken = {
   __typename?: "DeviceToken";
   address?: Maybe<Scalars["String"]>;
@@ -400,6 +405,7 @@ export type Mutation = {
   createClip?: Maybe<ClipNfcOutput>;
   createCreatorToken: CreatorToken;
   createLivepeerClip?: Maybe<ClipNfcOutput>;
+  deleteChannel?: Maybe<Channel>;
   handleLike?: Maybe<Likable>;
   migrateChannelToLivepeer?: Maybe<Channel>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
@@ -468,6 +474,10 @@ export type MutationCreateCreatorTokenArgs = {
 
 export type MutationCreateLivepeerClipArgs = {
   data?: InputMaybe<CreateLivepeerClipInput>;
+};
+
+export type MutationDeleteChannelArgs = {
+  data: DeleteChannelInput;
 };
 
 export type MutationHandleLikeArgs = {
@@ -2190,6 +2200,31 @@ export type UpdateLivepeerStreamDataMutation = {
     record?: boolean | null;
     playbackId?: string | null;
     isActive?: boolean | null;
+  } | null;
+};
+
+export type DeleteChannelMutationVariables = Exact<{
+  data: DeleteChannelInput;
+}>;
+
+export type DeleteChannelMutation = {
+  __typename?: "Mutation";
+  deleteChannel?: {
+    __typename?: "Channel";
+    id: string;
+    streamKey?: string | null;
+    livepeerPlaybackId?: string | null;
+    livepeerStreamId?: string | null;
+    slug: string;
+    name?: string | null;
+    description?: string | null;
+    owner: {
+      __typename?: "User";
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+      username?: string | null;
+      address: string;
+    };
   } | null;
 };
 
@@ -5779,3 +5814,65 @@ export type UpdateLivepeerStreamDataMutationOptions =
     UpdateLivepeerStreamDataMutation,
     UpdateLivepeerStreamDataMutationVariables
   >;
+export const DeleteChannelDocument = gql`
+  mutation DeleteChannel($data: DeleteChannelInput!) {
+    deleteChannel(data: $data) {
+      id
+      streamKey
+      livepeerPlaybackId
+      livepeerStreamId
+      slug
+      name
+      description
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+    }
+  }
+`;
+export type DeleteChannelMutationFn = Apollo.MutationFunction<
+  DeleteChannelMutation,
+  DeleteChannelMutationVariables
+>;
+
+/**
+ * __useDeleteChannelMutation__
+ *
+ * To run a mutation, you first call `useDeleteChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteChannelMutation, { data, loading, error }] = useDeleteChannelMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useDeleteChannelMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    DeleteChannelMutation,
+    DeleteChannelMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    DeleteChannelMutation,
+    DeleteChannelMutationVariables
+  >(DeleteChannelDocument, options);
+}
+export type DeleteChannelMutationHookResult = ReturnType<
+  typeof useDeleteChannelMutation
+>;
+export type DeleteChannelMutationResult =
+  Apollo.MutationResult<DeleteChannelMutation>;
+export type DeleteChannelMutationOptions = Apollo.BaseMutationOptions<
+  DeleteChannelMutation,
+  DeleteChannelMutationVariables
+>;

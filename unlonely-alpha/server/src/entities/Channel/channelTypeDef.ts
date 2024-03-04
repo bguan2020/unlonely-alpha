@@ -109,6 +109,11 @@ export const typeDef = gql`
     allowNfcs: Boolean
   }
 
+  input DeleteChannelInput {
+    slug: String!
+    softDelete: Boolean
+  }
+
   input MigrateChannelToLivepeerInput {
     slug: String!
     ownerAddress: String!
@@ -202,6 +207,7 @@ export const typeDef = gql`
   extend type Mutation {
     updateLivepeerStreamData(data: UpdateLivepeerStreamDataInput!): LivepeerStreamData
     postChannel(data: PostChannelInput!): Channel
+    deleteChannel(data: DeleteChannelInput!): Channel
     migrateChannelToLivepeer(data: MigrateChannelToLivepeerInput!): Channel
     closeSharesEvents(data: PostCloseSharesEventsInput!): UpdateManyResponse
     postSharesEvent(data: PostSharesEventInput!): Channel

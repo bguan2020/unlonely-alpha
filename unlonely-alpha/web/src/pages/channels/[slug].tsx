@@ -331,6 +331,8 @@ const DesktopPage = ({
           >
             {!channelDataError && !channelSSRDataError ? (
               <WavyText text="loading..." />
+            ) : channelSSR === null ? (
+              <Text fontFamily="LoRes15">channel does not exist</Text>
             ) : (
               <Text fontFamily="LoRes15">
                 server error, please try again later
@@ -493,6 +495,8 @@ const MobilePage = ({
                   <WavyText text="..." />
                 </Flex>
               </>
+            ) : channelSSR === null ? (
+              <Text fontFamily="LoRes15">channel does not exist</Text>
             ) : (
               <Text fontFamily="LoRes15">
                 server error, please try again later
