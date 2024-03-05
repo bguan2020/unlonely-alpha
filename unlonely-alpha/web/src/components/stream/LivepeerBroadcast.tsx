@@ -226,7 +226,9 @@ const LivepeerBroadcast = memo(
                       borderRadius: 9999,
                     }}
                   />
-                  <span style={{ fontSize: 22, userSelect: "none" }}>IDLE</span>
+                  <span style={{ fontSize: 22, userSelect: "none" }}>
+                    NOT LIVE
+                  </span>
                 </Broadcast.StatusIndicator>
               </Flex>
             </Broadcast.LoadingIndicator>
