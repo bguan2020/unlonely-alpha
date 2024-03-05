@@ -13,7 +13,7 @@ import {
   PopoverArrow,
   Input,
 } from "@chakra-ui/react";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
 import { GiTalk } from "react-icons/gi";
 import { IoIosHelpCircle } from "react-icons/io";
@@ -65,7 +65,7 @@ const ChatForm = ({
   const { clipping } = chat;
   const { handleIsClipUiOpen, loading: clipLoading } = clipping;
 
-  const { channelQueryData, channelDetails } = channelContext;
+  const { channelQueryData, channelDetails, channelRoles } = channelContext;
 
   const [messageText, setMessageText] = useState<string>("");
   const [commandsOpen, setCommandsOpen] = useState(false);
@@ -77,6 +77,12 @@ const ChatForm = ({
 
   const isOwner = address === channelQueryData?.owner.address;
 
+  const userIsModerator = useMemo(
+    () =>
+      channelRoles?.some((m) => m?.address === user?.address && m?.role === 2),
+    [user, channelRoles]
+  );
+
   const messageTextIsEmpty =
     messageText.trim().length === 0 || messageText.trim() === "";
 
@@ -86,24 +92,25 @@ const ChatForm = ({
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const currSenderStatus = useMemo(
+    () =>
+      userIsModerator
+        ? SenderStatus.MODERATOR
+        : isVipChat
+        ? SenderStatus.VIP
+        : SenderStatus.USER,
+    [isVipChat, userIsModerator]
+  );
+
   const focusInput = () => {
     inputRef.current?.focus();
   };
 
   const sendGif = (gif: string) => {
     if (!blastMode) {
-      sendChatMessage(
-        gif,
-        true,
-        isVipChat ? SenderStatus.VIP : SenderStatus.USER
-      );
+      sendChatMessage(gif, true, currSenderStatus);
     } else {
-      sendChatMessage(
-        gif,
-        true,
-        isVipChat ? SenderStatus.VIP : SenderStatus.USER,
-        `${InteractionType.BLAST}:`
-      );
+      sendChatMessage(gif, true, currSenderStatus, `${InteractionType.BLAST}:`);
       setBlastMode(false);
       setBlastDisabled(true);
       setTimeout(() => {
@@ -129,13 +136,13 @@ const ChatForm = ({
         sendChatMessage(
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
-          isVipChat ? SenderStatus.VIP : SenderStatus.USER
+          currSenderStatus
         );
       } else {
         sendChatMessage(
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
-          isVipChat ? SenderStatus.VIP : SenderStatus.USER,
+          currSenderStatus,
           `${InteractionType.BLAST}:`
         );
         setBlastMode(false);
@@ -156,13 +163,13 @@ const ChatForm = ({
         sendChatMessage(
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
-          isVipChat ? SenderStatus.VIP : SenderStatus.USER
+          currSenderStatus
         );
       } else {
         sendChatMessage(
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
-          isVipChat ? SenderStatus.VIP : SenderStatus.USER,
+          currSenderStatus,
           `${InteractionType.BLAST}:`
         );
         setBlastMode(false);
@@ -512,11 +519,7 @@ const ChatForm = ({
                     }}
                     onCommandClick={(text: string) => {
                       if (instantCommandSend && !text.includes("!chatbot")) {
-                        sendChatMessage(
-                          text,
-                          false,
-                          isVipChat ? SenderStatus.VIP : SenderStatus.USER
-                        );
+                        sendChatMessage(text, false, currSenderStatus);
                       } else {
                         focusInput();
                         setMessageText(text);

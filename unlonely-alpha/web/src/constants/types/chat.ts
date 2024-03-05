@@ -8,6 +8,7 @@ export enum SenderStatus {
   CHATBOT,
   USER,
   VIP,
+  MODERATOR,
 }
 
 export type EmojiTypes = { emojiType: "unicode" | string; count: number }[];

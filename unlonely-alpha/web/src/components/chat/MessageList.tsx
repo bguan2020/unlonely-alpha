@@ -61,14 +61,11 @@ const MessageList = memo(
     const { selectedUserInChat, handleSelectedUserInChat } = ui;
     const chatMessages = useMemo(
       () =>
-        messages
-          .filter((message) => message.name === CHAT_MESSAGE_EVENT)
-          .filter((message) =>
-            isVipChat
-              ? message.data.senderStatus === SenderStatus.VIP ||
-                message.data.senderStatus === SenderStatus.CHATBOT
-              : true
-          ),
+        messages.filter(
+          (message) =>
+            message.name === CHAT_MESSAGE_EVENT &&
+            (isVipChat ? message.data.senderStatus !== SenderStatus.USER : true)
+        ),
       [messages, isVipChat]
     );
 

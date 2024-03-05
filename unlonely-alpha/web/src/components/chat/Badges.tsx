@@ -1,15 +1,13 @@
-import { Tooltip, Image } from "@chakra-ui/react";
+import { Tooltip, Image, Box, Text } from "@chakra-ui/react";
 
-import { User } from "../../generated/graphql";
-import { Message } from "../../constants/types/chat";
+import { Message, SenderStatus } from "../../constants/types/chat";
 import { useGetBadges } from "../../hooks/internal/useGetBadges";
 
 type Props = {
   message: Message;
-  user?: User;
 };
 
-export default function Badges({ message, user }: Props) {
+export default function Badges({ message }: Props) {
   const { rankUrl, rankDesc } = useGetBadges(message.data.channelUserRank);
 
   return (
@@ -48,6 +46,29 @@ export default function Badges({ message, user }: Props) {
             height="20px"
             mr="5px"
           />
+        </Tooltip>
+      )}
+      {message.data.senderStatus === SenderStatus.MODERATOR && (
+        <Tooltip label="Chat Moderator">
+          <Box
+            bg="#b07300"
+            p="2px"
+            display="inline-block"
+            verticalAlign="middle"
+            height="20px"
+            mr="5px"
+            borderRadius="5px"
+          >
+            <Text
+              lineHeight="15px"
+              fontSize="15px"
+              fontFamily={"LoRes15"}
+              color="white"
+              textAlign={"center"}
+            >
+              mod
+            </Text>
+          </Box>
         </Tooltip>
       )}
     </>
