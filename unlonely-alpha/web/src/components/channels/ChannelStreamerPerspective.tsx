@@ -25,18 +25,18 @@ import {
   CHANGE_CHANNEL_DETAILS_EVENT,
 } from "../../constants";
 import useUpdateLivepeerStreamData from "../../hooks/server/useUpdateLivepeerStreamData";
-import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../constants/queries";
-import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
-import { useLazyQuery } from "@apollo/client";
 import { LuClapperboard } from "react-icons/lu";
 import { BiVideoRecording } from "react-icons/bi";
 import StreamComponent from "../stream/StreamComponent";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
 
 const ChannelStreamerPerspective = ({
   ablyChannel,
+  livepeerData,
 }: {
   ablyChannel: AblyChannelPromise;
+  livepeerData?: GetLivepeerStreamDataQuery["getLivepeerStreamData"];
 }) => {
   const toast = useToast();
   const { isStandalone } = useUserAgent();
@@ -49,13 +49,6 @@ const ChannelStreamerPerspective = ({
   const [showStreamKey, setShowStreamKey] = useState(false);
   const [showRTMPIngest, setShowRTMPIngest] = useState(false);
   const [showSRTIngest, setShowSRTIngest] = useState(false);
-
-  const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
-    GET_LIVEPEER_STREAM_DATA_QUERY,
-    {
-      fetchPolicy: "network-only",
-    }
-  );
 
   const { updateLivepeerStreamData, loading: updateLivepeerStreamDataLoading } =
     useUpdateLivepeerStreamData({});
@@ -108,17 +101,10 @@ const ChannelStreamerPerspective = ({
 
   useEffect(() => {
     const init = async () => {
-      if (channelQueryData?.livepeerStreamId) {
-        const res = await getLivepeerStreamData({
-          variables: {
-            data: { streamId: channelQueryData?.livepeerStreamId },
-          },
-        });
-        setCanLivepeerRecord(res.data?.getLivepeerStreamData?.record ?? false);
-      }
+      if (livepeerData) setCanLivepeerRecord(livepeerData?.record ?? false);
     };
     init();
-  }, [channelQueryData?.livepeerStreamId]);
+  }, [livepeerData]);
 
   return (
     <Flex
@@ -336,7 +322,8 @@ const ChannelStreamerPerspective = ({
                 <Popover trigger="hover" placement="right" openDelay={300}>
                   <PopoverTrigger>
                     <Flex alignItems={"center"} gap="0.5rem">
-                      <LuClapperboard size={20} />
+                      <BiVideoRecording size={20} />
+
                       {updateLivepeerStreamDataLoading ? (
                         <Spinner />
                       ) : (
@@ -364,7 +351,7 @@ const ChannelStreamerPerspective = ({
                 <Popover trigger="hover" placement="right" openDelay={300}>
                   <PopoverTrigger>
                     <Flex alignItems={"center"} gap="0.5rem">
-                      <BiVideoRecording size={20} />
+                      <LuClapperboard size={20} />
                       {updateChannelClippingLoading ? (
                         <Spinner />
                       ) : (

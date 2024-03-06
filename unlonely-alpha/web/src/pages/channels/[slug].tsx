@@ -10,8 +10,14 @@ import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
-import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
-import { ChannelStaticQuery } from "../../generated/graphql";
+import {
+  CHANNEL_STATIC_QUERY,
+  GET_LIVEPEER_STREAM_DATA_QUERY,
+} from "../../constants/queries";
+import {
+  ChannelStaticQuery,
+  GetLivepeerStreamDataQuery,
+} from "../../generated/graphql";
 import {
   ChannelProvider,
   ChannelWideModals,
@@ -33,7 +39,7 @@ import VibesTokenInterface from "../../components/chat/VibesTokenInterface";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import Trade from "../../components/channels/bet/Trade";
-import { ApolloError } from "@apollo/client";
+import { ApolloError, useLazyQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 import { useTour } from "@reactour/tour";
@@ -102,6 +108,8 @@ const DesktopPage = ({
   const { setIsOpen: setIsTourOpen, setSteps: setTourSteps } = useTour();
   const [welcomeStreamer, setWelcomeStreamer] = useState(false);
   const [welcomeStreamerModal, setWelcomeStreamerModal] = useState(false);
+  const [livepeerData, setLivepeerData] =
+    useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
 
   const { userAddress, walletIsConnected } = useUser();
 
@@ -111,6 +119,27 @@ const DesktopPage = ({
     "unlonelyTournament",
     localNetwork
   );
+
+  const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
+    GET_LIVEPEER_STREAM_DATA_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
+  );
+
+  useEffect(() => {
+    const init = async () => {
+      if (channelQueryData?.livepeerStreamId) {
+        const res = await getLivepeerStreamData({
+          variables: {
+            data: { streamId: channelQueryData?.livepeerStreamId },
+          },
+        });
+        setLivepeerData(res.data?.getLivepeerStreamData);
+      }
+    };
+    init();
+  }, [channelQueryData?.livepeerStreamId]);
 
   useEffect(() => {
     if (router.query[NEW_STREAMER_URL_QUERY_PARAM] && isOwner) {
@@ -277,7 +306,10 @@ const DesktopPage = ({
                 {isOwner && walletIsConnected ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
-                    <ChannelStreamerPerspective ablyChannel={chat.channel} />
+                    <ChannelStreamerPerspective
+                      ablyChannel={chat.channel}
+                      livepeerData={livepeerData}
+                    />
                   </>
                 ) : (
                   <ChannelViewerPerspective />
@@ -399,6 +431,30 @@ const MobilePage = ({
     tournamentContract
   );
 
+  const [livepeerData, setLivepeerData] =
+    useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
+
+  const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
+    GET_LIVEPEER_STREAM_DATA_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
+  );
+
+  useEffect(() => {
+    const init = async () => {
+      if (channelQueryData?.livepeerStreamId) {
+        const res = await getLivepeerStreamData({
+          variables: {
+            data: { streamId: channelQueryData?.livepeerStreamId },
+          },
+        });
+        setLivepeerData(res.data?.getLivepeerStreamData);
+      }
+    };
+    init();
+  }, [channelQueryData?.livepeerStreamId]);
+
   const handleUpdate = (tradeEvents: Log[]) => {
     const sortedEvents = tradeEvents.filter(
       (event: any) => (event?.args.trade.eventByte as string) === generatedKey
@@ -468,7 +524,10 @@ const MobilePage = ({
             {isOwner ? (
               <>
                 <ChannelWideModals ablyChannel={chat.channel} />
-                <ChannelStreamerPerspective ablyChannel={chat.channel} />
+                <ChannelStreamerPerspective
+                  livepeerData={livepeerData}
+                  ablyChannel={chat.channel}
+                />
               </>
             ) : (
               <ChannelViewerPerspective mobile />
