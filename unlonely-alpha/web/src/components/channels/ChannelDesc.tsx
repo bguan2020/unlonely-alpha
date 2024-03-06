@@ -1,5 +1,12 @@
-import { Avatar, Text, Flex, Tooltip, IconButton } from "@chakra-ui/react";
-
+import {
+  Avatar,
+  Text,
+  Flex,
+  Tooltip,
+  IconButton,
+  Link,
+} from "@chakra-ui/react";
+import { Fragment, useMemo } from "react";
 import { anonUrl } from "../presence/AnonUrl";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
@@ -8,6 +15,7 @@ import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { getColorFromString } from "../../styles/Colors";
 import { FaPencilAlt } from "react-icons/fa";
 import { useUser } from "../../hooks/context/useUser";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 const ChannelDesc = () => {
   const { userAddress } = useUser();
@@ -26,6 +34,8 @@ const ChannelDesc = () => {
   const ipfsUrl = imageUrl.startsWith("ipfs://")
     ? `https://ipfs.io/ipfs/${imageUrl.slice(7)}`
     : imageUrl;
+
+  console.log(channelDetails.channelDescription);
 
   return (
     <Flex direction="row" m="1rem">
@@ -107,10 +117,72 @@ const ChannelDesc = () => {
           fontSize={["0.5rem", "0.8rem"]}
           width={isStandalone ? "70%" : "unset"}
         >
-          {channelDetails.channelDescription}
+          {channelDetails.channelDescription.split("\n").map((line, index) => (
+            <Fragment key={index}>
+              <LineFormatter line={line} />
+              <br />
+            </Fragment>
+          ))}
         </Text>
       </Flex>
     </Flex>
+  );
+};
+
+const LineFormatter = ({ line }: { line: string }) => {
+  const linkArray: RegExpMatchArray | null = line.match(
+    /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
+  );
+
+  const fragments = useMemo(() => {
+    let lastIndex = 0;
+    const fragments: { message: string; isLink: boolean }[] = [];
+
+    linkArray?.forEach((link) => {
+      const startIndex = line.indexOf(link, lastIndex);
+      if (startIndex > lastIndex) {
+        fragments.push({
+          message: line.substring(lastIndex, startIndex),
+          isLink: false,
+        });
+      }
+      fragments.push({ message: link, isLink: true });
+      lastIndex = startIndex + link.length;
+    });
+
+    if (lastIndex < line.length) {
+      fragments.push({
+        message: line.substring(lastIndex),
+        isLink: false,
+      });
+    }
+
+    return fragments;
+  }, [line, linkArray]);
+
+  return (
+    <>
+      {fragments.map((fragment, i) => {
+        if (fragment.isLink) {
+          return (
+            <Link href={fragment.message} isExternal key={i}>
+              <Text
+                as="span"
+                color="#15dae4"
+                fontSize={"12px"}
+                wordBreak="break-word"
+                textAlign="left"
+              >
+                {fragment.message}
+                <ExternalLinkIcon mx="2px" />
+              </Text>
+            </Link>
+          );
+        } else {
+          return <span key={i}>{fragment.message}</span>;
+        }
+      })}
+    </>
   );
 };
 

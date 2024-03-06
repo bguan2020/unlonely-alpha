@@ -89,11 +89,8 @@ export default function EditChannelModal({
             <FormControl isInvalid={!!formState.errors.name}>
               <Textarea
                 id="name"
-                placeholder={
-                  channelQueryData?.name
-                    ? channelQueryData.name
-                    : "Enter a title for your stream."
-                }
+                placeholder={"Enter a title for your stream."}
+                defaultValue={channelQueryData?.name ?? ""}
                 _placeholder={{ color: "grey" }}
                 lineHeight="1.2"
                 background="#F1F4F8"
@@ -116,11 +113,8 @@ export default function EditChannelModal({
             <FormControl isInvalid={!!formState.errors.description}>
               <Textarea
                 id="description"
-                placeholder={
-                  channelQueryData?.description
-                    ? channelQueryData.description
-                    : "Enter a description for your channel"
-                }
+                placeholder={"Enter a description for your channel"}
+                defaultValue={channelQueryData?.description ?? ""}
                 _placeholder={{ color: "grey" }}
                 lineHeight="1.2"
                 background="#F1F4F8"
