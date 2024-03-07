@@ -682,6 +682,7 @@ export type PostBadgeTradeInput = {
 
 export type PostBaseLeaderboardInput = {
   amount: Scalars["Float"];
+  userAddress: Scalars["String"];
 };
 
 export type PostBetInput = {

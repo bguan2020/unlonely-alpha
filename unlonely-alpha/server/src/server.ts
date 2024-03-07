@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import http from "http";
+// import cron from "node-cron";
 
 import { ApolloServer } from "apollo-server-express";
 import bodyParser from "body-parser";
@@ -41,7 +42,13 @@ const startServer = async () => {
   // force redeploy
 
   httpServer.listen(process.env.PORT || 4000, () =>
-    console.info(`Server started on port ${process.env.PORT || 4000}`)
+    {
+      console.info(`Server started on port ${process.env.PORT || 4000}`);
+      // cron.schedule("* * * * *", () => {
+      //   console.log("Running a task every minute");
+      //   // Place your repeated task here
+      // });
+  }
   );
 };
 

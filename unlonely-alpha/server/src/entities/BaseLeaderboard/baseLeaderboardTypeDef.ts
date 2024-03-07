@@ -9,6 +9,7 @@ export const typeDef = gql`
 
   input PostBaseLeaderboardInput {
     amount: Float!
+    userAddress: String!
   }
 
   extend type Query {

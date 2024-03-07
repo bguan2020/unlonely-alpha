@@ -24,7 +24,7 @@ export const resolvers = {
     getChannelSearchResults(_: any, { data }: { data: channelService.IGetChannelSearchResultsInput }, ctx: Context) {
       return channelService.getChannelSearchResults(data, ctx);
     },
-    getLivepeerStreamData(_: any, { data }: { data: channelService.IGetLivepeerStreamDataInput }, ctx: Context) {
+    getLivepeerStreamData(_: any, { data }: { data: channelService.IGetLivepeerStreamDataInput }) {
       return channelService.getLivepeerStreamData(data);
     }
   },

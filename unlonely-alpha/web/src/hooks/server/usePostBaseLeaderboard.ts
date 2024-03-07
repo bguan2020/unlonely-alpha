@@ -35,6 +35,7 @@ const usePostBaseLeaderboard = ({ onError }: Props) => {
           variables: {
             data: {
               amount: Number(data.amount),
+              userAddress: data.userAddress,
             },
           },
         });

@@ -1,14 +1,12 @@
-import { User } from "@prisma/client";
-
 import { Context } from "../../context";
 
 export interface IPostBaseLeaderboardInput {
   amount: number;
+  userAddress: string;
 }
 
 export const postBaseLeaderboard = (
   data: IPostBaseLeaderboardInput,
-  user: User,
   ctx: Context
 ) => {
   return ctx.prisma.baseLeaderboard.create({
@@ -16,7 +14,7 @@ export const postBaseLeaderboard = (
       amount: Number(data.amount),
       owner: {
         connect: {
-          address: user.address,
+          address: data.userAddress,
         },
       },
     },
