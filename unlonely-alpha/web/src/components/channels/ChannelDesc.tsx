@@ -35,8 +35,6 @@ const ChannelDesc = () => {
     ? `https://ipfs.io/ipfs/${imageUrl.slice(7)}`
     : imageUrl;
 
-  console.log(channelDetails.channelDescription);
-
   return (
     <Flex direction="row" m="1rem">
       <Flex direction="column" gap={["4px", "16px"]}>
