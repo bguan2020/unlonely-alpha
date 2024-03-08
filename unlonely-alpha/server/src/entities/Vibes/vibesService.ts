@@ -15,10 +15,10 @@ export const CREATION_BLOCK = BigInt(9018023);
 const vibesTokenContractAddress = "0xEAB1fF15f26da850315b15AFebf12F0d42dE5421"
 
 type streamerStoreType = {
-    newTotalVibesVolume: bigint,
-    newTotalWeiVolume: bigint,
-    newTotalProtocolWeiFees: bigint,
-    newTotalStreamerWeiFees: bigint,
+    newTotalVibesVolume: string,
+    newTotalWeiVolume: string,
+    newTotalProtocolWeiFees: string,
+    newTotalStreamerWeiFees: string,
 }
 
 export interface IPostVibesTradesInput {
@@ -95,16 +95,16 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
       );
 
       const existingStreamerStore = uniqueStreamerAddressesToAmounts.get(streamerAddress) || {
-          newTotalVibesVolume: BigInt(0),
-          newTotalWeiVolume: BigInt(0),
-          newTotalProtocolWeiFees: BigInt(0),
-          newTotalStreamerWeiFees: BigInt(0),
+          newTotalVibesVolume: "0",
+          newTotalWeiVolume: "0",
+          newTotalProtocolWeiFees: "0",
+          newTotalStreamerWeiFees: "0",
       };
       uniqueStreamerAddressesToAmounts.set(streamerAddress, {
-          newTotalVibesVolume: existingStreamerStore.newTotalVibesVolume + vibesAmount,
-          newTotalWeiVolume: existingStreamerStore.newTotalWeiVolume + weiAmount,
-          newTotalProtocolWeiFees: existingStreamerStore.newTotalProtocolWeiFees + protocolFee,
-          newTotalStreamerWeiFees: existingStreamerStore.newTotalStreamerWeiFees + streamerFee,
+          newTotalVibesVolume: String(BigInt(existingStreamerStore.newTotalVibesVolume) + vibesAmount),
+          newTotalWeiVolume: String(BigInt(existingStreamerStore.newTotalWeiVolume) + weiAmount),
+          newTotalProtocolWeiFees: String(BigInt(existingStreamerStore.newTotalProtocolWeiFees) + protocolFee),
+          newTotalStreamerWeiFees: String(BigInt(existingStreamerStore.newTotalStreamerWeiFees) + streamerFee),
       });
 
       return {
@@ -114,11 +114,11 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
           transactionType,
           traderAddress: log.args.account as string,
           streamerAddress,
-          totalVibesSupplyAfterTrade,
-          vibesAmount,
-          protocolWeiFees: protocolFee,
-          streamerWeiFees: streamerFee,
-          weiAmount,
+          totalVibesSupplyAfterTrade: String(totalVibesSupplyAfterTrade),
+          vibesAmount: String(vibesAmount),
+          protocolWeiFees: String(protocolFee),
+          streamerWeiFees: String(streamerFee),
+          weiAmount: String(weiAmount),
       }
     })
     const creationPromises = Array.from(uniqueStreamerAddressesToAmounts.entries()).map(async ([address, stats]) => {
@@ -152,10 +152,10 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
             return prisma.streamerVibesStat.update({
             where: { id: existingStat.id },
             data: {
-                allTimeTotalVibesVolume: existingStat.allTimeTotalVibesVolume + stats.newTotalVibesVolume,
-                allTimeTotalWeiVolume: existingStat.allTimeTotalWeiVolume + stats.newTotalWeiVolume,
-                allTimeTotalProtocolWeiFees: existingStat.allTimeTotalProtocolWeiFees + stats.newTotalProtocolWeiFees,
-                allTimeTotalStreamerWeiFees: existingStat.allTimeTotalStreamerWeiFees + stats.newTotalStreamerWeiFees,
+                allTimeTotalVibesVolume: String(BigInt(existingStat.allTimeTotalVibesVolume) + BigInt(stats.newTotalVibesVolume)),
+                allTimeTotalWeiVolume: String(BigInt(existingStat.allTimeTotalWeiVolume) + BigInt(stats.newTotalWeiVolume)),
+                allTimeTotalProtocolWeiFees: String(BigInt(existingStat.allTimeTotalProtocolWeiFees) + BigInt(stats.newTotalProtocolWeiFees)),
+                allTimeTotalStreamerWeiFees: String(BigInt(existingStat.allTimeTotalStreamerWeiFees) + BigInt(stats.newTotalStreamerWeiFees)),
             },
             });
         } else {

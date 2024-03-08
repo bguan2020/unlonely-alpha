@@ -10729,7 +10729,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "BigInt",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -10741,7 +10741,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "BigInt",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -10753,7 +10753,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "BigInt",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -10765,7 +10765,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "BigInt",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -10777,7 +10777,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "BigInt",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -10868,7 +10868,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "BigInt",
+                "name": "String",
                 "ofType": null
               }
             },
@@ -10884,7 +10884,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "BigInt",
+                "name": "String",
                 "ofType": null
               }
             },
@@ -10900,7 +10900,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "BigInt",
+                "name": "String",
                 "ofType": null
               }
             },
@@ -10916,7 +10916,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "BigInt",
+                "name": "String",
                 "ofType": null
               }
             },

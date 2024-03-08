@@ -14,11 +14,11 @@ export const typeDef = gql`
         transactionType: VibesTransactionType
         traderAddress: String
         streamerAddress: String
-        totalVibesSupplyAfterTrade: BigInt
-        vibesAmount: BigInt
-        weiAmount: BigInt
-        protocolWeiFees: BigInt
-        streamerWeiFees: BigInt
+        totalVibesSupplyAfterTrade: String
+        vibesAmount: String
+        weiAmount: String
+        protocolWeiFees: String
+        streamerWeiFees: String
         createdAt: DateTime!
     }
 
@@ -26,10 +26,10 @@ export const typeDef = gql`
         id: ID!
         streamerAddress: String!
         chainId: Int!
-        allTimeTotalVibesVolume: BigInt!
-        allTimeTotalWeiVolume: BigInt!
-        allTimeTotalProtocolWeiFees: BigInt!
-        allTimeTotalStreamerWeiFees: BigInt!
+        allTimeTotalVibesVolume: String!
+        allTimeTotalWeiVolume: String!
+        allTimeTotalProtocolWeiFees: String!
+        allTimeTotalStreamerWeiFees: String!
         updatedAt: DateTime!
         createdAt: DateTime!
     }
