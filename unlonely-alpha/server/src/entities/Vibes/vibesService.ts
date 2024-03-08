@@ -66,6 +66,8 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
 
     const logs = [...mintLogs, ...burnLogs]
 
+    console.log("logs", logs)
+
     // If there are no logs, return an empty array
     if (logs.length === 0) return [];
 
