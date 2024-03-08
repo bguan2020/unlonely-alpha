@@ -27,6 +27,7 @@ export interface IPostVibesTradesInput {
 
 export const postVibesTrades = async (data: IPostVibesTradesInput) => {
 
+    try {
     // Get the latest transaction in database
     const latestTransaction = await prisma.vibesTransaction.findFirst({
         where: {
@@ -65,8 +66,6 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
     ]);
 
     const logs = [...mintLogs, ...burnLogs]
-
-    console.log("logs", logs)
 
     // If there are no logs, return an empty array
     if (logs.length === 0) return [];
@@ -196,11 +195,17 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
     });
     await Promise.all(updatePromises);
 
+    console.log("formattedTransactions", formattedTransactions, formattedTransactions.length)
+
     // Create the transactions in the database
     return await prisma.vibesTransaction.createMany({
       data: formattedTransactions,
       skipDuplicates: true,
     });
+} catch (error) {
+    console.error("Error in postVibesTrades", error);
+    return [];
+}
 }
 
 export interface IGetStreamerVibesStatInput {
