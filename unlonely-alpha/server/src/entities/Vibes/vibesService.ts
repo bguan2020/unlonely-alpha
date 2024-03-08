@@ -45,7 +45,7 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
 
     const fromBlock = latestTransaction ? latestTransaction.blockNumber + BigInt(1) : CREATION_BLOCK;
 
-    const [mintLogs, burnLogs, streamerFeePercentage, protocolFeePercentage] = await Promise.all([
+    const [mintLogs, burnLogs] = await Promise.all([
         publicClient.getLogs({
           address: data.tokenAddress as `0x${string}`,
           event: parseAbiItem(
@@ -59,20 +59,22 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
             "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
           ),
           fromBlock,
-        }),
-        publicClient.readContract({
-            address: vibesTokenContractAddress,
-            abi: VibesTokenAbi,
-            functionName: "protocolFeePercent",
-          }),
+        })
+    ]);
+    const logs = [...mintLogs, ...burnLogs];
+    if (logs.length === 0) return [];
+    const [streamerFeePercentage, protocolFeePercentage] = await Promise.all([
         publicClient.readContract({
           address: vibesTokenContractAddress,
           abi: VibesTokenAbi,
           functionName: "streamerFeePercent",
         }),
+        publicClient.readContract({
+          address: vibesTokenContractAddress,
+          abi: VibesTokenAbi,
+          functionName: "protocolFeePercent",
+        }),
     ]);
-    const logs = [...mintLogs, ...burnLogs];
-    if (logs.length === 0) return [];
     logs.sort((a, b) => {
       if (a.blockNumber === null || b.blockNumber === null) return 0;
       if (a.blockNumber < b.blockNumber) return -1;
