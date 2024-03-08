@@ -48,14 +48,14 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
     const fromBlock = latestTransaction ? latestTransaction.blockNumber + BigInt(1) : CREATION_BLOCK;
 
     const [mintLogs, burnLogs] = await Promise.all([
-        publicClient.getLogs({
+        (publicClient as any).getLogs({
           address: data.tokenAddress as `0x${string}`,
           event: parseAbiItem(
             "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
           ),
           fromBlock,
         }),
-        publicClient.getLogs({
+        (publicClient as any).getLogs({
           address: data.tokenAddress as `0x${string}`,
           event: parseAbiItem(
             "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
