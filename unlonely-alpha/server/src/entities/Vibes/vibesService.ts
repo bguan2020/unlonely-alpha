@@ -38,7 +38,7 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
     });
 
     const publicClient = createPublicClient({
-        chain: base,
+        chain: base as any,
         transport: viemHttp(
             `https://base-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_BASE_API_KEY}`
           ),
@@ -70,12 +70,12 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
 
     // Get the streamer and protocol fee percentages on this block
     const [streamerFeePercentage, protocolFeePercentage] = await Promise.all([
-        publicClient.readContract({
+        (publicClient as any).readContract({
           address: data.tokenAddress as `0x${string}`,
           abi: VibesTokenAbi,
           functionName: "streamerFeePercent",
         }),
-        publicClient.readContract({
+        (publicClient as any).readContract({
           address: data.tokenAddress as `0x${string}`,
           abi: VibesTokenAbi,
           functionName: "protocolFeePercent",
