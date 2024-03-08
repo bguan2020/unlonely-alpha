@@ -63,10 +63,22 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
           fromBlock,
         })
     ]);
-    const logs = [...mintLogs, ...burnLogs];
+
+    const logs = [...mintLogs, ...burnLogs]
 
     // If there are no logs, return an empty array
     if (logs.length === 0) return [];
+
+    const uniqueLogs = [];
+    const seenTransactionHashes = new Set();
+    
+    for (const log of logs) {
+      if (!seenTransactionHashes.has(log.transactionHash)) {
+        seenTransactionHashes.add(log.transactionHash);
+        uniqueLogs.push(log);
+      }
+    }
+
 
     // Get the streamer and protocol fee percentages on this block
     const [streamerFeePercentage, protocolFeePercentage] = await Promise.all([
@@ -83,7 +95,7 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
     ]);
 
     // Sort the logs by block number
-    logs.sort((a, b) => {
+    uniqueLogs.sort((a, b) => {
       if (a.blockNumber === null || b.blockNumber === null) return 0;
       if (a.blockNumber < b.blockNumber) return -1;
       if (a.blockNumber > b.blockNumber) return 1;
@@ -94,7 +106,7 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
     const uniqueStreamerAddressesToAmounts = new Map<string, streamerStoreType>();
     
     // Format the logs into the database schema
-    const formattedTransactions = logs.map((log) => {
+    const formattedTransactions = uniqueLogs.map((log) => {
       const transactionType = log.eventName === "Mint" ? VibesTransactionType.BUY : VibesTransactionType.SELL;
       const totalVibesSupplyAfterTrade = log.args.totalSupply as bigint
       const vibesAmount = log.args.amount as bigint
