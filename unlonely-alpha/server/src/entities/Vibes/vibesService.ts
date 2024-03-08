@@ -12,7 +12,6 @@ export enum VibesTransactionType {
   }
 
 export const CREATION_BLOCK = BigInt(9018023);
-const vibesTokenContractAddress = "0xEAB1fF15f26da850315b15AFebf12F0d42dE5421"
 
 type streamerStoreType = {
     newTotalVibesVolume: string,
@@ -27,6 +26,8 @@ export interface IPostVibesTradesInput {
 }
 
 export const postVibesTrades = async (data: IPostVibesTradesInput) => {
+
+    // Get the latest transaction in database
     const latestTransaction = await prisma.vibesTransaction.findFirst({
         where: {
             chainId: data.chainId,
@@ -43,6 +44,7 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
           ),
       });
 
+    // start with the block after the latest transaction in the database
     const fromBlock = latestTransaction ? latestTransaction.blockNumber + BigInt(1) : CREATION_BLOCK;
 
     const [mintLogs, burnLogs] = await Promise.all([
@@ -62,26 +64,36 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
         })
     ]);
     const logs = [...mintLogs, ...burnLogs];
+
+    // If there are no logs, return an empty array
     if (logs.length === 0) return [];
+
+    // Get the streamer and protocol fee percentages on this block
     const [streamerFeePercentage, protocolFeePercentage] = await Promise.all([
         publicClient.readContract({
-          address: vibesTokenContractAddress,
+          address: data.tokenAddress as `0x${string}`,
           abi: VibesTokenAbi,
           functionName: "streamerFeePercent",
         }),
         publicClient.readContract({
-          address: vibesTokenContractAddress,
+          address: data.tokenAddress as `0x${string}`,
           abi: VibesTokenAbi,
           functionName: "protocolFeePercent",
         }),
     ]);
+
+    // Sort the logs by block number
     logs.sort((a, b) => {
       if (a.blockNumber === null || b.blockNumber === null) return 0;
       if (a.blockNumber < b.blockNumber) return -1;
       if (a.blockNumber > b.blockNumber) return 1;
       return 0;
     });
-    const uniqueStreamerAddressesToAmounts = new Map<string, streamerStoreType>();      
+
+    // Create a map of unique streamer addresses to their stats
+    const uniqueStreamerAddressesToAmounts = new Map<string, streamerStoreType>();
+    
+    // Format the logs into the database schema
     const formattedTransactions = logs.map((log) => {
       const transactionType = log.eventName === "Mint" ? VibesTransactionType.BUY : VibesTransactionType.SELL;
       const totalVibesSupplyAfterTrade = log.args.totalSupply as bigint
@@ -123,6 +135,8 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
           weiAmount: String(weiAmount),
       }
     })
+
+    // create a streamer's stat if not exist yet
     const creationPromises = Array.from(uniqueStreamerAddressesToAmounts.entries()).map(async ([address, stats]) => {
         const existingStat = await prisma.streamerVibesStat.findFirst({
             where: { streamerAddress: address, chainId: data.chainId, },
@@ -145,6 +159,8 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
         }
     });
     await Promise.all(creationPromises);
+
+    // update a streamer's stat if already exist
     const updatePromises = Array.from(uniqueStreamerAddressesToAmounts.entries()).map(async ([address, stats]) => {
         const existingStat = await prisma.streamerVibesStat.findFirst({
             where: { streamerAddress: address, chainId: data.chainId, },
@@ -165,6 +181,8 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
         }
     });
     await Promise.all(updatePromises);
+
+    // Create the transactions in the database
     return await prisma.vibesTransaction.createMany({
       data: formattedTransactions,
       skipDuplicates: true,
