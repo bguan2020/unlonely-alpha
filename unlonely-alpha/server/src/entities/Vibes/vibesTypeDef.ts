@@ -25,6 +25,7 @@ export const typeDef = gql`
 
     type StreamerVibesStat {
         id: ID!
+        uniqueStatId: String!
         streamerAddress: String!
         chainId: Int!
         allTimeTotalVibesVolume: String!

@@ -142,31 +142,36 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
     // create a streamer's stat if not exist yet
     const creationPromises = Array.from(uniqueStreamerAddressesToAmounts.entries()).map(async ([address, stats]) => {
         const existingStat = await prisma.streamerVibesStat.findFirst({
-            where: { streamerAddress: address, chainId: data.chainId, },
+            where: { uniqueStatId: `${address}-${String(data.chainId)}` },
         });
         
         if (existingStat) {
             return null
         } else {
-            uniqueStreamerAddressesToAmounts.delete(address)
-            return prisma.streamerVibesStat.create({
-            data: {
-                streamerAddress: address,
-                chainId: data.chainId,
-                allTimeTotalVibesVolume: stats.newTotalVibesVolume,
-                allTimeTotalWeiVolume: stats.newTotalWeiVolume,
-                allTimeTotalProtocolWeiFees: stats.newTotalProtocolWeiFees,
-                allTimeTotalStreamerWeiFees: stats.newTotalStreamerWeiFees,
-            },
+            await prisma.streamerVibesStat.create({
+                data: {
+                    uniqueStatId: `${address}-${String(data.chainId)}`,
+                    streamerAddress: address,
+                    chainId: data.chainId,
+                    allTimeTotalVibesVolume: stats.newTotalVibesVolume,
+                    allTimeTotalWeiVolume: stats.newTotalWeiVolume,
+                    allTimeTotalProtocolWeiFees: stats.newTotalProtocolWeiFees,
+                    allTimeTotalStreamerWeiFees: stats.newTotalStreamerWeiFees,
+                },
             });
+            return address
         }
     });
-    await Promise.all(creationPromises);
+
+    const addressesCreatedFor = await Promise.all(creationPromises);
+    addressesCreatedFor.forEach(address => {
+        if (address) uniqueStreamerAddressesToAmounts.delete(address)
+    });
 
     // update a streamer's stat if already exist
     const updatePromises = Array.from(uniqueStreamerAddressesToAmounts.entries()).map(async ([address, stats]) => {
         const existingStat = await prisma.streamerVibesStat.findFirst({
-            where: { streamerAddress: address, chainId: data.chainId, },
+            where: { uniqueStatId: `${address}-${String(data.chainId)}` },
         });
         
         if (existingStat) {
