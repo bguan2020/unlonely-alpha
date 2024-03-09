@@ -135,9 +135,10 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
       });
 
       return {
+          uniqueTransactionId: `${log.transactionHash as string}-${String(data.chainId)}-${String(log.blockNumber)}`,
           chainId: data.chainId,
           blockNumber: log.blockNumber as bigint,
-          transactionHash: log.transactionHash,
+          transactionHash: log.transactionHash as string,
           transactionType,
           traderAddress: log.args.account as string,
           streamerAddress,

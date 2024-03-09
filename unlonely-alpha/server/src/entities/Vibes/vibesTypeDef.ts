@@ -8,8 +8,9 @@ export const typeDef = gql`
 
     type VibesTransaction {
         id: ID!
-        chainId: Int
-        transactionHash: String
+        uniqueTransactionId: String!
+        chainId: Int!
+        transactionHash: String!
         blockNumber: BigInt
         transactionType: VibesTransactionType
         traderAddress: String

@@ -189,6 +189,7 @@ enum VibesTransactionType {
 
 model VibesTransaction {
   id                             Int      @id @default(autoincrement())
+  uniqueTransactionId            String   @unique
   chainId                        Int
   transactionHash                String
   blockNumber                    BigInt
