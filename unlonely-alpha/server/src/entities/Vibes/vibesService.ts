@@ -139,9 +139,31 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
       }
     })
 
+    // update a streamer's stat if already exist
+    const updatePromises = Array.from(uniqueStreamerAddressesToAmounts.entries()).map(async ([address, stats]) => {
+        const existingStat = await prisma.streamerVibesStat.findUnique({
+            where: { uniqueStatId: `${address}-${String(data.chainId)}` },
+        });
+        
+        if (existingStat) {
+            return prisma.streamerVibesStat.update({
+            where: { id: existingStat.id },
+            data: {
+                allTimeTotalVibesVolume: String(BigInt(existingStat.allTimeTotalVibesVolume) + BigInt(stats.newTotalVibesVolume)),
+                allTimeTotalWeiVolume: String(BigInt(existingStat.allTimeTotalWeiVolume) + BigInt(stats.newTotalWeiVolume)),
+                allTimeTotalProtocolWeiFees: String(BigInt(existingStat.allTimeTotalProtocolWeiFees) + BigInt(stats.newTotalProtocolWeiFees)),
+                allTimeTotalStreamerWeiFees: String(BigInt(existingStat.allTimeTotalStreamerWeiFees) + BigInt(stats.newTotalStreamerWeiFees)),
+            },
+            });
+        } else {
+            return null
+        }
+    });
+    await Promise.all(updatePromises);
+
     // create a streamer's stat if not exist yet
     const creationPromises = Array.from(uniqueStreamerAddressesToAmounts.entries()).map(async ([address, stats]) => {
-        const existingStat = await prisma.streamerVibesStat.findFirst({
+        const existingStat = await prisma.streamerVibesStat.findUnique({
             where: { uniqueStatId: `${address}-${String(data.chainId)}` },
         });
         
@@ -163,32 +185,7 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
         }
     });
 
-    const addressesCreatedFor = await Promise.all(creationPromises);
-    addressesCreatedFor.forEach(address => {
-        if (address) uniqueStreamerAddressesToAmounts.delete(address)
-    });
-
-    // update a streamer's stat if already exist
-    const updatePromises = Array.from(uniqueStreamerAddressesToAmounts.entries()).map(async ([address, stats]) => {
-        const existingStat = await prisma.streamerVibesStat.findFirst({
-            where: { uniqueStatId: `${address}-${String(data.chainId)}` },
-        });
-        
-        if (existingStat) {
-            return prisma.streamerVibesStat.update({
-            where: { id: existingStat.id },
-            data: {
-                allTimeTotalVibesVolume: String(BigInt(existingStat.allTimeTotalVibesVolume) + BigInt(stats.newTotalVibesVolume)),
-                allTimeTotalWeiVolume: String(BigInt(existingStat.allTimeTotalWeiVolume) + BigInt(stats.newTotalWeiVolume)),
-                allTimeTotalProtocolWeiFees: String(BigInt(existingStat.allTimeTotalProtocolWeiFees) + BigInt(stats.newTotalProtocolWeiFees)),
-                allTimeTotalStreamerWeiFees: String(BigInt(existingStat.allTimeTotalStreamerWeiFees) + BigInt(stats.newTotalStreamerWeiFees)),
-            },
-            });
-        } else {
-            return null
-        }
-    });
-    await Promise.all(updatePromises);
+    await Promise.all(creationPromises);
 
     // Create the transactions in the database
     return await prisma.vibesTransaction.createMany({
