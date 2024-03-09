@@ -196,8 +196,6 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
     });
     await Promise.all(updatePromises);
 
-    console.log("formattedTransactions", formattedTransactions, formattedTransactions.length)
-
     // Create the transactions in the database
     return await prisma.vibesTransaction.createMany({
       data: formattedTransactions,
