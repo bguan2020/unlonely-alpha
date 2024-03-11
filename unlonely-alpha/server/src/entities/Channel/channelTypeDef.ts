@@ -26,7 +26,7 @@ export const typeDef = gql`
     owner: User!
     createdAt: DateTime!
     updatedAt: DateTime!
-  }    
+  }
 
   type SideBet {
     id: ID!
@@ -102,21 +102,18 @@ export const typeDef = gql`
 
   input PostChannelInput {
     slug: String!
-    ownerAddress: String!
     name: String
     description: String
     canRecord: Boolean
     allowNfcs: Boolean
   }
 
-  input DeleteChannelInput {
+  input SoftDeleteChannelInput {
     slug: String!
-    softDelete: Boolean
   }
 
   input MigrateChannelToLivepeerInput {
     slug: String!
-    ownerAddress: String!
     canRecord: Boolean
   }
 
@@ -180,7 +177,7 @@ export const typeDef = gql`
     slugOnly: Boolean
   }
 
-  input UpdateChannelClippingInput {
+  input UpdateChannelAllowNfcsInput {
     id: ID!
     allowNfcs: Boolean
   }
@@ -205,13 +202,15 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    updateLivepeerStreamData(data: UpdateLivepeerStreamDataInput!): LivepeerStreamData
+    updateLivepeerStreamData(
+      data: UpdateLivepeerStreamDataInput!
+    ): LivepeerStreamData
     postChannel(data: PostChannelInput!): Channel
-    deleteChannel(data: DeleteChannelInput!): Channel
+    softDeleteChannel(data: SoftDeleteChannelInput!): Channel
     migrateChannelToLivepeer(data: MigrateChannelToLivepeerInput!): Channel
     closeSharesEvents(data: PostCloseSharesEventsInput!): UpdateManyResponse
     postSharesEvent(data: PostSharesEventInput!): Channel
-    updateChannelClipping(data: UpdateChannelClippingInput!): Channel
+    updateChannelAllowNfcs(data: UpdateChannelAllowNfcsInput!): Channel
     updateSharesEvent(data: UpdateSharesEventInput!): Channel
     updateChannelText(data: UpdateChannelTextInput!): Channel
     updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel

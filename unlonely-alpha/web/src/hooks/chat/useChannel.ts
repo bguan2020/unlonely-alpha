@@ -48,8 +48,12 @@ export function useAblyChannel(
 export function useChannel(fixedChatName?: string) {
   const { userAddress } = useUser();
   const { channel: c, chat, ui } = useChannelContext();
-  const { channelRoles, handleChannelRoles, handleLatestBet, handleChannelDetails } =
-    c;
+  const {
+    channelRoles,
+    handleChannelRoles,
+    handleLatestBet,
+    handleChannelDetails,
+  } = c;
   const { chatChannel } = chat;
   const { handleVibesTokenPriceRange, handleLocalSharesEventState } = ui;
 
@@ -85,7 +89,12 @@ export function useChannel(fixedChatName?: string) {
     if (message.name === CHANGE_CHANNEL_DETAILS_EVENT) {
       const body = JSON.parse(message.data.body);
       console.log("body", body);
-      handleChannelDetails(body.channelName, body.channelDescription, body.chatCommands, body.allowNfcs);
+      handleChannelDetails(
+        body.channelName,
+        body.channelDescription,
+        body.chatCommands,
+        body.allowNfcs
+      );
     }
     if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
       const newSliderValue = JSON.parse(message.data.body);
@@ -103,12 +112,12 @@ export function useChannel(fixedChatName?: string) {
           const chainId = message.data.body.split(":")[6];
           const channelId = message.data.body.split(":")[7];
           handleLatestBet({
-            id: (betId as string),
-            sharesSubjectQuestion: (sharesSubjectQuestion as string),
-            sharesSubjectAddress: (sharesSubjectAddress as string),
-            options: [(optionA as string), (optionB as string)],
+            id: betId as string,
+            sharesSubjectQuestion: sharesSubjectQuestion as string,
+            sharesSubjectAddress: sharesSubjectAddress as string,
+            options: [optionA as string, optionB as string],
             chainId: Number(chainId as string),
-            channelId: (channelId as string),
+            channelId: channelId as string,
             createdAt: new Date().toISOString(),
             eventState: SharesEventState.Live,
           });

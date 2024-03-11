@@ -3,26 +3,32 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
-import { UpdateLivepeerStreamDataMutation, UpdateLivepeerStreamDataMutationVariables } from "../../generated/graphql";
+import {
+  UpdateLivepeerStreamDataMutation,
+  UpdateLivepeerStreamDataMutationVariables,
+} from "../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
 const MUTATION = gql`
-    mutation UpdateLivepeerStreamData($data: UpdateLivepeerStreamDataInput!) {
-        updateLivepeerStreamData(data: $data) {
-          streamKey
-          record
-          playbackId
-          isActive
-        }
+  mutation UpdateLivepeerStreamData($data: UpdateLivepeerStreamDataInput!) {
+    updateLivepeerStreamData(data: $data) {
+      streamKey
+      record
+      playbackId
+      isActive
     }
+  }
 `;
 
 const useUpdateLivepeerStreamData = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<UpdateLivepeerStreamDataMutation, UpdateLivepeerStreamDataMutationVariables>(MUTATION);
+  const [mutate] = useAuthedMutation<
+    UpdateLivepeerStreamDataMutation,
+    UpdateLivepeerStreamDataMutationVariables
+  >(MUTATION);
 
   const updateLivepeerStreamData = useCallback(
     async (data) => {

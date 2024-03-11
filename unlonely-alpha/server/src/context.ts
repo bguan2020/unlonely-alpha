@@ -30,8 +30,7 @@ export const getContext: ContextFunction = async ({
     const user = await privyClient.getUser(userId);
     address = user.wallet?.address;
     validated = true;
-  } catch (e) {
-  }
+  } catch (e) {}
 
   const user = address ? await findOrCreateUser({ address }) : null;
 

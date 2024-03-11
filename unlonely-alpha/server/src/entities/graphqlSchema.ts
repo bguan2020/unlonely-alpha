@@ -39,7 +39,7 @@ import { resolvers as subscriptionResolvers } from "./Subscription/SubscriptionR
 import { resolvers as baseLeaderboardResolvers } from "./BaseLeaderboard/baseLeaderboardResolvers";
 import { resolvers as gamblableInteractionResolvers } from "./GamblableInteraction/gamblableInteractionResolvers";
 import { resolvers as sideBetResolvers } from "./SideBet/sideBetResolvers";
-import { resolvers as vibesResolvers} from "./Vibes/vibesResolvers";
+import { resolvers as vibesResolvers } from "./Vibes/vibesResolvers";
 
 const Query = gql`
   enum SortOrder {
@@ -85,7 +85,7 @@ export default makeExecutableSchema({
     baseLeaderboardTypeDef,
     gamblableInteractionTypeDef,
     sideBetTypeDef,
-    vibesTypeDef
+    vibesTypeDef,
   ],
   resolvers: merge(
     resolvers,

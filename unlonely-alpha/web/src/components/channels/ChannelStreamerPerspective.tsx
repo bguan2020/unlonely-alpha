@@ -19,7 +19,7 @@ import { FaRegCopy } from "react-icons/fa";
 import copy from "copy-to-clipboard";
 import LivepeerBroadcast from "../stream/LivepeerBroadcast";
 import useMigrateChannelToLivepeer from "../../hooks/server/useMigrateChannelToLivepeer";
-import useUpdateChannelClipping from "../../hooks/server/useUpdateChannelClipping";
+import useUpdateChannelAllowNfcs from "../../hooks/server/useUpdateChannelAllowNfcs";
 import {
   AblyChannelPromise,
   CHANGE_CHANNEL_DETAILS_EVENT,
@@ -53,8 +53,8 @@ const ChannelStreamerPerspective = ({
   const { updateLivepeerStreamData, loading: updateLivepeerStreamDataLoading } =
     useUpdateLivepeerStreamData({});
 
-  const { updateChannelClipping, loading: updateChannelClippingLoading } =
-    useUpdateChannelClipping({});
+  const { updateChannelAllowNfcs, loading: updateChannelAllowNfcsLoading } =
+    useUpdateChannelAllowNfcs({});
 
   const streamKey = useMemo(() => {
     return channelQueryData?.streamKey ?? "";
@@ -74,7 +74,7 @@ const ChannelStreamerPerspective = ({
   };
 
   const callNfcsChange = async (newNfcs: boolean) => {
-    const res = await updateChannelClipping({
+    const res = await updateChannelAllowNfcs({
       id: channelQueryData?.id,
       allowNfcs: newNfcs,
     });
@@ -352,7 +352,7 @@ const ChannelStreamerPerspective = ({
                   <PopoverTrigger>
                     <Flex alignItems={"center"} gap="0.5rem">
                       <LuClapperboard size={20} />
-                      {updateChannelClippingLoading ? (
+                      {updateChannelAllowNfcsLoading ? (
                         <Spinner />
                       ) : (
                         <Switch
@@ -419,7 +419,7 @@ const MigrateToLivePeer = () => {
     try {
       const res = await migrateChannelToLivepeer({
         slug: channelQueryData?.slug,
-        ownerAddress: channelQueryData?.owner?.address,
+        canRecord: true,
       });
       setLivepeerPlaybackId(res?.res?.livepeerPlaybackId || "");
       setLivepeerStreamId(res?.res?.livepeerStreamId || "");

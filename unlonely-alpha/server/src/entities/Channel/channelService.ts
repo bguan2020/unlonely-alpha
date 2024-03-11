@@ -1,5 +1,5 @@
 import { Lambda } from "aws-sdk";
-import { Channel as PrismaChannel } from "@prisma/client";
+import { Channel as PrismaChannel, User } from "@prisma/client";
 import * as AWS from "aws-sdk";
 import axios from "axios";
 
@@ -43,17 +43,21 @@ const createLivepeerStream = async (name: string, canRecord?: boolean) => {
       },
       { headers }
     );
-    console.log("createLivepeerStream response", creationResponse.data)
-    return {playbackId: creationResponse.data.playbackId, streamKey: creationResponse.data.streamKey, id: creationResponse.data.id};
+    console.log("createLivepeerStream response", creationResponse.data);
+    return {
+      playbackId: creationResponse.data.playbackId,
+      streamKey: creationResponse.data.streamKey,
+      id: creationResponse.data.id,
+    };
   } catch (error: any) {
     console.log("createLivepeerStream error", error);
     return {
       playbackId: null,
       streamKey: null,
-      id: null
+      id: null,
     };
   }
-}
+};
 
 const terminateLivepeerStream = async (streamId: string) => {
   const headers = {
@@ -65,17 +69,16 @@ const terminateLivepeerStream = async (streamId: string) => {
       `https://livepeer.studio/api/stream/${streamId}`,
       { headers }
     );
-    console.log("terminateLivepeerStream response", terminationResponse.data)
+    console.log("terminateLivepeerStream response", terminationResponse.data);
     return terminationResponse.data;
   } catch (error: any) {
     console.log("terminateLivepeerStream error", error);
     return null;
   }
-}
+};
 
 export interface IPostChannelInput {
   slug: string;
-  ownerAddress: string;
   name?: string;
   description?: string;
   canRecord?: boolean;
@@ -84,12 +87,13 @@ export interface IPostChannelInput {
 
 export const postChannel = async (
   data: IPostChannelInput,
+  user: User,
   ctx: Context
 ) => {
   try {
-    const existingChannel = await ctx.prisma.channel.findFirst({
+    const existingChannel = await ctx.prisma.channel.findUnique({
       where: {
-        slug: data.slug
+        slug: data.slug,
       },
     });
 
@@ -99,7 +103,10 @@ export const postChannel = async (
       }
     }
 
-    const { playbackId, streamKey, id } = await createLivepeerStream(data.slug.concat(process.env.DEVELOPMENT ? "-test" : ""), data.canRecord);
+    const { playbackId, streamKey, id } = await createLivepeerStream(
+      data.slug.concat(process.env.DEVELOPMENT ? "-test" : ""),
+      data.canRecord
+    );
 
     if (playbackId === null || playbackId === undefined || playbackId === "") {
       throw new Error("Failed to create livepeer stream");
@@ -113,69 +120,64 @@ export const postChannel = async (
         allowNFCs: data.allowNfcs,
         channelArn: data.slug.concat("-", new Date(Date.now()).toDateString()),
         playbackUrl: data.slug.concat("-", new Date(Date.now()).toDateString()),
-        ownerAddr: data.ownerAddress,
+        ownerAddr: user.address,
         awsId: data.slug.concat("-", new Date(Date.now()).toDateString()),
         livepeerPlaybackId: playbackId,
         livepeerStreamId: id,
-        streamKey
+        streamKey,
       },
     });
   } catch (error: any) {
     console.log("postChannel error", error);
-    throw new Error(error)
+    throw new Error(error);
   }
 };
 
-export interface IDeleteChannelInput {
-  slug: string
-  softDelete?: boolean
+export interface ISoftDeleteChannelInput {
+  slug: string;
 }
 
-export const deleteChannel = async (data: IDeleteChannelInput, ctx: Context) => {
+export const softDeleteChannel = async (
+  data: ISoftDeleteChannelInput,
+  ctx: Context
+) => {
   try {
-    const existingChannel = await ctx.prisma.channel.findUnique({
+    const existingChannel = await ctx.prisma.channel.findFirst({
       where: {
-        slug: data.slug 
+        slug: data.slug,
+        softDelete: false,
       },
     });
 
     if (!existingChannel) {
       throw new Error("Channel not found");
     }
-
-    if (!data.softDelete) {
-      await terminateLivepeerStream(existingChannel.livepeerStreamId ?? "");
-      return await ctx.prisma.channel.delete({
-        where: { id: existingChannel.id },
-
-      });
-    } else {
-      return await ctx.prisma.channel.update({
-        where: { id: existingChannel.id },
-        data: {
-          softDelete: true
-        },
-      });
-    }
-
-
+    return await ctx.prisma.channel.update({
+      where: { id: existingChannel.id },
+      data: {
+        softDelete: true,
+      },
+    });
   } catch (error: any) {
     console.log("deleteChannel error", error);
-    throw new Error(error)
+    throw new Error(error);
   }
-}
+};
 
 export interface IMigrateChannelToLivepeerInput {
   slug: string;
-  ownerAddress: string;
   canRecord?: boolean;
 }
 
-export const migrateChannelToLivepeer = async (data: IMigrateChannelToLivepeerInput, ctx: Context) => {
+export const migrateChannelToLivepeer = async (
+  data: IMigrateChannelToLivepeerInput,
+  ctx: Context
+) => {
   try {
-    const existingChannel = await ctx.prisma.channel.findUnique({
+    const existingChannel = await ctx.prisma.channel.findFirst({
       where: {
-        slug: data.slug 
+        slug: data.slug,
+        softDelete: false,
       },
     });
 
@@ -187,7 +189,10 @@ export const migrateChannelToLivepeer = async (data: IMigrateChannelToLivepeerIn
       throw new Error("Channel already using Livepeer");
     }
 
-    const {playbackId, streamKey, id} = await createLivepeerStream(data.slug.concat(process.env.DEVELOPMENT ? "-test" : ""), true);
+    const { playbackId, streamKey, id } = await createLivepeerStream(
+      data.slug.concat(process.env.DEVELOPMENT ? "-test" : ""),
+      true
+    );
 
     if (playbackId === null || playbackId === undefined || playbackId === "") {
       throw new Error("Failed to create livepeer stream");
@@ -198,27 +203,26 @@ export const migrateChannelToLivepeer = async (data: IMigrateChannelToLivepeerIn
       data: {
         livepeerPlaybackId: playbackId,
         streamKey,
-        livepeerStreamId: id
+        livepeerStreamId: id,
       },
     });
   } catch (error: any) {
     console.log("migrateChannelToLivepeer error", error);
-    throw new Error(error)
+    throw new Error(error);
   }
-}
+};
 
-export interface IUpdateChannelClippingInput {
+export interface IUpdateChannelAllowNfcsInput {
   id: number;
   allowNfcs: boolean;
 }
 
-export const updateChannelClipping = async (
-  data: IUpdateChannelClippingInput,
+export const updateChannelAllowNfcs = async (
+  data: IUpdateChannelAllowNfcsInput,
   ctx: Context
 ) => {
-
-  const existingChannel = await ctx.prisma.channel.findUnique({
-    where: { id: Number(data.id) },
+  const existingChannel = await ctx.prisma.channel.findFirst({
+    where: { id: Number(data.id), softDelete: false },
   });
 
   if (!existingChannel) {
@@ -226,12 +230,12 @@ export const updateChannelClipping = async (
   }
 
   return await ctx.prisma.channel.update({
-    where: { id: Number(data.id)},
+    where: { id: Number(data.id) },
     data: {
       allowNFCs: data.allowNfcs,
     },
   });
-}
+};
 
 export const updateChannelText = (
   data: IPostChannelTextInput,
@@ -465,35 +469,42 @@ export const getChannelSearchResults = async (
   data: IGetChannelSearchResultsInput,
   ctx: Context
 ) => {
-
   if (data.slugOnly) {
-    const uniqueResult = await ctx.prisma.channel.findUnique({
+    const uniqueResult = await ctx.prisma.channel.findFirst({
       where: {
-        slug: data.query
-      }
+        slug: data.query,
+        softDelete: false,
+      },
     });
     // Ensure the result is always an array
     return uniqueResult ? [uniqueResult] : [];
   }
 
-  if (data.containsSlug) return await ctx.prisma.channel.findMany({
-    where: {
-        slug: { contains: data.query }
-    },
-    skip: data.skip,
-    take: data.take
-  });
+  if (data.containsSlug)
+    return await ctx.prisma.channel.findMany({
+      where: {
+        slug: { contains: data.query },
+        softDelete: false,
+      },
+      skip: data.skip,
+      take: data.take,
+    });
 
   return await ctx.prisma.channel.findMany({
     where: {
-      OR: [
-        { slug: { contains: data.query } },
-        { name: { contains: data.query } },
-        { description: { contains: data.query } },
+      AND: [
+        {
+          OR: [
+            { slug: { contains: data.query } },
+            { name: { contains: data.query } },
+            { description: { contains: data.query } },
+          ],
+        },
+        { softDelete: false },
       ],
     },
     skip: data.skip,
-    take: data.take
+    take: data.take,
   });
 };
 
@@ -515,14 +526,14 @@ export const updateChannelVibesTokenPriceRange = async (
 };
 
 export const getChannelById = ({ id }: { id: number }, ctx: Context) => {
-  return ctx.prisma.channel.findUnique({
-    where: { id: Number(id) },
+  return ctx.prisma.channel.findFirst({
+    where: { id: Number(id), softDelete: false },
   });
 };
 
 export const getChannelBySlug = ({ slug }: { slug: string }, ctx: Context) => {
-  return ctx.prisma.channel.findUnique({
-    where: { slug: slug },
+  return ctx.prisma.channel.findFirst({
+    where: { slug: slug, softDelete: false },
   });
 };
 
@@ -530,8 +541,8 @@ export const getChannelByAwsId = (
   { awsId }: { awsId: string },
   ctx: Context
 ) => {
-  return ctx.prisma.channel.findUnique({
-    where: { awsId: awsId },
+  return ctx.prisma.channel.findFirst({
+    where: { awsId: awsId, softDelete: false },
   });
 };
 
@@ -620,7 +631,9 @@ export interface IGetLivepeerStreamDataInput {
   streamId: string;
 }
 
-export const getLivepeerStreamData = async (data: IGetLivepeerStreamDataInput) => {
+export const getLivepeerStreamData = async (
+  data: IGetLivepeerStreamDataInput
+) => {
   try {
     const response = await axios.get(
       `https://livepeer.studio/api/stream/${data.streamId}`,
@@ -640,14 +653,16 @@ export const getLivepeerStreamData = async (data: IGetLivepeerStreamDataInput) =
     console.log("getLivepeerLivestreamData error", error);
     throw error;
   }
-}
+};
 
 export interface IUpdateLivepeerStreamDataInput {
   streamId: string;
   canRecord: boolean;
 }
 
-export const updateLivepeerStreamData = async (data: IUpdateLivepeerStreamDataInput) => {
+export const updateLivepeerStreamData = async (
+  data: IUpdateLivepeerStreamDataInput
+) => {
   try {
     await axios.patch(
       `https://livepeer.studio/api/stream/${data.streamId}`,
@@ -666,8 +681,7 @@ export const updateLivepeerStreamData = async (data: IUpdateLivepeerStreamDataIn
     console.log("updateLivepeerLivestreamData error", error);
     throw error;
   }
-}
-
+};
 
 export interface IPostUserRoleForChannelInput {
   channelId: number;
@@ -742,14 +756,11 @@ export const getChannelUserRolesByChannel = async (
   });
 };
 
-export const getChannelNfcs = async (
-  { id }: { id: number },
-  ctx: Context
-) => {
+export const getChannelNfcs = async ({ id }: { id: number }, ctx: Context) => {
   return ctx.prisma.nFC.findMany({
     where: { channelId: Number(id) },
   });
-}
+};
 
 export const getChannelSideBets = async (
   { id }: { id: number },

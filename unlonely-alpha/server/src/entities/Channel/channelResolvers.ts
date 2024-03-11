@@ -21,12 +21,19 @@ export const resolvers = {
     getChannelByAwsId(_: any, { awsId }: { awsId: string }, ctx: Context) {
       return channelService.getChannelByAwsId({ awsId }, ctx);
     },
-    getChannelSearchResults(_: any, { data }: { data: channelService.IGetChannelSearchResultsInput }, ctx: Context) {
+    getChannelSearchResults(
+      _: any,
+      { data }: { data: channelService.IGetChannelSearchResultsInput },
+      ctx: Context
+    ) {
       return channelService.getChannelSearchResults(data, ctx);
     },
-    getLivepeerStreamData(_: any, { data }: { data: channelService.IGetLivepeerStreamDataInput }) {
+    getLivepeerStreamData(
+      _: any,
+      { data }: { data: channelService.IGetLivepeerStreamDataInput }
+    ) {
       return channelService.getLivepeerStreamData(data);
-    }
+    },
   },
   Mutation: {
     postChannel: (
@@ -37,23 +44,27 @@ export const resolvers = {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
-      return channelService.postChannel(data, ctx);
+      return channelService.postChannel(data, ctx.user, ctx);
     },
-    deleteChannel: (
+    softDeleteChannel: (
       _: any,
-      { data }: { data: channelService.IDeleteChannelInput },
+      { data }: { data: channelService.ISoftDeleteChannelInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
-      return channelService.deleteChannel(data, ctx);
+      return channelService.softDeleteChannel(data, ctx);
     },
     migrateChannelToLivepeer: (
       _: any,
       { data }: { data: channelService.IMigrateChannelToLivepeerInput },
       ctx: Context
     ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+
       return channelService.migrateChannelToLivepeer(data, ctx);
     },
     closeSharesEvents: (
@@ -97,25 +108,26 @@ export const resolvers = {
 
       return channelService.updateChannelText(data, ctx);
     },
-    updateChannelClipping: (
+    updateChannelAllowNfcs: (
       _: any,
-      { data }: { data: channelService.IUpdateChannelClippingInput },
+      { data }: { data: channelService.IUpdateChannelAllowNfcsInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
 
-      return channelService.updateChannelClipping(data, ctx);
+      return channelService.updateChannelAllowNfcs(data, ctx);
     },
     updateLivepeerStreamData: (
       _: any,
-      { data }: { data: channelService.IUpdateLivepeerStreamDataInput }, ctx: Context
+      { data }: { data: channelService.IUpdateLivepeerStreamDataInput },
+      ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
         throw new AuthenticationError("User is not authenticated");
       }
-      
+
       return channelService.updateLivepeerStreamData(data);
     },
     updateChannelCustomButton: (

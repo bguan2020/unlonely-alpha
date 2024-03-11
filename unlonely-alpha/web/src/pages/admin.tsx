@@ -13,7 +13,7 @@ import { useMemo, useState } from "react";
 import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
 import AdminNotifications from "../components/general/AdminNotifications";
-import useDeleteChannel from "../hooks/server/useDeleteChannel";
+import useSoftDeleteChannel from "../hooks/server/useSoftDeleteChannel";
 
 const admins = process.env.NEXT_PUBLIC_ADMINS?.split(",");
 
@@ -43,30 +43,31 @@ const AdminContent = () => {
   const [softDeleteChannelSlug, setSoftDeleteChannelSlug] =
     useState<boolean>(true);
 
-  const { deleteChannel, loading: deleteChannelLoading } = useDeleteChannel({
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: softDeleteChannelSlug
-          ? "Channel soft deleted"
-          : "Channel deleted",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-      setChannelSlugToDelete("");
-      setSoftDeleteChannelSlug(true);
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to delete channel",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    },
-  });
+  const { softDeleteChannel, loading: softDeleteChannelLoading } =
+    useSoftDeleteChannel({
+      onSuccess: () => {
+        toast({
+          title: "Success",
+          description: softDeleteChannelSlug
+            ? "Channel soft deleted"
+            : "Channel deleted",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        setChannelSlugToDelete("");
+        setSoftDeleteChannelSlug(true);
+      },
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to delete channel",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      },
+    });
 
   return (
     <Flex direction="column" p="10px" gap="20px" bg="#131323">
@@ -91,7 +92,7 @@ const AdminContent = () => {
             onChange={() => setSoftDeleteChannelSlug((prev) => !prev)}
           />
         </VStack>
-        {deleteChannelLoading ? (
+        {softDeleteChannelLoading ? (
           <Spinner />
         ) : (
           <Button
@@ -101,7 +102,7 @@ const AdminContent = () => {
             _focus={{}}
             _active={{}}
             onClick={() =>
-              deleteChannel({
+              softDeleteChannel({
                 slug: channelSlugToDelete,
                 softDelete: softDeleteChannelSlug,
               })

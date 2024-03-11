@@ -1892,7 +1892,7 @@
             "deprecationReason": null
           },
           {
-            "name": "deleteChannel",
+            "name": "softDeleteChannel",
             "description": null,
             "args": [
               {
@@ -1903,7 +1903,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "DeleteChannelInput",
+                    "name": "SoftDeleteChannelInput",
                     "ofType": null
                   }
                 },
@@ -2008,7 +2008,7 @@
             "deprecationReason": null
           },
           {
-            "name": "updateChannelClipping",
+            "name": "updateChannelAllowNfcs",
             "description": null,
             "args": [
               {
@@ -2019,7 +2019,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "UpdateChannelClippingInput",
+                    "name": "UpdateChannelAllowNfcsInput",
                     "ofType": null
                   }
                 },
@@ -7206,22 +7206,6 @@
             "deprecationReason": null
           },
           {
-            "name": "ownerAddress",
-            "description": null,
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "name",
             "description": null,
             "type": {
@@ -7276,7 +7260,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "DeleteChannelInput",
+        "name": "SoftDeleteChannelInput",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,
@@ -7292,18 +7276,6 @@
                 "name": "String",
                 "ofType": null
               }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "softDelete",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -7323,22 +7295,6 @@
         "inputFields": [
           {
             "name": "slug",
-            "description": null,
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "ownerAddress",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -7960,7 +7916,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "UpdateChannelClippingInput",
+        "name": "UpdateChannelAllowNfcsInput",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,
@@ -9405,22 +9361,6 @@
               "ofType": {
                 "kind": "SCALAR",
                 "name": "Float",
-                "ofType": null
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "userAddress",
-            "description": null,
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
                 "ofType": null
               }
             },

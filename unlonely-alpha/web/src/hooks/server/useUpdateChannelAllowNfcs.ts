@@ -3,26 +3,32 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
-import { UpdateChannelClippingMutation, UpdateChannelClippingMutationVariables } from "../../generated/graphql";
+import {
+  UpdateChannelAllowNfcsMutation,
+  UpdateChannelAllowNfcsMutationVariables,
+} from "../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
 const MUTATION = gql`
-mutation UpdateChannelClipping($data: UpdateChannelClippingInput!) {
-    updateChannelClipping(data: $data) {
+  mutation UpdateChannelAllowNfcs($data: UpdateChannelAllowNfcsInput!) {
+    updateChannelAllowNfcs(data: $data) {
       allowNFCs
       id
     }
   }
 `;
 
-const useUpdateChannelClipping = ({ onError }: Props) => {
+const useUpdateChannelAllowNfcs = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<UpdateChannelClippingMutation, UpdateChannelClippingMutationVariables>(MUTATION);
+  const [mutate] = useAuthedMutation<
+    UpdateChannelAllowNfcsMutation,
+    UpdateChannelAllowNfcsMutationVariables
+  >(MUTATION);
 
-  const updateChannelClipping = useCallback(
+  const updateChannelAllowNfcs = useCallback(
     async (data) => {
       try {
         setLoading(true);
@@ -35,10 +41,10 @@ const useUpdateChannelClipping = ({ onError }: Props) => {
           },
         });
 
-        const res = mutationResult?.data?.updateChannelClipping;
+        const res = mutationResult?.data?.updateChannelAllowNfcs;
 
         if (res) {
-          console.log("updateChannelClipping success");
+          console.log("updateChannelAllowNfcs success");
         } else {
           onError && onError();
         }
@@ -47,13 +53,13 @@ const useUpdateChannelClipping = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("updateChannelClipping", JSON.stringify(e, null, 2));
+        console.log("updateChannelAllowNfcs", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]
   );
 
-  return { updateChannelClipping, loading };
+  return { updateChannelAllowNfcs, loading };
 };
 
-export default useUpdateChannelClipping;
+export default useUpdateChannelAllowNfcs;

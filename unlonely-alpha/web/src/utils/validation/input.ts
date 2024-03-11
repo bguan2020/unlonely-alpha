@@ -9,7 +9,7 @@ export const filteredInput = (
 
 export const alphanumericInput = (input: string): string => {
   return input.replace(/[^a-zA-Z0-9]/g, ""); // only letters and numbers allowed
-}
+};
 
 export const formatIncompleteNumber = (str: string) => {
   if (str.endsWith(".")) {

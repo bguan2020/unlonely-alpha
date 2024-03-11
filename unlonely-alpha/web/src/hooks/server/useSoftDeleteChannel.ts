@@ -4,34 +4,43 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
-  MigrateChannelToLivepeerMutation,
-  MigrateChannelToLivepeerMutationVariables,
+  SoftDeleteChannelMutation,
+  SoftDeleteChannelMutationVariables,
 } from "../../generated/graphql";
 
 type Props = {
+  onSuccess?: () => void;
   onError?: (errors?: GraphQLErrors) => void;
 };
 
-const MIGRATE_CHANNEL_TO_LIVEPEER_MUTATION = gql`
-  mutation MigrateChannelToLivepeer($data: MigrateChannelToLivepeerInput!) {
-    migrateChannelToLivepeer(data: $data) {
+const DELETE_CHANNEL_MUTATION = gql`
+  mutation SoftDeleteChannel($data: SoftDeleteChannelInput!) {
+    softDeleteChannel(data: $data) {
       id
       streamKey
       livepeerPlaybackId
       livepeerStreamId
       slug
+      name
+      description
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
     }
   }
 `;
 
-const useMigrateChannelToLivepeer = ({ onError }: Props) => {
+const useSoftDeleteChannel = ({ onSuccess, onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    MigrateChannelToLivepeerMutation,
-    MigrateChannelToLivepeerMutationVariables
-  >(MIGRATE_CHANNEL_TO_LIVEPEER_MUTATION);
+    SoftDeleteChannelMutation,
+    SoftDeleteChannelMutationVariables
+  >(DELETE_CHANNEL_MUTATION);
 
-  const migrateChannelToLivepeer = useCallback(
+  const softDeleteChannel = useCallback(
     async (data) => {
       try {
         setLoading(true);
@@ -39,15 +48,15 @@ const useMigrateChannelToLivepeer = ({ onError }: Props) => {
           variables: {
             data: {
               slug: data.slug,
-              canRecord: data.canRecord,
             },
           },
         });
 
-        const res = mutationResult?.data?.migrateChannelToLivepeer;
+        const res = mutationResult?.data?.softDeleteChannel;
         /* eslint-disable no-console */
         if (res) {
-          console.log("migrateChannelToLivepeer success");
+          console.log("softDeleteChannel success");
+          onSuccess && onSuccess();
         } else {
           onError && onError();
         }
@@ -56,13 +65,13 @@ const useMigrateChannelToLivepeer = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("migrateChannelToLivepeer", JSON.stringify(e, null, 2));
+        console.log("softDeleteChannel", JSON.stringify(e, null, 2));
       }
     },
     [mutate, onError]
   );
 
-  return { migrateChannelToLivepeer, loading };
+  return { softDeleteChannel, loading };
 };
 
-export default useMigrateChannelToLivepeer;
+export default useSoftDeleteChannel;

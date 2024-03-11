@@ -23,7 +23,7 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 
 export const ChatClip = () => {
   const { user, userAddress } = useUser();
-  const { isStandalone } = useUserAgent()
+  const { isStandalone } = useUserAgent();
   const { chat } = useChannelContext();
   const { clipping, addToChatbot } = chat;
   const {

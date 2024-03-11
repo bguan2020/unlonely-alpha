@@ -18,7 +18,7 @@ export const resolvers = {
       if (!ctx.user) {
         throw new AuthenticationError("User is not authenticated");
       }
-      return baseLeaderboardService.postBaseLeaderboard(data, ctx);
+      return baseLeaderboardService.postBaseLeaderboard(data, ctx.user, ctx);
     },
   },
   BaseLeaderboard: {

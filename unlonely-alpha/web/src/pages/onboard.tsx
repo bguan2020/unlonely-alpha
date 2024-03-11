@@ -263,7 +263,6 @@ const LoggedInOnboard = () => {
       try {
         const res = await postChannel({
           slug: newSlug,
-          ownerAddress: user.address,
           name: newName,
           description: newDescription,
           canRecord: newCanRecord,

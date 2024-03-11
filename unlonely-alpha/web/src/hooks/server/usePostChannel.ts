@@ -3,29 +3,35 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
-import { PostChannelMutation, PostChannelMutationVariables } from "../../generated/graphql";
+import {
+  PostChannelMutation,
+  PostChannelMutationVariables,
+} from "../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
 const POST_CHANNEL_MUTATION = gql`
-    mutation PostChannel($data: PostChannelInput!) {
-      postChannel(data: $data) {
-        id
-        streamKey
-        livepeerPlaybackId
-        livepeerStreamId
-        slug
-        name
-        description
-      }
+  mutation PostChannel($data: PostChannelInput!) {
+    postChannel(data: $data) {
+      id
+      streamKey
+      livepeerPlaybackId
+      livepeerStreamId
+      slug
+      name
+      description
     }
+  }
 `;
 
 const usePostChannel = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<PostChannelMutation, PostChannelMutationVariables>(POST_CHANNEL_MUTATION);
+  const [mutate] = useAuthedMutation<
+    PostChannelMutation,
+    PostChannelMutationVariables
+  >(POST_CHANNEL_MUTATION);
 
   const postChannel = useCallback(
     async (data) => {
@@ -35,7 +41,6 @@ const usePostChannel = ({ onError }: Props) => {
           variables: {
             data: {
               slug: data.slug,
-              ownerAddress: data.ownerAddress,
               name: data.name,
               description: data.description,
               canRecord: data.canRecord,

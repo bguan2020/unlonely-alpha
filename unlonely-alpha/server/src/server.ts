@@ -42,12 +42,10 @@ const startServer = async () => {
 
   // force redeploy
 
-  httpServer.listen(process.env.PORT || 4000, () =>
-    {
-      console.info(`Server started on port ${process.env.PORT || 4000}`);
-      // watchBlocks();
-  }
-  );
+  httpServer.listen(process.env.PORT || 4000, () => {
+    console.info(`Server started on port ${process.env.PORT || 4000}`);
+    // watchBlocks();
+  });
 };
 
 startServer();
