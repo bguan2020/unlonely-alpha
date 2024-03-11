@@ -9,7 +9,7 @@ import express from "express";
 
 import { getContext } from "./context";
 import graphqlSchema from "./entities/graphqlSchema";
-import { watchBlocks } from "./utils/watchBlock";
+// import { watchBlocks } from "./utils/watchBlock";
 
 const app = express();
 app.use(cors());
@@ -45,7 +45,7 @@ const startServer = async () => {
   httpServer.listen(process.env.PORT || 4000, () =>
     {
       console.info(`Server started on port ${process.env.PORT || 4000}`);
-      watchBlocks();
+      // watchBlocks();
   }
   );
 };

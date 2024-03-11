@@ -44,7 +44,7 @@ import useUserAgent from "../hooks/internal/useUserAgent";
 import { BiRefresh } from "react-icons/bi";
 import { truncateValue } from "../utils/tokenDisplayFormatting";
 
-const REQUIRED_NUMBER_OF_VIBES = 500;
+const REQUIRED_NUMBER_OF_VIBES = 0;
 
 const SLUG_MAX_CHARS = 25;
 
