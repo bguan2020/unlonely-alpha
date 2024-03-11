@@ -147,9 +147,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const getChannelFeedData = async () => {
       const pathnameAccepted =
-        router.pathname.startsWith("/claim") ||
-        router.pathname === "/" ||
-        router.pathname.startsWith("/onboard");
+        router.pathname.startsWith("/claim") || router.pathname === "/";
       if (!dataChannels && pathnameAccepted) getChannelFeed();
     };
     getChannelFeedData();
