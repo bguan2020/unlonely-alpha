@@ -127,6 +127,7 @@ export type ChannelFeedInput = {
 
 export type ChannelSearchInput = {
   containsSlug?: InputMaybe<Scalars["Boolean"]>;
+  includeSoftDeletedChannels?: InputMaybe<Scalars["Boolean"]>;
   limit?: InputMaybe<Scalars["Int"]>;
   query?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;

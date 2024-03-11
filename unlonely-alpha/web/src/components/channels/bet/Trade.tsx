@@ -773,13 +773,7 @@ const Trade = () => {
   ]);
 
   return (
-    <Flex
-      direction="column"
-      height="100%"
-      position={"relative"}
-      gap="10px"
-      data-tour="s-step-3"
-    >
+    <Flex direction="column" height="100%" position={"relative"} gap="10px">
       {tradeLoading && (
         <Text fontSize="12px" color="#1cfff0" position="absolute" top="-15px">
           <Spinner size="xs" /> updating interface...

@@ -23,7 +23,6 @@ import theme from "../styles/theme";
 import { NetworkProvider } from "../hooks/context/useNetwork";
 import { CacheProvider } from "../hooks/context/useCache";
 import { TourProvider } from "@reactour/tour";
-import Link from "next/link";
 
 const tourStyles = {
   highlightedArea: (base: any, { x, y }: any) => ({
@@ -36,6 +35,7 @@ const tourStyles = {
     ...base,
     color: "white",
     background: "#0d9f08",
+    opacity: 0,
   }),
   popover: (base: any) => ({
     ...base,
@@ -43,6 +43,7 @@ const tourStyles = {
     backgroundColor: "#2d2645",
     borderRadius: 15,
   }),
+  maskWrapper: (base: any) => ({ ...base, color: "#131323" }),
 };
 
 export const streamerTourSteps = [
@@ -51,9 +52,10 @@ export const streamerTourSteps = [
     content: () => {
       return (
         <Flex direction="column" gap="10px">
-          <Text>Stream directly using the broadcaster here!</Text>
+          <Text>go live right now</Text>
           <Text>
-            Or if you using a streaming software, get your stream key here!
+            be sure to give camera and microphone permissions (you can always
+            keep the camera off if you don't want to be on camera)
           </Text>
         </Flex>
       );
@@ -64,8 +66,8 @@ export const streamerTourSteps = [
     content: () => {
       return (
         <Flex direction="column" gap="10px">
-          <Text>What is your stream about? Give it a title!</Text>
-          <Text>Provide extra details in the description!</Text>
+          <Text>screenshare using this button</Text>
+          <Text>click again to end screenshare</Text>
         </Flex>
       );
     },
@@ -73,85 +75,28 @@ export const streamerTourSteps = [
   {
     selector: '[data-tour="s-step-3"]',
     content:
-      "If you want to create bets during streams for viewers to vote on (& earn 5% fees on all voting transactions), DM @brianguan98 for access!",
+      "if you don't want to stream directly from unlonely, you can use OBS or another streaming software. here's your stream key & custom RTMP URL",
   },
   {
     selector: '[data-tour="s-step-4"]',
-    content:
-      "You can manage chat commands here! Great for FAQs or other helpful information!",
+    content: "give your stream a title & description",
   },
   {
     selector: '[data-tour="s-step-5"]',
-    content:
-      "Add upcoming stream(s) to our calendar to show up on our home page. Include your channel URL for extra visibility!",
-  },
-  {
-    selector: '[data-tour="s-step-6"]',
-    content:
-      "When you're live, send notifications to everyone subscribed to your channel on mobile!",
-  },
-  {
-    selector: '[data-tour="s-step-7"]',
     content: () => {
       return (
         <Flex direction="column" gap="10px">
           <Text>
-            You can see your chat moderators here! Great for keeping your chat
-            in check!
+            schedule your first stream by adding a new event to lu.ma/unlonely
+            to show up on our home page
           </Text>
           <Text>
-            You can also add new moderators or ban users by clicking on them in
-            the chat!
+            pro tip: include your channel URL directly in the event description
+            for extra visibility!
           </Text>
         </Flex>
       );
     },
-  },
-  {
-    selector: '[data-tour="s-step-8"]',
-    content:
-      "Viewers who purchase a VIP badge and chat moderators get access to the VIP only chat. As the channel owner, you are automatically a VIP!",
-  },
-  {
-    selector: '[data-tour="s-step-9"]',
-    content: () => {
-      return (
-        <Flex direction="column" gap="10px">
-          <Text>
-            For ideas on how to leverage $VIBES in your content, please speak
-            with{" "}
-            <Link
-              href={"https://calendly.com/grace-unlonely/30min"}
-              target="_blank"
-            >
-              <Text as="span" color="#3cd8ff" textDecoration={"underline"}>
-                Grace
-              </Text>
-            </Link>
-            .
-          </Text>
-          <Text>You earn fees from transactions made on your channel!</Text>
-        </Flex>
-      );
-    },
-  },
-  {
-    selector: '[data-tour="s-step-10"]',
-    content: () => {
-      return (
-        <Flex direction="column" gap="10px">
-          <Text>
-            We have more options here where you can update your socials here
-            (ENS, PFP, Farcaster), claim payouts, and bridge ETH to base!
-          </Text>
-        </Flex>
-      );
-    },
-  },
-  {
-    selector: '[data-tour="s-step-11"]',
-    content:
-      "To view these steps again later in the future, click this button!",
   },
 ];
 

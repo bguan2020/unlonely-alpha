@@ -338,7 +338,6 @@ const ChatForm = ({
                   <Popover trigger="hover" placement="top" openDelay={500}>
                     <PopoverTrigger>
                       <IconButton
-                        data-tour="s-step-4"
                         color="white"
                         icon={<GiTalk size={20} />}
                         bg="transparent"
@@ -411,7 +410,6 @@ const ChatForm = ({
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
-                          data-tour="s-step-11"
                           color="white"
                           icon={<IoIosHelpCircle size={20} />}
                           bg="transparent"

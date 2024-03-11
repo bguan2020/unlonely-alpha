@@ -66,7 +66,6 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
               </Flex>
             </OuterBorder>
             <OuterBorder
-              data-tour="s-step-8"
               cursor={"pointer"}
               type={BorderType.OCEAN}
               zIndex={selectedTab === "vip" ? 4 : 2}
@@ -141,7 +140,6 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                     <Popover trigger="hover" placement="bottom" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
-                          data-tour="s-step-6"
                           _focus={{}}
                           _active={{}}
                           _hover={{
@@ -168,7 +166,6 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
                     <Popover trigger="hover" placement="bottom" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
-                          data-tour="s-step-7"
                           _focus={{}}
                           _active={{}}
                           _hover={{

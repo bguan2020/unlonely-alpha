@@ -370,7 +370,11 @@ const LoggedInOnboard = () => {
       }
       const res = await getChannelSearchResults({
         variables: {
-          data: { query: newSlug, slugOnly: true },
+          data: {
+            query: newSlug,
+            slugOnly: true,
+            includeSoftDeletedChannels: true,
+          },
         },
       });
       setLoading(false);
@@ -463,21 +467,26 @@ const LoggedInOnboard = () => {
                 <Text fontSize="11px" color="#c2c2c2">
                   how will your viewers search for you? (only A-Z, 0-9)
                 </Text>
-                <Tooltip
-                  label={handleErrorMessage}
-                  placement="bottom"
-                  isOpen={handleErrorMessage !== undefined}
-                  bg="red.600"
-                >
-                  <Input
-                    placeholder={"channel URL handle"}
-                    variant={isSlugAvailable ? "glow" : "redGlow"}
-                    onChange={(e) =>
-                      setNewSlug(alphanumericInput(e.target.value))
-                    }
-                    value={newSlug}
-                  />
-                </Tooltip>
+                <Flex alignItems="center" gap="5px">
+                  <Text color="#17d058" fontSize="12px">
+                    unlonely.app/channels/
+                  </Text>
+                  <Tooltip
+                    label={handleErrorMessage}
+                    placement="bottom"
+                    isOpen={handleErrorMessage !== undefined}
+                    bg="red.600"
+                  >
+                    <Input
+                      placeholder={"brian"}
+                      variant={isSlugAvailable ? "glow" : "redGlow"}
+                      onChange={(e) =>
+                        setNewSlug(alphanumericInput(e.target.value))
+                      }
+                      value={newSlug}
+                    />
+                  </Tooltip>
+                </Flex>
               </Flex>
               {amount_vibes_needed_bigint > BigInt(0) && (
                 <Flex direction={"column"} gap="2px">

@@ -175,6 +175,7 @@ export const typeDef = gql`
     limit: Int
     containsSlug: Boolean
     slugOnly: Boolean
+    includeSoftDeletedChannels: Boolean
   }
 
   input UpdateChannelAllowNfcsInput {

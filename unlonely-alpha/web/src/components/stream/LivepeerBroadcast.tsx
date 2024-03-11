@@ -11,7 +11,7 @@ import {
 import * as Broadcast from "@livepeer/react/broadcast";
 import { getIngest } from "@livepeer/react/external";
 import { memo, forwardRef } from "react";
-import { Flex, Spinner } from "@chakra-ui/react";
+import { Flex, Spinner, Text } from "@chakra-ui/react";
 import { CheckIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 
@@ -71,14 +71,20 @@ const LivepeerBroadcast = memo(
                       gap: 15,
                     }}
                   >
-                    <Broadcast.EnabledTrigger
-                      style={{
-                        width: 25,
-                        height: 25,
-                      }}
-                    >
+                    <Broadcast.EnabledTrigger>
                       <Broadcast.EnabledIndicator asChild matcher={false}>
-                        <PlayIcon />
+                        {!isStandalone ? (
+                          <Flex
+                            borderRadius={"15px"}
+                            bg="#2550b6"
+                            p="4px"
+                            data-tour="s-step-1"
+                          >
+                            <Text>go live</Text>
+                          </Flex>
+                        ) : (
+                          <PlayIcon />
+                        )}
                       </Broadcast.EnabledIndicator>
                       <Broadcast.EnabledIndicator
                         asChild
@@ -86,14 +92,20 @@ const LivepeerBroadcast = memo(
                           color: "#ff6868",
                         }}
                       >
-                        <StopIcon />
+                        {!isStandalone ? (
+                          <Flex borderRadius={"15px"} bg="#680c0c" p="4px">
+                            <Text>end stream</Text>
+                          </Flex>
+                        ) : (
+                          <StopIcon />
+                        )}
                       </Broadcast.EnabledIndicator>
                     </Broadcast.EnabledTrigger>
 
                     <Broadcast.VideoEnabledTrigger
                       style={{
-                        width: 25,
-                        height: 25,
+                        width: 30,
+                        height: 30,
                       }}
                     >
                       <Broadcast.VideoEnabledIndicator
@@ -112,8 +124,8 @@ const LivepeerBroadcast = memo(
 
                     <Broadcast.AudioEnabledTrigger
                       style={{
-                        width: 25,
-                        height: 25,
+                        width: 30,
+                        height: 30,
                       }}
                     >
                       <Broadcast.AudioEnabledIndicator
@@ -132,9 +144,10 @@ const LivepeerBroadcast = memo(
 
                     <Broadcast.ScreenshareTrigger
                       style={{
-                        width: 25,
-                        height: 25,
+                        width: 30,
+                        height: 30,
                       }}
+                      data-tour="s-step-2"
                     >
                       <Broadcast.ScreenshareIndicator asChild matcher={false}>
                         <StartScreenshareIcon />
@@ -192,7 +205,7 @@ const LivepeerBroadcast = memo(
                       borderRadius: 9999,
                     }}
                   />
-                  <span style={{ fontSize: 22, userSelect: "none" }}>LIVE</span>
+                  <span style={{ fontSize: 30, userSelect: "none" }}>LIVE</span>
                 </Broadcast.StatusIndicator>
 
                 <Broadcast.StatusIndicator
@@ -226,7 +239,7 @@ const LivepeerBroadcast = memo(
                       borderRadius: 9999,
                     }}
                   />
-                  <span style={{ fontSize: 22, userSelect: "none" }}>
+                  <span style={{ fontSize: 30, userSelect: "none" }}>
                     NOT LIVE
                   </span>
                 </Broadcast.StatusIndicator>

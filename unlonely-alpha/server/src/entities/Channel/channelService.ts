@@ -59,24 +59,6 @@ const createLivepeerStream = async (name: string, canRecord?: boolean) => {
   }
 };
 
-const terminateLivepeerStream = async (streamId: string) => {
-  const headers = {
-    Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
-    "Content-Type": "application/json",
-  };
-  try {
-    const terminationResponse = await axios.delete(
-      `https://livepeer.studio/api/stream/${streamId}`,
-      { headers }
-    );
-    console.log("terminateLivepeerStream response", terminationResponse.data);
-    return terminationResponse.data;
-  } catch (error: any) {
-    console.log("terminateLivepeerStream error", error);
-    return null;
-  }
-};
-
 export interface IPostChannelInput {
   slug: string;
   name?: string;
@@ -145,7 +127,6 @@ export const softDeleteChannel = async (
     const existingChannel = await ctx.prisma.channel.findFirst({
       where: {
         slug: data.slug,
-        softDelete: false,
       },
     });
 
@@ -463,17 +444,21 @@ export interface IGetChannelSearchResultsInput {
   take?: number;
   containsSlug?: boolean;
   slugOnly?: boolean;
+  includeSoftDeletedChannels?: boolean;
 }
 
 export const getChannelSearchResults = async (
   data: IGetChannelSearchResultsInput,
   ctx: Context
 ) => {
+
+  const softDeleteCondition = data.includeSoftDeletedChannels ? {} : { softDelete: false };
+
   if (data.slugOnly) {
     const uniqueResult = await ctx.prisma.channel.findFirst({
       where: {
         slug: data.query,
-        softDelete: false,
+        ...softDeleteCondition,
       },
     });
     // Ensure the result is always an array
@@ -484,7 +469,7 @@ export const getChannelSearchResults = async (
     return await ctx.prisma.channel.findMany({
       where: {
         slug: { contains: data.query },
-        softDelete: false,
+        ...softDeleteCondition,
       },
       skip: data.skip,
       take: data.take,
@@ -500,7 +485,7 @@ export const getChannelSearchResults = async (
             { description: { contains: data.query } },
           ],
         },
-        { softDelete: false },
+        softDeleteCondition,
       ],
     },
     skip: data.skip,

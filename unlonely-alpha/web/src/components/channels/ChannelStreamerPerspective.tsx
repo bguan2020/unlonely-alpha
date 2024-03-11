@@ -48,7 +48,6 @@ const ChannelStreamerPerspective = ({
 
   const [showStreamKey, setShowStreamKey] = useState(false);
   const [showRTMPIngest, setShowRTMPIngest] = useState(false);
-  const [showSRTIngest, setShowSRTIngest] = useState(false);
 
   const { updateLivepeerStreamData, loading: updateLivepeerStreamDataLoading } =
     useUpdateLivepeerStreamData({});
@@ -112,7 +111,6 @@ const ChannelStreamerPerspective = ({
       direction={"column"}
       gap="10px"
       h={!isStandalone ? "80vh" : "25vh"}
-      data-tour="s-step-1"
       position={isStandalone ? "fixed" : "relative"}
     >
       {!(isStandalone && !playbackId) && (
@@ -143,6 +141,7 @@ const ChannelStreamerPerspective = ({
           h={playbackId ? ["25%", "25%", "25%", "10%"] : "20%"}
           width="100%"
           justifyContent={"center"}
+          data-tour="s-step-3"
         >
           {playbackId && streamKey ? (
             <Flex
@@ -259,60 +258,6 @@ const ChannelStreamerPerspective = ({
                     />
                   </Flex>
                 </Flex>
-                <Flex>
-                  <Flex direction="column" gap="5px">
-                    <Text fontSize="12px">SRT ingest</Text>
-                    <input
-                      style={{
-                        border: "1px solid #5e5e5e",
-                        background: "transparent",
-                        color: "#a3a3a3",
-                        padding: "5px",
-                        height: "20px",
-                        fontSize: "11px",
-                      }}
-                      readOnly
-                      type={showSRTIngest ? "text" : "password"}
-                      value={`srt://rtmp.livepeer.com:2935?streamid=${streamKey}`}
-                    />
-                  </Flex>
-                  <Flex direction="column" gap="5px">
-                    <IconButton
-                      aria-label="show-srt-ingest"
-                      color="white"
-                      icon={
-                        showSRTIngest ? (
-                          <IoMdEye size="20" />
-                        ) : (
-                          <IoMdEyeOff size="20" />
-                        )
-                      }
-                      height="20px"
-                      bg="transparent"
-                      _focus={{}}
-                      _active={{}}
-                      _hover={{}}
-                      onClick={() => setShowSRTIngest((prev) => !prev)}
-                    />
-                    <IconButton
-                      aria-label="copy-srt-ingest"
-                      color="white"
-                      icon={<FaRegCopy />}
-                      height="20px"
-                      minWidth={"20px"}
-                      bg="transparent"
-                      _focus={{}}
-                      _active={{}}
-                      _hover={{}}
-                      onClick={() => {
-                        copy(
-                          `srt://rtmp.livepeer.com:2935?streamid=${streamKey}`
-                        );
-                        handleCopy();
-                      }}
-                    />
-                  </Flex>
-                </Flex>
               </Flex>
               <Flex
                 gap="0.5rem"
@@ -344,7 +289,7 @@ const ChannelStreamerPerspective = ({
                   >
                     <PopoverArrow bg="#343dbb" />
                     <Text fontSize="12px" textAlign={"center"}>
-                      toggle recording
+                      save streams as recordings
                     </Text>
                   </PopoverContent>
                 </Popover>
@@ -372,7 +317,7 @@ const ChannelStreamerPerspective = ({
                   >
                     <PopoverArrow bg="#343dbb" />
                     <Text fontSize="12px" textAlign={"center"}>
-                      toggle clipping
+                      allow viewers to clip highlights from stream
                     </Text>
                   </PopoverContent>
                 </Popover>
@@ -512,7 +457,7 @@ const MigrateToLivePeer = () => {
         ) : (
           <>
             <Text textAlign={"center"}>
-              Unlonely had recently upgraded its livestreaming framework.
+              Unlonely has recently upgraded its livestreaming framework.
             </Text>
             <Text textAlign={"center"}>
               Please click the button below to migrate.
@@ -527,7 +472,7 @@ const MigrateToLivePeer = () => {
               }}
               onClick={handleMigrate}
             >
-              OK, let's see it
+              Migrate to Livepeer
             </Button>
           </>
         )}

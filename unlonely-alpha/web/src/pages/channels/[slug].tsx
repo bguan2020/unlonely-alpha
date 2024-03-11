@@ -45,6 +45,7 @@ import { TransactionModalTemplate } from "../../components/transactions/Transact
 import { useTour } from "@reactour/tour";
 import { streamerTourSteps } from "../_app";
 import { NEW_STREAMER_URL_QUERY_PARAM } from "../../constants";
+import Link from "next/link";
 
 const ChannelDetail = ({
   channelData,
@@ -105,11 +106,19 @@ const DesktopPage = ({
 
   const router = useRouter();
 
-  const { setIsOpen: setIsTourOpen, setSteps: setTourSteps } = useTour();
   const [welcomeStreamer, setWelcomeStreamer] = useState(false);
-  const [welcomeStreamerModal, setWelcomeStreamerModal] = useState(false);
+  const [welcomeStreamerModal, setWelcomeStreamerModal] = useState<
+    "welcome" | "off" | "bye"
+  >("off");
+  const [startedWelcomeTour, setStartedWelcomeTour] = useState(false);
   const [livepeerData, setLivepeerData] =
     useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
+
+  const {
+    setIsOpen: setIsTourOpen,
+    setSteps: setTourSteps,
+    isOpen: isTourOpen,
+  } = useTour();
 
   const { userAddress, walletIsConnected } = useUser();
 
@@ -143,7 +152,7 @@ const DesktopPage = ({
 
   useEffect(() => {
     if (router.query[NEW_STREAMER_URL_QUERY_PARAM] && isOwner) {
-      setWelcomeStreamerModal(true);
+      setWelcomeStreamerModal("welcome");
       setWelcomeStreamer(true);
       const newPath = router.pathname;
       const newQuery = { ...router.query };
@@ -233,56 +242,95 @@ const DesktopPage = ({
     handleTotalBadges(truncateValue(Number(vipBadgeSupply), 0));
   }, [vipBadgeSupply]);
 
+  useEffect(() => {
+    if (!isTourOpen && welcomeStreamer && startedWelcomeTour)
+      setWelcomeStreamerModal("bye");
+  }, [isTourOpen, welcomeStreamer, startedWelcomeTour]);
+
   return (
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}
       <TransactionModalTemplate
-        isOpen={welcomeStreamerModal}
-        handleClose={() => setWelcomeStreamerModal(false)}
+        isOpen={welcomeStreamerModal !== "off"}
+        handleClose={() => setWelcomeStreamerModal("off")}
         cannotClose
         hideFooter
       >
-        <Flex direction="column" gap="10px">
-          <Text fontSize={"2rem"} textAlign="center" fontFamily="LoRes15">
-            Welcome streamer!
-          </Text>
-          <Text fontSize={"1rem"} textAlign="center">
-            You can now start your stream and interact with your viewers
-          </Text>
-          <Text textAlign="center">
-            We've also prepared a small guide for how to use this page!
-          </Text>
-          <Button
-            bg="#cd34e8"
-            color={"white"}
-            _focus={{}}
-            _hover={{
-              transform: "scale(1.05)",
-            }}
-            _active={{}}
-            onClick={() => {
-              setWelcomeStreamerModal(false);
-              setTourSteps?.(streamerTourSteps);
-              setIsTourOpen(true);
-            }}
-          >
-            Start tour
-          </Button>
-          <Button
-            bg="transparent"
-            color={"#a3a3a3"}
-            _focus={{}}
-            _hover={{
-              transform: "scale(1.05)",
-            }}
-            _active={{}}
-            onClick={() => {
-              setWelcomeStreamerModal(false);
-            }}
-          >
-            No thanks
-          </Button>
-        </Flex>
+        {welcomeStreamerModal === "welcome" && (
+          <Flex direction="column" gap="10px">
+            <Text fontSize={"2rem"} textAlign="center" fontFamily="LoRes15">
+              Welcome streamer!
+            </Text>
+            <Text fontSize={"1rem"} textAlign="center">
+              You can now start your stream and interact with your viewers
+            </Text>
+            <Text textAlign="center">
+              We've also prepared a small guide for how to use this page!
+            </Text>
+            <Button
+              bg="#cd34e8"
+              color={"white"}
+              _focus={{}}
+              _hover={{
+                transform: "scale(1.05)",
+              }}
+              _active={{}}
+              onClick={() => {
+                setWelcomeStreamerModal("off");
+                setTourSteps?.(streamerTourSteps);
+                setIsTourOpen(true);
+                setStartedWelcomeTour(true);
+              }}
+            >
+              Start tour
+            </Button>
+            <Button
+              bg="transparent"
+              color={"#a3a3a3"}
+              _focus={{}}
+              _hover={{
+                transform: "scale(1.05)",
+              }}
+              _active={{}}
+              onClick={() => {
+                setWelcomeStreamerModal("off");
+                setWelcomeStreamer(false);
+              }}
+            >
+              No thanks
+            </Button>
+          </Flex>
+        )}
+        {welcomeStreamerModal === "bye" && (
+          <Flex direction="column" gap="10px">
+            <Text fontSize={"1rem"} textAlign="center">
+              you're ready to start streaming!
+            </Text>
+            <Text fontSize={"1rem"} textAlign="center">
+              check out the rest of our features{" "}
+              <Link href="https://bit.ly/unlonelyFAQs" target="_blank">
+                <Text as="span" textDecoration={"underline"} color="#3cd8ff">
+                  here
+                </Text>
+              </Link>
+            </Text>
+            <Button
+              onClick={() => {
+                setWelcomeStreamerModal("off");
+                setWelcomeStreamer(false);
+              }}
+              color="white"
+              bg={"#0767ac"}
+              _focus={{}}
+              _hover={{
+                transform: "scale(1.05)",
+              }}
+              _active={{}}
+            >
+              close
+            </Button>
+          </Flex>
+        )}
       </TransactionModalTemplate>
       <AppLayout
         title={channelSSR?.name}
@@ -345,7 +393,6 @@ const DesktopPage = ({
                   justifyContent={"space-between"}
                   bg="#131323"
                   p="5px"
-                  data-tour="s-step-9"
                 >
                   <VibesTokenInterface ablyChannel={chat.channel} />
                 </Flex>

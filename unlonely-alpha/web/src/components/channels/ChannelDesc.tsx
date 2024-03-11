@@ -78,7 +78,7 @@ const ChannelDesc = () => {
         gap={["4px", "16px"]}
         width="100%"
         pl="30px"
-        data-tour="s-step-2"
+        data-tour="s-step-4"
       >
         <Flex
           maxH="400px"
