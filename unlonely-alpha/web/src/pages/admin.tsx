@@ -3,7 +3,6 @@ import {
   Flex,
   Input,
   Spinner,
-  Switch,
   Text,
   useToast,
   VStack,
@@ -40,23 +39,17 @@ const AdminContent = () => {
   const toast = useToast();
 
   const [channelSlugToDelete, setChannelSlugToDelete] = useState<string>("");
-  const [softDeleteChannelSlug, setSoftDeleteChannelSlug] =
-    useState<boolean>(true);
-
   const { softDeleteChannel, loading: softDeleteChannelLoading } =
     useSoftDeleteChannel({
       onSuccess: () => {
         toast({
           title: "Success",
-          description: softDeleteChannelSlug
-            ? "Channel soft deleted"
-            : "Channel deleted",
+          description: "Channel soft deleted",
           status: "success",
           duration: 5000,
           isClosable: true,
         });
         setChannelSlugToDelete("");
-        setSoftDeleteChannelSlug(true);
       },
       onError: () => {
         toast({
@@ -85,13 +78,6 @@ const AdminContent = () => {
             onChange={(e) => setChannelSlugToDelete(e.target.value)}
           />
         </VStack>
-        <VStack>
-          <Text>soft delete?</Text>
-          <Switch
-            isChecked={softDeleteChannelSlug}
-            onChange={() => setSoftDeleteChannelSlug((prev) => !prev)}
-          />
-        </VStack>
         {softDeleteChannelLoading ? (
           <Spinner />
         ) : (
@@ -104,7 +90,6 @@ const AdminContent = () => {
             onClick={() =>
               softDeleteChannel({
                 slug: channelSlugToDelete,
-                softDelete: softDeleteChannelSlug,
               })
             }
             isDisabled={channelSlugToDelete.length === 0}
