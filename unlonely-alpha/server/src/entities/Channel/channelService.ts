@@ -796,6 +796,15 @@ export const getChannelNfcs = async ({ id }: { id: number }, ctx: Context) => {
   });
 };
 
+export const getChannelsByOwnerAddress = async (
+  { ownerAddress }: { ownerAddress: string },
+  ctx: Context
+) => {
+  return ctx.prisma.channel.findMany({
+    where: { ownerAddr: ownerAddress },
+  });
+}
+
 export const getChannelSideBets = async (
   { id }: { id: number },
   ctx: Context

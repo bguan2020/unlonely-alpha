@@ -28,6 +28,13 @@ export const resolvers = {
     ) {
       return channelService.getChannelSearchResults(data, ctx);
     },
+    getChannelsByOwnerAddress(
+      _: any,
+      { ownerAddress }: { ownerAddress: string },
+      ctx: Context
+    ) {
+      return channelService.getChannelsByOwnerAddress({ ownerAddress }, ctx);
+    },
     getLivepeerStreamData(
       _: any,
       { data }: { data: channelService.IGetLivepeerStreamDataInput }
