@@ -29,8 +29,8 @@ const startServer = async () => {
   const apolloServer = new ApolloServer({
     schema: graphqlSchema,
     context: getContext,
-    // introspection: process.env.DEVELOPMENT ? true : false,
-    introspection: true,
+    introspection: process.env.DEVELOPMENT ? true : false,
+    // introspection: true,
   });
 
   await apolloServer.start();
