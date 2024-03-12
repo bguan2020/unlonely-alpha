@@ -87,7 +87,7 @@ const LivepeerBroadcast = memo(
                           <Flex
                             borderRadius={"15px"}
                             bg="#2550b6"
-                            p="4px"
+                            p="8px"
                             data-tour="s-step-1"
                           >
                             <Text>go live</Text>

@@ -578,7 +578,7 @@ const LoggedInOnboard = () => {
             </Flex>
             <Flex direction={"column"} gap="18px">
               <Text fontSize="25px" fontFamily="LoRes15" color="#f5b6ff">
-                optional (can set later)
+                optional (can change later)
               </Text>
               <Flex direction={"column"} gap="2px">
                 <Flex alignItems={"center"} justifyContent={"space-between"}>
