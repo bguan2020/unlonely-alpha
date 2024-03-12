@@ -44,6 +44,7 @@ import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
 import ChannelList from "../components/channels/ChannelList";
 import VibesTokenInterface from "../components/chat/VibesTokenInterface";
+import HeroBanner from "../components/layout/HeroBanner";
 
 const FixedComponent = ({
   newHeightPercentage,
@@ -356,7 +357,7 @@ function DesktopPage({
             </DrawerContent>
           </Drawer>
           <Flex direction="column" gap={5}>
-            {/* <HeroBanner /> */}
+            <HeroBanner />
             {!sideBarBreakpoints && !loading && (
               <Flex justifyContent={"center"}>
                 <Button

@@ -1,48 +1,44 @@
-import { Flex, Text, Tooltip } from "@chakra-ui/react";
-import Link from "next/link";
+import { Button, Flex, Text } from "@chakra-ui/react";
 
 const HeroBanner = () => {
+  const redirectToNewChannelPage = () => {
+    window.open(`${window.location.origin}/onboard`, "_self");
+  };
+
   return (
-    <Flex direction="column" mt="20px" gap="10px">
-      <Text
-        fontSize={["40px", "55px", "70px"]}
-        fontFamily={"LoRes15"}
-        textAlign="center"
-      >
-        welcome to unlonely
-      </Text>
-      <Text
-        fontSize={["20px", "24px"]}
-        className="gradient-text"
-        textAlign="center"
-      >
-        your cozy space on the internet
-      </Text>
-      <Text textAlign="center" fontSize={["15px", "18px"]} fontStyle="italic">
-        new here? check out our{" "}
-        <span
-          style={{
-            cursor: "pointer",
-            textDecoration: "underline",
+    <Flex
+      mt="20px"
+      gap="10px"
+      h="30vh"
+      direction={["column", "column", "row"]}
+      alignItems={"center"}
+      justifyContent={"space-evenly"}
+      bg="rgba(0,0,0,0.5)"
+      p="10px"
+    >
+      <Flex direction="column">
+        <Text fontSize={["1rem", "3rem"]} fontWeight="bold">
+          Make a Channel.
+        </Text>
+        <Text fontSize={["1rem", "3rem"]} fontWeight="bold">
+          Start Streaming.
+        </Text>
+      </Flex>
+      <Flex direction="column">
+        <Button
+          _hover={{
+            transform: "scale(1.1)",
           }}
+          _active={{}}
+          _focus={{}}
+          onClick={redirectToNewChannelPage}
+          p={[4, 6, 8, 10]}
         >
-          <Link href={"https://bit.ly/unlonelyFAQs"} target="_blank" passHref>
-            FAQs
-          </Link>
-        </span>{" "}
-        and{" "}
-        <span
-          style={{
-            cursor: "pointer",
-            textDecoration: "underline",
-          }}
-        >
-          <Tooltip label="DM @gracewhiteguan on telegram a screenshot of your OBS setup and links to your socials to get your own channel">
-            start
-          </Tooltip>
-        </span>{" "}
-        your own channel today
-      </Text>
+          <Text fontSize={["1rem", "2rem"]} fontWeight="bold">
+            Create Channel
+          </Text>
+        </Button>
+      </Flex>
     </Flex>
   );
 };
