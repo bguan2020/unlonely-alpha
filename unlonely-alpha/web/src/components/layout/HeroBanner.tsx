@@ -8,24 +8,24 @@ const HeroBanner = () => {
   return (
     <Flex
       mt="20px"
-      gap="10px"
+      gap="4rem"
       h="35vh"
       direction={["column", "column", "row"]}
       alignItems={"center"}
-      justifyContent={"space-evenly"}
+      justifyContent={"center"}
       bg="rgba(0,0,0,0.5)"
       p="10px"
     >
       <Flex direction="column">
         <Text
-          fontSize={["2rem", "3rem", "3rem", "4rem"]}
+          fontSize={["2rem", "3rem", "3rem", "3.5rem"]}
           fontWeight="600"
           fontFamily="Inter"
         >
           Make a Channel.
         </Text>
         <Text
-          fontSize={["2rem", "3rem", "3rem", "4rem"]}
+          fontSize={["2rem", "3rem", "3rem", "3.5rem"]}
           fontWeight="600"
           fontFamily="Inter"
         >
@@ -46,7 +46,7 @@ const HeroBanner = () => {
             position={"relative"}
             _active={{}}
             _focus={{}}
-            p={[6, 8, 10, 12]}
+            p={[6, 6, 8, 10]}
           >
             <Image
               src="/images/sparkles.png"
@@ -55,7 +55,7 @@ const HeroBanner = () => {
               minWidth={["140%", "140%", "140%", "140%"]}
             />
             <Text
-              fontSize={["1rem", "2rem", "2srem", "3rem"]}
+              fontSize={["1rem", "2rem", "2rem", "2.5rem"]}
               fontFamily="LoRes15"
             >
               create channel

@@ -284,21 +284,6 @@ const DesktopPage = ({
             >
               Start tour
             </Button>
-            <Button
-              bg="transparent"
-              color={"#a3a3a3"}
-              _focus={{}}
-              _hover={{
-                transform: "scale(1.05)",
-              }}
-              _active={{}}
-              onClick={() => {
-                setWelcomeStreamerModal("off");
-                setWelcomeStreamer(false);
-              }}
-            >
-              No thanks
-            </Button>
           </Flex>
         )}
         {welcomeStreamerModal === "bye" && (

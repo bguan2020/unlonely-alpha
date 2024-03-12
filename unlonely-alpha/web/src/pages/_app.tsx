@@ -23,6 +23,7 @@ import theme from "../styles/theme";
 import { NetworkProvider } from "../hooks/context/useNetwork";
 import { CacheProvider } from "../hooks/context/useCache";
 import { TourProvider } from "@reactour/tour";
+import Link from "next/link";
 
 const tourStyles = {
   highlightedArea: (base: any, { x, y }: any) => ({
@@ -54,8 +55,8 @@ export const streamerTourSteps = [
         <Flex direction="column" gap="10px">
           <Text>go live right now</Text>
           <Text>
-            be sure to give camera and microphone permissions (you can always
-            keep the camera off if you don't want to be on camera)
+            allow camera & mic permissions (you can always turn either off later
+            if you prefer)
           </Text>
         </Flex>
       );
@@ -74,8 +75,25 @@ export const streamerTourSteps = [
   },
   {
     selector: '[data-tour="s-step-3"]',
-    content:
-      "if you don't want to stream directly from unlonely, you can use OBS or another streaming software. here's your stream key & custom RTMP URL",
+    content: () => {
+      return (
+        <Flex direction="column" gap="10px">
+          <Text>
+            if you don't want to stream directly from unlonely, you can use OBS
+            or another streaming software. here's your stream key & custom RTMP
+            URL
+          </Text>
+          <Text>
+            setup guide{" "}
+            <Link href="https://bit.ly/unlonelyOBSguide" target="_blank">
+              <Text as="span" textDecoration={"underline"} color="#3cd8ff">
+                here
+              </Text>
+            </Link>
+          </Text>
+        </Flex>
+      );
+    },
   },
   {
     selector: '[data-tour="s-step-4"]',
