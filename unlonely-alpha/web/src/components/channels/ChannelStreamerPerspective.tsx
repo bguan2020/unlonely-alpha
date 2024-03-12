@@ -56,7 +56,7 @@ const ChannelStreamerPerspective = ({
     useUpdateChannelAllowNfcs({});
 
   const streamKey = useMemo(() => {
-    return channelQueryData?.streamKey ?? "";
+    return channelQueryData?.streamKey;
   }, [channelQueryData]);
 
   const playbackId = useMemo(() => {
@@ -126,7 +126,7 @@ const ChannelStreamerPerspective = ({
               : "100%"
           }
         >
-          {playbackId ? (
+          {playbackId && streamKey ? (
             <LivepeerBroadcast streamKey={streamKey} />
           ) : (
             <StreamComponent isStreamer />
@@ -143,7 +143,12 @@ const ChannelStreamerPerspective = ({
           justifyContent={"center"}
           data-tour="s-step-3"
         >
-          {playbackId && streamKey ? (
+          {playbackId && !streamKey ? (
+            <Text fontSize="12px" color="white">
+              Your channel is currently missing some data, please wait as we
+              update it on our end.
+            </Text>
+          ) : playbackId && streamKey ? (
             <Flex
               gap="20px"
               width={"100%"}

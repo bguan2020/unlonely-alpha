@@ -219,5 +219,6 @@ export const typeDef = gql`
     updateChannelVibesTokenPriceRange(
       data: UpdateChannelVibesTokenPriceRangeInput!
     ): Channel
+    bulkLivepeerStreamIdMigration: UpdateManyResponse
   }
 `;
