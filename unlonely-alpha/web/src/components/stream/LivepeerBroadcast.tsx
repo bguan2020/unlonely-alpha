@@ -71,7 +71,17 @@ const LivepeerBroadcast = memo(
                       gap: 15,
                     }}
                   >
-                    <Broadcast.EnabledTrigger>
+                    <Broadcast.EnabledTrigger
+                      style={
+                        isStandalone
+                          ? {
+                              width: 30,
+                              height: 30,
+                              color: "#00fff2",
+                            }
+                          : {}
+                      }
+                    >
                       <Broadcast.EnabledIndicator asChild matcher={false}>
                         {!isStandalone ? (
                           <Flex
