@@ -13,9 +13,10 @@ import {
   PopoverArrow,
   Input,
 } from "@chakra-ui/react";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
 import { GiTalk } from "react-icons/gi";
+import { IoIosHelpCircle } from "react-icons/io";
 
 import {
   AblyChannelPromise,
@@ -30,6 +31,8 @@ import EmojiButton from "./emoji/EmojiButton";
 import ConnectWallet from "../navigation/ConnectWallet";
 import { ChatClip } from "./ChatClip";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useTour } from "@reactour/tour";
+import { streamerTourSteps } from "../../pages/_app";
 
 type Props = {
   sendChatMessage: (
@@ -54,6 +57,7 @@ const ChatForm = ({
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
   const { isStandalone } = useUserAgent();
+  const { setIsOpen: setIsTourOpen, setSteps: setTourSteps } = useTour();
 
   const toast = useToast();
   const { channel: channelContext, chat, leaderboard } = useChannelContext();
@@ -61,7 +65,7 @@ const ChatForm = ({
   const { clipping } = chat;
   const { handleIsClipUiOpen, loading: clipLoading } = clipping;
 
-  const { channelQueryData } = channelContext;
+  const { channelQueryData, channelDetails, channelRoles } = channelContext;
 
   const [messageText, setMessageText] = useState<string>("");
   const [commandsOpen, setCommandsOpen] = useState(false);
@@ -73,6 +77,12 @@ const ChatForm = ({
 
   const isOwner = address === channelQueryData?.owner.address;
 
+  const userIsModerator = useMemo(
+    () =>
+      channelRoles?.some((m) => m?.address === user?.address && m?.role === 2),
+    [user, channelRoles]
+  );
+
   const messageTextIsEmpty =
     messageText.trim().length === 0 || messageText.trim() === "";
 
@@ -82,24 +92,25 @@ const ChatForm = ({
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const currSenderStatus = useMemo(
+    () =>
+      userIsModerator
+        ? SenderStatus.MODERATOR
+        : isVipChat
+        ? SenderStatus.VIP
+        : SenderStatus.USER,
+    [isVipChat, userIsModerator]
+  );
+
   const focusInput = () => {
     inputRef.current?.focus();
   };
 
   const sendGif = (gif: string) => {
     if (!blastMode) {
-      sendChatMessage(
-        gif,
-        true,
-        isVipChat ? SenderStatus.VIP : SenderStatus.USER
-      );
+      sendChatMessage(gif, true, currSenderStatus);
     } else {
-      sendChatMessage(
-        gif,
-        true,
-        isVipChat ? SenderStatus.VIP : SenderStatus.USER,
-        `${InteractionType.BLAST}:`
-      );
+      sendChatMessage(gif, true, currSenderStatus, `${InteractionType.BLAST}:`);
       setBlastMode(false);
       setBlastDisabled(true);
       setTimeout(() => {
@@ -125,13 +136,13 @@ const ChatForm = ({
         sendChatMessage(
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
-          isVipChat ? SenderStatus.VIP : SenderStatus.USER
+          currSenderStatus
         );
       } else {
         sendChatMessage(
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
-          isVipChat ? SenderStatus.VIP : SenderStatus.USER,
+          currSenderStatus,
           `${InteractionType.BLAST}:`
         );
         setBlastMode(false);
@@ -152,13 +163,13 @@ const ChatForm = ({
         sendChatMessage(
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
-          isVipChat ? SenderStatus.VIP : SenderStatus.USER
+          currSenderStatus
         );
       } else {
         sendChatMessage(
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
-          isVipChat ? SenderStatus.VIP : SenderStatus.USER,
+          currSenderStatus,
           `${InteractionType.BLAST}:`
         );
         setBlastMode(false);
@@ -266,7 +277,7 @@ const ChatForm = ({
                           _active={{ transform: "scale(1.3)" }}
                           minWidth="auto"
                           onClick={() => {
-                            if (!channelQueryData?.allowNFCs) {
+                            if (!channelDetails?.allowNfcs) {
                               toast({
                                 title: "Clipping is disabled for this stream.",
                                 status: "warning",
@@ -395,6 +406,37 @@ const ChatForm = ({
                       </PopoverContent>
                     </Popover>
                   )}
+                  {isOwner && (
+                    <Popover trigger="hover" placement="top" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          color="white"
+                          icon={<IoIosHelpCircle size={20} />}
+                          bg="transparent"
+                          aria-label="react"
+                          _focus={{}}
+                          _hover={{ transform: "scale(1.15)" }}
+                          _active={{ transform: "scale(1.3)" }}
+                          onClick={() => {
+                            setTourSteps?.(streamerTourSteps);
+                            setIsTourOpen(true);
+                          }}
+                          minWidth="auto"
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#925800"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#925800" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          tour around the app!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                  )}
                   <EmojiButton
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
                     onSelectGif={(gif) => sendGif(gif)}
@@ -475,11 +517,7 @@ const ChatForm = ({
                     }}
                     onCommandClick={(text: string) => {
                       if (instantCommandSend && !text.includes("!chatbot")) {
-                        sendChatMessage(
-                          text,
-                          false,
-                          isVipChat ? SenderStatus.VIP : SenderStatus.USER
-                        );
+                        sendChatMessage(text, false, currSenderStatus);
                       } else {
                         focusInput();
                         setMessageText(text);

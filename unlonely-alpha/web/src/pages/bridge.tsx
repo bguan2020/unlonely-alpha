@@ -55,8 +55,6 @@ const BridgePage = () => {
     null
   );
   const [bridgeInProgress, setBridgeInProgress] = useState<boolean>(false);
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
-  const [estimatedWaitTime, setEstimatedWaitTime] = useState<number>(0);
 
   const [l1Signer, setL1Signer] = useState<ethers.Signer | undefined>(
     undefined
@@ -127,6 +125,7 @@ const BridgePage = () => {
           });
           await postBaseLeaderboard({
             amount: data.amount,
+            userAddress: user?.address,
           });
           setCount((prev) => prev + 1);
         } else {

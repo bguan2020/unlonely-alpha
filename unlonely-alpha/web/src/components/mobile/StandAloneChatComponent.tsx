@@ -9,15 +9,7 @@ import {
   Stack,
   Button,
 } from "@chakra-ui/react";
-import {
-  CSSProperties,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useLazyQuery } from "@apollo/client";
 import { BiSolidBellOff, BiSolidBellRing } from "react-icons/bi";
@@ -27,7 +19,6 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import ChannelDesc from "../channels/ChannelDesc";
 import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
-import { ADD_REACTION_EVENT } from "../../constants";
 import MessageList from "../chat/MessageList";
 import ChatForm from "../chat/ChatForm";
 import { GET_SUBSCRIPTION } from "../../constants/queries";
@@ -43,15 +34,7 @@ import VibesTokenInterface from "../chat/VibesTokenInterface";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
-const StandaloneChatComponent = ({
-  previewStream,
-  handleShowPreviewStream,
-  chat,
-}: {
-  previewStream?: boolean;
-  handleShowPreviewStream: () => void;
-  chat: ChatReturnType;
-}) => {
+const StandaloneChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { channel: channelContext, chat: chatInfo } = useChannelContext();
   const { userAddress } = useUser();
   const { channelQueryData } = channelContext;
@@ -208,11 +191,11 @@ const StandaloneChatComponent = ({
   return (
     <Flex
       direction="column"
-      h={!previewStream && isOwner ? "100vh" : "75vh"}
+      h={"75vh"}
       p="5px"
       id="chat"
       position={"relative"}
-      marginTop={!previewStream && isOwner ? "0" : "25vh"}
+      marginTop={"25vh"}
     >
       {chatChannel?.includes("channel") ? (
         <Flex justifyContent={"space-between"} py="2px">
@@ -250,7 +233,10 @@ const StandaloneChatComponent = ({
               }}
             >
               <Text fontSize="20px" cursor={"pointer"} color="#8793FF">
-                /{channelQueryData?.slug}
+                /
+                {(channelQueryData?.slug?.length ?? 0) > 10
+                  ? channelQueryData?.slug.substring(0, 10).concat("...")
+                  : channelQueryData?.slug}
               </Text>
             </Flex>
           </Flex>
@@ -295,10 +281,7 @@ const StandaloneChatComponent = ({
       )}
       {showInfo && (
         <Flex ref={infoRef}>
-          <InfoComponent
-            previewStream={previewStream}
-            handleShowPreviewStream={handleShowPreviewStream}
-          />
+          <InfoComponent />
         </Flex>
       )}
       <TabsComponent chat={chat} />
@@ -448,13 +431,7 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
   );
 };
 
-const InfoComponent = ({
-  previewStream,
-  handleShowPreviewStream,
-}: {
-  previewStream?: boolean;
-  handleShowPreviewStream: () => void;
-}) => {
+const InfoComponent = () => {
   const { userAddress } = useUser();
   const { channel: channelContext, ui } = useChannelContext();
   const {
@@ -494,24 +471,6 @@ const InfoComponent = ({
       >
         <Flex justifyContent={"space-between"}>
           <ChannelDesc />
-          {isOwner && (
-            <IconButton
-              onClick={handleShowPreviewStream}
-              aria-label="preview"
-              _hover={{}}
-              _active={{}}
-              _focus={{}}
-              icon={
-                <Image
-                  src="/svg/preview-video.svg"
-                  height={12}
-                  style={{
-                    filter: previewStream ? "grayscale(100%)" : "none",
-                  }}
-                />
-              }
-            />
-          )}
         </Flex>
         {isOwner && (
           <Stack
@@ -671,59 +630,6 @@ const Chat = ({
     chat.channel
   );
 
-  const [emojisToAnimate, setEmojisToAnimate] = useState<
-    { emoji: string; id: number }[]
-  >([]);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerHeight, setContainerHeight] = useState(0);
-
-  useLayoutEffect(() => {
-    const updateHeight = () => {
-      if (containerRef.current) {
-        setContainerHeight(containerRef.current.offsetHeight);
-      }
-    };
-
-    updateHeight();
-
-    // Optional: Use ResizeObserver to handle dynamic content resizing
-    const resizeObserver = new ResizeObserver(() => {
-      updateHeight();
-    });
-
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-
-    return () => {
-      if (containerRef.current) {
-        resizeObserver.unobserve(containerRef.current);
-      }
-    };
-  }, []);
-
-  const handleAnimateReactionEmoji = (str: string) => {
-    const id = Date.now();
-    setEmojisToAnimate((prev) => [...prev, { emoji: str, id }]);
-
-    // Remove the emoji from the state after the animation duration
-    setTimeout(() => {
-      setEmojisToAnimate((prev) => prev.filter((emoji) => emoji.id !== id));
-    }, 4000);
-  };
-
-  useEffect(() => {
-    if (!chat.allMessages || chat.allMessages.length === 0) return;
-    const latestMessage = chat.allMessages[chat.allMessages.length - 1];
-    if (
-      Date.now() - latestMessage.timestamp < 12000 &&
-      latestMessage.name === ADD_REACTION_EVENT &&
-      latestMessage.data.body
-    )
-      handleAnimateReactionEmoji(latestMessage.data.body);
-  }, [chat.allMessages]);
-
   return (
     <Flex
       direction="column"
@@ -732,30 +638,6 @@ const Chat = ({
       h="100%"
       position={"relative"}
     >
-      <div
-        style={{
-          width: "100%",
-          position: "absolute",
-          pointerEvents: "none",
-          height: "100%",
-          zIndex: 2,
-        }}
-        ref={containerRef}
-      >
-        {emojisToAnimate.map(({ emoji, id }) => (
-          <span
-            key={id}
-            className="floatingEmoji"
-            style={
-              {
-                "--translateY": `${containerHeight - 120}px`,
-              } as CSSProperties & { "--translateY": string }
-            }
-          >
-            {emoji}
-          </span>
-        ))}
-      </div>
       {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
         <Flex direction="column">
           <Text textAlign={"center"}>

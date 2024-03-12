@@ -100,7 +100,9 @@ export type Channel = {
   id: Scalars["ID"];
   isLive?: Maybe<Scalars["Boolean"]>;
   livepeerPlaybackId?: Maybe<Scalars["String"]>;
+  livepeerStreamId?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
+  nfcs?: Maybe<Array<Maybe<Nfc>>>;
   owner: User;
   playbackUrl?: Maybe<Scalars["String"]>;
   response: Scalars["String"];
@@ -108,6 +110,8 @@ export type Channel = {
   sharesEvent?: Maybe<Array<Maybe<SharesEvent>>>;
   sideBets?: Maybe<Array<Maybe<SideBet>>>;
   slug: Scalars["String"];
+  softDelete?: Maybe<Scalars["Boolean"]>;
+  streamKey?: Maybe<Scalars["String"]>;
   thumbnailUrl?: Maybe<Scalars["String"]>;
   token?: Maybe<CreatorToken>;
   updatedAt: Scalars["DateTime"];
@@ -119,6 +123,15 @@ export type ChannelFeedInput = {
   limit?: InputMaybe<Scalars["Int"]>;
   offset?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<SortBy>;
+};
+
+export type ChannelSearchInput = {
+  containsSlug?: InputMaybe<Scalars["Boolean"]>;
+  includeSoftDeletedChannels?: InputMaybe<Scalars["Boolean"]>;
+  limit?: InputMaybe<Scalars["Int"]>;
+  query?: InputMaybe<Scalars["String"]>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  slugOnly?: InputMaybe<Scalars["Boolean"]>;
 };
 
 export type ChannelUserRole = {
@@ -183,6 +196,7 @@ export type CloseSideBetInput = {
 
 export type CreateClipInput = {
   channelArn: Scalars["String"];
+  channelId: Scalars["ID"];
   title: Scalars["String"];
 };
 
@@ -195,6 +209,7 @@ export type CreateCreatorTokenInput = {
 };
 
 export type CreateLivepeerClipInput = {
+  channelId: Scalars["ID"];
   livepeerPlaybackId: Scalars["String"];
   title: Scalars["String"];
 };
@@ -209,6 +224,11 @@ export type CreatorToken = {
   price: Scalars["Float"];
   symbol: Scalars["String"];
   users: Array<UserCreatorToken>;
+};
+
+export type DateRange = {
+  end?: InputMaybe<Scalars["DateTime"]>;
+  start?: InputMaybe<Scalars["DateTime"]>;
 };
 
 export type DeviceToken = {
@@ -293,12 +313,20 @@ export type GetGamblableEventUserRankInput = {
   userAddress: Scalars["String"];
 };
 
+export type GetLivepeerStreamDataInput = {
+  streamId?: InputMaybe<Scalars["String"]>;
+};
+
 export type GetPoapInput = {
   date: Scalars["String"];
 };
 
 export type GetRecentStreamInteractionsByChannelInput = {
   channelId: Scalars["ID"];
+};
+
+export type GetStreamerVibesStatInput = {
+  streamerAddress: Scalars["String"];
 };
 
 export type GetSubscriptionsByChannelIdInput = {
@@ -324,6 +352,14 @@ export type GetUserInput = {
 export type GetUserTokenHoldingInput = {
   tokenAddress?: InputMaybe<Scalars["String"]>;
   userAddress?: InputMaybe<Scalars["String"]>;
+};
+
+export type GetVibesTransactionsInput = {
+  chainId: Scalars["Int"];
+  dateRange?: InputMaybe<DateRange>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  streamerAddress: Scalars["String"];
+  take?: InputMaybe<Scalars["Int"]>;
 };
 
 export type HandleLikeInput = {
@@ -353,6 +389,19 @@ export enum LikeObj {
   Nfc = "NFC",
 }
 
+export type LivepeerStreamData = {
+  __typename?: "LivepeerStreamData";
+  isActive?: Maybe<Scalars["Boolean"]>;
+  playbackId?: Maybe<Scalars["String"]>;
+  record?: Maybe<Scalars["Boolean"]>;
+  streamKey?: Maybe<Scalars["String"]>;
+};
+
+export type MigrateChannelToLivepeerInput = {
+  canRecord?: InputMaybe<Scalars["Boolean"]>;
+  slug: Scalars["String"];
+};
+
 export type MoveChannelAlongSubscriptionInput = {
   channelId: Scalars["ID"];
   endpoint: Scalars["String"];
@@ -369,11 +418,13 @@ export type Mutation = {
   createCreatorToken: CreatorToken;
   createLivepeerClip?: Maybe<ClipNfcOutput>;
   handleLike?: Maybe<Likable>;
+  migrateChannelToLivepeer?: Maybe<Channel>;
   openseaNFCScript?: Maybe<Scalars["String"]>;
   postBadgeTrade: GamblableInteraction;
   postBaseLeaderboard: BaseLeaderboard;
   postBet: GamblableInteraction;
   postBetTrade: GamblableInteraction;
+  postChannel?: Maybe<Channel>;
   postChatByAwsId?: Maybe<Chat>;
   postClaimPayout: GamblableInteraction;
   postDeviceToken?: Maybe<DeviceToken>;
@@ -385,18 +436,22 @@ export type Mutation = {
   postSubscription?: Maybe<Subscription>;
   postTask?: Maybe<Task>;
   postUserRoleForChannel?: Maybe<ChannelUserRole>;
+  postVibesTrades?: Maybe<Array<Maybe<VibesTransaction>>>;
   postVideo?: Maybe<Video>;
   removeChannelFromSubscription?: Maybe<Subscription>;
+  softDeleteChannel?: Maybe<Channel>;
   softDeleteSubscription?: Maybe<Subscription>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   toggleSubscription?: Maybe<Subscription>;
+  updateChannelAllowNfcs?: Maybe<Channel>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelText?: Maybe<Channel>;
   updateChannelVibesTokenPriceRange?: Maybe<Channel>;
   updateCreatorTokenPrice: CreatorToken;
   updateDeleteChatCommands?: Maybe<Channel>;
   updateDeviceToken?: Maybe<DeviceToken>;
+  updateLivepeerStreamData?: Maybe<LivepeerStreamData>;
   updateNFC?: Maybe<Nfc>;
   updateOpenseaLink?: Maybe<Nfc>;
   updateSharesEvent?: Maybe<Channel>;
@@ -438,6 +493,10 @@ export type MutationHandleLikeArgs = {
   data: HandleLikeInput;
 };
 
+export type MutationMigrateChannelToLivepeerArgs = {
+  data: MigrateChannelToLivepeerInput;
+};
+
 export type MutationPostBadgeTradeArgs = {
   data: PostBadgeTradeInput;
 };
@@ -452,6 +511,10 @@ export type MutationPostBetArgs = {
 
 export type MutationPostBetTradeArgs = {
   data: PostBetTradeInput;
+};
+
+export type MutationPostChannelArgs = {
+  data: PostChannelInput;
 };
 
 export type MutationPostChatByAwsIdArgs = {
@@ -498,12 +561,20 @@ export type MutationPostUserRoleForChannelArgs = {
   data?: InputMaybe<PostUserRoleForChannelInput>;
 };
 
+export type MutationPostVibesTradesArgs = {
+  data: PostVibesTradesInput;
+};
+
 export type MutationPostVideoArgs = {
   data: PostVideoInput;
 };
 
 export type MutationRemoveChannelFromSubscriptionArgs = {
   data: MoveChannelAlongSubscriptionInput;
+};
+
+export type MutationSoftDeleteChannelArgs = {
+  data: SoftDeleteChannelInput;
 };
 
 export type MutationSoftDeleteSubscriptionArgs = {
@@ -520,6 +591,10 @@ export type MutationSoftDeleteVideoArgs = {
 
 export type MutationToggleSubscriptionArgs = {
   data: ToggleSubscriptionInput;
+};
+
+export type MutationUpdateChannelAllowNfcsArgs = {
+  data: UpdateChannelAllowNfcsInput;
 };
 
 export type MutationUpdateChannelCustomButtonArgs = {
@@ -544,6 +619,10 @@ export type MutationUpdateDeleteChatCommandsArgs = {
 
 export type MutationUpdateDeviceTokenArgs = {
   data: UpdateDeviceInput;
+};
+
+export type MutationUpdateLivepeerStreamDataArgs = {
+  data: UpdateLivepeerStreamDataInput;
 };
 
 export type MutationUpdateNfcArgs = {
@@ -572,6 +651,7 @@ export type MutationUpdateUserNotificationsArgs = {
 
 export type Nfc = Likable & {
   __typename?: "NFC";
+  channel: Channel;
   createdAt: Scalars["DateTime"];
   disliked?: Maybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
@@ -638,6 +718,14 @@ export type PostBetTradeInput = {
   userAddress: Scalars["String"];
 };
 
+export type PostChannelInput = {
+  allowNfcs?: InputMaybe<Scalars["Boolean"]>;
+  canRecord?: InputMaybe<Scalars["Boolean"]>;
+  description?: InputMaybe<Scalars["String"]>;
+  name?: InputMaybe<Scalars["String"]>;
+  slug: Scalars["String"];
+};
+
 export type PostChatByAwsIdInput = {
   awsId: Scalars["String"];
   text: Scalars["String"];
@@ -670,6 +758,7 @@ export type PostDeviceTokenInput = {
 };
 
 export type PostNfcInput = {
+  channelId: Scalars["ID"];
   openseaLink: Scalars["String"];
   title: Scalars["String"];
   videoLink: Scalars["String"];
@@ -720,6 +809,11 @@ export type PostUserRoleForChannelInput = {
   userAddress: Scalars["String"];
 };
 
+export type PostVibesTradesInput = {
+  chainId: Scalars["Int"];
+  tokenAddress: Scalars["String"];
+};
+
 export type PostVideoInput = {
   description?: InputMaybe<Scalars["String"]>;
   duration?: InputMaybe<Scalars["Int"]>;
@@ -749,12 +843,14 @@ export type Query = {
   getChannelById?: Maybe<Channel>;
   getChannelBySlug?: Maybe<Channel>;
   getChannelFeed?: Maybe<Array<Maybe<Channel>>>;
+  getChannelSearchResults?: Maybe<Array<Maybe<Channel>>>;
   getChannelWithTokenById?: Maybe<Channel>;
   getChannelsByNumberOfBadgeHolders: Array<Maybe<NumberOfHolders>>;
   getDeviceByToken?: Maybe<DeviceToken>;
   getGamblableEventLeaderboardByChannelId: Array<GamblableEventLeaderboard>;
   getGamblableEventUserRank: Scalars["Int"];
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
+  getLivepeerStreamData?: Maybe<LivepeerStreamData>;
   getNFC?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
   getPoap?: Maybe<Poap>;
@@ -763,6 +859,7 @@ export type Query = {
   getSideBetByChannelId?: Maybe<SideBet>;
   getSideBetById?: Maybe<SideBet>;
   getSideBetByUser?: Maybe<SideBet>;
+  getStreamerVibesStat?: Maybe<Array<Maybe<StreamerVibesStat>>>;
   getSubscriptionByEndpoint?: Maybe<Subscription>;
   getSubscriptionsByChannelId?: Maybe<Array<Maybe<Subscription>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
@@ -771,6 +868,7 @@ export type Query = {
   getUnclaimedEvents: Array<Maybe<SharesEvent>>;
   getUser?: Maybe<User>;
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
+  getVibesTransactions?: Maybe<Array<Maybe<VibesTransaction>>>;
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
   sendAllNotifications?: Maybe<Scalars["Boolean"]>;
@@ -809,6 +907,10 @@ export type QueryGetChannelFeedArgs = {
   data?: InputMaybe<ChannelFeedInput>;
 };
 
+export type QueryGetChannelSearchResultsArgs = {
+  data: ChannelSearchInput;
+};
+
 export type QueryGetChannelWithTokenByIdArgs = {
   id: Scalars["ID"];
 };
@@ -823,6 +925,10 @@ export type QueryGetGamblableEventLeaderboardByChannelIdArgs = {
 
 export type QueryGetGamblableEventUserRankArgs = {
   data?: InputMaybe<GetGamblableEventUserRankInput>;
+};
+
+export type QueryGetLivepeerStreamDataArgs = {
+  data: GetLivepeerStreamDataInput;
 };
 
 export type QueryGetNfcArgs = {
@@ -857,6 +963,10 @@ export type QueryGetSideBetByUserArgs = {
   userAddress: Scalars["String"];
 };
 
+export type QueryGetStreamerVibesStatArgs = {
+  data: GetStreamerVibesStatInput;
+};
+
 export type QueryGetSubscriptionByEndpointArgs = {
   data: ToggleSubscriptionInput;
 };
@@ -883,6 +993,10 @@ export type QueryGetUserArgs = {
 
 export type QueryGetUserTokenHoldingArgs = {
   data: GetUserTokenHoldingInput;
+};
+
+export type QueryGetVibesTransactionsArgs = {
+  data: GetVibesTransactionsInput;
 };
 
 export type QueryGetVideoArgs = {
@@ -938,6 +1052,10 @@ export type SideBet = {
   wagerDescription?: Maybe<Scalars["String"]>;
 };
 
+export type SoftDeleteChannelInput = {
+  slug: Scalars["String"];
+};
+
 export type SoftDeleteSubscriptionInput = {
   id: Scalars["ID"];
 };
@@ -960,6 +1078,20 @@ export type StreamInteraction = {
   interactionType: Scalars["String"];
   owner: User;
   text?: Maybe<Scalars["String"]>;
+  updatedAt: Scalars["DateTime"];
+};
+
+export type StreamerVibesStat = {
+  __typename?: "StreamerVibesStat";
+  allTimeTotalProtocolWeiFees: Scalars["String"];
+  allTimeTotalStreamerWeiFees: Scalars["String"];
+  allTimeTotalVibesVolume: Scalars["String"];
+  allTimeTotalWeiVolume: Scalars["String"];
+  chainId: Scalars["Int"];
+  createdAt: Scalars["DateTime"];
+  id: Scalars["ID"];
+  streamerAddress: Scalars["String"];
+  uniqueStatId: Scalars["String"];
   updatedAt: Scalars["DateTime"];
 };
 
@@ -1002,6 +1134,11 @@ export type ToggleSubscriptionInput = {
   endpoint: Scalars["String"];
 };
 
+export type UpdateChannelAllowNfcsInput = {
+  allowNfcs?: InputMaybe<Scalars["Boolean"]>;
+  id: Scalars["ID"];
+};
+
 export type UpdateChannelCustomButtonInput = {
   customButtonAction: Scalars["String"];
   customButtonPrice: Scalars["Int"];
@@ -1033,6 +1170,11 @@ export type UpdateDeviceInput = {
   notificationsLive: Scalars["Boolean"];
   notificationsNFCs: Scalars["Boolean"];
   token: Scalars["String"];
+};
+
+export type UpdateLivepeerStreamDataInput = {
+  canRecord?: InputMaybe<Scalars["Boolean"]>;
+  streamId?: InputMaybe<Scalars["String"]>;
 };
 
 export type UpdateManyResponse = {
@@ -1112,6 +1254,29 @@ export type UserCreatorToken = {
   user: User;
   userId: Scalars["String"];
 };
+
+export type VibesTransaction = {
+  __typename?: "VibesTransaction";
+  blockNumber?: Maybe<Scalars["BigInt"]>;
+  chainId: Scalars["Int"];
+  createdAt: Scalars["DateTime"];
+  id: Scalars["ID"];
+  protocolWeiFees?: Maybe<Scalars["String"]>;
+  streamerAddress?: Maybe<Scalars["String"]>;
+  streamerWeiFees?: Maybe<Scalars["String"]>;
+  totalVibesSupplyAfterTrade?: Maybe<Scalars["String"]>;
+  traderAddress?: Maybe<Scalars["String"]>;
+  transactionHash: Scalars["String"];
+  transactionType?: Maybe<VibesTransactionType>;
+  uniqueTransactionId: Scalars["String"];
+  vibesAmount?: Maybe<Scalars["String"]>;
+  weiAmount?: Maybe<Scalars["String"]>;
+};
+
+export enum VibesTransactionType {
+  Buy = "BUY",
+  Sell = "SELL",
+}
 
 export type Video = {
   __typename?: "Video";
@@ -1233,6 +1398,8 @@ export type ChannelDetailQuery = {
     channelArn?: string | null;
     description?: string | null;
     livepeerPlaybackId?: string | null;
+    livepeerStreamId?: string | null;
+    streamKey?: string | null;
     isLive?: boolean | null;
     id: string;
     name?: string | null;
@@ -1285,6 +1452,8 @@ export type ChannelStaticQuery = {
     channelArn?: string | null;
     description?: string | null;
     livepeerPlaybackId?: string | null;
+    livepeerStreamId?: string | null;
+    streamKey?: string | null;
     isLive?: boolean | null;
     id: string;
     name?: string | null;
@@ -1489,6 +1658,45 @@ export type GetBaseLeaderboardQuery = {
       lensImageUrl?: string | null;
     } | null;
   }>;
+};
+
+export type GetLivepeerStreamDataQueryVariables = Exact<{
+  data: GetLivepeerStreamDataInput;
+}>;
+
+export type GetLivepeerStreamDataQuery = {
+  __typename?: "Query";
+  getLivepeerStreamData?: {
+    __typename?: "LivepeerStreamData";
+    streamKey?: string | null;
+    record?: boolean | null;
+    playbackId?: string | null;
+    isActive?: boolean | null;
+  } | null;
+};
+
+export type GetChannelSearchResultsQueryVariables = Exact<{
+  data: ChannelSearchInput;
+}>;
+
+export type GetChannelSearchResultsQuery = {
+  __typename?: "Query";
+  getChannelSearchResults?: Array<{
+    __typename?: "Channel";
+    id: string;
+    isLive?: boolean | null;
+    name?: string | null;
+    description?: string | null;
+    slug: string;
+    thumbnailUrl?: string | null;
+    owner: {
+      __typename?: "User";
+      username?: string | null;
+      address: string;
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+    };
+  } | null> | null;
 };
 
 export type GetBadgeHoldersByChannelQueryVariables = Exact<{
@@ -1704,6 +1912,22 @@ export type LikeMutation = {
     | null;
 };
 
+export type MigrateChannelToLivepeerMutationVariables = Exact<{
+  data: MigrateChannelToLivepeerInput;
+}>;
+
+export type MigrateChannelToLivepeerMutation = {
+  __typename?: "Mutation";
+  migrateChannelToLivepeer?: {
+    __typename?: "Channel";
+    id: string;
+    streamKey?: string | null;
+    livepeerPlaybackId?: string | null;
+    livepeerStreamId?: string | null;
+    slug: string;
+  } | null;
+};
+
 export type PostBaseLeaderboardMutationVariables = Exact<{
   data: PostBaseLeaderboardInput;
 }>;
@@ -1711,6 +1935,24 @@ export type PostBaseLeaderboardMutationVariables = Exact<{
 export type PostBaseLeaderboardMutation = {
   __typename?: "Mutation";
   postBaseLeaderboard: { __typename?: "BaseLeaderboard"; id: string };
+};
+
+export type PostChannelMutationVariables = Exact<{
+  data: PostChannelInput;
+}>;
+
+export type PostChannelMutation = {
+  __typename?: "Mutation";
+  postChannel?: {
+    __typename?: "Channel";
+    id: string;
+    streamKey?: string | null;
+    livepeerPlaybackId?: string | null;
+    livepeerStreamId?: string | null;
+    slug: string;
+    name?: string | null;
+    description?: string | null;
+  } | null;
 };
 
 export type PostChatByAwsIdMutationVariables = Exact<{
@@ -1824,6 +2066,31 @@ export type RemoveChannelFromSubscriptionMutation = {
   } | null;
 };
 
+export type SoftDeleteChannelMutationVariables = Exact<{
+  data: SoftDeleteChannelInput;
+}>;
+
+export type SoftDeleteChannelMutation = {
+  __typename?: "Mutation";
+  softDeleteChannel?: {
+    __typename?: "Channel";
+    id: string;
+    streamKey?: string | null;
+    livepeerPlaybackId?: string | null;
+    livepeerStreamId?: string | null;
+    slug: string;
+    name?: string | null;
+    description?: string | null;
+    owner: {
+      __typename?: "User";
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+      username?: string | null;
+      address: string;
+    };
+  } | null;
+};
+
 export type ToggleSubscriptionMutationVariables = Exact<{
   data: ToggleSubscriptionInput;
 }>;
@@ -1831,6 +2098,19 @@ export type ToggleSubscriptionMutationVariables = Exact<{
 export type ToggleSubscriptionMutation = {
   __typename?: "Mutation";
   toggleSubscription?: { __typename?: "Subscription"; id: string } | null;
+};
+
+export type UpdateChannelAllowNfcsMutationVariables = Exact<{
+  data: UpdateChannelAllowNfcsInput;
+}>;
+
+export type UpdateChannelAllowNfcsMutation = {
+  __typename?: "Mutation";
+  updateChannelAllowNfcs?: {
+    __typename?: "Channel";
+    allowNFCs?: boolean | null;
+    id: string;
+  } | null;
 };
 
 export type UpdateChannelCustomButtonMutationVariables = Exact<{
@@ -1871,6 +2151,21 @@ export type UpdateChannelVibesTokenPriceRangeMutation = {
     __typename?: "Channel";
     vibesTokenPriceRange?: Array<string | null> | null;
     id: string;
+  } | null;
+};
+
+export type UpdateLivepeerStreamDataMutationVariables = Exact<{
+  data: UpdateLivepeerStreamDataInput;
+}>;
+
+export type UpdateLivepeerStreamDataMutation = {
+  __typename?: "Mutation";
+  updateLivepeerStreamData?: {
+    __typename?: "LivepeerStreamData";
+    streamKey?: string | null;
+    record?: boolean | null;
+    playbackId?: string | null;
+    isActive?: boolean | null;
   } | null;
 };
 
@@ -2310,6 +2605,8 @@ export const ChannelDetailDocument = gql`
       channelArn
       description
       livepeerPlaybackId
+      livepeerStreamId
+      streamKey
       isLive
       id
       name
@@ -2404,6 +2701,8 @@ export const ChannelStaticDocument = gql`
       channelArn
       description
       livepeerPlaybackId
+      livepeerStreamId
+      streamKey
       isLive
       id
       name
@@ -3160,6 +3459,136 @@ export type GetBaseLeaderboardLazyQueryHookResult = ReturnType<
 export type GetBaseLeaderboardQueryResult = Apollo.QueryResult<
   GetBaseLeaderboardQuery,
   GetBaseLeaderboardQueryVariables
+>;
+export const GetLivepeerStreamDataDocument = gql`
+  query GetLivepeerStreamData($data: GetLivepeerStreamDataInput!) {
+    getLivepeerStreamData(data: $data) {
+      streamKey
+      record
+      playbackId
+      isActive
+    }
+  }
+`;
+
+/**
+ * __useGetLivepeerStreamDataQuery__
+ *
+ * To run a query within a React component, call `useGetLivepeerStreamDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLivepeerStreamDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLivepeerStreamDataQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetLivepeerStreamDataQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetLivepeerStreamDataQuery,
+    GetLivepeerStreamDataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetLivepeerStreamDataQuery,
+    GetLivepeerStreamDataQueryVariables
+  >(GetLivepeerStreamDataDocument, options);
+}
+export function useGetLivepeerStreamDataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetLivepeerStreamDataQuery,
+    GetLivepeerStreamDataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetLivepeerStreamDataQuery,
+    GetLivepeerStreamDataQueryVariables
+  >(GetLivepeerStreamDataDocument, options);
+}
+export type GetLivepeerStreamDataQueryHookResult = ReturnType<
+  typeof useGetLivepeerStreamDataQuery
+>;
+export type GetLivepeerStreamDataLazyQueryHookResult = ReturnType<
+  typeof useGetLivepeerStreamDataLazyQuery
+>;
+export type GetLivepeerStreamDataQueryResult = Apollo.QueryResult<
+  GetLivepeerStreamDataQuery,
+  GetLivepeerStreamDataQueryVariables
+>;
+export const GetChannelSearchResultsDocument = gql`
+  query GetChannelSearchResults($data: ChannelSearchInput!) {
+    getChannelSearchResults(data: $data) {
+      id
+      isLive
+      name
+      description
+      slug
+      owner {
+        username
+        address
+        FCImageUrl
+        lensImageUrl
+      }
+      thumbnailUrl
+    }
+  }
+`;
+
+/**
+ * __useGetChannelSearchResultsQuery__
+ *
+ * To run a query within a React component, call `useGetChannelSearchResultsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelSearchResultsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelSearchResultsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetChannelSearchResultsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetChannelSearchResultsQuery,
+    GetChannelSearchResultsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetChannelSearchResultsQuery,
+    GetChannelSearchResultsQueryVariables
+  >(GetChannelSearchResultsDocument, options);
+}
+export function useGetChannelSearchResultsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetChannelSearchResultsQuery,
+    GetChannelSearchResultsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetChannelSearchResultsQuery,
+    GetChannelSearchResultsQueryVariables
+  >(GetChannelSearchResultsDocument, options);
+}
+export type GetChannelSearchResultsQueryHookResult = ReturnType<
+  typeof useGetChannelSearchResultsQuery
+>;
+export type GetChannelSearchResultsLazyQueryHookResult = ReturnType<
+  typeof useGetChannelSearchResultsLazyQuery
+>;
+export type GetChannelSearchResultsQueryResult = Apollo.QueryResult<
+  GetChannelSearchResultsQuery,
+  GetChannelSearchResultsQueryVariables
 >;
 export const GetBadgeHoldersByChannelDocument = gql`
   query GetBadgeHoldersByChannel($data: GetBadgeHoldersByChannelInput!) {
@@ -3919,6 +4348,61 @@ export type LikeMutationOptions = Apollo.BaseMutationOptions<
   LikeMutation,
   LikeMutationVariables
 >;
+export const MigrateChannelToLivepeerDocument = gql`
+  mutation MigrateChannelToLivepeer($data: MigrateChannelToLivepeerInput!) {
+    migrateChannelToLivepeer(data: $data) {
+      id
+      streamKey
+      livepeerPlaybackId
+      livepeerStreamId
+      slug
+    }
+  }
+`;
+export type MigrateChannelToLivepeerMutationFn = Apollo.MutationFunction<
+  MigrateChannelToLivepeerMutation,
+  MigrateChannelToLivepeerMutationVariables
+>;
+
+/**
+ * __useMigrateChannelToLivepeerMutation__
+ *
+ * To run a mutation, you first call `useMigrateChannelToLivepeerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMigrateChannelToLivepeerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [migrateChannelToLivepeerMutation, { data, loading, error }] = useMigrateChannelToLivepeerMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useMigrateChannelToLivepeerMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    MigrateChannelToLivepeerMutation,
+    MigrateChannelToLivepeerMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    MigrateChannelToLivepeerMutation,
+    MigrateChannelToLivepeerMutationVariables
+  >(MigrateChannelToLivepeerDocument, options);
+}
+export type MigrateChannelToLivepeerMutationHookResult = ReturnType<
+  typeof useMigrateChannelToLivepeerMutation
+>;
+export type MigrateChannelToLivepeerMutationResult =
+  Apollo.MutationResult<MigrateChannelToLivepeerMutation>;
+export type MigrateChannelToLivepeerMutationOptions =
+  Apollo.BaseMutationOptions<
+    MigrateChannelToLivepeerMutation,
+    MigrateChannelToLivepeerMutationVariables
+  >;
 export const PostBaseLeaderboardDocument = gql`
   mutation PostBaseLeaderboard($data: PostBaseLeaderboardInput!) {
     postBaseLeaderboard(data: $data) {
@@ -3968,6 +4452,62 @@ export type PostBaseLeaderboardMutationResult =
 export type PostBaseLeaderboardMutationOptions = Apollo.BaseMutationOptions<
   PostBaseLeaderboardMutation,
   PostBaseLeaderboardMutationVariables
+>;
+export const PostChannelDocument = gql`
+  mutation PostChannel($data: PostChannelInput!) {
+    postChannel(data: $data) {
+      id
+      streamKey
+      livepeerPlaybackId
+      livepeerStreamId
+      slug
+      name
+      description
+    }
+  }
+`;
+export type PostChannelMutationFn = Apollo.MutationFunction<
+  PostChannelMutation,
+  PostChannelMutationVariables
+>;
+
+/**
+ * __usePostChannelMutation__
+ *
+ * To run a mutation, you first call `usePostChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postChannelMutation, { data, loading, error }] = usePostChannelMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostChannelMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostChannelMutation,
+    PostChannelMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<PostChannelMutation, PostChannelMutationVariables>(
+    PostChannelDocument,
+    options
+  );
+}
+export type PostChannelMutationHookResult = ReturnType<
+  typeof usePostChannelMutation
+>;
+export type PostChannelMutationResult =
+  Apollo.MutationResult<PostChannelMutation>;
+export type PostChannelMutationOptions = Apollo.BaseMutationOptions<
+  PostChannelMutation,
+  PostChannelMutationVariables
 >;
 export const PostChatByAwsIdDocument = gql`
   mutation PostChatByAwsId($data: PostChatByAwsIdInput!) {
@@ -4518,6 +5058,68 @@ export type RemoveChannelFromSubscriptionMutationOptions =
     RemoveChannelFromSubscriptionMutation,
     RemoveChannelFromSubscriptionMutationVariables
   >;
+export const SoftDeleteChannelDocument = gql`
+  mutation SoftDeleteChannel($data: SoftDeleteChannelInput!) {
+    softDeleteChannel(data: $data) {
+      id
+      streamKey
+      livepeerPlaybackId
+      livepeerStreamId
+      slug
+      name
+      description
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+    }
+  }
+`;
+export type SoftDeleteChannelMutationFn = Apollo.MutationFunction<
+  SoftDeleteChannelMutation,
+  SoftDeleteChannelMutationVariables
+>;
+
+/**
+ * __useSoftDeleteChannelMutation__
+ *
+ * To run a mutation, you first call `useSoftDeleteChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSoftDeleteChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [softDeleteChannelMutation, { data, loading, error }] = useSoftDeleteChannelMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useSoftDeleteChannelMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    SoftDeleteChannelMutation,
+    SoftDeleteChannelMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    SoftDeleteChannelMutation,
+    SoftDeleteChannelMutationVariables
+  >(SoftDeleteChannelDocument, options);
+}
+export type SoftDeleteChannelMutationHookResult = ReturnType<
+  typeof useSoftDeleteChannelMutation
+>;
+export type SoftDeleteChannelMutationResult =
+  Apollo.MutationResult<SoftDeleteChannelMutation>;
+export type SoftDeleteChannelMutationOptions = Apollo.BaseMutationOptions<
+  SoftDeleteChannelMutation,
+  SoftDeleteChannelMutationVariables
+>;
 export const ToggleSubscriptionDocument = gql`
   mutation ToggleSubscription($data: ToggleSubscriptionInput!) {
     toggleSubscription(data: $data) {
@@ -4567,6 +5169,57 @@ export type ToggleSubscriptionMutationResult =
 export type ToggleSubscriptionMutationOptions = Apollo.BaseMutationOptions<
   ToggleSubscriptionMutation,
   ToggleSubscriptionMutationVariables
+>;
+export const UpdateChannelAllowNfcsDocument = gql`
+  mutation UpdateChannelAllowNfcs($data: UpdateChannelAllowNfcsInput!) {
+    updateChannelAllowNfcs(data: $data) {
+      allowNFCs
+      id
+    }
+  }
+`;
+export type UpdateChannelAllowNfcsMutationFn = Apollo.MutationFunction<
+  UpdateChannelAllowNfcsMutation,
+  UpdateChannelAllowNfcsMutationVariables
+>;
+
+/**
+ * __useUpdateChannelAllowNfcsMutation__
+ *
+ * To run a mutation, you first call `useUpdateChannelAllowNfcsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChannelAllowNfcsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChannelAllowNfcsMutation, { data, loading, error }] = useUpdateChannelAllowNfcsMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChannelAllowNfcsMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateChannelAllowNfcsMutation,
+    UpdateChannelAllowNfcsMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateChannelAllowNfcsMutation,
+    UpdateChannelAllowNfcsMutationVariables
+  >(UpdateChannelAllowNfcsDocument, options);
+}
+export type UpdateChannelAllowNfcsMutationHookResult = ReturnType<
+  typeof useUpdateChannelAllowNfcsMutation
+>;
+export type UpdateChannelAllowNfcsMutationResult =
+  Apollo.MutationResult<UpdateChannelAllowNfcsMutation>;
+export type UpdateChannelAllowNfcsMutationOptions = Apollo.BaseMutationOptions<
+  UpdateChannelAllowNfcsMutation,
+  UpdateChannelAllowNfcsMutationVariables
 >;
 export const UpdateChannelCustomButtonDocument = gql`
   mutation UpdateChannelCustomButton($data: UpdateChannelCustomButtonInput!) {
@@ -4727,6 +5380,60 @@ export type UpdateChannelVibesTokenPriceRangeMutationOptions =
   Apollo.BaseMutationOptions<
     UpdateChannelVibesTokenPriceRangeMutation,
     UpdateChannelVibesTokenPriceRangeMutationVariables
+  >;
+export const UpdateLivepeerStreamDataDocument = gql`
+  mutation UpdateLivepeerStreamData($data: UpdateLivepeerStreamDataInput!) {
+    updateLivepeerStreamData(data: $data) {
+      streamKey
+      record
+      playbackId
+      isActive
+    }
+  }
+`;
+export type UpdateLivepeerStreamDataMutationFn = Apollo.MutationFunction<
+  UpdateLivepeerStreamDataMutation,
+  UpdateLivepeerStreamDataMutationVariables
+>;
+
+/**
+ * __useUpdateLivepeerStreamDataMutation__
+ *
+ * To run a mutation, you first call `useUpdateLivepeerStreamDataMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateLivepeerStreamDataMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateLivepeerStreamDataMutation, { data, loading, error }] = useUpdateLivepeerStreamDataMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateLivepeerStreamDataMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateLivepeerStreamDataMutation,
+    UpdateLivepeerStreamDataMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateLivepeerStreamDataMutation,
+    UpdateLivepeerStreamDataMutationVariables
+  >(UpdateLivepeerStreamDataDocument, options);
+}
+export type UpdateLivepeerStreamDataMutationHookResult = ReturnType<
+  typeof useUpdateLivepeerStreamDataMutation
+>;
+export type UpdateLivepeerStreamDataMutationResult =
+  Apollo.MutationResult<UpdateLivepeerStreamDataMutation>;
+export type UpdateLivepeerStreamDataMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateLivepeerStreamDataMutation,
+    UpdateLivepeerStreamDataMutationVariables
   >;
 export const UpdateNfcDocument = gql`
   mutation UpdateNFC($data: UpdateNFCInput!) {

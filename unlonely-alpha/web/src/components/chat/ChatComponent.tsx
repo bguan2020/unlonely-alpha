@@ -5,8 +5,16 @@ import {
   Image,
   Tooltip,
   Button,
+  IconButton,
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { HiUserGroup } from "react-icons/hi";
+import { MdEvent } from "react-icons/md";
+import { AiFillNotification } from "react-icons/ai";
 
 import { ChatReturnType } from "../../hooks/chat/useChat";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -22,9 +30,10 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const [selectedTab, setSelectedTab] = useState<"chat" | "vip">("chat");
-  const { chat: chatContext, channel } = useChannelContext();
+  const { chat: chatContext, channel, ui } = useChannelContext();
   const { presenceChannel } = chatContext;
   const { channelQueryData } = channel;
+  const { handleModeratorModal, handleNotificationsModal } = ui;
 
   const [showParticipants, setShowParticipants] = useState(true);
 
@@ -96,37 +105,126 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
             pt="0px"
           >
             <Flex bg="rgba(24, 22, 47, 1)" width={"100%"} direction="column">
-              {presenceChannel && (
-                <Flex
-                  justifyContent={"center"}
-                  py="0.5rem"
-                  gap="5px"
-                  alignItems={"center"}
-                >
-                  {EXCLUDED_SLUGS.includes(channelQueryData?.slug as string) &&
-                    isOwner && (
-                      <Button
-                        onClick={() => setShowParticipants((prev) => !prev)}
-                        bg={"#403c7d"}
-                        p={2}
-                        height={"20px"}
-                        _focus={{}}
-                        _active={{}}
-                        _hover={{
-                          bg: "#8884d8",
-                        }}
+              <Flex position="relative" justifyContent={"center"}>
+                {isOwner && (
+                  <Flex left="0" position="absolute" top="1">
+                    <Popover trigger="hover" placement="bottom" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          data-tour="s-step-5"
+                          _focus={{}}
+                          _active={{}}
+                          _hover={{
+                            transform: "scale(1.2)",
+                          }}
+                          icon={<MdEvent size={20} color="white" />}
+                          bg="transparent"
+                          aria-label="add-event"
+                          onClick={() => {
+                            window.open("https://lu.ma/unlonely", "_blank");
+                          }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#343dbb"
+                        border="none"
+                        width="100%"
+                        p="2px"
                       >
-                        <Text fontSize="14px" color="white">
-                          {showParticipants ? "hide" : "show"}
+                        <PopoverArrow bg="#343dbb" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          add an event!
                         </Text>
-                      </Button>
-                    )}
-                  <Participants
-                    ablyPresenceChannel={presenceChannel}
-                    show={showParticipants}
-                  />
-                </Flex>
-              )}
+                      </PopoverContent>
+                    </Popover>
+                    <Popover trigger="hover" placement="bottom" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          _focus={{}}
+                          _active={{}}
+                          _hover={{
+                            transform: "scale(1.2)",
+                          }}
+                          icon={<AiFillNotification size={20} color="white" />}
+                          bg="transparent"
+                          aria-label="add-event"
+                          onClick={() => handleNotificationsModal(true)}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#6e9f04"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#6e9f04" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          send notifications!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                    <Popover trigger="hover" placement="bottom" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          _focus={{}}
+                          _active={{}}
+                          _hover={{
+                            transform: "scale(1.2)",
+                          }}
+                          icon={<HiUserGroup size={20} color="white" />}
+                          bg="transparent"
+                          aria-label="moderators"
+                          onClick={() => handleModeratorModal(true)}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#0a9216"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#0a9216" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          manage moderators!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                  </Flex>
+                )}
+                {presenceChannel && (
+                  <Flex
+                    justifyContent={"center"}
+                    py="0.5rem"
+                    gap="5px"
+                    alignItems={"center"}
+                  >
+                    {EXCLUDED_SLUGS.includes(
+                      channelQueryData?.slug as string
+                    ) &&
+                      isOwner && (
+                        <Button
+                          onClick={() => setShowParticipants((prev) => !prev)}
+                          bg={"#403c7d"}
+                          p={2}
+                          height={"20px"}
+                          _focus={{}}
+                          _active={{}}
+                          _hover={{
+                            bg: "#8884d8",
+                          }}
+                        >
+                          <Text fontSize="14px" color="white">
+                            {showParticipants ? "hide" : "show"}
+                          </Text>
+                        </Button>
+                      )}
+                    <Participants
+                      ablyPresenceChannel={presenceChannel}
+                      show={showParticipants}
+                    />
+                  </Flex>
+                )}
+              </Flex>
               {selectedTab === "chat" && <Chat chat={chat} />}
               {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
             </Flex>

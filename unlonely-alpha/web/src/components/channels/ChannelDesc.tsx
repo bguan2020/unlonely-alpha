@@ -1,16 +1,30 @@
-import { Avatar, Text, Flex, Tooltip } from "@chakra-ui/react";
-
+import {
+  Avatar,
+  Text,
+  Flex,
+  Tooltip,
+  IconButton,
+  Link,
+} from "@chakra-ui/react";
+import { Fragment, useMemo } from "react";
 import { anonUrl } from "../presence/AnonUrl";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { getColorFromString } from "../../styles/Colors";
+import { FaPencilAlt } from "react-icons/fa";
+import { useUser } from "../../hooks/context/useUser";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 const ChannelDesc = () => {
+  const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
-  const { channel } = useChannelContext();
-  const { channelQueryData, totalBadges } = channel;
+  const { channel, ui } = useChannelContext();
+  const { channelQueryData, totalBadges, channelDetails } = channel;
+  const { handleEditModal } = ui;
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   const imageUrl = channelQueryData?.owner?.FCImageUrl
     ? channelQueryData?.owner.FCImageUrl
@@ -59,12 +73,18 @@ const ChannelDesc = () => {
           </Flex>
         </OuterBorder>
       </Flex>
-      <Flex direction="column" gap={["4px", "16px"]} width="100%" pl="30px">
+      <Flex
+        direction="column"
+        gap={["4px", "16px"]}
+        width="100%"
+        pl="30px"
+        data-tour="s-step-4"
+      >
         <Flex
           maxH="400px"
           justifyContent="left"
           flexDirection="row"
-          alignItems={"baseline"}
+          alignItems={"center"}
           gap="1rem"
           wordBreak={"break-all"}
         >
@@ -75,17 +95,92 @@ const ChannelDesc = () => {
             wordBreak={"break-word"}
             width={isStandalone ? "70%" : "unset"}
           >
-            {channelQueryData?.name}
+            {channelDetails.channelName}
           </Text>
+          {isOwner && (
+            <IconButton
+              aria-label="edit channel title"
+              _focus={{}}
+              _active={{}}
+              _hover={{
+                transform: "scale(1.2)",
+              }}
+              icon={<FaPencilAlt color="white" />}
+              bg="transparent"
+              onClick={() => handleEditModal(true)}
+            />
+          )}
         </Flex>
         <Text
           fontSize={["0.5rem", "0.8rem"]}
           width={isStandalone ? "70%" : "unset"}
         >
-          {channelQueryData?.description}
+          {channelDetails.channelDescription.split("\n").map((line, index) => (
+            <Fragment key={index}>
+              <LineFormatter line={line} />
+              <br />
+            </Fragment>
+          ))}
         </Text>
       </Flex>
     </Flex>
+  );
+};
+
+const LineFormatter = ({ line }: { line: string }) => {
+  const linkArray: RegExpMatchArray | null = line.match(
+    /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
+  );
+
+  const fragments = useMemo(() => {
+    let lastIndex = 0;
+    const fragments: { message: string; isLink: boolean }[] = [];
+
+    linkArray?.forEach((link) => {
+      const startIndex = line.indexOf(link, lastIndex);
+      if (startIndex > lastIndex) {
+        fragments.push({
+          message: line.substring(lastIndex, startIndex),
+          isLink: false,
+        });
+      }
+      fragments.push({ message: link, isLink: true });
+      lastIndex = startIndex + link.length;
+    });
+
+    if (lastIndex < line.length) {
+      fragments.push({
+        message: line.substring(lastIndex),
+        isLink: false,
+      });
+    }
+
+    return fragments;
+  }, [line, linkArray]);
+
+  return (
+    <>
+      {fragments.map((fragment, i) => {
+        if (fragment.isLink) {
+          return (
+            <Link href={fragment.message} isExternal key={i}>
+              <Text
+                as="span"
+                color="#15dae4"
+                fontSize={"12px"}
+                wordBreak="break-word"
+                textAlign="left"
+              >
+                {fragment.message}
+                <ExternalLinkIcon mx="2px" />
+              </Text>
+            </Link>
+          );
+        } else {
+          return <span key={i}>{fragment.message}</span>;
+        }
+      })}
+    </>
   );
 };
 

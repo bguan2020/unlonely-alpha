@@ -15,20 +15,26 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import useUpdateChannelText from "../../hooks/server/useUpdateChannelText";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
+import {
+  AblyChannelPromise,
+  CHANGE_CHANNEL_DETAILS_EVENT,
+} from "../../constants";
 
 export default function EditChannelModal({
   title,
   isOpen,
   callback,
   handleClose,
+  ablyChannel,
 }: {
   title: string;
   isOpen: boolean;
   callback?: any;
   handleClose: () => void;
+  ablyChannel: AblyChannelPromise;
 }) {
   const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
+  const { channelQueryData, channelDetails } = channel;
   const { isStandalone } = useUserAgent();
 
   const [formError, setFormError] = useState<string[]>([]);
@@ -43,11 +49,21 @@ export default function EditChannelModal({
     },
   });
 
-  const onSubmit = (data: UpdateChannelTextInput) => {
-    updateChannelText({
+  const onSubmit = async (data: UpdateChannelTextInput) => {
+    await updateChannelText({
       id: channelQueryData?.id,
       name: data.name,
       description: data.description,
+    });
+    ablyChannel?.publish({
+      name: CHANGE_CHANNEL_DETAILS_EVENT,
+      data: {
+        body: JSON.stringify({
+          channelName: data.name,
+          channelDescription: data.description,
+          chatCommands: channelDetails.chatCommands,
+        }),
+      },
     });
     handleClose();
   };
@@ -73,11 +89,8 @@ export default function EditChannelModal({
             <FormControl isInvalid={!!formState.errors.name}>
               <Textarea
                 id="name"
-                placeholder={
-                  channelQueryData?.name
-                    ? channelQueryData.name
-                    : "Enter a title for your stream."
-                }
+                placeholder={"Enter a title for your stream."}
+                defaultValue={channelQueryData?.name ?? ""}
                 _placeholder={{ color: "grey" }}
                 lineHeight="1.2"
                 background="#F1F4F8"
@@ -100,11 +113,8 @@ export default function EditChannelModal({
             <FormControl isInvalid={!!formState.errors.description}>
               <Textarea
                 id="description"
-                placeholder={
-                  channelQueryData?.description
-                    ? channelQueryData.description
-                    : "Enter a description for your channel"
-                }
+                placeholder={"Enter a description for your channel"}
+                defaultValue={channelQueryData?.description ?? ""}
                 _placeholder={{ color: "grey" }}
                 lineHeight="1.2"
                 background="#F1F4F8"

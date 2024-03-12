@@ -10,7 +10,6 @@ import {
   NULL_ADDRESS,
   RANDOM_CHAT_COLOR,
 } from "../../constants";
-import { ChatCommand } from "../../generated/graphql";
 import { useChannelContext } from "../context/useChannel";
 import { useUser } from "../context/useUser";
 import usePostFirstChat from "../server/usePostFirstChat";
@@ -176,8 +175,8 @@ export const useChatBox = (
 
   const toast = useToast();
   const { channel: channelContext } = useChannelContext();
-  const { channelQueryData } = channelContext;
-  const { user, userAddress: address, walletIsConnected } = useUser();
+  const { channelDetails, channelQueryData } = channelContext;
+  const { user, walletIsConnected } = useUser();
 
   const { postFirstChat } = usePostFirstChat({
     onError: (m) => {
@@ -192,13 +191,8 @@ export const useChatBox = (
   const { handleIsClipUiOpen } = clipping;
 
   const channelChatCommands = useMemo(
-    () =>
-      channelQueryData?.chatCommands
-        ? channelQueryData?.chatCommands.filter(
-            (c): c is ChatCommand => c !== null
-          )
-        : [],
-    [channelQueryData?.chatCommands]
+    () => channelDetails?.chatCommands ?? [],
+    [channelDetails?.chatCommands]
   );
 
   const handleScrollToPresent = useCallback(() => {
@@ -248,7 +242,7 @@ export const useChatBox = (
       messageToPublish = `${data}`;
       allowPublish = true;
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
-      if (channelQueryData?.allowNFCs || false) {
+      if (channelDetails?.allowNfcs || false) {
         handleIsClipUiOpen(true);
         allowPublish = false;
       } else {

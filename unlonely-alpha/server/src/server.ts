@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import http from "http";
+// import cron from "node-cron";
 
 import { ApolloServer } from "apollo-server-express";
 import bodyParser from "body-parser";
@@ -8,6 +9,7 @@ import express from "express";
 
 import { getContext } from "./context";
 import graphqlSchema from "./entities/graphqlSchema";
+// import { watchBlocks } from "./utils/watchBlock";
 
 const app = express();
 app.use(cors());
@@ -27,7 +29,8 @@ const startServer = async () => {
   const apolloServer = new ApolloServer({
     schema: graphqlSchema,
     context: getContext,
-    introspection: false,
+    // introspection: process.env.DEVELOPMENT ? true : false,
+    introspection: true,
   });
 
   await apolloServer.start();
@@ -40,9 +43,10 @@ const startServer = async () => {
 
   // force redeploy
 
-  httpServer.listen(process.env.PORT || 4000, () =>
-    console.info(`Server started on port ${process.env.PORT || 4000}`)
-  );
+  httpServer.listen(process.env.PORT || 4000, () => {
+    console.info(`Server started on port ${process.env.PORT || 4000}`);
+    // watchBlocks();
+  });
 };
 
 startServer();

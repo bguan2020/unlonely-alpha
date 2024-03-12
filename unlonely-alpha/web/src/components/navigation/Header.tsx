@@ -1,4 +1,10 @@
-import { Flex, Spacer, useBreakpointValue, Text } from "@chakra-ui/react";
+import {
+  Flex,
+  Spacer,
+  useBreakpointValue,
+  Text,
+  Button,
+} from "@chakra-ui/react";
 import NextLink from "next/link";
 import NextImage from "next/image";
 
@@ -11,6 +17,10 @@ const Header: React.FC = () => {
     md: true,
     xl: true,
   });
+
+  const redirectToNewChannelPage = () => {
+    window.open(`${window.location.origin}/onboard`, "_self");
+  };
 
   return (
     <Flex
@@ -56,6 +66,21 @@ const Header: React.FC = () => {
             margin="auto"
             width="100%"
           >
+            <Button
+              border="1px solid white"
+              borderRadius="0"
+              color="white"
+              bg="rgba(70, 168, 0, 1)"
+              px="12px"
+              onClick={redirectToNewChannelPage}
+              _hover={{
+                bg: "rgba(70, 168, 0, 0.8)",
+              }}
+              _active={{}}
+              _focus={{}}
+            >
+              <Text fontFamily="LoRes15">create</Text>
+            </Button>
             <ConnectWallet />
           </Flex>
         </Spacer>

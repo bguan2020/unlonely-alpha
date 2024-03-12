@@ -36,9 +36,10 @@ export const postChatByAwsId = async (
   user: User,
   ctx: Context
 ) => {
-  const channel = await ctx.prisma.channel.findUnique({
+  const channel = await ctx.prisma.channel.findFirst({
     where: {
       awsId: data.awsId,
+      softDelete: false,
     },
   });
 

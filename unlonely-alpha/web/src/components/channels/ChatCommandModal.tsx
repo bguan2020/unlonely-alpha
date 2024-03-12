@@ -2,7 +2,12 @@ import { AddIcon } from "@chakra-ui/icons";
 import { Button, Flex, IconButton, Input, Text, Image } from "@chakra-ui/react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
-import { BaseChatCommand, CommandData } from "../../constants";
+import {
+  AblyChannelPromise,
+  BaseChatCommand,
+  CHANGE_CHANNEL_DETAILS_EVENT,
+  CommandData,
+} from "../../constants";
 import { ChatCommand } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
@@ -14,14 +19,16 @@ export default function ChatCommandModal({
   isOpen,
   callback,
   handleClose,
+  ablyChannel,
 }: {
   title: string;
   isOpen: boolean;
   callback?: any;
   handleClose: () => void;
+  ablyChannel: AblyChannelPromise;
 }) {
   const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
+  const { channelQueryData, channelDetails } = channel;
   const { isStandalone } = useUserAgent();
 
   const [commandsData, setCommandsData] = useState<CommandData[]>([]);
@@ -35,30 +42,41 @@ export default function ChatCommandModal({
   const isDeletingAll = useMemo(() => {
     if (
       commandsData.length === 0 &&
-      channelQueryData?.chatCommands &&
-      channelQueryData?.chatCommands.length > 0
+      channelDetails?.chatCommands &&
+      channelDetails?.chatCommands.length > 0
     ) {
       return true;
     }
     return false;
-  }, [commandsData, channelQueryData]);
+  }, [commandsData, channelDetails]);
 
-  const callChange = useCallback(() => {
-    updateDeleteChatCommands({
+  const callChange = useCallback(async () => {
+    await updateDeleteChatCommands({
       id: channelQueryData?.id,
       chatCommands: commandsData,
     });
+    ablyChannel?.publish({
+      name: CHANGE_CHANNEL_DETAILS_EVENT,
+      data: {
+        body: JSON.stringify({
+          channelName: channelDetails.channelName,
+          channelDescription: channelDetails.channelDescription,
+          chatCommands: commandsData,
+          allowNfcs: channelDetails.allowNfcs,
+        }),
+      },
+    });
+    handleClose();
   }, [channelQueryData, commandsData]);
 
   useEffect(() => {
-    if (channelQueryData?.chatCommands) {
-      const nonNullCommands: ChatCommand[] =
-        channelQueryData.chatCommands.filter(
-          (c): c is ChatCommand => c !== null
-        );
+    if (channelDetails?.chatCommands) {
+      const nonNullCommands: ChatCommand[] = channelDetails.chatCommands.filter(
+        (c): c is ChatCommand => c !== null
+      );
       setCommandsData(nonNullCommands);
     }
-  }, [channelQueryData]);
+  }, [channelDetails]);
 
   const updateCommands = (c: CommandData, i: number) => {
     const newCommands = [...commandsData];

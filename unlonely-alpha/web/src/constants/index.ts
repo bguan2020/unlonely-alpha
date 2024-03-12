@@ -43,9 +43,9 @@ export const USER_APPROVAL_AMOUNT = "10000";
 export const RANDOM_CHAT_COLOR =
   COLORS[Math.floor(Math.random() * COLORS.length)];
 
-export const ADD_REACTION_EVENT = "add-reaction";
 export const CHAT_MESSAGE_EVENT = "chat-message";
 export const CHANGE_USER_ROLE_EVENT = "change-user-role";
+export const CHANGE_CHANNEL_DETAILS_EVENT = "change-channel-details";
 export const VIBES_TOKEN_PRICE_RANGE_EVENT = "vibes-token-price-range";
 
 export type CommandData = {
@@ -69,3 +69,5 @@ export const DAYS_IN_A_WEEK = 7;
 export const AVERAGE_BLOCK_TIME_SECS = 2;
 export const SECONDS_PER_HOUR = MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE;
 export const SECONDS_PER_DAY = HOURS_IN_A_DAY * SECONDS_PER_HOUR;
+
+export const NEW_STREAMER_URL_QUERY_PARAM = "new";

@@ -14,6 +14,20 @@ export const typeDef = gql`
     response: String!
   }
 
+  type NFC implements Likable {
+    id: ID!
+    title: String
+    videoLink: String
+    videoThumbnail: String
+    openseaLink: String
+    score: Int!
+    liked: Boolean
+    disliked: Boolean
+    owner: User!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
   type SideBet {
     id: ID!
     wagerDescription: String
@@ -51,6 +65,8 @@ export const typeDef = gql`
     awsId: String!
     channelArn: String
     livepeerPlaybackId: String
+    streamKey: String
+    livepeerStreamId: String
     name: String
     description: String
     playbackUrl: String
@@ -60,6 +76,7 @@ export const typeDef = gql`
     owner: User!
     token: CreatorToken
     slug: String!
+    softDelete: Boolean
     customButtonAction: String
     customButtonPrice: Int
     createdAt: DateTime!
@@ -67,12 +84,37 @@ export const typeDef = gql`
     chatCommands: [ChatCommand]
     sharesEvent: [SharesEvent]
     roles: [ChannelUserRole]
+    nfcs: [NFC]
     sideBets: [SideBet]
     vibesTokenPriceRange: [String]
   }
 
+  type LivepeerStreamData {
+    streamKey: String
+    playbackId: String
+    isActive: Boolean
+    record: Boolean
+  }
+
   type UpdateManyResponse {
     count: Int!
+  }
+
+  input PostChannelInput {
+    slug: String!
+    name: String
+    description: String
+    canRecord: Boolean
+    allowNfcs: Boolean
+  }
+
+  input SoftDeleteChannelInput {
+    slug: String!
+  }
+
+  input MigrateChannelToLivepeerInput {
+    slug: String!
+    canRecord: Boolean
   }
 
   input ChannelFeedInput {
@@ -127,17 +169,49 @@ export const typeDef = gql`
     vibesTokenPriceRange: [String]!
   }
 
+  input ChannelSearchInput {
+    query: String
+    skip: Int
+    limit: Int
+    containsSlug: Boolean
+    slugOnly: Boolean
+    includeSoftDeletedChannels: Boolean
+  }
+
+  input UpdateChannelAllowNfcsInput {
+    id: ID!
+    allowNfcs: Boolean
+  }
+
+  input GetLivepeerStreamDataInput {
+    streamId: String
+  }
+
+  input UpdateLivepeerStreamDataInput {
+    streamId: String
+    canRecord: Boolean
+  }
+
   extend type Query {
+    getChannelSearchResults(data: ChannelSearchInput!): [Channel]
     getChannelFeed(data: ChannelFeedInput): [Channel]
     getChannelWithTokenById(id: ID!): Channel
     getChannelById(id: ID!): Channel
     getChannelBySlug(slug: String!): Channel
     getChannelByAwsId(awsId: String!): Channel
+    getLivepeerStreamData(data: GetLivepeerStreamDataInput!): LivepeerStreamData
   }
 
   extend type Mutation {
+    updateLivepeerStreamData(
+      data: UpdateLivepeerStreamDataInput!
+    ): LivepeerStreamData
+    postChannel(data: PostChannelInput!): Channel
+    softDeleteChannel(data: SoftDeleteChannelInput!): Channel
+    migrateChannelToLivepeer(data: MigrateChannelToLivepeerInput!): Channel
     closeSharesEvents(data: PostCloseSharesEventsInput!): UpdateManyResponse
     postSharesEvent(data: PostSharesEventInput!): Channel
+    updateChannelAllowNfcs(data: UpdateChannelAllowNfcsInput!): Channel
     updateSharesEvent(data: UpdateSharesEventInput!): Channel
     updateChannelText(data: UpdateChannelTextInput!): Channel
     updateChannelCustomButton(data: UpdateChannelCustomButtonInput!): Channel
@@ -145,5 +219,6 @@ export const typeDef = gql`
     updateChannelVibesTokenPriceRange(
       data: UpdateChannelVibesTokenPriceRangeInput!
     ): Channel
+    bulkLivepeerStreamIdMigration: UpdateManyResponse
   }
 `;

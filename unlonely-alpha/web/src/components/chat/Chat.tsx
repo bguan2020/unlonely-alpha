@@ -1,14 +1,6 @@
 import { Flex, Box, Text } from "@chakra-ui/react";
-import {
-  useEffect,
-  useRef,
-  useState,
-  useLayoutEffect,
-  CSSProperties,
-  useMemo,
-} from "react";
+import { useMemo } from "react";
 
-import { ADD_REACTION_EVENT } from "../../constants";
 import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import ChatForm from "./ChatForm";
@@ -53,59 +45,6 @@ const Chat = ({
     chat.channel
   );
 
-  const [emojisToAnimate, setEmojisToAnimate] = useState<
-    { emoji: string; id: number }[]
-  >([]);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerHeight, setContainerHeight] = useState(0);
-
-  useLayoutEffect(() => {
-    const updateHeight = () => {
-      if (containerRef.current) {
-        setContainerHeight(containerRef.current.offsetHeight);
-      }
-    };
-
-    updateHeight();
-
-    // Optional: Use ResizeObserver to handle dynamic content resizing
-    const resizeObserver = new ResizeObserver(() => {
-      updateHeight();
-    });
-
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-
-    return () => {
-      if (containerRef.current) {
-        resizeObserver.unobserve(containerRef.current);
-      }
-    };
-  }, []);
-
-  const handleAnimateReactionEmoji = (str: string) => {
-    const id = Date.now();
-    setEmojisToAnimate((prev) => [...prev, { emoji: str, id }]);
-
-    // Remove the emoji from the state after the animation duration
-    setTimeout(() => {
-      setEmojisToAnimate((prev) => prev.filter((emoji) => emoji.id !== id));
-    }, 4000);
-  };
-
-  useEffect(() => {
-    if (!chat.allMessages || chat.allMessages.length === 0) return;
-    const latestMessage = chat.allMessages[chat.allMessages.length - 1];
-    if (
-      Date.now() - latestMessage.timestamp < 12000 &&
-      latestMessage.name === ADD_REACTION_EVENT &&
-      latestMessage.data.body
-    )
-      handleAnimateReactionEmoji(latestMessage.data.body);
-  }, [chat.allMessages]);
-
   return (
     <Flex
       direction="column"
@@ -114,30 +53,6 @@ const Chat = ({
       h="100%"
       position={"relative"}
     >
-      <div
-        style={{
-          width: "100%",
-          position: "absolute",
-          pointerEvents: "none",
-          height: "100%",
-          zIndex: 2,
-        }}
-        ref={containerRef}
-      >
-        {emojisToAnimate.map(({ emoji, id }) => (
-          <span
-            key={id}
-            className="floatingEmoji"
-            style={
-              {
-                "--translateY": `${containerHeight - 120}px`,
-              } as CSSProperties & { "--translateY": string }
-            }
-          >
-            {emoji}
-          </span>
-        ))}
-      </div>
       {!isVip && !userIsChannelOwner && !userIsModerator && isVipChat && (
         <Flex direction="column">
           <Text textAlign={"center"}>

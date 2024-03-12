@@ -112,6 +112,9 @@ model NFC {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  channelId Int?
+  channel Channel? @relation(fields: [channelId], references: [id])
 }
 
 model StreamInteraction {
@@ -142,13 +145,16 @@ model Channel {
   slug String @unique
   isLive Boolean @default(false)
   allowNFCs Boolean @default(true)
+  streamKey String? @default("")
   livepeerPlaybackId String? @default("")
+  livepeerStreamId String? @default("")
 
   ownerAddr String
   owner User @relation(fields: [ownerAddr], references: [address])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  softDelete Boolean @default(false)
 
   chats Chat[]
   streamInteractions StreamInteraction[]
@@ -159,6 +165,7 @@ model Channel {
   vibesTokenPriceRange String[]
   sharesEvent SharesEvent[]
   roles ChannelUserRole[]
+  nfcs NFC[]
 
   gamblableInteractions GamblableInteraction[]
   gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
@@ -173,6 +180,41 @@ model ChannelUserRole {
   channel   Channel  @relation(fields: [channelId], references: [id])
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+}
+
+enum VibesTransactionType {
+  BUY
+  SELL
+}
+
+model VibesTransaction {
+  id                             Int      @id @default(autoincrement())
+  uniqueTransactionId            String   @unique
+  chainId                        Int
+  transactionHash                String
+  blockNumber                    BigInt
+  transactionType                VibesTransactionType
+  traderAddress                  String
+  streamerAddress                String
+  totalVibesSupplyAfterTrade     String
+  vibesAmount                    String
+  weiAmount                      String
+  protocolWeiFees                String
+  streamerWeiFees                String
+  createdAt                      DateTime @default(now())
+}
+
+model StreamerVibesStat {
+  id                             Int      @id @default(autoincrement())
+  uniqueStatId                   String   @unique
+  streamerAddress                String
+  chainId                        Int
+  allTimeTotalVibesVolume        String
+  allTimeTotalWeiVolume          String
+  allTimeTotalProtocolWeiFees    String
+  allTimeTotalStreamerWeiFees    String
+  updatedAt                      DateTime @updatedAt
+  createdAt                      DateTime @default(now())
 }
 
 model CreatorToken {

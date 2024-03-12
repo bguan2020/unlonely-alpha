@@ -8,11 +8,12 @@ export enum SenderStatus {
   CHATBOT,
   USER,
   VIP,
+  MODERATOR,
 }
 
 export type EmojiTypes = { emojiType: "unicode" | string; count: number }[];
 
-export type SelectedUser = { address?: string; username?: string }
+export type SelectedUser = { address?: string; username?: string };
 
 export type Message = {
   clientId: string;

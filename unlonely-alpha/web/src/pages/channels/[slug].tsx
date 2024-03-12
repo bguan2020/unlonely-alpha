@@ -1,13 +1,6 @@
 import { GetServerSidePropsContext } from "next";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Flex,
-  Text,
-  Image,
-  Stack,
-  IconButton,
-  Tooltip,
-} from "@chakra-ui/react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Flex, Text, Image, Stack, Button } from "@chakra-ui/react";
 import { useContractEvent } from "wagmi";
 import { Log } from "viem";
 
@@ -17,8 +10,14 @@ import { WavyText } from "../../components/general/WavyText";
 import AppLayout from "../../components/layout/AppLayout";
 import ChannelNextHead from "../../components/layout/ChannelNextHead";
 import StandaloneAblyChatComponent from "../../components/mobile/StandAloneChatComponent";
-import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
-import { ChannelStaticQuery } from "../../generated/graphql";
+import {
+  CHANNEL_STATIC_QUERY,
+  GET_LIVEPEER_STREAM_DATA_QUERY,
+} from "../../constants/queries";
+import {
+  ChannelStaticQuery,
+  GetLivepeerStreamDataQuery,
+} from "../../generated/graphql";
 import {
   ChannelProvider,
   ChannelWideModals,
@@ -40,7 +39,13 @@ import VibesTokenInterface from "../../components/chat/VibesTokenInterface";
 import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import Trade from "../../components/channels/bet/Trade";
-import { ApolloError } from "@apollo/client";
+import { ApolloError, useLazyQuery } from "@apollo/client";
+import { useRouter } from "next/router";
+import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
+import { useTour } from "@reactour/tour";
+import { streamerTourSteps } from "../_app";
+import { NEW_STREAMER_URL_QUERY_PARAM } from "../../constants";
+import Link from "next/link";
 
 const ChannelDetail = ({
   channelData,
@@ -99,16 +104,70 @@ const DesktopPage = ({
   } = channel;
   const { handleIsVip } = leaderboard;
 
+  const router = useRouter();
+
+  const [welcomeStreamer, setWelcomeStreamer] = useState(false);
+  const [welcomeStreamerModal, setWelcomeStreamerModal] = useState<
+    "welcome" | "off" | "bye"
+  >("off");
+  const [startedWelcomeTour, setStartedWelcomeTour] = useState(false);
+  const [livepeerData, setLivepeerData] =
+    useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
+
+  const {
+    setIsOpen: setIsTourOpen,
+    setSteps: setTourSteps,
+    isOpen: isTourOpen,
+  } = useTour();
+
   const { userAddress, walletIsConnected } = useUser();
 
   const isOwner = userAddress === channelQueryData?.owner?.address;
-
-  const [previewStream, setPreviewStream] = useState<boolean>(false);
 
   const tournamentContract = getContractFromNetwork(
     "unlonelyTournament",
     localNetwork
   );
+
+  const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
+    GET_LIVEPEER_STREAM_DATA_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
+  );
+
+  useEffect(() => {
+    const init = async () => {
+      if (channelQueryData?.livepeerStreamId) {
+        const res = await getLivepeerStreamData({
+          variables: {
+            data: { streamId: channelQueryData?.livepeerStreamId },
+          },
+        });
+        setLivepeerData(res.data?.getLivepeerStreamData);
+      }
+    };
+    init();
+  }, [channelQueryData?.livepeerStreamId]);
+
+  useEffect(() => {
+    if (router.query[NEW_STREAMER_URL_QUERY_PARAM] && isOwner) {
+      setWelcomeStreamerModal("welcome");
+      setWelcomeStreamer(true);
+      const newPath = router.pathname;
+      const newQuery = { ...router.query };
+      delete newQuery[NEW_STREAMER_URL_QUERY_PARAM];
+
+      router.replace(
+        {
+          pathname: newPath,
+          query: newQuery,
+        },
+        undefined,
+        { shallow: true }
+      );
+    }
+  }, [router, isOwner]);
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
@@ -183,9 +242,96 @@ const DesktopPage = ({
     handleTotalBadges(truncateValue(Number(vipBadgeSupply), 0));
   }, [vipBadgeSupply]);
 
+  useEffect(() => {
+    if (!isTourOpen && welcomeStreamer && startedWelcomeTour)
+      setWelcomeStreamerModal("bye");
+  }, [isTourOpen, welcomeStreamer, startedWelcomeTour]);
+
   return (
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}
+      <TransactionModalTemplate
+        isOpen={welcomeStreamerModal !== "off"}
+        handleClose={() => setWelcomeStreamerModal("off")}
+        cannotClose
+        hideFooter
+      >
+        {welcomeStreamerModal === "welcome" && (
+          <Flex direction="column" gap="10px">
+            <Text fontSize={"2rem"} textAlign="center" fontFamily="LoRes15">
+              Welcome streamer!
+            </Text>
+            <Text fontSize={"1rem"} textAlign="center">
+              You can now start your stream and interact with your viewers
+            </Text>
+            <Text textAlign="center">
+              We've also prepared a small guide for how to use this page!
+            </Text>
+            <Button
+              bg="#cd34e8"
+              color={"white"}
+              _focus={{}}
+              _hover={{
+                transform: "scale(1.05)",
+              }}
+              _active={{}}
+              onClick={() => {
+                setWelcomeStreamerModal("off");
+                setTourSteps?.(streamerTourSteps);
+                setIsTourOpen(true);
+                setStartedWelcomeTour(true);
+              }}
+            >
+              Start tour
+            </Button>
+            <Button
+              bg="transparent"
+              color={"#a3a3a3"}
+              _focus={{}}
+              _hover={{
+                transform: "scale(1.05)",
+              }}
+              _active={{}}
+              onClick={() => {
+                setWelcomeStreamerModal("off");
+                setWelcomeStreamer(false);
+              }}
+            >
+              No thanks
+            </Button>
+          </Flex>
+        )}
+        {welcomeStreamerModal === "bye" && (
+          <Flex direction="column" gap="10px">
+            <Text fontSize={"1rem"} textAlign="center">
+              you're ready to start streaming!
+            </Text>
+            <Text fontSize={"1rem"} textAlign="center">
+              check out the rest of our features{" "}
+              <Link href="https://bit.ly/unlonelyFAQs" target="_blank">
+                <Text as="span" textDecoration={"underline"} color="#3cd8ff">
+                  here
+                </Text>
+              </Link>
+            </Text>
+            <Button
+              onClick={() => {
+                setWelcomeStreamerModal("off");
+                setWelcomeStreamer(false);
+              }}
+              color="white"
+              bg={"#0767ac"}
+              _focus={{}}
+              _hover={{
+                transform: "scale(1.05)",
+              }}
+              _active={{}}
+            >
+              close
+            </Button>
+          </Flex>
+        )}
+      </TransactionModalTemplate>
       <AppLayout
         title={channelSSR?.name}
         image={channelSSR?.owner?.FCImageUrl}
@@ -198,7 +344,6 @@ const DesktopPage = ({
         !channelSSRDataError &&
         !channelSSRDataLoading ? (
           <>
-            <ChannelWideModals ablyChannel={chat.channel} />
             <Stack
               mx={[0, 8, 4]}
               alignItems={["center", "initial"]}
@@ -206,36 +351,16 @@ const DesktopPage = ({
               direction={["column", "column", "row", "row"]}
             >
               <Stack direction="column" width={"100%"}>
-                {isOwner && !previewStream && walletIsConnected ? (
-                  <ChannelStreamerPerspective />
+                {isOwner && walletIsConnected ? (
+                  <>
+                    <ChannelWideModals ablyChannel={chat.channel} />
+                    <ChannelStreamerPerspective
+                      ablyChannel={chat.channel}
+                      livepeerData={livepeerData}
+                    />
+                  </>
                 ) : (
                   <ChannelViewerPerspective />
-                )}
-                {isOwner && (
-                  <Flex justifyContent={"center"} gap="10px">
-                    <Tooltip
-                      label={`${previewStream ? "hide" : "preview"} stream`}
-                    >
-                      <IconButton
-                        onClick={() => setPreviewStream((prev) => !prev)}
-                        aria-label="preview"
-                        _hover={{}}
-                        _active={{}}
-                        _focus={{}}
-                        icon={
-                          <Image
-                            src="/svg/preview-video.svg"
-                            height={12}
-                            style={{
-                              filter: previewStream
-                                ? "grayscale(100%)"
-                                : "none",
-                            }}
-                          />
-                        }
-                      />
-                    </Tooltip>
-                  </Flex>
                 )}
                 <Flex
                   gap={4}
@@ -285,6 +410,8 @@ const DesktopPage = ({
           >
             {!channelDataError && !channelSSRDataError ? (
               <WavyText text="loading..." />
+            ) : channelSSR === null ? (
+              <Text fontFamily="LoRes15">channel does not exist</Text>
             ) : (
               <Text fontFamily="LoRes15">
                 server error, please try again later
@@ -324,12 +451,6 @@ const MobilePage = ({
 
   const isOwner = userAddress === channelQueryData?.owner?.address;
 
-  const [previewStream, setPreviewStream] = useState<boolean>(false);
-
-  const handleShowPreviewStream = useCallback(() => {
-    setPreviewStream((prev) => !prev);
-  }, []);
-
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
   }, [channelSSR]);
@@ -356,6 +477,30 @@ const MobilePage = ({
     userAddress as `0x${string}`,
     tournamentContract
   );
+
+  const [livepeerData, setLivepeerData] =
+    useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
+
+  const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
+    GET_LIVEPEER_STREAM_DATA_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
+  );
+
+  useEffect(() => {
+    const init = async () => {
+      if (channelQueryData?.livepeerStreamId) {
+        const res = await getLivepeerStreamData({
+          variables: {
+            data: { streamId: channelQueryData?.livepeerStreamId },
+          },
+        });
+        setLivepeerData(res.data?.getLivepeerStreamData);
+      }
+    };
+    init();
+  }, [channelQueryData?.livepeerStreamId]);
 
   const handleUpdate = (tradeEvents: Log[]) => {
     const sortedEvents = tradeEvents.filter(
@@ -423,13 +568,18 @@ const MobilePage = ({
         !channelSSRDataError &&
         !channelSSRDataLoading ? (
           <>
-            {(previewStream || !isOwner) && <ChannelViewerPerspective mobile />}
-            <ChannelWideModals ablyChannel={chat.channel} />
-            <StandaloneAblyChatComponent
-              previewStream={previewStream}
-              handleShowPreviewStream={handleShowPreviewStream}
-              chat={chat}
-            />
+            {isOwner ? (
+              <>
+                <ChannelWideModals ablyChannel={chat.channel} />
+                <ChannelStreamerPerspective
+                  livepeerData={livepeerData}
+                  ablyChannel={chat.channel}
+                />
+              </>
+            ) : (
+              <ChannelViewerPerspective mobile />
+            )}
+            <StandaloneAblyChatComponent chat={chat} />
           </>
         ) : (
           <Flex
@@ -451,6 +601,8 @@ const MobilePage = ({
                   <WavyText text="..." />
                 </Flex>
               </>
+            ) : channelSSR === null ? (
+              <Text fontFamily="LoRes15">channel does not exist</Text>
             ) : (
               <Text fontFamily="LoRes15">
                 server error, please try again later

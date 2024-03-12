@@ -1,4 +1,8 @@
-import { useContractWrite, usePublicClient, useWaitForTransaction } from "wagmi";
+import {
+  useContractWrite,
+  usePublicClient,
+  useWaitForTransaction,
+} from "wagmi";
 import { useState, useCallback, useEffect } from "react";
 
 import { ContractData, WriteCallbacks } from "../../constants/types";
@@ -257,7 +261,7 @@ export const useTransfer = (
     transferTxLoading,
     isRefetchingTransfer,
   };
-}
+};
 
 export const useUnpreparedMint = (
   args: {
@@ -267,13 +271,13 @@ export const useUnpreparedMint = (
   },
   contract: ContractData,
   callbacks?: WriteCallbacks,
-  overrides?: { value?: bigint; gas?: bigint; }
+  overrides?: { value?: bigint; gas?: bigint }
 ) => {
   const {
     data: writeData,
     error: writeError,
-    write
-    } = useContractWrite({
+    write,
+  } = useContractWrite({
     ...contract,
     functionName: "mint",
     args: [args.amount, args.streamer],
@@ -284,8 +288,8 @@ export const useUnpreparedMint = (
     },
     onError(error: Error) {
       if (callbacks?.onWriteError) callbacks?.onWriteError(error);
-    }}
-  );
+    },
+  });
 
   const {
     data: txData,
@@ -311,7 +315,7 @@ export const useUnpreparedMint = (
     writeError,
     txError,
   };
-}
+};
 
 export const useUnpreparedBurn = (
   args: {
@@ -319,13 +323,13 @@ export const useUnpreparedBurn = (
     streamer: string;
   },
   contract: ContractData,
-  callbacks?: WriteCallbacks,
+  callbacks?: WriteCallbacks
 ) => {
   const {
     data: writeData,
     error: writeError,
-    write
-    } = useContractWrite({
+    write,
+  } = useContractWrite({
     ...contract,
     functionName: "burn",
     args: [args.amount, args.streamer],
@@ -334,8 +338,8 @@ export const useUnpreparedBurn = (
     },
     onError(error: Error) {
       if (callbacks?.onWriteError) callbacks?.onWriteError(error);
-    }}
-  );
+    },
+  });
 
   const {
     data: txData,
@@ -361,4 +365,4 @@ export const useUnpreparedBurn = (
     writeError,
     txError,
   };
-}
+};

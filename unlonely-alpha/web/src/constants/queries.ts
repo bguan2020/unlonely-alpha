@@ -76,6 +76,8 @@ export const CHANNEL_DETAIL_QUERY = gql`
       channelArn
       description
       livepeerPlaybackId
+      livepeerStreamId
+      streamKey
       isLive
       id
       name
@@ -120,6 +122,8 @@ export const CHANNEL_STATIC_QUERY = gql`
       channelArn
       description
       livepeerPlaybackId
+      livepeerStreamId
+      streamKey
       isLive
       id
       name
@@ -286,6 +290,36 @@ export const GET_BASE_LEADERBOARD_QUERY = gql`
         FCImageUrl
         lensImageUrl
       }
+    }
+  }
+`;
+
+export const GET_LIVEPEER_STREAM_DATA_QUERY = gql`
+  query GetLivepeerStreamData($data: GetLivepeerStreamDataInput!) {
+    getLivepeerStreamData(data: $data) {
+      streamKey
+      record
+      playbackId
+      isActive
+    }
+  }
+`;
+
+export const GET_CHANNEL_SEARCH_RESULTS_QUERY = gql`
+  query GetChannelSearchResults($data: ChannelSearchInput!) {
+    getChannelSearchResults(data: $data) {
+      id
+      isLive
+      name
+      description
+      slug
+      owner {
+        username
+        address
+        FCImageUrl
+        lensImageUrl
+      }
+      thumbnailUrl
     }
   }
 `;

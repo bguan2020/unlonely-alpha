@@ -21,7 +21,8 @@ type Props = {
   handleOpen: (value?: SelectedUser) => void;
 };
 
-// if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred
+// if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred,
+// messages with SenderStatus.MODERATOR are always displayed when isVipChat is false or true.
 
 const MessageBody = ({
   message,
@@ -31,7 +32,7 @@ const MessageBody = ({
   handleOpen,
 }: Props) => {
   const { channel: c, leaderboard } = useChannelContext();
-  const { isVip } = leaderboard;
+  const { isVip: userIsVip } = leaderboard;
   const { channelQueryData, channelRoles } = c;
   const { user } = useUser();
 
@@ -44,6 +45,15 @@ const MessageBody = ({
     () =>
       channelRoles?.some((m) => m?.address === user?.address && m?.role === 2),
     [user, channelRoles]
+  );
+
+  const normalUserReceivesVipMessages = useMemo(
+    () =>
+      message.data.senderStatus === SenderStatus.VIP &&
+      !userIsChannelOwner &&
+      !userIsModerator &&
+      !userIsVip,
+    [userIsChannelOwner, userIsModerator, userIsVip, message.data.senderStatus]
   );
 
   const fragments = useMemo(() => {
@@ -156,7 +166,7 @@ const MessageBody = ({
               position="relative"
             >
               <Text as="span">
-                <Badges user={user} message={message} />
+                <Badges message={message} />
                 <Text
                   as="span"
                   onClick={() => {
@@ -206,12 +216,7 @@ const MessageBody = ({
                     as="span"
                     color="#15dae4"
                     filter={
-                      message.data.senderStatus === SenderStatus.VIP &&
-                      !userIsChannelOwner &&
-                      !userIsModerator &&
-                      !isVip
-                        ? "blur(5px)"
-                        : "blur(0px)"
+                      normalUserReceivesVipMessages ? "blur(5px)" : "blur(0px)"
                     }
                     fontSize={"12px"}
                     wordBreak="break-word"
@@ -239,12 +244,7 @@ const MessageBody = ({
                     wordBreak="break-word"
                     textAlign="left"
                     filter={
-                      message.data.senderStatus === SenderStatus.VIP &&
-                      !userIsChannelOwner &&
-                      !userIsModerator &&
-                      !isVip
-                        ? "blur(5px)"
-                        : "blur(0px)"
+                      normalUserReceivesVipMessages ? "blur(5px)" : "blur(0px)"
                     }
                   >
                     {messageText.split("\n").map((line, index) => (

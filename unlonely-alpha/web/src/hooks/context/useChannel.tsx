@@ -31,7 +31,7 @@ import EditChannelModal from "../../components/channels/EditChannelModal";
 import NotificationsModal from "../../components/channels/NotificationsModal";
 import ModeratorModal from "../../components/channels/ModeratorModal";
 import { useNetworkContext } from "./useNetwork";
-import { AblyChannelPromise } from "../../constants";
+import { AblyChannelPromise, CommandData } from "../../constants";
 import { SelectedUser } from "../../constants/types/chat";
 
 export const useChannelContext = () => {
@@ -47,6 +47,12 @@ const ChannelContext = createContext<{
     error?: ApolloError;
     refetchChannel: () => Promise<any>;
     totalBadges: string;
+    channelDetails: {
+      channelName: string;
+      channelDescription: string;
+      chatCommands: CommandData[];
+      allowNfcs: boolean;
+    };
     channelRoles: Role[];
     handleTotalBadges: (value: string) => void;
     handleChannelRoles: (
@@ -56,6 +62,12 @@ const ChannelContext = createContext<{
     ) => void;
     handleChannelStaticData: (
       value: ChannelDetailQuery["getChannelBySlug"]
+    ) => void;
+    handleChannelDetails: (
+      channelName: string,
+      channelDescription: string,
+      chatCommands: CommandData[],
+      allowNfcs: boolean
     ) => void;
   };
   chat: {
@@ -115,10 +127,17 @@ const ChannelContext = createContext<{
     error: undefined,
     refetchChannel: () => Promise.resolve(undefined),
     totalBadges: "0",
+    channelDetails: {
+      channelName: "",
+      channelDescription: "",
+      chatCommands: [],
+      allowNfcs: true,
+    },
     channelRoles: [],
     handleTotalBadges: () => undefined,
     handleChannelRoles: () => undefined,
     handleChannelStaticData: () => undefined,
+    handleChannelDetails: () => undefined,
   },
   chat: {
     chatChannel: undefined,
@@ -263,6 +282,17 @@ export const ChannelProvider = ({
   const [vipPool, setVipPool] = useState<string>("0");
   const [tournamentActive, setTournamentActive] = useState<boolean>(false);
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
+  const [channelDetails, setChannelDetails] = useState<{
+    channelName: string;
+    channelDescription: string;
+    chatCommands: CommandData[];
+    allowNfcs: boolean;
+  }>({
+    channelName: "",
+    channelDescription: "",
+    chatCommands: [],
+    allowNfcs: true,
+  });
   const [channelRoles, setChannelRoles] = useState<Role[]>([]);
   const [latestBet, setLatestBet] = useState<SharesEvent | undefined>(
     undefined
@@ -322,6 +352,20 @@ export const ChannelProvider = ({
     const latestBet = ongoingBets[0];
     setLatestBet(latestBet);
   }, [ongoingBets]);
+
+  useEffect(() => {
+    if (channelQueryData) {
+      setChannelDetails({
+        channelName: channelQueryData.name ?? "",
+        channelDescription: channelQueryData.description ?? "",
+        chatCommands:
+          channelQueryData?.chatCommands?.filter(
+            (command): command is CommandData => command !== null
+          ) ?? [],
+        allowNfcs: channelQueryData?.allowNFCs ?? false,
+      });
+    }
+  }, [channelQueryData]);
 
   const handleVibesTokenPriceRange = useCallback((value: string[]) => {
     setVibesTokenPriceRange(value);
@@ -384,6 +428,23 @@ export const ChannelProvider = ({
     []
   );
 
+  const handleChannelDetails = useCallback(
+    (
+      channelName: string,
+      channelDescription: string,
+      chatCommands: CommandData[],
+      allowNfcs: boolean
+    ) => {
+      setChannelDetails({
+        channelName,
+        channelDescription,
+        chatCommands,
+        allowNfcs,
+      });
+    },
+    []
+  );
+
   const handleChannelStaticData = useCallback(
     (value: ChannelDetailQuery["getChannelBySlug"]) => {
       setChannelStatic(value);
@@ -423,9 +484,11 @@ export const ChannelProvider = ({
         refetchChannel: refetchChannelInteractable,
         totalBadges,
         handleTotalBadges,
+        channelDetails,
         channelRoles: channelRoles,
         handleChannelRoles,
         handleChannelStaticData,
+        handleChannelDetails,
       },
       chat: {
         chatChannel: ablyChatChannel,
@@ -477,11 +540,13 @@ export const ChannelProvider = ({
       },
     }),
     [
+      channelDetails,
       channelRoles,
       channelQueryData,
       latestBet,
       handleLatestBet,
       handleChannelStaticData,
+      handleChannelDetails,
       channelInteractableLoading,
       channelInteractableError,
       refetchChannelInteractable,
@@ -566,11 +631,13 @@ export const ChannelWideModals = ({
         title={"custom commands"}
         isOpen={showChatCommandModal}
         handleClose={() => handleChatCommandModal(false)}
+        ablyChannel={ablyChannel}
       />
       <EditChannelModal
         title={"edit title / description"}
         isOpen={showEditModal}
         handleClose={() => handleEditModal(false)}
+        ablyChannel={ablyChannel}
       />
       <NotificationsModal
         title={"send notifications"}

@@ -2,6 +2,8 @@ import { Flex, Text, Button, Stack } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { BaseChatCommand, CommandData } from "../../constants";
+import { useChannelContext } from "../../hooks/context/useChannel";
+import { useUser } from "../../hooks/context/useUser";
 interface Command {
   name: string;
   description?: string;
@@ -52,6 +54,11 @@ export default function Commands({
   chat,
   additionalChatCommands,
 }: Props) {
+  const { userAddress } = useUser();
+  const { channel, ui } = useChannelContext();
+  const { channelQueryData } = channel;
+  const { handleChatCommandModal } = ui;
+
   const channelChatComands: Command[] = additionalChatCommands
     ? additionalChatCommands.map((c) => {
         return {
@@ -64,6 +71,8 @@ export default function Commands({
   const aggregatedCommandList = [...commandList, ...channelChatComands];
 
   const [currentOpen, setCurrentOpen] = useState(open);
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   const matchingList = useMemo(() => {
     return aggregatedCommandList.filter((command) => {
@@ -89,6 +98,20 @@ export default function Commands({
             maxH="300px"
             overflowY={"auto"}
           >
+            {isOwner && (
+              <Button
+                color="white"
+                bg={"#7f4baf"}
+                _hover={{ bg: "#6f42bc" }}
+                _active={{ bg: "#6f42bc" }}
+                borderRadius="10px"
+                mb="5px"
+                p="10px"
+                onClick={() => handleChatCommandModal(true)}
+              >
+                <Text>manage chat commands</Text>
+              </Button>
+            )}
             {matchingList.map((command, i) => {
               return (
                 <Button
