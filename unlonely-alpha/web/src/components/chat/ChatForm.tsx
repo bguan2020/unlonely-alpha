@@ -31,7 +31,6 @@ import EmojiButton from "./emoji/EmojiButton";
 import ConnectWallet from "../navigation/ConnectWallet";
 import { ChatClip } from "./ChatClip";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import { useTour } from "@reactour/tour";
 import { streamerTourSteps } from "../../pages/_app";
 
 type Props = {
@@ -57,12 +56,24 @@ const ChatForm = ({
 }: Props) => {
   const { user, walletIsConnected, userAddress: address } = useUser();
   const { isStandalone } = useUserAgent();
-  const { setIsOpen: setIsTourOpen, setSteps: setTourSteps } = useTour();
+  // const { setIsOpen: setIsTourOpen, setSteps: setTourSteps } = useTour();
 
   const toast = useToast();
-  const { channel: channelContext, chat, leaderboard } = useChannelContext();
+  const {
+    channel: channelContext,
+    chat,
+    leaderboard,
+    ui,
+  } = useChannelContext();
   const { isVip } = leaderboard;
   const { clipping } = chat;
+  const {
+    welcomeTourState: {
+      handleStartedWelcomeTour,
+      handleIsTourOpen,
+      handleSetTourSteps,
+    },
+  } = ui;
   const { handleIsClipUiOpen, loading: clipLoading } = clipping;
 
   const { channelQueryData, channelDetails, channelRoles } = channelContext;
@@ -418,8 +429,9 @@ const ChatForm = ({
                           _hover={{ transform: "scale(1.15)" }}
                           _active={{ transform: "scale(1.3)" }}
                           onClick={() => {
-                            setTourSteps?.(streamerTourSteps);
-                            setIsTourOpen(true);
+                            handleSetTourSteps(streamerTourSteps);
+                            handleStartedWelcomeTour(true);
+                            handleIsTourOpen?.(true);
                           }}
                           minWidth="auto"
                         />

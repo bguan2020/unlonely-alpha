@@ -40,11 +40,8 @@ import ChannelDesc from "../../components/channels/ChannelDesc";
 import ChannelStreamerPerspective from "../../components/channels/ChannelStreamerPerspective";
 import Trade from "../../components/channels/bet/Trade";
 import { ApolloError, useLazyQuery } from "@apollo/client";
-import { useRouter } from "next/router";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
-import { useTour } from "@reactour/tour";
 import { streamerTourSteps } from "../_app";
-import { NEW_STREAMER_URL_QUERY_PARAM } from "../../constants";
 import Link from "next/link";
 
 const ChannelDetail = ({
@@ -91,7 +88,7 @@ const DesktopPage = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { channel, leaderboard } = useChannelContext();
+  const { channel, leaderboard, ui } = useChannelContext();
   const chat = useChat();
   const { network } = useNetworkContext();
   const { localNetwork } = network;
@@ -102,24 +99,19 @@ const DesktopPage = ({
     handleTotalBadges,
     handleChannelStaticData,
   } = channel;
+  const {
+    welcomeTourState: {
+      welcomeStreamerModal,
+      handleWelcomeStreamerModal,
+      handleStartedWelcomeTour,
+      handleIsTourOpen,
+      handleSetTourSteps,
+    },
+  } = ui;
   const { handleIsVip } = leaderboard;
 
-  const router = useRouter();
-
-  const [welcomeStreamer, setWelcomeStreamer] = useState(false);
-  const [welcomeStreamerModal, setWelcomeStreamerModal] = useState<
-    "welcome" | "off" | "bye"
-  >("off");
-  const [startedWelcomeTour, setStartedWelcomeTour] = useState(false);
   const [livepeerData, setLivepeerData] =
     useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
-
-  const {
-    setIsOpen: setIsTourOpen,
-    setSteps: setTourSteps,
-    isOpen: isTourOpen,
-  } = useTour();
-
   const { userAddress, walletIsConnected } = useUser();
 
   const isOwner = userAddress === channelQueryData?.owner?.address;
@@ -149,25 +141,6 @@ const DesktopPage = ({
     };
     init();
   }, [channelQueryData?.livepeerStreamId]);
-
-  useEffect(() => {
-    if (router.query[NEW_STREAMER_URL_QUERY_PARAM] && isOwner) {
-      setWelcomeStreamerModal("welcome");
-      setWelcomeStreamer(true);
-      const newPath = router.pathname;
-      const newQuery = { ...router.query };
-      delete newQuery[NEW_STREAMER_URL_QUERY_PARAM];
-
-      router.replace(
-        {
-          pathname: newPath,
-          query: newQuery,
-        },
-        undefined,
-        { shallow: true }
-      );
-    }
-  }, [router, isOwner]);
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
@@ -242,25 +215,22 @@ const DesktopPage = ({
     handleTotalBadges(truncateValue(Number(vipBadgeSupply), 0));
   }, [vipBadgeSupply]);
 
-  useEffect(() => {
-    if (!isTourOpen && welcomeStreamer && startedWelcomeTour)
-      setWelcomeStreamerModal("bye");
-  }, [isTourOpen, welcomeStreamer, startedWelcomeTour]);
-
   return (
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}
       <TransactionModalTemplate
+        title={
+          welcomeStreamerModal === "welcome"
+            ? "Welcome streamer!"
+            : "You are ready to start streaming!"
+        }
         isOpen={welcomeStreamerModal !== "off"}
-        handleClose={() => setWelcomeStreamerModal("off")}
-        cannotClose
+        handleClose={() => handleWelcomeStreamerModal("off")}
+        cannotClose={welcomeStreamerModal === "welcome"}
         hideFooter
       >
         {welcomeStreamerModal === "welcome" && (
           <Flex direction="column" gap="10px">
-            <Text fontSize={"2rem"} textAlign="center" fontFamily="LoRes15">
-              Welcome streamer!
-            </Text>
             <Text fontSize={"1rem"} textAlign="center">
               You can now start your stream and interact with your viewers
             </Text>
@@ -276,10 +246,10 @@ const DesktopPage = ({
               }}
               _active={{}}
               onClick={() => {
-                setWelcomeStreamerModal("off");
-                setTourSteps?.(streamerTourSteps);
-                setIsTourOpen(true);
-                setStartedWelcomeTour(true);
+                handleWelcomeStreamerModal("off");
+                handleSetTourSteps?.(streamerTourSteps);
+                handleIsTourOpen(true);
+                handleStartedWelcomeTour(true);
               }}
             >
               Start tour
@@ -288,9 +258,6 @@ const DesktopPage = ({
         )}
         {welcomeStreamerModal === "bye" && (
           <Flex direction="column" gap="10px">
-            <Text fontSize={"1rem"} textAlign="center">
-              you're ready to start streaming!
-            </Text>
             <Text fontSize={"1rem"} textAlign="center">
               check out the rest of our features{" "}
               <Link href="https://bit.ly/unlonelyFAQs" target="_blank">
@@ -301,8 +268,8 @@ const DesktopPage = ({
             </Text>
             <Button
               onClick={() => {
-                setWelcomeStreamerModal("off");
-                setWelcomeStreamer(false);
+                handleWelcomeStreamerModal("off");
+                handleStartedWelcomeTour(false);
               }}
               color="white"
               bg={"#0767ac"}

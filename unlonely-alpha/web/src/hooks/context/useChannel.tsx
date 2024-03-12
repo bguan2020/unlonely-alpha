@@ -33,6 +33,11 @@ import ModeratorModal from "../../components/channels/ModeratorModal";
 import { useNetworkContext } from "./useNetwork";
 import { AblyChannelPromise, CommandData } from "../../constants";
 import { SelectedUser } from "../../constants/types/chat";
+import {
+  WelcomeTourState,
+  useWelcomeTourState,
+  welcomeTourStateInitial,
+} from "../internal/useWelcomeTourState";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -117,6 +122,7 @@ const ChannelContext = createContext<{
     selectedUserInChat?: SelectedUser;
     handleSelectedUserInChat: (value?: SelectedUser) => void;
     handleLocalSharesEventState: (value: SharesEventState) => void;
+    welcomeTourState: WelcomeTourState;
   };
 }>({
   channel: {
@@ -186,6 +192,7 @@ const ChannelContext = createContext<{
     handleLocalSharesEventState: () => undefined,
     selectedUserInChat: undefined,
     handleSelectedUserInChat: () => undefined,
+    welcomeTourState: welcomeTourStateInitial,
   },
 });
 
@@ -196,7 +203,7 @@ export const ChannelProvider = ({
 }) => {
   const { network } = useNetworkContext();
   const { localNetwork } = network;
-  const { user } = useUser();
+  const { user, userAddress } = useUser();
   const router = useRouter();
   const { slug } = router.query;
 
@@ -244,6 +251,8 @@ export const ChannelProvider = ({
       },
     },
   });
+
+  const isOwner = userAddress === channelQueryData?.owner?.address;
 
   const userRank = useMemo(
     () => userRankData?.getGamblableEventUserRank,
@@ -297,6 +306,8 @@ export const ChannelProvider = ({
   const [latestBet, setLatestBet] = useState<SharesEvent | undefined>(
     undefined
   );
+
+  const welcomeTour = useWelcomeTourState(isOwner);
 
   const {
     handleCreateClip,
@@ -537,6 +548,7 @@ export const ChannelProvider = ({
         selectedUserInChat,
         handleSelectedUserInChat,
         handleLocalSharesEventState,
+        welcomeTourState: welcomeTour,
       },
     }),
     [
@@ -591,6 +603,7 @@ export const ChannelProvider = ({
       handleLocalSharesEventState,
       selectedUserInChat,
       handleSelectedUserInChat,
+      welcomeTour,
     ]
   );
 
