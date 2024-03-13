@@ -59,15 +59,17 @@ const createLivepeerStream = async (name: string, canRecord?: boolean) => {
   }
 };
 
-
 /**
  * pull all channels that have livepeerPlaybackId but don't have streamKey
  * pull all livestreams from livepeer
  * for each channel, use its livepeerPlaybackId to look up streamKey and streamId from the livestreams
  * update the channel with the streamKey and streamId
- * @returns 
+ * @returns
  */
-export const bulkLivepeerStreamIdMigration = async (data: any, ctx: Context) => {
+export const bulkLivepeerStreamIdMigration = async (
+  data: any,
+  ctx: Context
+) => {
   const headers = {
     Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
     "Content-Type": "application/json",
@@ -77,15 +79,21 @@ export const bulkLivepeerStreamIdMigration = async (data: any, ctx: Context) => 
       "https://livepeer.studio/api/stream?streamsonly=1",
       { headers }
     );
-    console.log("bulkLivepeerStreamIdMigration response", allStreamsResponse.data);
+    console.log(
+      "bulkLivepeerStreamIdMigration response",
+      allStreamsResponse.data
+    );
     const allChannels = await ctx.prisma.channel.findMany();
     console.log("bulkLivepeerStreamIdMigration allChannels", allChannels);
     const allChannelsToUpdate = await ctx.prisma.channel.findMany({
       where: {
-        livepeerPlaybackId: { not: "" }
+        livepeerPlaybackId: { not: "" },
       },
     });
-    console.log("bulkLivepeerStreamIdMigration allChannelsToUpdate", allChannelsToUpdate);
+    console.log(
+      "bulkLivepeerStreamIdMigration allChannelsToUpdate",
+      allChannelsToUpdate
+    );
     const updatedChannels = allChannelsToUpdate.map(async (channel) => {
       const stream = allStreamsResponse.data.find(
         (stream: any) => stream.playbackId === channel.livepeerPlaybackId
@@ -94,19 +102,27 @@ export const bulkLivepeerStreamIdMigration = async (data: any, ctx: Context) => 
         return ctx.prisma.channel.update({
           where: { id: channel.id },
           data: {
-            streamKey: (channel.streamKey?.length ?? 0) > 0 ? channel.streamKey : stream.streamKey,
-            livepeerStreamId: (channel.livepeerStreamId?.length ?? 0) > 0 ? channel.livepeerStreamId : stream.id,
+            streamKey:
+              (channel.streamKey?.length ?? 0) > 0
+                ? channel.streamKey
+                : stream.streamKey,
+            livepeerStreamId:
+              (channel.livepeerStreamId?.length ?? 0) > 0
+                ? channel.livepeerStreamId
+                : stream.id,
           },
         });
       }
-    }
+    });
+    console.log(
+      "bulkLivepeerStreamIdMigration updatedChannels",
+      updatedChannels
     );
-    console.log("bulkLivepeerStreamIdMigration updatedChannels", updatedChannels);
     return updatedChannels;
   } catch (error: any) {
     console.log("bulkLivepeerStreamIdMigration error", error);
   }
-}
+};
 
 export interface IPostChannelInput {
   slug: string;
@@ -500,8 +516,9 @@ export const getChannelSearchResults = async (
   data: IGetChannelSearchResultsInput,
   ctx: Context
 ) => {
-
-  const softDeleteCondition = data.includeSoftDeletedChannels ? {} : { softDelete: false };
+  const softDeleteCondition = data.includeSoftDeletedChannels
+    ? {}
+    : { softDelete: false };
 
   if (data.slugOnly) {
     const uniqueResult = await ctx.prisma.channel.findFirst({
@@ -803,7 +820,7 @@ export const getChannelsByOwnerAddress = async (
   return ctx.prisma.channel.findMany({
     where: { ownerAddr: ownerAddress, softDelete: false },
   });
-}
+};
 
 export const getChannelSideBets = async (
   { id }: { id: number },

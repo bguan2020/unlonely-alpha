@@ -172,17 +172,13 @@ export const resolvers = {
 
       return channelService.updateChannelVibesTokenPriceRange(data, ctx);
     },
-    bulkLivepeerStreamIdMigration: (
-      _: any,
-      data: any,
-      ctx: Context
-    ) => {
+    bulkLivepeerStreamIdMigration: (_: any, data: any, ctx: Context) => {
       // if (!ctx.user || !ctx.userIsAuthed) {
       //   throw new AuthenticationError("User is not authenticated");
       // }
 
       return channelService.bulkLivepeerStreamIdMigration(data, ctx);
-    }
+    },
   },
   Channel: {
     token: ({ id }: { id: number }, _: any, ctx: Context) => {

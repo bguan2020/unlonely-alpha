@@ -53,7 +53,7 @@ export function useChannel(fixedChatName?: string) {
     handleChannelRoles,
     handleLatestBet,
     handleRealTimeChannelDetails,
-    handleChannelVibesTokenPriceRange
+    handleChannelVibesTokenPriceRange,
   } = c;
   const { chatChannel } = chat;
   const { handleLocalSharesEventState } = ui;

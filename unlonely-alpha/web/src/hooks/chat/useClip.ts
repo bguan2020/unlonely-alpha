@@ -25,9 +25,7 @@ export const useClipInitial: UseClipType = {
   loading: false,
 };
 
-export const useClip = (
-  channelQueryData: any,
-): UseClipType => {
+export const useClip = (channelQueryData: any): UseClipType => {
   const { user } = useUser();
   const [clipError, setClipError] = useState<null | string>(null);
   const [clipUrl, setClipUrl] = useState<null | any>(null);
