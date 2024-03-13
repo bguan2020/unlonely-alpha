@@ -327,44 +327,16 @@ const ConnectedDisplay = () => {
                 maxHeight="300px"
                 overflowY={"scroll"}
               >
-                {sortedChannels
-                  .filter((c) => !c?.softDelete)
-                  .map((channel) => (
-                    <Link
-                      key={channel?.slug}
-                      href={`${window.location.origin}/channels/${channel?.slug}`}
-                    >
-                      <Flex
-                        _hover={{
-                          bg: "#1f1f3c",
-                          transition: "0.3s",
-                        }}
-                        direction="column"
-                        p="10px"
-                        bg="rgba(0, 0, 0, 0.5)"
-                        borderRadius={"15px"}
-                      >
-                        <Flex>
-                          <Text>{channel?.name}</Text>
-                        </Flex>
-                        <Flex justifyContent={"space-between"}>
-                          <Text fontSize="12px" color="#acacac">
-                            /{channel?.slug}
-                          </Text>
-                          {channel?.softDelete && (
-                            <Text fontSize="12px" color="red.300">
-                              deleted
-                            </Text>
-                          )}
-                        </Flex>
-                      </Flex>
-                    </Link>
-                  ))}
-                {sortedChannels
-                  .filter((c) => c?.softDelete)
-                  .map((channel) => (
+                {sortedChannels.map((channel) => (
+                  <Link
+                    key={channel?.slug}
+                    href={`${window.location.origin}/channels/${channel?.slug}`}
+                  >
                     <Flex
-                      _hover={{}}
+                      _hover={{
+                        bg: "#1f1f3c",
+                        transition: "0.3s",
+                      }}
                       direction="column"
                       p="10px"
                       bg="rgba(0, 0, 0, 0.5)"
@@ -377,14 +349,10 @@ const ConnectedDisplay = () => {
                         <Text fontSize="12px" color="#acacac">
                           /{channel?.slug}
                         </Text>
-                        {channel?.softDelete && (
-                          <Text fontSize="12px" color="red.300">
-                            deleted
-                          </Text>
-                        )}
                       </Flex>
                     </Flex>
-                  ))}
+                  </Link>
+                ))}
               </Flex>
             ) : (
               <Flex justifyContent="center">

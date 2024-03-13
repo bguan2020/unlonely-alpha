@@ -334,7 +334,6 @@ export const GET_CHANNELS_BY_OWNER_ADDRESS_QUERY = gql`
   query GetChannelsByOwnerAddress($ownerAddress: String!) {
     getChannelsByOwnerAddress(ownerAddress: $ownerAddress) {
       slug
-      softDelete
       createdAt
       name
     }

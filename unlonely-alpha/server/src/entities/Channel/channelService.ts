@@ -801,7 +801,7 @@ export const getChannelsByOwnerAddress = async (
   ctx: Context
 ) => {
   return ctx.prisma.channel.findMany({
-    where: { ownerAddr: ownerAddress },
+    where: { ownerAddr: ownerAddress, softDelete: false },
   });
 }
 

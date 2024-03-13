@@ -1723,7 +1723,6 @@ export type GetChannelsByOwnerAddressQuery = {
   getChannelsByOwnerAddress?: Array<{
     __typename?: "Channel";
     slug: string;
-    softDelete?: boolean | null;
     createdAt: any;
     name?: string | null;
   } | null> | null;
@@ -3671,7 +3670,6 @@ export const GetChannelsByOwnerAddressDocument = gql`
   query GetChannelsByOwnerAddress($ownerAddress: String!) {
     getChannelsByOwnerAddress(ownerAddress: $ownerAddress) {
       slug
-      softDelete
       createdAt
       name
     }
