@@ -330,6 +330,16 @@ export const GET_BADGE_HOLDERS_BY_CHANNEL_QUERY = gql`
   }
 `;
 
+export const GET_CHANNELS_BY_OWNER_ADDRESS_QUERY = gql`
+  query GetChannelsByOwnerAddress($ownerAddress: String!) {
+    getChannelsByOwnerAddress(ownerAddress: $ownerAddress) {
+      slug
+      createdAt
+      name
+    }
+  }
+`;
+
 export const GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY = gql`
   query GetChannelsByNumberOfBadgeHolders {
     getChannelsByNumberOfBadgeHolders {

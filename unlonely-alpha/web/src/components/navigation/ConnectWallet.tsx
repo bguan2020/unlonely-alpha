@@ -14,6 +14,7 @@ import {
   MenuList,
   Spinner,
   Text,
+  Link,
 } from "@chakra-ui/react";
 import { usePrivy } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
@@ -31,6 +32,9 @@ import { TransactionModalTemplate } from "../transactions/TransactionModalTempla
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import useUpdateUser from "../../hooks/server/useUpdateUser";
 import trailString from "../../utils/trailString";
+import { GET_CHANNELS_BY_OWNER_ADDRESS_QUERY } from "../../constants/queries";
+import { useLazyQuery } from "@apollo/client";
+import { GetChannelsByOwnerAddressQuery } from "../../generated/graphql";
 
 const ConnectWallet = () => {
   const router = useRouter();
@@ -180,6 +184,7 @@ const ConnectedDisplay = () => {
   const { isStandalone } = useUserAgent();
 
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const [isChannelsModalOpen, setIsChannelsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { data: feeData, refetch: refetchFeeData } = useFeeData({
@@ -190,6 +195,29 @@ const ConnectedDisplay = () => {
     address: userAddress as `0x${string}`,
     enabled: false,
   });
+
+  const [
+    getChannelsByOwnerAddress,
+    {
+      loading: getChannelsByOwnerAddressLoading,
+      data: getChannelsByOwnerAddressData,
+      error: getChannelsByOwnerAddressError,
+    },
+  ] = useLazyQuery<GetChannelsByOwnerAddressQuery>(
+    GET_CHANNELS_BY_OWNER_ADDRESS_QUERY,
+    {
+      variables: { ownerAddress: userAddress },
+      fetchPolicy: "network-only",
+    }
+  );
+
+  const sortedChannels = useMemo(() => {
+    return (
+      getChannelsByOwnerAddressData?.getChannelsByOwnerAddress?.sort(
+        (a, b) => a?.name?.localeCompare(b?.name ?? "") ?? 0
+      ) ?? []
+    );
+  }, [getChannelsByOwnerAddressData?.getChannelsByOwnerAddress]);
 
   const { updateUser } = useUpdateUser({});
 
@@ -261,6 +289,10 @@ const ConnectedDisplay = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (isChannelsModalOpen) getChannelsByOwnerAddress();
+  }, [isChannelsModalOpen]);
+
   return (
     <>
       <TransactionModalTemplate
@@ -272,6 +304,64 @@ const ConnectedDisplay = () => {
         isModalLoading={false}
         handleClose={() => setIsCloseModalOpen(false)}
       />
+      <TransactionModalTemplate
+        title={`my channels (${
+          getChannelsByOwnerAddressData?.getChannelsByOwnerAddress?.length ?? 0
+        })`}
+        isOpen={isChannelsModalOpen}
+        handleClose={() => setIsChannelsModalOpen(false)}
+        size={isStandalone ? "sm" : "md"}
+        hideFooter
+      >
+        {getChannelsByOwnerAddressLoading ? (
+          <Flex justifyContent="center">
+            <Spinner />
+          </Flex>
+        ) : (
+          <>
+            {(getChannelsByOwnerAddressData?.getChannelsByOwnerAddress
+              ?.length ?? 0) > 0 ? (
+              <Flex
+                direction={"column"}
+                gap="10px"
+                maxHeight="300px"
+                overflowY={"scroll"}
+              >
+                {sortedChannels.map((channel) => (
+                  <Link
+                    key={channel?.slug}
+                    href={`${window.location.origin}/channels/${channel?.slug}`}
+                  >
+                    <Flex
+                      _hover={{
+                        bg: "#1f1f3c",
+                        transition: "0.3s",
+                      }}
+                      direction="column"
+                      p="10px"
+                      bg="rgba(0, 0, 0, 0.5)"
+                      borderRadius={"15px"}
+                    >
+                      <Flex>
+                        <Text>{channel?.name}</Text>
+                      </Flex>
+                      <Flex justifyContent={"space-between"}>
+                        <Text fontSize="12px" color="#acacac">
+                          /{channel?.slug}
+                        </Text>
+                      </Flex>
+                    </Flex>
+                  </Link>
+                ))}
+              </Flex>
+            ) : (
+              <Flex justifyContent="center">
+                <Text>no channels, start by creating one</Text>
+              </Flex>
+            )}
+          </>
+        )}
+      </TransactionModalTemplate>
       <Menu>
         <Flex
           p="1px"
@@ -343,6 +433,15 @@ const ConnectedDisplay = () => {
           </MenuButton>
         </Flex>
         <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
+          <MenuItem
+            bg={"#131323"}
+            _hover={{ bg: "#1f1f3c" }}
+            _focus={{}}
+            _active={{}}
+            onClick={() => setIsChannelsModalOpen(true)}
+          >
+            <Text>my channels</Text>
+          </MenuItem>
           {userAddress && (
             <MenuItem
               bg={"#131323"}

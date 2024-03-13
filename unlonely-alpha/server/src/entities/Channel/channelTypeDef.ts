@@ -199,6 +199,7 @@ export const typeDef = gql`
     getChannelById(id: ID!): Channel
     getChannelBySlug(slug: String!): Channel
     getChannelByAwsId(awsId: String!): Channel
+    getChannelsByOwnerAddress(ownerAddress: String!): [Channel]
     getLivepeerStreamData(data: GetLivepeerStreamDataInput!): LivepeerStreamData
   }
 

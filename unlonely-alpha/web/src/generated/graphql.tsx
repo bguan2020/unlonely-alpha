@@ -412,6 +412,7 @@ export type Mutation = {
   _empty?: Maybe<Scalars["String"]>;
   addChannelToSubscription?: Maybe<Subscription>;
   addSuggestedChannelsToSubscriptions?: Maybe<Array<Maybe<Subscription>>>;
+  bulkLivepeerStreamIdMigration?: Maybe<UpdateManyResponse>;
   closeSharesEvents?: Maybe<UpdateManyResponse>;
   closeSideBet?: Maybe<SideBet>;
   createClip?: Maybe<ClipNfcOutput>;
@@ -846,6 +847,7 @@ export type Query = {
   getChannelSearchResults?: Maybe<Array<Maybe<Channel>>>;
   getChannelWithTokenById?: Maybe<Channel>;
   getChannelsByNumberOfBadgeHolders: Array<Maybe<NumberOfHolders>>;
+  getChannelsByOwnerAddress?: Maybe<Array<Maybe<Channel>>>;
   getDeviceByToken?: Maybe<DeviceToken>;
   getGamblableEventLeaderboardByChannelId: Array<GamblableEventLeaderboard>;
   getGamblableEventUserRank: Scalars["Int"];
@@ -913,6 +915,10 @@ export type QueryGetChannelSearchResultsArgs = {
 
 export type QueryGetChannelWithTokenByIdArgs = {
   id: Scalars["ID"];
+};
+
+export type QueryGetChannelsByOwnerAddressArgs = {
+  ownerAddress: Scalars["String"];
 };
 
 export type QueryGetDeviceByTokenArgs = {
@@ -1706,6 +1712,20 @@ export type GetBadgeHoldersByChannelQueryVariables = Exact<{
 export type GetBadgeHoldersByChannelQuery = {
   __typename?: "Query";
   getBadgeHoldersByChannel: Array<string | null>;
+};
+
+export type GetChannelsByOwnerAddressQueryVariables = Exact<{
+  ownerAddress: Scalars["String"];
+}>;
+
+export type GetChannelsByOwnerAddressQuery = {
+  __typename?: "Query";
+  getChannelsByOwnerAddress?: Array<{
+    __typename?: "Channel";
+    slug: string;
+    createdAt: any;
+    name?: string | null;
+  } | null> | null;
 };
 
 export type GetChannelsByNumberOfBadgeHoldersQueryVariables = Exact<{
@@ -3645,6 +3665,66 @@ export type GetBadgeHoldersByChannelLazyQueryHookResult = ReturnType<
 export type GetBadgeHoldersByChannelQueryResult = Apollo.QueryResult<
   GetBadgeHoldersByChannelQuery,
   GetBadgeHoldersByChannelQueryVariables
+>;
+export const GetChannelsByOwnerAddressDocument = gql`
+  query GetChannelsByOwnerAddress($ownerAddress: String!) {
+    getChannelsByOwnerAddress(ownerAddress: $ownerAddress) {
+      slug
+      createdAt
+      name
+    }
+  }
+`;
+
+/**
+ * __useGetChannelsByOwnerAddressQuery__
+ *
+ * To run a query within a React component, call `useGetChannelsByOwnerAddressQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelsByOwnerAddressQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelsByOwnerAddressQuery({
+ *   variables: {
+ *      ownerAddress: // value for 'ownerAddress'
+ *   },
+ * });
+ */
+export function useGetChannelsByOwnerAddressQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetChannelsByOwnerAddressQuery,
+    GetChannelsByOwnerAddressQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetChannelsByOwnerAddressQuery,
+    GetChannelsByOwnerAddressQueryVariables
+  >(GetChannelsByOwnerAddressDocument, options);
+}
+export function useGetChannelsByOwnerAddressLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetChannelsByOwnerAddressQuery,
+    GetChannelsByOwnerAddressQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetChannelsByOwnerAddressQuery,
+    GetChannelsByOwnerAddressQueryVariables
+  >(GetChannelsByOwnerAddressDocument, options);
+}
+export type GetChannelsByOwnerAddressQueryHookResult = ReturnType<
+  typeof useGetChannelsByOwnerAddressQuery
+>;
+export type GetChannelsByOwnerAddressLazyQueryHookResult = ReturnType<
+  typeof useGetChannelsByOwnerAddressLazyQuery
+>;
+export type GetChannelsByOwnerAddressQueryResult = Apollo.QueryResult<
+  GetChannelsByOwnerAddressQuery,
+  GetChannelsByOwnerAddressQueryVariables
 >;
 export const GetChannelsByNumberOfBadgeHoldersDocument = gql`
   query GetChannelsByNumberOfBadgeHolders {
