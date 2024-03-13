@@ -6,12 +6,12 @@ datasource db {
   provider = "postgresql"
 
   // switch to this db url when pushing to master branch
-  url = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25061/unloney_staging_pool_2?pgbouncer=true"
+  // url = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25061/unloney_staging_pool_2?pgbouncer=true"
   // switch to this db url when pushing db changes
   // url = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely_v1_staging?sslmode=require"
 
   // dev db url (switch to this work pushing to staging branch)
-  // url = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely-dev?sslmode=require"
+  url = env("DATABASE_URL")
 }
 
 model User {
