@@ -52,10 +52,11 @@ export function useChannel(fixedChatName?: string) {
     channelRoles,
     handleChannelRoles,
     handleLatestBet,
-    handleChannelDetails,
+    handleRealTimeChannelDetails,
+    handleChannelVibesTokenPriceRange
   } = c;
   const { chatChannel } = chat;
-  const { handleVibesTokenPriceRange, handleLocalSharesEventState } = ui;
+  const { handleLocalSharesEventState } = ui;
 
   const channelName =
     fixedChatName ??
@@ -89,7 +90,7 @@ export function useChannel(fixedChatName?: string) {
     if (message.name === CHANGE_CHANNEL_DETAILS_EVENT) {
       const body = JSON.parse(message.data.body);
       console.log("body", body);
-      handleChannelDetails(
+      handleRealTimeChannelDetails(
         body.channelName,
         body.channelDescription,
         body.chatCommands,
@@ -98,7 +99,7 @@ export function useChannel(fixedChatName?: string) {
     }
     if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
       const newSliderValue = JSON.parse(message.data.body);
-      handleVibesTokenPriceRange(newSliderValue);
+      handleChannelVibesTokenPriceRange(newSliderValue);
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (message.data.senderStatus === SenderStatus.CHATBOT) {

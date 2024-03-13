@@ -21,7 +21,7 @@ const ChannelDesc = () => {
   const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, ui } = useChannelContext();
-  const { channelQueryData, totalBadges, channelDetails } = channel;
+  const { channelQueryData, totalBadges, realTimeChannelDetails } = channel;
   const { handleEditModal } = ui;
 
   const isOwner = userAddress === channelQueryData?.owner.address;
@@ -95,7 +95,7 @@ const ChannelDesc = () => {
             wordBreak={"break-word"}
             width={isStandalone ? "70%" : "unset"}
           >
-            {channelDetails.channelName}
+            {realTimeChannelDetails.channelName}
           </Text>
           {isOwner && (
             <IconButton
@@ -115,12 +115,14 @@ const ChannelDesc = () => {
           fontSize={["0.5rem", "0.8rem"]}
           width={isStandalone ? "70%" : "unset"}
         >
-          {channelDetails.channelDescription.split("\n").map((line, index) => (
-            <Fragment key={index}>
-              <LineFormatter line={line} />
-              <br />
-            </Fragment>
-          ))}
+          {realTimeChannelDetails.channelDescription
+            .split("\n")
+            .map((line, index) => (
+              <Fragment key={index}>
+                <LineFormatter line={line} />
+                <br />
+              </Fragment>
+            ))}
         </Text>
       </Flex>
     </Flex>

@@ -18,13 +18,13 @@ import { IoMdEyeOff } from "react-icons/io";
 import { FaRegCopy } from "react-icons/fa";
 import copy from "copy-to-clipboard";
 import LivepeerBroadcast from "../stream/LivepeerBroadcast";
-import useMigrateChannelToLivepeer from "../../hooks/server/useMigrateChannelToLivepeer";
-import useUpdateChannelAllowNfcs from "../../hooks/server/useUpdateChannelAllowNfcs";
+import useMigrateChannelToLivepeer from "../../hooks/server/channel/useMigrateChannelToLivepeer";
+import useUpdateChannelAllowNfcs from "../../hooks/server/channel/useUpdateChannelAllowNfcs";
 import {
   AblyChannelPromise,
   CHANGE_CHANNEL_DETAILS_EVENT,
 } from "../../constants";
-import useUpdateLivepeerStreamData from "../../hooks/server/useUpdateLivepeerStreamData";
+import useUpdateLivepeerStreamData from "../../hooks/server/channel/useUpdateLivepeerStreamData";
 import { LuClapperboard } from "react-icons/lu";
 import { BiVideoRecording } from "react-icons/bi";
 import StreamComponent from "../stream/StreamComponent";
@@ -42,7 +42,7 @@ const ChannelStreamerPerspective = ({
   const { isStandalone } = useUserAgent();
 
   const { channel } = useChannelContext();
-  const { channelQueryData, channelDetails } = channel;
+  const { channelQueryData, realTimeChannelDetails } = channel;
 
   const [canLivepeerRecord, setCanLivepeerRecord] = useState(true);
 
@@ -81,9 +81,9 @@ const ChannelStreamerPerspective = ({
       name: CHANGE_CHANNEL_DETAILS_EVENT,
       data: {
         body: JSON.stringify({
-          channelName: channelDetails?.channelName,
-          channelDescription: channelDetails?.channelDescription,
-          chatCommands: channelDetails?.chatCommands,
+          channelName: realTimeChannelDetails?.channelName,
+          channelDescription: realTimeChannelDetails?.channelDescription,
+          chatCommands: realTimeChannelDetails?.chatCommands,
           allowNfcs: res?.res?.allowNFCs ?? false,
         }),
       },
@@ -306,9 +306,9 @@ const ChannelStreamerPerspective = ({
                         <Spinner />
                       ) : (
                         <Switch
-                          isChecked={channelDetails?.allowNfcs}
+                          isChecked={realTimeChannelDetails?.allowNfcs}
                           onChange={() => {
-                            callNfcsChange(!channelDetails?.allowNfcs);
+                            callNfcsChange(!realTimeChannelDetails?.allowNfcs);
                           }}
                         />
                       )}

@@ -3,7 +3,7 @@ import { NEW_STREAMER_URL_QUERY_PARAM } from "../../constants";
 import { useRouter } from "next/router";
 import { StepType, useTour } from "@reactour/tour";
 
-export type WelcomeTourState = {
+export type WelcomeTourStateType = {
     welcomeStreamerModal: "welcome" | "off" | "bye";
     startedWelcomeTour: boolean;
     isTourOpen: boolean;
@@ -13,7 +13,7 @@ export type WelcomeTourState = {
     handleSetTourSteps: (steps: StepType[]) => void;
 };
 
-export const welcomeTourStateInitial: WelcomeTourState = {
+export const welcomeTourStateInitial: WelcomeTourStateType = {
     welcomeStreamerModal: "off",
     startedWelcomeTour: false,
     isTourOpen: false,
@@ -23,7 +23,7 @@ export const welcomeTourStateInitial: WelcomeTourState = {
     handleSetTourSteps: () => undefined,
 };
 
-export const useWelcomeTourState = (isOwner: boolean): WelcomeTourState => {
+export const useWelcomeTourState = (isOwner: boolean): WelcomeTourStateType => {
   const router = useRouter();
   const {
     setIsOpen: setIsTourOpen,

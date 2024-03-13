@@ -3,7 +3,7 @@ import { Log, createPublicClient, parseAbiItem, http, isAddress } from "viem";
 import { useBalance, useContractEvent } from "wagmi";
 import { base } from "viem/chains";
 
-import { VibesTokenTx } from "../../constants/types";
+import { FetchBalanceResult, VibesTokenTx } from "../../constants/types";
 import { getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "./useUserAgent";
 import { NETWORKS } from "../../constants/networks";
@@ -16,6 +16,27 @@ import {
 import { Flex, Box, Text, useToast } from "@chakra-ui/react";
 import { useUser } from "../context/useUser";
 import { useRouter } from "next/router";
+
+export type UseVibesCheckType = {
+  vibesTokenTxs: VibesTokenTx[];
+  vibesTokenLoading: boolean;
+  userVibesBalance?: FetchBalanceResult;
+  chartTimeIndexes: Map<
+    string,
+    { index: number | undefined; blockNumber: number }
+  >;
+  currentBlockNumberForVibes: bigint;
+  lastChainInteractionTimestamp: number;
+};
+
+export const useVibesCheckInitial: UseVibesCheckType = {
+  vibesTokenTxs: [],
+  vibesTokenLoading: true,
+  userVibesBalance: undefined,
+  chartTimeIndexes: new Map(),
+  currentBlockNumberForVibes: BigInt(0),
+  lastChainInteractionTimestamp: 0,
+};
 
 export const useVibesCheck = () => {
   const { userAddress } = useUser();
@@ -339,10 +360,10 @@ export const useVibesCheck = () => {
   }, [transferLogs]);
 
   return {
-    vibesBalance,
-    tokenTxs,
+    vibesTokenTxs: tokenTxs,
+    vibesTokenLoading: loading,
+    userVibesBalance: vibesBalance,
     chartTimeIndexes,
-    loading,
     currentBlockNumberForVibes,
     lastChainInteractionTimestamp,
   };

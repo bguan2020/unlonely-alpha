@@ -27,7 +27,7 @@ import { useClaimVotePayout } from "../hooks/contracts/useSharesContractV2";
 import centerEllipses from "../utils/centerEllipses";
 import { getContractFromNetwork } from "../utils/contract";
 import { truncateValue } from "../utils/tokenDisplayFormatting";
-import useCloseSharesEvent from "../hooks/server/useCloseSharesEvent";
+import useCloseSharesEvent from "../hooks/server/channel/useCloseSharesEvent";
 import usePostClaimPayout from "../hooks/server/usePostClaimPayout";
 import { getColorFromString } from "../styles/Colors";
 import { useCacheContext } from "../hooks/context/useCache";

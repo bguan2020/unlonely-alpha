@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { CHANGE_USER_ROLE_EVENT, AblyChannelPromise } from "../../constants";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import usePostUserRoleForChannel from "../../hooks/server/usePostUserRoleForChannel";
+import usePostUserRoleForChannel from "../../hooks/server/channel/usePostUserRoleForChannel";
 import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 

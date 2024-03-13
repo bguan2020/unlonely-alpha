@@ -8,12 +8,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { createPublicClient, http } from "viem";
 import { ToastId, useToast, Box, Flex, Text, Spinner } from "@chakra-ui/react";
-import * as AWS from "aws-sdk";
 
-import { EventTypeForContract } from "../../constants";
-import { NETWORKS } from "../../constants/networks";
 import {
   CHANNEL_FEED_QUERY,
   GET_UNCLAIMED_EVENTS_QUERY,
@@ -21,57 +17,44 @@ import {
 import {
   GetChannelFeedQuery,
   GetUnclaimedEventsQuery,
-  SharesEvent,
 } from "../../generated/graphql";
-import { getContractFromNetwork } from "../../utils/contract";
-import { useNetworkContext } from "./useNetwork";
 import { useUser } from "./useUser";
-import { useVibesCheck } from "../internal/useVibesCheck";
-import { FetchBalanceResult, VibesTokenTx } from "../../constants/types";
-import { getCoingeckoTokenPrice } from "../../utils/coingecko";
+import {
+  UseVibesCheckType,
+  useVibesCheck,
+  useVibesCheckInitial,
+} from "../internal/useVibesCheck";
 import { useRouter } from "next/router";
-
-type UnclaimedBet = SharesEvent & {
-  payout: bigint;
-};
+import { useFetchEthPrice } from "../internal/useFetchEthPrice";
+import {
+  UseGetClaimBetEventsType,
+  useGetClaimBetEvents,
+  useGetClaimBetEventsInitial,
+} from "../internal/useGetClaimBetEvents";
 
 export const useCacheContext = () => {
   return useContext(CacheContext);
 };
 
-const CacheContext = createContext<{
-  channelFeed: GetChannelFeedQuery["getChannelFeed"];
-  claimableBets: UnclaimedBet[];
-  fetchingBets: boolean;
-  feedLoading: boolean;
-  feedError?: ApolloError;
-  userVibesBalance?: FetchBalanceResult;
-  vibesTokenTxs: VibesTokenTx[];
-  vibesTokenLoading: boolean;
-  chartTimeIndexes: Map<
-    string,
-    { index: number | undefined; blockNumber: number | undefined }
-  >;
-  currentBlockNumberForVibes: bigint;
-  lastChainInteractionTimestamp: number;
-  addAppError: (error: Error, source: string) => void;
-  popAppError: (errorName: string, field: string) => void;
-  ethPriceInUsd: string;
-}>({
+const CacheContext = createContext<
+  {
+    channelFeed: GetChannelFeedQuery["getChannelFeed"];
+    feedLoading: boolean;
+    feedError?: ApolloError;
+    addAppError: (error: Error, source: string) => void;
+    popAppError: (errorName: string, field: string) => void;
+    ethPriceInUsd: string;
+  } & UseVibesCheckType &
+    UseGetClaimBetEventsType
+>({
   channelFeed: [],
-  claimableBets: [],
-  fetchingBets: true,
   feedLoading: true,
   feedError: undefined,
-  vibesTokenTxs: [],
-  vibesTokenLoading: true,
-  userVibesBalance: undefined,
-  chartTimeIndexes: new Map(),
   addAppError: () => undefined,
   popAppError: () => undefined,
   ethPriceInUsd: "0",
-  lastChainInteractionTimestamp: 0,
-  currentBlockNumberForVibes: BigInt(0),
+  ...useVibesCheckInitial,
+  ...useGetClaimBetEventsInitial,
 });
 
 type SourcedError = Error & {
@@ -79,32 +62,16 @@ type SourcedError = Error & {
 };
 
 export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
-  const isFetching = useRef(false);
-  const isFetchingPrice = useRef(false);
-
-  const [fetchingBets, setFetchingBets] = useState<boolean>(true);
-  const [claimableBets, setClaimableBets] = useState<UnclaimedBet[]>([]);
-  const [counter, setCounter] = useState(0);
   const [appErrors, setAppErrors] = useState<SourcedError[]>([]);
   const toast = useToast();
 
-  const { userAddress, activeWallet, walletIsConnected } = useUser();
+  const { walletIsConnected } = useUser();
   const toastIdRef = useRef<ToastId | undefined>();
 
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
-  const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
-
-  const {
-    vibesBalance,
-    tokenTxs,
-    chartTimeIndexes,
-    loading,
-    currentBlockNumberForVibes,
-    lastChainInteractionTimestamp,
-  } = useVibesCheck();
-  const [ethPriceInUsd, setEthPriceInUsd] = useState<string>("0");
+  const vibesCheck = useVibesCheck();
   const router = useRouter();
+  const ethPriceInUsd = useFetchEthPrice();
+  const claimBetEvents = useGetClaimBetEvents();
 
   const addAppError = useCallback(
     (error: Error, source: string) => {
@@ -154,158 +121,6 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   }, [router]);
 
   useEffect(() => {
-    const init = async () => {
-      const chainId = activeWallet?.chainId?.split(":")[1];
-      const _network = NETWORKS.find(
-        (network) => network.config.chainId === Number(chainId)
-      );
-      if (
-        !_network ||
-        !contractData.address ||
-        isFetching.current ||
-        !userAddress ||
-        !walletIsConnected ||
-        !activeWallet
-      ) {
-        setFetchingBets(false);
-        return;
-      }
-      setFetchingBets(true);
-      isFetching.current = true;
-      let unclaimedBets: SharesEvent[] = [];
-      try {
-        const data = await getUnclaimedEvents({
-          variables: {
-            data: {
-              userAddress: userAddress as `0x${string}`,
-              chainId: contractData.chainId,
-            },
-          },
-        });
-        unclaimedBets =
-          data?.data?.getUnclaimedEvents.filter(
-            (event): event is SharesEvent =>
-              event !== null && event?.chainId === contractData.chainId
-          ) || [];
-      } catch (err) {
-        console.log(
-          "claimpage fetching for unclaimed events failed, switching to fetching ongoing bets",
-          err
-        );
-      }
-      let payouts: any[] = [];
-      try {
-        const publicClient = createPublicClient({
-          chain: _network,
-          transport: http(),
-        });
-        const promises = unclaimedBets.map((event) =>
-          publicClient.readContract({
-            address: contractData.address,
-            abi: contractData.abi,
-            functionName: "getVotePayout",
-            args: [
-              event.sharesSubjectAddress,
-              event.id,
-              EventTypeForContract.YAY_NAY_VOTE,
-              userAddress,
-            ],
-          })
-        );
-        payouts = await Promise.all(promises);
-      } catch (err) {
-        console.log("claimpage getVotePayout", err);
-        payouts = [];
-      }
-      const formattedPayouts = payouts.map((payout) => BigInt(String(payout)));
-      const combinedBets = unclaimedBets.map((event, i) => ({
-        ...event,
-        payout: formattedPayouts[i],
-      }));
-      const claimableBets = combinedBets.filter(
-        (event) => event.payout > BigInt(0) && (event?.resultIndex ?? -1) >= 0
-      );
-      setClaimableBets(claimableBets);
-      isFetching.current = false;
-      setFetchingBets(false);
-    };
-    init();
-  }, [
-    userAddress,
-    contractData.address,
-    activeWallet,
-    walletIsConnected,
-    counter,
-  ]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const init = async () => {
-        if (typeof window === "undefined" || isFetchingPrice.current) return;
-        isFetchingPrice.current = true;
-        const value = localStorage.getItem("unlonely-eth-price-usd-v0");
-        const dateNow = new Date().getTime();
-        if (value) {
-          const parsedValue = JSON.parse(value);
-          const price = parsedValue.price;
-          const timestamp = parsedValue.timestamp;
-          if (dateNow - timestamp < 1000 * 60 * 5) {
-            setEthPriceInUsd(price);
-            isFetchingPrice.current = false;
-            return;
-          }
-        }
-        try {
-          const lambda = new AWS.Lambda({
-            region: "us-west-2",
-            accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
-            secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-          });
-
-          const params = {
-            FunctionName: "getTokenPrices",
-            Payload: JSON.stringify({}),
-          };
-
-          const response = await lambda.invoke(params).promise();
-          const parsedResponse = JSON.parse(response.Payload as any);
-          if (parsedResponse.statusCode !== 200) {
-            throw new Error("error fetching eth price from lambda");
-          }
-          const price = String(JSON.parse(parsedResponse.body).ethereum);
-          localStorage.setItem(
-            "unlonely-eth-price-usd-v0",
-            JSON.stringify({
-              price,
-              timestamp: dateNow,
-            })
-          );
-          setEthPriceInUsd(price);
-        } catch (e) {
-          console.log("error fetching eth price, switching to coingecko", e);
-          try {
-            const price = await getCoingeckoTokenPrice("ethereum", "usd");
-            localStorage.setItem(
-              "unlonely-eth-price-usd-v0",
-              JSON.stringify({
-                price,
-                timestamp: dateNow,
-              })
-            );
-            if (price !== undefined) setEthPriceInUsd(price);
-          } catch (e) {
-            console.log("error fetching eth price from coingecko", e);
-          }
-        }
-        isFetchingPrice.current = false;
-      };
-      init();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
     if (
       walletIsConnected &&
       appErrors.filter((err) => err.name?.includes("ConnectorNotFoundError"))
@@ -346,46 +161,26 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [appErrors, walletIsConnected]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCounter((prev) => prev + 1);
-    }, 1000 * 60 * 8);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const value = useMemo(() => {
     return {
-      claimableBets,
-      fetchingBets,
       channelFeed: dataChannels?.getChannelFeed ?? [],
       feedLoading,
       feedError: error,
-      vibesTokenTxs: tokenTxs,
-      vibesTokenLoading: loading,
-      userVibesBalance: vibesBalance,
-      chartTimeIndexes,
       addAppError,
       popAppError,
-      currentBlockNumberForVibes,
-      lastChainInteractionTimestamp,
       ethPriceInUsd,
+      ...vibesCheck,
+      ...claimBetEvents,
     };
   }, [
-    claimableBets,
-    fetchingBets,
     feedLoading,
     error,
     dataChannels?.getChannelFeed,
-    tokenTxs,
-    loading,
-    chartTimeIndexes,
     addAppError,
     popAppError,
     ethPriceInUsd,
-    currentBlockNumberForVibes,
-    lastChainInteractionTimestamp,
-    vibesBalance,
+    vibesCheck,
+    claimBetEvents,
   ]);
 
   return (

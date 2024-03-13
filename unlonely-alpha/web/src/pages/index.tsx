@@ -38,7 +38,7 @@ import {
 import { SelectableChannel } from "../components/mobile/SelectableChannel";
 import { GET_SUBSCRIPTION, NFC_FEED_QUERY } from "../constants/queries";
 import useAddChannelToSubscription from "../hooks/server/useAddChannelToSubscription";
-import useRemoveChannelFromSubscription from "../hooks/server/useRemoveChannelFromSubscription";
+import useRemoveChannelFromSubscription from "../hooks/server/channel/useRemoveChannelFromSubscription";
 import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";

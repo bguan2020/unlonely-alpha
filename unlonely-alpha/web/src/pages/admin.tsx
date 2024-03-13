@@ -12,7 +12,7 @@ import { useMemo, useState } from "react";
 import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
 import AdminNotifications from "../components/general/AdminNotifications";
-import useSoftDeleteChannel from "../hooks/server/useSoftDeleteChannel";
+import useSoftDeleteChannel from "../hooks/server/channel/useSoftDeleteChannel";
 
 const admins = process.env.NEXT_PUBLIC_ADMINS?.split(",");
 

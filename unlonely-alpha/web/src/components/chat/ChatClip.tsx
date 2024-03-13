@@ -25,15 +25,15 @@ export const ChatClip = () => {
   const { user, userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const { chat } = useChannelContext();
-  const { clipping, addToChatbot } = chat;
   const {
     isClipUiOpen,
     handleIsClipUiOpen,
     handleCreateClip,
-    setClipError,
+    handleClipError,
     clipError,
     clipUrl,
-  } = clipping;
+    addToChatbot,
+  } = chat;
 
   const form = useForm<PostNfcInput>({
     defaultValues: {},
@@ -170,7 +170,7 @@ export const ChatClip = () => {
                     bg={"transparent"}
                     width="100%"
                     onClick={() => {
-                      setClipError("");
+                      handleClipError("");
                       handleIsClipUiOpen(false);
                     }}
                     _focus={{}}

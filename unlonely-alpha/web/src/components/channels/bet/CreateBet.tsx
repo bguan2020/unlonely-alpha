@@ -29,7 +29,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { useUser } from "../../../hooks/context/useUser";
-import usePostSharesEvent from "../../../hooks/server/usePostSharesEvent";
+import usePostSharesEvent from "../../../hooks/server/channel/usePostSharesEvent";
 import { getContractFromNetwork } from "../../../utils/contract";
 import usePostBet from "../../../hooks/server/gamblable/usePostBet";
 import {
@@ -45,8 +45,8 @@ import {
   SharesEvent,
   SharesEventState,
 } from "../../../generated/graphql";
-import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
-import useCloseSharesEvent from "../../../hooks/server/useCloseSharesEvent";
+import useUpdateSharesEvent from "../../../hooks/server/channel/useUpdateSharesEvent";
+import useCloseSharesEvent from "../../../hooks/server/channel/useCloseSharesEvent";
 import { ContractData } from "../../../constants/types";
 
 const MAX_CHARS = 8;

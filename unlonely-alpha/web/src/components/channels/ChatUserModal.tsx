@@ -21,7 +21,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import usePostUserRoleForChannel from "../../hooks/server/usePostUserRoleForChannel";
+import usePostUserRoleForChannel from "../../hooks/server/channel/usePostUserRoleForChannel";
 import centerEllipses from "../../utils/centerEllipses";
 import { getContractFromNetwork } from "../../utils/contract";
 import {
