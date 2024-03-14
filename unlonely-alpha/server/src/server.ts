@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import http from "http";
-// import cron from "node-cron";
+import cron from "node-cron";
 
 import { ApolloServer } from "apollo-server-express";
 import bodyParser from "body-parser";
@@ -47,7 +47,12 @@ const startServer = async () => {
 
   httpServer.listen(process.env.PORT || 4000, () => {
     console.info(`Server started on port ${process.env.PORT || 4000}`);
-    if (process.env.DATABASE_URL === testDb) watchBlocks();
+
+    // cron job every 1 minute
+    cron.schedule("*/1 * * * *", () => {
+      console.log("Running a task every 1 minute");
+      if (process.env.DATABASE_URL === testDb) watchBlocks();
+    });
   });
 };
 
