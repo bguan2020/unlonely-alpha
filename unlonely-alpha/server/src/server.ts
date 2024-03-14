@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import http from "http";
-import cron from "node-cron";
+// import cron from "node-cron";
 
 import { ApolloServer } from "apollo-server-express";
 import bodyParser from "body-parser";
@@ -9,9 +9,9 @@ import express from "express";
 
 import { getContext } from "./context";
 import graphqlSchema from "./entities/graphqlSchema";
-import { watchBlocks } from "./utils/watchBlock";
+// import { watchBlocks } from "./utils/watchBlock";
 
-const testDb = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely-dev?sslmode=require";
+// const testDb = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely-dev?sslmode=require";
 
 const app = express();
 app.use(cors());
@@ -49,10 +49,10 @@ const startServer = async () => {
     console.info(`Server started on port ${process.env.PORT || 4000}`);
 
     // cron job every 1 minute
-    cron.schedule("*/1 * * * *", () => {
-      console.log("Running a task every 1 minute");
-      if (process.env.DATABASE_URL === testDb) watchBlocks();
-    });
+    // cron.schedule("*/1 * * * *", () => {
+    //   console.log("Running a task every 1 minute");
+    //   if (process.env.DATABASE_URL === testDb) watchBlocks();
+    // });
   });
 };
 
