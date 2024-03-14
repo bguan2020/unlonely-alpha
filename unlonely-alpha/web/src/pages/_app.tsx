@@ -133,17 +133,20 @@ function App({ Component, pageProps, cookies }: Props) {
   const configureChainsConfig = configureChains(
     NETWORKS, // first chain in array determines the first chain to interact with via publicClient
     [
+      // alchemyProvider({
+      //   apiKey: "y-6uxcy5eHDKqKKBmvmFXbGxe7E5Z0gd", // base sepolia
+      // }),
       alchemyProvider({
-        apiKey: "aR93M6MdEC4lgh4VjPXLaMnfBveve1fC",
+        apiKey: "aR93M6MdEC4lgh4VjPXLaMnfBveve1fC", // base
       }),
       alchemyProvider({
-        apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F",
+        apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F", // eth mainnet
       }),
       alchemyProvider({
-        apiKey: "Yv5gKmch-fSlMcOygB5jgDbNd3PL5fSv",
+        apiKey: "Yv5gKmch-fSlMcOygB5jgDbNd3PL5fSv", // goerli
       }),
       alchemyProvider({
-        apiKey: "deehmFS2ptkwC3DD_vo3wSBCDyHwHM5x",
+        apiKey: "deehmFS2ptkwC3DD_vo3wSBCDyHwHM5x", // base goerli
       }),
       publicProvider(),
     ]
