@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract EphemeralVibesTokenV1 is ERC20, Ownable, ReentrancyGuard {
+
+    address public factoryAddress;
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
     uint256 public streamerFeePercent;
@@ -37,7 +39,8 @@ contract EphemeralVibesTokenV1 is ERC20, Ownable, ReentrancyGuard {
         uint256 _endTimestamp,
         address _protocolFeeDestination,
         uint256 _protocolFeePercent,
-        uint256 _streamerFeePercent
+        uint256 _streamerFeePercent,
+        address _factoryAddress
     ) ERC20(name, symbol) {
         require(_protocolFeeDestination != address(0), "Fee destination cannot be the zero address");
         
@@ -45,9 +48,10 @@ contract EphemeralVibesTokenV1 is ERC20, Ownable, ReentrancyGuard {
         protocolFeePercent = _protocolFeePercent;
         streamerFeePercent = _streamerFeePercent;
         protocolFeeDestination = _protocolFeeDestination;
+        factoryAddress = _factoryAddress;
     }
 
-     function mint(uint256 _amount) external payable activePhase {
+    function mint(uint256 _amount) external payable activePhase {
         require(totalSupply() + _amount <= MAX_SUPPLY, "Maximum supply exceeded");
         uint256 cost = mintCost(_amount);
         uint256 protocolFee = cost * protocolFeePercent / 1 ether;

@@ -24,5 +24,7 @@ export default func;
 
 func.tags = ["All", "EphemeralVibesTokenFactoryV1"]
 
-// npx hardhat deploy --network base_sepolia --tags All,EphemeralVibesTokenFactoryV1
-// npx hardhat --network base_sepolia etherscan-verify
+/** 
+npx hardhat deploy --network base_sepolia --tags All,EphemeralVibesTokenFactoryV1
+npx hardhat --network base_sepolia etherscan-verify
+*/

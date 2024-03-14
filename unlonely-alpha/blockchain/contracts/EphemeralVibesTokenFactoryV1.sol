@@ -7,12 +7,13 @@ contract EphemeralVibesTokenFactoryV1 is Ownable {
 
     struct TokenInfo {
         address tokenAddress;
-        address owner;
+        address ownerAddress;
         uint256 endTimestamp;
     }
 
-    address[] public deployedTokens;
-    mapping(address => TokenInfo) public deployedTokenInfos;
+    uint256 public numDeployedTokens;
+    mapping(address => uint256) public deployedTokenIndices;
+    mapping(uint256 => TokenInfo) public deployedTokens;
 
     uint256 public defaultProtocolFeePercent;
     uint256 public defaultStreamerFeePercent;
@@ -39,9 +40,12 @@ contract EphemeralVibesTokenFactoryV1 is Ownable {
         uint256 duration
     ) public returns (address) {
         uint256 endTimestamp = block.timestamp + duration;
-        EphemeralVibesTokenV1 newToken = new EphemeralVibesTokenV1(name, symbol, endTimestamp, defaultFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent);        
-        deployedTokens.push(address(newToken));
-        deployedTokenInfos[address(newToken)] = TokenInfo(address(newToken), msg.sender, endTimestamp);
+        EphemeralVibesTokenV1 newToken = new EphemeralVibesTokenV1(name, symbol, endTimestamp, defaultFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, address(this));        
+        
+        uint256 index = ++numDeployedTokens;
+        deployedTokens[index] = TokenInfo(address(newToken), msg.sender, endTimestamp);
+        deployedTokenIndices[address(newToken)] = index;
+
         newToken.transferOwnership(msg.sender); // Transfer ownership of the new token to the caller of this function.
         emit EphemeralVibesTokenCreated(address(newToken), msg.sender, name, symbol, endTimestamp);
         return address(newToken);
