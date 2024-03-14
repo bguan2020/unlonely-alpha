@@ -65,6 +65,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BrianToken__factory>;
     getContractFactory(
+      name: "EphemeralVibesTokenFactoryV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.EphemeralVibesTokenFactoryV1__factory>;
+    getContractFactory(
+      name: "EphemeralVibesTokenV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.EphemeralVibesTokenV1__factory>;
+    getContractFactory(
       name: "UnlonelyArcadeContractV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UnlonelyArcadeContractV1__factory>;
@@ -174,6 +182,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.BrianToken>;
+    getContractAt(
+      name: "EphemeralVibesTokenFactoryV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.EphemeralVibesTokenFactoryV1>;
+    getContractAt(
+      name: "EphemeralVibesTokenV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.EphemeralVibesTokenV1>;
     getContractAt(
       name: "UnlonelyArcadeContractV1",
       address: string,
