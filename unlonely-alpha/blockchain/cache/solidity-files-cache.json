@@ -1319,8 +1319,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\EphemeralVibesTokenFactoryV1.sol": {
-      "lastModificationDate": 1710472297237,
-      "contentHash": "e6d23050f7c43db1921eb7d9ca1bd3c3",
+      "lastModificationDate": 1710520058234,
+      "contentHash": "552ee178237223cbdffef9e8d34e765c",
       "sourceName": "contracts/EphemeralVibesTokenFactoryV1.sol",
       "solcConfig": {
         "version": "0.8.8",
