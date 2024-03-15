@@ -11,7 +11,7 @@ import {
 import { ChatCommand } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import useUpdateDeleteChatCommands from "../../hooks/server/updateDeleteChatCommands";
+import useUpdateDeleteChatCommands from "../../hooks/server/channel/updateDeleteChatCommands";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
 export default function ChatCommandModal({
@@ -28,7 +28,7 @@ export default function ChatCommandModal({
   ablyChannel: AblyChannelPromise;
 }) {
   const { channel } = useChannelContext();
-  const { channelQueryData, channelDetails } = channel;
+  const { channelQueryData, realTimeChannelDetails } = channel;
   const { isStandalone } = useUserAgent();
 
   const [commandsData, setCommandsData] = useState<CommandData[]>([]);
@@ -42,13 +42,13 @@ export default function ChatCommandModal({
   const isDeletingAll = useMemo(() => {
     if (
       commandsData.length === 0 &&
-      channelDetails?.chatCommands &&
-      channelDetails?.chatCommands.length > 0
+      realTimeChannelDetails?.chatCommands &&
+      realTimeChannelDetails?.chatCommands.length > 0
     ) {
       return true;
     }
     return false;
-  }, [commandsData, channelDetails]);
+  }, [commandsData, realTimeChannelDetails]);
 
   const callChange = useCallback(async () => {
     await updateDeleteChatCommands({
@@ -59,10 +59,10 @@ export default function ChatCommandModal({
       name: CHANGE_CHANNEL_DETAILS_EVENT,
       data: {
         body: JSON.stringify({
-          channelName: channelDetails.channelName,
-          channelDescription: channelDetails.channelDescription,
+          channelName: realTimeChannelDetails.channelName,
+          channelDescription: realTimeChannelDetails.channelDescription,
           chatCommands: commandsData,
-          allowNfcs: channelDetails.allowNfcs,
+          allowNfcs: realTimeChannelDetails.allowNfcs,
         }),
       },
     });
@@ -70,13 +70,14 @@ export default function ChatCommandModal({
   }, [channelQueryData, commandsData]);
 
   useEffect(() => {
-    if (channelDetails?.chatCommands) {
-      const nonNullCommands: ChatCommand[] = channelDetails.chatCommands.filter(
-        (c): c is ChatCommand => c !== null
-      );
+    if (realTimeChannelDetails?.chatCommands) {
+      const nonNullCommands: ChatCommand[] =
+        realTimeChannelDetails.chatCommands.filter(
+          (c): c is ChatCommand => c !== null
+        );
       setCommandsData(nonNullCommands);
     }
-  }, [channelDetails]);
+  }, [realTimeChannelDetails]);
 
   const updateCommands = (c: CommandData, i: number) => {
     const newCommands = [...commandsData];

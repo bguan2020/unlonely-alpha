@@ -6,7 +6,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import ChatForm from "./ChatForm";
 import MessageList from "./MessageList";
 import { useUser } from "../../hooks/context/useUser";
-import { VipBadgeBuy } from "../channels/VipBadgeBuy";
+import { VipBadgeBuy } from "../channels/vibes/VipBadgeBuy";
 
 const Chat = ({
   chat,

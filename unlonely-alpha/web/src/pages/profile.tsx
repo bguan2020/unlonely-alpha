@@ -9,7 +9,7 @@ import useUserAgent from "../hooks/internal/useUserAgent";
 import { anonUrl } from "../components/presence/AnonUrl";
 import centerEllipses from "../utils/centerEllipses";
 import ConnectWallet from "../components/navigation/ConnectWallet";
-import useToggleSubscription from "../hooks/server/useToggleSubscription";
+import useToggleSubscription from "../hooks/server/channel/useToggleSubscription";
 import { CHECK_SUBSCRIPTION } from "../constants/queries";
 import usePostSubscription from "../hooks/server/usePostSubscription";
 import { useNetworkContext } from "../hooks/context/useNetwork";

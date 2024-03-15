@@ -66,17 +66,11 @@ const ChatForm = ({
     ui,
   } = useChannelContext();
   const { isVip } = leaderboard;
-  const { clipping } = chat;
-  const {
-    welcomeTourState: {
-      handleStartedWelcomeTour,
-      handleIsTourOpen,
-      handleSetTourSteps,
-    },
-  } = ui;
-  const { handleIsClipUiOpen, loading: clipLoading } = clipping;
+  const { handleIsClipUiOpen, loading: clipLoading } = chat;
+  const { handleStartedWelcomeTour, handleIsTourOpen, handleSetTourSteps } = ui;
 
-  const { channelQueryData, channelDetails, channelRoles } = channelContext;
+  const { channelQueryData, realTimeChannelDetails, channelRoles } =
+    channelContext;
 
   const [messageText, setMessageText] = useState<string>("");
   const [commandsOpen, setCommandsOpen] = useState(false);
@@ -288,7 +282,7 @@ const ChatForm = ({
                           _active={{ transform: "scale(1.3)" }}
                           minWidth="auto"
                           onClick={() => {
-                            if (!channelDetails?.allowNfcs) {
+                            if (!realTimeChannelDetails?.allowNfcs) {
                               toast({
                                 title: "Clipping is disabled for this stream.",
                                 status: "warning",

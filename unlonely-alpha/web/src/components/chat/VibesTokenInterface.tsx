@@ -35,7 +35,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useUser } from "../../hooks/context/useUser";
 import { AblyChannelPromise } from "../../constants";
-import VibesTokenZoneModal from "../channels/VibesTokenZoneModal";
+import VibesTokenZoneModal from "../channels/vibes/VibesTokenZoneModal";
 import VibesTokenExchange from "./VibesTokenExchange";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
@@ -90,9 +90,8 @@ const VibesTokenInterface = ({
   const { isStandalone } = useUserAgent();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
     useCacheContext();
-  const { channel, ui } = useChannelContext();
-  const { channelQueryData } = channel;
-  const { vibesTokenPriceRange } = ui;
+  const { channel } = useChannelContext();
+  const { channelQueryData, channelVibesTokenPriceRange } = channel;
   const { ethPriceInUsd, currentBlockNumberForVibes } = useCacheContext();
   const windowSize = useWindowSize();
   const { network } = useNetworkContext();
@@ -216,24 +215,28 @@ const VibesTokenInterface = ({
   const lowerPrice = useMemo(() => {
     if (customLowerPrice !== undefined) return customLowerPrice;
     if (
-      vibesTokenPriceRange[0] !== null &&
-      vibesTokenPriceRange[0] !== undefined
+      channelVibesTokenPriceRange[0] !== null &&
+      channelVibesTokenPriceRange[0] !== undefined
     ) {
-      return Number(parseUnits(vibesTokenPriceRange[0] as `${number}`, 18));
+      return Number(
+        parseUnits(channelVibesTokenPriceRange[0] as `${number}`, 18)
+      );
     }
     return 0;
-  }, [vibesTokenPriceRange[0], customLowerPrice]);
+  }, [channelVibesTokenPriceRange[0], customLowerPrice]);
 
   const higherPrice = useMemo(() => {
     if (customHigherPrice !== undefined) return customHigherPrice;
     if (
-      vibesTokenPriceRange[1] !== null &&
-      vibesTokenPriceRange[1] !== undefined
+      channelVibesTokenPriceRange[1] !== null &&
+      channelVibesTokenPriceRange[1] !== undefined
     ) {
-      return Number(parseUnits(vibesTokenPriceRange[1] as `${number}`, 18));
+      return Number(
+        parseUnits(channelVibesTokenPriceRange[1] as `${number}`, 18)
+      );
     }
     return Number.MAX_SAFE_INTEGER;
-  }, [vibesTokenPriceRange[1], customHigherPrice]);
+  }, [channelVibesTokenPriceRange[1], customHigherPrice]);
 
   const openVibesPopout = () => {
     if (!channelQueryData) return;
@@ -251,7 +254,7 @@ const VibesTokenInterface = ({
     const calculateTokens = async () => {
       if (
         vibesTokenTxs.length === 0 ||
-        vibesTokenPriceRange.length === 0 ||
+        channelVibesTokenPriceRange.length === 0 ||
         !isFullChart
       )
         return;
@@ -268,7 +271,7 @@ const VibesTokenInterface = ({
             current_token_supply: Number(
               vibesTokenTxs[vibesTokenTxs.length - 1].supply
             ),
-            new_eth_price: Number(vibesTokenPriceRange[0]),
+            new_eth_price: Number(channelVibesTokenPriceRange[0]),
           },
         }),
       };
@@ -280,7 +283,7 @@ const VibesTokenInterface = ({
             current_token_supply: Number(
               vibesTokenTxs[vibesTokenTxs.length - 1].supply
             ),
-            new_eth_price: Number(vibesTokenPriceRange[1]),
+            new_eth_price: Number(channelVibesTokenPriceRange[1]),
           },
         }),
       };
@@ -313,7 +316,7 @@ const VibesTokenInterface = ({
       }
     };
     calculateTokens();
-  }, [vibesTokenTxs, vibesTokenPriceRange]);
+  }, [vibesTokenTxs, channelVibesTokenPriceRange]);
 
   useEffect(() => {
     if (ethPriceInUsd === undefined) return;

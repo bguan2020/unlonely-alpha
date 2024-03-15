@@ -23,11 +23,11 @@ import MessageList from "../chat/MessageList";
 import ChatForm from "../chat/ChatForm";
 import { GET_SUBSCRIPTION } from "../../constants/queries";
 import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubscription";
-import useRemoveChannelFromSubscription from "../../hooks/server/useRemoveChannelFromSubscription";
+import useRemoveChannelFromSubscription from "../../hooks/server/channel/useRemoveChannelFromSubscription";
 import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import Participants from "../presence/Participants";
-import { VipBadgeBuy } from "../channels/VipBadgeBuy";
+import { VipBadgeBuy } from "../channels/vibes/VipBadgeBuy";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import Trade from "../channels/bet/Trade";
 import VibesTokenInterface from "../chat/VibesTokenInterface";
@@ -436,7 +436,6 @@ const InfoComponent = () => {
   const { channel: channelContext, ui } = useChannelContext();
   const {
     handleNotificationsModal,
-    handleEventModal,
     handleEditModal,
     handleChatCommandModal,
     handleModeratorModal,
@@ -499,26 +498,6 @@ const InfoComponent = () => {
                     }}
                   >
                     <Image src="/svg/notifications.svg" width="100%" />
-                  </Box>
-                </Flex>
-                <Flex direction="column" gap="10px" justifyContent={"flex-end"}>
-                  <Text textAlign="center">add event</Text>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    borderRadius="10px"
-                    onClick={() => handleEventModal(true)}
-                    _hover={{
-                      cursor: "pointer",
-                      transform: "scale(1.1)",
-                      transitionDuration: "0.3s",
-                    }}
-                    _active={{
-                      transform: "scale(1)",
-                    }}
-                  >
-                    <Image src="/svg/calendar.svg" width="100%" />
                   </Box>
                 </Flex>
                 <Flex direction="column" gap="10px" justifyContent={"flex-end"}>

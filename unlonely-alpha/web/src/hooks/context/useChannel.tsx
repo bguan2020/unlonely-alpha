@@ -8,36 +8,33 @@ import {
   useCallback,
 } from "react";
 import { ApolloError, useQuery } from "@apollo/client";
-import { merge } from "lodash";
 
+import { GET_GAMBLABLE_EVENT_USER_RANK_QUERY } from "../../constants/queries";
 import {
-  CHANNEL_INTERACTABLE_QUERY,
-  GET_GAMBLABLE_EVENT_USER_RANK_QUERY,
-} from "../../constants/queries";
-import {
-  ChannelDetailQuery,
-  ChannelInteractableQuery,
-  ChannelStaticQuery,
   GetGamblableEventLeaderboardByChannelIdQuery,
   SharesEvent,
   SharesEventState,
 } from "../../generated/graphql";
-import { ChatBot, Role } from "../../constants/types";
+import { ChatBot } from "../../constants/types";
 import { useUser } from "./useUser";
-import { useClip } from "../chat/useClip";
-import CalendarEventModal from "../../components/channels/CalendarEventModal";
+import { UseClipType, useClip, useClipInitial } from "../chat/useClip";
 import ChatCommandModal from "../../components/channels/ChatCommandModal";
 import EditChannelModal from "../../components/channels/EditChannelModal";
 import NotificationsModal from "../../components/channels/NotificationsModal";
 import ModeratorModal from "../../components/channels/ModeratorModal";
 import { useNetworkContext } from "./useNetwork";
-import { AblyChannelPromise, CommandData } from "../../constants";
+import { AblyChannelPromise } from "../../constants";
 import { SelectedUser } from "../../constants/types/chat";
 import {
-  WelcomeTourState,
+  WelcomeTourStateType,
   useWelcomeTourState,
   welcomeTourStateInitial,
 } from "../internal/useWelcomeTourState";
+import {
+  UseChannelDetailsType,
+  useChannelDetails,
+  useChannelDetailsInitial,
+} from "../internal/useChannelDetails";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -45,52 +42,18 @@ export const useChannelContext = () => {
 
 const ChannelContext = createContext<{
   channel: {
-    channelQueryData?: ChannelDetailQuery["getChannelBySlug"];
     latestBet?: SharesEvent;
     handleLatestBet: (value: SharesEvent) => void;
-    loading: boolean;
     error?: ApolloError;
-    refetchChannel: () => Promise<any>;
     totalBadges: string;
-    channelDetails: {
-      channelName: string;
-      channelDescription: string;
-      chatCommands: CommandData[];
-      allowNfcs: boolean;
-    };
-    channelRoles: Role[];
     handleTotalBadges: (value: string) => void;
-    handleChannelRoles: (
-      address: string,
-      role: number,
-      isAdding: boolean
-    ) => void;
-    handleChannelStaticData: (
-      value: ChannelDetailQuery["getChannelBySlug"]
-    ) => void;
-    handleChannelDetails: (
-      channelName: string,
-      channelDescription: string,
-      chatCommands: CommandData[],
-      allowNfcs: boolean
-    ) => void;
-  };
+  } & UseChannelDetailsType;
   chat: {
     chatChannel?: string;
     presenceChannel?: string;
     addToChatbot: (chatBotMessageToAdd: ChatBot) => void;
     chatBot: ChatBot[];
-    clipping: {
-      isClipUiOpen: boolean;
-      handleIsClipUiOpen: (value: boolean) => void;
-      handleCreateClip: (title: string) => Promise<string | undefined>;
-      setClipError: (value: string) => void;
-      clipError?: string;
-      clipUrl?: string;
-      clipThumbnail?: string;
-      loading: boolean;
-    };
-  };
+  } & UseClipType;
   leaderboard: {
     isVip?: boolean;
     userRank: number;
@@ -103,61 +66,33 @@ const ChannelContext = createContext<{
   ui: {
     handleEditModal: (value: boolean) => void;
     handleNotificationsModal: (value: boolean) => void;
-    handleEventModal: (value: boolean) => void;
     handleChatCommandModal: (value: boolean) => void;
     handleModeratorModal: (value: boolean) => void;
     showEditModal: boolean;
     showNotificationsModal: boolean;
-    showEventModal: boolean;
     showChatCommandModal: boolean;
     showModeratorModal: boolean;
     vipPool: string;
-    tournamentActive: boolean;
-    vibesTokenPriceRange: string[];
-    handleTournamentActive: (value: boolean) => void;
     handleVipPool: (value: string) => void;
     tradeLoading: boolean;
     handleTradeLoading: (value: boolean) => void;
-    handleVibesTokenPriceRange: (value: string[]) => void;
     selectedUserInChat?: SelectedUser;
     handleSelectedUserInChat: (value?: SelectedUser) => void;
     handleLocalSharesEventState: (value: SharesEventState) => void;
-    welcomeTourState: WelcomeTourState;
-  };
+  } & WelcomeTourStateType;
 }>({
   channel: {
-    channelQueryData: undefined,
     latestBet: undefined,
     handleLatestBet: () => undefined,
-    loading: true,
     error: undefined,
-    refetchChannel: () => Promise.resolve(undefined),
     totalBadges: "0",
-    channelDetails: {
-      channelName: "",
-      channelDescription: "",
-      chatCommands: [],
-      allowNfcs: true,
-    },
-    channelRoles: [],
+    ...useChannelDetailsInitial,
     handleTotalBadges: () => undefined,
-    handleChannelRoles: () => undefined,
-    handleChannelStaticData: () => undefined,
-    handleChannelDetails: () => undefined,
   },
   chat: {
     chatChannel: undefined,
     presenceChannel: undefined,
-    clipping: {
-      isClipUiOpen: false,
-      handleIsClipUiOpen: () => undefined,
-      handleCreateClip: () => Promise.resolve(undefined),
-      setClipError: () => undefined,
-      clipError: undefined,
-      clipUrl: undefined,
-      clipThumbnail: undefined,
-      loading: false,
-    },
+    ...useClipInitial,
     chatBot: [],
     addToChatbot: () => undefined,
   },
@@ -173,26 +108,20 @@ const ChannelContext = createContext<{
   ui: {
     handleEditModal: () => undefined,
     handleNotificationsModal: () => undefined,
-    handleEventModal: () => undefined,
     handleChatCommandModal: () => undefined,
     handleModeratorModal: () => undefined,
     showEditModal: false,
     showNotificationsModal: false,
-    showEventModal: false,
     showChatCommandModal: false,
     showModeratorModal: false,
     vipPool: "0",
-    vibesTokenPriceRange: [],
-    tournamentActive: false,
-    handleTournamentActive: () => undefined,
     handleVipPool: () => undefined,
     tradeLoading: false,
     handleTradeLoading: () => undefined,
-    handleVibesTokenPriceRange: () => undefined,
     handleLocalSharesEventState: () => undefined,
     selectedUserInChat: undefined,
     handleSelectedUserInChat: () => undefined,
-    welcomeTourState: welcomeTourStateInitial,
+    ...welcomeTourStateInitial,
   },
 });
 
@@ -207,75 +136,16 @@ export const ChannelProvider = ({
   const router = useRouter();
   const { slug } = router.query;
 
-  const {
-    loading: channelInteractableLoading,
-    error: channelInteractableError,
-    data: channelInteractable,
-    refetch: refetchChannelInteractable,
-  } = useQuery<ChannelInteractableQuery>(CHANNEL_INTERACTABLE_QUERY, {
-    variables: { slug },
-    fetchPolicy: "network-only",
-  });
-
-  const [channelStatic, setChannelStatic] = useState<
-    ChannelStaticQuery["getChannelBySlug"]
-  >({
-    awsId: "",
-    id: "-1",
-    slug: "",
-    owner: {
-      address: "",
-    },
-  });
-
-  const channelQueryData: ChannelDetailQuery["getChannelBySlug"] =
-    useMemo(() => {
-      return merge({}, channelInteractable?.getChannelBySlug, channelStatic);
-    }, [channelStatic, channelInteractable]);
-
-  const ongoingBets = useMemo(
-    () =>
-      channelQueryData?.sharesEvent?.filter(
-        (event): event is SharesEvent =>
-          event !== null && event?.chainId === localNetwork.config.chainId
-      ) ?? [],
-    [channelQueryData?.sharesEvent, localNetwork.config.chainId]
-  );
-
-  const { data: userRankData } = useQuery(GET_GAMBLABLE_EVENT_USER_RANK_QUERY, {
-    variables: {
-      data: {
-        channelId: channelQueryData?.id,
-        userAddress: user?.address,
-        chainId: localNetwork.config.chainId,
-      },
-    },
-  });
-
-  const isOwner = userAddress === channelQueryData?.owner?.address;
-
-  const userRank = useMemo(
-    () => userRankData?.getGamblableEventUserRank,
-    [userRankData]
-  );
-
   const [ablyChatChannel, setAblyChatChannel] = useState<string | undefined>(
     undefined
   );
   const [ablyPresenceChannel, setAblyPresenceChannel] = useState<
     string | undefined
   >(undefined);
-  const [isClipUiOpen, setIsClipUiOpen] = useState<boolean>(false);
   const [isVip, setIsVip] = useState<boolean>(false);
 
-  const handleIsClipUiOpen = useCallback((isClipUiOpen: boolean) => {
-    setIsClipUiOpen(isClipUiOpen);
-  }, []);
-
   const [chatBot, setChatBot] = useState<ChatBot[]>([]);
-  const [vibesTokenPriceRange, setVibesTokenPriceRange] = useState<string[]>(
-    []
-  );
+
   const [selectedUserInChat, setSelectedUserInChat] = useState<
     SelectedUser | undefined
   >(undefined);
@@ -284,103 +154,66 @@ export const ChannelProvider = ({
   const [showEditModal, setEditModal] = useState<boolean>(false);
   const [showNotificationsModal, setNotificationsModal] =
     useState<boolean>(false);
-  const [showEventModal, setEventModal] = useState<boolean>(false);
   const [showModeratorModal, setModeratorModal] = useState<boolean>(false);
 
   const [totalBadges, setTotalBadges] = useState<string>("0");
   const [vipPool, setVipPool] = useState<string>("0");
-  const [tournamentActive, setTournamentActive] = useState<boolean>(false);
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
-  const [channelDetails, setChannelDetails] = useState<{
-    channelName: string;
-    channelDescription: string;
-    chatCommands: CommandData[];
-    allowNfcs: boolean;
-  }>({
-    channelName: "",
-    channelDescription: "",
-    chatCommands: [],
-    allowNfcs: true,
-  });
-  const [channelRoles, setChannelRoles] = useState<Role[]>([]);
+  const channelDetails = useChannelDetails(slug);
   const [latestBet, setLatestBet] = useState<SharesEvent | undefined>(
     undefined
   );
 
+  const isOwner =
+    userAddress === channelDetails.channelQueryData?.owner?.address;
+
   const welcomeTour = useWelcomeTourState(isOwner);
 
-  const {
-    handleCreateClip,
-    setClipError,
-    clipError,
-    clipUrl,
-    clipThumbnail,
-    loading,
-  } = useClip(channelQueryData, handleIsClipUiOpen);
+  const clip = useClip(channelDetails.channelQueryData);
+
+  const ongoingBets = useMemo(
+    () =>
+      channelDetails.channelQueryData?.sharesEvent?.filter(
+        (event): event is SharesEvent =>
+          event !== null && event?.chainId === localNetwork.config.chainId
+      ) ?? [],
+    [channelDetails.channelQueryData?.sharesEvent, localNetwork.config.chainId]
+  );
+
+  const { data: userRankData } = useQuery(GET_GAMBLABLE_EVENT_USER_RANK_QUERY, {
+    variables: {
+      data: {
+        channelId: channelDetails.channelQueryData?.id,
+        userAddress: user?.address,
+        chainId: localNetwork.config.chainId,
+      },
+    },
+  });
+
+  const userRank = useMemo(
+    () => userRankData?.getGamblableEventUserRank,
+    [userRankData]
+  );
 
   useEffect(() => {
-    if (channelQueryData && channelQueryData.slug) {
-      setAblyChatChannel(`${channelQueryData.slug}-chat-channel`);
-      setAblyPresenceChannel(`${channelQueryData.slug}-presence-channel`);
-    }
-  }, [channelQueryData]);
-
-  useEffect(() => {
-    if (channelQueryData?.vibesTokenPriceRange) {
-      const filteredArray = channelQueryData?.vibesTokenPriceRange.filter(
-        (str): str is string => str !== null
+    if (
+      channelDetails.channelQueryData &&
+      channelDetails.channelQueryData.slug
+    ) {
+      setAblyChatChannel(
+        `${channelDetails.channelQueryData.slug}-chat-channel`
       );
-      if (filteredArray.length === 2) {
-        setVibesTokenPriceRange(filteredArray);
-      }
-    }
-  }, [channelQueryData?.vibesTokenPriceRange]);
-
-  useEffect(() => {
-    if (channelQueryData?.roles) {
-      const filteredArray = channelQueryData?.roles.filter(
-        (
-          role
-        ): role is {
-          id: number;
-          userAddress: string;
-          role: number;
-        } => role !== null
-      );
-      setChannelRoles(
-        filteredArray.map((r) => {
-          return {
-            address: r.userAddress,
-            role: r.role,
-          };
-        })
+      setAblyPresenceChannel(
+        `${channelDetails.channelQueryData.slug}-presence-channel`
       );
     }
-  }, [channelQueryData?.roles]);
+  }, [channelDetails.channelQueryData]);
 
   useEffect(() => {
     if (!ongoingBets || ongoingBets.length === 0) return;
     const latestBet = ongoingBets[0];
     setLatestBet(latestBet);
   }, [ongoingBets]);
-
-  useEffect(() => {
-    if (channelQueryData) {
-      setChannelDetails({
-        channelName: channelQueryData.name ?? "",
-        channelDescription: channelQueryData.description ?? "",
-        chatCommands:
-          channelQueryData?.chatCommands?.filter(
-            (command): command is CommandData => command !== null
-          ) ?? [],
-        allowNfcs: channelQueryData?.allowNFCs ?? false,
-      });
-    }
-  }, [channelQueryData]);
-
-  const handleVibesTokenPriceRange = useCallback((value: string[]) => {
-    setVibesTokenPriceRange(value);
-  }, []);
 
   const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
     setChatBot((prev) => [...prev, chatBotMessageToAdd]);
@@ -392,10 +225,6 @@ export const ChannelProvider = ({
 
   const handleNotificationsModal = useCallback((value: boolean) => {
     setNotificationsModal(value);
-  }, []);
-
-  const handleEventModal = useCallback((value: boolean) => {
-    setEventModal(value);
   }, []);
 
   const handleChatCommandModal = useCallback((value: boolean) => {
@@ -418,53 +247,11 @@ export const ChannelProvider = ({
     setVipPool(value);
   }, []);
 
-  const handleTournamentActive = useCallback((value: boolean) => {
-    setTournamentActive(value);
-  }, []);
-
   const handleTradeLoading = useCallback((value: boolean) => {
     setTradeLoading(value);
   }, []);
 
-  const handleChannelRoles = useCallback(
-    (address: string, role: number, isAdding: boolean) => {
-      if (isAdding) {
-        setChannelRoles((prev) => [...prev, { address, role }]);
-      } else {
-        setChannelRoles((prev) =>
-          prev.filter((r) => r.address !== address && r.role !== role)
-        );
-      }
-    },
-    []
-  );
-
-  const handleChannelDetails = useCallback(
-    (
-      channelName: string,
-      channelDescription: string,
-      chatCommands: CommandData[],
-      allowNfcs: boolean
-    ) => {
-      setChannelDetails({
-        channelName,
-        channelDescription,
-        chatCommands,
-        allowNfcs,
-      });
-    },
-    []
-  );
-
-  const handleChannelStaticData = useCallback(
-    (value: ChannelDetailQuery["getChannelBySlug"]) => {
-      setChannelStatic(value);
-    },
-    []
-  );
-
   const handleLocalSharesEventState = useCallback((value: SharesEventState) => {
-    // setLocalSharesEventState(value);
     setLatestBet((prev) => {
       if (prev) {
         return {
@@ -487,35 +274,18 @@ export const ChannelProvider = ({
   const value = useMemo(
     () => ({
       channel: {
-        channelQueryData,
         latestBet,
         handleLatestBet,
-        loading: channelInteractableLoading || channelStatic?.id === "-1",
-        error: channelInteractableError,
-        refetchChannel: refetchChannelInteractable,
         totalBadges,
         handleTotalBadges,
-        channelDetails,
-        channelRoles: channelRoles,
-        handleChannelRoles,
-        handleChannelStaticData,
-        handleChannelDetails,
+        ...channelDetails,
       },
       chat: {
         chatChannel: ablyChatChannel,
         presenceChannel: ablyPresenceChannel,
         chatBot,
         addToChatbot,
-        clipping: {
-          isClipUiOpen,
-          handleIsClipUiOpen,
-          handleCreateClip,
-          setClipError,
-          clipError: clipError ?? undefined,
-          clipUrl,
-          clipThumbnail,
-          loading,
-        },
+        ...clip,
       },
       leaderboard: {
         userRank,
@@ -529,77 +299,50 @@ export const ChannelProvider = ({
       ui: {
         handleEditModal,
         handleNotificationsModal,
-        handleEventModal,
         handleChatCommandModal,
         handleModeratorModal,
         showEditModal,
         showNotificationsModal,
-        showEventModal,
         showChatCommandModal,
         showModeratorModal,
         vipPool,
-        vibesTokenPriceRange,
-        tournamentActive,
-        handleTournamentActive,
         handleVipPool,
         tradeLoading,
         handleTradeLoading,
-        handleVibesTokenPriceRange,
         selectedUserInChat,
         handleSelectedUserInChat,
         handleLocalSharesEventState,
-        welcomeTourState: welcomeTour,
+        ...welcomeTour,
       },
     }),
     [
       channelDetails,
-      channelRoles,
-      channelQueryData,
       latestBet,
       handleLatestBet,
-      handleChannelStaticData,
-      handleChannelDetails,
-      channelInteractableLoading,
-      channelInteractableError,
-      refetchChannelInteractable,
       ablyChatChannel,
       ablyPresenceChannel,
       userRank,
-      isClipUiOpen,
-      handleIsClipUiOpen,
-      handleCreateClip,
-      setClipError,
-      clipError,
-      clipUrl,
-      clipThumbnail,
-      loading,
+      clip,
       userRank,
       isVip,
-      vibesTokenPriceRange,
       handleIsVip,
       addToChatbot,
       handleEditModal,
       handleNotificationsModal,
-      handleEventModal,
       handleModeratorModal,
       handleChatCommandModal,
       handleIsVip,
       showEditModal,
       showNotificationsModal,
-      showEventModal,
       showChatCommandModal,
       showModeratorModal,
       chatBot,
       totalBadges,
       handleTotalBadges,
       vipPool,
-      tournamentActive,
-      handleTournamentActive,
       handleVipPool,
       tradeLoading,
       handleTradeLoading,
-      handleVibesTokenPriceRange,
-      handleChannelRoles,
       handleLocalSharesEventState,
       selectedUserInChat,
       handleSelectedUserInChat,
@@ -622,12 +365,10 @@ export const ChannelWideModals = ({
   const {
     handleEditModal,
     handleNotificationsModal,
-    handleEventModal,
     handleChatCommandModal,
     handleModeratorModal,
     showEditModal,
     showNotificationsModal,
-    showEventModal,
     showChatCommandModal,
     showModeratorModal,
   } = ui;
@@ -656,11 +397,6 @@ export const ChannelWideModals = ({
         title={"send notifications"}
         isOpen={showNotificationsModal}
         handleClose={() => handleNotificationsModal(false)}
-      />
-      <CalendarEventModal
-        title={"add event"}
-        isOpen={showEventModal}
-        handleClose={() => handleEventModal(false)}
       />
     </>
   );

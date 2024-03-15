@@ -175,7 +175,7 @@ export const useChatBox = (
 
   const toast = useToast();
   const { channel: channelContext } = useChannelContext();
-  const { channelDetails, channelQueryData } = channelContext;
+  const { realTimeChannelDetails, channelQueryData } = channelContext;
   const { user, walletIsConnected } = useUser();
 
   const { postFirstChat } = usePostFirstChat({
@@ -187,12 +187,11 @@ export const useChatBox = (
   const { leaderboard, chat } = useChannelContext();
 
   const { userRank } = leaderboard;
-  const { clipping } = chat;
-  const { handleIsClipUiOpen } = clipping;
+  const { handleIsClipUiOpen } = chat;
 
   const channelChatCommands = useMemo(
-    () => channelDetails?.chatCommands ?? [],
-    [channelDetails?.chatCommands]
+    () => realTimeChannelDetails?.chatCommands ?? [],
+    [realTimeChannelDetails?.chatCommands]
   );
 
   const handleScrollToPresent = useCallback(() => {
@@ -242,7 +241,7 @@ export const useChatBox = (
       messageToPublish = `${data}`;
       allowPublish = true;
     } else if (messageText.startsWith(BaseChatCommand.CLIP)) {
-      if (channelDetails?.allowNfcs || false) {
+      if (realTimeChannelDetails?.allowNfcs || false) {
         handleIsClipUiOpen(true);
         allowPublish = false;
       } else {

@@ -48,9 +48,9 @@ import {
 } from "../../../generated/graphql";
 import { CreateBet } from "./CreateBet";
 import { JudgeBet } from "./JudgeBet";
-import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
+import useUpdateSharesEvent from "../../../hooks/server/channel/useUpdateSharesEvent";
 import usePostClaimPayout from "../../../hooks/server/usePostClaimPayout";
-import useCloseSharesEvent from "../../../hooks/server/useCloseSharesEvent";
+import useCloseSharesEvent from "../../../hooks/server/channel/useCloseSharesEvent";
 import useDebounce from "../../../hooks/internal/useDebounce";
 import useUserAgent from "../../../hooks/internal/useUserAgent";
 

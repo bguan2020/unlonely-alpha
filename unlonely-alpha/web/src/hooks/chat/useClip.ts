@@ -1,29 +1,51 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { useUser } from "../context/useUser";
-import useCreateClip from "../server/useCreateClip";
-import usePostNFC from "../server/usePostNFC";
+import useCreateClip from "../server/channel/useCreateClip";
 
-export const useClip = (
-  channelQueryData: any,
-  handleIsClipUiOpen: (v: boolean) => void
-) => {
+export type UseClipType = {
+  isClipUiOpen: boolean;
+  handleIsClipUiOpen: (value: boolean) => void;
+  handleCreateClip: (title: string) => Promise<string | undefined>;
+  handleClipError: (value: string) => void;
+  clipError?: string;
+  clipUrl?: string;
+  clipThumbnail?: string;
+  loading: boolean;
+};
+
+export const useClipInitial: UseClipType = {
+  isClipUiOpen: false,
+  handleIsClipUiOpen: () => undefined,
+  handleCreateClip: () => Promise.resolve(undefined),
+  handleClipError: () => undefined,
+  clipError: undefined,
+  clipUrl: undefined,
+  clipThumbnail: undefined,
+  loading: false,
+};
+
+export const useClip = (channelQueryData: any): UseClipType => {
   const { user } = useUser();
   const [clipError, setClipError] = useState<null | string>(null);
   const [clipUrl, setClipUrl] = useState<null | any>(null);
   const [clipThumbnail, setClipThumbnail] = useState<null | any>(null);
   const [loading, setLoading] = useState(false);
+  const [isClipUiOpen, setIsClipUiOpen] = useState<boolean>(false);
 
   const { createClip } = useCreateClip({
     onError: (m) => {
       setClipError(m?.join(",") ?? "An unknown error occurred");
     },
   });
-  const { postNFC } = usePostNFC({
-    onError: (m) => {
-      setClipError(m?.join(",") ?? "An unknown error occurred");
-    },
-  });
+
+  const handleIsClipUiOpen = useCallback((isClipUiOpen: boolean) => {
+    setIsClipUiOpen(isClipUiOpen);
+  }, []);
+
+  const handleClipError = useCallback((clipError: string) => {
+    setClipError(clipError);
+  }, []);
 
   const handleCreateClip = async (title: string) => {
     if (
@@ -62,32 +84,12 @@ export const useClip = (
     return `${window.location.origin}/nfc/${res?.id}`;
   };
 
-  const submitClip = async (title: string) => {
-    if (!clipUrl || !clipThumbnail || !title || loading) return;
-    setLoading(true);
-    const _res = await postNFC({
-      videoLink: clipUrl,
-      videoThumbnail: clipThumbnail,
-      title,
-      channelId: channelQueryData.id,
-      openseaLink: "",
-    });
-    setLoading(false);
-    if (!_res?.res?.id) {
-      setClipError("An unknown error occurred");
-      return;
-    }
-    setClipError(null);
-    setClipUrl(null);
-    setClipThumbnail(null);
-    return `${window.location.origin}/nfc/${_res?.res?.id}`;
-  };
-
   return {
+    isClipUiOpen,
+    handleIsClipUiOpen,
     handleCreateClip,
-    submitClip,
-    setClipError,
-    clipError,
+    handleClipError,
+    clipError: clipError ?? undefined,
     clipUrl,
     clipThumbnail,
     loading,

@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
-import usePostChannel from "../hooks/server/usePostChannel";
+import usePostChannel from "../hooks/server/channel/usePostChannel";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePrivy } from "@privy-io/react-auth";

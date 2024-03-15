@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { UpdateChannelTextInput } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import useUpdateChannelText from "../../hooks/server/useUpdateChannelText";
+import useUpdateChannelText from "../../hooks/server/channel/useUpdateChannelText";
 import { updateChannelTextSchema } from "../../utils/validation/validation";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import {
@@ -34,7 +34,7 @@ export default function EditChannelModal({
   ablyChannel: AblyChannelPromise;
 }) {
   const { channel } = useChannelContext();
-  const { channelQueryData, channelDetails } = channel;
+  const { channelQueryData, realTimeChannelDetails } = channel;
   const { isStandalone } = useUserAgent();
 
   const [formError, setFormError] = useState<string[]>([]);
@@ -61,7 +61,7 @@ export default function EditChannelModal({
         body: JSON.stringify({
           channelName: data.name,
           channelDescription: data.description,
-          chatCommands: channelDetails.chatCommands,
+          chatCommands: realTimeChannelDetails.chatCommands,
         }),
       },
     });

@@ -100,13 +100,11 @@ const DesktopPage = ({
     handleChannelStaticData,
   } = channel;
   const {
-    welcomeTourState: {
-      welcomeStreamerModal,
-      handleWelcomeStreamerModal,
-      handleStartedWelcomeTour,
-      handleIsTourOpen,
-      handleSetTourSteps,
-    },
+    welcomeStreamerModal,
+    handleWelcomeStreamerModal,
+    handleStartedWelcomeTour,
+    handleIsTourOpen,
+    handleSetTourSteps,
   } = ui;
   const { handleIsVip } = leaderboard;
 

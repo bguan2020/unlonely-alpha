@@ -11,7 +11,7 @@ import { useUser } from "../../../hooks/context/useUser";
 import { useVerifyEvent } from "../../../hooks/contracts/useSharesContractV2";
 import { InteractionType } from "../../../constants";
 import { SharesEventState } from "../../../generated/graphql";
-import useUpdateSharesEvent from "../../../hooks/server/useUpdateSharesEvent";
+import useUpdateSharesEvent from "../../../hooks/server/channel/useUpdateSharesEvent";
 export const JudgeBet = ({
   ethBalance,
   isVerifier,
