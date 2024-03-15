@@ -1272,10 +1272,10 @@
         "VibesTokenV1"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\EphemeralVibesTokenV1.sol": {
-      "lastModificationDate": 1710472273540,
-      "contentHash": "f0477672a0435067c0b3e6f7cf7e6695",
-      "sourceName": "contracts/EphemeralVibesTokenV1.sol",
+    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\TempTokenV1.sol": {
+      "lastModificationDate": 1710526700510,
+      "contentHash": "e57656ba3e93df25253047135da0766e",
+      "sourceName": "contracts/TempTokenV1.sol",
       "solcConfig": {
         "version": "0.8.8",
         "settings": {
@@ -1315,13 +1315,13 @@
         "^0.8.2"
       ],
       "artifacts": [
-        "EphemeralVibesTokenV1"
+        "TempTokenV1"
       ]
     },
-    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\EphemeralVibesTokenFactoryV1.sol": {
-      "lastModificationDate": 1710520058234,
-      "contentHash": "552ee178237223cbdffef9e8d34e765c",
-      "sourceName": "contracts/EphemeralVibesTokenFactoryV1.sol",
+    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\TempTokenFactoryV1.sol": {
+      "lastModificationDate": 1710525695574,
+      "contentHash": "2dda19b850783d7515e66ffb08253fb7",
+      "sourceName": "contracts/TempTokenFactoryV1.sol",
       "solcConfig": {
         "version": "0.8.8",
         "settings": {
@@ -1353,13 +1353,13 @@
         }
       },
       "imports": [
-        "./EphemeralVibesTokenV1.sol"
+        "./TempTokenV1.sol"
       ],
       "versionPragmas": [
         "^0.8.2"
       ],
       "artifacts": [
-        "EphemeralVibesTokenFactoryV1"
+        "TempTokenFactoryV1"
       ]
     }
   }

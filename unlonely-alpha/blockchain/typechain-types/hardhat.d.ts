@@ -65,13 +65,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BrianToken__factory>;
     getContractFactory(
-      name: "EphemeralVibesTokenFactoryV1",
+      name: "TempTokenFactoryV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.EphemeralVibesTokenFactoryV1__factory>;
+    ): Promise<Contracts.TempTokenFactoryV1__factory>;
     getContractFactory(
-      name: "EphemeralVibesTokenV1",
+      name: "TempTokenV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.EphemeralVibesTokenV1__factory>;
+    ): Promise<Contracts.TempTokenV1__factory>;
     getContractFactory(
       name: "UnlonelyArcadeContractV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -183,15 +183,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.BrianToken>;
     getContractAt(
-      name: "EphemeralVibesTokenFactoryV1",
+      name: "TempTokenFactoryV1",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.EphemeralVibesTokenFactoryV1>;
+    ): Promise<Contracts.TempTokenFactoryV1>;
     getContractAt(
-      name: "EphemeralVibesTokenV1",
+      name: "TempTokenV1",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.EphemeralVibesTokenV1>;
+    ): Promise<Contracts.TempTokenV1>;
     getContractAt(
       name: "UnlonelyArcadeContractV1",
       address: string,

@@ -14,7 +14,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = hre.deployments;
   const { deployer } = await hre.getNamedAccounts();
 
-  await deploy("EphemeralVibesTokenFactoryV1", {
+  await deploy("TempTokenV1", {
     from: deployer,
     args: [FEE_DESTINATION, BIGINT_PROTOCOL_FEE_PERCENT, BIGINT_CREATOR_FEE_PERCENT],
     log: true
@@ -22,9 +22,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 
-func.tags = ["All", "EphemeralVibesTokenFactoryV1"]
+func.tags = ["All", "TempTokenV1"]
 
 /** 
-npx hardhat deploy --network base_sepolia --tags All,EphemeralVibesTokenFactoryV1
+npx hardhat deploy --network base_sepolia --tags All,TempTokenV1
 npx hardhat --network base_sepolia etherscan-verify
 */

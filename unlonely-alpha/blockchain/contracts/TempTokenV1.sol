@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract EphemeralVibesTokenV1 is ERC20, Ownable, ReentrancyGuard {
+contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
 
     address public factoryAddress;
     address public protocolFeeDestination;
@@ -102,7 +102,7 @@ contract EphemeralVibesTokenV1 is ERC20, Ownable, ReentrancyGuard {
         emit Burn(msg.sender, _amount, owner(), totalSupply(), protocolFeePercent, streamerFeePercent);
     }
 
-    function drainFundsIntoMyWallet() external endedPhase nonReentrant {
+    function drainFundsIntoMyWallet() external onlyOwner endedPhase nonReentrant {
         uint256 balance = address(this).balance;
         require(balance > 0, "No funds available to drain");
 
