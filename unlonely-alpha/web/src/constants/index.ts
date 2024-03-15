@@ -34,6 +34,13 @@ export enum EventTypeForContract {
   SIDE_BET = 2,
 }
 
+export enum Contract {
+  TEMP_TOKEN_FACTORY_V1 = "tempTokenFactoryV1",
+  VIBES_TOKEN_V1 = "vibesTokenV1",
+  SHARES_V2 = "unlonelySharesV2",
+  TOURNAMENT = "unlonelyTournament",
+}
+
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const NULL_ADDRESS_BYTES32 =
   "0x0000000000000000000000000000000000000000000000000000000000000000";

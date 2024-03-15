@@ -43,6 +43,7 @@ import { ApolloError, useLazyQuery } from "@apollo/client";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 import { streamerTourSteps } from "../_app";
 import Link from "next/link";
+import { Contract } from "../../constants";
 
 const ChannelDetail = ({
   channelData,
@@ -115,7 +116,7 @@ const DesktopPage = ({
   const isOwner = userAddress === channelQueryData?.owner?.address;
 
   const tournamentContract = getContractFromNetwork(
-    "unlonelyTournament",
+    Contract.TOURNAMENT,
     localNetwork
   );
 
@@ -406,7 +407,7 @@ const MobilePage = ({
   }, [channelSSR]);
 
   const tournamentContract = getContractFromNetwork(
-    "unlonelyTournament",
+    Contract.TOURNAMENT,
     localNetwork
   );
 

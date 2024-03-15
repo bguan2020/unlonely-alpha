@@ -14,7 +14,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = hre.deployments;
   const { deployer } = await hre.getNamedAccounts();
 
-  await deploy("TempTokenV1", {
+  await deploy("TempTokenFactoryV1", {
     from: deployer,
     args: [FEE_DESTINATION, BIGINT_PROTOCOL_FEE_PERCENT, BIGINT_CREATOR_FEE_PERCENT],
     log: true
@@ -22,7 +22,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 
-func.tags = ["All", "TempTokenV1"]
+func.tags = ["All", "TempTokenFactoryV1"]
 
 /** 
 npx hardhat deploy --network base_sepolia --tags All,TempTokenV1

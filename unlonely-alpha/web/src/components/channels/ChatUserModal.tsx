@@ -14,7 +14,11 @@ import {
 import { useState, useMemo, useEffect } from "react";
 import { formatUnits, isAddress } from "viem";
 import { useBalance } from "wagmi";
-import { AblyChannelPromise, CHANGE_USER_ROLE_EVENT } from "../../constants";
+import {
+  AblyChannelPromise,
+  CHANGE_USER_ROLE_EVENT,
+  Contract,
+} from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import { useCacheContext } from "../../hooks/context/useCache";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -58,7 +62,7 @@ export const ChatUserModal = ({
     useState<boolean>(false);
   const [isSendingVibes, setIsSendingVibes] = useState<boolean>(false);
   const [amountOfVibesToSend, setAmountOfVibesToSend] = useState<string>("10");
-  const contract = getContractFromNetwork("vibesTokenV1", NETWORKS[0]);
+  const contract = getContractFromNetwork(Contract.VIBES_TOKEN_V1, NETWORKS[0]);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const toast = useToast();
 

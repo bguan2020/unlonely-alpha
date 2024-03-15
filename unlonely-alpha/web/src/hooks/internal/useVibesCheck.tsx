@@ -10,6 +10,7 @@ import { NETWORKS } from "../../constants/networks";
 import {
   AVERAGE_BLOCK_TIME_SECS,
   CREATION_BLOCK,
+  Contract,
   NULL_ADDRESS,
   SECONDS_PER_HOUR,
 } from "../../constants";
@@ -43,7 +44,7 @@ export const useVibesCheck = () => {
   const { isStandalone } = useUserAgent();
   const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
   const [loading, setLoading] = useState(true);
-  const contract = getContractFromNetwork("vibesTokenV1", NETWORKS[0]);
+  const contract = getContractFromNetwork(Contract.VIBES_TOKEN_V1, NETWORKS[0]);
   const [chartTimeIndexes, setChartTimeIndexes] = useState<
     Map<string, { index: number | undefined; blockNumber: number }>
   >(new Map());

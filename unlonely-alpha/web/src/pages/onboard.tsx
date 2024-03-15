@@ -26,7 +26,7 @@ import { useLazyQuery } from "@apollo/client";
 import { GET_CHANNEL_SEARCH_RESULTS_QUERY } from "../constants/queries";
 import { GetChannelSearchResultsQuery } from "../generated/graphql";
 import { alphanumericInput } from "../utils/validation/input";
-import { NEW_STREAMER_URL_QUERY_PARAM } from "../constants";
+import { Contract, NEW_STREAMER_URL_QUERY_PARAM } from "../constants";
 import {
   useGetMintCostAfterFees,
   useMint,
@@ -144,7 +144,7 @@ const LoggedInOnboard = () => {
     }
   );
 
-  const contract = getContractFromNetwork("vibesTokenV1", NETWORKS[0]);
+  const contract = getContractFromNetwork(Contract.VIBES_TOKEN_V1, NETWORKS[0]);
 
   const {
     mintCostAfterFees,

@@ -16,7 +16,7 @@ import { decodeEventLog, formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useBalance } from "wagmi";
 
-import { InteractionType } from "../../constants";
+import { Contract, InteractionType } from "../../constants";
 import {
   useGetMintCostAfterFees,
   useMint,
@@ -57,7 +57,10 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const toast = useToast();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
-  const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
+  const contract = getContractFromNetwork(
+    Contract.VIBES_TOKEN_V1,
+    localNetwork
+  );
   const { chat, channel } = useChannelContext();
   const { channelQueryData } = channel;
   const { addToChatbot } = chat;

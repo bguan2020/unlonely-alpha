@@ -9,7 +9,7 @@ import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useUser } from "../../../hooks/context/useUser";
 import { useVerifyEvent } from "../../../hooks/contracts/useSharesContractV2";
-import { InteractionType } from "../../../constants";
+import { Contract, InteractionType } from "../../../constants";
 import { SharesEventState } from "../../../generated/graphql";
 import useUpdateSharesEvent from "../../../hooks/server/channel/useUpdateSharesEvent";
 export const JudgeBet = ({
@@ -26,7 +26,7 @@ export const JudgeBet = ({
   const { userAddress, user } = useUser();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
-  const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
+  const contractData = getContractFromNetwork(Contract.SHARES_V2, localNetwork);
   const { channel, chat } = useChannelContext();
   const { addToChatbot } = chat;
   const { latestBet } = channel;
