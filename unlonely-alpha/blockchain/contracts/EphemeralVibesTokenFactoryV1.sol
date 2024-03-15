@@ -19,6 +19,8 @@ contract EphemeralVibesTokenFactoryV1 is Ownable {
     uint256 public defaultStreamerFeePercent;
     address public defaultFeeDestination;
 
+    bool public isPaused;
+
     // Event to log the creation of a new EphemeralVibesToken.
     event EphemeralVibesTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp);
     event FeeDestinationSet(address indexed feeDestination);
@@ -27,7 +29,8 @@ contract EphemeralVibesTokenFactoryV1 is Ownable {
 
     constructor(address _defaultFeeDestination, uint256 _defaultProtocolFeePercent, uint256 _defaultStreamerFeePercent) {
         require(_defaultFeeDestination != address(0), "Default fee destination cannot be the zero address");
-        
+        require(!isPaused, "Factory is paused");
+
         defaultProtocolFeePercent = _defaultProtocolFeePercent;
         defaultStreamerFeePercent = _defaultStreamerFeePercent;
         defaultFeeDestination = _defaultFeeDestination;
@@ -64,5 +67,14 @@ contract EphemeralVibesTokenFactoryV1 is Ownable {
     function setStreamerFeePercent(uint256 _feePercent) public onlyOwner {
         defaultStreamerFeePercent = _feePercent;
         emit StreamerFeePercentSet(_feePercent);
+    }
+
+    function setPauseFactory(bool _isPaused) public onlyOwner {
+        isPaused = _isPaused;
+    }
+
+    function getTokenInfo(address tokenAddress) public view returns (TokenInfo memory) {
+        uint256 index = deployedTokenIndices[tokenAddress];
+        return deployedTokens[index];
     }
 }

@@ -102,7 +102,7 @@ contract EphemeralVibesTokenV1 is ERC20, Ownable, ReentrancyGuard {
         emit Burn(msg.sender, _amount, owner(), totalSupply(), protocolFeePercent, streamerFeePercent);
     }
 
-    function drainFundsIntoMyWallet() external onlyOwner endedPhase nonReentrant {
+    function drainFundsIntoMyWallet() external endedPhase nonReentrant {
         uint256 balance = address(this).balance;
         require(balance > 0, "No funds available to drain");
 

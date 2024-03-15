@@ -1273,8 +1273,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\EphemeralVibesTokenV1.sol": {
-      "lastModificationDate": 1710456789318,
-      "contentHash": "77a1b314f4341f5b4fb45429e52f1473",
+      "lastModificationDate": 1710472273540,
+      "contentHash": "f0477672a0435067c0b3e6f7cf7e6695",
       "sourceName": "contracts/EphemeralVibesTokenV1.sol",
       "solcConfig": {
         "version": "0.8.8",
@@ -1319,8 +1319,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\EphemeralVibesTokenFactoryV1.sol": {
-      "lastModificationDate": 1710460622988,
-      "contentHash": "9be029ec93574d57fe8582628bcdf635",
+      "lastModificationDate": 1710472297237,
+      "contentHash": "e6d23050f7c43db1921eb7d9ca1bd3c3",
       "sourceName": "contracts/EphemeralVibesTokenFactoryV1.sol",
       "solcConfig": {
         "version": "0.8.8",
