@@ -35,7 +35,7 @@ contract TempTokenFactoryV1 is Ownable {
     uint256 public duration;
 
     // Event to log the creation of a new TempToken.
-    event TempTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp);
+    event TempTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp, address feeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent);
     event FeeDestinationSet(address indexed feeDestination);
     event ProtocolFeePercentSet(uint256 feePercent);
     event StreamerFeePercentSet(uint256 feePercent);
@@ -69,7 +69,7 @@ contract TempTokenFactoryV1 is Ownable {
         deployedTokenIndices[address(newToken)] = index;
 
         newToken.transferOwnership(msg.sender); // Transfer ownership of the new token to the caller of this function.
-        emit TempTokenCreated(address(newToken), msg.sender, name, symbol, endTimestamp);
+        emit TempTokenCreated(address(newToken), msg.sender, name, symbol, endTimestamp, defaultFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent);
         return address(newToken);
     }
 

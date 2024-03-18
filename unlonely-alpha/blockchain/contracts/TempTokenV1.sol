@@ -110,6 +110,10 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         emit Drain(msg.sender, balance);
     }
 
+    function getBalance() external view returns (uint256) {
+        return address(this).balance;
+    }
+
     function mintCost(uint256 _amount) public view returns (uint256) {
         // The sum of the prices of all tokens already minted
         uint256 sumPricesCurrentTotalSupply = sumOfPriceToNTokens(totalSupply());
