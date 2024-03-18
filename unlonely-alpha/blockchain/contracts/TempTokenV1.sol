@@ -11,7 +11,6 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
     uint256 public streamerFeePercent;
-    uint256 public MAX_SUPPLY = 20_000_000;
     uint256 public endTimestamp;
 
     event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
@@ -52,7 +51,6 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     }
 
     function mint(uint256 _amount) external payable activePhase {
-        require(totalSupply() + _amount <= MAX_SUPPLY, "Maximum supply exceeded");
         uint256 cost = mintCost(_amount);
         uint256 protocolFee = cost * protocolFeePercent / 1 ether;
         uint256 subjectFee = cost * streamerFeePercent / 1 ether;
