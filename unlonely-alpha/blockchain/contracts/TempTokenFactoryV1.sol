@@ -9,7 +9,12 @@ contract TempTokenFactoryV1 is Ownable {
     struct TokenInfo {
         address tokenAddress;
         address ownerAddress;
+        string name;
+        string symbol;
         uint256 endTimestamp;
+        address feeDestination;
+        uint256 protocolFeePercent;
+        uint256 streamerFeePercent;
     }
 
     /**
@@ -65,7 +70,7 @@ contract TempTokenFactoryV1 is Ownable {
             * @dev We also store the index of the token in the deployedTokenIndices mapping using the token's address as the key.
          */
         uint256 index = ++numDeployedTokens;
-        deployedTokens[index] = TokenInfo(address(newToken), msg.sender, endTimestamp);
+        deployedTokens[index] = TokenInfo(address(newToken), msg.sender, name, symbol, endTimestamp, defaultFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent);
         deployedTokenIndices[address(newToken)] = index;
 
         newToken.transferOwnership(msg.sender); // Transfer ownership of the new token to the caller of this function.

@@ -5,17 +5,29 @@ import { NULL_ADDRESS } from "../../constants";
 import { ContractData, WriteCallbacks } from "../../constants/types";
 import { useWrite } from "./useWrite";
 import { createCallbackHandler } from "../../utils/contract";
+import { encodeAbiParameters } from "viem";
+import { verifyTempTokenV1OnBase } from "../../utils/contract-verification/TempTokenV1";
 
 type TokenInfo = {
   tokenAddress: `0x${string}`;
   ownerAddress: `0x${string}`;
+  name: string;
+  symbol: string;
   endTimestamp: bigint;
+  feeDestination: `0x${string}`;
+  protocolFeePercent: bigint;
+  subjectFeePercent: bigint;
 };
 
 const tokenInfoInitialState: TokenInfo = {
   tokenAddress: NULL_ADDRESS,
   ownerAddress: NULL_ADDRESS,
+  name: "",
+  symbol: "",
   endTimestamp: BigInt(0),
+  feeDestination: NULL_ADDRESS,
+  protocolFeePercent: BigInt(0),
+  subjectFeePercent: BigInt(0),
 };
 
 export const useReadPublic = (contract: ContractData) => {
@@ -153,7 +165,12 @@ export const useReadTokenInfo = (
     setTokenInfo({
       tokenAddress: tokenInfo[0] as `0x${string}`,
       ownerAddress: tokenInfo[1] as `0x${string}`,
-      endTimestamp: BigInt(String(tokenInfo[2])),
+      name: String(tokenInfo[2]),
+      symbol: String(tokenInfo[3]),
+      endTimestamp: BigInt(String(tokenInfo[4])),
+      feeDestination: tokenInfo[5] as `0x${string}`,
+      protocolFeePercent: BigInt(String(tokenInfo[6])),
+      subjectFeePercent: BigInt(String(tokenInfo[7])),
     });
   }, [contract.address, publicClient]);
 
@@ -195,3 +212,42 @@ export const useCreateTempToken = (
     isCreateTempTokenLoading,
   };
 };
+
+export const verifyTempToken = async (factoryContractData: ContractData, tokenAddress: `0x${string}`) => {
+  
+  const { tokenInfo } = useReadTokenInfo(factoryContractData, tokenAddress)
+
+  const encoded = encodeAbiParameters(
+    [{
+      name: "name",
+      type: "string"
+    },
+    {
+      name: "symbol",
+      type: "string"
+    },
+    {
+      name: "_endTimestamp",
+      type: "uint256"
+    },
+    {
+      name: "_protocolFeeDestination",
+      type: "address"
+    },
+    {
+      name: "_protocolFeePercent",
+      type: "uint256"
+    },
+    {
+      name: "_streamerFeePercent",
+      type: "uint256"
+    },
+    {
+      name: "_factoryAddress",
+      type: "address"
+    }],
+    [tokenInfo.name, tokenInfo.symbol, tokenInfo.endTimestamp, tokenInfo.feeDestination, tokenInfo.protocolFeePercent, tokenInfo.subjectFeePercent, factoryContractData.address as `0x${string}`]
+  )
+
+  await verifyTempTokenV1OnBase(tokenAddress, encoded)
+}
