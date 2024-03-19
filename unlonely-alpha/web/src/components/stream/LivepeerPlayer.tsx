@@ -14,7 +14,15 @@ import {
 import { BiRefresh } from "react-icons/bi";
 
 const LivepeerPlayer = memo(
-  ({ src }: { src: Src[] | null }) => {
+  ({
+    src,
+    isPreview,
+    customSizePercentages,
+  }: {
+    src: Src[] | null;
+    isPreview?: boolean;
+    customSizePercentages?: { width: `${number}%`; height: `${number}%` };
+  }) => {
     if (!src) {
       return (
         <Flex
@@ -37,7 +45,12 @@ const LivepeerPlayer = memo(
       );
     }
     return (
-      <Flex direction="column" width="100%" position="relative">
+      <Flex
+        direction="column"
+        width={customSizePercentages?.width ?? "100%"}
+        height={customSizePercentages?.height ?? "100%"}
+        position="relative"
+      >
         <Player.Root aspectRatio={null} src={src} autoPlay>
           <Player.Container
             style={{
@@ -80,16 +93,16 @@ const LivepeerPlayer = memo(
               <Player.PlayingIndicator asChild matcher={false}>
                 <PlayIcon
                   style={{
-                    width: 100,
-                    height: 100,
+                    width: isPreview ? 25 : 100,
+                    height: isPreview ? 25 : 100,
                   }}
                 />
               </Player.PlayingIndicator>
               <Player.VolumeIndicator asChild matcher={false}>
                 <MuteIcon
                   style={{
-                    width: 100,
-                    height: 100,
+                    width: isPreview ? 25 : 100,
+                    height: isPreview ? 25 : 100,
                   }}
                 />
               </Player.VolumeIndicator>
@@ -120,14 +133,18 @@ const LivepeerPlayer = memo(
                 >
                   <Text
                     textAlign="center"
-                    fontSize={"3rem"}
+                    fontSize={
+                      isPreview ? ["1rem", "1rem", "2rem", "2rem"] : "3rem"
+                    }
                     fontFamily={"LoRes15"}
                   >
                     Stream is offline
                   </Text>
-                  <Text textAlign="center">
-                    Refresh for the latest streaming updates
-                  </Text>
+                  {!isPreview && (
+                    <Text textAlign="center">
+                      Refresh for the latest streaming updates
+                    </Text>
+                  )}
                   <IconButton
                     color="white"
                     aria-label="refresh"
@@ -255,29 +272,33 @@ const LivepeerPlayer = memo(
                       }}
                     />
                   </Player.Volume>
-                  <Player.PictureInPictureTrigger
-                    style={{
-                      width: 25,
-                      height: 25,
-                    }}
-                  >
-                    <PictureInPictureIcon />
-                  </Player.PictureInPictureTrigger>
-                  <Player.FullscreenTrigger
-                    style={{
-                      position: "absolute",
-                      right: 20,
-                      width: 25,
-                      height: 25,
-                    }}
-                  >
-                    <Player.FullscreenIndicator asChild matcher={false}>
-                      <EnterFullscreenIcon />
-                    </Player.FullscreenIndicator>
-                    <Player.FullscreenIndicator asChild>
-                      <ExitFullscreenIcon />
-                    </Player.FullscreenIndicator>
-                  </Player.FullscreenTrigger>
+                  {!isPreview && (
+                    <>
+                      <Player.PictureInPictureTrigger
+                        style={{
+                          width: 25,
+                          height: 25,
+                        }}
+                      >
+                        <PictureInPictureIcon />
+                      </Player.PictureInPictureTrigger>
+                      <Player.FullscreenTrigger
+                        style={{
+                          position: "absolute",
+                          right: 20,
+                          width: 25,
+                          height: 25,
+                        }}
+                      >
+                        <Player.FullscreenIndicator asChild matcher={false}>
+                          <EnterFullscreenIcon />
+                        </Player.FullscreenIndicator>
+                        <Player.FullscreenIndicator asChild>
+                          <ExitFullscreenIcon />
+                        </Player.FullscreenIndicator>
+                      </Player.FullscreenTrigger>
+                    </>
+                  )}
                 </div>
               </div>
             </Player.Controls>

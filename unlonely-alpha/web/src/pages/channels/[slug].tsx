@@ -43,6 +43,8 @@ import { ApolloError, useLazyQuery } from "@apollo/client";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 import { streamerTourSteps } from "../_app";
 import Link from "next/link";
+import { PlaybackInfo } from "livepeer/dist/models/components";
+import { Livepeer } from "livepeer";
 
 const ChannelDetail = ({
   channelData,
@@ -112,6 +114,10 @@ const DesktopPage = ({
     useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
   const { userAddress, walletIsConnected } = useUser();
 
+  const livepeer = new Livepeer({
+    apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
+  });
+
   const isOwner = userAddress === channelQueryData?.owner?.address;
 
   const tournamentContract = getContractFromNetwork(
@@ -125,6 +131,29 @@ const DesktopPage = ({
       fetchPolicy: "network-only",
     }
   );
+
+  const livepeerPlaybackId = useMemo(
+    () =>
+      channelQueryData?.livepeerPlaybackId == null
+        ? undefined
+        : channelQueryData?.livepeerPlaybackId,
+    [channelQueryData]
+  );
+
+  const [playbackInfo, setPlaybackInfo] = useState<PlaybackInfo | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    const init = async () => {
+      if (livepeerPlaybackId) {
+        const res = await livepeer.playback.get(livepeerPlaybackId);
+        const playbackInfo = res.playbackInfo;
+        setPlaybackInfo(playbackInfo);
+      }
+    };
+    init();
+  }, [livepeerPlaybackId]);
 
   useEffect(() => {
     const init = async () => {
@@ -307,10 +336,13 @@ const DesktopPage = ({
                     <ChannelStreamerPerspective
                       ablyChannel={chat.channel}
                       livepeerData={livepeerData}
+                      livepeerPlaybackInfo={playbackInfo}
                     />
                   </>
                 ) : (
-                  <ChannelViewerPerspective />
+                  <ChannelViewerPerspective
+                    livepeerPlaybackInfo={playbackInfo}
+                  />
                 )}
                 <Flex
                   gap={4}

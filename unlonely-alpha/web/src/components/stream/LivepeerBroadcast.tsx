@@ -14,6 +14,7 @@ import { memo, forwardRef } from "react";
 import { Flex, Spinner, Text } from "@chakra-ui/react";
 import { CheckIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import trailString from "../../utils/trailString";
 
 const LivepeerBroadcast = memo(
   ({ streamKey }: { streamKey: string }) => {
@@ -55,13 +56,11 @@ const LivepeerBroadcast = memo(
                   padding: 10,
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    flex: 1,
-                    alignItems: "center",
-                    gap: 15,
-                  }}
+                <Flex
+                  gap="15px"
+                  alignItems="center"
+                  flex="1"
+                  direction={["column", "column", "column", "row"]}
                 >
                   <div
                     style={{
@@ -191,7 +190,7 @@ const LivepeerBroadcast = memo(
                       />
                     )}
                   </div>
-                </div>
+                </Flex>
               </div>
             </Broadcast.Controls>
 
@@ -320,7 +319,7 @@ const SourceSelectComposed = forwardRef(
                             key={device.deviceId}
                             value={device.deviceId}
                           >
-                            {device.friendlyName}
+                            {trailString(device.friendlyName, 25)}
                           </SourceSelectItem>
                         ))}
                       </Broadcast.SelectGroup>

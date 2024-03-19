@@ -34,13 +34,18 @@ import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
 import { useRouter } from "next/router";
 import { useUser } from "../../hooks/context/useUser";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
+import { PlaybackInfo } from "livepeer/dist/models/components";
+import LivepeerPlayer from "../stream/LivepeerPlayer";
+import { getSrc } from "@livepeer/react/external";
 
 const ChannelStreamerPerspective = ({
   ablyChannel,
   livepeerData,
+  livepeerPlaybackInfo,
 }: {
   ablyChannel: AblyChannelPromise;
   livepeerData?: GetLivepeerStreamDataQuery["getLivepeerStreamData"];
+  livepeerPlaybackInfo?: PlaybackInfo;
 }) => {
   const toast = useToast();
   const { isStandalone } = useUserAgent();
@@ -138,7 +143,7 @@ const ChannelStreamerPerspective = ({
       direction={"column"}
       gap="10px"
       h={!isStandalone ? "80vh" : "25vh"}
-      position={isStandalone ? "fixed" : "relative"}
+      position={!isStandalone ? "relative" : "fixed"}
     >
       <TransactionModalTemplate
         isOpen={streamerMigrateModal}
@@ -183,9 +188,34 @@ const ChannelStreamerPerspective = ({
                 : "80%"
               : "100%"
           }
+          gap="10px"
         >
           {playbackId && streamKey ? (
-            <LivepeerBroadcast streamKey={streamKey} />
+            <>
+              <LivepeerBroadcast streamKey={streamKey} />
+              {livepeerPlaybackInfo && !isStandalone && (
+                <Flex
+                  direction="column"
+                  width={"30%"}
+                  justifyContent={"center"}
+                  gap="5px"
+                >
+                  <Text fontSize="20px">viewer pov</Text>
+                  <LivepeerPlayer
+                    src={getSrc(livepeerPlaybackInfo)}
+                    isPreview={true}
+                    customSizePercentages={{
+                      width: "100%",
+                      height: "30%",
+                    }}
+                  />
+                  <Text fontSize="13px">
+                    If your livestream doesn't appear after a moment at first or
+                    seems to lag behind, try refreshing this page.
+                  </Text>
+                </Flex>
+              )}
+            </>
           ) : (
             <StreamComponent isStreamer />
           )}
