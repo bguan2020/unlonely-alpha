@@ -7,6 +7,13 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
 
+/**
+    * @dev factoryAddress is the address of the factory that deployed this token.
+    * @dev protocolFeeDestination is the address where the protocol fees are sent.
+    * @dev protocolFeePercent is the percentage of the protocol fee. ex: 2% = 2 * 10**16 = 20000000000000000
+    * @dev streamerFeePercent is the percentage of the streamer fee. ex: 2% = 2 * 10**16 = 20000000000000000
+    * @dev endTimestamp is the timestamp when the token is no longer tradeable.
+ */
     address public factoryAddress;
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
@@ -15,20 +22,28 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
 
     event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
     event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
-    event Drain(address indexed account, uint256 balance);
+    event SendRemainingFundsToCreatorAfterTokenExpiration(address indexed account, uint256 balance);
 
     error InsufficientValue(uint256 minimumValue, uint256 value);
     error BurnAmountTooHigh(uint256 maximumAmount, uint256 amount);
     error EtherTransferFailed(address to, uint256 value);
-    error ActionNotAllowed();
+    // error ActionNotAllowed();
 
+    /**
+        * @dev activePhase modifier checks if the current block timestamp is less than or equal to the endTimestamp. 
+        * At a high level, during the active phase of the token, users can mint and burn tokens on a bonding curve.
+        * When the active phase ends, users can no longer mint or burn tokens and all remaining funds in the pool can be sent to the token owner.
+     */
     modifier activePhase() {
-        require(block.timestamp < endTimestamp, "Active phase has ended");
+        require(block.timestamp <= endTimestamp, "Active phase has ended");
         _;
     }
 
+    /**
+        * @dev endedPhase modifier checks if the current block timestamp is greater than the endTimestamp.
+     */
     modifier endedPhase() {
-        require(block.timestamp >= endTimestamp, "Contract is still in active phase");
+        require(block.timestamp > endTimestamp, "Active phase has not ended");
         _;
     }
 
@@ -50,6 +65,10 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         factoryAddress = _factoryAddress;
     }
 
+    /**
+        * @dev mint function allows users to mint tokens on the bonding curve.
+        * @param _amount is the amount of tokens to mint.
+     */
     function mint(uint256 _amount) external payable activePhase {
         uint256 cost = mintCost(_amount);
         uint256 protocolFee = cost * protocolFeePercent / 1 ether;
@@ -76,6 +95,10 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         emit Mint(msg.sender, _amount, owner(), totalSupply(), protocolFeePercent, streamerFeePercent);
     }
 
+    /**
+        * @dev burn function allows users to burn tokens on the bonding curve.
+        * @param _amount is the amount of tokens to burn.
+     */
     function burn(uint256 _amount) external activePhase {
         if (_amount > balanceOf(msg.sender)) {
             revert BurnAmountTooHigh(balanceOf(msg.sender), _amount);
@@ -100,18 +123,21 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         emit Burn(msg.sender, _amount, owner(), totalSupply(), protocolFeePercent, streamerFeePercent);
     }
 
-    function drainFundsIntoMyWallet() external onlyOwner endedPhase nonReentrant {
+    /**
+        * @dev sendRemainingFundsToCreatorAfterTokenExpiration function allows the token owner to send all remaining funds in the pool to the token owner.
+        * This function can only be called after the endTimestamp has passed.
+        * The purpose of this function is incentivize people to sell prior to the token expiring, creating a short term token market to match the duration of the livestream. 
+        * If you don't sell in time, consider it a donation to the streamer/creator. 
+        * All TempTokens on the Unlonely frontend will have extremely clear countdowns and disclaimers telling you that this token will expire.
+     */
+    function sendRemainingFundsToCreatorAfterTokenExpiration() external onlyOwner endedPhase nonReentrant {
         uint256 balance = address(this).balance;
         require(balance > 0, "No funds available to drain");
 
         (bool success, ) = owner().call{value: balance}("");
         require(success, "Failed to transfer funds");
 
-        emit Drain(msg.sender, balance);
-    }
-
-    function getBalance() external view returns (uint256) {
-        return address(this).balance;
+        emit SendRemainingFundsToCreatorAfterTokenExpiration(msg.sender, balance);
     }
 
     function mintCost(uint256 _amount) public view returns (uint256) {
@@ -176,6 +202,10 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
 
     function getIsActive() public view returns (bool) {
         return block.timestamp < endTimestamp;
+    }
+
+    function getBalance() external view returns (uint256) {
+        return address(this).balance;
     }
 
     // The price of *all* tokens from number 1 to n.
