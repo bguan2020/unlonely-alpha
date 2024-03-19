@@ -142,6 +142,24 @@
         "internalType": "uint256",
         "name": "endTimestamp",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "feeDestination",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "protocolFeePercent",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "streamerFeePercent",
+        "type": "uint256"
       }
     ],
     "name": "TempTokenCreated",
@@ -250,8 +268,33 @@
         "type": "address"
       },
       {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "symbol",
+        "type": "string"
+      },
+      {
         "internalType": "uint256",
         "name": "endTimestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "feeDestination",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "protocolFeePercent",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "streamerFeePercent",
         "type": "uint256"
       }
     ],
@@ -294,8 +337,33 @@
             "type": "address"
           },
           {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "symbol",
+            "type": "string"
+          },
+          {
             "internalType": "uint256",
             "name": "endTimestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "feeDestination",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "protocolFeePercent",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "streamerFeePercent",
             "type": "uint256"
           }
         ],

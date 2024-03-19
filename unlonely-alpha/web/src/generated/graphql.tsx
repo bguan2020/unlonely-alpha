@@ -460,6 +460,7 @@ export type Mutation = {
   updateUser?: Maybe<User>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
+  verifyTempToken?: Maybe<TempTokenVerificationResponse>;
 };
 
 export type MutationAddChannelToSubscriptionArgs = {
@@ -648,6 +649,10 @@ export type MutationUpdateUserCreatorTokenQuantityArgs = {
 
 export type MutationUpdateUserNotificationsArgs = {
   data: UpdateUserNotificationsInput;
+};
+
+export type MutationVerifyTempTokenArgs = {
+  data: VerifyTempTokenInput;
 };
 
 export type Nfc = Likable & {
@@ -1136,6 +1141,13 @@ export type TaskFeedInput = {
   skip?: InputMaybe<Scalars["Int"]>;
 };
 
+export type TempTokenVerificationResponse = {
+  __typename?: "TempTokenVerificationResponse";
+  message?: Maybe<Scalars["String"]>;
+  result?: Maybe<Scalars["String"]>;
+  status?: Maybe<Scalars["String"]>;
+};
+
 export type ToggleSubscriptionInput = {
   endpoint: Scalars["String"];
 };
@@ -1259,6 +1271,11 @@ export type UserCreatorToken = {
   tokenId: Scalars["ID"];
   user: User;
   userId: Scalars["String"];
+};
+
+export type VerifyTempTokenInput = {
+  encodedConstructorArguments: Scalars["String"];
+  tempTokenContractAddress: Scalars["String"];
 };
 
 export type VibesTransaction = {
@@ -2317,6 +2334,20 @@ export type FetchCurrentUserQuery = {
     __typename?: "User";
     signature?: string | null;
     sigTimestamp?: any | null;
+  } | null;
+};
+
+export type VerifyTempTokenMutationVariables = Exact<{
+  data: VerifyTempTokenInput;
+}>;
+
+export type VerifyTempTokenMutation = {
+  __typename?: "Mutation";
+  verifyTempToken?: {
+    __typename?: "TempTokenVerificationResponse";
+    status?: string | null;
+    result?: string | null;
+    message?: string | null;
   } | null;
 };
 
@@ -6027,4 +6058,56 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
+>;
+export const VerifyTempTokenDocument = gql`
+  mutation VerifyTempToken($data: VerifyTempTokenInput!) {
+    verifyTempToken(data: $data) {
+      status
+      result
+      message
+    }
+  }
+`;
+export type VerifyTempTokenMutationFn = Apollo.MutationFunction<
+  VerifyTempTokenMutation,
+  VerifyTempTokenMutationVariables
+>;
+
+/**
+ * __useVerifyTempTokenMutation__
+ *
+ * To run a mutation, you first call `useVerifyTempTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVerifyTempTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [verifyTempTokenMutation, { data, loading, error }] = useVerifyTempTokenMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useVerifyTempTokenMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    VerifyTempTokenMutation,
+    VerifyTempTokenMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    VerifyTempTokenMutation,
+    VerifyTempTokenMutationVariables
+  >(VerifyTempTokenDocument, options);
+}
+export type VerifyTempTokenMutationHookResult = ReturnType<
+  typeof useVerifyTempTokenMutation
+>;
+export type VerifyTempTokenMutationResult =
+  Apollo.MutationResult<VerifyTempTokenMutation>;
+export type VerifyTempTokenMutationOptions = Apollo.BaseMutationOptions<
+  VerifyTempTokenMutation,
+  VerifyTempTokenMutationVariables
 >;
