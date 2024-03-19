@@ -31,6 +31,7 @@ import useCloseSharesEvent from "../hooks/server/channel/useCloseSharesEvent";
 import usePostClaimPayout from "../hooks/server/usePostClaimPayout";
 import { getColorFromString } from "../styles/Colors";
 import { useCacheContext } from "../hooks/context/useCache";
+import { Contract } from "../constants";
 
 export default function ClaimPage() {
   const { user, walletIsConnected } = useUser();
@@ -173,7 +174,7 @@ const EventCard = ({
   const { userAddress } = useUser();
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
-  const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
+  const contractData = getContractFromNetwork(Contract.SHARES_V2, localNetwork);
   const toast = useToast();
 
   const [calling, setCalling] = useState(false);

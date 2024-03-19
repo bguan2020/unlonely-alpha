@@ -33,6 +33,7 @@ import usePostSharesEvent from "../../../hooks/server/channel/usePostSharesEvent
 import { getContractFromNetwork } from "../../../utils/contract";
 import usePostBet from "../../../hooks/server/gamblable/usePostBet";
 import {
+  Contract,
   EventTypeForContract,
   InteractionType,
   NULL_ADDRESS,
@@ -103,7 +104,7 @@ export const CreateBet = ({
   });
 
   const [dateNow, setDateNow] = useState<number>(Date.now());
-  const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
+  const contractData = getContractFromNetwork(Contract.SHARES_V2, localNetwork);
 
   const sufficientEthForGas = useMemo(
     () => ethBalance >= requiredGas,

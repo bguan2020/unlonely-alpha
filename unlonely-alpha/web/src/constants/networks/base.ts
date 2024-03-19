@@ -6,6 +6,9 @@ import UnlonelySharesV1 from "../abi/UnlonelySharesV1.json";
 import UnlonelySharesV2 from "../abi/UnlonelySharesV2.json";
 import UnlonelyTournament from "../abi/UnlonelyTournament.json";
 import VibesTokenV1 from "../abi/VibesTokenV1.json";
+import TempTokenFactoryV1 from "../abi/TempTokenFactoryV1.json";
+
+import { Contract } from "..";
 
 const base = {
   id: 8453,
@@ -61,19 +64,23 @@ export const Base: Network = {
         address: "0x8cB4B20EbeF41941d210D1f1c65296027F127EA6",
         abi: UnlonelySharesV1,
       },
-      unlonelySharesV2: {
+      [Contract.SHARES_V2]: {
         address: "0x9bb73ca49b61F2Efe4b193e20df640862c8D3bB6",
         // address: "0x1914DaD7Bf9dA8Cf40CD6bD8f6434F52eAD78980", // past contract
         abi: UnlonelySharesV2,
       },
-      unlonelyTournament: {
+      [Contract.TOURNAMENT]: {
         address: "0xbDb1Af6F2f3879cAcc5Eb9A2b8c770f7c424a5C9",
         abi: UnlonelyTournament,
       },
-      vibesTokenV1: {
+      [Contract.VIBES_TOKEN_V1]: {
         address: "0xEAB1fF15f26da850315b15AFebf12F0d42dE5421",
         // address: "0xf93E317cF02217E1cc9b34DF5F969Da6574f44E6", // past test contract
         abi: VibesTokenV1,
+      },
+      [Contract.TEMP_TOKEN_FACTORY_V1]: {
+        address: "0x3a128D60D8A37d9E402b3D97ea9dfcD84EbBa7C5",
+        abi: TempTokenFactoryV1,
       },
     },
   },

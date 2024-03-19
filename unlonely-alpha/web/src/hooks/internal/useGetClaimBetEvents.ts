@@ -1,7 +1,7 @@
 import { useLazyQuery } from "@apollo/client";
 import { useEffect, useRef, useState } from "react";
 import { createPublicClient, http } from "viem";
-import { EventTypeForContract } from "../../constants";
+import { Contract, EventTypeForContract } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import { GET_UNCLAIMED_EVENTS_QUERY } from "../../constants/queries";
 import { GetUnclaimedEventsQuery, SharesEvent } from "../../generated/graphql";
@@ -33,7 +33,7 @@ export const useGetClaimBetEvents = () => {
   const { userAddress, activeWallet, walletIsConnected } = useUser();
   const { network } = useNetworkContext();
   const { localNetwork } = network;
-  const contractData = getContractFromNetwork("unlonelySharesV2", localNetwork);
+  const contractData = getContractFromNetwork(Contract.SHARES_V2, localNetwork);
 
   const [getUnclaimedEvents] = useLazyQuery<GetUnclaimedEventsQuery>(
     GET_UNCLAIMED_EVENTS_QUERY,
