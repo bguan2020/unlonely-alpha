@@ -23,6 +23,7 @@ import useUpdateChannelAllowNfcs from "../../hooks/server/channel/useUpdateChann
 import {
   AblyChannelPromise,
   CHANGE_CHANNEL_DETAILS_EVENT,
+  STREAMER_MIGRATION_URL_QUERY_PARAM,
 } from "../../constants";
 import useUpdateLivepeerStreamData from "../../hooks/server/channel/useUpdateLivepeerStreamData";
 import { LuClapperboard } from "react-icons/lu";
@@ -30,16 +31,26 @@ import { BiVideoRecording } from "react-icons/bi";
 import StreamComponent from "../stream/StreamComponent";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
+import { useRouter } from "next/router";
+import { useUser } from "../../hooks/context/useUser";
+import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
+import { PlaybackInfo } from "livepeer/dist/models/components";
+import LivepeerPlayer from "../stream/LivepeerPlayer";
+import { getSrc } from "@livepeer/react/external";
 
 const ChannelStreamerPerspective = ({
   ablyChannel,
   livepeerData,
+  livepeerPlaybackInfo,
 }: {
   ablyChannel: AblyChannelPromise;
   livepeerData?: GetLivepeerStreamDataQuery["getLivepeerStreamData"];
+  livepeerPlaybackInfo?: PlaybackInfo;
 }) => {
   const toast = useToast();
   const { isStandalone } = useUserAgent();
+  const router = useRouter();
+  const { userAddress } = useUser();
 
   const { channel } = useChannelContext();
   const { channelQueryData, realTimeChannelDetails } = channel;
@@ -48,6 +59,9 @@ const ChannelStreamerPerspective = ({
 
   const [showStreamKey, setShowStreamKey] = useState(false);
   const [showRTMPIngest, setShowRTMPIngest] = useState(false);
+
+  const [streamerMigrateModal, setStreamerMigrateModal] = useState(false);
+  const isOwner = userAddress === channelQueryData?.owner.address;
 
   const { updateLivepeerStreamData, loading: updateLivepeerStreamDataLoading } =
     useUpdateLivepeerStreamData({});
@@ -105,14 +119,63 @@ const ChannelStreamerPerspective = ({
     init();
   }, [livepeerData]);
 
+  useEffect(() => {
+    if (router.query[STREAMER_MIGRATION_URL_QUERY_PARAM]) {
+      setStreamerMigrateModal(true);
+      const newPath = router.pathname;
+      const newQuery = { ...router.query };
+      delete newQuery[STREAMER_MIGRATION_URL_QUERY_PARAM];
+
+      router.replace(
+        {
+          pathname: newPath,
+          query: newQuery,
+        },
+        undefined,
+        { shallow: true }
+      );
+    }
+  }, [router, isOwner]);
+
   return (
     <Flex
       width={"100%"}
       direction={"column"}
       gap="10px"
       h={!isStandalone ? "80vh" : "25vh"}
-      position={isStandalone ? "fixed" : "relative"}
+      position={!isStandalone ? "relative" : "fixed"}
     >
+      <TransactionModalTemplate
+        isOpen={streamerMigrateModal}
+        handleClose={() => setStreamerMigrateModal(false)}
+        title={"Migration Complete"}
+        cannotClose
+        confirmButton={"Got it"}
+        onSend={() => setStreamerMigrateModal(false)}
+        canSend
+      >
+        <Flex
+          direction="column"
+          bg="rgba(0, 0, 0, 0.4)"
+          p="5px"
+          borderRadius="15px"
+        >
+          <Text
+            fontSize={"17px"}
+            fontWeight="bold"
+            textAlign="center"
+            color="red.300"
+          >
+            IMPORTANT
+          </Text>
+          <Text textAlign="center">
+            if you are using a streaming software like OBS, please update your
+            stream credentials now with the new key and server URL from your
+            dashboard - otherwise your stream will not work the next time you go
+            live!
+          </Text>
+        </Flex>
+      </TransactionModalTemplate>
       {!(isStandalone && !playbackId) && (
         <Flex
           width={"100%"}
@@ -125,9 +188,37 @@ const ChannelStreamerPerspective = ({
                 : "80%"
               : "100%"
           }
+          gap="10px"
         >
           {playbackId && streamKey ? (
-            <LivepeerBroadcast streamKey={streamKey} />
+            <>
+              <LivepeerBroadcast streamKey={streamKey} />
+              {livepeerPlaybackInfo && !isStandalone && (
+                <Flex
+                  direction="column"
+                  width={"30%"}
+                  justifyContent={"center"}
+                  gap="5px"
+                >
+                  <Text fontSize="20px">viewer pov</Text>
+                  <LivepeerPlayer
+                    src={getSrc(livepeerPlaybackInfo)}
+                    isPreview={true}
+                    customSizePercentages={{
+                      width: "100%",
+                      height: "30%",
+                    }}
+                  />
+                  <Text fontSize="12px">
+                    It may take a few seconds for the livestream to appear. If
+                    you're streaming from a different software like OBS, you
+                    might need to refresh the page. If you're streaming directly
+                    in-browser here, DON'T refresh as it will stop the
+                    livestream.
+                  </Text>
+                </Flex>
+              )}
+            </>
           ) : (
             <StreamComponent isStreamer />
           )}
@@ -352,6 +443,13 @@ const MigrateToLivePeer = () => {
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
+  const reload = () => {
+    window.open(
+      `${window.location.href}?${STREAMER_MIGRATION_URL_QUERY_PARAM}=true`,
+      "_self"
+    );
+  };
+
   const handleCopy = () => {
     toast({
       title: "copied to clipboard",
@@ -392,7 +490,7 @@ const MigrateToLivePeer = () => {
       returnedSlug === channelQueryData?.slug
     ) {
       setSuccess(true);
-      timeout = setTimeout(() => window.location.reload(), 3000);
+      timeout = setTimeout(() => reload(), 3000);
     }
     return () => clearTimeout(timeout);
   }, [

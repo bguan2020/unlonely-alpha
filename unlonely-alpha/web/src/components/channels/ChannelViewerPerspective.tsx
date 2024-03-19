@@ -1,8 +1,15 @@
 import { Flex, Stack } from "@chakra-ui/react";
 
 import StreamComponent from "../stream/StreamComponent";
+import { PlaybackInfo } from "livepeer/dist/models/components";
 
-const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
+const ChannelViewerPerspective = ({
+  livepeerPlaybackInfo,
+  mobile,
+}: {
+  livepeerPlaybackInfo?: PlaybackInfo;
+  mobile?: boolean;
+}) => {
   return (
     <Stack
       direction="column"
@@ -10,7 +17,7 @@ const ChannelViewerPerspective = ({ mobile }: { mobile?: boolean }) => {
       position={mobile ? "fixed" : "unset"}
     >
       <Flex width={"100%"} position="relative">
-        <StreamComponent />
+        <StreamComponent livepeerPlaybackInfo={livepeerPlaybackInfo} />
       </Flex>
     </Stack>
   );

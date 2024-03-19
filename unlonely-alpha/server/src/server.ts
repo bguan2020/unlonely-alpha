@@ -11,6 +11,8 @@ import { getContext } from "./context";
 import graphqlSchema from "./entities/graphqlSchema";
 // import { watchBlocks } from "./utils/watchBlock";
 
+// const testDb = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely-dev?sslmode=require";
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -45,7 +47,12 @@ const startServer = async () => {
 
   httpServer.listen(process.env.PORT || 4000, () => {
     console.info(`Server started on port ${process.env.PORT || 4000}`);
-    // watchBlocks();
+
+    // cron job every 1 minute
+    // cron.schedule("*/1 * * * *", () => {
+    //   console.log("Running a task every 1 minute");
+    //   if (process.env.DATABASE_URL === testDb) watchBlocks();
+    // });
   });
 };
 
