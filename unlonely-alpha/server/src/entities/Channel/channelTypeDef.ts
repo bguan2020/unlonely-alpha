@@ -96,12 +96,6 @@ export const typeDef = gql`
     record: Boolean
   }
 
-  type TempTokenVerificationResponse {
-    status: String
-    message: String
-    result: String
-  }
-
   type UpdateManyResponse {
     count: Int!
   }
@@ -193,11 +187,6 @@ export const typeDef = gql`
     streamId: String
   }
 
-  input VerifyTempTokenInput {
-    tempTokenContractAddress: String!
-    encodedConstructorArguments: String!
-  }
-
   input UpdateLivepeerStreamDataInput {
     streamId: String
     canRecord: Boolean
@@ -218,7 +207,6 @@ export const typeDef = gql`
     updateLivepeerStreamData(
       data: UpdateLivepeerStreamDataInput!
     ): LivepeerStreamData
-    verifyTempToken(data: VerifyTempTokenInput!): TempTokenVerificationResponse
     postChannel(data: PostChannelInput!): Channel
     softDeleteChannel(data: SoftDeleteChannelInput!): Channel
     migrateChannelToLivepeer(data: MigrateChannelToLivepeerInput!): Channel

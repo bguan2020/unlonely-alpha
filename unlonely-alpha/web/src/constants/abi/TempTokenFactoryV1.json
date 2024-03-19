@@ -3,7 +3,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_defaultFeeDestination",
+        "name": "_defaultProtocolFeeDestination",
         "type": "address"
       },
       {
@@ -26,24 +26,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "duration",
+        "name": "maxDuration",
         "type": "uint256"
       }
     ],
-    "name": "DurationSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "feeDestination",
-        "type": "address"
-      }
-    ],
-    "name": "FeeDestinationSet",
+    "name": "MaxDurationSet",
     "type": "event"
   },
   {
@@ -82,6 +69,19 @@
       }
     ],
     "name": "PauseFactorySet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "protocolFeeDestination",
+        "type": "address"
+      }
+    ],
+    "name": "ProtocolFeeDestinationSet",
     "type": "event"
   },
   {
@@ -127,6 +127,12 @@
       },
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
         "internalType": "string",
         "name": "name",
         "type": "string"
@@ -146,7 +152,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "feeDestination",
+        "name": "protocolFeeDestination",
         "type": "address"
       },
       {
@@ -176,6 +182,11 @@
         "internalType": "string",
         "name": "symbol",
         "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "duration",
+        "type": "uint256"
       }
     ],
     "name": "createTempToken",
@@ -191,7 +202,7 @@
   },
   {
     "inputs": [],
-    "name": "defaultFeeDestination",
+    "name": "defaultProtocolFeeDestination",
     "outputs": [
       {
         "internalType": "address",
@@ -284,7 +295,7 @@
       },
       {
         "internalType": "address",
-        "name": "feeDestination",
+        "name": "protocolFeeDestination",
         "type": "address"
       },
       {
@@ -295,19 +306,6 @@
       {
         "internalType": "uint256",
         "name": "streamerFeePercent",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "duration",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
         "type": "uint256"
       }
     ],
@@ -353,7 +351,7 @@
           },
           {
             "internalType": "address",
-            "name": "feeDestination",
+            "name": "protocolFeeDestination",
             "type": "address"
           },
           {
@@ -383,6 +381,19 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "maxDuration",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -424,12 +435,12 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_duration",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "protocolFeeDestination",
+        "type": "address"
       }
     ],
-    "name": "setDuration",
+    "name": "setFeeDestination",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -437,12 +448,12 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_feeDestination",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "_maxDuration",
+        "type": "uint256"
       }
     ],
-    "name": "setFeeDestination",
+    "name": "setMaxDuration",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

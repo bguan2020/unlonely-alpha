@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
 import { decodeEventLog, encodeAbiParameters } from "viem";
-import useVerifyTempToken from "../server/useVerifyTempToken";
 import { Contract } from "../../constants";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../context/useNetwork";
@@ -14,14 +13,11 @@ export const useTempTokenState = () => {
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
 
-  const [newTokenName, setNewTokenName] = useState<string>("temp1");
-  const [newTokenSymbol, setNewTokenSymbol] = useState<string>("temp1");
-
-  const { verifyTempToken } = useVerifyTempToken({
-    onError: () => {
-      console.log("error");
-    },
-  });
+  const [newTokenName, setNewTokenName] = useState<string>("temp");
+  const [newTokenSymbol, setNewTokenSymbol] = useState<string>("temp");
+  const [newTokenDuration, setNewTokenDuration] = useState<bigint>(
+    BigInt(3600)
+  );
 
   const contract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -37,28 +33,42 @@ export const useTempTokenState = () => {
     {
       name: newTokenName,
       symbol: newTokenSymbol,
+      duration: newTokenDuration,
     },
     contract,
     {
       onWriteSuccess: (data) => {
         toast({
-          title: "Token Created",
-          description: "Your token has been created",
-          status: "success",
-          duration: 5000,
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                createTempToken pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
           isClosable: true,
+          position: "top-right",
         });
       },
       onWriteError: (error) => {
         toast({
-          title: "Error",
-          description: error.message,
-          status: "error",
-          duration: 5000,
+          duration: 9000,
           isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              createTempToken cancelled
+            </Box>
+          ),
         });
       },
       onTxSuccess: async (data) => {
+        console.log("createTempToken success", data);
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -67,7 +77,7 @@ export const useTempTokenState = () => {
                 href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
-                verifyEvent success, click to view
+                createTempToken success, click to view
               </Link>
             </Box>
           ),
@@ -80,7 +90,6 @@ export const useTempTokenState = () => {
           data: data.logs[2].data,
           topics: data.logs[2].topics,
         });
-        console.log("topics", topics);
         const args: any = topics.args;
         const encoded = encodeAbiParameters(
           [
@@ -117,20 +126,12 @@ export const useTempTokenState = () => {
             args.name as string,
             args.symbol as string,
             args.endTimestamp as bigint,
-            args.feeDestination as `0x${string}`,
+            args.protocolFeeDestination as `0x${string}`,
             args.protocolFeePercent as bigint,
             args.streamerFeePercent as bigint,
             contract.address as `0x${string}`,
           ]
         );
-        // remove 0x prefix from encoded
-
-        // await verifyTempToken({
-        //   tempTokenContractAddress: args.tokenAddress as `0x${string}`,
-        //   encodedConstructorArguments: encoded.startsWith("0x")
-        //     ? encoded.substring(2)
-        //     : encoded,
-        // });
         await verifyTempTokenV1OnBase(
           args.tokenAddress as `0x${string}`,
           encoded.startsWith("0x") ? encoded.substring(2) : encoded
@@ -159,6 +160,10 @@ export const useTempTokenState = () => {
     setNewTokenSymbol(symbol);
   }, []);
 
+  const handleNewTokenDuration = useCallback((duration: bigint) => {
+    setNewTokenDuration(duration);
+  }, []);
+
   return {
     newTokenName,
     newTokenSymbol,
@@ -168,5 +173,6 @@ export const useTempTokenState = () => {
     isCreateTempTokenLoading,
     handleNewTokenName,
     handleNewTokenSymbol,
+    handleNewTokenDuration,
   };
 };

@@ -159,18 +159,6 @@ export const resolvers = {
 
       return channelService.postUserRoleForChannel(data, ctx);
     },
-    verifyTempToken: (
-      _: any,
-      { data }: { data: channelService.IVerifyTempTokenInput },
-      ctx: Context
-    ) => {
-
-      // if (!ctx.user || !ctx.userIsAuthed) {
-      //   throw new AuthenticationError("User is not authenticated");
-      // }
-
-      return channelService.verifyTempToken(data);
-    },
     updateChannelVibesTokenPriceRange: (
       _: any,
       {

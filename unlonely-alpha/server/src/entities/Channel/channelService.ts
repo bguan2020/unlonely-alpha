@@ -4,7 +4,6 @@ import * as AWS from "aws-sdk";
 import axios from "axios";
 
 import { Context } from "../../context";
-import { verifyTempTokenV1OnBase } from "../../utils/contract-verification/TempTokenV1";
 
 export interface IPostChannelTextInput {
   id: number;
@@ -769,15 +768,6 @@ export const postUserRoleForChannel = async (
     });
   }
 };
-
-export interface IVerifyTempTokenInput {
-  tempTokenContractAddress: string;
-  encodedConstructorArguments: string;
-}
-
-export const verifyTempToken = async (data: IVerifyTempTokenInput) => {
-  return await verifyTempTokenV1OnBase(data.tempTokenContractAddress as `0x${string}`, data.encodedConstructorArguments);
-}
 
 export const getChannelChatCommands = async (
   { id }: { id: number },

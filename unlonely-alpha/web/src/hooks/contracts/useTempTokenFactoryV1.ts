@@ -12,9 +12,9 @@ type TokenInfo = {
   name: string;
   symbol: string;
   endTimestamp: bigint;
-  feeDestination: `0x${string}`;
+  protocolFeeDestination: `0x${string}`;
   protocolFeePercent: bigint;
-  subjectFeePercent: bigint;
+  streamerFeePercent: bigint;
 };
 
 const tokenInfoInitialState: TokenInfo = {
@@ -23,9 +23,9 @@ const tokenInfoInitialState: TokenInfo = {
   name: "",
   symbol: "",
   endTimestamp: BigInt(0),
-  feeDestination: NULL_ADDRESS,
+  protocolFeeDestination: NULL_ADDRESS,
   protocolFeePercent: BigInt(0),
-  subjectFeePercent: BigInt(0),
+  streamerFeePercent: BigInt(0),
 };
 
 export const useReadPublic = (contract: ContractData) => {
@@ -50,7 +50,7 @@ export const useReadPublic = (contract: ContractData) => {
         publicClient.readContract({
           address: contract.address,
           abi: contract.abi,
-          functionName: "defaultFeeDestination",
+          functionName: "defaultProtocolFeeDestination",
           args: [],
         }),
         publicClient.readContract({
@@ -112,7 +112,7 @@ export const useReadIsPaused = (contract: ContractData) => {
   };
 };
 
-export const useReadDuration = (contract: ContractData) => {
+export const useReadMaxDuration = (contract: ContractData) => {
   const publicClient = usePublicClient();
 
   const [duration, setDuration] = useState<bigint>(BigInt(0));
@@ -125,7 +125,7 @@ export const useReadDuration = (contract: ContractData) => {
     const duration = await publicClient.readContract({
       address: contract.address,
       abi: contract.abi,
-      functionName: "duration",
+      functionName: "maxDuration",
       args: [],
     });
     setDuration(BigInt(String(duration)));
@@ -137,7 +137,7 @@ export const useReadDuration = (contract: ContractData) => {
 
   return {
     refetch: getData,
-    duration,
+    maxDuration: duration,
   };
 };
 
@@ -166,9 +166,9 @@ export const useReadTokenInfo = (
       name: String(tokenInfo[2]),
       symbol: String(tokenInfo[3]),
       endTimestamp: BigInt(String(tokenInfo[4])),
-      feeDestination: tokenInfo[5] as `0x${string}`,
+      protocolFeeDestination: tokenInfo[5] as `0x${string}`,
       protocolFeePercent: BigInt(String(tokenInfo[6])),
-      subjectFeePercent: BigInt(String(tokenInfo[7])),
+      streamerFeePercent: BigInt(String(tokenInfo[7])),
     });
   }, [contract.address, publicClient]);
 
@@ -186,6 +186,7 @@ export const useCreateTempToken = (
   args: {
     name: string;
     symbol: string;
+    duration: bigint;
   },
   contract: ContractData,
   callbacks?: WriteCallbacks
@@ -198,7 +199,7 @@ export const useCreateTempToken = (
   } = useWrite(
     contract,
     "createTempToken",
-    [args.name, args.symbol],
+    [args.name, args.symbol, args.duration],
     createCallbackHandler("useTempTokenFactoryV1 createTempToken", callbacks),
     { enabled: args.name.length > 0 && args.symbol.length > 0 }
   );

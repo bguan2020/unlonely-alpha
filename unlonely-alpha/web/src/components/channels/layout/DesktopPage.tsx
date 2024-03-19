@@ -36,8 +36,6 @@ import ChannelStreamerPerspective from "../ChannelStreamerPerspective";
 import ChannelViewerPerspective from "../ChannelViewerPerspective";
 import Trade from "../bet/Trade";
 import { useTempTokenState } from "../../../hooks/internal/useTempTokenState";
-import useVerifyTempToken from "../../../hooks/server/useVerifyTempToken";
-import { verifyTempTokenV1OnBase } from "../../../utils/contract-verification/TempTokenV1";
 
 export const DesktopPage = ({
   channelSSR,
@@ -80,12 +78,6 @@ export const DesktopPage = ({
     Contract.TOURNAMENT,
     localNetwork
   );
-
-  const { verifyTempToken } = useVerifyTempToken({
-    onError: () => {
-      console.log("error");
-    },
-  });
 
   const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
     GET_LIVEPEER_STREAM_DATA_QUERY,
@@ -276,23 +268,7 @@ export const DesktopPage = ({
                       ablyChannel={chat.channel}
                       livepeerData={livepeerData}
                     />
-                    <Button onClick={createTempToken}>create temp token</Button>
-                    <Button
-                      onClick={async () => {
-                        // await verifyTempToken({
-                        //   tempTokenContractAddress:
-                        //     "0x95FCB12C33Ce6442Bd9CcAb8ADB8E41B1DefA3a3",
-                        //   encodedConstructorArguments:
-                        //     "00000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000065f8bc990000000000000000000000004f3d3f2f895db524ac3944bdd17fe632473bca4a00000000000000000000000000000000000000000000000000470de4df82000000000000000000000000000000000000000000000000000000470de4df820000000000000000000000000000b4027fabdfceb58bc5b993ac68bbca946c07d5de000000000000000000000000000000000000000000000000000000000000000474656d7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000474656d7000000000000000000000000000000000000000000000000000000000",
-                        // });
-                        await verifyTempTokenV1OnBase(
-                          "0x95FCB12C33Ce6442Bd9CcAb8ADB8E41B1DefA3a3",
-                          "00000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000065f8bc990000000000000000000000004f3d3f2f895db524ac3944bdd17fe632473bca4a00000000000000000000000000000000000000000000000000470de4df82000000000000000000000000000000000000000000000000000000470de4df820000000000000000000000000000b4027fabdfceb58bc5b993ac68bbca946c07d5de000000000000000000000000000000000000000000000000000000000000000474656d7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000474656d7000000000000000000000000000000000000000000000000000000000"
-                        );
-                      }}
-                    >
-                      verify token
-                    </Button>
+                    {/* <Button onClick={createTempToken}>create temp token</Button> */}
                   </>
                 ) : (
                   <ChannelViewerPerspective />
