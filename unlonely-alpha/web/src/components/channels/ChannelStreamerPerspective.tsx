@@ -209,9 +209,12 @@ const ChannelStreamerPerspective = ({
                       height: "30%",
                     }}
                   />
-                  <Text fontSize="13px">
-                    If your livestream doesn't appear after a moment at first or
-                    seems to lag behind, try refreshing this page.
+                  <Text fontSize="12px">
+                    It may take a few seconds for the livestream to appear. If
+                    you're streaming from a different software like OBS, you
+                    might need to refresh the page. If you're streaming directly
+                    in-browser here, DON'T refresh as it will stop the
+                    livestream.
                   </Text>
                 </Flex>
               )}
