@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 app.get("/", (_, res) => res.sendStatus(200));
 
 // Define a route to handle incoming webhook data
-app.post("/livepeer-webhook", (req, res) => {
+app.post("/webhook", (req, res) => {
   const payload = req.body;
   console.log("Received livepeer webhook data:", payload);
   // Handle the webhook data here
