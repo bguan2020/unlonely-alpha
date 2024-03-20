@@ -12,12 +12,12 @@ export interface IPostTempTokenInput {
     streamerFeePercentage: string;
 }
 
-export const postTempToken = (
+export const postTempToken = async (
     data: IPostTempTokenInput,
     user: User,
     ctx: Context
     ) => {
-    return ctx.prisma.tempToken.create({
+    return await ctx.prisma.tempToken.create({
         data: {
             uniqueTempTokenId: `${data.tokenAddress}-${String(data.chainId)}-${String(data.endUnixTimestamp)}`,
             tokenAddress: data.tokenAddress,
@@ -45,7 +45,7 @@ export interface IGetTempTokensInput {
     onlyActiveTokens?: boolean;
 }
 
-export const getTempTokens = (
+export const getTempTokens = async (
     data: IGetTempTokensInput,
     ctx: Context
 ) => {
@@ -68,15 +68,18 @@ export const getTempTokens = (
         }
     }
 
-    return ctx.prisma.tempToken.findMany({
+    return await ctx.prisma.tempToken.findMany({
         where: {
             ownerAddress: data.ownerAddress,
             channel: data.channelId ? {
-                id: data.channelId,
+                is: {
+                    id: Number(data.channelId)
+                },
             } : undefined,
             chainId: data.chainId,
             tokenAddress: data.tokenAddress,
             ...endTimestampClause
-        }
+        },
+        orderBy: { createdAt: "desc" },
     });
 }

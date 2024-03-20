@@ -279,7 +279,7 @@ export const NFC_FEED_QUERY = gql`
   }
 `;
 
-export const GET_TEMP_TOKEN_QUERY = gql`
+export const GET_TEMP_TOKENS_QUERY = gql`
   query GetTempTokens($data: GetTempTokensInput) {
     getTempTokens(data: $data) {
       tokenAddress

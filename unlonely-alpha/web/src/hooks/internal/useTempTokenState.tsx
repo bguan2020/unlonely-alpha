@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
 import { decodeEventLog, encodeAbiParameters } from "viem";
@@ -8,12 +8,40 @@ import { useNetworkContext } from "../context/useNetwork";
 import { useCreateTempToken } from "../contracts/useTempTokenFactoryV1";
 import { verifyTempTokenV1OnBase } from "../../utils/contract-verification/TempTokenV1";
 import usePostTempToken from "../server/usePostTempToken";
-import { useChannelContext } from "../context/useChannel";
+import { useLazyQuery } from "@apollo/client";
+import { GET_TEMP_TOKENS_QUERY } from "../../constants/queries";
+import { GetTempTokensQuery } from "../../generated/graphql";
 
-export const useTempTokenState = () => {
+export type UseTempTokenStateType = {
+  newTokenName: string;
+  newTokenSymbol: string;
+  newTokenDuration: bigint;
+  createTempToken: () => Promise<void>;
+  createTempTokenData: any;
+  createTempTokenTxData: any;
+  isCreateTempTokenLoading: boolean;
+  handleNewTokenName: (name: string) => void;
+  handleNewTokenSymbol: (symbol: string) => void;
+  handleNewTokenDuration: (duration: bigint) => void;
+  currentActiveTokenEndTimestamp: bigint;
+};
+
+export const useTempTokenInitialState: UseTempTokenStateType = {
+  newTokenName: "temp",
+  newTokenSymbol: "temp",
+  newTokenDuration: BigInt(3600),
+  createTempToken: async () => undefined,
+  createTempTokenData: undefined,
+  createTempTokenTxData: undefined,
+  isCreateTempTokenLoading: false,
+  handleNewTokenName: () => undefined,
+  handleNewTokenSymbol: () => undefined,
+  handleNewTokenDuration: () => undefined,
+  currentActiveTokenEndTimestamp: BigInt(0),
+};
+
+export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
   const { network } = useNetworkContext();
-  const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
 
@@ -23,9 +51,19 @@ export const useTempTokenState = () => {
     BigInt(3600)
   );
 
+  const [currentActiveTokenEndTimestamp, setCurrentActiveTokenEndTimestamp] =
+    useState<bigint>(BigInt(0));
+
   const contract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
     localNetwork
+  );
+
+  const [getTempTokensQuery] = useLazyQuery<GetTempTokensQuery>(
+    GET_TEMP_TOKENS_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
   );
 
   const { postTempToken } = usePostTempToken({});
@@ -135,7 +173,7 @@ export const useTempTokenState = () => {
             ownerAddress: args.owner as `0x${string}`,
             name: args.name as string,
             endUnixTimestamp: args.endTimestamp as bigint,
-            channelId: Number(channelQueryData?.id),
+            channelId: Number(channelId),
             chainId: localNetwork.config.chainId as number,
           }),
         ]);
@@ -184,25 +222,48 @@ export const useTempTokenState = () => {
   }, []);
 
   const createTempToken = useCallback(async () => {
-    await _createTempToken?.();
-    // await postTempToken({
-    //   tokenAddress: "0x",
-    //   symbol: newTokenSymbol,
-    //   streamerFeePercentage: BigInt(0),
-    //   protocolFeePercentage: BigInt(0),
-    //   ownerAddress: "0x",
-    //   name: newTokenName,
-    //   endUnixTimestamp: BigInt(
-    //     Math.floor(Date.now() / 1000) + Number(newTokenDuration)
-    //   ),
-    //   channelId: Number(channelQueryData?.id),
-    //   chainId: localNetwork.config.chainId as number,
-    // });
+    // await _createTempToken?.();
+    await postTempToken({
+      tokenAddress: "0x",
+      symbol: newTokenSymbol,
+      streamerFeePercentage: BigInt(0),
+      protocolFeePercentage: BigInt(0),
+      ownerAddress: "0x",
+      name: newTokenName,
+      endUnixTimestamp: BigInt(
+        Math.floor(Date.now() / 1000) + Number(newTokenDuration)
+      ),
+      channelId,
+      chainId: localNetwork.config.chainId as number,
+    });
   }, [_createTempToken]);
+
+  useEffect(() => {
+    const init = async () => {
+      const res = await getTempTokensQuery({
+        variables: {
+          data: {
+            channelId: String(channelId),
+            chainId: localNetwork.config.chainId,
+            onlyActiveTokens: true,
+          },
+        },
+      });
+      const listOfActiveTokens = res.data?.getTempTokens;
+      const latestActiveToken = listOfActiveTokens?.[0];
+      if (latestActiveToken) {
+        setCurrentActiveTokenEndTimestamp(
+          BigInt(latestActiveToken.endUnixTimestamp)
+        );
+      }
+    };
+    init();
+  }, [channelId, localNetwork.config.chainId]);
 
   return {
     newTokenName,
     newTokenSymbol,
+    newTokenDuration,
     createTempToken,
     createTempTokenData,
     createTempTokenTxData,
@@ -210,5 +271,6 @@ export const useTempTokenState = () => {
     handleNewTokenName,
     handleNewTokenSymbol,
     handleNewTokenDuration,
+    currentActiveTokenEndTimestamp,
   };
 };

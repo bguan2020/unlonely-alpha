@@ -35,6 +35,11 @@ import {
   useChannelDetails,
   useChannelDetailsInitial,
 } from "../internal/useChannelDetails";
+import {
+  UseTempTokenStateType,
+  useTempTokenInitialState,
+  useTempTokenState,
+} from "../internal/useTempTokenState";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -47,7 +52,8 @@ const ChannelContext = createContext<{
     error?: ApolloError;
     totalBadges: string;
     handleTotalBadges: (value: string) => void;
-  } & UseChannelDetailsType;
+  } & UseChannelDetailsType &
+    UseTempTokenStateType;
   chat: {
     chatChannel?: string;
     presenceChannel?: string;
@@ -87,6 +93,7 @@ const ChannelContext = createContext<{
     error: undefined,
     totalBadges: "0",
     ...useChannelDetailsInitial,
+    ...useTempTokenInitialState,
     handleTotalBadges: () => undefined,
   },
   chat: {
@@ -168,6 +175,9 @@ export const ChannelProvider = ({
     userAddress === channelDetails.channelQueryData?.owner?.address;
 
   const welcomeTour = useWelcomeTourState(isOwner);
+  const tempToken = useTempTokenState(
+    Number(channelDetails.channelQueryData?.id)
+  );
 
   const clip = useClip(channelDetails.channelQueryData);
 
@@ -279,6 +289,7 @@ export const ChannelProvider = ({
         totalBadges,
         handleTotalBadges,
         ...channelDetails,
+        ...tempToken,
       },
       chat: {
         chatChannel: ablyChatChannel,

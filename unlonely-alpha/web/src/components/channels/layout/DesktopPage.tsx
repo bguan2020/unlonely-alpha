@@ -35,7 +35,6 @@ import ChannelDesc from "../ChannelDesc";
 import ChannelStreamerPerspective from "../ChannelStreamerPerspective";
 import ChannelViewerPerspective from "../ChannelViewerPerspective";
 import Trade from "../bet/Trade";
-import { useTempTokenState } from "../../../hooks/internal/useTempTokenState";
 
 export const DesktopPage = ({
   channelSSR,
@@ -56,6 +55,7 @@ export const DesktopPage = ({
     error: channelDataError,
     handleTotalBadges,
     handleChannelStaticData,
+    createTempToken,
   } = channel;
   const {
     welcomeStreamerModal,
@@ -65,8 +65,6 @@ export const DesktopPage = ({
     handleSetTourSteps,
   } = ui;
   const { handleIsVip } = leaderboard;
-
-  const { createTempToken } = useTempTokenState();
 
   const [livepeerData, setLivepeerData] =
     useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
