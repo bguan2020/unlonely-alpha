@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
-import { decodeEventLog, encodeAbiParameters } from "viem";
-import { Contract } from "../../constants";
+import { Log, decodeEventLog, encodeAbiParameters } from "viem";
+import { Contract, NULL_ADDRESS } from "../../constants";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../context/useNetwork";
 import { useCreateTempToken } from "../contracts/useTempTokenFactoryV1";
@@ -11,6 +11,7 @@ import usePostTempToken from "../server/usePostTempToken";
 import { useLazyQuery } from "@apollo/client";
 import { GET_TEMP_TOKENS_QUERY } from "../../constants/queries";
 import { GetTempTokensQuery } from "../../generated/graphql";
+import { useContractEvent } from "wagmi";
 
 export type UseTempTokenStateType = {
   newTokenName: string;
@@ -23,6 +24,7 @@ export type UseTempTokenStateType = {
   handleNewTokenName: (name: string) => void;
   handleNewTokenSymbol: (symbol: string) => void;
   handleNewTokenDuration: (duration: bigint) => void;
+  currentActiveTokenAddress: string;
   currentActiveTokenEndTimestamp: bigint;
 };
 
@@ -37,6 +39,7 @@ export const useTempTokenInitialState: UseTempTokenStateType = {
   handleNewTokenName: () => undefined,
   handleNewTokenSymbol: () => undefined,
   handleNewTokenDuration: () => undefined,
+  currentActiveTokenAddress: NULL_ADDRESS,
   currentActiveTokenEndTimestamp: BigInt(0),
 };
 
@@ -51,13 +54,38 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
     BigInt(3600)
   );
 
+  const [currentActiveTokenAddress, setCurrentActiveTokenAddress] =
+    useState<string>(NULL_ADDRESS);
   const [currentActiveTokenEndTimestamp, setCurrentActiveTokenEndTimestamp] =
     useState<bigint>(BigInt(0));
 
-  const contract = getContractFromNetwork(
+  const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
     localNetwork
   );
+
+  const [incomingLogs, setIncomingLogs] = useState<Log[]>([]);
+
+  useContractEvent({
+    address: factoryContract.address,
+    abi: factoryContract.abi,
+    eventName: "createTempToken",
+    listener(logs) {
+      const init = async () => {
+        setIncomingLogs(logs);
+      };
+      init();
+    },
+  });
+
+  useEffect(() => {
+    if (incomingLogs) handleUpdate(incomingLogs);
+  }, [incomingLogs]);
+
+  const handleUpdate = async (logs: Log[]) => {
+    console.log("incoming logs", logs);
+    if (logs.length === 0) return;
+  };
 
   const [getTempTokensQuery] = useLazyQuery<GetTempTokensQuery>(
     GET_TEMP_TOKENS_QUERY,
@@ -79,7 +107,7 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
       symbol: newTokenSymbol,
       duration: newTokenDuration,
     },
-    contract,
+    factoryContract,
     {
       onWriteSuccess: (data) => {
         toast({
@@ -114,7 +142,7 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
       onTxSuccess: async (data) => {
         console.log("createTempToken success", data);
         const topics = decodeEventLog({
-          abi: contract.abi,
+          abi: factoryContract.abi,
           data: data.logs[2].data,
           topics: data.logs[2].topics,
         });
@@ -157,7 +185,7 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
             args.protocolFeeDestination as `0x${string}`,
             args.protocolFeePercent as bigint,
             args.streamerFeePercent as bigint,
-            contract.address as `0x${string}`,
+            factoryContract.address as `0x${string}`,
           ]
         );
         await Promise.all([
@@ -255,6 +283,7 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
         setCurrentActiveTokenEndTimestamp(
           BigInt(latestActiveToken.endUnixTimestamp)
         );
+        setCurrentActiveTokenAddress(latestActiveToken.tokenAddress);
       }
     };
     init();
@@ -271,6 +300,7 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
     handleNewTokenName,
     handleNewTokenSymbol,
     handleNewTokenDuration,
+    currentActiveTokenAddress,
     currentActiveTokenEndTimestamp,
   };
 };
