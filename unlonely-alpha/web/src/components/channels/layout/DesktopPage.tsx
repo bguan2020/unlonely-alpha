@@ -1,7 +1,7 @@
 import { ApolloError, useLazyQuery } from "@apollo/client";
 import { Flex, Button, Stack, Text } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Log } from "viem";
 import { useContractEvent } from "wagmi";
 import { Contract } from "../../../constants";
@@ -35,6 +35,8 @@ import ChannelDesc from "../ChannelDesc";
 import ChannelStreamerPerspective from "../ChannelStreamerPerspective";
 import ChannelViewerPerspective from "../ChannelViewerPerspective";
 import Trade from "../bet/Trade";
+import { PlaybackInfo } from "livepeer/dist/models/components";
+import { Livepeer } from "livepeer";
 
 export const DesktopPage = ({
   channelSSR,
@@ -70,6 +72,10 @@ export const DesktopPage = ({
     useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
   const { userAddress, walletIsConnected } = useUser();
 
+  const livepeer = new Livepeer({
+    apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
+  });
+
   const isOwner = userAddress === channelQueryData?.owner?.address;
 
   const tournamentContract = getContractFromNetwork(
@@ -83,6 +89,29 @@ export const DesktopPage = ({
       fetchPolicy: "network-only",
     }
   );
+
+  const livepeerPlaybackId = useMemo(
+    () =>
+      channelQueryData?.livepeerPlaybackId == null
+        ? undefined
+        : channelQueryData?.livepeerPlaybackId,
+    [channelQueryData]
+  );
+
+  const [playbackInfo, setPlaybackInfo] = useState<PlaybackInfo | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    const init = async () => {
+      if (livepeerPlaybackId) {
+        const res = await livepeer.playback.get(livepeerPlaybackId);
+        const playbackInfo = res.playbackInfo;
+        setPlaybackInfo(playbackInfo);
+      }
+    };
+    init();
+  }, [livepeerPlaybackId]);
 
   useEffect(() => {
     const init = async () => {
@@ -265,6 +294,7 @@ export const DesktopPage = ({
                     <ChannelStreamerPerspective
                       ablyChannel={chat.channel}
                       livepeerData={livepeerData}
+                      livepeerPlaybackInfo={playbackInfo}
                     />
                     {/* <Button onClick={createTempToken}>create temp token</Button> */}
                   </>
