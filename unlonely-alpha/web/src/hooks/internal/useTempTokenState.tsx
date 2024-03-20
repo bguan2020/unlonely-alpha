@@ -12,6 +12,7 @@ import { useLazyQuery } from "@apollo/client";
 import { GET_TEMP_TOKENS_QUERY } from "../../constants/queries";
 import { GetTempTokensQuery } from "../../generated/graphql";
 import { useContractEvent } from "wagmi";
+import { UseChannelDetailsType } from "./useChannelDetails";
 
 export type UseTempTokenStateType = {
   newTokenName: string;
@@ -43,7 +44,9 @@ export const useTempTokenInitialState: UseTempTokenStateType = {
   currentActiveTokenEndTimestamp: BigInt(0),
 };
 
-export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
+export const useTempTokenState = (
+  channelDetails: UseChannelDetailsType
+): UseTempTokenStateType => {
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
@@ -69,8 +72,9 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
   useContractEvent({
     address: factoryContract.address,
     abi: factoryContract.abi,
-    eventName: "createTempToken",
+    eventName: "TempTokenCreated",
     listener(logs) {
+      console.log("detected TempTokenCreated event", logs);
       const init = async () => {
         setIncomingLogs(logs);
       };
@@ -83,8 +87,22 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
   }, [incomingLogs]);
 
   const handleUpdate = async (logs: Log[]) => {
-    console.log("incoming logs", logs);
     if (logs.length === 0) return;
+    const filteredLogsByOwner = logs.filter(
+      (log: any) =>
+        (log.args.owner as `0x${string}`) ===
+        channelDetails.channelQueryData?.owner.address
+    );
+    const sortedLogs = filteredLogsByOwner.sort(
+      (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
+    );
+    if (sortedLogs.length === 0) return;
+    const latestLog: any = sortedLogs[sortedLogs.length - 1];
+    const newEndTimestamp = latestLog?.args.endTimestamp as bigint;
+    const newTokenAddress = latestLog?.args.tokenAddress as `0x${string}`;
+
+    setCurrentActiveTokenEndTimestamp(newEndTimestamp);
+    setCurrentActiveTokenAddress(newTokenAddress);
   };
 
   const [getTempTokensQuery] = useLazyQuery<GetTempTokensQuery>(
@@ -201,7 +219,7 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
             ownerAddress: args.owner as `0x${string}`,
             name: args.name as string,
             endUnixTimestamp: args.endTimestamp as bigint,
-            channelId: Number(channelId),
+            channelId: Number(channelDetails.channelQueryData?.id),
             chainId: localNetwork.config.chainId as number,
           }),
         ]);
@@ -250,20 +268,20 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
   }, []);
 
   const createTempToken = useCallback(async () => {
-    // await _createTempToken?.();
-    await postTempToken({
-      tokenAddress: "0x",
-      symbol: newTokenSymbol,
-      streamerFeePercentage: BigInt(0),
-      protocolFeePercentage: BigInt(0),
-      ownerAddress: "0x",
-      name: newTokenName,
-      endUnixTimestamp: BigInt(
-        Math.floor(Date.now() / 1000) + Number(newTokenDuration)
-      ),
-      channelId,
-      chainId: localNetwork.config.chainId as number,
-    });
+    await _createTempToken?.();
+    // await postTempToken({
+    //   tokenAddress: "0x",
+    //   symbol: newTokenSymbol,
+    //   streamerFeePercentage: BigInt(0),
+    //   protocolFeePercentage: BigInt(0),
+    //   ownerAddress: "0x",
+    //   name: newTokenName,
+    //   endUnixTimestamp: BigInt(
+    //     Math.floor(Date.now() / 1000) + Number(newTokenDuration)
+    //   ),
+    //   channelId,
+    //   chainId: localNetwork.config.chainId as number,
+    // });
   }, [_createTempToken]);
 
   useEffect(() => {
@@ -271,7 +289,7 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
       const res = await getTempTokensQuery({
         variables: {
           data: {
-            channelId: String(channelId),
+            channelId: String(channelDetails.channelQueryData?.id),
             chainId: localNetwork.config.chainId,
             onlyActiveTokens: true,
           },
@@ -287,7 +305,7 @@ export const useTempTokenState = (channelId: number): UseTempTokenStateType => {
       }
     };
     init();
-  }, [channelId, localNetwork.config.chainId]);
+  }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId]);
 
   return {
     newTokenName,

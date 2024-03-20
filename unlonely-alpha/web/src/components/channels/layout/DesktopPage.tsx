@@ -296,7 +296,7 @@ export const DesktopPage = ({
                       livepeerData={livepeerData}
                       livepeerPlaybackInfo={playbackInfo}
                     />
-                    {/* <Button onClick={createTempToken}>create temp token</Button> */}
+                    <Button onClick={createTempToken}>create temp token</Button>
                   </>
                 ) : (
                   <ChannelViewerPerspective />

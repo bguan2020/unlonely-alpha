@@ -175,9 +175,7 @@ export const ChannelProvider = ({
     userAddress === channelDetails.channelQueryData?.owner?.address;
 
   const welcomeTour = useWelcomeTourState(isOwner);
-  const tempToken = useTempTokenState(
-    Number(channelDetails.channelQueryData?.id)
-  );
+  const tempToken = useTempTokenState(channelDetails);
 
   const clip = useClip(channelDetails.channelQueryData);
 
