@@ -4,12 +4,12 @@ import { Context } from "../../context";
 export interface IPostTempTokenInput {
     tokenAddress: string;
     chainId: number;
-    channelId: string;
+    channelId: number;
     name: string;
     symbol: string;
-    endUnixTimestamp: bigint;
-    protocolFeePercentage: bigint;
-    streamerFeePercentage: bigint;
+    endUnixTimestamp: string;
+    protocolFeePercentage: string;
+    streamerFeePercentage: string;
 }
 
 export const postTempToken = (
@@ -22,15 +22,15 @@ export const postTempToken = (
             uniqueTempTokenId: `${data.tokenAddress}-${String(data.chainId)}-${String(data.endUnixTimestamp)}`,
             tokenAddress: data.tokenAddress,
             chainId: data.chainId,
-            streamerAddress: user.address,
+            ownerAddress: user.address,
             name: data.name,
             symbol: data.symbol,
-            endUnixTimestamp: data.endUnixTimestamp,
-            protocolFeePercentage: data.protocolFeePercentage,
-            streamerFeePercentage: data.streamerFeePercentage,
+            endUnixTimestamp: BigInt(data.endUnixTimestamp),
+            protocolFeePercentage: BigInt(data.protocolFeePercentage),
+            streamerFeePercentage: BigInt(data.streamerFeePercentage),
             channel: {
                 connect: {
-                    id: Number(data.channelId),
+                    id: data.channelId,
                 },
             },
         }
@@ -39,7 +39,7 @@ export const postTempToken = (
 
 export interface IGetTempTokensInput {
     tokenAddress?: string,
-    streamerAddress?: string,
+    ownerAddress?: string,
     channelId?: number,
     chainId?: string
     onlyActiveTokens?: boolean;
@@ -52,7 +52,7 @@ export const getTempTokens = (
 
     let endTimestampClause: any = {};
 
-    if (data.onlyActiveTokens) {
+    if (data.onlyActiveTokens === true) {
         endTimestampClause = {
             endUnixTimestamp: {
                 gt: Math.floor(Date.now() / 1000)
@@ -60,9 +60,17 @@ export const getTempTokens = (
         }
     }
 
+    if (data.onlyActiveTokens === false) {
+        endTimestampClause = {
+            endUnixTimestamp: {
+                lt: Math.floor(Date.now() / 1000)
+            }
+        }
+    }
+
     return ctx.prisma.tempToken.findMany({
         where: {
-            streamerAddress: data.streamerAddress,
+            ownerAddress: data.ownerAddress,
             channel: data.channelId ? {
                 id: data.channelId,
             } : undefined,

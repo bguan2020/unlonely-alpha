@@ -7,7 +7,7 @@ export const typeDef = gql`
         tokenAddress: String!
         chainId: Int!
         channelId: Int!
-        streamerAddress: String!
+        ownerAddress: String!
         name: String!
         symbol: String!
         endUnixTimestamp: BigInt!
@@ -17,7 +17,7 @@ export const typeDef = gql`
 
     input GetTempTokensInput {
         tokenAddress: String
-        streamerAddress: String
+        ownerAddress: String
         chainId: Int
         channelId: String
         onlyActiveTokens: Boolean
@@ -27,12 +27,12 @@ export const typeDef = gql`
         tokenAddress: String!
         chainId: Int!
         channelId: Int!
-        streamerAddress: String!
+        ownerAddress: String!
         name: String!
         symbol: String!
-        endUnixTimestamp: BigInt!
-        protocolFeePercentage: BigInt!
-        streamerFeePercentage: BigInt!
+        endUnixTimestamp: String!
+        protocolFeePercentage: String!
+        streamerFeePercentage: String!
     }
 
     extend type Query {

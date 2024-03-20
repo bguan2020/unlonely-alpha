@@ -11315,7 +11315,7 @@
             "deprecationReason": null
           },
           {
-            "name": "streamerAddress",
+            "name": "ownerAddress",
             "description": null,
             "args": [],
             "type": {
@@ -11436,7 +11436,7 @@
             "deprecationReason": null
           },
           {
-            "name": "streamerAddress",
+            "name": "ownerAddress",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -11544,7 +11544,7 @@
             "deprecationReason": null
           },
           {
-            "name": "streamerAddress",
+            "name": "ownerAddress",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -11599,7 +11599,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "BigInt",
+                "name": "String",
                 "ofType": null
               }
             },
@@ -11615,7 +11615,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "BigInt",
+                "name": "String",
                 "ofType": null
               }
             },
@@ -11631,7 +11631,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "BigInt",
+                "name": "String",
                 "ofType": null
               }
             },

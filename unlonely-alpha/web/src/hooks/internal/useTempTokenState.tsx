@@ -7,9 +7,13 @@ import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "../context/useNetwork";
 import { useCreateTempToken } from "../contracts/useTempTokenFactoryV1";
 import { verifyTempTokenV1OnBase } from "../../utils/contract-verification/TempTokenV1";
+import usePostTempToken from "../server/usePostTempToken";
+import { useChannelContext } from "../context/useChannel";
 
 export const useTempTokenState = () => {
   const { network } = useNetworkContext();
+  const { channel } = useChannelContext();
+  const { channelQueryData } = channel;
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
 
@@ -24,8 +28,10 @@ export const useTempTokenState = () => {
     localNetwork
   );
 
+  const { postTempToken } = usePostTempToken({});
+
   const {
-    createTempToken,
+    createTempToken: _createTempToken,
     createTempTokenData,
     createTempTokenTxData,
     isCreateTempTokenLoading,
@@ -69,22 +75,6 @@ export const useTempTokenState = () => {
       },
       onTxSuccess: async (data) => {
         console.log("createTempToken success", data);
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.transactionHash}`}
-                passHref
-              >
-                createTempToken success, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
         const topics = decodeEventLog({
           abi: contract.abi,
           data: data.logs[2].data,
@@ -132,10 +122,39 @@ export const useTempTokenState = () => {
             contract.address as `0x${string}`,
           ]
         );
-        await verifyTempTokenV1OnBase(
-          args.tokenAddress as `0x${string}`,
-          encoded.startsWith("0x") ? encoded.substring(2) : encoded
-        );
+        await Promise.all([
+          verifyTempTokenV1OnBase(
+            args.tokenAddress as `0x${string}`,
+            encoded.startsWith("0x") ? encoded.substring(2) : encoded
+          ),
+          postTempToken({
+            tokenAddress: args.tokenAddress as `0x${string}`,
+            symbol: args.symbol as string,
+            streamerFeePercentage: args.streamerFeePercent as bigint,
+            protocolFeePercentage: args.protocolFeePercent as bigint,
+            ownerAddress: args.owner as `0x${string}`,
+            name: args.name as string,
+            endUnixTimestamp: args.endTimestamp as bigint,
+            channelId: Number(channelQueryData?.id),
+            chainId: localNetwork.config.chainId as number,
+          }),
+        ]);
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                createTempToken success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
       },
       onTxError: (error) => {
         toast({
@@ -163,6 +182,23 @@ export const useTempTokenState = () => {
   const handleNewTokenDuration = useCallback((duration: bigint) => {
     setNewTokenDuration(duration);
   }, []);
+
+  const createTempToken = useCallback(async () => {
+    await _createTempToken?.();
+    // await postTempToken({
+    //   tokenAddress: "0x",
+    //   symbol: newTokenSymbol,
+    //   streamerFeePercentage: BigInt(0),
+    //   protocolFeePercentage: BigInt(0),
+    //   ownerAddress: "0x",
+    //   name: newTokenName,
+    //   endUnixTimestamp: BigInt(
+    //     Math.floor(Date.now() / 1000) + Number(newTokenDuration)
+    //   ),
+    //   channelId: Number(channelQueryData?.id),
+    //   chainId: localNetwork.config.chainId as number,
+    // });
+  }, [_createTempToken]);
 
   return {
     newTokenName,

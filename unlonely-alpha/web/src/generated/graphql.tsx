@@ -333,6 +333,14 @@ export type GetSubscriptionsByChannelIdInput = {
   channelId: Scalars["ID"];
 };
 
+export type GetTempTokensInput = {
+  chainId?: InputMaybe<Scalars["Int"]>;
+  channelId?: InputMaybe<Scalars["String"]>;
+  onlyActiveTokens?: InputMaybe<Scalars["Boolean"]>;
+  ownerAddress?: InputMaybe<Scalars["String"]>;
+  tokenAddress?: InputMaybe<Scalars["String"]>;
+};
+
 export type GetTokenHoldersInput = {
   channelId: Scalars["ID"];
   limit?: InputMaybe<Scalars["Int"]>;
@@ -436,6 +444,7 @@ export type Mutation = {
   postStreamInteraction?: Maybe<StreamInteraction>;
   postSubscription?: Maybe<Subscription>;
   postTask?: Maybe<Task>;
+  postTempToken?: Maybe<TempToken>;
   postUserRoleForChannel?: Maybe<ChannelUserRole>;
   postVibesTrades?: Maybe<Array<Maybe<VibesTransaction>>>;
   postVideo?: Maybe<Video>;
@@ -556,6 +565,10 @@ export type MutationPostSubscriptionArgs = {
 
 export type MutationPostTaskArgs = {
   data: PostTaskInput;
+};
+
+export type MutationPostTempTokenArgs = {
+  data: PostTempTokenInput;
 };
 
 export type MutationPostUserRoleForChannelArgs = {
@@ -804,6 +817,18 @@ export type PostTaskInput = {
   youtubeId?: InputMaybe<Scalars["String"]>;
 };
 
+export type PostTempTokenInput = {
+  chainId: Scalars["Int"];
+  channelId: Scalars["Int"];
+  endUnixTimestamp: Scalars["String"];
+  name: Scalars["String"];
+  ownerAddress: Scalars["String"];
+  protocolFeePercentage: Scalars["String"];
+  streamerFeePercentage: Scalars["String"];
+  symbol: Scalars["String"];
+  tokenAddress: Scalars["String"];
+};
+
 export type PostUserRoleForChannelInput = {
   channelId: Scalars["ID"];
   role: Scalars["Int"];
@@ -865,6 +890,7 @@ export type Query = {
   getSubscriptionByEndpoint?: Maybe<Subscription>;
   getSubscriptionsByChannelId?: Maybe<Array<Maybe<Subscription>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
+  getTempTokens?: Maybe<Array<Maybe<TempToken>>>;
   getTokenHoldersByChannel: Array<UserCreatorToken>;
   getTokenLeaderboard: Array<CreatorToken>;
   getUnclaimedEvents: Array<Maybe<SharesEvent>>;
@@ -983,6 +1009,10 @@ export type QueryGetSubscriptionsByChannelIdArgs = {
 
 export type QueryGetTaskFeedArgs = {
   data?: InputMaybe<TaskFeedInput>;
+};
+
+export type QueryGetTempTokensArgs = {
+  data?: InputMaybe<GetTempTokensInput>;
 };
 
 export type QueryGetTokenHoldersByChannelArgs = {
@@ -1134,6 +1164,20 @@ export type TaskFeedInput = {
   orderBy?: InputMaybe<SortOrder>;
   searchString?: InputMaybe<Scalars["String"]>;
   skip?: InputMaybe<Scalars["Int"]>;
+};
+
+export type TempToken = {
+  __typename?: "TempToken";
+  chainId: Scalars["Int"];
+  channelId: Scalars["Int"];
+  endUnixTimestamp: Scalars["BigInt"];
+  id: Scalars["ID"];
+  name: Scalars["String"];
+  ownerAddress: Scalars["String"];
+  protocolFeePercentage: Scalars["BigInt"];
+  streamerFeePercentage: Scalars["BigInt"];
+  symbol: Scalars["String"];
+  tokenAddress: Scalars["String"];
 };
 
 export type ToggleSubscriptionInput = {
@@ -1645,6 +1689,27 @@ export type NfcFeedQuery = {
       powerUserLvl: number;
       videoSavantLvl: number;
     };
+  } | null> | null;
+};
+
+export type GetTempTokensQueryVariables = Exact<{
+  data?: InputMaybe<GetTempTokensInput>;
+}>;
+
+export type GetTempTokensQuery = {
+  __typename?: "Query";
+  getTempTokens?: Array<{
+    __typename?: "TempToken";
+    tokenAddress: string;
+    symbol: string;
+    streamerFeePercentage: any;
+    protocolFeePercentage: any;
+    ownerAddress: string;
+    name: string;
+    id: string;
+    endUnixTimestamp: any;
+    channelId: number;
+    chainId: number;
   } | null> | null;
 };
 
@@ -2303,6 +2368,27 @@ export type FetchCurrentUserQuery = {
     __typename?: "User";
     signature?: string | null;
     sigTimestamp?: any | null;
+  } | null;
+};
+
+export type PostTempTokenMutationVariables = Exact<{
+  data: PostTempTokenInput;
+}>;
+
+export type PostTempTokenMutation = {
+  __typename?: "Mutation";
+  postTempToken?: {
+    __typename?: "TempToken";
+    tokenAddress: string;
+    symbol: string;
+    streamerFeePercentage: any;
+    protocolFeePercentage: any;
+    ownerAddress: string;
+    name: string;
+    id: string;
+    endUnixTimestamp: any;
+    channelId: number;
+    chainId: number;
   } | null;
 };
 
@@ -3401,6 +3487,73 @@ export type NfcFeedLazyQueryHookResult = ReturnType<typeof useNfcFeedLazyQuery>;
 export type NfcFeedQueryResult = Apollo.QueryResult<
   NfcFeedQuery,
   NfcFeedQueryVariables
+>;
+export const GetTempTokensDocument = gql`
+  query GetTempTokens($data: GetTempTokensInput) {
+    getTempTokens(data: $data) {
+      tokenAddress
+      symbol
+      streamerFeePercentage
+      protocolFeePercentage
+      ownerAddress
+      name
+      id
+      endUnixTimestamp
+      channelId
+      chainId
+    }
+  }
+`;
+
+/**
+ * __useGetTempTokensQuery__
+ *
+ * To run a query within a React component, call `useGetTempTokensQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTempTokensQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTempTokensQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetTempTokensQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetTempTokensQuery,
+    GetTempTokensQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetTempTokensQuery, GetTempTokensQueryVariables>(
+    GetTempTokensDocument,
+    options
+  );
+}
+export function useGetTempTokensLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetTempTokensQuery,
+    GetTempTokensQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetTempTokensQuery, GetTempTokensQueryVariables>(
+    GetTempTokensDocument,
+    options
+  );
+}
+export type GetTempTokensQueryHookResult = ReturnType<
+  typeof useGetTempTokensQuery
+>;
+export type GetTempTokensLazyQueryHookResult = ReturnType<
+  typeof useGetTempTokensLazyQuery
+>;
+export type GetTempTokensQueryResult = Apollo.QueryResult<
+  GetTempTokensQuery,
+  GetTempTokensQueryVariables
 >;
 export const GetBaseLeaderboardDocument = gql`
   query GetBaseLeaderboard {
@@ -5954,4 +6107,63 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
+>;
+export const PostTempTokenDocument = gql`
+  mutation PostTempToken($data: PostTempTokenInput!) {
+    postTempToken(data: $data) {
+      tokenAddress
+      symbol
+      streamerFeePercentage
+      protocolFeePercentage
+      ownerAddress
+      name
+      id
+      endUnixTimestamp
+      channelId
+      chainId
+    }
+  }
+`;
+export type PostTempTokenMutationFn = Apollo.MutationFunction<
+  PostTempTokenMutation,
+  PostTempTokenMutationVariables
+>;
+
+/**
+ * __usePostTempTokenMutation__
+ *
+ * To run a mutation, you first call `usePostTempTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostTempTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postTempTokenMutation, { data, loading, error }] = usePostTempTokenMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostTempTokenMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostTempTokenMutation,
+    PostTempTokenMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostTempTokenMutation,
+    PostTempTokenMutationVariables
+  >(PostTempTokenDocument, options);
+}
+export type PostTempTokenMutationHookResult = ReturnType<
+  typeof usePostTempTokenMutation
+>;
+export type PostTempTokenMutationResult =
+  Apollo.MutationResult<PostTempTokenMutation>;
+export type PostTempTokenMutationOptions = Apollo.BaseMutationOptions<
+  PostTempTokenMutation,
+  PostTempTokenMutationVariables
 >;
