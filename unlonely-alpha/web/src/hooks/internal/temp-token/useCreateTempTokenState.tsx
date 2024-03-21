@@ -9,6 +9,7 @@ import usePostTempToken from "../../server/temp-token/usePostTempToken";
 import { UseChannelDetailsType } from "../useChannelDetails";
 import { Contract } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
+import useUpdateTempTokenHighestTotalSupply from "../../server/temp-token/useUpdateTempTokenHighestTotalSupply";
 
 export type UseCreateTempTokenStateType = {
   newTokenName: string;
@@ -50,6 +51,8 @@ export const useCreateTempTokenState = (
   );
 
   const { postTempToken } = usePostTempToken({});
+  const { updateTempTokenHighestTotalSupply } =
+    useUpdateTempTokenHighestTotalSupply({});
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -221,8 +224,14 @@ export const useCreateTempTokenState = (
     //   endUnixTimestamp: BigInt(
     //     Math.floor(Date.now() / 1000) + Number(newTokenDuration)
     //   ),
-    //   channelId,
+    //   channelId: Number(channelDetails.channelQueryData?.id),
     //   chainId: localNetwork.config.chainId as number,
+    // });
+    // await updateTempTokenHighestTotalSupply({
+    //   tokenAddress: "0x",
+    //   endUnixTimestamp: BigInt(1711048951),
+    //   chainId: localNetwork.config.chainId as number,
+    //   currentTotalSupply: BigInt(3),
     // });
   }, [_createTempToken]);
 
