@@ -23,6 +23,13 @@ export const typeDef = gql`
         onlyActiveTokens: Boolean
     }
 
+    input UpdateTempTokenHighestTotalSupplyInput {
+        tokenAddress: String!
+        endUnixTimestamp: String!
+        chainId: Int!
+        currentTotalSupply: String!
+    }
+
     input PostTempTokenInput {
         tokenAddress: String!
         chainId: Int!
@@ -40,6 +47,7 @@ export const typeDef = gql`
     }
 
     extend type Mutation {
+        updateTempTokenHighestTotalSupply(data: UpdateTempTokenHighestTotalSupplyInput!): TempToken
         postTempToken(data: PostTempTokenInput!): TempToken
     }
 `;

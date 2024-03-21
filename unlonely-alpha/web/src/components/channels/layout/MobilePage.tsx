@@ -10,10 +10,7 @@ import {
   GetLivepeerStreamDataQuery,
 } from "../../../generated/graphql";
 import { useChat } from "../../../hooks/chat/useChat";
-import {
-  useChannelContext,
-  ChannelWideModals,
-} from "../../../hooks/context/useChannel";
+import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { useUser } from "../../../hooks/context/useUser";
 import { useGenerateKey } from "../../../hooks/contracts/useSharesContractV2";
@@ -29,6 +26,7 @@ import ChannelNextHead from "../../layout/ChannelNextHead";
 import ChannelStreamerPerspective from "../ChannelStreamerPerspective";
 import ChannelViewerPerspective from "../ChannelViewerPerspective";
 import StandaloneAblyChatComponent from "../../mobile/StandAloneChatComponent";
+import { ChannelWideModals } from "../ChannelWideModals";
 
 export const MobilePage = ({
   channelSSR,

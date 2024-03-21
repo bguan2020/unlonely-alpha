@@ -182,6 +182,7 @@ model TempToken {
   endUnixTimestamp      BigInt
   protocolFeePercentage BigInt
   streamerFeePercentage BigInt
+  highestTotalSupply    BigInt
 }
 
 enum EventType {

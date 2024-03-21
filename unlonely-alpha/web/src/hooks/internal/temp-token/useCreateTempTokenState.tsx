@@ -1,20 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
-import { Log, decodeEventLog, encodeAbiParameters } from "viem";
-import { Contract, NULL_ADDRESS } from "../../constants";
-import { getContractFromNetwork } from "../../utils/contract";
-import { useNetworkContext } from "../context/useNetwork";
-import { useCreateTempToken } from "../contracts/useTempTokenFactoryV1";
-import { verifyTempTokenV1OnBase } from "../../utils/contract-verification/TempTokenV1";
-import usePostTempToken from "../server/usePostTempToken";
-import { useLazyQuery } from "@apollo/client";
-import { GET_TEMP_TOKENS_QUERY } from "../../constants/queries";
-import { GetTempTokensQuery } from "../../generated/graphql";
-import { useContractEvent } from "wagmi";
-import { UseChannelDetailsType } from "./useChannelDetails";
+import { decodeEventLog, encodeAbiParameters } from "viem";
+import { useNetworkContext } from "../../context/useNetwork";
+import { useCreateTempToken } from "../../contracts/useTempTokenFactoryV1";
+import { verifyTempTokenV1OnBase } from "../../../utils/contract-verification/TempTokenV1";
+import usePostTempToken from "../../server/temp-token/usePostTempToken";
+import { UseChannelDetailsType } from "../useChannelDetails";
+import { Contract } from "../../../constants";
+import { getContractFromNetwork } from "../../../utils/contract";
 
-export type UseTempTokenStateType = {
+export type UseCreateTempTokenStateType = {
   newTokenName: string;
   newTokenSymbol: string;
   newTokenDuration: bigint;
@@ -25,11 +21,9 @@ export type UseTempTokenStateType = {
   handleNewTokenName: (name: string) => void;
   handleNewTokenSymbol: (symbol: string) => void;
   handleNewTokenDuration: (duration: bigint) => void;
-  currentActiveTokenAddress: string;
-  currentActiveTokenEndTimestamp: bigint;
 };
 
-export const useTempTokenInitialState: UseTempTokenStateType = {
+export const useCreateTempTokenInitialState: UseCreateTempTokenStateType = {
   newTokenName: "temp",
   newTokenSymbol: "temp",
   newTokenDuration: BigInt(3600),
@@ -40,13 +34,11 @@ export const useTempTokenInitialState: UseTempTokenStateType = {
   handleNewTokenName: () => undefined,
   handleNewTokenSymbol: () => undefined,
   handleNewTokenDuration: () => undefined,
-  currentActiveTokenAddress: NULL_ADDRESS,
-  currentActiveTokenEndTimestamp: BigInt(0),
 };
 
-export const useTempTokenState = (
+export const useCreateTempTokenState = (
   channelDetails: UseChannelDetailsType
-): UseTempTokenStateType => {
+): UseCreateTempTokenStateType => {
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
@@ -57,62 +49,12 @@ export const useTempTokenState = (
     BigInt(3600)
   );
 
-  const [currentActiveTokenAddress, setCurrentActiveTokenAddress] =
-    useState<string>(NULL_ADDRESS);
-  const [currentActiveTokenEndTimestamp, setCurrentActiveTokenEndTimestamp] =
-    useState<bigint>(BigInt(0));
+  const { postTempToken } = usePostTempToken({});
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
     localNetwork
   );
-
-  const [incomingLogs, setIncomingLogs] = useState<Log[]>([]);
-
-  useContractEvent({
-    address: factoryContract.address,
-    abi: factoryContract.abi,
-    eventName: "TempTokenCreated",
-    listener(logs) {
-      console.log("detected TempTokenCreated event", logs);
-      const init = async () => {
-        setIncomingLogs(logs);
-      };
-      init();
-    },
-  });
-
-  useEffect(() => {
-    if (incomingLogs) handleUpdate(incomingLogs);
-  }, [incomingLogs]);
-
-  const handleUpdate = async (logs: Log[]) => {
-    if (logs.length === 0) return;
-    const filteredLogsByOwner = logs.filter(
-      (log: any) =>
-        (log.args.owner as `0x${string}`) ===
-        channelDetails.channelQueryData?.owner.address
-    );
-    const sortedLogs = filteredLogsByOwner.sort(
-      (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
-    );
-    if (sortedLogs.length === 0) return;
-    const latestLog: any = sortedLogs[sortedLogs.length - 1];
-    const newEndTimestamp = latestLog?.args.endTimestamp as bigint;
-    const newTokenAddress = latestLog?.args.tokenAddress as `0x${string}`;
-
-    setCurrentActiveTokenEndTimestamp(newEndTimestamp);
-    setCurrentActiveTokenAddress(newTokenAddress);
-  };
-
-  const [getTempTokensQuery] = useLazyQuery<GetTempTokensQuery>(
-    GET_TEMP_TOKENS_QUERY,
-    {
-      fetchPolicy: "network-only",
-    }
-  );
-
-  const { postTempToken } = usePostTempToken({});
 
   const {
     createTempToken: _createTempToken,
@@ -284,29 +226,6 @@ export const useTempTokenState = (
     // });
   }, [_createTempToken]);
 
-  useEffect(() => {
-    const init = async () => {
-      const res = await getTempTokensQuery({
-        variables: {
-          data: {
-            channelId: String(channelDetails.channelQueryData?.id),
-            chainId: localNetwork.config.chainId,
-            onlyActiveTokens: true,
-          },
-        },
-      });
-      const listOfActiveTokens = res.data?.getTempTokens;
-      const latestActiveToken = listOfActiveTokens?.[0];
-      if (latestActiveToken) {
-        setCurrentActiveTokenEndTimestamp(
-          BigInt(latestActiveToken.endUnixTimestamp)
-        );
-        setCurrentActiveTokenAddress(latestActiveToken.tokenAddress);
-      }
-    };
-    init();
-  }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId]);
-
   return {
     newTokenName,
     newTokenSymbol,
@@ -318,7 +237,5 @@ export const useTempTokenState = (
     handleNewTokenName,
     handleNewTokenSymbol,
     handleNewTokenDuration,
-    currentActiveTokenAddress,
-    currentActiveTokenEndTimestamp,
   };
 };

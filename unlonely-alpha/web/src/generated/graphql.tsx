@@ -466,6 +466,7 @@ export type Mutation = {
   updateOpenseaLink?: Maybe<Nfc>;
   updateSharesEvent?: Maybe<Channel>;
   updateSideBet?: Maybe<SideBet>;
+  updateTempTokenHighestTotalSupply?: Maybe<TempToken>;
   updateUser?: Maybe<User>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
@@ -649,6 +650,10 @@ export type MutationUpdateSharesEventArgs = {
 
 export type MutationUpdateSideBetArgs = {
   data: UpdateSideBetInput;
+};
+
+export type MutationUpdateTempTokenHighestTotalSupplyArgs = {
+  data: UpdateTempTokenHighestTotalSupplyInput;
 };
 
 export type MutationUpdateUserArgs = {
@@ -1253,6 +1258,13 @@ export type UpdateSideBetInput = {
   id: Scalars["ID"];
   opponentAddress?: InputMaybe<Scalars["String"]>;
   wagerDescription?: InputMaybe<Scalars["String"]>;
+};
+
+export type UpdateTempTokenHighestTotalSupplyInput = {
+  chainId: Scalars["Int"];
+  currentTotalSupply: Scalars["String"];
+  endUnixTimestamp: Scalars["String"];
+  tokenAddress: Scalars["String"];
 };
 
 export type UpdateUserCreatorTokenQuantityInput = {
@@ -2378,6 +2390,27 @@ export type PostTempTokenMutationVariables = Exact<{
 export type PostTempTokenMutation = {
   __typename?: "Mutation";
   postTempToken?: {
+    __typename?: "TempToken";
+    tokenAddress: string;
+    symbol: string;
+    streamerFeePercentage: any;
+    protocolFeePercentage: any;
+    ownerAddress: string;
+    name: string;
+    id: string;
+    endUnixTimestamp: any;
+    channelId: number;
+    chainId: number;
+  } | null;
+};
+
+export type UpdateTempTokenHighestTotalSupplyMutationVariables = Exact<{
+  data: UpdateTempTokenHighestTotalSupplyInput;
+}>;
+
+export type UpdateTempTokenHighestTotalSupplyMutation = {
+  __typename?: "Mutation";
+  updateTempTokenHighestTotalSupply?: {
     __typename?: "TempToken";
     tokenAddress: string;
     symbol: string;
@@ -6167,3 +6200,66 @@ export type PostTempTokenMutationOptions = Apollo.BaseMutationOptions<
   PostTempTokenMutation,
   PostTempTokenMutationVariables
 >;
+export const UpdateTempTokenHighestTotalSupplyDocument = gql`
+  mutation UpdateTempTokenHighestTotalSupply(
+    $data: UpdateTempTokenHighestTotalSupplyInput!
+  ) {
+    updateTempTokenHighestTotalSupply(data: $data) {
+      tokenAddress
+      symbol
+      streamerFeePercentage
+      protocolFeePercentage
+      ownerAddress
+      name
+      id
+      endUnixTimestamp
+      channelId
+      chainId
+    }
+  }
+`;
+export type UpdateTempTokenHighestTotalSupplyMutationFn =
+  Apollo.MutationFunction<
+    UpdateTempTokenHighestTotalSupplyMutation,
+    UpdateTempTokenHighestTotalSupplyMutationVariables
+  >;
+
+/**
+ * __useUpdateTempTokenHighestTotalSupplyMutation__
+ *
+ * To run a mutation, you first call `useUpdateTempTokenHighestTotalSupplyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTempTokenHighestTotalSupplyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTempTokenHighestTotalSupplyMutation, { data, loading, error }] = useUpdateTempTokenHighestTotalSupplyMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateTempTokenHighestTotalSupplyMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateTempTokenHighestTotalSupplyMutation,
+    UpdateTempTokenHighestTotalSupplyMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateTempTokenHighestTotalSupplyMutation,
+    UpdateTempTokenHighestTotalSupplyMutationVariables
+  >(UpdateTempTokenHighestTotalSupplyDocument, options);
+}
+export type UpdateTempTokenHighestTotalSupplyMutationHookResult = ReturnType<
+  typeof useUpdateTempTokenHighestTotalSupplyMutation
+>;
+export type UpdateTempTokenHighestTotalSupplyMutationResult =
+  Apollo.MutationResult<UpdateTempTokenHighestTotalSupplyMutation>;
+export type UpdateTempTokenHighestTotalSupplyMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateTempTokenHighestTotalSupplyMutation,
+    UpdateTempTokenHighestTotalSupplyMutationVariables
+  >;

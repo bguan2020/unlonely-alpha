@@ -14,6 +14,17 @@ export const resolvers = {
         },
     },
     Mutation: {
+        updateTempTokenHighestTotalSupply: (
+        _: any,
+        { data }: { data: tempTokenService.IUpdateTempTokenHighestTotalSupplyInput },
+        ctx: Context
+        ) => {
+            if (!ctx.user || !ctx.userIsAuthed) {
+                throw new AuthenticationError("User is not authenticated");
+            }
+        
+            return tempTokenService.updateTempTokenHighestTotalSupply(data, ctx);
+        },
         postTempToken: (
         _: any,
         { data }: { data: tempTokenService.IPostTempTokenInput },

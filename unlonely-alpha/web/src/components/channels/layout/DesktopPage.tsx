@@ -11,10 +11,7 @@ import {
   GetLivepeerStreamDataQuery,
 } from "../../../generated/graphql";
 import { useChat } from "../../../hooks/chat/useChat";
-import {
-  useChannelContext,
-  ChannelWideModals,
-} from "../../../hooks/context/useChannel";
+import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { useUser } from "../../../hooks/context/useUser";
 import { useGenerateKey } from "../../../hooks/contracts/useSharesContractV2";
@@ -37,6 +34,8 @@ import ChannelViewerPerspective from "../ChannelViewerPerspective";
 import Trade from "../bet/Trade";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { Livepeer } from "livepeer";
+import { useCreateTempTokenState } from "../../../hooks/internal/temp-token/useCreateTempTokenState";
+import { ChannelWideModals } from "../ChannelWideModals";
 
 export const DesktopPage = ({
   channelSSR,
@@ -57,7 +56,6 @@ export const DesktopPage = ({
     error: channelDataError,
     handleTotalBadges,
     handleChannelStaticData,
-    createTempToken,
   } = channel;
   const {
     welcomeStreamerModal,
@@ -89,6 +87,8 @@ export const DesktopPage = ({
       fetchPolicy: "network-only",
     }
   );
+
+  const { createTempToken } = useCreateTempTokenState(channel);
 
   const livepeerPlaybackId = useMemo(
     () =>

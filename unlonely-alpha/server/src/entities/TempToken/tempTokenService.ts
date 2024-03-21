@@ -28,6 +28,7 @@ export const postTempToken = async (
             endUnixTimestamp: BigInt(data.endUnixTimestamp),
             protocolFeePercentage: BigInt(data.protocolFeePercentage),
             streamerFeePercentage: BigInt(data.streamerFeePercentage),
+            highestTotalSupply: BigInt(0),
             channel: {
                 connect: {
                     id: data.channelId,
@@ -35,6 +36,47 @@ export const postTempToken = async (
             },
         }
     });
+}
+
+export interface IUpdateTempTokenHighestTotalSupplyInput {
+    tokenAddress: string;
+    endUnixTimestamp: string;
+    chainId: number;
+    currentTotalSupply: string;
+}
+
+export const updateTempTokenHighestTotalSupply = async (
+    data: IUpdateTempTokenHighestTotalSupplyInput,
+    ctx: Context
+) => {
+
+    const existingTempToken = await ctx.prisma.tempToken.findUnique({
+        where: {
+            uniqueTempTokenId: `${data.tokenAddress}-${String(data.chainId)}-${String(data.endUnixTimestamp)}`
+        }
+    });
+
+    if (!existingTempToken) {
+        throw new Error("Temp token not found");
+    }
+
+    // Ensure currentTotalSupply and highestTotalSupply are BigInt for comparison
+    const newTotalSupplyBigInt = BigInt(data.currentTotalSupply);
+    const existingHighestTotalSupplyBigInt = BigInt(existingTempToken.highestTotalSupply);
+
+    // Update only if newTotalSupplyBigInt is greater
+    if (newTotalSupplyBigInt > existingHighestTotalSupplyBigInt) {
+        return await ctx.prisma.tempToken.update({
+            where: {
+                id: existingTempToken.id
+            },
+            data: {
+                highestTotalSupply: newTotalSupplyBigInt
+            }
+        });
+    } else {
+        return existingTempToken;
+    }
 }
 
 export interface IGetTempTokensInput {
