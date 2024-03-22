@@ -19,6 +19,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     uint256 public protocolFeePercent;
     uint256 public streamerFeePercent;
     uint256 public endTimestamp;
+    uint256 public totalSupplyThreshold;
 
     event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
     event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
@@ -54,6 +55,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         address _protocolFeeDestination,
         uint256 _protocolFeePercent,
         uint256 _streamerFeePercent,
+        uint256 _totalSupplyThreshold,
         address _factoryAddress
     ) ERC20(name, symbol) {
         require(_protocolFeeDestination != address(0), "Fee destination cannot be the zero address");
@@ -62,6 +64,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         protocolFeePercent = _protocolFeePercent;
         streamerFeePercent = _streamerFeePercent;
         protocolFeeDestination = _protocolFeeDestination;
+        totalSupplyThreshold = _totalSupplyThreshold;
         factoryAddress = _factoryAddress;
     }
 

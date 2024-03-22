@@ -1,6 +1,9 @@
-import { User } from "@prisma/client";
+import { TempToken, User } from "@prisma/client";
 import { Context } from "../../context";
 
+import { createPublicClient, http as viemHttp } from "viem";
+import { base } from "viem/chains";
+import TempTokenV1 from "../../utils/abi/TempTokenV1.json";
 export interface IPostTempTokenInput {
     tokenAddress: string;
     chainId: number;
@@ -77,6 +80,85 @@ export const updateTempTokenHighestTotalSupply = async (
     } else {
         return existingTempToken;
     }
+}
+
+export interface IUpdateTempTokenHasRemainingFundsForCreatorInput {
+    chainId: number;
+    channelId: number;
+}
+
+export const updateTempTokenHasRemainingFundsForCreator = async (
+    data: IUpdateTempTokenHasRemainingFundsForCreatorInput,
+    ctx: Context
+) => {
+
+    // Create public client based on chainId
+    let publicClient: any;
+
+    switch(data.chainId) {
+        case 8453:
+            publicClient = createPublicClient({
+                chain: base as any,
+                transport: viemHttp(
+                    `https://base-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_BASE_API_KEY}`
+                ),
+            });
+            break;
+        default:
+            throw new Error("Chain not supported");
+    }
+
+
+    // Get all existing inactive temp tokens with remaining funds for chainId and channelId
+    const existingInactiveTempTokensWithRemainingFunds = await ctx.prisma.tempToken.findMany({
+        where: {
+            chainId: data.chainId,
+            channel: {
+                is: {
+                    id: data.channelId
+                }
+            },
+            endUnixTimestamp: {
+                lt: Math.floor(Date.now() / 1000)
+            },
+            hasRemainingFundsForCreator: true
+        }
+    });
+
+    // Get balances for each temp token
+    const promises = existingInactiveTempTokensWithRemainingFunds.map(async (tempToken) => {
+            return publicClient.readContract({
+                address: tempToken.tokenAddress,
+                abi: TempTokenV1,
+                functionName: "getBalance",
+            });
+        })
+
+    const balances: bigint[] = await Promise.all(promises);
+
+    const tempTokensWithZeroBalances: TempToken[] = [];
+    const tempTokensWithNonZeroBalances: TempToken[] = [];
+    
+    existingInactiveTempTokensWithRemainingFunds.forEach((tempToken, index) => {
+        if (balances[index] === BigInt(0)) {
+            tempTokensWithZeroBalances.push(tempToken);
+        } else {
+            tempTokensWithNonZeroBalances.push(tempToken);
+        }
+    });
+
+    await ctx.prisma.tempToken.updateMany({
+        where: {
+            id: {
+                in: tempTokensWithZeroBalances.map((tempToken) => tempToken.id)
+            }
+        },
+        data: {
+            hasRemainingFundsForCreator: false
+        }
+    });
+
+    return tempTokensWithNonZeroBalances;
 }
 
 export interface IGetTempTokensInput {

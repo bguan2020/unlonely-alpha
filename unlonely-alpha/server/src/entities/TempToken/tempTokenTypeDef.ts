@@ -23,6 +23,11 @@ export const typeDef = gql`
         onlyActiveTokens: Boolean
     }
 
+    input UpdateTempTokenHasRemainingFundsForCreatorInput {
+        chainId: Int!
+        channelId: String!
+    }
+
     input UpdateTempTokenHighestTotalSupplyInput {
         tokenAddress: String!
         endUnixTimestamp: String!
@@ -47,6 +52,7 @@ export const typeDef = gql`
     }
 
     extend type Mutation {
+        updateTempTokenHasRemainingFundsForCreator(data: UpdateTempTokenHasRemainingFundsForCreatorInput!): [TempToken]
         updateTempTokenHighestTotalSupply(data: UpdateTempTokenHighestTotalSupplyInput!): TempToken
         postTempToken(data: PostTempTokenInput!): TempToken
     }

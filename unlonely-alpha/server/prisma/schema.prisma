@@ -169,20 +169,22 @@ model ChannelUserRole {
 }
 
 model TempToken {
-  id                    Int      @id @default(autoincrement())
-  uniqueTempTokenId     String   @unique
-  tokenAddress          String
-  chainId               Int
-  channelId             Int
-  channel               Channel  @relation(fields: [channelId], references: [id])
-  createdAt             DateTime @default(now())
-  ownerAddress          String
-  name                  String
-  symbol                String
-  endUnixTimestamp      BigInt
-  protocolFeePercentage BigInt
-  streamerFeePercentage BigInt
-  highestTotalSupply    BigInt
+  id                             Int      @id @default(autoincrement())
+  uniqueTempTokenId              String   @unique
+  tokenAddress                   String
+  chainId                        Int
+  channelId                      Int
+  channel                        Channel  @relation(fields: [channelId], references: [id])
+  createdAt                      DateTime @default(now())
+  ownerAddress                   String
+  name                           String
+  symbol                         String
+  endUnixTimestamp               BigInt
+  protocolFeePercentage          BigInt
+  streamerFeePercentage          BigInt
+  highestTotalSupply             BigInt
+  hasRemainingFundsForCreator    Boolean @default(true)
+  hasReachedPriceThreshold       Boolean @default(false)
 }
 
 enum EventType {

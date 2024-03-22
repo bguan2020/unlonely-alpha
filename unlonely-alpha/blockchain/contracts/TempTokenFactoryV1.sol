@@ -25,6 +25,7 @@ contract TempTokenFactoryV1 is Ownable {
         address protocolFeeDestination;
         uint256 protocolFeePercent;
         uint256 streamerFeePercent;
+        uint256 totalSupplyThreshold;
     }
 
     /**
@@ -42,27 +43,33 @@ contract TempTokenFactoryV1 is Ownable {
         * @dev defaultProtocolFeeDestination is the default protocol fee destination address.
         * @dev isPaused is a boolean to pause the token creation function.
         * @dev maxDuration is the max duration in seconds for the lifespan of the TempToken.
+        * @dev totalSupplyThreshold is the total supply needed for the token to convert from a TempToken into a normal, permanent token. 
+               This total supply will be adjusted by us depending on various factors.
+               The goal of each TempToken is to have hit this threshold by the time the duration has expired.
      */
     uint256 public defaultProtocolFeePercent;
     uint256 public defaultStreamerFeePercent;
     address public defaultProtocolFeeDestination;
     bool public isPaused;
     uint256 public maxDuration;
+    uint256 public totalSupplyThreshold;
 
     // Event to log the creation of a new TempToken.
-    event TempTokenCreated(address indexed tokenAddress, address indexed owner, uint256 index, string name, string symbol, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent);
+    event TempTokenCreated(address indexed tokenAddress, address indexed owner, uint256 index, string name, string symbol, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold);
     event ProtocolFeeDestinationSet(address indexed protocolFeeDestination);
     event ProtocolFeePercentSet(uint256 feePercent);
     event StreamerFeePercentSet(uint256 feePercent);
     event PauseFactorySet(bool isPaused, uint256 numDeployedTokens);
     event MaxDurationSet(uint256 maxDuration);
+    event TotalSupplyThresholdSet(uint256 totalSupplyThreshold);
 
-    constructor(address _defaultProtocolFeeDestination, uint256 _defaultProtocolFeePercent, uint256 _defaultStreamerFeePercent) {
+    constructor(address _defaultProtocolFeeDestination, uint256 _defaultProtocolFeePercent, uint256 _defaultStreamerFeePercent, uint256 _totalSupplyThreshold) {
         require(_defaultProtocolFeeDestination != address(0), "Default fee destination cannot be the zero address");
 
         defaultProtocolFeePercent = _defaultProtocolFeePercent;
         defaultStreamerFeePercent = _defaultStreamerFeePercent;
         defaultProtocolFeeDestination = _defaultProtocolFeeDestination;
+        totalSupplyThreshold = _totalSupplyThreshold;
         maxDuration = 1 hours; // Sets the initial maxDuration to 3600 seconds
     }
 
@@ -80,19 +87,20 @@ contract TempTokenFactoryV1 is Ownable {
     ) public returns (address) {
         require(!isPaused, "Factory is paused");
         require(duration <= maxDuration, "Duration is longer than max duration");
+        require(duration > 0, "Duration must be greater than 0");
         uint256 endTimestamp = block.timestamp + duration;
-        TempTokenV1 newToken = new TempTokenV1(name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, address(this));        
+        TempTokenV1 newToken = new TempTokenV1(name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this));        
         
         /**
             * @dev We increment the numDeployedTokens and use the new value as the index to store the TokenInfo struct in the deployedTokens mapping.
             * @dev We also store the index of the token in the deployedTokenIndices mapping using the token's address as the key.
          */
         uint256 index = ++numDeployedTokens;
-        deployedTokens[index] = TokenInfo(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent);
+        deployedTokens[index] = TokenInfo(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold);
         deployedTokenIndices[address(newToken)] = index;
 
         newToken.transferOwnership(msg.sender); // Transfer ownership of the new token to the caller of this function.
-        emit TempTokenCreated(address(newToken), msg.sender, index, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent);
+        emit TempTokenCreated(address(newToken), msg.sender, index, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold);
         return address(newToken);
     }
 
@@ -107,11 +115,14 @@ contract TempTokenFactoryV1 is Ownable {
     }
 
     /**
-        * @dev The following functions are used to set the default protocol fee destination, protocol fee percentage, streamer fee percentage, pause the factory, and set the max duration.
+        * @dev The following functions are used to set the default protocol fee destination, 
+                protocol fee percentage, streamer fee percentage, pause the factory, set total supply threshold,
+                and set the max duration.
         * @dev These functions are only callable by the owner of the factory.
      */
 
     function setFeeDestination(address protocolFeeDestination) public onlyOwner {
+        require(protocolFeeDestination != address(0), "Fee destination cannot be the zero address");
         defaultProtocolFeeDestination = protocolFeeDestination;
         emit ProtocolFeeDestinationSet(protocolFeeDestination);
     }
@@ -126,12 +137,18 @@ contract TempTokenFactoryV1 is Ownable {
         emit StreamerFeePercentSet(_feePercent);
     }
 
+    function setTotalSupplyThreshold(uint256 _totalSupplyThreshold) public onlyOwner {
+        totalSupplyThreshold = _totalSupplyThreshold;
+        emit TotalSupplyThresholdSet(_totalSupplyThreshold);
+    }
+
     function setPauseFactory(bool _isPaused) public onlyOwner {
         isPaused = _isPaused;
         emit PauseFactorySet(_isPaused, numDeployedTokens);
     }
 
     function setMaxDuration(uint256 _maxDuration) public onlyOwner {
+        require(_maxDuration > 0, "Max duration must be greater than 0");
         maxDuration = _maxDuration;
         emit MaxDurationSet(_maxDuration);
     }
