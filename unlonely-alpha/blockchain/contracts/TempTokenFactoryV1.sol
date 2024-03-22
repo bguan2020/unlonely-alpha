@@ -46,6 +46,7 @@ contract TempTokenFactoryV1 is Ownable {
         * @dev totalSupplyThreshold is the total supply needed for the token to convert from a TempToken into a normal, permanent token. 
                This total supply will be adjusted by us depending on various factors.
                The goal of each TempToken is to have hit this threshold by the time the duration has expired.
+               IT'S A GAME.
      */
     uint256 public defaultProtocolFeePercent;
     uint256 public defaultStreamerFeePercent;
@@ -121,6 +122,8 @@ contract TempTokenFactoryV1 is Ownable {
         * @dev These functions are only callable by the owner of the factory.
      */
 
+    // TO DO: change onlyOwner into onlyAdmin modifier. onlyAdmin should be able to be updated by the owner.
+
     function setFeeDestination(address protocolFeeDestination) public onlyOwner {
         require(protocolFeeDestination != address(0), "Fee destination cannot be the zero address");
         defaultProtocolFeeDestination = protocolFeeDestination;
@@ -140,6 +143,15 @@ contract TempTokenFactoryV1 is Ownable {
     function setTotalSupplyThreshold(uint256 _totalSupplyThreshold) public onlyOwner {
         totalSupplyThreshold = _totalSupplyThreshold;
         emit TotalSupplyThresholdSet(_totalSupplyThreshold);
+    }
+
+    function setTotalSupplyThresholdForTokens(uint256 _newThreshold, address[] calldata tokenAddresses) public onlyOwner {
+        for (uint256 i = 0; i < tokenAddresses.length; i++) {
+            TempTokenV1(tokenAddresses[i]).updateTotalSupplyThreshold(_newThreshold);
+        }
+        // Update the global threshold for future tokens
+        totalSupplyThreshold = _newThreshold;
+        emit TotalSupplyThresholdSet(_newThreshold);
     }
 
     function setPauseFactory(bool _isPaused) public onlyOwner {
