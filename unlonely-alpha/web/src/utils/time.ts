@@ -38,13 +38,13 @@ export const getTimesFromMillis = (millis: number) => {
   return { days, hours, minutes, seconds };
 };
 
-export const getTimeFromMillis = (millis: number): string => {
+export const getTimeFromMillis = (millis: number, showSeconds?: boolean): string => {
   if (millis === 0) return "0";
-  const { days, hours, minutes } = getTimesFromMillis(millis);
+  const { days, hours, minutes, seconds } = getTimesFromMillis(millis);
 
   let str = `${days > 0 ? `${days}d` : ""}${hours > 0 ? " " : ""}${
     hours > 0 ? `${hours}h` : ""
-  }${minutes > 0 ? " " : ""}${minutes > 0 ? `${minutes}m` : ""}`;
+  }${minutes > 0 ? " " : ""}${minutes > 0 ? `${minutes}m` : ""}${showSeconds ? " " : ""}${showSeconds && seconds > 0 ? `${seconds}s` : ""}`;
   if (str === "") str = "<1m";
   return str;
 };
