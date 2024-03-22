@@ -45,8 +45,7 @@ export const mintErrors: { [key: string]: string } = {
 };
 
 export const burnErrors: { [key: string]: string } = {
-  BurnAmountTooHigh:
-    "You are trying to sell more $VIBES than what you actually have",
+  BurnAmountTooHigh: "You are trying to sell more than what you actually have",
   EtherTransferFailed: "An internal transfer of ETH failed, please try again",
 };
 

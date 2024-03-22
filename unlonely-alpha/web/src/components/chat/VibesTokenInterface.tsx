@@ -49,7 +49,7 @@ import {
 import { GET_USER_QUERY } from "../../constants/queries";
 import { useApolloClient } from "@apollo/client";
 
-type ChartTokenTx = {
+export type ChartTokenTx = {
   user: string;
   event: string;
   amount: number;

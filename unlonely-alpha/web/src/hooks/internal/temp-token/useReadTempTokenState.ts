@@ -10,11 +10,13 @@ import { GetTempTokensQuery } from "../../../generated/graphql";
 import { UseChannelDetailsType } from "../useChannelDetails";
 
 export type UseReadTempTokenStateType = {
+  currentActiveTokenSymbol: string;
   currentActiveTokenAddress: string;
   currentActiveTokenEndTimestamp: bigint;
 };
 
 export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
+  currentActiveTokenSymbol: "",
   currentActiveTokenAddress: NULL_ADDRESS,
   currentActiveTokenEndTimestamp: BigInt(0),
 };
@@ -28,6 +30,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
     useState<string>(NULL_ADDRESS);
   const [currentActiveTokenEndTimestamp, setCurrentActiveTokenEndTimestamp] =
     useState<bigint>(BigInt(0));
+  const [currentActiveTokenSymbol, setCurrentActiveTokenSymbol] = useState<string>("");
 
     const factoryContract = getContractFromNetwork(
         Contract.TEMP_TOKEN_FACTORY_V1,
@@ -67,9 +70,11 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         const latestLog: any = sortedLogs[sortedLogs.length - 1];
         const newEndTimestamp = latestLog?.args.endTimestamp as bigint;
         const newTokenAddress = latestLog?.args.tokenAddress as `0x${string}`;
+        const newTokenSymbol = latestLog?.args.symbol as string;
     
         setCurrentActiveTokenEndTimestamp(newEndTimestamp);
         setCurrentActiveTokenAddress(newTokenAddress);
+        setCurrentActiveTokenSymbol(newTokenSymbol);
       };
     
       const [getTempTokensQuery] = useLazyQuery<GetTempTokensQuery>(
@@ -93,6 +98,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
           const listOfActiveTokens = res.data?.getTempTokens;
           const latestActiveToken = listOfActiveTokens?.[0];
           if (latestActiveToken) {
+            setCurrentActiveTokenSymbol(latestActiveToken.symbol);
             setCurrentActiveTokenEndTimestamp(
               BigInt(latestActiveToken.endUnixTimestamp)
             );
@@ -103,6 +109,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
       }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId]);
 
     return {
+        currentActiveTokenSymbol,
         currentActiveTokenAddress,
         currentActiveTokenEndTimestamp,
     };

@@ -6,10 +6,10 @@ import { useNetworkContext } from "../../context/useNetwork";
 import { useCreateTempToken } from "../../contracts/useTempTokenFactoryV1";
 import { verifyTempTokenV1OnBase } from "../../../utils/contract-verification/TempTokenV1";
 import usePostTempToken from "../../server/temp-token/usePostTempToken";
-import { UseChannelDetailsType } from "../useChannelDetails";
 import { Contract } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
 import useUpdateTempTokenHighestTotalSupply from "../../server/temp-token/useUpdateTempTokenHighestTotalSupply";
+import { useChannelContext } from "../../context/useChannel";
 
 export type UseCreateTempTokenStateType = {
   newTokenName: string;
@@ -37,9 +37,8 @@ export const useCreateTempTokenInitialState: UseCreateTempTokenStateType = {
   handleNewTokenDuration: () => undefined,
 };
 
-export const useCreateTempTokenState = (
-  channelDetails: UseChannelDetailsType
-): UseCreateTempTokenStateType => {
+export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
+  const { channel } = useChannelContext();
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
@@ -164,7 +163,7 @@ export const useCreateTempTokenState = (
             ownerAddress: args.owner as `0x${string}`,
             name: args.name as string,
             endUnixTimestamp: args.endTimestamp as bigint,
-            channelId: Number(channelDetails.channelQueryData?.id),
+            channelId: Number(channel.channelQueryData?.id),
             chainId: localNetwork.config.chainId as number,
           }),
         ]);
