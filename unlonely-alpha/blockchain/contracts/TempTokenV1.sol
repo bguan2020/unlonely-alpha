@@ -22,7 +22,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     uint256 public totalSupplyThreshold;
     bool public hasHitTotalSupplyThreshold;
 
-    event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 indexed endTimestamp);
+    event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp);
     event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
     event TokenDurationExtended(uint256 indexed endTimestamp);
     event SendRemainingFundsToCreatorAfterTokenExpiration(address indexed account, uint256 balance);
@@ -146,11 +146,13 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
      */
     function sendRemainingFundsToCreatorAfterTokenExpiration() external onlyOwner endedPhase nonReentrant {
         uint256 balance = address(this).balance;
-        require(balance > 0, "No funds available to drain");
+        require(balance > 0, "No funds available to send");
 
-        // TO DO: protocol fee
-        (bool success, ) = owner().call{value: balance}("");
-        require(success, "Failed to transfer funds");
+        uint256 protocolFee = balance * protocolFeePercent / 1 ether;
+
+        (bool success1, ) = owner().call{value: balance - protocolFee}("");
+        (bool success2, ) = protocolFeeDestination.call{value: protocolFee}("");
+        require(success1 && success2, "Failed to transfer funds");
 
         emit SendRemainingFundsToCreatorAfterTokenExpiration(msg.sender, balance);
     }

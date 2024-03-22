@@ -37,6 +37,8 @@ contract TempTokenFactoryV1 is Ownable {
     mapping(address => uint256) public deployedTokenIndices;
     mapping(uint256 => TokenInfo) public deployedTokens;
 
+    mapping(address => bool) public admins;
+
     /**
         * @dev defaultProtocolFeePercent is the default protocol fee percentage. ex: 2% = 2 * 10**16 = 20000000000000000.
         * @dev defaultStreamerFeePercent is the default streamer fee percentage. ex: 2% = 2 * 10**16 = 20000000000000000.
@@ -63,6 +65,11 @@ contract TempTokenFactoryV1 is Ownable {
     event PauseFactorySet(bool isPaused, uint256 numDeployedTokens);
     event MaxDurationSet(uint256 maxDuration);
     event TotalSupplyThresholdSet(uint256 totalSupplyThreshold);
+
+    modifier onlyAdmin() {
+        require(admins[msg.sender] == true, "not an admin");
+        _;
+    }
 
     constructor(address _defaultProtocolFeeDestination, uint256 _defaultProtocolFeePercent, uint256 _defaultStreamerFeePercent, uint256 _totalSupplyThreshold) {
         require(_defaultProtocolFeeDestination != address(0), "Default fee destination cannot be the zero address");
@@ -122,46 +129,44 @@ contract TempTokenFactoryV1 is Ownable {
         * @dev These functions are only callable by the owner of the factory.
      */
 
-    // TO DO: change onlyOwner into onlyAdmin modifier. onlyAdmin should be able to be updated by the owner.
-
-    function setFeeDestination(address protocolFeeDestination) public onlyOwner {
+    function setFeeDestination(address protocolFeeDestination) public onlyAdmin onlyOwner {
         require(protocolFeeDestination != address(0), "Fee destination cannot be the zero address");
         defaultProtocolFeeDestination = protocolFeeDestination;
         emit ProtocolFeeDestinationSet(protocolFeeDestination);
     }
 
-    function setProtocolFeePercent(uint256 _feePercent) public onlyOwner {
+    function setProtocolFeePercent(uint256 _feePercent) public onlyAdmin onlyOwner {
         defaultProtocolFeePercent = _feePercent;
         emit ProtocolFeePercentSet(_feePercent);
     }
 
-    function setStreamerFeePercent(uint256 _feePercent) public onlyOwner {
+    function setStreamerFeePercent(uint256 _feePercent) public onlyAdmin onlyOwner {
         defaultStreamerFeePercent = _feePercent;
         emit StreamerFeePercentSet(_feePercent);
     }
 
-    function setTotalSupplyThreshold(uint256 _totalSupplyThreshold) public onlyOwner {
+    function setTotalSupplyThresholdForTokens(uint256 _totalSupplyThreshold, address[] calldata tokenAddresses) public onlyAdmin onlyOwner {
+        for (uint256 i = 0; i < tokenAddresses.length; i++) {
+            TempTokenV1(tokenAddresses[i]).updateTotalSupplyThreshold(_totalSupplyThreshold);
+        }
+        // Update the global threshold for future tokens
         totalSupplyThreshold = _totalSupplyThreshold;
         emit TotalSupplyThresholdSet(_totalSupplyThreshold);
     }
 
-    function setTotalSupplyThresholdForTokens(uint256 _newThreshold, address[] calldata tokenAddresses) public onlyOwner {
-        for (uint256 i = 0; i < tokenAddresses.length; i++) {
-            TempTokenV1(tokenAddresses[i]).updateTotalSupplyThreshold(_newThreshold);
-        }
-        // Update the global threshold for future tokens
-        totalSupplyThreshold = _newThreshold;
-        emit TotalSupplyThresholdSet(_newThreshold);
-    }
-
-    function setPauseFactory(bool _isPaused) public onlyOwner {
+    function setPauseFactory(bool _isPaused) public onlyAdmin onlyOwner {
         isPaused = _isPaused;
         emit PauseFactorySet(_isPaused, numDeployedTokens);
     }
 
-    function setMaxDuration(uint256 _maxDuration) public onlyOwner {
+    function setMaxDuration(uint256 _maxDuration) public onlyAdmin onlyOwner {
         require(_maxDuration > 0, "Max duration must be greater than 0");
         maxDuration = _maxDuration;
         emit MaxDurationSet(_maxDuration);
+    }
+
+    function setAdmin(address _address, bool _onlyAdmin) public onlyOwner {
+        require(_address != address(0), "Admin address cannot be the zero address");
+        admins[_address] = _onlyAdmin;
     }
 }
