@@ -463,12 +463,39 @@ const MobilePage = ({
   const [livepeerData, setLivepeerData] =
     useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
 
+  const livepeer = new Livepeer({
+    apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
+  });
+
   const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
     GET_LIVEPEER_STREAM_DATA_QUERY,
     {
       fetchPolicy: "network-only",
     }
   );
+
+  const livepeerPlaybackId = useMemo(
+    () =>
+      channelQueryData?.livepeerPlaybackId == null
+        ? undefined
+        : channelQueryData?.livepeerPlaybackId,
+    [channelQueryData]
+  );
+
+  const [playbackInfo, setPlaybackInfo] = useState<PlaybackInfo | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    const init = async () => {
+      if (livepeerPlaybackId) {
+        const res = await livepeer.playback.get(livepeerPlaybackId);
+        const playbackInfo = res.playbackInfo;
+        setPlaybackInfo(playbackInfo);
+      }
+    };
+    init();
+  }, [livepeerPlaybackId]);
 
   useEffect(() => {
     const init = async () => {
@@ -556,10 +583,14 @@ const MobilePage = ({
                 <ChannelStreamerPerspective
                   livepeerData={livepeerData}
                   ablyChannel={chat.channel}
+                  livepeerPlaybackInfo={playbackInfo}
                 />
               </>
             ) : (
-              <ChannelViewerPerspective mobile />
+              <ChannelViewerPerspective
+                mobile
+                livepeerPlaybackInfo={playbackInfo}
+              />
             )}
             <StandaloneAblyChatComponent chat={chat} />
           </>
