@@ -8,6 +8,13 @@ contract TempTokenFactoryV1 is Ownable {
     /**
         * @dev TokenInfo is a struct to store information about a deployed token.
         * @dev tokenAddress is the address of the deployed token.
+        * @dev ownerAddress is the address of the token's owner. This will usually be the owner of the Unlonely channel that is launching this token.
+        * @dev name is the name of the token.
+        * @dev symbol is the symbol of the token.
+        * @dev endTimestamp is the timestamp when the token is no longer tradeable (more information in TempTokenV1 contract).
+        * @dev protocolFeeDestination is the address where the protocol fees are sent.
+        * @dev protocolFeePercent is the percentage of the protocol fee.
+        * @dev streamerFeePercent is the percentage of the streamer fee.
      */
     struct TokenInfo {
         address tokenAddress;
