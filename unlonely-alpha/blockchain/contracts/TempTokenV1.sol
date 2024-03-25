@@ -161,9 +161,13 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         * @dev updateTotalSupplyThreshold function updates the total supply threshold. 
         * it is only callable by the factory contract.
     */
-    function updateTotalSupplyThreshold(uint256 _newThreshold) public {
+    function updateTotalSupplyThreshold(uint256 _newThreshold, uint256 _additionalDuration) public {
         require(msg.sender == factoryAddress, "Only the factory can update the threshold");
+        if (_newThreshold > totalSupplyThreshold) {
+            hasHitTotalSupplyThreshold = false;
+        }
         totalSupplyThreshold = _newThreshold;
+        endTimestamp += _additionalDuration;
     }
 
     function mintCost(uint256 _amount) public view returns (uint256) {
