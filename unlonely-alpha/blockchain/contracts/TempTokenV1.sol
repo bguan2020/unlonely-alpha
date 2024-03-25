@@ -13,6 +13,11 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     * @dev protocolFeePercent is the percentage of the protocol fee. ex: 2% = 2 * 10**16 = 20000000000000000
     * @dev streamerFeePercent is the percentage of the streamer fee. ex: 2% = 2 * 10**16 = 20000000000000000
     * @dev endTimestamp is the timestamp when the token is no longer tradeable.
+    * @dev totalSupplyThreshold is the total supply needed for the token to convert from a TempToken into a normal, permanent token. 
+           This total supply will be adjusted by us depending on various factors.
+           The goal of each TempToken is to have hit this threshold by the time the duration has expired.
+           IT'S A GAME.
+    * @dev hasHitTotalSupplyThreshold is a boolean to check if the total supply threshold has been hit.
  */
     address public factoryAddress;
     address public protocolFeeDestination;
@@ -22,7 +27,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     uint256 public totalSupplyThreshold;
     bool public hasHitTotalSupplyThreshold;
 
-    event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp);
+    event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold);
     event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
     event TokenDurationExtended(uint256 indexed endTimestamp);
     event SendRemainingFundsToCreatorAfterTokenExpiration(address indexed account, uint256 balance);
@@ -106,7 +111,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         (bool success2, ) = owner().call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
 
-        emit Mint(msg.sender, _amount, owner(), totalSupply(), protocolFeePercent, streamerFeePercent, endTimestamp);
+        emit Mint(msg.sender, _amount, owner(), totalSupply(), protocolFeePercent, streamerFeePercent, endTimestamp, hasHitTotalSupplyThreshold);
     }
 
     /**
@@ -158,16 +163,28 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     }
 
     /** 
-        * @dev updateTotalSupplyThreshold function updates the total supply threshold. 
+        * @dev updateTotalSupplyThreshold function updates the total supply threshold.
+        * @param _newThreshold is the new total supply threshold.
         * it is only callable by the factory contract.
     */
-    function updateTotalSupplyThreshold(uint256 _newThreshold, uint256 _additionalDuration) public {
+    function updateTotalSupplyThreshold(uint256 _newThreshold) public {
         require(msg.sender == factoryAddress, "Only the factory can update the threshold");
         if (_newThreshold > totalSupplyThreshold) {
             hasHitTotalSupplyThreshold = false;
         }
         totalSupplyThreshold = _newThreshold;
-        endTimestamp += _additionalDuration;
+    }
+
+    /**
+        * @dev increaseEndTimestamp function allows the token owner to increase the endTimestamp by a specified duration.
+        * @param _additionalDurationInSeconds is the duration to increase the endTimestamp by.
+        * This function is only callable by the factory contract.
+     */
+
+    function increaseEndTimestamp(uint256 _additionalDurationInSeconds) public {
+        require(msg.sender == factoryAddress, "Only the factory can increase the end timestamp");
+        endTimestamp += _additionalDurationInSeconds;
+        emit TokenDurationExtended(endTimestamp);
     }
 
     function mintCost(uint256 _amount) public view returns (uint256) {

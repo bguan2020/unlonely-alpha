@@ -8,17 +8,9 @@ contract TempTokenFactoryV1 is Ownable {
     /**
         * @dev TokenInfo is a struct to store information about a deployed token.
         * @dev tokenAddress is the address of the deployed token.
-        * @dev ownerAddress is the address of the token's owner. This will usually be the owner of the Unlonely channel that is launching this token.
-        * @dev name is the name of the token.
-        * @dev symbol is the symbol of the token.
-        * @dev endTimestamp is the timestamp when the token is no longer tradeable (more information in TempTokenV1 contract).
-        * @dev protocolFeeDestination is the address where the protocol fees are sent.
-        * @dev protocolFeePercent is the percentage of the protocol fee.
-        * @dev streamerFeePercent is the percentage of the streamer fee.
      */
     struct TokenInfo {
         address tokenAddress;
-        address ownerAddress;
     }
 
     /**
@@ -30,8 +22,12 @@ contract TempTokenFactoryV1 is Ownable {
     mapping(address => uint256) public deployedTokenIndices;
     mapping(uint256 => TokenInfo) public deployedTokens;
 
+    /**
+        * @dev admins is a mapping of addresses to a boolean value.
+            If the boolean value is true, the address is an admin.
+            If the boolean value is false, the address is not an admin.
+    */
     mapping(address => bool) public admins;
-
     /**
         * @dev defaultProtocolFeePercent is the default protocol fee percentage. ex: 2% = 2 * 10**16 = 20000000000000000.
         * @dev defaultStreamerFeePercent is the default streamer fee percentage. ex: 2% = 2 * 10**16 = 20000000000000000.
@@ -50,17 +46,17 @@ contract TempTokenFactoryV1 is Ownable {
     uint256 public maxDuration;
     uint256 public totalSupplyThreshold;
 
-    // Event to log the creation of a new TempToken.
     event TempTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold);
     event ProtocolFeeDestinationSet(address indexed protocolFeeDestination);
     event ProtocolFeePercentSet(uint256 feePercent);
     event StreamerFeePercentSet(uint256 feePercent);
     event PauseFactorySet(bool isPaused, uint256 numDeployedTokens);
     event MaxDurationSet(uint256 maxDuration);
-    event TotalSupplyThresholdSet(uint256 totalSupplyThreshold, address[] tokenAddresses, uint256[] additionalDurations);
+    event TotalSupplyThresholdSet(uint256 totalSupplyThreshold, address[] tokenAddresses);
+    event EndTimestampIncreased(uint256 additionalDuration, address[] tokenAddresses);
 
-    modifier onlyAdmin() {
-        require(admins[msg.sender] == true, "not an admin");
+    modifier onlyOwnerOrAdmin() {
+        require(msg.sender == owner() || admins[msg.sender] == true, "Caller is neither owner nor admin");
         _;
     }
 
@@ -88,7 +84,7 @@ contract TempTokenFactoryV1 is Ownable {
     ) public returns (address) {
         require(!isPaused, "Factory is paused");
         require(duration <= maxDuration, "Duration is longer than max duration");
-        require(duration > 0, "Duration must be more than 0");
+        require(duration > 0, "Duration cannot be 0");
         uint256 endTimestamp = block.timestamp + duration;
         TempTokenV1 newToken = new TempTokenV1(name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this));        
         
@@ -97,7 +93,7 @@ contract TempTokenFactoryV1 is Ownable {
             * @dev We also store the index of the token in the deployedTokenIndices mapping using the token's address as the key.
          */
         uint256 index = ++numDeployedTokens;
-        deployedTokens[index] = TokenInfo(address(newToken), msg.sender);
+        deployedTokens[index] = TokenInfo(address(newToken));
         deployedTokenIndices[address(newToken)] = index;
 
         newToken.transferOwnership(msg.sender); // Transfer ownership of the new token to the caller of this function.
@@ -121,40 +117,53 @@ contract TempTokenFactoryV1 is Ownable {
         * @dev These functions are only callable by the owner of the factory.
      */
 
-    function setFeeDestination(address protocolFeeDestination) public onlyOwner {
+    function setFeeDestination(address protocolFeeDestination) public onlyOwnerOrAdmin {
         require(protocolFeeDestination != address(0), "Fee destination cannot be the zero address");
         defaultProtocolFeeDestination = protocolFeeDestination;
         emit ProtocolFeeDestinationSet(protocolFeeDestination);
     }
 
-    function setProtocolFeePercent(uint256 _feePercent) public onlyOwner {
+    function setProtocolFeePercent(uint256 _feePercent) public onlyOwnerOrAdmin {
         defaultProtocolFeePercent = _feePercent;
         emit ProtocolFeePercentSet(_feePercent);
     }
 
-    function setStreamerFeePercent(uint256 _feePercent) public onlyOwner {
+    function setStreamerFeePercent(uint256 _feePercent) public onlyOwnerOrAdmin {
         defaultStreamerFeePercent = _feePercent;
         emit StreamerFeePercentSet(_feePercent);
     }
 
-    function setTotalSupplyThresholdForTokens(uint256 _totalSupplyThreshold, address[] calldata _tokenAddresses, uint256[] calldata _additionalDurations) public onlyAdmin onlyOwner {
+    /**
+        * @dev The following functions are used to set the total supply threshold for tokens, 
+                increase the end timestamp for tokens, set the max duration, and pause the factory.
+        * @dev These functions are only callable by the owner or an admin of the factory.
+     */
+
+    function setTotalSupplyThresholdForTokens(uint256 _totalSupplyThreshold, address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
         for (uint256 i = 0; i < _tokenAddresses.length; i++) {
-            TempTokenV1(_tokenAddresses[i]).updateTotalSupplyThreshold(_totalSupplyThreshold, _additionalDurations[i]);
+            TempTokenV1(_tokenAddresses[i]).updateTotalSupplyThreshold(_totalSupplyThreshold);
         }
         // Update the global threshold for future tokens
         totalSupplyThreshold = _totalSupplyThreshold;
-        emit TotalSupplyThresholdSet(_totalSupplyThreshold, _tokenAddresses, _additionalDurations);
+        emit TotalSupplyThresholdSet(_totalSupplyThreshold, _tokenAddresses);
     }
 
-    function setPauseFactory(bool _isPaused) public onlyAdmin onlyOwner {
-        isPaused = _isPaused;
-        emit PauseFactorySet(_isPaused, numDeployedTokens);
+    function increaseEndTimestampForTokens(uint256 _additionalDurationInSeconds, address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
+        for (uint256 i = 0; i < _tokenAddresses.length; i++) {
+            TempTokenV1(_tokenAddresses[i]).increaseEndTimestamp(_additionalDurationInSeconds);
+        }
+        emit EndTimestampIncreased(_additionalDurationInSeconds, _tokenAddresses);
     }
 
-    function setMaxDuration(uint256 _maxDuration) public onlyAdmin onlyOwner {
-        require(_maxDuration > 0, "Max duration must be more than 0");
+    function setMaxDuration(uint256 _maxDuration) public onlyOwnerOrAdmin {
+        require(_maxDuration > 0, "Max duration cannot be 0");
         maxDuration = _maxDuration;
         emit MaxDurationSet(_maxDuration);
+    }
+
+    function setPauseFactory(bool _isPaused) public onlyOwnerOrAdmin {
+        isPaused = _isPaused;
+        emit PauseFactorySet(_isPaused, numDeployedTokens);
     }
 
     function setAdmin(address _address, bool _onlyAdmin) public onlyOwner {

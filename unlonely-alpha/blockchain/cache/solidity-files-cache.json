@@ -1273,8 +1273,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\TempTokenV1.sol": {
-      "lastModificationDate": 1711383631793,
-      "contentHash": "13b910937fe6484a8297d761bbfc24aa",
+      "lastModificationDate": 1711392462070,
+      "contentHash": "74738721832a884f7d774d814258c814",
       "sourceName": "contracts/TempTokenV1.sol",
       "solcConfig": {
         "version": "0.8.8",
@@ -1319,8 +1319,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\TempTokenFactoryV1.sol": {
-      "lastModificationDate": 1711389086364,
-      "contentHash": "9896bed812e8d69523e4c6f590ed89e6",
+      "lastModificationDate": 1711397370822,
+      "contentHash": "7387895dfb3908806f5ddfa028a1f51e",
       "sourceName": "contracts/TempTokenFactoryV1.sol",
       "solcConfig": {
         "version": "0.8.8",
@@ -1360,6 +1360,48 @@
       ],
       "artifacts": [
         "TempTokenFactoryV1"
+      ]
+    },
+    "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelyAdminContractV1.sol": {
+      "lastModificationDate": 1711393625706,
+      "contentHash": "0cc184996dba8a20bcb7fa2ba23b0bcc",
+      "sourceName": "contracts/UnlonelyAdminContractV1.sol",
+      "solcConfig": {
+        "version": "0.8.8",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "UnlonelyAdminContractV1"
       ]
     }
   }

@@ -65,6 +65,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BrianToken__factory>;
     getContractFactory(
+      name: "IAdminContract",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IAdminContract__factory>;
+    getContractFactory(
       name: "TempTokenFactoryV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TempTokenFactoryV1__factory>;
@@ -72,6 +76,10 @@ declare module "hardhat/types/runtime" {
       name: "TempTokenV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TempTokenV1__factory>;
+    getContractFactory(
+      name: "UnlonelyAdminContractV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.UnlonelyAdminContractV1__factory>;
     getContractFactory(
       name: "UnlonelyArcadeContractV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -183,6 +191,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.BrianToken>;
     getContractAt(
+      name: "IAdminContract",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IAdminContract>;
+    getContractAt(
       name: "TempTokenFactoryV1",
       address: string,
       signer?: ethers.Signer
@@ -192,6 +205,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TempTokenV1>;
+    getContractAt(
+      name: "UnlonelyAdminContractV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.UnlonelyAdminContractV1>;
     getContractAt(
       name: "UnlonelyArcadeContractV1",
       address: string,
