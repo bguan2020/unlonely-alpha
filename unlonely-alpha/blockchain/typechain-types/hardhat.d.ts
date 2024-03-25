@@ -65,10 +65,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BrianToken__factory>;
     getContractFactory(
-      name: "IAdminContract",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IAdminContract__factory>;
-    getContractFactory(
       name: "TempTokenFactoryV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TempTokenFactoryV1__factory>;
@@ -190,11 +186,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.BrianToken>;
-    getContractAt(
-      name: "IAdminContract",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IAdminContract>;
     getContractAt(
       name: "TempTokenFactoryV1",
       address: string,
