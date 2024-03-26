@@ -27,6 +27,11 @@ app.post("/webhook", (req, res) => {
   res.sendStatus(200);
 });
 
+app.get("/test", (req, res) => {
+  console.log("test endpoint")
+  res.send("Hello World!");
+});
+
 const startServer = async () => {
   const apolloServer = new ApolloServer({
     schema: graphqlSchema,
