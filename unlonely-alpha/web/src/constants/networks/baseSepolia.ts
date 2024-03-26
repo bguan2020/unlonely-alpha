@@ -11,7 +11,7 @@ export const BaseSepolia: Network = {
     isTestnet: true,
     contracts: {
       [Contract.TEMP_TOKEN_FACTORY_V1]: {
-        address: "0xbc82454027d2a12700adC2370148Ccb3BD759Cae",
+        address: "0xe0D437E10D133E753d214f811046808b8067B51F",
         abi: TempTokenFactoryV1,
       },
     },

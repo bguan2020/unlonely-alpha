@@ -9,7 +9,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -55,7 +55,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -97,7 +97,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -143,7 +143,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -187,7 +187,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -229,7 +229,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -273,7 +273,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -315,7 +315,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -365,7 +365,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -409,7 +409,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -451,7 +451,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -495,7 +495,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -537,7 +537,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -581,7 +581,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -625,7 +625,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -667,7 +667,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -709,7 +709,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -753,7 +753,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -799,7 +799,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -841,7 +841,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -887,7 +887,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -929,7 +929,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -975,7 +975,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1048,14 +1048,14 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelySharesV2.sol": {
-      "lastModificationDate": 1701453474542,
+      "lastModificationDate": 1702498648736,
       "contentHash": "9539248c3907c5f09891437a17d07e1f",
       "sourceName": "contracts/UnlonelySharesV2.sol",
       "solcConfig": {
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1101,7 +1101,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1136,14 +1136,14 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelyTournament.sol": {
-      "lastModificationDate": 1700438945883,
+      "lastModificationDate": 1700440354947,
       "contentHash": "91e675615462db88d114ccb15eb5f950",
       "sourceName": "contracts/UnlonelyTournament.sol",
       "solcConfig": {
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1182,14 +1182,14 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\UnlonelySideBetsV1.sol": {
-      "lastModificationDate": 1702417172876,
+      "lastModificationDate": 1702498648738,
       "contentHash": "e5d24ee35d566525074b0e0fd1048860",
       "sourceName": "contracts/UnlonelySideBetsV1.sol",
       "solcConfig": {
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1228,14 +1228,14 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\VibesTokenV1.sol": {
-      "lastModificationDate": 1704819676384,
+      "lastModificationDate": 1704908078843,
       "contentHash": "a8114f2985bbf7cb034590e02a641afa",
       "sourceName": "contracts/VibesTokenV1.sol",
       "solcConfig": {
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1273,14 +1273,14 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\TempTokenV1.sol": {
-      "lastModificationDate": 1711392462070,
-      "contentHash": "74738721832a884f7d774d814258c814",
+      "lastModificationDate": 1711409901111,
+      "contentHash": "20655892b923808095f21ad6a8a7b8a8",
       "sourceName": "contracts/TempTokenV1.sol",
       "solcConfig": {
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1319,14 +1319,14 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\TempTokenFactoryV1.sol": {
-      "lastModificationDate": 1711397583559,
-      "contentHash": "5b4fdaf91e5eff2b9639c8b93738d073",
+      "lastModificationDate": 1711397685928,
+      "contentHash": "6f07b2877547ea8fcbc6ed9bdf78b3e7",
       "sourceName": "contracts/TempTokenFactoryV1.sol",
       "solcConfig": {
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1370,7 +1370,7 @@
         "version": "0.8.8",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {

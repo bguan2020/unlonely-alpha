@@ -265,22 +265,22 @@ export const useBurn = (
     };
 };
 
-export const useDrainFundsIntoWallet = (
+export const useSendRemainingFundsToCreatorAfterTokenExpiration = (
     contract: ContractData,
     callbacks?: WriteCallbacks
   ) => {
     const {
-      writeAsync: drainFundsIntoWallet,
-      writeData: drainFundsIntoWalletData,
-      txData: drainFundsIntoWalletTxData,
-      isTxLoading: drainFundsIntoWalletTxLoading,
+      writeAsync: sendRemainingFundsToCreatorAfterTokenExpiration,
+      writeData: sendRemainingFundsToCreatorAfterTokenExpirationData,
+      txData: sendRemainingFundsToCreatorAfterTokenExpirationTxData,
+      isTxLoading: sendRemainingFundsToCreatorAfterTokenExpirationTxLoading,
       refetch,
-      isRefetching: isRefetchingDrainFundsIntoWallet,
+      isRefetching: isRefetchingsendRemainingFundsToCreatorAfterTokenExpiration,
     } = useWrite(
       contract,
-      "drainFundsIntoWallet",
+      "sendRemainingFundsToCreatorAfterTokenExpiration",
       [],
-      createCallbackHandler("useTempTokenV1 drainFundsIntoWallet", callbacks),
+      createCallbackHandler("useTempTokenV1 sendRemainingFundsToCreatorAfterTokenExpiration", callbacks),
       {
         enabled:
           contract.address !== NULL_ADDRESS &&
@@ -290,10 +290,10 @@ export const useDrainFundsIntoWallet = (
   
     return {
       refetch,
-      drainFundsIntoWallet,
-      drainFundsIntoWalletData,
-      drainFundsIntoWalletTxData,
-      drainFundsIntoWalletTxLoading,
-      isRefetchingDrainFundsIntoWallet,
+      sendRemainingFundsToCreatorAfterTokenExpiration,
+      sendRemainingFundsToCreatorAfterTokenExpirationData,
+      sendRemainingFundsToCreatorAfterTokenExpirationTxData,
+      sendRemainingFundsToCreatorAfterTokenExpirationTxLoading,
+      isRefetchingsendRemainingFundsToCreatorAfterTokenExpiration,
     };
 };

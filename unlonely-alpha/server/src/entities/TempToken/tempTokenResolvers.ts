@@ -14,6 +14,27 @@ export const resolvers = {
         },
     },
     Mutation: {
+        updateEndTimestampForTokens: (
+        _: any,
+        { data }: { data: tempTokenService.IUpdateEndTimestampForTokensInput },
+        ctx: Context
+        ) => {
+            if (!ctx.user || !ctx.userIsAuthed) {
+                throw new AuthenticationError("User is not authenticated");
+            }
+            return tempTokenService.updateEndTimestampForTokens(data, ctx);
+        },
+        updateTotalSupplyThresholdForTokens: (
+        _: any,
+        { data }: { data: tempTokenService.IUpdateTotalSupplyThresholdForTokensInput },
+        ctx: Context
+        ) => {
+            if (!ctx.user || !ctx.userIsAuthed) {
+                throw new AuthenticationError("User is not authenticated");
+            }
+        
+            return tempTokenService.updateTotalSupplyThresholdForTokens(data, ctx);
+        },
         updateTempTokenHasRemainingFundsForCreator: (
         _: any,
         { data }: { data: tempTokenService.IUpdateTempTokenHasRemainingFundsForCreatorInput },

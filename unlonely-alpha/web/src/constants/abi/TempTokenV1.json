@@ -32,6 +32,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "uint256",
+        "name": "_totalSupplyThreshold",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
         "name": "_factoryAddress",
         "type": "address"
@@ -194,6 +199,18 @@
         "internalType": "uint256",
         "name": "streamerFeePercent",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "endTimestamp",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "hasHitTotalSupplyThreshold",
+        "type": "bool"
       }
     ],
     "name": "Mint",
@@ -235,6 +252,19 @@
       }
     ],
     "name": "SendRemainingFundsToCreatorAfterTokenExpiration",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "endTimestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenDurationExtended",
     "type": "event"
   },
   {
@@ -470,6 +500,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "hasHitTotalSupplyThreshold",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -490,6 +533,19 @@
         "type": "bool"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_additionalDurationInSeconds",
+        "type": "uint256"
+      }
+    ],
+    "name": "increaseEndTimestamp",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -669,6 +725,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "totalSupplyThreshold",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -730,6 +799,19 @@
       }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_newThreshold",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateTotalSupplyThreshold",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

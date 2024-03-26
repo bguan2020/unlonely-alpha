@@ -27,10 +27,12 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     uint256 public totalSupplyThreshold;
     bool public hasHitTotalSupplyThreshold;
 
-    event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold);
-    event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
-    event TokenDurationExtended(uint256 indexed endTimestamp);
+    event Mint(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold);
+    event Burn(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
+    event TokenDurationExtended(uint256 indexed endTimestamp, address indexed tokenAddress);
+    event TokenDurationAndThresholdIncreased(uint256 indexed endTimestamp, uint256 indexed totalSupplyThreshold, address indexed tokenAddress);
     event SendRemainingFundsToCreatorAfterTokenExpiration(address indexed account, uint256 balance);
+    event TotalSupplyThresholdUpdated(uint256 indexed totalSupplyThreshold, address indexed tokenAddress, bool hasHitTotalSupplyThreshold);
 
     error InsufficientValue(uint256 minimumValue, uint256 value);
     error BurnAmountTooHigh(uint256 maximumAmount, uint256 amount);
@@ -97,7 +99,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         if(totalSupply() >= totalSupplyThreshold && !hasHitTotalSupplyThreshold) {
             endTimestamp += 25 hours;
             hasHitTotalSupplyThreshold = true; // Ensure this logic runs only once
-            emit TokenDurationExtended(endTimestamp);
+            emit TokenDurationAndThresholdIncreased(endTimestamp, totalSupplyThreshold, address(this));
         }
 
         if(msg.value > totalCost) {
@@ -111,7 +113,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         (bool success2, ) = owner().call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
 
-        emit Mint(msg.sender, _amount, owner(), totalSupply(), protocolFeePercent, streamerFeePercent, endTimestamp, hasHitTotalSupplyThreshold);
+        emit Mint(msg.sender, _amount, owner(), address(this), totalSupply(), protocolFeePercent, streamerFeePercent, endTimestamp, hasHitTotalSupplyThreshold);
     }
 
     /**
@@ -139,7 +141,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         (bool success2, ) = owner().call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
 
-        emit Burn(msg.sender, _amount, owner(), totalSupply(), protocolFeePercent, streamerFeePercent);
+        emit Burn(msg.sender, _amount, owner(), address(this), totalSupply(), protocolFeePercent, streamerFeePercent);
     }
 
     /**
@@ -169,10 +171,10 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     */
     function updateTotalSupplyThreshold(uint256 _newThreshold) public {
         require(msg.sender == factoryAddress, "Only the factory can update the threshold");
-        if (_newThreshold > totalSupplyThreshold) {
-            hasHitTotalSupplyThreshold = false;
-        }
+        require(_newThreshold > totalSupplyThreshold, "New threshold must be greater than the current threshold");
+        hasHitTotalSupplyThreshold = false;
         totalSupplyThreshold = _newThreshold;
+        emit TotalSupplyThresholdUpdated(totalSupplyThreshold, address(this), hasHitTotalSupplyThreshold);
     }
 
     /**
@@ -184,7 +186,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     function increaseEndTimestamp(uint256 _additionalDurationInSeconds) public {
         require(msg.sender == factoryAddress, "Only the factory can increase the end timestamp");
         endTimestamp += _additionalDurationInSeconds;
-        emit TokenDurationExtended(endTimestamp);
+        emit TokenDurationExtended(endTimestamp, address(this));
     }
 
     function mintCost(uint256 _amount) public view returns (uint256) {

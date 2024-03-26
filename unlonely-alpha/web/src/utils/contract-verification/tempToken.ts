@@ -17,7 +17,7 @@ export const verifyTempTokenV1OnBase = async (tempTokenContractAddress: `0x${str
             "contractname": "TempTokenV1",
             "codeformat": "solidity-single-file",
             "compilerversion": "v0.8.8+commit.dddeac2f", // this is the complier version that should match the version on hardhat config
-            "optimizationUsed": "0",
+            "optimizationUsed": "1",
             "runs": "200",
             "licensetype": "3", // 3 stands for the MIT license
             "constructorArguements": encodedConstructorArguments,

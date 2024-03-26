@@ -15,12 +15,23 @@ export const typeDef = gql`
         streamerFeePercentage: BigInt!
     }
 
+    type UpdateTotalSupplyThresholdForTokensResponse {
+        tokenAddress: String!
+        hasReachedPriceThreshold: Boolean!
+    }
+
+    type UpdateEndTimestampForTokensResponse {
+        tokenAddress: String!
+        endUnixTimestamp: BigInt!
+    }
+
     input GetTempTokensInput {
         tokenAddress: String
         ownerAddress: String
         chainId: Int
         channelId: String
         onlyActiveTokens: Boolean
+        hasReachedPriceThreshold: Boolean
     }
 
     input UpdateTempTokenHasRemainingFundsForCreatorInput {
@@ -47,11 +58,23 @@ export const typeDef = gql`
         streamerFeePercentage: String!
     }
 
+    input UpdateTotalSupplyThresholdForTokensInput {
+        tokenAddresses: [String]!
+        chainId: Int!
+    }
+
+    input UpdateEndTimestampForTokensInput {
+        tokenAddresses: [String]!
+        chainId: Int!
+    }
+
     extend type Query {
         getTempTokens(data: GetTempTokensInput): [TempToken]
     }
 
     extend type Mutation {
+        updateEndTimestampForTokens(data: UpdateEndTimestampForTokensInput!): [UpdateEndTimestampForTokensResponse]
+        updateTotalSupplyThresholdForTokens(data: UpdateTotalSupplyThresholdForTokensInput!): [UpdateTotalSupplyThresholdForTokensResponse]
         updateTempTokenHasRemainingFundsForCreator(data: UpdateTempTokenHasRemainingFundsForCreatorInput!): [TempToken]
         updateTempTokenHighestTotalSupply(data: UpdateTempTokenHighestTotalSupplyInput!): TempToken
         postTempToken(data: PostTempTokenInput!): TempToken
