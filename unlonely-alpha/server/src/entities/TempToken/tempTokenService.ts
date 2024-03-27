@@ -1,6 +1,9 @@
-import { User } from "@prisma/client";
+import { TempToken, User } from "@prisma/client";
 import { Context } from "../../context";
 
+import { createPublicClient, http as viemHttp } from "viem";
+import { base } from "viem/chains";
+import TempTokenV1 from "../../utils/abi/TempTokenV1.json";
 export interface IPostTempTokenInput {
     tokenAddress: string;
     chainId: number;
@@ -19,7 +22,7 @@ export const postTempToken = async (
     ) => {
     return await ctx.prisma.tempToken.create({
         data: {
-            uniqueTempTokenId: `${data.tokenAddress}-${String(data.chainId)}-${String(data.endUnixTimestamp)}`,
+            uniqueTempTokenId: `${data.tokenAddress}-${String(data.chainId)}`,
             tokenAddress: data.tokenAddress,
             chainId: data.chainId,
             ownerAddress: user.address,
@@ -39,43 +42,218 @@ export const postTempToken = async (
 }
 
 export interface IUpdateTempTokenHighestTotalSupplyInput {
-    tokenAddress: string;
-    endUnixTimestamp: string;
+    tokenAddresses: string[];
     chainId: number;
-    currentTotalSupply: string;
+    newTotalSupplies: string[];
 }
 
 export const updateTempTokenHighestTotalSupply = async (
     data: IUpdateTempTokenHighestTotalSupplyInput,
     ctx: Context
 ) => {
+    if (data.tokenAddresses.length === 0) return []
+    if (data.tokenAddresses.length !== data.newTotalSupplies.length) throw new Error("tokenAddresses and newTotalSupplies must be the same length");
+    const updatePromises = data.tokenAddresses.map((tokenAddress, index) => {
+        return ctx.prisma.tempToken.update({
+            where: {
+                uniqueTempTokenId: `${tokenAddress}-${String(data.chainId)}`
+            },
+            data: {
+                highestTotalSupply: BigInt(data.newTotalSupplies[index])
+            }
+        });
+    });
 
-    const existingTempToken = await ctx.prisma.tempToken.findUnique({
+    try {
+        await ctx.prisma.$transaction(updatePromises);
+        return updatePromises.length; // Or any other success indicator
+    } catch (error) {
+        console.error("updateTempTokenHighestTotalSupply error:", error);
+        throw error; // Or handle error as needed
+    }
+}
+
+export interface IUpdateTempTokenHasRemainingFundsForCreatorInput {
+    chainId: number;
+    channelId: number;
+}
+
+export const updateTempTokenHasRemainingFundsForCreator = async (
+    data: IUpdateTempTokenHasRemainingFundsForCreatorInput,
+    ctx: Context
+) => {
+
+    // Create public client based on chainId
+    let publicClient: any;
+
+    switch(data.chainId) {
+        case 8453:
+            publicClient = createPublicClient({
+                chain: base as any,
+                transport: viemHttp(
+                    `https://base-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_BASE_API_KEY}`
+                ),
+            });
+            break;
+        default:
+            throw new Error("Chain not supported");
+    }
+
+
+    // Get all existing inactive temp tokens with remaining funds for chainId and channelId
+    const existingInactiveTempTokensWithRemainingFunds = await ctx.prisma.tempToken.findMany({
         where: {
-            uniqueTempTokenId: `${data.tokenAddress}-${String(data.chainId)}-${String(data.endUnixTimestamp)}`
+            chainId: data.chainId,
+            channel: {
+                is: {
+                    id: data.channelId
+                }
+            },
+            endUnixTimestamp: {
+                lt: Math.floor(Date.now() / 1000)
+            },
+            hasRemainingFundsForCreator: true
         }
     });
 
-    if (!existingTempToken) {
-        throw new Error("Temp token not found");
-    }
+    // Get balances for each temp token
+    const promises = existingInactiveTempTokensWithRemainingFunds.map(async (tempToken) => {
+            return publicClient.readContract({
+                address: tempToken.tokenAddress,
+                abi: TempTokenV1,
+                functionName: "getBalance",
+            });
+        })
 
-    // Ensure currentTotalSupply and highestTotalSupply are BigInt for comparison
-    const newTotalSupplyBigInt = BigInt(data.currentTotalSupply);
-    const existingHighestTotalSupplyBigInt = BigInt(existingTempToken.highestTotalSupply);
+    const balances: bigint[] = await Promise.all(promises);
 
-    // Update only if newTotalSupplyBigInt is greater
-    if (newTotalSupplyBigInt > existingHighestTotalSupplyBigInt) {
-        return await ctx.prisma.tempToken.update({
+    const tempTokensWithZeroBalances: TempToken[] = [];
+    const tempTokensWithNonZeroBalances: TempToken[] = [];
+    
+    existingInactiveTempTokensWithRemainingFunds.forEach((tempToken, index) => {
+        if (balances[index] === BigInt(0)) {
+            tempTokensWithZeroBalances.push(tempToken);
+        } else {
+            tempTokensWithNonZeroBalances.push(tempToken);
+        }
+    });
+
+    await ctx.prisma.tempToken.updateMany({
+        where: {
+            id: {
+                in: tempTokensWithZeroBalances.map((tempToken) => tempToken.id)
+            }
+        },
+        data: {
+            hasRemainingFundsForCreator: false
+        }
+    });
+
+    return tempTokensWithNonZeroBalances;
+}
+
+export interface IUpdateEndTimestampForTokensInput {
+    chainId: number;
+    additionalDurationInSeconds: number;
+    tokenAddresses: string[];
+}
+
+export const updateEndTimestampForTokens = async (
+    data: IUpdateEndTimestampForTokensInput,
+    ctx: Context
+) => {
+    if (data.tokenAddresses.length === 0) return []
+    const updatePromises = data.tokenAddresses.map(tokenAddress => {
+        const uniqueTempTokenId = `${tokenAddress}-${String(data.chainId)}`;
+        return ctx.prisma.tempToken.update({
             where: {
-                id: existingTempToken.id
+                uniqueTempTokenId: uniqueTempTokenId
             },
             data: {
-                highestTotalSupply: newTotalSupplyBigInt
+                endUnixTimestamp: {
+                    increment: data.additionalDurationInSeconds
+                }
             }
         });
-    } else {
-        return existingTempToken;
+    });
+
+    try {
+        return await ctx.prisma.$transaction(updatePromises);
+    } catch (error) {
+        console.error("updateEndTimestampForTokens error:", error);
+        throw error; // Or handle error as needed
+    }
+}
+
+export interface IUpdateTempTokenIsAlwaysTradeableInput {
+    tokenAddressesSetTrue: string[];
+    tokenAddressesSetFalse: string[];
+    chainId: number;
+}
+
+export const updateTempTokenIsAlwaysTradeable = async (
+    data: IUpdateTempTokenIsAlwaysTradeableInput,
+    ctx: Context
+) => {
+    try {
+        
+    const updateTruePromise = ctx.prisma.tempToken.updateMany({
+        where: {
+            tokenAddress: { in: data.tokenAddressesSetTrue },
+            chainId: Number(data.chainId)
+        },
+        data: { isAlwaysTradeable: true }
+    });
+
+    const updateFalsePromise = ctx.prisma.tempToken.updateMany({
+        where: {
+            tokenAddress: { in: data.tokenAddressesSetFalse },
+            chainId: Number(data.chainId)
+        },
+        data: { isAlwaysTradeable: false }
+    });
+
+    await Promise.all([updateTruePromise, updateFalsePromise]);
+
+    return true;
+
+    } catch (error) {
+        console.error("updateTempTokenIsAlwaysTradeable error:", error);
+        throw error; // Or handle error as needed
+    }
+}
+
+export interface IUpdateTempTokenHasHitTotalSupplyThresholdInput {
+    tokenAddressesSetTrue: string[];
+    tokenAddressesSetFalse: string[];
+    chainId: number;
+}
+
+export const updateTempTokenHasHitTotalSupplyThreshold = async(data: IUpdateTempTokenHasHitTotalSupplyThresholdInput, ctx: Context) => {
+    
+    try {
+        const updateTruePromise = ctx.prisma.tempToken.updateMany({
+            where: {
+                tokenAddress: { in: data.tokenAddressesSetTrue },
+                chainId: data.chainId
+            },
+            data: { hasHitTotalSupplyThreshold: true }
+        });
+
+        const updateFalsePromise = ctx.prisma.tempToken.updateMany({
+            where: {
+                tokenAddress: { in: data.tokenAddressesSetFalse },
+                chainId: data.chainId
+            },
+            data: { hasHitTotalSupplyThreshold: false }
+        });
+
+        await Promise.all([updateTruePromise, updateFalsePromise]);
+
+        return true
+    } catch (error) {
+        console.error("updateTempTokenHasHitTotalSupplyThreshold error:", error);
+        throw error; // Or handle error as needed
     }
 }
 
@@ -85,6 +263,7 @@ export interface IGetTempTokensInput {
     channelId?: number,
     chainId?: string
     onlyActiveTokens?: boolean;
+    hasReachedPriceThreshold?: boolean;
 }
 
 export const getTempTokens = async (
@@ -120,6 +299,7 @@ export const getTempTokens = async (
             } : undefined,
             chainId: data.chainId,
             tokenAddress: data.tokenAddress,
+            hasReachedPriceThreshold: data.hasReachedPriceThreshold,
             ...endTimestampClause
         },
         orderBy: { createdAt: "desc" },

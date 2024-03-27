@@ -6,8 +6,6 @@ import UnlonelySharesV1 from "../abi/UnlonelySharesV1.json";
 import UnlonelySharesV2 from "../abi/UnlonelySharesV2.json";
 import UnlonelyTournament from "../abi/UnlonelyTournament.json";
 import VibesTokenV1 from "../abi/VibesTokenV1.json";
-import TempTokenFactoryV1 from "../abi/TempTokenFactoryV1.json";
-
 import { Contract } from "..";
 
 const base = {
@@ -78,10 +76,10 @@ export const Base: Network = {
         // address: "0xf93E317cF02217E1cc9b34DF5F969Da6574f44E6", // past test contract
         abi: VibesTokenV1,
       },
-      [Contract.TEMP_TOKEN_FACTORY_V1]: {
-        address: "0x3a128D60D8A37d9E402b3D97ea9dfcD84EbBa7C5",
-        abi: TempTokenFactoryV1,
-      },
+      // [Contract.TEMP_TOKEN_FACTORY_V1]: {
+      //   address: "0x3a128D60D8A37d9E402b3D97ea9dfcD84EbBa7C5",
+      //   abi: TempTokenFactoryV1,
+      // },
     },
   },
 };

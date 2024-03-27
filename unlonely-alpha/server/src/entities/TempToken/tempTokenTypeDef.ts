@@ -21,13 +21,18 @@ export const typeDef = gql`
         chainId: Int
         channelId: String
         onlyActiveTokens: Boolean
+        hasReachedPriceThreshold: Boolean
+    }
+
+    input UpdateTempTokenHasRemainingFundsForCreatorInput {
+        chainId: Int!
+        channelId: String!
     }
 
     input UpdateTempTokenHighestTotalSupplyInput {
-        tokenAddress: String!
-        endUnixTimestamp: String!
+        tokenAddresses: [String!]!
         chainId: Int!
-        currentTotalSupply: String!
+        newTotalSupplies: [String!]!
     }
 
     input PostTempTokenInput {
@@ -42,12 +47,34 @@ export const typeDef = gql`
         streamerFeePercentage: String!
     }
 
+    input UpdateEndTimestampForTokensInput {
+        tokenAddresses: [String]!
+        additionalDurationInSeconds: Int!
+        chainId: Int!
+    }
+
+    input UpdateTempTokenIsAlwaysTradeableInput {
+        tokenAddressesSetTrue: [String!]!
+        tokenAddressesSetFalse: [String!]!
+        chainId: Int!
+    }
+
+    input UpdateTempTokenHasHitTotalSupplyThresholdInput {
+        tokenAddressesSetTrue: [String!]!
+        tokenAddressesSetFalse: [String!]!
+        chainId: Int!
+    }
+
     extend type Query {
         getTempTokens(data: GetTempTokensInput): [TempToken]
     }
 
     extend type Mutation {
-        updateTempTokenHighestTotalSupply(data: UpdateTempTokenHighestTotalSupplyInput!): TempToken
+        updateTempTokenHighestTotalSupply(data: UpdateTempTokenHighestTotalSupplyInput!): Int!
+        updateEndTimestampForTokens(data: UpdateEndTimestampForTokensInput!): [TempToken]
+        updateTempTokenHasRemainingFundsForCreator(data: UpdateTempTokenHasRemainingFundsForCreatorInput!): [TempToken]
+        updateTempTokenIsAlwaysTradeable(data: UpdateTempTokenIsAlwaysTradeableInput!): Boolean!
+        updateTempTokenHasHitTotalSupplyThreshold(data: UpdateTempTokenHasHitTotalSupplyThresholdInput!): Boolean!
         postTempToken(data: PostTempTokenInput!): TempToken
     }
 `;

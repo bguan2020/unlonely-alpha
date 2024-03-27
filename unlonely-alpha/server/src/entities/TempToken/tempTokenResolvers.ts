@@ -14,6 +14,45 @@ export const resolvers = {
         },
     },
     Mutation: {
+        updateEndTimestampForTokens: (
+        _: any,
+        { data }: { data: tempTokenService.IUpdateEndTimestampForTokensInput },
+        ctx: Context
+        ) => {
+            if (!ctx.user || !ctx.userIsAuthed) {
+                throw new AuthenticationError("User is not authenticated");
+            }
+            return tempTokenService.updateEndTimestampForTokens(data, ctx);
+        },
+        updateTempTokenHasRemainingFundsForCreator: (
+        _: any,
+        { data }: { data: tempTokenService.IUpdateTempTokenHasRemainingFundsForCreatorInput },
+        ctx: Context
+        ) => {
+            if (!ctx.user || !ctx.userIsAuthed) {
+                throw new AuthenticationError("User is not authenticated");
+            }
+        
+            return tempTokenService.updateTempTokenHasRemainingFundsForCreator(data, ctx);
+        },
+        updateTempTokenIsAlwaysTradeable: (
+        _: any,
+        { data }: { data: tempTokenService.IUpdateTempTokenIsAlwaysTradeableInput },
+        ctx: Context
+        ) => {
+            return tempTokenService.updateTempTokenIsAlwaysTradeable(data, ctx);
+        },
+        updateTempTokenHasHitTotalSupplyThreshold: (
+        _: any,
+        { data }: { data: tempTokenService.IUpdateTempTokenHasHitTotalSupplyThresholdInput },
+        ctx: Context
+        ) => {
+            if (!ctx.user || !ctx.userIsAuthed) {
+                throw new AuthenticationError("User is not authenticated");
+            }
+        
+            return tempTokenService.updateTempTokenHasHitTotalSupplyThreshold(data, ctx);
+        },
         updateTempTokenHighestTotalSupply: (
         _: any,
         { data }: { data: tempTokenService.IUpdateTempTokenHighestTotalSupplyInput },

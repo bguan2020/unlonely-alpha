@@ -73,6 +73,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TempTokenV1__factory>;
     getContractFactory(
+      name: "UnlonelyAdminContractV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.UnlonelyAdminContractV1__factory>;
+    getContractFactory(
       name: "UnlonelyArcadeContractV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UnlonelyArcadeContractV1__factory>;
@@ -192,6 +196,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TempTokenV1>;
+    getContractAt(
+      name: "UnlonelyAdminContractV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.UnlonelyAdminContractV1>;
     getContractAt(
       name: "UnlonelyArcadeContractV1",
       address: string,

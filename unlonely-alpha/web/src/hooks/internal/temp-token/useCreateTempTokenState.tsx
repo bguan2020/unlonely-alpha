@@ -4,7 +4,7 @@ import Link from "next/link";
 import { decodeEventLog, encodeAbiParameters } from "viem";
 import { useNetworkContext } from "../../context/useNetwork";
 import { useCreateTempToken } from "../../contracts/useTempTokenFactoryV1";
-import { verifyTempTokenV1OnBase } from "../../../utils/contract-verification/TempTokenV1";
+import { verifyTempTokenV1OnBase } from "../../../utils/contract-verification/tempToken";
 import usePostTempToken from "../../server/temp-token/usePostTempToken";
 import { Contract } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
@@ -136,6 +136,10 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
               type: "uint256",
             },
             {
+              name: "_totalSupplyThreshold",
+              type: "uint256",
+            },
+            {
               name: "_factoryAddress",
               type: "address",
             },
@@ -147,6 +151,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
             args.protocolFeeDestination as `0x${string}`,
             args.protocolFeePercent as bigint,
             args.streamerFeePercent as bigint,
+            args.totalSupplyThreshold as bigint,
             factoryContract.address as `0x${string}`,
           ]
         );
