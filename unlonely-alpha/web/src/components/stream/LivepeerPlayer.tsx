@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useRef, useState } from "react";
 import { Flex, IconButton, Spinner, Text } from "@chakra-ui/react";
 import { Src } from "@livepeer/react";
 import * as Player from "@livepeer/react/player";
@@ -23,6 +23,24 @@ const LivepeerPlayer = memo(
     isPreview?: boolean;
     customSizePercentages?: { width: `${number}%`; height: `${number}%` };
   }) => {
+    const [opacity, setOpacity] = useState(0);
+
+    const timeoutRef = useRef<number | NodeJS.Timeout | null>(null);
+
+    const handleTouch = () => {
+      setOpacity(1); // Set opacity to 1 on touch
+      // Clear any existing timeout to prevent it from resetting opacity prematurely
+      if (timeoutRef.current !== null) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      // Set a new timeout and store its ID in the ref
+      timeoutRef.current = setTimeout(() => {
+        setOpacity(0); // Change back to 0 after 3 seconds
+        timeoutRef.current = null; // Reset the ref after the timeout completes
+      }, 3000);
+    };
+
     if (!src) {
       return (
         <Flex
@@ -50,6 +68,8 @@ const LivepeerPlayer = memo(
         width={customSizePercentages?.width ?? "100%"}
         height={customSizePercentages?.height ?? "100%"}
         position="relative"
+        onTouchStart={handleTouch} // Handle touch event
+        onMouseMove={handleTouch} // Set opacity to 1 on mouse enter
       >
         <Player.Root aspectRatio={null} src={src} autoPlay>
           <Player.Container
@@ -165,25 +185,27 @@ const LivepeerPlayer = memo(
 
             <Player.Controls
               style={{
-                background:
-                  "linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6))",
                 padding: "0.5rem 1rem",
                 display: "flex",
                 flexDirection: "column-reverse",
                 gap: 5,
               }}
-              autoHide={200}
+              autoHide={0}
             >
               <div
                 style={{
                   display: "flex",
                   justifyContent: "between",
                   gap: 20,
+                  opacity,
+                  transition: "opacity 0.5s",
                 }}
               >
                 <div
                   style={{
                     display: "flex",
+                    background:
+                      "linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.9))",
                     flex: 1,
                     alignItems: "center",
                     gap: 10,
@@ -203,7 +225,7 @@ const LivepeerPlayer = memo(
                     </Player.PlayingIndicator>
                   </Player.PlayPauseTrigger>
 
-                  <Player.LiveIndicator
+                  {/* <Player.LiveIndicator
                     style={{ display: "flex", alignItems: "center", gap: 5 }}
                   >
                     <div
@@ -217,7 +239,7 @@ const LivepeerPlayer = memo(
                     <span style={{ fontSize: 12, userSelect: "none" }}>
                       LIVE
                     </span>
-                  </Player.LiveIndicator>
+                  </Player.LiveIndicator> */}
 
                   <Player.MuteTrigger
                     style={{
