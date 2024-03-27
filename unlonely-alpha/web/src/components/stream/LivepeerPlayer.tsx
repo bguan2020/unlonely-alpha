@@ -186,7 +186,7 @@ const LivepeerPlayer = memo(
 
             <Player.Controls
               style={{
-                padding: "0.5rem 1rem",
+                // padding: "0.5rem 1rem",
                 display: "flex",
                 flexDirection: "column-reverse",
                 gap: 5,
