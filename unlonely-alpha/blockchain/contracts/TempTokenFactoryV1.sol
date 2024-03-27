@@ -66,8 +66,9 @@ contract TempTokenFactoryV1 is Ownable {
     event StreamerFeePercentSet(uint256 feePercent);
     event PauseFactorySet(bool isPaused, uint256 numDeployedTokens);
     event MaxDurationSet(uint256 maxDuration);
-    event TotalSupplyThresholdSet(uint256 totalSupplyThreshold, address[] tokenAddresses);
-    event EndTimestampIncreased(uint256 additionalDuration, address[] tokenAddresses);
+    event TotalSupplyThresholdSetForTokens(uint256 totalSupplyThreshold, address[] tokenAddresses);
+    event EndTimestampIncreasedForTokens(uint256 additionalDuration, address[] tokenAddresses);
+    event AlwaysTradeableSetForTokens(bool isAlwaysTradeable, address[] tokenAddresses);
 
     modifier onlyOwnerOrAdmin() {
         require(msg.sender == owner() || admins[msg.sender] == true, "Caller is neither owner nor admin");
@@ -159,14 +160,21 @@ contract TempTokenFactoryV1 is Ownable {
         }
         // Update the global threshold for future tokens
         totalSupplyThreshold = _totalSupplyThreshold;
-        emit TotalSupplyThresholdSet(_totalSupplyThreshold, _tokenAddresses);
+        emit TotalSupplyThresholdSetForTokens(_totalSupplyThreshold, _tokenAddresses);
     }
 
     function increaseEndTimestampForTokens(uint256 _additionalDurationInSeconds, address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
         for (uint256 i = 0; i < _tokenAddresses.length; i++) {
             TempTokenV1(_tokenAddresses[i]).increaseEndTimestamp(_additionalDurationInSeconds);
         }
-        emit EndTimestampIncreased(_additionalDurationInSeconds, _tokenAddresses);
+        emit EndTimestampIncreasedForTokens(_additionalDurationInSeconds, _tokenAddresses);
+    }
+
+    function setAlwaysTradeableForTokens(bool _alwaysTradeable, address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
+        for (uint256 i = 0; i < _tokenAddresses.length; i++) {
+            TempTokenV1(_tokenAddresses[i]).setAlwaysTradeable(_alwaysTradeable);
+        }
+        emit AlwaysTradeableSetForTokens(_alwaysTradeable, _tokenAddresses);
     }
 
     function setMaxDuration(uint256 _maxDuration) public onlyOwnerOrAdmin {

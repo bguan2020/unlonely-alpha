@@ -184,7 +184,8 @@ model TempToken {
   streamerFeePercentage          BigInt
   highestTotalSupply             BigInt
   hasRemainingFundsForCreator    Boolean @default(true)
-  hasReachedPriceThreshold       Boolean @default(false)
+  hasHitTotalSupplyThreshold     Boolean @default(false)
+  isAlwaysTradeable              Boolean @default(false)
 }
 
 enum EventType {

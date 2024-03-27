@@ -42,43 +42,34 @@ export const postTempToken = async (
 }
 
 export interface IUpdateTempTokenHighestTotalSupplyInput {
-    tokenAddress: string;
-    endUnixTimestamp: string;
+    tokenAddresses: string[];
     chainId: number;
-    currentTotalSupply: string;
+    newTotalSupplies: string[];
 }
 
 export const updateTempTokenHighestTotalSupply = async (
     data: IUpdateTempTokenHighestTotalSupplyInput,
     ctx: Context
 ) => {
-
-    const existingTempToken = await ctx.prisma.tempToken.findUnique({
-        where: {
-            uniqueTempTokenId: `${data.tokenAddress}-${String(data.chainId)}`
-        }
-    });
-
-    if (!existingTempToken) {
-        throw new Error("Temp token not found");
-    }
-
-    // Ensure currentTotalSupply and highestTotalSupply are BigInt for comparison
-    const newTotalSupplyBigInt = BigInt(data.currentTotalSupply);
-    const existingHighestTotalSupplyBigInt = BigInt(existingTempToken.highestTotalSupply);
-
-    // Update only if newTotalSupplyBigInt is greater
-    if (newTotalSupplyBigInt > existingHighestTotalSupplyBigInt) {
-        return await ctx.prisma.tempToken.update({
+    if (data.tokenAddresses.length === 0) return []
+    if (data.tokenAddresses.length !== data.newTotalSupplies.length) throw new Error("tokenAddresses and newTotalSupplies must be the same length");
+    const updatePromises = data.tokenAddresses.map((tokenAddress, index) => {
+        return ctx.prisma.tempToken.update({
             where: {
-                id: existingTempToken.id
+                uniqueTempTokenId: `${tokenAddress}-${String(data.chainId)}`
             },
             data: {
-                highestTotalSupply: newTotalSupplyBigInt
+                highestTotalSupply: BigInt(data.newTotalSupplies[index])
             }
         });
-    } else {
-        return existingTempToken;
+    });
+
+    try {
+        await ctx.prisma.$transaction(updatePromises);
+        return updatePromises.length; // Or any other success indicator
+    } catch (error) {
+        console.error("updateTempTokenHighestTotalSupply error:", error);
+        throw error; // Or handle error as needed
     }
 }
 
@@ -161,82 +152,6 @@ export const updateTempTokenHasRemainingFundsForCreator = async (
     return tempTokensWithNonZeroBalances;
 }
 
-export interface IUpdateTotalSupplyThresholdForTokensInput {
-    chainId: number;
-    tokenAddresses: string[];
-}
-
-export const updateTotalSupplyThresholdForTokens = async (
-    data: IUpdateTotalSupplyThresholdForTokensInput,
-    ctx: Context
-) => {
-    // Create public client based on chainId
-    let publicClient: any;
-
-    switch(data.chainId) {
-        case 8453:
-            publicClient = createPublicClient({
-                chain: base as any,
-                transport: viemHttp(
-                    `https://base-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_BASE_API_KEY}`
-                ),
-            });
-            break;
-        default:
-            throw new Error("Chain not supported");
-    }
-
-    const promises = data.tokenAddresses.map(async (tokenAddress) => {
-        return publicClient.readContract({
-            address: tokenAddress,
-            abi: TempTokenV1,
-            functionName: "hasHitTotalSupplyThreshold",
-        });
-    })
-
-    const booleans: boolean[] = await Promise.all(promises);
-
-    const tokensThatHitTotalSupplyThreshold: string[] = [];
-    const tokensThatDieNotHitTotalSupplyThreshold: string[] = [];
-
-    data.tokenAddresses.forEach((tokenAddress, index) => {
-        if (booleans[index] === true) {
-            tokensThatHitTotalSupplyThreshold.push(tokenAddress);
-        } else {
-            tokensThatDieNotHitTotalSupplyThreshold.push(tokenAddress);
-        }
-    });
-
-    await ctx.prisma.$transaction([
-        ctx.prisma.tempToken.updateMany({
-            where: {
-                tokenAddress: {
-                    in: tokensThatHitTotalSupplyThreshold
-                }
-            },
-            data: {
-                hasReachedPriceThreshold: true
-            }
-        }), ctx.prisma.tempToken.updateMany({
-            where: {
-                tokenAddress: {
-                    in: tokensThatDieNotHitTotalSupplyThreshold
-                }
-            },
-            data: {
-                hasReachedPriceThreshold: false
-            }
-        })
-    ]);
-
-    return data.tokenAddresses.map((tokenAddress) => {
-        return {
-            tokenAddress,
-            hasReachedPriceThreshold: tokensThatHitTotalSupplyThreshold.includes(tokenAddress)
-        }
-    });
-}
-
 export interface IUpdateEndTimestampForTokensInput {
     chainId: number;
     additionalDurationInSeconds: number;
@@ -263,10 +178,81 @@ export const updateEndTimestampForTokens = async (
     });
 
     try {
-        await ctx.prisma.$transaction(updatePromises);
-        return updatePromises.length; // Or any other success indicator
+        return await ctx.prisma.$transaction(updatePromises);
     } catch (error) {
         console.error("updateEndTimestampForTokens error:", error);
+        throw error; // Or handle error as needed
+    }
+}
+
+export interface IUpdateTempTokenIsAlwaysTradeableInput {
+    tokenAddressesSetTrue: string[];
+    tokenAddressesSetFalse: string[];
+    chainId: number;
+}
+
+export const updateTempTokenIsAlwaysTradeable = async (
+    data: IUpdateTempTokenIsAlwaysTradeableInput,
+    ctx: Context
+) => {
+    try {
+        
+    const updateTruePromise = ctx.prisma.tempToken.updateMany({
+        where: {
+            tokenAddress: { in: data.tokenAddressesSetTrue },
+            chainId: Number(data.chainId)
+        },
+        data: { isAlwaysTradeable: true }
+    });
+
+    const updateFalsePromise = ctx.prisma.tempToken.updateMany({
+        where: {
+            tokenAddress: { in: data.tokenAddressesSetFalse },
+            chainId: Number(data.chainId)
+        },
+        data: { isAlwaysTradeable: false }
+    });
+
+    await Promise.all([updateTruePromise, updateFalsePromise]);
+
+    return true;
+
+    } catch (error) {
+        console.error("updateTempTokenIsAlwaysTradeable error:", error);
+        throw error; // Or handle error as needed
+    }
+}
+
+export interface IUpdateTempTokenHasHitTotalSupplyThresholdInput {
+    tokenAddressesSetTrue: string[];
+    tokenAddressesSetFalse: string[];
+    chainId: number;
+}
+
+export const updateTempTokenHasHitTotalSupplyThreshold = async(data: IUpdateTempTokenHasHitTotalSupplyThresholdInput, ctx: Context) => {
+    
+    try {
+        const updateTruePromise = ctx.prisma.tempToken.updateMany({
+            where: {
+                tokenAddress: { in: data.tokenAddressesSetTrue },
+                chainId: data.chainId
+            },
+            data: { hasHitTotalSupplyThreshold: true }
+        });
+
+        const updateFalsePromise = ctx.prisma.tempToken.updateMany({
+            where: {
+                tokenAddress: { in: data.tokenAddressesSetFalse },
+                chainId: data.chainId
+            },
+            data: { hasHitTotalSupplyThreshold: false }
+        });
+
+        await Promise.all([updateTruePromise, updateFalsePromise]);
+
+        return true
+    } catch (error) {
+        console.error("updateTempTokenHasHitTotalSupplyThreshold error:", error);
         throw error; // Or handle error as needed
     }
 }

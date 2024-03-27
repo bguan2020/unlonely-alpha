@@ -15,16 +15,6 @@ export const typeDef = gql`
         streamerFeePercentage: BigInt!
     }
 
-    type UpdateTotalSupplyThresholdForTokensResponse {
-        tokenAddress: String!
-        hasReachedPriceThreshold: Boolean!
-    }
-
-    type UpdateEndTimestampForTokensResponse {
-        tokenAddress: String!
-        endUnixTimestamp: BigInt!
-    }
-
     input GetTempTokensInput {
         tokenAddress: String
         ownerAddress: String
@@ -40,10 +30,9 @@ export const typeDef = gql`
     }
 
     input UpdateTempTokenHighestTotalSupplyInput {
-        tokenAddress: String!
-        endUnixTimestamp: String!
+        tokenAddresses: [String!]!
         chainId: Int!
-        currentTotalSupply: String!
+        newTotalSupplies: [String!]!
     }
 
     input PostTempTokenInput {
@@ -58,13 +47,21 @@ export const typeDef = gql`
         streamerFeePercentage: String!
     }
 
-    input UpdateTotalSupplyThresholdForTokensInput {
+    input UpdateEndTimestampForTokensInput {
         tokenAddresses: [String]!
+        additionalDurationInSeconds: Int!
         chainId: Int!
     }
 
-    input UpdateEndTimestampForTokensInput {
-        tokenAddresses: [String]!
+    input UpdateTempTokenIsAlwaysTradeableInput {
+        tokenAddressesSetTrue: [String!]!
+        tokenAddressesSetFalse: [String!]!
+        chainId: Int!
+    }
+
+    input UpdateTempTokenHasHitTotalSupplyThresholdInput {
+        tokenAddressesSetTrue: [String!]!
+        tokenAddressesSetFalse: [String!]!
         chainId: Int!
     }
 
@@ -73,10 +70,11 @@ export const typeDef = gql`
     }
 
     extend type Mutation {
-        updateEndTimestampForTokens(data: UpdateEndTimestampForTokensInput!): [UpdateEndTimestampForTokensResponse]
-        updateTotalSupplyThresholdForTokens(data: UpdateTotalSupplyThresholdForTokensInput!): [UpdateTotalSupplyThresholdForTokensResponse]
+        updateTempTokenHighestTotalSupply(data: UpdateTempTokenHighestTotalSupplyInput!): Int!
+        updateEndTimestampForTokens(data: UpdateEndTimestampForTokensInput!): [TempToken]
         updateTempTokenHasRemainingFundsForCreator(data: UpdateTempTokenHasRemainingFundsForCreatorInput!): [TempToken]
-        updateTempTokenHighestTotalSupply(data: UpdateTempTokenHighestTotalSupplyInput!): TempToken
+        updateTempTokenIsAlwaysTradeable(data: UpdateTempTokenIsAlwaysTradeableInput!): Boolean!
+        updateTempTokenHasHitTotalSupplyThreshold(data: UpdateTempTokenHasHitTotalSupplyThresholdInput!): Boolean!
         postTempToken(data: PostTempTokenInput!): TempToken
     }
 `;

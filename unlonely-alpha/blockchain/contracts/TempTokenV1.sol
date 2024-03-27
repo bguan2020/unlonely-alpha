@@ -25,7 +25,9 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     uint256 public streamerFeePercent;
     uint256 public endTimestamp;
     uint256 public totalSupplyThreshold;
+    uint256 public highestTotalSupply;
     bool public hasHitTotalSupplyThreshold;
+    bool public isAlwaysTradeable;
 
     event Mint(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold);
     event Burn(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
@@ -33,7 +35,8 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     event TokenDurationAndThresholdIncreased(uint256 indexed endTimestamp, uint256 indexed totalSupplyThreshold, address indexed tokenAddress);
     event SendRemainingFundsToCreatorAfterTokenExpiration(address indexed account, uint256 balance);
     event TotalSupplyThresholdUpdated(uint256 indexed totalSupplyThreshold, address indexed tokenAddress, bool hasHitTotalSupplyThreshold);
-
+    event TokenAlwaysTradeableSet(bool indexed isAlwaysTradeable, address indexed tokenAddress);
+    
     error InsufficientValue(uint256 minimumValue, uint256 value);
     error BurnAmountTooHigh(uint256 maximumAmount, uint256 amount);
     error EtherTransferFailed(address to, uint256 value);
@@ -45,7 +48,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         * When the active phase ends, users can no longer mint or burn tokens and all remaining funds in the pool can be sent to the token owner.
      */
     modifier activePhase() {
-        require(block.timestamp <= endTimestamp, "Active phase has ended");
+        require(block.timestamp <= endTimestamp || isAlwaysTradeable, "Active phase has ended and token is no longer tradeable");
         _;
     }
 
@@ -53,7 +56,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         * @dev endedPhase modifier checks if the current block timestamp is greater than the endTimestamp.
      */
     modifier endedPhase() {
-        require(block.timestamp > endTimestamp, "Active phase has not ended");
+        require(block.timestamp > endTimestamp && !isAlwaysTradeable, "Active phase has not ended or token is still tradeable");
         _;
     }
 
@@ -76,6 +79,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         totalSupplyThreshold = _totalSupplyThreshold;
         factoryAddress = _factoryAddress;
         hasHitTotalSupplyThreshold = false;
+        isAlwaysTradeable = false;
     }
 
     /**
@@ -94,6 +98,10 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         }
 
         _mint(msg.sender, _amount);
+
+        if(totalSupply() > highestTotalSupply) {
+            highestTotalSupply = totalSupply();
+        }
 
         // Check if total supply has hit the threshold for the first time
         if(totalSupply() >= totalSupplyThreshold && !hasHitTotalSupplyThreshold) {
@@ -187,6 +195,12 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         require(msg.sender == factoryAddress, "Only the factory can increase the end timestamp");
         endTimestamp += _additionalDurationInSeconds;
         emit TokenDurationExtended(endTimestamp, address(this));
+    }
+
+    function setAlwaysTradeable(bool _isAlwaysTradeable) public {
+        require(msg.sender == factoryAddress, "Only the factory can set this value");
+        isAlwaysTradeable = _isAlwaysTradeable;
+        emit TokenAlwaysTradeableSet(_isAlwaysTradeable, address(this));
     }
 
     function mintCost(uint256 _amount) public view returns (uint256) {

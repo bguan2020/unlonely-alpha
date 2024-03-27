@@ -30,6 +30,25 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "bool",
+        "name": "isAlwaysTradeable",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "tokenAddresses",
+        "type": "address[]"
+      }
+    ],
+    "name": "AlwaysTradeableSetForTokens",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "additionalDuration",
         "type": "uint256"
@@ -41,7 +60,7 @@
         "type": "address[]"
       }
     ],
-    "name": "EndTimestampIncreased",
+    "name": "EndTimestampIncreasedForTokens",
     "type": "event"
   },
   {
@@ -211,7 +230,7 @@
         "type": "address[]"
       }
     ],
-    "name": "TotalSupplyThresholdSet",
+    "name": "TotalSupplyThresholdSetForTokens",
     "type": "event"
   },
   {
@@ -526,6 +545,24 @@
       }
     ],
     "name": "setAdmin",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_alwaysTradeable",
+        "type": "bool"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_tokenAddresses",
+        "type": "address[]"
+      }
+    ],
+    "name": "setAlwaysTradeableForTokens",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

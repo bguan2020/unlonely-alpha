@@ -24,17 +24,6 @@ export const resolvers = {
             }
             return tempTokenService.updateEndTimestampForTokens(data, ctx);
         },
-        updateTotalSupplyThresholdForTokens: (
-        _: any,
-        { data }: { data: tempTokenService.IUpdateTotalSupplyThresholdForTokensInput },
-        ctx: Context
-        ) => {
-            if (!ctx.user || !ctx.userIsAuthed) {
-                throw new AuthenticationError("User is not authenticated");
-            }
-        
-            return tempTokenService.updateTotalSupplyThresholdForTokens(data, ctx);
-        },
         updateTempTokenHasRemainingFundsForCreator: (
         _: any,
         { data }: { data: tempTokenService.IUpdateTempTokenHasRemainingFundsForCreatorInput },
@@ -45,6 +34,24 @@ export const resolvers = {
             }
         
             return tempTokenService.updateTempTokenHasRemainingFundsForCreator(data, ctx);
+        },
+        updateTempTokenIsAlwaysTradeable: (
+        _: any,
+        { data }: { data: tempTokenService.IUpdateTempTokenIsAlwaysTradeableInput },
+        ctx: Context
+        ) => {
+            return tempTokenService.updateTempTokenIsAlwaysTradeable(data, ctx);
+        },
+        updateTempTokenHasHitTotalSupplyThreshold: (
+        _: any,
+        { data }: { data: tempTokenService.IUpdateTempTokenHasHitTotalSupplyThresholdInput },
+        ctx: Context
+        ) => {
+            if (!ctx.user || !ctx.userIsAuthed) {
+                throw new AuthenticationError("User is not authenticated");
+            }
+        
+            return tempTokenService.updateTempTokenHasHitTotalSupplyThreshold(data, ctx);
         },
         updateTempTokenHighestTotalSupply: (
         _: any,
