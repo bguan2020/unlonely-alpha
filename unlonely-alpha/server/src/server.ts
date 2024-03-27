@@ -27,9 +27,15 @@ app.post("/webhook", (req, res) => {
   res.sendStatus(200);
 });
 
-app.get("/test", (req, res) => {
-  console.log("test endpoint")
-  res.send("Hello World!");
+app.get("/aws-scheduler-update", (req, res) => {
+  const secretKey = req.headers["x-secret-key"] || req.query.secretKey;
+
+  if (secretKey !== process.env.AWS_ACCESS_KEY) {
+    console.log("Unauthorized access to /aws-scheduler-update")
+    return res.status(401).send("Unauthorized");
+  }
+  console.log("Authorized access to /aws-scheduler-update")
+  res.send("/aws-scheduler-update success");
 });
 
 const startServer = async () => {
