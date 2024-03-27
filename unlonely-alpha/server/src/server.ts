@@ -31,10 +31,10 @@ app.get("/aws-scheduler-update", (req, res) => {
   const secretKey = req.headers["x-secret-key"] || req.query.secretKey;
 
   if (secretKey !== process.env.AWS_ACCESS_KEY) {
-    console.log("Unauthorized access to /aws-scheduler-update")
+    console.log("Unauthorized access to /aws-scheduler-update, called at", Date.now())
     return res.status(401).send("Unauthorized");
   }
-  console.log("Authorized access to /aws-scheduler-update")
+  console.log("Authorized access to /aws-scheduler-update, called at", Date.now())
   res.send("/aws-scheduler-update success");
 });
 
