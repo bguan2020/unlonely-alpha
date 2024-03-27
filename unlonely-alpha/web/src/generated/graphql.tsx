@@ -335,7 +335,7 @@ export type GetSubscriptionsByChannelIdInput = {
 
 export type GetTempTokensInput = {
   chainId?: InputMaybe<Scalars["Int"]>;
-  channelId?: InputMaybe<Scalars["String"]>;
+  channelId?: InputMaybe<Scalars["Int"]>;
   hasHitTotalSupplyThreshold?: InputMaybe<Scalars["Boolean"]>;
   isAlwaysTradeable?: InputMaybe<Scalars["Boolean"]>;
   onlyActiveTokens?: InputMaybe<Scalars["Boolean"]>;
@@ -1300,7 +1300,7 @@ export type UpdateTempTokenHasHitTotalSupplyThresholdInput = {
 
 export type UpdateTempTokenHasRemainingFundsForCreatorInput = {
   chainId: Scalars["Int"];
-  channelId: Scalars["String"];
+  channelId: Scalars["Int"];
 };
 
 export type UpdateTempTokenHighestTotalSupplyInput = {

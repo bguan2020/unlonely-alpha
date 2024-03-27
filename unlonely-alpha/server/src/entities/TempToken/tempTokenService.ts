@@ -261,7 +261,7 @@ export interface IGetTempTokensInput {
     tokenAddress?: string,
     ownerAddress?: string,
     channelId?: number,
-    chainId?: string
+    chainId?: number
     onlyActiveTokens?: boolean;
     hasHitTotalSupplyThreshold?: boolean;
     isAlwaysTradeable?: boolean;
@@ -295,7 +295,7 @@ export const getTempTokens = async (
             ownerAddress: data.ownerAddress,
             channel: data.channelId ? {
                 is: {
-                    id: Number(data.channelId)
+                    id: data.channelId
                 },
             } : undefined,
             chainId: data.chainId,

@@ -23,7 +23,7 @@ export const typeDef = gql`
         tokenAddress: String
         ownerAddress: String
         chainId: Int
-        channelId: String
+        channelId: Int
         onlyActiveTokens: Boolean
         hasHitTotalSupplyThreshold: Boolean
         isAlwaysTradeable: Boolean
@@ -31,7 +31,7 @@ export const typeDef = gql`
 
     input UpdateTempTokenHasRemainingFundsForCreatorInput {
         chainId: Int!
-        channelId: String!
+        channelId: Int!
     }
 
     input UpdateTempTokenHighestTotalSupplyInput {
