@@ -12,6 +12,7 @@ import {
   UnmuteIcon,
 } from "@livepeer/react/assets";
 import { BiRefresh } from "react-icons/bi";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 const LivepeerPlayer = memo(
   ({
@@ -23,11 +24,12 @@ const LivepeerPlayer = memo(
     isPreview?: boolean;
     customSizePercentages?: { width: `${number}%`; height: `${number}%` };
   }) => {
+    const { isStandalone } = useUserAgent();
     const [opacity, setOpacity] = useState(0);
 
     const timeoutRef = useRef<number | NodeJS.Timeout | null>(null);
 
-    const handleTouch = () => {
+    const handleOpacity = () => {
       setOpacity(1); // Set opacity to 1 on touch
       // Clear any existing timeout to prevent it from resetting opacity prematurely
       if (timeoutRef.current !== null) {
@@ -68,8 +70,7 @@ const LivepeerPlayer = memo(
         width={customSizePercentages?.width ?? "100%"}
         height={customSizePercentages?.height ?? "100%"}
         position="relative"
-        onTouchStart={handleTouch} // Handle touch event
-        onMouseMove={handleTouch} // Set opacity to 1 on mouse enter
+        onMouseMove={handleOpacity} // Set opacity to 1 on mouse enter
       >
         <Player.Root aspectRatio={null} src={src} autoPlay>
           <Player.Container
@@ -197,7 +198,7 @@ const LivepeerPlayer = memo(
                   display: "flex",
                   justifyContent: "between",
                   gap: 20,
-                  opacity,
+                  opacity: isStandalone ? 1 : opacity,
                   transition: "opacity 0.5s",
                 }}
               >
@@ -205,7 +206,7 @@ const LivepeerPlayer = memo(
                   style={{
                     display: "flex",
                     background:
-                      "linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.9))",
+                      "linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6))",
                     flex: 1,
                     alignItems: "center",
                     gap: 10,
