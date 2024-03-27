@@ -17,8 +17,9 @@ mutation PostTempToken($data: PostTempTokenInput!) {
       streamerFeePercentage
       protocolFeePercentage
       ownerAddress
-      name
       id
+      name
+      highestTotalSupply
       endUnixTimestamp
       channelId
       chainId
@@ -54,7 +55,7 @@ const usePostTempToken = ({ onError }: Props) => {
 
         const res = mutationResult?.data?.postTempToken;
         if (res) {
-          console.log("success");
+          console.log("postTempToken success", res);
         } else {
           onError && onError();
         }

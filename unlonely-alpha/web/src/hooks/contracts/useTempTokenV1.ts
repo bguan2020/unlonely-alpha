@@ -88,6 +88,118 @@ export const useGetEndtimestamp = (contract: ContractData) => {
     };
 }
 
+export const useGetTotalSupplyThreshold = (contract: ContractData) => {
+    const publicClient = usePublicClient();
+    const [totalSupplyThreshold, setTotalSupplyThreshold] = useState<bigint>(BigInt(0));
+    
+    const getData = useCallback(async () => {
+        if (!contract.address || !contract.abi || !publicClient) {
+        setTotalSupplyThreshold(BigInt(0));
+        return;
+        }
+        const totalSupplyThreshold = await publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "totalSupplyThreshold",
+        args: [],
+        });
+        setTotalSupplyThreshold(BigInt(String(totalSupplyThreshold)));
+    }, [contract.address, publicClient]);
+    
+    useEffect(() => {
+        getData();
+    }, [getData]);
+    
+    return {
+        refetch: getData,
+        totalSupplyThreshold,
+    };
+}
+
+export const useGetHighestTotalSupply = (contract: ContractData) => {
+    const publicClient = usePublicClient();
+    const [highestTotalSupply, setHighestTotalSupply] = useState<bigint>(BigInt(0));
+    
+    const getData = useCallback(async () => {
+        if (!contract.address || !contract.abi || !publicClient) {
+        setHighestTotalSupply(BigInt(0));
+        return;
+        }
+        const highestTotalSupply = await publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "highestTotalSupply",
+        args: [],
+        });
+        setHighestTotalSupply(BigInt(String(highestTotalSupply)));
+    }, [contract.address, publicClient]);
+    
+    useEffect(() => {
+        getData();
+    }, [getData]);
+    
+    return {
+        refetch: getData,
+        highestTotalSupply,
+    };
+}
+
+export const useGetHasHitTotalSupplyThreshold = (contract: ContractData) => {
+    const publicClient = usePublicClient();
+    const [hasHitTotalSupplyThreshold, setHasHitTotalSupplyThreshold] = useState<boolean>(false);
+    
+    const getData = useCallback(async () => {
+        if (!contract.address || !contract.abi || !publicClient) {
+        setHasHitTotalSupplyThreshold(false);
+        return;
+        }
+        const hasHitTotalSupplyThreshold = await publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "hasHitTotalSupplyThreshold",
+        args: [],
+        });
+        setHasHitTotalSupplyThreshold(Boolean(hasHitTotalSupplyThreshold));
+    }, [contract.address, publicClient]);
+    
+    useEffect(() => {
+        getData();
+    }, [getData]);
+    
+    return {
+        refetch: getData,
+        hasHitTotalSupplyThreshold,
+    };
+}
+
+export const useGetIsAlwaysTradeable = (contract: ContractData) => {
+    const publicClient = usePublicClient();
+    const [isAlwaysTradeable, setIsAlwaysTradeable] = useState<boolean>(false);
+    
+    const getData = useCallback(async () => {
+        if (!contract.address || !contract.abi || !publicClient) {
+        setIsAlwaysTradeable(false);
+        return;
+        }
+        const isAlwaysTradeable = await publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "isAlwaysTradeable",
+        args: [],
+        });
+        setIsAlwaysTradeable(Boolean(isAlwaysTradeable));
+    }, [contract.address, publicClient]);
+    
+    useEffect(() => {
+        getData();
+    }, [getData]);
+    
+    return {
+        refetch: getData,
+        isAlwaysTradeable,
+    };
+}
+
 export const useGetIsActive = (contract: ContractData) => {
     const publicClient = usePublicClient();
     const [isActive, setIsActive] = useState<boolean>(false);
@@ -113,6 +225,34 @@ export const useGetIsActive = (contract: ContractData) => {
     return {
         refetch: getData,
         isActive,
+    };
+}
+
+export const useGetBalance = (contract: ContractData) => {
+    const publicClient = usePublicClient();
+    const [balance, setBalance] = useState<bigint>(BigInt(0));
+    
+    const getData = useCallback(async () => {
+        if (!contract.address || !contract.abi || !publicClient) {
+        setBalance(BigInt(0));
+        return;
+        }
+        const balance = await publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "getBalance",
+        args: [],
+        });
+        setBalance(BigInt(String(balance)));
+    }, [contract.address, publicClient]);
+    
+    useEffect(() => {
+        getData();
+    }, [getData]);
+    
+    return {
+        refetch: getData,
+        balance,
     };
 }
 

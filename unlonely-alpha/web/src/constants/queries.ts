@@ -288,10 +288,14 @@ export const GET_TEMP_TOKENS_QUERY = gql`
       protocolFeePercentage
       ownerAddress
       name
-      id
+      isAlwaysTradeable
+      highestTotalSupply
+      hasRemainingFundsForCreator
+      hasHitTotalSupplyThreshold
       endUnixTimestamp
       channelId
       chainId
+      id
     }
   }
 `;

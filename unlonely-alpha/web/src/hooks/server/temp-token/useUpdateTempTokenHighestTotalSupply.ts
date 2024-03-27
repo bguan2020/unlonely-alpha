@@ -11,18 +11,7 @@ type Props = {
 
 const MUTATION = gql`
   mutation UpdateTempTokenHighestTotalSupply($data: UpdateTempTokenHighestTotalSupplyInput!) {
-    updateTempTokenHighestTotalSupply(data: $data) {
-      tokenAddress
-      symbol
-      streamerFeePercentage
-      protocolFeePercentage
-      ownerAddress
-      name
-      id
-      endUnixTimestamp
-      channelId
-      chainId
-    }
+    updateTempTokenHighestTotalSupply(data: $data)
   }
 `;
 
@@ -39,17 +28,16 @@ const useUpdateTempTokenHighestTotalSupply = ({ onError }: Props) => {
         const mutationResult = await mutate({
           variables: {
             data: {
-                tokenAddress: data.tokenAddress as string,
-                endUnixTimestamp: String(data.endUnixTimestamp as bigint),
+                tokenAddresses: data.tokenAddresses as string[],
                 chainId: data.chainId as number,
-                currentTotalSupply: String(data.currentTotalSupply as bigint),
+                newTotalSupplies: data.newTotalSupplies as string[],
             },
           },
         });
 
         const res = mutationResult?.data?.updateTempTokenHighestTotalSupply;
         if (res) {
-          console.log("success");
+          console.log("updateTempTokenHighestTotalSupply success", res);
         } else {
           onError && onError();
         }

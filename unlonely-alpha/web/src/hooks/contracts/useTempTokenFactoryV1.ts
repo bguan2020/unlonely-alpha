@@ -141,6 +141,35 @@ export const useReadMaxDuration = (contract: ContractData) => {
   };
 };
 
+export const useReadTotalSupplyThreshold = (contract: ContractData) => {
+  const publicClient = usePublicClient();
+
+  const [totalSupplyThreshold, setTotalSupplyThreshold] = useState<bigint>(BigInt(0));
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setTotalSupplyThreshold(BigInt(0));
+      return;
+    }
+    const totalSupplyThreshold = await publicClient.readContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: "totalSupplyThreshold",
+      args: [],
+    });
+    setTotalSupplyThreshold(BigInt(String(totalSupplyThreshold)));
+  }, [contract.address, publicClient]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
+    totalSupplyThreshold,
+  };
+};
+
 export const useReadTokenInfo = (
   contract: ContractData,
   tokenAddress: `0x${string}`
@@ -211,3 +240,80 @@ export const useCreateTempToken = (
     isCreateTempTokenLoading,
   };
 };
+
+export const useSetTotalSupplyThresholdForTokens = (args:{
+  _totalSupplyThreshold: bigint;
+  tokenAddresses: string[];
+}, contract: ContractData,
+callbacks?: WriteCallbacks) => {
+  const {
+    writeAsync: setTotalSupplyThresholdForTokens,
+    writeData: setTotalSupplyThresholdForTokensData,
+    txData: setTotalSupplyThresholdForTokensTxData,
+    isTxLoading: isSetTotalSupplyThresholdForTokensLoading,
+  } = useWrite(
+    contract,
+    "setTotalSupplyThresholdForTokens",
+    [args._totalSupplyThreshold, args.tokenAddresses],
+    createCallbackHandler("useTempTokenFactoryV1 setTotalSupplyThresholdForTokens", callbacks),
+    { enabled: args.tokenAddresses.length > 0 }
+  );
+
+  return {
+    setTotalSupplyThresholdForTokens,
+    setTotalSupplyThresholdForTokensData,
+    setTotalSupplyThresholdForTokensTxData,
+    isSetTotalSupplyThresholdForTokensLoading,
+  };
+}
+
+export const useIncreaseEndTimestampForTokens = (args:{
+  _additionalDurationInSeconds: bigint;
+  tokenAddresses: string[];
+}, contract: ContractData,
+callbacks?: WriteCallbacks) => {
+  const {
+    writeAsync: increaseEndTimestampForTokens,
+    writeData: increaseEndTimestampForTokensData,
+    txData: increaseEndTimestampForTokensTxData,
+    isTxLoading: isIncreaseEndTimestampForTokensLoading,
+  } = useWrite(
+    contract,
+    "increaseEndTimestampForTokens",
+    [args._additionalDurationInSeconds, args.tokenAddresses],
+    createCallbackHandler("useTempTokenFactoryV1 increaseEndTimestampForTokens", callbacks),
+    { enabled: args.tokenAddresses.length > 0 }
+  );
+
+  return {
+    increaseEndTimestampForTokens,
+    increaseEndTimestampForTokensData,
+    increaseEndTimestampForTokensTxData,
+    isIncreaseEndTimestampForTokensLoading,
+  };
+}
+
+export const useSetAlwaysTradeableForTokens = (args:{
+  _alwaysTradeable: boolean;
+  tokenAddresses: string[];
+}, contract: ContractData, callbacks?: WriteCallbacks) => {
+  const {
+    writeAsync: setAlwaysTradeableForTokens,
+    writeData: setAlwaysTradeableForTokensData,
+    txData: setAlwaysTradeableForTokensTxData,
+    isTxLoading: isSetAlwaysTradeableForTokensLoading,
+  } = useWrite(
+    contract,
+    "setAlwaysTradeableForTokens",
+    [args._alwaysTradeable, args.tokenAddresses],
+    createCallbackHandler("useTempTokenFactoryV1 setAlwaysTradeableForTokens", callbacks),
+    { enabled: args.tokenAddresses.length > 0 }
+  );
+
+  return {
+    setAlwaysTradeableForTokens,
+    setAlwaysTradeableForTokensData,
+    setAlwaysTradeableForTokensTxData,
+    isSetAlwaysTradeableForTokensLoading,
+  };
+}

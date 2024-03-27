@@ -13,6 +13,10 @@ export const typeDef = gql`
         endUnixTimestamp: BigInt!
         protocolFeePercentage: BigInt!
         streamerFeePercentage: BigInt!
+        highestTotalSupply: BigInt!
+        hasRemainingFundsForCreator: Boolean!
+        isAlwaysTradeable: Boolean!
+        hasHitTotalSupplyThreshold: Boolean!
     }
 
     input GetTempTokensInput {
@@ -21,7 +25,8 @@ export const typeDef = gql`
         chainId: Int
         channelId: String
         onlyActiveTokens: Boolean
-        hasReachedPriceThreshold: Boolean
+        hasHitTotalSupplyThreshold: Boolean
+        isAlwaysTradeable: Boolean
     }
 
     input UpdateTempTokenHasRemainingFundsForCreatorInput {

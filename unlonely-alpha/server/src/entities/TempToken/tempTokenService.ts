@@ -263,7 +263,8 @@ export interface IGetTempTokensInput {
     channelId?: number,
     chainId?: string
     onlyActiveTokens?: boolean;
-    hasReachedPriceThreshold?: boolean;
+    hasHitTotalSupplyThreshold?: boolean;
+    isAlwaysTradeable?: boolean;
 }
 
 export const getTempTokens = async (
@@ -299,7 +300,8 @@ export const getTempTokens = async (
             } : undefined,
             chainId: data.chainId,
             tokenAddress: data.tokenAddress,
-            hasReachedPriceThreshold: data.hasReachedPriceThreshold,
+            hasHitTotalSupplyThreshold: data.hasHitTotalSupplyThreshold,
+            isAlwaysTradeable: data.isAlwaysTradeable,
             ...endTimestampClause
         },
         orderBy: { createdAt: "desc" },
