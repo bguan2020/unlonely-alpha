@@ -86,23 +86,29 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
 
       useEffect(() => {
         const init = async () => {
-          const res = await getTempTokensQuery({
-            variables: {
-              data: {
-                channelId: String(channelDetails.channelQueryData?.id),
-                chainId: localNetwork.config.chainId,
-                onlyActiveTokens: true,
+          if (!(Number(channelDetails.channelQueryData?.id ?? "0") > 0)) return;
+          try {
+            const res = await getTempTokensQuery({
+              variables: {
+                data: {
+                  channelId: Number(channelDetails.channelQueryData?.id ?? "0"),
+                  chainId: localNetwork.config.chainId,
+                  onlyActiveTokens: true,
+                  fulfillAllNotAnyConditions: true,
+                },
               },
-            },
-          });
-          const listOfActiveTokens = res.data?.getTempTokens;
-          const latestActiveToken = listOfActiveTokens?.[0];
-          if (latestActiveToken) {
-            setCurrentActiveTokenSymbol(latestActiveToken.symbol);
-            setCurrentActiveTokenEndTimestamp(
-              BigInt(latestActiveToken.endUnixTimestamp)
-            );
-            setCurrentActiveTokenAddress(latestActiveToken.tokenAddress);
+            });
+            const listOfActiveTokens = res.data?.getTempTokens;
+            const latestActiveToken = listOfActiveTokens?.[0];
+            if (latestActiveToken) {
+              setCurrentActiveTokenSymbol(latestActiveToken.symbol);
+              setCurrentActiveTokenEndTimestamp(
+                BigInt(latestActiveToken.endUnixTimestamp)
+              );
+              setCurrentActiveTokenAddress(latestActiveToken.tokenAddress);
+            }
+          } catch (e) {
+            console.error("getTempTokensQuery", e);
           }
         };
         init();

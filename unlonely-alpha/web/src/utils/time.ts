@@ -49,11 +49,12 @@ export const getTimeFromMillis = (millis: number, showSeconds?: boolean): string
   return str;
 };
 
-export const getHourAndMinutesFromMillis = (millis: number): string => {
+export const getConvertedDateFromMillis = (millis: number): string => {
   const time = new Date(millis);
   const hours = time.getHours().toString().padStart(2, "0");
   const minutes = time.getMinutes().toString().padStart(2, "0");
+  const seconds = time.getSeconds().toString().padStart(2, "0");
 
-  const timeString = `${hours}:${minutes}`;
+  const timeString = `${hours}:${minutes}:${seconds}`;
   return timeString;
 };

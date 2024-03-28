@@ -336,6 +336,7 @@ export type GetSubscriptionsByChannelIdInput = {
 export type GetTempTokensInput = {
   chainId?: InputMaybe<Scalars["Int"]>;
   channelId?: InputMaybe<Scalars["Int"]>;
+  fulfillAllNotAnyConditions: Scalars["Boolean"];
   hasHitTotalSupplyThreshold?: InputMaybe<Scalars["Boolean"]>;
   isAlwaysTradeable?: InputMaybe<Scalars["Boolean"]>;
   onlyActiveTokens?: InputMaybe<Scalars["Boolean"]>;
@@ -471,7 +472,7 @@ export type Mutation = {
   updateSideBet?: Maybe<SideBet>;
   updateTempTokenHasHitTotalSupplyThreshold: Scalars["Boolean"];
   updateTempTokenHasRemainingFundsForCreator?: Maybe<Array<Maybe<TempToken>>>;
-  updateTempTokenHighestTotalSupply: Scalars["Int"];
+  updateTempTokenHighestTotalSupply?: Maybe<Array<Maybe<TempToken>>>;
   updateTempTokenIsAlwaysTradeable: Scalars["Boolean"];
   updateUser?: Maybe<User>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
@@ -1256,7 +1257,7 @@ export type UpdateDeviceInput = {
 export type UpdateEndTimestampForTokensInput = {
   additionalDurationInSeconds: Scalars["Int"];
   chainId: Scalars["Int"];
-  tokenAddresses: Array<InputMaybe<Scalars["String"]>>;
+  tokenAddresses?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
 };
 
 export type UpdateLivepeerStreamDataInput = {
@@ -1294,8 +1295,8 @@ export type UpdateSideBetInput = {
 
 export type UpdateTempTokenHasHitTotalSupplyThresholdInput = {
   chainId: Scalars["Int"];
-  tokenAddressesSetFalse: Array<Scalars["String"]>;
-  tokenAddressesSetTrue: Array<Scalars["String"]>;
+  tokenAddressesSetFalse?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
+  tokenAddressesSetTrue?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
 };
 
 export type UpdateTempTokenHasRemainingFundsForCreatorInput = {
@@ -1305,14 +1306,14 @@ export type UpdateTempTokenHasRemainingFundsForCreatorInput = {
 
 export type UpdateTempTokenHighestTotalSupplyInput = {
   chainId: Scalars["Int"];
-  newTotalSupplies: Array<Scalars["String"]>;
-  tokenAddresses: Array<Scalars["String"]>;
+  newTotalSupplies?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
+  tokenAddresses?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
 };
 
 export type UpdateTempTokenIsAlwaysTradeableInput = {
   chainId: Scalars["Int"];
-  tokenAddressesSetFalse: Array<Scalars["String"]>;
-  tokenAddressesSetTrue: Array<Scalars["String"]>;
+  tokenAddressesSetFalse?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
+  tokenAddressesSetTrue?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
 };
 
 export type UpdateUserCreatorTokenQuantityInput = {
@@ -2278,7 +2279,18 @@ export type UpdateTempTokenHighestTotalSupplyMutationVariables = Exact<{
 
 export type UpdateTempTokenHighestTotalSupplyMutation = {
   __typename?: "Mutation";
-  updateTempTokenHighestTotalSupply: number;
+  updateTempTokenHighestTotalSupply?: Array<{
+    __typename?: "TempToken";
+    tokenAddress: string;
+    symbol: string;
+    ownerAddress: string;
+    name: string;
+    highestTotalSupply: any;
+    hasHitTotalSupplyThreshold: boolean;
+    channelId: number;
+    endUnixTimestamp: any;
+    chainId: number;
+  } | null> | null;
 };
 
 export type UpdateTempTokenIsAlwaysTradeableMutationVariables = Exact<{
@@ -5517,7 +5529,17 @@ export const UpdateTempTokenHighestTotalSupplyDocument = gql`
   mutation UpdateTempTokenHighestTotalSupply(
     $data: UpdateTempTokenHighestTotalSupplyInput!
   ) {
-    updateTempTokenHighestTotalSupply(data: $data)
+    updateTempTokenHighestTotalSupply(data: $data) {
+      tokenAddress
+      symbol
+      ownerAddress
+      name
+      highestTotalSupply
+      hasHitTotalSupplyThreshold
+      channelId
+      endUnixTimestamp
+      chainId
+    }
   }
 `;
 export type UpdateTempTokenHighestTotalSupplyMutationFn =

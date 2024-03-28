@@ -8,7 +8,6 @@ import { verifyTempTokenV1OnBase } from "../../../utils/contract-verification/te
 import usePostTempToken from "../../server/temp-token/usePostTempToken";
 import { Contract } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
-import useUpdateTempTokenHighestTotalSupply from "../../server/temp-token/useUpdateTempTokenHighestTotalSupply";
 import { useChannelContext } from "../../context/useChannel";
 
 export type UseCreateTempTokenStateType = {
@@ -50,8 +49,6 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
   );
 
   const { postTempToken } = usePostTempToken({});
-  const { updateTempTokenHighestTotalSupply } =
-    useUpdateTempTokenHighestTotalSupply({});
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -102,7 +99,6 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
         });
       },
       onTxSuccess: async (data) => {
-        console.log("createTempToken success", data);
         const topics = decodeEventLog({
           abi: factoryContract.abi,
           data: data.logs[2].data,
@@ -155,6 +151,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
             factoryContract.address as `0x${string}`,
           ]
         );
+        console.log("createTempToken success", data, args, encoded);
         await Promise.all([
           verifyTempTokenV1OnBase(
             args.tokenAddress as `0x${string}`,
@@ -170,6 +167,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
             endUnixTimestamp: args.endTimestamp as bigint,
             channelId: Number(channel.channelQueryData?.id),
             chainId: localNetwork.config.chainId as number,
+            highestTotalSupply: BigInt(0),
           }),
         ]);
         toast({
@@ -230,12 +228,6 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
     //   ),
     //   channelId: Number(channelDetails.channelQueryData?.id),
     //   chainId: localNetwork.config.chainId as number,
-    // });
-    // await updateTempTokenHighestTotalSupply({
-    //   tokenAddress: "0x",
-    //   endUnixTimestamp: BigInt(1711048951),
-    //   chainId: localNetwork.config.chainId as number,
-    //   currentTotalSupply: BigInt(3),
     // });
   }, [_createTempToken]);
 

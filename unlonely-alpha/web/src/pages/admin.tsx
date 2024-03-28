@@ -13,7 +13,7 @@ import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
 import AdminNotifications from "../components/general/AdminNotifications";
 import useSoftDeleteChannel from "../hooks/server/channel/useSoftDeleteChannel";
-
+import { TempTokenAdmin } from "../components/admin/TempTokenAdmin";
 const admins = process.env.NEXT_PUBLIC_ADMINS?.split(",");
 
 export default function AdminPage() {
@@ -102,6 +102,7 @@ const AdminContent = () => {
         admin notifications
       </Text>
       <AdminNotifications />
+      <TempTokenAdmin />
     </Flex>
   );
 };

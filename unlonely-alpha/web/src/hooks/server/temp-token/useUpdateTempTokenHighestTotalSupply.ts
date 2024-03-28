@@ -11,7 +11,17 @@ type Props = {
 
 const MUTATION = gql`
   mutation UpdateTempTokenHighestTotalSupply($data: UpdateTempTokenHighestTotalSupplyInput!) {
-    updateTempTokenHighestTotalSupply(data: $data)
+    updateTempTokenHighestTotalSupply(data: $data) {
+      tokenAddress
+      symbol
+      ownerAddress
+      name
+      highestTotalSupply
+      hasHitTotalSupplyThreshold
+      channelId
+      endUnixTimestamp
+      chainId
+    }
   }
 `;
 

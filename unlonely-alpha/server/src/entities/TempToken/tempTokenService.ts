@@ -51,7 +51,7 @@ export const updateTempTokenHighestTotalSupply = async (
     data: IUpdateTempTokenHighestTotalSupplyInput,
     ctx: Context
 ) => {
-    if (data.tokenAddresses.length === 0) return []
+    if (data.tokenAddresses.length === 0 || data.newTotalSupplies.length === 0) return []
     if (data.tokenAddresses.length !== data.newTotalSupplies.length) throw new Error("tokenAddresses and newTotalSupplies must be the same length");
     const updatePromises = data.tokenAddresses.map((tokenAddress, index) => {
         return ctx.prisma.tempToken.update({
@@ -65,8 +65,7 @@ export const updateTempTokenHighestTotalSupply = async (
     });
 
     try {
-        await ctx.prisma.$transaction(updatePromises);
-        return updatePromises.length; // Or any other success indicator
+        return await ctx.prisma.$transaction(updatePromises);
     } catch (error) {
         console.error("updateTempTokenHighestTotalSupply error:", error);
         throw error; // Or handle error as needed
@@ -265,6 +264,7 @@ export interface IGetTempTokensInput {
     onlyActiveTokens?: boolean;
     hasHitTotalSupplyThreshold?: boolean;
     isAlwaysTradeable?: boolean;
+    fulfillAllNotAnyConditions: boolean;
 }
 
 export const getTempTokens = async (
@@ -273,37 +273,60 @@ export const getTempTokens = async (
 ) => {
 
     let endTimestampClause: any = {};
-
-    if (data.onlyActiveTokens === true) {
-        endTimestampClause = {
-            endUnixTimestamp: {
-                gt: Math.floor(Date.now() / 1000)
+    try {
+        if (data.onlyActiveTokens === true) {
+            endTimestampClause = {
+                endUnixTimestamp: {
+                    gt: Math.floor(Date.now() / 1000)
+                }
             }
         }
-    }
-
-    if (data.onlyActiveTokens === false) {
-        endTimestampClause = {
-            endUnixTimestamp: {
-                lt: Math.floor(Date.now() / 1000)
+    
+        if (data.onlyActiveTokens === false) {
+            endTimestampClause = {
+                endUnixTimestamp: {
+                    lt: Math.floor(Date.now() / 1000)
+                }
             }
         }
-    }
-
-    return await ctx.prisma.tempToken.findMany({
-        where: {
-            ownerAddress: data.ownerAddress,
-            channel: data.channelId ? {
-                is: {
-                    id: data.channelId
+    
+    
+        if (data.fulfillAllNotAnyConditions){
+            return await ctx.prisma.tempToken.findMany({
+                where: {
+                    ownerAddress: data.ownerAddress,
+                    channel: data.channelId ? {
+                        is: {
+                            id: Number(data.channelId)
+                        },
+                    } : undefined,
+                    chainId: data.chainId,
+                    tokenAddress: data.tokenAddress,
+                    hasHitTotalSupplyThreshold: data.hasHitTotalSupplyThreshold,
+                    isAlwaysTradeable: data.isAlwaysTradeable,
+                    ...endTimestampClause
                 },
-            } : undefined,
-            chainId: data.chainId,
-            tokenAddress: data.tokenAddress,
-            hasHitTotalSupplyThreshold: data.hasHitTotalSupplyThreshold,
-            isAlwaysTradeable: data.isAlwaysTradeable,
-            ...endTimestampClause
-        },
-        orderBy: { createdAt: "desc" },
-    });
+                orderBy: { createdAt: "desc" },
+            });
+        }
+    
+        return await ctx.prisma.tempToken.findMany({
+            where: {
+                OR: [
+                    { ownerAddress: data.ownerAddress },
+                    ...(data.channelId ? [{ channel: { is: { id: data.channelId } } }] : []),
+                    { chainId: data.chainId },
+                    { tokenAddress: data.tokenAddress },
+                    { hasHitTotalSupplyThreshold: data.hasHitTotalSupplyThreshold },
+                    { isAlwaysTradeable: data.isAlwaysTradeable },
+                    // Assuming endTimestampClause is an object with a comparison operation
+                    ...Object.entries(endTimestampClause).map(([key, value]) => ({ [key]: value })),
+                ]
+            },
+            orderBy: { createdAt: "desc" },
+        });
+    } catch (error) {
+        console.error("getTempTokens error:", error);
+        throw error; // Or handle error as needed
+    }
 }

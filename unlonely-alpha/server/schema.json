@@ -2922,11 +2922,11 @@
               }
             ],
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "Int",
+                "kind": "OBJECT",
+                "name": "TempToken",
                 "ofType": null
               }
             },
@@ -11735,6 +11735,22 @@
             "defaultValue": null,
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "fulfillAllNotAnyConditions",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "interfaces": null,
@@ -11796,20 +11812,12 @@
             "name": "tokenAddresses",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               }
             },
             "defaultValue": null,
@@ -11836,20 +11844,12 @@
             "name": "newTotalSupplies",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               }
             },
             "defaultValue": null,
@@ -12028,16 +12028,12 @@
             "name": "tokenAddresses",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               }
             },
             "defaultValue": null,
@@ -12092,20 +12088,12 @@
             "name": "tokenAddressesSetTrue",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               }
             },
             "defaultValue": null,
@@ -12116,20 +12104,12 @@
             "name": "tokenAddressesSetFalse",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               }
             },
             "defaultValue": null,
@@ -12168,20 +12148,12 @@
             "name": "tokenAddressesSetTrue",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               }
             },
             "defaultValue": null,
@@ -12192,20 +12164,12 @@
             "name": "tokenAddressesSetFalse",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               }
             },
             "defaultValue": null,

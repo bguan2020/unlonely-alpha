@@ -10,6 +10,7 @@ import express from "express";
 import { getContext } from "./context";
 import graphqlSchema from "./entities/graphqlSchema";
 // import { fetchForNewTempTokenEndtimestamps } from "./utils/fetchForNewTempTokenEndtimestamps";
+import { dummyTestSync } from "./utils/dummyTestSync";
 // import { watchBlocks } from "./utils/watchBlock";
 
 // const testDb = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely-dev?sslmode=require";
@@ -37,6 +38,7 @@ app.get("/aws-scheduler-update", (req, res) => {
   }
   console.log("Authorized access to /aws-scheduler-update, called at", (new Date()).toISOString())
   // fetchForNewTempTokenEndtimestamps();
+  dummyTestSync(); //todo remove this later
   res.send("/aws-scheduler-update success");
 });
 

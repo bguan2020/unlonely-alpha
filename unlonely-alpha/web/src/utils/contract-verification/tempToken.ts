@@ -28,7 +28,7 @@ export const verifyTempTokenV1OnBase = async (tempTokenContractAddress: `0x${str
             await checkVerificationStatusOnBase(res.result)
         },
         error: (err: any) => {
-            console.error(err)
+            console.error("verifyTempTokenV1OnBase err", err)
         }
     })
 }
