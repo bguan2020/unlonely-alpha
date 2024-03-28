@@ -14,8 +14,6 @@ export const dummyTestSync = async () => {
             }
         });
 
-        console.log("dummyTestSync", qualifiedTokens.length)
-
         if (!qualifiedTokens.length) {
             return [];
         }
@@ -47,7 +45,7 @@ export const dummyTestSync = async () => {
         });
 
         const res = await prisma.$transaction(updates);
-        console.log("dummyTestSync", res.length)
+        console.log("dummyTestSync success,", res.length, "changed")
         return res;
     } catch (e) {
         console.error("dummyTestSync error", e);
