@@ -54,6 +54,16 @@ export const TempTokenAdmin = () => {
     setTokenAddressesIncludedForOperation,
   ] = useState<string[]>([]);
 
+  const [
+    loading_updateDb_hasHitTotalSupplyThreshold,
+    set_loading_updateDb_hasHitTotalSupplyThreshold,
+  ] = useState(false);
+
+  const [
+    loading_updateDb_highestTotalSupply,
+    set_loading_updateDb_highestTotalSupply,
+  ] = useState(false);
+
   /**
    * Fetch active tokens
    */
@@ -103,8 +113,8 @@ export const TempTokenAdmin = () => {
    * Backend update function hooks
    */
   const {
-    updateTempTokenHasHitTotalSupplyThreshold,
-    loading: updateTempTokenHasHitTotalSupplyThresholdLoading,
+    updateTempTokenHasHitTotalSupplyThreshold:
+      call_updateDb_hasHitTotalSupplyThreshold,
   } = useUpdateTempTokenHasHitTotalSupplyThreshold({
     onError: (e) => {
       console.log("useUpdateTempTokenHasHitTotalSupplyThreshold error", e);
@@ -112,8 +122,7 @@ export const TempTokenAdmin = () => {
   });
 
   const {
-    updateTempTokenHighestTotalSupply,
-    loading: updateTempTokenHighestTotalSupplyLoading,
+    updateTempTokenHighestTotalSupply: call_updateDb_highestTotalSupply,
   } = useUpdateTempTokenHighestTotalSupply({
     onError: (e) => {
       console.log("useUpdateTempTokenHighestTotalSupply error", e);
@@ -127,8 +136,9 @@ export const TempTokenAdmin = () => {
   const {
     newSupplyThreshold,
     handleInputChange: handleNewSupplyThresholdChange,
-    setTotalSupplyThresholdForTokens,
-    loading: isSetTotalSupplyThresholdForTokensLoading,
+    setTotalSupplyThresholdForTokens:
+      call_updateOnchainAndUpdateDb_totalSupplyThreshold,
+    loading: loading_updateOnchainAndUpdateDb_totalSupplyThreshold,
   } = useUpdateTotalSupplyThresholdState(
     tokenAddressesIncludedForOperation,
     handleGetTempTokens
@@ -137,8 +147,8 @@ export const TempTokenAdmin = () => {
   const {
     booleanNumber,
     handleInputChange: handleBooleanNumberChange,
-    setAlwaysTradeableForTokens,
-    loading: isSetAlwaysTradeableForTokensLoading,
+    setAlwaysTradeableForTokens: call_updateOnchainAndUpdateDb_alwaysTradeable,
+    loading: loading_updateOnchainAndUpdateDb_alwaysTradeable,
   } = useUpdateTempTokenIsAlwaysTradeableState(
     tokenAddressesIncludedForOperation,
     handleGetTempTokens
@@ -158,6 +168,7 @@ export const TempTokenAdmin = () => {
    * Read from contract and update database
    */
   const handleTempTokenHasHitTotalSupplyThreshold = useCallback(async () => {
+    set_loading_updateDb_hasHitTotalSupplyThreshold(true);
     const chainPromises = tokenAddressesIncludedForOperation.map((a) => {
       return publicClient.readContract({
         address: a as `0x${string}`,
@@ -176,15 +187,17 @@ export const TempTokenAdmin = () => {
       }
     });
     console.log("handleTempTokenHasHitTotalSupplyThreshold results", results);
-    await updateTempTokenHasHitTotalSupplyThreshold({
+    await call_updateDb_hasHitTotalSupplyThreshold({
       tokenAddressesSetTrue,
       tokenAddressesSetFalse,
       chainId: localNetwork.config.chainId,
     });
     await handleGetTempTokens();
+    set_loading_updateDb_hasHitTotalSupplyThreshold(false);
   }, [tokenAddressesIncludedForOperation, publicClient]);
 
   const handleTempTokenHighestTotalSupply = useCallback(async () => {
+    set_loading_updateDb_highestTotalSupply(true);
     const chainPromises = tokenAddressesIncludedForOperation.map((a) => {
       return publicClient.readContract({
         address: a as `0x${string}`,
@@ -194,12 +207,13 @@ export const TempTokenAdmin = () => {
     });
     const results = await Promise.all(chainPromises);
     console.log("handleTempTokenHighestTotalSupply results", results);
-    await updateTempTokenHighestTotalSupply({
+    await call_updateDb_highestTotalSupply({
       tokenAddresses: tokenAddressesIncludedForOperation,
       newTotalSupplies: results.map((r) => String(r)),
       chainId: localNetwork.config.chainId,
     });
     await handleGetTempTokens();
+    set_loading_updateDb_highestTotalSupply(false);
   }, [tokenAddressesIncludedForOperation, publicClient]);
 
   const handleCopy = () => {
@@ -221,16 +235,6 @@ export const TempTokenAdmin = () => {
         TempToken functions
       </Text>
       <Button
-        onClick={async () =>
-          await verifyTempTokenV1OnBase(
-            "0xE6CD2E5BeA6255C91ea8Ca44b8b7FDDb07Ef1471",
-            "00000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000140000000000000000000000000000000000000000000000000000000006605fd830000000000000000000000004f3d3f2f895db524ac3944bdd17fe632473bca4a00000000000000000000000000000000000000000000000000470de4df82000000000000000000000000000000000000000000000000000000470de4df8200000000000000000000000000000000000000000000000000000000000001312d020000000000000000000000007a1fc55bcc17240d2fa6419eadecfabedf2dfcd0000000000000000000000000000000000000000000000000000000000000000574656d7031000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000574656d7031000000000000000000000000000000000000000000000000000000"
-          )
-        }
-      >
-        test verify
-      </Button>
-      <Button
         color="white"
         bg="#2562db"
         _hover={{}}
@@ -241,7 +245,16 @@ export const TempTokenAdmin = () => {
       >
         {getTempTokensLoading ? <Spinner /> : "fetch active tokens"}
       </Button>
-
+      <Button
+        onClick={() =>
+          verifyTempTokenV1OnBase(
+            "0x1867ca230A434eC0c15286eDB499825444969fE5",
+            "0x0000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000660afb6b0000000000000000000000004f3d3f2f895db524ac3944bdd17fe632473bca4a00000000000000000000000000000000000000000000000000470de4df82000000000000000000000000000000000000000000000000000000470de4df8200000000000000000000000000000000000000000000000000000000000001312d00000000000000000000000000b5dc7956a4952d4a943e4dbb94f12ebaa76cd1d90000000000000000000000000000000000000000000000000000000000000001740000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000017400000000000000000000000000000000000000000000000000000000000000"
+          )
+        }
+      >
+        test verify
+      </Button>
       {activeTokens === undefined ? (
         <Text>Please fetch tokens first</Text>
       ) : activeTokens.length > 0 ? (
@@ -265,7 +278,16 @@ export const TempTokenAdmin = () => {
               </Thead>
               <Tbody>
                 {activeTokens.map((token, index) => (
-                  <Tr key={index}>
+                  <Tr
+                    key={index}
+                    bgColor={
+                      tokenAddressesIncludedForOperation.includes(
+                        token.tokenAddress
+                      )
+                        ? "unset"
+                        : "#802b1c"
+                    }
+                  >
                     <Td>{token.symbol}</Td>
                     <Td>
                       {centerEllipses(token.tokenAddress, 15)}{" "}
@@ -347,13 +369,9 @@ export const TempTokenAdmin = () => {
       </Text>
       <Button
         onClick={handleTempTokenHasHitTotalSupplyThreshold}
-        isDisabled={updateTempTokenHasHitTotalSupplyThresholdLoading}
+        isDisabled={loading_updateDb_hasHitTotalSupplyThreshold}
       >
-        {updateTempTokenHasHitTotalSupplyThresholdLoading ? (
-          <Spinner />
-        ) : (
-          "fetch"
-        )}
+        {loading_updateDb_hasHitTotalSupplyThreshold ? <Spinner /> : "fetch"}
       </Button>
       <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         updateTempTokenHighestTotalSupply (select tokens from database, fetch
@@ -361,9 +379,9 @@ export const TempTokenAdmin = () => {
       </Text>
       <Button
         onClick={handleTempTokenHighestTotalSupply}
-        isDisabled={updateTempTokenHighestTotalSupplyLoading}
+        isDisabled={loading_updateDb_highestTotalSupply}
       >
-        {updateTempTokenHighestTotalSupplyLoading ? <Spinner /> : "fetch"}
+        {loading_updateDb_highestTotalSupply ? <Spinner /> : "fetch"}
       </Button>
       <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         updateTempTokenTotalSupplyThreshold (select tokens from database, update
@@ -377,12 +395,17 @@ export const TempTokenAdmin = () => {
           onChange={handleNewSupplyThresholdChange}
         />
         <Button
-          onClick={setTotalSupplyThresholdForTokens}
+          onClick={call_updateOnchainAndUpdateDb_totalSupplyThreshold}
           isDisabled={
-            isSetTotalSupplyThresholdForTokensLoading || !newSupplyThreshold
+            loading_updateOnchainAndUpdateDb_totalSupplyThreshold ||
+            !newSupplyThreshold
           }
         >
-          {isSetTotalSupplyThresholdForTokensLoading ? <Spinner /> : "send"}
+          {loading_updateOnchainAndUpdateDb_totalSupplyThreshold ? (
+            <Spinner />
+          ) : (
+            "send"
+          )}
         </Button>
       </Flex>
       <Text fontSize="25px" fontFamily="Neue Pixel Sans">
@@ -397,10 +420,14 @@ export const TempTokenAdmin = () => {
           onChange={handleBooleanNumberChange}
         />
         <Button
-          onClick={setAlwaysTradeableForTokens}
-          isDisabled={isSetAlwaysTradeableForTokensLoading}
+          onClick={call_updateOnchainAndUpdateDb_alwaysTradeable}
+          isDisabled={loading_updateOnchainAndUpdateDb_alwaysTradeable}
         >
-          {isSetAlwaysTradeableForTokensLoading ? <Spinner /> : "send"}
+          {loading_updateOnchainAndUpdateDb_alwaysTradeable ? (
+            <Spinner />
+          ) : (
+            "send"
+          )}
         </Button>
       </Flex>
       <Text fontSize="25px" fontFamily="Neue Pixel Sans">

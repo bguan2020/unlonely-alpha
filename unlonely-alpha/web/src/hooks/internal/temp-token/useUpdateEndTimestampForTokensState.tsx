@@ -4,7 +4,7 @@ import { filteredInput } from "../../../utils/validation/input";
 import { Box, useToast } from "@chakra-ui/react";
 import { Contract } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
-import { useIncreaseEndTimestampForTokens } from "../../contracts/useTempTokenFactoryV1";
+import { useIncreaseEndTimestampForTokens as use_call_updateOnchain_increaseEndTimestamps } from "../../contracts/useTempTokenFactoryV1";
 import Link from "next/link";
 import { decodeEventLog } from "viem";
 import useUpdateEndTimestampForTokens from "../../server/temp-token/useUpdateEndTimestampForTokens";
@@ -44,7 +44,7 @@ export const useUpdateEndTimestampForTokensState = (
     increaseEndTimestampForTokensData,
     increaseEndTimestampForTokensTxData,
     isIncreaseEndTimestampForTokensLoading,
-  } = useIncreaseEndTimestampForTokens(
+  } = use_call_updateOnchain_increaseEndTimestamps(
     {
       _additionalDurationInSeconds: BigInt(additionalSeconds),
       tokenAddresses,

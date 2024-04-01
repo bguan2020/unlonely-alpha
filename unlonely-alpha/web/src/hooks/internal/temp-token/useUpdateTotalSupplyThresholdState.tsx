@@ -4,7 +4,7 @@ import { getContractFromNetwork } from "../../../utils/contract";
 import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
 import { Contract } from "../../../constants";
 
-import { useSetTotalSupplyThresholdForTokens } from "../../contracts/useTempTokenFactoryV1";
+import { useSetTotalSupplyThresholdForTokens as use_call_updateOnchain_hasHitTotalSupplyThreshold } from "../../contracts/useTempTokenFactoryV1";
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
 import { decodeEventLog } from "viem";
@@ -31,7 +31,8 @@ export const useUpdateTotalSupplyThresholdState = (
   };
 
   const {
-    updateTempTokenHasHitTotalSupplyThreshold,
+    updateTempTokenHasHitTotalSupplyThreshold:
+      call_updateDb_hasHitTotalSupplyThreshold,
     loading: updateTempTokenHasHitTotalSupplyThresholdLoading,
   } = useUpdateTempTokenHasHitTotalSupplyThreshold({
     onError: (e) => {
@@ -44,7 +45,7 @@ export const useUpdateTotalSupplyThresholdState = (
     setTotalSupplyThresholdForTokensData,
     setTotalSupplyThresholdForTokensTxData,
     isSetTotalSupplyThresholdForTokensLoading,
-  } = useSetTotalSupplyThresholdForTokens(
+  } = use_call_updateOnchain_hasHitTotalSupplyThreshold(
     {
       _totalSupplyThreshold: BigInt(newSupplyThreshold),
       tokenAddresses,
@@ -85,12 +86,12 @@ export const useUpdateTotalSupplyThresholdState = (
       onTxSuccess: async (data) => {
         const topics = decodeEventLog({
           abi: factoryContract.abi,
-          data: data.logs[1].data,
-          topics: data.logs[1].topics,
+          data: data.logs[2].data,
+          topics: data.logs[2].topics,
         });
         const args: any = topics.args;
         console.log("setTotalSupplyThresholdForTokens success", data, args);
-        await updateTempTokenHasHitTotalSupplyThreshold({
+        await call_updateDb_hasHitTotalSupplyThreshold({
           tokenAddressesSetTrue: [],
           tokenAddressesSetFalse: tokenAddresses,
           chainId: localNetwork.config.chainId,

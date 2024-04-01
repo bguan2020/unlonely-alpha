@@ -68,7 +68,7 @@ contract TempTokenFactoryV1 is Ownable {
     event MaxDurationSet(uint256 maxDuration);
     event TotalSupplyThresholdSetForTokens(uint256 totalSupplyThreshold, address[] tokenAddresses);
     event EndTimestampIncreasedForTokens(uint256 additionalDuration, address[] tokenAddresses);
-    event AlwaysTradeableSetForTokens(bool isAlwaysTradeable, address[] tokenAddresses);
+    event AlwaysTradeableSetForTokens(address[] tokenAddresses);
 
     modifier onlyOwnerOrAdmin() {
         require(msg.sender == owner() || admins[msg.sender] == true, "Caller is neither owner nor admin");
@@ -170,11 +170,11 @@ contract TempTokenFactoryV1 is Ownable {
         emit EndTimestampIncreasedForTokens(_additionalDurationInSeconds, _tokenAddresses);
     }
 
-    function setAlwaysTradeableForTokens(bool _alwaysTradeable, address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
+    function setAlwaysTradeableForTokens(address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
         for (uint256 i = 0; i < _tokenAddresses.length; i++) {
-            TempTokenV1(_tokenAddresses[i]).setAlwaysTradeable(_alwaysTradeable);
+            TempTokenV1(_tokenAddresses[i]).setAlwaysTradeable();
         }
-        emit AlwaysTradeableSetForTokens(_alwaysTradeable, _tokenAddresses);
+        emit AlwaysTradeableSetForTokens(_tokenAddresses);
     }
 
     function setMaxDuration(uint256 _maxDuration) public onlyOwnerOrAdmin {

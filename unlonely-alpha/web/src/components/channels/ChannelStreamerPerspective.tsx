@@ -23,6 +23,8 @@ import useUpdateChannelAllowNfcs from "../../hooks/server/channel/useUpdateChann
 import {
   AblyChannelPromise,
   CHANGE_CHANNEL_DETAILS_EVENT,
+  DESKTOP_VIDEO_VH,
+  MOBILE_VIDEO_VH,
   STREAMER_MIGRATION_URL_QUERY_PARAM,
 } from "../../constants";
 import useUpdateLivepeerStreamData from "../../hooks/server/channel/useUpdateLivepeerStreamData";
@@ -142,7 +144,7 @@ const ChannelStreamerPerspective = ({
       width={"100%"}
       direction={"column"}
       gap="10px"
-      h={!isStandalone ? "80vh" : "25vh"}
+      h={!isStandalone ? `${DESKTOP_VIDEO_VH}vh` : `${MOBILE_VIDEO_VH}vh`}
       position={!isStandalone ? "relative" : "fixed"}
     >
       <TransactionModalTemplate

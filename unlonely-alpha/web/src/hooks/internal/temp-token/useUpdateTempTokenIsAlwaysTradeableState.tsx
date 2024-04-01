@@ -4,7 +4,7 @@ import { filteredInput } from "../../../utils/validation/input";
 import { Contract } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
 import { useToast, Box } from "@chakra-ui/react";
-import { useSetAlwaysTradeableForTokens } from "../../contracts/useTempTokenFactoryV1";
+import { useSetAlwaysTradeableForTokens as use_call_updateOnchain_alwaysTradeable } from "../../contracts/useTempTokenFactoryV1";
 import Link from "next/link";
 import { decodeEventLog } from "viem";
 import useUpdateTempTokenIsAlwaysTradeable from "../../server/temp-token/useUpdateTempTokenIsAlwaysTradeable";
@@ -40,9 +40,8 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
     setAlwaysTradeableForTokensData,
     setAlwaysTradeableForTokensTxData,
     isSetAlwaysTradeableForTokensLoading,
-  } = useSetAlwaysTradeableForTokens(
+  } = use_call_updateOnchain_alwaysTradeable(
     {
-      _alwaysTradeable: booleanNumber === "1",
       tokenAddresses,
     },
     factoryContract,
@@ -87,8 +86,8 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
         const args: any = topics.args;
         console.log("setAlwaysTradeableForTokens success", data, args);
         await updateTempTokenIsAlwaysTradeable({
-          tokenAddressesSetTrue: args.isAlwaysTradeable ? tokenAddresses : [],
-          tokenAddressesSetFalse: !args.isAlwaysTradeable ? tokenAddresses : [],
+          tokenAddressesSetTrue: args.tokenAddresses,
+          tokenAddressesSetFalse: [],
           chainId: localNetwork.config.chainId,
         });
         onSuccess && onSuccess();

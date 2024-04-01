@@ -294,7 +294,6 @@ callbacks?: WriteCallbacks) => {
 }
 
 export const useSetAlwaysTradeableForTokens = (args:{
-  _alwaysTradeable: boolean;
   tokenAddresses: string[];
 }, contract: ContractData, callbacks?: WriteCallbacks) => {
   const {
@@ -305,7 +304,7 @@ export const useSetAlwaysTradeableForTokens = (args:{
   } = useWrite(
     contract,
     "setAlwaysTradeableForTokens",
-    [args._alwaysTradeable, args.tokenAddresses],
+    [args.tokenAddresses],
     createCallbackHandler("useTempTokenFactoryV1 setAlwaysTradeableForTokens", callbacks),
     { enabled: args.tokenAddresses.length > 0 }
   );

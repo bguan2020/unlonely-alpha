@@ -35,7 +35,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     event TokenDurationAndThresholdIncreased(uint256 indexed endTimestamp, uint256 indexed totalSupplyThreshold, address indexed tokenAddress);
     event SendRemainingFundsToCreatorAfterTokenExpiration(address indexed account, uint256 balance);
     event TotalSupplyThresholdUpdated(uint256 indexed totalSupplyThreshold, address indexed tokenAddress, bool hasHitTotalSupplyThreshold);
-    event TokenAlwaysTradeableSet(bool indexed isAlwaysTradeable, address indexed tokenAddress);
+    event TokenAlwaysTradeableSet(address indexed tokenAddress);
     
     error InsufficientValue(uint256 minimumValue, uint256 value);
     error BurnAmountTooHigh(uint256 maximumAmount, uint256 amount);
@@ -197,10 +197,10 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         emit TokenDurationExtended(endTimestamp, address(this));
     }
 
-    function setAlwaysTradeable(bool _isAlwaysTradeable) public {
+    function setAlwaysTradeable() public {
         require(msg.sender == factoryAddress, "Only the factory can set this value");
-        isAlwaysTradeable = _isAlwaysTradeable;
-        emit TokenAlwaysTradeableSet(_isAlwaysTradeable, address(this));
+        isAlwaysTradeable = true;
+        emit TokenAlwaysTradeableSet(address(this));
     }
 
     function mintCost(uint256 _amount) public view returns (uint256) {

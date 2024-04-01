@@ -30,12 +30,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "isAlwaysTradeable",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
         "internalType": "address[]",
         "name": "tokenAddresses",
         "type": "address[]"
@@ -551,11 +545,6 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "bool",
-        "name": "_alwaysTradeable",
-        "type": "bool"
-      },
       {
         "internalType": "address[]",
         "name": "_tokenAddresses",

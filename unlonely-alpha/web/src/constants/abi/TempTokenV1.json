@@ -271,12 +271,6 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bool",
-        "name": "isAlwaysTradeable",
-        "type": "bool"
-      },
-      {
-        "indexed": true,
         "internalType": "address",
         "name": "tokenAddress",
         "type": "address"
@@ -780,13 +774,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "_isAlwaysTradeable",
-        "type": "bool"
-      }
-    ],
+    "inputs": [],
     "name": "setAlwaysTradeable",
     "outputs": [],
     "stateMutability": "nonpayable",
