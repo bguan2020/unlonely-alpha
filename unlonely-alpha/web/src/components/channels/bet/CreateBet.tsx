@@ -40,7 +40,7 @@ import {
   NULL_ADDRESS_BYTES32,
 } from "../../../constants";
 import { useOpenEvent } from "../../../hooks/contracts/useSharesContractV2";
-import { getHourAndMinutesFromMillis } from "../../../utils/time";
+import { getConvertedDateFromMillis } from "../../../utils/time";
 import {
   EventType,
   SharesEvent,
@@ -601,7 +601,7 @@ const OpenEventInterface = ({
                 _active={{ opacity: "1" }}
                 onClick={() => setSelectedEndTime("10")}
               >
-                {`10 mins (until ${getHourAndMinutesFromMillis(
+                {`10 mins (until ${getConvertedDateFromMillis(
                   dateNow + 10 * 60 * 1000
                 )})`}
               </MenuItem>
@@ -613,7 +613,7 @@ const OpenEventInterface = ({
                 _active={{ opacity: "1" }}
                 onClick={() => setSelectedEndTime("30")}
               >
-                {`30 mins (until ${getHourAndMinutesFromMillis(
+                {`30 mins (until ${getConvertedDateFromMillis(
                   dateNow + 30 * 60 * 1000
                 )})`}
               </MenuItem>
@@ -625,7 +625,7 @@ const OpenEventInterface = ({
                 _active={{ opacity: "1" }}
                 onClick={() => setSelectedEndTime("60")}
               >
-                {`1 hour (until ${getHourAndMinutesFromMillis(
+                {`1 hour (until ${getConvertedDateFromMillis(
                   dateNow + 60 * 60 * 1000
                 )})`}
               </MenuItem>
@@ -637,7 +637,7 @@ const OpenEventInterface = ({
                 _active={{ opacity: "1" }}
                 onClick={() => setSelectedEndTime("120")}
               >
-                {`2 hours (until ${getHourAndMinutesFromMillis(
+                {`2 hours (until ${getConvertedDateFromMillis(
                   dateNow + 120 * 60 * 1000
                 )})`}
               </MenuItem>
