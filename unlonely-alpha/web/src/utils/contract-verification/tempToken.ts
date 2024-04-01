@@ -5,6 +5,9 @@ import { flattened } from "./FlattenedSourceCodeString"
 
 export const verifyTempTokenV1OnBase = async (tempTokenContractAddress: `0x${string}`, encodedConstructorArguments: string) => {
 
+    const formattedEncodedConstructorArguments = encodedConstructorArguments.startsWith("0x") ? encodedConstructorArguments.substring(2) : encodedConstructorArguments
+
+
     $.ajax({
         type: "POST",
         url: "//api.basescan.org/api",
@@ -20,7 +23,7 @@ export const verifyTempTokenV1OnBase = async (tempTokenContractAddress: `0x${str
             "optimizationUsed": "1",
             "runs": "200",
             "licensetype": "3", // 3 stands for the MIT license
-            "constructorArguements": encodedConstructorArguments,
+            "constructorArguements": formattedEncodedConstructorArguments,
         },
         success: async (res: any) => {
             console.log("verifyTempTokenV1OnBase success", res)

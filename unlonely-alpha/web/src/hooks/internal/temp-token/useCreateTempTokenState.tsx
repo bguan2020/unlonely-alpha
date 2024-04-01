@@ -153,10 +153,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
         );
         console.log("createTempToken success", data, args, encoded);
         await Promise.all([
-          verifyTempTokenV1OnBase(
-            args.tokenAddress as `0x${string}`,
-            encoded.startsWith("0x") ? encoded.substring(2) : encoded
-          ),
+          verifyTempTokenV1OnBase(args.tokenAddress as `0x${string}`, encoded),
           postTempToken({
             tokenAddress: args.tokenAddress as `0x${string}`,
             symbol: args.symbol as string,
