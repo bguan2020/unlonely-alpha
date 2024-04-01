@@ -33,7 +33,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     event Burn(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
     event TokenDurationExtended(uint256 indexed endTimestamp, address indexed tokenAddress);
     event TokenDurationAndThresholdIncreased(uint256 indexed endTimestamp, uint256 indexed totalSupplyThreshold, address indexed tokenAddress);
-    event SendRemainingFundsToCreatorAfterTokenExpiration(address indexed account, uint256 balance);
+    event SendRemainingFundsToWinnerAfterTokenExpiration(address indexed account, address indexed winnerWallet, uint256 balance);
     event TotalSupplyThresholdUpdated(uint256 indexed totalSupplyThreshold, address indexed tokenAddress, bool hasHitTotalSupplyThreshold);
     event TokenAlwaysTradeableSet(address indexed tokenAddress);
     
@@ -153,23 +153,23 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     }
 
     /**
-        * @dev sendRemainingFundsToCreatorAfterTokenExpiration function allows the token owner to send all remaining funds in the pool to the token owner.
+        * @dev sendRemainingFundsToWinnerAfterTokenExpiration function allows the token owner to send all remaining funds in the pool to a winner.
         * This function can only be called after the endTimestamp has passed.
         * The purpose of this function is incentivize people to sell prior to the token expiring, creating a short term token market to match the duration of the livestream. 
-        * If you don't sell in time, consider it a donation to the streamer/creator. 
+        * If you don't sell in time, consider it a donation to the winner. 
         * All TempTokens on the Unlonely frontend will have extremely clear countdowns and disclaimers telling you that this token will expire.
      */
-    function sendRemainingFundsToCreatorAfterTokenExpiration() external onlyOwner endedPhase nonReentrant {
+    function sendRemainingFundsToWinnerAfterTokenExpiration(address payable winnerWallet) external onlyOwner endedPhase nonReentrant {
         uint256 balance = address(this).balance;
         require(balance > 0, "No funds available to send");
 
         uint256 protocolFee = balance * protocolFeePercent / 1 ether;
 
-        (bool success1, ) = owner().call{value: balance - protocolFee}("");
+        (bool success1, ) = winnerWallet.call{value: balance - protocolFee}("");
         (bool success2, ) = protocolFeeDestination.call{value: protocolFee}("");
         require(success1 && success2, "Failed to transfer funds");
 
-        emit SendRemainingFundsToCreatorAfterTokenExpiration(msg.sender, balance);
+        emit SendRemainingFundsToWinnerAfterTokenExpiration(msg.sender, winnerWallet, balance);
     }
 
     /** 
