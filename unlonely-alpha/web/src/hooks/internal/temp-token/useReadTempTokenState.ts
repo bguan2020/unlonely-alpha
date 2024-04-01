@@ -4,10 +4,11 @@ import { getContractFromNetwork } from "../../../utils/contract";
 import { useNetworkContext } from "../../context/useNetwork";
 import { useLazyQuery } from "@apollo/client";
 import { Log } from "viem";
-import { useContractEvent } from "wagmi";
+import { useContractEvent, usePublicClient } from "wagmi";
 import { GET_TEMP_TOKENS_QUERY } from "../../../constants/queries";
 import { GetTempTokensQuery } from "../../../generated/graphql";
 import { UseChannelDetailsType } from "../useChannelDetails";
+import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 
 export type UseReadTempTokenStateType = {
   currentActiveTokenSymbol: string;
@@ -25,7 +26,8 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
     ): UseReadTempTokenStateType => {
     const { network } = useNetworkContext();
     const { localNetwork } = network;
-    
+    const publicClient = usePublicClient();
+
     const [currentActiveTokenAddress, setCurrentActiveTokenAddress] =
     useState<string>(NULL_ADDRESS);
   const [currentActiveTokenEndTimestamp, setCurrentActiveTokenEndTimestamp] =
@@ -37,7 +39,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         localNetwork
       );
     
-    const [incomingLogs, setIncomingLogs] = useState<Log[]>([]);
+    const [incomingTempTokenCreatedLogs, setIncomingTempTokenCreatedLogs] = useState<Log[]>([]);
 
     useContractEvent({
         address: factoryContract.address,
@@ -46,17 +48,17 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         listener(logs) {
           console.log("detected TempTokenCreated event", logs);
           const init = async () => {
-            setIncomingLogs(logs);
+            setIncomingTempTokenCreatedLogs(logs);
           };
           init();
         },
       });
     
       useEffect(() => {
-        if (incomingLogs) handleUpdate(incomingLogs);
-      }, [incomingLogs]);
+        if (incomingTempTokenCreatedLogs) handleTempTokenCreatedUpdate(incomingTempTokenCreatedLogs);
+      }, [incomingTempTokenCreatedLogs]);
     
-      const handleUpdate = async (logs: Log[]) => {
+      const handleTempTokenCreatedUpdate = async (logs: Log[]) => {
         if (logs.length === 0) return;
         const filteredLogsByOwner = logs.filter(
           (log: any) =>
@@ -102,8 +104,13 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
             const latestActiveToken = listOfActiveTokens?.[0];
             if (latestActiveToken) {
               setCurrentActiveTokenSymbol(latestActiveToken.symbol);
+              const endTimestamp = await publicClient.readContract({
+                address: latestActiveToken.tokenAddress as `0x${string}`,
+                abi: TempTokenAbi,
+                functionName: "endTimestamp"
+            })
               setCurrentActiveTokenEndTimestamp(
-                BigInt(latestActiveToken.endUnixTimestamp)
+                BigInt(String(endTimestamp))
               );
               setCurrentActiveTokenAddress(latestActiveToken.tokenAddress);
             }

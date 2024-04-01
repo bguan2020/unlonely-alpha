@@ -152,21 +152,18 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           ]
         );
         console.log("createTempToken success", data, args, encoded);
-        await Promise.all([
-          verifyTempTokenV1OnBase(args.tokenAddress as `0x${string}`, encoded),
-          postTempToken({
-            tokenAddress: args.tokenAddress as `0x${string}`,
-            symbol: args.symbol as string,
-            streamerFeePercentage: args.streamerFeePercent as bigint,
-            protocolFeePercentage: args.protocolFeePercent as bigint,
-            ownerAddress: args.owner as `0x${string}`,
-            name: args.name as string,
-            endUnixTimestamp: args.endTimestamp as bigint,
-            channelId: Number(channel.channelQueryData?.id),
-            chainId: localNetwork.config.chainId as number,
-            highestTotalSupply: BigInt(0),
-          }),
-        ]);
+        await postTempToken({
+          tokenAddress: args.tokenAddress as `0x${string}`,
+          symbol: args.symbol as string,
+          streamerFeePercentage: args.streamerFeePercent as bigint,
+          protocolFeePercentage: args.protocolFeePercent as bigint,
+          ownerAddress: args.owner as `0x${string}`,
+          name: args.name as string,
+          endUnixTimestamp: args.endTimestamp as bigint,
+          channelId: Number(channel.channelQueryData?.id),
+          chainId: localNetwork.config.chainId as number,
+          highestTotalSupply: BigInt(0),
+        });
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -183,6 +180,13 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           isClosable: true,
           position: "top-right",
         });
+        // wait for 5 seconds
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        // verify the contract on base
+        await verifyTempTokenV1OnBase(
+          args.tokenAddress as `0x${string}`,
+          encoded
+        );
       },
       onTxError: (error) => {
         toast({
