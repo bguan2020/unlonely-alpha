@@ -36,6 +36,7 @@ import {
 } from "../../hooks/internal/useVibesCheck";
 import { useCacheContext } from "../../hooks/context/useCache";
 import { AblyChannelPromise, NULL_ADDRESS } from "../../constants";
+import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
@@ -106,6 +107,9 @@ export const TempTokenInterface = ({
     chartTimeIndexes,
     txs: chartTxs,
   });
+
+  const [tempTokenDisclaimerModalOpen, setTempTokenDisclaimerModalOpen] =
+    useState<boolean>(false);
 
   const priceOfHighestTotalSupply = useMemo(() => {
     if (currentActiveTokenHighestTotalSupply === BigInt(0)) return 0;
@@ -235,6 +239,27 @@ export const TempTokenInterface = ({
           p={"10px"}
           h={customHeight ?? "100%"}
         >
+          <TransactionModalTemplate
+            title="You are joining the token game"
+            isOpen={tempTokenDisclaimerModalOpen}
+            handleClose={() => setTempTokenDisclaimerModalOpen(false)}
+            hideFooter
+          >
+            <Text>Rules rules rules</Text>
+            <Flex>
+              <Button
+                onClick={() => {
+                  setTempTokenDisclaimerModalOpen(false);
+                  handleCanPlayToken(true);
+                }}
+              >
+                Continue
+              </Button>
+              <Button onClick={() => setTempTokenDisclaimerModalOpen(false)}>
+                Exit
+              </Button>
+            </Flex>
+          </TransactionModalTemplate>
           <Flex justifyContent={"space-between"} alignItems={"center"}>
             <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
               ${currentActiveTokenSymbol}
@@ -476,7 +501,7 @@ export const TempTokenInterface = ({
                   >
                     <Text
                       color="white"
-                      onClick={() => handleCanPlayToken(true)}
+                      onClick={() => setTempTokenDisclaimerModalOpen(true)}
                     >
                       PLAY NOW
                     </Text>
