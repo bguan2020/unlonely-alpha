@@ -125,7 +125,6 @@ export const useChat = (): ChatReturnType => {
       ) {
         const amount = body.split(":")[2];
         if (Number(amount) < 2000) return;
-        const m = determineValue(Number(amount));
         emojiBlast(<Text fontSize={"30px"}>{"📉"}</Text>);
       }
     }

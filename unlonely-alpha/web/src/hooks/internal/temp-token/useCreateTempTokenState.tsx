@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
 import { decodeEventLog, encodeAbiParameters } from "viem";
@@ -6,9 +6,11 @@ import { useNetworkContext } from "../../context/useNetwork";
 import { useCreateTempToken } from "../../contracts/useTempTokenFactoryV1";
 import { verifyTempTokenV1OnBase } from "../../../utils/contract-verification/tempToken";
 import usePostTempToken from "../../server/temp-token/usePostTempToken";
-import { Contract } from "../../../constants";
+import { Contract, InteractionType } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
 import { useChannelContext } from "../../context/useChannel";
+import { useUser } from "../../context/useUser";
+import centerEllipses from "../../../utils/centerEllipses";
 
 export type UseCreateTempTokenStateType = {
   newTokenName: string;
@@ -37,8 +39,10 @@ export const useCreateTempTokenInitialState: UseCreateTempTokenStateType = {
 };
 
 export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
-  const { channel } = useChannelContext();
+  const { userAddress, user } = useUser();
+  const { chat, channel } = useChannelContext();
   const { network } = useNetworkContext();
+  const { addToChatbot } = chat;
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
 
@@ -49,7 +53,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
   );
 
   const { postTempToken } = usePostTempToken({});
-
+  const canAddToChatbot_create = useRef(false);
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
     localNetwork
@@ -85,6 +89,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot_create.current = true;
       },
       onWriteError: (error) => {
         toast({
@@ -97,8 +102,10 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
             </Box>
           ),
         });
+        canAddToChatbot_create.current = false;
       },
       onTxSuccess: async (data) => {
+        if (!canAddToChatbot_create.current) return;
         const topics = decodeEventLog({
           abi: factoryContract.abi,
           data: data.logs[2].data,
@@ -170,6 +177,16 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           highestTotalSupply: BigInt(0),
           creationBlockNumber: args.creationBlockNumber as bigint,
         });
+        const title = `${
+          user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
+        } created the ${args.symbol} token!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.CREATE_TEMP_TOKEN,
+          title,
+          description: "",
+        });
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -193,6 +210,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           args.tokenAddress as `0x${string}`,
           encoded
         );
+        canAddToChatbot_create.current = false;
       },
       onTxError: (error) => {
         toast({
@@ -205,6 +223,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           isClosable: true,
           position: "top-right",
         });
+        canAddToChatbot_create.current = false;
       },
     }
   );

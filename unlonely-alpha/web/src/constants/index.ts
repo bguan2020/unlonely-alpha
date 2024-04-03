@@ -9,14 +9,20 @@ export enum InteractionType {
   CUSTOM = "custom-action-interaction",
   BLAST = "blast-emoji-interaction",
   CLIP = "clip-interaction",
+  
   BUY_VOTES = "buy-votes-interaction",
   SELL_VOTES = "sell-votes-interaction",
+
   BUY_BADGES = "buy-badges-interaction",
   SELL_BADGES = "sell-badges-interaction",
+
   BUY_VIBES = "buy-vibes-interaction",
   SELL_VIBES = "sell-vibes-interaction",
+
   BUY_TEMP_TOKENS = "buy-temp-tokens-interaction",
   SELL_TEMP_TOKENS = "sell-temp-tokens-interaction",
+  CREATE_TEMP_TOKEN = "create-temp-token-interaction",
+
   EVENT_LIVE = "event-live-interaction",
   EVENT_LOCK = "event-lock-interaction",
   EVENT_UNLOCK = "event-unlock-interaction",

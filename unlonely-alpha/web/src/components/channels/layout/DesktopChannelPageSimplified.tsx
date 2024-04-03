@@ -266,6 +266,7 @@ export const DesktopChannelPageSimplified = ({
                   gap="1rem"
                 >
                   <TempTokenInterface
+                    ablyChannel={chat.channel}
                     canPlayToken={canPlayToken}
                     handleCanPlayToken={handleCanPlayToken}
                     customHeight="100%"
@@ -283,6 +284,7 @@ export const DesktopChannelPageSimplified = ({
                     <>
                       {shouldRenderTempTokenInterface ? (
                         <TempTokenInterface
+                          ablyChannel={chat.channel}
                           canPlayToken={canPlayToken}
                           handleCanPlayToken={handleCanPlayToken}
                           customHeight="30%"
@@ -306,6 +308,7 @@ export const DesktopChannelPageSimplified = ({
                     <>
                       {shouldRenderTempTokenInterface && (
                         <TempTokenInterface
+                          ablyChannel={chat.channel}
                           canPlayToken={canPlayToken}
                           handleCanPlayToken={handleCanPlayToken}
                           customHeight="30%"

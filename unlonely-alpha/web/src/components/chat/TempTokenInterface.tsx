@@ -35,6 +35,7 @@ import {
   blockNumberHoursAgo,
 } from "../../hooks/internal/useVibesCheck";
 import { useCacheContext } from "../../hooks/context/useCache";
+import { AblyChannelPromise, NULL_ADDRESS } from "../../constants";
 
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
@@ -44,10 +45,18 @@ export const TempTokenInterface = ({
   canPlayToken,
   handleCanPlayToken,
   customHeight,
+  isFullChart,
+  ablyChannel,
+  customLoading,
+  noChannelData,
 }: {
   canPlayToken: boolean;
   handleCanPlayToken: (canPlay: boolean) => void;
   customHeight?: string;
+  isFullChart?: boolean;
+  ablyChannel?: AblyChannelPromise;
+  customLoading?: boolean;
+  noChannelData?: boolean;
 }) => {
   const { channel } = useChannelContext();
   const { ethPriceInUsd } = useCacheContext();
@@ -55,6 +64,7 @@ export const TempTokenInterface = ({
   const {
     channelQueryData,
     currentActiveTokenEndTimestamp,
+    currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenHasHitTotalSupplyThreshold,
     currentActiveTokenHighestTotalSupply,
@@ -193,7 +203,7 @@ export const TempTokenInterface = ({
 
   return (
     <>
-      {loading ? (
+      {loading || customLoading ? (
         <Flex
           direction="column"
           alignItems="center"
@@ -202,6 +212,19 @@ export const TempTokenInterface = ({
           justifyContent={"center"}
         >
           <Text>loading Temp Token chart</Text>
+          <Spinner size="md" />
+        </Flex>
+      ) : currentActiveTokenAddress === NULL_ADDRESS ? (
+        <Flex
+          direction="column"
+          alignItems="center"
+          width="100%"
+          gap="5px"
+          justifyContent={"center"}
+        >
+          <Text>
+            No active token detected for this channel, please try again later
+          </Text>
           <Spinner size="md" />
         </Flex>
       ) : (
@@ -280,6 +303,18 @@ export const TempTokenInterface = ({
           )}
           <Flex gap="10px" flex="1" h="100%" direction="column">
             <Flex direction="column" w="100%" position="relative" h="70%">
+              {noChannelData && (
+                <Text
+                  textAlign="center"
+                  position="absolute"
+                  color="gray"
+                  top="50%"
+                  left="50%"
+                  transform="translate(-50%, -50%)"
+                >
+                  could not fetch channel data
+                </Text>
+              )}
               {chartTxs.length === 0 && (
                 <Text
                   textAlign="center"
