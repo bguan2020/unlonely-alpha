@@ -10,13 +10,22 @@ import { Livepeer } from "livepeer";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useUser } from "../../../hooks/context/useUser";
 import ChannelNextHead from "../../layout/ChannelNextHead";
-import { Stack, Flex, Text, Button } from "@chakra-ui/react";
+import {
+  Stack,
+  Flex,
+  Text,
+  Button,
+  Input,
+  useToast,
+  Box,
+  Spinner,
+} from "@chakra-ui/react";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../../constants/queries";
 import { WavyText } from "../../general/WavyText";
 import { ChannelWideModals } from "../ChannelWideModals";
 import { DesktopChannelViewerPerspectiveSimplified } from "./DesktopChannelViewerPerspectiveSimplified";
-import { Contract } from "../../../constants";
+import { Contract, NULL_ADDRESS } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
 import ChatComponent from "../../chat/ChatComponent";
 import { DesktopChannelStreamerPerspectiveSimplified } from "./DesktopChannelStreamerPerspectiveSimplified";
@@ -26,9 +35,13 @@ import {
   useGetHolderBalance,
 } from "../../../hooks/contracts/useTournament";
 import { useContractEvent } from "wagmi";
-import { Log } from "viem";
+import { Log, isAddress } from "viem";
 import Header from "../../navigation/Header";
 import { TempTokenCreationModal } from "../TempTokenCreationModal";
+import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../../hooks/contracts/useTempTokenV1";
+import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
+import { ContractData } from "../../../constants/types";
+import Link from "next/link";
 
 export const DesktopChannelPageSimplified = ({
   channelSSR,
@@ -297,9 +310,9 @@ export const DesktopChannelPageSimplified = ({
                           p="5px"
                           height="20vh"
                         >
-                          <Button onClick={() => setCreateTokenModalOpen(true)}>
-                            start creating temp token
-                          </Button>
+                          <CreateTokenInterface
+                            getLivepeerStreamData={getLivepeerStreamData}
+                          />
                         </Flex>
                       )}
                       <ChatComponent chat={chat} customHeight={"100%"} />
@@ -341,6 +354,154 @@ export const DesktopChannelPageSimplified = ({
           </Flex>
         )}
       </Flex>
+    </>
+  );
+};
+
+const CreateTokenInterface = (getLivepeerStreamData: any) => {
+  const { channel } = useChannelContext();
+  const {
+    lastInactiveTokenAddress, // todo finish send after expiration flow before creating token flow
+    lastInactiveTokenBalance,
+    onSendRemainingFundsToWinner,
+  } = channel;
+  const { network } = useNetworkContext();
+  const { localNetwork, explorerUrl } = network;
+  const [createTokenModalOpen, setCreateTokenModalOpen] = useState(false);
+  const [winnerAddress, setWinnerAddress] = useState("");
+  const toast = useToast();
+
+  const inactiveTempTokenContract: ContractData = useMemo(() => {
+    if (!lastInactiveTokenAddress) {
+      return {
+        address: NULL_ADDRESS,
+        abi: undefined,
+        chainId: localNetwork.config.chainId,
+      };
+    }
+    return {
+      address: lastInactiveTokenAddress as `0x${string}`,
+      abi: TempTokenAbi,
+      chainId: localNetwork.config.chainId,
+    };
+  }, [lastInactiveTokenAddress, localNetwork.config.chainId]);
+
+  const {
+    sendRemainingFundsToWinnerAfterTokenExpiration,
+    sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
+  } = useSendRemainingFundsToWinnerAfterTokenExpiration(
+    {
+      winnerWalletAddress: winnerAddress,
+    },
+    inactiveTempTokenContract,
+    {
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                send remaining funds pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+      onWriteError: (error) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              send remaining funds cancelled
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: async (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                send remaining funds success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        onSendRemainingFundsToWinner(lastInactiveTokenAddress, false);
+        setWinnerAddress("");
+      },
+      onTxError: (error) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              send remaining funds error
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+    }
+  );
+
+  return (
+    <>
+      {lastInactiveTokenAddress === NULL_ADDRESS &&
+      lastInactiveTokenBalance === BigInt(0) ? (
+        <>
+          <TempTokenCreationModal
+            title="Create Temp Token"
+            isOpen={createTokenModalOpen}
+            handleClose={() => setCreateTokenModalOpen(false)}
+            getLivepeerStreamData={getLivepeerStreamData}
+          />
+          <Button onClick={() => setCreateTokenModalOpen(true)}>
+            start creating temp token
+          </Button>
+        </>
+      ) : (
+        <Flex direction="column" gap="5px">
+          <Text>Your last token that had expired still has a balance</Text>
+          <Text>
+            Please provide an address to send it before creating a new one
+          </Text>
+          <Input
+            variant="glow"
+            value={winnerAddress}
+            onChange={(e) => setWinnerAddress(e.target.value)}
+          />
+          <Button
+            isDisabled={
+              !isAddress(winnerAddress) ||
+              sendRemainingFundsToWinnerAfterTokenExpirationTxLoading ||
+              !sendRemainingFundsToWinnerAfterTokenExpiration
+            }
+            onClick={sendRemainingFundsToWinnerAfterTokenExpiration}
+          >
+            {sendRemainingFundsToWinnerAfterTokenExpirationTxLoading ? (
+              <Spinner />
+            ) : (
+              "send"
+            )}
+          </Button>
+        </Flex>
+      )}
     </>
   );
 };

@@ -434,6 +434,9 @@ export const useBurn = (
 };
 
 export const useSendRemainingFundsToWinnerAfterTokenExpiration = (
+    args: {
+      winnerWalletAddress: string;
+    },
     contract: ContractData,
     callbacks?: WriteCallbacks
   ) => {
@@ -447,7 +450,7 @@ export const useSendRemainingFundsToWinnerAfterTokenExpiration = (
     } = useWrite(
       contract,
       "sendRemainingFundsToWinnerAfterTokenExpiration",
-      [],
+      [args.winnerWalletAddress],
       createCallbackHandler("useTempTokenV1 sendRemainingFundsToWinnerAfterTokenExpiration", callbacks),
       {
         enabled:

@@ -3,6 +3,7 @@ import { formatUnits } from "viem";
 import {
   Flex,
   Text,
+  Image,
   Spinner,
   Button,
   Tooltip as ChakraTooltip,
@@ -11,6 +12,7 @@ import {
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
+  IconButton,
 } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../utils/time";
 import {
@@ -37,6 +39,7 @@ import {
 import { useCacheContext } from "../../hooks/context/useCache";
 import { AblyChannelPromise, NULL_ADDRESS } from "../../constants";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
+import { useWindowSize } from "../../hooks/internal/useWindowSize";
 
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
@@ -61,6 +64,7 @@ export const TempTokenInterface = ({
 }) => {
   const { channel } = useChannelContext();
   const { ethPriceInUsd } = useCacheContext();
+  const windowSize = useWindowSize();
 
   const {
     channelQueryData,
@@ -72,8 +76,6 @@ export const TempTokenInterface = ({
     currentActiveTokenIsAlwaysTradable,
     currentActiveTokenTotalSupply,
     currentActiveTokenTotalSupplyThreshold,
-    lastInactiveTokenAddress, // todo finish send after expiration flow before creating token flow
-    lastInactiveTokenBalance,
   } = channel;
   const [timeLeftForTempToken, setTimeLeftForTempToken] = useState<
     string | undefined
@@ -207,6 +209,18 @@ export const TempTokenInterface = ({
     return () => clearInterval(interval);
   }, [currentActiveTokenEndTimestamp]);
 
+  const openTokenPopout = () => {
+    if (!channelQueryData) return;
+    const windowFeatures = `width=${windowSize[0] + 100},height=${
+      windowSize[1] + 100
+    },menubar=yes,toolbar=yes`;
+    window.open(
+      `${window.location.origin}/vibes/${channelQueryData?.slug}`,
+      "_blank",
+      windowFeatures
+    );
+  };
+
   return (
     <>
       {loading || customLoading ? (
@@ -271,6 +285,28 @@ export const TempTokenInterface = ({
                 ? "winner"
                 : timeLeftForTempToken ?? "expired"}
             </Text>
+            {!isFullChart && (
+              <Popover trigger="hover" placement="top" openDelay={500}>
+                <PopoverTrigger>
+                  <IconButton
+                    onClick={openTokenPopout}
+                    aria-label="token-popout"
+                    _focus={{}}
+                    _hover={{ transform: "scale(1.15)" }}
+                    _active={{ transform: "scale(1.3)" }}
+                    icon={<Image src="/svg/pop-out.svg" height={"20px"} />}
+                    bg="transparent"
+                    minWidth="auto"
+                  />
+                </PopoverTrigger>
+                <PopoverContent bg="#008d75" border="none" width="100%" p="2px">
+                  <PopoverArrow bg="#008d75" />
+                  <Text fontSize="12px" textAlign={"center"}>
+                    pop out chart in a new window!
+                  </Text>
+                </PopoverContent>
+              </Popover>
+            )}
           </Flex>
           {canPlayToken && (
             <Flex gap="5px" alignItems={"center"}>

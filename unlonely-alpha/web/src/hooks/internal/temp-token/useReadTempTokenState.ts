@@ -26,12 +26,14 @@ export type UseReadTempTokenStateType = {
   currentActiveTokenCreationBlockNumber: bigint;
   lastInactiveTokenAddress: string;
   lastInactiveTokenBalance: bigint;
+  currentTempTokenContract: ContractData;
   onMintEvent: (totalSupply: bigint, highestTotalSupply: bigint) => void;
   onBurnEvent: (totalSupply: bigint) => void;
   onReachThresholdEvent: (newEndTimestamp: bigint) => void;
   onDurationIncreaseEvent: (newEndTimestamp: bigint) => void;
   onAlwaysTradeableEvent: () => void;
   onThresholdUpdateEvent: (newThreshold: bigint) => void;
+  onSendRemainingFundsToWinner: (tokenAddress: string, tokenIsCurrent: boolean) => void;
 };
 
 export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
@@ -46,12 +48,18 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
   currentActiveTokenCreationBlockNumber: BigInt(0),
   lastInactiveTokenAddress: NULL_ADDRESS,
   lastInactiveTokenBalance: BigInt(0),
+  currentTempTokenContract: {
+    address: NULL_ADDRESS,
+    abi: undefined,
+    chainId: 0,
+  },
   onMintEvent: () => undefined,
   onBurnEvent: () => undefined,
   onReachThresholdEvent: () => undefined,
   onDurationIncreaseEvent: () => undefined,
   onAlwaysTradeableEvent: () => undefined,
   onThresholdUpdateEvent: () => undefined,
+  onSendRemainingFundsToWinner: () => undefined,
 };
 
 export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
@@ -64,6 +72,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
     const { localNetwork } = network;
     const publicClient = usePublicClient();
 
+    // currentActiveTokenAddress is set on mount or by creation event
     const [currentActiveTokenAddress, setCurrentActiveTokenAddress] =
     useState<string>(NULL_ADDRESS);
   const [currentActiveTokenEndTimestamp, setCurrentActiveTokenEndTimestamp] =
@@ -253,6 +262,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
             );
             if (nonNullListOfTokensWithNonZeroBalances && nonNullListOfTokensWithNonZeroBalances.length > 0 && isOwner) {
               const lastInactiveTokenWithBalance = nonNullListOfTokensWithNonZeroBalances[0];
+              if (lastInactiveTokenWithBalance.isAlwaysTradeable) return;
               setLastInactiveTokenAddress(lastInactiveTokenWithBalance.tokenAddress);
               setLastInactiveTokenBalance(BigInt(lastInactiveTokenWithBalance.balance));
             }
@@ -292,6 +302,29 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         setCurrentActiveTokenTotalSupplyThreshold(newThreshold);
         setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
       }, []);
+
+      /**
+       * function to run when sending remaining funds to winner
+       * ideally to be called on an inactive token to reset the state and allow for normal token creation flow
+       * but if a current token had just turned inactive and the funds have or have not been sent, what does the ui look like?
+       */
+      const onSendRemainingFundsToWinner = useCallback(async (tokenAddress: string, tokenIsCurrent: boolean) => {
+        // if (tokenIsCurrent && tokenAddress === currentActiveTokenAddress) {
+        //   setLastInactiveTokenBalance(currentActiveTokenTotalSupply);
+        //   setLastInactiveTokenAddress(currentActiveTokenAddress);
+        //   setCurrentActiveTokenTotalSupply(BigInt(0));
+        //   setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
+        //   setCurrentActiveTokenTotalSupplyThreshold(BigInt(0));
+        //   setCurrentActiveTokenIsAlwaysTradable(false);
+        //   setCurrentActiveTokenHighestTotalSupply(BigInt(0));
+        //   setCurrentActiveTokenEndTimestamp(BigInt(0));
+        //   setCurrentActiveTokenAddress(NULL_ADDRESS);
+        // }
+        if (!tokenIsCurrent && tokenAddress === lastInactiveTokenAddress) {
+          setLastInactiveTokenBalance(BigInt(0));
+          setLastInactiveTokenAddress(NULL_ADDRESS);
+        }
+      }, [currentActiveTokenAddress]);
 
       /**
        * listen for reach threshold event
@@ -445,7 +478,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         const latestLog: any = sortedLogs[sortedLogs.length - 1];
         const newThreshold = latestLog?.args.totalSupplyThreshold as bigint;
         onThresholdUpdateEvent(newThreshold);
-      };
+      }
 
     return {
         currentActiveTokenSymbol,
@@ -459,11 +492,13 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         currentActiveTokenCreationBlockNumber,
         lastInactiveTokenAddress,
         lastInactiveTokenBalance,
+        currentTempTokenContract: tempTokenContract,
         onMintEvent,
         onBurnEvent,
         onReachThresholdEvent,
         onDurationIncreaseEvent,
         onAlwaysTradeableEvent,
         onThresholdUpdateEvent,
+        onSendRemainingFundsToWinner,
     };
 }
