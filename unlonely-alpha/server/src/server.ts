@@ -10,6 +10,7 @@ import express from "express";
 import { getContext } from "./context";
 import graphqlSchema from "./entities/graphqlSchema";
 import { fetchForNewTempTokenEndtimestamps } from "./utils/fetchForNewTempTokenEndtimestamps";
+import { setLivepeerStreamIsLive } from "./utils/setLivepeerStreamIsLive";
 // import { watchBlocks } from "./utils/watchBlock";
 
 // const testDb = "postgresql://doadmin:AVNS__XJW01bZjuI2pG6@db-postgresql-sfo3-16817-do-user-11088919-0.b.db.ondigitalocean.com:25060/unlonely-dev?sslmode=require";
@@ -24,7 +25,9 @@ app.get("/", (_, res) => res.sendStatus(200));
 app.post("/webhook", (req, res) => {
   const payload = req.body;
   console.log("Received livepeer webhook data:", payload);
-  // Handle the webhook data here
+  const streamId = payload.stream.id;
+  const streamStatus = payload.stream.isActive;
+  setLivepeerStreamIsLive(streamId, streamStatus);
   res.sendStatus(200);
 });
 
