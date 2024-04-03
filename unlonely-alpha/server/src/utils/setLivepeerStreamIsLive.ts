@@ -14,7 +14,7 @@ export const setLivepeerStreamIsLive = async (id: string, isLive: boolean) => {
         return;
     }
 
-    console.log(`channel ${existingChannel.id} is live: ${isLive}`)
+    console.log(`channel ${existingChannel.id} is live: ${isLive},`, (new Date()).toISOString())
 
     await prisma.channel.update({
         where: {

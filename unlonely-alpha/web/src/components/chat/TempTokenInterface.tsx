@@ -53,6 +53,7 @@ export const TempTokenInterface = ({
   const { ethPriceInUsd } = useCacheContext();
 
   const {
+    channelQueryData,
     currentActiveTokenEndTimestamp,
     currentActiveTokenSymbol,
     currentActiveTokenHasHitTotalSupplyThreshold,
@@ -96,9 +97,44 @@ export const TempTokenInterface = ({
     txs: chartTxs,
   });
 
-  const [currentPriceInUsd, setCurrentPriceInUsd] = useState<
-    string | undefined
-  >(undefined);
+  const priceOfHighestTotalSupply = useMemo(() => {
+    if (currentActiveTokenHighestTotalSupply === BigInt(0)) return 0;
+    const n = Number(currentActiveTokenHighestTotalSupply);
+    const n_ = Math.max(n - 1, 0);
+    const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+    const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+    const newPrice = priceForCurrent - priceForPrevious;
+    return newPrice;
+  }, [currentActiveTokenHighestTotalSupply]);
+
+  const priceOfHighestTotalSupplyInUsd = useMemo(
+    () =>
+      ethPriceInUsd === undefined
+        ? undefined
+        : truncateValue(
+            Number(priceOfHighestTotalSupply) * Number(ethPriceInUsd),
+            4
+          ),
+    [priceOfHighestTotalSupply, ethPriceInUsd]
+  );
+
+  const priceOfThreshold = useMemo(() => {
+    if (currentActiveTokenTotalSupplyThreshold === BigInt(0)) return 0;
+    const n = Number(currentActiveTokenTotalSupplyThreshold);
+    const n_ = Math.max(n - 1, 0);
+    const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+    const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+    const newPrice = priceForCurrent - priceForPrevious;
+    return newPrice;
+  }, [currentActiveTokenTotalSupplyThreshold]);
+
+  const priceOfThresholdInUsd = useMemo(
+    () =>
+      ethPriceInUsd === undefined
+        ? undefined
+        : truncateValue(Number(priceOfThreshold) * Number(ethPriceInUsd), 4),
+    [priceOfThreshold, ethPriceInUsd]
+  );
 
   const formattedCurrentPrice = useMemo(
     () =>
@@ -108,12 +144,16 @@ export const TempTokenInterface = ({
     [formattedData]
   );
 
-  useEffect(() => {
-    if (ethPriceInUsd === undefined) return;
-    setCurrentPriceInUsd(
-      truncateValue(Number(formattedCurrentPrice) * Number(ethPriceInUsd), 4)
-    );
-  }, [formattedCurrentPrice, ethPriceInUsd]);
+  const currentPriceInUsd = useMemo(
+    () =>
+      ethPriceInUsd === undefined
+        ? undefined
+        : truncateValue(
+            Number(formattedCurrentPrice) * Number(ethPriceInUsd),
+            4
+          ),
+    [formattedCurrentPrice, ethPriceInUsd]
+  );
 
   const {
     CustomDot,
@@ -177,7 +217,9 @@ export const TempTokenInterface = ({
               ${currentActiveTokenSymbol}
             </Text>
             <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
-              {timeLeftForTempToken ?? "00:00"}
+              {currentActiveTokenIsAlwaysTradable
+                ? "winner"
+                : timeLeftForTempToken ?? "expired"}
             </Text>
           </Flex>
           {canPlayToken && (
@@ -271,7 +313,12 @@ export const TempTokenInterface = ({
                   />
                   <YAxis
                     tickFormatter={formatYAxisTick}
-                    domain={["dataMin", "dataMax"]}
+                    domain={
+                      currentActiveTokenTotalSupplyThreshold >
+                      currentActiveTokenTotalSupply
+                        ? ["dataMin", priceOfThreshold * (1 + ZONE_BREADTH)]
+                        : ["dataMin", "dataMax"]
+                    }
                   />
                   <Tooltip content={<CustomTooltip />} />
                   {timeFilter === "all" && (
@@ -356,6 +403,12 @@ export const TempTokenInterface = ({
                         })}
                     </>
                   )}
+                  <ReferenceLine
+                    y={priceOfThreshold}
+                    stroke="#ff0000"
+                    strokeDasharray="3 3"
+                    label={<CustomLabel value="target" />}
+                  />
                   <Line
                     type="monotone"
                     dataKey="price"
@@ -377,120 +430,203 @@ export const TempTokenInterface = ({
               </ResponsiveContainer>
             </Flex>
             {!canPlayToken && (
-              <Button _focus={{}} _active={{}} _hover={{}} bg="#02b263" h="30%">
-                <Text color="white" onClick={() => handleCanPlayToken(true)}>
-                  PLAY NOW
-                </Text>
-              </Button>
+              <>
+                {channelQueryData?.isLive ? (
+                  <Button
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
+                    bg="#02b263"
+                    h="30%"
+                  >
+                    <Text
+                      color="white"
+                      onClick={() => handleCanPlayToken(true)}
+                    >
+                      PLAY NOW
+                    </Text>
+                  </Button>
+                ) : (
+                  <Text>
+                    Cannot play when stream is offline, please refresh and try
+                    again
+                  </Text>
+                )}
+              </>
             )}
             {canPlayToken && (
-              <Flex
-                direction="column"
-                justifyContent={"flex-end"}
-                gap="10px"
-                h="30%"
-              >
-                <Flex position="relative" gap="5px" alignItems={"center"}>
-                  <ChakraTooltip
-                    label={errorMessage}
-                    placement="bottom-start"
-                    isOpen={errorMessage !== undefined}
-                    bg="red.600"
-                  >
-                    <Input
-                      variant={errorMessage.length > 0 ? "redGlow" : "glow"}
-                      textAlign="center"
-                      value={amount}
-                      onChange={handleAmount}
-                      mx="auto"
-                      p="1"
-                      fontSize={"14px"}
-                    />
-                  </ChakraTooltip>
-                  <Popover trigger="hover" placement="top" openDelay={500}>
-                    <PopoverTrigger>
-                      <Button
-                        bg={"#403c7d"}
-                        color="white"
-                        p={2}
-                        height={"20px"}
-                        _focus={{}}
-                        _active={{}}
-                        _hover={{
-                          bg: "#8884d8",
-                        }}
-                        onClick={() => {
-                          tempTokenBalance &&
-                            handleAmount(tempTokenBalance.formatted);
-                        }}
-                      >
-                        max
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      bg="#6c3daf"
-                      border="none"
-                      width="100%"
-                      p="2px"
-                    >
-                      <PopoverArrow bg="#6c3daf" />
-                      <Text fontSize="12px" textAlign={"center"}>
-                        click to show max temp tokens u currently own
+              <Flex>
+                <Flex direction="column" gap="10px">
+                  <Flex direction="column">
+                    <Text fontSize={"12px"} color="#c6c3fc">
+                      Current Price
+                    </Text>
+                    {currentPriceInUsd !== undefined ? (
+                      <>
+                        <Text color="#f3d584" fontSize="2rem">
+                          ${currentPriceInUsd}
+                        </Text>
+                        <Text
+                          whiteSpace={"nowrap"}
+                          opacity="0.3"
+                          fontSize="14px"
+                        >
+                          {formattedCurrentPrice} ETH
+                        </Text>
+                      </>
+                    ) : (
+                      <Text whiteSpace={"nowrap"} fontSize="1rem">
+                        {formattedCurrentPrice} ETH
                       </Text>
-                    </PopoverContent>
-                  </Popover>
+                    )}
+                  </Flex>
+                  <Flex direction="column">
+                    <Text fontSize={"12px"} color="#c6c3fc">
+                      Highest Price Reached
+                    </Text>
+                    {priceOfHighestTotalSupplyInUsd !== undefined ? (
+                      <>
+                        <Text color="#f3d584" fontSize="2rem">
+                          ${priceOfHighestTotalSupplyInUsd}
+                        </Text>
+                        <Text
+                          whiteSpace={"nowrap"}
+                          opacity="0.3"
+                          fontSize="14px"
+                        >
+                          {priceOfHighestTotalSupply} ETH
+                        </Text>
+                      </>
+                    ) : (
+                      <Text whiteSpace={"nowrap"} fontSize="1rem">
+                        {priceOfHighestTotalSupply} ETH
+                      </Text>
+                    )}
+                  </Flex>
+                  <Flex direction="column">
+                    {currentActiveTokenHasHitTotalSupplyThreshold ? (
+                      <Text fontSize={"12px"} color="#c6c3fc">
+                        Target Price Reached
+                      </Text>
+                    ) : (
+                      <Text fontSize={"12px"} color="#c6c3fc">
+                        {String(
+                          currentActiveTokenTotalSupplyThreshold -
+                            currentActiveTokenTotalSupply
+                        )}
+                        tokens needed to reach ${priceOfThresholdInUsd}
+                      </Text>
+                    )}
+                  </Flex>
                 </Flex>
-                <Flex gap="2px" justifyContent={"center"} direction="column">
-                  <Button
-                    color="white"
-                    _focus={{}}
-                    _hover={{}}
-                    _active={{}}
-                    bg="#46a800"
-                    isDisabled={
-                      !mint ||
-                      mintCostAfterFeesLoading ||
-                      Number(formatIncompleteNumber(amount)) <= 0
-                    }
-                    onClick={mint}
-                    p={"0px"}
-                    w="100%"
-                  >
-                    <Flex direction="column">
-                      <Text>BUY</Text>
-                      <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
-                        {`(${truncateValue(
-                          formatUnits(mintCostAfterFees, 18),
-                          4
-                        )} ETH)`}
-                      </Text>
-                    </Flex>
-                  </Button>
-                  <Button
-                    color="white"
-                    _focus={{}}
-                    _hover={{}}
-                    _active={{}}
-                    bg="#fe2815"
-                    isDisabled={
-                      !burn ||
-                      burnProceedsAfterFeesLoading ||
-                      Number(formatIncompleteNumber(amount)) <= 0
-                    }
-                    onClick={burn}
-                    p={undefined}
-                    w="100%"
-                  >
-                    <Flex direction="column">
-                      <Text>SELL</Text>
-                      <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
-                        {`(${truncateValue(
-                          formatUnits(burnProceedsAfterFees, 18),
-                          4
-                        )} ETH)`}
-                      </Text>
-                    </Flex>
-                  </Button>
+                <Flex
+                  direction="column"
+                  justifyContent={"flex-end"}
+                  gap="10px"
+                  h="30%"
+                >
+                  <Flex position="relative" gap="5px" alignItems={"center"}>
+                    <ChakraTooltip
+                      label={errorMessage}
+                      placement="bottom-start"
+                      isOpen={errorMessage !== undefined}
+                      bg="red.600"
+                    >
+                      <Input
+                        variant={errorMessage.length > 0 ? "redGlow" : "glow"}
+                        textAlign="center"
+                        value={amount}
+                        onChange={handleAmount}
+                        mx="auto"
+                        p="1"
+                        fontSize={"14px"}
+                      />
+                    </ChakraTooltip>
+                    <Popover trigger="hover" placement="top" openDelay={500}>
+                      <PopoverTrigger>
+                        <Button
+                          bg={"#403c7d"}
+                          color="white"
+                          p={2}
+                          height={"20px"}
+                          _focus={{}}
+                          _active={{}}
+                          _hover={{
+                            bg: "#8884d8",
+                          }}
+                          onClick={() => {
+                            tempTokenBalance &&
+                              handleAmount(tempTokenBalance.formatted);
+                          }}
+                        >
+                          max
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#6c3daf"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#6c3daf" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          click to show max temp tokens u currently own
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                  </Flex>
+                  <Flex gap="2px" justifyContent={"center"} direction="column">
+                    <Button
+                      color="white"
+                      _focus={{}}
+                      _hover={{}}
+                      _active={{}}
+                      bg="#46a800"
+                      isDisabled={
+                        !mint ||
+                        mintCostAfterFeesLoading ||
+                        Number(formatIncompleteNumber(amount)) <= 0
+                      }
+                      onClick={mint}
+                      p={"0px"}
+                      w="100%"
+                    >
+                      <Flex direction="column">
+                        <Text>BUY</Text>
+                        <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
+                          {`(${truncateValue(
+                            formatUnits(mintCostAfterFees, 18),
+                            4
+                          )} ETH)`}
+                        </Text>
+                      </Flex>
+                    </Button>
+                    <Button
+                      color="white"
+                      _focus={{}}
+                      _hover={{}}
+                      _active={{}}
+                      bg="#fe2815"
+                      isDisabled={
+                        !burn ||
+                        burnProceedsAfterFeesLoading ||
+                        Number(formatIncompleteNumber(amount)) <= 0
+                      }
+                      onClick={burn}
+                      p={undefined}
+                      w="100%"
+                    >
+                      <Flex direction="column">
+                        <Text>SELL</Text>
+                        <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
+                          {`(${truncateValue(
+                            formatUnits(burnProceedsAfterFees, 18),
+                            4
+                          )} ETH)`}
+                        </Text>
+                      </Flex>
+                    </Button>
+                  </Flex>
                 </Flex>
               </Flex>
             )}

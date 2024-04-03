@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import http from "http";
-// import cron from "node-cron";
 
 import { ApolloServer } from "apollo-server-express";
 import bodyParser from "body-parser";
@@ -24,7 +23,6 @@ app.get("/", (_, res) => res.sendStatus(200));
 // Define a route to handle incoming webhook data
 app.post("/webhook", (req, res) => {
   const payload = req.body;
-  console.log("Received livepeer webhook data:", payload);
   const streamId = payload.stream.id;
   const streamStatus = payload.stream.isActive;
   setLivepeerStreamIsLive(streamId, streamStatus);
@@ -63,12 +61,6 @@ const startServer = async () => {
 
   httpServer.listen(process.env.PORT || 4000, () => {
     console.info(`Server started on port ${process.env.PORT || 4000}`);
-
-    // cron job every 1 minute
-    // cron.schedule("*/1 * * * *", () => {
-    //   console.log("Running a task every 1 minute");
-    //   if (process.env.DATABASE_URL === testDb) watchBlocks();
-    // });
   });
 };
 
