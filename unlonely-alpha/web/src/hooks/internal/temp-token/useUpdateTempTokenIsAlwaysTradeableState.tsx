@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { useNetworkContext } from "../../context/useNetwork";
-import { filteredInput } from "../../../utils/validation/input";
 import { Contract } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
 import { useToast, Box } from "@chakra-ui/react";
@@ -16,19 +14,11 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
 
-  const [booleanNumber, setBooleanNumber] = useState<string>(""); // 1 for true, 0 for false
-
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
     localNetwork
   );
   const toast = useToast();
-
-  const handleInputChange = (event: any) => {
-    const input = event.target.value;
-    const filtered = filteredInput(input);
-    setBooleanNumber(filtered);
-  };
 
   const {
     updateTempTokenIsAlwaysTradeable,
@@ -125,8 +115,6 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
   );
 
   return {
-    booleanNumber,
-    handleInputChange,
     setAlwaysTradeableForTokens,
     setAlwaysTradeableForTokensData,
     setAlwaysTradeableForTokensTxData,

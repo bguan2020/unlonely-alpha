@@ -23,8 +23,8 @@ import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { WavyText } from "../../general/WavyText";
 import AppLayout from "../../layout/AppLayout";
 import ChannelNextHead from "../../layout/ChannelNextHead";
-import ChannelStreamerPerspective from "../ChannelStreamerPerspective";
-import ChannelViewerPerspective from "../ChannelViewerPerspective";
+import ChannelStreamerPerspective from "./ChannelStreamerPerspective";
+import ChannelViewerPerspective from "./ChannelViewerPerspective";
 import StandaloneAblyChatComponent from "../../mobile/StandAloneChatComponent";
 import { ChannelWideModals } from "../ChannelWideModals";
 

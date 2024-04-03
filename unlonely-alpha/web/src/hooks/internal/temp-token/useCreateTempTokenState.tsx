@@ -14,7 +14,7 @@ export type UseCreateTempTokenStateType = {
   newTokenName: string;
   newTokenSymbol: string;
   newTokenDuration: bigint;
-  createTempToken: () => Promise<void>;
+  createTempToken?: () => Promise<any>;
   createTempTokenData: any;
   createTempTokenTxData: any;
   isCreateTempTokenLoading: boolean;
@@ -27,7 +27,7 @@ export const useCreateTempTokenInitialState: UseCreateTempTokenStateType = {
   newTokenName: "temp",
   newTokenSymbol: "temp",
   newTokenDuration: BigInt(3600),
-  createTempToken: async () => undefined,
+  createTempToken: undefined,
   createTempTokenData: undefined,
   createTempTokenTxData: undefined,
   isCreateTempTokenLoading: false,
@@ -42,10 +42,10 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
 
-  const [newTokenName, setNewTokenName] = useState<string>("temp");
-  const [newTokenSymbol, setNewTokenSymbol] = useState<string>("temp");
+  const [newTokenName, setNewTokenName] = useState<string>("name");
+  const [newTokenSymbol, setNewTokenSymbol] = useState<string>("symbol");
   const [newTokenDuration, setNewTokenDuration] = useState<bigint>(
-    BigInt(3600)
+    BigInt(1800)
   );
 
   const { postTempToken } = usePostTempToken({});
@@ -139,6 +139,10 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
               name: "_factoryAddress",
               type: "address",
             },
+            {
+              name: "_creationBlockNumber",
+              type: "uint256",
+            },
           ],
           [
             args.name as string,
@@ -149,6 +153,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
             args.streamerFeePercent as bigint,
             args.totalSupplyThreshold as bigint,
             factoryContract.address as `0x${string}`,
+            args.creationBlockNumber as bigint,
           ]
         );
         console.log("createTempToken success", data, args, encoded);
@@ -163,6 +168,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           channelId: Number(channel.channelQueryData?.id),
           chainId: localNetwork.config.chainId as number,
           highestTotalSupply: BigInt(0),
+          creationBlockNumber: args.creationBlockNumber as bigint,
         });
         toast({
           render: () => (
@@ -215,28 +221,11 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
     setNewTokenDuration(duration);
   }, []);
 
-  const createTempToken = useCallback(async () => {
-    await _createTempToken?.();
-    // await postTempToken({
-    //   tokenAddress: "0x",
-    //   symbol: newTokenSymbol,
-    //   streamerFeePercentage: BigInt(0),
-    //   protocolFeePercentage: BigInt(0),
-    //   ownerAddress: "0x",
-    //   name: newTokenName,
-    //   endUnixTimestamp: BigInt(
-    //     Math.floor(Date.now() / 1000) + Number(newTokenDuration)
-    //   ),
-    //   channelId: Number(channelDetails.channelQueryData?.id),
-    //   chainId: localNetwork.config.chainId as number,
-    // });
-  }, [_createTempToken]);
-
   return {
     newTokenName,
     newTokenSymbol,
     newTokenDuration,
-    createTempToken,
+    createTempToken: _createTempToken,
     createTempTokenData,
     createTempTokenTxData,
     isCreateTempTokenLoading,

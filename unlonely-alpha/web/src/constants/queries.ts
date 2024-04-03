@@ -292,6 +292,7 @@ export const GET_TEMP_TOKENS_QUERY = gql`
       highestTotalSupply
       hasRemainingFundsForCreator
       hasHitTotalSupplyThreshold
+      creationBlockNumber
       endUnixTimestamp
       channelId
       chainId

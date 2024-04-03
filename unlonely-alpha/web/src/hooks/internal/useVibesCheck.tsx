@@ -370,7 +370,10 @@ export const useVibesCheck = () => {
   };
 };
 
-function binarySearchIndex(arr: TradeableTokenTx[], target: bigint): number {
+export function binarySearchIndex(
+  arr: TradeableTokenTx[],
+  target: bigint
+): number {
   let left = 0;
   let right = arr.length - 1;
 

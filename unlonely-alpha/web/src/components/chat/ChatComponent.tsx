@@ -26,7 +26,13 @@ import { useUser } from "../../hooks/context/useUser";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
-const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
+const ChatComponent = ({
+  chat,
+  customHeight,
+}: {
+  chat: ChatReturnType;
+  customHeight?: string;
+}) => {
   const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const [selectedTab, setSelectedTab] = useState<"chat" | "vip">("chat");
@@ -41,7 +47,7 @@ const ChatComponent = ({ chat }: { chat: ChatReturnType }) => {
 
   return (
     <Flex
-      height={!isStandalone ? { base: "60vh" } : "100%"}
+      height={!isStandalone ? { base: `${customHeight ?? "60vh"}` } : "100%"}
       position={"relative"}
     >
       <OuterBorder type={BorderType.OCEAN} p={"0"}>

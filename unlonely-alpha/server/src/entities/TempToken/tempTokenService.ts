@@ -11,6 +11,7 @@ export interface IPostTempTokenInput {
     name: string;
     symbol: string;
     endUnixTimestamp: string;
+    creationBlockNumber: string;
     protocolFeePercentage: string;
     streamerFeePercentage: string;
 }
@@ -32,6 +33,7 @@ export const postTempToken = async (
             protocolFeePercentage: BigInt(data.protocolFeePercentage),
             streamerFeePercentage: BigInt(data.streamerFeePercentage),
             highestTotalSupply: BigInt(0),
+            creationBlockNumber: BigInt(data.creationBlockNumber),
             channel: {
                 connect: {
                     id: data.channelId,

@@ -26,13 +26,14 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     uint256 public endTimestamp;
     uint256 public totalSupplyThreshold;
     uint256 public highestTotalSupply;
+    uint256 public creationBlockNumber;
     bool public hasHitTotalSupplyThreshold;
     bool public isAlwaysTradeable;
 
-    event Mint(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold);
+    event Mint(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold, uint256 highestTotalSupply);
     event Burn(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
     event TokenDurationExtended(uint256 indexed endTimestamp, address indexed tokenAddress);
-    event TokenDurationAndThresholdIncreased(uint256 indexed endTimestamp, uint256 indexed totalSupplyThreshold, address indexed tokenAddress);
+    event TotalSupplyThresholdReached(uint256 indexed endTimestamp, uint256 indexed totalSupplyThreshold, address indexed tokenAddress);
     event SendRemainingFundsToWinnerAfterTokenExpiration(address indexed account, address indexed winnerWallet, uint256 balance);
     event TotalSupplyThresholdUpdated(uint256 indexed totalSupplyThreshold, address indexed tokenAddress, bool hasHitTotalSupplyThreshold);
     event TokenAlwaysTradeableSet(address indexed tokenAddress);
@@ -68,7 +69,8 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         uint256 _protocolFeePercent,
         uint256 _streamerFeePercent,
         uint256 _totalSupplyThreshold,
-        address _factoryAddress
+        address _factoryAddress,
+        uint256 _creationBlockNumber
     ) ERC20(name, symbol) {
         require(_protocolFeeDestination != address(0), "Fee destination cannot be the zero address");
         
@@ -80,6 +82,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         factoryAddress = _factoryAddress;
         hasHitTotalSupplyThreshold = false;
         isAlwaysTradeable = false;
+        creationBlockNumber = _creationBlockNumber;
     }
 
     /**
@@ -107,7 +110,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         if(totalSupply() >= totalSupplyThreshold && !hasHitTotalSupplyThreshold) {
             endTimestamp += 25 hours;
             hasHitTotalSupplyThreshold = true; // Ensure this logic runs only once
-            emit TokenDurationAndThresholdIncreased(endTimestamp, totalSupplyThreshold, address(this));
+            emit TotalSupplyThresholdReached(endTimestamp, totalSupplyThreshold, address(this));
         }
 
         if(msg.value > totalCost) {
@@ -121,7 +124,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         (bool success2, ) = owner().call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
 
-        emit Mint(msg.sender, _amount, owner(), address(this), totalSupply(), protocolFeePercent, streamerFeePercent, endTimestamp, hasHitTotalSupplyThreshold);
+        emit Mint(msg.sender, _amount, owner(), address(this), totalSupply(), protocolFeePercent, streamerFeePercent, endTimestamp, hasHitTotalSupplyThreshold, highestTotalSupply);
     }
 
     /**

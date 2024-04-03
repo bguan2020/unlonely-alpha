@@ -36,7 +36,12 @@ import { useBalance, useContractEvent } from "wagmi";
 import { base } from "viem/chains";
 import { ChartTokenTx } from "../../../components/chat/VibesTokenInterface";
 import { useCacheContext } from "../../../hooks/context/useCache";
-import { insertElementSorted } from "../useVibesCheck";
+import {
+  binarySearchIndex,
+  blockNumberDaysAgo,
+  blockNumberHoursAgo,
+  insertElementSorted,
+} from "../useVibesCheck";
 
 export const useTradeTempTokenState = () => {
   const { walletIsConnected, userAddress, user } = useUser();
@@ -46,6 +51,9 @@ export const useTradeTempTokenState = () => {
     channelQueryData,
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
+    currentActiveTokenCreationBlockNumber,
+    onMintEvent,
+    onBurnEvent,
   } = channel;
   const { addToChatbot } = chat;
   const { network } = useNetworkContext();
@@ -55,12 +63,18 @@ export const useTradeTempTokenState = () => {
 
   const canAddToChatbot_mint = useRef(false);
   const canAddToChatbot_burn = useRef(false);
-
+  const [chartTimeIndexes, setChartTimeIndexes] = useState<
+    Map<string, { index: number | undefined; blockNumber: number }>
+  >(new Map());
+  const [
+    currentBlockNumberForTempTokenChart,
+    setCurrentBlockNumberForTempTokenChart,
+  ] = useState<bigint>(BigInt(0));
   const [amount, setAmount] = useState<string>("1000");
-  const debouncedAmountOfVotes = useDebounce(amount, 300);
+  const debouncedAmount = useDebounce(amount, 300);
   const amount_bigint = useMemo(
-    () => BigInt(debouncedAmountOfVotes as `${number}`),
-    [debouncedAmountOfVotes]
+    () => BigInt(debouncedAmount as `${number}`),
+    [debouncedAmount]
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -94,6 +108,9 @@ export const useTradeTempTokenState = () => {
     []
   );
 
+  /**
+   * BALANCES of TempToken and ETH for the user
+   */
   const { data: tempTokenBalance, refetch: refetchTempTokenBalance } =
     useBalance({
       address: userAddress,
@@ -108,19 +125,11 @@ export const useTradeTempTokenState = () => {
     enabled: isAddress(userAddress as `0x${string}`),
   });
 
-  const {
-    mintCostAfterFees,
-    refetch: refetchMintCostAfterFees,
-    loading: mintCostAfterFeesLoading,
-  } = useGetMintCostAfterFees(amount_bigint, tempTokenContract);
+  /**
+   * CHART TRANSACTIONS, formatted to fit chart component
+   */
 
-  const {
-    burnProceedsAfterFees,
-    refetch: refetchBurnProceedsAfterFees,
-    loading: burnProceedsAfterFeesLoading,
-  } = useGetBurnProceedsAfterFees(amount_bigint, tempTokenContract);
-
-  const txs: ChartTokenTx[] = useMemo(() => {
+  const chartTxs: ChartTokenTx[] = useMemo(() => {
     return tokenTxs.map((tx) => {
       return {
         user: tx.user,
@@ -142,74 +151,9 @@ export const useTradeTempTokenState = () => {
     });
   }, [tokenTxs, ethPriceInUsd]);
 
-  useEffect(() => {
-    const getTempTokenEvents = async () => {
-      if (
-        !baseClient ||
-        !tempTokenContract.address ||
-        fetching.current ||
-        tokenTxs.length > 0
-      ) {
-        fetching.current = false;
-        return;
-      }
-      fetching.current = true;
-      const [mintLogs, burnLogs] = await Promise.all([
-        baseClient.getLogs({
-          address: tempTokenContract.address,
-          event: parseAbiItem(
-            "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent)"
-          ),
-          //   fromBlock: CREATION_BLOCK,
-        }),
-        baseClient.getLogs({
-          address: tempTokenContract.address,
-          event: parseAbiItem(
-            "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent)"
-          ),
-          //   fromBlock: CREATION_BLOCK,
-        }),
-      ]);
-      console.log("temp token mintLogs length", mintLogs.length);
-      console.log("temp token burnLogs length", burnLogs.length);
-      const logs = [...mintLogs, ...burnLogs];
-      logs.sort((a, b) => {
-        if (a.blockNumber === null || b.blockNumber === null) return 0;
-        if (a.blockNumber < b.blockNumber) return -1;
-        if (a.blockNumber > b.blockNumber) return 1;
-        return 0;
-      });
-      const _tokenTxs: TradeableTokenTx[] = [];
-      for (let i = 0; i < logs.length; i++) {
-        const event = logs[i];
-        const n = Number(event.args.totalSupply as bigint);
-        const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
-        const newPrice = priceForCurrent - priceForPrevious;
-        const previousTxPrice =
-          _tokenTxs.length > 0 ? _tokenTxs[_tokenTxs.length - 1].price : 0;
-        const tx: TradeableTokenTx = {
-          eventName: event.eventName,
-          user: event.args.account as `0x${string}`,
-          amount: event.args.amount as bigint,
-          price: newPrice,
-          blockNumber: Number(event.blockNumber),
-          supply: event.args.totalSupply as bigint,
-          priceChangePercentage:
-            i > 0 && _tokenTxs.length > 0
-              ? ((newPrice - previousTxPrice) / previousTxPrice) * 100
-              : 0,
-        };
-        _tokenTxs.push(tx);
-      }
-      fetching.current = false;
-      console.log("setting temp token txs,", _tokenTxs.length, "count");
-      setTokenTxs(_tokenTxs);
-      setLoading(false);
-    };
-    getTempTokenEvents();
-  }, [currentActiveTokenAddress, baseClient]);
+  /**
+   * EVENT LISTENERS for Mint and Burn events, and appending new transactions to the chart, and changing chart appearance when appropriate
+   */
 
   const eventQueueRef = useRef<Log[]>([]);
 
@@ -219,6 +163,24 @@ export const useTradeTempTokenState = () => {
     eventName: "Mint",
     listener(logs) {
       console.log("temp token Mint event detected", logs);
+      const sortedLogs = logs.sort(
+        (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
+      );
+      sortedLogs.forEach((log) => {
+        eventQueueRef.current.push(log);
+        if (eventQueueRef.current.length === 1) {
+          processQueue();
+        }
+      });
+    },
+  });
+
+  useContractEvent({
+    address: tempTokenContract.address,
+    abi: tempTokenContract.abi,
+    eventName: "Burn",
+    listener(logs) {
+      console.log("temp token Burn event detected", logs);
       const sortedLogs = logs.sort(
         (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
       );
@@ -261,6 +223,13 @@ export const useTradeTempTokenState = () => {
           : ((newPrice - previousTxPrice) / previousTxPrice) * 100,
     };
     console.log("detected", eventName, eventTx);
+    const totalSupply = log?.args.totalSupply as bigint;
+    if (eventName === "Mint") {
+      const highestTotalSupply = log?.args.highestTotalSupply as bigint;
+      onMintEvent(totalSupply, highestTotalSupply);
+    } else if (eventName === "Burn") {
+      onBurnEvent(totalSupply);
+    }
     setTokenTxs((prev) => {
       const newTokenTxs = insertElementSorted(prev, eventTx);
       console.log("newTokenTxs", newTokenTxs);
@@ -268,23 +237,21 @@ export const useTradeTempTokenState = () => {
     });
   };
 
-  useContractEvent({
-    address: tempTokenContract.address,
-    abi: tempTokenContract.abi,
-    eventName: "Burn",
-    listener(logs) {
-      console.log("temp token Burn event detected", logs);
-      const sortedLogs = logs.sort(
-        (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
-      );
-      sortedLogs.forEach((log) => {
-        eventQueueRef.current.push(log);
-        if (eventQueueRef.current.length === 1) {
-          processQueue();
-        }
-      });
-    },
-  });
+  /**
+   * Contract cost reading and MINT and BURN functions
+   */
+
+  const {
+    mintCostAfterFees,
+    refetch: refetchMintCostAfterFees,
+    loading: mintCostAfterFeesLoading,
+  } = useGetMintCostAfterFees(amount_bigint, tempTokenContract);
+
+  const {
+    burnProceedsAfterFees,
+    refetch: refetchBurnProceedsAfterFees,
+    loading: burnProceedsAfterFeesLoading,
+  } = useGetBurnProceedsAfterFees(amount_bigint, tempTokenContract);
 
   const {
     mint,
@@ -517,9 +484,90 @@ export const useTradeTempTokenState = () => {
     setAmount(filtered);
   }, []);
 
+  // on mount, fetch for logs to populate historical transactions on the chart
+  useEffect(() => {
+    const getTempTokenEvents = async () => {
+      if (
+        !baseClient ||
+        !tempTokenContract.address ||
+        currentActiveTokenCreationBlockNumber === BigInt(0) ||
+        fetching.current ||
+        tokenTxs.length > 0
+      ) {
+        fetching.current = false;
+        return;
+      }
+      fetching.current = true;
+      const [mintLogs, burnLogs] = await Promise.all([
+        baseClient.getLogs({
+          address: tempTokenContract.address,
+          event: parseAbiItem(
+            "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold, uint256 highestTotalSupply)"
+          ),
+          fromBlock: currentActiveTokenCreationBlockNumber,
+        }),
+        baseClient.getLogs({
+          address: tempTokenContract.address,
+          event: parseAbiItem(
+            "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent)"
+          ),
+          fromBlock: currentActiveTokenCreationBlockNumber,
+        }),
+      ]);
+      console.log(
+        `temp token mintLogs length from ${tempTokenContract.address}`,
+        mintLogs.length
+      );
+      console.log(
+        `temp token burnLogs length from ${tempTokenContract.address}`,
+        burnLogs.length
+      );
+      const logs = [...mintLogs, ...burnLogs];
+      console.log(logs);
+      logs.sort((a, b) => {
+        if (a.blockNumber === null || b.blockNumber === null) return 0;
+        if (a.blockNumber < b.blockNumber) return -1;
+        if (a.blockNumber > b.blockNumber) return 1;
+        return 0;
+      });
+      const _tokenTxs: TradeableTokenTx[] = [];
+      for (let i = 0; i < logs.length; i++) {
+        const event = logs[i];
+        const n = Number(event.args.totalSupply as bigint);
+        const n_ = Math.max(n - 1, 0);
+        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+        const newPrice = priceForCurrent - priceForPrevious;
+        const previousTxPrice =
+          _tokenTxs.length > 0 ? _tokenTxs[_tokenTxs.length - 1].price : 0;
+        const tx: TradeableTokenTx = {
+          eventName: event.eventName,
+          user: event.args.account as `0x${string}`,
+          amount: event.args.amount as bigint,
+          price: newPrice,
+          blockNumber: Number(event.blockNumber),
+          supply: event.args.totalSupply as bigint,
+          priceChangePercentage:
+            i > 0 && _tokenTxs.length > 0
+              ? ((newPrice - previousTxPrice) / previousTxPrice) * 100
+              : 0,
+        };
+        _tokenTxs.push(tx);
+      }
+      fetching.current = false;
+      console.log("setting temp token txs,", _tokenTxs.length, "count");
+      setTokenTxs(_tokenTxs);
+      setLoading(false);
+    };
+    getTempTokenEvents();
+  }, [tempTokenContract, currentActiveTokenCreationBlockNumber, baseClient]);
+
+  /**
+   * For every new transaction, fetch the new balances and costs
+   */
   useEffect(() => {
     if (
-      txs.length === 0 ||
+      chartTxs.length === 0 ||
       fetching.current ||
       !tempTokenContract.address ||
       !userAddress ||
@@ -556,8 +604,101 @@ export const useTradeTempTokenState = () => {
       fetching.current = false;
     };
     fetch();
-  }, [txs.length]);
+  }, [chartTxs.length]);
 
+  // For every new transaction, organize chart time indexes for the time filter functionality based on chart txs
+  useEffect(() => {
+    const init = async () => {
+      if (tokenTxs.length === 0) return;
+
+      const _currentBlockNumberForTempTokenChart =
+        await baseClient.getBlockNumber();
+
+      const daysArr = [1, 7, 14, 21, 28, 30, 60, 90, 180, 365];
+
+      const blockNumbersInDaysAgoArr = daysArr.map((days) =>
+        blockNumberDaysAgo(days, _currentBlockNumberForTempTokenChart)
+      );
+
+      const dayIndex = binarySearchIndex(
+        tokenTxs,
+        BigInt(blockNumbersInDaysAgoArr[0])
+      );
+
+      const hoursArr = [1, 6, 12, 18];
+      const blockNumbersInHoursAgoArr = hoursArr.map((hours) =>
+        blockNumberHoursAgo(hours, _currentBlockNumberForTempTokenChart)
+      );
+
+      const hourIndex = binarySearchIndex(
+        tokenTxs,
+        BigInt(blockNumbersInHoursAgoArr[0])
+      );
+      setCurrentBlockNumberForTempTokenChart(
+        _currentBlockNumberForTempTokenChart
+      );
+      // adding 1day separately to account for day index
+      const offset = 1;
+      setChartTimeIndexes(
+        new Map<string, { index: number | undefined; blockNumber: number }>([
+          [
+            `${hoursArr[0]}h`,
+            {
+              index: hourIndex,
+              blockNumber: Number(blockNumbersInHoursAgoArr[0]),
+            },
+          ],
+          ...blockNumbersInHoursAgoArr
+            .slice(offset)
+            .map<[string, { index: undefined; blockNumber: number }]>(
+              (blockNumber, slicedIndex) => {
+                const index = slicedIndex + offset;
+                return [
+                  `${hoursArr[index]}h`,
+                  { index: undefined, blockNumber: Number(blockNumber) },
+                ];
+              }
+            ),
+          [
+            `${daysArr[0]}d`,
+            {
+              index: dayIndex,
+              blockNumber: Number(blockNumbersInDaysAgoArr[0]),
+            },
+          ],
+          ...blockNumbersInDaysAgoArr
+            .slice(offset)
+            .map<[string, { index: undefined; blockNumber: number }]>(
+              (blockNumber, slicedIndex) => {
+                const index = slicedIndex + offset;
+                return [
+                  `${daysArr[index]}d`,
+                  { index: undefined, blockNumber: Number(blockNumber) },
+                ];
+              }
+            ),
+        ])
+      );
+      /**
+       * After all of this, we'd get a mapping like this:
+       * {
+       *  "101": { index: 123, blockNumber: 123456 },
+       * "30d": { index: 123, blockNumber: 123456 },
+       * "1h": { index: undefined, blockNumber: 123456 },
+       * "5h": { index: undefined, blockNumber: 123456 },
+       * "15h": { index: undefined, blockNumber: 123456 },
+       * "45h": { index: undefined, blockNumber: 123456 },
+       * "60h": { index: undefined, blockNumber: 123456 },
+       *
+       * objects whose index properties are defined will be used to for the time filter
+       */
+    };
+    init();
+  }, [chartTxs.length]);
+
+  /**
+   * Error handling
+   */
   useEffect(() => {
     if (!matchingChain) {
       setErrorMessage("wrong network");
@@ -588,10 +729,13 @@ export const useTradeTempTokenState = () => {
     burnTxLoading,
     isRefetchingBurn,
     handleAmount,
-    txs,
+    chartTxs,
+    tokenTxs,
     loading,
     errorMessage,
     tempTokenBalance,
     userEthBalance,
+    chartTimeIndexes,
+    currentBlockNumberForTempTokenChart,
   };
 };

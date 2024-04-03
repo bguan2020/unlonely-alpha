@@ -1,5 +1,5 @@
 import { ApolloError, useLazyQuery } from "@apollo/client";
-import { Flex, Button, Stack, Text, Input, Spinner } from "@chakra-ui/react";
+import { Flex, Button, Stack, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { Log } from "viem";
@@ -29,14 +29,12 @@ import AppLayout from "../../layout/AppLayout";
 import ChannelNextHead from "../../layout/ChannelNextHead";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import ChannelDesc from "../ChannelDesc";
-import ChannelStreamerPerspective from "../ChannelStreamerPerspective";
-import ChannelViewerPerspective from "../ChannelViewerPerspective";
+import ChannelStreamerPerspective from "./ChannelStreamerPerspective";
+import ChannelViewerPerspective from "./ChannelViewerPerspective";
 import Trade from "../bet/Trade";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { Livepeer } from "livepeer";
 import { ChannelWideModals } from "../ChannelWideModals";
-import { TempTokenInterface } from "../../chat/TempTokenInterface";
-import { useCreateTempTokenState } from "../../../hooks/internal/temp-token/useCreateTempTokenState";
 
 export const DesktopPage = ({
   channelSSR,
@@ -170,17 +168,6 @@ export const DesktopPage = ({
     setVipBadgeBalance((prev) => String(Number(prev) + newBalanceAddition));
   };
 
-  const {
-    createTempToken,
-    newTokenName,
-    newTokenSymbol,
-    newTokenDuration,
-    isCreateTempTokenLoading,
-    handleNewTokenName,
-    handleNewTokenSymbol,
-    handleNewTokenDuration,
-  } = useCreateTempTokenState();
-
   const [incomingTrades, setIncomingTrades] = useState<Log[]>([]);
 
   useContractEvent({
@@ -210,29 +197,6 @@ export const DesktopPage = ({
   useEffect(() => {
     handleTotalBadges(truncateValue(Number(vipBadgeSupply), 0));
   }, [vipBadgeSupply]);
-
-  const [shouldRenderTempTokenInterface, setShouldRenderTempTokenInterface] =
-    useState(false);
-
-  useEffect(() => {
-    const decideRender = () => {
-      const currentTime = Math.floor(Date.now() / 1000);
-      const shouldRender =
-        currentTime <= Number(currentActiveTokenEndTimestamp) &&
-        currentActiveTokenEndTimestamp !== BigInt(0);
-      setShouldRenderTempTokenInterface(shouldRender);
-    };
-
-    // Initial update
-    decideRender();
-
-    const interval = setInterval(() => {
-      decideRender();
-      clearInterval(interval);
-    }, 5 * 1000); // Check every 5 seconds
-
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, [currentActiveTokenEndTimestamp]);
 
   return (
     <>
@@ -359,41 +323,6 @@ export const DesktopPage = ({
                 maxW={["100%", "100%", "380px", "380px"]}
                 gap="1rem"
               >
-                {currentActiveTokenEndTimestamp === BigInt(0) && isOwner && (
-                  <>
-                    <Flex>
-                      <Flex direction="column">
-                        <Text fontSize="12px">TempToken Name</Text>
-                        <Input
-                          value={newTokenName}
-                          onChange={(e) => {
-                            handleNewTokenName(e.target.value);
-                          }}
-                        />
-                      </Flex>
-                      <Flex direction="column">
-                        <Text fontSize="12px">TempToken Symbol</Text>
-                        <Input
-                          value={newTokenSymbol}
-                          onChange={(e) => {
-                            handleNewTokenSymbol(e.target.value);
-                          }}
-                        />
-                      </Flex>
-                    </Flex>
-                    <Button
-                      onClick={
-                        isCreateTempTokenLoading ? undefined : createTempToken
-                      }
-                    >
-                      {isCreateTempTokenLoading ? (
-                        <Spinner />
-                      ) : (
-                        "create temp token"
-                      )}
-                    </Button>
-                  </>
-                )}
                 <Flex
                   minH="20vh"
                   gap="5px"
@@ -401,15 +330,7 @@ export const DesktopPage = ({
                   bg="#131323"
                   p="5px"
                 >
-                  {shouldRenderTempTokenInterface ? (
-                    <TempTokenInterface
-                      currentActiveTokenEndTimestamp={
-                        currentActiveTokenEndTimestamp
-                      }
-                    />
-                  ) : (
-                    <VibesTokenInterface ablyChannel={chat.channel} />
-                  )}
+                  <VibesTokenInterface ablyChannel={chat.channel} />
                 </Flex>
                 <ChatComponent chat={chat} />
               </Stack>

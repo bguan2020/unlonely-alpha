@@ -7,8 +7,13 @@ import { ChannelStaticQuery } from "../../generated/graphql";
 import { ChannelProvider } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { ApolloError } from "@apollo/client";
-import { DesktopPage } from "../../components/channels/layout/DesktopPage";
+// import { DesktopPage } from "../../components/channels/layout/DesktopPage";
 import { MobilePage } from "../../components/channels/layout/MobilePage";
+import { DesktopPage } from "../../components/channels/layout/DesktopPage";
+import { DesktopChannelPageSimplified } from "../../components/channels/layout/DesktopChannelPageSimplified";
+// import { DesktopChannelPageSimplified } from "../../components/channels/layout/DesktopChannelPageSimplified";
+
+const channelIdsAllowedForNewPage = ["3", "29"];
 
 const ChannelDetail = ({
   channelData,
@@ -29,11 +34,21 @@ const ChannelDetail = ({
   return (
     <ChannelProvider>
       {!isStandalone ? (
-        <DesktopPage
-          channelSSR={channelSSR}
-          channelSSRDataLoading={channelDataLoading}
-          channelSSRDataError={channelDataError}
-        />
+        <>
+          {channelIdsAllowedForNewPage.includes(channelSSR?.id ?? "") ? (
+            <DesktopChannelPageSimplified
+              channelSSR={channelSSR}
+              channelSSRDataLoading={channelDataLoading}
+              channelSSRDataError={channelDataError}
+            />
+          ) : (
+            <DesktopPage
+              channelSSR={channelSSR}
+              channelSSRDataLoading={channelDataLoading}
+              channelSSRDataError={channelDataError}
+            />
+          )}
+        </>
       ) : (
         <MobilePage
           channelSSR={channelSSR}

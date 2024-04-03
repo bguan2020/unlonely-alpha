@@ -30,7 +30,6 @@ import { useUpdateEndTimestampForTokensState } from "../../hooks/internal/temp-t
 import centerEllipses from "../../utils/centerEllipses";
 import copy from "copy-to-clipboard";
 import { FaRegCopy } from "react-icons/fa";
-import { verifyTempTokenV1OnBase } from "../../utils/contract-verification/tempToken";
 
 type DetailedTempToken = TempToken & {
   totalSupplyThreshold: bigint;
@@ -145,8 +144,6 @@ export const TempTokenAdmin = () => {
   );
 
   const {
-    booleanNumber,
-    handleInputChange: handleBooleanNumberChange,
     setAlwaysTradeableForTokens: call_updateOnchainAndUpdateDb_alwaysTradeable,
     loading: loading_updateOnchainAndUpdateDb_alwaysTradeable,
   } = useUpdateTempTokenIsAlwaysTradeableState(
@@ -245,16 +242,6 @@ export const TempTokenAdmin = () => {
       >
         {getTempTokensLoading ? <Spinner /> : "fetch active tokens"}
       </Button>
-      <Button
-        onClick={() =>
-          verifyTempTokenV1OnBase(
-            "0x1867ca230A434eC0c15286eDB499825444969fE5",
-            "0000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000660afb6b0000000000000000000000004f3d3f2f895db524ac3944bdd17fe632473bca4a00000000000000000000000000000000000000000000000000470de4df82000000000000000000000000000000000000000000000000000000470de4df8200000000000000000000000000000000000000000000000000000000000001312d00000000000000000000000000b5dc7956a4952d4a943e4dbb94f12ebaa76cd1d90000000000000000000000000000000000000000000000000000000000000001740000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000017400000000000000000000000000000000000000000000000000000000000000"
-          )
-        }
-      >
-        test verify
-      </Button>
       {activeTokens === undefined ? (
         <Text>Please fetch tokens first</Text>
       ) : activeTokens.length > 0 ? (
@@ -313,6 +300,7 @@ export const TempTokenAdmin = () => {
                         (Number(token.endUnixTimestamp) -
                           Math.floor(Date.now() / 1000)) *
                           1000,
+                        true,
                         true
                       )}
                     </Td>
@@ -371,7 +359,11 @@ export const TempTokenAdmin = () => {
         onClick={handleTempTokenHasHitTotalSupplyThreshold}
         isDisabled={loading_updateDb_hasHitTotalSupplyThreshold}
       >
-        {loading_updateDb_hasHitTotalSupplyThreshold ? <Spinner /> : "fetch"}
+        {loading_updateDb_hasHitTotalSupplyThreshold ? (
+          <Spinner />
+        ) : (
+          "fetch and update"
+        )}
       </Button>
       <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         updateTempTokenHighestTotalSupply (select tokens from database, fetch
@@ -381,7 +373,7 @@ export const TempTokenAdmin = () => {
         onClick={handleTempTokenHighestTotalSupply}
         isDisabled={loading_updateDb_highestTotalSupply}
       >
-        {loading_updateDb_highestTotalSupply ? <Spinner /> : "fetch"}
+        {loading_updateDb_highestTotalSupply ? <Spinner /> : "fetch and update"}
       </Button>
       <Text fontSize="25px" fontFamily="Neue Pixel Sans">
         updateTempTokenTotalSupplyThreshold (select tokens from database, update
@@ -413,12 +405,6 @@ export const TempTokenAdmin = () => {
         onchain, and update tokens on database)
       </Text>
       <Flex>
-        <Input
-          variant="glow"
-          placeholder={"'1' for true / '0' for false"}
-          value={booleanNumber}
-          onChange={handleBooleanNumberChange}
-        />
         <Button
           onClick={call_updateOnchainAndUpdateDb_alwaysTradeable}
           isDisabled={loading_updateOnchainAndUpdateDb_alwaysTradeable}

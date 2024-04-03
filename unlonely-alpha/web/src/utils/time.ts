@@ -38,9 +38,19 @@ export const getTimesFromMillis = (millis: number) => {
   return { days, hours, minutes, seconds };
 };
 
-export const getTimeFromMillis = (millis: number, showSeconds?: boolean): string => {
+export const getTimeFromMillis = (millis: number, showSeconds?: boolean, format?: boolean): string => {
   if (millis === 0) return "0";
   const { days, hours, minutes, seconds } = getTimesFromMillis(millis);
+  if (format) {
+    const paddedHours = hours.toString().padStart(2, "0");
+    const paddedMinutes = minutes.toString().padStart(2, "0");
+    const paddedSeconds = seconds.toString().padStart(2, "0");
+  
+    const formattedDays = days > 0 ? `${days.toString().padStart(2, "0")}:` : "";
+
+    if (showSeconds) return `${formattedDays}${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+    return `${formattedDays}${paddedHours}:${paddedMinutes}`;
+  }
 
   let str = `${days > 0 ? `${days}d` : ""}${hours > 0 ? " " : ""}${
     hours > 0 ? `${hours}h` : ""

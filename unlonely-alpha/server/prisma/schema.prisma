@@ -171,6 +171,7 @@ model ChannelUserRole {
 model TempToken {
   id                             Int      @id @default(autoincrement())
   uniqueTempTokenId              String   @unique
+  creationBlockNumber            BigInt
   tokenAddress                   String
   chainId                        Int
   channelId                      Int

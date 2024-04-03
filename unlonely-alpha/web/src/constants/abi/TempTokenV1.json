@@ -40,6 +40,11 @@
         "internalType": "address",
         "name": "_factoryAddress",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_creationBlockNumber",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -223,6 +228,12 @@
         "internalType": "bool",
         "name": "hasHitTotalSupplyThreshold",
         "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "highestTotalSupply",
+        "type": "uint256"
       }
     ],
     "name": "Mint",
@@ -257,13 +268,19 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "winnerWallet",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
         "name": "balance",
         "type": "uint256"
       }
     ],
-    "name": "SendRemainingFundsToCreatorAfterTokenExpiration",
+    "name": "SendRemainingFundsToWinnerAfterTokenExpiration",
     "type": "event"
   },
   {
@@ -290,18 +307,12 @@
       },
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "totalSupplyThreshold",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
         "internalType": "address",
         "name": "tokenAddress",
         "type": "address"
       }
     ],
-    "name": "TokenDurationAndThresholdIncreased",
+    "name": "TokenDurationExtended",
     "type": "event"
   },
   {
@@ -315,12 +326,18 @@
       },
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "totalSupplyThreshold",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "tokenAddress",
         "type": "address"
       }
     ],
-    "name": "TokenDurationExtended",
+    "name": "TotalSupplyThresholdReached",
     "type": "event"
   },
   {
@@ -481,6 +498,19 @@
       }
     ],
     "name": "burnProceedsAfterFees",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "creationBlockNumber",
     "outputs": [
       {
         "internalType": "uint256",
@@ -767,8 +797,14 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "sendRemainingFundsToCreatorAfterTokenExpiration",
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "winnerWallet",
+        "type": "address"
+      }
+    ],
+    "name": "sendRemainingFundsToWinnerAfterTokenExpiration",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

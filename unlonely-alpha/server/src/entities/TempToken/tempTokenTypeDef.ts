@@ -11,6 +11,7 @@ export const typeDef = gql`
         name: String!
         symbol: String!
         endUnixTimestamp: BigInt!
+        creationBlockNumber: BigInt!
         protocolFeePercentage: BigInt!
         streamerFeePercentage: BigInt!
         highestTotalSupply: BigInt!
@@ -49,6 +50,7 @@ export const typeDef = gql`
         name: String!
         symbol: String!
         endUnixTimestamp: String!
+        creationBlockNumber: String!
         protocolFeePercentage: String!
         streamerFeePercentage: String!
     }

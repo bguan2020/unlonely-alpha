@@ -25,6 +25,7 @@ contract TempTokenFactoryV1 is Ownable {
         address protocolFeeDestination;
         uint256 protocolFeePercent;
         uint256 streamerFeePercent;
+        uint256 creationBlockNumber;
     }
 
     /**
@@ -60,7 +61,7 @@ contract TempTokenFactoryV1 is Ownable {
     uint256 public maxDuration;
     uint256 public totalSupplyThreshold;
 
-    event TempTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold);
+    event TempTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber);
     event ProtocolFeeDestinationSet(address indexed protocolFeeDestination);
     event ProtocolFeePercentSet(uint256 feePercent);
     event StreamerFeePercentSet(uint256 feePercent);
@@ -101,18 +102,19 @@ contract TempTokenFactoryV1 is Ownable {
         require(duration <= maxDuration, "Duration is longer than max duration");
         require(duration > 0, "Duration cannot be 0");
         uint256 endTimestamp = block.timestamp + duration;
-        TempTokenV1 newToken = new TempTokenV1(name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this));        
+        uint256 creationBlockNumber = block.number;
+        TempTokenV1 newToken = new TempTokenV1(name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this), creationBlockNumber);        
         
         /**
             * @dev We increment the numDeployedTokens and use the new value as the index to store the TokenInfo struct in the deployedTokens mapping.
             * @dev We also store the index of the token in the deployedTokenIndices mapping using the token's address as the key.
          */
         uint256 index = ++numDeployedTokens;
-        deployedTokens[index] = TokenInfo(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent);
+        deployedTokens[index] = TokenInfo(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, creationBlockNumber);
         deployedTokenIndices[address(newToken)] = index;
 
         newToken.transferOwnership(msg.sender); // Transfer ownership of the new token to the caller of this function.
-        emit TempTokenCreated(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold);
+        emit TempTokenCreated(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, creationBlockNumber);
         return address(newToken);
     }
 

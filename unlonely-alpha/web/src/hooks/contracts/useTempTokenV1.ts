@@ -144,6 +144,34 @@ export const useGetHighestTotalSupply = (contract: ContractData) => {
     };
 }
 
+export const useGetCreationBlockNumber = (contract: ContractData) => {
+    const publicClient = usePublicClient();
+    const [creationBlockNumber, setCreationBlockNumber] = useState<bigint>(BigInt(0));
+    
+    const getData = useCallback(async () => {
+        if (!contract.address || !contract.abi || !publicClient) {
+        setCreationBlockNumber(BigInt(0));
+        return;
+        }
+        const creationBlockNumber = await publicClient.readContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "creationBlockNumber",
+        args: [],
+        });
+        setCreationBlockNumber(BigInt(String(creationBlockNumber)));
+    }, [contract.address, publicClient]);
+    
+    useEffect(() => {
+        getData();
+    }, [getData]);
+    
+    return {
+        refetch: getData,
+        creationBlockNumber,
+    };
+}
+
 export const useGetHasHitTotalSupplyThreshold = (contract: ContractData) => {
     const publicClient = usePublicClient();
     const [hasHitTotalSupplyThreshold, setHasHitTotalSupplyThreshold] = useState<boolean>(false);
@@ -405,22 +433,22 @@ export const useBurn = (
     };
 };
 
-export const useSendRemainingFundsToCreatorAfterTokenExpiration = (
+export const useSendRemainingFundsToWinnerAfterTokenExpiration = (
     contract: ContractData,
     callbacks?: WriteCallbacks
   ) => {
     const {
-      writeAsync: sendRemainingFundsToCreatorAfterTokenExpiration,
-      writeData: sendRemainingFundsToCreatorAfterTokenExpirationData,
-      txData: sendRemainingFundsToCreatorAfterTokenExpirationTxData,
-      isTxLoading: sendRemainingFundsToCreatorAfterTokenExpirationTxLoading,
+      writeAsync: sendRemainingFundsToWinnerAfterTokenExpiration,
+      writeData: sendRemainingFundsToWinnerAfterTokenExpirationData,
+      txData: sendRemainingFundsToWinnerAfterTokenExpirationTxData,
+      isTxLoading: sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
       refetch,
-      isRefetching: isRefetchingsendRemainingFundsToCreatorAfterTokenExpiration,
+      isRefetching: isRefetchingsendRemainingFundsToWinnerAfterTokenExpiration,
     } = useWrite(
       contract,
-      "sendRemainingFundsToCreatorAfterTokenExpiration",
+      "sendRemainingFundsToWinnerAfterTokenExpiration",
       [],
-      createCallbackHandler("useTempTokenV1 sendRemainingFundsToCreatorAfterTokenExpiration", callbacks),
+      createCallbackHandler("useTempTokenV1 sendRemainingFundsToWinnerAfterTokenExpiration", callbacks),
       {
         enabled:
           contract.address !== NULL_ADDRESS &&
@@ -430,10 +458,10 @@ export const useSendRemainingFundsToCreatorAfterTokenExpiration = (
   
     return {
       refetch,
-      sendRemainingFundsToCreatorAfterTokenExpiration,
-      sendRemainingFundsToCreatorAfterTokenExpirationData,
-      sendRemainingFundsToCreatorAfterTokenExpirationTxData,
-      sendRemainingFundsToCreatorAfterTokenExpirationTxLoading,
-      isRefetchingsendRemainingFundsToCreatorAfterTokenExpiration,
+      sendRemainingFundsToWinnerAfterTokenExpiration,
+      sendRemainingFundsToWinnerAfterTokenExpirationData,
+      sendRemainingFundsToWinnerAfterTokenExpirationTxData,
+      sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
+      isRefetchingsendRemainingFundsToWinnerAfterTokenExpiration,
     };
 };
