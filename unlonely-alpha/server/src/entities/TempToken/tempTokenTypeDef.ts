@@ -20,6 +20,25 @@ export const typeDef = gql`
         hasHitTotalSupplyThreshold: Boolean!
     }
 
+    type TempTokenWithBalance {
+        id: ID!
+        tokenAddress: String!
+        chainId: Int!
+        channelId: Int!
+        ownerAddress: String!
+        name: String!
+        symbol: String!
+        endUnixTimestamp: BigInt!
+        creationBlockNumber: BigInt!
+        protocolFeePercentage: BigInt!
+        streamerFeePercentage: BigInt!
+        highestTotalSupply: BigInt!
+        hasRemainingFundsForCreator: Boolean!
+        isAlwaysTradeable: Boolean!
+        hasHitTotalSupplyThreshold: Boolean!
+        balance: BigInt!
+    }
+
     input GetTempTokensInput {
         tokenAddress: String
         ownerAddress: String
@@ -80,7 +99,7 @@ export const typeDef = gql`
     extend type Mutation {
         updateTempTokenHighestTotalSupply(data: UpdateTempTokenHighestTotalSupplyInput!): [TempToken]
         updateEndTimestampForTokens(data: UpdateEndTimestampForTokensInput!): [TempToken]
-        updateTempTokenHasRemainingFundsForCreator(data: UpdateTempTokenHasRemainingFundsForCreatorInput!): [TempToken]
+        updateTempTokenHasRemainingFundsForCreator(data: UpdateTempTokenHasRemainingFundsForCreatorInput!): [TempTokenWithBalance]
         updateTempTokenIsAlwaysTradeable(data: UpdateTempTokenIsAlwaysTradeableInput!): Boolean!
         updateTempTokenHasHitTotalSupplyThreshold(data: UpdateTempTokenHasHitTotalSupplyThresholdInput!): Boolean!
         postTempToken(data: PostTempTokenInput!): TempToken

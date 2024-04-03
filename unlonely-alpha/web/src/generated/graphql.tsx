@@ -471,7 +471,9 @@ export type Mutation = {
   updateSharesEvent?: Maybe<Channel>;
   updateSideBet?: Maybe<SideBet>;
   updateTempTokenHasHitTotalSupplyThreshold: Scalars["Boolean"];
-  updateTempTokenHasRemainingFundsForCreator?: Maybe<Array<Maybe<TempToken>>>;
+  updateTempTokenHasRemainingFundsForCreator?: Maybe<
+    Array<Maybe<TempTokenWithBalance>>
+  >;
   updateTempTokenHighestTotalSupply?: Maybe<Array<Maybe<TempToken>>>;
   updateTempTokenIsAlwaysTradeable: Scalars["Boolean"];
   updateUser?: Maybe<User>;
@@ -1197,6 +1199,26 @@ export type TaskFeedInput = {
 
 export type TempToken = {
   __typename?: "TempToken";
+  chainId: Scalars["Int"];
+  channelId: Scalars["Int"];
+  creationBlockNumber: Scalars["BigInt"];
+  endUnixTimestamp: Scalars["BigInt"];
+  hasHitTotalSupplyThreshold: Scalars["Boolean"];
+  hasRemainingFundsForCreator: Scalars["Boolean"];
+  highestTotalSupply: Scalars["BigInt"];
+  id: Scalars["ID"];
+  isAlwaysTradeable: Scalars["Boolean"];
+  name: Scalars["String"];
+  ownerAddress: Scalars["String"];
+  protocolFeePercentage: Scalars["BigInt"];
+  streamerFeePercentage: Scalars["BigInt"];
+  symbol: Scalars["String"];
+  tokenAddress: Scalars["String"];
+};
+
+export type TempTokenWithBalance = {
+  __typename?: "TempTokenWithBalance";
+  balance: Scalars["BigInt"];
   chainId: Scalars["Int"];
   channelId: Scalars["Int"];
   creationBlockNumber: Scalars["BigInt"];
@@ -2269,11 +2291,12 @@ export type UpdateTempTokenHasRemainingFundsForCreatorMutationVariables =
 export type UpdateTempTokenHasRemainingFundsForCreatorMutation = {
   __typename?: "Mutation";
   updateTempTokenHasRemainingFundsForCreator?: Array<{
-    __typename?: "TempToken";
+    __typename?: "TempTokenWithBalance";
     tokenAddress: string;
     hasRemainingFundsForCreator: boolean;
     channelId: number;
     chainId: number;
+    balance: any;
   } | null> | null;
 };
 
@@ -5484,6 +5507,7 @@ export const UpdateTempTokenHasRemainingFundsForCreatorDocument = gql`
       hasRemainingFundsForCreator
       channelId
       chainId
+      balance
     }
   }
 `;

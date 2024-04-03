@@ -72,6 +72,8 @@ export const TempTokenInterface = ({
     currentActiveTokenIsAlwaysTradable,
     currentActiveTokenTotalSupply,
     currentActiveTokenTotalSupplyThreshold,
+    lastInactiveTokenAddress, // todo finish send after expiration flow before creating token flow
+    lastInactiveTokenBalance,
   } = channel;
   const [timeLeftForTempToken, setTimeLeftForTempToken] = useState<
     string | undefined

@@ -6,10 +6,13 @@ import { useLazyQuery } from "@apollo/client";
 import { Log } from "viem";
 import { useContractEvent, usePublicClient } from "wagmi";
 import { GET_TEMP_TOKENS_QUERY } from "../../../constants/queries";
-import { GetTempTokensQuery } from "../../../generated/graphql";
+import { GetTempTokensQuery, TempToken, TempTokenWithBalance } from "../../../generated/graphql";
 import { UseChannelDetailsType } from "../useChannelDetails";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { ContractData } from "../../../constants/types";
+import useUpdateTempTokenHasRemainingFundsForCreator from "../../server/temp-token/useUpdateTempTokenHasRemainingFundsForCreator";
+import { useChannelContext } from "../../context/useChannel";
+import { useUser } from "../../context/useUser";
 
 export type UseReadTempTokenStateType = {
   currentActiveTokenSymbol: string;
@@ -21,6 +24,8 @@ export type UseReadTempTokenStateType = {
   currentActiveTokenIsAlwaysTradable: boolean;
   currentActiveTokenHighestTotalSupply: bigint;
   currentActiveTokenCreationBlockNumber: bigint;
+  lastInactiveTokenAddress: string;
+  lastInactiveTokenBalance: bigint;
   onMintEvent: (totalSupply: bigint, highestTotalSupply: bigint) => void;
   onBurnEvent: (totalSupply: bigint) => void;
   onReachThresholdEvent: (newEndTimestamp: bigint) => void;
@@ -39,6 +44,8 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
   currentActiveTokenIsAlwaysTradable: false,
   currentActiveTokenHighestTotalSupply: BigInt(0),
   currentActiveTokenCreationBlockNumber: BigInt(0),
+  lastInactiveTokenAddress: NULL_ADDRESS,
+  lastInactiveTokenBalance: BigInt(0),
   onMintEvent: () => undefined,
   onBurnEvent: () => undefined,
   onReachThresholdEvent: () => undefined,
@@ -49,6 +56,10 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
 
 export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
     ): UseReadTempTokenStateType => {
+      const { userAddress } = useUser();
+      const { channel } = useChannelContext();
+      const { channelQueryData } = channel;
+      
     const { network } = useNetworkContext();
     const { localNetwork } = network;
     const publicClient = usePublicClient();
@@ -83,7 +94,12 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
     setCurrentActiveTokenHighestTotalSupply,
   ] = useState<bigint>(BigInt(0));
 
-    const factoryContract = getContractFromNetwork(
+  const [lastInactiveTokenAddress, setLastInactiveTokenAddress] = useState<string>(NULL_ADDRESS);
+  const [lastInactiveTokenBalance, setLastInactiveTokenBalance] = useState<bigint>(BigInt(0));
+
+  const isOwner = useMemo(() => userAddress === channelQueryData?.owner.address, [userAddress, channelQueryData?.owner.address])
+    
+  const factoryContract = getContractFromNetwork(
         Contract.TEMP_TOKEN_FACTORY_V1,
         localNetwork
       );
@@ -162,22 +178,32 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         }
       );
 
+      const { updateTempTokenHasRemainingFundsForCreator } = useUpdateTempTokenHasRemainingFundsForCreator({});
+
       useEffect(() => {
         const init = async () => {
           if (!(Number(channelDetails.channelQueryData?.id ?? "0") > 0)) return;
           try {
-            const res = await getTempTokensQuery({
+            const [getTempTokenQueryRes, tempTokensWithNonZeroBalancesRes] = await Promise.all([getTempTokensQuery({
               variables: {
                 data: {
                   channelId: Number(channelDetails.channelQueryData?.id ?? "0"),
                   chainId: localNetwork.config.chainId,
-                  onlyActiveTokens: true,
                   fulfillAllNotAnyConditions: true,
                 },
               },
-            });
-            const listOfActiveTokens = res.data?.getTempTokens;
-            const latestActiveToken = listOfActiveTokens?.[0];
+            }), updateTempTokenHasRemainingFundsForCreator({
+              channelId: Number(channelDetails.channelQueryData?.id ?? "0"),
+              chainId: localNetwork.config.chainId,
+            })]);
+            const listOfTokens = getTempTokenQueryRes.data?.getTempTokens;
+            const nonNullListOfTokens = listOfTokens?.filter(
+              (token): token is TempToken => token !== null
+            );
+            const activeTokens = nonNullListOfTokens?.filter(
+              (token) => token.endUnixTimestamp > Math.floor(Date.now() / 1000)
+            );
+            const latestActiveToken = activeTokens?.[0]
             if (latestActiveToken) {
               setCurrentActiveTokenCreationBlockNumber(latestActiveToken.creationBlockNumber);
               setCurrentActiveTokenSymbol(latestActiveToken.symbol);
@@ -221,12 +247,21 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
               setCurrentActiveTokenHasHitTotalSupplyThreshold(Boolean(hasHitTotalSupplyThreshold));
               setCurrentActiveTokenHighestTotalSupply(BigInt(String(highestTotalSupply)));
             }
+            const tempTokensWithNonZeroBalances = tempTokensWithNonZeroBalancesRes?.res;
+            const nonNullListOfTokensWithNonZeroBalances = tempTokensWithNonZeroBalances?.filter(
+              (token): token is TempTokenWithBalance => token !== null
+            );
+            if (nonNullListOfTokensWithNonZeroBalances && nonNullListOfTokensWithNonZeroBalances.length > 0 && isOwner) {
+              const lastInactiveTokenWithBalance = nonNullListOfTokensWithNonZeroBalances[0];
+              setLastInactiveTokenAddress(lastInactiveTokenWithBalance.tokenAddress);
+              setLastInactiveTokenBalance(BigInt(lastInactiveTokenWithBalance.balance));
+            }
           } catch (e) {
             console.error("getTempTokensQuery", e);
           }
         };
         init();
-      }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId]);
+      }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId, isOwner]); //todo: make a new hook just for inactive tokens with non zero balances
 
       /**
        * functions to run when specific events are detected
@@ -422,6 +457,8 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         currentActiveTokenIsAlwaysTradable,
         currentActiveTokenHighestTotalSupply,
         currentActiveTokenCreationBlockNumber,
+        lastInactiveTokenAddress,
+        lastInactiveTokenBalance,
         onMintEvent,
         onBurnEvent,
         onReachThresholdEvent,

@@ -4,6 +4,8 @@ import { Context } from "../../context";
 import { createPublicClient, http as viemHttp } from "viem";
 import { base } from "viem/chains";
 import TempTokenV1 from "../../utils/abi/TempTokenV1.json";
+
+type TempTokenWithBalance = TempToken & { balance: bigint };
 export interface IPostTempTokenInput {
     tokenAddress: string;
     chainId: number;
@@ -128,14 +130,14 @@ export const updateTempTokenHasRemainingFundsForCreator = async (
 
     const balances: bigint[] = await Promise.all(promises);
 
-    const tempTokensWithZeroBalances: TempToken[] = [];
-    const tempTokensWithNonZeroBalances: TempToken[] = [];
+    const tempTokensWithZeroBalances: TempTokenWithBalance[] = [];
+    const tempTokensWithNonZeroBalances: TempTokenWithBalance[] = [];
     
     existingInactiveTempTokensWithRemainingFunds.forEach((tempToken, index) => {
         if (balances[index] === BigInt(0)) {
-            tempTokensWithZeroBalances.push(tempToken);
+            tempTokensWithZeroBalances.push({...tempToken, balance: balances[index]});
         } else {
-            tempTokensWithNonZeroBalances.push(tempToken);
+            tempTokensWithNonZeroBalances.push({...tempToken, balance: balances[index]});
         }
     });
 

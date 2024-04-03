@@ -16,6 +16,7 @@ const MUTATION = gql`
         hasRemainingFundsForCreator
         channelId
         chainId
+        balance
       }
   }
 `;
