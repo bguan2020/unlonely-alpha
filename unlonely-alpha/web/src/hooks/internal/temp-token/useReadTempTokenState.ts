@@ -261,7 +261,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
           }
         };
         init();
-      }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId, isOwner]); //todo: make a new hook just for inactive tokens with non zero balances
+      }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId, isOwner]); // todo: make a new hook just for inactive tokens with non zero balances
 
       /**
        * functions to run when specific events are detected

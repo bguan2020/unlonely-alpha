@@ -149,6 +149,7 @@ function App({ Component, pageProps, cookies }: Props) {
     ]
   );
 
+  // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend
   return (
     <ChakraProvider theme={theme}>
       <PrivyProvider

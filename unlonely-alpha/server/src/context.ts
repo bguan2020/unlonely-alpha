@@ -29,14 +29,7 @@ export const getContext: ContextFunction = async ({
     const { userId } = await privyClient.verifyAuthToken(authToken);
     const user = await privyClient.getUser(userId);
 
-    // const filteredWallets = user.linkedAccounts.filter(
-    //   (wallet: any) => wallet.walletClientType !== "privy"
-    // );
-
-    // console.log("privy", filteredWallets)
-    // const firstWallet = filteredWallets?.[0];
-
-    address = user.wallet?.address;
+    address = user.wallet?.address; // the address last linked to the user
     validated = true;
   } catch (e) {}
 
