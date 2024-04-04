@@ -82,10 +82,10 @@ export const TempTokenCreationModal = ({
               _hover={{}}
               _focus={{}}
               _active={{}}
-              bg={newTokenDuration === BigInt("180") ? "#02d650" : "#ffffff"}
-              onClick={() => handleNewTokenDuration(BigInt("180"))}
+              bg={newTokenDuration === BigInt("300") ? "#02d650" : "#ffffff"}
+              onClick={() => handleNewTokenDuration(BigInt("300"))}
             >
-              3 mins
+              5 mins
             </Button>
             <Button
               _hover={{}}
