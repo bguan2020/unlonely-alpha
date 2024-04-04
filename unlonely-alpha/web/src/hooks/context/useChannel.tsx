@@ -34,7 +34,7 @@ import {
   UseReadTempTokenStateType,
   useReadTempTokenInitialState,
   useReadTempTokenState,
-} from "../internal/temp-token/useReadTempTokenState";
+} from "../internal/temp-token/read/useReadTempTokenState";
 import {
   ChannelWideModalsStateType,
   useChannelWideModalsInitialState,

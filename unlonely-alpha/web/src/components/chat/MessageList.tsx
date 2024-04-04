@@ -11,6 +11,7 @@ import {
 import { AblyChannelPromise, CHAT_MESSAGE_EVENT } from "../../constants";
 import { ChatUserModal } from "../channels/ChatUserModal";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import { ChatUserModal_token } from "../channels/ChatUserModal_token";
 
 type MessageListProps = {
   messages: Message[];
@@ -18,6 +19,7 @@ type MessageListProps = {
   scrollRef: any;
   isAtBottomCallback: (value: boolean) => void;
   isVipChat?: boolean;
+  tokenForTransfer: "vibes" | "tempToken";
 };
 
 type MessageItemProps = {
@@ -56,6 +58,7 @@ const MessageList = memo(
     scrollRef,
     isAtBottomCallback,
     isVipChat,
+    tokenForTransfer,
   }: MessageListProps) => {
     const { ui } = useChannelContext();
     const { selectedUserInChat, handleSelectedUserInChat } = ui;
@@ -71,14 +74,25 @@ const MessageList = memo(
 
     return (
       <>
-        <ChatUserModal
-          isOpen={selectedUserInChat !== undefined}
-          targetUser={selectedUserInChat}
-          channel={channel}
-          handleClose={() => {
-            handleSelectedUserInChat(undefined);
-          }}
-        />
+        {tokenForTransfer === "vibes" ? (
+          <ChatUserModal
+            isOpen={selectedUserInChat !== undefined}
+            targetUser={selectedUserInChat}
+            channel={channel}
+            handleClose={() => {
+              handleSelectedUserInChat(undefined);
+            }}
+          />
+        ) : (
+          <ChatUserModal_token
+            isOpen={selectedUserInChat !== undefined}
+            targetUser={selectedUserInChat}
+            channel={channel}
+            handleClose={() => {
+              handleSelectedUserInChat(undefined);
+            }}
+          />
+        )}
         {chatMessages.length > 0 ? (
           <Virtuoso
             followOutput={"auto"}

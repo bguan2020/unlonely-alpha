@@ -6,7 +6,7 @@ import useScript from "../../../hooks/internal/useScript";
 import { getSrc } from "@livepeer/react/external";
 import IVSPlayer from "../../stream/IVSPlayer";
 import LivepeerPlayer from "../../stream/LivepeerPlayer";
-import { SimplifiedChat } from "../../chat/SimplifiedChat";
+import { SimplifiedChatWithTokenTimer } from "../../chat/SimplifiedChatWithTokenTimer";
 import { ChatReturnType } from "../../../hooks/chat/useChat";
 
 export const DesktopChannelViewerPerspectiveSimplified = ({
@@ -61,7 +61,7 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
 
   return (
     <Flex width="100%" position="relative" height={"100%"}>
-      {openOverlappingChat && <SimplifiedChat chat={chat} />}
+      {openOverlappingChat && <SimplifiedChatWithTokenTimer chat={chat} />}
       <Flex flexDirection="row" justifyContent="center" width="100%">
         {livepeerPlaybackInfo ? (
           <LivepeerPlayer src={getSrc(livepeerPlaybackInfo)} />

@@ -85,6 +85,7 @@ const Chat = ({
           channel={chat.channel}
           isAtBottomCallback={handleIsAtBottom}
           isVipChat={isVipChat}
+          tokenForTransfer="vibes"
         />
       </Flex>
       <Flex justifyContent="center">

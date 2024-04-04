@@ -112,6 +112,75 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           topics: data.logs[2].topics,
         });
         const args: any = topics.args;
+        console.log("createTempToken success", args, data);
+        await postTempToken({
+          tokenAddress: args.tokenAddress as `0x${string}`,
+          symbol: args.symbol as string,
+          streamerFeePercentage: args.streamerFeePercent as bigint,
+          protocolFeePercentage: args.protocolFeePercent as bigint,
+          ownerAddress: args.owner as `0x${string}`,
+          name: args.name as string,
+          endUnixTimestamp: args.endTimestamp as bigint,
+          channelId: Number(channel.channelQueryData?.id),
+          chainId: localNetwork.config.chainId as number,
+          highestTotalSupply: BigInt(0),
+          creationBlockNumber: args.creationBlockNumber as bigint,
+        })
+          .then((res) => {
+            console.log("createTempToken update database success", res);
+            toast({
+              render: () => (
+                <Box as="button" borderRadius="md" bg="#5058c8" px={4} h={8}>
+                  createTempToken update database success
+                </Box>
+              ),
+              duration: 9000,
+              isClosable: true,
+              position: "top-right",
+            });
+          })
+          .catch((err) => {
+            console.log("createTempToken update database error", err);
+            toast({
+              render: () => (
+                <Box as="button" borderRadius="md" bg="#c87850" px={4} h={8}>
+                  createTempToken update database error
+                </Box>
+              ),
+              duration: 9000,
+              isClosable: true,
+              position: "top-right",
+            });
+          });
+        const title = `${
+          user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
+        } created the ${args.symbol} token!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.CREATE_TEMP_TOKEN,
+          title,
+          description: "",
+        });
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                createTempToken success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        // wait for 5 seconds
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        // verify the contract on base
         const encoded = encodeAbiParameters(
           [
             {
@@ -163,53 +232,11 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
             args.creationBlockNumber as bigint,
           ]
         );
-        console.log("createTempToken success", data, args, encoded);
-        await postTempToken({
-          tokenAddress: args.tokenAddress as `0x${string}`,
-          symbol: args.symbol as string,
-          streamerFeePercentage: args.streamerFeePercent as bigint,
-          protocolFeePercentage: args.protocolFeePercent as bigint,
-          ownerAddress: args.owner as `0x${string}`,
-          name: args.name as string,
-          endUnixTimestamp: args.endTimestamp as bigint,
-          channelId: Number(channel.channelQueryData?.id),
-          chainId: localNetwork.config.chainId as number,
-          highestTotalSupply: BigInt(0),
-          creationBlockNumber: args.creationBlockNumber as bigint,
-        });
-        const title = `${
-          user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
-        } created the ${args.symbol} token!`;
-        addToChatbot({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType: InteractionType.CREATE_TEMP_TOKEN,
-          title,
-          description: "",
-        });
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.transactionHash}`}
-                passHref
-              >
-                createTempToken success, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-        // wait for 5 seconds
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        // verify the contract on base
         await verifyTempTokenV1OnBase(
           args.tokenAddress as `0x${string}`,
           encoded
         );
+        console.log("createTempToken encoded", encoded);
         canAddToChatbot_create.current = false;
       },
       onTxError: (error) => {

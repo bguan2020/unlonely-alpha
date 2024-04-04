@@ -101,6 +101,7 @@ const ChannelStreamerPerspective = ({
           channelDescription: realTimeChannelDetails?.channelDescription,
           chatCommands: realTimeChannelDetails?.chatCommands,
           allowNfcs: res?.res?.allowNFCs ?? false,
+          isLive: realTimeChannelDetails?.isLive,
         }),
       },
     });

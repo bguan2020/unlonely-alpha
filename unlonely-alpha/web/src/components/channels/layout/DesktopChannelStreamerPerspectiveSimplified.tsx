@@ -54,7 +54,13 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
   const { userAddress } = useUser();
 
   const { channel } = useChannelContext();
-  const { channelQueryData, realTimeChannelDetails } = channel;
+  const {
+    channelQueryData,
+    realTimeChannelDetails,
+    timeLeftForTempToken,
+    currentActiveTokenIsAlwaysTradable,
+    currentActiveTokenAddress,
+  } = channel;
 
   const [canLivepeerRecord, setCanLivepeerRecord] = useState(true);
 
@@ -100,6 +106,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
           channelDescription: realTimeChannelDetails?.channelDescription,
           chatCommands: realTimeChannelDetails?.chatCommands,
           allowNfcs: res?.res?.allowNFCs ?? false,
+          isLive: realTimeChannelDetails?.isLive,
         }),
       },
     });
@@ -201,6 +208,13 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   justifyContent={"center"}
                   gap="5px"
                 >
+                  {currentActiveTokenAddress && (
+                    <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
+                      {currentActiveTokenIsAlwaysTradable
+                        ? "winner"
+                        : timeLeftForTempToken ?? "expired"}
+                    </Text>
+                  )}
                   <Text fontSize="20px">viewer pov</Text>
                   <LivepeerPlayer
                     src={getSrc(livepeerPlaybackInfo)}

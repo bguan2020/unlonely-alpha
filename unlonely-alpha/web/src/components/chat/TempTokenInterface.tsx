@@ -14,7 +14,6 @@ import {
   PopoverTrigger,
   IconButton,
 } from "@chakra-ui/react";
-import { getTimeFromMillis } from "../../utils/time";
 import {
   ResponsiveContainer,
   LineChart,
@@ -70,36 +69,34 @@ export const TempTokenInterface = ({
   const { matchingChain } = network;
   const {
     channelQueryData,
-    currentActiveTokenEndTimestamp,
+    realTimeChannelDetails,
+    timeLeftForTempToken,
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenHasHitTotalSupplyThreshold,
     currentActiveTokenHighestTotalSupply,
-    currentActiveTokenIsAlwaysTradable,
     currentActiveTokenTotalSupply,
     currentActiveTokenTotalSupplyThreshold,
+    isOwner,
+    tempTokenChartTimeIndexes,
+    tempTokenLoading,
+    currentBlockNumberForTempTokenChart,
+    userTempTokenBalance,
     handleIsFailedGameModalOpen,
   } = channel;
-  const [timeLeftForTempToken, setTimeLeftForTempToken] = useState<
-    string | undefined
-  >("00:00"); // we will use undefined as the flag to initiate the expiration flow, 00:00 is the default value for when there is no token
 
   const {
     chartTxs,
-    loading,
     amount,
     handleAmount,
     handleAmountDirectly,
     mint,
     burn,
     errorMessage,
-    tempTokenBalance,
     mintCostAfterFees,
     mintCostAfterFeesLoading,
     burnProceedsAfterFees,
     burnProceedsAfterFeesLoading,
-    chartTimeIndexes,
-    currentBlockNumberForTempTokenChart,
   } = useTradeTempTokenState();
 
   const {
@@ -112,7 +109,7 @@ export const TempTokenInterface = ({
     handleTimeFilter,
     handleIsChartPaused,
   } = useInterfaceChartData({
-    chartTimeIndexes,
+    chartTimeIndexes: tempTokenChartTimeIndexes,
     txs: chartTxs,
   });
 
@@ -191,38 +188,6 @@ export const TempTokenInterface = ({
   } = useInterfaceChartMarkers(chartTxs, timeFilter);
 
   useEffect(() => {
-    if (!currentActiveTokenEndTimestamp) {
-      setTimeLeftForTempToken("00:00");
-      return;
-    }
-    // Function to update the countdown
-    const updateCountdown = () => {
-      const now = Math.floor(Date.now() / 1000);
-      const duration = Number(currentActiveTokenEndTimestamp) - now;
-
-      if (duration < 0) {
-        // If the duration is negative, the countdown is over
-        setTimeLeftForTempToken(undefined);
-        return;
-      }
-
-      // Convert duration to a readable format, e.g., HH:MM:SS
-      const str = getTimeFromMillis(duration * 1000, true, true);
-
-      setTimeLeftForTempToken(str);
-    };
-
-    // Initial update
-    updateCountdown();
-
-    // Set the interval to update the countdown every X seconds
-    const interval = setInterval(updateCountdown, 5 * 1000);
-
-    // Clear the interval when the component unmounts
-    return () => clearInterval(interval);
-  }, [currentActiveTokenEndTimestamp]);
-
-  useEffect(() => {
     if (timeLeftForTempToken === undefined) {
       handleCanPlayToken(false);
       handleIsFailedGameModalOpen(true);
@@ -243,7 +208,7 @@ export const TempTokenInterface = ({
 
   return (
     <>
-      {loading || customLoading ? (
+      {tempTokenLoading || customLoading ? (
         <Flex
           direction="column"
           alignItems="center"
@@ -299,11 +264,6 @@ export const TempTokenInterface = ({
           <Flex justifyContent={"space-between"} alignItems={"center"}>
             <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
               ${currentActiveTokenSymbol}
-            </Text>
-            <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
-              {currentActiveTokenIsAlwaysTradable
-                ? "winner"
-                : timeLeftForTempToken ?? "expired"}
             </Text>
             {!isFullChart && (
               <Popover trigger="hover" placement="top" openDelay={500}>
@@ -492,7 +452,7 @@ export const TempTokenInterface = ({
                   <Tooltip content={<CustomTooltip />} />
                   {timeFilter === "all" && (
                     <>
-                      {Array.from(chartTimeIndexes.keys())
+                      {Array.from(tempTokenChartTimeIndexes.keys())
                         .filter((i) => i.includes("d"))
                         .map((key) => {
                           return (
@@ -500,7 +460,8 @@ export const TempTokenInterface = ({
                               key={key}
                               strokeDasharray="3 3"
                               x={
-                                chartTimeIndexes.get(key)?.blockNumber as number
+                                tempTokenChartTimeIndexes.get(key)
+                                  ?.blockNumber as number
                               }
                               stroke="rgb(0, 211, 193)"
                               label={<CustomLabel value={`~${key}`} />}
@@ -511,8 +472,8 @@ export const TempTokenInterface = ({
                         .map((i) => i + 1)
                         .filter(
                           (d) =>
-                            chartTimeIndexes.get(`${d}d`)?.blockNumber ===
-                            undefined
+                            tempTokenChartTimeIndexes.get(`${d}d`)
+                              ?.blockNumber === undefined
                         )
                         .map((key) => {
                           return (
@@ -533,7 +494,7 @@ export const TempTokenInterface = ({
                   )}
                   {timeFilter === "1d" && (
                     <>
-                      {Array.from(chartTimeIndexes.keys())
+                      {Array.from(tempTokenChartTimeIndexes.keys())
                         .filter((i) => i.includes("h"))
                         .map((key) => {
                           return (
@@ -541,7 +502,8 @@ export const TempTokenInterface = ({
                               key={key}
                               strokeDasharray="3 3"
                               x={
-                                chartTimeIndexes.get(key)?.blockNumber as number
+                                tempTokenChartTimeIndexes.get(key)
+                                  ?.blockNumber as number
                               }
                               stroke="#00d3c1"
                               label={<CustomLabel value={`~${key}`} />}
@@ -552,8 +514,8 @@ export const TempTokenInterface = ({
                         .map((i) => i + 1)
                         .filter(
                           (h) =>
-                            chartTimeIndexes.get(`${h}h`)?.blockNumber ===
-                            undefined
+                            tempTokenChartTimeIndexes.get(`${h}h`)
+                              ?.blockNumber === undefined
                         )
                         .map((key) => {
                           return (
@@ -602,17 +564,41 @@ export const TempTokenInterface = ({
             </Flex>
             {!canPlayToken && (
               <>
-                {channelQueryData?.isLive ? (
-                  <Button
-                    _focus={{}}
-                    _active={{}}
-                    _hover={{}}
-                    bg="#02b263"
-                    h="30%"
-                    onClick={() => setTempTokenDisclaimerModalOpen(true)}
-                  >
-                    <Text color="white">PLAY NOW</Text>
-                  </Button>
+                {realTimeChannelDetails.isLive ? (
+                  <>
+                    {timeLeftForTempToken === undefined ? (
+                      <>
+                        {isOwner ? (
+                          <Button
+                            _focus={{}}
+                            _active={{}}
+                            _hover={{}}
+                            bg="#02b263"
+                            h="30%"
+                            onClick={() =>
+                              setTempTokenDisclaimerModalOpen(true)
+                            }
+                          >
+                            <Text color="white">send funds</Text>
+                          </Button>
+                        ) : (
+                          <Text>Time's up!</Text>
+                        )}
+                      </>
+                    ) : (
+                      <Button
+                        _focus={{}}
+                        _active={{}}
+                        _hover={{}}
+                        bg="#02b263"
+                        h="30%"
+                        isDisabled={timeLeftForTempToken === undefined}
+                        onClick={() => setTempTokenDisclaimerModalOpen(true)}
+                      >
+                        <Text color="white">PLAY NOW</Text>
+                      </Button>
+                    )}
+                  </>
                 ) : (
                   <Text>
                     Cannot play when stream is offline, please refresh and try
@@ -726,8 +712,10 @@ export const TempTokenInterface = ({
                             bg: "#8884d8",
                           }}
                           onClick={() => {
-                            tempTokenBalance &&
-                              handleAmountDirectly(tempTokenBalance.formatted);
+                            userTempTokenBalance &&
+                              handleAmountDirectly(
+                                userTempTokenBalance.formatted
+                              );
                           }}
                         >
                           max

@@ -90,12 +90,13 @@ export function useChannel(fixedChatName?: string) {
     if (message.name === CHANGE_CHANNEL_DETAILS_EVENT) {
       const body = JSON.parse(message.data.body);
       console.log("body", body);
-      handleRealTimeChannelDetails(
-        body.channelName,
-        body.channelDescription,
-        body.chatCommands,
-        body.allowNfcs
-      );
+      handleRealTimeChannelDetails({
+        channelName: body.channelName,
+        channelDescription: body.channelDescription,
+        chatCommands: body.chatCommands,
+        allowNfcs: body.allowNfcs,
+        isLive: body.isLive
+      });
     }
     if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
       const newSliderValue = JSON.parse(message.data.body);
@@ -131,6 +132,11 @@ export function useChannel(fixedChatName?: string) {
         }
         if (chatbotTaskType === InteractionType.EVENT_PAYOUT) {
           handleLocalSharesEventState(SharesEventState.Payout);
+        }
+        if (chatbotTaskType === InteractionType.CREATE_TEMP_TOKEN) {
+          handleRealTimeChannelDetails({
+            isLive: true
+          });
         }
       }
       if (localBanList.length === 0) {

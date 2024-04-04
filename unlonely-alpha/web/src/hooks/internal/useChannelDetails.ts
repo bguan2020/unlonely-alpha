@@ -16,12 +16,16 @@ export type UseChannelDetailsType = {
     channelDescription: string;
     chatCommands: CommandData[];
     allowNfcs: boolean;
+    isLive: boolean;
   };
   handleRealTimeChannelDetails: (
-    channelName: string,
-    channelDescription: string,
-    chatCommands: CommandData[],
-    allowNfcs: boolean
+    input: {
+      channelName?: string,
+      channelDescription?: string,
+      chatCommands?: CommandData[],
+      allowNfcs?: boolean,
+      isLive?: boolean
+    }
   ) => void;
   channelRoles: Role[];
   channelVibesTokenPriceRange: string[];
@@ -49,6 +53,7 @@ export const useChannelDetailsInitial: UseChannelDetailsType = {
     channelDescription: "",
     chatCommands: [],
     allowNfcs: true,
+    isLive: false,
   },
   handleRealTimeChannelDetails: () => undefined,
   channelRoles: [],
@@ -115,23 +120,27 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
     setChannelVibesTokenPriceRange(value);
   }, []);
 
+  // handleRealTimeChannelDetails, all parameters are optional, for those that are not provided, the previous value is used, make it a mapping parameter for easy input
   const handleRealTimeChannelDetails = useCallback(
     (
-      channelName: string,
-      channelDescription: string,
-      chatCommands: CommandData[],
-      allowNfcs: boolean
+      input: {
+        channelName?: string,
+        channelDescription?: string,
+        chatCommands?: CommandData[],
+        allowNfcs?: boolean,
+        isLive?: boolean
+      }
     ) => {
-      setRealTimeChannelDetails({
-        channelName,
-        channelDescription,
-        chatCommands,
-        allowNfcs,
-      });
+      setRealTimeChannelDetails((prev) => ({
+        channelName: input.channelName ?? prev.channelName,
+        channelDescription: input.channelDescription ?? prev.channelDescription,
+        chatCommands: input.chatCommands ?? prev.chatCommands,
+        allowNfcs: input.allowNfcs ?? prev.allowNfcs,
+        isLive: input.isLive ?? prev.isLive,
+      }));
     },
     []
   );
-
   const handleChannelRoles = useCallback(
     (address: string, role: number, isAdding: boolean) => {
       if (isAdding) {
@@ -181,12 +190,13 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
   useEffect(() => {
     if (channelQueryData) {
       handleRealTimeChannelDetails(
-        channelQueryData.name ?? "",
-        channelQueryData.description ?? "",
-        channelQueryData?.chatCommands?.filter(
+        {channelName: channelQueryData.name ?? "",
+        channelDescription: channelQueryData.description ?? "",
+        chatCommands: channelQueryData?.chatCommands?.filter(
           (command): command is CommandData => command !== null
         ) ?? [],
-        channelQueryData?.allowNFCs ?? false
+        allowNfcs: channelQueryData?.allowNFCs ?? false,
+        isLive: channelQueryData?.isLive ?? false}
       );
     }
   }, [channelQueryData]);
