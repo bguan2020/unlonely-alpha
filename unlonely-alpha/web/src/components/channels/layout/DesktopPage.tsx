@@ -55,7 +55,6 @@ export const DesktopPage = ({
     error: channelDataError,
     handleTotalBadges,
     handleChannelStaticData,
-    currentActiveTokenEndTimestamp,
   } = channel;
   const {
     welcomeStreamerModal,

@@ -484,6 +484,10 @@ export const useTradeTempTokenState = () => {
     setAmount(filtered);
   }, []);
 
+  const handleAmountDirectly = useCallback((input: string) => {
+    setAmount(input);
+  }, []);
+
   // on mount, fetch for logs to populate historical transactions on the chart
   useEffect(() => {
     const getTempTokenEvents = async () => {
@@ -623,20 +627,20 @@ export const useTradeTempTokenState = () => {
         blockNumberDaysAgo(days, _currentBlockNumberForTempTokenChart)
       );
 
-      const dayIndex = binarySearchIndex(
-        tokenTxs,
-        BigInt(blockNumbersInDaysAgoArr[0])
-      );
+      const dayIndex =
+        blockNumbersInDaysAgoArr[0] < currentActiveTokenCreationBlockNumber
+          ? undefined
+          : binarySearchIndex(tokenTxs, BigInt(blockNumbersInDaysAgoArr[0]));
 
       const hoursArr = [1, 6, 12, 18];
       const blockNumbersInHoursAgoArr = hoursArr.map((hours) =>
         blockNumberHoursAgo(hours, _currentBlockNumberForTempTokenChart)
       );
 
-      const hourIndex = binarySearchIndex(
-        tokenTxs,
-        BigInt(blockNumbersInHoursAgoArr[0])
-      );
+      const hourIndex =
+        blockNumbersInHoursAgoArr[0] < currentActiveTokenCreationBlockNumber
+          ? undefined
+          : binarySearchIndex(tokenTxs, BigInt(blockNumbersInHoursAgoArr[0]));
       setCurrentBlockNumberForTempTokenChart(
         _currentBlockNumberForTempTokenChart
       );
@@ -732,6 +736,7 @@ export const useTradeTempTokenState = () => {
     burnTxLoading,
     isRefetchingBurn,
     handleAmount,
+    handleAmountDirectly,
     chartTxs,
     tokenTxs,
     loading,

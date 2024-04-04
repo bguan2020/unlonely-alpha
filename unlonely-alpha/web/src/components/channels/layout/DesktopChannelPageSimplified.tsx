@@ -201,6 +201,10 @@ export const DesktopChannelPageSimplified = ({
    */
 
   useEffect(() => {
+    if (!currentActiveTokenEndTimestamp) {
+      setShouldRenderTempTokenInterface(false);
+      return;
+    }
     const decideRender = () => {
       const currentTime = Math.floor(Date.now() / 1000);
       const shouldRender =

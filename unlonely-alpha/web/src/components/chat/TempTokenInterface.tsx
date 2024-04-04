@@ -29,7 +29,7 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useTradeTempTokenState } from "../../hooks/internal/temp-token/useTradeTempTokenState";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { formatIncompleteNumber } from "../../utils/validation/input";
-import { FaMagnifyingGlassChart } from "react-icons/fa6";
+import { FaMagnifyingGlassChart, FaPause } from "react-icons/fa6";
 import { useInterfaceChartMarkers } from "../../hooks/internal/temp-token/useInterfaceChartMarkers";
 import { useInterfaceChartData } from "../../hooks/internal/temp-token/useInterfaceChartData";
 import {
@@ -40,6 +40,7 @@ import { useCacheContext } from "../../hooks/context/useCache";
 import { AblyChannelPromise, NULL_ADDRESS } from "../../constants";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
+import { useNetworkContext } from "../../hooks/context/useNetwork";
 
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
@@ -65,7 +66,8 @@ export const TempTokenInterface = ({
   const { channel } = useChannelContext();
   const { ethPriceInUsd } = useCacheContext();
   const windowSize = useWindowSize();
-
+  const { network } = useNetworkContext();
+  const { matchingChain } = network;
   const {
     channelQueryData,
     currentActiveTokenEndTimestamp,
@@ -76,16 +78,18 @@ export const TempTokenInterface = ({
     currentActiveTokenIsAlwaysTradable,
     currentActiveTokenTotalSupply,
     currentActiveTokenTotalSupplyThreshold,
+    handleIsFailedGameModalOpen,
   } = channel;
   const [timeLeftForTempToken, setTimeLeftForTempToken] = useState<
     string | undefined
-  >(undefined);
+  >("00:00"); // we will use undefined as the flag to initiate the expiration flow, 00:00 is the default value for when there is no token
 
   const {
     chartTxs,
     loading,
     amount,
     handleAmount,
+    handleAmountDirectly,
     mint,
     burn,
     errorMessage,
@@ -187,10 +191,10 @@ export const TempTokenInterface = ({
   } = useInterfaceChartMarkers(chartTxs, timeFilter);
 
   useEffect(() => {
-    console.log(
-      "currentActiveTokenEndTimestamp",
-      currentActiveTokenEndTimestamp
-    );
+    if (!currentActiveTokenEndTimestamp) {
+      setTimeLeftForTempToken("00:00");
+      return;
+    }
     // Function to update the countdown
     const updateCountdown = () => {
       const now = Math.floor(Date.now() / 1000);
@@ -217,6 +221,13 @@ export const TempTokenInterface = ({
     // Clear the interval when the component unmounts
     return () => clearInterval(interval);
   }, [currentActiveTokenEndTimestamp]);
+
+  useEffect(() => {
+    if (timeLeftForTempToken === undefined) {
+      handleCanPlayToken(false);
+      handleIsFailedGameModalOpen(true);
+    }
+  }, [timeLeftForTempToken]);
 
   const openTokenPopout = () => {
     if (!channelQueryData) return;
@@ -324,6 +335,8 @@ export const TempTokenInterface = ({
                 p={3}
                 height="20px"
                 _focus={{}}
+                _active={{}}
+                _hover={{}}
                 onClick={() => handleTimeFilter("1h")}
               >
                 1h
@@ -332,7 +345,9 @@ export const TempTokenInterface = ({
                 bg={timeFilter === "1d" ? "#7874c9" : "#403c7d"}
                 p={3}
                 height="20px"
+                _focus={{}}
                 _active={{}}
+                _hover={{}}
                 onClick={() => handleTimeFilter("1d")}
               >
                 1d
@@ -341,6 +356,8 @@ export const TempTokenInterface = ({
                 bg={timeFilter === "all" ? "#7874c9" : "#403c7d"}
                 p={3}
                 height="20px"
+                _focus={{}}
+                _active={{}}
                 _hover={{}}
                 onClick={() => handleTimeFilter("all")}
               >
@@ -387,16 +404,61 @@ export const TempTokenInterface = ({
                   could not fetch channel data
                 </Text>
               )}
-              {chartTxs.length === 0 && (
+              {pausedData_1h.length === 0 &&
+                timeFilter === "1h" &&
+                matchingChain && (
+                  <Text
+                    textAlign="center"
+                    position="absolute"
+                    color="gray"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%)"
+                  >
+                    no txs in the past hour
+                  </Text>
+                )}
+              {pausedData_1d.length === 0 &&
+                timeFilter === "1d" &&
+                matchingChain && (
+                  <Text
+                    textAlign="center"
+                    position="absolute"
+                    color="gray"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%)"
+                  >
+                    no txs in the past 24 hours
+                  </Text>
+                )}
+              {formattedData.length === 0 &&
+                timeFilter === "all" &&
+                matchingChain && (
+                  <Text
+                    textAlign="center"
+                    position="absolute"
+                    color="gray"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%)"
+                  >
+                    no txs
+                  </Text>
+                )}
+              {isChartPaused && (
                 <Text
-                  textAlign="center"
                   position="absolute"
-                  color="gray"
+                  color="#626262"
                   top="50%"
                   left="50%"
                   transform="translate(-50%, -50%)"
+                  fontSize={"6rem"}
+                  fontWeight={"bold"}
+                  textAlign={"center"}
+                  opacity="0.5"
                 >
-                  no txs
+                  <FaPause />
                 </Text>
               )}
               <ResponsiveContainer width="100%" height="100%">
@@ -515,9 +577,7 @@ export const TempTokenInterface = ({
                     stroke="#ff0000"
                     strokeDasharray="3 3"
                     label={
-                      <CustomLabel
-                        value={`price goal: $${priceOfThresholdInUsd}`}
-                      />
+                      <CustomLabel value={`goal: $${priceOfThresholdInUsd}`} />
                     }
                   />
                   <Line
@@ -549,13 +609,9 @@ export const TempTokenInterface = ({
                     _hover={{}}
                     bg="#02b263"
                     h="30%"
+                    onClick={() => setTempTokenDisclaimerModalOpen(true)}
                   >
-                    <Text
-                      color="white"
-                      onClick={() => setTempTokenDisclaimerModalOpen(true)}
-                    >
-                      PLAY NOW
-                    </Text>
+                    <Text color="white">PLAY NOW</Text>
                   </Button>
                 ) : (
                   <Text>
@@ -566,8 +622,12 @@ export const TempTokenInterface = ({
               </>
             )}
             {canPlayToken && (
-              <Flex>
-                <Flex direction="column" gap="10px">
+              <Flex
+                direction="column"
+                justifyContent={"space-between"}
+                gap="5px"
+              >
+                <Flex gap="10px" justifyContent={"space-evenly"}>
                   <Flex direction="column">
                     <Text fontSize={"12px"} color="#c6c3fc">
                       Current Price
@@ -622,16 +682,20 @@ export const TempTokenInterface = ({
                       </Text>
                     ) : (
                       <Text fontSize={"12px"} color="#c6c3fc">
+                        tokens to reach goal
+                      </Text>
+                    )}
+                    <>
+                      <Text color="#f3d584" fontSize="2rem">
                         {String(
                           currentActiveTokenTotalSupplyThreshold -
                             currentActiveTokenTotalSupply
-                        )}{" "}
-                        tokens needed to reach ${priceOfThresholdInUsd}
+                        )}
                       </Text>
-                    )}
+                    </>
                   </Flex>
                 </Flex>
-                <Flex direction="column" justifyContent={"flex-end"} gap="10px">
+                <Flex direction="column" justifyContent={"center"} gap="10px">
                   <Flex position="relative" gap="5px" alignItems={"center"}>
                     <ChakraTooltip
                       label={errorMessage}
@@ -663,7 +727,7 @@ export const TempTokenInterface = ({
                           }}
                           onClick={() => {
                             tempTokenBalance &&
-                              handleAmount(tempTokenBalance.formatted);
+                              handleAmountDirectly(tempTokenBalance.formatted);
                           }}
                         >
                           max

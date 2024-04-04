@@ -11,13 +11,12 @@ import { UseChannelDetailsType } from "../useChannelDetails";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { ContractData } from "../../../constants/types";
 import useUpdateTempTokenHasRemainingFundsForCreator from "../../server/temp-token/useUpdateTempTokenHasRemainingFundsForCreator";
-import { useChannelContext } from "../../context/useChannel";
 import { useUser } from "../../context/useUser";
 
 export type UseReadTempTokenStateType = {
   currentActiveTokenSymbol: string;
   currentActiveTokenAddress: string;
-  currentActiveTokenEndTimestamp: bigint;
+  currentActiveTokenEndTimestamp?: bigint;
   currentActiveTokenTotalSupply: bigint;
   currentActiveTokenHasHitTotalSupplyThreshold: boolean;
   currentActiveTokenTotalSupplyThreshold: bigint;
@@ -27,6 +26,9 @@ export type UseReadTempTokenStateType = {
   lastInactiveTokenAddress: string;
   lastInactiveTokenBalance: bigint;
   currentTempTokenContract: ContractData;
+  isPermanentGameModalOpen: boolean;
+  isSuccessGameModalOpen: boolean;
+  isFailedGameModalOpen: boolean;
   onMintEvent: (totalSupply: bigint, highestTotalSupply: bigint) => void;
   onBurnEvent: (totalSupply: bigint) => void;
   onReachThresholdEvent: (newEndTimestamp: bigint) => void;
@@ -34,12 +36,15 @@ export type UseReadTempTokenStateType = {
   onAlwaysTradeableEvent: () => void;
   onThresholdUpdateEvent: (newThreshold: bigint) => void;
   onSendRemainingFundsToWinner: (tokenAddress: string, tokenIsCurrent: boolean) => void;
+  handleIsPermanentGameModalOpen: (value: boolean) => void;
+  handleIsSuccessGameModalOpen: (value: boolean) => void;
+  handleIsFailedGameModalOpen: (value: boolean) => void;
 };
 
 export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
   currentActiveTokenSymbol: "",
   currentActiveTokenAddress: NULL_ADDRESS,
-  currentActiveTokenEndTimestamp: BigInt(0),
+  currentActiveTokenEndTimestamp: undefined,
   currentActiveTokenTotalSupply: BigInt(0),
   currentActiveTokenHasHitTotalSupplyThreshold: false,
   currentActiveTokenTotalSupplyThreshold: BigInt(0),
@@ -53,6 +58,9 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
     abi: undefined,
     chainId: 0,
   },
+  isPermanentGameModalOpen: false,
+  isSuccessGameModalOpen: false,
+  isFailedGameModalOpen: false,
   onMintEvent: () => undefined,
   onBurnEvent: () => undefined,
   onReachThresholdEvent: () => undefined,
@@ -60,13 +68,14 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
   onAlwaysTradeableEvent: () => undefined,
   onThresholdUpdateEvent: () => undefined,
   onSendRemainingFundsToWinner: () => undefined,
+  handleIsPermanentGameModalOpen: () => undefined,
+  handleIsSuccessGameModalOpen: () => undefined,
+  handleIsFailedGameModalOpen: () => undefined,
 };
 
 export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
     ): UseReadTempTokenStateType => {
       const { userAddress } = useUser();
-      const { channel } = useChannelContext();
-      const { channelQueryData } = channel;
       
     const { network } = useNetworkContext();
     const { localNetwork } = network;
@@ -76,7 +85,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
     const [currentActiveTokenAddress, setCurrentActiveTokenAddress] =
     useState<string>(NULL_ADDRESS);
   const [currentActiveTokenEndTimestamp, setCurrentActiveTokenEndTimestamp] =
-    useState<bigint>(BigInt(0));
+    useState<bigint | undefined>(undefined);
   const [currentActiveTokenSymbol, setCurrentActiveTokenSymbol] = useState<string>("");
   const [
     currentActiveTokenCreationBlockNumber,
@@ -106,7 +115,13 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
   const [lastInactiveTokenAddress, setLastInactiveTokenAddress] = useState<string>(NULL_ADDRESS);
   const [lastInactiveTokenBalance, setLastInactiveTokenBalance] = useState<bigint>(BigInt(0));
 
-  const isOwner = useMemo(() => userAddress === channelQueryData?.owner.address, [userAddress, channelQueryData?.owner.address])
+  const [isPermanentGameModalOpen, setIsPermanentGameModalOpen] = useState<boolean>(false); // when the token becomes always tradeable
+  const [isSuccessGameModalOpen, setIsSuccessGameModalOpen] =
+  useState<boolean>(false); // when the token hits the total supply threshold
+const [isFailedGameModalOpen, setIsFailedGameModalOpen] =
+  useState<boolean>(false); // when the token expires via countdown
+
+  const isOwner = useMemo(() => userAddress === channelDetails?.channelQueryData?.owner.address, [userAddress, channelDetails?.channelQueryData?.owner.address])
     
   const factoryContract = getContractFromNetwork(
         Contract.TEMP_TOKEN_FACTORY_V1,
@@ -201,7 +216,6 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
                 },
               },
             });
-            console.log("getTempTokenQueryRes", getTempTokenQueryRes)
             const listOfTokens = getTempTokenQueryRes.data?.getTempTokens;
             const nonNullListOfTokens = listOfTokens?.filter(
               (token): token is TempToken => token !== null
@@ -269,6 +283,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
               chainId: localNetwork.config.chainId,
             })
             const tempTokensWithNonZeroBalances = res?.res;
+            console.log("tempTokensWithNonZeroBalances", tempTokensWithNonZeroBalances)
             const nonNullListOfTokensWithNonZeroBalances = tempTokensWithNonZeroBalances?.filter(
               (token): token is TempTokenWithBalance => token !== null
             );
@@ -278,7 +293,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
               setLastInactiveTokenAddress(lastInactiveTokenWithBalance.tokenAddress);
               setLastInactiveTokenBalance(BigInt(lastInactiveTokenWithBalance.balance));
             }
-          };
+          }
         }
         init()
       }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId, isOwner])
@@ -297,6 +312,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
       const onReachThresholdEvent = useCallback(async (newEndTimestamp: bigint) => {
         setCurrentActiveTokenHasHitTotalSupplyThreshold(true);
         setCurrentActiveTokenEndTimestamp(newEndTimestamp);
+        setIsSuccessGameModalOpen(true);
       }, []);
 
       const onDurationIncreaseEvent = useCallback(async (newEndTimestamp: bigint) => {
@@ -318,22 +334,38 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
        * but if a current token had just turned inactive and the funds have or have not been sent, what does the ui look like?
        */
       const onSendRemainingFundsToWinner = useCallback(async (tokenAddress: string, tokenIsCurrent: boolean) => {
-        // if (tokenIsCurrent && tokenAddress === currentActiveTokenAddress) {
-        //   setLastInactiveTokenBalance(currentActiveTokenTotalSupply);
-        //   setLastInactiveTokenAddress(currentActiveTokenAddress);
-        //   setCurrentActiveTokenTotalSupply(BigInt(0));
-        //   setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
-        //   setCurrentActiveTokenTotalSupplyThreshold(BigInt(0));
-        //   setCurrentActiveTokenIsAlwaysTradable(false);
-        //   setCurrentActiveTokenHighestTotalSupply(BigInt(0));
-        //   setCurrentActiveTokenEndTimestamp(BigInt(0));
-        //   setCurrentActiveTokenAddress(NULL_ADDRESS);
-        // }
+        if (tokenIsCurrent && tokenAddress === currentActiveTokenAddress) {
+          setCurrentActiveTokenSymbol("");
+          setCurrentActiveTokenAddress(NULL_ADDRESS);
+          setCurrentActiveTokenEndTimestamp(undefined);
+          setCurrentActiveTokenTotalSupply(BigInt(0));
+          setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
+          setCurrentActiveTokenTotalSupplyThreshold(BigInt(0));
+          setCurrentActiveTokenIsAlwaysTradable(false);
+          setCurrentActiveTokenHighestTotalSupply(BigInt(0));
+          setCurrentActiveTokenCreationBlockNumber(BigInt(0));
+        }
         if (!tokenIsCurrent && tokenAddress === lastInactiveTokenAddress) {
           setLastInactiveTokenBalance(BigInt(0));
           setLastInactiveTokenAddress(NULL_ADDRESS);
         }
       }, [currentActiveTokenAddress]);
+
+      /**
+       * functions to handle modal state
+       */
+
+      const handleIsPermanentGameModalOpen = useCallback((value: boolean) => {
+        setIsPermanentGameModalOpen(value);
+      }, []);
+
+      const handleIsSuccessGameModalOpen = useCallback((value: boolean) => {
+        setIsSuccessGameModalOpen(value);
+      }, []);
+
+      const handleIsFailedGameModalOpen = useCallback((value: boolean) => {
+        setIsFailedGameModalOpen(value);
+      }, []);
 
       /**
        * listen for reach threshold event
@@ -499,6 +531,9 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         lastInactiveTokenAddress,
         lastInactiveTokenBalance,
         currentTempTokenContract: tempTokenContract,
+        isPermanentGameModalOpen,
+        isSuccessGameModalOpen,
+        isFailedGameModalOpen,
         onMintEvent,
         onBurnEvent,
         onReachThresholdEvent,
@@ -506,5 +541,8 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         onAlwaysTradeableEvent,
         onThresholdUpdateEvent,
         onSendRemainingFundsToWinner,
+        handleIsPermanentGameModalOpen,
+        handleIsFailedGameModalOpen,
+        handleIsSuccessGameModalOpen,
     };
 }
