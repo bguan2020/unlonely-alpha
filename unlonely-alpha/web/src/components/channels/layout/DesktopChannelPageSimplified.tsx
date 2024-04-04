@@ -195,7 +195,6 @@ export const DesktopChannelPageSimplified = ({
   const [shouldRenderTempTokenInterface, setShouldRenderTempTokenInterface] =
     useState(false);
   const [canPlayToken, setCanPlayToken] = useState(false);
-  const [createTokenModalOpen, setCreateTokenModalOpen] = useState(false);
 
   /**
    * if there is an existing token, render the temp token interface
@@ -251,12 +250,6 @@ export const DesktopChannelPageSimplified = ({
                 {isOwner && walletIsConnected ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
-                    <TempTokenCreationModal
-                      title="Create Temp Token"
-                      isOpen={createTokenModalOpen}
-                      handleClose={() => setCreateTokenModalOpen(false)}
-                      getLivepeerStreamData={getLivepeerStreamData}
-                    />
                     <DesktopChannelStreamerPerspectiveSimplified
                       ablyChannel={chat.channel}
                       livepeerData={livepeerData}
@@ -310,9 +303,7 @@ export const DesktopChannelPageSimplified = ({
                           p="5px"
                           height="20vh"
                         >
-                          <CreateTokenInterface
-                            getLivepeerStreamData={getLivepeerStreamData}
-                          />
+                          <CreateTokenInterface />
                         </Flex>
                       )}
                       <ChatComponent chat={chat} customHeight={"100%"} />
@@ -358,7 +349,7 @@ export const DesktopChannelPageSimplified = ({
   );
 };
 
-const CreateTokenInterface = (getLivepeerStreamData: any) => {
+const CreateTokenInterface = () => {
   const { channel } = useChannelContext();
   const {
     lastInactiveTokenAddress, // todo finish send after expiration flow before creating token flow
@@ -469,7 +460,6 @@ const CreateTokenInterface = (getLivepeerStreamData: any) => {
             title="Create Temp Token"
             isOpen={createTokenModalOpen}
             handleClose={() => setCreateTokenModalOpen(false)}
-            getLivepeerStreamData={getLivepeerStreamData}
           />
           <Button onClick={() => setCreateTokenModalOpen(true)}>
             start creating temp token

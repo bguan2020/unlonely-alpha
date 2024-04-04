@@ -498,6 +498,10 @@ export const useTradeTempTokenState = () => {
         return;
       }
       fetching.current = true;
+      console.log(
+        "currentActiveTokenCreationBlockNumber",
+        currentActiveTokenCreationBlockNumber
+      );
       const [mintLogs, burnLogs] = await Promise.all([
         baseClient.getLogs({
           address: tempTokenContract.address,
@@ -523,7 +527,6 @@ export const useTradeTempTokenState = () => {
         burnLogs.length
       );
       const logs = [...mintLogs, ...burnLogs];
-      console.log(logs);
       logs.sort((a, b) => {
         if (a.blockNumber === null || b.blockNumber === null) return 0;
         if (a.blockNumber < b.blockNumber) return -1;

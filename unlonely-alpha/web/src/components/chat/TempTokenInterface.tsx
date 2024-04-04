@@ -130,7 +130,8 @@ export const TempTokenInterface = ({
       ethPriceInUsd === undefined
         ? undefined
         : truncateValue(
-            Number(priceOfHighestTotalSupply) * Number(ethPriceInUsd),
+            Number(formatUnits(BigInt(priceOfHighestTotalSupply), 18)) *
+              Number(ethPriceInUsd),
             4
           ),
     [priceOfHighestTotalSupply, ethPriceInUsd]
@@ -150,7 +151,11 @@ export const TempTokenInterface = ({
     () =>
       ethPriceInUsd === undefined
         ? undefined
-        : truncateValue(Number(priceOfThreshold) * Number(ethPriceInUsd), 4),
+        : truncateValue(
+            Number(formatUnits(BigInt(priceOfThreshold), 18)) *
+              Number(ethPriceInUsd),
+            4
+          ),
     [priceOfThreshold, ethPriceInUsd]
   );
 
@@ -182,6 +187,10 @@ export const TempTokenInterface = ({
   } = useInterfaceChartMarkers(chartTxs, timeFilter);
 
   useEffect(() => {
+    console.log(
+      "currentActiveTokenEndTimestamp",
+      currentActiveTokenEndTimestamp
+    );
     // Function to update the countdown
     const updateCountdown = () => {
       const now = Math.floor(Date.now() / 1000);
@@ -215,7 +224,7 @@ export const TempTokenInterface = ({
       windowSize[1] + 100
     },menubar=yes,toolbar=yes`;
     window.open(
-      `${window.location.origin}/vibes/${channelQueryData?.slug}`,
+      `${window.location.origin}/token/${channelQueryData?.slug}`,
       "_blank",
       windowFeatures
     );
@@ -262,7 +271,7 @@ export const TempTokenInterface = ({
             hideFooter
           >
             <Text>Rules rules rules</Text>
-            <Flex>
+            <Flex justifyContent={"space-evenly"} gap="5px">
               <Button
                 onClick={() => {
                   setTempTokenDisclaimerModalOpen(false);
@@ -505,7 +514,11 @@ export const TempTokenInterface = ({
                     y={priceOfThreshold}
                     stroke="#ff0000"
                     strokeDasharray="3 3"
-                    label={<CustomLabel value="target" />}
+                    label={
+                      <CustomLabel
+                        value={`price goal: $${priceOfThresholdInUsd}`}
+                      />
+                    }
                   />
                   <Line
                     type="monotone"
@@ -592,12 +605,13 @@ export const TempTokenInterface = ({
                           opacity="0.3"
                           fontSize="14px"
                         >
-                          {priceOfHighestTotalSupply} ETH
+                          {formatUnits(BigInt(priceOfHighestTotalSupply), 18)}{" "}
+                          ETH
                         </Text>
                       </>
                     ) : (
                       <Text whiteSpace={"nowrap"} fontSize="1rem">
-                        {priceOfHighestTotalSupply} ETH
+                        {formatUnits(BigInt(priceOfHighestTotalSupply), 18)} ETH
                       </Text>
                     )}
                   </Flex>
@@ -611,18 +625,13 @@ export const TempTokenInterface = ({
                         {String(
                           currentActiveTokenTotalSupplyThreshold -
                             currentActiveTokenTotalSupply
-                        )}
+                        )}{" "}
                         tokens needed to reach ${priceOfThresholdInUsd}
                       </Text>
                     )}
                   </Flex>
                 </Flex>
-                <Flex
-                  direction="column"
-                  justifyContent={"flex-end"}
-                  gap="10px"
-                  h="30%"
-                >
+                <Flex direction="column" justifyContent={"flex-end"} gap="10px">
                   <Flex position="relative" gap="5px" alignItems={"center"}>
                     <ChakraTooltip
                       label={errorMessage}

@@ -3,7 +3,7 @@ import { Contract, NULL_ADDRESS } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
 import { useNetworkContext } from "../../context/useNetwork";
 import { useLazyQuery } from "@apollo/client";
-import { Log } from "viem";
+import { Log, isAddressEqual } from "viem";
 import { useContractEvent, usePublicClient } from "wagmi";
 import { GET_TEMP_TOKENS_QUERY } from "../../../constants/queries";
 import { GetTempTokensQuery, TempToken, TempTokenWithBalance } from "../../../generated/graphql";
@@ -156,8 +156,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         if (logs.length === 0) return;
         const filteredLogsByOwner = logs.filter(
           (log: any) =>
-            (log.args.owner as `0x${string}`) ===
-            channelDetails.channelQueryData?.owner.address
+            isAddressEqual(log.args.owner as `0x${string}`, channelDetails.channelQueryData?.owner.address as `0x${string}`)
         );
         const sortedLogs = filteredLogsByOwner.sort(
           (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
@@ -167,7 +166,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         const newEndTimestamp = latestLog?.args.endTimestamp as bigint;
         const newTokenAddress = latestLog?.args.tokenAddress as `0x${string}`;
         const newTokenSymbol = latestLog?.args.symbol as string;
-        const newTokenCreationBlockNumber = latestLog?.args.blockNumber as bigint;
+        const newTokenCreationBlockNumber = latestLog?.args.creationBlockNumber as bigint;
         const newTokenTotalSupplyThreshold = latestLog?.args.totalSupplyThreshold as bigint;
 
         setCurrentActiveTokenEndTimestamp(newEndTimestamp);
@@ -193,7 +192,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         const init = async () => {
           if (!(Number(channelDetails.channelQueryData?.id ?? "0") > 0)) return;
           try {
-            const [getTempTokenQueryRes, tempTokensWithNonZeroBalancesRes] = await Promise.all([getTempTokensQuery({
+            const getTempTokenQueryRes = await getTempTokensQuery({
               variables: {
                 data: {
                   channelId: Number(channelDetails.channelQueryData?.id ?? "0"),
@@ -201,10 +200,8 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
                   fulfillAllNotAnyConditions: true,
                 },
               },
-            }), updateTempTokenHasRemainingFundsForCreator({
-              channelId: Number(channelDetails.channelQueryData?.id ?? "0"),
-              chainId: localNetwork.config.chainId,
-            })]);
+            });
+            console.log("getTempTokenQueryRes", getTempTokenQueryRes)
             const listOfTokens = getTempTokenQueryRes.data?.getTempTokens;
             const nonNullListOfTokens = listOfTokens?.filter(
               (token): token is TempToken => token !== null
@@ -214,7 +211,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
             );
             const latestActiveToken = activeTokens?.[0]
             if (latestActiveToken) {
-              setCurrentActiveTokenCreationBlockNumber(latestActiveToken.creationBlockNumber);
+              setCurrentActiveTokenCreationBlockNumber(BigInt(latestActiveToken.creationBlockNumber));
               setCurrentActiveTokenSymbol(latestActiveToken.symbol);
               const [endTimestamp, totalSupply, highestTotalSupply, totalSupplyThreshold, isAlwaysTradeable, hasHitTotalSupplyThreshold] = await Promise.all([publicClient.readContract({
                 address: latestActiveToken.tokenAddress as `0x${string}`,
@@ -246,6 +243,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
                 abi: TempTokenAbi,
                 functionName: "hasHitTotalSupplyThreshold"
               })]);
+              console.log("latestActiveToken", latestActiveToken, endTimestamp, totalSupply, highestTotalSupply, totalSupplyThreshold, isAlwaysTradeable, hasHitTotalSupplyThreshold)
               setCurrentActiveTokenEndTimestamp(
                 BigInt(String(endTimestamp))
               );
@@ -256,7 +254,21 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
               setCurrentActiveTokenHasHitTotalSupplyThreshold(Boolean(hasHitTotalSupplyThreshold));
               setCurrentActiveTokenHighestTotalSupply(BigInt(String(highestTotalSupply)));
             }
-            const tempTokensWithNonZeroBalances = tempTokensWithNonZeroBalancesRes?.res;
+          } catch (e) {
+            console.error("getTempTokensQuery", e);
+          }
+        };
+        init();
+      }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId]); // todo: make a new hook just for inactive tokens with non zero balances
+
+      useEffect(() => {
+        const init = async () => {
+          if (Number(channelDetails.channelQueryData?.id ?? "0") > 0 && isOwner) {
+            const res = await updateTempTokenHasRemainingFundsForCreator({
+              channelId: Number(channelDetails.channelQueryData?.id ?? "0"),
+              chainId: localNetwork.config.chainId,
+            })
+            const tempTokensWithNonZeroBalances = res?.res;
             const nonNullListOfTokensWithNonZeroBalances = tempTokensWithNonZeroBalances?.filter(
               (token): token is TempTokenWithBalance => token !== null
             );
@@ -266,13 +278,10 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
               setLastInactiveTokenAddress(lastInactiveTokenWithBalance.tokenAddress);
               setLastInactiveTokenBalance(BigInt(lastInactiveTokenWithBalance.balance));
             }
-          } catch (e) {
-            console.error("getTempTokensQuery", e);
-          }
-        };
-        init();
-      }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId, isOwner]); // todo: make a new hook just for inactive tokens with non zero balances
-
+          };
+        }
+        init()
+      }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId, isOwner])
       /**
        * functions to run when specific events are detected
        */
@@ -353,8 +362,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         if (logs.length === 0) return;
         const filteredLogsByTokenAddress = logs.filter(
           (log: any) =>
-            (log.address as `0x${string}`) ===
-            currentActiveTokenAddress
+          isAddressEqual((log.address as `0x${string}`), currentActiveTokenAddress as `0x${string}`)
         );
         const sortedLogs = filteredLogsByTokenAddress.sort(
           (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
@@ -392,8 +400,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         if (logs.length === 0) return;
         const filteredLogsByTokenAddress = logs.filter(
           (log: any) =>
-            (log.address as `0x${string}`) ===
-            currentActiveTokenAddress
+          isAddressEqual((log.address as `0x${string}`), currentActiveTokenAddress as `0x${string}`)
         );
         const sortedLogs = filteredLogsByTokenAddress.sort(
           (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
@@ -431,8 +438,7 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         if (logs.length === 0) return;
         const filteredLogsByTokenAddress = logs.filter(
           (log: any) =>
-            (log.address as `0x${string}`) ===
-            currentActiveTokenAddress
+          isAddressEqual((log.address as `0x${string}`), currentActiveTokenAddress as `0x${string}`)
         );
         const sortedLogs = filteredLogsByTokenAddress.sort(
           (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
@@ -468,8 +474,8 @@ export const useReadTempTokenState = (  channelDetails: UseChannelDetailsType
         if (logs.length === 0) return;
         const filteredLogsByTokenAddress = logs.filter(
           (log: any) =>
-            (log.address as `0x${string}`) ===
-            currentActiveTokenAddress
+          isAddressEqual((log.address as `0x${string}`), currentActiveTokenAddress as `0x${string}`)
+
         );
         const sortedLogs = filteredLogsByTokenAddress.sort(
           (a, b) => Number(a.blockNumber) - Number(b.blockNumber)

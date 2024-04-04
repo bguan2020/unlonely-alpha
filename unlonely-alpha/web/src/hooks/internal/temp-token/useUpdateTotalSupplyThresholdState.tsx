@@ -86,8 +86,8 @@ export const useUpdateTotalSupplyThresholdState = (
       onTxSuccess: async (data) => {
         const topics = decodeEventLog({
           abi: factoryContract.abi,
-          data: data.logs[2].data,
-          topics: data.logs[2].topics,
+          data: data.logs[1].data,
+          topics: data.logs[1].topics,
         });
         const args: any = topics.args;
         console.log("setTotalSupplyThresholdForTokens success", data, args);

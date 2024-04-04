@@ -30,6 +30,7 @@ import { useUpdateEndTimestampForTokensState } from "../../hooks/internal/temp-t
 import centerEllipses from "../../utils/centerEllipses";
 import copy from "copy-to-clipboard";
 import { FaRegCopy } from "react-icons/fa";
+// import { verifyTempTokenV1OnBase } from "../../utils/contract-verification/tempToken";
 
 type DetailedTempToken = TempToken & {
   totalSupplyThreshold: bigint;
@@ -222,6 +223,8 @@ export const TempTokenAdmin = () => {
     });
   };
 
+  console.log(activeTokens);
+
   return (
     <>
       <Text
@@ -231,6 +234,7 @@ export const TempTokenAdmin = () => {
       >
         TempToken functions
       </Text>
+      {/* <Button onClick={() => verifyTempTokenV1OnBase()}>test verify</Button> */}
       <Button
         color="white"
         bg="#2562db"
