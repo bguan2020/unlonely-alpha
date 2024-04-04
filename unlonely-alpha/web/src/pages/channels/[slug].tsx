@@ -13,7 +13,7 @@ import { DesktopPage } from "../../components/channels/layout/DesktopPage";
 import { DesktopChannelPageSimplified } from "../../components/channels/layout/DesktopChannelPageSimplified";
 // import { DesktopChannelPageSimplified } from "../../components/channels/layout/DesktopChannelPageSimplified";
 
-const channelIdsAllowedForNewPage = ["3", "6", "29"];
+const channelIdsAllowedForNewPage = ["3", "15", "29"];
 
 const ChannelDetail = ({
   channelData,
