@@ -6,7 +6,7 @@ import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useLazyQuery } from "@apollo/client";
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../../constants/queries";
 import { GetLivepeerStreamDataQuery } from "../../../generated/graphql";
-import { filteredInput } from "../../../utils/validation/input";
+import { alphanumericInput } from "../../../utils/validation/input";
 
 export const TempTokenCreationModal = ({
   title,
@@ -77,7 +77,9 @@ export const TempTokenCreationModal = ({
             placeholder="token name"
             variant="glow"
             value={newTokenName}
-            onChange={(e) => handleNewTokenName(filteredInput(e.target.value))}
+            onChange={(e) =>
+              handleNewTokenName(alphanumericInput(e.target.value))
+            }
           />
           <Text>Symbol</Text>
           <Input
@@ -85,10 +87,19 @@ export const TempTokenCreationModal = ({
             variant="glow"
             value={newTokenSymbol}
             onChange={(e) =>
-              handleNewTokenSymbol(filteredInput(e.target.value))
+              handleNewTokenSymbol(alphanumericInput(e.target.value))
             }
           />
           <Flex gap="5px" justifyContent={"center"}>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={newTokenDuration === BigInt("180") ? "#02d650" : "#ffffff"}
+              onClick={() => handleNewTokenDuration(BigInt("180"))}
+            >
+              2 mins
+            </Button>
             <Button
               _hover={{}}
               _focus={{}}

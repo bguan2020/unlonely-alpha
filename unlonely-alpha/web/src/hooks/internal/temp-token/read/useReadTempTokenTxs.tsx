@@ -1,5 +1,5 @@
 import { Flex, useToast, Text, Box } from "@chakra-ui/react";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { isAddress, isAddressEqual, Log, parseAbiItem } from "viem";
 import { useBalance, useContractEvent } from "wagmi";
 import { NULL_ADDRESS } from "../../../../constants";
@@ -25,6 +25,7 @@ export type UseReadTempTokenTxsType = {
   >;
   currentBlockNumberForTempTokenChart: bigint;
   userTempTokenBalance?: FetchBalanceResult;
+  resetTempTokenTxs: () => void;
 };
 
 export const useReadTempTokenTxsInitial = {
@@ -33,6 +34,7 @@ export const useReadTempTokenTxsInitial = {
   tempTokenChartTimeIndexes: new Map(),
   currentBlockNumberForTempTokenChart: BigInt(0),
   userTempTokenBalance: undefined,
+  resetTempTokenTxs: () => undefined,
 };
 
 /**
@@ -169,7 +171,7 @@ export const useReadTempTokenTxs = ({
     });
   };
 
-  // on mount, fetch for logs to populate historical transactions on the chart
+  // on mount or newly detected token's creationBlockNumber, fetch for logs to populate historical transactions on the chart
   useEffect(() => {
     const getTempTokenEvents = async () => {
       if (
@@ -346,6 +348,12 @@ export const useReadTempTokenTxs = ({
     init();
   }, [tempTokenTxs.length]);
 
+  const resetTempTokenTxs = useCallback(() => {
+    setTempTokenTxs([]);
+    setTempTokenChartTimeIndexes(new Map());
+    setCurrentBlockNumberForTempTokenChart(BigInt(0));
+  }, []);
+
   /**
    * listen for transfer events
    */
@@ -407,5 +415,6 @@ export const useReadTempTokenTxs = ({
     tempTokenChartTimeIndexes,
     currentBlockNumberForTempTokenChart,
     userTempTokenBalance,
+    resetTempTokenTxs,
   };
 };

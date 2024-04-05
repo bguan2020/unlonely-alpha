@@ -402,7 +402,7 @@ export const TempTokenInterface = ({
             </Flex>
           )}
           <Flex gap="10px" flex="1" h="100%" direction="column">
-            <Flex direction="column" w="100%" position="relative" h="70%">
+            <Flex direction="column" w="100%" position="relative" h="60%">
               {noChannelData && (
                 <Text
                   textAlign="center"

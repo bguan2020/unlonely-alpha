@@ -22,12 +22,8 @@ import {
   useReadTempTokenTxs,
   useReadTempTokenTxsInitial,
 } from "./useReadTempTokenTxs";
-import {
-  useReadTempTokenUi,
-  useReadTempTokenUiInitial,
-  UseReadTempTokenUiType,
-} from "./useReadTempTokenUi";
 import { useReadTempTokenExternalEventListeners } from "./useReadTempTokenExternalEventListeners";
+import usePostTempToken from "../../../server/temp-token/usePostTempToken";
 
 export type UseReadTempTokenStateType = {
   currentActiveTokenSymbol: string;
@@ -43,8 +39,30 @@ export type UseReadTempTokenStateType = {
   lastInactiveTokenBalance: bigint;
   currentTempTokenContract: ContractData;
   isOwner: boolean;
-} & UseReadTempTokenTxsType &
-  UseReadTempTokenUiType;
+  durationLeftForTempToken: number | undefined;
+  isPermanentGameModalOpen: boolean;
+  isSuccessGameModalOpen: boolean;
+  isFailedGameModalOpen: boolean;
+  isPermanentGameState: boolean;
+  isSuccessGameState: boolean;
+  isFailedGameState: boolean;
+  onMintEvent: (totalSupply: bigint, highestTotalSupply: bigint) => void;
+  onBurnEvent: (totalSupply: bigint) => void;
+  onReachThresholdEvent: (newEndTimestamp: bigint) => void;
+  onDurationIncreaseEvent: (newEndTimestamp: bigint) => void;
+  onAlwaysTradeableEvent: () => void;
+  onThresholdUpdateEvent: (newThreshold: bigint) => void;
+  onSendRemainingFundsToWinnerEvent: (
+    tokenAddress: string,
+    tokenIsCurrent: boolean
+  ) => void;
+  handleIsGamePermanent: (value: boolean) => void;
+  handleIsGameSuccess: (value: boolean) => void;
+  handleIsGameFailed: (value: boolean) => void;
+  handleIsPermanentGameModalOpen: (value: boolean) => void;
+  handleIsSuccessGameModalOpen: (value: boolean) => void;
+  handleIsFailedGameModalOpen: (value: boolean) => void;
+} & UseReadTempTokenTxsType;
 
 export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
   currentActiveTokenSymbol: "",
@@ -64,8 +82,27 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
     chainId: 0,
   },
   isOwner: false,
+  durationLeftForTempToken: 0,
+  isPermanentGameModalOpen: false,
+  isSuccessGameModalOpen: false,
+  isFailedGameModalOpen: false,
+  isPermanentGameState: false,
+  isSuccessGameState: false,
+  isFailedGameState: false,
+  onMintEvent: () => undefined,
+  onBurnEvent: () => undefined,
+  onReachThresholdEvent: () => undefined,
+  onDurationIncreaseEvent: () => undefined,
+  onAlwaysTradeableEvent: () => undefined,
+  onThresholdUpdateEvent: () => undefined,
+  onSendRemainingFundsToWinnerEvent: () => undefined,
+  handleIsGamePermanent: () => undefined,
+  handleIsGameSuccess: () => undefined,
+  handleIsGameFailed: () => undefined,
+  handleIsPermanentGameModalOpen: () => undefined,
+  handleIsSuccessGameModalOpen: () => undefined,
+  handleIsFailedGameModalOpen: () => undefined,
   ...useReadTempTokenTxsInitial,
-  ...useReadTempTokenUiInitial,
 };
 
 export const useReadTempTokenState = (
@@ -112,6 +149,24 @@ export const useReadTempTokenState = (
   const [lastInactiveTokenBalance, setLastInactiveTokenBalance] =
     useState<bigint>(BigInt(0));
 
+  const [durationLeftForTempToken, setDurationLeftForTempToken] = useState<
+    number | undefined
+  >(0); // notes the seconds that the token has remaining, we will use undefined as the flag to initiate the expiration flow, 0 is the default value for when there is no token
+
+  const [isPermanentGameModalOpen, setIsPermanentGameModalOpen] =
+    useState<boolean>(false); // when the token becomes always tradeable
+  const [isSuccessGameModalOpen, setIsSuccessGameModalOpen] =
+    useState<boolean>(false); // when the token hits the total supply threshold
+  const [isFailedGameModalOpen, setIsFailedGameModalOpen] =
+    useState<boolean>(false); // when the token expires via countdown
+
+  const [isPermanentGameState, setIsPermanentGameState] =
+    useState<boolean>(false); // when the token becomes always tradeable
+  const [isSuccessGameState, setIsGameSuccessState] = useState<boolean>(false); // when the token hits the total supply threshold
+  const [isFailedGameState, setIsFailedGameState] = useState<boolean>(false); // when the token expires via countdown
+
+  const { postTempToken } = usePostTempToken({});
+
   const isOwner = useMemo(() => {
     if (!userAddress || !channelDetails?.channelQueryData?.owner?.address)
       return false;
@@ -141,6 +196,21 @@ export const useReadTempTokenState = (
     };
   }, [currentActiveTokenAddress, localNetwork.config.chainId]);
 
+  const lastInactiveTempTokenContract: ContractData = useMemo(() => {
+    if (lastInactiveTokenAddress === NULL_ADDRESS) {
+      return {
+        address: NULL_ADDRESS,
+        abi: undefined,
+        chainId: localNetwork.config.chainId,
+      };
+    }
+    return {
+      address: lastInactiveTokenAddress as `0x${string}`,
+      abi: TempTokenAbi,
+      chainId: localNetwork.config.chainId,
+    };
+  }, [lastInactiveTokenAddress, localNetwork.config.chainId]);
+
   const baseClient = useMemo(
     () =>
       createPublicClient({
@@ -151,6 +221,104 @@ export const useReadTempTokenState = (
       }),
     []
   );
+
+  /**
+   * functions to run when specific events are detected, not exposed outside of this hook,
+   */
+  const onMintEvent = useCallback(
+    async (totalSupply: bigint, highestTotalSupply: bigint) => {
+      setCurrentActiveTokenTotalSupply(totalSupply);
+      setCurrentActiveTokenHighestTotalSupply(highestTotalSupply);
+    },
+    []
+  );
+
+  const onBurnEvent = useCallback(async (totalSupply: bigint) => {
+    setCurrentActiveTokenTotalSupply(totalSupply);
+  }, []);
+
+  const onReachThresholdEvent = useCallback(async (newEndTimestamp: bigint) => {
+    setCurrentActiveTokenHasHitTotalSupplyThreshold(true);
+    setCurrentActiveTokenEndTimestamp(newEndTimestamp);
+    handleIsGameSuccess(true);
+    handleIsSuccessGameModalOpen(true);
+  }, []);
+
+  const onDurationIncreaseEvent = useCallback(
+    async (newEndTimestamp: bigint) => {
+      setCurrentActiveTokenEndTimestamp(newEndTimestamp);
+    },
+    []
+  );
+
+  const onAlwaysTradeableEvent = useCallback(async () => {
+    setCurrentActiveTokenIsAlwaysTradable(true);
+    handleIsGamePermanent(true);
+    handleIsPermanentGameModalOpen(true);
+  }, []);
+
+  const onThresholdUpdateEvent = useCallback(async (newThreshold: bigint) => {
+    setCurrentActiveTokenTotalSupplyThreshold(newThreshold);
+    setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
+  }, []);
+
+  /**
+   * function to run when sending remaining funds to winner
+   * ideally to be called on an inactive token to reset the state and allow for normal token creation flow
+   * but if a current token had just turned inactive and the funds have or have not been sent, what does the ui look like?
+   */
+  const onSendRemainingFundsToWinnerEvent = useCallback(
+    async (tokenAddress: string, tokenIsCurrent: boolean) => {
+      if (
+        tokenIsCurrent &&
+        isAddressEqual(
+          tokenAddress as `0x${string}`,
+          currentActiveTokenAddress as `0x${string}`
+        )
+      ) {
+        setCurrentActiveTokenSymbol("");
+        setCurrentActiveTokenAddress(NULL_ADDRESS);
+        setCurrentActiveTokenEndTimestamp(undefined);
+        setCurrentActiveTokenTotalSupply(BigInt(0));
+        setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
+        setCurrentActiveTokenTotalSupplyThreshold(BigInt(0));
+        setCurrentActiveTokenIsAlwaysTradable(false);
+        setCurrentActiveTokenHighestTotalSupply(BigInt(0));
+        setCurrentActiveTokenCreationBlockNumber(BigInt(0));
+      }
+      if (
+        !tokenIsCurrent &&
+        isAddressEqual(
+          tokenAddress as `0x${string}`,
+          lastInactiveTokenAddress as `0x${string}`
+        )
+      ) {
+        setLastInactiveTokenAddress(NULL_ADDRESS);
+        setLastInactiveTokenBalance(BigInt(0));
+      }
+    },
+    [currentActiveTokenAddress]
+  );
+
+  const readTempTokenTxs = useReadTempTokenTxs({
+    currentActiveTokenAddress,
+    currentActiveTokenCreationBlockNumber,
+    currentActiveTokenSymbol,
+    baseClient,
+    tempTokenContract,
+    onMintCallback: onMintEvent,
+    onBurnCallback: onBurnEvent,
+  });
+
+  useReadTempTokenExternalEventListeners({
+    tempTokenContract,
+    lastInactiveTempTokenContract,
+    onReachThresholdCallback: onReachThresholdEvent,
+    onDurationIncreaseCallback: onDurationIncreaseEvent,
+    onAlwaysTradeableCallback: onAlwaysTradeableEvent,
+    onThresholdUpdateCallback: onThresholdUpdateEvent,
+    onSendRemainingFundsToWinnerCallback: onSendRemainingFundsToWinnerEvent,
+  });
 
   /**
    * listen for incoming temp token created events
@@ -179,6 +347,11 @@ export const useReadTempTokenState = (
 
   const handleTempTokenCreatedUpdate = async (logs: Log[]) => {
     if (logs.length === 0) return;
+    console.log(
+      "handleTempTokenCreatedUpdate",
+      logs,
+      channelDetails.channelQueryData?.owner.address
+    );
     const filteredLogsByOwner = logs.filter((log: any) =>
       isAddressEqual(
         log.args.owner as `0x${string}`,
@@ -203,23 +376,30 @@ export const useReadTempTokenState = (
       isLive: true,
     });
 
-    /*
-        todo: maybe put post temptoken here but make it only if it is owner?
+    readTempTokenTxs.resetTempTokenTxs();
 
+    if (isOwner) {
+      try {
         await postTempToken({
-          tokenAddress: args.tokenAddress as `0x${string}`,
-          symbol: args.symbol as string,
-          streamerFeePercentage: args.streamerFeePercent as bigint,
-          protocolFeePercentage: args.protocolFeePercent as bigint,
-          ownerAddress: args.owner as `0x${string}`,
-          name: args.name as string,
-          endUnixTimestamp: args.endTimestamp as bigint,
-          channelId: Number(channel.channelQueryData?.id),
+          tokenAddress: newTokenAddress,
+          symbol: newTokenSymbol,
+          streamerFeePercentage: latestLog?.args.streamerFeePercent as bigint,
+          protocolFeePercentage: latestLog?.args.protocolFeePercent as bigint,
+          ownerAddress: latestLog?.args.owner as `0x${string}`,
+          name: newTokenName,
+          endUnixTimestamp: newEndTimestamp,
+          channelId: Number(channelDetails.channelQueryData?.id),
           chainId: localNetwork.config.chainId as number,
           highestTotalSupply: BigInt(0),
-          creationBlockNumber: args.creationBlockNumber as bigint,
-        })
-    */
+          creationBlockNumber: newTokenCreationBlockNumber,
+        });
+      } catch (e) {
+        console.log(
+          "detected TempTokenCreated event but cannot call posttemptoken, but have been created already",
+          e
+        );
+      }
+    }
     setCurrentActiveTokenEndTimestamp(newEndTimestamp);
     setCurrentActiveTokenCreationBlockNumber(newTokenCreationBlockNumber);
     setCurrentActiveTokenAddress(newTokenAddress);
@@ -377,114 +557,73 @@ export const useReadTempTokenState = (
   ]);
 
   /**
-   * internal functions to run when specific events are detected, not exposed outside of this hook,
-   * exposed versions are via the useReadTempTokenUi hook
+   * functions to handle the state of the game when game is over
    */
-  const _onMintEvent = useCallback(
-    async (totalSupply: bigint, highestTotalSupply: bigint) => {
-      setCurrentActiveTokenTotalSupply(totalSupply);
-      setCurrentActiveTokenHighestTotalSupply(highestTotalSupply);
-    },
-    []
-  );
 
-  const _onBurnEvent = useCallback(async (totalSupply: bigint) => {
-    setCurrentActiveTokenTotalSupply(totalSupply);
+  const handleIsGamePermanent = useCallback((value: boolean) => {
+    setIsPermanentGameState(value);
   }, []);
 
-  const _onReachThresholdEvent = useCallback(
-    async (newEndTimestamp: bigint) => {
-      setCurrentActiveTokenHasHitTotalSupplyThreshold(true);
-      setCurrentActiveTokenEndTimestamp(newEndTimestamp);
-    },
-    []
-  );
-
-  const _onDurationIncreaseEvent = useCallback(
-    async (newEndTimestamp: bigint) => {
-      setCurrentActiveTokenEndTimestamp(newEndTimestamp);
-    },
-    []
-  );
-
-  const _onAlwaysTradeableEvent = useCallback(async () => {
-    setCurrentActiveTokenIsAlwaysTradable(true);
+  const handleIsGameSuccess = useCallback((value: boolean) => {
+    setIsGameSuccessState(value);
   }, []);
 
-  const _onThresholdUpdateEvent = useCallback(async (newThreshold: bigint) => {
-    setCurrentActiveTokenTotalSupplyThreshold(newThreshold);
-    setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
+  const handleIsGameFailed = useCallback((value: boolean) => {
+    setIsFailedGameState(value);
   }, []);
 
   /**
-   * function to run when sending remaining funds to winner
-   * ideally to be called on an inactive token to reset the state and allow for normal token creation flow
-   * but if a current token had just turned inactive and the funds have or have not been sent, what does the ui look like?
+   * functions to handle the modals for when game is over
    */
-  const _onSendRemainingFundsToWinnerEvent = useCallback(
-    async (tokenAddress: string, tokenIsCurrent: boolean) => {
-      if (
-        tokenIsCurrent &&
-        isAddressEqual(
-          tokenAddress as `0x${string}`,
-          currentActiveTokenAddress as `0x${string}`
-        )
-      ) {
-        setCurrentActiveTokenSymbol("");
-        setCurrentActiveTokenAddress(NULL_ADDRESS);
-        setCurrentActiveTokenEndTimestamp(undefined);
-        setCurrentActiveTokenTotalSupply(BigInt(0));
-        setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
-        setCurrentActiveTokenTotalSupplyThreshold(BigInt(0));
-        setCurrentActiveTokenIsAlwaysTradable(false);
-        setCurrentActiveTokenHighestTotalSupply(BigInt(0));
-        setCurrentActiveTokenCreationBlockNumber(BigInt(0));
+
+  const handleIsPermanentGameModalOpen = useCallback((value: boolean) => {
+    setIsPermanentGameModalOpen(value);
+  }, []);
+
+  const handleIsSuccessGameModalOpen = useCallback((value: boolean) => {
+    setIsSuccessGameModalOpen(value);
+  }, []);
+
+  const handleIsFailedGameModalOpen = useCallback((value: boolean) => {
+    setIsFailedGameModalOpen(value);
+  }, []);
+
+  /**
+   * token countdown
+   */
+  useEffect(() => {
+    // if currentActiveTokenEndTimestamp is undefined or is BigInt(0), then the token is not active, so set duration to 0
+    if (!currentActiveTokenEndTimestamp) {
+      setDurationLeftForTempToken(0);
+      return;
+    }
+    // if currentActiveTokenEndTimestamp greater than BigInt(0), then the token is not active,
+    // so duration will be a number greater than 0 and durationLeft will follow suit,
+    // but if duration becomes negative, then durationLeft will become undefined
+
+    // Function to update the countdown
+    const updateCountdown = () => {
+      const now = Math.floor(Date.now() / 1000);
+      const _duration = Number(currentActiveTokenEndTimestamp) - now;
+
+      if (_duration < 0) {
+        // If the duration is negative, the countdown is over and the game can no longer be played
+        setDurationLeftForTempToken(undefined);
+        return;
       }
-      if (
-        !tokenIsCurrent &&
-        isAddressEqual(
-          tokenAddress as `0x${string}`,
-          lastInactiveTokenAddress as `0x${string}`
-        )
-      ) {
-        setLastInactiveTokenAddress(NULL_ADDRESS);
-        setLastInactiveTokenBalance(BigInt(0));
-      }
-    },
-    [currentActiveTokenAddress]
-  );
 
-  const readTempTokenUi = useReadTempTokenUi({
-    currentActiveTokenEndTimestamp,
-    onMintCallback: _onMintEvent,
-    onBurnCallback: _onBurnEvent,
-    onReachThresholdCallback: _onReachThresholdEvent,
-    onDurationIncreaseCallback: _onDurationIncreaseEvent,
-    onAlwaysTradeableCallback: _onAlwaysTradeableEvent,
-    onThresholdUpdateCallback: _onThresholdUpdateEvent,
-    onSendRemainingFundsToWinnerCallback: _onSendRemainingFundsToWinnerEvent,
-  });
+      setDurationLeftForTempToken(_duration);
+    };
 
-  const readTempTokenTxs = useReadTempTokenTxs({
-    currentActiveTokenAddress,
-    currentActiveTokenCreationBlockNumber,
-    currentActiveTokenSymbol,
-    baseClient,
-    tempTokenContract,
-    onMintCallback: _onMintEvent,
-    onBurnCallback: _onBurnEvent,
-  });
+    // Initial update
+    updateCountdown();
 
-  useReadTempTokenExternalEventListeners({
-    tempTokenContract,
-    currentActiveTokenAddress,
-    lastInactiveTokenAddress,
-    onReachThresholdCallback: _onReachThresholdEvent,
-    onDurationIncreaseCallback: _onDurationIncreaseEvent,
-    onAlwaysTradeableCallback: _onAlwaysTradeableEvent,
-    onThresholdUpdateCallback: _onThresholdUpdateEvent,
-    onSendRemainingFundsToWinnerCallback: _onSendRemainingFundsToWinnerEvent,
-  });
+    // Set the interval to update the countdown every X seconds
+    const interval = setInterval(updateCountdown, 1 * 1000);
+
+    // Clear the interval when the component unmounts
+    return () => clearInterval(interval);
+  }, [currentActiveTokenEndTimestamp]);
 
   return {
     currentActiveTokenSymbol,
@@ -500,7 +639,26 @@ export const useReadTempTokenState = (
     lastInactiveTokenBalance,
     currentTempTokenContract: tempTokenContract,
     isOwner,
+    durationLeftForTempToken,
+    isPermanentGameModalOpen,
+    isSuccessGameModalOpen,
+    isFailedGameModalOpen,
+    isPermanentGameState,
+    isSuccessGameState,
+    isFailedGameState,
+    onMintEvent,
+    onBurnEvent,
+    onReachThresholdEvent,
+    onDurationIncreaseEvent,
+    onAlwaysTradeableEvent,
+    onThresholdUpdateEvent,
+    onSendRemainingFundsToWinnerEvent,
+    handleIsGamePermanent,
+    handleIsGameSuccess,
+    handleIsGameFailed,
+    handleIsPermanentGameModalOpen,
+    handleIsSuccessGameModalOpen,
+    handleIsFailedGameModalOpen,
     ...readTempTokenTxs,
-    ...readTempTokenUi,
   };
 };

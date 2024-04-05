@@ -5,8 +5,7 @@ import { ContractData } from "../../../../constants/types";
 
 export const useReadTempTokenExternalEventListeners = ({
     tempTokenContract,
-    currentActiveTokenAddress,
-    lastInactiveTokenAddress,
+    lastInactiveTempTokenContract,
     onReachThresholdCallback,
     onDurationIncreaseCallback,
     onAlwaysTradeableCallback,
@@ -14,8 +13,7 @@ export const useReadTempTokenExternalEventListeners = ({
     onSendRemainingFundsToWinnerCallback
   }: {
     tempTokenContract: ContractData;
-    currentActiveTokenAddress: string;
-    lastInactiveTokenAddress: string;
+    lastInactiveTempTokenContract: ContractData;
     onReachThresholdCallback: (newEndTimestamp: bigint) => void;
     onDurationIncreaseCallback: (newEndTimestamp: bigint) => void;
     onAlwaysTradeableCallback: () => void;
@@ -59,9 +57,10 @@ export const useReadTempTokenExternalEventListeners = ({
     const filteredLogsByTokenAddress = logs.filter((log: any) =>
       isAddressEqual(
         log.address as `0x${string}`,
-        currentActiveTokenAddress as `0x${string}`
+        tempTokenContract.address as `0x${string}`
       )
     );
+    console.log("handleTempTokenTotalSupplyThresholdReachedUpdate", logs, filteredLogsByTokenAddress)
     const sortedLogs = filteredLogsByTokenAddress.sort(
       (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
     );
@@ -105,7 +104,7 @@ export const useReadTempTokenExternalEventListeners = ({
     const filteredLogsByTokenAddress = logs.filter((log: any) =>
       isAddressEqual(
         log.address as `0x${string}`,
-        currentActiveTokenAddress as `0x${string}`
+        tempTokenContract.address as `0x${string}`
       )
     );
     const sortedLogs = filteredLogsByTokenAddress.sort(
@@ -151,7 +150,7 @@ export const useReadTempTokenExternalEventListeners = ({
     const filteredLogsByTokenAddress = logs.filter((log: any) =>
       isAddressEqual(
         log.address as `0x${string}`,
-        currentActiveTokenAddress as `0x${string}`
+        tempTokenContract.address as `0x${string}`
       )
     );
     const sortedLogs = filteredLogsByTokenAddress.sort(
@@ -197,7 +196,7 @@ export const useReadTempTokenExternalEventListeners = ({
     const filteredLogsByTokenAddress = logs.filter((log: any) =>
       isAddressEqual(
         log.address as `0x${string}`,
-        currentActiveTokenAddress as `0x${string}`
+        tempTokenContract.address as `0x${string}`
       )
     );
     const sortedLogs = filteredLogsByTokenAddress.sort(
@@ -210,7 +209,7 @@ export const useReadTempTokenExternalEventListeners = ({
   };
 
   /**
-   * listen to send remaining funds to winner after token expiration events
+   * listen to send remaining funds to winner after token expiration events, for both current and last inactive tokens
    */
 
   const [
@@ -231,6 +230,19 @@ export const useReadTempTokenExternalEventListeners = ({
     },
   });
 
+  useContractEvent({
+    address: lastInactiveTempTokenContract.address,
+    abi: lastInactiveTempTokenContract.abi,
+    eventName: "SendRemainingFundsToWinnerAfterTokenExpiration",
+    listener(logs) {
+      console.log("detected SendRemainingFundsToWinnerAfterTokenExpiration event", logs);
+      const init = async () => {
+        setIncomingSendRemainingFundsToWinnerAfterTokenExpirationLogs(logs);
+      };
+      init();
+    },
+  });
+
   useEffect(() => {
     if (incomingSendRemainingFundsToWinnerAfterTokenExpirationLogs)
       handleRemainingFundsToWinnerAfterTokenExpirationUpdate(
@@ -240,21 +252,22 @@ export const useReadTempTokenExternalEventListeners = ({
 
   const handleRemainingFundsToWinnerAfterTokenExpirationUpdate = async (logs: Log[]) => {
     if (logs.length === 0) return;
+    console.log("RemainingFundsToWinnerAfterTokenExpiration listener", logs, tempTokenContract.address,  lastInactiveTempTokenContract.address)
     const filteredLogsByCurrentTokenAddress = logs.filter((log: any) =>
       isAddressEqual(
         log.address as `0x${string}`,
-        currentActiveTokenAddress as `0x${string}`
+        tempTokenContract.address as `0x${string}`
       )
     );
     const filteredLogsByLastInactiveTokenAddress = logs.filter((log: any) =>
       isAddressEqual(
         log.address as `0x${string}`,
-        lastInactiveTokenAddress as `0x${string}`
+        lastInactiveTempTokenContract.address as `0x${string}`
       )
     );
     console.log("RemainingFundsToWinnerAfterTokenExpiration listener", filteredLogsByCurrentTokenAddress, filteredLogsByLastInactiveTokenAddress)
 
-    if (filteredLogsByCurrentTokenAddress.length > 0) onSendRemainingFundsToWinnerCallback(currentActiveTokenAddress, true);
-    if (filteredLogsByLastInactiveTokenAddress.length > 0) onSendRemainingFundsToWinnerCallback(lastInactiveTokenAddress, false);
+    if (filteredLogsByCurrentTokenAddress.length > 0) onSendRemainingFundsToWinnerCallback(tempTokenContract.address as `0x${string}`, true);
+    if (filteredLogsByLastInactiveTokenAddress.length > 0) onSendRemainingFundsToWinnerCallback(lastInactiveTempTokenContract.address as `0x${string}`, false);
   }
 }
