@@ -207,9 +207,9 @@ export const TempTokenInterface = ({
         functionName: "getBalance",
         args: [],
       });
-      // if balance is 0, streamer needs to send remaining funds to winner,
+      // if balance is greater then 0, streamer needs to send remaining funds to winner,
       // else streamer can continue creating a new token
-      setOwnerNeedsToSendFunds(BigInt(String(balance)) === BigInt(0));
+      setOwnerNeedsToSendFunds(BigInt(String(balance)) > BigInt(0));
     };
     if (isFailedGameState && isOwner) checkBalanceAfterExpiration();
   }, [currentTempTokenContract, isFailedGameState, publicClient, isOwner]);
@@ -254,19 +254,47 @@ export const TempTokenInterface = ({
             handleClose={() => setTempTokenDisclaimerModalOpen(false)}
             hideFooter
           >
-            <Text>Rules rules rules</Text>
-            <Flex justifyContent={"space-evenly"} gap="5px">
-              <Button
-                onClick={() => {
-                  setTempTokenDisclaimerModalOpen(false);
-                  handleCanPlayToken(true);
-                }}
-              >
-                Continue
-              </Button>
-              <Button onClick={() => setTempTokenDisclaimerModalOpen(false)}>
-                Exit
-              </Button>
+            <Flex direction="column" gap="10px">
+              <Flex direction="column" gap="10px">
+                <Text fontFamily={"LoRes15"} fontSize="1.5rem">
+                  How it works
+                </Text>
+                <Flex direction="column" gap="5px">
+                  <Text fontSize="12px">
+                    Streamer has launched a "30 minute token" (ERC20 on a
+                    bonding curve).
+                  </Text>
+                  <Text fontSize="12px">
+                    There is a timer attached to the current game. If the token
+                    does not hit the price goal by the time the timer hits 0,
+                    this token will end and liquidity will disappear.
+                  </Text>
+                  <Text fontSize="12px">
+                    If token hits the price goal, another 24 hours will be added
+                    to the timer.
+                  </Text>
+                </Flex>
+                <Text fontFamily={"LoRes15"} fontSize="1.5rem">
+                  Disclaimer
+                </Text>
+                <Text fontSize="12px">
+                  YOU COULD LOSE YOUR FUNDS. Make sure to sell before the token
+                  dies.
+                </Text>
+              </Flex>
+              <Flex justifyContent={"space-evenly"} gap="5px">
+                <Button
+                  onClick={() => {
+                    setTempTokenDisclaimerModalOpen(false);
+                    handleCanPlayToken(true);
+                  }}
+                >
+                  Continue
+                </Button>
+                <Button onClick={() => setTempTokenDisclaimerModalOpen(false)}>
+                  Exit
+                </Button>
+              </Flex>
             </Flex>
           </TransactionModalTemplate>
           <TransactionModalTemplate
@@ -627,63 +655,63 @@ export const TempTokenInterface = ({
             </Flex>
             {!canPlayToken && (
               <>
-                {realTimeChannelDetails.isLive ? (
+                {isFailedGameState ? (
                   <>
-                    {isFailedGameState ? (
+                    {isOwner ? (
                       <>
-                        {isOwner ? (
+                        {ownerNeedsToSendFunds ? (
                           <>
-                            {ownerNeedsToSendFunds ? (
-                              <>
-                                <SendRemainingFundsFromCurrentInactiveTokenModal
-                                  isOpen={
-                                    sendRemainingFundsFromActiveTokenModuleOpen
-                                  }
-                                  title="Send remaining funds to winner"
-                                  handleClose={() =>
-                                    setSendRemainingFundsFromActiveTokenModuleOpen(
-                                      false
-                                    )
-                                  }
-                                />
-                                <Button
-                                  _focus={{}}
-                                  _active={{}}
-                                  _hover={{}}
-                                  bg="#02b263"
-                                  h="30%"
-                                  onClick={() =>
-                                    setSendRemainingFundsFromActiveTokenModuleOpen(
-                                      true
-                                    )
-                                  }
-                                >
-                                  <Text color="white">send funds</Text>
-                                </Button>
-                              </>
-                            ) : (
-                              <Button
-                                _focus={{}}
-                                _active={{}}
-                                _hover={{}}
-                                bg="#02b263"
-                                h="30%"
-                                onClick={() =>
-                                  onSendRemainingFundsToWinnerEvent(
-                                    currentTempTokenContract.address as `0x${string}`,
-                                    true
-                                  )
-                                }
-                              >
-                                <Text color="white">return to start</Text>
-                              </Button>
-                            )}
+                            <SendRemainingFundsFromCurrentInactiveTokenModal
+                              isOpen={
+                                sendRemainingFundsFromActiveTokenModuleOpen
+                              }
+                              title="Send remaining funds to winner"
+                              handleClose={() =>
+                                setSendRemainingFundsFromActiveTokenModuleOpen(
+                                  false
+                                )
+                              }
+                            />
+                            <Button
+                              _focus={{}}
+                              _active={{}}
+                              _hover={{}}
+                              bg="#02b263"
+                              h="30%"
+                              onClick={() =>
+                                setSendRemainingFundsFromActiveTokenModuleOpen(
+                                  true
+                                )
+                              }
+                            >
+                              <Text color="white">send funds</Text>
+                            </Button>
                           </>
                         ) : (
-                          <Text>Time's up!</Text>
+                          <Button
+                            _focus={{}}
+                            _active={{}}
+                            _hover={{}}
+                            bg="#02b263"
+                            h="30%"
+                            onClick={() =>
+                              onSendRemainingFundsToWinnerEvent(
+                                currentTempTokenContract.address as `0x${string}`,
+                                true
+                              )
+                            }
+                          >
+                            <Text color="white">return to start</Text>
+                          </Button>
                         )}
                       </>
                     ) : (
+                      <Text>Time's up!</Text>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {realTimeChannelDetails.isLive ? (
                       <Button
                         _focus={{}}
                         _active={{}}
@@ -694,13 +722,13 @@ export const TempTokenInterface = ({
                       >
                         <Text color="white">PLAY NOW</Text>
                       </Button>
+                    ) : (
+                      <Text>
+                        Cannot play when stream is offline, please refresh and
+                        try again
+                      </Text>
                     )}
                   </>
-                ) : (
-                  <Text>
-                    Cannot play when stream is offline, please refresh and try
-                    again
-                  </Text>
                 )}
               </>
             )}

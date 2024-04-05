@@ -28,31 +28,28 @@ export const dateConverter = (date: string) => {
 
 export const getTimesFromMillis = (millis: number) => {
   let seconds = parseInt((millis / 1000).toString());
-  const days = parseInt((seconds / 86400).toString());
-  seconds = seconds % 86400;
   const hours = parseInt((seconds / 3600).toString());
   seconds = seconds % 3600;
   const minutes = parseInt((seconds / 60).toString());
   seconds = seconds % 60;
 
-  return { days, hours, minutes, seconds };
+  return { hours, minutes, seconds };
 };
 
 export const getTimeFromMillis = (millis: number, showSeconds?: boolean, format?: boolean): string => {
   if (millis === 0) return "0";
-  const { days, hours, minutes, seconds } = getTimesFromMillis(millis);
+
+  const { hours, minutes, seconds } = getTimesFromMillis(millis);
   if (format) {
     const paddedHours = hours.toString().padStart(2, "0");
     const paddedMinutes = minutes.toString().padStart(2, "0");
     const paddedSeconds = seconds.toString().padStart(2, "0");
   
-    const formattedDays = days > 0 ? `${days.toString().padStart(2, "0")}:` : "";
-
-    if (showSeconds) return `${formattedDays}${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
-    return `${formattedDays}${paddedHours}:${paddedMinutes}`;
+    if (showSeconds) return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+    return `${paddedHours}:${paddedMinutes}`;
   }
 
-  let str = `${days > 0 ? `${days}d` : ""}${hours > 0 ? " " : ""}${
+  let str = `${
     hours > 0 ? `${hours}h` : ""
   }${minutes > 0 ? " " : ""}${minutes > 0 ? `${minutes}m` : ""}${showSeconds ? " " : ""}${showSeconds && seconds > 0 ? `${seconds}s` : ""}`;
   if (str === "") str = "<1m";

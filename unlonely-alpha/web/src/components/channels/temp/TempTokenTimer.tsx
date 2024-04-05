@@ -14,7 +14,11 @@ export const TempTokenTimerView = () => {
     <>
       {currentActiveTokenAddress !== NULL_ADDRESS &&
         durationLeftForTempToken !== undefined && (
-          <Flex justifyContent={"center"} bg={"rgba(0, 0, 0, 0.2)"}>
+          <Flex
+            justifyContent={"center"}
+            bg={"rgba(0, 0, 0, 0.2)"}
+            className={durationLeftForTempToken > 300 ? "" : "flashing-text"}
+          >
             <Text
               fontSize={"30px"}
               color={durationLeftForTempToken > 300 ? "#c6c3fc" : "#d12424"} // change timer color to red when less than 5 minutes left

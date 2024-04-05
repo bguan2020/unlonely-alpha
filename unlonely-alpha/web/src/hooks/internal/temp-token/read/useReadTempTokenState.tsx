@@ -268,6 +268,13 @@ export const useReadTempTokenState = (
    */
   const onSendRemainingFundsToWinnerEvent = useCallback(
     async (tokenAddress: string, tokenIsCurrent: boolean) => {
+      console.log(
+        "onSendRemainingFundsToWinnerEvent",
+        tokenAddress,
+        tokenIsCurrent,
+        currentActiveTokenAddress,
+        lastInactiveTokenAddress
+      );
       if (
         tokenIsCurrent &&
         isAddressEqual(
@@ -296,7 +303,7 @@ export const useReadTempTokenState = (
         setLastInactiveTokenBalance(BigInt(0));
       }
     },
-    [currentActiveTokenAddress]
+    [currentActiveTokenAddress, lastInactiveTokenAddress]
   );
 
   const readTempTokenTxs = useReadTempTokenTxs({
@@ -375,6 +382,9 @@ export const useReadTempTokenState = (
       isLive: true,
     });
 
+    handleIsGamePermanent(false);
+    handleIsGameSuccess(false);
+    handleIsGameFailed(false);
     readTempTokenTxs.resetTempTokenTxs();
 
     if (isOwner) {

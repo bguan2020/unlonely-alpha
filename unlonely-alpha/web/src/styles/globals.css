@@ -205,6 +205,17 @@ body {
   }
 }
 
+@keyframes flashingAnim {
+  0%, 100% {
+    text-shadow: 0 0 1em rgb(255, 0, 0);
+    filter: brightness(100%);
+  }
+  50% {
+    text-shadow: 0 0 0.5em rgb(255, 0, 0);
+    filter: brightness(60%);
+  }
+}
+
 @keyframes waveAnim {
   0%,
   80%,
@@ -248,6 +259,11 @@ body {
 .bouncing-text {
   letter-spacing: normal;
   animation: waveAnim 1s 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
+}
+
+.flashing-text {
+  letter-spacing: normal;
+  animation: flashingAnim 1s 1s linear infinite;
 }
 
 @keyframes attention {

@@ -294,7 +294,8 @@ export const DesktopChannelPageSimplified = ({
                       ) : (
                         <Flex
                           gap="5px"
-                          justifyContent={"space-between"}
+                          justifyContent={"center"}
+                          alignItems={"center"}
                           bg="#131323"
                           p="5px"
                           height="20vh"
@@ -461,7 +462,7 @@ const CreateTokenInterface = () => {
             handleClose={() => setCreateTokenModalOpen(false)}
           />
           <Button onClick={() => setCreateTokenModalOpen(true)}>
-            start creating temp token
+            create temp token
           </Button>
         </>
       ) : (
