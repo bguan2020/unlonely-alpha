@@ -6,11 +6,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { getTimeFromMillis } from "../../utils/time";
 import { NULL_ADDRESS } from "../../constants";
 
-export const SimplifiedChatWithTokenTimer = ({
-  chat,
-}: {
-  chat: ChatReturnType;
-}) => {
+export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
   const { channel } = useChannelContext();
   const {
     durationLeftForTempToken,

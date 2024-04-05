@@ -11,7 +11,7 @@ import { useChat } from "../../hooks/chat/useChat";
 import AppLayout from "../../components/layout/AppLayout";
 import { ChannelStaticQuery } from "../../generated/graphql";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
-import { TempTokenInterface } from "../../components/chat/TempTokenInterface";
+import { TempTokenInterface } from "../../components/channels/temp/TempTokenInterface";
 
 const FullTempTokenChartPage = () => {
   return (

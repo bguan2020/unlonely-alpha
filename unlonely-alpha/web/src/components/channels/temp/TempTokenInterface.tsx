@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { decodeEventLog, formatUnits, isAddress } from "viem";
+import { formatUnits } from "viem";
 import {
   Flex,
   Text,
@@ -7,14 +7,11 @@ import {
   Spinner,
   Button,
   Tooltip as ChakraTooltip,
-  Input,
   Popover,
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
   IconButton,
-  useToast,
-  Box,
 } from "@chakra-ui/react";
 import {
   ResponsiveContainer,
@@ -26,25 +23,23 @@ import {
   Brush,
   ReferenceLine,
 } from "recharts";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { useTradeTempTokenState } from "../../hooks/internal/temp-token/useTradeTempTokenState";
-import { useChannelContext } from "../../hooks/context/useChannel";
-import { formatIncompleteNumber } from "../../utils/validation/input";
+import { truncateValue } from "../../../utils/tokenDisplayFormatting";
+import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/useTradeTempTokenState";
+import { useChannelContext } from "../../../hooks/context/useChannel";
 import { FaMagnifyingGlassChart, FaPause } from "react-icons/fa6";
-import { useInterfaceChartMarkers } from "../../hooks/internal/temp-token/useInterfaceChartMarkers";
-import { useInterfaceChartData } from "../../hooks/internal/temp-token/useInterfaceChartData";
+import { useInterfaceChartMarkers } from "../../../hooks/internal/temp-token/useInterfaceChartMarkers";
+import { useInterfaceChartData } from "../../../hooks/internal/temp-token/useInterfaceChartData";
 import {
   blockNumberDaysAgo,
   blockNumberHoursAgo,
-} from "../../hooks/internal/useVibesCheck";
-import { useCacheContext } from "../../hooks/context/useCache";
-import { AblyChannelPromise, NULL_ADDRESS } from "../../constants";
-import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
-import { useWindowSize } from "../../hooks/internal/useWindowSize";
-import { useNetworkContext } from "../../hooks/context/useNetwork";
-import Link from "next/link";
-import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../hooks/contracts/useTempTokenV1";
-
+} from "../../../hooks/internal/useVibesCheck";
+import { useCacheContext } from "../../../hooks/context/useCache";
+import { AblyChannelPromise, NULL_ADDRESS } from "../../../constants";
+import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
+import { useWindowSize } from "../../../hooks/internal/useWindowSize";
+import { useNetworkContext } from "../../../hooks/context/useNetwork";
+import { SendRemainingFundsFromCurrentInactiveTokenModal } from "./SendRemainingFundsFromCurrentInactiveTokenModal";
+import { TempTokenExchange } from "./TempTokenExchange";
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
 const NUMBER_OF_DAYS_IN_MONTH = 30;
@@ -85,24 +80,16 @@ export const TempTokenInterface = ({
     tempTokenChartTimeIndexes,
     tempTokenLoading,
     currentBlockNumberForTempTokenChart,
-    userTempTokenBalance,
+    isSuccessGameModalOpen,
+    isFailedGameModalOpen,
+    isPermanentGameModalOpen,
     handleIsGameFailed,
     handleIsFailedGameModalOpen,
+    handleIsSuccessGameModalOpen,
+    handleIsPermanentGameModalOpen,
   } = channel;
 
-  const {
-    chartTxs,
-    amount,
-    handleAmount,
-    handleAmountDirectly,
-    mint,
-    burn,
-    errorMessage,
-    mintCostAfterFees,
-    mintCostAfterFeesLoading,
-    burnProceedsAfterFees,
-    burnProceedsAfterFeesLoading,
-  } = useTradeTempTokenState();
+  const tradeTempTokenState = useTradeTempTokenState();
 
   const {
     isChartPaused,
@@ -115,7 +102,7 @@ export const TempTokenInterface = ({
     handleIsChartPaused,
   } = useInterfaceChartData({
     chartTimeIndexes: tempTokenChartTimeIndexes,
-    txs: chartTxs,
+    txs: tradeTempTokenState.chartTxs,
   });
 
   const [tempTokenDisclaimerModalOpen, setTempTokenDisclaimerModalOpen] =
@@ -194,7 +181,7 @@ export const TempTokenInterface = ({
     formatYAxisTick,
     CustomLabel,
     customBrushFormatter,
-  } = useInterfaceChartMarkers(chartTxs, timeFilter);
+  } = useInterfaceChartMarkers(tradeTempTokenState.chartTxs, timeFilter);
 
   useEffect(() => {
     if (durationLeftForTempToken === undefined) {
@@ -268,6 +255,60 @@ export const TempTokenInterface = ({
               </Button>
               <Button onClick={() => setTempTokenDisclaimerModalOpen(false)}>
                 Exit
+              </Button>
+            </Flex>
+          </TransactionModalTemplate>
+          <TransactionModalTemplate
+            title="Token expired!"
+            isOpen={isFailedGameModalOpen}
+            handleClose={() => handleIsFailedGameModalOpen(false)}
+            hideFooter
+          >
+            <Text>This token couldn't reach the price goal</Text>
+            <Flex justifyContent={"space-evenly"} gap="5px">
+              <Button
+                onClick={() => {
+                  handleIsFailedGameModalOpen(false);
+                }}
+              >
+                Continue
+              </Button>
+            </Flex>
+          </TransactionModalTemplate>
+          <TransactionModalTemplate
+            title="Token survived!"
+            isOpen={isSuccessGameModalOpen}
+            handleClose={() => handleIsSuccessGameModalOpen(false)}
+            hideFooter
+          >
+            <Text>
+              This token reached the price goal and survives another 25 hours!
+              Thanks for playing!
+            </Text>
+            <Flex justifyContent={"space-evenly"} gap="5px">
+              <Button
+                onClick={() => {
+                  handleIsSuccessGameModalOpen(false);
+                }}
+              >
+                Continue
+              </Button>
+            </Flex>
+          </TransactionModalTemplate>
+          <TransactionModalTemplate
+            title="Congratulations! This token is now tradable!"
+            isOpen={isPermanentGameModalOpen}
+            handleClose={() => handleIsPermanentGameModalOpen(false)}
+            hideFooter
+          >
+            <Text>This token will now be tradable from now on by itself</Text>
+            <Flex justifyContent={"space-evenly"} gap="5px">
+              <Button
+                onClick={() => {
+                  handleIsPermanentGameModalOpen(false);
+                }}
+              >
+                Continue
               </Button>
             </Flex>
           </TransactionModalTemplate>
@@ -706,246 +747,12 @@ export const TempTokenInterface = ({
                     </>
                   </Flex>
                 </Flex>
-                <Flex direction="column" justifyContent={"center"} gap="10px">
-                  <Flex position="relative" gap="5px" alignItems={"center"}>
-                    <ChakraTooltip
-                      label={errorMessage}
-                      placement="bottom-start"
-                      isOpen={errorMessage !== undefined}
-                      bg="red.600"
-                    >
-                      <Input
-                        variant={errorMessage.length > 0 ? "redGlow" : "glow"}
-                        textAlign="center"
-                        value={amount}
-                        onChange={handleAmount}
-                        mx="auto"
-                        p="1"
-                        fontSize={"14px"}
-                      />
-                    </ChakraTooltip>
-                    <Popover trigger="hover" placement="top" openDelay={500}>
-                      <PopoverTrigger>
-                        <Button
-                          bg={"#403c7d"}
-                          color="white"
-                          p={2}
-                          height={"20px"}
-                          _focus={{}}
-                          _active={{}}
-                          _hover={{
-                            bg: "#8884d8",
-                          }}
-                          onClick={() => {
-                            userTempTokenBalance &&
-                              handleAmountDirectly(
-                                userTempTokenBalance.formatted
-                              );
-                          }}
-                        >
-                          max
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        bg="#6c3daf"
-                        border="none"
-                        width="100%"
-                        p="2px"
-                      >
-                        <PopoverArrow bg="#6c3daf" />
-                        <Text fontSize="12px" textAlign={"center"}>
-                          click to show max temp tokens u currently own
-                        </Text>
-                      </PopoverContent>
-                    </Popover>
-                  </Flex>
-                  <Flex gap="2px" justifyContent={"center"} direction="column">
-                    <Button
-                      color="white"
-                      _focus={{}}
-                      _hover={{}}
-                      _active={{}}
-                      bg="#46a800"
-                      isDisabled={
-                        !mint ||
-                        mintCostAfterFeesLoading ||
-                        Number(formatIncompleteNumber(amount)) <= 0
-                      }
-                      onClick={mint}
-                      p={"0px"}
-                      w="100%"
-                    >
-                      <Flex direction="column">
-                        <Text>BUY</Text>
-                        <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
-                          {`(${truncateValue(
-                            formatUnits(mintCostAfterFees, 18),
-                            4
-                          )} ETH)`}
-                        </Text>
-                      </Flex>
-                    </Button>
-                    <Button
-                      color="white"
-                      _focus={{}}
-                      _hover={{}}
-                      _active={{}}
-                      bg="#fe2815"
-                      isDisabled={
-                        !burn ||
-                        burnProceedsAfterFeesLoading ||
-                        Number(formatIncompleteNumber(amount)) <= 0
-                      }
-                      onClick={burn}
-                      p={undefined}
-                      w="100%"
-                    >
-                      <Flex direction="column">
-                        <Text>SELL</Text>
-                        <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
-                          {`(${truncateValue(
-                            formatUnits(burnProceedsAfterFees, 18),
-                            4
-                          )} ETH)`}
-                        </Text>
-                      </Flex>
-                    </Button>
-                  </Flex>
-                </Flex>
+                <TempTokenExchange tradeTempTokenState={tradeTempTokenState} />
               </Flex>
             )}
           </Flex>
         </Flex>
       )}
     </>
-  );
-};
-
-const SendRemainingFundsFromCurrentInactiveTokenModal = ({
-  title,
-  handleClose,
-  isOpen,
-}: {
-  title: string;
-  handleClose: () => void;
-  isOpen: boolean;
-}) => {
-  const toast = useToast();
-  const { channel } = useChannelContext();
-  const { currentTempTokenContract } = channel;
-  const { network } = useNetworkContext();
-  const { explorerUrl } = network;
-
-  const [winnerAddress, setWinnerAddress] = useState("");
-
-  const {
-    sendRemainingFundsToWinnerAfterTokenExpiration,
-    sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
-  } = useSendRemainingFundsToWinnerAfterTokenExpiration(
-    {
-      winnerWalletAddress: winnerAddress,
-    },
-    currentTempTokenContract,
-    {
-      onWriteSuccess: (data) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.hash}`}
-                passHref
-              >
-                send remaining funds pending, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-      },
-      onWriteError: (error) => {
-        toast({
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-              send remaining funds cancelled
-            </Box>
-          ),
-        });
-      },
-      onTxSuccess: async (data) => {
-        const topics = decodeEventLog({
-          abi: currentTempTokenContract.abi,
-          data: data.logs[0].data,
-          topics: data.logs[0].topics,
-        });
-        console.log("send remaining funds success", data, topics.args);
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.transactionHash}`}
-                passHref
-              >
-                send remaining funds success, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-        handleClose();
-      },
-      onTxError: (error) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              send remaining funds error
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-      },
-    }
-  );
-
-  return (
-    <TransactionModalTemplate
-      title={title}
-      handleClose={handleClose}
-      isOpen={isOpen}
-      hideFooter
-    >
-      <Flex direction="column" gap="5px">
-        <Text>Please provide an address to send it</Text>
-        <Input
-          variant="glow"
-          value={winnerAddress}
-          onChange={(e) => setWinnerAddress(e.target.value)}
-        />
-        <Button
-          isDisabled={
-            !isAddress(winnerAddress) ||
-            sendRemainingFundsToWinnerAfterTokenExpirationTxLoading ||
-            !sendRemainingFundsToWinnerAfterTokenExpiration
-          }
-          onClick={sendRemainingFundsToWinnerAfterTokenExpiration}
-        >
-          {sendRemainingFundsToWinnerAfterTokenExpirationTxLoading ? (
-            <Spinner />
-          ) : (
-            "send"
-          )}
-        </Button>
-      </Flex>
-    </TransactionModalTemplate>
   );
 };

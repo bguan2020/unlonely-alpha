@@ -29,7 +29,7 @@ import { Contract, NULL_ADDRESS } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
 import ChatComponent from "../../chat/ChatComponent";
 import { DesktopChannelStreamerPerspectiveSimplified } from "./DesktopChannelStreamerPerspectiveSimplified";
-import { TempTokenInterface } from "../../chat/TempTokenInterface";
+import { TempTokenInterface } from "../temp/TempTokenInterface";
 import {
   useGenerateKey,
   useGetHolderBalance,
@@ -37,7 +37,7 @@ import {
 import { useContractEvent } from "wagmi";
 import { Log, decodeEventLog, isAddress } from "viem";
 import Header from "../../navigation/Header";
-import { TempTokenCreationModal } from "../TempTokenCreationModal";
+import { TempTokenCreationModal } from "../temp/TempTokenCreationModal";
 import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../../hooks/contracts/useTempTokenV1";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { ContractData } from "../../../constants/types";

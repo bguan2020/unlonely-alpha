@@ -1,4 +1,4 @@
-import { ContractData } from "../../../constants/types";
+import { ContractData, FetchBalanceResult } from "../../../constants/types";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import { InteractionType, NULL_ADDRESS } from "../../../constants";
@@ -28,7 +28,28 @@ import { useBalance } from "wagmi";
 import { ChartTokenTx } from "../../../components/chat/VibesTokenInterface";
 import { useCacheContext } from "../../../hooks/context/useCache";
 
-export const useTradeTempTokenState = () => {
+export type UseTradeTempTokenStateType = {
+  amount: string;
+  mintCostAfterFees: bigint;
+  mintCostAfterFeesLoading: boolean;
+  burnProceedsAfterFees: bigint;
+  burnProceedsAfterFeesLoading: boolean;
+  mint?: () => Promise<any>;
+  refetchMint: () => void;
+  mintTxLoading: boolean;
+  isRefetchingMint: boolean;
+  burn?: () => Promise<any>;
+  refetchBurn: () => void;
+  burnTxLoading: boolean;
+  isRefetchingBurn: boolean;
+  handleAmount: (event: any) => void;
+  handleAmountDirectly: (input: string) => void;
+  chartTxs: ChartTokenTx[];
+  errorMessage: string;
+  userEthBalance?: FetchBalanceResult;
+};
+
+export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
   const { walletIsConnected, userAddress, user } = useUser();
 
   const { chat, channel } = useChannelContext();

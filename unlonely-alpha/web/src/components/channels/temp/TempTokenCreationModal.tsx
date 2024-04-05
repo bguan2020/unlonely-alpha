@@ -1,12 +1,12 @@
 import { Flex, Text, Button, Spinner, Input } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import { useCreateTempTokenState } from "../../hooks/internal/temp-token/useCreateTempTokenState";
-import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
-import { useChannelContext } from "../../hooks/context/useChannel";
+import { useCreateTempTokenState } from "../../../hooks/internal/temp-token/useCreateTempTokenState";
+import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
+import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useLazyQuery } from "@apollo/client";
-import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../constants/queries";
-import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
-import { filteredInput } from "../../utils/validation/input";
+import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../../constants/queries";
+import { GetLivepeerStreamDataQuery } from "../../../generated/graphql";
+import { filteredInput } from "../../../utils/validation/input";
 
 export const TempTokenCreationModal = ({
   title,
