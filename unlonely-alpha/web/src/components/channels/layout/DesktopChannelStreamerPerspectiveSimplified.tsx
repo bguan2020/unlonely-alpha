@@ -25,6 +25,7 @@ import {
   CHANGE_CHANNEL_DETAILS_EVENT,
   DESKTOP_VIDEO_VH,
   MOBILE_VIDEO_VH,
+  NULL_ADDRESS,
   STREAMER_MIGRATION_URL_QUERY_PARAM,
 } from "../../../constants";
 import useUpdateLivepeerStreamData from "../../../hooks/server/channel/useUpdateLivepeerStreamData";
@@ -39,6 +40,7 @@ import { TransactionModalTemplate } from "../../transactions/TransactionModalTem
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import LivepeerPlayer from "../../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
+import { getTimeFromMillis } from "../../../utils/time";
 export const DesktopChannelStreamerPerspectiveSimplified = ({
   ablyChannel,
   livepeerData,
@@ -57,7 +59,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
   const {
     channelQueryData,
     realTimeChannelDetails,
-    timeLeftForTempToken,
+    durationLeftForTempToken,
     currentActiveTokenIsAlwaysTradable,
     currentActiveTokenAddress,
   } = channel;
@@ -208,13 +210,30 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   justifyContent={"center"}
                   gap="5px"
                 >
-                  {currentActiveTokenAddress && (
-                    <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
-                      {currentActiveTokenIsAlwaysTradable
-                        ? "winner"
-                        : timeLeftForTempToken ?? "expired"}
-                    </Text>
-                  )}
+                  {currentActiveTokenAddress !== NULL_ADDRESS &&
+                    durationLeftForTempToken !== undefined && (
+                      <Flex justifyContent={"center"} bg={"rgba(0, 0, 0, 0.2)"}>
+                        <Text
+                          fontSize={"30px"}
+                          color={
+                            durationLeftForTempToken > 300
+                              ? "#c6c3fc"
+                              : "#d12424"
+                          } // change timer color to red when less than 5 minutes left
+                          fontWeight="bold"
+                        >
+                          {currentActiveTokenIsAlwaysTradable
+                            ? "winner"
+                            : durationLeftForTempToken
+                            ? getTimeFromMillis(
+                                durationLeftForTempToken * 1000,
+                                true,
+                                true
+                              )
+                            : "expired"}
+                        </Text>
+                      </Flex>
+                    )}
                   <Text fontSize="20px">viewer pov</Text>
                   <LivepeerPlayer
                     src={getSrc(livepeerPlaybackInfo)}

@@ -35,7 +35,7 @@ import {
   useGetHolderBalance,
 } from "../../../hooks/contracts/useTournament";
 import { useContractEvent } from "wagmi";
-import { Log, isAddress } from "viem";
+import { Log, decodeEventLog, isAddress } from "viem";
 import Header from "../../navigation/Header";
 import { TempTokenCreationModal } from "../TempTokenCreationModal";
 import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../../hooks/contracts/useTempTokenV1";
@@ -353,6 +353,7 @@ export const DesktopChannelPageSimplified = ({
   );
 };
 
+// creation flow and send remaining funds from INACTIVE token, DO NOT USE THIS COMPONENT FOR ACTIVE TOKENS
 const CreateTokenInterface = () => {
   const { channel } = useChannelContext();
   const {
@@ -421,6 +422,12 @@ const CreateTokenInterface = () => {
         });
       },
       onTxSuccess: async (data) => {
+        const topics = decodeEventLog({
+          abi: inactiveTempTokenContract.abi,
+          data: data.logs[0].data,
+          topics: data.logs[0].topics,
+        });
+        console.log("send remaining funds success", data, topics.args);
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -437,6 +444,7 @@ const CreateTokenInterface = () => {
           isClosable: true,
           position: "top-right",
         });
+        // todo: replace with actual token address from returned tx receipt
         onSendRemainingFundsToWinner(lastInactiveTokenAddress, false);
         setWinnerAddress("");
       },

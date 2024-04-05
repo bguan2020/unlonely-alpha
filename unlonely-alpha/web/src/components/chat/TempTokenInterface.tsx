@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { formatUnits } from "viem";
+import { decodeEventLog, formatUnits, isAddress } from "viem";
 import {
   Flex,
   Text,
@@ -13,6 +13,8 @@ import {
   PopoverContent,
   PopoverTrigger,
   IconButton,
+  useToast,
+  Box,
 } from "@chakra-ui/react";
 import {
   ResponsiveContainer,
@@ -40,6 +42,8 @@ import { AblyChannelPromise, NULL_ADDRESS } from "../../constants";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import { useWindowSize } from "../../hooks/internal/useWindowSize";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
+import Link from "next/link";
+import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../hooks/contracts/useTempTokenV1";
 
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
@@ -70,7 +74,7 @@ export const TempTokenInterface = ({
   const {
     channelQueryData,
     realTimeChannelDetails,
-    timeLeftForTempToken,
+    durationLeftForTempToken,
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenHasHitTotalSupplyThreshold,
@@ -82,6 +86,7 @@ export const TempTokenInterface = ({
     tempTokenLoading,
     currentBlockNumberForTempTokenChart,
     userTempTokenBalance,
+    handleIsGameFailed,
     handleIsFailedGameModalOpen,
   } = channel;
 
@@ -115,6 +120,10 @@ export const TempTokenInterface = ({
 
   const [tempTokenDisclaimerModalOpen, setTempTokenDisclaimerModalOpen] =
     useState<boolean>(false);
+  const [
+    sendRemainingFundsFromActiveTokenModuleOpen,
+    setSendRemainingFundsFromActiveTokenModuleOpen,
+  ] = useState<boolean>(false);
 
   const priceOfHighestTotalSupply = useMemo(() => {
     if (currentActiveTokenHighestTotalSupply === BigInt(0)) return 0;
@@ -188,11 +197,12 @@ export const TempTokenInterface = ({
   } = useInterfaceChartMarkers(chartTxs, timeFilter);
 
   useEffect(() => {
-    if (timeLeftForTempToken === undefined) {
+    if (durationLeftForTempToken === undefined) {
       handleCanPlayToken(false);
+      handleIsGameFailed(true);
       handleIsFailedGameModalOpen(true);
     }
-  }, [timeLeftForTempToken]);
+  }, [durationLeftForTempToken]);
 
   const openTokenPopout = () => {
     if (!channelQueryData) return;
@@ -566,21 +576,36 @@ export const TempTokenInterface = ({
               <>
                 {realTimeChannelDetails.isLive ? (
                   <>
-                    {timeLeftForTempToken === undefined ? (
+                    {durationLeftForTempToken === undefined ? (
                       <>
                         {isOwner ? (
-                          <Button
-                            _focus={{}}
-                            _active={{}}
-                            _hover={{}}
-                            bg="#02b263"
-                            h="30%"
-                            onClick={() =>
-                              setTempTokenDisclaimerModalOpen(true)
-                            }
-                          >
-                            <Text color="white">send funds</Text>
-                          </Button>
+                          <>
+                            <SendRemainingFundsFromCurrentInactiveTokenModal
+                              isOpen={
+                                sendRemainingFundsFromActiveTokenModuleOpen
+                              }
+                              title="Send remaining funds to winner"
+                              handleClose={() =>
+                                setSendRemainingFundsFromActiveTokenModuleOpen(
+                                  false
+                                )
+                              }
+                            />
+                            <Button
+                              _focus={{}}
+                              _active={{}}
+                              _hover={{}}
+                              bg="#02b263"
+                              h="30%"
+                              onClick={() =>
+                                setSendRemainingFundsFromActiveTokenModuleOpen(
+                                  true
+                                )
+                              }
+                            >
+                              <Text color="white">send funds</Text>
+                            </Button>
+                          </>
                         ) : (
                           <Text>Time's up!</Text>
                         )}
@@ -592,7 +617,7 @@ export const TempTokenInterface = ({
                         _hover={{}}
                         bg="#02b263"
                         h="30%"
-                        isDisabled={timeLeftForTempToken === undefined}
+                        isDisabled={durationLeftForTempToken === undefined}
                         onClick={() => setTempTokenDisclaimerModalOpen(true)}
                       >
                         <Text color="white">PLAY NOW</Text>
@@ -793,5 +818,139 @@ export const TempTokenInterface = ({
         </Flex>
       )}
     </>
+  );
+};
+
+const SendRemainingFundsFromCurrentInactiveTokenModal = ({
+  title,
+  handleClose,
+  isOpen,
+}: {
+  title: string;
+  handleClose: () => void;
+  isOpen: boolean;
+}) => {
+  const toast = useToast();
+  const { channel } = useChannelContext();
+  const { currentTempTokenContract, onSendRemainingFundsToWinner } = channel;
+  const { network } = useNetworkContext();
+  const { explorerUrl } = network;
+
+  const [winnerAddress, setWinnerAddress] = useState("");
+
+  const {
+    sendRemainingFundsToWinnerAfterTokenExpiration,
+    sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
+  } = useSendRemainingFundsToWinnerAfterTokenExpiration(
+    {
+      winnerWalletAddress: winnerAddress,
+    },
+    currentTempTokenContract,
+    {
+      onWriteSuccess: (data) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.hash}`}
+                passHref
+              >
+                send remaining funds pending, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+      onWriteError: (error) => {
+        toast({
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+              send remaining funds cancelled
+            </Box>
+          ),
+        });
+      },
+      onTxSuccess: async (data) => {
+        const topics = decodeEventLog({
+          abi: currentTempTokenContract.abi,
+          data: data.logs[0].data,
+          topics: data.logs[0].topics,
+        });
+        console.log("send remaining funds success", data, topics.args);
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+              <Link
+                target="_blank"
+                href={`${explorerUrl}/tx/${data.transactionHash}`}
+                passHref
+              >
+                send remaining funds success, click to view
+              </Link>
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+        // todo: replace with actual token address from returned tx receipt
+        onSendRemainingFundsToWinner(
+          currentTempTokenContract.address as string,
+          true
+        );
+        handleClose();
+      },
+      onTxError: (error) => {
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+              send remaining funds error
+            </Box>
+          ),
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      },
+    }
+  );
+
+  return (
+    <TransactionModalTemplate
+      title={title}
+      handleClose={handleClose}
+      isOpen={isOpen}
+      hideFooter
+    >
+      <Flex direction="column" gap="5px">
+        <Text>Please provide an address to send it</Text>
+        <Input
+          variant="glow"
+          value={winnerAddress}
+          onChange={(e) => setWinnerAddress(e.target.value)}
+        />
+        <Button
+          isDisabled={
+            !isAddress(winnerAddress) ||
+            sendRemainingFundsToWinnerAfterTokenExpirationTxLoading ||
+            !sendRemainingFundsToWinnerAfterTokenExpiration
+          }
+          onClick={sendRemainingFundsToWinnerAfterTokenExpiration}
+        >
+          {sendRemainingFundsToWinnerAfterTokenExpirationTxLoading ? (
+            <Spinner />
+          ) : (
+            "send"
+          )}
+        </Button>
+      </Flex>
+    </TransactionModalTemplate>
   );
 };
