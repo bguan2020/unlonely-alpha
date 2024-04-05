@@ -105,6 +105,11 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
         canAddToChatbot_create.current = false;
       },
       onTxSuccess: async (data) => {
+        console.log(
+          "createTempToken success 1",
+          data,
+          canAddToChatbot_create.current
+        );
         if (!canAddToChatbot_create.current) return;
         const topics = decodeEventLog({
           abi: factoryContract.abi,
@@ -112,7 +117,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           topics: data.logs[2].topics,
         });
         const args: any = topics.args;
-        console.log("createTempToken success", args, data);
+        console.log("createTempToken success 2", args, data);
         await postTempToken({
           tokenAddress: args.tokenAddress as `0x${string}`,
           symbol: args.symbol as string,

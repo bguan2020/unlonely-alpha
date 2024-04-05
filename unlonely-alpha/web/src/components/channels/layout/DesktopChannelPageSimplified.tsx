@@ -428,6 +428,7 @@ const CreateTokenInterface = () => {
           topics: data.logs[0].topics,
         });
         console.log("send remaining funds success", data, topics.args);
+        const tokenAddressInteracted = data.to as string;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -445,7 +446,7 @@ const CreateTokenInterface = () => {
           position: "top-right",
         });
         // todo: replace with actual token address from returned tx receipt
-        onSendRemainingFundsToWinner(lastInactiveTokenAddress, false);
+        onSendRemainingFundsToWinner(tokenAddressInteracted, false);
         setWinnerAddress("");
       },
       onTxError: (error) => {

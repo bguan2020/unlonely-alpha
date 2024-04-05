@@ -884,6 +884,7 @@ const SendRemainingFundsFromCurrentInactiveTokenModal = ({
           topics: data.logs[0].topics,
         });
         console.log("send remaining funds success", data, topics.args);
+        const tokenAddressInteracted = data.to as string;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -901,10 +902,7 @@ const SendRemainingFundsFromCurrentInactiveTokenModal = ({
           position: "top-right",
         });
         // todo: replace with actual token address from returned tx receipt
-        onSendRemainingFundsToWinner(
-          currentTempTokenContract.address as string,
-          true
-        );
+        onSendRemainingFundsToWinner(tokenAddressInteracted, true);
         handleClose();
       },
       onTxError: (error) => {

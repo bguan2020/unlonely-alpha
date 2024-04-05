@@ -198,6 +198,7 @@ export const useReadTempTokenState = (
     const newEndTimestamp = latestLog?.args.endTimestamp as bigint;
     const newTokenAddress = latestLog?.args.tokenAddress as `0x${string}`;
     const newTokenSymbol = latestLog?.args.symbol as string;
+    const newTokenName = latestLog?.args.name as string;
     const newTokenCreationBlockNumber = latestLog?.args
       .creationBlockNumber as bigint;
     const newTokenTotalSupplyThreshold = latestLog?.args
@@ -435,7 +436,13 @@ export const useReadTempTokenState = (
    */
   const onSendRemainingFundsToWinner = useCallback(
     async (tokenAddress: string, tokenIsCurrent: boolean) => {
-      if (tokenIsCurrent && tokenAddress === currentActiveTokenAddress) {
+      if (
+        tokenIsCurrent &&
+        isAddressEqual(
+          tokenAddress as `0x${string}`,
+          currentActiveTokenAddress as `0x${string}`
+        )
+      ) {
         setCurrentActiveTokenSymbol("");
         setCurrentActiveTokenAddress(NULL_ADDRESS);
         setCurrentActiveTokenEndTimestamp(undefined);
@@ -446,7 +453,13 @@ export const useReadTempTokenState = (
         setCurrentActiveTokenHighestTotalSupply(BigInt(0));
         setCurrentActiveTokenCreationBlockNumber(BigInt(0));
       }
-      if (!tokenIsCurrent && tokenAddress === lastInactiveTokenAddress) {
+      if (
+        !tokenIsCurrent &&
+        isAddressEqual(
+          tokenAddress as `0x${string}`,
+          lastInactiveTokenAddress as `0x${string}`
+        )
+      ) {
         setLastInactiveTokenBalance(BigInt(0));
         setLastInactiveTokenAddress(NULL_ADDRESS);
       }

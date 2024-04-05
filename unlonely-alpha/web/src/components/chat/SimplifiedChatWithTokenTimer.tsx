@@ -33,12 +33,13 @@ export const SimplifiedChatWithTokenTimer = ({
 
   return (
     <Flex
-      right="0"
-      top="0"
       direction="column"
-      height="50%"
       position="absolute"
       zIndex={1}
+      bg="#19106c5b"
+      height="50%"
+      right="0"
+      top="0"
     >
       {currentActiveTokenAddress !== NULL_ADDRESS &&
         durationLeftForTempToken !== undefined && (
@@ -56,7 +57,7 @@ export const SimplifiedChatWithTokenTimer = ({
             </Text>
           </Flex>
         )}
-      <Flex direction="column" bg="#19106c5b" id={"chat"}>
+      <Flex direction="column" id={"chat"} height="100%">
         <MessageList
           scrollRef={scrollRef}
           messages={chat.receivedMessages}
@@ -77,9 +78,7 @@ export const SimplifiedChatWithTokenTimer = ({
               }}
               onClick={handleScrollToPresent}
             >
-              <Text fontSize="12px">
-                scrolling paused. click to scroll to bottom.
-              </Text>
+              <Text fontSize="12px">scrolling paused</Text>
             </Box>
           )}
         </Flex>
