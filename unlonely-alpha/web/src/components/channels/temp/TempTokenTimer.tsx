@@ -92,13 +92,27 @@ export const useTempTokenTimerState = () => {
   }, [currentActiveTokenEndTimestamp]);
 
   useEffect(() => {
+    if (
+      durationLeftForTempToken !== undefined &&
+      durationLeftForTempToken === 300
+    ) {
+      // if the duration left is 5 minutes, send a chatbot message to notify everyone that the token is about to expire
+      const title = `The $${currentActiveTokenSymbol} token will expire in 5 minutes!`;
+      addToChatbot({
+        username: user?.username ?? "",
+        address: userAddress ?? "",
+        taskType: InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
+        title,
+        description: "",
+      });
+    }
     if (durationLeftForTempToken === undefined) {
       if (isChannelOwner) {
         const title = `The $${currentActiveTokenSymbol} token expired!`;
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
-          taskType: InteractionType.EXPIRED_TEMP_TOKEN,
+          taskType: InteractionType.TEMP_TOKEN_EXPIRED,
           title,
           description: "",
         });
