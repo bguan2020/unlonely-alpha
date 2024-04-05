@@ -2,17 +2,9 @@ import { Flex, Text, Box } from "@chakra-ui/react";
 import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
 import MessageList from "./MessageList";
 import ChatForm from "./ChatForm";
-import { useChannelContext } from "../../hooks/context/useChannel";
-import { getTimeFromMillis } from "../../utils/time";
-import { NULL_ADDRESS } from "../../constants";
+import { TempTokenTimerView } from "../channels/temp/TempTokenTimer";
 
 export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
-  const { channel } = useChannelContext();
-  const {
-    durationLeftForTempToken,
-    currentActiveTokenIsAlwaysTradable,
-    currentActiveTokenAddress,
-  } = channel;
   const {
     scrollRef,
     isAtBottom,
@@ -37,22 +29,7 @@ export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
       right="0"
       top="0"
     >
-      {currentActiveTokenAddress !== NULL_ADDRESS &&
-        durationLeftForTempToken !== undefined && (
-          <Flex justifyContent={"center"} bg={"rgba(0, 0, 0, 0.2)"}>
-            <Text
-              fontSize={"30px"}
-              color={durationLeftForTempToken > 300 ? "#c6c3fc" : "#d12424"} // change timer color to red when less than 5 minutes left
-              fontWeight="bold"
-            >
-              {currentActiveTokenIsAlwaysTradable
-                ? "winner"
-                : durationLeftForTempToken
-                ? getTimeFromMillis(durationLeftForTempToken * 1000, true, true)
-                : "expired"}
-            </Text>
-          </Flex>
-        )}
+      <TempTokenTimerView />
       <Flex direction="column" id={"chat"} height="100%">
         <MessageList
           scrollRef={scrollRef}

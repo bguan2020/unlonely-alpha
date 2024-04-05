@@ -39,13 +39,13 @@ export type UseReadTempTokenStateType = {
   lastInactiveTokenBalance: bigint;
   currentTempTokenContract: ContractData;
   isOwner: boolean;
-  durationLeftForTempToken: number | undefined;
   isPermanentGameModalOpen: boolean;
   isSuccessGameModalOpen: boolean;
   isFailedGameModalOpen: boolean;
   isPermanentGameState: boolean;
   isSuccessGameState: boolean;
   isFailedGameState: boolean;
+  canPlayToken: boolean;
   onMintEvent: (totalSupply: bigint, highestTotalSupply: bigint) => void;
   onBurnEvent: (totalSupply: bigint) => void;
   onReachThresholdEvent: (newEndTimestamp: bigint) => void;
@@ -62,6 +62,7 @@ export type UseReadTempTokenStateType = {
   handleIsPermanentGameModalOpen: (value: boolean) => void;
   handleIsSuccessGameModalOpen: (value: boolean) => void;
   handleIsFailedGameModalOpen: (value: boolean) => void;
+  handleCanPlayToken: (value: boolean) => void;
 } & UseReadTempTokenTxsType;
 
 export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
@@ -82,13 +83,13 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
     chainId: 0,
   },
   isOwner: false,
-  durationLeftForTempToken: 0,
   isPermanentGameModalOpen: false,
   isSuccessGameModalOpen: false,
   isFailedGameModalOpen: false,
   isPermanentGameState: false,
   isSuccessGameState: false,
   isFailedGameState: false,
+  canPlayToken: false,
   onMintEvent: () => undefined,
   onBurnEvent: () => undefined,
   onReachThresholdEvent: () => undefined,
@@ -102,6 +103,7 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
   handleIsPermanentGameModalOpen: () => undefined,
   handleIsSuccessGameModalOpen: () => undefined,
   handleIsFailedGameModalOpen: () => undefined,
+  handleCanPlayToken: () => undefined,
   ...useReadTempTokenTxsInitial,
 };
 
@@ -149,10 +151,6 @@ export const useReadTempTokenState = (
   const [lastInactiveTokenBalance, setLastInactiveTokenBalance] =
     useState<bigint>(BigInt(0));
 
-  const [durationLeftForTempToken, setDurationLeftForTempToken] = useState<
-    number | undefined
-  >(0); // notes the seconds that the token has remaining, we will use undefined as the flag to initiate the expiration flow, 0 is the default value for when there is no token
-
   const [isPermanentGameModalOpen, setIsPermanentGameModalOpen] =
     useState<boolean>(false); // when the token becomes always tradeable
   const [isSuccessGameModalOpen, setIsSuccessGameModalOpen] =
@@ -164,6 +162,7 @@ export const useReadTempTokenState = (
     useState<boolean>(false); // when the token becomes always tradeable
   const [isSuccessGameState, setIsGameSuccessState] = useState<boolean>(false); // when the token hits the total supply threshold
   const [isFailedGameState, setIsFailedGameState] = useState<boolean>(false); // when the token expires via countdown
+  const [canPlayToken, setCanPlayToken] = useState(false);
 
   const { postTempToken } = usePostTempToken({});
 
@@ -557,6 +556,10 @@ export const useReadTempTokenState = (
     isOwner,
   ]);
 
+  const handleCanPlayToken = useCallback((value: boolean) => {
+    setCanPlayToken(value);
+  }, []);
+
   /**
    * functions to handle the state of the game when game is over
    */
@@ -589,43 +592,6 @@ export const useReadTempTokenState = (
     setIsFailedGameModalOpen(value);
   }, []);
 
-  /**
-   * token countdown
-   */
-  useEffect(() => {
-    // if currentActiveTokenEndTimestamp is undefined or is BigInt(0), then the token is not active, so set duration to 0
-    if (!currentActiveTokenEndTimestamp) {
-      setDurationLeftForTempToken(0);
-      return;
-    }
-    // if currentActiveTokenEndTimestamp greater than BigInt(0), then the token is not active,
-    // so duration will be a number greater than 0 and durationLeft will follow suit,
-    // but if duration becomes negative, then durationLeft will become undefined
-
-    // Function to update the countdown
-    const updateCountdown = () => {
-      const now = Math.floor(Date.now() / 1000);
-      const _duration = Number(currentActiveTokenEndTimestamp) - now;
-
-      if (_duration < 0) {
-        // If the duration is negative, the countdown is over and the game can no longer be played
-        setDurationLeftForTempToken(undefined);
-        return;
-      }
-
-      setDurationLeftForTempToken(_duration);
-    };
-
-    // Initial update
-    updateCountdown();
-
-    // Set the interval to update the countdown every X seconds
-    const interval = setInterval(updateCountdown, 1 * 1000);
-
-    // Clear the interval when the component unmounts
-    return () => clearInterval(interval);
-  }, [currentActiveTokenEndTimestamp]);
-
   return {
     currentActiveTokenSymbol,
     currentActiveTokenAddress,
@@ -640,13 +606,13 @@ export const useReadTempTokenState = (
     lastInactiveTokenBalance,
     currentTempTokenContract: tempTokenContract,
     isOwner,
-    durationLeftForTempToken,
     isPermanentGameModalOpen,
     isSuccessGameModalOpen,
     isFailedGameModalOpen,
     isPermanentGameState,
     isSuccessGameState,
     isFailedGameState,
+    canPlayToken,
     onMintEvent,
     onBurnEvent,
     onReachThresholdEvent,
@@ -660,6 +626,7 @@ export const useReadTempTokenState = (
     handleIsPermanentGameModalOpen,
     handleIsSuccessGameModalOpen,
     handleIsFailedGameModalOpen,
+    handleCanPlayToken,
     ...readTempTokenTxs,
   };
 };

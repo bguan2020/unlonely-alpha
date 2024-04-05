@@ -1,7 +1,7 @@
 import { Flex } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import {
   ChannelProvider,
@@ -46,16 +46,9 @@ const FullTempTokenChart = () => {
       );
   }, [channelStatic]);
 
-  const [canPlayToken, setCanPlayToken] = useState(false);
-  const handleCanPlayToken = useCallback((canPlay: boolean) => {
-    setCanPlayToken(canPlay);
-  }, []);
-
   return (
     <Flex h="100vh" justifyContent={"space-between"} bg="#131323" p="0.5rem">
       <TempTokenInterface
-        canPlayToken={canPlayToken}
-        handleCanPlayToken={handleCanPlayToken}
         isFullChart
         ablyChannel={chat.channel}
         customLoading={channelStaticLoading}

@@ -18,7 +18,7 @@ export const TempTokenCreationModal = ({
   handleClose: () => void;
 }) => {
   const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
+  const { channelQueryData, realTimeChannelDetails } = channel;
   const [returnedIsLive, setReturnedIsLive] = useState<boolean | undefined>(
     undefined
   );
@@ -43,6 +43,10 @@ export const TempTokenCreationModal = ({
 
   useEffect(() => {
     const checkIfLiveBeforeCreateToken = async () => {
+      if (realTimeChannelDetails.isLive) {
+        setReturnedIsLive(true);
+        return;
+      }
       if (isOpen) {
         setReturnedIsLive(undefined);
         const res = await getLivepeerStreamData({
@@ -54,7 +58,11 @@ export const TempTokenCreationModal = ({
       }
     };
     checkIfLiveBeforeCreateToken();
-  }, [isOpen]);
+  }, [
+    isOpen,
+    realTimeChannelDetails.isLive,
+    channelQueryData?.livepeerStreamId,
+  ]);
 
   return (
     <TransactionModalTemplate
@@ -95,8 +103,8 @@ export const TempTokenCreationModal = ({
               _hover={{}}
               _focus={{}}
               _active={{}}
-              bg={newTokenDuration === BigInt("180") ? "#02d650" : "#ffffff"}
-              onClick={() => handleNewTokenDuration(BigInt("180"))}
+              bg={newTokenDuration === BigInt("120") ? "#02d650" : "#ffffff"}
+              onClick={() => handleNewTokenDuration(BigInt("120"))}
             >
               2 mins
             </Button>

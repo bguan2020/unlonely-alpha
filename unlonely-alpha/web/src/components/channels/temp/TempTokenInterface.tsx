@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { formatUnits } from "viem";
 import {
   Flex,
@@ -40,21 +40,19 @@ import { useWindowSize } from "../../../hooks/internal/useWindowSize";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { SendRemainingFundsFromCurrentInactiveTokenModal } from "./SendRemainingFundsFromCurrentInactiveTokenModal";
 import { TempTokenExchange } from "./TempTokenExchange";
+import { TempTokenTimerView } from "./TempTokenTimer";
+import { usePublicClient } from "wagmi";
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
 const NUMBER_OF_DAYS_IN_MONTH = 30;
 
 export const TempTokenInterface = ({
-  canPlayToken,
-  handleCanPlayToken,
   customHeight,
   isFullChart,
   ablyChannel,
   customLoading,
   noChannelData,
 }: {
-  canPlayToken: boolean;
-  handleCanPlayToken: (canPlay: boolean) => void;
   customHeight?: string;
   isFullChart?: boolean;
   ablyChannel?: AblyChannelPromise;
@@ -65,28 +63,32 @@ export const TempTokenInterface = ({
   const { ethPriceInUsd } = useCacheContext();
   const windowSize = useWindowSize();
   const { network } = useNetworkContext();
+  const publicClient = usePublicClient();
   const { matchingChain } = network;
   const {
     channelQueryData,
     realTimeChannelDetails,
-    durationLeftForTempToken,
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenHasHitTotalSupplyThreshold,
     currentActiveTokenHighestTotalSupply,
     currentActiveTokenTotalSupply,
     currentActiveTokenTotalSupplyThreshold,
+    currentTempTokenContract,
     isOwner,
+    canPlayToken,
     tempTokenChartTimeIndexes,
     tempTokenLoading,
     currentBlockNumberForTempTokenChart,
+    isFailedGameState,
     isSuccessGameModalOpen,
     isFailedGameModalOpen,
     isPermanentGameModalOpen,
-    handleIsGameFailed,
     handleIsFailedGameModalOpen,
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
+    handleCanPlayToken,
+    onSendRemainingFundsToWinnerEvent,
   } = channel;
 
   const tradeTempTokenState = useTradeTempTokenState();
@@ -111,6 +113,8 @@ export const TempTokenInterface = ({
     sendRemainingFundsFromActiveTokenModuleOpen,
     setSendRemainingFundsFromActiveTokenModuleOpen,
   ] = useState<boolean>(false);
+  const [ownerNeedsToSendFunds, setOwnerNeedsToSendFunds] =
+    useState<boolean>(false);
 
   const priceOfHighestTotalSupply = useMemo(() => {
     if (currentActiveTokenHighestTotalSupply === BigInt(0)) return 0;
@@ -183,14 +187,6 @@ export const TempTokenInterface = ({
     customBrushFormatter,
   } = useInterfaceChartMarkers(tradeTempTokenState.chartTxs, timeFilter);
 
-  useEffect(() => {
-    if (durationLeftForTempToken === undefined) {
-      handleCanPlayToken(false);
-      handleIsGameFailed(true);
-      handleIsFailedGameModalOpen(true);
-    }
-  }, [durationLeftForTempToken]);
-
   const openTokenPopout = () => {
     if (!channelQueryData) return;
     const windowFeatures = `width=${windowSize[0] + 100},height=${
@@ -202,6 +198,21 @@ export const TempTokenInterface = ({
       windowFeatures
     );
   };
+
+  useEffect(() => {
+    const checkBalanceAfterExpiration = async () => {
+      const balance = await publicClient.readContract({
+        address: currentTempTokenContract.address as `0x${string}`,
+        abi: currentTempTokenContract.abi,
+        functionName: "getBalance",
+        args: [],
+      });
+      // if balance is 0, streamer needs to send remaining funds to winner,
+      // else streamer can continue creating a new token
+      setOwnerNeedsToSendFunds(BigInt(String(balance)) === BigInt(0));
+    };
+    if (isFailedGameState && isOwner) checkBalanceAfterExpiration();
+  }, [currentTempTokenContract, isFailedGameState, publicClient, isOwner]);
 
   return (
     <>
@@ -316,6 +327,7 @@ export const TempTokenInterface = ({
             <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
               ${currentActiveTokenSymbol}
             </Text>
+            {isFullChart && <TempTokenTimerView />}
             {!isFullChart && (
               <Popover trigger="hover" placement="top" openDelay={500}>
                 <PopoverTrigger>
@@ -617,35 +629,55 @@ export const TempTokenInterface = ({
               <>
                 {realTimeChannelDetails.isLive ? (
                   <>
-                    {durationLeftForTempToken === undefined ? (
+                    {isFailedGameState ? (
                       <>
                         {isOwner ? (
                           <>
-                            <SendRemainingFundsFromCurrentInactiveTokenModal
-                              isOpen={
-                                sendRemainingFundsFromActiveTokenModuleOpen
-                              }
-                              title="Send remaining funds to winner"
-                              handleClose={() =>
-                                setSendRemainingFundsFromActiveTokenModuleOpen(
-                                  false
-                                )
-                              }
-                            />
-                            <Button
-                              _focus={{}}
-                              _active={{}}
-                              _hover={{}}
-                              bg="#02b263"
-                              h="30%"
-                              onClick={() =>
-                                setSendRemainingFundsFromActiveTokenModuleOpen(
-                                  true
-                                )
-                              }
-                            >
-                              <Text color="white">send funds</Text>
-                            </Button>
+                            {ownerNeedsToSendFunds ? (
+                              <>
+                                <SendRemainingFundsFromCurrentInactiveTokenModal
+                                  isOpen={
+                                    sendRemainingFundsFromActiveTokenModuleOpen
+                                  }
+                                  title="Send remaining funds to winner"
+                                  handleClose={() =>
+                                    setSendRemainingFundsFromActiveTokenModuleOpen(
+                                      false
+                                    )
+                                  }
+                                />
+                                <Button
+                                  _focus={{}}
+                                  _active={{}}
+                                  _hover={{}}
+                                  bg="#02b263"
+                                  h="30%"
+                                  onClick={() =>
+                                    setSendRemainingFundsFromActiveTokenModuleOpen(
+                                      true
+                                    )
+                                  }
+                                >
+                                  <Text color="white">send funds</Text>
+                                </Button>
+                              </>
+                            ) : (
+                              <Button
+                                _focus={{}}
+                                _active={{}}
+                                _hover={{}}
+                                bg="#02b263"
+                                h="30%"
+                                onClick={() =>
+                                  onSendRemainingFundsToWinnerEvent(
+                                    currentTempTokenContract.address as `0x${string}`,
+                                    true
+                                  )
+                                }
+                              >
+                                <Text color="white">return to start</Text>
+                              </Button>
+                            )}
                           </>
                         ) : (
                           <Text>Time's up!</Text>
@@ -658,7 +690,6 @@ export const TempTokenInterface = ({
                         _hover={{}}
                         bg="#02b263"
                         h="30%"
-                        isDisabled={durationLeftForTempToken === undefined}
                         onClick={() => setTempTokenDisclaimerModalOpen(true)}
                       >
                         <Text color="white">PLAY NOW</Text>

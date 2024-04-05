@@ -7,7 +7,7 @@ import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useChat } from "../../../hooks/chat/useChat";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { Livepeer } from "livepeer";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../../hooks/context/useUser";
 import ChannelNextHead from "../../layout/ChannelNextHead";
 import {
@@ -63,6 +63,7 @@ export const DesktopChannelPageSimplified = ({
     error: channelDataError,
     handleChannelStaticData,
     currentActiveTokenEndTimestamp,
+    canPlayToken,
   } = channel;
   const { handleIsVip } = leaderboard;
 
@@ -194,7 +195,6 @@ export const DesktopChannelPageSimplified = ({
 
   const [shouldRenderTempTokenInterface, setShouldRenderTempTokenInterface] =
     useState(false);
-  const [canPlayToken, setCanPlayToken] = useState(false);
 
   /**
    * if there is an existing token, render the temp token interface
@@ -223,10 +223,6 @@ export const DesktopChannelPageSimplified = ({
 
     return () => clearInterval(interval); // Cleanup on unmount
   }, [currentActiveTokenEndTimestamp]);
-
-  const handleCanPlayToken = useCallback((canPlay: boolean) => {
-    setCanPlayToken(canPlay);
-  }, []);
 
   return (
     <>
@@ -277,8 +273,6 @@ export const DesktopChannelPageSimplified = ({
                 >
                   <TempTokenInterface
                     ablyChannel={chat.channel}
-                    canPlayToken={canPlayToken}
-                    handleCanPlayToken={handleCanPlayToken}
                     customHeight="100%"
                   />
                 </Flex>
@@ -295,8 +289,6 @@ export const DesktopChannelPageSimplified = ({
                       {shouldRenderTempTokenInterface ? (
                         <TempTokenInterface
                           ablyChannel={chat.channel}
-                          canPlayToken={canPlayToken}
-                          handleCanPlayToken={handleCanPlayToken}
                           customHeight="30%"
                         />
                       ) : (
@@ -317,8 +309,6 @@ export const DesktopChannelPageSimplified = ({
                       {shouldRenderTempTokenInterface && (
                         <TempTokenInterface
                           ablyChannel={chat.channel}
-                          canPlayToken={canPlayToken}
-                          handleCanPlayToken={handleCanPlayToken}
                           customHeight="30%"
                         />
                       )}
