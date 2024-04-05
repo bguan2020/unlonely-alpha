@@ -44,7 +44,7 @@ export const useChat = (): ChatReturnType => {
       name: CHAT_MESSAGE_EVENT,
       data: {
         messageText: messageText,
-        username: "chatbot🤖",
+        username: "🤖",
         address: NULL_ADDRESS,
         isFC: false,
         isLens: false,
@@ -316,7 +316,7 @@ export const useChatBox = (
       name: CHAT_MESSAGE_EVENT,
       data: {
         messageText: messageText,
-        username: "chatbot🤖",
+        username: "🤖",
         address: NULL_ADDRESS,
         isFC: false,
         isLens: false,

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Contract, NULL_ADDRESS } from "../../../../constants";
+import { Contract, InteractionType, NULL_ADDRESS } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useLazyQuery } from "@apollo/client";
@@ -13,7 +13,7 @@ import {
 } from "../../../../generated/graphql";
 import { UseChannelDetailsType } from "../../useChannelDetails";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
-import { ContractData } from "../../../../constants/types";
+import { ChatBot, ContractData } from "../../../../constants/types";
 import useUpdateTempTokenHasRemainingFundsForCreator from "../../../server/temp-token/useUpdateTempTokenHasRemainingFundsForCreator";
 import { useUser } from "../../../context/useUser";
 import { base } from "viem/chains";
@@ -37,6 +37,7 @@ export type UseReadTempTokenStateType = {
   currentActiveTokenCreationBlockNumber: bigint;
   lastInactiveTokenAddress: string;
   lastInactiveTokenBalance: bigint;
+  lastInactiveTokenSymbol: string;
   currentTempTokenContract: ContractData;
   isOwner: boolean;
   isPermanentGameModalOpen: boolean;
@@ -77,6 +78,7 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
   currentActiveTokenCreationBlockNumber: BigInt(0),
   lastInactiveTokenAddress: NULL_ADDRESS,
   lastInactiveTokenBalance: BigInt(0),
+  lastInactiveTokenSymbol: "",
   currentTempTokenContract: {
     address: NULL_ADDRESS,
     abi: undefined,
@@ -108,9 +110,10 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
 };
 
 export const useReadTempTokenState = (
-  channelDetails: UseChannelDetailsType
+  channelDetails: UseChannelDetailsType,
+  addToChatbot: (chatBotMessageToAdd: ChatBot) => void
 ): UseReadTempTokenStateType => {
-  const { userAddress } = useUser();
+  const { userAddress, user } = useUser();
 
   const { network } = useNetworkContext();
   const { localNetwork } = network;
@@ -150,6 +153,8 @@ export const useReadTempTokenState = (
     useState<string>(NULL_ADDRESS);
   const [lastInactiveTokenBalance, setLastInactiveTokenBalance] =
     useState<bigint>(BigInt(0));
+  const [lastInactiveTokenSymbol, setLastInactiveTokenSymbol] =
+    useState<string>("");
 
   const [isPermanentGameModalOpen, setIsPermanentGameModalOpen] =
     useState<boolean>(false); // when the token becomes always tradeable
@@ -236,30 +241,76 @@ export const useReadTempTokenState = (
     setCurrentActiveTokenTotalSupply(totalSupply);
   }, []);
 
-  const onReachThresholdEvent = useCallback(async (newEndTimestamp: bigint) => {
-    setCurrentActiveTokenHasHitTotalSupplyThreshold(true);
-    setCurrentActiveTokenEndTimestamp(newEndTimestamp);
-    handleIsGameSuccess(true);
-    handleIsSuccessGameModalOpen(true);
-  }, []);
+  const onReachThresholdEvent = useCallback(
+    async (newEndTimestamp: bigint) => {
+      if (isOwner) {
+        const title = `The $${currentActiveTokenSymbol} token has hit the price goal and survives for another 24 hours! 🎉`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
+          title,
+          description: "",
+        });
+      }
+      setCurrentActiveTokenHasHitTotalSupplyThreshold(true);
+      setCurrentActiveTokenEndTimestamp(newEndTimestamp);
+      handleIsGameSuccess(true);
+      handleIsSuccessGameModalOpen(true);
+    },
+    [isOwner, userAddress, user, currentActiveTokenSymbol, addToChatbot]
+  );
 
   const onDurationIncreaseEvent = useCallback(
     async (newEndTimestamp: bigint) => {
+      if (isOwner) {
+        const title = `The $${currentActiveTokenSymbol} token's time has been extended!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.TEMP_TOKEN_DURATION_INCREASED,
+          title,
+          description: "",
+        });
+      }
       setCurrentActiveTokenEndTimestamp(newEndTimestamp);
     },
-    []
+    [isOwner, userAddress, user, currentActiveTokenSymbol, addToChatbot]
   );
 
   const onAlwaysTradeableEvent = useCallback(async () => {
+    if (isOwner) {
+      const title = `The $${currentActiveTokenSymbol} token is now permanently tradeable!`;
+      addToChatbot({
+        username: user?.username ?? "",
+        address: userAddress ?? "",
+        taskType: InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
+        title,
+        description: "",
+      });
+    }
     setCurrentActiveTokenIsAlwaysTradable(true);
     handleIsGamePermanent(true);
     handleIsPermanentGameModalOpen(true);
-  }, []);
+  }, [isOwner, userAddress, user, currentActiveTokenSymbol, addToChatbot]);
 
-  const onThresholdUpdateEvent = useCallback(async (newThreshold: bigint) => {
-    setCurrentActiveTokenTotalSupplyThreshold(newThreshold);
-    setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
-  }, []);
+  const onThresholdUpdateEvent = useCallback(
+    async (newThreshold: bigint) => {
+      if (isOwner) {
+        const title = `The $${currentActiveTokenSymbol} token's price goal is increased!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
+          title,
+          description: "",
+        });
+      }
+      setCurrentActiveTokenTotalSupplyThreshold(newThreshold);
+      setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
+    },
+    [isOwner, userAddress, user, currentActiveTokenSymbol, addToChatbot]
+  );
 
   /**
    * function to run when sending remaining funds to winner
@@ -294,6 +345,7 @@ export const useReadTempTokenState = (
       ) {
         setLastInactiveTokenAddress(NULL_ADDRESS);
         setLastInactiveTokenBalance(BigInt(0));
+        setLastInactiveTokenSymbol("");
       }
     },
     [currentActiveTokenAddress, lastInactiveTokenAddress]
@@ -546,6 +598,7 @@ export const useReadTempTokenState = (
           setLastInactiveTokenAddress(
             lastInactiveTokenWithBalance.tokenAddress
           );
+          setLastInactiveTokenSymbol(lastInactiveTokenWithBalance.symbol);
           setLastInactiveTokenBalance(
             BigInt(lastInactiveTokenWithBalance.balance)
           );
@@ -607,6 +660,7 @@ export const useReadTempTokenState = (
     currentActiveTokenCreationBlockNumber,
     lastInactiveTokenAddress,
     lastInactiveTokenBalance,
+    lastInactiveTokenSymbol,
     currentTempTokenContract: tempTokenContract,
     isOwner,
     isPermanentGameModalOpen,

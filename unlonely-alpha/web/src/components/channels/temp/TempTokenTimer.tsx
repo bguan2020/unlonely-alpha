@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { Flex, Text } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../../utils/time";
-import { NULL_ADDRESS } from "../../../constants";
+import { InteractionType, NULL_ADDRESS } from "../../../constants";
+import { useUser } from "../../../hooks/context/useUser";
 
 export const TempTokenTimerView = () => {
   const { channel } = useChannelContext();
@@ -37,13 +38,17 @@ export const TempTokenTimerView = () => {
 };
 
 export const useTempTokenTimerState = () => {
-  const { channel } = useChannelContext();
+  const { userAddress, user } = useUser();
+  const { channel, chat } = useChannelContext();
   const {
     currentActiveTokenEndTimestamp,
+    currentActiveTokenSymbol,
+    isOwner: isChannelOwner,
     handleIsGameFailed,
     handleIsFailedGameModalOpen,
     handleCanPlayToken,
   } = channel;
+  const { addToChatbot } = chat;
 
   const [durationLeftForTempToken, setDurationLeftForTempToken] = useState<
     number | undefined
@@ -88,11 +93,21 @@ export const useTempTokenTimerState = () => {
 
   useEffect(() => {
     if (durationLeftForTempToken === undefined) {
+      if (isChannelOwner) {
+        const title = `The $${currentActiveTokenSymbol} token expired!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.EXPIRED_TEMP_TOKEN,
+          title,
+          description: "",
+        });
+      }
       handleCanPlayToken(false);
       handleIsGameFailed(true);
       handleIsFailedGameModalOpen(true);
     }
-  }, [durationLeftForTempToken]);
+  }, [durationLeftForTempToken, isChannelOwner, currentActiveTokenSymbol]);
 
   return {
     durationLeftForTempToken,

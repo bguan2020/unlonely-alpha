@@ -1,19 +1,8 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Input,
-  Spinner,
-  useToast,
-  Text,
-} from "@chakra-ui/react";
-import { useState } from "react";
-import { decodeEventLog, isAddress } from "viem";
+import { Button, Flex, Input, Spinner, Text } from "@chakra-ui/react";
+import { isAddress } from "viem";
 import { useChannelContext } from "../../../hooks/context/useChannel";
-import { useNetworkContext } from "../../../hooks/context/useNetwork";
-import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../../hooks/contracts/useTempTokenV1";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
-import Link from "next/link";
+import { useSendRemainingFundsToWinnerState } from "../../../hooks/internal/temp-token/useSendRemainingFundsToWinnerState";
 
 export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
   title,
@@ -24,91 +13,18 @@ export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
   handleClose: () => void;
   isOpen: boolean;
 }) => {
-  const toast = useToast();
   const { channel } = useChannelContext();
-  const { currentTempTokenContract } = channel;
-  const { network } = useNetworkContext();
-  const { explorerUrl } = network;
-
-  const [winnerAddress, setWinnerAddress] = useState("");
+  const { currentTempTokenContract, currentActiveTokenSymbol } = channel;
 
   const {
     sendRemainingFundsToWinnerAfterTokenExpiration,
     sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
-  } = useSendRemainingFundsToWinnerAfterTokenExpiration(
-    {
-      winnerWalletAddress: winnerAddress,
-    },
+    handleWinnerAddressChange,
+    winnerAddress,
+  } = useSendRemainingFundsToWinnerState(
     currentTempTokenContract,
-    {
-      onWriteSuccess: (data) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.hash}`}
-                passHref
-              >
-                send remaining funds pending, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-      },
-      onWriteError: (error) => {
-        toast({
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-              send remaining funds cancelled
-            </Box>
-          ),
-        });
-      },
-      onTxSuccess: async (data) => {
-        const topics = decodeEventLog({
-          abi: currentTempTokenContract.abi,
-          data: data.logs[0].data,
-          topics: data.logs[0].topics,
-        });
-        console.log("send remaining funds success", data, topics.args);
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.transactionHash}`}
-                passHref
-              >
-                send remaining funds success, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-        handleClose();
-      },
-      onTxError: (error) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              send remaining funds error
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-      },
-    }
+    currentActiveTokenSymbol,
+    handleClose
   );
 
   return (
@@ -123,7 +39,7 @@ export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
         <Input
           variant="glow"
           value={winnerAddress}
-          onChange={(e) => setWinnerAddress(e.target.value)}
+          onChange={(e) => handleWinnerAddressChange(e.target.value)}
         />
         <Button
           isDisabled={

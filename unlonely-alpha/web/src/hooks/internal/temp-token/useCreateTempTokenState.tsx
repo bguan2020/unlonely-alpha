@@ -160,7 +160,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           });
         const title = `${
           user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
-        } created the ${args.symbol} token!`;
+        } created the $${args.symbol} token!`;
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",

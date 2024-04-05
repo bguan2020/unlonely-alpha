@@ -208,8 +208,8 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
         if (channelQueryData) {
           const topics = decodeEventLog({
             abi: tempTokenContract.abi,
-            data: data.logs[1].data,
-            topics: data.logs[1].topics,
+            data: data.logs[data.logs.length - 1].data,
+            topics: data.logs[data.logs.length - 1].topics,
           });
           const args: any = topics.args;
           const title = `${

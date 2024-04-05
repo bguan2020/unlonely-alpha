@@ -10,16 +10,7 @@ import { Livepeer } from "livepeer";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../../hooks/context/useUser";
 import ChannelNextHead from "../../layout/ChannelNextHead";
-import {
-  Stack,
-  Flex,
-  Text,
-  Button,
-  Input,
-  useToast,
-  Box,
-  Spinner,
-} from "@chakra-ui/react";
+import { Stack, Flex, Text, Button, Input, Spinner } from "@chakra-ui/react";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../../constants/queries";
 import { WavyText } from "../../general/WavyText";
@@ -35,13 +26,12 @@ import {
   useGetHolderBalance,
 } from "../../../hooks/contracts/useTournament";
 import { useContractEvent } from "wagmi";
-import { Log, decodeEventLog, isAddress } from "viem";
+import { Log, isAddress } from "viem";
 import Header from "../../navigation/Header";
 import { TempTokenCreationModal } from "../temp/TempTokenCreationModal";
-import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../../hooks/contracts/useTempTokenV1";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { ContractData } from "../../../constants/types";
-import Link from "next/link";
+import { useSendRemainingFundsToWinnerState } from "../../../hooks/internal/temp-token/useSendRemainingFundsToWinnerState";
 
 export const DesktopChannelPageSimplified = ({
   channelSSR,
@@ -350,12 +340,11 @@ const CreateTokenInterface = () => {
   const {
     lastInactiveTokenAddress, // todo finish send after expiration flow before creating token flow
     lastInactiveTokenBalance,
+    lastInactiveTokenSymbol,
   } = channel;
   const { network } = useNetworkContext();
-  const { localNetwork, explorerUrl } = network;
+  const { localNetwork } = network;
   const [createTokenModalOpen, setCreateTokenModalOpen] = useState(false);
-  const [winnerAddress, setWinnerAddress] = useState("");
-  const toast = useToast();
 
   const inactiveTempTokenContract: ContractData = useMemo(() => {
     if (!lastInactiveTokenAddress) {
@@ -375,80 +364,11 @@ const CreateTokenInterface = () => {
   const {
     sendRemainingFundsToWinnerAfterTokenExpiration,
     sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
-  } = useSendRemainingFundsToWinnerAfterTokenExpiration(
-    {
-      winnerWalletAddress: winnerAddress,
-    },
+    handleWinnerAddressChange,
+    winnerAddress,
+  } = useSendRemainingFundsToWinnerState(
     inactiveTempTokenContract,
-    {
-      onWriteSuccess: (data) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.hash}`}
-                passHref
-              >
-                send remaining funds pending, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-      },
-      onWriteError: (error) => {
-        toast({
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-              send remaining funds cancelled
-            </Box>
-          ),
-        });
-      },
-      onTxSuccess: async (data) => {
-        const topics = decodeEventLog({
-          abi: inactiveTempTokenContract.abi,
-          data: data.logs[0].data,
-          topics: data.logs[0].topics,
-        });
-        console.log("send remaining funds success", data, topics.args);
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.transactionHash}`}
-                passHref
-              >
-                send remaining funds success, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-        setWinnerAddress("");
-      },
-      onTxError: (error) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              send remaining funds error
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-      },
-    }
+    lastInactiveTokenSymbol
   );
 
   return (
@@ -474,7 +394,7 @@ const CreateTokenInterface = () => {
           <Input
             variant="glow"
             value={winnerAddress}
-            onChange={(e) => setWinnerAddress(e.target.value)}
+            onChange={(e) => handleWinnerAddressChange(e.target.value)}
           />
           <Button
             isDisabled={

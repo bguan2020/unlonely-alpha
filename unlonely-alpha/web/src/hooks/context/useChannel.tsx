@@ -155,7 +155,6 @@ export const ChannelProvider = ({
     userAddress === channelDetails.channelQueryData?.owner?.address;
 
   const welcomeTour = useWelcomeTourState(isOwner);
-  const readTempToken = useReadTempTokenState(channelDetails);
 
   const clip = useClip(channelDetails.channelQueryData);
   const channelWideModalsState = useChannelWideModalsState();
@@ -243,6 +242,8 @@ export const ChannelProvider = ({
   const handleLatestBet = useCallback((value: SharesEvent) => {
     setLatestBet(value);
   }, []);
+
+  const readTempToken = useReadTempTokenState(channelDetails, addToChatbot);
 
   const value = useMemo(
     () => ({

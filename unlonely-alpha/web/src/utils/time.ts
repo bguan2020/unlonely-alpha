@@ -65,3 +65,16 @@ export const getConvertedDateFromMillis = (millis: number): string => {
   const timeString = `${hours}:${minutes}:${seconds}`;
   return timeString;
 };
+
+export function formatTimestampToTime(timestampInMilliseconds: number) {
+  const date = new Date(timestampInMilliseconds);
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "pm" : "am";
+  
+  hours = hours % 12;
+  hours = hours ? hours : 12; // The hour "0" should be "12"
+  const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+  
+  return hours + ":" + formattedMinutes + " " + ampm;
+}
