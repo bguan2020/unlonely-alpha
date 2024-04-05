@@ -636,7 +636,11 @@ export const TempTokenInterface = ({
                   <Line
                     type="monotone"
                     dataKey="price"
-                    stroke={"#8884d8"}
+                    stroke={
+                      currentActiveTokenHasHitTotalSupplyThreshold
+                        ? "#ffd014"
+                        : "#8884d8"
+                    }
                     strokeWidth={2}
                     animationDuration={200}
                     dot={<CustomDot />}
@@ -788,7 +792,7 @@ export const TempTokenInterface = ({
                   </Flex>
                   <Flex direction="column">
                     {currentActiveTokenHasHitTotalSupplyThreshold ? (
-                      <Text fontSize={"12px"} color="#c6c3fc">
+                      <Text fontSize={"12px"} color="#ffd014">
                         Target Price Reached
                       </Text>
                     ) : (
@@ -796,14 +800,16 @@ export const TempTokenInterface = ({
                         tokens to reach goal
                       </Text>
                     )}
-                    <>
-                      <Text color="#f3d584" fontSize="2rem">
-                        {String(
-                          currentActiveTokenTotalSupplyThreshold -
-                            currentActiveTokenTotalSupply
-                        )}
-                      </Text>
-                    </>
+                    {!currentActiveTokenHasHitTotalSupplyThreshold && (
+                      <>
+                        <Text color="#f3d584" fontSize="2rem">
+                          {String(
+                            currentActiveTokenTotalSupplyThreshold -
+                              currentActiveTokenTotalSupply
+                          )}
+                        </Text>
+                      </>
+                    )}
                   </Flex>
                 </Flex>
                 <TempTokenExchange tradeTempTokenState={tradeTempTokenState} />
