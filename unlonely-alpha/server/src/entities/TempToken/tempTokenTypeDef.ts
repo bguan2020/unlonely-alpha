@@ -11,6 +11,7 @@ export const typeDef = gql`
         name: String!
         symbol: String!
         endUnixTimestamp: BigInt!
+        factoryAddress: String!
         creationBlockNumber: BigInt!
         protocolFeePercentage: BigInt!
         streamerFeePercentage: BigInt!
@@ -69,6 +70,7 @@ export const typeDef = gql`
         name: String!
         symbol: String!
         endUnixTimestamp: String!
+        factoryAddress: String!
         creationBlockNumber: String!
         protocolFeePercentage: String!
         streamerFeePercentage: String!

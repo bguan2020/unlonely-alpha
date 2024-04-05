@@ -17,6 +17,7 @@ mutation PostTempToken($data: PostTempTokenInput!) {
       streamerFeePercentage
       protocolFeePercentage
       creationBlockNumber
+      factoryAddress
       ownerAddress
       id
       name
@@ -46,6 +47,7 @@ const usePostTempToken = ({ onError }: Props) => {
                 streamerFeePercentage: String(data.streamerFeePercentage as bigint),
                 protocolFeePercentage: String(data.protocolFeePercentage as bigint),
                 ownerAddress: data.ownerAddress as string,
+                factoryAddress: data.factoryAddress as string,
                 creationBlockNumber: String(data.creationBlockNumber as bigint),
                 name: data.name as string,
                 endUnixTimestamp: String(data.endUnixTimestamp as bigint),

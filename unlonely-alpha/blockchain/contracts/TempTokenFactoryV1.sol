@@ -15,6 +15,7 @@ contract TempTokenFactoryV1 is Ownable {
         * @dev protocolFeeDestination is the address where the protocol fees are sent.
         * @dev protocolFeePercent is the percentage of the protocol fee.
         * @dev streamerFeePercent is the percentage of the streamer fee.
+        * @dev creationBlockNumber is the block number when the token was created.
      */
     struct TokenInfo {
         address tokenAddress;
@@ -166,6 +167,8 @@ contract TempTokenFactoryV1 is Ownable {
     }
 
     function increaseEndTimestampForTokens(uint256 _additionalDurationInSeconds, address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
+        require(_additionalDurationInSeconds > 0, "Additional duration cannot be 0");
+        require(_tokenAddresses.length > 0, "Token addresses array is empty");
         for (uint256 i = 0; i < _tokenAddresses.length; i++) {
             TempTokenV1(_tokenAddresses[i]).increaseEndTimestamp(_additionalDurationInSeconds);
         }
@@ -173,6 +176,7 @@ contract TempTokenFactoryV1 is Ownable {
     }
 
     function setAlwaysTradeableForTokens(address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
+        require(_tokenAddresses.length > 0, "Token addresses array is empty");
         for (uint256 i = 0; i < _tokenAddresses.length; i++) {
             TempTokenV1(_tokenAddresses[i]).setAlwaysTradeable();
         }

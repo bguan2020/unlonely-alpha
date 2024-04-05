@@ -282,7 +282,7 @@ export const TempTokenInterface = ({
             hideFooter
           >
             <Text>
-              This token reached the price goal and survives another 25 hours!
+              This token reached the price goal and survives another 24 hours!
               Thanks for playing!
             </Text>
             <Flex justifyContent={"space-evenly"} gap="5px">

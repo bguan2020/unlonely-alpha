@@ -223,8 +223,6 @@ export const TempTokenAdmin = () => {
     });
   };
 
-  console.log(activeTokens);
-
   return (
     <>
       <Text
@@ -251,6 +249,18 @@ export const TempTokenAdmin = () => {
       ) : activeTokens.length > 0 ? (
         <>
           <Text>Total: {activeTokens.length}</Text>
+          <Button
+            onClick={() =>
+              setTokenAddressesIncludedForOperation(
+                activeTokens.map((token) => token.tokenAddress)
+              )
+            }
+          >
+            include all
+          </Button>
+          <Button onClick={() => setTokenAddressesIncludedForOperation([])}>
+            exclude all
+          </Button>
           <TableContainer>
             <Table>
               <Thead>
@@ -394,7 +404,8 @@ export const TempTokenAdmin = () => {
           onClick={call_updateOnchainAndUpdateDb_totalSupplyThreshold}
           isDisabled={
             loading_updateOnchainAndUpdateDb_totalSupplyThreshold ||
-            !newSupplyThreshold
+            !newSupplyThreshold ||
+            !call_updateOnchainAndUpdateDb_totalSupplyThreshold
           }
         >
           {loading_updateOnchainAndUpdateDb_totalSupplyThreshold ? (

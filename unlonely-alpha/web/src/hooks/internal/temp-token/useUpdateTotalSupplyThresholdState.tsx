@@ -84,18 +84,19 @@ export const useUpdateTotalSupplyThresholdState = (
         });
       },
       onTxSuccess: async (data) => {
-        const topics = decodeEventLog({
-          abi: factoryContract.abi,
-          data: data.logs[1].data,
-          topics: data.logs[1].topics,
-        });
-        const args: any = topics.args;
-        console.log("setTotalSupplyThresholdForTokens success", data, args);
         await call_updateDb_hasHitTotalSupplyThreshold({
           tokenAddressesSetTrue: [],
           tokenAddressesSetFalse: tokenAddresses,
           chainId: localNetwork.config.chainId,
         });
+        const topics = decodeEventLog({
+          abi: factoryContract.abi,
+          data: data.logs[0].data,
+          topics: data.logs[0].topics,
+        });
+        const args: any = topics.args;
+        console.log("setTotalSupplyThresholdForTokens success", data, args);
+
         onSuccess && onSuccess();
         toast({
           render: () => (

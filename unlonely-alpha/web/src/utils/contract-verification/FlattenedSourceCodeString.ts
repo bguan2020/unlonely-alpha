@@ -782,7 +782,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     /**
         * @dev mint function allows users to mint tokens on the bonding curve. 
         * @param _amount is the amount of tokens to mint.
-        * If total supply threshold gets hit, extend the tokens lifespan by 25 hours.
+        * If total supply threshold gets hit, extend the tokens lifespan by 24 hours.
      */
     function mint(uint256 _amount) external payable activePhase {
         uint256 cost = mintCost(_amount);
@@ -802,7 +802,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
 
         // Check if total supply has hit the threshold for the first time
         if(totalSupply() >= totalSupplyThreshold && !hasHitTotalSupplyThreshold) {
-            endTimestamp += 25 hours;
+            endTimestamp += 24 hours;
             hasHitTotalSupplyThreshold = true; // Ensure this logic runs only once
             emit TotalSupplyThresholdReached(endTimestamp, totalSupplyThreshold, address(this));
         }

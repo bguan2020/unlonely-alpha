@@ -852,6 +852,7 @@ export type PostTempTokenInput = {
   channelId: Scalars["Int"];
   creationBlockNumber: Scalars["String"];
   endUnixTimestamp: Scalars["String"];
+  factoryAddress: Scalars["String"];
   name: Scalars["String"];
   ownerAddress: Scalars["String"];
   protocolFeePercentage: Scalars["String"];
@@ -1203,6 +1204,7 @@ export type TempToken = {
   channelId: Scalars["Int"];
   creationBlockNumber: Scalars["BigInt"];
   endUnixTimestamp: Scalars["BigInt"];
+  factoryAddress: Scalars["String"];
   hasHitTotalSupplyThreshold: Scalars["Boolean"];
   hasRemainingFundsForCreator: Scalars["Boolean"];
   highestTotalSupply: Scalars["BigInt"];
@@ -2249,6 +2251,7 @@ export type PostTempTokenMutation = {
     streamerFeePercentage: any;
     protocolFeePercentage: any;
     creationBlockNumber: any;
+    factoryAddress: string;
     ownerAddress: string;
     id: string;
     name: string;
@@ -5338,6 +5341,7 @@ export const PostTempTokenDocument = gql`
       streamerFeePercentage
       protocolFeePercentage
       creationBlockNumber
+      factoryAddress
       ownerAddress
       id
       name

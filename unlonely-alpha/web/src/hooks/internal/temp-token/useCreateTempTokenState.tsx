@@ -130,6 +130,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           chainId: localNetwork.config.chainId as number,
           highestTotalSupply: BigInt(0),
           creationBlockNumber: args.creationBlockNumber as bigint,
+          factoryAddress: factoryContract.address as `0x${string}`,
         })
           .then((res) => {
             console.log("createTempToken update database success", res);

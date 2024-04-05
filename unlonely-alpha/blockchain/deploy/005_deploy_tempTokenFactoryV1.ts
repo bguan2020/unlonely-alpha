@@ -1,7 +1,7 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {DeployFunction} from "hardhat-deploy/types";
 
-const FEE_DESTINATION = "0x4F3d3f2F895Db524AC3944BDd17fE632473bCa4a";
+const FEE_DESTINATION = "0x4F3d3f2F895Db524AC3944BDd17fE632473bCa4a"; // todo: set to right address for production
 const ONE_ETHER = BigInt(10) ** BigInt(18);
 
 const PROTOCOL_FEE_PERCENT = 2;
@@ -10,8 +10,7 @@ const CREATOR_FEE_PERCENT = 2;
 const BIGINT_PROTOCOL_FEE_PERCENT = (ONE_ETHER * BigInt(PROTOCOL_FEE_PERCENT)) / BigInt(100);
 const BIGINT_CREATOR_FEE_PERCENT = (ONE_ETHER * BigInt(CREATOR_FEE_PERCENT)) / BigInt(100);
 
-// const STARTING_TOTAL_SUPPLY_THRESHOLD = 20_000_000; // todo: change to 20_000_000 and redeploy for production
-const STARTING_TOTAL_SUPPLY_THRESHOLD = 5;
+const STARTING_TOTAL_SUPPLY_THRESHOLD = 20_000_000;
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = hre.deployments;

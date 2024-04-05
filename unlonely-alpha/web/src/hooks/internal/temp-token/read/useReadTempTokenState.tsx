@@ -392,6 +392,7 @@ export const useReadTempTokenState = (
           chainId: localNetwork.config.chainId as number,
           highestTotalSupply: BigInt(0),
           creationBlockNumber: newTokenCreationBlockNumber,
+          factoryAddress: factoryContract.address as `0x${string}`,
         });
       } catch (e) {
         console.log(

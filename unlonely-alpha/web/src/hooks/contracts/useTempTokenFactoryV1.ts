@@ -256,7 +256,6 @@ callbacks?: WriteCallbacks) => {
     "setTotalSupplyThresholdForTokens",
     [args._totalSupplyThreshold, args.tokenAddresses],
     createCallbackHandler("useTempTokenFactoryV1 setTotalSupplyThresholdForTokens", callbacks),
-    { enabled: args.tokenAddresses.length > 0 }
   );
 
   return {
@@ -282,7 +281,6 @@ callbacks?: WriteCallbacks) => {
     "increaseEndTimestampForTokens",
     [args._additionalDurationInSeconds, args.tokenAddresses],
     createCallbackHandler("useTempTokenFactoryV1 increaseEndTimestampForTokens", callbacks),
-    { enabled: args.tokenAddresses.length > 0 }
   );
 
   return {
@@ -306,7 +304,6 @@ export const useSetAlwaysTradeableForTokens = (args:{
     "setAlwaysTradeableForTokens",
     [args.tokenAddresses],
     createCallbackHandler("useTempTokenFactoryV1 setAlwaysTradeableForTokens", callbacks),
-    { enabled: args.tokenAddresses.length > 0 }
   );
 
   return {

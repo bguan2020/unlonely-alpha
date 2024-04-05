@@ -178,6 +178,7 @@ model TempToken {
   channel                        Channel  @relation(fields: [channelId], references: [id])
   createdAt                      DateTime @default(now())
   ownerAddress                   String
+  factoryAddress                 String
   name                           String
   symbol                         String
   endUnixTimestamp               BigInt

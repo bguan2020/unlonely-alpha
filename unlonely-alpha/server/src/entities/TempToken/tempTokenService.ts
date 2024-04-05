@@ -13,6 +13,7 @@ export interface IPostTempTokenInput {
     name: string;
     symbol: string;
     endUnixTimestamp: string;
+    factoryAddress: string;
     creationBlockNumber: string;
     protocolFeePercentage: string;
     streamerFeePercentage: string;
@@ -29,6 +30,7 @@ export const postTempToken = async (
             tokenAddress: data.tokenAddress,
             chainId: data.chainId,
             ownerAddress: user.address,
+            factoryAddress: data.factoryAddress,
             name: data.name,
             symbol: data.symbol,
             endUnixTimestamp: BigInt(data.endUnixTimestamp),
