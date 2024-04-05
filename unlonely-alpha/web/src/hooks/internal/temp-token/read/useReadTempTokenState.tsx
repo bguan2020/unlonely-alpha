@@ -268,13 +268,6 @@ export const useReadTempTokenState = (
    */
   const onSendRemainingFundsToWinnerEvent = useCallback(
     async (tokenAddress: string, tokenIsCurrent: boolean) => {
-      console.log(
-        "onSendRemainingFundsToWinnerEvent",
-        tokenAddress,
-        tokenIsCurrent,
-        currentActiveTokenAddress,
-        lastInactiveTokenAddress
-      );
       if (
         tokenIsCurrent &&
         isAddressEqual(

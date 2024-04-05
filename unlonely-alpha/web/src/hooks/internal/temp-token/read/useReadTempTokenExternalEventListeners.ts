@@ -252,7 +252,6 @@ export const useReadTempTokenExternalEventListeners = ({
 
   const handleRemainingFundsToWinnerAfterTokenExpirationUpdate = async (logs: Log[]) => {
     if (logs.length === 0) return;
-    console.log("RemainingFundsToWinnerAfterTokenExpiration listener", logs, tempTokenContract.address,  lastInactiveTempTokenContract.address)
     const filteredLogsByCurrentTokenAddress = logs.filter((log: any) =>
       isAddressEqual(
         log.address as `0x${string}`,
@@ -265,7 +264,7 @@ export const useReadTempTokenExternalEventListeners = ({
         lastInactiveTempTokenContract.address as `0x${string}`
       )
     );
-    console.log("RemainingFundsToWinnerAfterTokenExpiration listener", filteredLogsByCurrentTokenAddress, filteredLogsByLastInactiveTokenAddress)
+    console.log("RemainingFundsToWinnerAfterTokenExpiration listener", logs, tempTokenContract.address, lastInactiveTempTokenContract.address, filteredLogsByCurrentTokenAddress, filteredLogsByLastInactiveTokenAddress)
 
     if (filteredLogsByCurrentTokenAddress.length > 0) onSendRemainingFundsToWinnerCallback(tempTokenContract.address as `0x${string}`, true);
     if (filteredLogsByLastInactiveTokenAddress.length > 0) onSendRemainingFundsToWinnerCallback(lastInactiveTempTokenContract.address as `0x${string}`, false);
