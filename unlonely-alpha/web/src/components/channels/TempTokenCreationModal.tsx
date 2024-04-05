@@ -6,6 +6,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { useLazyQuery } from "@apollo/client";
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../constants/queries";
 import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
+import { filteredInput } from "../../utils/validation/input";
 
 export const TempTokenCreationModal = ({
   title,
@@ -76,14 +77,16 @@ export const TempTokenCreationModal = ({
             placeholder="token name"
             variant="glow"
             value={newTokenName}
-            onChange={(e) => handleNewTokenName(e.target.value)}
+            onChange={(e) => handleNewTokenName(filteredInput(e.target.value))}
           />
           <Text>Symbol</Text>
           <Input
             placeholder="token symbol"
             variant="glow"
             value={newTokenSymbol}
-            onChange={(e) => handleNewTokenSymbol(e.target.value)}
+            onChange={(e) =>
+              handleNewTokenSymbol(filteredInput(e.target.value))
+            }
           />
           <Flex gap="5px" justifyContent={"center"}>
             <Button
@@ -125,7 +128,12 @@ export const TempTokenCreationModal = ({
           </Flex>
           <Button
             onClick={createTempToken}
-            isDisabled={!createTempToken || isCreateTempTokenLoading}
+            isDisabled={
+              !createTempToken ||
+              isCreateTempTokenLoading ||
+              !newTokenName ||
+              !newTokenSymbol
+            }
           >
             {isCreateTempTokenLoading || !createTempToken ? (
               <Spinner />

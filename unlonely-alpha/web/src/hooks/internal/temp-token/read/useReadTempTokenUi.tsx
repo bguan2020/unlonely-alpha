@@ -14,6 +14,10 @@ export type UseReadTempTokenUiType = {
   onDurationIncreaseEvent: (newEndTimestamp: bigint) => void;
   onAlwaysTradeableEvent: () => void;
   onThresholdUpdateEvent: (newThreshold: bigint) => void;
+  onSendRemainingFundsToWinnerEvent: (
+    tokenAddress: string,
+    tokenIsCurrent: boolean
+  ) => void;
   handleIsGamePermanent: (value: boolean) => void;
   handleIsGameSuccess: (value: boolean) => void;
   handleIsGameFailed: (value: boolean) => void;
@@ -36,6 +40,7 @@ export const useReadTempTokenUiInitial: UseReadTempTokenUiType = {
   onDurationIncreaseEvent: () => undefined,
   onAlwaysTradeableEvent: () => undefined,
   onThresholdUpdateEvent: () => undefined,
+  onSendRemainingFundsToWinnerEvent: () => undefined,
   handleIsGamePermanent: () => undefined,
   handleIsGameSuccess: () => undefined,
   handleIsGameFailed: () => undefined,
@@ -52,6 +57,7 @@ export const useReadTempTokenUi = ({
   onDurationIncreaseCallback,
   onAlwaysTradeableCallback,
   onThresholdUpdateCallback,
+  onSendRemainingFundsToWinnerCallback,
 }: {
   currentActiveTokenEndTimestamp?: bigint;
   onMintCallback: (totalSupply: bigint, highestTotalSupply: bigint) => void;
@@ -60,6 +66,10 @@ export const useReadTempTokenUi = ({
   onDurationIncreaseCallback: (newEndTimestamp: bigint) => void;
   onAlwaysTradeableCallback: () => void;
   onThresholdUpdateCallback: (newThreshold: bigint) => void;
+  onSendRemainingFundsToWinnerCallback: (
+    tokenAddress: string,
+    tokenIsCurrent: boolean
+  ) => void;
 }): UseReadTempTokenUiType => {
   const [durationLeftForTempToken, setDurationLeftForTempToken] = useState<
     number | undefined
@@ -151,6 +161,13 @@ export const useReadTempTokenUi = ({
     onThresholdUpdateCallback(newThreshold);
   }, []);
 
+  const onSendRemainingFundsToWinnerEvent = useCallback(
+    async (tokenAddress: string, tokenIsCurrent: boolean) => {
+      onSendRemainingFundsToWinnerCallback(tokenAddress, tokenIsCurrent);
+    },
+    []
+  );
+
   /**
    * functions to handle the state of the game when game is over
    */
@@ -197,6 +214,7 @@ export const useReadTempTokenUi = ({
     onDurationIncreaseEvent,
     onAlwaysTradeableEvent,
     onThresholdUpdateEvent,
+    onSendRemainingFundsToWinnerEvent,
     handleIsGamePermanent,
     handleIsGameSuccess,
     handleIsGameFailed,

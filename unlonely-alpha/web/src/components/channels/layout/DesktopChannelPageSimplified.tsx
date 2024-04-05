@@ -359,7 +359,6 @@ const CreateTokenInterface = () => {
   const {
     lastInactiveTokenAddress, // todo finish send after expiration flow before creating token flow
     lastInactiveTokenBalance,
-    onSendRemainingFundsToWinner,
   } = channel;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
@@ -428,7 +427,6 @@ const CreateTokenInterface = () => {
           topics: data.logs[0].topics,
         });
         console.log("send remaining funds success", data, topics.args);
-        const tokenAddressInteracted = data.to as string;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -445,8 +443,6 @@ const CreateTokenInterface = () => {
           isClosable: true,
           position: "top-right",
         });
-        // todo: replace with actual token address from returned tx receipt
-        onSendRemainingFundsToWinner(tokenAddressInteracted, false);
         setWinnerAddress("");
       },
       onTxError: (error) => {

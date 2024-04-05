@@ -43,10 +43,6 @@ export type UseReadTempTokenStateType = {
   lastInactiveTokenBalance: bigint;
   currentTempTokenContract: ContractData;
   isOwner: boolean;
-  onSendRemainingFundsToWinner: (
-    tokenAddress: string,
-    tokenIsCurrent: boolean
-  ) => void;
 } & UseReadTempTokenTxsType &
   UseReadTempTokenUiType;
 
@@ -70,7 +66,6 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
   isOwner: false,
   ...useReadTempTokenTxsInitial,
   ...useReadTempTokenUiInitial,
-  onSendRemainingFundsToWinner: () => undefined,
 };
 
 export const useReadTempTokenState = (
@@ -204,6 +199,27 @@ export const useReadTempTokenState = (
     const newTokenTotalSupplyThreshold = latestLog?.args
       .totalSupplyThreshold as bigint;
 
+    channelDetails.handleRealTimeChannelDetails({
+      isLive: true,
+    });
+
+    /*
+        todo: maybe put post temptoken here but make it only if it is owner?
+
+        await postTempToken({
+          tokenAddress: args.tokenAddress as `0x${string}`,
+          symbol: args.symbol as string,
+          streamerFeePercentage: args.streamerFeePercent as bigint,
+          protocolFeePercentage: args.protocolFeePercent as bigint,
+          ownerAddress: args.owner as `0x${string}`,
+          name: args.name as string,
+          endUnixTimestamp: args.endTimestamp as bigint,
+          channelId: Number(channel.channelQueryData?.id),
+          chainId: localNetwork.config.chainId as number,
+          highestTotalSupply: BigInt(0),
+          creationBlockNumber: args.creationBlockNumber as bigint,
+        })
+    */
     setCurrentActiveTokenEndTimestamp(newEndTimestamp);
     setCurrentActiveTokenCreationBlockNumber(newTokenCreationBlockNumber);
     setCurrentActiveTokenAddress(newTokenAddress);
@@ -318,7 +334,7 @@ export const useReadTempTokenState = (
       }
     };
     init();
-  }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId]); // todo: make a new hook just for inactive tokens with non zero balances
+  }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId]);
 
   useEffect(() => {
     const init = async () => {
@@ -400,41 +416,12 @@ export const useReadTempTokenState = (
     setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
   }, []);
 
-  const readTempTokenUi = useReadTempTokenUi({
-    currentActiveTokenEndTimestamp,
-    onMintCallback: _onMintEvent,
-    onBurnCallback: _onBurnEvent,
-    onReachThresholdCallback: _onReachThresholdEvent,
-    onDurationIncreaseCallback: _onDurationIncreaseEvent,
-    onAlwaysTradeableCallback: _onAlwaysTradeableEvent,
-    onThresholdUpdateCallback: _onThresholdUpdateEvent,
-  });
-
-  const readTempTokenTxs = useReadTempTokenTxs({
-    currentActiveTokenAddress,
-    currentActiveTokenCreationBlockNumber,
-    currentActiveTokenSymbol,
-    baseClient,
-    tempTokenContract,
-    onMintCallback: _onMintEvent,
-    onBurnCallback: _onBurnEvent,
-  });
-
-  useReadTempTokenExternalEventListeners({
-    tempTokenContract,
-    currentActiveTokenAddress,
-    onReachThresholdCallback: _onReachThresholdEvent,
-    onDurationIncreaseCallback: _onDurationIncreaseEvent,
-    onAlwaysTradeableCallback: _onAlwaysTradeableEvent,
-    onThresholdUpdateCallback: _onThresholdUpdateEvent,
-  });
-
   /**
    * function to run when sending remaining funds to winner
    * ideally to be called on an inactive token to reset the state and allow for normal token creation flow
    * but if a current token had just turned inactive and the funds have or have not been sent, what does the ui look like?
    */
-  const onSendRemainingFundsToWinner = useCallback(
+  const _onSendRemainingFundsToWinnerEvent = useCallback(
     async (tokenAddress: string, tokenIsCurrent: boolean) => {
       if (
         tokenIsCurrent &&
@@ -460,12 +447,44 @@ export const useReadTempTokenState = (
           lastInactiveTokenAddress as `0x${string}`
         )
       ) {
-        setLastInactiveTokenBalance(BigInt(0));
         setLastInactiveTokenAddress(NULL_ADDRESS);
+        setLastInactiveTokenBalance(BigInt(0));
       }
     },
     [currentActiveTokenAddress]
   );
+
+  const readTempTokenUi = useReadTempTokenUi({
+    currentActiveTokenEndTimestamp,
+    onMintCallback: _onMintEvent,
+    onBurnCallback: _onBurnEvent,
+    onReachThresholdCallback: _onReachThresholdEvent,
+    onDurationIncreaseCallback: _onDurationIncreaseEvent,
+    onAlwaysTradeableCallback: _onAlwaysTradeableEvent,
+    onThresholdUpdateCallback: _onThresholdUpdateEvent,
+    onSendRemainingFundsToWinnerCallback: _onSendRemainingFundsToWinnerEvent,
+  });
+
+  const readTempTokenTxs = useReadTempTokenTxs({
+    currentActiveTokenAddress,
+    currentActiveTokenCreationBlockNumber,
+    currentActiveTokenSymbol,
+    baseClient,
+    tempTokenContract,
+    onMintCallback: _onMintEvent,
+    onBurnCallback: _onBurnEvent,
+  });
+
+  useReadTempTokenExternalEventListeners({
+    tempTokenContract,
+    currentActiveTokenAddress,
+    lastInactiveTokenAddress,
+    onReachThresholdCallback: _onReachThresholdEvent,
+    onDurationIncreaseCallback: _onDurationIncreaseEvent,
+    onAlwaysTradeableCallback: _onAlwaysTradeableEvent,
+    onThresholdUpdateCallback: _onThresholdUpdateEvent,
+    onSendRemainingFundsToWinnerCallback: _onSendRemainingFundsToWinnerEvent,
+  });
 
   return {
     currentActiveTokenSymbol,
@@ -483,6 +502,5 @@ export const useReadTempTokenState = (
     isOwner,
     ...readTempTokenTxs,
     ...readTempTokenUi,
-    onSendRemainingFundsToWinner,
   };
 };

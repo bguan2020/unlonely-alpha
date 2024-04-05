@@ -133,11 +133,6 @@ export function useChannel(fixedChatName?: string) {
         if (chatbotTaskType === InteractionType.EVENT_PAYOUT) {
           handleLocalSharesEventState(SharesEventState.Payout);
         }
-        if (chatbotTaskType === InteractionType.CREATE_TEMP_TOKEN) {
-          handleRealTimeChannelDetails({
-            isLive: true
-          });
-        }
       }
       if (localBanList.length === 0) {
         setReceivedMessages([...messageHistory, message]);

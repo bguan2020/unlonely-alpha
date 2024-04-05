@@ -46,8 +46,8 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
 
-  const [newTokenName, setNewTokenName] = useState<string>("name");
-  const [newTokenSymbol, setNewTokenSymbol] = useState<string>("symbol");
+  const [newTokenName, setNewTokenName] = useState<string>("");
+  const [newTokenSymbol, setNewTokenSymbol] = useState<string>("");
   const [newTokenDuration, setNewTokenDuration] = useState<bigint>(
     BigInt(1800)
   );
