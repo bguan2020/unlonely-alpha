@@ -4,6 +4,7 @@ import { Flex, Text } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../../utils/time";
 import { InteractionType, NULL_ADDRESS } from "../../../constants";
 import { useUser } from "../../../hooks/context/useUser";
+import { useRouter } from "next/router";
 
 export const TempTokenTimerView = () => {
   const { channel } = useChannelContext();
@@ -18,13 +19,9 @@ export const TempTokenTimerView = () => {
           <Flex
             justifyContent={"center"}
             bg={"rgba(0, 0, 0, 0.2)"}
-            className={durationLeftForTempToken > 300 ? "" : "flashing-text"}
+            className={"flashing-text"}
           >
-            <Text
-              fontSize={"30px"}
-              color={durationLeftForTempToken > 300 ? "#c6c3fc" : "#d12424"} // change timer color to red when less than 5 minutes left
-              fontWeight="bold"
-            >
+            <Text fontSize={"40px"} color={"#ec3f3f"} fontWeight="bold">
               {currentActiveTokenIsAlwaysTradable
                 ? "winner"
                 : durationLeftForTempToken
@@ -49,6 +46,7 @@ export const useTempTokenTimerState = () => {
     handleCanPlayToken,
   } = channel;
   const { addToChatbot } = chat;
+  const router = useRouter();
 
   const [durationLeftForTempToken, setDurationLeftForTempToken] = useState<
     number | undefined
@@ -94,7 +92,9 @@ export const useTempTokenTimerState = () => {
   useEffect(() => {
     if (
       durationLeftForTempToken !== undefined &&
-      durationLeftForTempToken === 300
+      durationLeftForTempToken === 300 &&
+      isChannelOwner &&
+      !router.pathname.startsWith("/token")
     ) {
       // if the duration left is 5 minutes, send a chatbot message to notify everyone that the token is about to expire
       const title = `The $${currentActiveTokenSymbol} token will expire in 5 minutes!`;
@@ -121,7 +121,12 @@ export const useTempTokenTimerState = () => {
       handleIsGameFailed(true);
       handleIsFailedGameModalOpen(true);
     }
-  }, [durationLeftForTempToken, isChannelOwner, currentActiveTokenSymbol]);
+  }, [
+    durationLeftForTempToken,
+    isChannelOwner,
+    currentActiveTokenSymbol,
+    router,
+  ]);
 
   return {
     durationLeftForTempToken,

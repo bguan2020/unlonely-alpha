@@ -1,6 +1,6 @@
 import { Text, Flex, Spinner } from "@chakra-ui/react";
 import { PlaybackInfo } from "livepeer/dist/models/components";
-import { useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import useScript from "../../../hooks/internal/useScript";
 import { getSrc } from "@livepeer/react/external";
@@ -8,6 +8,7 @@ import IVSPlayer from "../../stream/IVSPlayer";
 import LivepeerPlayer from "../../stream/LivepeerPlayer";
 import { ChatWithTokenTimer } from "../../chat/ChatWithTempTokenTimer";
 import { ChatReturnType } from "../../../hooks/chat/useChat";
+import ChannelDesc from "../ChannelDesc";
 
 export const DesktopChannelViewerPerspectiveSimplified = ({
   livepeerPlaybackInfo,
@@ -28,6 +29,25 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
         : channelQueryData?.playbackUrl,
     [channelQueryData]
   );
+
+  const [opacity, setOpacity] = useState(0);
+
+  const timeoutRef = useRef<number | NodeJS.Timeout | null>(null);
+
+  const handleOpacity = () => {
+    console.log("overing");
+    setOpacity(1); // Set opacity to 1 on touch
+    // Clear any existing timeout to prevent it from resetting opacity prematurely
+    if (timeoutRef.current !== null) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Set a new timeout and store its ID in the ref
+    timeoutRef.current = setTimeout(() => {
+      setOpacity(0); // Change back to 0 after 3 seconds
+      timeoutRef.current = null; // Reset the ref after the timeout completes
+    }, 3000);
+  };
 
   const { loading: scriptLoading, error } = useScript({
     src: "https://player.live-video.net/1.2.0/amazon-ivs-videojs-tech.min.js",
@@ -60,7 +80,25 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
   }
 
   return (
-    <Flex width="100%" position="relative" height={"100%"}>
+    <Flex
+      width="100%"
+      position="relative"
+      height={"100%"}
+      onTouchStart={handleOpacity} // Handle touch event
+      onMouseMove={handleOpacity} // Set opacity to 1 on mouse enter
+    >
+      <Flex
+        position="absolute"
+        top="0"
+        left="0"
+        opacity={opacity}
+        zIndex={1}
+        transition={"opacity 0.5s"}
+        background="rgba(0, 0, 0, 0.5)"
+        maxWidth="75%"
+      >
+        <ChannelDesc />
+      </Flex>
       {openOverlappingChat && <ChatWithTokenTimer chat={chat} />}
       <Flex flexDirection="row" justifyContent="center" width="100%">
         {livepeerPlaybackInfo ? (

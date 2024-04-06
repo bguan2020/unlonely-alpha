@@ -91,12 +91,11 @@ const MessageBody = ({
       InteractionType.EVENT_PAYOUT,
     ];
 
-    const tempTokenInteractionTypes = [
+    const greenTempTokenInteractionTypes = [
       InteractionType.CREATE_TEMP_TOKEN,
       InteractionType.BUY_TEMP_TOKENS,
       InteractionType.SELL_TEMP_TOKENS,
       InteractionType.TEMP_TOKEN_EXPIRED,
-      InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
       InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
       InteractionType.TEMP_TOKEN_DURATION_INCREASED,
       InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
@@ -113,7 +112,7 @@ const MessageBody = ({
       };
     } else if (
       message.data.body &&
-      (tempTokenInteractionTypes as string[]).includes(
+      (greenTempTokenInteractionTypes as string[]).includes(
         message.data.body.split(":")[0]
       )
     ) {
@@ -121,6 +120,19 @@ const MessageBody = ({
         bg: "rgba(55, 255, 139, 0.26)",
         textColor: "rgba(55, 255, 139, 1)",
         fontStyle: "italic",
+        fontWeight: "bold",
+        showTimestamp: true,
+      };
+    } else if (
+      message.data.body &&
+      message.data.body.split(":")[0] ===
+        InteractionType.TEMP_TOKEN_EXPIRATION_WARNING
+    ) {
+      return {
+        bg: "rgba(255, 0, 0, 0.26)",
+        textColor: "#ffadad",
+        fontStyle: "italic",
+        fontWeight: "bold",
         showTimestamp: true,
       };
     } else if (
@@ -254,6 +266,7 @@ const MessageBody = ({
                     as="span"
                     color={messageStyle().textColor ?? "white"}
                     fontStyle={messageStyle().fontStyle}
+                    fontWeight={messageStyle().fontWeight}
                     fontSize={"12px"}
                     wordBreak="break-word"
                     textAlign="left"

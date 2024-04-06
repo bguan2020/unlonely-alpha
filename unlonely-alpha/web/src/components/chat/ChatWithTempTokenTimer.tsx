@@ -24,12 +24,14 @@ export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
       direction="column"
       position="absolute"
       zIndex={1}
-      bg="#19106c5b"
+      bg="rgba(25, 16, 108, 0.357)"
       height="50%"
       right="0"
       top="0"
     >
-      <TempTokenTimerView />
+      <Flex justifyContent={"center"} bg="rgba(11, 5, 63, 0.534)">
+        <TempTokenTimerView />
+      </Flex>
       <Flex direction="column" id={"chat"} height="100%">
         <MessageList
           scrollRef={scrollRef}
