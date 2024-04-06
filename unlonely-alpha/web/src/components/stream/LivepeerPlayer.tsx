@@ -38,7 +38,7 @@ const LivepeerPlayer = memo(
       timeoutRef.current = setTimeout(() => {
         setOpacity(0); // Change back to 0 after 3 seconds
         timeoutRef.current = null; // Reset the ref after the timeout completes
-      }, 3000);
+      }, 2000);
     };
 
     if (!src) {

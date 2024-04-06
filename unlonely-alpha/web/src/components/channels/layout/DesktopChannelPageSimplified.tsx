@@ -340,7 +340,6 @@ const CreateTokenInterface = () => {
   const {
     lastInactiveTokenAddress, // todo finish send after expiration flow before creating token flow
     lastInactiveTokenBalance,
-    lastInactiveTokenSymbol,
   } = channel;
   const { network } = useNetworkContext();
   const { localNetwork } = network;
@@ -366,10 +365,7 @@ const CreateTokenInterface = () => {
     sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
     handleWinnerAddressChange,
     winnerAddress,
-  } = useSendRemainingFundsToWinnerState(
-    inactiveTempTokenContract,
-    lastInactiveTokenSymbol
-  );
+  } = useSendRemainingFundsToWinnerState(inactiveTempTokenContract);
 
   return (
     <>

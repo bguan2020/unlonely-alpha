@@ -401,6 +401,7 @@ export const TempTokenInterface = ({
                           />
                         }
                         onClick={() => {
+                          handleIsChartPaused(false);
                           handleCanPlayToken(false);
                         }}
                       />
@@ -710,7 +711,7 @@ export const TempTokenInterface = ({
                     }
                     strokeWidth={2}
                     animationDuration={200}
-                    dot={<CustomDot />}
+                    dot={isFullChart ? <CustomDot /> : false}
                   />
                   {isChartPaused && (
                     <Brush

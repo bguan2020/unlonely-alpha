@@ -14,18 +14,14 @@ export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
   isOpen: boolean;
 }) => {
   const { channel } = useChannelContext();
-  const { currentTempTokenContract, currentActiveTokenSymbol } = channel;
+  const { currentTempTokenContract } = channel;
 
   const {
     sendRemainingFundsToWinnerAfterTokenExpiration,
     sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
     handleWinnerAddressChange,
     winnerAddress,
-  } = useSendRemainingFundsToWinnerState(
-    currentTempTokenContract,
-    currentActiveTokenSymbol,
-    handleClose
-  );
+  } = useSendRemainingFundsToWinnerState(currentTempTokenContract, handleClose);
 
   return (
     <TransactionModalTemplate

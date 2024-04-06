@@ -35,7 +35,6 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
   const timeoutRef = useRef<number | NodeJS.Timeout | null>(null);
 
   const handleOpacity = () => {
-    console.log("overing");
     setOpacity(1); // Set opacity to 1 on touch
     // Clear any existing timeout to prevent it from resetting opacity prematurely
     if (timeoutRef.current !== null) {
@@ -46,7 +45,7 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
     timeoutRef.current = setTimeout(() => {
       setOpacity(0); // Change back to 0 after 3 seconds
       timeoutRef.current = null; // Reset the ref after the timeout completes
-    }, 3000);
+    }, 2000);
   };
 
   const { loading: scriptLoading, error } = useScript({

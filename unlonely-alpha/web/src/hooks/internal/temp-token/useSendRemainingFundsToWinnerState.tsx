@@ -11,15 +11,16 @@ import { useUser } from "../../context/useUser";
 import { useApolloClient } from "@apollo/client";
 import { GET_USER_QUERY } from "../../../constants/queries";
 import centerEllipses from "../../../utils/centerEllipses";
+import { usePublicClient } from "wagmi";
 
 export const useSendRemainingFundsToWinnerState = (
   tokenContractData: ContractData,
-  tokenSymbol: string,
   callbackOnTxSuccess?: any
 ) => {
   const { userAddress, user } = useUser();
   const toast = useToast();
   const client = useApolloClient();
+  const publicClient = usePublicClient();
 
   const { chat } = useChannelContext();
   const { addToChatbot } = chat;
@@ -99,7 +100,15 @@ export const useSendRemainingFundsToWinnerState = (
             ({ data }) =>
               data?.getUser?.username ?? centerEllipses(winnerAddress, 15)
           );
-        const title = `The $${tokenSymbol} token balance was sent to ${identifiedUser}!`;
+        const symbol = await publicClient.readContract({
+          address: tokenContractData.address as `0x${string}`,
+          abi: tokenContractData.abi,
+          functionName: "symbol",
+          args: [],
+        });
+        const title = `The $${String(
+          symbol
+        )} token balance was sent to ${identifiedUser}!`;
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",

@@ -121,12 +121,7 @@ export const useTempTokenTimerState = () => {
       handleIsGameFailed(true);
       handleIsFailedGameModalOpen(true);
     }
-  }, [
-    durationLeftForTempToken,
-    isChannelOwner,
-    currentActiveTokenSymbol,
-    router,
-  ]);
+  }, [durationLeftForTempToken, isChannelOwner, router]);
 
   return {
     durationLeftForTempToken,
