@@ -337,10 +337,7 @@ export const DesktopChannelPageSimplified = ({
 // creation flow and send remaining funds from INACTIVE token, DO NOT USE THIS COMPONENT FOR ACTIVE TOKENS
 const CreateTokenInterface = () => {
   const { channel } = useChannelContext();
-  const {
-    lastInactiveTokenAddress, // todo finish send after expiration flow before creating token flow
-    lastInactiveTokenBalance,
-  } = channel;
+  const { lastInactiveTokenAddress, lastInactiveTokenBalance } = channel;
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const [createTokenModalOpen, setCreateTokenModalOpen] = useState(false);

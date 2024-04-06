@@ -29,7 +29,7 @@ app.post("/webhook", (req, res) => {
   res.sendStatus(200);
 });
 
-// ensure aws scheduler is calling production's endpoint
+// todo: ensure aws scheduler is calling production's endpoint
 app.get("/aws-scheduler-update", (req, res) => {
   const secretKey = req.headers["x-secret-key"] || req.query.secretKey;
 
