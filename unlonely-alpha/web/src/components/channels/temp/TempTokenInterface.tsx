@@ -42,6 +42,7 @@ import { SendRemainingFundsFromCurrentInactiveTokenModal } from "./SendRemaining
 import { TempTokenExchange } from "./TempTokenExchange";
 import { TempTokenTimerView } from "./TempTokenTimer";
 import { usePublicClient } from "wagmi";
+import { getTimeFromMillis } from "../../../utils/time";
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
 const NUMBER_OF_DAYS_IN_MONTH = 30;
@@ -84,6 +85,7 @@ export const TempTokenInterface = ({
     isSuccessGameModalOpen,
     isFailedGameModalOpen,
     isPermanentGameModalOpen,
+    currentActiveTokenEndTimestamp,
     handleIsFailedGameModalOpen,
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
@@ -115,6 +117,9 @@ export const TempTokenInterface = ({
   ] = useState<boolean>(false);
   const [ownerNeedsToSendFunds, setOwnerNeedsToSendFunds] =
     useState<boolean>(false);
+  const [durationLeftOnDisclaimer, setDurationLeftOnDisclaimer] = useState<
+    number | undefined
+  >(undefined);
 
   const priceOfHighestTotalSupply = useMemo(() => {
     if (currentActiveTokenHighestTotalSupply === BigInt(0)) return 0;
@@ -214,6 +219,14 @@ export const TempTokenInterface = ({
     if (isFailedGameState && isOwner) checkBalanceAfterExpiration();
   }, [currentTempTokenContract, isFailedGameState, publicClient, isOwner]);
 
+  useEffect(() => {
+    if (tempTokenDisclaimerModalOpen && currentActiveTokenEndTimestamp) {
+      const durationLeft =
+        Number(currentActiveTokenEndTimestamp) - Math.floor(Date.now() / 1000);
+      setDurationLeftOnDisclaimer(durationLeft);
+    }
+  }, [tempTokenDisclaimerModalOpen]);
+
   return (
     <>
       {tempTokenLoading || customLoading ? (
@@ -249,37 +262,53 @@ export const TempTokenInterface = ({
           h={customHeight ?? "100%"}
         >
           <TransactionModalTemplate
-            title="You are joining the token game"
+            title="30 MINUTE TOKEN LAUNCHED!"
             isOpen={tempTokenDisclaimerModalOpen}
             handleClose={() => setTempTokenDisclaimerModalOpen(false)}
             hideFooter
           >
             <Flex direction="column" gap="10px">
               <Flex direction="column" gap="10px">
+                {durationLeftOnDisclaimer !== undefined && (
+                  <Text
+                    textAlign="center"
+                    fontSize="1rem"
+                    fontStyle={"italic"}
+                    mb="15px"
+                  >
+                    There is{" "}
+                    {getTimeFromMillis(
+                      durationLeftOnDisclaimer * 1000,
+                      true,
+                      true
+                    )}{" "}
+                    left to play!
+                  </Text>
+                )}
                 <Text fontFamily={"LoRes15"} fontSize="1.5rem">
                   How it works
                 </Text>
                 <Flex direction="column" gap="5px">
                   <Text fontSize="12px">
-                    Streamer has launched a "30 minute token" (ERC20 on a
-                    bonding curve).
+                    The 30 minute token is an ERC20 token priced on a bonding
+                    curve.
                   </Text>
                   <Text fontSize="12px">
-                    There is a timer attached to the current game. If the token
-                    does not hit the price goal by the time the timer hits 0,
-                    this token will end and liquidity will disappear.
+                    If the token hits ${priceOfThresholdInUsd} before the timer
+                    runs out, 24 hours will be added to the timer.
                   </Text>
                   <Text fontSize="12px">
-                    If token hits the price goal, another 24 hours will be added
-                    to the timer.
+                    If the token does not hit ${priceOfThresholdInUsd} before
+                    the timer runs out, trades can no longer be made and
+                    liquidity goes to the streamer.
                   </Text>
                 </Flex>
                 <Text fontFamily={"LoRes15"} fontSize="1.5rem">
                   Disclaimer
                 </Text>
                 <Text fontSize="12px">
-                  YOU COULD LOSE YOUR FUNDS. Make sure to sell before the token
-                  dies.
+                  YOU COULD LOSE YOUR FUNDS. Try not to get caught with your
+                  bags full!
                 </Text>
               </Flex>
               <Flex justifyContent={"space-evenly"} gap="5px">
@@ -289,10 +318,7 @@ export const TempTokenInterface = ({
                     handleCanPlayToken(true);
                   }}
                 >
-                  Continue
-                </Button>
-                <Button onClick={() => setTempTokenDisclaimerModalOpen(false)}>
-                  Exit
+                  I understand, let's play
                 </Button>
               </Flex>
             </Flex>
@@ -357,26 +383,67 @@ export const TempTokenInterface = ({
             </Text>
             {isFullChart && <TempTokenTimerView />}
             {!isFullChart && (
-              <Popover trigger="hover" placement="top" openDelay={500}>
-                <PopoverTrigger>
-                  <IconButton
-                    onClick={openTokenPopout}
-                    aria-label="token-popout"
-                    _focus={{}}
-                    _hover={{ transform: "scale(1.15)" }}
-                    _active={{ transform: "scale(1.3)" }}
-                    icon={<Image src="/svg/pop-out.svg" height={"20px"} />}
-                    bg="transparent"
-                    minWidth="auto"
-                  />
-                </PopoverTrigger>
-                <PopoverContent bg="#008d75" border="none" width="100%" p="2px">
-                  <PopoverArrow bg="#008d75" />
-                  <Text fontSize="12px" textAlign={"center"}>
-                    pop out chart in a new window!
-                  </Text>
-                </PopoverContent>
-              </Popover>
+              <Flex>
+                {canPlayToken && (
+                  <Popover trigger="hover" placement="top" openDelay={500}>
+                    <PopoverTrigger>
+                      <IconButton
+                        aria-label="close"
+                        _focus={{}}
+                        _hover={{ transform: "scale(1.15)" }}
+                        _active={{ transform: "scale(1.3)" }}
+                        bg="transparent"
+                        icon={
+                          <Image
+                            alt="close"
+                            src="/svg/close.svg"
+                            width="20px"
+                          />
+                        }
+                        onClick={() => {
+                          handleCanPlayToken(false);
+                        }}
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      bg="#8d3b00"
+                      border="none"
+                      width="100%"
+                      p="2px"
+                    >
+                      <PopoverArrow bg="#8d3b00" />
+                      <Text fontSize="12px" textAlign={"center"}>
+                        stop playing
+                      </Text>
+                    </PopoverContent>
+                  </Popover>
+                )}
+                <Popover trigger="hover" placement="top" openDelay={500}>
+                  <PopoverTrigger>
+                    <IconButton
+                      onClick={openTokenPopout}
+                      aria-label="token-popout"
+                      _focus={{}}
+                      _hover={{ transform: "scale(1.15)" }}
+                      _active={{ transform: "scale(1.3)" }}
+                      icon={<Image src="/svg/pop-out.svg" height={"20px"} />}
+                      bg="transparent"
+                      minWidth="auto"
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent
+                    bg="#008d75"
+                    border="none"
+                    width="100%"
+                    p="2px"
+                  >
+                    <PopoverArrow bg="#008d75" />
+                    <Text fontSize="12px" textAlign={"center"}>
+                      pop out chart in a new window!
+                    </Text>
+                  </PopoverContent>
+                </Popover>
+              </Flex>
             )}
           </Flex>
           {canPlayToken && (
