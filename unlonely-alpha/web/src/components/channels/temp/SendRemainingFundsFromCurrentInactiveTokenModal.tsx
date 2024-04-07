@@ -29,6 +29,7 @@ export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
       handleClose={handleClose}
       isOpen={isOpen}
       hideFooter
+      bg={"#18162F"}
     >
       <Flex direction="column" gap="5px">
         <Text>Please provide an address to send it</Text>

@@ -70,6 +70,7 @@ export const TempTokenCreationModal = ({
       isOpen={isOpen}
       handleClose={handleClose}
       hideFooter
+      bg={"#18162F"}
     >
       {returnedIsLive === undefined ? (
         <Flex direction="column" gap="5px">

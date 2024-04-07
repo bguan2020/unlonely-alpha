@@ -25,6 +25,7 @@ export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
       position="absolute"
       zIndex={1}
       bg="rgba(25, 16, 108, 0.357)"
+      width="25%"
       height="50%"
       right="0"
       top="0"

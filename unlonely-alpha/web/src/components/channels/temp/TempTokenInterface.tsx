@@ -42,7 +42,7 @@ import { SendRemainingFundsFromCurrentInactiveTokenModal } from "./SendRemaining
 import { TempTokenExchange } from "./TempTokenExchange";
 import { TempTokenTimerView } from "./TempTokenTimer";
 import { usePublicClient } from "wagmi";
-import { getTimeFromMillis } from "../../../utils/time";
+import { TempTokenDisclaimerModal } from "./TempTokenDisclaimerModal";
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
 const NUMBER_OF_DAYS_IN_MONTH = 30;
@@ -261,76 +261,25 @@ export const TempTokenInterface = ({
           p={"10px"}
           h={customHeight ?? "100%"}
         >
-          <TransactionModalTemplate
-            title="30 MINUTE TOKEN LAUNCHED!"
+          <TempTokenDisclaimerModal
             isOpen={tempTokenDisclaimerModalOpen}
             handleClose={() => setTempTokenDisclaimerModalOpen(false)}
-            hideFooter
-          >
-            <Flex direction="column" gap="10px">
-              <Flex direction="column" gap="10px">
-                {durationLeftOnDisclaimer !== undefined && (
-                  <Text
-                    textAlign="center"
-                    fontSize="1rem"
-                    fontStyle={"italic"}
-                    mb="15px"
-                  >
-                    There is{" "}
-                    {getTimeFromMillis(
-                      durationLeftOnDisclaimer * 1000,
-                      true,
-                      true
-                    )}{" "}
-                    left to play!
-                  </Text>
-                )}
-                <Text fontFamily={"LoRes15"} fontSize="1.5rem">
-                  How it works
-                </Text>
-                <Flex direction="column" gap="5px">
-                  <Text fontSize="12px">
-                    The 30 minute token is an ERC20 token priced on a bonding
-                    curve.
-                  </Text>
-                  <Text fontSize="12px">
-                    If the token hits ${priceOfThresholdInUsd} before the timer
-                    runs out, 24 hours will be added to the timer.
-                  </Text>
-                  <Text fontSize="12px">
-                    If the token does not hit ${priceOfThresholdInUsd} before
-                    the timer runs out, trades can no longer be made and
-                    liquidity goes to the streamer.
-                  </Text>
-                </Flex>
-                <Text fontFamily={"LoRes15"} fontSize="1.5rem">
-                  Disclaimer
-                </Text>
-                <Text fontSize="12px">
-                  YOU COULD LOSE YOUR FUNDS. Try not to get caught with your
-                  bags full!
-                </Text>
-              </Flex>
-              <Flex justifyContent={"space-evenly"} gap="5px">
-                <Button
-                  onClick={() => {
-                    setTempTokenDisclaimerModalOpen(false);
-                    handleCanPlayToken(true);
-                  }}
-                >
-                  I understand, let's play
-                </Button>
-              </Flex>
-            </Flex>
-          </TransactionModalTemplate>
+            handleCanPlayToken={handleCanPlayToken}
+            priceOfThresholdInUsd={priceOfThresholdInUsd}
+          />
           <TransactionModalTemplate
-            title="Token expired!"
+            title="Token couldn't make it this time :("
             isOpen={isFailedGameModalOpen}
             handleClose={() => handleIsFailedGameModalOpen(false)}
+            bg={"#18162F"}
             hideFooter
           >
-            <Text>This token couldn't reach the price goal</Text>
-            <Flex justifyContent={"space-evenly"} gap="5px">
+            <Text>
+              {
+                "This token couldn't reach the price goal. All remaining liquidity will be sent to the streamer. Better luck next time!"
+              }
+            </Text>
+            <Flex justifyContent={"space-evenly"} gap="5px" my="15px" p={4}>
               <Button
                 onClick={() => {
                   handleIsFailedGameModalOpen(false);
@@ -341,16 +290,18 @@ export const TempTokenInterface = ({
             </Flex>
           </TransactionModalTemplate>
           <TransactionModalTemplate
-            title="Token survived!"
+            title="Success - token lives to see another day"
             isOpen={isSuccessGameModalOpen}
             handleClose={() => handleIsSuccessGameModalOpen(false)}
+            bg={"#18162F"}
             hideFooter
           >
             <Text>
-              This token reached the price goal and survives another 24 hours!
-              Thanks for playing!
+              This token reached today's price goal and survives another 24
+              hours! Make sure to come back when the streamer goes live again
+              tommorow to keep the token alive.
             </Text>
-            <Flex justifyContent={"space-evenly"} gap="5px">
+            <Flex justifyContent={"space-evenly"} gap="5px" my="15px" p={4}>
               <Button
                 onClick={() => {
                   handleIsSuccessGameModalOpen(false);
@@ -364,6 +315,7 @@ export const TempTokenInterface = ({
             title="Congratulations! This token is now tradable!"
             isOpen={isPermanentGameModalOpen}
             handleClose={() => handleIsPermanentGameModalOpen(false)}
+            bg={"#18162F"}
             hideFooter
           >
             <Text>This token will now be tradable from now on by itself</Text>
