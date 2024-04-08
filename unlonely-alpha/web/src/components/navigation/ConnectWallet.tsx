@@ -16,7 +16,11 @@ import {
   Text,
   Link,
 } from "@chakra-ui/react";
-import { usePrivy } from "@privy-io/react-auth";
+import {
+  ConnectedWallet,
+  useConnectWallet,
+  usePrivy,
+} from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -40,8 +44,13 @@ const ConnectWallet = () => {
   const router = useRouter();
   const { user, loginMethod } = useUser();
   const { isStandalone } = useUserAgent();
-  const { login, ready, connectWallet, user: privyUser } = usePrivy();
-  const { wallet: activeWallet } = usePrivyWagmi();
+  const { login, ready, user: privyUser } = usePrivy();
+  const { wallet: activeWallet, setActiveWallet } = usePrivyWagmi();
+  const { connectWallet } = useConnectWallet({
+    onSuccess: (wallet) => {
+      setActiveWallet(wallet as ConnectedWallet);
+    },
+  });
 
   const redirectToBridge = useCallback(() => {
     if (isStandalone) {

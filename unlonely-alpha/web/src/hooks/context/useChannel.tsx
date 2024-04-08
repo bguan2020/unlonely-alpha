@@ -18,12 +18,7 @@ import {
 import { ChatBot } from "../../constants/types";
 import { useUser } from "./useUser";
 import { UseClipType, useClip, useClipInitial } from "../chat/useClip";
-import ChatCommandModal from "../../components/channels/ChatCommandModal";
-import EditChannelModal from "../../components/channels/EditChannelModal";
-import NotificationsModal from "../../components/channels/NotificationsModal";
-import ModeratorModal from "../../components/channels/ModeratorModal";
 import { useNetworkContext } from "./useNetwork";
-import { AblyChannelPromise } from "../../constants";
 import { SelectedUser } from "../../constants/types/chat";
 import {
   WelcomeTourStateType,
@@ -35,6 +30,16 @@ import {
   useChannelDetails,
   useChannelDetailsInitial,
 } from "../internal/useChannelDetails";
+import {
+  UseReadTempTokenStateType,
+  useReadTempTokenInitialState,
+  useReadTempTokenState,
+} from "../internal/temp-token/read/useReadTempTokenState";
+import {
+  ChannelWideModalsStateType,
+  useChannelWideModalsInitialState,
+  useChannelWideModalsState,
+} from "../internal/modals/useChannelWideModalsState";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -47,7 +52,8 @@ const ChannelContext = createContext<{
     error?: ApolloError;
     totalBadges: string;
     handleTotalBadges: (value: string) => void;
-  } & UseChannelDetailsType;
+  } & UseChannelDetailsType &
+    UseReadTempTokenStateType;
   chat: {
     chatChannel?: string;
     presenceChannel?: string;
@@ -64,14 +70,6 @@ const ChannelContext = createContext<{
     handleIsVip: (value: boolean) => void;
   };
   ui: {
-    handleEditModal: (value: boolean) => void;
-    handleNotificationsModal: (value: boolean) => void;
-    handleChatCommandModal: (value: boolean) => void;
-    handleModeratorModal: (value: boolean) => void;
-    showEditModal: boolean;
-    showNotificationsModal: boolean;
-    showChatCommandModal: boolean;
-    showModeratorModal: boolean;
     vipPool: string;
     handleVipPool: (value: string) => void;
     tradeLoading: boolean;
@@ -79,7 +77,8 @@ const ChannelContext = createContext<{
     selectedUserInChat?: SelectedUser;
     handleSelectedUserInChat: (value?: SelectedUser) => void;
     handleLocalSharesEventState: (value: SharesEventState) => void;
-  } & WelcomeTourStateType;
+  } & WelcomeTourStateType &
+    ChannelWideModalsStateType;
 }>({
   channel: {
     latestBet: undefined,
@@ -87,6 +86,7 @@ const ChannelContext = createContext<{
     error: undefined,
     totalBadges: "0",
     ...useChannelDetailsInitial,
+    ...useReadTempTokenInitialState,
     handleTotalBadges: () => undefined,
   },
   chat: {
@@ -106,14 +106,7 @@ const ChannelContext = createContext<{
     handleIsVip: () => undefined,
   },
   ui: {
-    handleEditModal: () => undefined,
-    handleNotificationsModal: () => undefined,
-    handleChatCommandModal: () => undefined,
-    handleModeratorModal: () => undefined,
-    showEditModal: false,
-    showNotificationsModal: false,
-    showChatCommandModal: false,
-    showModeratorModal: false,
+    ...useChannelWideModalsInitialState,
     vipPool: "0",
     handleVipPool: () => undefined,
     tradeLoading: false,
@@ -150,12 +143,6 @@ export const ChannelProvider = ({
     SelectedUser | undefined
   >(undefined);
 
-  const [showChatCommandModal, setChatCommandModal] = useState<boolean>(false);
-  const [showEditModal, setEditModal] = useState<boolean>(false);
-  const [showNotificationsModal, setNotificationsModal] =
-    useState<boolean>(false);
-  const [showModeratorModal, setModeratorModal] = useState<boolean>(false);
-
   const [totalBadges, setTotalBadges] = useState<string>("0");
   const [vipPool, setVipPool] = useState<string>("0");
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
@@ -170,6 +157,7 @@ export const ChannelProvider = ({
   const welcomeTour = useWelcomeTourState(isOwner);
 
   const clip = useClip(channelDetails.channelQueryData);
+  const channelWideModalsState = useChannelWideModalsState();
 
   const ongoingBets = useMemo(
     () =>
@@ -219,22 +207,6 @@ export const ChannelProvider = ({
     setChatBot((prev) => [...prev, chatBotMessageToAdd]);
   }, []);
 
-  const handleEditModal = useCallback((value: boolean) => {
-    setEditModal(value);
-  }, []);
-
-  const handleNotificationsModal = useCallback((value: boolean) => {
-    setNotificationsModal(value);
-  }, []);
-
-  const handleChatCommandModal = useCallback((value: boolean) => {
-    setChatCommandModal(value);
-  }, []);
-
-  const handleModeratorModal = useCallback((value: boolean) => {
-    setModeratorModal(value);
-  }, []);
-
   const handleIsVip = useCallback((value: boolean) => {
     setIsVip(value);
   }, []);
@@ -271,6 +243,8 @@ export const ChannelProvider = ({
     setLatestBet(value);
   }, []);
 
+  const readTempToken = useReadTempTokenState(channelDetails, addToChatbot);
+
   const value = useMemo(
     () => ({
       channel: {
@@ -279,6 +253,7 @@ export const ChannelProvider = ({
         totalBadges,
         handleTotalBadges,
         ...channelDetails,
+        ...readTempToken,
       },
       chat: {
         chatChannel: ablyChatChannel,
@@ -297,15 +272,8 @@ export const ChannelProvider = ({
         handleIsVip,
       },
       ui: {
-        handleEditModal,
-        handleNotificationsModal,
-        handleChatCommandModal,
-        handleModeratorModal,
-        showEditModal,
-        showNotificationsModal,
-        showChatCommandModal,
-        showModeratorModal,
         vipPool,
+        ...channelWideModalsState,
         handleVipPool,
         tradeLoading,
         handleTradeLoading,
@@ -327,15 +295,8 @@ export const ChannelProvider = ({
       isVip,
       handleIsVip,
       addToChatbot,
-      handleEditModal,
-      handleNotificationsModal,
-      handleModeratorModal,
-      handleChatCommandModal,
+      channelWideModalsState,
       handleIsVip,
-      showEditModal,
-      showNotificationsModal,
-      showChatCommandModal,
-      showModeratorModal,
       chatBot,
       totalBadges,
       handleTotalBadges,
@@ -347,57 +308,11 @@ export const ChannelProvider = ({
       selectedUserInChat,
       handleSelectedUserInChat,
       welcomeTour,
+      readTempToken,
     ]
   );
 
   return (
     <ChannelContext.Provider value={value}>{children}</ChannelContext.Provider>
-  );
-};
-
-export const ChannelWideModals = ({
-  ablyChannel,
-}: {
-  ablyChannel: AblyChannelPromise;
-}) => {
-  const { ui } = useChannelContext();
-
-  const {
-    handleEditModal,
-    handleNotificationsModal,
-    handleChatCommandModal,
-    handleModeratorModal,
-    showEditModal,
-    showNotificationsModal,
-    showChatCommandModal,
-    showModeratorModal,
-  } = ui;
-
-  return (
-    <>
-      <ModeratorModal
-        title={"manage moderators"}
-        isOpen={showModeratorModal}
-        handleClose={() => handleModeratorModal(false)}
-        ablyChannel={ablyChannel}
-      />
-      <ChatCommandModal
-        title={"custom commands"}
-        isOpen={showChatCommandModal}
-        handleClose={() => handleChatCommandModal(false)}
-        ablyChannel={ablyChannel}
-      />
-      <EditChannelModal
-        title={"edit title / description"}
-        isOpen={showEditModal}
-        handleClose={() => handleEditModal(false)}
-        ablyChannel={ablyChannel}
-      />
-      <NotificationsModal
-        title={"send notifications"}
-        isOpen={showNotificationsModal}
-        handleClose={() => handleNotificationsModal(false)}
-      />
-    </>
   );
 };

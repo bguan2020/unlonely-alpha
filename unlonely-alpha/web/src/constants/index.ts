@@ -9,12 +9,27 @@ export enum InteractionType {
   CUSTOM = "custom-action-interaction",
   BLAST = "blast-emoji-interaction",
   CLIP = "clip-interaction",
+  
   BUY_VOTES = "buy-votes-interaction",
   SELL_VOTES = "sell-votes-interaction",
+
   BUY_BADGES = "buy-badges-interaction",
   SELL_BADGES = "sell-badges-interaction",
+
   BUY_VIBES = "buy-vibes-interaction",
   SELL_VIBES = "sell-vibes-interaction",
+
+  BUY_TEMP_TOKENS = "buy-temp-tokens-interaction",
+  SELL_TEMP_TOKENS = "sell-temp-tokens-interaction",
+  CREATE_TEMP_TOKEN = "create-temp-token-interaction",
+  TEMP_TOKEN_EXPIRED = "expired-temp-token-interaction",
+  TEMP_TOKEN_EXPIRATION_WARNING = "temp-token-expiration-warning-interaction",
+  TEMP_TOKEN_REACHED_THRESHOLD = "temp-token-reached-threshold-interaction",
+  TEMP_TOKEN_DURATION_INCREASED = "temp-token-duration-increased-interaction",
+  TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE = "temp-token-becomes-always-tradeable-interaction",
+  TEMP_TOKEN_THRESHOLD_INCREASED = "temp-token-threshold-increased-interaction",
+  SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION = "send-remaining-funds-to-winner-after-temp-token-expiration-interaction",
+
   EVENT_LIVE = "event-live-interaction",
   EVENT_LOCK = "event-lock-interaction",
   EVENT_UNLOCK = "event-unlock-interaction",
@@ -32,6 +47,13 @@ export enum EventTypeForContract {
   YAY_NAY_VOTE = 0,
   VIP_BADGE = 1,
   SIDE_BET = 2,
+}
+
+export enum Contract {
+  TEMP_TOKEN_FACTORY_V1 = "tempTokenFactoryV1",
+  VIBES_TOKEN_V1 = "vibesTokenV1",
+  SHARES_V2 = "unlonelySharesV2",
+  TOURNAMENT = "unlonelyTournament",
 }
 
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -69,6 +91,8 @@ export const DAYS_IN_A_WEEK = 7;
 export const AVERAGE_BLOCK_TIME_SECS = 2;
 export const SECONDS_PER_HOUR = MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE;
 export const SECONDS_PER_DAY = HOURS_IN_A_DAY * SECONDS_PER_HOUR;
+export const DESKTOP_VIDEO_VH = 80;
+export const MOBILE_VIDEO_VH = 25;
 
 export const NEW_STREAMER_URL_QUERY_PARAM = "new";
 export const STREAMER_MIGRATION_URL_QUERY_PARAM = "migrate";

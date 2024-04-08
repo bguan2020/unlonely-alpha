@@ -28,32 +28,53 @@ export const dateConverter = (date: string) => {
 
 export const getTimesFromMillis = (millis: number) => {
   let seconds = parseInt((millis / 1000).toString());
-  const days = parseInt((seconds / 86400).toString());
-  seconds = seconds % 86400;
   const hours = parseInt((seconds / 3600).toString());
   seconds = seconds % 3600;
   const minutes = parseInt((seconds / 60).toString());
   seconds = seconds % 60;
 
-  return { days, hours, minutes, seconds };
+  return { hours, minutes, seconds };
 };
 
-export const getTimeFromMillis = (millis: number): string => {
+export const getTimeFromMillis = (millis: number, showSeconds?: boolean, format?: boolean): string => {
   if (millis === 0) return "0";
-  const { days, hours, minutes } = getTimesFromMillis(millis);
 
-  let str = `${days > 0 ? `${days}d` : ""}${hours > 0 ? " " : ""}${
+  const { hours, minutes, seconds } = getTimesFromMillis(millis);
+  if (format) {
+    const paddedHours = hours.toString().padStart(2, "0");
+    const paddedMinutes = minutes.toString().padStart(2, "0");
+    const paddedSeconds = seconds.toString().padStart(2, "0");
+  
+    if (showSeconds) return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+    return `${paddedHours}:${paddedMinutes}`;
+  }
+
+  let str = `${
     hours > 0 ? `${hours}h` : ""
-  }${minutes > 0 ? " " : ""}${minutes > 0 ? `${minutes}m` : ""}`;
+  }${minutes > 0 ? " " : ""}${minutes > 0 ? `${minutes}m` : ""}${showSeconds ? " " : ""}${showSeconds && seconds > 0 ? `${seconds}s` : ""}`;
   if (str === "") str = "<1m";
   return str;
 };
 
-export const getHourAndMinutesFromMillis = (millis: number): string => {
+export const getConvertedDateFromMillis = (millis: number): string => {
   const time = new Date(millis);
   const hours = time.getHours().toString().padStart(2, "0");
   const minutes = time.getMinutes().toString().padStart(2, "0");
+  const seconds = time.getSeconds().toString().padStart(2, "0");
 
-  const timeString = `${hours}:${minutes}`;
+  const timeString = `${hours}:${minutes}:${seconds}`;
   return timeString;
 };
+
+export function formatTimestampToTime(timestampInMilliseconds: number) {
+  const date = new Date(timestampInMilliseconds);
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "pm" : "am";
+  
+  hours = hours % 12;
+  hours = hours ? hours : 12; // The hour "0" should be "12"
+  const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+  
+  return hours + ":" + formattedMinutes + " " + ampm;
+}

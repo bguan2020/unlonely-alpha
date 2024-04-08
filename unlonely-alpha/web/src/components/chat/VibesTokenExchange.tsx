@@ -16,7 +16,7 @@ import { decodeEventLog, formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useBalance } from "wagmi";
 
-import { InteractionType } from "../../constants";
+import { Contract, InteractionType } from "../../constants";
 import {
   useGetMintCostAfterFees,
   useMint,
@@ -45,8 +45,7 @@ export const mintErrors: { [key: string]: string } = {
 };
 
 export const burnErrors: { [key: string]: string } = {
-  BurnAmountTooHigh:
-    "You are trying to sell more $VIBES than what you actually have",
+  BurnAmountTooHigh: "You are trying to sell more than what you actually have",
   EtherTransferFailed: "An internal transfer of ETH failed, please try again",
 };
 
@@ -57,7 +56,10 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const toast = useToast();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
-  const contract = getContractFromNetwork("vibesTokenV1", localNetwork);
+  const contract = getContractFromNetwork(
+    Contract.VIBES_TOKEN_V1,
+    localNetwork
+  );
   const { chat, channel } = useChannelContext();
   const { channelQueryData } = channel;
   const { addToChatbot } = chat;

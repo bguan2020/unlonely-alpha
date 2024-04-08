@@ -133,9 +133,6 @@ function App({ Component, pageProps, cookies }: Props) {
   const configureChainsConfig = configureChains(
     NETWORKS, // first chain in array determines the first chain to interact with via publicClient
     [
-      // alchemyProvider({
-      //   apiKey: "y-6uxcy5eHDKqKKBmvmFXbGxe7E5Z0gd", // base sepolia
-      // }),
       alchemyProvider({
         apiKey: "aR93M6MdEC4lgh4VjPXLaMnfBveve1fC", // base
       }),
@@ -146,12 +143,13 @@ function App({ Component, pageProps, cookies }: Props) {
         apiKey: "Yv5gKmch-fSlMcOygB5jgDbNd3PL5fSv", // goerli
       }),
       alchemyProvider({
-        apiKey: "deehmFS2ptkwC3DD_vo3wSBCDyHwHM5x", // base goerli
+        apiKey: "y-6uxcy5eHDKqKKBmvmFXbGxe7E5Z0gd", // base sepolia
       }),
       publicProvider(),
     ]
   );
 
+  // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend
   return (
     <ChakraProvider theme={theme}>
       <PrivyProvider

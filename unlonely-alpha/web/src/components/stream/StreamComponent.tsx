@@ -8,6 +8,7 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import LivepeerPlayer from "./LivepeerPlayer";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { getSrc } from "@livepeer/react/external";
+import { DESKTOP_VIDEO_VH, MOBILE_VIDEO_VH } from "../../constants";
 
 const StreamComponent = ({
   isStreamer,
@@ -65,10 +66,10 @@ const StreamComponent = ({
       width="100%"
       height={
         !isStandalone
-          ? { base: isStreamer ? "unset" : "80vh" }
+          ? { base: isStreamer ? "unset" : `${DESKTOP_VIDEO_VH}vh` }
           : isStreamer
           ? "unset"
-          : "25vh"
+          : `${MOBILE_VIDEO_VH}vh`
       }
     >
       <Flex width="100%">

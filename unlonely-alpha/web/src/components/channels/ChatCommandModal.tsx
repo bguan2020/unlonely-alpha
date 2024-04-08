@@ -63,6 +63,7 @@ export default function ChatCommandModal({
           channelDescription: realTimeChannelDetails.channelDescription,
           chatCommands: commandsData,
           allowNfcs: realTimeChannelDetails.allowNfcs,
+          isLive: realTimeChannelDetails.isLive,
         }),
       },
     });

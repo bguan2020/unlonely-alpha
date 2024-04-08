@@ -44,7 +44,7 @@ export const useChat = (): ChatReturnType => {
       name: CHAT_MESSAGE_EVENT,
       data: {
         messageText: messageText,
-        username: "chatbot🤖",
+        username: "🤖",
         address: NULL_ADDRESS,
         isFC: false,
         isLens: false,
@@ -125,7 +125,6 @@ export const useChat = (): ChatReturnType => {
       ) {
         const amount = body.split(":")[2];
         if (Number(amount) < 2000) return;
-        const m = determineValue(Number(amount));
         emojiBlast(<Text fontSize={"30px"}>{"📉"}</Text>);
       }
     }
@@ -317,7 +316,7 @@ export const useChatBox = (
       name: CHAT_MESSAGE_EVENT,
       data: {
         messageText: messageText,
-        username: "chatbot🤖",
+        username: "🤖",
         address: NULL_ADDRESS,
         isFC: false,
         isLens: false,

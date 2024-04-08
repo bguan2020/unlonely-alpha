@@ -279,6 +279,28 @@ export const NFC_FEED_QUERY = gql`
   }
 `;
 
+export const GET_TEMP_TOKENS_QUERY = gql`
+  query GetTempTokens($data: GetTempTokensInput) {
+    getTempTokens(data: $data) {
+      tokenAddress
+      symbol
+      streamerFeePercentage
+      protocolFeePercentage
+      ownerAddress
+      name
+      isAlwaysTradeable
+      highestTotalSupply
+      hasRemainingFundsForCreator
+      hasHitTotalSupplyThreshold
+      creationBlockNumber
+      endUnixTimestamp
+      channelId
+      chainId
+      id
+    }
+  }
+`;
+
 export const GET_BASE_LEADERBOARD_QUERY = gql`
   query GetBaseLeaderboard {
     getBaseLeaderboard {

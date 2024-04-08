@@ -90,12 +90,13 @@ export function useChannel(fixedChatName?: string) {
     if (message.name === CHANGE_CHANNEL_DETAILS_EVENT) {
       const body = JSON.parse(message.data.body);
       console.log("body", body);
-      handleRealTimeChannelDetails(
-        body.channelName,
-        body.channelDescription,
-        body.chatCommands,
-        body.allowNfcs
-      );
+      handleRealTimeChannelDetails({
+        channelName: body.channelName,
+        channelDescription: body.channelDescription,
+        chatCommands: body.chatCommands,
+        allowNfcs: body.allowNfcs,
+        isLive: body.isLive
+      });
     }
     if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
       const newSliderValue = JSON.parse(message.data.body);
@@ -188,6 +189,20 @@ export function useChannel(fixedChatName?: string) {
     }
     getMessages();
   }, [channel, userAddress, localBanList]);
+
+  /**
+   * In our current setup, one user initializes an event and sends a message and broadcasts it to all other users,
+   * but whenever it is not the case that it will be just one user initializing and it is either A) all the users are initializing
+   * or B) something else other than the users initializing the event, it won't make sense to A) have all users broadcast to all users
+   * or B) have one random user broadcast when it wasn't them who initialized. To solve this issue and reduce redundancy and potential 
+   * network traffic, we would have users broadcast the message to themselves.
+   * */ 
+  const manualOfflineInsertMessage = (newMessage: Message) => {
+    setAllMessages(prev => [...prev, newMessage]);
+    setReceivedMessages(prev => [...prev.filter(
+      (m) => m.name === CHAT_MESSAGE_EVENT
+    ), newMessage]);
+  }
 
   return {
     ably,

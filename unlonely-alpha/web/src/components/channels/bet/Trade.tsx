@@ -15,6 +15,7 @@ import { useBalance, useContractEvent } from "wagmi";
 import { AddIcon } from "@chakra-ui/icons";
 
 import {
+  Contract,
   InteractionType,
   NULL_ADDRESS,
   NULL_ADDRESS_BYTES32,
@@ -121,7 +122,7 @@ const Trade = () => {
     },
   });
 
-  const v2contract = getContractFromNetwork("unlonelySharesV2", localNetwork);
+  const v2contract = getContractFromNetwork(Contract.SHARES_V2, localNetwork);
 
   const {
     yayVotesBalance,

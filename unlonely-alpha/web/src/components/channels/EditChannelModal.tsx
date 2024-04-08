@@ -62,6 +62,8 @@ export default function EditChannelModal({
           channelName: data.name,
           channelDescription: data.description,
           chatCommands: realTimeChannelDetails.chatCommands,
+          allowNfcs: realTimeChannelDetails.allowNfcs,
+          isLive: realTimeChannelDetails.isLive,
         }),
       },
     });

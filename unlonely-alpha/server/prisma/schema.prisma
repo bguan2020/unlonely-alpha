@@ -169,19 +169,25 @@ model ChannelUserRole {
 }
 
 model TempToken {
-  id                    Int      @id @default(autoincrement())
-  uniqueTempTokenId     String   @unique
-  tokenAddress          String
-  chainId               Int
-  channelId             Int
-  channel               Channel  @relation(fields: [channelId], references: [id])
-  createdAt             DateTime @default(now())
-  streamerAddress       String
-  name                  String
-  symbol                String
-  endUnixTimestamp      BigInt
-  protocolFeePercentage BigInt
-  streamerFeePercentage BigInt
+  id                             Int      @id @default(autoincrement())
+  uniqueTempTokenId              String   @unique
+  creationBlockNumber            BigInt
+  tokenAddress                   String
+  chainId                        Int
+  channelId                      Int
+  channel                        Channel  @relation(fields: [channelId], references: [id])
+  createdAt                      DateTime @default(now())
+  ownerAddress                   String
+  factoryAddress                 String
+  name                           String
+  symbol                         String
+  endUnixTimestamp               BigInt
+  protocolFeePercentage          BigInt
+  streamerFeePercentage          BigInt
+  highestTotalSupply             BigInt
+  hasRemainingFundsForCreator    Boolean @default(true)
+  hasHitTotalSupplyThreshold     Boolean @default(false)
+  isAlwaysTradeable              Boolean @default(false)
 }
 
 enum EventType {
@@ -214,16 +220,6 @@ model GamblableInteraction {
   type GamblableEvent
   createdAt DateTime @default(now())
   softDelete Boolean @default(false)
-}
-
-model UserCreatorToken {
-  userAddress  String
-  tokenAddress String
-  quantity Int     @default(0)
-  user    User     @relation(fields: [userAddress], references: [address])
-  token   CreatorToken    @relation(fields: [tokenAddress], references: [address])
-  
-  @@id([userAddress, tokenAddress])
 }
 
 model ChatCommand {
@@ -301,6 +297,17 @@ model BaseLeaderboard {
 
 // ------- DEPRECATED MODELS -------
 // DONT DELETE
+
+
+model UserCreatorToken {
+  userAddress  String
+  tokenAddress String
+  quantity Int     @default(0)
+  user    User     @relation(fields: [userAddress], references: [address])
+  token   CreatorToken    @relation(fields: [tokenAddress], references: [address])
+  
+  @@id([userAddress, tokenAddress])
+}
 
 model CreatorToken {
   id        Int      @id @default(autoincrement())

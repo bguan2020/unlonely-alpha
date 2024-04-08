@@ -42,7 +42,7 @@ export type ContractData =
       chainId: undefined;
     };
 
-export type VibesTokenTx = {
+export type TradeableTokenTx = {
   eventName: string;
   user: string;
   amount: bigint;

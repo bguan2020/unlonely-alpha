@@ -7,7 +7,11 @@ import type { Log } from "viem";
 
 import { useUser } from "../../../hooks/context/useUser";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
-import { InteractionType, NULL_ADDRESS_BYTES32 } from "../../../constants";
+import {
+  Contract,
+  InteractionType,
+  NULL_ADDRESS_BYTES32,
+} from "../../../constants";
 import {
   useBuyVipBadge,
   useGenerateKey,
@@ -114,7 +118,7 @@ export const VipBadgeBuy = () => {
   };
 
   const tournamentContract = getContractFromNetwork(
-    "unlonelyTournament",
+    Contract.TOURNAMENT,
     localNetwork
   );
 

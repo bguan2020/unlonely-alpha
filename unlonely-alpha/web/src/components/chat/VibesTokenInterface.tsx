@@ -49,7 +49,7 @@ import {
 import { GET_USER_QUERY } from "../../constants/queries";
 import { useApolloClient } from "@apollo/client";
 
-type ChartTokenTx = {
+export type ChartTokenTx = {
   user: string;
   event: string;
   amount: number;
@@ -58,6 +58,9 @@ type ChartTokenTx = {
   priceChangePercentage: number;
   blockNumber: number;
 };
+
+const NUMBER_OF_HOURS_IN_DAY = 24;
+const NUMBER_OF_DAYS_IN_MONTH = 30;
 
 const ZONE_BREADTH = 0.05;
 
@@ -1080,7 +1083,7 @@ const VibesTokenInterface = ({
                               />
                             );
                           })}
-                        {[...Array(30).keys()]
+                        {[...Array(NUMBER_OF_DAYS_IN_MONTH).keys()]
                           .map((i) => i + 1)
                           .filter(
                             (d) =>
@@ -1122,7 +1125,7 @@ const VibesTokenInterface = ({
                               />
                             );
                           })}
-                        {[...Array(24).keys()]
+                        {[...Array(NUMBER_OF_HOURS_IN_DAY).keys()]
                           .map((i) => i + 1)
                           .filter(
                             (h) =>

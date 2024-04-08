@@ -28,7 +28,8 @@ export const getContext: ContextFunction = async ({
   try {
     const { userId } = await privyClient.verifyAuthToken(authToken);
     const user = await privyClient.getUser(userId);
-    address = user.wallet?.address;
+
+    address = user.wallet?.address; // the address last linked to the user
     validated = true;
   } catch (e) {}
 

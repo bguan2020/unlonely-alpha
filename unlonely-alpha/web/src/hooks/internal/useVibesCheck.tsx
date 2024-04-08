@@ -3,13 +3,14 @@ import { Log, createPublicClient, parseAbiItem, http, isAddress } from "viem";
 import { useBalance, useContractEvent } from "wagmi";
 import { base } from "viem/chains";
 
-import { FetchBalanceResult, VibesTokenTx } from "../../constants/types";
+import { FetchBalanceResult, TradeableTokenTx } from "../../constants/types";
 import { getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "./useUserAgent";
 import { NETWORKS } from "../../constants/networks";
 import {
   AVERAGE_BLOCK_TIME_SECS,
   CREATION_BLOCK,
+  Contract,
   NULL_ADDRESS,
   SECONDS_PER_HOUR,
 } from "../../constants";
@@ -18,7 +19,7 @@ import { useUser } from "../context/useUser";
 import { useRouter } from "next/router";
 
 export type UseVibesCheckType = {
-  vibesTokenTxs: VibesTokenTx[];
+  vibesTokenTxs: TradeableTokenTx[];
   vibesTokenLoading: boolean;
   userVibesBalance?: FetchBalanceResult;
   chartTimeIndexes: Map<
@@ -41,9 +42,9 @@ export const useVibesCheckInitial: UseVibesCheckType = {
 export const useVibesCheck = () => {
   const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
-  const [tokenTxs, setTokenTxs] = useState<VibesTokenTx[]>([]);
+  const [tokenTxs, setTokenTxs] = useState<TradeableTokenTx[]>([]);
   const [loading, setLoading] = useState(true);
-  const contract = getContractFromNetwork("vibesTokenV1", NETWORKS[0]);
+  const contract = getContractFromNetwork(Contract.VIBES_TOKEN_V1, NETWORKS[0]);
   const [chartTimeIndexes, setChartTimeIndexes] = useState<
     Map<string, { index: number | undefined; blockNumber: number }>
   >(new Map());
@@ -90,7 +91,7 @@ export const useVibesCheck = () => {
     abi: contract.abi,
     eventName: loading ? undefined : "Mint",
     listener(logs) {
-      console.log("Mint event detected", logs);
+      console.log("vibes Mint event detected", logs);
       const sortedLogs = logs.sort(
         (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
       );
@@ -109,7 +110,7 @@ export const useVibesCheck = () => {
     abi: contract.abi,
     eventName: loading ? undefined : "Burn",
     listener(logs) {
-      console.log("Burn event detected", logs);
+      console.log("vibes Burn event detected", logs);
       const sortedLogs = logs.sort(
         (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
       );
@@ -140,7 +141,7 @@ export const useVibesCheck = () => {
     const newPrice = priceForCurrent - priceForPrevious;
     const previousTxPrice =
       tokenTxs.length > 0 ? tokenTxs[tokenTxs.length - 1].price : 0;
-    const eventTx: VibesTokenTx = {
+    const eventTx: TradeableTokenTx = {
       eventName: eventName,
       user: log?.args.account as `0x${string}`,
       amount: log?.args.amount as bigint,
@@ -195,8 +196,8 @@ export const useVibesCheck = () => {
           fromBlock: CREATION_BLOCK,
         }),
       ]);
-      console.log("mintLogs length", mintLogs.length);
-      console.log("burnLogs length", burnLogs.length);
+      console.log("vibes token mintLogs length", mintLogs.length);
+      console.log("vibes token burnLogs length", burnLogs.length);
       const logs = [...mintLogs, ...burnLogs];
       logs.sort((a, b) => {
         if (a.blockNumber === null || b.blockNumber === null) return 0;
@@ -204,7 +205,7 @@ export const useVibesCheck = () => {
         if (a.blockNumber > b.blockNumber) return 1;
         return 0;
       });
-      const _tokenTxs: VibesTokenTx[] = [];
+      const _tokenTxs: TradeableTokenTx[] = [];
       for (let i = 0; i < logs.length; i++) {
         const event = logs[i];
         const n = Number(event.args.totalSupply as bigint);
@@ -214,7 +215,7 @@ export const useVibesCheck = () => {
         const newPrice = priceForCurrent - priceForPrevious;
         const previousTxPrice =
           _tokenTxs.length > 0 ? _tokenTxs[_tokenTxs.length - 1].price : 0;
-        const tx: VibesTokenTx = {
+        const tx: TradeableTokenTx = {
           eventName: event.eventName,
           user: event.args.account as `0x${string}`,
           amount: event.args.amount as bigint,
@@ -229,7 +230,7 @@ export const useVibesCheck = () => {
         _tokenTxs.push(tx);
       }
       fetching.current = false;
-      console.log("setting token txs,", _tokenTxs.length, "count");
+      console.log("setting vibes token txs,", _tokenTxs.length, "count");
       setTokenTxs(_tokenTxs);
       setLoading(false);
     };
@@ -369,7 +370,10 @@ export const useVibesCheck = () => {
   };
 };
 
-function binarySearchIndex(arr: VibesTokenTx[], target: bigint): number {
+export function binarySearchIndex(
+  arr: TradeableTokenTx[],
+  target: bigint
+): number {
   let left = 0;
   let right = arr.length - 1;
 
@@ -392,7 +396,10 @@ function binarySearchIndex(arr: VibesTokenTx[], target: bigint): number {
   return left;
 }
 
-function insertElementSorted(arr: VibesTokenTx[], newElement: VibesTokenTx) {
+export function insertElementSorted(
+  arr: TradeableTokenTx[],
+  newElement: TradeableTokenTx
+) {
   // Find the insertion index
   let insertIndex = arr.length;
   for (let i = arr.length - 1; i >= 0; i--) {

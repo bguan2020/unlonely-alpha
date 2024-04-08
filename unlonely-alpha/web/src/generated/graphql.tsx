@@ -333,6 +333,17 @@ export type GetSubscriptionsByChannelIdInput = {
   channelId: Scalars["ID"];
 };
 
+export type GetTempTokensInput = {
+  chainId?: InputMaybe<Scalars["Int"]>;
+  channelId?: InputMaybe<Scalars["Int"]>;
+  fulfillAllNotAnyConditions: Scalars["Boolean"];
+  hasHitTotalSupplyThreshold?: InputMaybe<Scalars["Boolean"]>;
+  isAlwaysTradeable?: InputMaybe<Scalars["Boolean"]>;
+  onlyActiveTokens?: InputMaybe<Scalars["Boolean"]>;
+  ownerAddress?: InputMaybe<Scalars["String"]>;
+  tokenAddress?: InputMaybe<Scalars["String"]>;
+};
+
 export type GetTokenHoldersInput = {
   channelId: Scalars["ID"];
   limit?: InputMaybe<Scalars["Int"]>;
@@ -436,6 +447,7 @@ export type Mutation = {
   postStreamInteraction?: Maybe<StreamInteraction>;
   postSubscription?: Maybe<Subscription>;
   postTask?: Maybe<Task>;
+  postTempToken?: Maybe<TempToken>;
   postUserRoleForChannel?: Maybe<ChannelUserRole>;
   postVibesTrades?: Maybe<Array<Maybe<VibesTransaction>>>;
   postVideo?: Maybe<Video>;
@@ -452,11 +464,18 @@ export type Mutation = {
   updateCreatorTokenPrice: CreatorToken;
   updateDeleteChatCommands?: Maybe<Channel>;
   updateDeviceToken?: Maybe<DeviceToken>;
+  updateEndTimestampForTokens?: Maybe<Array<Maybe<TempToken>>>;
   updateLivepeerStreamData?: Maybe<LivepeerStreamData>;
   updateNFC?: Maybe<Nfc>;
   updateOpenseaLink?: Maybe<Nfc>;
   updateSharesEvent?: Maybe<Channel>;
   updateSideBet?: Maybe<SideBet>;
+  updateTempTokenHasHitTotalSupplyThreshold: Scalars["Boolean"];
+  updateTempTokenHasRemainingFundsForCreator?: Maybe<
+    Array<Maybe<TempTokenWithBalance>>
+  >;
+  updateTempTokenHighestTotalSupply?: Maybe<Array<Maybe<TempToken>>>;
+  updateTempTokenIsAlwaysTradeable: Scalars["Boolean"];
   updateUser?: Maybe<User>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
@@ -558,6 +577,10 @@ export type MutationPostTaskArgs = {
   data: PostTaskInput;
 };
 
+export type MutationPostTempTokenArgs = {
+  data: PostTempTokenInput;
+};
+
 export type MutationPostUserRoleForChannelArgs = {
   data?: InputMaybe<PostUserRoleForChannelInput>;
 };
@@ -622,6 +645,10 @@ export type MutationUpdateDeviceTokenArgs = {
   data: UpdateDeviceInput;
 };
 
+export type MutationUpdateEndTimestampForTokensArgs = {
+  data: UpdateEndTimestampForTokensInput;
+};
+
 export type MutationUpdateLivepeerStreamDataArgs = {
   data: UpdateLivepeerStreamDataInput;
 };
@@ -636,6 +663,22 @@ export type MutationUpdateSharesEventArgs = {
 
 export type MutationUpdateSideBetArgs = {
   data: UpdateSideBetInput;
+};
+
+export type MutationUpdateTempTokenHasHitTotalSupplyThresholdArgs = {
+  data: UpdateTempTokenHasHitTotalSupplyThresholdInput;
+};
+
+export type MutationUpdateTempTokenHasRemainingFundsForCreatorArgs = {
+  data: UpdateTempTokenHasRemainingFundsForCreatorInput;
+};
+
+export type MutationUpdateTempTokenHighestTotalSupplyArgs = {
+  data: UpdateTempTokenHighestTotalSupplyInput;
+};
+
+export type MutationUpdateTempTokenIsAlwaysTradeableArgs = {
+  data: UpdateTempTokenIsAlwaysTradeableInput;
 };
 
 export type MutationUpdateUserArgs = {
@@ -804,6 +847,20 @@ export type PostTaskInput = {
   youtubeId?: InputMaybe<Scalars["String"]>;
 };
 
+export type PostTempTokenInput = {
+  chainId: Scalars["Int"];
+  channelId: Scalars["Int"];
+  creationBlockNumber: Scalars["String"];
+  endUnixTimestamp: Scalars["String"];
+  factoryAddress: Scalars["String"];
+  name: Scalars["String"];
+  ownerAddress: Scalars["String"];
+  protocolFeePercentage: Scalars["String"];
+  streamerFeePercentage: Scalars["String"];
+  symbol: Scalars["String"];
+  tokenAddress: Scalars["String"];
+};
+
 export type PostUserRoleForChannelInput = {
   channelId: Scalars["ID"];
   role: Scalars["Int"];
@@ -865,6 +922,7 @@ export type Query = {
   getSubscriptionByEndpoint?: Maybe<Subscription>;
   getSubscriptionsByChannelId?: Maybe<Array<Maybe<Subscription>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
+  getTempTokens?: Maybe<Array<Maybe<TempToken>>>;
   getTokenHoldersByChannel: Array<UserCreatorToken>;
   getTokenLeaderboard: Array<CreatorToken>;
   getUnclaimedEvents: Array<Maybe<SharesEvent>>;
@@ -983,6 +1041,10 @@ export type QueryGetSubscriptionsByChannelIdArgs = {
 
 export type QueryGetTaskFeedArgs = {
   data?: InputMaybe<TaskFeedInput>;
+};
+
+export type QueryGetTempTokensArgs = {
+  data?: InputMaybe<GetTempTokensInput>;
 };
 
 export type QueryGetTokenHoldersByChannelArgs = {
@@ -1136,6 +1198,46 @@ export type TaskFeedInput = {
   skip?: InputMaybe<Scalars["Int"]>;
 };
 
+export type TempToken = {
+  __typename?: "TempToken";
+  chainId: Scalars["Int"];
+  channelId: Scalars["Int"];
+  creationBlockNumber: Scalars["BigInt"];
+  endUnixTimestamp: Scalars["BigInt"];
+  factoryAddress: Scalars["String"];
+  hasHitTotalSupplyThreshold: Scalars["Boolean"];
+  hasRemainingFundsForCreator: Scalars["Boolean"];
+  highestTotalSupply: Scalars["BigInt"];
+  id: Scalars["ID"];
+  isAlwaysTradeable: Scalars["Boolean"];
+  name: Scalars["String"];
+  ownerAddress: Scalars["String"];
+  protocolFeePercentage: Scalars["BigInt"];
+  streamerFeePercentage: Scalars["BigInt"];
+  symbol: Scalars["String"];
+  tokenAddress: Scalars["String"];
+};
+
+export type TempTokenWithBalance = {
+  __typename?: "TempTokenWithBalance";
+  balance: Scalars["BigInt"];
+  chainId: Scalars["Int"];
+  channelId: Scalars["Int"];
+  creationBlockNumber: Scalars["BigInt"];
+  endUnixTimestamp: Scalars["BigInt"];
+  hasHitTotalSupplyThreshold: Scalars["Boolean"];
+  hasRemainingFundsForCreator: Scalars["Boolean"];
+  highestTotalSupply: Scalars["BigInt"];
+  id: Scalars["ID"];
+  isAlwaysTradeable: Scalars["Boolean"];
+  name: Scalars["String"];
+  ownerAddress: Scalars["String"];
+  protocolFeePercentage: Scalars["BigInt"];
+  streamerFeePercentage: Scalars["BigInt"];
+  symbol: Scalars["String"];
+  tokenAddress: Scalars["String"];
+};
+
 export type ToggleSubscriptionInput = {
   endpoint: Scalars["String"];
 };
@@ -1178,6 +1280,12 @@ export type UpdateDeviceInput = {
   token: Scalars["String"];
 };
 
+export type UpdateEndTimestampForTokensInput = {
+  additionalDurationInSeconds: Scalars["Int"];
+  chainId: Scalars["Int"];
+  tokenAddresses?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
+};
+
 export type UpdateLivepeerStreamDataInput = {
   canRecord?: InputMaybe<Scalars["Boolean"]>;
   streamId?: InputMaybe<Scalars["String"]>;
@@ -1209,6 +1317,29 @@ export type UpdateSideBetInput = {
   id: Scalars["ID"];
   opponentAddress?: InputMaybe<Scalars["String"]>;
   wagerDescription?: InputMaybe<Scalars["String"]>;
+};
+
+export type UpdateTempTokenHasHitTotalSupplyThresholdInput = {
+  chainId: Scalars["Int"];
+  tokenAddressesSetFalse?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
+  tokenAddressesSetTrue?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
+};
+
+export type UpdateTempTokenHasRemainingFundsForCreatorInput = {
+  chainId: Scalars["Int"];
+  channelId: Scalars["Int"];
+};
+
+export type UpdateTempTokenHighestTotalSupplyInput = {
+  chainId: Scalars["Int"];
+  newTotalSupplies?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
+  tokenAddresses?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
+};
+
+export type UpdateTempTokenIsAlwaysTradeableInput = {
+  chainId: Scalars["Int"];
+  tokenAddressesSetFalse?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
+  tokenAddressesSetTrue?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
 };
 
 export type UpdateUserCreatorTokenQuantityInput = {
@@ -1648,6 +1779,32 @@ export type NfcFeedQuery = {
   } | null> | null;
 };
 
+export type GetTempTokensQueryVariables = Exact<{
+  data?: InputMaybe<GetTempTokensInput>;
+}>;
+
+export type GetTempTokensQuery = {
+  __typename?: "Query";
+  getTempTokens?: Array<{
+    __typename?: "TempToken";
+    tokenAddress: string;
+    symbol: string;
+    streamerFeePercentage: any;
+    protocolFeePercentage: any;
+    ownerAddress: string;
+    name: string;
+    isAlwaysTradeable: boolean;
+    highestTotalSupply: any;
+    hasRemainingFundsForCreator: boolean;
+    hasHitTotalSupplyThreshold: boolean;
+    creationBlockNumber: any;
+    endUnixTimestamp: any;
+    channelId: number;
+    chainId: number;
+    id: string;
+  } | null> | null;
+};
+
 export type GetBaseLeaderboardQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetBaseLeaderboardQuery = {
@@ -1813,33 +1970,6 @@ export type UpdateUserCreatorTokenQuantityMutation = {
   };
 };
 
-export type PostBadgeTradeMutationVariables = Exact<{
-  data: PostBadgeTradeInput;
-}>;
-
-export type PostBadgeTradeMutation = {
-  __typename?: "Mutation";
-  postBadgeTrade: { __typename?: "GamblableInteraction"; id: string };
-};
-
-export type PostBetMutationVariables = Exact<{
-  data: PostBetInput;
-}>;
-
-export type PostBetMutation = {
-  __typename?: "Mutation";
-  postBet: { __typename?: "GamblableInteraction"; id: string };
-};
-
-export type PostBetTradeMutationVariables = Exact<{
-  data: PostBetTradeInput;
-}>;
-
-export type PostBetTradeMutation = {
-  __typename?: "Mutation";
-  postBetTrade: { __typename?: "GamblableInteraction"; id: string };
-};
-
 export type UpdateDeleteChatCommandsMutationVariables = Exact<{
   data: UpdateDeleteChatCommandInput;
 }>;
@@ -1855,15 +1985,6 @@ export type UpdateDeleteChatCommandsMutation = {
       response: string;
     } | null> | null;
   } | null;
-};
-
-export type AddChannelToSubscriptionMutationVariables = Exact<{
-  data: MoveChannelAlongSubscriptionInput;
-}>;
-
-export type AddChannelToSubscriptionMutation = {
-  __typename?: "Mutation";
-  addChannelToSubscription?: { __typename?: "Subscription"; id: string } | null;
 };
 
 export type CloseSharesEventsMutationVariables = Exact<{
@@ -1908,30 +2029,6 @@ export type CreateLivepeerClipMutation = {
   } | null;
 };
 
-export type LikeMutationVariables = Exact<{
-  data: HandleLikeInput;
-}>;
-
-export type LikeMutation = {
-  __typename?: "Mutation";
-  handleLike?:
-    | {
-        __typename?: "ClipNFCOutput";
-        id: string;
-        score: number;
-        liked?: boolean | null;
-        disliked?: boolean | null;
-      }
-    | {
-        __typename?: "NFC";
-        id: string;
-        score: number;
-        liked?: boolean | null;
-        disliked?: boolean | null;
-      }
-    | null;
-};
-
 export type MigrateChannelToLivepeerMutationVariables = Exact<{
   data: MigrateChannelToLivepeerInput;
 }>;
@@ -1946,15 +2043,6 @@ export type MigrateChannelToLivepeerMutation = {
     livepeerStreamId?: string | null;
     slug: string;
   } | null;
-};
-
-export type PostBaseLeaderboardMutationVariables = Exact<{
-  data: PostBaseLeaderboardInput;
-}>;
-
-export type PostBaseLeaderboardMutation = {
-  __typename?: "Mutation";
-  postBaseLeaderboard: { __typename?: "BaseLeaderboard"; id: string };
 };
 
 export type PostChannelMutationVariables = Exact<{
@@ -1975,42 +2063,6 @@ export type PostChannelMutation = {
   } | null;
 };
 
-export type PostChatByAwsIdMutationVariables = Exact<{
-  data: PostChatByAwsIdInput;
-}>;
-
-export type PostChatByAwsIdMutation = {
-  __typename?: "Mutation";
-  postChatByAwsId?: { __typename?: "Chat"; id: string } | null;
-};
-
-export type PostClaimPayoutMutationVariables = Exact<{
-  data: PostClaimPayoutInput;
-}>;
-
-export type PostClaimPayoutMutation = {
-  __typename?: "Mutation";
-  postClaimPayout: { __typename?: "GamblableInteraction"; id: string };
-};
-
-export type PostFirstChatMutationVariables = Exact<{
-  data: PostChatInput;
-}>;
-
-export type PostFirstChatMutation = {
-  __typename?: "Mutation";
-  postFirstChat?: { __typename?: "Chat"; id: string } | null;
-};
-
-export type PostNfcMutationVariables = Exact<{
-  data: PostNfcInput;
-}>;
-
-export type PostNfcMutation = {
-  __typename?: "Mutation";
-  postNFC?: { __typename?: "NFC"; id: string } | null;
-};
-
 export type PostSharesEventMutationVariables = Exact<{
   data: PostSharesEventInput;
 }>;
@@ -2018,36 +2070,6 @@ export type PostSharesEventMutationVariables = Exact<{
 export type PostSharesEventMutation = {
   __typename?: "Mutation";
   postSharesEvent?: { __typename?: "Channel"; id: string } | null;
-};
-
-export type PostStreamInteractionMutationVariables = Exact<{
-  data: PostStreamInteractionInput;
-}>;
-
-export type PostStreamInteractionMutation = {
-  __typename?: "Mutation";
-  postStreamInteraction?: {
-    __typename?: "StreamInteraction";
-    id: string;
-  } | null;
-};
-
-export type PostSubscriptionMutationVariables = Exact<{
-  data: PostSubscriptionInput;
-}>;
-
-export type PostSubscriptionMutation = {
-  __typename?: "Mutation";
-  postSubscription?: { __typename?: "Subscription"; id: string } | null;
-};
-
-export type PostTaskMutationVariables = Exact<{
-  data: PostTaskInput;
-}>;
-
-export type PostTaskMutation = {
-  __typename?: "Mutation";
-  postTask?: { __typename?: "Task"; id: string } | null;
 };
 
 export type PostUserRoleForChannelMutationVariables = Exact<{
@@ -2063,15 +2085,6 @@ export type PostUserRoleForChannelMutation = {
     userAddress: string;
     role: number;
   } | null;
-};
-
-export type PostVideoMutationVariables = Exact<{
-  data: PostVideoInput;
-}>;
-
-export type PostVideoMutation = {
-  __typename?: "Mutation";
-  postVideo?: { __typename?: "Video"; id: string } | null;
 };
 
 export type RemoveChannelFromSubscriptionMutationVariables = Exact<{
@@ -2189,15 +2202,6 @@ export type UpdateLivepeerStreamDataMutation = {
   } | null;
 };
 
-export type UpdateNfcMutationVariables = Exact<{
-  data: UpdateNfcInput;
-}>;
-
-export type UpdateNfcMutation = {
-  __typename?: "Mutation";
-  updateNFC?: { __typename?: "NFC"; id: string } | null;
-};
-
 export type UpdateSharesEventMutationVariables = Exact<{
   data: UpdateSharesEventInput;
 }>;
@@ -2205,6 +2209,253 @@ export type UpdateSharesEventMutationVariables = Exact<{
 export type UpdateSharesEventMutation = {
   __typename?: "Mutation";
   updateSharesEvent?: { __typename?: "Channel"; id: string } | null;
+};
+
+export type PostBadgeTradeMutationVariables = Exact<{
+  data: PostBadgeTradeInput;
+}>;
+
+export type PostBadgeTradeMutation = {
+  __typename?: "Mutation";
+  postBadgeTrade: { __typename?: "GamblableInteraction"; id: string };
+};
+
+export type PostBetMutationVariables = Exact<{
+  data: PostBetInput;
+}>;
+
+export type PostBetMutation = {
+  __typename?: "Mutation";
+  postBet: { __typename?: "GamblableInteraction"; id: string };
+};
+
+export type PostBetTradeMutationVariables = Exact<{
+  data: PostBetTradeInput;
+}>;
+
+export type PostBetTradeMutation = {
+  __typename?: "Mutation";
+  postBetTrade: { __typename?: "GamblableInteraction"; id: string };
+};
+
+export type PostTempTokenMutationVariables = Exact<{
+  data: PostTempTokenInput;
+}>;
+
+export type PostTempTokenMutation = {
+  __typename?: "Mutation";
+  postTempToken?: {
+    __typename?: "TempToken";
+    tokenAddress: string;
+    symbol: string;
+    streamerFeePercentage: any;
+    protocolFeePercentage: any;
+    creationBlockNumber: any;
+    factoryAddress: string;
+    ownerAddress: string;
+    id: string;
+    name: string;
+    highestTotalSupply: any;
+    endUnixTimestamp: any;
+    channelId: number;
+    chainId: number;
+  } | null;
+};
+
+export type UpdateEndTimestampForTokensMutationVariables = Exact<{
+  data: UpdateEndTimestampForTokensInput;
+}>;
+
+export type UpdateEndTimestampForTokensMutation = {
+  __typename?: "Mutation";
+  updateEndTimestampForTokens?: Array<{
+    __typename?: "TempToken";
+    tokenAddress: string;
+    endUnixTimestamp: any;
+    channelId: number;
+    chainId: number;
+  } | null> | null;
+};
+
+export type UpdateTempTokenHasHitTotalSupplyThresholdMutationVariables = Exact<{
+  data: UpdateTempTokenHasHitTotalSupplyThresholdInput;
+}>;
+
+export type UpdateTempTokenHasHitTotalSupplyThresholdMutation = {
+  __typename?: "Mutation";
+  updateTempTokenHasHitTotalSupplyThreshold: boolean;
+};
+
+export type UpdateTempTokenHasRemainingFundsForCreatorMutationVariables =
+  Exact<{
+    data: UpdateTempTokenHasRemainingFundsForCreatorInput;
+  }>;
+
+export type UpdateTempTokenHasRemainingFundsForCreatorMutation = {
+  __typename?: "Mutation";
+  updateTempTokenHasRemainingFundsForCreator?: Array<{
+    __typename?: "TempTokenWithBalance";
+    tokenAddress: string;
+    hasRemainingFundsForCreator: boolean;
+    channelId: number;
+    chainId: number;
+    balance: any;
+  } | null> | null;
+};
+
+export type UpdateTempTokenHighestTotalSupplyMutationVariables = Exact<{
+  data: UpdateTempTokenHighestTotalSupplyInput;
+}>;
+
+export type UpdateTempTokenHighestTotalSupplyMutation = {
+  __typename?: "Mutation";
+  updateTempTokenHighestTotalSupply?: Array<{
+    __typename?: "TempToken";
+    tokenAddress: string;
+    symbol: string;
+    ownerAddress: string;
+    name: string;
+    highestTotalSupply: any;
+    hasHitTotalSupplyThreshold: boolean;
+    channelId: number;
+    endUnixTimestamp: any;
+    chainId: number;
+  } | null> | null;
+};
+
+export type UpdateTempTokenIsAlwaysTradeableMutationVariables = Exact<{
+  data: UpdateTempTokenIsAlwaysTradeableInput;
+}>;
+
+export type UpdateTempTokenIsAlwaysTradeableMutation = {
+  __typename?: "Mutation";
+  updateTempTokenIsAlwaysTradeable: boolean;
+};
+
+export type AddChannelToSubscriptionMutationVariables = Exact<{
+  data: MoveChannelAlongSubscriptionInput;
+}>;
+
+export type AddChannelToSubscriptionMutation = {
+  __typename?: "Mutation";
+  addChannelToSubscription?: { __typename?: "Subscription"; id: string } | null;
+};
+
+export type LikeMutationVariables = Exact<{
+  data: HandleLikeInput;
+}>;
+
+export type LikeMutation = {
+  __typename?: "Mutation";
+  handleLike?:
+    | {
+        __typename?: "ClipNFCOutput";
+        id: string;
+        score: number;
+        liked?: boolean | null;
+        disliked?: boolean | null;
+      }
+    | {
+        __typename?: "NFC";
+        id: string;
+        score: number;
+        liked?: boolean | null;
+        disliked?: boolean | null;
+      }
+    | null;
+};
+
+export type PostBaseLeaderboardMutationVariables = Exact<{
+  data: PostBaseLeaderboardInput;
+}>;
+
+export type PostBaseLeaderboardMutation = {
+  __typename?: "Mutation";
+  postBaseLeaderboard: { __typename?: "BaseLeaderboard"; id: string };
+};
+
+export type PostChatByAwsIdMutationVariables = Exact<{
+  data: PostChatByAwsIdInput;
+}>;
+
+export type PostChatByAwsIdMutation = {
+  __typename?: "Mutation";
+  postChatByAwsId?: { __typename?: "Chat"; id: string } | null;
+};
+
+export type PostClaimPayoutMutationVariables = Exact<{
+  data: PostClaimPayoutInput;
+}>;
+
+export type PostClaimPayoutMutation = {
+  __typename?: "Mutation";
+  postClaimPayout: { __typename?: "GamblableInteraction"; id: string };
+};
+
+export type PostFirstChatMutationVariables = Exact<{
+  data: PostChatInput;
+}>;
+
+export type PostFirstChatMutation = {
+  __typename?: "Mutation";
+  postFirstChat?: { __typename?: "Chat"; id: string } | null;
+};
+
+export type PostNfcMutationVariables = Exact<{
+  data: PostNfcInput;
+}>;
+
+export type PostNfcMutation = {
+  __typename?: "Mutation";
+  postNFC?: { __typename?: "NFC"; id: string } | null;
+};
+
+export type PostStreamInteractionMutationVariables = Exact<{
+  data: PostStreamInteractionInput;
+}>;
+
+export type PostStreamInteractionMutation = {
+  __typename?: "Mutation";
+  postStreamInteraction?: {
+    __typename?: "StreamInteraction";
+    id: string;
+  } | null;
+};
+
+export type PostSubscriptionMutationVariables = Exact<{
+  data: PostSubscriptionInput;
+}>;
+
+export type PostSubscriptionMutation = {
+  __typename?: "Mutation";
+  postSubscription?: { __typename?: "Subscription"; id: string } | null;
+};
+
+export type PostTaskMutationVariables = Exact<{
+  data: PostTaskInput;
+}>;
+
+export type PostTaskMutation = {
+  __typename?: "Mutation";
+  postTask?: { __typename?: "Task"; id: string } | null;
+};
+
+export type PostVideoMutationVariables = Exact<{
+  data: PostVideoInput;
+}>;
+
+export type PostVideoMutation = {
+  __typename?: "Mutation";
+  postVideo?: { __typename?: "Video"; id: string } | null;
+};
+
+export type UpdateNfcMutationVariables = Exact<{
+  data: UpdateNfcInput;
+}>;
+
+export type UpdateNfcMutation = {
+  __typename?: "Mutation";
+  updateNFC?: { __typename?: "NFC"; id: string } | null;
 };
 
 export type UpdateUserMutationVariables = Exact<{
@@ -2234,20 +2485,6 @@ export type UpdateUserNotificationsMutation = {
     notificationsLive?: boolean | null;
     notificationsNFCs?: boolean | null;
   } | null;
-};
-
-export type GetAllUsersQueryVariables = Exact<{ [key: string]: never }>;
-
-export type GetAllUsersQuery = {
-  __typename?: "Query";
-  getAllUsers?: Array<{
-    __typename?: "User";
-    username?: string | null;
-    address: string;
-    notificationsTokens?: string | null;
-    notificationsLive?: boolean | null;
-    notificationsNFCs?: boolean | null;
-  } | null> | null;
 };
 
 export type NfcDetailQueryVariables = Exact<{
@@ -3416,6 +3653,78 @@ export type NfcFeedQueryResult = Apollo.QueryResult<
   NfcFeedQuery,
   NfcFeedQueryVariables
 >;
+export const GetTempTokensDocument = gql`
+  query GetTempTokens($data: GetTempTokensInput) {
+    getTempTokens(data: $data) {
+      tokenAddress
+      symbol
+      streamerFeePercentage
+      protocolFeePercentage
+      ownerAddress
+      name
+      isAlwaysTradeable
+      highestTotalSupply
+      hasRemainingFundsForCreator
+      hasHitTotalSupplyThreshold
+      creationBlockNumber
+      endUnixTimestamp
+      channelId
+      chainId
+      id
+    }
+  }
+`;
+
+/**
+ * __useGetTempTokensQuery__
+ *
+ * To run a query within a React component, call `useGetTempTokensQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTempTokensQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTempTokensQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetTempTokensQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetTempTokensQuery,
+    GetTempTokensQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetTempTokensQuery, GetTempTokensQueryVariables>(
+    GetTempTokensDocument,
+    options
+  );
+}
+export function useGetTempTokensLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetTempTokensQuery,
+    GetTempTokensQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetTempTokensQuery, GetTempTokensQueryVariables>(
+    GetTempTokensDocument,
+    options
+  );
+}
+export type GetTempTokensQueryHookResult = ReturnType<
+  typeof useGetTempTokensQuery
+>;
+export type GetTempTokensLazyQueryHookResult = ReturnType<
+  typeof useGetTempTokensLazyQuery
+>;
+export type GetTempTokensQueryResult = Apollo.QueryResult<
+  GetTempTokensQuery,
+  GetTempTokensQueryVariables
+>;
 export const GetBaseLeaderboardDocument = gql`
   query GetBaseLeaderboard {
     getBaseLeaderboard {
@@ -3972,153 +4281,6 @@ export type UpdateUserCreatorTokenQuantityMutationOptions =
     UpdateUserCreatorTokenQuantityMutation,
     UpdateUserCreatorTokenQuantityMutationVariables
   >;
-export const PostBadgeTradeDocument = gql`
-  mutation PostBadgeTrade($data: PostBadgeTradeInput!) {
-    postBadgeTrade(data: $data) {
-      id
-    }
-  }
-`;
-export type PostBadgeTradeMutationFn = Apollo.MutationFunction<
-  PostBadgeTradeMutation,
-  PostBadgeTradeMutationVariables
->;
-
-/**
- * __usePostBadgeTradeMutation__
- *
- * To run a mutation, you first call `usePostBadgeTradeMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostBadgeTradeMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postBadgeTradeMutation, { data, loading, error }] = usePostBadgeTradeMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostBadgeTradeMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostBadgeTradeMutation,
-    PostBadgeTradeMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    PostBadgeTradeMutation,
-    PostBadgeTradeMutationVariables
-  >(PostBadgeTradeDocument, options);
-}
-export type PostBadgeTradeMutationHookResult = ReturnType<
-  typeof usePostBadgeTradeMutation
->;
-export type PostBadgeTradeMutationResult =
-  Apollo.MutationResult<PostBadgeTradeMutation>;
-export type PostBadgeTradeMutationOptions = Apollo.BaseMutationOptions<
-  PostBadgeTradeMutation,
-  PostBadgeTradeMutationVariables
->;
-export const PostBetDocument = gql`
-  mutation PostBet($data: PostBetInput!) {
-    postBet(data: $data) {
-      id
-    }
-  }
-`;
-export type PostBetMutationFn = Apollo.MutationFunction<
-  PostBetMutation,
-  PostBetMutationVariables
->;
-
-/**
- * __usePostBetMutation__
- *
- * To run a mutation, you first call `usePostBetMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostBetMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postBetMutation, { data, loading, error }] = usePostBetMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostBetMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostBetMutation,
-    PostBetMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<PostBetMutation, PostBetMutationVariables>(
-    PostBetDocument,
-    options
-  );
-}
-export type PostBetMutationHookResult = ReturnType<typeof usePostBetMutation>;
-export type PostBetMutationResult = Apollo.MutationResult<PostBetMutation>;
-export type PostBetMutationOptions = Apollo.BaseMutationOptions<
-  PostBetMutation,
-  PostBetMutationVariables
->;
-export const PostBetTradeDocument = gql`
-  mutation PostBetTrade($data: PostBetTradeInput!) {
-    postBetTrade(data: $data) {
-      id
-    }
-  }
-`;
-export type PostBetTradeMutationFn = Apollo.MutationFunction<
-  PostBetTradeMutation,
-  PostBetTradeMutationVariables
->;
-
-/**
- * __usePostBetTradeMutation__
- *
- * To run a mutation, you first call `usePostBetTradeMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostBetTradeMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postBetTradeMutation, { data, loading, error }] = usePostBetTradeMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostBetTradeMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostBetTradeMutation,
-    PostBetTradeMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    PostBetTradeMutation,
-    PostBetTradeMutationVariables
-  >(PostBetTradeDocument, options);
-}
-export type PostBetTradeMutationHookResult = ReturnType<
-  typeof usePostBetTradeMutation
->;
-export type PostBetTradeMutationResult =
-  Apollo.MutationResult<PostBetTradeMutation>;
-export type PostBetTradeMutationOptions = Apollo.BaseMutationOptions<
-  PostBetTradeMutation,
-  PostBetTradeMutationVariables
->;
 export const UpdateDeleteChatCommandsDocument = gql`
   mutation UpdateDeleteChatCommands($data: UpdateDeleteChatCommandInput!) {
     updateDeleteChatCommands(data: $data) {
@@ -4173,57 +4335,6 @@ export type UpdateDeleteChatCommandsMutationOptions =
   Apollo.BaseMutationOptions<
     UpdateDeleteChatCommandsMutation,
     UpdateDeleteChatCommandsMutationVariables
-  >;
-export const AddChannelToSubscriptionDocument = gql`
-  mutation AddChannelToSubscription($data: MoveChannelAlongSubscriptionInput!) {
-    addChannelToSubscription(data: $data) {
-      id
-    }
-  }
-`;
-export type AddChannelToSubscriptionMutationFn = Apollo.MutationFunction<
-  AddChannelToSubscriptionMutation,
-  AddChannelToSubscriptionMutationVariables
->;
-
-/**
- * __useAddChannelToSubscriptionMutation__
- *
- * To run a mutation, you first call `useAddChannelToSubscriptionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddChannelToSubscriptionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addChannelToSubscriptionMutation, { data, loading, error }] = useAddChannelToSubscriptionMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useAddChannelToSubscriptionMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddChannelToSubscriptionMutation,
-    AddChannelToSubscriptionMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    AddChannelToSubscriptionMutation,
-    AddChannelToSubscriptionMutationVariables
-  >(AddChannelToSubscriptionDocument, options);
-}
-export type AddChannelToSubscriptionMutationHookResult = ReturnType<
-  typeof useAddChannelToSubscriptionMutation
->;
-export type AddChannelToSubscriptionMutationResult =
-  Apollo.MutationResult<AddChannelToSubscriptionMutation>;
-export type AddChannelToSubscriptionMutationOptions =
-  Apollo.BaseMutationOptions<
-    AddChannelToSubscriptionMutation,
-    AddChannelToSubscriptionMutationVariables
   >;
 export const CloseSharesEventsDocument = gql`
   mutation CloseSharesEvents($data: PostCloseSharesEventsInput!) {
@@ -4381,53 +4492,6 @@ export type CreateLivepeerClipMutationOptions = Apollo.BaseMutationOptions<
   CreateLivepeerClipMutation,
   CreateLivepeerClipMutationVariables
 >;
-export const LikeDocument = gql`
-  mutation Like($data: HandleLikeInput!) {
-    handleLike(data: $data) {
-      id
-      score
-      liked
-      disliked
-    }
-  }
-`;
-export type LikeMutationFn = Apollo.MutationFunction<
-  LikeMutation,
-  LikeMutationVariables
->;
-
-/**
- * __useLikeMutation__
- *
- * To run a mutation, you first call `useLikeMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useLikeMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [likeMutation, { data, loading, error }] = useLikeMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useLikeMutation(
-  baseOptions?: Apollo.MutationHookOptions<LikeMutation, LikeMutationVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<LikeMutation, LikeMutationVariables>(
-    LikeDocument,
-    options
-  );
-}
-export type LikeMutationHookResult = ReturnType<typeof useLikeMutation>;
-export type LikeMutationResult = Apollo.MutationResult<LikeMutation>;
-export type LikeMutationOptions = Apollo.BaseMutationOptions<
-  LikeMutation,
-  LikeMutationVariables
->;
 export const MigrateChannelToLivepeerDocument = gql`
   mutation MigrateChannelToLivepeer($data: MigrateChannelToLivepeerInput!) {
     migrateChannelToLivepeer(data: $data) {
@@ -4483,56 +4547,6 @@ export type MigrateChannelToLivepeerMutationOptions =
     MigrateChannelToLivepeerMutation,
     MigrateChannelToLivepeerMutationVariables
   >;
-export const PostBaseLeaderboardDocument = gql`
-  mutation PostBaseLeaderboard($data: PostBaseLeaderboardInput!) {
-    postBaseLeaderboard(data: $data) {
-      id
-    }
-  }
-`;
-export type PostBaseLeaderboardMutationFn = Apollo.MutationFunction<
-  PostBaseLeaderboardMutation,
-  PostBaseLeaderboardMutationVariables
->;
-
-/**
- * __usePostBaseLeaderboardMutation__
- *
- * To run a mutation, you first call `usePostBaseLeaderboardMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostBaseLeaderboardMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postBaseLeaderboardMutation, { data, loading, error }] = usePostBaseLeaderboardMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostBaseLeaderboardMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostBaseLeaderboardMutation,
-    PostBaseLeaderboardMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    PostBaseLeaderboardMutation,
-    PostBaseLeaderboardMutationVariables
-  >(PostBaseLeaderboardDocument, options);
-}
-export type PostBaseLeaderboardMutationHookResult = ReturnType<
-  typeof usePostBaseLeaderboardMutation
->;
-export type PostBaseLeaderboardMutationResult =
-  Apollo.MutationResult<PostBaseLeaderboardMutation>;
-export type PostBaseLeaderboardMutationOptions = Apollo.BaseMutationOptions<
-  PostBaseLeaderboardMutation,
-  PostBaseLeaderboardMutationVariables
->;
 export const PostChannelDocument = gql`
   mutation PostChannel($data: PostChannelInput!) {
     postChannel(data: $data) {
@@ -4589,203 +4603,6 @@ export type PostChannelMutationOptions = Apollo.BaseMutationOptions<
   PostChannelMutation,
   PostChannelMutationVariables
 >;
-export const PostChatByAwsIdDocument = gql`
-  mutation PostChatByAwsId($data: PostChatByAwsIdInput!) {
-    postChatByAwsId(data: $data) {
-      id
-    }
-  }
-`;
-export type PostChatByAwsIdMutationFn = Apollo.MutationFunction<
-  PostChatByAwsIdMutation,
-  PostChatByAwsIdMutationVariables
->;
-
-/**
- * __usePostChatByAwsIdMutation__
- *
- * To run a mutation, you first call `usePostChatByAwsIdMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostChatByAwsIdMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postChatByAwsIdMutation, { data, loading, error }] = usePostChatByAwsIdMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostChatByAwsIdMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostChatByAwsIdMutation,
-    PostChatByAwsIdMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    PostChatByAwsIdMutation,
-    PostChatByAwsIdMutationVariables
-  >(PostChatByAwsIdDocument, options);
-}
-export type PostChatByAwsIdMutationHookResult = ReturnType<
-  typeof usePostChatByAwsIdMutation
->;
-export type PostChatByAwsIdMutationResult =
-  Apollo.MutationResult<PostChatByAwsIdMutation>;
-export type PostChatByAwsIdMutationOptions = Apollo.BaseMutationOptions<
-  PostChatByAwsIdMutation,
-  PostChatByAwsIdMutationVariables
->;
-export const PostClaimPayoutDocument = gql`
-  mutation PostClaimPayout($data: PostClaimPayoutInput!) {
-    postClaimPayout(data: $data) {
-      id
-    }
-  }
-`;
-export type PostClaimPayoutMutationFn = Apollo.MutationFunction<
-  PostClaimPayoutMutation,
-  PostClaimPayoutMutationVariables
->;
-
-/**
- * __usePostClaimPayoutMutation__
- *
- * To run a mutation, you first call `usePostClaimPayoutMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostClaimPayoutMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postClaimPayoutMutation, { data, loading, error }] = usePostClaimPayoutMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostClaimPayoutMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostClaimPayoutMutation,
-    PostClaimPayoutMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    PostClaimPayoutMutation,
-    PostClaimPayoutMutationVariables
-  >(PostClaimPayoutDocument, options);
-}
-export type PostClaimPayoutMutationHookResult = ReturnType<
-  typeof usePostClaimPayoutMutation
->;
-export type PostClaimPayoutMutationResult =
-  Apollo.MutationResult<PostClaimPayoutMutation>;
-export type PostClaimPayoutMutationOptions = Apollo.BaseMutationOptions<
-  PostClaimPayoutMutation,
-  PostClaimPayoutMutationVariables
->;
-export const PostFirstChatDocument = gql`
-  mutation PostFirstChat($data: PostChatInput!) {
-    postFirstChat(data: $data) {
-      id
-    }
-  }
-`;
-export type PostFirstChatMutationFn = Apollo.MutationFunction<
-  PostFirstChatMutation,
-  PostFirstChatMutationVariables
->;
-
-/**
- * __usePostFirstChatMutation__
- *
- * To run a mutation, you first call `usePostFirstChatMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostFirstChatMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postFirstChatMutation, { data, loading, error }] = usePostFirstChatMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostFirstChatMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostFirstChatMutation,
-    PostFirstChatMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    PostFirstChatMutation,
-    PostFirstChatMutationVariables
-  >(PostFirstChatDocument, options);
-}
-export type PostFirstChatMutationHookResult = ReturnType<
-  typeof usePostFirstChatMutation
->;
-export type PostFirstChatMutationResult =
-  Apollo.MutationResult<PostFirstChatMutation>;
-export type PostFirstChatMutationOptions = Apollo.BaseMutationOptions<
-  PostFirstChatMutation,
-  PostFirstChatMutationVariables
->;
-export const PostNfcDocument = gql`
-  mutation PostNFC($data: PostNFCInput!) {
-    postNFC(data: $data) {
-      id
-    }
-  }
-`;
-export type PostNfcMutationFn = Apollo.MutationFunction<
-  PostNfcMutation,
-  PostNfcMutationVariables
->;
-
-/**
- * __usePostNfcMutation__
- *
- * To run a mutation, you first call `usePostNfcMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostNfcMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postNfcMutation, { data, loading, error }] = usePostNfcMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostNfcMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostNfcMutation,
-    PostNfcMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<PostNfcMutation, PostNfcMutationVariables>(
-    PostNfcDocument,
-    options
-  );
-}
-export type PostNfcMutationHookResult = ReturnType<typeof usePostNfcMutation>;
-export type PostNfcMutationResult = Apollo.MutationResult<PostNfcMutation>;
-export type PostNfcMutationOptions = Apollo.BaseMutationOptions<
-  PostNfcMutation,
-  PostNfcMutationVariables
->;
 export const PostSharesEventDocument = gql`
   mutation PostSharesEvent($data: PostSharesEventInput!) {
     postSharesEvent(data: $data) {
@@ -4835,153 +4652,6 @@ export type PostSharesEventMutationResult =
 export type PostSharesEventMutationOptions = Apollo.BaseMutationOptions<
   PostSharesEventMutation,
   PostSharesEventMutationVariables
->;
-export const PostStreamInteractionDocument = gql`
-  mutation PostStreamInteraction($data: PostStreamInteractionInput!) {
-    postStreamInteraction(data: $data) {
-      id
-    }
-  }
-`;
-export type PostStreamInteractionMutationFn = Apollo.MutationFunction<
-  PostStreamInteractionMutation,
-  PostStreamInteractionMutationVariables
->;
-
-/**
- * __usePostStreamInteractionMutation__
- *
- * To run a mutation, you first call `usePostStreamInteractionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostStreamInteractionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postStreamInteractionMutation, { data, loading, error }] = usePostStreamInteractionMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostStreamInteractionMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostStreamInteractionMutation,
-    PostStreamInteractionMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    PostStreamInteractionMutation,
-    PostStreamInteractionMutationVariables
-  >(PostStreamInteractionDocument, options);
-}
-export type PostStreamInteractionMutationHookResult = ReturnType<
-  typeof usePostStreamInteractionMutation
->;
-export type PostStreamInteractionMutationResult =
-  Apollo.MutationResult<PostStreamInteractionMutation>;
-export type PostStreamInteractionMutationOptions = Apollo.BaseMutationOptions<
-  PostStreamInteractionMutation,
-  PostStreamInteractionMutationVariables
->;
-export const PostSubscriptionDocument = gql`
-  mutation PostSubscription($data: PostSubscriptionInput!) {
-    postSubscription(data: $data) {
-      id
-    }
-  }
-`;
-export type PostSubscriptionMutationFn = Apollo.MutationFunction<
-  PostSubscriptionMutation,
-  PostSubscriptionMutationVariables
->;
-
-/**
- * __usePostSubscriptionMutation__
- *
- * To run a mutation, you first call `usePostSubscriptionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostSubscriptionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postSubscriptionMutation, { data, loading, error }] = usePostSubscriptionMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostSubscriptionMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostSubscriptionMutation,
-    PostSubscriptionMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    PostSubscriptionMutation,
-    PostSubscriptionMutationVariables
-  >(PostSubscriptionDocument, options);
-}
-export type PostSubscriptionMutationHookResult = ReturnType<
-  typeof usePostSubscriptionMutation
->;
-export type PostSubscriptionMutationResult =
-  Apollo.MutationResult<PostSubscriptionMutation>;
-export type PostSubscriptionMutationOptions = Apollo.BaseMutationOptions<
-  PostSubscriptionMutation,
-  PostSubscriptionMutationVariables
->;
-export const PostTaskDocument = gql`
-  mutation PostTask($data: PostTaskInput!) {
-    postTask(data: $data) {
-      id
-    }
-  }
-`;
-export type PostTaskMutationFn = Apollo.MutationFunction<
-  PostTaskMutation,
-  PostTaskMutationVariables
->;
-
-/**
- * __usePostTaskMutation__
- *
- * To run a mutation, you first call `usePostTaskMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostTaskMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postTaskMutation, { data, loading, error }] = usePostTaskMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostTaskMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostTaskMutation,
-    PostTaskMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<PostTaskMutation, PostTaskMutationVariables>(
-    PostTaskDocument,
-    options
-  );
-}
-export type PostTaskMutationHookResult = ReturnType<typeof usePostTaskMutation>;
-export type PostTaskMutationResult = Apollo.MutationResult<PostTaskMutation>;
-export type PostTaskMutationOptions = Apollo.BaseMutationOptions<
-  PostTaskMutation,
-  PostTaskMutationVariables
 >;
 export const PostUserRoleForChannelDocument = gql`
   mutation PostUserRoleForChannel($data: PostUserRoleForChannelInput!) {
@@ -5035,55 +4705,6 @@ export type PostUserRoleForChannelMutationResult =
 export type PostUserRoleForChannelMutationOptions = Apollo.BaseMutationOptions<
   PostUserRoleForChannelMutation,
   PostUserRoleForChannelMutationVariables
->;
-export const PostVideoDocument = gql`
-  mutation PostVideo($data: PostVideoInput!) {
-    postVideo(data: $data) {
-      id
-    }
-  }
-`;
-export type PostVideoMutationFn = Apollo.MutationFunction<
-  PostVideoMutation,
-  PostVideoMutationVariables
->;
-
-/**
- * __usePostVideoMutation__
- *
- * To run a mutation, you first call `usePostVideoMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `usePostVideoMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [postVideoMutation, { data, loading, error }] = usePostVideoMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function usePostVideoMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    PostVideoMutation,
-    PostVideoMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<PostVideoMutation, PostVideoMutationVariables>(
-    PostVideoDocument,
-    options
-  );
-}
-export type PostVideoMutationHookResult = ReturnType<
-  typeof usePostVideoMutation
->;
-export type PostVideoMutationResult = Apollo.MutationResult<PostVideoMutation>;
-export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
-  PostVideoMutation,
-  PostVideoMutationVariables
 >;
 export const RemoveChannelFromSubscriptionDocument = gql`
   mutation RemoveChannelFromSubscription(
@@ -5515,55 +5136,6 @@ export type UpdateLivepeerStreamDataMutationOptions =
     UpdateLivepeerStreamDataMutation,
     UpdateLivepeerStreamDataMutationVariables
   >;
-export const UpdateNfcDocument = gql`
-  mutation UpdateNFC($data: UpdateNFCInput!) {
-    updateNFC(data: $data) {
-      id
-    }
-  }
-`;
-export type UpdateNfcMutationFn = Apollo.MutationFunction<
-  UpdateNfcMutation,
-  UpdateNfcMutationVariables
->;
-
-/**
- * __useUpdateNfcMutation__
- *
- * To run a mutation, you first call `useUpdateNfcMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateNfcMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateNfcMutation, { data, loading, error }] = useUpdateNfcMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useUpdateNfcMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateNfcMutation,
-    UpdateNfcMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<UpdateNfcMutation, UpdateNfcMutationVariables>(
-    UpdateNfcDocument,
-    options
-  );
-}
-export type UpdateNfcMutationHookResult = ReturnType<
-  typeof useUpdateNfcMutation
->;
-export type UpdateNfcMutationResult = Apollo.MutationResult<UpdateNfcMutation>;
-export type UpdateNfcMutationOptions = Apollo.BaseMutationOptions<
-  UpdateNfcMutation,
-  UpdateNfcMutationVariables
->;
 export const UpdateSharesEventDocument = gql`
   mutation UpdateSharesEvent($data: UpdateSharesEventInput!) {
     updateSharesEvent(data: $data) {
@@ -5613,6 +5185,1083 @@ export type UpdateSharesEventMutationResult =
 export type UpdateSharesEventMutationOptions = Apollo.BaseMutationOptions<
   UpdateSharesEventMutation,
   UpdateSharesEventMutationVariables
+>;
+export const PostBadgeTradeDocument = gql`
+  mutation PostBadgeTrade($data: PostBadgeTradeInput!) {
+    postBadgeTrade(data: $data) {
+      id
+    }
+  }
+`;
+export type PostBadgeTradeMutationFn = Apollo.MutationFunction<
+  PostBadgeTradeMutation,
+  PostBadgeTradeMutationVariables
+>;
+
+/**
+ * __usePostBadgeTradeMutation__
+ *
+ * To run a mutation, you first call `usePostBadgeTradeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostBadgeTradeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postBadgeTradeMutation, { data, loading, error }] = usePostBadgeTradeMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostBadgeTradeMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostBadgeTradeMutation,
+    PostBadgeTradeMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostBadgeTradeMutation,
+    PostBadgeTradeMutationVariables
+  >(PostBadgeTradeDocument, options);
+}
+export type PostBadgeTradeMutationHookResult = ReturnType<
+  typeof usePostBadgeTradeMutation
+>;
+export type PostBadgeTradeMutationResult =
+  Apollo.MutationResult<PostBadgeTradeMutation>;
+export type PostBadgeTradeMutationOptions = Apollo.BaseMutationOptions<
+  PostBadgeTradeMutation,
+  PostBadgeTradeMutationVariables
+>;
+export const PostBetDocument = gql`
+  mutation PostBet($data: PostBetInput!) {
+    postBet(data: $data) {
+      id
+    }
+  }
+`;
+export type PostBetMutationFn = Apollo.MutationFunction<
+  PostBetMutation,
+  PostBetMutationVariables
+>;
+
+/**
+ * __usePostBetMutation__
+ *
+ * To run a mutation, you first call `usePostBetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostBetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postBetMutation, { data, loading, error }] = usePostBetMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostBetMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostBetMutation,
+    PostBetMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<PostBetMutation, PostBetMutationVariables>(
+    PostBetDocument,
+    options
+  );
+}
+export type PostBetMutationHookResult = ReturnType<typeof usePostBetMutation>;
+export type PostBetMutationResult = Apollo.MutationResult<PostBetMutation>;
+export type PostBetMutationOptions = Apollo.BaseMutationOptions<
+  PostBetMutation,
+  PostBetMutationVariables
+>;
+export const PostBetTradeDocument = gql`
+  mutation PostBetTrade($data: PostBetTradeInput!) {
+    postBetTrade(data: $data) {
+      id
+    }
+  }
+`;
+export type PostBetTradeMutationFn = Apollo.MutationFunction<
+  PostBetTradeMutation,
+  PostBetTradeMutationVariables
+>;
+
+/**
+ * __usePostBetTradeMutation__
+ *
+ * To run a mutation, you first call `usePostBetTradeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostBetTradeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postBetTradeMutation, { data, loading, error }] = usePostBetTradeMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostBetTradeMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostBetTradeMutation,
+    PostBetTradeMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostBetTradeMutation,
+    PostBetTradeMutationVariables
+  >(PostBetTradeDocument, options);
+}
+export type PostBetTradeMutationHookResult = ReturnType<
+  typeof usePostBetTradeMutation
+>;
+export type PostBetTradeMutationResult =
+  Apollo.MutationResult<PostBetTradeMutation>;
+export type PostBetTradeMutationOptions = Apollo.BaseMutationOptions<
+  PostBetTradeMutation,
+  PostBetTradeMutationVariables
+>;
+export const PostTempTokenDocument = gql`
+  mutation PostTempToken($data: PostTempTokenInput!) {
+    postTempToken(data: $data) {
+      tokenAddress
+      symbol
+      streamerFeePercentage
+      protocolFeePercentage
+      creationBlockNumber
+      factoryAddress
+      ownerAddress
+      id
+      name
+      highestTotalSupply
+      endUnixTimestamp
+      channelId
+      chainId
+    }
+  }
+`;
+export type PostTempTokenMutationFn = Apollo.MutationFunction<
+  PostTempTokenMutation,
+  PostTempTokenMutationVariables
+>;
+
+/**
+ * __usePostTempTokenMutation__
+ *
+ * To run a mutation, you first call `usePostTempTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostTempTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postTempTokenMutation, { data, loading, error }] = usePostTempTokenMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostTempTokenMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostTempTokenMutation,
+    PostTempTokenMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostTempTokenMutation,
+    PostTempTokenMutationVariables
+  >(PostTempTokenDocument, options);
+}
+export type PostTempTokenMutationHookResult = ReturnType<
+  typeof usePostTempTokenMutation
+>;
+export type PostTempTokenMutationResult =
+  Apollo.MutationResult<PostTempTokenMutation>;
+export type PostTempTokenMutationOptions = Apollo.BaseMutationOptions<
+  PostTempTokenMutation,
+  PostTempTokenMutationVariables
+>;
+export const UpdateEndTimestampForTokensDocument = gql`
+  mutation UpdateEndTimestampForTokens(
+    $data: UpdateEndTimestampForTokensInput!
+  ) {
+    updateEndTimestampForTokens(data: $data) {
+      tokenAddress
+      endUnixTimestamp
+      channelId
+      chainId
+    }
+  }
+`;
+export type UpdateEndTimestampForTokensMutationFn = Apollo.MutationFunction<
+  UpdateEndTimestampForTokensMutation,
+  UpdateEndTimestampForTokensMutationVariables
+>;
+
+/**
+ * __useUpdateEndTimestampForTokensMutation__
+ *
+ * To run a mutation, you first call `useUpdateEndTimestampForTokensMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateEndTimestampForTokensMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateEndTimestampForTokensMutation, { data, loading, error }] = useUpdateEndTimestampForTokensMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateEndTimestampForTokensMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateEndTimestampForTokensMutation,
+    UpdateEndTimestampForTokensMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateEndTimestampForTokensMutation,
+    UpdateEndTimestampForTokensMutationVariables
+  >(UpdateEndTimestampForTokensDocument, options);
+}
+export type UpdateEndTimestampForTokensMutationHookResult = ReturnType<
+  typeof useUpdateEndTimestampForTokensMutation
+>;
+export type UpdateEndTimestampForTokensMutationResult =
+  Apollo.MutationResult<UpdateEndTimestampForTokensMutation>;
+export type UpdateEndTimestampForTokensMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateEndTimestampForTokensMutation,
+    UpdateEndTimestampForTokensMutationVariables
+  >;
+export const UpdateTempTokenHasHitTotalSupplyThresholdDocument = gql`
+  mutation UpdateTempTokenHasHitTotalSupplyThreshold(
+    $data: UpdateTempTokenHasHitTotalSupplyThresholdInput!
+  ) {
+    updateTempTokenHasHitTotalSupplyThreshold(data: $data)
+  }
+`;
+export type UpdateTempTokenHasHitTotalSupplyThresholdMutationFn =
+  Apollo.MutationFunction<
+    UpdateTempTokenHasHitTotalSupplyThresholdMutation,
+    UpdateTempTokenHasHitTotalSupplyThresholdMutationVariables
+  >;
+
+/**
+ * __useUpdateTempTokenHasHitTotalSupplyThresholdMutation__
+ *
+ * To run a mutation, you first call `useUpdateTempTokenHasHitTotalSupplyThresholdMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTempTokenHasHitTotalSupplyThresholdMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTempTokenHasHitTotalSupplyThresholdMutation, { data, loading, error }] = useUpdateTempTokenHasHitTotalSupplyThresholdMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateTempTokenHasHitTotalSupplyThresholdMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateTempTokenHasHitTotalSupplyThresholdMutation,
+    UpdateTempTokenHasHitTotalSupplyThresholdMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateTempTokenHasHitTotalSupplyThresholdMutation,
+    UpdateTempTokenHasHitTotalSupplyThresholdMutationVariables
+  >(UpdateTempTokenHasHitTotalSupplyThresholdDocument, options);
+}
+export type UpdateTempTokenHasHitTotalSupplyThresholdMutationHookResult =
+  ReturnType<typeof useUpdateTempTokenHasHitTotalSupplyThresholdMutation>;
+export type UpdateTempTokenHasHitTotalSupplyThresholdMutationResult =
+  Apollo.MutationResult<UpdateTempTokenHasHitTotalSupplyThresholdMutation>;
+export type UpdateTempTokenHasHitTotalSupplyThresholdMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateTempTokenHasHitTotalSupplyThresholdMutation,
+    UpdateTempTokenHasHitTotalSupplyThresholdMutationVariables
+  >;
+export const UpdateTempTokenHasRemainingFundsForCreatorDocument = gql`
+  mutation UpdateTempTokenHasRemainingFundsForCreator(
+    $data: UpdateTempTokenHasRemainingFundsForCreatorInput!
+  ) {
+    updateTempTokenHasRemainingFundsForCreator(data: $data) {
+      tokenAddress
+      hasRemainingFundsForCreator
+      channelId
+      chainId
+      balance
+    }
+  }
+`;
+export type UpdateTempTokenHasRemainingFundsForCreatorMutationFn =
+  Apollo.MutationFunction<
+    UpdateTempTokenHasRemainingFundsForCreatorMutation,
+    UpdateTempTokenHasRemainingFundsForCreatorMutationVariables
+  >;
+
+/**
+ * __useUpdateTempTokenHasRemainingFundsForCreatorMutation__
+ *
+ * To run a mutation, you first call `useUpdateTempTokenHasRemainingFundsForCreatorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTempTokenHasRemainingFundsForCreatorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTempTokenHasRemainingFundsForCreatorMutation, { data, loading, error }] = useUpdateTempTokenHasRemainingFundsForCreatorMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateTempTokenHasRemainingFundsForCreatorMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateTempTokenHasRemainingFundsForCreatorMutation,
+    UpdateTempTokenHasRemainingFundsForCreatorMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateTempTokenHasRemainingFundsForCreatorMutation,
+    UpdateTempTokenHasRemainingFundsForCreatorMutationVariables
+  >(UpdateTempTokenHasRemainingFundsForCreatorDocument, options);
+}
+export type UpdateTempTokenHasRemainingFundsForCreatorMutationHookResult =
+  ReturnType<typeof useUpdateTempTokenHasRemainingFundsForCreatorMutation>;
+export type UpdateTempTokenHasRemainingFundsForCreatorMutationResult =
+  Apollo.MutationResult<UpdateTempTokenHasRemainingFundsForCreatorMutation>;
+export type UpdateTempTokenHasRemainingFundsForCreatorMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateTempTokenHasRemainingFundsForCreatorMutation,
+    UpdateTempTokenHasRemainingFundsForCreatorMutationVariables
+  >;
+export const UpdateTempTokenHighestTotalSupplyDocument = gql`
+  mutation UpdateTempTokenHighestTotalSupply(
+    $data: UpdateTempTokenHighestTotalSupplyInput!
+  ) {
+    updateTempTokenHighestTotalSupply(data: $data) {
+      tokenAddress
+      symbol
+      ownerAddress
+      name
+      highestTotalSupply
+      hasHitTotalSupplyThreshold
+      channelId
+      endUnixTimestamp
+      chainId
+    }
+  }
+`;
+export type UpdateTempTokenHighestTotalSupplyMutationFn =
+  Apollo.MutationFunction<
+    UpdateTempTokenHighestTotalSupplyMutation,
+    UpdateTempTokenHighestTotalSupplyMutationVariables
+  >;
+
+/**
+ * __useUpdateTempTokenHighestTotalSupplyMutation__
+ *
+ * To run a mutation, you first call `useUpdateTempTokenHighestTotalSupplyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTempTokenHighestTotalSupplyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTempTokenHighestTotalSupplyMutation, { data, loading, error }] = useUpdateTempTokenHighestTotalSupplyMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateTempTokenHighestTotalSupplyMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateTempTokenHighestTotalSupplyMutation,
+    UpdateTempTokenHighestTotalSupplyMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateTempTokenHighestTotalSupplyMutation,
+    UpdateTempTokenHighestTotalSupplyMutationVariables
+  >(UpdateTempTokenHighestTotalSupplyDocument, options);
+}
+export type UpdateTempTokenHighestTotalSupplyMutationHookResult = ReturnType<
+  typeof useUpdateTempTokenHighestTotalSupplyMutation
+>;
+export type UpdateTempTokenHighestTotalSupplyMutationResult =
+  Apollo.MutationResult<UpdateTempTokenHighestTotalSupplyMutation>;
+export type UpdateTempTokenHighestTotalSupplyMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateTempTokenHighestTotalSupplyMutation,
+    UpdateTempTokenHighestTotalSupplyMutationVariables
+  >;
+export const UpdateTempTokenIsAlwaysTradeableDocument = gql`
+  mutation UpdateTempTokenIsAlwaysTradeable(
+    $data: UpdateTempTokenIsAlwaysTradeableInput!
+  ) {
+    updateTempTokenIsAlwaysTradeable(data: $data)
+  }
+`;
+export type UpdateTempTokenIsAlwaysTradeableMutationFn =
+  Apollo.MutationFunction<
+    UpdateTempTokenIsAlwaysTradeableMutation,
+    UpdateTempTokenIsAlwaysTradeableMutationVariables
+  >;
+
+/**
+ * __useUpdateTempTokenIsAlwaysTradeableMutation__
+ *
+ * To run a mutation, you first call `useUpdateTempTokenIsAlwaysTradeableMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTempTokenIsAlwaysTradeableMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTempTokenIsAlwaysTradeableMutation, { data, loading, error }] = useUpdateTempTokenIsAlwaysTradeableMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateTempTokenIsAlwaysTradeableMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateTempTokenIsAlwaysTradeableMutation,
+    UpdateTempTokenIsAlwaysTradeableMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateTempTokenIsAlwaysTradeableMutation,
+    UpdateTempTokenIsAlwaysTradeableMutationVariables
+  >(UpdateTempTokenIsAlwaysTradeableDocument, options);
+}
+export type UpdateTempTokenIsAlwaysTradeableMutationHookResult = ReturnType<
+  typeof useUpdateTempTokenIsAlwaysTradeableMutation
+>;
+export type UpdateTempTokenIsAlwaysTradeableMutationResult =
+  Apollo.MutationResult<UpdateTempTokenIsAlwaysTradeableMutation>;
+export type UpdateTempTokenIsAlwaysTradeableMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateTempTokenIsAlwaysTradeableMutation,
+    UpdateTempTokenIsAlwaysTradeableMutationVariables
+  >;
+export const AddChannelToSubscriptionDocument = gql`
+  mutation AddChannelToSubscription($data: MoveChannelAlongSubscriptionInput!) {
+    addChannelToSubscription(data: $data) {
+      id
+    }
+  }
+`;
+export type AddChannelToSubscriptionMutationFn = Apollo.MutationFunction<
+  AddChannelToSubscriptionMutation,
+  AddChannelToSubscriptionMutationVariables
+>;
+
+/**
+ * __useAddChannelToSubscriptionMutation__
+ *
+ * To run a mutation, you first call `useAddChannelToSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddChannelToSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addChannelToSubscriptionMutation, { data, loading, error }] = useAddChannelToSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useAddChannelToSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddChannelToSubscriptionMutation,
+    AddChannelToSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    AddChannelToSubscriptionMutation,
+    AddChannelToSubscriptionMutationVariables
+  >(AddChannelToSubscriptionDocument, options);
+}
+export type AddChannelToSubscriptionMutationHookResult = ReturnType<
+  typeof useAddChannelToSubscriptionMutation
+>;
+export type AddChannelToSubscriptionMutationResult =
+  Apollo.MutationResult<AddChannelToSubscriptionMutation>;
+export type AddChannelToSubscriptionMutationOptions =
+  Apollo.BaseMutationOptions<
+    AddChannelToSubscriptionMutation,
+    AddChannelToSubscriptionMutationVariables
+  >;
+export const LikeDocument = gql`
+  mutation Like($data: HandleLikeInput!) {
+    handleLike(data: $data) {
+      id
+      score
+      liked
+      disliked
+    }
+  }
+`;
+export type LikeMutationFn = Apollo.MutationFunction<
+  LikeMutation,
+  LikeMutationVariables
+>;
+
+/**
+ * __useLikeMutation__
+ *
+ * To run a mutation, you first call `useLikeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLikeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [likeMutation, { data, loading, error }] = useLikeMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useLikeMutation(
+  baseOptions?: Apollo.MutationHookOptions<LikeMutation, LikeMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<LikeMutation, LikeMutationVariables>(
+    LikeDocument,
+    options
+  );
+}
+export type LikeMutationHookResult = ReturnType<typeof useLikeMutation>;
+export type LikeMutationResult = Apollo.MutationResult<LikeMutation>;
+export type LikeMutationOptions = Apollo.BaseMutationOptions<
+  LikeMutation,
+  LikeMutationVariables
+>;
+export const PostBaseLeaderboardDocument = gql`
+  mutation PostBaseLeaderboard($data: PostBaseLeaderboardInput!) {
+    postBaseLeaderboard(data: $data) {
+      id
+    }
+  }
+`;
+export type PostBaseLeaderboardMutationFn = Apollo.MutationFunction<
+  PostBaseLeaderboardMutation,
+  PostBaseLeaderboardMutationVariables
+>;
+
+/**
+ * __usePostBaseLeaderboardMutation__
+ *
+ * To run a mutation, you first call `usePostBaseLeaderboardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostBaseLeaderboardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postBaseLeaderboardMutation, { data, loading, error }] = usePostBaseLeaderboardMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostBaseLeaderboardMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostBaseLeaderboardMutation,
+    PostBaseLeaderboardMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostBaseLeaderboardMutation,
+    PostBaseLeaderboardMutationVariables
+  >(PostBaseLeaderboardDocument, options);
+}
+export type PostBaseLeaderboardMutationHookResult = ReturnType<
+  typeof usePostBaseLeaderboardMutation
+>;
+export type PostBaseLeaderboardMutationResult =
+  Apollo.MutationResult<PostBaseLeaderboardMutation>;
+export type PostBaseLeaderboardMutationOptions = Apollo.BaseMutationOptions<
+  PostBaseLeaderboardMutation,
+  PostBaseLeaderboardMutationVariables
+>;
+export const PostChatByAwsIdDocument = gql`
+  mutation PostChatByAwsId($data: PostChatByAwsIdInput!) {
+    postChatByAwsId(data: $data) {
+      id
+    }
+  }
+`;
+export type PostChatByAwsIdMutationFn = Apollo.MutationFunction<
+  PostChatByAwsIdMutation,
+  PostChatByAwsIdMutationVariables
+>;
+
+/**
+ * __usePostChatByAwsIdMutation__
+ *
+ * To run a mutation, you first call `usePostChatByAwsIdMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostChatByAwsIdMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postChatByAwsIdMutation, { data, loading, error }] = usePostChatByAwsIdMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostChatByAwsIdMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostChatByAwsIdMutation,
+    PostChatByAwsIdMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostChatByAwsIdMutation,
+    PostChatByAwsIdMutationVariables
+  >(PostChatByAwsIdDocument, options);
+}
+export type PostChatByAwsIdMutationHookResult = ReturnType<
+  typeof usePostChatByAwsIdMutation
+>;
+export type PostChatByAwsIdMutationResult =
+  Apollo.MutationResult<PostChatByAwsIdMutation>;
+export type PostChatByAwsIdMutationOptions = Apollo.BaseMutationOptions<
+  PostChatByAwsIdMutation,
+  PostChatByAwsIdMutationVariables
+>;
+export const PostClaimPayoutDocument = gql`
+  mutation PostClaimPayout($data: PostClaimPayoutInput!) {
+    postClaimPayout(data: $data) {
+      id
+    }
+  }
+`;
+export type PostClaimPayoutMutationFn = Apollo.MutationFunction<
+  PostClaimPayoutMutation,
+  PostClaimPayoutMutationVariables
+>;
+
+/**
+ * __usePostClaimPayoutMutation__
+ *
+ * To run a mutation, you first call `usePostClaimPayoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostClaimPayoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postClaimPayoutMutation, { data, loading, error }] = usePostClaimPayoutMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostClaimPayoutMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostClaimPayoutMutation,
+    PostClaimPayoutMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostClaimPayoutMutation,
+    PostClaimPayoutMutationVariables
+  >(PostClaimPayoutDocument, options);
+}
+export type PostClaimPayoutMutationHookResult = ReturnType<
+  typeof usePostClaimPayoutMutation
+>;
+export type PostClaimPayoutMutationResult =
+  Apollo.MutationResult<PostClaimPayoutMutation>;
+export type PostClaimPayoutMutationOptions = Apollo.BaseMutationOptions<
+  PostClaimPayoutMutation,
+  PostClaimPayoutMutationVariables
+>;
+export const PostFirstChatDocument = gql`
+  mutation PostFirstChat($data: PostChatInput!) {
+    postFirstChat(data: $data) {
+      id
+    }
+  }
+`;
+export type PostFirstChatMutationFn = Apollo.MutationFunction<
+  PostFirstChatMutation,
+  PostFirstChatMutationVariables
+>;
+
+/**
+ * __usePostFirstChatMutation__
+ *
+ * To run a mutation, you first call `usePostFirstChatMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostFirstChatMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postFirstChatMutation, { data, loading, error }] = usePostFirstChatMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostFirstChatMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostFirstChatMutation,
+    PostFirstChatMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostFirstChatMutation,
+    PostFirstChatMutationVariables
+  >(PostFirstChatDocument, options);
+}
+export type PostFirstChatMutationHookResult = ReturnType<
+  typeof usePostFirstChatMutation
+>;
+export type PostFirstChatMutationResult =
+  Apollo.MutationResult<PostFirstChatMutation>;
+export type PostFirstChatMutationOptions = Apollo.BaseMutationOptions<
+  PostFirstChatMutation,
+  PostFirstChatMutationVariables
+>;
+export const PostNfcDocument = gql`
+  mutation PostNFC($data: PostNFCInput!) {
+    postNFC(data: $data) {
+      id
+    }
+  }
+`;
+export type PostNfcMutationFn = Apollo.MutationFunction<
+  PostNfcMutation,
+  PostNfcMutationVariables
+>;
+
+/**
+ * __usePostNfcMutation__
+ *
+ * To run a mutation, you first call `usePostNfcMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostNfcMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postNfcMutation, { data, loading, error }] = usePostNfcMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostNfcMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostNfcMutation,
+    PostNfcMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<PostNfcMutation, PostNfcMutationVariables>(
+    PostNfcDocument,
+    options
+  );
+}
+export type PostNfcMutationHookResult = ReturnType<typeof usePostNfcMutation>;
+export type PostNfcMutationResult = Apollo.MutationResult<PostNfcMutation>;
+export type PostNfcMutationOptions = Apollo.BaseMutationOptions<
+  PostNfcMutation,
+  PostNfcMutationVariables
+>;
+export const PostStreamInteractionDocument = gql`
+  mutation PostStreamInteraction($data: PostStreamInteractionInput!) {
+    postStreamInteraction(data: $data) {
+      id
+    }
+  }
+`;
+export type PostStreamInteractionMutationFn = Apollo.MutationFunction<
+  PostStreamInteractionMutation,
+  PostStreamInteractionMutationVariables
+>;
+
+/**
+ * __usePostStreamInteractionMutation__
+ *
+ * To run a mutation, you first call `usePostStreamInteractionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostStreamInteractionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postStreamInteractionMutation, { data, loading, error }] = usePostStreamInteractionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostStreamInteractionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostStreamInteractionMutation,
+    PostStreamInteractionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostStreamInteractionMutation,
+    PostStreamInteractionMutationVariables
+  >(PostStreamInteractionDocument, options);
+}
+export type PostStreamInteractionMutationHookResult = ReturnType<
+  typeof usePostStreamInteractionMutation
+>;
+export type PostStreamInteractionMutationResult =
+  Apollo.MutationResult<PostStreamInteractionMutation>;
+export type PostStreamInteractionMutationOptions = Apollo.BaseMutationOptions<
+  PostStreamInteractionMutation,
+  PostStreamInteractionMutationVariables
+>;
+export const PostSubscriptionDocument = gql`
+  mutation PostSubscription($data: PostSubscriptionInput!) {
+    postSubscription(data: $data) {
+      id
+    }
+  }
+`;
+export type PostSubscriptionMutationFn = Apollo.MutationFunction<
+  PostSubscriptionMutation,
+  PostSubscriptionMutationVariables
+>;
+
+/**
+ * __usePostSubscriptionMutation__
+ *
+ * To run a mutation, you first call `usePostSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postSubscriptionMutation, { data, loading, error }] = usePostSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostSubscriptionMutation,
+    PostSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    PostSubscriptionMutation,
+    PostSubscriptionMutationVariables
+  >(PostSubscriptionDocument, options);
+}
+export type PostSubscriptionMutationHookResult = ReturnType<
+  typeof usePostSubscriptionMutation
+>;
+export type PostSubscriptionMutationResult =
+  Apollo.MutationResult<PostSubscriptionMutation>;
+export type PostSubscriptionMutationOptions = Apollo.BaseMutationOptions<
+  PostSubscriptionMutation,
+  PostSubscriptionMutationVariables
+>;
+export const PostTaskDocument = gql`
+  mutation PostTask($data: PostTaskInput!) {
+    postTask(data: $data) {
+      id
+    }
+  }
+`;
+export type PostTaskMutationFn = Apollo.MutationFunction<
+  PostTaskMutation,
+  PostTaskMutationVariables
+>;
+
+/**
+ * __usePostTaskMutation__
+ *
+ * To run a mutation, you first call `usePostTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postTaskMutation, { data, loading, error }] = usePostTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostTaskMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostTaskMutation,
+    PostTaskMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<PostTaskMutation, PostTaskMutationVariables>(
+    PostTaskDocument,
+    options
+  );
+}
+export type PostTaskMutationHookResult = ReturnType<typeof usePostTaskMutation>;
+export type PostTaskMutationResult = Apollo.MutationResult<PostTaskMutation>;
+export type PostTaskMutationOptions = Apollo.BaseMutationOptions<
+  PostTaskMutation,
+  PostTaskMutationVariables
+>;
+export const PostVideoDocument = gql`
+  mutation PostVideo($data: PostVideoInput!) {
+    postVideo(data: $data) {
+      id
+    }
+  }
+`;
+export type PostVideoMutationFn = Apollo.MutationFunction<
+  PostVideoMutation,
+  PostVideoMutationVariables
+>;
+
+/**
+ * __usePostVideoMutation__
+ *
+ * To run a mutation, you first call `usePostVideoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePostVideoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [postVideoMutation, { data, loading, error }] = usePostVideoMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePostVideoMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    PostVideoMutation,
+    PostVideoMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<PostVideoMutation, PostVideoMutationVariables>(
+    PostVideoDocument,
+    options
+  );
+}
+export type PostVideoMutationHookResult = ReturnType<
+  typeof usePostVideoMutation
+>;
+export type PostVideoMutationResult = Apollo.MutationResult<PostVideoMutation>;
+export type PostVideoMutationOptions = Apollo.BaseMutationOptions<
+  PostVideoMutation,
+  PostVideoMutationVariables
+>;
+export const UpdateNfcDocument = gql`
+  mutation UpdateNFC($data: UpdateNFCInput!) {
+    updateNFC(data: $data) {
+      id
+    }
+  }
+`;
+export type UpdateNfcMutationFn = Apollo.MutationFunction<
+  UpdateNfcMutation,
+  UpdateNfcMutationVariables
+>;
+
+/**
+ * __useUpdateNfcMutation__
+ *
+ * To run a mutation, you first call `useUpdateNfcMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateNfcMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateNfcMutation, { data, loading, error }] = useUpdateNfcMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateNfcMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateNfcMutation,
+    UpdateNfcMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateNfcMutation, UpdateNfcMutationVariables>(
+    UpdateNfcDocument,
+    options
+  );
+}
+export type UpdateNfcMutationHookResult = ReturnType<
+  typeof useUpdateNfcMutation
+>;
+export type UpdateNfcMutationResult = Apollo.MutationResult<UpdateNfcMutation>;
+export type UpdateNfcMutationOptions = Apollo.BaseMutationOptions<
+  UpdateNfcMutation,
+  UpdateNfcMutationVariables
 >;
 export const UpdateUserDocument = gql`
   mutation UpdateUser($data: UpdateUserInput!) {
@@ -5718,65 +6367,6 @@ export type UpdateUserNotificationsMutationResult =
 export type UpdateUserNotificationsMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserNotificationsMutation,
   UpdateUserNotificationsMutationVariables
->;
-export const GetAllUsersDocument = gql`
-  query GetAllUsers {
-    getAllUsers {
-      username
-      address
-      notificationsTokens
-      notificationsLive
-      notificationsNFCs
-    }
-  }
-`;
-
-/**
- * __useGetAllUsersQuery__
- *
- * To run a query within a React component, call `useGetAllUsersQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAllUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAllUsersQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetAllUsersQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetAllUsersQuery,
-    GetAllUsersQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(
-    GetAllUsersDocument,
-    options
-  );
-}
-export function useGetAllUsersLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetAllUsersQuery,
-    GetAllUsersQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(
-    GetAllUsersDocument,
-    options
-  );
-}
-export type GetAllUsersQueryHookResult = ReturnType<typeof useGetAllUsersQuery>;
-export type GetAllUsersLazyQueryHookResult = ReturnType<
-  typeof useGetAllUsersLazyQuery
->;
-export type GetAllUsersQueryResult = Apollo.QueryResult<
-  GetAllUsersQuery,
-  GetAllUsersQueryVariables
 >;
 export const NfcDetailDocument = gql`
   query NFCDetail($id: ID!) {

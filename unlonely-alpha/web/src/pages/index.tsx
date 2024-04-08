@@ -309,7 +309,7 @@ const ScrollableComponent = ({
   );
 };
 
-function DesktopPage({
+function DesktopHomePage({
   dataChannels,
   loading,
   error,
@@ -456,7 +456,7 @@ function DesktopPage({
   );
 }
 
-function MobilePage({
+function MobileHomePage({
   dataChannels,
   loading,
   error,
@@ -696,13 +696,13 @@ export default function Page() {
       {ready ? (
         <>
           {!isStandalone ? (
-            <DesktopPage
+            <DesktopHomePage
               dataChannels={channelFeed}
               loading={feedLoading}
               error={feedError}
             />
           ) : (
-            <MobilePage
+            <MobileHomePage
               dataChannels={channelFeed}
               loading={feedLoading}
               error={feedError}
