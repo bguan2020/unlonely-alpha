@@ -126,7 +126,7 @@ const LoggedInOnboard = () => {
   const remainingVibesNeeded = useMemo(
     () =>
       REQUIRED_NUMBER_OF_VIBES -
-      Math.floor(Number(userVibesBalance?.formatted)),
+      Math.floor(Number(userVibesBalance.toString())),
     [userVibesBalance]
   );
 
