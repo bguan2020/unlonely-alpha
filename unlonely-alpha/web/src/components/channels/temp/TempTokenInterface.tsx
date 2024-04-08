@@ -823,9 +823,12 @@ export const TempTokenInterface = ({
                     {!currentActiveTokenHasHitTotalSupplyThreshold && (
                       <>
                         <Text color="#f3d584" fontSize="2rem">
-                          {String(
-                            currentActiveTokenTotalSupplyThreshold -
-                              currentActiveTokenTotalSupply
+                          {truncateValue(
+                            String(
+                              currentActiveTokenTotalSupplyThreshold -
+                                currentActiveTokenTotalSupply
+                            ),
+                            4
                           )}
                         </Text>
                       </>
