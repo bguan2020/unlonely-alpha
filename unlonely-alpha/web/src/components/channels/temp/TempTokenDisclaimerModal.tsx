@@ -14,7 +14,7 @@ export const TempTokenDisclaimerModal = ({
   handleCanPlayToken: (canPlay: boolean) => void;
   priceOfThresholdInUsd?: string;
 }) => {
-  const { durationLeftForTempToken } = useTempTokenTimerState();
+  const { durationLeftForTempToken } = useTempTokenTimerState(true);
 
   return (
     <TransactionModalTemplate
