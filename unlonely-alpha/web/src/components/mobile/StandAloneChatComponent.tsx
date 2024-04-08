@@ -67,8 +67,6 @@ const StandaloneChatComponent = ({ chat }: { chat: ChatReturnType }) => {
     clickedOutsideInfo.current = false;
   });
 
-  const isOwner = userAddress === channelQueryData?.owner.address;
-
   const channelId = useMemo(
     () => (channelQueryData?.id ? Number(channelQueryData?.id) : 3),
     [channelQueryData?.id]

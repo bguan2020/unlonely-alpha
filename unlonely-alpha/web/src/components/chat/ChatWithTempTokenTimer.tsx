@@ -1,10 +1,24 @@
-import { Flex, Text, Box } from "@chakra-ui/react";
+import { Flex, Text, Box, Button } from "@chakra-ui/react";
 import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
 import MessageList from "./MessageList";
 import ChatForm from "./ChatForm";
 import { TempTokenTimerView } from "../channels/temp/TempTokenTimer";
+import { useChannelContext } from "../../hooks/context/useChannel";
+import { useUser } from "../../hooks/context/useUser";
+import { EXCLUDED_SLUGS } from "./ChatComponent";
+import { useState } from "react";
+import Participants from "../presence/Participants";
 
 export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
+  const { userAddress } = useUser();
+  const { chat: chatContext, channel } = useChannelContext();
+  const { presenceChannel } = chatContext;
+  const { channelQueryData } = channel;
+
+  const isOwner = userAddress === channelQueryData?.owner.address;
+
+  const [showParticipants, setShowParticipants] = useState(true);
+
   const {
     scrollRef,
     isAtBottom,
@@ -24,7 +38,7 @@ export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
       direction="column"
       position="absolute"
       zIndex={1}
-      bg="rgba(25, 16, 108, 0.357)"
+      bg="rgba(10, 6, 52, 0.9)"
       width="25%"
       height="50%"
       right="0"
@@ -33,6 +47,37 @@ export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
       <Flex justifyContent={"center"} bg="rgba(11, 5, 63, 0.534)">
         <TempTokenTimerView />
       </Flex>
+      {presenceChannel && (
+        <Flex
+          justifyContent={"center"}
+          py="0.5rem"
+          gap="5px"
+          alignItems={"center"}
+        >
+          {EXCLUDED_SLUGS.includes(channelQueryData?.slug as string) &&
+            isOwner && (
+              <Button
+                onClick={() => setShowParticipants((prev) => !prev)}
+                bg={"#403c7d"}
+                p={2}
+                height={"20px"}
+                _focus={{}}
+                _active={{}}
+                _hover={{
+                  bg: "#8884d8",
+                }}
+              >
+                <Text fontSize="14px" color="white">
+                  {showParticipants ? "hide" : "show"}
+                </Text>
+              </Button>
+            )}
+          <Participants
+            ablyPresenceChannel={presenceChannel}
+            show={showParticipants}
+          />
+        </Flex>
+      )}
       <Flex direction="column" id={"chat"} height="100%">
         <MessageList
           scrollRef={scrollRef}
