@@ -13,7 +13,6 @@ import {
 } from "@chakra-ui/react";
 import { useState, useMemo, useEffect } from "react";
 import { formatUnits, isAddress } from "viem";
-import { useBalance } from "wagmi";
 import {
   AblyChannelPromise,
   CHANGE_USER_ROLE_EVENT,
@@ -32,7 +31,10 @@ import {
   filteredInput,
   formatIncompleteNumber,
 } from "../../utils/validation/input";
-import { useTransfer } from "../../hooks/contracts/useVibesToken";
+import {
+  useGetUserBalance,
+  useTransfer,
+} from "../../hooks/contracts/useVibesToken";
 import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
@@ -137,12 +139,8 @@ export const ChatUserModal = ({
     }
   );
 
-  const { data: targetVibesBalance, refetch: refetchTargetVibesBalance } =
-    useBalance({
-      address: targetUser?.address as `0x${string}`,
-      token: contract.address,
-      enabled: false,
-    });
+  const { balance: targetVibesBalance, refetch: refetchTargetVibesBalance } =
+    useGetUserBalance(targetUser?.address as `0x${string}`, contract);
 
   const { postUserRoleForChannel, loading } = usePostUserRoleForChannel({
     onError: (error) => {
@@ -263,7 +261,7 @@ export const ChatUserModal = ({
   useEffect(() => {
     const init = async () => {
       if (
-        userVibesBalance?.value !== undefined &&
+        userVibesBalance > BigInt(0) &&
         isOpen &&
         targetUser !== undefined &&
         isAddress(targetUser.address as `0x${string}`)
@@ -272,7 +270,7 @@ export const ChatUserModal = ({
       }
     };
     init();
-  }, [userVibesBalance?.value]);
+  }, [userVibesBalance]);
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
@@ -286,14 +284,13 @@ export const ChatUserModal = ({
     } else if (Number(formatIncompleteNumber(amountOfVibesToSend)) <= 0) {
       setErrorMessage("enter amount first");
     } else if (
-      userVibesBalance?.value &&
-      Number(amountOfVibesToSend) > Number(userVibesBalance?.value)
+      Number(amountOfVibesToSend) > Number(userVibesBalance.toString())
     ) {
       setErrorMessage("insufficient $VIBES");
     } else {
       setErrorMessage("");
     }
-  }, [matchingChain, userVibesBalance?.value, amountOfVibesToSend]);
+  }, [matchingChain, userVibesBalance, amountOfVibesToSend]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -353,24 +350,22 @@ export const ChatUserModal = ({
                 </Flex>
               </Link>
               <Flex justifyContent={"space-evenly"}>
-                {userVibesBalance?.formatted !== undefined &&
-                  (isSendingVibes || targetUser.address === user?.address) && (
-                    <Text color="#e5fc92">
-                      your $VIBES:{" "}
-                      <Text as="span" color="#e5fc92" fontWeight="bold">
-                        {userVibesBalance?.formatted}
-                      </Text>
+                {(isSendingVibes || targetUser.address === user?.address) && (
+                  <Text color="#e5fc92">
+                    your $VIBES:{" "}
+                    <Text as="span" color="#e5fc92" fontWeight="bold">
+                      {truncateValue(userVibesBalance.toString(), 4)}
                     </Text>
-                  )}
-                {targetUser.address !== user?.address &&
-                  targetVibesBalance?.formatted !== undefined && (
-                    <Text color="#c6c3fc">
-                      their $VIBES:{" "}
-                      <Text as="span" color="#c6c3fc" fontWeight="bold">
-                        {targetVibesBalance?.formatted}
-                      </Text>
+                  </Text>
+                )}
+                {targetUser.address !== user?.address && (
+                  <Text color="#c6c3fc">
+                    their $VIBES:{" "}
+                    <Text as="span" color="#c6c3fc" fontWeight="bold">
+                      {truncateValue(targetVibesBalance.toString(), 4)}
                     </Text>
-                  )}
+                  </Text>
+                )}
               </Flex>
               <Flex direction="column" gap="10px">
                 {targetUser.address !== user?.address && (

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Log, createPublicClient, parseAbiItem, http, isAddress } from "viem";
-import { useBalance, useContractEvent } from "wagmi";
+import { Log, createPublicClient, parseAbiItem, http } from "viem";
+import { useContractEvent } from "wagmi";
 import { base } from "viem/chains";
 
-import { FetchBalanceResult, TradeableTokenTx } from "../../constants/types";
+import { TradeableTokenTx } from "../../constants/types";
 import { getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "./useUserAgent";
 import { NETWORKS } from "../../constants/networks";
@@ -17,11 +17,12 @@ import {
 import { Flex, Box, Text, useToast } from "@chakra-ui/react";
 import { useUser } from "../context/useUser";
 import { useRouter } from "next/router";
+import { useGetUserBalance } from "../contracts/useVibesToken";
 
 export type UseVibesCheckType = {
   vibesTokenTxs: TradeableTokenTx[];
   vibesTokenLoading: boolean;
-  userVibesBalance?: FetchBalanceResult;
+  userVibesBalance: bigint;
   chartTimeIndexes: Map<
     string,
     { index: number | undefined; blockNumber: number }
@@ -33,7 +34,7 @@ export type UseVibesCheckType = {
 export const useVibesCheckInitial: UseVibesCheckType = {
   vibesTokenTxs: [],
   vibesTokenLoading: true,
-  userVibesBalance: undefined,
+  userVibesBalance: BigInt(0),
   chartTimeIndexes: new Map(),
   currentBlockNumberForVibes: BigInt(0),
   lastChainInteractionTimestamp: 0,
@@ -52,13 +53,8 @@ export const useVibesCheck = () => {
   const toast = useToast();
   const router = useRouter();
 
-  const { data: vibesBalance, refetch: refetchVibesBalance } = useBalance({
-    address: userAddress,
-    token: contract.address,
-    enabled:
-      isAddress(userAddress as `0x${string}`) &&
-      isAddress(contract.address ?? NULL_ADDRESS),
-  });
+  const { balance: vibesBalance, refetch: refetchVibesBalance } =
+    useGetUserBalance(userAddress as `0x${string}`, contract);
 
   const [lastChainInteractionTimestamp, setLastChainInteractionTimestamp] =
     useState<number>(0);

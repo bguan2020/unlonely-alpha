@@ -147,6 +147,35 @@ export const useGetPrice = (amount: bigint, contract: ContractData) => {
   };
 };
 
+export const useGetUserBalance = (userAddress: string, contract: ContractData) => {
+  const publicClient = usePublicClient();
+
+  const [balance, setBalance] = useState<bigint>(BigInt(0));
+
+  const getData = useCallback(async () => {
+    if (!contract.address || !contract.abi || !publicClient) {
+      setBalance(BigInt(0));
+      return;
+    }
+    const res = await publicClient.readContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: "balanceOf",
+      args: [userAddress],
+    });
+    setBalance(BigInt(String(res)));
+  }, [contract.address, publicClient, userAddress]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return {
+    refetch: getData,
+    balance,
+  };
+}
+
 export const useMint = (
   args: {
     amount: bigint;

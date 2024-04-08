@@ -6,11 +6,15 @@ import { InteractionType, NULL_ADDRESS } from "../../../constants";
 import { useUser } from "../../../hooks/context/useUser";
 import { useRouter } from "next/router";
 
-export const TempTokenTimerView = () => {
+export const TempTokenTimerView = ({
+  disableChatbot,
+}: {
+  disableChatbot: boolean;
+}) => {
   const { channel } = useChannelContext();
   const { currentActiveTokenIsAlwaysTradable, currentActiveTokenAddress } =
     channel;
-  const { durationLeftForTempToken } = useTempTokenTimerState();
+  const { durationLeftForTempToken } = useTempTokenTimerState(disableChatbot);
 
   return (
     <>
@@ -34,7 +38,7 @@ export const TempTokenTimerView = () => {
   );
 };
 
-export const useTempTokenTimerState = () => {
+export const useTempTokenTimerState = (disableChatbot: boolean) => {
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const {
@@ -107,7 +111,7 @@ export const useTempTokenTimerState = () => {
       });
     }
     if (durationLeftForTempToken === undefined) {
-      if (isChannelOwner) {
+      if (isChannelOwner && !disableChatbot) {
         const title = `The $${currentActiveTokenSymbol} token expired!`;
         addToChatbot({
           username: user?.username ?? "",
@@ -121,7 +125,7 @@ export const useTempTokenTimerState = () => {
       handleIsGameFailed(true);
       handleIsFailedGameModalOpen(true);
     }
-  }, [durationLeftForTempToken, isChannelOwner, router]);
+  }, [durationLeftForTempToken, isChannelOwner, router, disableChatbot]);
 
   return {
     durationLeftForTempToken,

@@ -69,8 +69,7 @@ export const TempTokenExchange = ({
                 bg: "#8884d8",
               }}
               onClick={() => {
-                userTempTokenBalance &&
-                  handleAmountDirectly(userTempTokenBalance.formatted);
+                handleAmountDirectly(userTempTokenBalance.toString());
               }}
             >
               max

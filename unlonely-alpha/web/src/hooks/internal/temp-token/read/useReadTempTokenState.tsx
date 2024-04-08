@@ -352,7 +352,6 @@ export const useReadTempTokenState = (
   );
 
   const readTempTokenTxs = useReadTempTokenTxs({
-    currentActiveTokenAddress,
     currentActiveTokenCreationBlockNumber,
     currentActiveTokenSymbol,
     baseClient,

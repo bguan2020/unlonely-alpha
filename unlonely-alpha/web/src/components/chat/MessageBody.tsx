@@ -91,10 +91,8 @@ const MessageBody = ({
       InteractionType.EVENT_PAYOUT,
     ];
 
-    const greenTempTokenInteractionTypes = [
+    const adminTempTokenInteractionTypes = [
       InteractionType.CREATE_TEMP_TOKEN,
-      InteractionType.BUY_TEMP_TOKENS,
-      InteractionType.SELL_TEMP_TOKENS,
       InteractionType.TEMP_TOKEN_EXPIRED,
       InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
       InteractionType.TEMP_TOKEN_DURATION_INCREASED,
@@ -103,12 +101,32 @@ const MessageBody = ({
       InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
     ];
 
+    const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS];
+
+    const redTempTokenInteractionTypes = [
+      InteractionType.SELL_TEMP_TOKENS,
+      InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
+    ];
+
     if (
       message.data.body &&
       (eventTypes as string[]).includes(message.data.body.split(":")[0])
     ) {
       return {
         bg: "rgba(63, 59, 253, 1)",
+      };
+    } else if (
+      message.data.body &&
+      (adminTempTokenInteractionTypes as string[]).includes(
+        message.data.body.split(":")[0]
+      )
+    ) {
+      return {
+        bg: "rgba(34, 167, 255, 0.26)",
+        textColor: "#7ef0ff",
+        fontStyle: "italic",
+        fontWeight: "bold",
+        showTimestamp: true,
       };
     } else if (
       message.data.body &&
@@ -125,8 +143,9 @@ const MessageBody = ({
       };
     } else if (
       message.data.body &&
-      message.data.body.split(":")[0] ===
-        InteractionType.TEMP_TOKEN_EXPIRATION_WARNING
+      (redTempTokenInteractionTypes as string[]).includes(
+        message.data.body.split(":")[0]
+      )
     ) {
       return {
         bg: "rgba(255, 0, 0, 0.26)",
