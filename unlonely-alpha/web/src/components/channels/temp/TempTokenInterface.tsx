@@ -719,7 +719,7 @@ export const TempTokenInterface = ({
                             <Text>
                               Remaining ETH liquidity:{" "}
                               {truncateValue(
-                                remainingFundsToSend.toString(),
+                                formatUnits(remainingFundsToSend, 18),
                                 4
                               )}
                             </Text>
