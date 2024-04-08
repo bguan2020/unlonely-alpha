@@ -8,10 +8,12 @@ export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
   title,
   handleClose,
   isOpen,
+  callbackOnTxSuccess,
 }: {
   title: string;
   handleClose: () => void;
   isOpen: boolean;
+  callbackOnTxSuccess: () => void;
 }) => {
   const { channel } = useChannelContext();
   const { currentTempTokenContract } = channel;
@@ -21,7 +23,10 @@ export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
     sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
     handleWinnerAddressChange,
     winnerAddress,
-  } = useSendRemainingFundsToWinnerState(currentTempTokenContract, handleClose);
+  } = useSendRemainingFundsToWinnerState(
+    currentTempTokenContract,
+    callbackOnTxSuccess
+  );
 
   return (
     <TransactionModalTemplate

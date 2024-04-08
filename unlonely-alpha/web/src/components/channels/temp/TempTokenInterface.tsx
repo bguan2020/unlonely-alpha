@@ -116,6 +116,9 @@ export const TempTokenInterface = ({
   ] = useState<boolean>(false);
   const [ownerNeedsToSendFunds, setOwnerNeedsToSendFunds] =
     useState<boolean>(false);
+  const [remainingFundsToSend, setRemainingFundsToSend] = useState<bigint>(
+    BigInt(0)
+  );
   const [thresholdOn, setThresholdOn] = useState(true);
 
   const priceOfHighestTotalSupply = useMemo(() => {
@@ -212,6 +215,7 @@ export const TempTokenInterface = ({
       // if balance is greater then 0, streamer needs to send remaining funds to winner,
       // else streamer can continue creating a new token
       setOwnerNeedsToSendFunds(BigInt(String(balance)) > BigInt(0));
+      setRemainingFundsToSend(BigInt(String(balance)));
     };
     if (isFailedGameState && isOwner) checkBalanceAfterExpiration();
   }, [currentTempTokenContract, isFailedGameState, publicClient, isOwner]);
@@ -704,7 +708,21 @@ export const TempTokenInterface = ({
                                   false
                                 )
                               }
+                              callbackOnTxSuccess={() => {
+                                setOwnerNeedsToSendFunds(false);
+                                setRemainingFundsToSend(BigInt(0));
+                                setSendRemainingFundsFromActiveTokenModuleOpen(
+                                  false
+                                );
+                              }}
                             />
+                            <Text>
+                              Remaining ETH liquidity:{" "}
+                              {truncateValue(
+                                remainingFundsToSend.toString(),
+                                4
+                              )}
+                            </Text>
                             <Button
                               _focus={{}}
                               _active={{}}
