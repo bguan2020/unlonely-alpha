@@ -268,7 +268,7 @@ export const TempTokenInterface = ({
             priceOfThresholdInUsd={priceOfThresholdInUsd}
           />
           <TransactionModalTemplate
-            title="Token couldn't make it this time :("
+            title="Token didn't make it this time :("
             isOpen={isFailedGameModalOpen}
             handleClose={() => handleIsFailedGameModalOpen(false)}
             bg={"#18162F"}
@@ -297,9 +297,9 @@ export const TempTokenInterface = ({
             hideFooter
           >
             <Text>
-              This token reached today's price goal and survives another 24
+              This token reached today's price goal and will survive another 24
               hours! Make sure to come back when the streamer goes live again
-              tommorow to keep the token alive.
+              tomorrow to keep the token alive.
             </Text>
             <Flex justifyContent={"space-evenly"} gap="5px" my="15px" p={4}>
               <Button
