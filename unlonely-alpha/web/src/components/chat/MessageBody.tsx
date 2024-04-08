@@ -94,13 +94,17 @@ const MessageBody = ({
     const greenTempTokenInteractionTypes = [
       InteractionType.CREATE_TEMP_TOKEN,
       InteractionType.BUY_TEMP_TOKENS,
-      InteractionType.SELL_TEMP_TOKENS,
       InteractionType.TEMP_TOKEN_EXPIRED,
       InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
       InteractionType.TEMP_TOKEN_DURATION_INCREASED,
       InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
       InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
       InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
+    ];
+
+    const redTempTokenInteractionTypes = [
+      InteractionType.SELL_TEMP_TOKENS,
+      InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
     ];
 
     if (
@@ -125,8 +129,9 @@ const MessageBody = ({
       };
     } else if (
       message.data.body &&
-      message.data.body.split(":")[0] ===
-        InteractionType.TEMP_TOKEN_EXPIRATION_WARNING
+      (redTempTokenInteractionTypes as string[]).includes(
+        message.data.body.split(":")[0]
+      )
     ) {
       return {
         bg: "rgba(255, 0, 0, 0.26)",
