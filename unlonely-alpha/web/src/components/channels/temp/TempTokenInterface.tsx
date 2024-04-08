@@ -85,7 +85,6 @@ export const TempTokenInterface = ({
     isSuccessGameModalOpen,
     isFailedGameModalOpen,
     isPermanentGameModalOpen,
-    currentActiveTokenEndTimestamp,
     handleIsFailedGameModalOpen,
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
@@ -117,9 +116,7 @@ export const TempTokenInterface = ({
   ] = useState<boolean>(false);
   const [ownerNeedsToSendFunds, setOwnerNeedsToSendFunds] =
     useState<boolean>(false);
-  const [durationLeftOnDisclaimer, setDurationLeftOnDisclaimer] = useState<
-    number | undefined
-  >(undefined);
+  const [thresholdOn, setThresholdOn] = useState(true);
 
   const priceOfHighestTotalSupply = useMemo(() => {
     if (currentActiveTokenHighestTotalSupply === BigInt(0)) return 0;
@@ -218,14 +215,6 @@ export const TempTokenInterface = ({
     };
     if (isFailedGameState && isOwner) checkBalanceAfterExpiration();
   }, [currentTempTokenContract, isFailedGameState, publicClient, isOwner]);
-
-  useEffect(() => {
-    if (tempTokenDisclaimerModalOpen && currentActiveTokenEndTimestamp) {
-      const durationLeft =
-        Number(currentActiveTokenEndTimestamp) - Math.floor(Date.now() / 1000);
-      setDurationLeftOnDisclaimer(durationLeft);
-    }
-  }, [tempTokenDisclaimerModalOpen]);
 
   return (
     <>
@@ -333,7 +322,7 @@ export const TempTokenInterface = ({
             <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
               ${currentActiveTokenSymbol}
             </Text>
-            {isFullChart && <TempTokenTimerView />}
+            {isFullChart && <TempTokenTimerView disableChatbot={true} />}
             {!isFullChart && (
               <Flex>
                 {canPlayToken && (
@@ -403,6 +392,7 @@ export const TempTokenInterface = ({
             <Flex gap="5px" alignItems={"center"}>
               <Button
                 bg={timeFilter === "1h" ? "#7874c9" : "#403c7d"}
+                color="#c6c3fc"
                 p={3}
                 height="20px"
                 _focus={{}}
@@ -414,6 +404,7 @@ export const TempTokenInterface = ({
               </Button>
               <Button
                 bg={timeFilter === "1d" ? "#7874c9" : "#403c7d"}
+                color="#c6c3fc"
                 p={3}
                 height="20px"
                 _focus={{}}
@@ -425,6 +416,7 @@ export const TempTokenInterface = ({
               </Button>
               <Button
                 bg={timeFilter === "all" ? "#7874c9" : "#403c7d"}
+                color="#c6c3fc"
                 p={3}
                 height="20px"
                 _focus={{}}
@@ -433,6 +425,23 @@ export const TempTokenInterface = ({
                 onClick={() => handleTimeFilter("all")}
               >
                 all
+              </Button>
+              <Button
+                bg={thresholdOn ? "#00d3c1" : "#077158"}
+                color="#ffffff"
+                p={3}
+                height={"20px"}
+                _focus={{}}
+                _active={{}}
+                _hover={{}}
+                onClick={() => setThresholdOn((prev) => !prev)}
+                boxShadow={
+                  thresholdOn
+                    ? "0px 0px 16px rgba(53, 234, 95, 0.4)"
+                    : undefined
+                }
+              >
+                goal
               </Button>
               <ChakraTooltip
                 label="toggle chart zooming, will pause live updates when enabled"
@@ -456,7 +465,7 @@ export const TempTokenInterface = ({
                       : undefined
                   }
                 >
-                  {<FaMagnifyingGlassChart />}
+                  <FaMagnifyingGlassChart />
                 </Button>
               </ChakraTooltip>
             </Flex>
@@ -555,7 +564,7 @@ export const TempTokenInterface = ({
                     tickFormatter={formatYAxisTick}
                     domain={
                       currentActiveTokenTotalSupplyThreshold >
-                      currentActiveTokenTotalSupply
+                        currentActiveTokenTotalSupply && thresholdOn
                         ? ["dataMin", priceOfThreshold * (1 + ZONE_BREADTH)]
                         : ["dataMin", "dataMax"]
                     }

@@ -204,7 +204,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   justifyContent={"center"}
                   gap="5px"
                 >
-                  <TempTokenTimerView />
+                  <TempTokenTimerView disableChatbot={false} />
                   <Text fontSize="20px">viewer pov</Text>
                   <LivepeerPlayer
                     src={getSrc(livepeerPlaybackInfo)}

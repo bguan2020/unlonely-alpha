@@ -45,7 +45,7 @@ export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
       top="0"
     >
       <Flex justifyContent={"center"} bg="rgba(11, 5, 63, 0.534)">
-        <TempTokenTimerView />
+        <TempTokenTimerView disableChatbot={false} />
       </Flex>
       {presenceChannel && (
         <Flex
