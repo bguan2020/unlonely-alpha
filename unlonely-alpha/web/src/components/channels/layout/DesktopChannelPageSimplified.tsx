@@ -24,6 +24,7 @@ import { TempTokenInterface } from "../temp/TempTokenInterface";
 import {
   useGenerateKey,
   useGetHolderBalance,
+  useSupply,
 } from "../../../hooks/contracts/useTournament";
 import { useContractEvent } from "wagmi";
 import { Log, isAddress } from "viem";
@@ -32,6 +33,7 @@ import { TempTokenCreationModal } from "../temp/TempTokenCreationModal";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { ContractData } from "../../../constants/types";
 import { useSendRemainingFundsToWinnerState } from "../../../hooks/internal/temp-token/useSendRemainingFundsToWinnerState";
+import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 
 export const DesktopChannelPageSimplified = ({
   channelSSR,
@@ -51,6 +53,7 @@ export const DesktopChannelPageSimplified = ({
     channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
+    handleTotalBadges,
     handleChannelStaticData,
     currentActiveTokenEndTimestamp,
     canPlayToken,
@@ -77,6 +80,11 @@ export const DesktopChannelPageSimplified = ({
     tournamentContract
   );
 
+  const { vipBadgeSupply, setVipBadgeSupply } = useSupply(
+    generatedKey,
+    tournamentContract
+  );
+
   const { vipBadgeBalance, setVipBadgeBalance } = useGetHolderBalance(
     channelQueryData?.owner?.address as `0x${string}`,
     0,
@@ -99,6 +107,9 @@ export const DesktopChannelPageSimplified = ({
           Number(tradeEvent?.args.trade.badgeAmount as bigint);
       }
     }
+    setVipBadgeSupply(
+      (sortedEvents[sortedEvents.length - 1] as any).args.trade.supply as bigint
+    );
     setVipBadgeBalance((prev) => String(Number(prev) + newBalanceAddition));
   };
 
@@ -127,6 +138,10 @@ export const DesktopChannelPageSimplified = ({
       handleIsVip(false);
     }
   }, [vipBadgeBalance]);
+
+  useEffect(() => {
+    handleTotalBadges(truncateValue(Number(vipBadgeSupply), 0));
+  }, [vipBadgeSupply]);
 
   /**
    * livepeer playback management
