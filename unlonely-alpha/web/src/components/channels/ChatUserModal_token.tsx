@@ -13,7 +13,6 @@ import {
 } from "@chakra-ui/react";
 import { useState, useMemo, useEffect } from "react";
 import { formatUnits, isAddress } from "viem";
-import { useBalance } from "wagmi";
 import { AblyChannelPromise, CHANGE_USER_ROLE_EVENT } from "../../constants";
 import { useCacheContext } from "../../hooks/context/useCache";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -26,7 +25,10 @@ import {
   filteredInput,
   formatIncompleteNumber,
 } from "../../utils/validation/input";
-import { useTransfer } from "../../hooks/contracts/useVibesToken";
+import {
+  useGetUserBalance,
+  useTransfer,
+} from "../../hooks/contracts/useVibesToken";
 import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
@@ -137,12 +139,11 @@ export const ChatUserModal_token = ({
     }
   );
 
-  const { data: targetTokensBalance, refetch: refetchTargetTokensBalance } =
-    useBalance({
-      address: targetUser?.address as `0x${string}`,
-      token: currentTempTokenContract.address,
-      enabled: false,
-    });
+  const { balance: targetTokensBalance, refetch: refetchTargetTokensBalance } =
+    useGetUserBalance(
+      targetUser?.address as `0x${string}`,
+      currentTempTokenContract
+    );
 
   const { postUserRoleForChannel, loading } = usePostUserRoleForChannel({
     onError: (error) => {
@@ -263,7 +264,7 @@ export const ChatUserModal_token = ({
   useEffect(() => {
     const init = async () => {
       if (
-        userTempTokenBalance?.value !== undefined &&
+        userTempTokenBalance > BigInt(0) &&
         isOpen &&
         targetUser !== undefined &&
         isAddress(targetUser.address as `0x${string}`)
@@ -272,7 +273,7 @@ export const ChatUserModal_token = ({
       }
     };
     init();
-  }, [userTempTokenBalance?.value]);
+  }, [userTempTokenBalance]);
 
   const handleInputChange = (event: any) => {
     const input = event.target.value;
@@ -285,15 +286,12 @@ export const ChatUserModal_token = ({
       setErrorMessage("wrong network");
     } else if (Number(formatIncompleteNumber(amountToSend)) <= 0) {
       setErrorMessage("enter amount first");
-    } else if (
-      userTempTokenBalance?.value &&
-      Number(amountToSend) > Number(userTempTokenBalance?.value)
-    ) {
+    } else if (Number(amountToSend) > Number(userTempTokenBalance.toString())) {
       setErrorMessage("insufficient tokens");
     } else {
       setErrorMessage("");
     }
-  }, [matchingChain, userTempTokenBalance?.value, amountToSend]);
+  }, [matchingChain, userTempTokenBalance, amountToSend]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -353,24 +351,22 @@ export const ChatUserModal_token = ({
                 </Flex>
               </Link>
               <Flex justifyContent={"space-evenly"}>
-                {userTempTokenBalance?.formatted !== undefined &&
-                  (isSendingTokens || targetUser.address === user?.address) && (
-                    <Text color="#e5fc92">
-                      your ${currentActiveTokenSymbol}:{" "}
-                      <Text as="span" color="#e5fc92" fontWeight="bold">
-                        {userTempTokenBalance?.formatted}
-                      </Text>
+                {(isSendingTokens || targetUser.address === user?.address) && (
+                  <Text color="#e5fc92">
+                    your ${currentActiveTokenSymbol}:{" "}
+                    <Text as="span" color="#e5fc92" fontWeight="bold">
+                      {truncateValue(userTempTokenBalance.toString(), 4)}
                     </Text>
-                  )}
-                {targetUser.address !== user?.address &&
-                  targetTokensBalance?.formatted !== undefined && (
-                    <Text color="#c6c3fc">
-                      their ${currentActiveTokenSymbol}:{" "}
-                      <Text as="span" color="#c6c3fc" fontWeight="bold">
-                        {targetTokensBalance?.formatted}
-                      </Text>
+                  </Text>
+                )}
+                {targetUser.address !== user?.address && (
+                  <Text color="#c6c3fc">
+                    their ${currentActiveTokenSymbol}:{" "}
+                    <Text as="span" color="#c6c3fc" fontWeight="bold">
+                      {truncateValue(targetTokensBalance.toString(), 4)}
                     </Text>
-                  )}
+                  </Text>
+                )}
               </Flex>
               <Flex direction="column" gap="10px">
                 {targetUser.address !== user?.address && (

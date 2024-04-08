@@ -1,13 +1,9 @@
 import { Flex, useToast, Text, Box } from "@chakra-ui/react";
 import { useRef, useEffect, useState, useCallback } from "react";
-import { isAddress, isAddressEqual, Log, parseAbiItem } from "viem";
-import { useBalance, useContractEvent } from "wagmi";
+import { isAddressEqual, Log, parseAbiItem } from "viem";
+import { useContractEvent } from "wagmi";
 import { NULL_ADDRESS } from "../../../../constants";
-import {
-  ContractData,
-  FetchBalanceResult,
-  TradeableTokenTx,
-} from "../../../../constants/types";
+import { ContractData, TradeableTokenTx } from "../../../../constants/types";
 import {
   insertElementSorted,
   blockNumberDaysAgo,
@@ -15,6 +11,7 @@ import {
   blockNumberHoursAgo,
 } from "../../useVibesCheck";
 import { useUser } from "../../../context/useUser";
+import { useGetUserBalance } from "../../../contracts/useVibesToken";
 
 export type UseReadTempTokenTxsType = {
   tempTokenTxs: TradeableTokenTx[];
@@ -24,7 +21,7 @@ export type UseReadTempTokenTxsType = {
     { index: number | undefined; blockNumber: number }
   >;
   currentBlockNumberForTempTokenChart: bigint;
-  userTempTokenBalance?: FetchBalanceResult;
+  userTempTokenBalance: bigint;
   resetTempTokenTxs: () => void;
 };
 
@@ -33,7 +30,7 @@ export const useReadTempTokenTxsInitial = {
   tempTokenLoading: true,
   tempTokenChartTimeIndexes: new Map(),
   currentBlockNumberForTempTokenChart: BigInt(0),
-  userTempTokenBalance: undefined,
+  userTempTokenBalance: BigInt(0),
   resetTempTokenTxs: () => undefined,
 };
 
@@ -42,7 +39,6 @@ export const useReadTempTokenTxsInitial = {
  * This hook is used to track the transactions of a temp token in real time, and update the chart data accordingly.
  */
 export const useReadTempTokenTxs = ({
-  currentActiveTokenAddress,
   currentActiveTokenCreationBlockNumber,
   currentActiveTokenSymbol,
   baseClient,
@@ -50,7 +46,6 @@ export const useReadTempTokenTxs = ({
   onMintCallback, // passed in from the parent component to trigger ui changes
   onBurnCallback, // passed in from the parent component to trigger ui changes
 }: {
-  currentActiveTokenAddress: string;
   currentActiveTokenCreationBlockNumber: bigint;
   currentActiveTokenSymbol: string;
   baseClient: any;
@@ -76,14 +71,11 @@ export const useReadTempTokenTxs = ({
   /**
    * BALANCES of TempToken and ETH for the user
    */
-  const { data: userTempTokenBalance, refetch: refetchUserTempTokenBalance } =
-    useBalance({
-      address: userAddress,
-      token: currentActiveTokenAddress as `0x${string}`,
-      enabled:
-        isAddress(userAddress as `0x${string}`) &&
-        isAddress(currentActiveTokenAddress ?? NULL_ADDRESS),
-    });
+
+  const {
+    balance: userTempTokenBalance,
+    refetch: refetchUserTempTokenBalance,
+  } = useGetUserBalance(userAddress as `0x${string}`, tempTokenContract);
 
   /**
    * EVENT LISTENERS for Mint and Burn events, and appending new transactions to the chart, and changing chart appearance when appropriate

@@ -416,8 +416,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
                 bg: "#8884d8",
               }}
               onClick={() => {
-                userVibesBalance &&
-                  setAmountOfVibes(userVibesBalance.formatted);
+                setAmountOfVibes(userVibesBalance.toString());
               }}
             >
               max
