@@ -155,6 +155,7 @@ contract TempTokenFactoryV1 is Ownable {
         * @dev The following functions are used to set the total supply threshold for tokens, 
                 increase the end timestamp for tokens, set the max duration, and pause the factory.
         * @dev These functions are only callable by the owner or an admin of the factory.
+        * @dev This function is used to set the total supply threshold for this factory and tokens, only callable by owner, _tokenAddressses array does not need to be defined
      */
 
     function setTotalSupplyThresholdForTokens(uint256 _totalSupplyThreshold, address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
@@ -166,6 +167,9 @@ contract TempTokenFactoryV1 is Ownable {
         emit TotalSupplyThresholdSetForTokens(_totalSupplyThreshold, _tokenAddresses);
     }
 
+    /**
+        @dev This function is used to increase the end timestamp for tokens, only callable by owner, _tokenAddressses array must be defined
+     */
     function increaseEndTimestampForTokens(uint256 _additionalDurationInSeconds, address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
         require(_additionalDurationInSeconds > 0, "Additional duration cannot be 0");
         require(_tokenAddresses.length > 0, "Token addresses array is empty");
@@ -174,6 +178,10 @@ contract TempTokenFactoryV1 is Ownable {
         }
         emit EndTimestampIncreasedForTokens(_additionalDurationInSeconds, _tokenAddresses);
     }
+
+        /**
+        @dev This function is used to set the always tradeable flag for tokens, only callable by owner, _tokenAddressses array must be defined
+     */
 
     function setAlwaysTradeableForTokens(address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
         require(_tokenAddresses.length > 0, "Token addresses array is empty");
