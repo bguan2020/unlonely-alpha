@@ -27,7 +27,7 @@ export const fetchForNewTempTokenEndtimestamps = async () => {
      * This is the offset in milliseconds that should match the interval of the scheduler
      * We will use this to include the temp tokens whose endTimestamps 
      */
-    const OFFSET_IN_SECONDS = 60 * 10; // 10 minutes as the scheduler interval from aws is also called on this interval
+    const OFFSET_IN_SECONDS = 60 * 5; // 5 minutes as the scheduler interval from aws is also called on this interval
 
     try {
         const qualifiedTokens = await prisma.tempToken.findMany({
