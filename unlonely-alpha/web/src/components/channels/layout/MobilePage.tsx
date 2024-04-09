@@ -1,6 +1,6 @@
 import { ApolloError, useLazyQuery } from "@apollo/client";
 import { Flex, Text, Image } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Log } from "viem";
 import { useContractEvent } from "wagmi";
 import { Contract } from "../../../constants";
@@ -27,6 +27,8 @@ import ChannelStreamerPerspective from "./ChannelStreamerPerspective";
 import ChannelViewerPerspective from "./ChannelViewerPerspective";
 import StandaloneAblyChatComponent from "../../mobile/StandAloneChatComponent";
 import { ChannelWideModals } from "../ChannelWideModals";
+import { PlaybackInfo } from "livepeer/dist/models/components";
+import { Livepeer } from "livepeer";
 
 export const MobilePage = ({
   channelSSR,
@@ -85,12 +87,39 @@ export const MobilePage = ({
   const [livepeerData, setLivepeerData] =
     useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
 
+  const livepeer = new Livepeer({
+    apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
+  });
+
   const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
     GET_LIVEPEER_STREAM_DATA_QUERY,
     {
       fetchPolicy: "network-only",
     }
   );
+
+  const livepeerPlaybackId = useMemo(
+    () =>
+      channelQueryData?.livepeerPlaybackId == null
+        ? undefined
+        : channelQueryData?.livepeerPlaybackId,
+    [channelQueryData]
+  );
+
+  const [playbackInfo, setPlaybackInfo] = useState<PlaybackInfo | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    const init = async () => {
+      if (livepeerPlaybackId) {
+        const res = await livepeer.playback.get(livepeerPlaybackId);
+        const playbackInfo = res.playbackInfo;
+        setPlaybackInfo(playbackInfo);
+      }
+    };
+    init();
+  }, [livepeerPlaybackId]);
 
   useEffect(() => {
     const init = async () => {
@@ -178,10 +207,14 @@ export const MobilePage = ({
                 <ChannelStreamerPerspective
                   livepeerData={livepeerData}
                   ablyChannel={chat.channel}
+                  livepeerPlaybackInfo={playbackInfo}
                 />
               </>
             ) : (
-              <ChannelViewerPerspective mobile />
+              <ChannelViewerPerspective
+                livepeerPlaybackInfo={playbackInfo}
+                mobile
+              />
             )}
             <StandaloneAblyChatComponent chat={chat} />
           </>

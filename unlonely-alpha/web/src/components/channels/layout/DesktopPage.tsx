@@ -295,7 +295,9 @@ export const DesktopPage = ({
                     />
                   </>
                 ) : (
-                  <ChannelViewerPerspective />
+                  <ChannelViewerPerspective
+                    livepeerPlaybackInfo={playbackInfo}
+                  />
                 )}
                 <Flex
                   gap={4}
