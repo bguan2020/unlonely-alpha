@@ -291,12 +291,26 @@ export const DesktopPage = ({
                     <ChannelStreamerPerspective
                       ablyChannel={chat.channel}
                       livepeerData={livepeerData}
-                      livepeerPlaybackInfo={playbackInfo}
+                      playbackData={
+                        playbackInfo
+                          ? {
+                              infra: "livepeer",
+                              livepeerPlaybackInfo: playbackInfo,
+                            }
+                          : { infra: "aws" }
+                      }
                     />
                   </>
                 ) : (
                   <ChannelViewerPerspective
-                    livepeerPlaybackInfo={playbackInfo}
+                    playbackData={
+                      playbackInfo
+                        ? {
+                            infra: "livepeer",
+                            livepeerPlaybackInfo: playbackInfo,
+                          }
+                        : { infra: "aws" }
+                    }
                   />
                 )}
                 <Flex

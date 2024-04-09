@@ -12,10 +12,17 @@ import { DESKTOP_VIDEO_VH, MOBILE_VIDEO_VH } from "../../constants";
 
 const StreamComponent = ({
   isStreamer,
-  livepeerPlaybackInfo,
+  playbackData,
 }: {
   isStreamer?: boolean;
-  livepeerPlaybackInfo?: PlaybackInfo;
+  playbackData:
+    | {
+        infra: "aws";
+      }
+    | {
+        infra: "livepeer";
+        livepeerPlaybackInfo: PlaybackInfo;
+      };
 }) => {
   const { isStandalone } = useUserAgent();
   const { channel } = useChannelContext();
@@ -73,8 +80,8 @@ const StreamComponent = ({
       }
     >
       <Flex width="100%">
-        {livepeerPlaybackInfo ? (
-          <LivepeerPlayer src={getSrc(livepeerPlaybackInfo)} />
+        {playbackData.infra === "livepeer" ? (
+          <LivepeerPlayer src={getSrc(playbackData.livepeerPlaybackInfo)} />
         ) : playbackUrl ? (
           <IVSPlayer playbackUrl={playbackUrl} />
         ) : (

@@ -207,12 +207,30 @@ export const MobilePage = ({
                 <ChannelStreamerPerspective
                   livepeerData={livepeerData}
                   ablyChannel={chat.channel}
-                  livepeerPlaybackInfo={playbackInfo}
+                  playbackData={
+                    playbackInfo
+                      ? {
+                          infra: "livepeer",
+                          livepeerPlaybackInfo: playbackInfo,
+                        }
+                      : {
+                          infra: "aws",
+                        }
+                  }
                 />
               </>
             ) : (
               <ChannelViewerPerspective
-                livepeerPlaybackInfo={playbackInfo}
+                playbackData={
+                  playbackInfo
+                    ? {
+                        infra: "livepeer",
+                        livepeerPlaybackInfo: playbackInfo,
+                      }
+                    : {
+                        infra: "aws",
+                      }
+                }
                 mobile
               />
             )}

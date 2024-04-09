@@ -11,11 +11,18 @@ import { ChatReturnType } from "../../../hooks/chat/useChat";
 import ChannelDesc from "../ChannelDesc";
 
 export const DesktopChannelViewerPerspectiveSimplified = ({
-  livepeerPlaybackInfo,
+  playbackData,
   chat,
   openOverlappingChat,
 }: {
-  livepeerPlaybackInfo?: PlaybackInfo;
+  playbackData:
+    | {
+        infra: "aws";
+      }
+    | {
+        infra: "livepeer";
+        livepeerPlaybackInfo: PlaybackInfo;
+      };
   chat: ChatReturnType;
   openOverlappingChat: boolean;
 }) => {
@@ -100,8 +107,8 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
       </Flex>
       {openOverlappingChat && <ChatWithTokenTimer chat={chat} />}
       <Flex flexDirection="row" justifyContent="center" width="100%">
-        {livepeerPlaybackInfo ? (
-          <LivepeerPlayer src={getSrc(livepeerPlaybackInfo)} />
+        {playbackData.infra === "livepeer" ? (
+          <LivepeerPlayer src={getSrc(playbackData.livepeerPlaybackInfo)} />
         ) : playbackUrl ? (
           <IVSPlayer playbackUrl={playbackUrl} />
         ) : (

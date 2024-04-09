@@ -4,10 +4,17 @@ import StreamComponent from "../../stream/StreamComponent";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 
 const ChannelViewerPerspective = ({
-  livepeerPlaybackInfo,
+  playbackData,
   mobile,
 }: {
-  livepeerPlaybackInfo?: PlaybackInfo;
+  playbackData:
+    | {
+        infra: "aws";
+      }
+    | {
+        infra: "livepeer";
+        livepeerPlaybackInfo: PlaybackInfo;
+      };
   mobile?: boolean;
 }) => {
   return (
@@ -17,7 +24,7 @@ const ChannelViewerPerspective = ({
       position={mobile ? "fixed" : "unset"}
     >
       <Flex width={"100%"} position="relative">
-        <StreamComponent livepeerPlaybackInfo={livepeerPlaybackInfo} />
+        <StreamComponent playbackData={playbackData} />
       </Flex>
     </Stack>
   );

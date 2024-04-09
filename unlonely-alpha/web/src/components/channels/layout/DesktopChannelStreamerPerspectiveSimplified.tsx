@@ -44,11 +44,18 @@ import ChannelDesc from "../ChannelDesc";
 export const DesktopChannelStreamerPerspectiveSimplified = ({
   ablyChannel,
   livepeerData,
-  livepeerPlaybackInfo,
+  playbackData,
 }: {
   ablyChannel: AblyChannelPromise;
   livepeerData?: GetLivepeerStreamDataQuery["getLivepeerStreamData"];
-  livepeerPlaybackInfo?: PlaybackInfo;
+  playbackData:
+    | {
+        infra: "aws";
+      }
+    | {
+        infra: "livepeer";
+        livepeerPlaybackInfo: PlaybackInfo;
+      };
 }) => {
   const toast = useToast();
   const { isStandalone } = useUserAgent();
@@ -197,7 +204,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
           {playbackId && streamKey ? (
             <>
               <LivepeerBroadcast streamKey={streamKey} />
-              {livepeerPlaybackInfo && !isStandalone && (
+              {playbackData.infra === "livepeer" && !isStandalone && (
                 <Flex
                   direction="column"
                   width={"30%"}
@@ -207,7 +214,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   <TempTokenTimerView disableChatbot={false} />
                   <Text fontSize="20px">viewer pov</Text>
                   <LivepeerPlayer
-                    src={getSrc(livepeerPlaybackInfo)}
+                    src={getSrc(playbackData.livepeerPlaybackInfo)}
                     isPreview={true}
                     customSizePercentages={{
                       width: "100%",
@@ -225,10 +232,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
               )}
             </>
           ) : (
-            <StreamComponent
-              livepeerPlaybackInfo={livepeerPlaybackInfo}
-              isStreamer
-            />
+            <StreamComponent playbackData={playbackData} isStreamer />
           )}
         </Flex>
       )}

@@ -43,11 +43,18 @@ import { getSrc } from "@livepeer/react/external";
 const ChannelStreamerPerspective = ({
   ablyChannel,
   livepeerData,
-  livepeerPlaybackInfo,
+  playbackData,
 }: {
   ablyChannel: AblyChannelPromise;
   livepeerData?: GetLivepeerStreamDataQuery["getLivepeerStreamData"];
-  livepeerPlaybackInfo?: PlaybackInfo;
+  playbackData:
+    | {
+        infra: "aws";
+      }
+    | {
+        infra: "livepeer";
+        livepeerPlaybackInfo: PlaybackInfo;
+      };
 }) => {
   const toast = useToast();
   const { isStandalone } = useUserAgent();
@@ -196,7 +203,7 @@ const ChannelStreamerPerspective = ({
           {playbackId && streamKey ? (
             <>
               <LivepeerBroadcast streamKey={streamKey} />
-              {livepeerPlaybackInfo && !isStandalone && (
+              {playbackData.infra === "livepeer" && !isStandalone && (
                 <Flex
                   direction="column"
                   width={"30%"}
@@ -205,7 +212,7 @@ const ChannelStreamerPerspective = ({
                 >
                   <Text fontSize="20px">viewer pov</Text>
                   <LivepeerPlayer
-                    src={getSrc(livepeerPlaybackInfo)}
+                    src={getSrc(playbackData.livepeerPlaybackInfo)}
                     isPreview={true}
                     customSizePercentages={{
                       width: "100%",
@@ -223,10 +230,7 @@ const ChannelStreamerPerspective = ({
               )}
             </>
           ) : (
-            <StreamComponent
-              livepeerPlaybackInfo={livepeerPlaybackInfo}
-              isStreamer
-            />
+            <StreamComponent playbackData={playbackData} isStreamer />
           )}
         </Flex>
       )}

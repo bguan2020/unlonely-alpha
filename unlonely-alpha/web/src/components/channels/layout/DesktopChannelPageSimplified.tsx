@@ -258,12 +258,30 @@ export const DesktopChannelPageSimplified = ({
                     <DesktopChannelStreamerPerspectiveSimplified
                       ablyChannel={chat.channel}
                       livepeerData={livepeerData}
-                      livepeerPlaybackInfo={playbackInfo}
+                      playbackData={
+                        playbackInfo
+                          ? {
+                              infra: "livepeer",
+                              livepeerPlaybackInfo: playbackInfo,
+                            }
+                          : {
+                              infra: "aws",
+                            }
+                      }
                     />
                   </>
                 ) : (
                   <DesktopChannelViewerPerspectiveSimplified
-                    livepeerPlaybackInfo={playbackInfo}
+                    playbackData={
+                      playbackInfo
+                        ? {
+                            infra: "livepeer",
+                            livepeerPlaybackInfo: playbackInfo,
+                          }
+                        : {
+                            infra: "aws",
+                          }
+                    }
                     chat={chat}
                     openOverlappingChat={canPlayToken}
                   />
