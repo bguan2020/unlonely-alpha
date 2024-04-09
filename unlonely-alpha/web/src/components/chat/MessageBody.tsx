@@ -205,6 +205,7 @@ const MessageBody = ({
             user?.address === message.data.address ? "end" : "start"
           }
           bg={messageStyle().bg}
+          bgGradient={messageStyle().bgGradient}
           borderRadius="10px"
         >
           <Flex direction={"column"} width="100%">
