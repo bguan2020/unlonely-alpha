@@ -225,7 +225,10 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
               )}
             </>
           ) : (
-            <StreamComponent isStreamer />
+            <StreamComponent
+              livepeerPlaybackInfo={livepeerPlaybackInfo}
+              isStreamer
+            />
           )}
         </Flex>
       )}

@@ -223,7 +223,10 @@ const ChannelStreamerPerspective = ({
               )}
             </>
           ) : (
-            <StreamComponent isStreamer />
+            <StreamComponent
+              livepeerPlaybackInfo={livepeerPlaybackInfo}
+              isStreamer
+            />
           )}
         </Flex>
       )}
