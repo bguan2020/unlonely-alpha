@@ -76,4 +76,9 @@ export const resolvers = {
             return tempTokenService.postTempToken(data, ctx.user, ctx);
         },
     },
+    TempToken: {
+        channel: ({ channelId }: { channelId: string }, _: any, ctx: Context) => {
+            return tempTokenService.getChannel({ channelId }, ctx);
+        }
+    }
 };

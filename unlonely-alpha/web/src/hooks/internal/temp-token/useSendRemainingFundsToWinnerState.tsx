@@ -23,7 +23,7 @@ export const useSendRemainingFundsToWinnerState = (
   const publicClient = usePublicClient();
 
   const { chat } = useChannelContext();
-  const { addToChatbot } = chat;
+  const { addToChatbot: addToChatbotForTempToken } = chat;
   const { network } = useNetworkContext();
   const { explorerUrl } = network;
 
@@ -109,7 +109,7 @@ export const useSendRemainingFundsToWinnerState = (
         const title = `The $${String(
           symbol
         )} token balance was sent to ${identifiedUser}!`;
-        addToChatbot({
+        addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.CREATE_TEMP_TOKEN,

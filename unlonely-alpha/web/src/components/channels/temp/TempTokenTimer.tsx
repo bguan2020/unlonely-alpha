@@ -4,7 +4,6 @@ import { Flex, Text } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../../utils/time";
 import { InteractionType, NULL_ADDRESS } from "../../../constants";
 import { useUser } from "../../../hooks/context/useUser";
-import { useRouter } from "next/router";
 
 export const TempTokenTimerView = ({
   disableChatbot,
@@ -49,8 +48,7 @@ export const useTempTokenTimerState = (disableChatbot: boolean) => {
     handleIsFailedGameModalOpen,
     handleCanPlayToken,
   } = channel;
-  const { addToChatbot } = chat;
-  const router = useRouter();
+  const { addToChatbot: addToChatbotForTempToken } = chat;
 
   const [durationLeftForTempToken, setDurationLeftForTempToken] = useState<
     number | undefined
@@ -98,11 +96,11 @@ export const useTempTokenTimerState = (disableChatbot: boolean) => {
       durationLeftForTempToken !== undefined &&
       durationLeftForTempToken === 300 &&
       isChannelOwner &&
-      !router.pathname.startsWith("/token")
+      !disableChatbot
     ) {
       // if the duration left is 5 minutes, send a chatbot message to notify everyone that the token is about to expire
       const title = `The $${currentActiveTokenSymbol} token will expire in 5 minutes!`;
-      addToChatbot({
+      addToChatbotForTempToken({
         username: user?.username ?? "",
         address: userAddress ?? "",
         taskType: InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
@@ -113,7 +111,7 @@ export const useTempTokenTimerState = (disableChatbot: boolean) => {
     if (durationLeftForTempToken === undefined) {
       if (isChannelOwner && !disableChatbot) {
         const title = `The $${currentActiveTokenSymbol} token expired!`;
-        addToChatbot({
+        addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.TEMP_TOKEN_EXPIRED,
@@ -125,7 +123,7 @@ export const useTempTokenTimerState = (disableChatbot: boolean) => {
       handleIsGameFailed(true);
       handleIsFailedGameModalOpen(true);
     }
-  }, [durationLeftForTempToken, isChannelOwner, router, disableChatbot]);
+  }, [durationLeftForTempToken, isChannelOwner, disableChatbot]);
 
   return {
     durationLeftForTempToken,

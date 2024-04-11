@@ -19,7 +19,7 @@ import Link from "next/link";
 import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
 import usePostBaseLeaderboard from "../hooks/server/usePostBaseLeaderboard";
-import BaseLeaderboard from "../components/arcade/BaseLeaderboard";
+import BaseLeaderboard from "../components/leaderboards/BaseLeaderboard";
 
 enum TxStatus {
   Pending,

@@ -297,6 +297,13 @@ export const GET_TEMP_TOKENS_QUERY = gql`
       channelId
       chainId
       id
+      channel {
+        slug
+        owner {
+          address
+          username
+        }
+      }
     }
   }
 `;

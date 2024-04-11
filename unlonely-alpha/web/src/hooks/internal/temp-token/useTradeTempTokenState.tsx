@@ -61,7 +61,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
     currentActiveTokenSymbol,
     tempTokenTxs,
   } = channel;
-  const { addToChatbot } = chat;
+  const { addToChatbot: addToChatbotForTempToken } = chat;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl, matchingChain } = network;
   const toast = useToast();
@@ -262,7 +262,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
           } catch (err) {
             console.log("cannot update db on mint", err);
           }
-          addToChatbot({
+          addToChatbotForTempToken({
             username: user?.username ?? "",
             address: userAddress ?? "",
             taskType: InteractionType.BUY_TEMP_TOKENS,
@@ -373,7 +373,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
         const title = `${
           user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
         } sold ${Number(args.amount as bigint)} $${currentActiveTokenSymbol}!`;
-        addToChatbot({
+        addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.SELL_TEMP_TOKENS,

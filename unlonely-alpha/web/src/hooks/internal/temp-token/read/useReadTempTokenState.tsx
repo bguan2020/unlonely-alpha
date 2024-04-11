@@ -24,6 +24,7 @@ import {
 } from "./useReadTempTokenTxs";
 import { useReadTempTokenExternalEventListeners } from "./useReadTempTokenExternalEventListeners";
 import usePostTempToken from "../../../server/temp-token/usePostTempToken";
+import { useRouter } from "next/router";
 
 export type UseReadTempTokenStateType = {
   currentActiveTokenSymbol: string;
@@ -111,9 +112,10 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
 
 export const useReadTempTokenState = (
   channelDetails: UseChannelDetailsType,
-  addToChatbot: (chatBotMessageToAdd: ChatBot) => void
+  addToChatbotForTempToken: (chatBotMessageToAdd: ChatBot) => void
 ): UseReadTempTokenStateType => {
   const { userAddress, user } = useUser();
+  const router = useRouter();
 
   const { network } = useNetworkContext();
   const { localNetwork } = network;
@@ -243,9 +245,9 @@ export const useReadTempTokenState = (
 
   const onReachThresholdEvent = useCallback(
     async (newEndTimestamp: bigint) => {
-      if (isOwner) {
+      if (isOwner && router.pathname.startsWith("/channels")) {
         const title = `The $${currentActiveTokenSymbol} token has hit the price goal and survives for another 24 hours! 🎉`;
-        addToChatbot({
+        addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
@@ -258,14 +260,21 @@ export const useReadTempTokenState = (
       handleIsGameSuccess(true);
       handleIsSuccessGameModalOpen(true);
     },
-    [isOwner, userAddress, user, currentActiveTokenSymbol, addToChatbot]
+    [
+      isOwner,
+      userAddress,
+      user,
+      currentActiveTokenSymbol,
+      addToChatbotForTempToken,
+      router.pathname,
+    ]
   );
 
   const onDurationIncreaseEvent = useCallback(
     async (newEndTimestamp: bigint) => {
-      if (isOwner) {
+      if (isOwner && router.pathname.startsWith("/channels")) {
         const title = `The $${currentActiveTokenSymbol} token's time has been extended!`;
-        addToChatbot({
+        addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.TEMP_TOKEN_DURATION_INCREASED,
@@ -275,13 +284,20 @@ export const useReadTempTokenState = (
       }
       setCurrentActiveTokenEndTimestamp(newEndTimestamp);
     },
-    [isOwner, userAddress, user, currentActiveTokenSymbol, addToChatbot]
+    [
+      isOwner,
+      userAddress,
+      user,
+      currentActiveTokenSymbol,
+      addToChatbotForTempToken,
+      router.pathname,
+    ]
   );
 
   const onAlwaysTradeableEvent = useCallback(async () => {
-    if (isOwner) {
+    if (isOwner && router.pathname.startsWith("/channels")) {
       const title = `The $${currentActiveTokenSymbol} token is now permanently tradeable!`;
-      addToChatbot({
+      addToChatbotForTempToken({
         username: user?.username ?? "",
         address: userAddress ?? "",
         taskType: InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
@@ -292,13 +308,20 @@ export const useReadTempTokenState = (
     setCurrentActiveTokenIsAlwaysTradable(true);
     handleIsGamePermanent(true);
     handleIsPermanentGameModalOpen(true);
-  }, [isOwner, userAddress, user, currentActiveTokenSymbol, addToChatbot]);
+  }, [
+    isOwner,
+    userAddress,
+    user,
+    currentActiveTokenSymbol,
+    addToChatbotForTempToken,
+    router.pathname,
+  ]);
 
   const onThresholdUpdateEvent = useCallback(
     async (newThreshold: bigint) => {
-      if (isOwner) {
+      if (isOwner && router.pathname.startsWith("/channels")) {
         const title = `The $${currentActiveTokenSymbol} token's price goal is increased!`;
-        addToChatbot({
+        addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
@@ -309,7 +332,14 @@ export const useReadTempTokenState = (
       setCurrentActiveTokenTotalSupplyThreshold(newThreshold);
       setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
     },
-    [isOwner, userAddress, user, currentActiveTokenSymbol, addToChatbot]
+    [
+      isOwner,
+      userAddress,
+      user,
+      currentActiveTokenSymbol,
+      addToChatbotForTempToken,
+      router.pathname,
+    ]
   );
 
   /**

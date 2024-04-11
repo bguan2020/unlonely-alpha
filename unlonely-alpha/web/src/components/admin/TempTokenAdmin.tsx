@@ -73,6 +73,7 @@ export const TempTokenAdmin = () => {
       const res = await getTempTokensQuery({
         variables: {
           data: {
+            chainId: localNetwork.config.chainId,
             onlyActiveTokens: true,
             isAlwaysTradeable: true,
             fulfillAllNotAnyConditions: false,
