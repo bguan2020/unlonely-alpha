@@ -20,6 +20,7 @@ import {
 import { getTimeFromMillis } from "../../utils/time";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { formatUnits } from "viem";
+import { useCacheContext } from "../../hooks/context/useCache";
 
 const headers = ["rank", "token", "channel", "highest price", "time left"];
 
@@ -28,6 +29,7 @@ const ITEMS_PER_PAGE = 10;
 const TempTokenLeaderboard = () => {
   const { network } = useNetworkContext();
   const { localNetwork } = network;
+  const { ethPriceInUsd } = useCacheContext();
 
   const visibleColumns = useBreakpointValue({
     base: [1, 3],
@@ -91,11 +93,15 @@ const TempTokenLeaderboard = () => {
             `${index + page * ITEMS_PER_PAGE + 1}`,
             token.symbol,
             token.channel.slug,
-            `$${truncateValue(formatUnits(BigInt(token.highestPrice), 18), 4)}`,
+            `$${truncateValue(
+              Number(formatUnits(BigInt(token.highestPrice), 18)) *
+                Number(ethPriceInUsd),
+              4
+            )}`,
           ],
         };
       });
-  }, [datasetPaginated, calculatedHighestPrices]);
+  }, [datasetPaginated, calculatedHighestPrices, ethPriceInUsd]);
 
   const completedDataRows = useMemo(() => {
     return sortedDataRows.map((row, i) => {
