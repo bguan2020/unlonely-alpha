@@ -336,3 +336,7 @@ export const getTempTokens = async (
         throw error; // Or handle error as needed
     }
 }
+
+export const getChannel = ({ channelId }: { channelId: string; }, ctx: Context) => {
+    return ctx.prisma.channel.findUnique({ where: { id: Number(channelId) } });
+}

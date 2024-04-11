@@ -19,6 +19,7 @@ export const typeDef = gql`
         hasRemainingFundsForCreator: Boolean!
         isAlwaysTradeable: Boolean!
         hasHitTotalSupplyThreshold: Boolean!
+        channel: Channel!
     }
 
     type TempTokenWithBalance {

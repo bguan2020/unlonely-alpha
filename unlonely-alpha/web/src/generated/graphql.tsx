@@ -1201,6 +1201,7 @@ export type TaskFeedInput = {
 export type TempToken = {
   __typename?: "TempToken";
   chainId: Scalars["Int"];
+  channel: Channel;
   channelId: Scalars["Int"];
   creationBlockNumber: Scalars["BigInt"];
   endUnixTimestamp: Scalars["BigInt"];
@@ -1802,6 +1803,11 @@ export type GetTempTokensQuery = {
     channelId: number;
     chainId: number;
     id: string;
+    channel: {
+      __typename?: "Channel";
+      slug: string;
+      owner: { __typename?: "User"; address: string; username?: string | null };
+    };
   } | null> | null;
 };
 
@@ -3671,6 +3677,13 @@ export const GetTempTokensDocument = gql`
       channelId
       chainId
       id
+      channel {
+        slug
+        owner {
+          address
+          username
+        }
+      }
     }
   }
 `;

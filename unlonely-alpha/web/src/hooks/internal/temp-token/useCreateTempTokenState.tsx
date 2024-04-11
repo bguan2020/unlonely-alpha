@@ -42,7 +42,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
   const { userAddress, user } = useUser();
   const { chat, channel } = useChannelContext();
   const { network } = useNetworkContext();
-  const { addToChatbot } = chat;
+  const { addToChatbot: addToChatbotForTempToken } = chat;
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
 
@@ -161,7 +161,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
         const title = `${
           user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
         } created the $${args.symbol} token!`;
-        addToChatbot({
+        addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.CREATE_TEMP_TOKEN,

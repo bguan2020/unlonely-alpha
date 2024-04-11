@@ -27,6 +27,8 @@ import { useUser } from "../../context/useUser";
 import { useBalance } from "wagmi";
 import { ChartTokenTx } from "../../../components/chat/VibesTokenInterface";
 import { useCacheContext } from "../../../hooks/context/useCache";
+import useUpdateTempTokenHighestTotalSupply from "../../server/temp-token/useUpdateTempTokenHighestTotalSupply";
+import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
 
 export type UseTradeTempTokenStateType = {
   amount: string;
@@ -59,7 +61,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
     currentActiveTokenSymbol,
     tempTokenTxs,
   } = channel;
-  const { addToChatbot } = chat;
+  const { addToChatbot: addToChatbotForTempToken } = chat;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl, matchingChain } = network;
   const toast = useToast();
@@ -98,6 +100,23 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
     enabled: isAddress(userAddress as `0x${string}`),
+  });
+
+  const {
+    updateTempTokenHighestTotalSupply: call_updateDb_highestTotalSupply,
+  } = useUpdateTempTokenHighestTotalSupply({
+    onError: (e) => {
+      console.log("useUpdateTempTokenHighestTotalSupply error", e);
+    },
+  });
+
+  const {
+    updateTempTokenHasHitTotalSupplyThreshold:
+      call_updateDb_hasHitTotalSupplyThreshold,
+  } = useUpdateTempTokenHasHitTotalSupplyThreshold({
+    onError: (e) => {
+      console.log("useUpdateTempTokenHasHitTotalSupplyThreshold error", e);
+    },
   });
 
   /**
@@ -212,12 +231,38 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
             topics: data.logs[data.logs.length - 1].topics,
           });
           const args: any = topics.args;
+          console.log("mint success", args, data);
+          const hasHitTotalSupplyThreshold =
+            args.hasHitTotalSupplyThreshold as boolean;
+          const highestTotalSupply = args.highestTotalSupply as bigint;
+          const tokenAddress = args.tokenAddress as `0x${string}`;
           const title = `${
             user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
           } bought ${Number(
             args.amount as bigint
           )} $${currentActiveTokenSymbol}!`;
-          addToChatbot({
+          const promises: any[] = [
+            call_updateDb_highestTotalSupply({
+              tokenAddresses: [tokenAddress],
+              newTotalSupplies: [String(highestTotalSupply)],
+              chainId: localNetwork.config.chainId,
+            }),
+          ];
+          if (hasHitTotalSupplyThreshold) {
+            promises.push(
+              call_updateDb_hasHitTotalSupplyThreshold({
+                tokenAddressesSetTrue: [tokenAddress],
+                tokenAddressesSetFalse: [],
+                chainId: localNetwork.config.chainId,
+              })
+            );
+          }
+          try {
+            await Promise.all(promises);
+          } catch (err) {
+            console.log("cannot update db on mint", err);
+          }
+          addToChatbotForTempToken({
             username: user?.username ?? "",
             address: userAddress ?? "",
             taskType: InteractionType.BUY_TEMP_TOKENS,
@@ -328,7 +373,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
         const title = `${
           user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
         } sold ${Number(args.amount as bigint)} $${currentActiveTokenSymbol}!`;
-        addToChatbot({
+        addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.SELL_TEMP_TOKENS,

@@ -45,6 +45,7 @@ import { useCacheContext } from "../hooks/context/useCache";
 import ChannelList from "../components/channels/ChannelList";
 import VibesTokenInterface from "../components/chat/VibesTokenInterface";
 import HeroBanner from "../components/layout/HeroBanner";
+import TempTokenLeaderboard from "../components/leaderboards/TempTokenLeaderboard";
 
 const FixedComponent = ({
   newHeightPercentage,
@@ -193,14 +194,14 @@ const ScrollableComponent = ({
   const nfcs = dataNFCs?.getNFCFeed;
 
   return (
-    <Flex direction="column" width="100%" overflowX={"hidden"}>
+    <Flex direction="column" width="100%" overflowX={"hidden"} gap="10px">
+      <TempTokenLeaderboard />
       <Flex
         height="300px"
         gap="5px"
         justifyContent={"space-between"}
         bg="#131323"
         p="5px"
-        mb="10px"
         borderRadius={"10px"}
       >
         <VibesTokenInterface defaultTimeFilter="all" allStreams />

@@ -101,8 +101,10 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   } = useMint(
     {
       streamer:
-        (channelQueryData?.owner?.address as `0x${string}`) ??
-        protocolFeeDestination,
+        isAddress(channelQueryData?.owner?.address as `0x${string}`) &&
+        channelQueryData?.owner?.address
+          ? channelQueryData?.owner?.address
+          : protocolFeeDestination,
       amount: amount_votes_bigint,
       value: mintCostAfterFees,
     },
@@ -216,8 +218,10 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   } = useBurn(
     {
       streamer:
-        (channelQueryData?.owner?.address as `0x${string}`) ??
-        protocolFeeDestination,
+        isAddress(channelQueryData?.owner?.address as `0x${string}`) &&
+        channelQueryData?.owner?.address
+          ? channelQueryData?.owner?.address
+          : protocolFeeDestination,
       amount: amount_votes_bigint,
     },
     contract,
