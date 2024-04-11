@@ -8,7 +8,7 @@ export const useInterfaceChartData = ({
   chartTimeIndexes: Map<string, { index?: number }>;
   txs: ChartTokenTx[];
 }) => {
-  const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">("1h");
+  const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">("all");
   const [isChartPaused, setIsChartPaused] = useState(false);
 
   const formattedData_1h = useMemo(
