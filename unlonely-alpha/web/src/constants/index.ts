@@ -97,4 +97,6 @@ export const MOBILE_VIDEO_VH = 25;
 export const NEW_STREAMER_URL_QUERY_PARAM = "new";
 export const STREAMER_MIGRATION_URL_QUERY_PARAM = "migrate";
 
-export const channelIdsAllowedForNewPage = ["3", "15", "29", "483", "182", "138", "81", "97", "104", "27", "32", "426"];
+export const channelIdsAllowedForNewPage = ["3", "15", "29", "483", "182", "138", 
+// "81", "97", "104", 
+"27", "32", "426"];
