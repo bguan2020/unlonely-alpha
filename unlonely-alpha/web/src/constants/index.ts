@@ -82,7 +82,7 @@ export const MAX_VIBES_PRICE = 399999999934464;
 export const IPFS_PROJECT_ID = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
 export const IPFS_PROJECT_SECRET = "7d400aacc9bc6c0f0d6e59b65a83d764";
 
-export const CREATION_BLOCK = BigInt(9018023);
+export const CREATION_BLOCK = BigInt(9018023); // vibes token creation block number
 
 export const SECONDS_IN_A_MINUTE = 60;
 export const MINUTES_IN_AN_HOUR = 60;
@@ -97,4 +97,4 @@ export const MOBILE_VIDEO_VH = 25;
 export const NEW_STREAMER_URL_QUERY_PARAM = "new";
 export const STREAMER_MIGRATION_URL_QUERY_PARAM = "migrate";
 
-export const channelIdsAllowedForNewPage = ["3", "15", "29"];
+export const channelIdsAllowedForNewPage = ["3", "15", "29", "483", "182", "138", "81", "97", "104", "27", "32", "426"];
