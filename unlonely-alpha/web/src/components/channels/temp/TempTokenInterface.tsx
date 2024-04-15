@@ -222,7 +222,18 @@ export const TempTokenInterface = ({
 
   return (
     <>
-      {tempTokenLoading || customLoading ? (
+      {currentActiveTokenAddress === NULL_ADDRESS ? (
+        <Flex
+          direction="column"
+          alignItems="center"
+          width="100%"
+          gap="5px"
+          justifyContent={"center"}
+        >
+          <Text>No active token detected for this channel yet</Text>
+          <Spinner size="md" />
+        </Flex>
+      ) : tempTokenLoading || customLoading ? (
         <Flex
           direction="column"
           alignItems="center"
@@ -231,19 +242,6 @@ export const TempTokenInterface = ({
           justifyContent={"center"}
         >
           <Text>loading Temp Token chart</Text>
-          <Spinner size="md" />
-        </Flex>
-      ) : currentActiveTokenAddress === NULL_ADDRESS ? (
-        <Flex
-          direction="column"
-          alignItems="center"
-          width="100%"
-          gap="5px"
-          justifyContent={"center"}
-        >
-          <Text>
-            No active token detected for this channel, please try again later
-          </Text>
           <Spinner size="md" />
         </Flex>
       ) : (
