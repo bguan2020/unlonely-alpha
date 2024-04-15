@@ -15,6 +15,7 @@ import usePostSubscription from "../hooks/server/usePostSubscription";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 import { NETWORKS } from "../constants/networks";
 import { getColorFromString } from "../styles/Colors";
+import { OwnedChannelsModal } from "../components/channels/OwnedChannelsModal";
 
 const Profile = () => {
   const { user } = useUser();
@@ -24,6 +25,7 @@ const Profile = () => {
   const { wallet } = usePrivyWagmi();
   const [endpoint, setEndpoint] = useState<string>("");
   const [systemNotifLoading, setSystemNotifLoading] = useState<boolean>(false);
+  const [isChannelsModalOpen, setIsChannelsModalOpen] = useState(false);
 
   const [getSubscription, { loading, data }] = useLazyQuery(
     CHECK_SUBSCRIPTION,
@@ -99,6 +101,10 @@ const Profile = () => {
     });
   }, [endpoint]);
 
+  const redirectToNewChannelPage = () => {
+    window.open(`${window.location.origin}/onboard`, "_self");
+  };
+
   useEffect(() => {
     const init = async () => {
       if ("serviceWorker" in navigator) {
@@ -125,6 +131,10 @@ const Profile = () => {
 
   return (
     <AppLayout isCustomHeader={false}>
+      <OwnedChannelsModal
+        isOpen={isChannelsModalOpen}
+        handleClose={() => setIsChannelsModalOpen(false)}
+      />
       {ready ? (
         <Flex
           direction="column"
@@ -134,7 +144,7 @@ const Profile = () => {
           p="15px"
           gap="1rem"
         >
-          <Flex direction="column">
+          <Flex direction="column" gap="10px">
             <Text color="#e2f979" fontFamily="LoRes15" fontSize={"25px"}>
               connected as
             </Text>
@@ -162,6 +172,30 @@ const Profile = () => {
                 )}
               </Flex>
               <ConnectWallet />
+            </Flex>
+            <Flex
+              justifyContent={"space-evenly"}
+              alignItems="center"
+              gap="10px"
+            >
+              <Button
+                bg="rgba(70, 168, 0, 1)"
+                _hover={{
+                  bg: "rgba(70, 168, 0, 0.8)",
+                }}
+                _active={{}}
+                _focus={{}}
+                onClick={redirectToNewChannelPage}
+              >
+                <Text fontFamily="LoRes15" fontSize={"25px"} color="white">
+                  create channel
+                </Text>
+              </Button>
+              <Button onClick={() => setIsChannelsModalOpen(true)}>
+                <Text fontFamily="LoRes15" fontSize={"25px"}>
+                  my channels
+                </Text>
+              </Button>
             </Flex>
           </Flex>
           <Flex direction="column">
@@ -200,7 +234,7 @@ const Profile = () => {
             </Flex>
           </Flex>
           <Flex justifyContent={"space-between"} alignItems="center" gap="10px">
-            <Text fontFamily="LoRes15" fontSize={"25px"}>
+            <Text fontFamily="LoRes15" fontSize={"25px"} color="#e2f979">
               notifications
             </Text>
             <Flex alignItems="center" gap="4px">
