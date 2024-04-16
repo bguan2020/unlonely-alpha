@@ -10,6 +10,7 @@ import Link from "next/link";
 import { decodeEventLog } from "viem";
 import { filteredInput } from "../../../utils/validation/input";
 
+// for admins
 export const useUpdateTotalSupplyThresholdState = (
   tokenAddresses: string[],
   onSuccess?: () => void
