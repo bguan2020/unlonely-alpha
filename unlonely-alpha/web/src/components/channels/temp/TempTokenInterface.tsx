@@ -717,14 +717,18 @@ export const TempTokenInterface = ({
                         })}
                     </>
                   )}
-                  <ReferenceLine
-                    y={priceOfThreshold}
-                    stroke="#ff0000"
-                    strokeDasharray="3 3"
-                    label={
-                      <CustomLabel value={`goal: $${priceOfThresholdInUsd}`} />
-                    }
-                  />
+                  {thresholdOn && (
+                    <ReferenceLine
+                      y={priceOfThreshold}
+                      stroke="#ff0000"
+                      strokeDasharray="3 3"
+                      label={
+                        <CustomLabel
+                          value={`goal: $${priceOfThresholdInUsd}`}
+                        />
+                      }
+                    />
+                  )}
                   <Line
                     type="monotone"
                     dataKey="price"
