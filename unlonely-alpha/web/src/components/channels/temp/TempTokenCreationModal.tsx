@@ -1,12 +1,20 @@
 import { Flex, Text, Button, Spinner, Input } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import { useCreateTempTokenState } from "../../../hooks/internal/temp-token/useCreateTempTokenState";
+import {
+  EASY_THRESHOLD,
+  HARD_THRESHOLD,
+  MEDIUM_THRESHOLD,
+  useCreateTempTokenState,
+} from "../../../hooks/internal/temp-token/useCreateTempTokenState";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useLazyQuery } from "@apollo/client";
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../../constants/queries";
 import { GetLivepeerStreamDataQuery } from "../../../generated/graphql";
 import { alphanumericInput } from "../../../utils/validation/input";
+import { formatUnits } from "viem";
+import { truncateValue } from "../../../utils/tokenDisplayFormatting";
+import { useCacheContext } from "../../../hooks/context/useCache";
 
 export const TempTokenCreationModal = ({
   title,
@@ -17,6 +25,8 @@ export const TempTokenCreationModal = ({
   isOpen: boolean;
   handleClose: () => void;
 }) => {
+  const { ethPriceInUsd } = useCacheContext();
+
   const { channel } = useChannelContext();
   const { channelQueryData, realTimeChannelDetails } = channel;
   const [returnedIsLive, setReturnedIsLive] = useState<boolean | undefined>(
@@ -35,10 +45,12 @@ export const TempTokenCreationModal = ({
     newTokenName,
     newTokenSymbol,
     newTokenDuration,
+    newTokenTotalSupplyThreshold,
     isCreateTempTokenLoading,
     handleNewTokenName,
     handleNewTokenSymbol,
     handleNewTokenDuration,
+    handleNewTokenTotalSupplyThreshold,
   } = useCreateTempTokenState();
 
   useEffect(() => {
@@ -99,6 +111,59 @@ export const TempTokenCreationModal = ({
               handleNewTokenSymbol(alphanumericInput(e.target.value))
             }
           />
+          <Text>Price goal difficulty</Text>
+          <Flex gap="5px" justifyContent={"center"}>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={
+                newTokenTotalSupplyThreshold === EASY_THRESHOLD
+                  ? "#02d650"
+                  : "#ffffff"
+              }
+              onClick={() => handleNewTokenTotalSupplyThreshold(EASY_THRESHOLD)}
+            >
+              <Text>EASY</Text>
+            </Button>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={
+                newTokenTotalSupplyThreshold === MEDIUM_THRESHOLD
+                  ? "#02d650"
+                  : "#ffffff"
+              }
+              onClick={() =>
+                handleNewTokenTotalSupplyThreshold(MEDIUM_THRESHOLD)
+              }
+            >
+              <Text>NORMAL</Text>
+            </Button>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={
+                newTokenTotalSupplyThreshold === HARD_THRESHOLD
+                  ? "#02d650"
+                  : "#ffffff"
+              }
+              onClick={() => handleNewTokenTotalSupplyThreshold(HARD_THRESHOLD)}
+            >
+              <Text>HARD</Text>
+            </Button>
+          </Flex>
+          <Text textAlign="center" fontSize="13px" color="#2fe043">
+            {truncateValue(String(newTokenTotalSupplyThreshold), 0)} tokens to
+            reach{" "}
+            {`$${getUsdPriceFromEthPriceOfThreshold(
+              Number(ethPriceInUsd),
+              getEthPriceOfThreshold(newTokenTotalSupplyThreshold)
+            )}`}
+          </Text>
+          <Text>Duration</Text>
           <Flex gap="5px" justifyContent={"center"}>
             <Button
               _hover={{}}
@@ -172,5 +237,25 @@ export const TempTokenCreationModal = ({
         </Flex>
       )}
     </TransactionModalTemplate>
+  );
+};
+
+const getEthPriceOfThreshold = (threshold: bigint) => {
+  if (threshold === BigInt(0)) return 0;
+  const n = Number(threshold);
+  const n_ = Math.max(n - 1, 0);
+  const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+  const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+  const newPrice = priceForCurrent - priceForPrevious;
+  return newPrice;
+};
+
+const getUsdPriceFromEthPriceOfThreshold = (
+  ethPriceInUsd: number,
+  ethPriceOfThreshold: number
+) => {
+  return truncateValue(
+    Number(formatUnits(BigInt(ethPriceOfThreshold), 18)) * ethPriceInUsd,
+    4
   );
 };

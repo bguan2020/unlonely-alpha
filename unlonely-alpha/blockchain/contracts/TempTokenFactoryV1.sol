@@ -60,7 +60,6 @@ contract TempTokenFactoryV1 is Ownable {
     address public defaultProtocolFeeDestination;
     bool public isPaused;
     uint256 public maxDuration;
-    uint256 public totalSupplyThreshold;
 
     event TempTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber);
     event ProtocolFeeDestinationSet(address indexed protocolFeeDestination);
@@ -77,13 +76,12 @@ contract TempTokenFactoryV1 is Ownable {
         _;
     }
 
-    constructor(address _defaultProtocolFeeDestination, uint256 _defaultProtocolFeePercent, uint256 _defaultStreamerFeePercent, uint256 _totalSupplyThreshold) {
+    constructor(address _defaultProtocolFeeDestination, uint256 _defaultProtocolFeePercent, uint256 _defaultStreamerFeePercent) {
         require(_defaultProtocolFeeDestination != address(0), "Default fee destination cannot be zero");
 
         defaultProtocolFeePercent = _defaultProtocolFeePercent;
         defaultStreamerFeePercent = _defaultStreamerFeePercent;
         defaultProtocolFeeDestination = _defaultProtocolFeeDestination;
-        totalSupplyThreshold = _totalSupplyThreshold;
         maxDuration = 1 hours; // Sets the initial maxDuration to 3600 seconds
     }
 
@@ -97,7 +95,8 @@ contract TempTokenFactoryV1 is Ownable {
     function createTempToken(
         string memory name,
         string memory symbol,
-        uint256 duration
+        uint256 duration,
+        uint256 totalSupplyThreshold
     ) public returns (address) {
         require(!isPaused, "Factory is paused");
         require(duration <= maxDuration, "Duration is longer than max duration");
@@ -159,11 +158,10 @@ contract TempTokenFactoryV1 is Ownable {
      */
 
     function setTotalSupplyThresholdForTokens(uint256 _totalSupplyThreshold, address[] calldata _tokenAddresses) public onlyOwnerOrAdmin {
+        require(_tokenAddresses.length > 0, "Token addresses array is empty");
         for (uint256 i = 0; i < _tokenAddresses.length; i++) {
             TempTokenV1(_tokenAddresses[i]).updateTotalSupplyThreshold(_totalSupplyThreshold);
         }
-        // Update the global threshold for future tokens
-        totalSupplyThreshold = _totalSupplyThreshold;
         emit TotalSupplyThresholdSetForTokens(_totalSupplyThreshold, _tokenAddresses);
     }
 

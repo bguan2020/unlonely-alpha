@@ -155,13 +155,11 @@ export const TempTokenInterface = ({
 
   const priceOfThresholdInUsd = useMemo(
     () =>
-      ethPriceInUsd === undefined
-        ? undefined
-        : truncateValue(
-            Number(formatUnits(BigInt(priceOfThreshold), 18)) *
-              Number(ethPriceInUsd),
-            4
-          ),
+      truncateValue(
+        Number(formatUnits(BigInt(priceOfThreshold), 18)) *
+          Number(ethPriceInUsd),
+        4
+      ),
     [priceOfThreshold, ethPriceInUsd]
   );
 

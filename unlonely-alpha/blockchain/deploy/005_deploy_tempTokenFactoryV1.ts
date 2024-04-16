@@ -10,15 +10,13 @@ const CREATOR_FEE_PERCENT = 5;
 const BIGINT_PROTOCOL_FEE_PERCENT = (ONE_ETHER * BigInt(PROTOCOL_FEE_PERCENT)) / BigInt(100);
 const BIGINT_CREATOR_FEE_PERCENT = (ONE_ETHER * BigInt(CREATOR_FEE_PERCENT)) / BigInt(100);
 
-const STARTING_TOTAL_SUPPLY_THRESHOLD = 3_000_000;
-
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = hre.deployments;
   const { deployer } = await hre.getNamedAccounts();
 
   await deploy("TempTokenFactoryV1", {
     from: deployer,
-    args: [FEE_DESTINATION, BIGINT_PROTOCOL_FEE_PERCENT, BIGINT_CREATOR_FEE_PERCENT, STARTING_TOTAL_SUPPLY_THRESHOLD],
+    args: [FEE_DESTINATION, BIGINT_PROTOCOL_FEE_PERCENT, BIGINT_CREATOR_FEE_PERCENT],
     log: true
   })
 };
