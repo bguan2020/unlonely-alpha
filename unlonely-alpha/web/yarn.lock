@@ -31,6 +31,13 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.9.4.tgz#aae21cb858bbb0411949d5b7b3051f4209043f62"
   integrity sha512-UK0bHA7hh9cR39V+4gl2/NnBBjoXIxkuWAPCaY4X7fbH4L/azIi7ilWOCjMUYfpJgraLUAqkRi2BqrjME8Rynw==
 
+"@airstack/airstack-react@^0.6.3":
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/@airstack/airstack-react/-/airstack-react-0.6.3.tgz#b40e8d9f6e9f43a137476a7bcb6231b5d73d6372"
+  integrity sha512-DrWWTZkGXPxL86HB0o65dFBqqIz4crWE9nENYneSoXCWUh7wQFi4MdzLia8b2eFzJUliAJTwxLjBT8zWr+kSqQ==
+  dependencies:
+    graphql "16.6.0"
+
 "@ampproject/remapping@^2.1.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz#56c133824780de3174aed5ab6834f3026790154d"
@@ -8039,6 +8046,11 @@ graphql-ws@^5.4.1:
   version "5.9.1"
   resolved "https://registry.yarnpkg.com/graphql-ws/-/graphql-ws-5.9.1.tgz#9c0fa48ceb695d61d574ed3ab21b426729e87f2d"
   integrity sha512-mL/SWGBwIT9Meq0NlfS55yXXTOeWPMbK7bZBEZhFu46bcGk1coTx2Sdtzxdk+9yHWngD+Fk1PZDWaAutQa9tpw==
+
+graphql@16.6.0:
+  version "16.6.0"
+  resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.6.0.tgz#c2dcffa4649db149f6282af726c8c83f1c7c5fdb"
+  integrity sha512-KPIBPDlW7NxrbT/eh4qPXz5FiFdL5UbaA0XUNz2Rp3Z3hqBSkbj0GVjwFDztsWVauZUWsbKHgMg++sk8UX0bkw==
 
 graphql@^16.5.0:
   version "16.5.0"

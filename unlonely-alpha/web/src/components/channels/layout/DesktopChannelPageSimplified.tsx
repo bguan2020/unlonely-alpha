@@ -10,7 +10,15 @@ import { Livepeer } from "livepeer";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../../hooks/context/useUser";
 import ChannelNextHead from "../../layout/ChannelNextHead";
-import { Stack, Flex, Text, Button, Input, Spinner } from "@chakra-ui/react";
+import {
+  Stack,
+  Flex,
+  Text,
+  Button,
+  Input,
+  Spinner,
+  Tooltip,
+} from "@chakra-ui/react";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../../constants/queries";
 import { WavyText } from "../../general/WavyText";
@@ -27,7 +35,7 @@ import {
   useSupply,
 } from "../../../hooks/contracts/useTournament";
 import { useContractEvent } from "wagmi";
-import { Log, isAddress } from "viem";
+import { Log } from "viem";
 import Header from "../../navigation/Header";
 import { TempTokenCreationModal } from "../temp/TempTokenCreationModal";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
@@ -392,9 +400,10 @@ const CreateTokenInterface = () => {
 
   const {
     sendRemainingFundsToWinnerAfterTokenExpiration,
-    sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
-    handleWinnerAddressChange,
-    winnerAddress,
+    loading: sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
+    handleWinnerChange,
+    winner,
+    resolvedAddress,
   } = useSendRemainingFundsToWinnerState(inactiveTempTokenContract);
 
   return (
@@ -415,16 +424,25 @@ const CreateTokenInterface = () => {
         <Flex direction="column" gap="5px">
           <Text>Your last token that had expired still has a balance</Text>
           <Text>
-            Please provide an address to send it before creating a new one
+            Please provide an address or an ENS to send it before creating a new
+            one
           </Text>
-          <Input
-            variant="glow"
-            value={winnerAddress}
-            onChange={(e) => handleWinnerAddressChange(e.target.value)}
-          />
+          <Tooltip
+            placement="top"
+            shouldWrapChildren
+            isOpen={resolvedAddress}
+            isDisabled={!resolvedAddress}
+            label={`This ENS points to ${resolvedAddress}`}
+            bg="#078410"
+          >
+            <Input
+              variant="glow"
+              value={winner}
+              onChange={(e) => handleWinnerChange(e.target.value)}
+            />
+          </Tooltip>
           <Button
             isDisabled={
-              !isAddress(winnerAddress) ||
               sendRemainingFundsToWinnerAfterTokenExpirationTxLoading ||
               !sendRemainingFundsToWinnerAfterTokenExpiration
             }

@@ -157,11 +157,22 @@ export const TempTokenCreationModal = ({
           </Flex>
           <Text textAlign="center" fontSize="13px" color="#2fe043">
             {truncateValue(String(newTokenTotalSupplyThreshold), 0)} tokens to
-            reach{" "}
+            hit{" "}
             {`$${getUsdPriceFromEthPriceOfThreshold(
               Number(ethPriceInUsd),
               getEthPriceOfThreshold(newTokenTotalSupplyThreshold)
             )}`}
+            , needs{" "}
+            {truncateValue(
+              formatUnits(
+                BigInt(
+                  getCostInEthToBuyToThreshold(newTokenTotalSupplyThreshold)
+                ),
+                18
+              ),
+              4
+            )}{" "}
+            ETH
           </Text>
           <Text>Duration</Text>
           <Flex gap="5px" justifyContent={"center"}>
@@ -258,4 +269,10 @@ const getUsdPriceFromEthPriceOfThreshold = (
     Number(formatUnits(BigInt(ethPriceOfThreshold), 18)) * ethPriceInUsd,
     4
   );
+};
+
+const getCostInEthToBuyToThreshold = (threshold: bigint) => {
+  const n = Number(threshold);
+  const cost = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+  return cost;
 };

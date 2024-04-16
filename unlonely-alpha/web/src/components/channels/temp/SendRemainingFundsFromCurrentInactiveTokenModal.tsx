@@ -1,5 +1,4 @@
-import { Button, Flex, Input, Spinner, Text } from "@chakra-ui/react";
-import { isAddress } from "viem";
+import { Button, Flex, Input, Spinner, Text, Tooltip } from "@chakra-ui/react";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useSendRemainingFundsToWinnerState } from "../../../hooks/internal/temp-token/useSendRemainingFundsToWinnerState";
@@ -20,9 +19,10 @@ export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
 
   const {
     sendRemainingFundsToWinnerAfterTokenExpiration,
-    sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
-    handleWinnerAddressChange,
-    winnerAddress,
+    loading: sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
+    handleWinnerChange,
+    winner,
+    resolvedAddress,
   } = useSendRemainingFundsToWinnerState(
     currentTempTokenContract,
     callbackOnTxSuccess
@@ -37,15 +37,23 @@ export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
       bg={"#18162F"}
     >
       <Flex direction="column" gap="5px">
-        <Text>Please provide an address to send it</Text>
-        <Input
-          variant="glow"
-          value={winnerAddress}
-          onChange={(e) => handleWinnerAddressChange(e.target.value)}
-        />
+        <Text>Please provide an address or an ENS to send it</Text>
+        <Tooltip
+          placement="top"
+          shouldWrapChildren
+          isOpen={resolvedAddress}
+          isDisabled={!resolvedAddress}
+          label={`This ENS points to ${resolvedAddress}`}
+          bg="#078410"
+        >
+          <Input
+            variant="glow"
+            value={winner}
+            onChange={(e) => handleWinnerChange(e.target.value)}
+          />
+        </Tooltip>
         <Button
           isDisabled={
-            !isAddress(winnerAddress) ||
             sendRemainingFundsToWinnerAfterTokenExpirationTxLoading ||
             !sendRemainingFundsToWinnerAfterTokenExpiration
           }
