@@ -473,7 +473,7 @@ export const TempTokenInterface = ({
                   <FaMagnifyingGlassChart />
                 </Button>
               </ChakraTooltip>
-              {currentActiveTokenHasHitTotalSupplyThreshold && (
+              {isOwner && currentActiveTokenHasHitTotalSupplyThreshold && (
                 <ChakraTooltip
                   label="increase the price goal"
                   shouldWrapChildren
