@@ -433,6 +433,42 @@ export const useBurn = (
     };
 };
 
+export const useUpdateTotalSupplyThreshold = (
+    args: {
+      newThreshold: bigint;
+    },
+    contract: ContractData,
+    callbacks?: WriteCallbacks
+  ) => {
+    const {
+      writeAsync: updateTotalSupplyThreshold,
+      writeData: updateTotalSupplyThresholdData,
+      txData: updateTotalSupplyThresholdTxData,
+      isTxLoading: updateTotalSupplyThresholdTxLoading,
+      refetch,
+      isRefetching: isRefetchingUpdateTotalSupplyThreshold,
+    } = useWrite(
+      contract,
+      "updateTotalSupplyThreshold",
+      [args.newThreshold],
+      createCallbackHandler("useTempTokenV1 updateTotalSupplyThreshold", callbacks),
+      {
+        enabled:
+          contract.address !== NULL_ADDRESS &&
+          contract.abi !== null,
+      }
+    );
+  
+    return {
+      refetch,
+      updateTotalSupplyThreshold,
+      updateTotalSupplyThresholdData,
+      updateTotalSupplyThresholdTxData,
+      updateTotalSupplyThresholdTxLoading,
+      isRefetchingUpdateTotalSupplyThreshold,
+    };
+};
+
 export const useSendRemainingFundsToWinnerAfterTokenExpiration = (
     args: {
       winnerWalletAddress: string;

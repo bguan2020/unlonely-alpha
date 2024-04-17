@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@ably-labs/react-hooks": "^2.0.6",
+    "@airstack/airstack-react": "^0.6.3",
     "@apollo/client": "^3.6.9",
     "@chakra-ui/core": "^0.8.0",
     "@chakra-ui/icons": "1.1.1",

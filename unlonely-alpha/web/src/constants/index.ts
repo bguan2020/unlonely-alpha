@@ -99,4 +99,4 @@ export const STREAMER_MIGRATION_URL_QUERY_PARAM = "migrate";
 
 export const channelIdsAllowedForNewPage = ["3", "15", "29", "483", "182", "138", 
 // "81", "97", "104", 
-"27", "32", "426", "478", "191"];
+"27", "32", "426", "478", "191", "525"];

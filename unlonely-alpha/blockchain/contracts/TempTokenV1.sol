@@ -181,7 +181,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         * it is only callable by the factory contract.
     */
     function updateTotalSupplyThreshold(uint256 _newThreshold) public {
-        require(msg.sender == factoryAddress, "Only the factory can update the threshold");
+        require(msg.sender == factoryAddress || msg.sender == owner(), "Only the factory or the owner can update the threshold");
         require(_newThreshold > totalSupplyThreshold, "New threshold must be greater than the current threshold");
         hasHitTotalSupplyThreshold = false;
         totalSupplyThreshold = _newThreshold;

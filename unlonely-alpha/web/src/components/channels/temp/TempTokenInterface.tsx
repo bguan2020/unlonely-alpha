@@ -43,6 +43,7 @@ import { TempTokenExchange } from "./TempTokenExchange";
 import { TempTokenTimerView } from "./TempTokenTimer";
 import { usePublicClient } from "wagmi";
 import { TempTokenDisclaimerModal } from "./TempTokenDisclaimerModal";
+import { useOwnerUpdateTotalSupplyThresholdState } from "../../../hooks/internal/temp-token/useOwnerUpdateTotalSupplyThresholdState";
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
 const NUMBER_OF_DAYS_IN_MONTH = 30;
@@ -93,6 +94,10 @@ export const TempTokenInterface = ({
   } = channel;
 
   const tradeTempTokenState = useTradeTempTokenState();
+  const {
+    callSetTotalSupplyThresholdForTokens,
+    loading: setTotalSupplyThresholdForTokensLoading,
+  } = useOwnerUpdateTotalSupplyThresholdState();
 
   const {
     isChartPaused,
@@ -155,13 +160,11 @@ export const TempTokenInterface = ({
 
   const priceOfThresholdInUsd = useMemo(
     () =>
-      ethPriceInUsd === undefined
-        ? undefined
-        : truncateValue(
-            Number(formatUnits(BigInt(priceOfThreshold), 18)) *
-              Number(ethPriceInUsd),
-            4
-          ),
+      truncateValue(
+        Number(formatUnits(BigInt(priceOfThreshold), 18)) *
+          Number(ethPriceInUsd),
+        4
+      ),
     [priceOfThreshold, ethPriceInUsd]
   );
 
@@ -470,6 +473,64 @@ export const TempTokenInterface = ({
                   <FaMagnifyingGlassChart />
                 </Button>
               </ChakraTooltip>
+              {currentActiveTokenHasHitTotalSupplyThreshold && (
+                <ChakraTooltip
+                  label="increase the price goal"
+                  shouldWrapChildren
+                  openDelay={300}
+                >
+                  <Flex gap="2px" bg="#fdbf2f" px="3px" borderRadius="5px">
+                    <Button
+                      color="#ffffff"
+                      bg={"rgba(0, 0, 0, 0.7)"}
+                      _hover={{
+                        bg: "rgba(0, 0, 0, 0.5)",
+                      }}
+                      _focus={{}}
+                      _active={{}}
+                      p={3}
+                      height={"20px"}
+                      onClick={() =>
+                        callSetTotalSupplyThresholdForTokens(
+                          BigInt(
+                            Math.floor(
+                              Number(currentActiveTokenTotalSupplyThreshold) *
+                                1.05
+                            )
+                          )
+                        )
+                      }
+                      isDisabled={setTotalSupplyThresholdForTokensLoading}
+                    >
+                      +5%
+                    </Button>
+                    <Button
+                      color="#ffffff"
+                      bg={"rgba(0, 0, 0, 0.7)"}
+                      _hover={{
+                        bg: "rgba(0, 0, 0, 0.5)",
+                      }}
+                      _focus={{}}
+                      _active={{}}
+                      p={3}
+                      height={"20px"}
+                      onClick={() =>
+                        callSetTotalSupplyThresholdForTokens(
+                          BigInt(
+                            Math.floor(
+                              Number(currentActiveTokenTotalSupplyThreshold) *
+                                1.5
+                            )
+                          )
+                        )
+                      }
+                      isDisabled={setTotalSupplyThresholdForTokensLoading}
+                    >
+                      +50%
+                    </Button>
+                  </Flex>
+                </ChakraTooltip>
+              )}
             </Flex>
           )}
           <Flex gap="10px" flex="1" h="100%" direction="column">
@@ -656,14 +717,18 @@ export const TempTokenInterface = ({
                         })}
                     </>
                   )}
-                  <ReferenceLine
-                    y={priceOfThreshold}
-                    stroke="#ff0000"
-                    strokeDasharray="3 3"
-                    label={
-                      <CustomLabel value={`goal: $${priceOfThresholdInUsd}`} />
-                    }
-                  />
+                  {thresholdOn && (
+                    <ReferenceLine
+                      y={priceOfThreshold}
+                      stroke="#ff0000"
+                      strokeDasharray="3 3"
+                      label={
+                        <CustomLabel
+                          value={`goal: $${priceOfThresholdInUsd}`}
+                        />
+                      }
+                    />
+                  )}
                   <Line
                     type="monotone"
                     dataKey="price"
@@ -811,7 +876,7 @@ export const TempTokenInterface = ({
                       </Text>
                     )}
                   </Flex>
-                  <Flex direction="column">
+                  {/* <Flex direction="column">
                     <Text fontSize={"12px"} color="#c6c3fc">
                       Highest Price Reached
                     </Text>
@@ -834,7 +899,7 @@ export const TempTokenInterface = ({
                         {formatUnits(BigInt(priceOfHighestTotalSupply), 18)} ETH
                       </Text>
                     )}
-                  </Flex>
+                  </Flex> */}
                   <Flex direction="column">
                     {currentActiveTokenHasHitTotalSupplyThreshold ? (
                       <Text fontSize={"12px"} color="#ffd014">

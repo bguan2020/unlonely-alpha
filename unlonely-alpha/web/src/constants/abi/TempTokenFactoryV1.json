@@ -15,11 +15,6 @@
         "internalType": "uint256",
         "name": "_defaultStreamerFeePercent",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_totalSupplyThreshold",
-        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -267,6 +262,11 @@
       {
         "internalType": "uint256",
         "name": "duration",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalSupplyThreshold",
         "type": "uint256"
       }
     ],
@@ -653,19 +653,6 @@
     "name": "setTotalSupplyThresholdForTokens",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalSupplyThreshold",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {

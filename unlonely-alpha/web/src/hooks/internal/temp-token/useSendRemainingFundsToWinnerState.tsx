@@ -1,10 +1,10 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNetworkContext } from "../../context/useNetwork";
 import { ContractData } from "../../../constants/types";
 import { Box, useToast } from "@chakra-ui/react";
 import Link from "next/link";
 import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../contracts/useTempTokenV1";
-import { decodeEventLog } from "viem";
+import { decodeEventLog, isAddress } from "viem";
 import { useChannelContext } from "../../context/useChannel";
 import { InteractionType } from "../../../constants";
 import { useUser } from "../../context/useUser";
@@ -12,6 +12,21 @@ import { useApolloClient } from "@apollo/client";
 import { GET_USER_QUERY } from "../../../constants/queries";
 import centerEllipses from "../../../utils/centerEllipses";
 import { usePublicClient } from "wagmi";
+import { init, useQuery } from "@airstack/airstack-react";
+import useDebounce from "../useDebounce";
+
+init(String(process.env.NEXT_PUBLIC_AIRSTACK_API_KEY));
+
+const getAddressFromEns = (ens: string) => {
+  return `query GetAddressFromEns {
+    Domains(input: {filter: {name: {_in: ["${ens}"]}}, blockchain: ethereum}) {
+      Domain {
+        resolvedAddress
+        name
+      }
+    }
+  }`;
+};
 
 export const useSendRemainingFundsToWinnerState = (
   tokenContractData: ContractData,
@@ -27,14 +42,31 @@ export const useSendRemainingFundsToWinnerState = (
   const { network } = useNetworkContext();
   const { explorerUrl } = network;
 
-  const [winnerAddress, setWinnerAddress] = useState("");
+  const [winner, setWinner] = useState("");
+  const debouncedWinner = useDebounce(winner, 300);
+  const [resultingWinnerAddress, setResultingWinnerAddress] = useState("");
+
+  const query = useMemo(() => {
+    if (!debouncedWinner || isAddress(debouncedWinner)) return "";
+    return getAddressFromEns(debouncedWinner);
+  }, [debouncedWinner]);
+
+  const { data, loading } = useQuery(query);
+
+  useEffect(() => {
+    if (data?.Domains?.Domain?.[0]?.resolvedAddress) {
+      setResultingWinnerAddress(data.Domains.Domain[0].resolvedAddress);
+    } else {
+      setResultingWinnerAddress(debouncedWinner);
+    }
+  }, [data, debouncedWinner]);
 
   const {
     sendRemainingFundsToWinnerAfterTokenExpiration,
     sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
   } = useSendRemainingFundsToWinnerAfterTokenExpiration(
     {
-      winnerWalletAddress: winnerAddress,
+      winnerWalletAddress: resultingWinnerAddress,
     },
     tokenContractData,
     {
@@ -94,11 +126,12 @@ export const useSendRemainingFundsToWinnerState = (
         const identifiedUser: string = await client
           .query({
             query: GET_USER_QUERY,
-            variables: { data: { address: winnerAddress } },
+            variables: { data: { address: resultingWinnerAddress } },
           })
           .then(
             ({ data }) =>
-              data?.getUser?.username ?? centerEllipses(winnerAddress, 15)
+              data?.getUser?.username ??
+              centerEllipses(resultingWinnerAddress, 15)
           );
         const symbol = await publicClient.readContract({
           address: tokenContractData.address as `0x${string}`,
@@ -116,7 +149,7 @@ export const useSendRemainingFundsToWinnerState = (
           title,
           description: "",
         });
-        setWinnerAddress("");
+        setWinner("");
         callbackOnTxSuccess?.();
       },
       onTxError: (error) => {
@@ -134,14 +167,15 @@ export const useSendRemainingFundsToWinnerState = (
     }
   );
 
-  const handleWinnerAddressChange = useCallback((input: string) => {
-    setWinnerAddress(input);
+  const handleWinnerChange = useCallback((input: string) => {
+    setWinner(input);
   }, []);
 
   return {
     sendRemainingFundsToWinnerAfterTokenExpiration,
-    sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
-    handleWinnerAddressChange,
-    winnerAddress,
+    loading: loading || sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
+    handleWinnerChange,
+    winner,
+    resolvedAddress: data?.Domains?.Domain?.[0]?.resolvedAddress ?? undefined,
   };
 };

@@ -12,10 +12,15 @@ import { useChannelContext } from "../../context/useChannel";
 import { useUser } from "../../context/useUser";
 import centerEllipses from "../../../utils/centerEllipses";
 
+export const EASY_THRESHOLD = BigInt(420_000);
+export const MEDIUM_THRESHOLD = BigInt(690_000);
+export const HARD_THRESHOLD = BigInt(2_000_000);
+
 export type UseCreateTempTokenStateType = {
   newTokenName: string;
   newTokenSymbol: string;
   newTokenDuration: bigint;
+  newTokenTotalSupplyThreshold: bigint;
   createTempToken?: () => Promise<any>;
   createTempTokenData: any;
   createTempTokenTxData: any;
@@ -23,12 +28,14 @@ export type UseCreateTempTokenStateType = {
   handleNewTokenName: (name: string) => void;
   handleNewTokenSymbol: (symbol: string) => void;
   handleNewTokenDuration: (duration: bigint) => void;
+  handleNewTokenTotalSupplyThreshold: (totalSupplyThreshold: bigint) => void;
 };
 
 export const useCreateTempTokenInitialState: UseCreateTempTokenStateType = {
   newTokenName: "temp",
   newTokenSymbol: "temp",
   newTokenDuration: BigInt(3600),
+  newTokenTotalSupplyThreshold: MEDIUM_THRESHOLD,
   createTempToken: undefined,
   createTempTokenData: undefined,
   createTempTokenTxData: undefined,
@@ -36,6 +43,7 @@ export const useCreateTempTokenInitialState: UseCreateTempTokenStateType = {
   handleNewTokenName: () => undefined,
   handleNewTokenSymbol: () => undefined,
   handleNewTokenDuration: () => undefined,
+  handleNewTokenTotalSupplyThreshold: () => undefined,
 };
 
 export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
@@ -51,6 +59,8 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
   const [newTokenDuration, setNewTokenDuration] = useState<bigint>(
     BigInt(1800)
   );
+  const [newTokenTotalSupplyThreshold, setNewTokenTotalSupplyThreshold] =
+    useState<bigint>(MEDIUM_THRESHOLD);
 
   const { postTempToken } = usePostTempToken({});
   const canAddToChatbot_create = useRef(false);
@@ -69,6 +79,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
       name: newTokenName,
       symbol: newTokenSymbol,
       duration: newTokenDuration,
+      totalSupplyThreshold: newTokenTotalSupplyThreshold,
     },
     factoryContract,
     {
@@ -273,10 +284,18 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
     setNewTokenDuration(duration);
   }, []);
 
+  const handleNewTokenTotalSupplyThreshold = useCallback(
+    (totalSupplyThreshold: bigint) => {
+      setNewTokenTotalSupplyThreshold(totalSupplyThreshold);
+    },
+    []
+  );
+
   return {
     newTokenName,
     newTokenSymbol,
     newTokenDuration,
+    newTokenTotalSupplyThreshold,
     createTempToken: _createTempToken,
     createTempTokenData,
     createTempTokenTxData,
@@ -284,5 +303,6 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
     handleNewTokenName,
     handleNewTokenSymbol,
     handleNewTokenDuration,
+    handleNewTokenTotalSupplyThreshold,
   };
 };

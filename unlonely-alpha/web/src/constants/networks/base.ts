@@ -78,7 +78,8 @@ export const Base: Network = {
         abi: VibesTokenV1,
       },
       [Contract.TEMP_TOKEN_FACTORY_V1]: {
-        address: "0x2307DE4C285b7Cc3981432CF67FFBFB0843ac1Bc",
+        address: "0x0C397be7ea5268E4745Eed546880016E5B2BBAB0",
+        // address: "0x2307DE4C285b7Cc3981432CF67FFBFB0843ac1Bc", // past contract
         abi: TempTokenFactoryV1,
       },
     },

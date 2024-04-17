@@ -141,35 +141,6 @@ export const useReadMaxDuration = (contract: ContractData) => {
   };
 };
 
-export const useReadTotalSupplyThreshold = (contract: ContractData) => {
-  const publicClient = usePublicClient();
-
-  const [totalSupplyThreshold, setTotalSupplyThreshold] = useState<bigint>(BigInt(0));
-
-  const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient) {
-      setTotalSupplyThreshold(BigInt(0));
-      return;
-    }
-    const totalSupplyThreshold = await publicClient.readContract({
-      address: contract.address,
-      abi: contract.abi,
-      functionName: "totalSupplyThreshold",
-      args: [],
-    });
-    setTotalSupplyThreshold(BigInt(String(totalSupplyThreshold)));
-  }, [contract.address, publicClient]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
-  return {
-    refetch: getData,
-    totalSupplyThreshold,
-  };
-};
-
 export const useReadTokenInfo = (
   contract: ContractData,
   tokenAddress: `0x${string}`
@@ -216,6 +187,7 @@ export const useCreateTempToken = (
     name: string;
     symbol: string;
     duration: bigint;
+    totalSupplyThreshold: bigint;
   },
   contract: ContractData,
   callbacks?: WriteCallbacks
@@ -228,7 +200,7 @@ export const useCreateTempToken = (
   } = useWrite(
     contract,
     "createTempToken",
-    [args.name, args.symbol, args.duration],
+    [args.name, args.symbol, args.duration, args.totalSupplyThreshold],
     createCallbackHandler("useTempTokenFactoryV1 createTempToken", callbacks),
     { enabled: args.name.length > 0 && args.symbol.length > 0 }
   );
