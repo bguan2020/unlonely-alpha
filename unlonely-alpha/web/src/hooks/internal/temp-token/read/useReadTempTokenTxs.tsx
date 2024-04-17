@@ -169,6 +169,7 @@ export const useReadTempTokenTxs = ({
       if (
         !baseClient ||
         !tempTokenContract.address ||
+        tempTokenContract.address === NULL_ADDRESS ||
         currentActiveTokenCreationBlockNumber === BigInt(0) ||
         fetching.current ||
         tempTokenTxs.length > 0
@@ -178,9 +179,10 @@ export const useReadTempTokenTxs = ({
       }
       fetching.current = true;
       console.log(
-        "currentActiveTokenCreationBlockNumber",
+        "getTempTokenEvents currentActiveTokenCreationBlockNumber",
         currentActiveTokenCreationBlockNumber
       );
+      console.log("getTempTokenEvents tempTokenContract", tempTokenContract);
       const [mintLogs, burnLogs] = await Promise.all([
         baseClient.getLogs({
           address: tempTokenContract.address,
