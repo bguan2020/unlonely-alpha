@@ -212,15 +212,6 @@ export const TempTokenCreationModal = ({
             >
               30 mins
             </Button>
-            <Button
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              bg={newTokenDuration === BigInt("3600") ? "#02d650" : "#ffffff"}
-              onClick={() => handleNewTokenDuration(BigInt("3600"))}
-            >
-              1 hour
-            </Button>
           </Flex>
           <Button
             onClick={createTempToken}
