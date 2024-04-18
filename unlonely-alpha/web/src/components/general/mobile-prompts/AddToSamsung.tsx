@@ -2,8 +2,6 @@ import React from "react";
 import { Text, Flex, Image, Button } from "@chakra-ui/react";
 import { FaBars } from "react-icons/fa";
 
-import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
-
 interface Props {
   closePrompt: () => void;
 }
@@ -12,14 +10,7 @@ export default function AddToSamsung(props: Props) {
   const { closePrompt } = props;
 
   return (
-    <TransactionModalTemplate
-      size="xs"
-      isModalLoading={false}
-      isOpen={true}
-      handleClose={closePrompt}
-      hideFooter
-      bg="#e7e7e7"
-    >
+    <>
       <Flex direction="column" alignItems={"center"} gap="10px">
         <Image src="/icons/icon-192x192.png" h="80px" mb="10px" />
         <Text color="black" fontFamily="LoRes15" fontSize="25px" mb="10px">
@@ -52,6 +43,6 @@ export default function AddToSamsung(props: Props) {
       >
         close
       </Button>
-    </TransactionModalTemplate>
+    </>
   );
 }

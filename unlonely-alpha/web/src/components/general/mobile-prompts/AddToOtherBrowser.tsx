@@ -1,8 +1,6 @@
 import React from "react";
 import { Button, Link, Text, Flex, Image } from "@chakra-ui/react";
 
-import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
-
 interface Props {
   closePrompt: () => void;
 }
@@ -13,15 +11,7 @@ export default function AddToOtherBrowser(props: Props) {
     "https://www.google.com/search?q=add+to+home+screen+for+common-mobile-browsers";
 
   return (
-    <TransactionModalTemplate
-      size="xs"
-      isModalLoading={false}
-      isOpen={true}
-      handleClose={closePrompt}
-      hideFooter
-      blur
-      bg="#e7e7e7"
-    >
+    <>
       <Flex direction="column" alignItems={"center"} margin="10px">
         <Image src="/icons/icon-192x192.png" h="80px" mb="10px" />
         <Text color="black" fontFamily="LoRes15" fontSize="25px" mb="10px">
@@ -56,6 +46,6 @@ export default function AddToOtherBrowser(props: Props) {
       >
         close
       </Button>
-    </TransactionModalTemplate>
+    </>
   );
 }
