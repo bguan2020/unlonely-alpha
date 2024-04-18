@@ -8,7 +8,11 @@ import {
   SelectedUser,
   SenderStatus,
 } from "../../constants/types/chat";
-import { AblyChannelPromise, CHAT_MESSAGE_EVENT } from "../../constants";
+import {
+  AblyChannelPromise,
+  CHAT_MESSAGE_EVENT,
+  InteractionType,
+} from "../../constants";
 import { ChatUserModal } from "../channels/ChatUserModal";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { ChatUserModal_token } from "../channels/ChatUserModal_token";
@@ -51,6 +55,34 @@ const MessageItem = memo(({ message, handleOpen, index }: MessageItemProps) => {
     </div>
   );
 });
+
+const excludedChatbotInteractionTypesInVipChat = [
+  InteractionType.BUY,
+  InteractionType.BUY_BADGES,
+  InteractionType.BUY_TEMP_TOKENS,
+  InteractionType.BUY_VIBES,
+  InteractionType.BUY_VOTES,
+
+  InteractionType.SELL_BADGES,
+  InteractionType.SELL_TEMP_TOKENS,
+  InteractionType.SELL_VIBES,
+  InteractionType.SELL_VOTES,
+
+  InteractionType.CREATE_TEMP_TOKEN,
+  InteractionType.TEMP_TOKEN_EXPIRED,
+  InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
+  InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
+  InteractionType.TEMP_TOKEN_DURATION_INCREASED,
+  InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
+  InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
+  InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
+
+  InteractionType.EVENT_LIVE,
+  InteractionType.EVENT_LOCK,
+  InteractionType.EVENT_UNLOCK,
+  InteractionType.EVENT_PAYOUT,
+];
+
 const MessageList = memo(
   ({
     messages,
@@ -62,15 +94,25 @@ const MessageList = memo(
   }: MessageListProps) => {
     const { ui } = useChannelContext();
     const { selectedUserInChat, handleSelectedUserInChat } = ui;
-    const chatMessages = useMemo(
-      () =>
-        messages.filter(
-          (message) =>
-            message.name === CHAT_MESSAGE_EVENT &&
-            (isVipChat ? message.data.senderStatus !== SenderStatus.USER : true)
-        ),
-      [messages, isVipChat]
-    );
+    const chatMessages = useMemo(() => {
+      if (isVipChat) {
+        return messages.filter((m) => {
+          const isChatMessageEvent = m.name === CHAT_MESSAGE_EVENT;
+          const isVip = m.data.senderStatus === SenderStatus.VIP;
+          const isChatbotWithAcceptableInteractionType =
+            m.data.senderStatus === SenderStatus.CHATBOT &&
+            !excludedChatbotInteractionTypesInVipChat.includes(
+              m?.data?.body?.split(":")[0] as any
+            );
+          return (
+            isChatMessageEvent &&
+            (isVip || isChatbotWithAcceptableInteractionType)
+          );
+        });
+      } else {
+        return messages.filter((m) => m.name === CHAT_MESSAGE_EVENT);
+      }
+    }, [messages, isVipChat]);
 
     return (
       <>
