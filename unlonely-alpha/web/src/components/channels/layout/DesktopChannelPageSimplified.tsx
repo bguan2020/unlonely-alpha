@@ -380,6 +380,7 @@ export const DesktopChannelPageSimplified = ({
             justifyContent={"center"}
             width="100%"
             height="calc(100vh)"
+            fontSize="50px"
           >
             {!channelDataError && !channelSSRDataError ? (
               <WavyText text="loading..." />
@@ -387,12 +388,12 @@ export const DesktopChannelPageSimplified = ({
               <Text fontFamily="LoRes15">channel does not exist</Text>
             ) : (
               <Flex direction="column" gap="10px" justifyContent="center">
-                <Text fontFamily="LoRes15" textAlign={"center"} fontSize="50px">
+                <Text fontFamily="LoRes15" textAlign={"center"}>
                   server error, please try again later
                 </Text>
                 {channelDataError && (
                   <Flex justifyContent={"center"} direction="column">
-                    <Text textAlign={"center"}>
+                    <Text textAlign={"center"} fontSize="12px">
                       {trailString(formatApolloError(channelDataError), 25)}
                     </Text>
                     <Button

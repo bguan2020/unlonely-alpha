@@ -388,7 +388,7 @@ export const DesktopPage = ({
                 </Text>
                 {channelDataError && (
                   <Flex justifyContent={"center"} direction="column">
-                    <Text textAlign={"center"}>
+                    <Text textAlign={"center"} fontSize="12px">
                       {trailString(formatApolloError(channelDataError), 25)}
                     </Text>
                     <Button
