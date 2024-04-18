@@ -206,7 +206,8 @@ body {
 }
 
 @keyframes flashingAnim {
-  0%, 100% {
+  0%,
+  100% {
     text-shadow: 0 0 1em rgb(255, 0, 0);
     filter: brightness(100%);
   }

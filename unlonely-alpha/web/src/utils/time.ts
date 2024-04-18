@@ -36,7 +36,11 @@ export const getTimesFromMillis = (millis: number) => {
   return { hours, minutes, seconds };
 };
 
-export const getTimeFromMillis = (millis: number, showSeconds?: boolean, format?: boolean): string => {
+export const getTimeFromMillis = (
+  millis: number,
+  showSeconds?: boolean,
+  format?: boolean
+): string => {
   if (millis === 0) return "0";
 
   const { hours, minutes, seconds } = getTimesFromMillis(millis);
@@ -44,14 +48,14 @@ export const getTimeFromMillis = (millis: number, showSeconds?: boolean, format?
     const paddedHours = hours.toString().padStart(2, "0");
     const paddedMinutes = minutes.toString().padStart(2, "0");
     const paddedSeconds = seconds.toString().padStart(2, "0");
-  
+
     if (showSeconds) return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
     return `${paddedHours}:${paddedMinutes}`;
   }
 
-  let str = `${
-    hours > 0 ? `${hours}h` : ""
-  }${minutes > 0 ? " " : ""}${minutes > 0 ? `${minutes}m` : ""}${showSeconds ? " " : ""}${showSeconds && seconds > 0 ? `${seconds}s` : ""}`;
+  let str = `${hours > 0 ? `${hours}h` : ""}${minutes > 0 ? " " : ""}${
+    minutes > 0 ? `${minutes}m` : ""
+  }${showSeconds ? " " : ""}${showSeconds && seconds > 0 ? `${seconds}s` : ""}`;
   if (str === "") str = "<1m";
   return str;
 };
@@ -71,10 +75,10 @@ export function formatTimestampToTime(timestampInMilliseconds: number) {
   let hours = date.getHours();
   const minutes = date.getMinutes();
   const ampm = hours >= 12 ? "pm" : "am";
-  
+
   hours = hours % 12;
   hours = hours ? hours : 12; // The hour "0" should be "12"
   const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
-  
+
   return hours + ":" + formattedMinutes + " " + ampm;
 }

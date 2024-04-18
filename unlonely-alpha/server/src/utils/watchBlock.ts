@@ -12,11 +12,11 @@ export const watchBlocks = async () => {
   //   ),
   // });
   // (publicClient as any).watchBlocks({
-    // onBlock: async () => {
-      await postVibesTrades({
-        chainId: 8453,
-        tokenAddress: vibesTokenContractAddress,
-      });
+  // onBlock: async () => {
+  await postVibesTrades({
+    chainId: 8453,
+    tokenAddress: vibesTokenContractAddress,
+  });
   //   },
   // });
 };

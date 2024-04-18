@@ -89,12 +89,12 @@ const VibesTokenInterface = ({
   customLoading?: boolean;
   noChannelData?: boolean;
 }) => {
-  const { userAddress, walletIsConnected } = useUser();
+  const { walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
   const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
     useCacheContext();
   const { channel } = useChannelContext();
-  const { channelQueryData, channelVibesTokenPriceRange } = channel;
+  const { channelQueryData, channelVibesTokenPriceRange, isOwner } = channel;
   const { ethPriceInUsd, currentBlockNumberForVibes } = useCacheContext();
   const windowSize = useWindowSize();
   const { network } = useNetworkContext();
@@ -212,8 +212,6 @@ const VibesTokenInterface = ({
   );
 
   const [isZoneModalOpen, setIsZoneModalOpen] = useState(false);
-
-  const isOwner = userAddress === channelQueryData?.owner?.address;
 
   const lowerPrice = useMemo(() => {
     if (customLowerPrice !== undefined) return customLowerPrice;

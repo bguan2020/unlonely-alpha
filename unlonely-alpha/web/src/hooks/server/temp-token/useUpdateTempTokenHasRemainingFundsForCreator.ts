@@ -3,29 +3,35 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
-import { UpdateTempTokenHasRemainingFundsForCreatorMutation, UpdateTempTokenHasRemainingFundsForCreatorMutationVariables } from "../../../generated/graphql";
+import {
+  UpdateTempTokenHasRemainingFundsForCreatorMutation,
+  UpdateTempTokenHasRemainingFundsForCreatorMutationVariables,
+} from "../../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
 const MUTATION = gql`
-  mutation UpdateTempTokenHasRemainingFundsForCreator($data: UpdateTempTokenHasRemainingFundsForCreatorInput!) {
+  mutation UpdateTempTokenHasRemainingFundsForCreator(
+    $data: UpdateTempTokenHasRemainingFundsForCreatorInput!
+  ) {
     updateTempTokenHasRemainingFundsForCreator(data: $data) {
-        tokenAddress
-        hasRemainingFundsForCreator
-        channelId
-        chainId
-        balance
-      }
+      tokenAddress
+      hasRemainingFundsForCreator
+      channelId
+      chainId
+      balance
+    }
   }
 `;
 
 const useUpdateTempTokenHasRemainingFundsForCreator = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<UpdateTempTokenHasRemainingFundsForCreatorMutation, UpdateTempTokenHasRemainingFundsForCreatorMutationVariables>(
-    MUTATION
-  );
+  const [mutate] = useAuthedMutation<
+    UpdateTempTokenHasRemainingFundsForCreatorMutation,
+    UpdateTempTokenHasRemainingFundsForCreatorMutationVariables
+  >(MUTATION);
 
   const updateTempTokenHasRemainingFundsForCreator = useCallback(
     async (data) => {
@@ -34,15 +40,19 @@ const useUpdateTempTokenHasRemainingFundsForCreator = ({ onError }: Props) => {
         const mutationResult = await mutate({
           variables: {
             data: {
-                channelId: data.channelId as number,
-                chainId: data.chainId as number,
+              channelId: data.channelId as number,
+              chainId: data.chainId as number,
             },
           },
         });
 
-        const res = mutationResult?.data?.updateTempTokenHasRemainingFundsForCreator;
+        const res =
+          mutationResult?.data?.updateTempTokenHasRemainingFundsForCreator;
         if (res) {
-          console.log("updateTempTokenHasRemainingFundsForCreator success", res);
+          console.log(
+            "updateTempTokenHasRemainingFundsForCreator success",
+            res
+          );
         } else {
           onError && onError();
         }
@@ -51,7 +61,10 @@ const useUpdateTempTokenHasRemainingFundsForCreator = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("updateTempTokenHasRemainingFundsForCreator", JSON.stringify(e, null, 2));
+        console.log(
+          "updateTempTokenHasRemainingFundsForCreator",
+          JSON.stringify(e, null, 2)
+        );
       }
     },
     [mutate, onError]

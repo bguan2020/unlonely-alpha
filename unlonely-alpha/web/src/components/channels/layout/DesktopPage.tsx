@@ -1,8 +1,8 @@
 import { ApolloError, useLazyQuery } from "@apollo/client";
-import { Flex, Button, Stack, Text } from "@chakra-ui/react";
+import { Flex, Button, Stack, Text, useToast } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
-import { Log } from "viem";
+import { Log, isAddressEqual } from "viem";
 import { useContractEvent } from "wagmi";
 import { Contract } from "../../../constants";
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../../constants/queries";
@@ -14,8 +14,8 @@ import { useChat } from "../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { useUser } from "../../../hooks/context/useUser";
-import { useGenerateKey } from "../../../hooks/contracts/useSharesContractV2";
 import {
+  useGenerateKey,
   useSupply,
   useGetHolderBalance,
 } from "../../../hooks/contracts/useTournament";
@@ -35,6 +35,9 @@ import Trade from "../bet/Trade";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { Livepeer } from "livepeer";
 import { ChannelWideModals } from "../ChannelWideModals";
+import copy from "copy-to-clipboard";
+import trailString from "../../../utils/trailString";
+import { formatApolloError } from "./DesktopChannelPageSimplified";
 
 export const DesktopPage = ({
   channelSSR,
@@ -53,6 +56,7 @@ export const DesktopPage = ({
     channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
+    isOwner,
     handleTotalBadges,
     handleChannelStaticData,
   } = channel;
@@ -64,6 +68,7 @@ export const DesktopPage = ({
     handleSetTourSteps,
   } = ui;
   const { handleIsVip } = leaderboard;
+  const toast = useToast();
 
   const [livepeerData, setLivepeerData] =
     useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
@@ -72,8 +77,6 @@ export const DesktopPage = ({
   const livepeer = new Livepeer({
     apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
   });
-
-  const isOwner = userAddress === channelQueryData?.owner?.address;
 
   const tournamentContract = getContractFromNetwork(
     Contract.TOURNAMENT,
@@ -155,7 +158,7 @@ export const DesktopPage = ({
     for (let i = 0; i < sortedEvents.length; i++) {
       const tradeEvent: any = sortedEvents[i];
       const trader = tradeEvent?.args.trade.trader as `0x${string}`;
-      if (trader === userAddress) {
+      if (userAddress && isAddressEqual(trader, userAddress as `0x${string}`)) {
         newBalanceAddition +=
           ((tradeEvent?.args.trade.isBuy as boolean) ? 1 : -1) *
           Number(tradeEvent?.args.trade.badgeAmount as bigint);
@@ -196,6 +199,15 @@ export const DesktopPage = ({
   useEffect(() => {
     handleTotalBadges(truncateValue(Number(vipBadgeSupply), 0));
   }, [vipBadgeSupply]);
+
+  const handleCopy = () => {
+    toast({
+      title: "copied to clipboard",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
 
   return (
     <>
@@ -364,9 +376,34 @@ export const DesktopPage = ({
             ) : channelSSR === null ? (
               <Text fontFamily="LoRes15">channel does not exist</Text>
             ) : (
-              <Text fontFamily="LoRes15">
-                server error, please try again later
-              </Text>
+              <Flex direction="column" gap="10px" justifyContent="center">
+                <Text fontFamily="LoRes15" textAlign={"center"} fontSize="50px">
+                  server error, please try again later
+                </Text>
+                {channelDataError && (
+                  <Flex justifyContent={"center"} direction="column">
+                    <Text textAlign={"center"} fontSize="12px">
+                      {trailString(formatApolloError(channelDataError), 25)}
+                    </Text>
+                    <Button
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{
+                        transform: "scale(1.1)",
+                      }}
+                      onClick={() => {
+                        copy(formatApolloError(channelDataError));
+                        handleCopy();
+                      }}
+                      color="white"
+                      bg="#e2461f"
+                      mx="auto"
+                    >
+                      copy full error
+                    </Button>
+                  </Flex>
+                )}
+              </Flex>
             )}
           </Flex>
         )}

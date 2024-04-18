@@ -36,7 +36,6 @@ export const EXCLUDED_SLUGS = ["loveonleverage"];
 
 const StandaloneChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { channel: channelContext, chat: chatInfo } = useChannelContext();
-  const { userAddress } = useUser();
   const { channelQueryData } = channelContext;
   const { chatChannel } = chatInfo;
 
@@ -288,16 +287,12 @@ const StandaloneChatComponent = ({ chat }: { chat: ChatReturnType }) => {
 };
 
 export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
-  const { userAddress } = useUser();
   const { chat: chatContext, channel } = useChannelContext();
   const { presenceChannel } = chatContext;
   const { isStandalone } = useUserAgent();
 
-  const { channelQueryData } = channel;
+  const { channelQueryData, isOwner } = channel;
   const [showParticipants, setShowParticipants] = useState(true);
-
-  const isOwner = userAddress === channelQueryData?.owner.address;
-
   const [selectedTab, setSelectedTab] = useState<
     "chat" | "trade" | "vibes" | "vip"
   >("chat");
@@ -430,7 +425,6 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
 };
 
 const InfoComponent = () => {
-  const { userAddress } = useUser();
   const { channel: channelContext, ui } = useChannelContext();
   const {
     handleNotificationsModal,
@@ -438,8 +432,7 @@ const InfoComponent = () => {
     handleChatCommandModal,
     handleModeratorModal,
   } = ui;
-  const { channelQueryData } = channelContext;
-  const isOwner = userAddress === channelQueryData?.owner.address;
+  const { isOwner } = channelContext;
 
   return (
     <Flex

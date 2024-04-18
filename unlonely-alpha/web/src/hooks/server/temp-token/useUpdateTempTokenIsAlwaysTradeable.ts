@@ -3,23 +3,29 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
-import { UpdateTempTokenIsAlwaysTradeableMutation, UpdateTempTokenIsAlwaysTradeableMutationVariables } from "../../../generated/graphql";
+import {
+  UpdateTempTokenIsAlwaysTradeableMutation,
+  UpdateTempTokenIsAlwaysTradeableMutationVariables,
+} from "../../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
 const MUTATION = gql`
-  mutation UpdateTempTokenIsAlwaysTradeable($data: UpdateTempTokenIsAlwaysTradeableInput!) {
+  mutation UpdateTempTokenIsAlwaysTradeable(
+    $data: UpdateTempTokenIsAlwaysTradeableInput!
+  ) {
     updateTempTokenIsAlwaysTradeable(data: $data)
   }
 `;
 
 const useUpdateTempTokenIsAlwaysTradeable = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<UpdateTempTokenIsAlwaysTradeableMutation, UpdateTempTokenIsAlwaysTradeableMutationVariables>(
-    MUTATION
-  );
+  const [mutate] = useAuthedMutation<
+    UpdateTempTokenIsAlwaysTradeableMutation,
+    UpdateTempTokenIsAlwaysTradeableMutationVariables
+  >(MUTATION);
 
   const updateTempTokenIsAlwaysTradeable = useCallback(
     async (data) => {
@@ -28,9 +34,9 @@ const useUpdateTempTokenIsAlwaysTradeable = ({ onError }: Props) => {
         const mutationResult = await mutate({
           variables: {
             data: {
-                tokenAddressesSetTrue: data.tokenAddressesSetTrue as string[],
-                tokenAddressesSetFalse: data.tokenAddressesSetFalse as string[],
-                chainId: data.chainId as number,
+              tokenAddressesSetTrue: data.tokenAddressesSetTrue as string[],
+              tokenAddressesSetFalse: data.tokenAddressesSetFalse as string[],
+              chainId: data.chainId as number,
             },
           },
         });
@@ -46,7 +52,10 @@ const useUpdateTempTokenIsAlwaysTradeable = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("updateTempTokenIsAlwaysTradeable", JSON.stringify(e, null, 2));
+        console.log(
+          "updateTempTokenIsAlwaysTradeable",
+          JSON.stringify(e, null, 2)
+        );
       }
     },
     [mutate, onError]

@@ -973,4 +973,4 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         return n_ * (n_ + 1) * (2 * n_ + 1) / 6;
     }
 }
-`
+`;

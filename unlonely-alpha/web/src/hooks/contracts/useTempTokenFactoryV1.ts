@@ -213,11 +213,14 @@ export const useCreateTempToken = (
   };
 };
 
-export const useSetTotalSupplyThresholdForTokens = (args:{
-  _totalSupplyThreshold: bigint;
-  tokenAddresses: string[];
-}, contract: ContractData,
-callbacks?: WriteCallbacks) => {
+export const useSetTotalSupplyThresholdForTokens = (
+  args: {
+    _totalSupplyThreshold: bigint;
+    tokenAddresses: string[];
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
   const {
     writeAsync: setTotalSupplyThresholdForTokens,
     writeData: setTotalSupplyThresholdForTokensData,
@@ -227,7 +230,10 @@ callbacks?: WriteCallbacks) => {
     contract,
     "setTotalSupplyThresholdForTokens",
     [args._totalSupplyThreshold, args.tokenAddresses],
-    createCallbackHandler("useTempTokenFactoryV1 setTotalSupplyThresholdForTokens", callbacks),
+    createCallbackHandler(
+      "useTempTokenFactoryV1 setTotalSupplyThresholdForTokens",
+      callbacks
+    )
   );
 
   return {
@@ -236,13 +242,16 @@ callbacks?: WriteCallbacks) => {
     setTotalSupplyThresholdForTokensTxData,
     isSetTotalSupplyThresholdForTokensLoading,
   };
-}
+};
 
-export const useIncreaseEndTimestampForTokens = (args:{
-  _additionalDurationInSeconds: bigint;
-  tokenAddresses: string[];
-}, contract: ContractData,
-callbacks?: WriteCallbacks) => {
+export const useIncreaseEndTimestampForTokens = (
+  args: {
+    _additionalDurationInSeconds: bigint;
+    tokenAddresses: string[];
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
   const {
     writeAsync: increaseEndTimestampForTokens,
     writeData: increaseEndTimestampForTokensData,
@@ -252,7 +261,10 @@ callbacks?: WriteCallbacks) => {
     contract,
     "increaseEndTimestampForTokens",
     [args._additionalDurationInSeconds, args.tokenAddresses],
-    createCallbackHandler("useTempTokenFactoryV1 increaseEndTimestampForTokens", callbacks),
+    createCallbackHandler(
+      "useTempTokenFactoryV1 increaseEndTimestampForTokens",
+      callbacks
+    )
   );
 
   return {
@@ -261,11 +273,15 @@ callbacks?: WriteCallbacks) => {
     increaseEndTimestampForTokensTxData,
     isIncreaseEndTimestampForTokensLoading,
   };
-}
+};
 
-export const useSetAlwaysTradeableForTokens = (args:{
-  tokenAddresses: string[];
-}, contract: ContractData, callbacks?: WriteCallbacks) => {
+export const useSetAlwaysTradeableForTokens = (
+  args: {
+    tokenAddresses: string[];
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
   const {
     writeAsync: setAlwaysTradeableForTokens,
     writeData: setAlwaysTradeableForTokensData,
@@ -275,7 +291,10 @@ export const useSetAlwaysTradeableForTokens = (args:{
     contract,
     "setAlwaysTradeableForTokens",
     [args.tokenAddresses],
-    createCallbackHandler("useTempTokenFactoryV1 setAlwaysTradeableForTokens", callbacks),
+    createCallbackHandler(
+      "useTempTokenFactoryV1 setAlwaysTradeableForTokens",
+      callbacks
+    )
   );
 
   return {
@@ -284,4 +303,4 @@ export const useSetAlwaysTradeableForTokens = (args:{
     setAlwaysTradeableForTokensTxData,
     isSetAlwaysTradeableForTokensLoading,
   };
-}
+};

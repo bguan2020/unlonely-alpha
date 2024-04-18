@@ -18,6 +18,7 @@ import {
   Input,
   Spinner,
   Tooltip,
+  useToast,
 } from "@chakra-ui/react";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../../constants/queries";
@@ -35,13 +36,15 @@ import {
   useSupply,
 } from "../../../hooks/contracts/useTournament";
 import { useContractEvent } from "wagmi";
-import { Log } from "viem";
+import { Log, isAddressEqual } from "viem";
 import Header from "../../navigation/Header";
 import { TempTokenCreationModal } from "../temp/TempTokenCreationModal";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { ContractData } from "../../../constants/types";
 import { useSendRemainingFundsToWinnerState } from "../../../hooks/internal/temp-token/useSendRemainingFundsToWinnerState";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
+import trailString from "../../../utils/trailString";
+import copy from "copy-to-clipboard";
 
 export const DesktopChannelPageSimplified = ({
   channelSSR,
@@ -65,14 +68,14 @@ export const DesktopChannelPageSimplified = ({
     handleChannelStaticData,
     currentActiveTokenEndTimestamp,
     canPlayToken,
+    isOwner,
   } = channel;
   const { handleIsVip } = leaderboard;
+  const toast = useToast();
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
   }, [channelSSR]);
-
-  const isOwner = userAddress === channelQueryData?.owner?.address;
 
   /**
    * VIP stuff
@@ -109,7 +112,7 @@ export const DesktopChannelPageSimplified = ({
     for (let i = 0; i < sortedEvents.length; i++) {
       const tradeEvent: any = sortedEvents[i];
       const trader = tradeEvent?.args.trade.trader as `0x${string}`;
-      if (trader === userAddress) {
+      if (userAddress && isAddressEqual(trader, userAddress as `0x${string}`)) {
         newBalanceAddition +=
           ((tradeEvent?.args.trade.isBuy as boolean) ? 1 : -1) *
           Number(tradeEvent?.args.trade.badgeAmount as bigint);
@@ -237,6 +240,29 @@ export const DesktopChannelPageSimplified = ({
     return () => clearInterval(interval); // Cleanup on unmount
   }, [currentActiveTokenEndTimestamp]);
 
+  const canShowInterface = useMemo(() => {
+    return (
+      !channelDataLoading &&
+      !channelDataError &&
+      !channelSSRDataError &&
+      !channelSSRDataLoading
+    );
+  }, [
+    channelDataLoading,
+    channelDataError,
+    channelSSRDataError,
+    channelSSRDataLoading,
+  ]);
+
+  const handleCopy = () => {
+    toast({
+      title: "copied to clipboard",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+
   return (
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}
@@ -246,10 +272,7 @@ export const DesktopChannelPageSimplified = ({
         position={"relative"}
         overflowY={"hidden"}
       >
-        {!channelDataLoading &&
-        !channelDataError &&
-        !channelSSRDataError &&
-        !channelSSRDataLoading ? (
+        {canShowInterface ? (
           <Flex direction="column" width="100%">
             <Header />
             <Stack
@@ -364,9 +387,34 @@ export const DesktopChannelPageSimplified = ({
             ) : channelSSR === null ? (
               <Text fontFamily="LoRes15">channel does not exist</Text>
             ) : (
-              <Text fontFamily="LoRes15">
-                server error, please try again later
-              </Text>
+              <Flex direction="column" gap="10px" justifyContent="center">
+                <Text fontFamily="LoRes15" textAlign={"center"}>
+                  server error, please try again later
+                </Text>
+                {channelDataError && (
+                  <Flex justifyContent={"center"} direction="column">
+                    <Text textAlign={"center"} fontSize="12px">
+                      {trailString(formatApolloError(channelDataError), 25)}
+                    </Text>
+                    <Button
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{
+                        transform: "scale(1.1)",
+                      }}
+                      onClick={() => {
+                        copy(formatApolloError(channelDataError));
+                        handleCopy();
+                      }}
+                      color="white"
+                      bg="#e2461f"
+                      mx="auto"
+                    >
+                      copy full error
+                    </Button>
+                  </Flex>
+                )}
+              </Flex>
             )}
           </Flex>
         )}
@@ -459,3 +507,23 @@ const CreateTokenInterface = () => {
     </>
   );
 };
+
+export function formatApolloError(error: ApolloError) {
+  let errorDetails = `Error Message: ${error.message}\n`;
+
+  if (error.graphQLErrors) {
+    error.graphQLErrors.forEach((err, index) => {
+      errorDetails += `GraphQL Error #${index + 1}: ${err.message}\n`;
+    });
+  }
+
+  if (error.networkError) {
+    errorDetails += `Network Error: ${error.networkError.message}\n`;
+  }
+
+  if (error.extraInfo) {
+    errorDetails += `Extra Info: ${JSON.stringify(error.extraInfo)}\n`;
+  }
+
+  return errorDetails;
+}

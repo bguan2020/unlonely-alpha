@@ -3,14 +3,17 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
-import { PostTempTokenMutation, PostTempTokenMutationVariables } from "../../../generated/graphql";
+import {
+  PostTempTokenMutation,
+  PostTempTokenMutationVariables,
+} from "../../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
 const POST_TEMP_TOKEN_MUTATION = gql`
-mutation PostTempToken($data: PostTempTokenInput!) {
+  mutation PostTempToken($data: PostTempTokenInput!) {
     postTempToken(data: $data) {
       tokenAddress
       symbol
@@ -31,9 +34,10 @@ mutation PostTempToken($data: PostTempTokenInput!) {
 
 const usePostTempToken = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<PostTempTokenMutation, PostTempTokenMutationVariables>(
-    POST_TEMP_TOKEN_MUTATION
-  );
+  const [mutate] = useAuthedMutation<
+    PostTempTokenMutation,
+    PostTempTokenMutationVariables
+  >(POST_TEMP_TOKEN_MUTATION);
 
   const postTempToken = useCallback(
     async (data) => {
@@ -42,17 +46,21 @@ const usePostTempToken = ({ onError }: Props) => {
         const mutationResult = await mutate({
           variables: {
             data: {
-                tokenAddress: data.tokenAddress as string,
-                symbol: data.symbol as string,
-                streamerFeePercentage: String(data.streamerFeePercentage as bigint),
-                protocolFeePercentage: String(data.protocolFeePercentage as bigint),
-                ownerAddress: data.ownerAddress as string,
-                factoryAddress: data.factoryAddress as string,
-                creationBlockNumber: String(data.creationBlockNumber as bigint),
-                name: data.name as string,
-                endUnixTimestamp: String(data.endUnixTimestamp as bigint),
-                channelId: data.channelId as number,
-                chainId: data.chainId as number,
+              tokenAddress: data.tokenAddress as string,
+              symbol: data.symbol as string,
+              streamerFeePercentage: String(
+                data.streamerFeePercentage as bigint
+              ),
+              protocolFeePercentage: String(
+                data.protocolFeePercentage as bigint
+              ),
+              ownerAddress: data.ownerAddress as string,
+              factoryAddress: data.factoryAddress as string,
+              creationBlockNumber: String(data.creationBlockNumber as bigint),
+              name: data.name as string,
+              endUnixTimestamp: String(data.endUnixTimestamp as bigint),
+              channelId: data.channelId as number,
+              chainId: data.chainId as number,
             },
           },
         });

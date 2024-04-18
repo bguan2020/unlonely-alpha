@@ -34,7 +34,6 @@ import StreamComponent from "../../stream/StreamComponent";
 import useUserAgent from "../../../hooks/internal/useUserAgent";
 import { GetLivepeerStreamDataQuery } from "../../../generated/graphql";
 import { useRouter } from "next/router";
-import { useUser } from "../../../hooks/context/useUser";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import LivepeerPlayer from "../../stream/LivepeerPlayer";
@@ -59,10 +58,9 @@ const ChannelStreamerPerspective = ({
   const toast = useToast();
   const { isStandalone } = useUserAgent();
   const router = useRouter();
-  const { userAddress } = useUser();
 
   const { channel } = useChannelContext();
-  const { channelQueryData, realTimeChannelDetails } = channel;
+  const { channelQueryData, realTimeChannelDetails, isOwner } = channel;
 
   const [canLivepeerRecord, setCanLivepeerRecord] = useState(true);
 
@@ -70,7 +68,6 @@ const ChannelStreamerPerspective = ({
   const [showRTMPIngest, setShowRTMPIngest] = useState(false);
 
   const [streamerMigrateModal, setStreamerMigrateModal] = useState(false);
-  const isOwner = userAddress === channelQueryData?.owner.address;
 
   const { updateLivepeerStreamData, loading: updateLivepeerStreamDataLoading } =
     useUpdateLivepeerStreamData({});
