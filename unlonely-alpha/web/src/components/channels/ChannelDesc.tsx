@@ -14,17 +14,14 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { getColorFromString } from "../../styles/Colors";
 import { FaPencilAlt } from "react-icons/fa";
-import { useUser } from "../../hooks/context/useUser";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 const ChannelDesc = () => {
-  const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, ui } = useChannelContext();
-  const { channelQueryData, totalBadges, realTimeChannelDetails } = channel;
+  const { channelQueryData, totalBadges, realTimeChannelDetails, isOwner } =
+    channel;
   const { handleEditModal } = ui;
-
-  const isOwner = userAddress === channelQueryData?.owner.address;
 
   const imageUrl = channelQueryData?.owner?.FCImageUrl
     ? channelQueryData?.owner.FCImageUrl

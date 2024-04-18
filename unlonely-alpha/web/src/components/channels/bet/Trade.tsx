@@ -59,7 +59,7 @@ const Trade = () => {
   const { userAddress, walletIsConnected, user } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, chat: chatContext, ui } = useChannelContext();
-  const { channelQueryData, latestBet } = channel;
+  const { channelQueryData, latestBet, isOwner } = channel;
   const { addToChatbot } = chatContext;
   const { tradeLoading } = ui;
 
@@ -179,7 +179,6 @@ const Trade = () => {
   const isSharesEventPayout = latestBet?.eventState === SharesEventState.Payout;
   const isSharesEventPayoutPrevious =
     latestBet?.eventState === SharesEventState.PayoutPrevious;
-  const isOwner = userAddress === channelQueryData?.owner.address;
   const eventEndTimestampPassed = Number(eventEndTimestamp) * 1000 <= dateNow;
   const isEventOver = eventEndTimestampPassed || isSharesEventPayout;
 

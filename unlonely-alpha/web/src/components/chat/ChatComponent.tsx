@@ -22,7 +22,6 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
 import Chat from "./Chat";
-import { useUser } from "../../hooks/context/useUser";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
@@ -33,17 +32,14 @@ const ChatComponent = ({
   chat: ChatReturnType;
   customHeight?: string;
 }) => {
-  const { userAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const [selectedTab, setSelectedTab] = useState<"chat" | "vip">("chat");
   const { chat: chatContext, channel, ui } = useChannelContext();
   const { presenceChannel } = chatContext;
-  const { channelQueryData } = channel;
+  const { channelQueryData, isOwner } = channel;
   const { handleModeratorModal, handleNotificationsModal } = ui;
 
   const [showParticipants, setShowParticipants] = useState(true);
-
-  const isOwner = userAddress === channelQueryData?.owner.address;
 
   return (
     <Flex

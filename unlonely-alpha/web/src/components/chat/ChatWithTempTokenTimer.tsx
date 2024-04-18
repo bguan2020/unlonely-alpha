@@ -4,18 +4,14 @@ import MessageList from "./MessageList";
 import ChatForm from "./ChatForm";
 import { TempTokenTimerView } from "../channels/temp/TempTokenTimer";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { useUser } from "../../hooks/context/useUser";
 import { EXCLUDED_SLUGS } from "./ChatComponent";
 import { useState } from "react";
 import Participants from "../presence/Participants";
 
 export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
-  const { userAddress } = useUser();
   const { chat: chatContext, channel } = useChannelContext();
   const { presenceChannel } = chatContext;
-  const { channelQueryData } = channel;
-
-  const isOwner = userAddress === channelQueryData?.owner.address;
+  const { channelQueryData, isOwner } = channel;
 
   const [showParticipants, setShowParticipants] = useState(true);
 

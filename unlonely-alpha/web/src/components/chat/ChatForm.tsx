@@ -69,7 +69,7 @@ const ChatForm = ({
   const { handleIsClipUiOpen, loading: clipLoading } = chat;
   const { handleStartedWelcomeTour, handleIsTourOpen, handleSetTourSteps } = ui;
 
-  const { channelQueryData, realTimeChannelDetails, channelRoles } =
+  const { channelQueryData, realTimeChannelDetails, channelRoles, isOwner } =
     channelContext;
 
   const [messageText, setMessageText] = useState<string>("");
@@ -79,8 +79,6 @@ const ChatForm = ({
 
   const [blastMode, setBlastMode] = useState(false);
   const [blastDisabled, setBlastDisabled] = useState(false);
-
-  const isOwner = address === channelQueryData?.owner.address;
 
   const userIsModerator = useMemo(
     () =>

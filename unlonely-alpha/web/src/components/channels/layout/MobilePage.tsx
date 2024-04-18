@@ -1,7 +1,7 @@
 import { ApolloError, useLazyQuery } from "@apollo/client";
-import { Flex, Text, Image } from "@chakra-ui/react";
+import { Flex, Text, Image, useToast, Button } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import { Log } from "viem";
+import { Log, isAddressEqual } from "viem";
 import { useContractEvent } from "wagmi";
 import { Contract } from "../../../constants";
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../../constants/queries";
@@ -13,8 +13,8 @@ import { useChat } from "../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { useUser } from "../../../hooks/context/useUser";
-import { useGenerateKey } from "../../../hooks/contracts/useSharesContractV2";
 import {
+  useGenerateKey,
   useSupply,
   useGetHolderBalance,
 } from "../../../hooks/contracts/useTournament";
@@ -29,6 +29,9 @@ import StandaloneAblyChatComponent from "../../mobile/StandAloneChatComponent";
 import { ChannelWideModals } from "../ChannelWideModals";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { Livepeer } from "livepeer";
+import copy from "copy-to-clipboard";
+import trailString from "../../../utils/trailString";
+import { formatApolloError } from "./DesktopChannelPageSimplified";
 
 export const MobilePage = ({
   channelSSR,
@@ -46,16 +49,16 @@ export const MobilePage = ({
     channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
+    isOwner,
     handleTotalBadges,
     handleChannelStaticData,
   } = channel;
   const { handleIsVip } = leaderboard;
+  const toast = useToast();
 
   const chat = useChat();
 
   const { userAddress } = useUser();
-
-  const isOwner = userAddress === channelQueryData?.owner?.address;
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
@@ -144,7 +147,7 @@ export const MobilePage = ({
     for (let i = 0; i < sortedEvents.length; i++) {
       const tradeEvent: any = sortedEvents[i];
       const trader = tradeEvent?.args.trade.trader as `0x${string}`;
-      if (trader === userAddress) {
+      if (userAddress && isAddressEqual(trader, userAddress as `0x${string}`)) {
         newBalanceAddition +=
           ((tradeEvent?.args.trade.isBuy as boolean) ? 1 : -1) *
           Number(tradeEvent?.args.trade.badgeAmount as bigint);
@@ -185,6 +188,15 @@ export const MobilePage = ({
   useEffect(() => {
     handleTotalBadges(truncateValue(Number(vipBadgeSupply), 0));
   }, [vipBadgeSupply]);
+
+  const handleCopy = () => {
+    toast({
+      title: "copied to clipboard",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
 
   return (
     <>
@@ -259,9 +271,34 @@ export const MobilePage = ({
             ) : channelSSR === null ? (
               <Text fontFamily="LoRes15">channel does not exist</Text>
             ) : (
-              <Text fontFamily="LoRes15">
-                server error, please try again later
-              </Text>
+              <Flex direction="column" gap="10px" justifyContent="center">
+                <Text fontFamily="LoRes15" textAlign={"center"} fontSize="50px">
+                  server error, please try again later
+                </Text>
+                {channelDataError && (
+                  <Flex justifyContent={"center"} direction="column">
+                    <Text textAlign={"center"}>
+                      {trailString(formatApolloError(channelDataError), 25)}
+                    </Text>
+                    <Button
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{
+                        transform: "scale(1.1)",
+                      }}
+                      onClick={() => {
+                        copy(formatApolloError(channelDataError));
+                        handleCopy();
+                      }}
+                      color="white"
+                      bg="#e2461f"
+                      mx="auto"
+                    >
+                      copy full error
+                    </Button>
+                  </Flex>
+                )}
+              </Flex>
             )}
           </Flex>
         )}

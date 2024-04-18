@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { BaseChatCommand, CommandData } from "../../constants";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { useUser } from "../../hooks/context/useUser";
 interface Command {
   name: string;
   description?: string;
@@ -54,9 +53,8 @@ export default function Commands({
   chat,
   additionalChatCommands,
 }: Props) {
-  const { userAddress } = useUser();
   const { channel, ui } = useChannelContext();
-  const { channelQueryData } = channel;
+  const { isOwner } = channel;
   const { handleChatCommandModal } = ui;
 
   const channelChatComands: Command[] = additionalChatCommands
@@ -71,8 +69,6 @@ export default function Commands({
   const aggregatedCommandList = [...commandList, ...channelChatComands];
 
   const [currentOpen, setCurrentOpen] = useState(open);
-
-  const isOwner = userAddress === channelQueryData?.owner.address;
 
   const matchingList = useMemo(() => {
     return aggregatedCommandList.filter((command) => {
