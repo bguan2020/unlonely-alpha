@@ -149,15 +149,9 @@ export const DesktopPage = ({
     tournamentContract
   );
 
-  console.log("generatedKey", generatedKey);
-
   const handleUpdate = (tradeEvents: Log[]) => {
     const sortedEvents = tradeEvents.filter(
       (event: any) => (event?.args.trade.eventByte as string) === generatedKey
-    );
-    console.log(
-      "desktop page handleUpdate sorted badge buy events",
-      sortedEvents
     );
     if (sortedEvents.length === 0) return;
     let newBalanceAddition = 0;

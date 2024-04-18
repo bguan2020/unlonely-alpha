@@ -147,7 +147,10 @@ export const useGetPrice = (amount: bigint, contract: ContractData) => {
   };
 };
 
-export const useGetUserBalance = (userAddress: string, contract: ContractData) => {
+export const useGetUserBalance = (
+  userAddress: string,
+  contract: ContractData
+) => {
   const publicClient = usePublicClient();
 
   const [balance, setBalance] = useState<bigint>(BigInt(0));
@@ -174,7 +177,7 @@ export const useGetUserBalance = (userAddress: string, contract: ContractData) =
     refetch: getData,
     balance,
   };
-}
+};
 
 export const useMint = (
   args: {

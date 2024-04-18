@@ -3,23 +3,29 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
-import { UpdateTempTokenHasHitTotalSupplyThresholdMutation, UpdateTempTokenHasHitTotalSupplyThresholdMutationVariables } from "../../../generated/graphql";
+import {
+  UpdateTempTokenHasHitTotalSupplyThresholdMutation,
+  UpdateTempTokenHasHitTotalSupplyThresholdMutationVariables,
+} from "../../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
 const MUTATION = gql`
-  mutation UpdateTempTokenHasHitTotalSupplyThreshold($data: UpdateTempTokenHasHitTotalSupplyThresholdInput!) {
+  mutation UpdateTempTokenHasHitTotalSupplyThreshold(
+    $data: UpdateTempTokenHasHitTotalSupplyThresholdInput!
+  ) {
     updateTempTokenHasHitTotalSupplyThreshold(data: $data)
   }
 `;
 
 const useUpdateTempTokenHasHitTotalSupplyThreshold = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<UpdateTempTokenHasHitTotalSupplyThresholdMutation, UpdateTempTokenHasHitTotalSupplyThresholdMutationVariables>(
-    MUTATION
-  );
+  const [mutate] = useAuthedMutation<
+    UpdateTempTokenHasHitTotalSupplyThresholdMutation,
+    UpdateTempTokenHasHitTotalSupplyThresholdMutationVariables
+  >(MUTATION);
 
   const updateTempTokenHasHitTotalSupplyThreshold = useCallback(
     async (data) => {
@@ -28,14 +34,15 @@ const useUpdateTempTokenHasHitTotalSupplyThreshold = ({ onError }: Props) => {
         const mutationResult = await mutate({
           variables: {
             data: {
-                tokenAddressesSetTrue: data.tokenAddressesSetTrue as string[],
-                tokenAddressesSetFalse: data.tokenAddressesSetFalse as string[],
-                chainId: data.chainId as number,
+              tokenAddressesSetTrue: data.tokenAddressesSetTrue as string[],
+              tokenAddressesSetFalse: data.tokenAddressesSetFalse as string[],
+              chainId: data.chainId as number,
             },
           },
         });
 
-        const res = mutationResult?.data?.updateTempTokenHasHitTotalSupplyThreshold;
+        const res =
+          mutationResult?.data?.updateTempTokenHasHitTotalSupplyThreshold;
         if (res) {
           console.log("updateTempTokenHasHitTotalSupplyThreshold success", res);
         } else {
@@ -46,7 +53,10 @@ const useUpdateTempTokenHasHitTotalSupplyThreshold = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("updateTempTokenHasHitTotalSupplyThreshold", JSON.stringify(e, null, 2));
+        console.log(
+          "updateTempTokenHasHitTotalSupplyThreshold",
+          JSON.stringify(e, null, 2)
+        );
       }
     },
     [mutate, onError]

@@ -18,15 +18,13 @@ export type UseChannelDetailsType = {
     allowNfcs: boolean;
     isLive: boolean;
   };
-  handleRealTimeChannelDetails: (
-    input: {
-      channelName?: string,
-      channelDescription?: string,
-      chatCommands?: CommandData[],
-      allowNfcs?: boolean,
-      isLive?: boolean
-    }
-  ) => void;
+  handleRealTimeChannelDetails: (input: {
+    channelName?: string;
+    channelDescription?: string;
+    chatCommands?: CommandData[];
+    allowNfcs?: boolean;
+    isLive?: boolean;
+  }) => void;
   channelRoles: Role[];
   channelVibesTokenPriceRange: string[];
   loading: boolean;
@@ -122,15 +120,13 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
 
   // handleRealTimeChannelDetails, all parameters are optional, for those that are not provided, the previous value is used, make it a mapping parameter for easy input
   const handleRealTimeChannelDetails = useCallback(
-    (
-      input: {
-        channelName?: string,
-        channelDescription?: string,
-        chatCommands?: CommandData[],
-        allowNfcs?: boolean,
-        isLive?: boolean
-      }
-    ) => {
+    (input: {
+      channelName?: string;
+      channelDescription?: string;
+      chatCommands?: CommandData[];
+      allowNfcs?: boolean;
+      isLive?: boolean;
+    }) => {
       setRealTimeChannelDetails((prev) => ({
         channelName: input.channelName ?? prev.channelName,
         channelDescription: input.channelDescription ?? prev.channelDescription,
@@ -189,15 +185,16 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
 
   useEffect(() => {
     if (channelQueryData) {
-      handleRealTimeChannelDetails(
-        {channelName: channelQueryData.name ?? "",
+      handleRealTimeChannelDetails({
+        channelName: channelQueryData.name ?? "",
         channelDescription: channelQueryData.description ?? "",
-        chatCommands: channelQueryData?.chatCommands?.filter(
-          (command): command is CommandData => command !== null
-        ) ?? [],
+        chatCommands:
+          channelQueryData?.chatCommands?.filter(
+            (command): command is CommandData => command !== null
+          ) ?? [],
         allowNfcs: channelQueryData?.allowNFCs ?? false,
-        isLive: channelQueryData?.isLive ?? false}
-      );
+        isLive: channelQueryData?.isLive ?? false,
+      });
     }
   }, [channelQueryData]);
 

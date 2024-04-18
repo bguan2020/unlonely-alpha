@@ -3,14 +3,19 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
-import { UpdateTempTokenHighestTotalSupplyMutation, UpdateTempTokenHighestTotalSupplyMutationVariables } from "../../../generated/graphql";
+import {
+  UpdateTempTokenHighestTotalSupplyMutation,
+  UpdateTempTokenHighestTotalSupplyMutationVariables,
+} from "../../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
 const MUTATION = gql`
-  mutation UpdateTempTokenHighestTotalSupply($data: UpdateTempTokenHighestTotalSupplyInput!) {
+  mutation UpdateTempTokenHighestTotalSupply(
+    $data: UpdateTempTokenHighestTotalSupplyInput!
+  ) {
     updateTempTokenHighestTotalSupply(data: $data) {
       tokenAddress
       symbol
@@ -27,9 +32,10 @@ const MUTATION = gql`
 
 const useUpdateTempTokenHighestTotalSupply = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
-  const [mutate] = useAuthedMutation<UpdateTempTokenHighestTotalSupplyMutation, UpdateTempTokenHighestTotalSupplyMutationVariables>(
-    MUTATION
-  );
+  const [mutate] = useAuthedMutation<
+    UpdateTempTokenHighestTotalSupplyMutation,
+    UpdateTempTokenHighestTotalSupplyMutationVariables
+  >(MUTATION);
 
   const updateTempTokenHighestTotalSupply = useCallback(
     async (data) => {
@@ -38,9 +44,9 @@ const useUpdateTempTokenHighestTotalSupply = ({ onError }: Props) => {
         const mutationResult = await mutate({
           variables: {
             data: {
-                tokenAddresses: data.tokenAddresses as string[],
-                chainId: data.chainId as number,
-                newTotalSupplies: data.newTotalSupplies as string[],
+              tokenAddresses: data.tokenAddresses as string[],
+              chainId: data.chainId as number,
+              newTotalSupplies: data.newTotalSupplies as string[],
             },
           },
         });
@@ -56,7 +62,10 @@ const useUpdateTempTokenHighestTotalSupply = ({ onError }: Props) => {
           res,
         };
       } catch (e) {
-        console.log("updateTempTokenHighestTotalSupply", JSON.stringify(e, null, 2));
+        console.log(
+          "updateTempTokenHighestTotalSupply",
+          JSON.stringify(e, null, 2)
+        );
       }
     },
     [mutate, onError]

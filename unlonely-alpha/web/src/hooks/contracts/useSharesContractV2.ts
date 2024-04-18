@@ -416,7 +416,12 @@ export const useGenerateKey = (
   const [key, setKey] = useState<string>(NULL_ADDRESS_BYTES32);
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient || !isAddress(eventAddress)) {
+    if (
+      !contract.address ||
+      !contract.abi ||
+      !publicClient ||
+      !isAddress(eventAddress)
+    ) {
       setKey(NULL_ADDRESS_BYTES32);
       return;
     }

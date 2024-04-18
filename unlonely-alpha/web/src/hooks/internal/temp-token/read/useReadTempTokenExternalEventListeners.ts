@@ -4,23 +4,25 @@ import { useContractEvent } from "wagmi";
 import { ContractData } from "../../../../constants/types";
 
 export const useReadTempTokenExternalEventListeners = ({
-    tempTokenContract,
-    lastInactiveTempTokenContract,
-    onReachThresholdCallback,
-    onDurationIncreaseCallback,
-    onAlwaysTradeableCallback,
-    onThresholdUpdateCallback,
-    onSendRemainingFundsToWinnerCallback
-  }: {
-    tempTokenContract: ContractData;
-    lastInactiveTempTokenContract: ContractData;
-    onReachThresholdCallback: (newEndTimestamp: bigint) => void;
-    onDurationIncreaseCallback: (newEndTimestamp: bigint) => void;
-    onAlwaysTradeableCallback: () => void;
-    onThresholdUpdateCallback: (newThreshold: bigint) => void;
-    onSendRemainingFundsToWinnerCallback: (tokenAddress: string, tokenIsCurrent: boolean) => void;
-  }) => {
-    
+  tempTokenContract,
+  lastInactiveTempTokenContract,
+  onReachThresholdCallback,
+  onDurationIncreaseCallback,
+  onAlwaysTradeableCallback,
+  onThresholdUpdateCallback,
+  onSendRemainingFundsToWinnerCallback,
+}: {
+  tempTokenContract: ContractData;
+  lastInactiveTempTokenContract: ContractData;
+  onReachThresholdCallback: (newEndTimestamp: bigint) => void;
+  onDurationIncreaseCallback: (newEndTimestamp: bigint) => void;
+  onAlwaysTradeableCallback: () => void;
+  onThresholdUpdateCallback: (newThreshold: bigint) => void;
+  onSendRemainingFundsToWinnerCallback: (
+    tokenAddress: string,
+    tokenIsCurrent: boolean
+  ) => void;
+}) => {
   /**
    * listen for reach threshold event
    */
@@ -60,7 +62,11 @@ export const useReadTempTokenExternalEventListeners = ({
         tempTokenContract.address as `0x${string}`
       )
     );
-    console.log("handleTempTokenTotalSupplyThresholdReachedUpdate", logs, filteredLogsByTokenAddress)
+    console.log(
+      "handleTempTokenTotalSupplyThresholdReachedUpdate",
+      logs,
+      filteredLogsByTokenAddress
+    );
     const sortedLogs = filteredLogsByTokenAddress.sort(
       (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
     );
@@ -222,7 +228,10 @@ export const useReadTempTokenExternalEventListeners = ({
     abi: tempTokenContract.abi,
     eventName: "SendRemainingFundsToWinnerAfterTokenExpiration",
     listener(logs) {
-      console.log("detected SendRemainingFundsToWinnerAfterTokenExpiration event", logs);
+      console.log(
+        "detected SendRemainingFundsToWinnerAfterTokenExpiration event",
+        logs
+      );
       const init = async () => {
         setIncomingSendRemainingFundsToWinnerAfterTokenExpirationLogs(logs);
       };
@@ -235,7 +244,10 @@ export const useReadTempTokenExternalEventListeners = ({
     abi: lastInactiveTempTokenContract.abi,
     eventName: "SendRemainingFundsToWinnerAfterTokenExpiration",
     listener(logs) {
-      console.log("detected SendRemainingFundsToWinnerAfterTokenExpiration event", logs);
+      console.log(
+        "detected SendRemainingFundsToWinnerAfterTokenExpiration event",
+        logs
+      );
       const init = async () => {
         setIncomingSendRemainingFundsToWinnerAfterTokenExpirationLogs(logs);
       };
@@ -250,7 +262,9 @@ export const useReadTempTokenExternalEventListeners = ({
       );
   }, [incomingSendRemainingFundsToWinnerAfterTokenExpirationLogs]);
 
-  const handleRemainingFundsToWinnerAfterTokenExpirationUpdate = async (logs: Log[]) => {
+  const handleRemainingFundsToWinnerAfterTokenExpirationUpdate = async (
+    logs: Log[]
+  ) => {
     if (logs.length === 0) return;
     const filteredLogsByCurrentTokenAddress = logs.filter((log: any) =>
       isAddressEqual(
@@ -264,9 +278,24 @@ export const useReadTempTokenExternalEventListeners = ({
         lastInactiveTempTokenContract.address as `0x${string}`
       )
     );
-    console.log("RemainingFundsToWinnerAfterTokenExpiration listener", logs, tempTokenContract.address, lastInactiveTempTokenContract.address, filteredLogsByCurrentTokenAddress, filteredLogsByLastInactiveTokenAddress)
+    console.log(
+      "RemainingFundsToWinnerAfterTokenExpiration listener",
+      logs,
+      tempTokenContract.address,
+      lastInactiveTempTokenContract.address,
+      filteredLogsByCurrentTokenAddress,
+      filteredLogsByLastInactiveTokenAddress
+    );
 
-    if (filteredLogsByCurrentTokenAddress.length > 0) onSendRemainingFundsToWinnerCallback(tempTokenContract.address as `0x${string}`, true);
-    if (filteredLogsByLastInactiveTokenAddress.length > 0) onSendRemainingFundsToWinnerCallback(lastInactiveTempTokenContract.address as `0x${string}`, false);
-  }
-}
+    if (filteredLogsByCurrentTokenAddress.length > 0)
+      onSendRemainingFundsToWinnerCallback(
+        tempTokenContract.address as `0x${string}`,
+        true
+      );
+    if (filteredLogsByLastInactiveTokenAddress.length > 0)
+      onSendRemainingFundsToWinnerCallback(
+        lastInactiveTempTokenContract.address as `0x${string}`,
+        false
+      );
+  };
+};

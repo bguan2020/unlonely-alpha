@@ -9,7 +9,7 @@ export enum InteractionType {
   CUSTOM = "custom-action-interaction",
   BLAST = "blast-emoji-interaction",
   CLIP = "clip-interaction",
-  
+
   BUY_VOTES = "buy-votes-interaction",
   SELL_VOTES = "sell-votes-interaction",
 
@@ -97,4 +97,18 @@ export const MOBILE_VIDEO_VH = 25;
 export const NEW_STREAMER_URL_QUERY_PARAM = "new";
 export const STREAMER_MIGRATION_URL_QUERY_PARAM = "migrate";
 
-export const channelIdsAllowedForNewPage = ["3", "15", "29", "483", "182", "138", "27", "32", "426", "478", "191", "525", "554"];
+export const channelIdsAllowedForNewPage = [
+  "3",
+  "15",
+  "29",
+  "483",
+  "182",
+  "138",
+  "27",
+  "32",
+  "426",
+  "478",
+  "191",
+  "525",
+  "554",
+];
