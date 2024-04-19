@@ -17,7 +17,7 @@ export default async function handler(
   let result: string;
   try {
     const gptResponse = await openai.complete({
-      engine: "text-davinci-002",
+      engine: "gpt-3.5-turbo-instruct",
       prompt: prompt,
       maxTokens: 100,
       temperature: 0,
@@ -27,7 +27,8 @@ export default async function handler(
     });
     result = gptResponse.data.choices[0].text;
   } catch (e) {
-    result = "Sorry, I seem to be malfunctioning. Please try again later.";
+    console.log("openai error", (e as any).response.data);
+    result = `Sorry, I seem to be malfunctioning. Please try again later. (error: ${(e as any).response.data.error.code})`;
   }
 
   res.status(200).json(result);
