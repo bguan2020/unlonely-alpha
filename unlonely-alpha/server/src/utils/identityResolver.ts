@@ -86,40 +86,44 @@ export const fetchSocial = async (
       console.log("airstack query error", identity, error);
       return {};
     }
-    const ens = res?.Wallet?.primaryDomain?.name;
+    const ens =
+      res?.Wallet?.primaryDomain?.name ?? res?.Wallet?.domains?.[0]?.name;
     const fc = res?.Wallet?.farcasterSocials?.[0];
     const lens = res?.Wallet?.lensSocials?.[0];
     const newData: SocialData = {};
     if (ens !== null && ens !== undefined) {
       newData.username = ens;
     }
+    if (fc !== null && fc !== undefined) {
+      newData.isFCUser = true;
+    } else {
+      newData.isFCUser = false;
+    }
     if (
-      fc !== null &&
-      fc !== undefined &&
       fc?.profileImageContentValue?.image?.small !== null &&
       fc?.profileImageContentValue?.image?.small !== undefined
     ) {
       newData.FCImageUrl = fc.profileImageContentValue.image.small;
-      newData.isFCUser = true;
     } else {
       newData.FCImageUrl = "";
-      newData.isFCUser = false;
+    }
+    if (lens !== null && lens !== undefined) {
+      newData.isLensUser = true;
+    } else {
+      newData.isLensUser = false;
+    }
+    if (lens?.profileHandle !== null && lens?.profileHandle !== undefined) {
+      newData.lensHandle = lens.profileHandle;
+    } else {
+      newData.lensHandle = "";
     }
     if (
-      lens !== null &&
-      lens !== undefined &&
-      lens?.profileHandle !== null &&
-      lens?.profileHandle !== undefined &&
       lens?.profileImageContentValue?.image?.small !== null &&
       lens?.profileImageContentValue?.image?.small !== undefined
     ) {
-      newData.lensHandle = lens.profileHandle;
       newData.lensImageUrl = lens.profileImageContentValue.image.small;
-      newData.isLensUser = true;
     } else {
-      newData.lensHandle = "";
       newData.lensImageUrl = "";
-      newData.isLensUser = false;
     }
     return newData;
   } catch (e) {

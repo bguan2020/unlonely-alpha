@@ -15,8 +15,10 @@ import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { getColorFromString } from "../../styles/Colors";
 import { FaPencilAlt } from "react-icons/fa";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { useUser } from "../../hooks/context/useUser";
 
 const ChannelDesc = () => {
+  const { walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, ui } = useChannelContext();
   const { channelQueryData, totalBadges, realTimeChannelDetails, isOwner } =
@@ -94,7 +96,7 @@ const ChannelDesc = () => {
           >
             {realTimeChannelDetails.channelName}
           </Text>
-          {isOwner && (
+          {isOwner && walletIsConnected && (
             <IconButton
               aria-label="edit channel title"
               _focus={{}}
