@@ -40,6 +40,7 @@ import LivepeerPlayer from "../../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
 import { TempTokenTimerView } from "../temp/TempTokenTimer";
 import ChannelDesc from "../ChannelDesc";
+import { SessionsModal } from "../SessionsModal";
 export const DesktopChannelStreamerPerspectiveSimplified = ({
   ablyChannel,
   livepeerData,
@@ -69,6 +70,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
   const [showRTMPIngest, setShowRTMPIngest] = useState(false);
 
   const [streamerMigrateModal, setStreamerMigrateModal] = useState(false);
+  const [sessionsModal, setSessionsModal] = useState(false);
 
   const { updateLivepeerStreamData, loading: updateLivepeerStreamDataLoading } =
     useUpdateLivepeerStreamData({});
@@ -184,6 +186,11 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
           </Text>
         </Flex>
       </TransactionModalTemplate>
+      <SessionsModal
+        title={"Sessions"}
+        isOpen={sessionsModal}
+        handleClose={() => setSessionsModal(false)}
+      />
       {!(isStandalone && !playbackId) && (
         <Flex
           width={"100%"}
@@ -427,6 +434,18 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   </PopoverContent>
                 </Popover>
               </Flex>
+              <Button
+                p="1"
+                bg="#013eb9"
+                _hover={{
+                  transform: "scale(1.05)",
+                }}
+                _active={{}}
+                _focus={{}}
+                onClick={() => setSessionsModal(true)}
+              >
+                <Text color="white">my sessions</Text>
+              </Button>
             </Flex>
           ) : (
             <MigrateToLivePeer />
