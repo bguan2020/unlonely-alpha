@@ -34,36 +34,42 @@ export const SessionsModal = ({
     return channelQueryData?.livepeerStreamId ?? undefined;
   }, [channelQueryData]);
 
-  useEffect(() => {
-    const fetch = async () => {
-      if (!livepeerStreamId || !isOpen) return;
-      setLoading(true);
-      const sessions = await client
-        .query({
-          query: GET_LIVEPEER_STREAM_SESSIONS_DATA_QUERY,
-          variables: {
-            data: {
-              streamId: livepeerStreamId,
-              limit: ITEMS_PER_PAGE,
-              skip: ITEMS_PER_PAGE * page,
-            },
+  const fetch = async (_page: number) => {
+    if (!livepeerStreamId || !isOpen) return;
+    setLoading(true);
+    const sessions = await client
+      .query({
+        query: GET_LIVEPEER_STREAM_SESSIONS_DATA_QUERY,
+        variables: {
+          data: {
+            streamId: livepeerStreamId,
+            limit: ITEMS_PER_PAGE,
+            skip: ITEMS_PER_PAGE * _page,
           },
-        })
-        .then((res: any) => {
-          return res.data.getLivepeerStreamSessionsData;
-        });
-      setLoading(false);
-      setSessions((prev) => [...prev, ...sessions]);
-    };
-    fetch();
-  }, [livepeerStreamId, page, isOpen]);
+        },
+      })
+      .then((res: any) => {
+        return res.data.getLivepeerStreamSessionsData;
+      });
+    setLoading(false);
+    setSessions((prev) => [...prev, ...sessions]);
+  };
+
+  useEffect(() => {
+    if (sessions.length === 0 && isOpen && livepeerStreamId) {
+      fetch(0);
+    }
+  }, [livepeerStreamId, isOpen, sessions]);
 
   return (
     <TransactionModalTemplate
       title={title}
       hideFooter={true}
       isOpen={isOpen}
-      handleClose={handleClose}
+      handleClose={() => {
+        setSelectedVideoUrl("");
+        handleClose();
+      }}
     >
       <Flex direction={"column"} gap="10px">
         {selectedVideoUrl.length > 0 && (
@@ -156,7 +162,10 @@ export const SessionsModal = ({
             _active={{}}
             _focus={{}}
             bg="#185fa5"
-            onClick={() => setPage((prev) => prev + 1)}
+            onClick={() => {
+              fetch(page + 1);
+              setPage((prev) => prev + 1);
+            }}
           >
             <Text color="white">load more</Text>
           </Button>
