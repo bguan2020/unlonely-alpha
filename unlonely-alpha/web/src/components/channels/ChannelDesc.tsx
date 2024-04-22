@@ -42,7 +42,7 @@ const ChannelDesc = () => {
     <Flex direction="row" m="1rem">
       <Flex direction="column" gap={["4px", "16px"]}>
         <SessionsModal
-          title={`stream activity for /${channelQueryData?.slug}`}
+          title={`recordings for /${channelQueryData?.slug}`}
           isOpen={sessionsModal}
           handleClose={() => setSessionsModal(false)}
         />

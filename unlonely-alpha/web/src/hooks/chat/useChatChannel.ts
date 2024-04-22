@@ -45,7 +45,7 @@ export function useAblyChannel(
   return [channel, ably];
 }
 
-export function useChannel(fixedChatName?: string) {
+export function useChatChannel(fixedChatName?: string) {
   const { userAddress } = useUser();
   const { channel: c, chat, ui } = useChannelContext();
   const {
