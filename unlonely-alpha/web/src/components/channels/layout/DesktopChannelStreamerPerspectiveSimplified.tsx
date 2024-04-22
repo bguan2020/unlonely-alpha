@@ -40,7 +40,7 @@ import LivepeerPlayer from "../../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
 import { TempTokenTimerView } from "../temp/TempTokenTimer";
 import ChannelDesc from "../ChannelDesc";
-import { SessionsModal } from "../SessionsModal";
+
 export const DesktopChannelStreamerPerspectiveSimplified = ({
   ablyChannel,
   livepeerData,
@@ -186,11 +186,6 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
           </Text>
         </Flex>
       </TransactionModalTemplate>
-      <SessionsModal
-        title={"Sessions"}
-        isOpen={sessionsModal}
-        handleClose={() => setSessionsModal(false)}
-      />
       {!(isStandalone && !playbackId) && (
         <Flex
           width={"100%"}

@@ -5,8 +5,9 @@ import {
   Tooltip,
   IconButton,
   Link,
+  Button,
 } from "@chakra-ui/react";
-import { Fragment, useMemo } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { anonUrl } from "../presence/AnonUrl";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
@@ -16,6 +17,7 @@ import { getColorFromString } from "../../styles/Colors";
 import { FaPencilAlt } from "react-icons/fa";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useUser } from "../../hooks/context/useUser";
+import { SessionsModal } from "./SessionsModal";
 
 const ChannelDesc = () => {
   const { walletIsConnected } = useUser();
@@ -24,6 +26,8 @@ const ChannelDesc = () => {
   const { channelQueryData, totalBadges, realTimeChannelDetails, isOwner } =
     channel;
   const { handleEditModal } = ui;
+
+  const [sessionsModal, setSessionsModal] = useState(false);
 
   const imageUrl = channelQueryData?.owner?.FCImageUrl
     ? channelQueryData?.owner.FCImageUrl
@@ -37,6 +41,11 @@ const ChannelDesc = () => {
   return (
     <Flex direction="row" m="1rem">
       <Flex direction="column" gap={["4px", "16px"]}>
+        <SessionsModal
+          title={`stream activity for /${channelQueryData?.slug}`}
+          isOpen={sessionsModal}
+          handleClose={() => setSessionsModal(false)}
+        />
         <Flex justifyContent={"center"}>
           <Avatar
             name={
@@ -53,7 +62,7 @@ const ChannelDesc = () => {
             size="md"
           />
         </Flex>
-        <OuterBorder flex={"0"} type={BorderType.FIRE}>
+        <OuterBorder flex={"0"} type={BorderType.FIRE} margin={"auto"}>
           <Flex
             p="0.5rem"
             bg={
@@ -71,6 +80,20 @@ const ChannelDesc = () => {
             </Tooltip>
           </Flex>
         </OuterBorder>
+        {channelQueryData?.livepeerStreamId && (
+          <Button
+            p="1"
+            bg="#013eb9"
+            _hover={{
+              transform: "scale(1.05)",
+            }}
+            _active={{}}
+            _focus={{}}
+            onClick={() => setSessionsModal(true)}
+          >
+            <Text color="white">recordings</Text>
+          </Button>
+        )}
       </Flex>
       <Flex
         direction="column"

@@ -38,7 +38,6 @@ import { TransactionModalTemplate } from "../../transactions/TransactionModalTem
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import LivepeerPlayer from "../../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
-import { SessionsModal } from "../SessionsModal";
 
 const ChannelStreamerPerspective = ({
   ablyChannel,
@@ -69,7 +68,6 @@ const ChannelStreamerPerspective = ({
   const [showRTMPIngest, setShowRTMPIngest] = useState(false);
 
   const [streamerMigrateModal, setStreamerMigrateModal] = useState(false);
-  const [sessionsModal, setSessionsModal] = useState(false);
 
   const { updateLivepeerStreamData, loading: updateLivepeerStreamDataLoading } =
     useUpdateLivepeerStreamData({});
@@ -185,11 +183,6 @@ const ChannelStreamerPerspective = ({
           </Text>
         </Flex>
       </TransactionModalTemplate>
-      <SessionsModal
-        title={"Sessions"}
-        isOpen={sessionsModal}
-        handleClose={() => setSessionsModal(false)}
-      />
       {!(isStandalone && !playbackId) && (
         <Flex
           width={"100%"}
