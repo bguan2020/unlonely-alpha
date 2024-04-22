@@ -706,6 +706,46 @@ export const getLivepeerStreamData = async (
   }
 };
 
+export interface IGetLivepeerStreamSessionsDataInput {
+  streamId: string;
+  limit: number;
+  skip: number;
+}
+
+export const getLivepeerStreamSessionsData = async (
+  data: IGetLivepeerStreamSessionsDataInput
+) => {
+  try {
+    const response = await axios.get(
+      "https://livepeer.studio/api/session",
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+        },
+        params: {
+          limit: data.limit,
+          parentId: data.streamId,
+          cursor: `skip${data.skip}`,
+          count: true,
+        }
+      }
+    );
+    const recordings = response.data.map((recording: any) => {
+      return {
+        id: recording.id as string,
+        createdAt: recording.createdAt as number,
+        mp4Url: recording.mp4Url ?? "" as string,
+        duration: recording.sourceSegmentsDuration as number,
+      };
+    });
+    return recordings;
+  } catch (error: any) {
+    console.log("getLivepeerStreamRecordings error", error);
+    throw error;
+  }
+}
+
+
 export interface IUpdateLivepeerStreamDataInput {
   streamId: string;
   canRecord: boolean;

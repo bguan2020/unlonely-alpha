@@ -41,6 +41,12 @@ export const resolvers = {
     ) {
       return channelService.getLivepeerStreamData(data);
     },
+    getLivepeerStreamSessionsData(
+      _: any,
+      { data }: { data: channelService.IGetLivepeerStreamSessionsDataInput }
+    ) {
+      return channelService.getLivepeerStreamSessionsData(data);
+    }
   },
   Mutation: {
     postChannel: (

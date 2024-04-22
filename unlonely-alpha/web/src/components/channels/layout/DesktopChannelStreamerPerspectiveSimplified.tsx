@@ -40,6 +40,7 @@ import LivepeerPlayer from "../../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
 import { TempTokenTimerView } from "../temp/TempTokenTimer";
 import ChannelDesc from "../ChannelDesc";
+
 export const DesktopChannelStreamerPerspectiveSimplified = ({
   ablyChannel,
   livepeerData,

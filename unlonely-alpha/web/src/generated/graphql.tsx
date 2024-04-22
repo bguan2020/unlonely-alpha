@@ -379,6 +379,12 @@ export type HandleLikeInput = {
   value: Scalars["Int"];
 };
 
+export type IGetLivepeerStreamSessionsDataInput = {
+  limit: Scalars["Int"];
+  skip: Scalars["Int"];
+  streamId: Scalars["String"];
+};
+
 export type Likable = {
   disliked?: Maybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
@@ -406,6 +412,14 @@ export type LivepeerStreamData = {
   playbackId?: Maybe<Scalars["String"]>;
   record?: Maybe<Scalars["Boolean"]>;
   streamKey?: Maybe<Scalars["String"]>;
+};
+
+export type LivepeerStreamSessionsData = {
+  __typename?: "LivepeerStreamSessionsData";
+  createdAt: Scalars["BigInt"];
+  duration: Scalars["Float"];
+  id: Scalars["String"];
+  mp4Url: Scalars["String"];
 };
 
 export type MigrateChannelToLivepeerInput = {
@@ -910,6 +924,9 @@ export type Query = {
   getGamblableEventUserRank: Scalars["Int"];
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
   getLivepeerStreamData?: Maybe<LivepeerStreamData>;
+  getLivepeerStreamSessionsData?: Maybe<
+    Array<Maybe<LivepeerStreamSessionsData>>
+  >;
   getNFC?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
   getPoap?: Maybe<Poap>;
@@ -993,6 +1010,10 @@ export type QueryGetGamblableEventUserRankArgs = {
 
 export type QueryGetLivepeerStreamDataArgs = {
   data: GetLivepeerStreamDataInput;
+};
+
+export type QueryGetLivepeerStreamSessionsDataArgs = {
+  data: IGetLivepeerStreamSessionsDataInput;
 };
 
 export type QueryGetNfcArgs = {
@@ -1842,6 +1863,21 @@ export type GetLivepeerStreamDataQuery = {
     playbackId?: string | null;
     isActive?: boolean | null;
   } | null;
+};
+
+export type GetLivepeerStreamSessionsDataQueryVariables = Exact<{
+  data: IGetLivepeerStreamSessionsDataInput;
+}>;
+
+export type GetLivepeerStreamSessionsDataQuery = {
+  __typename?: "Query";
+  getLivepeerStreamSessionsData?: Array<{
+    __typename?: "LivepeerStreamSessionsData";
+    mp4Url: string;
+    id: string;
+    createdAt: any;
+    duration: number;
+  } | null> | null;
 };
 
 export type GetChannelSearchResultsQueryVariables = Exact<{
@@ -3862,6 +3898,69 @@ export type GetLivepeerStreamDataLazyQueryHookResult = ReturnType<
 export type GetLivepeerStreamDataQueryResult = Apollo.QueryResult<
   GetLivepeerStreamDataQuery,
   GetLivepeerStreamDataQueryVariables
+>;
+export const GetLivepeerStreamSessionsDataDocument = gql`
+  query GetLivepeerStreamSessionsData(
+    $data: IGetLivepeerStreamSessionsDataInput!
+  ) {
+    getLivepeerStreamSessionsData(data: $data) {
+      mp4Url
+      id
+      createdAt
+      duration
+    }
+  }
+`;
+
+/**
+ * __useGetLivepeerStreamSessionsDataQuery__
+ *
+ * To run a query within a React component, call `useGetLivepeerStreamSessionsDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLivepeerStreamSessionsDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLivepeerStreamSessionsDataQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetLivepeerStreamSessionsDataQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetLivepeerStreamSessionsDataQuery,
+    GetLivepeerStreamSessionsDataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetLivepeerStreamSessionsDataQuery,
+    GetLivepeerStreamSessionsDataQueryVariables
+  >(GetLivepeerStreamSessionsDataDocument, options);
+}
+export function useGetLivepeerStreamSessionsDataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetLivepeerStreamSessionsDataQuery,
+    GetLivepeerStreamSessionsDataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetLivepeerStreamSessionsDataQuery,
+    GetLivepeerStreamSessionsDataQueryVariables
+  >(GetLivepeerStreamSessionsDataDocument, options);
+}
+export type GetLivepeerStreamSessionsDataQueryHookResult = ReturnType<
+  typeof useGetLivepeerStreamSessionsDataQuery
+>;
+export type GetLivepeerStreamSessionsDataLazyQueryHookResult = ReturnType<
+  typeof useGetLivepeerStreamSessionsDataLazyQuery
+>;
+export type GetLivepeerStreamSessionsDataQueryResult = Apollo.QueryResult<
+  GetLivepeerStreamSessionsDataQuery,
+  GetLivepeerStreamSessionsDataQueryVariables
 >;
 export const GetChannelSearchResultsDocument = gql`
   query GetChannelSearchResults($data: ChannelSearchInput!) {

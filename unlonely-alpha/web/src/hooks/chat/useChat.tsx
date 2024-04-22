@@ -13,9 +13,9 @@ import {
 import { useChannelContext } from "../context/useChannel";
 import { useUser } from "../context/useUser";
 import usePostFirstChat from "../server/usePostFirstChat";
-import { useChannel } from "./useChannel";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
 import { Message, SenderStatus } from "../../constants/types/chat";
+import { useChatChannel } from "./useChatChannel";
 
 export type ChatReturnType = {
   channel: AblyChannelPromise;
@@ -31,7 +31,7 @@ export const useChat = (): ChatReturnType => {
     receivedMessages,
     allMessages,
     mounted,
-  } = useChannel();
+  } = useChatChannel();
   const { username, userAddress: address } = useUser();
   const { chat } = useChannelContext();
   const { chatBot } = chat;

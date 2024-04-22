@@ -96,6 +96,13 @@ export const typeDef = gql`
     record: Boolean
   }
 
+  type LivepeerStreamSessionsData {
+    id: String!
+    createdAt: BigInt!
+    mp4Url: String!
+    duration: Float!
+  }
+
   type UpdateManyResponse {
     count: Int!
   }
@@ -187,6 +194,12 @@ export const typeDef = gql`
     streamId: String
   }
 
+  input IGetLivepeerStreamSessionsDataInput {
+    streamId: String!
+    limit: Int!
+    skip: Int!
+  }
+
   input UpdateLivepeerStreamDataInput {
     streamId: String
     canRecord: Boolean
@@ -201,6 +214,9 @@ export const typeDef = gql`
     getChannelByAwsId(awsId: String!): Channel
     getChannelsByOwnerAddress(ownerAddress: String!): [Channel]
     getLivepeerStreamData(data: GetLivepeerStreamDataInput!): LivepeerStreamData
+    getLivepeerStreamSessionsData(
+      data: IGetLivepeerStreamSessionsDataInput!
+    ): [LivepeerStreamSessionsData]
   }
 
   extend type Mutation {
