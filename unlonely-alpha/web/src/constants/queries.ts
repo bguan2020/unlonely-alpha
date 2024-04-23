@@ -335,15 +335,17 @@ export const GET_LIVEPEER_STREAM_DATA_QUERY = gql`
 `;
 
 export const GET_LIVEPEER_STREAM_SESSIONS_DATA_QUERY = gql`
-query GetLivepeerStreamSessionsData($data: IGetLivepeerStreamSessionsDataInput!) {
-  getLivepeerStreamSessionsData(data: $data) {
-    mp4Url
-    id
-    createdAt
-    duration
+  query GetLivepeerStreamSessionsData(
+    $data: IGetLivepeerStreamSessionsDataInput!
+  ) {
+    getLivepeerStreamSessionsData(data: $data) {
+      mp4Url
+      id
+      createdAt
+      duration
+    }
   }
-}
-`
+`;
 
 export const GET_CHANNEL_SEARCH_RESULTS_QUERY = gql`
   query GetChannelSearchResults($data: ChannelSearchInput!) {
