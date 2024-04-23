@@ -39,15 +39,15 @@ export const useReadTempTokenTxsInitial = {
  * This hook is used to track the transactions of a temp token in real time, and update the chart data accordingly.
  */
 export const useReadTempTokenTxs = ({
-  currentActiveTokenCreationBlockNumber,
-  currentActiveTokenSymbol,
+  tokenCreationBlockNumber,
+  tokenSymbol,
   baseClient,
   tempTokenContract,
   onMintCallback, // passed in from the parent component to trigger ui changes
   onBurnCallback, // passed in from the parent component to trigger ui changes
 }: {
-  currentActiveTokenCreationBlockNumber: bigint;
-  currentActiveTokenSymbol: string;
+  tokenCreationBlockNumber: bigint;
+  tokenSymbol: string;
   baseClient: any;
   tempTokenContract: ContractData;
   onMintCallback: (totalSupply: bigint, highestTotalSupply: bigint) => void;
@@ -170,7 +170,7 @@ export const useReadTempTokenTxs = ({
         !baseClient ||
         !tempTokenContract.address ||
         tempTokenContract.address === NULL_ADDRESS ||
-        currentActiveTokenCreationBlockNumber === BigInt(0) ||
+        tokenCreationBlockNumber === BigInt(0) ||
         fetching.current ||
         tempTokenTxs.length > 0
       ) {
@@ -179,8 +179,8 @@ export const useReadTempTokenTxs = ({
       }
       fetching.current = true;
       console.log(
-        "getTempTokenEvents currentActiveTokenCreationBlockNumber",
-        currentActiveTokenCreationBlockNumber
+        "getTempTokenEvents tokenCreationBlockNumber",
+        tokenCreationBlockNumber
       );
       console.log("getTempTokenEvents tempTokenContract", tempTokenContract);
       const [mintLogs, burnLogs] = await Promise.all([
@@ -189,14 +189,14 @@ export const useReadTempTokenTxs = ({
           event: parseAbiItem(
             "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold, uint256 highestTotalSupply)"
           ),
-          fromBlock: currentActiveTokenCreationBlockNumber,
+          fromBlock: tokenCreationBlockNumber,
         }),
         baseClient.getLogs({
           address: tempTokenContract.address,
           event: parseAbiItem(
             "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent)"
           ),
-          fromBlock: currentActiveTokenCreationBlockNumber,
+          fromBlock: tokenCreationBlockNumber,
         }),
       ]);
       console.log(
@@ -244,7 +244,7 @@ export const useReadTempTokenTxs = ({
       setTempTokenLoading(false);
     };
     getTempTokenEvents();
-  }, [tempTokenContract, currentActiveTokenCreationBlockNumber, baseClient]);
+  }, [tempTokenContract, tokenCreationBlockNumber, baseClient]);
 
   // For every new transaction, organize chart time indexes for the time filter functionality based on chart txs
   useEffect(() => {
@@ -261,7 +261,7 @@ export const useReadTempTokenTxs = ({
       );
 
       const dayIndex =
-        blockNumbersInDaysAgoArr[0] < currentActiveTokenCreationBlockNumber
+        blockNumbersInDaysAgoArr[0] < tokenCreationBlockNumber
           ? undefined
           : binarySearchIndex(
               tempTokenTxs,
@@ -274,7 +274,7 @@ export const useReadTempTokenTxs = ({
       );
 
       const hourIndex =
-        blockNumbersInHoursAgoArr[0] < currentActiveTokenCreationBlockNumber
+        blockNumbersInHoursAgoArr[0] < tokenCreationBlockNumber
           ? undefined
           : binarySearchIndex(
               tempTokenTxs,
@@ -386,7 +386,7 @@ export const useReadTempTokenTxs = ({
               <Box borderRadius="md" bg="#8e64dd" px={4} h={8}>
                 <Flex justifyContent="center" alignItems="center">
                   <Text fontSize="16px" color="white">
-                    Some people sent you ${currentActiveTokenSymbol}! 🎉
+                    Some people sent you ${tokenSymbol}! 🎉
                   </Text>
                   <Text>
                     Got{" "}

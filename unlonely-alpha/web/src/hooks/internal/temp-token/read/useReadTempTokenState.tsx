@@ -337,9 +337,9 @@ export const useReadTempTokenState = () => {
    * but if a current token had just turned inactive and the funds have or have not been sent, what does the ui look like?
    */
   const onSendRemainingFundsToWinnerEvent = useCallback(
-    async (tokenAddress: string, tokenIsCurrent: boolean) => {
+    async (tokenAddress: string, tokenIsCurrentlyActive: boolean) => {
       if (
-        tokenIsCurrent &&
+        tokenIsCurrentlyActive &&
         isAddressEqual(
           tokenAddress as `0x${string}`,
           currentActiveTokenAddress as `0x${string}`
@@ -356,7 +356,7 @@ export const useReadTempTokenState = () => {
         setCurrentActiveTokenCreationBlockNumber(BigInt(0));
       }
       if (
-        !tokenIsCurrent &&
+        !tokenIsCurrentlyActive &&
         isAddressEqual(
           tokenAddress as `0x${string}`,
           lastInactiveTokenAddress as `0x${string}`
@@ -371,8 +371,8 @@ export const useReadTempTokenState = () => {
   );
 
   const readTempTokenTxs = useReadTempTokenTxs({
-    currentActiveTokenCreationBlockNumber,
-    currentActiveTokenSymbol,
+    tokenCreationBlockNumber: currentActiveTokenCreationBlockNumber,
+    tokenSymbol: currentActiveTokenSymbol,
     baseClient,
     tempTokenContract,
     onMintCallback: onMintEvent,
@@ -381,7 +381,6 @@ export const useReadTempTokenState = () => {
 
   useReadTempTokenExternalEventListeners({
     tempTokenContract,
-    lastInactiveTempTokenContract,
     onReachThresholdCallback: onReachThresholdEvent,
     onDurationIncreaseCallback: onDurationIncreaseEvent,
     onAlwaysTradeableCallback: onAlwaysTradeableEvent,
@@ -478,6 +477,61 @@ export const useReadTempTokenState = () => {
     setCurrentActiveTokenAddress(newTokenAddress);
     setCurrentActiveTokenSymbol(newTokenSymbol);
     setCurrentActiveTokenTotalSupplyThreshold(newTokenTotalSupplyThreshold);
+  };
+
+  /**
+   * listen for last inactive temp token send remaining funds to winner after token expiration events
+   */
+  const [
+    incomingSendRemainingFundsToWinnerAfterTokenExpirationLogs,
+    setIncomingSendRemainingFundsToWinnerAfterTokenExpirationLogs,
+  ] = useState<Log[]>([]);
+
+  useContractEvent({
+    address: lastInactiveTempTokenContract.address,
+    abi: lastInactiveTempTokenContract.abi,
+    eventName: "SendRemainingFundsToWinnerAfterTokenExpiration",
+    listener(logs) {
+      console.log(
+        "detected SendRemainingFundsToWinnerAfterTokenExpiration event for inactive token",
+        logs
+      );
+      const init = async () => {
+        setIncomingSendRemainingFundsToWinnerAfterTokenExpirationLogs(logs);
+      };
+      init();
+    },
+  });
+
+  useEffect(() => {
+    if (incomingSendRemainingFundsToWinnerAfterTokenExpirationLogs)
+      handleRemainingFundsToWinnerAfterTokenExpirationUpdate(
+        incomingSendRemainingFundsToWinnerAfterTokenExpirationLogs
+      );
+  }, [incomingSendRemainingFundsToWinnerAfterTokenExpirationLogs]);
+
+  const handleRemainingFundsToWinnerAfterTokenExpirationUpdate = async (
+    logs: Log[]
+  ) => {
+    if (logs.length === 0) return;
+    const filteredLogsByLastInactiveTokenAddress = logs.filter((log: any) =>
+      isAddressEqual(
+        log.address as `0x${string}`,
+        lastInactiveTempTokenContract.address as `0x${string}`
+      )
+    );
+    console.log(
+      "RemainingFundsToWinnerAfterTokenExpiration listener for inactive token",
+      logs,
+      tempTokenContract.address,
+      lastInactiveTempTokenContract.address,
+      filteredLogsByLastInactiveTokenAddress
+    );
+    if (filteredLogsByLastInactiveTokenAddress.length > 0)
+      onSendRemainingFundsToWinnerEvent(
+        lastInactiveTempTokenContract.address as `0x${string}`,
+        false
+      );
   };
 
   /**
