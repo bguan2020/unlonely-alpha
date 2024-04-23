@@ -10,19 +10,19 @@ import {
   PopoverTrigger,
 } from "@chakra-ui/react";
 
-import { UseTradeTempTokenStateType } from "../../../hooks/internal/temp-token/useTradeTempTokenState";
+import { UseTradeTempTokenStateType } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { formatUnits } from "viem";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
-import { useChannelContext } from "../../../hooks/context/useChannel";
+import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 
 export const TempTokenExchange = ({
   tradeTempTokenState,
 }: {
   tradeTempTokenState: UseTradeTempTokenStateType;
 }) => {
-  const { channel } = useChannelContext();
-  const { userTempTokenBalance } = channel;
+  const { tempToken } = useTempTokenContext();
+  const { userTempTokenBalance } = tempToken;
 
   const {
     amount,

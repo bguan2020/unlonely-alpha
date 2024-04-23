@@ -41,10 +41,11 @@ import Header from "../../navigation/Header";
 import { TempTokenCreationModal } from "../temp/TempTokenCreationModal";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { ContractData } from "../../../constants/types";
-import { useSendRemainingFundsToWinnerState } from "../../../hooks/internal/temp-token/useSendRemainingFundsToWinnerState";
+import { useSendRemainingFundsToWinnerState } from "../../../hooks/internal/temp-token/write/useSendRemainingFundsToWinnerState";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import trailString from "../../../utils/trailString";
 import copy from "copy-to-clipboard";
+import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 
 export const DesktopChannelPageSimplified = ({
   channelSSR,
@@ -57,6 +58,7 @@ export const DesktopChannelPageSimplified = ({
 }) => {
   const { userAddress, walletIsConnected } = useUser();
   const { channel, leaderboard } = useChannelContext();
+  const { tempToken } = useTempTokenContext();
   const chat = useChat();
   const { network } = useNetworkContext();
   const { localNetwork } = network;
@@ -66,10 +68,9 @@ export const DesktopChannelPageSimplified = ({
     error: channelDataError,
     handleTotalBadges,
     handleChannelStaticData,
-    currentActiveTokenEndTimestamp,
-    canPlayToken,
     isOwner,
   } = channel;
+  const { currentActiveTokenEndTimestamp, canPlayToken } = tempToken;
   const { handleIsVip } = leaderboard;
   const toast = useToast();
 
@@ -425,8 +426,8 @@ export const DesktopChannelPageSimplified = ({
 
 // creation flow and send remaining funds from INACTIVE token, DO NOT USE THIS COMPONENT FOR ACTIVE TOKENS
 const CreateTokenInterface = () => {
-  const { channel } = useChannelContext();
-  const { lastInactiveTokenAddress, lastInactiveTokenBalance } = channel;
+  const { tempToken } = useTempTokenContext();
+  const { lastInactiveTokenAddress, lastInactiveTokenBalance } = tempToken;
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const [createTokenModalOpen, setCreateTokenModalOpen] = useState(false);

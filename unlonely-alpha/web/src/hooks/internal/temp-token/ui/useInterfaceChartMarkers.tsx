@@ -2,11 +2,11 @@ import { useApolloClient } from "@apollo/client";
 import { Flex, Text } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { isAddress, formatUnits } from "viem";
-import { GET_USER_QUERY } from "../../../constants/queries";
-import centerEllipses from "../../../utils/centerEllipses";
-import { truncateValue } from "../../../utils/tokenDisplayFormatting";
-import { useCacheContext } from "../../context/useCache";
-import { ChartTokenTx } from "../../../components/chat/VibesTokenInterface";
+import { GET_USER_QUERY } from "../../../../constants/queries";
+import centerEllipses from "../../../../utils/centerEllipses";
+import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
+import { useCacheContext } from "../../../context/useCache";
+import { ChartTokenTx } from "../../../../components/chat/VibesTokenInterface";
 
 export const useInterfaceChartMarkers = (
   chartTxs: ChartTokenTx[],

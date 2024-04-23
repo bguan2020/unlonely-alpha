@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { ChartTokenTx } from "../../../components/chat/VibesTokenInterface";
+import { ChartTokenTx } from "../../../../components/chat/VibesTokenInterface";
 
 export const useInterfaceChartData = ({
   chartTimeIndexes,

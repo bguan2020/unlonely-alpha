@@ -86,10 +86,24 @@ export function formatTimestampToTime(timestampInMilliseconds: number) {
 export function formatTimestampToDate(timestampInMilliseconds: number) {
   const date = new Date(timestampInMilliseconds);
   const year = date.getFullYear();
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   const month = months[date.getMonth()]; // getMonth() is zero-indexed
   const day = date.getDate().toString().padStart(2, "0");
 
-  return `${month}-${day}-${year} ${formatTimestampToTime(timestampInMilliseconds)}`;
+  return `${month}-${day}-${year} ${formatTimestampToTime(
+    timestampInMilliseconds
+  )}`;
 }

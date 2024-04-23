@@ -12,12 +12,15 @@ import AppLayout from "../../components/layout/AppLayout";
 import { ChannelStaticQuery } from "../../generated/graphql";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
 import { TempTokenInterface } from "../../components/channels/temp/TempTokenInterface";
+import { TempTokenProvider } from "../../hooks/context/useTempToken";
 
 const FullTempTokenChartPage = () => {
   return (
     <AppLayout isCustomHeader={false} noHeader>
       <ChannelProvider>
-        <FullTempTokenChart />
+        <TempTokenProvider>
+          <FullTempTokenChart />
+        </TempTokenProvider>
       </ChannelProvider>
     </AppLayout>
   );

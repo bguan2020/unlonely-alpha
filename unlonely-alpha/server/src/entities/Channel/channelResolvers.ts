@@ -46,7 +46,7 @@ export const resolvers = {
       { data }: { data: channelService.IGetLivepeerStreamSessionsDataInput }
     ) {
       return channelService.getLivepeerStreamSessionsData(data);
-    }
+    },
   },
   Mutation: {
     postChannel: (

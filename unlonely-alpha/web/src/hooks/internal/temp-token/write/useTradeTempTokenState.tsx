@@ -1,34 +1,35 @@
-import { ContractData, FetchBalanceResult } from "../../../constants/types";
-import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
+import { ContractData, FetchBalanceResult } from "../../../../constants/types";
+import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { useMemo, useRef, useState, useCallback, useEffect } from "react";
-import { InteractionType, NULL_ADDRESS } from "../../../constants";
-import { useNetworkContext } from "../../context/useNetwork";
+import { InteractionType, NULL_ADDRESS } from "../../../../constants";
+import { useNetworkContext } from "../../../context/useNetwork";
 import {
   useGetMintCostAfterFees,
   useGetBurnProceedsAfterFees,
   useMint,
   useBurn,
-} from "../../contracts/useTempTokenV1";
-import useDebounce from "../useDebounce";
+} from "../../../contracts/useTempTokenV1";
+import useDebounce from "../../useDebounce";
 import { Flex, Box, useToast, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import { decodeEventLog, formatUnits, isAddress } from "viem";
-import centerEllipses from "../../../utils/centerEllipses";
+import centerEllipses from "../../../../utils/centerEllipses";
 import {
   burnErrors,
   mintErrors,
-} from "../../../components/chat/VibesTokenExchange";
+} from "../../../../components/chat/VibesTokenExchange";
 import {
   filteredInput,
   formatIncompleteNumber,
-} from "../../../utils/validation/input";
-import { useChannelContext } from "../../context/useChannel";
-import { useUser } from "../../context/useUser";
+} from "../../../../utils/validation/input";
+import { useChannelContext } from "../../../context/useChannel";
+import { useUser } from "../../../context/useUser";
 import { useBalance } from "wagmi";
-import { ChartTokenTx } from "../../../components/chat/VibesTokenInterface";
-import { useCacheContext } from "../../../hooks/context/useCache";
-import useUpdateTempTokenHighestTotalSupply from "../../server/temp-token/useUpdateTempTokenHighestTotalSupply";
-import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
+import { ChartTokenTx } from "../../../../components/chat/VibesTokenInterface";
+import { useCacheContext } from "../../../context/useCache";
+import useUpdateTempTokenHighestTotalSupply from "../../../server/temp-token/useUpdateTempTokenHighestTotalSupply";
+import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
+import { useTempTokenContext } from "../../../context/useTempToken";
 
 export type UseTradeTempTokenStateType = {
   amount: string;
@@ -55,12 +56,10 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
   const { walletIsConnected, userAddress, user } = useUser();
 
   const { chat, channel } = useChannelContext();
-  const {
-    channelQueryData,
-    currentActiveTokenAddress,
-    currentActiveTokenSymbol,
-    tempTokenTxs,
-  } = channel;
+  const { channelQueryData } = channel;
+  const { tempToken } = useTempTokenContext();
+  const { currentActiveTokenAddress, currentActiveTokenSymbol, tempTokenTxs } =
+    tempToken;
   const { addToChatbot: addToChatbotForTempToken } = chat;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl, matchingChain } = network;

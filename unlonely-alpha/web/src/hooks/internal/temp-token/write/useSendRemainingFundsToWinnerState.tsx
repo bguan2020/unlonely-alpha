@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNetworkContext } from "../../context/useNetwork";
-import { ContractData } from "../../../constants/types";
+import { useNetworkContext } from "../../../context/useNetwork";
+import { ContractData } from "../../../../constants/types";
 import { Box, useToast } from "@chakra-ui/react";
 import Link from "next/link";
-import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../contracts/useTempTokenV1";
+import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../../contracts/useTempTokenV1";
 import { decodeEventLog, isAddress } from "viem";
-import { useChannelContext } from "../../context/useChannel";
-import { InteractionType } from "../../../constants";
-import { useUser } from "../../context/useUser";
+import { useChannelContext } from "../../../context/useChannel";
+import { InteractionType } from "../../../../constants";
+import { useUser } from "../../../context/useUser";
 import { useApolloClient } from "@apollo/client";
-import { GET_USER_QUERY } from "../../../constants/queries";
-import centerEllipses from "../../../utils/centerEllipses";
+import { GET_USER_QUERY } from "../../../../constants/queries";
+import centerEllipses from "../../../../utils/centerEllipses";
 import { usePublicClient } from "wagmi";
 import { init, useQuery } from "@airstack/airstack-react";
-import useDebounce from "../useDebounce";
+import useDebounce from "../../useDebounce";
 
 init(String(process.env.NEXT_PUBLIC_AIRSTACK_API_KEY));
 

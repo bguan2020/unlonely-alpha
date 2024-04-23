@@ -11,9 +11,8 @@ import {
   TempToken,
   TempTokenWithBalance,
 } from "../../../../generated/graphql";
-import { UseChannelDetailsType } from "../../useChannelDetails";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
-import { ChatBot, ContractData } from "../../../../constants/types";
+import { ContractData } from "../../../../constants/types";
 import useUpdateTempTokenHasRemainingFundsForCreator from "../../../server/temp-token/useUpdateTempTokenHasRemainingFundsForCreator";
 import { useUser } from "../../../context/useUser";
 import { base } from "viem/chains";
@@ -25,6 +24,7 @@ import {
 import { useReadTempTokenExternalEventListeners } from "./useReadTempTokenExternalEventListeners";
 import usePostTempToken from "../../../server/temp-token/usePostTempToken";
 import { useRouter } from "next/router";
+import { useChannelContext } from "../../../context/useChannel";
 
 export type UseReadTempTokenStateType = {
   currentActiveTokenSymbol: string;
@@ -40,7 +40,6 @@ export type UseReadTempTokenStateType = {
   lastInactiveTokenBalance: bigint;
   lastInactiveTokenSymbol: string;
   currentTempTokenContract: ContractData;
-  isOwner: boolean;
   isPermanentGameModalOpen: boolean;
   isSuccessGameModalOpen: boolean;
   isFailedGameModalOpen: boolean;
@@ -85,7 +84,6 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
     abi: undefined,
     chainId: 0,
   },
-  isOwner: false,
   isPermanentGameModalOpen: false,
   isSuccessGameModalOpen: false,
   isFailedGameModalOpen: false,
@@ -110,13 +108,13 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
   ...useReadTempTokenTxsInitial,
 };
 
-export const useReadTempTokenState = (
-  channelDetails: UseChannelDetailsType,
-  addToChatbotForTempToken: (chatBotMessageToAdd: ChatBot) => void
-): UseReadTempTokenStateType => {
+export const useReadTempTokenState = () => {
   const { userAddress, user } = useUser();
   const router = useRouter();
 
+  const { channel, chat } = useChannelContext();
+  const { handleRealTimeChannelDetails, channelQueryData, isOwner } = channel;
+  const { addToChatbot: addToChatbotForTempToken } = chat;
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const publicClient = usePublicClient();
@@ -172,15 +170,6 @@ export const useReadTempTokenState = (
   const [canPlayToken, setCanPlayToken] = useState(false);
 
   const { postTempToken } = usePostTempToken({});
-
-  const isOwner = useMemo(() => {
-    if (!userAddress || !channelDetails?.channelQueryData?.owner?.address)
-      return false;
-    return isAddressEqual(
-      userAddress,
-      channelDetails?.channelQueryData?.owner.address as `0x${string}`
-    );
-  }, [userAddress, channelDetails?.channelQueryData?.owner.address]);
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -430,12 +419,12 @@ export const useReadTempTokenState = (
     console.log(
       "handleTempTokenCreatedUpdate",
       logs,
-      channelDetails.channelQueryData?.owner.address
+      channelQueryData?.owner.address
     );
     const filteredLogsByOwner = logs.filter((log: any) =>
       isAddressEqual(
         log.args.owner as `0x${string}`,
-        channelDetails.channelQueryData?.owner.address as `0x${string}`
+        channelQueryData?.owner.address as `0x${string}`
       )
     );
     const sortedLogs = filteredLogsByOwner.sort(
@@ -452,7 +441,7 @@ export const useReadTempTokenState = (
     const newTokenTotalSupplyThreshold = latestLog?.args
       .totalSupplyThreshold as bigint;
 
-    channelDetails.handleRealTimeChannelDetails({
+    handleRealTimeChannelDetails({
       isLive: true,
     });
 
@@ -471,7 +460,7 @@ export const useReadTempTokenState = (
           ownerAddress: latestLog?.args.owner as `0x${string}`,
           name: newTokenName,
           endUnixTimestamp: newEndTimestamp,
-          channelId: Number(channelDetails.channelQueryData?.id),
+          channelId: Number(channelQueryData?.id),
           chainId: localNetwork.config.chainId as number,
           highestTotalSupply: BigInt(0),
           creationBlockNumber: newTokenCreationBlockNumber,
@@ -506,12 +495,12 @@ export const useReadTempTokenState = (
 
   useEffect(() => {
     const init = async () => {
-      if (!(Number(channelDetails.channelQueryData?.id ?? "0") > 0)) return;
+      if (!(Number(channelQueryData?.id ?? "0") > 0)) return;
       try {
         const getTempTokenQueryRes = await getTempTokensQuery({
           variables: {
             data: {
-              channelId: Number(channelDetails.channelQueryData?.id ?? "0"),
+              channelId: Number(channelQueryData?.id ?? "0"),
               chainId: localNetwork.config.chainId,
               fulfillAllNotAnyConditions: true,
             },
@@ -598,13 +587,13 @@ export const useReadTempTokenState = (
       }
     };
     init();
-  }, [channelDetails.channelQueryData?.id, localNetwork.config.chainId]);
+  }, [channelQueryData?.id, localNetwork.config.chainId]);
 
   useEffect(() => {
     const init = async () => {
-      if (Number(channelDetails.channelQueryData?.id ?? "0") > 0 && isOwner) {
+      if (Number(channelQueryData?.id ?? "0") > 0 && isOwner) {
         const res = await updateTempTokenHasRemainingFundsForCreator({
-          channelId: Number(channelDetails.channelQueryData?.id ?? "0"),
+          channelId: Number(channelQueryData?.id ?? "0"),
           chainId: localNetwork.config.chainId,
         });
         const tempTokensWithNonZeroBalances = res?.res;
@@ -635,11 +624,7 @@ export const useReadTempTokenState = (
       }
     };
     init();
-  }, [
-    channelDetails.channelQueryData?.id,
-    localNetwork.config.chainId,
-    isOwner,
-  ]);
+  }, [channelQueryData?.id, localNetwork.config.chainId, isOwner]);
 
   const handleCanPlayToken = useCallback((value: boolean) => {
     setCanPlayToken(value);
@@ -691,7 +676,6 @@ export const useReadTempTokenState = (
     lastInactiveTokenBalance,
     lastInactiveTokenSymbol,
     currentTempTokenContract: tempTokenContract,
-    isOwner,
     isPermanentGameModalOpen,
     isSuccessGameModalOpen,
     isFailedGameModalOpen,

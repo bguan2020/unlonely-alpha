@@ -28,7 +28,9 @@ export default async function handler(
     result = gptResponse.data.choices[0].text;
   } catch (e) {
     console.log("openai error", (e as any).response.data);
-    result = `Sorry, I seem to be malfunctioning. Please try again later. (error: ${(e as any).response.data.error.code})`;
+    result = `Sorry, I seem to be malfunctioning. Please try again later. (error: ${
+      (e as any).response.data.error.code
+    })`;
   }
 
   res.status(200).json(result);
