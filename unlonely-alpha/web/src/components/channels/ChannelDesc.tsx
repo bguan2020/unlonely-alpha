@@ -80,7 +80,7 @@ const ChannelDesc = () => {
             </Tooltip>
           </Flex>
         </OuterBorder>
-        {channelQueryData?.livepeerStreamId && (
+        {channelQueryData?.livepeerStreamId && isOwner && (
           <Button
             p="1"
             bg="#013eb9"
