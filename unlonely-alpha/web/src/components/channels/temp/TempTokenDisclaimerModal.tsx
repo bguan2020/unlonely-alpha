@@ -1,7 +1,7 @@
 import { Flex, Button, Text, ListItem, UnorderedList } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../../utils/time";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
-import { useTempTokenTimerState } from "./TempTokenTimer";
+import { useTempTokenTimerState } from "../../../hooks/internal/temp-token/ui/useTempTokenTimerState";
 
 export const TempTokenDisclaimerModal = ({
   isOpen,

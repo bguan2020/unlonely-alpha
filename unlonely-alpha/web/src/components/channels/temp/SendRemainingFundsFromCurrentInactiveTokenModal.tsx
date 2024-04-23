@@ -1,7 +1,7 @@
 import { Button, Flex, Input, Spinner, Text, Tooltip } from "@chakra-ui/react";
-import { useChannelContext } from "../../../hooks/context/useChannel";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
-import { useSendRemainingFundsToWinnerState } from "../../../hooks/internal/temp-token/useSendRemainingFundsToWinnerState";
+import { useSendRemainingFundsToWinnerState } from "../../../hooks/internal/temp-token/write/useSendRemainingFundsToWinnerState";
+import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 
 export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
   title,
@@ -14,8 +14,8 @@ export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
   isOpen: boolean;
   callbackOnTxSuccess: () => void;
 }) => {
-  const { channel } = useChannelContext();
-  const { currentTempTokenContract } = channel;
+  const { tempToken } = useTempTokenContext();
+  const { currentTempTokenContract } = tempToken;
 
   const {
     sendRemainingFundsToWinnerAfterTokenExpiration,

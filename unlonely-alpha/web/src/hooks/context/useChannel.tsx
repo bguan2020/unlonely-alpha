@@ -31,15 +31,11 @@ import {
   useChannelDetailsInitial,
 } from "../internal/useChannelDetails";
 import {
-  UseReadTempTokenStateType,
-  useReadTempTokenInitialState,
-  useReadTempTokenState,
-} from "../internal/temp-token/read/useReadTempTokenState";
-import {
   ChannelWideModalsStateType,
   useChannelWideModalsInitialState,
   useChannelWideModalsState,
 } from "../internal/modals/useChannelWideModalsState";
+import { isAddressEqual } from "viem";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -52,8 +48,8 @@ const ChannelContext = createContext<{
     error?: ApolloError;
     totalBadges: string;
     handleTotalBadges: (value: string) => void;
-  } & UseChannelDetailsType &
-    UseReadTempTokenStateType;
+    isOwner: boolean;
+  } & UseChannelDetailsType;
   chat: {
     chatChannel?: string;
     presenceChannel?: string;
@@ -85,8 +81,8 @@ const ChannelContext = createContext<{
     handleLatestBet: () => undefined,
     error: undefined,
     totalBadges: "0",
+    isOwner: false,
     ...useChannelDetailsInitial,
-    ...useReadTempTokenInitialState,
     handleTotalBadges: () => undefined,
   },
   chat: {
@@ -151,8 +147,14 @@ export const ChannelProvider = ({
     undefined
   );
 
-  const isOwner =
-    userAddress === channelDetails.channelQueryData?.owner?.address;
+  const isOwner = useMemo(() => {
+    if (!userAddress || !channelDetails?.channelQueryData?.owner?.address)
+      return false;
+    return isAddressEqual(
+      userAddress,
+      channelDetails?.channelQueryData?.owner.address as `0x${string}`
+    );
+  }, [userAddress, channelDetails?.channelQueryData?.owner.address]);
 
   const welcomeTour = useWelcomeTourState(isOwner);
 
@@ -243,8 +245,6 @@ export const ChannelProvider = ({
     setLatestBet(value);
   }, []);
 
-  const readTempToken = useReadTempTokenState(channelDetails, addToChatbot);
-
   const value = useMemo(
     () => ({
       channel: {
@@ -252,8 +252,8 @@ export const ChannelProvider = ({
         handleLatestBet,
         totalBadges,
         handleTotalBadges,
+        isOwner,
         ...channelDetails,
-        ...readTempToken,
       },
       chat: {
         chatChannel: ablyChatChannel,
@@ -285,6 +285,7 @@ export const ChannelProvider = ({
     }),
     [
       channelDetails,
+      isOwner,
       latestBet,
       handleLatestBet,
       ablyChatChannel,
@@ -308,7 +309,6 @@ export const ChannelProvider = ({
       selectedUserInChat,
       handleSelectedUserInChat,
       welcomeTour,
-      readTempToken,
     ]
   );
 

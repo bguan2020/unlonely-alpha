@@ -10,7 +10,8 @@ import { ApolloError } from "@apollo/client";
 import { MobilePage } from "../../components/channels/layout/MobilePage";
 import { DesktopPage } from "../../components/channels/layout/DesktopPage";
 import { DesktopChannelPageSimplified } from "../../components/channels/layout/DesktopChannelPageSimplified";
-import { channelIdsAllowedForNewPage } from "../../constants";
+import { CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_SIMPLIFIED } from "../../constants";
+import { TempTokenProvider } from "../../hooks/context/useTempToken";
 
 const ChannelDetail = ({
   channelData,
@@ -32,12 +33,16 @@ const ChannelDetail = ({
     <ChannelProvider>
       {!isStandalone ? (
         <>
-          {channelIdsAllowedForNewPage.includes(channelSSR?.id ?? "") ? (
-            <DesktopChannelPageSimplified
-              channelSSR={channelSSR}
-              channelSSRDataLoading={channelDataLoading}
-              channelSSRDataError={channelDataError}
-            />
+          {CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_SIMPLIFIED.includes(
+            channelSSR?.id ?? ""
+          ) ? (
+            <TempTokenProvider>
+              <DesktopChannelPageSimplified
+                channelSSR={channelSSR}
+                channelSSRDataLoading={channelDataLoading}
+                channelSSRDataError={channelDataError}
+              />
+            </TempTokenProvider>
           ) : (
             <DesktopPage
               channelSSR={channelSSR}

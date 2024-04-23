@@ -1,22 +1,18 @@
-import { useState } from "react";
-import { useNetworkContext } from "../../context/useNetwork";
-import { filteredInput } from "../../../utils/validation/input";
-import { Box, useToast } from "@chakra-ui/react";
-import { Contract } from "../../../constants";
-import { getContractFromNetwork } from "../../../utils/contract";
-import { useIncreaseEndTimestampForTokens as use_call_updateOnchain_increaseEndTimestamps } from "../../contracts/useTempTokenFactoryV1";
+import { useNetworkContext } from "../../../context/useNetwork";
+import { Contract } from "../../../../constants";
+import { getContractFromNetwork } from "../../../../utils/contract";
+import { useToast, Box } from "@chakra-ui/react";
+import { useSetAlwaysTradeableForTokens as use_call_updateOnchain_alwaysTradeable } from "../../../contracts/useTempTokenFactoryV1";
 import Link from "next/link";
 import { decodeEventLog } from "viem";
-import useUpdateEndTimestampForTokens from "../../server/temp-token/useUpdateEndTimestampForTokens";
+import useUpdateTempTokenIsAlwaysTradeable from "../../../server/temp-token/useUpdateTempTokenIsAlwaysTradeable";
 
-export const useUpdateEndTimestampForTokensState = (
+export const useUpdateTempTokenIsAlwaysTradeableState = (
   tokenAddresses: string[],
   onSuccess?: () => void
 ) => {
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
-
-  const [additionalSeconds, setAdditionalSeconds] = useState<string>("");
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -24,29 +20,18 @@ export const useUpdateEndTimestampForTokensState = (
   );
   const toast = useToast();
 
-  const handleInputChange = (event: any) => {
-    const input = event.target.value;
-    const filtered = filteredInput(input);
-    setAdditionalSeconds(filtered);
-  };
+  const {
+    updateTempTokenIsAlwaysTradeable,
+    loading: updateTempTokenIsAlwaysTradeableLoading,
+  } = useUpdateTempTokenIsAlwaysTradeable({});
 
   const {
-    updateEndTimestampForTokens,
-    loading: updateEndTimestampForTokensLoading,
-  } = useUpdateEndTimestampForTokens({
-    onError: (e) => {
-      console.log("useUpdateEndTimestampForTokens", e);
-    },
-  });
-
-  const {
-    increaseEndTimestampForTokens,
-    increaseEndTimestampForTokensData,
-    increaseEndTimestampForTokensTxData,
-    isIncreaseEndTimestampForTokensLoading,
-  } = use_call_updateOnchain_increaseEndTimestamps(
+    setAlwaysTradeableForTokens,
+    setAlwaysTradeableForTokensData,
+    setAlwaysTradeableForTokensTxData,
+    isSetAlwaysTradeableForTokensLoading,
+  } = use_call_updateOnchain_alwaysTradeable(
     {
-      _additionalDurationInSeconds: BigInt(additionalSeconds),
       tokenAddresses,
     },
     factoryContract,
@@ -60,7 +45,7 @@ export const useUpdateEndTimestampForTokensState = (
                 href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
-                increaseEndTimestampForTokens pending, click to view
+                setAlwaysTradeableForTokens pending, click to view
               </Link>
             </Box>
           ),
@@ -70,14 +55,14 @@ export const useUpdateEndTimestampForTokensState = (
         });
       },
       onWriteError: (error) => {
-        console.log("increaseEndTimestampForTokens error", error);
+        console.log("setAlwaysTradeableForTokens error", error);
         toast({
           duration: 9000,
           isClosable: true,
           position: "top-right",
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-              increaseEndTimestampForTokens cancelled
+              setAlwaysTradeableForTokens cancelled
             </Box>
           ),
         });
@@ -89,11 +74,11 @@ export const useUpdateEndTimestampForTokensState = (
           topics: data.logs[1].topics,
         });
         const args: any = topics.args;
-        console.log("increaseEndTimestampForTokens success", data, args);
-        await updateEndTimestampForTokens({
-          tokenAddresses,
+        console.log("setAlwaysTradeableForTokens success", data, args);
+        await updateTempTokenIsAlwaysTradeable({
+          tokenAddressesSetTrue: args.tokenAddresses,
+          tokenAddressesSetFalse: [],
           chainId: localNetwork.config.chainId,
-          additionalDurationInSeconds: Number(args.additionalDuration),
         });
         onSuccess && onSuccess();
         toast({
@@ -104,7 +89,7 @@ export const useUpdateEndTimestampForTokensState = (
                 href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
-                increaseEndTimestampForTokens success, click to view
+                setAlwaysTradeableForTokens success, click to view
               </Link>
             </Box>
           ),
@@ -114,11 +99,11 @@ export const useUpdateEndTimestampForTokensState = (
         });
       },
       onTxError: (error) => {
-        console.log("increaseEndTimestampForTokens error", error);
+        console.log("setAlwaysTradeableForTokens error", error);
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              increaseEndTimestampForTokens error
+              setAlwaysTradeableForTokens error
             </Box>
           ),
           duration: 9000,
@@ -130,13 +115,11 @@ export const useUpdateEndTimestampForTokensState = (
   );
 
   return {
-    additionalSeconds,
-    handleInputChange,
-    increaseEndTimestampForTokens,
-    increaseEndTimestampForTokensData,
-    increaseEndTimestampForTokensTxData,
+    setAlwaysTradeableForTokens,
+    setAlwaysTradeableForTokensData,
+    setAlwaysTradeableForTokensTxData,
     loading:
-      updateEndTimestampForTokensLoading ||
-      isIncreaseEndTimestampForTokensLoading,
+      isSetAlwaysTradeableForTokensLoading ||
+      updateTempTokenIsAlwaysTradeableLoading,
   };
 };

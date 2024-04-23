@@ -5,7 +5,7 @@ import {
   HARD_THRESHOLD,
   MEDIUM_THRESHOLD,
   useCreateTempTokenState,
-} from "../../../hooks/internal/temp-token/useCreateTempTokenState";
+} from "../../../hooks/internal/temp-token/write/useCreateTempTokenState";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useLazyQuery } from "@apollo/client";

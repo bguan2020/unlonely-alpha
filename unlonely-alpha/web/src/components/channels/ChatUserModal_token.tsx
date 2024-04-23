@@ -32,6 +32,7 @@ import {
 import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { useTempTokenContext } from "../../hooks/context/useTempToken";
 
 export const ChatUserModal_token = ({
   isOpen,
@@ -47,14 +48,14 @@ export const ChatUserModal_token = ({
   const { user } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel: c } = useChannelContext();
+  const { channelQueryData, channelRoles } = c;
+  const { tempToken } = useTempTokenContext();
   const {
-    channelQueryData,
-    channelRoles,
     userTempTokenBalance,
     tempTokenTxs,
     currentActiveTokenSymbol,
     currentTempTokenContract,
-  } = c;
+  } = tempToken;
   const { network } = useNetworkContext();
   const { matchingChain, explorerUrl } = network;
   const { ethPriceInUsd } = useCacheContext();

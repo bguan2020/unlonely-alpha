@@ -1,24 +1,35 @@
+import { useState } from "react";
+import { useNetworkContext } from "../../../context/useNetwork";
+import { getContractFromNetwork } from "../../../../utils/contract";
+import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
+import { Contract } from "../../../../constants";
+
+import { useSetTotalSupplyThresholdForTokens as use_call_updateOnchain_hasHitTotalSupplyThreshold } from "../../../contracts/useTempTokenFactoryV1";
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
 import { decodeEventLog } from "viem";
-import { useChannelContext } from "../../context/useChannel";
-import { useNetworkContext } from "../../context/useNetwork";
-import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
-import { useCallback, useEffect, useState } from "react";
-import { useUpdateTotalSupplyThreshold } from "../../contracts/useTempTokenV1";
+import { filteredInput } from "../../../../utils/validation/input";
 
-export const useOwnerUpdateTotalSupplyThresholdState = (
+// for admins
+export const useUpdateTotalSupplyThresholdState = (
+  tokenAddresses: string[],
   onSuccess?: () => void
 ) => {
-  const { channel } = useChannelContext();
-  const { currentTempTokenContract } = channel;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
+  const [newSupplyThreshold, setNewSupplyThreshold] = useState<string>("");
+
+  const factoryContract = getContractFromNetwork(
+    Contract.TEMP_TOKEN_FACTORY_V1,
+    localNetwork
+  );
   const toast = useToast();
 
-  const [newSupplyThreshold, setNewSupplyThreshold] = useState<bigint>(
-    BigInt(0)
-  );
+  const handleInputChange = (event: any) => {
+    const input = event.target.value;
+    const filtered = filteredInput(input);
+    setNewSupplyThreshold(filtered);
+  };
 
   const {
     updateTempTokenHasHitTotalSupplyThreshold:
@@ -31,16 +42,16 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
   });
 
   const {
-    updateTotalSupplyThreshold,
-    updateTotalSupplyThresholdData,
-    updateTotalSupplyThresholdTxData,
-    updateTotalSupplyThresholdTxLoading,
-    isRefetchingUpdateTotalSupplyThreshold,
-  } = useUpdateTotalSupplyThreshold(
+    setTotalSupplyThresholdForTokens,
+    setTotalSupplyThresholdForTokensData,
+    setTotalSupplyThresholdForTokensTxData,
+    isSetTotalSupplyThresholdForTokensLoading,
+  } = use_call_updateOnchain_hasHitTotalSupplyThreshold(
     {
-      newThreshold: newSupplyThreshold,
+      _totalSupplyThreshold: BigInt(newSupplyThreshold),
+      tokenAddresses,
     },
-    currentTempTokenContract,
+    factoryContract,
     {
       onWriteSuccess: (data) => {
         toast({
@@ -59,7 +70,6 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
           isClosable: true,
           position: "top-right",
         });
-        setNewSupplyThreshold(BigInt(0));
       },
       onWriteError: (error) => {
         console.log("setTotalSupplyThresholdForTokens error", error);
@@ -73,22 +83,21 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
             </Box>
           ),
         });
-        setNewSupplyThreshold(BigInt(0));
       },
       onTxSuccess: async (data) => {
         await call_updateDb_hasHitTotalSupplyThreshold({
           tokenAddressesSetTrue: [],
-          tokenAddressesSetFalse: [currentTempTokenContract.address],
+          tokenAddressesSetFalse: tokenAddresses,
           chainId: localNetwork.config.chainId,
         });
         const topics = decodeEventLog({
-          abi: currentTempTokenContract.abi,
+          abi: factoryContract.abi,
           data: data.logs[0].data,
           topics: data.logs[0].topics,
         });
         const args: any = topics.args;
         console.log("setTotalSupplyThresholdForTokens success", data, args);
-        setNewSupplyThreshold(BigInt(0));
+
         onSuccess && onSuccess();
         toast({
           render: () => (
@@ -119,30 +128,18 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
           isClosable: true,
           position: "top-right",
         });
-        setNewSupplyThreshold(BigInt(0));
       },
     }
   );
 
-  const callSetTotalSupplyThresholdForTokens = useCallback(
-    async (newSupplyThreshold: bigint) => {
-      setNewSupplyThreshold(newSupplyThreshold);
-    },
-    []
-  );
-
-  useEffect(() => {
-    if (newSupplyThreshold === BigInt(0)) return;
-    updateTotalSupplyThreshold?.();
-  }, [newSupplyThreshold, updateTotalSupplyThreshold]);
-
   return {
-    callSetTotalSupplyThresholdForTokens,
-    updateTotalSupplyThresholdData,
-    updateTotalSupplyThresholdTxData,
+    newSupplyThreshold,
+    handleInputChange,
+    setTotalSupplyThresholdForTokens,
+    setTotalSupplyThresholdForTokensData,
+    setTotalSupplyThresholdForTokensTxData,
     loading:
-      isRefetchingUpdateTotalSupplyThreshold ||
-      updateTotalSupplyThresholdTxLoading ||
+      isSetTotalSupplyThresholdForTokensLoading ||
       updateTempTokenHasHitTotalSupplyThresholdLoading,
   };
 };

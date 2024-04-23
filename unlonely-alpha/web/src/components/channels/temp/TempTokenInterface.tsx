@@ -24,11 +24,11 @@ import {
   ReferenceLine,
 } from "recharts";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
-import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/useTradeTempTokenState";
+import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { FaMagnifyingGlassChart, FaPause } from "react-icons/fa6";
-import { useInterfaceChartMarkers } from "../../../hooks/internal/temp-token/useInterfaceChartMarkers";
-import { useInterfaceChartData } from "../../../hooks/internal/temp-token/useInterfaceChartData";
+import { useInterfaceChartMarkers } from "../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
+import { useInterfaceChartData } from "../../../hooks/internal/temp-token/ui/useInterfaceChartData";
 import {
   blockNumberDaysAgo,
   blockNumberHoursAgo,
@@ -43,7 +43,8 @@ import { TempTokenExchange } from "./TempTokenExchange";
 import { TempTokenTimerView } from "./TempTokenTimer";
 import { usePublicClient } from "wagmi";
 import { TempTokenDisclaimerModal } from "./TempTokenDisclaimerModal";
-import { useOwnerUpdateTotalSupplyThresholdState } from "../../../hooks/internal/temp-token/useOwnerUpdateTotalSupplyThresholdState";
+import { useOwnerUpdateTotalSupplyThresholdState } from "../../../hooks/internal/temp-token/write/useOwnerUpdateTotalSupplyThresholdState";
+import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
 const NUMBER_OF_DAYS_IN_MONTH = 30;
@@ -62,14 +63,14 @@ export const TempTokenInterface = ({
   noChannelData?: boolean;
 }) => {
   const { channel } = useChannelContext();
+  const { tempToken } = useTempTokenContext();
   const { ethPriceInUsd } = useCacheContext();
   const windowSize = useWindowSize();
   const { network } = useNetworkContext();
   const publicClient = usePublicClient();
   const { matchingChain } = network;
+  const { channelQueryData, realTimeChannelDetails, isOwner } = channel;
   const {
-    channelQueryData,
-    realTimeChannelDetails,
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenHasHitTotalSupplyThreshold,
@@ -77,7 +78,6 @@ export const TempTokenInterface = ({
     currentActiveTokenTotalSupply,
     currentActiveTokenTotalSupplyThreshold,
     currentTempTokenContract,
-    isOwner,
     canPlayToken,
     tempTokenChartTimeIndexes,
     tempTokenLoading,
@@ -91,7 +91,7 @@ export const TempTokenInterface = ({
     handleIsPermanentGameModalOpen,
     handleCanPlayToken,
     onSendRemainingFundsToWinnerEvent,
-  } = channel;
+  } = tempToken;
 
   const tradeTempTokenState = useTradeTempTokenState();
   const {
