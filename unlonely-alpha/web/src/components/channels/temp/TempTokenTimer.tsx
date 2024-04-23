@@ -10,9 +10,25 @@ export const TempTokenTimerView = ({
   disableChatbot: boolean;
 }) => {
   const { tempToken } = useTempTokenContext();
-  const { currentActiveTokenIsAlwaysTradable, currentActiveTokenAddress } =
-    tempToken;
-  const { durationLeftForTempToken } = useTempTokenTimerState(disableChatbot);
+  const {
+    currentActiveTokenIsAlwaysTradable,
+    currentActiveTokenAddress,
+    currentActiveTokenSymbol,
+    currentActiveTokenEndTimestamp,
+    handleIsGameFailed,
+    handleIsFailedGameModalOpen,
+    handleCanPlayToken,
+  } = tempToken;
+  const { durationLeftForTempToken } = useTempTokenTimerState(
+    currentActiveTokenSymbol,
+    currentActiveTokenEndTimestamp,
+    () => {
+      handleCanPlayToken(false);
+      handleIsGameFailed(true);
+      handleIsFailedGameModalOpen(true);
+    },
+    disableChatbot
+  );
 
   return (
     <>

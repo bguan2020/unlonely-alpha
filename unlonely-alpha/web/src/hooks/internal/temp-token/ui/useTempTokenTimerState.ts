@@ -2,21 +2,18 @@ import { useState, useEffect } from "react";
 import { InteractionType } from "../../../../constants";
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
-import { useTempTokenContext } from "../../../context/useTempToken";
 
-export const useTempTokenTimerState = (disableChatbot: boolean) => {
+// pure temp token function hook
+export const useTempTokenTimerState = (
+  tokenSymbol: string,
+  tokenEndTimestamp: bigint | undefined,
+  callbackOnExpiration: () => void,
+  disableChatbot: boolean
+) => {
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { isOwner: isChannelOwner } = channel;
   const { addToChatbot: addToChatbotForTempToken } = chat;
-  const { tempToken } = useTempTokenContext();
-  const {
-    handleIsGameFailed,
-    handleIsFailedGameModalOpen,
-    handleCanPlayToken,
-    currentActiveTokenEndTimestamp,
-    currentActiveTokenSymbol,
-  } = tempToken;
 
   const [durationLeftForTempToken, setDurationLeftForTempToken] = useState<
     number | undefined
@@ -26,19 +23,19 @@ export const useTempTokenTimerState = (disableChatbot: boolean) => {
    * token countdown
    */
   useEffect(() => {
-    // if currentActiveTokenEndTimestamp is undefined or is BigInt(0), then the token is not active, so set duration to 0
-    if (!currentActiveTokenEndTimestamp) {
+    // if tokenEndTimestamp is undefined or is BigInt(0), then the token is not active, so set duration to 0
+    if (!tokenEndTimestamp) {
       setDurationLeftForTempToken(0);
       return;
     }
-    // if currentActiveTokenEndTimestamp greater than BigInt(0), then the token is not active,
+    // if tokenEndTimestamp greater than BigInt(0), then the token is not active,
     // so duration will be a number greater than 0 and durationLeft will follow suit,
     // but if duration becomes negative, then durationLeft will become undefined
 
     // Function to update the countdown
     const updateCountdown = () => {
       const now = Math.floor(Date.now() / 1000);
-      const _duration = Number(currentActiveTokenEndTimestamp) - now;
+      const _duration = Number(tokenEndTimestamp) - now;
 
       if (_duration < 0) {
         // If the duration is negative, the countdown is over and the game can no longer be played
@@ -57,7 +54,7 @@ export const useTempTokenTimerState = (disableChatbot: boolean) => {
 
     // Clear the interval when the component unmounts
     return () => clearInterval(interval);
-  }, [currentActiveTokenEndTimestamp]);
+  }, [tokenEndTimestamp]);
 
   useEffect(() => {
     if (
@@ -67,7 +64,7 @@ export const useTempTokenTimerState = (disableChatbot: boolean) => {
       !disableChatbot
     ) {
       // if the duration left is 5 minutes, send a chatbot message to notify everyone that the token is about to expire
-      const title = `The $${currentActiveTokenSymbol} token will expire in 5 minutes!`;
+      const title = `The $${tokenSymbol} token will expire in 5 minutes!`;
       addToChatbotForTempToken({
         username: user?.username ?? "",
         address: userAddress ?? "",
@@ -78,7 +75,7 @@ export const useTempTokenTimerState = (disableChatbot: boolean) => {
     }
     if (durationLeftForTempToken === undefined) {
       if (isChannelOwner && !disableChatbot) {
-        const title = `The $${currentActiveTokenSymbol} token expired!`;
+        const title = `The $${tokenSymbol} token expired!`;
         addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -87,9 +84,7 @@ export const useTempTokenTimerState = (disableChatbot: boolean) => {
           description: "",
         });
       }
-      handleCanPlayToken(false);
-      handleIsGameFailed(true);
-      handleIsFailedGameModalOpen(true);
+      callbackOnExpiration();
     }
   }, [durationLeftForTempToken, isChannelOwner, disableChatbot]);
 

@@ -2,19 +2,35 @@ import { Flex, Button, Text, ListItem, UnorderedList } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../../utils/time";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useTempTokenTimerState } from "../../../hooks/internal/temp-token/ui/useTempTokenTimerState";
+import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 
 export const TempTokenDisclaimerModal = ({
   isOpen,
   handleClose,
-  handleCanPlayToken,
   priceOfThresholdInUsd,
 }: {
   isOpen: boolean;
   handleClose: () => void;
-  handleCanPlayToken: (canPlay: boolean) => void;
   priceOfThresholdInUsd?: string;
 }) => {
-  const { durationLeftForTempToken } = useTempTokenTimerState(true);
+  const { tempToken } = useTempTokenContext();
+  const {
+    currentActiveTokenSymbol,
+    currentActiveTokenEndTimestamp,
+    handleIsGameFailed,
+    handleIsFailedGameModalOpen,
+    handleCanPlayToken,
+  } = tempToken;
+  const { durationLeftForTempToken } = useTempTokenTimerState(
+    currentActiveTokenSymbol,
+    currentActiveTokenEndTimestamp,
+    () => {
+      handleCanPlayToken(false);
+      handleIsGameFailed(true);
+      handleIsFailedGameModalOpen(true);
+    },
+    true
+  );
 
   return (
     <TransactionModalTemplate

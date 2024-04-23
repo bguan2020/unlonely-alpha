@@ -258,7 +258,6 @@ export const TempTokenInterface = ({
           <TempTokenDisclaimerModal
             isOpen={tempTokenDisclaimerModalOpen}
             handleClose={() => setTempTokenDisclaimerModalOpen(false)}
-            handleCanPlayToken={handleCanPlayToken}
             priceOfThresholdInUsd={priceOfThresholdInUsd}
           />
           <TransactionModalTemplate
